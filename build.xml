@@ -30,7 +30,8 @@
 	<target name="dist" depends="compile" description="generate the distribution">
 		<mkdir dir="${dist}/lib"/>
 
-		<jar jarfile="${dist}/lib/metviewer-${DSTAMP}.jar" basedir="${build}"/>
+		<!-- <jar jarfile="${dist}/lib/metviewer-${DSTAMP}.jar" basedir="${build}"/> -->
+		<jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}"/>
 		<copy todir="${dist}/R_tmpl">
 			<fileset dir="R_tmpl"/>
 		</copy>

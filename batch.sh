@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOST=kemosab
+HOST=kemosabe
 WORKS=false
 JOB=30day24
 
