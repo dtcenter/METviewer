@@ -127,6 +127,18 @@ public class MVBatch extends MVUtil {
 						else if( strJob.equals("bar24") )      { jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));    } 
 						else if( strJob.equals("bar06") )      { jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));    }
 						else if( strJob.equals("bar06day") )   { jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con)); }
+						else if( strJob.equals("agg24jobs") ){
+							jobs = append(jobs, MVPlotJobThresh24.getJobs(con));
+							jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
+							jobs = append(jobs, MVPlotJobAgg24.getJobs(con));
+						}
+						else if( strJob.equals("agg06jobs") ){
+							jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
+							jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
+							jobs = append(jobs, MVPlotJobAgg06.getJobs(con));
+							jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
+							jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
+						}
 					}
 				}
 			} else {
