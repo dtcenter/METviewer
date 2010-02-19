@@ -81,7 +81,7 @@ public class MVBatch extends MVUtil {
 			if( 2 < argv.length ){
 				//  the first argument should be the plot type
 				strJob = argv[2];
-				System.out.println("input: " + strJob);
+				System.out.println("input: '" + strJob + "'");
 				boolInput = true;
 				
 				//  parse the input folder list, if present
@@ -115,8 +115,8 @@ public class MVBatch extends MVUtil {
 				else if( strJob.equals("valid06") )    { jobs = MVPlotJobValid06.getJobs(con);     }
 				else {
 				
-					for(int i=0; i < _listBase.length; i++){
-						_strBaseDate = _listBase[i];						
+					for(int i=0; 1 > jobs.length || i < _listBase.length; i++){
+						if( 0 < _listBase.length ){ _strBaseDate = _listBase[i]; }						
 						if( strJob.equals("30day24") )         { jobs = append(jobs, MVPlotJob30Day24.getJobs(con));        }
 						else if( strJob.equals("30day06") )    { jobs = append(jobs, MVPlotJob30Day06.getJobs(con));        }
 						else if( strJob.equals("agg24") )      { jobs = append(jobs, MVPlotJobAgg24.getJobs(con));          }
