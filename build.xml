@@ -1,0 +1,54 @@
+<project name="metviewer" default="dist" basedir=".">
+	<description>METViewer build file</description>
+
+	<!-- set global properties for this build -->
+	<property name="src" location="java"/>
+	<property name="lib" location="lib"/>
+	<property name="build" location="bin"/>
+	<property name="dist"  location="dist"/>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<!-- Compile the java code from ${src} into ${build} -->
+	<target name="compile" depends="init" description="compile the source">
+		<javac srcdir="${src}" destdir="${build}" source="1.4">
+			<classpath>				
+				<pathelement location="${lib}/log4j-1.2.15.jar"/>
+				<pathelement location="${lib}/mysql-connector-java-5.1.6.jar"/>
+				<pathelement location="${lib}/xercesImpl.jar"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- Create the distribution directory -->
+	<target name="dist" depends="compile" description="generate the distribution">
+		<mkdir dir="${dist}/lib"/>
+
+		<jar jarfile="${dist}/lib/metviewer-${DSTAMP}.jar" basedir="${build}"/>
+		<copy todir="${dist}/R_tmpl">
+			<fileset dir="R_tmpl"/>
+		</copy>
+		<copy todir="${dist}/R_work">
+			<fileset dir="R_work"/>
+		</copy>
+		<copy todir="${dist}/lib">
+			<fileset dir="${lib}"/>
+		</copy>
+		<copy todir="${dist}">
+			<file file="./batch.sh"/>
+		</copy>
+	</target>
+
+	<!-- Delete the ${build} and ${dist} directory trees -->
+	<target name="clean" description="clean up">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
+
