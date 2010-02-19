@@ -1,0 +1,128 @@
+
+<plot_spec>
+	
+	<date_list name="initdates">
+		<start>2010-01-18</start>
+		<end>2010-01-18</end>
+		<hour>12</hour>
+		<field name="initdate" />
+	</date_list>
+	
+	<plot name="base_APCP_24">
+	
+		<!-- plot type -->
+		<template>plot.R_tmpl</template>
+		
+		<!-- independent variable -->
+		<indep var="fcst_lead">
+			<val>240000</val>
+			<val>480000</val>
+			<val>720000</val>
+			<val>960000</val>
+		</indep>
+		
+		<!-- dependent variable(s) and plot series -->
+		<dep>
+			
+			<!-- dependent variable 1 -->
+			<dep1>
+				<fcst_var name="APCP_24">
+					<stat>FBIAS</stat>
+				</fcst_var>
+				<series>
+					<field name="model">
+						<val>ens-mean</val>
+						<val>arw-tom-gep0</val>
+						<val>arw-fer-gep1</val>
+						<val>arw-sch-gep2</val>
+						<val>arw-tom-gep3</val>
+						<val>nmm-fer-gep4</val>
+						<val>arw-fer-gep5</val>
+						<val>arw-sch-gep6</val>
+						<val>arw-tom-gep7</val>
+						<val>nmm-fer-gep8</val>
+					</field>
+				</series>
+			</dep1>
+			
+			<!-- dependent variable 2 -->
+			<dep2>
+				<fcst_var name="APCP_24">
+					<stat>BASER</stat>
+				</fcst_var>
+				<field name="model">
+					<val>ens-mean</val>
+				</field>
+			</dep2>
+			
+			<!-- fixed values -->
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+				</fcst_var>
+			</fix>		
+		</dep>
+		
+		<!-- aggregate fields and values -->
+		<agg>
+			<field name="vx_mask">
+				<val>LAND</val>
+				<val>HUC4_1605</val>
+				<val>HUC4_1803</val>
+				<val>HUC4_1804</val>
+				<val>HUC4_1805</val>
+				<val>HUC4_1806</val>
+				<val>CNRFC</val>
+			</field>
+			<field name="obtype">
+				<val>MC_PCP</val>
+				<val>ADPSFC</val>
+			</field>
+			<field name="fcst_thresh">
+				<val>>0.000</val>
+				<val>>=0.254</val>
+				<val>>=12.700</val>
+				<val>>=127.000</val>
+				<val>>=2.540</val>
+				<val>>=25.400</val>
+				<val>>=76.200</val>
+			</field>
+			<field name="initdate">
+				<date_list id="initdates"/>
+			</field>
+		</agg>
+		
+		<!-- templates -->
+		<tmpl>
+			<val_map name="obtype">
+				<pair> <key>MC_PCP</key>  <val>Stage IV</val> </pair>
+				<pair> <key>ADPSFC</key>  <val>Gauge</val>    </pair>
+			</val_map>
+			
+			<data_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.data</data_file>
+			<plot_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.png</plot_file>
+			<r_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.R</r_file>
+			<title>Valid: {fcst_valid_beg}V {dep1_1} {fcst_thresh?units=in}\\\" {dep1_1_stat1} vs. FCST_LEAD - Obs: {obtype?map=true}</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1_stat1}</y1_label>
+			<y2_label>Base Rate (observed event frac.)</y2_label>
+		</tmpl>
+		
+		<!-- plot formatting and optionss -->
+		<event_equal>false</event_equal>
+		<plot1_diff>false</plot1_diff>
+		<plot2_diff>false</plot2_diff>
+		<num_stats>true</num_stats>
+		<indy_stag>false</indy_stag>
+		<grid_on>true</grid_on>
+		<sync_axes>false</sync_axes>		
+		
+		<plot_ci>none, norm, none, none, none, none, none, none, none, none, none</plot_ci>
+		<colors>#000000FF, #FF0000FF, #FFAA00FF, #AAFF00FF, #00FF00FF, #00FFAAFF, #00AAFFFF, #0000FFFF, #AA00FFFF, #FF00AAFF, #666666FF</colors>
+		<lty>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2</lty>
+		<lwd>2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2</lwd>
+		<y2_lim>0, 1</y2_lim>
+		
+	</plot>
+
+</plot_spec>
