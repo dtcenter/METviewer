@@ -572,16 +572,4 @@ public class MVUtil{
 		String strList = matRCol.group(1);
 		return strList.split("\"\\s*,\\s*\"");
 	}
-	
-	public static String formatElapsed(long time){
-		long intDays	= time / (24 * 60 * 60 * 1000);
-		long intHours	= time / (60 * 60 * 1000);
-		long intMins	= time / (60 * 1000);
-		long intSec		= time / (1000);
-		long intMS		= time % 1000;
-		
-		return "" + (0 < intDays? intDays + "d " : "") + (10 > intHours? "0" : "") + intHours + ":" +
-				(10 > intMins? "0" : "") + intMins + ":" + (10 > intSec? "0" : "") + intSec + "." +
-				(10 > intMS? "00" : (100 > intMS? "0" : "")) + intMS;
-	}
 }
