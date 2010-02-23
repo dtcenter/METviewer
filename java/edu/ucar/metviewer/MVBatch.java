@@ -513,6 +513,7 @@ public class MVBatch extends MVUtil {
 				String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapTmplVals, job.getTmplMaps());
 				(new File(strDataFile)).getParentFile().mkdirs();
 				printFormattedResults(tabPerm, new PrintStream(strDataFile), "\t");
+				tabPerm = null;
 				
 				
 				/*
@@ -666,6 +667,7 @@ public class MVBatch extends MVUtil {
 				}
 				reader.close();
 				writer.close();
+				tableRTags = null;
 	
 				
 				/*
