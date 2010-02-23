@@ -711,7 +711,7 @@ public class MVBatch extends MVUtil {
 
 			res = null;
 			tab = null;
-			System.gc();
+			//System.gc();
 			
 		} // end: for(int intDep=0; intDep < listDep.length; intDep++)
 
