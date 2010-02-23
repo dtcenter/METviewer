@@ -269,4 +269,9 @@ public class MVDataTable{
 		}		
 		return intLength;
 	}
+	
+	public void clear(){
+		for(int i=0; i < _listRows.size(); i++){ ((MVOrderedMap)_listRows.get(i)).clear(); }
+		_listRows.clear();
+	}
 }
