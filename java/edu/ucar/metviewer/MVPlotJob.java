@@ -91,6 +91,8 @@ public class MVPlotJob extends MVUtil{
 	protected String _strLegendSize			= ".8";
 	protected String _strLegendBox			= "o";
 	protected String _strLegendInset		= "c(0, -.25)";
+	protected String _strBoxBoxwex			= "1";
+	protected String _strBoxNotch			= "FALSE";
 	
 	protected String _strPlotCI				= "";
 	protected String _strColors				= "";
@@ -185,6 +187,8 @@ public class MVPlotJob extends MVUtil{
 		job._strLegendSize		= _strLegendSize;
 		job._strLegendBox		= _strLegendBox;
 		job._strLegendInset		= _strLegendInset;
+		job._strBoxBoxwex		= _strBoxBoxwex;
+		job._strBoxNotch		= _strBoxNotch;
 		
 		job._strPlotCI			= _strPlotCI;
 		job._strColors			= _strColors;
@@ -382,6 +386,10 @@ public class MVPlotJob extends MVUtil{
 	public void		setLegendBox(String legendBox)						{ _strLegendBox = legendBox;							}
 	public String	getLegendInset()									{ return _strLegendInset;								}
 	public void		setLegendInset(String legendInset)					{ _strLegendInset = legendInset;						}
+	public String	getBoxBoxwex()										{ return _strBoxBoxwex;									}
+	public void		setBoxBoxwex(String boxBoxwex)						{ _strBoxBoxwex = boxBoxwex;							}
+	public String	getBoxNotch()										{ return _strBoxNotch;									}
+	public void		setBoxNotch(String boxNotch)						{ _strBoxNotch = boxNotch;								}
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}

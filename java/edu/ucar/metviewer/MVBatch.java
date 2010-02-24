@@ -150,7 +150,7 @@ public class MVBatch extends MVUtil {
 					}
 				}
 			} else {
-				jobs = append(jobs, MVPlotJobInit24.getJobs(con));
+//				jobs = append(jobs, MVPlotJobInit24.getJobs(con));
 //				jobs = append(jobs, MVPlotJobInit06.getJobs(con));
 //				jobs = append(jobs, MVPlotJobValid24.getJobs(con));
 //				jobs = append(jobs, MVPlotJobValid06.getJobs(con));
@@ -164,6 +164,7 @@ public class MVBatch extends MVUtil {
 //				jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
+				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
 			}
 			
 			//  calculate the number of plots
@@ -630,6 +631,8 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("legend_size",	job.getLegendSize());
 				tableRTags.put("legend_box",	job.getLegendBox());
 				tableRTags.put("legend_inset",	job.getLegendInset());
+				tableRTags.put("box_boxwex",	job.getBoxBoxwex());
+				tableRTags.put("box_notch",		job.getBoxNotch());
 				
 				int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));
 				int intNumDep2Series = intNumDep2 * (intNumSeries2Perm + (job.getPlot2Diff()? 1 : 0));

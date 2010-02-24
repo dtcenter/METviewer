@@ -3,8 +3,8 @@
 JAVA=/d1/pgoldenb/usr/local/bin/java
 METVIEWER=/home/pgoldenb/apps/verif/metviewer
 
-HOST=taku
-WORKS=true
+HOST=$(hostname)
+WORKS=false
 JOB=valid24
 JVM_ARGS="-XX:-UseGCOverheadLimit"
 #JVM_ARGS="-Xincgc -XX:-UseGCOverheadLimit"
