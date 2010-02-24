@@ -3,7 +3,7 @@
 	
 	<date_list name="initdates">
 		<start>2010-01-18</start>
-		<end>2010-01-18</end>
+		<end>2010-02-05</end>
 		<hour>12</hour>
 		<field name="initdate" />
 	</date_list>
@@ -11,7 +11,7 @@
 	<plot name="base_APCP_24">
 	
 		<!-- plot type -->
-		<template>plot.R_tmpl</template>
+		<template>series_plot.R_tmpl</template>
 		
 		<!-- independent variable -->
 		<indep var="fcst_lead">

@@ -4,12 +4,17 @@ import java.io.*;
 import java.util.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
-import org.apache.xerces.parsers.DOMParser;
+import javax.xml.parsers.*;
+import org.apache.xerces.parsers.*;
 
 public class MVPlotJobParser {
 	public static void main(String[] args) {
+		System.out.println("----  MVPlotJobParser  ----\n");
 
 		try {
+			
+			//  * * * *  test structure for buildDepMap()  * * * *
+			/*
 			String strXML = 
 				"<dep>" +
 				"	<!-- " +
@@ -32,32 +37,50 @@ public class MVPlotJobParser {
 			parser.parse( new InputSource(new ByteArrayInputStream(strXML.getBytes())) );
 			Document doc = parser.getDocument();
 			System.out.println( buildDepMap(strXML).getRDecl() );
-			
-			
-			
-			/*
-			MVOrderedMap map = buildDepMap(strXML);
-			System.out.println(map.getRDecl());
 			*/
 			
-			/*
-			 * 
-			DOMParser parser = new DOMParser();
-			parser.parse( new InputSource(new ByteArrayInputStream(strXML.getBytes())) );
-			
-			//parser.parse("plot.xml");
-			Document doc = parser.getDocument();
-			
-			NodeList nodes = doc.getElementsByTagName("dep");
-			for(int i=0; i < nodes.getLength(); i++){
-				MVOrderedMap map = buildDepMap(nodes.item(i));
-				System.out.println(map.getRDecl());
-			}
-			 */
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		    dbf.setValidating(false);
+		    dbf.setNamespaceAware(false);
+		    
+			DocumentBuilder builder = dbf.newDocumentBuilder();
+			builder.setErrorHandler(new ErrorHandler(){
+				public void error(SAXParseException exception)		{ printException("error", exception);		}
+				public void fatalError(SAXParseException exception)	{ printException("fatalError", exception);	}	
+				public void warning(SAXParseException exception)	{ printException("warning", exception);		}
+				
+				public void printException(String type, Exception ex){
+					System.out.println("  **  ERROR: caught " + type + " exception: " + ex.getMessage());
+				}
+			});
+			Document doc = builder.parse("test.xml");
 
-		} catch (Exception ex) {
-			System.out.println(ex);
+				
+			/* not working
+			DOMParser parser = new DOMParser();
+			ErrorHandler h = parser.getErrorHandler();
+			parser.setErrorHandler(new ErrorHandler(){
+				public void error(SAXParseException exception)		{ printException("error", exception);		}
+				public void fatalError(SAXParseException exception)	{ printException("fatalError", exception);	}	
+				public void warning(SAXParseException exception)	{ printException("warning", exception);		}
+				
+				public void printException(String type, Exception ex){
+					System.out.println("  **  ERROR: caught " + type + " exception: " + ex.getMessage());
+				}
+			});			
+			parser.parse("plot.xml");
+			Document doc = parser.getDocument();
+			*/
+			
+			MVNode nodePlotSpec = new MVNode(doc.getFirstChild());
+			System.out.println(nodePlotSpec.printNode());
+		} catch(SAXParseException se){
+			System.out.println("  **  ERROR: caught " + se.getClass() + ": " + se.getMessage());
+		} catch(Exception ex){
+			System.out.println("  **  ERROR: caught " + ex.getClass() + ": " + ex.getMessage());
+			ex.printStackTrace();
 		}
+		System.out.println("----  MVPlotJobParser Done  ----");
 	}
 	
 	public static MVOrderedMap buildDepMap(String strDepXML) throws Exception{
@@ -200,6 +223,12 @@ class MVNode{
 	public static String printNode(MVNode mvnode, int lev){
 		String strRet = tabPad(lev) + "<" + mvnode._tag;
 		if( null != mvnode._name ){ strRet += " name=\"" + mvnode._name + "\""; }
+		
+		boolean boolCloseTag = true;
+		if( null == mvnode._value && null == mvnode._children ){
+			strRet += " /";
+			boolCloseTag = false;
+		}
 		strRet += ">";
 		
 		if( null != mvnode._value )	{ strRet += mvnode._value; }
@@ -210,12 +239,14 @@ class MVNode{
 				strRet += printNode( mvnode._children[i], lev+1 );
 			}
 			strRet += tabPad(lev) + "</" + mvnode._tag + ">\n";
-		} else {
+		} else if( boolCloseTag ){
 			strRet += "</" + mvnode._tag + ">\n";
 		}
 		return strRet;
 	}
-	public static String printNode(MVNode mvnode){ return printNode(mvnode, 0); }
+	public static String printNode(MVNode mvnode)	{ return printNode(mvnode, 0);	}
+	public String printNode()					 	{ return printNode(this, 0);	}
+	public String printNode(int lev)				{ return printNode(this, lev);	}
 		
 	public static String tabPad(int lev){
 		String pad = "";
