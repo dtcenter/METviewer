@@ -119,10 +119,6 @@ public class MVBatch extends MVUtil {
 						if( 0 < _listBase.length ){ _strBaseDate = _listBase[i]; }						
 						if( strJob.equals("30day24") )         { jobs = append(jobs, MVPlotJob30Day24.getJobs(con));        }
 						else if( strJob.equals("30day06") )    { jobs = append(jobs, MVPlotJob30Day06.getJobs(con));        }
-						else if( strJob.equals("agg24") )      { jobs = append(jobs, MVPlotJobAgg24.getJobs(con));          }
-						else if( strJob.equals("agg06") )      { jobs = append(jobs, MVPlotJobAgg06.getJobs(con));          }
-						else if( strJob.equals("thresh24") )   { jobs = append(jobs, MVPlotJobThresh24.getJobs(con));       } 
-						else if( strJob.equals("thresh06") )   { jobs = append(jobs, MVPlotJobThresh06.getJobs(con));       }
 						else if( strJob.equals("thresh06day") ){
 							//jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
 							MVPlotJobThresh06Day._strDay = "Day1"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
@@ -131,8 +127,6 @@ public class MVBatch extends MVUtil {
 							MVPlotJobThresh06Day._strDay = "Day4"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
 							MVPlotJobThresh06Day._strDay = "Day5"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
 						}
-						else if( strJob.equals("bar24") )      { jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));    } 
-						else if( strJob.equals("bar06") )      { jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));    }
 						else if( strJob.equals("bar06day") )   { 
 							//jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
 							MVPlotJobThresh06DayBar._strDay = "Day1"; jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
@@ -147,10 +141,18 @@ public class MVBatch extends MVUtil {
 							jobs = append(jobs, MVPlotJobAgg24.getJobs(con));
 						}
 						else if( strJob.equals("agg06jobs") ){							
+							jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
 							jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 							jobs = append(jobs, MVPlotJobAgg06.getJobs(con));
-							jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
 						}
+
+						//  these jobs are included in the agg24jobs and agg06jobs
+						else if( strJob.equals("bar24") )      { jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));    } 
+						else if( strJob.equals("bar06") )      { jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));    }
+						else if( strJob.equals("agg24") )      { jobs = append(jobs, MVPlotJobAgg24.getJobs(con));          }
+						else if( strJob.equals("agg06") )      { jobs = append(jobs, MVPlotJobAgg06.getJobs(con));          }
+						else if( strJob.equals("thresh24") )   { jobs = append(jobs, MVPlotJobThresh24.getJobs(con));       } 
+						else if( strJob.equals("thresh06") )   { jobs = append(jobs, MVPlotJobThresh06.getJobs(con));       }
 					}
 				}
 			} else {
