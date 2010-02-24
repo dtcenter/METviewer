@@ -103,6 +103,17 @@ for(intPermVal in 1:nrow(matPermVal)){
 	boolAdd = TRUE
 }
 
+# add grid lines to the plot, if requested
+if( TRUE == boolGridOn ){
+	grid(
+		lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+		col="#<grid_col>#",		# line color
+		lwd=#<grid_lwd>#,		# line width
+		nx=0,					# number of cells in x direction, NULL for default
+		ny=NULL					# number of cells in y direction, NULL for default
+	)
+}
+
 # plot title
 mtext(
 	"#<plot_title>#",		# label
