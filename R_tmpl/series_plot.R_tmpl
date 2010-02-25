@@ -106,31 +106,32 @@ if( 0 < length(listDep2Plot) ){
 }
 
 # specify the output file
-bitmap(
-	"#<plot_file>#",		# output file name, with appropriate extension 
-	type="#<plot_type>#",	# type of bitmap
-	width=#<plot_width>#,	# width of the display region, in specified units
-	height=#<plot_height>#,	# height of the display region, in specified units
-	res=#<plot_res>#,		# resolution, in dots per inch
-	units="#<plot_units>#",	# units for height and width
-	taa=4,					# bits of anti-aliasing for graphics
-	gaa=4					# bits of anti-aliasing for text
-)
-#jpeg("#<plot_file>#", height=480, width=640)
-
-#jpeg(
-#	"#<plot_file>#",		# output file name, with appropriate extension 
-#	width=#<plot_width>#,	# width of the display region, in specified units
-#	height=#<plot_height>#,	# height of the display region, in specified units
-#	res=#<plot_res>#,		# resolution, in dots per inch
-#	units="#<plot_units>#",	# units for height and width
-#	pointsize = 12,
-#	quality = 100,
-#	#bg = "white",
-#	#type = c("cairo", "Xlib", "quartz"),
-#	#antialias
-#)
-
+strPlotType = "#<plot_type>#"
+if( "jpeg" == strPlotType ){
+	jpeg(
+		"#<plot_file>#",		# output file name, with appropriate extension 
+		width=#<plot_width>#,	# width of the display region, in specified units
+		height=#<plot_height>#,	# height of the display region, in specified units
+		res=#<plot_res>#,		# resolution, in dots per inch
+		units="#<plot_units>#",	# units for height and width
+		pointsize = 12,
+		quality = 100,
+		#bg = "white",
+		#type = c("cairo", "Xlib", "quartz"),
+		#antialias
+	)
+} else {
+	bitmap(
+		"#<plot_file>#",		# output file name, with appropriate extension 
+		type="#<plot_type>#",	# type of bitmap
+		width=#<plot_width>#,	# width of the display region, in specified units
+		height=#<plot_height>#,	# height of the display region, in specified units
+		res=#<plot_res>#,		# resolution, in dots per inch
+		units="#<plot_units>#",	# units for height and width
+		taa=4,					# bits of anti-aliasing for graphics
+		gaa=4					# bits of anti-aliasing for text
+	)
+}
 
 # specify the y-axis limits and labels
 listY1Bounds = seriesMinMax(listSeries1, intNumSeries1)
