@@ -38,23 +38,21 @@ public class MVBatch extends MVUtil {
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
 	public static boolean _boolTheWorks			= false;
+	
+	public static boolean _boolWindows			= false;
 		
 	public static void main(String[] argv) {
 		System.out.println("----  MVBatch  ----\n");
 		Connection con = null;
 
 		//  windows settings
-//		_strRtmplFolder = "c:/src/apps/verif/metviewer/R_tmpl/";
-//		_strRworkFolder = "c:/src/metv/R_work/";
-//		_strPlotFolder = "c:/src/metv/plots/";
-//		_boolProcWait = false;		
+		if( _boolWindows ){
+			_strRtmplFolder = "c:/src/apps/verif/metviewer/R_tmpl/";
+			_strRworkFolder = "c:/src/metv/R_work/";
+			_strPlotFolder = "c:/src/metv/plots/";
+			_boolProcWait = false;
+		}
 
-		//  cron settings
-//		_strHostPort = "taku:3306";
-//		_strPlotFolder = "/d1/pgoldenb/var/hmt/plots/";	// "/var/autofs/mnt/pd6/score/DTC/HMT/West/plots_cron/";
-//		_boolTheWorks = true;
-//		_strRtmplFolder = "/home/pgoldenb/apps/verif/metviewer/R_tmpl/";		
-		
 		try {
 
 			if( 2 > argv.length ){
@@ -174,7 +172,7 @@ public class MVBatch extends MVUtil {
 			}
 			
 			//  if on windows, change all plot image types to jpeg
-			if( !_boolProcWait ){
+			if( _boolWindows ){
 				for(int i=0; i < jobs.length; i++){ jobs[i].setPlotType("jpeg"); }
 			}
 			
