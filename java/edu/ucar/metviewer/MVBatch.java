@@ -44,9 +44,9 @@ public class MVBatch extends MVUtil {
 		Connection con = null;
 
 		//  windows settings
-//		_strRtmplFolder = "c:/src/metv/batch/R_tmpl/";
-//		_strRworkFolder = "c:/src/metv/batch/R_work/";
-//		_strPlotFolder = "c:/src/metv/batch/plots/";
+//		_strRtmplFolder = "c:/src/apps/verif/metviewer/R_tmpl/";
+//		_strRworkFolder = "c:/src/metv/R_work/";
+//		_strPlotFolder = "c:/src/metv/plots/";
 //		_boolProcWait = false;		
 
 		//  cron settings
@@ -171,6 +171,11 @@ public class MVBatch extends MVUtil {
 //				jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
 				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
+			}
+			
+			//  if on windows, change all plot image types to jpeg
+			if( !_boolProcWait ){
+				for(int i=0; i < jobs.length; i++){ jobs[i].setPlotType("jpeg"); }
 			}
 			
 			//  calculate the number of plots

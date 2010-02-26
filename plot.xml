@@ -14,7 +14,7 @@
 		<template>series_plot.R_tmpl</template>
 		
 		<!-- independent variable -->
-		<indep var="fcst_lead">
+		<indep name="fcst_lead">
 			<val>240000</val>
 			<val>480000</val>
 			<val>720000</val>
@@ -108,7 +108,7 @@
 			<y2_label>Base Rate (observed event frac.)</y2_label>
 		</tmpl>
 		
-		<!-- plot formatting and optionss -->
+		<!-- plot formatting and options -->
 		<event_equal>false</event_equal>
 		<plot1_diff>false</plot1_diff>
 		<plot2_diff>false</plot2_diff>

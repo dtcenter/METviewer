@@ -2,12 +2,18 @@ package edu.ucar.metviewer;
 
 import java.io.*;
 import java.util.*;
+import java.sql.*;
+import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
-import javax.xml.parsers.*;
 import org.apache.xerces.parsers.*;
 
-public class MVPlotJobParser {
+public class MVPlotJobParser extends MVUtil{
+	
+	protected Hashtable _tableSpecDecl = new Hashtable();
+	protected Hashtable _tablePlotDecl = new Hashtable();
+	protected Connection _con = null;
+	
 	public static void main(String[] args) {
 		System.out.println("----  MVPlotJobParser  ----\n");
 
@@ -33,13 +39,10 @@ public class MVPlotJobParser {
 				"	</fix>" +
 				"</dep>";
 			
-			DOMParser parser = new DOMParser();
-			parser.parse( new InputSource(new ByteArrayInputStream(strXML.getBytes())) );
-			Document doc = parser.getDocument();
-			System.out.println( buildDepMap(strXML).getRDecl() );
 			*/
 			
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			//dbf.setSchema(schema);
 		    dbf.setValidating(false);
 		    dbf.setNamespaceAware(false);
 		    
@@ -49,29 +52,12 @@ public class MVPlotJobParser {
 				public void fatalError(SAXParseException exception)	{ printException("fatalError", exception);	}	
 				public void warning(SAXParseException exception)	{ printException("warning", exception);		}
 				
-				public void printException(String type, Exception ex){
-					System.out.println("  **  ERROR: caught " + type + " exception: " + ex.getMessage());
+				public void printException(String type, SAXParseException e){
+					System.out.println("  **  ERROR: " + e.getMessage() + "\n" +
+									   "      line: " + e.getLineNumber() + "  column: " + e.getColumnNumber());					
 				}
 			});
-			Document doc = builder.parse("test.xml");
-
-				
-			/* not working
-			DOMParser parser = new DOMParser();
-			ErrorHandler h = parser.getErrorHandler();
-			parser.setErrorHandler(new ErrorHandler(){
-				public void error(SAXParseException exception)		{ printException("error", exception);		}
-				public void fatalError(SAXParseException exception)	{ printException("fatalError", exception);	}	
-				public void warning(SAXParseException exception)	{ printException("warning", exception);		}
-				
-				public void printException(String type, Exception ex){
-					System.out.println("  **  ERROR: caught " + type + " exception: " + ex.getMessage());
-				}
-			});			
-			parser.parse("plot.xml");
-			Document doc = parser.getDocument();
-			*/
-			
+			Document doc = builder.parse("plot.xml");
 			MVNode nodePlotSpec = new MVNode(doc.getFirstChild());
 			System.out.println(nodePlotSpec.printNode());
 		} catch(SAXParseException se){
@@ -81,6 +67,54 @@ public class MVPlotJobParser {
 			ex.printStackTrace();
 		}
 		System.out.println("----  MVPlotJobParser Done  ----");
+	}
+	
+	public MVPlotJobParser(Connection con){
+		_con = con;
+	}
+	
+	public MVPlotJob[] parsePlotJobSpec(MVNode nodePlotSpec){
+		ArrayList listJobs = new ArrayList();
+		
+		for(int i=0; i < nodePlotSpec._children.length; i++){
+			MVNode nodeChild = nodePlotSpec._children[i];
+			if( nodeChild._tag.equals("plot") ){
+				String strInherits = nodeChild._inherits;
+				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
+				listJobs.add( parsePlotJob(nodeChild, jobBase) );					
+			}
+			else if( nodeChild._tag.equals("date_list") ){
+				String strName = nodeChild._name;				
+				String[] listDates = parseDateList(nodeChild, _con);
+				_tableSpecDecl.put(strName, listDates);
+			}
+		}
+		
+		return (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
+	}
+	
+	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase){
+		MVPlotJob job = (null != jobBase? jobBase.copy() : new MVPlotJob());
+		
+		
+		return job;
+	}
+	
+	public static String[] parseDateList(MVNode nodeDateList, Connection con){
+		String strField = "";
+		String strStart = "";
+		String strEnd = "";
+		String strHour = "";
+		
+		for(int i=0; i < nodeDateList._children.length; i++){
+			MVNode nodeChild = nodeDateList._children[i];
+			if     ( nodeChild._tag.equals("field") )	{ strField = nodeChild._value; }
+			else if( nodeChild._tag.equals("start") )	{ strStart = nodeChild._value; }
+			else if( nodeChild._tag.equals("end") )		{ strEnd = nodeChild._value; }
+			else if( nodeChild._tag.equals("hour") )	{ strHour = nodeChild._value; }			
+		}
+		
+		return buildDateAggList(con, strField, strStart, strEnd, strHour);
 	}
 	
 	public static MVOrderedMap buildDepMap(String strDepXML) throws Exception{
@@ -188,14 +222,17 @@ public class MVPlotJobParser {
 		}
 		return null;
 	}
+
 }
 
 class MVNode{
-	protected Node _node;
-	protected String _tag;
-	protected String _name;
-	protected String _value;
-	protected MVNode[] _children;
+	protected Node _node			= null;
+	protected String _tag			= "";
+	protected String _name			= "";
+	protected String _inherits		= "";
+	protected String _id			= "";
+	protected String _value			= "";
+	protected MVNode[] _children	= {};
 		
 	public MVNode(Node node){
 		_node = node;
@@ -203,7 +240,16 @@ class MVNode{
 		
 		//  get the node name attribute value, if present 
 		NamedNodeMap mapAttr = node.getAttributes();
-		if( 0 < mapAttr.getLength() ){ _name = mapAttr.getNamedItem("name").getNodeValue(); }
+		for(int i=0; i < mapAttr.getLength(); i++){
+			Node nodeAttr = mapAttr.item(i); 
+			String strAttrName = nodeAttr.getLocalName(); 
+			if     ( strAttrName.equals("name") )		{ _name = nodeAttr.getNodeValue();     }
+			else if( strAttrName.equals("id") )			{ _id = nodeAttr.getNodeValue();       }
+			else if( strAttrName.equals("inherits") )	{ _inherits = nodeAttr.getNodeValue(); }
+			else{
+				System.out.println("  **  WARNING: unrecognized attribute name '" + strAttrName + "' in node '" + _tag + "'");
+			}
+		}
 
 		ArrayList listChildren = new ArrayList();
 		NodeList list = node.getChildNodes();
