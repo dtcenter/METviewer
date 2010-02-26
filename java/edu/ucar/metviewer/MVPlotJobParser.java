@@ -116,6 +116,7 @@ public class MVPlotJobParser extends MVUtil{
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
 	}
+	public String[] parseDateList(MVNode nodeDateList){ return parseDateList(nodeDateList, _con); }
 	
 	public static MVOrderedMap buildDepMap(String strDepXML) throws Exception{
 		DOMParser parser = new DOMParser();

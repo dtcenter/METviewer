@@ -33,7 +33,7 @@ public class MVBatch extends MVUtil {
 	public static String[] _list06				= {};
 	public static String[] _listBase			= {};
 	public static String _strBaseDate			= "";
-	public static String _strBaseDateDefault	= "2010-02-14 12:00:00";
+	public static String _strBaseDateDefault	= "2010-02-21 12:00:00";
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
@@ -168,7 +168,8 @@ public class MVBatch extends MVUtil {
 //				jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
+//				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
+//				jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
 			}
 			
 			//  if on windows, change all plot image types to jpeg
