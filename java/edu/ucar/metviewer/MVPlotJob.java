@@ -5,8 +5,6 @@ import java.sql.Connection;
 
 public class MVPlotJob extends MVUtil{
 
-	public final static MVOrderedMap[] _listMapEmpty = {};
-
 	protected Connection _con				= null;
 	
 	protected String _strPlotTmpl			= "";

@@ -52,6 +52,13 @@ public class MVBatch extends MVUtil {
 			_strPlotFolder = "c:/src/metv/plots/";
 			_boolProcWait = false;
 		}
+		
+		//  set the default base date to the most recent Sunday
+		Calendar calBaseDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		try{ calBaseDate.setTime( _formatDate.parse( _formatDate.format(new java.util.Date()) ) ); }catch(Exception e){}
+		calBaseDate.set(Calendar.HOUR_OF_DAY, 12);
+		while( Calendar.SUNDAY != calBaseDate.get(Calendar.DAY_OF_WEEK) ){ calBaseDate.add(Calendar.DATE, -1); }
+		_strBaseDateDefault = _formatDB.format( calBaseDate.getTime() );
 
 		try {
 
@@ -141,14 +148,16 @@ public class MVBatch extends MVUtil {
 						else if( strJob.equals("agg06jobs") ){							
 							jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
 							jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
-							jobs = append(jobs, MVPlotJobAgg06.getJobs(con));
+							jobs = append(jobs, MVPlotJobAgg06High.getJobs(con));
+							jobs = append(jobs, MVPlotJobAgg06Low.getJobs(con));
 						}
 
 						//  these jobs are included in the agg24jobs and agg06jobs
 						else if( strJob.equals("bar24") )      { jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));    } 
 						else if( strJob.equals("bar06") )      { jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));    }
 						else if( strJob.equals("agg24") )      { jobs = append(jobs, MVPlotJobAgg24.getJobs(con));          }
-						else if( strJob.equals("agg06") )      { jobs = append(jobs, MVPlotJobAgg06.getJobs(con));          }
+						else if( strJob.equals("agg06high") )  { jobs = append(jobs, MVPlotJobAgg06High.getJobs(con));      }
+						else if( strJob.equals("agg06low") )   { jobs = append(jobs, MVPlotJobAgg06Low.getJobs(con));       }
 						else if( strJob.equals("thresh24") )   { jobs = append(jobs, MVPlotJobThresh24.getJobs(con));       } 
 						else if( strJob.equals("thresh06") )   { jobs = append(jobs, MVPlotJobThresh06.getJobs(con));       }
 					}
@@ -654,8 +663,8 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("type",		job.getType().equals("")?	printRCol( rep("b",	intNumDepSeries) )	: job.getType());
 				tableRTags.put("lty",		job.getLty().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLty());
 				tableRTags.put("lwd",		job.getLwd().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLwd());
-				tableRTags.put("y1_lim",	"c(" + job.getY1Lim() + ")");
-				tableRTags.put("y2_lim",	"c(" + job.getY2Lim() + ")");
+				tableRTags.put("y1_lim",	job.getY1Lim());
+				tableRTags.put("y2_lim",	job.getY2Lim());
 				
 				
 				/*

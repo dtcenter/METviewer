@@ -322,16 +322,16 @@ if( 0 < length(listDep2Plot) ){
 	
 	# add the y2 axis
 	axis(
-			4,						# axis of interest, 1: below, 2: left, 3: above and 4: right
-			#at=NA,					# locations of tick marks
-			labels=TRUE,			# tick labels on/off
-			tick=TRUE,				# tick marks on/off
-			tck=.01, 				# length of tick marks as a fraction of plot window
-			las=#<y2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-					padj=#<y2tlab_perp>#,	# axis label perpendicular location adjustment
-					hadj=#<y2tlab_horiz>#,	# axis label parallel location adjustment
-					cex.axis=1.,			# relative axis label magnification 
-			col="gray"				# axis color
+		4,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+		#at=NA,					# locations of tick marks
+		labels=TRUE,			# tick labels on/off
+		tick=TRUE,				# tick marks on/off
+		tck=.01, 				# length of tick marks as a fraction of plot window
+		las=#<y2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+		padj=#<y2tlab_perp>#,	# axis label perpendicular location adjustment
+		hadj=#<y2tlab_horiz>#,	# axis label parallel location adjustment
+		cex.axis=1.,			# relative axis label magnification 
+		col="gray"				# axis color
 	)
 	
 	# plot each series on the second dependent axis with the specified formatting	
@@ -358,17 +358,17 @@ if( 0 < length(listDep2Plot) ){
 		
 		# plot the series line
 		lines(
-				listXAdj,		# x coordinates
-				listData,			# y coordinates
-				type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
-				#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
-				pch=intPch,			# point symbol - see example(points)
-				font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-				lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-				col=strCol,			# line color
-				lend=1,
-				cex=1,				# line magnification
-				lwd=intLwd			# line width
+			listXAdj,			# x coordinates
+			listData,			# y coordinates
+			type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
+								#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
+			pch=intPch,			# point symbol - see example(points)
+			font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+			lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+			col=strCol,			# line color
+			lend=1,
+			cex=1,				# line magnification
+			lwd=intLwd			# line width
 		)
 		
 		# add arrows to the line, if requested
@@ -379,18 +379,18 @@ if( 0 < length(listDep2Plot) ){
 			listDataUp	= listDataUp[listDataInd]			
 			
 			arrows( 
-					listXAdj, 			# x coordinate from which to draw
-					listDataLo, 		# y coordinate from which to draw
-					listXAdj, 			# x coordinate to which to draw
-					listDataUp, 		# y coordinate to which to draw
-					length=.02,			# length of the edges of the arrow head (in inches)
-					angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
-					code=3,				# arrow type - 1: up, 2: down and 3: both
-					lwd=intLwd,			# line width
-					col=strCol,			# line color
-					ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
-					lmitre=1,			# line mitre limit, range 1-10
-					lend=2				# line end style - 0: round, 1: butt and 2: square
+				listXAdj, 			# x coordinate from which to draw
+				listDataLo, 		# y coordinate from which to draw
+				listXAdj, 			# x coordinate to which to draw
+				listDataUp, 		# y coordinate to which to draw
+				length=.02,			# length of the edges of the arrow head (in inches)
+				angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
+				code=3,				# arrow type - 1: up, 2: down and 3: both
+				lwd=intLwd,			# line width
+				col=strCol,			# line color
+				ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
+				lmitre=1,			# line mitre limit, range 1-10
+				lend=2				# line end style - 0: round, 1: butt and 2: square
 			)
 		}
 		
@@ -399,14 +399,14 @@ if( 0 < length(listDep2Plot) ){
 	
 	# y2 axis label
 	mtext(
-			"#<y2_label>#",			# label
-			font=#<y2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-					las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-			side=4,					# axis of interest, 1: below, 2: left, 3: above and 4: right
-			cex=#<y2lab_size>#,		# relative axis label magnification
-					padj=#<y2lab_offset>#,	# axis label perpendicular location adjustment
-					adj=#<y2lab_align>#,	# axis label parallel location adjustment
-					line=1					# margin line, starting at 0 counting outwards
+		"#<y2_label>#",			# label
+		font=#<y2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+		side=4,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+		cex=#<y2lab_size>#,		# relative axis label magnification
+		padj=#<y2lab_offset>#,	# axis label perpendicular location adjustment
+		adj=#<y2lab_align>#,	# axis label parallel location adjustment
+		line=1					# margin line, starting at 0 counting outwards
 	)
 	
 } # end: if( 0 < length(listDep2Plot) )
@@ -448,7 +448,7 @@ for(i in 1:intNumSeries1){
 	
 	# plot the series line
 	lines(
-		listXAdj,		# x coordinates
+		listXAdj,			# x coordinates
 		listData,			# y coordinates
 		type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
 							#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
@@ -468,9 +468,9 @@ for(i in 1:intNumSeries1){
 		listDataUp	= listDataUp[listDataInd]
 
 		arrows( 
-			listXAdj, 		# x coordinate from which to draw
+			listXAdj, 			# x coordinate from which to draw
 			listDataLo, 		# y coordinate from which to draw
-			listXAdj, 		# x coordinate to which to draw
+			listXAdj, 			# x coordinate to which to draw
 			listDataUp, 		# y coordinate to which to draw
 			length=.02,			# length of the edges of the arrow head (in inches)
 			angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
@@ -595,24 +595,24 @@ for(i in 1:intNumSeries1){
 #} # end: if( 0 < length(listDep2Plot) )
 
 legend(
-		x="bottom",						# x coordinate of legend
-		listLegend,						# vector of legend labels
-		col=listColors,					# vector of point and line colors 
-		lty=listLty,					# vector of line types
-		pch=listPch,					# vector of point symbols
-		cex=#<legend_size>#,			# relative magnification
-		bty="#<legend_box>#",			# legend box type - o: box, n: none
-		#bg="#EEEEEEFF",				# background color
-		#box.lty=,						# legend box line type
-		#box.lwd=,						# legend box line width	
-		#horiz=FALSE,					# horizontal configuration
-		adj=.08,						# string adjustment for text
-		xpd=TRUE,						# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
-		ncol=3,							# number of columns in legend
-		#agginset=c(0, -.25),			# inset distance from margin
-		inset=#<legend_inset>#,			# inset distance from margin
-		x.intersp=1,					# horizontal character spacing factor
-		y.intersp=.8					# vertical character spacing factor
+	x="bottom",						# x coordinate of legend
+	listLegend,						# vector of legend labels
+	col=listColors,					# vector of point and line colors 
+	lty=listLty,					# vector of line types
+	pch=listPch,					# vector of point symbols
+	cex=#<legend_size>#,			# relative magnification
+	bty="#<legend_box>#",			# legend box type - o: box, n: none
+	#bg="#EEEEEEFF",				# background color
+	#box.lty=,						# legend box line type
+	#box.lwd=,						# legend box line width	
+	#horiz=FALSE,					# horizontal configuration
+	adj=.08,						# string adjustment for text
+	xpd=TRUE,						# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
+	ncol=3,							# number of columns in legend
+	#agginset=c(0, -.25),			# inset distance from margin
+	inset=#<legend_inset>#,			# inset distance from margin
+	x.intersp=1,					# horizontal character spacing factor
+	y.intersp=.8					# vertical character spacing factor
 )
 
 #<plot_cmd>#

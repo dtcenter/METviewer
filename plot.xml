@@ -8,7 +8,7 @@
 		<field name="initdate" />
 	</date_list>
 	
-	<plot name="base_APCP_24">
+	<plot name="valid24">
 	
 		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
@@ -20,6 +20,30 @@
 			<val>720000</val>
 			<val>960000</val>
 		</indep>
+
+		<!-- series1 variables and values -->
+		<series1>
+			<field name="model">
+				<val>arw-tom-gep0</val>			
+				<val>arw-fer-gep1</val>			
+				<val>arw-sch-gep2</val>			
+				<val>arw-tom-gep3</val>			
+				<val>nmm-fer-gep4</val>			
+				<val>arw-fer-gep5</val>			
+				<val>arw-sch-gep6</val>			
+				<val>arw-tom-gep7</val>			
+				<val>arw-fer-gep8</val>			
+				<val>gfs</val>			
+				<val>ens-mean</val>			
+			</field>		
+		</series1>
+		
+		<!-- series2 variables and values -->
+		<series2>
+			<field name="model">
+				<val>ens-mean</val>			
+			</field>		
+		</series2>
 		
 		<!-- dependent variable(s) and plot series -->
 		<dep>
@@ -74,10 +98,12 @@
 				<val>HUC4_1806</val>
 				<val>CNRFC</val>
 			</field>
+			
 			<field name="obtype">
 				<val>MC_PCP</val>
 				<val>ADPSFC</val>
 			</field>
+			
 			<field name="fcst_thresh">
 				<val>>0.000</val>
 				<val>>=0.254</val>
@@ -87,9 +113,27 @@
 				<val>>=25.400</val>
 				<val>>=76.200</val>
 			</field>
+			
+			<field name="initdate">
+				<val>2010-02-08 12:00:00</val>
+			</field>
+			
+			<!--  example date_list  
 			<field name="initdate">
 				<date_list id="initdates"/>
 			</field>
+			 -->
+			
+			<!--  example set
+			<field name="fcst_lead">
+				<set name="Day1">
+					<val>60000</val>
+					<val>120000</val>
+					<val>180000</val>
+					<val>240000</val>
+				</set>
+			</field>
+			-->
 		</agg>
 		
 		<!-- templates -->
@@ -115,14 +159,66 @@
 		<num_stats>true</num_stats>
 		<indy_stag>false</indy_stag>
 		<grid_on>true</grid_on>
-		<sync_axes>false</sync_axes>		
+		<sync_axes>false</sync_axes>
+
+		<plot_type>png256</plot_type>
+		<plot_height>8.5</plot_height>
+		<plot_width>11</plot_width>
+		<plot_res>72</plot_res>
+		<plot_units>in</plot_units>
+		<mar>c(8, 4, 5, 4)</mar>
+		<mgp>c(1, 1, 0)</mgp>
+		<cex>1</cex>
+		<title_weight>2</title_weight>
+		<title_size>1</title_size>
+		<title_offset>-2.5</title_offset>
+		<title_align>.5</title_align>
+		<xtlab_orient>1</xtlab_orient>
+		<xtlab_perp>-.75</xtlab_perp>
+		<xtlab_horiz>.5</xtlab_horiz>
+		<xlab_weight>1</xlab_weight>
+		<xlab_size>1</xlab_size>
+		<xlab_offset>2</xlab_offset>
+		<xlab_align>.5</xlab_align>
+		<ytlab_orient>1</ytlab_orient>
+		<ytlab_perp>.5</ytlab_perp>
+		<ytalb_horiz>.5</ytalb_horiz>
+		<tlab_weight>1</tlab_weight>
+		<ylab_size>1</ylab_size>
+		<ylab_offset>-2</ylab_offset>
+		<ylab_align>.5</ylab_align>
+		<grid_lty>3</grid_lty>
+		<grid_col>#CCCCCC</grid_col>
+		<grid_lwd>1</grid_lwd>
+		<grid_x>listX</grid_x>
+		<x2tlab_orient>1</x2tlab_orient>
+		<x2tlab_perp>1</x2tlab_perp>
+		<x2tlab_horiz>.5</x2tlab_horiz>
+		<x2lab_weight>1</x2lab_weight>
+		<x2lab_size>.8</x2lab_size>
+		<x2lab_offset>-.5</x2lab_offset>
+		<x2lab_align>.5</x2lab_align>
+		<y2tlab_orient>1</y2tlab_orient>
+		<yt2lab_perp>.5</yt2lab_perp>
+		<y2tlab_horiz>.5</y2tlab_horiz>
+		<y2lab_weight>1</y2lab_weight>
+		<y2lab_size>1</y2lab_size>
+		<y2lab_offset>1</y2lab_offset>
+		<y2lab_align>.5</y2lab_align>
+		<legend_size>.8</legend_size>
+		<legend_box>o</legend_box>
+		<legend_inset>c(0, -.25)</legend_inset>
+		<box_boxwex>1</box_boxwex>
+		<box_notch>FALSE</box_notch>
 		
-		<plot_ci>none, norm, none, none, none, none, none, none, none, none, none</plot_ci>
-		<colors>#000000FF, #FF0000FF, #FFAA00FF, #AAFF00FF, #00FF00FF, #00FFAAFF, #00AAFFFF, #0000FFFF, #AA00FFFF, #FF00AAFF, #666666FF</colors>
-		<lty>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2</lty>
-		<lwd>2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2</lwd>
-		<y2_lim>0, 1</y2_lim>
-		
+		<plot_ci>c("none", "norm", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
+		<colors>c("#000000FF", "#FF0000FF", "#FFAA00FF", "#AAFF00FF", "#00FF00FF", "#00FFAAFF", "#00AAFFFF", "#0000FFFF", "#AA00FFFF", "#FF00AAFF", "#666666FF")</colors>
+		<pch></pch>
+		<type></type>
+		<lty>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2)</lty>
+		<lwd>c(2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2)</lwd>
+		<y1_lim></y1_lim>
+		<y2_lim>c(0, 1)</y2_lim>		
 	</plot>
 
 </plot_spec>
