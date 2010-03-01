@@ -201,7 +201,7 @@ public class MVUtil{
 	public static SimpleDateFormat _formatStat = null;
 	public static SimpleDateFormat _formatFcstLead = null;
 	public static SimpleDateFormat _formatBase = null;
-	public static SimpleDateFormat _formatDateFolder = null;
+	public static SimpleDateFormat _formatDate = null;
 	static{
 		try{ _formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");		_formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));			}catch(Exception e){}
 		try{ _formatDBms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");	_formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
@@ -209,7 +209,7 @@ public class MVUtil{
 		try{ _formatStat = new SimpleDateFormat("yyyyMMdd_HHmmss");			_formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatFcstLead = new SimpleDateFormat("HHmmss");				_formatFcstLead.setTimeZone(TimeZone.getTimeZone("UTC"));	}catch(Exception e){}
 		try{ _formatBase = new SimpleDateFormat("yyyyMMdd'b'");				_formatBase.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
-		try{ _formatDateFolder = new SimpleDateFormat("yyyyMMdd");			_formatDateFolder.setTimeZone(TimeZone.getTimeZone("UTC"));	}catch(Exception e){}
+		try{ _formatDate = new SimpleDateFormat("yyyyMMdd");				_formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 	}
 	
 	/**
