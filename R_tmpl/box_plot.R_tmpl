@@ -19,6 +19,8 @@ listDep1Plot = #<dep1_plot>#
 listAggVal = #<agg_list>#
 		
 listSeries1Val = #<series1_list>#
+
+listSeriesNobs = #<series_nobs>#
 		
 listDep1Scale = #<dep1_scale>#
 
@@ -100,7 +102,8 @@ for(intPermVal in 1:nrow(matPermVal)){
 		xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
 		ylim=listY1limUsr,		# y1-axis limits
 		yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
-		add=boolAdd				# add boxes to current plot - TRUE: add, FALSE: new plot
+		add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
+		tck=.01 				# length of tick marks as a fraction of plot window		
 	)
 	
 	boolAdd = TRUE
@@ -166,6 +169,50 @@ mtext(
 	adj=#<ylab_align>#,		# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
 )
+
+# add the number of stats at each independent axis tick, if requested
+if( 0 < length(listSeriesNobs) ){
+	
+	# build a data frame of nobs series data
+	dfNobs = dfPlot
+	for(strSeriesNobsVar in names(listSeriesNobs)){
+		strSeriesNobsVal = listSeriesNobs[[strSeriesNobsVar]] 
+		dfNobs = dfNobs[dfNobs[[strSeriesNobsVar]] == strSeriesNobsVal,]
+	}
+	
+	# build the list of nobs, one for each independent variable value
+	listNobs = c()
+	for(strIndyVal in listIndy){
+		dblTotalSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$total)
+		dblNobsSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$nobs)
+		listNobs = append(listNobs, dblNobsSum / dblTotalSum);
+	}
+	listNobsLabels = formatC(listNobs, format="f", digits=4);
+	
+	axis(
+		3,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+		at=listX,				# locations of tick marks
+		labels=listNobsLabels,	# axis labels
+		tick=TRUE,				# tick marks on/off
+		tck=.01, 				# length of tick marks as a fraction of plot window
+		las=#<x2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+		padj=#<x2tlab_perp>#,	# axis label perpendicular location adjustment
+		hadj=#<x2tlab_horiz>#,	# axis label parallel location adjustment
+		cex.axis=.8,			# relative axis label magnification
+		col="black"				# axis color
+	)
+	
+	mtext(
+		"Observation Rate",		# label
+		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+		side=3,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+		font=#<x2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+		cex=#<x2lab_size>#,		# relative axis label magnification
+		padj=#<x2lab_offset>#,	# axis label perpendicular location adjustment
+		adj=#<x2lab_align>#,	# axis label parallel location adjustment
+		line=1					# margin line, starting at 0 counting outwards
+	)	
+}
 
 listLegend = paste(matPermVal, listDep1Plot[[ names(listDep1Plot) ]])
 

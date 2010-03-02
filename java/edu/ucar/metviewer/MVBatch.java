@@ -143,11 +143,13 @@ public class MVBatch extends MVUtil {
 						else if( strJob.equals("agg24jobs") ){
 							jobs = append(jobs, MVPlotJobThresh24.getJobs(con));
 							jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
+							jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
 							jobs = append(jobs, MVPlotJobAgg24.getJobs(con));
 						}
 						else if( strJob.equals("agg06jobs") ){							
 							jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
 							jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
+							jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
 							jobs = append(jobs, MVPlotJobAgg06High.getJobs(con));
 							jobs = append(jobs, MVPlotJobAgg06Low.getJobs(con));
 						}
@@ -155,6 +157,8 @@ public class MVBatch extends MVUtil {
 						//  these jobs are included in the agg24jobs and agg06jobs
 						else if( strJob.equals("bar24") )      { jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));    } 
 						else if( strJob.equals("bar06") )      { jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));    }
+						else if( strJob.equals("box24") )      { jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));    } 
+						else if( strJob.equals("box06") )      { jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));    }
 						else if( strJob.equals("agg24") )      { jobs = append(jobs, MVPlotJobAgg24.getJobs(con));          }
 						else if( strJob.equals("agg06high") )  { jobs = append(jobs, MVPlotJobAgg06High.getJobs(con));      }
 						else if( strJob.equals("agg06low") )   { jobs = append(jobs, MVPlotJobAgg06Low.getJobs(con));       }
@@ -177,8 +181,11 @@ public class MVBatch extends MVUtil {
 //				jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
+				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
+				
+//				MVPlotJobParser parser = new MVPlotJobParser("plot.xml", con);
+//				jobs = parser.parsePlotJobSpec();
 			}
 			
 			//  if on windows, change all plot image types to jpeg
@@ -231,7 +238,8 @@ public class MVBatch extends MVUtil {
 			//  establish lists of entires for each group of variables and values
 			Map.Entry[] listAggVal		= job.getAggVal().getOrderedEntries();
 			Map.Entry[] listSeries1Val	= job.getSeries1Val().getOrderedEntries();
-			Map.Entry[] listSeries2Val	= ( null != job.getSeries2Val()? job.getSeries2Val().getOrderedEntries() : new Map.Entry[]{}); 
+			Map.Entry[] listSeries2Val	= ( null != job.getSeries2Val()? job.getSeries2Val().getOrderedEntries() : new Map.Entry[]{});
+			Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
 			Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
 			Map.Entry[] listDep2Plot	= ( null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
 			
@@ -275,7 +283,30 @@ public class MVBatch extends MVUtil {
 			} else {
 				strSelectList += "  sh." + job.getIndyVar() + ",\n";
 			}
-			strSelectList += "  sg.stat_group_lu_id";
+			strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
+			
+			//  determine if the job calls for confidence intervals and add the fields if necessary
+			boolean boolNormalCI = false, boolBootCI = false;
+			String[] listPlotCI = parseRCol(job.getPlotCI()); 
+			for(int i=0; i < listPlotCI.length; i++){
+				if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
+				else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
+			}
+			if( boolNormalCI ){ strSelectList += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
+			if( boolBootCI )  { strSelectList += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }
+			
+			//  if nobs is requested, add baserate and total
+			if( 0 < listSeriesNobs.length ){
+				strSelectList += ",\n  (ldc.total * sgb.stat_value) nobs,\n  ldc.total";
+			}
+
+			//  build the list of tables for the FROM clause
+			String strFromList = "  stat_header sh,\n  stat_group sg";
+			
+			//  if nobs is requested, add baserate and total
+			if( 0 < listSeriesNobs.length ){
+				strFromList += ",\n  stat_group sgb,\n  line_data_cts ldc";
+			}
 			
 			//  build the where clause from the tables of field names and values
 			String strWhere = "";
@@ -356,24 +387,20 @@ public class MVBatch extends MVUtil {
 							"      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n" +
 							strFixed + strSeries + "    )\n";
 			}
-			strWhere += "  )\n  AND sh.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999\n";
+			strWhere += "  )\n  AND sh.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
 
-			//  determine if the job calls for confidence intervals and add the fields if necessary
-			boolean boolNormalCI = false, boolBootCI = false;
-			String[] listPlotCI = parseRCol(job.getPlotCI()); 
-			for(int i=0; i < listPlotCI.length; i++){
-				if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
-				else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
+			//  if nobs is requested, link in the appropriate tables
+			if( 0 < listSeriesNobs.length ){
+				strWhere += "\n  AND sgb.stat_group_lu_id = '0'\n" +
+							  "  AND sh.stat_header_id = sgb.stat_header_id\n" +
+							  "  AND sh.stat_header_id = ldc.stat_header_id";
 			}
-			String strPlotCIFields = "";
-			if( boolNormalCI ){ strPlotCIFields += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
-			if( boolBootCI )  { strPlotCIFields += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }
-			
+
 			//  put the query components together
-			String strQuery = "SELECT\n" + strSelectList + ",\n  sg.stat_value" + strPlotCIFields + "\n" +
-							  "FROM\n  stat_header sh,\n  stat_group sg\n" +
+			String strQuery = "SELECT\n" + strSelectList + "\n" +
+							  "FROM\n" + strFromList + "\n" +
 							  "WHERE\n" + strWhere + 
-							  (_boolSQLSort? "ORDER BY\n" + strSortList : "") + ";";
+							  (_boolSQLSort? "\nORDER BY\n" + strSortList : "") + ";";
 			
 			System.out.println("strQuery:\n\n" + strQuery + "\n");
 			
@@ -566,7 +593,8 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("dep2_plot",		(null != mapDep2? mapDep2.getRDecl() : "c()"));
 				tableRTags.put("agg_list",		listAggPerm[intPerm].getRDecl());
 				tableRTags.put("series1_list",	job.getSeries1Val().getRDecl());
-				tableRTags.put("series2_list",	(null != job.getSeries2Val()? job.getSeries2Val().getRDecl() : "c()"));
+				tableRTags.put("series2_list",	job.getSeries2Val().getRDecl());
+				tableRTags.put("series_nobs",	job.getSeriesNobs().getRDecl());
 				tableRTags.put("dep1_scale",	job.getDep1Scale().getRDecl());
 				tableRTags.put("dep2_scale",	job.getDep2Scale().getRDecl());
 				tableRTags.put("plot_file",		strPlotFile);
