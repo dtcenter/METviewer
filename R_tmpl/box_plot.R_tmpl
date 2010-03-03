@@ -182,17 +182,21 @@ if( 0 < length(listSeriesNobs) ){
 	
 	# build the list of nobs, one for each independent variable value
 	listNobs = c()
+	listObsRate = c()
 	for(strIndyVal in listIndy){
 		dblTotalSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$total)
 		dblNobsSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$nobs)
-		listNobs = append(listNobs, dblNobsSum / dblTotalSum);
+		listNobs = append(listNobs, dblNobsSum)
+		listObsRate = append(listObsRate, dblNobsSum / dblTotalSum)
 	}
-	listNobsLabels = formatC(listNobs, format="f", digits=4);
+	listNobsLabels = gsub(" ", "", formatC(round(listNobs), format="G", digits=6))	
+	listObsRateLabels = formatC(listObsRate, format="f", digits=4)
+	listX2Labels = paste(listObsRateLabels, paste("(", listNobsLabels, ")", sep=""))
 	
 	axis(
 		3,						# axis of interest, 1: below, 2: left, 3: above and 4: right
 		at=listX,				# locations of tick marks
-		labels=listNobsLabels,	# axis labels
+		labels=listX2Labels,	# axis labels
 		tick=TRUE,				# tick marks on/off
 		tck=.01, 				# length of tick marks as a fraction of plot window
 		las=#<x2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
