@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
 import java.sql.*;
+
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
@@ -13,76 +14,76 @@ public class MVPlotJobParser extends MVUtil{
 	
 	protected Hashtable _tableSpecDecl = new Hashtable();
 	protected Hashtable _tablePlotDecl = new Hashtable();
+	protected MVNode _nodePlotSpec = null;
 	protected Connection _con = null;
 	
 	public static void main(String[] args) {
 		System.out.println("----  MVPlotJobParser  ----\n");
 
+		Connection con = null;
 		try {
+
+			//  connect to the database
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			con = DriverManager.getConnection("jdbc:mysql://kemosabe:3306/metvdb_hmt", "pgoldenb", "pgoldenb");
+			if( con.isClosed() )	throw new Exception("database connection failed");			
+			System.out.println("connected to kemosabe");
 			
-			//  * * * *  test structure for buildDepMap()  * * * *
-			/*
-			String strXML = 
-				"<dep>" +
-				"	<!-- " +
-				"		this is a multi-line comment " +
-				"	-->" +
-				"	<dep1>" +
-				"		<fcst_var name=\"APCP_24\"><stat>FBIAS</stat></fcst_var>" +
-				"	</dep1>" +
-				"	<dep2>" +
-				"		<fcst_var name=\"APCP_24\"><stat>BASER</stat></fcst_var>" +
-				"	</dep2>" +
-				"	<fix>" +
-				"		<fcst_var name=\"APCP_24\">" +
-				"			<var name=\"fcst_lev\">A24</var>" +
-				"		</fcst_var>" +
-				"	</fix>" +
-				"</dep>";
+			//  parse the data structure
+			MVPlotJobParser parser = new MVPlotJobParser("plot.xml", con);
+			MVPlotJob[] jobs = parser.parsePlotJobSpec();
+			int intNumJobs = jobs.length;
 			
-			*/
-			
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			//dbf.setSchema(schema);
-		    dbf.setValidating(false);
-		    dbf.setNamespaceAware(false);
-		    
-			DocumentBuilder builder = dbf.newDocumentBuilder();
-			builder.setErrorHandler(new ErrorHandler(){
-				public void error(SAXParseException exception)		{ printException("error", exception);		}
-				public void fatalError(SAXParseException exception)	{ printException("fatalError", exception);	}	
-				public void warning(SAXParseException exception)	{ printException("warning", exception);		}
-				
-				public void printException(String type, SAXParseException e){
-					System.out.println("  **  ERROR: " + e.getMessage() + "\n" +
-									   "      line: " + e.getLineNumber() + "  column: " + e.getColumnNumber());					
-				}
-			});
-			Document doc = builder.parse("plot.xml");
-			MVNode nodePlotSpec = new MVNode(doc.getFirstChild());
-			System.out.println(nodePlotSpec.printNode());
 		} catch(SAXParseException se){
 			System.out.println("  **  ERROR: caught " + se.getClass() + ": " + se.getMessage());
 		} catch(Exception ex){
 			System.out.println("  **  ERROR: caught " + ex.getClass() + ": " + ex.getMessage());
 			ex.printStackTrace();
+		} finally {
+			try{ if( con != null )	con.close(); }catch(SQLException e){}
 		}
 		System.out.println("----  MVPlotJobParser Done  ----");
 	}
 	
-	public MVPlotJobParser(Connection con){
+	public MVPlotJobParser(String spec, Connection con) throws Exception{		
 		_con = con;
+		
+		//  instantiate and configure the xml parser
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		//dbf.setSchema(schema);
+	    dbf.setValidating(false);
+	    dbf.setNamespaceAware(false);
+	    
+		DocumentBuilder builder = dbf.newDocumentBuilder();
+		builder.setErrorHandler(new ErrorHandler(){
+			public void error(SAXParseException exception)		{ printException("error", exception);		}
+			public void fatalError(SAXParseException exception)	{ printException("fatalError", exception);	}	
+			public void warning(SAXParseException exception)	{ printException("warning", exception);		}
+			
+			public void printException(String type, SAXParseException e){
+				System.out.println("  **  ERROR: " + e.getMessage() + "\n" +
+								   "      line: " + e.getLineNumber() + "  column: " + e.getColumnNumber());					
+			}
+		});
+		
+		//  parse the input document and build the MVNode data structure
+		Document doc = builder.parse(spec);
+		_nodePlotSpec = new MVNode(doc.getFirstChild());
 	}
 	
-	public MVPlotJob[] parsePlotJobSpec(MVNode nodePlotSpec){
+	public MVPlotJob[] parsePlotJobSpec(){
 		ArrayList listJobs = new ArrayList();
 		
-		for(int i=0; i < nodePlotSpec._children.length; i++){
-			MVNode nodeChild = nodePlotSpec._children[i];
+		for(int i=0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++){
+			MVNode nodeChild = _nodePlotSpec._children[i];
 			if( nodeChild._tag.equals("plot") ){
 				String strInherits = nodeChild._inherits;
 				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
-				listJobs.add( parsePlotJob(nodeChild, jobBase) );					
+				MVPlotJob job = parsePlotJob(nodeChild, jobBase);
+				job.setConnection(_con);
+				_tablePlotDecl.put(nodeChild._name, job);
+				if( checkJobCompleteness(job) )	{ listJobs.add( job ); }
+				else							{ System.out.println("  **  WARNING: incomplete job " + nodeChild._name); }
 			}
 			else if( nodeChild._tag.equals("date_list") ){
 				String strName = nodeChild._name;				
@@ -113,7 +114,7 @@ public class MVPlotJobParser extends MVUtil{
 				for(int j=0; j < intIndyNum; j++){
 					MVNode nodeIndyVal = node._children[j];
 					listIndyVal[j] = nodeIndyVal._value;
-					if( !nodeIndyVal._name.equals("") )	{ listIndyLabel[j] = nodeIndyVal._name;  }
+					if( !nodeIndyVal._label.equals("") )	{ listIndyLabel[j] = nodeIndyVal._name;  }
 					else								{ listIndyLabel[j] = nodeIndyVal._value; }
 				}
 				job.setIndyVar(node._name);
@@ -124,45 +125,130 @@ public class MVPlotJobParser extends MVUtil{
 			//  <series1> or <series2>
 			else if( node._tag.equals("series1") || node._tag.equals("series2") ){
 				for(int j=0; j < node._children.length; j++){
-					MVNode nodeField = node._children[j];					
-					String[] listAggVal = new String[nodeField._children.length];
-					for(int k=0; k < nodeField._children.length; k++){ listAggVal[k] = nodeField._children[k]._value; }
-					if     ( node._tag.equals("series1") ){ job.addSeries1Val(nodeField._name, listAggVal); }
-					else if( node._tag.equals("series2") ){ job.addSeries2Val(nodeField._name, listAggVal); }
+					MVNode nodeSeries = node._children[j];
+					
+					//  <remove>
+					if( nodeSeries._tag.equals("remove") ){
+						if     ( node._tag.equals("series1") ){ job.removeSeries1Val(nodeSeries._name); }
+						else if( node._tag.equals("series2") ){ job.removeSeries1Val(nodeSeries._name); }
+						continue;
+					}
+					
+					//  <clear>
+					else if( nodeSeries._tag.equals("clear") ){
+						if     ( node._tag.equals("series1") ){ job.clearSeries1Val(); }
+						else if( node._tag.equals("series2") ){ job.clearSeries2Val(); }
+						continue;
+					}
+					
+					//  <field>
+					String[] listAggVal = new String[nodeSeries._children.length];
+					for(int k=0; k < nodeSeries._children.length; k++){ listAggVal[k] = nodeSeries._children[k]._value; }
+					if     ( node._tag.equals("series1") ){ job.addSeries1Val(nodeSeries._name, listAggVal); }
+					else if( node._tag.equals("series2") ){ job.addSeries2Val(nodeSeries._name, listAggVal); }
 				}
-			}			
+			}
+			
+			//  <series_nobs>
+			else if( node._tag.equals("series_nobs") ){
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeSeriesNobs = node._children[j];
+					
+					//  <remove> and <clear>
+					if     ( nodeSeriesNobs._tag.equals("remove") ){	job.removeSeriesNobs(nodeSeriesNobs._name);		continue;	}
+					else if( nodeSeriesNobs._tag.equals("clear") ) {	job.clearSeriesNobs();							continue;	}
+					
+					//  <field>
+					String strField = nodeSeriesNobs._name;
+					String strValue = nodeSeriesNobs._children[0]._value;
+					job.addSeriesNobs(strField, strValue);
+				}
+			}
 			
 			//  <dep>
 			else if( node._tag.equals("dep") ){
-				job.addDepGroup( buildDepMap(node) );				
+				
+				//job.addDepGroup( buildDepMap(node) );
+
+				//  <dep>
+				MVOrderedMap mapDep = new MVOrderedMap();
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeDepN = node._children[j];
+					
+					//  <clear>
+					if( nodeDepN._tag.equals("clear") ){ job.clearDepGroups(); }
+					
+					//  <dep1> or <dep2>
+					else if( nodeDepN._tag.startsWith("dep") ){
+						MVOrderedMap mapDepN = new MVOrderedMap();
+						
+						//  <fcst_var>
+						for(int k=0; k < nodeDepN._children.length; k++){
+							MVNode nodeFcstVar = nodeDepN._children[k];					
+							ArrayList listStats = new ArrayList();
+							
+							//  <stat>s
+							for(int l=0; l < nodeFcstVar._children.length; l++){
+								listStats.add(nodeFcstVar._children[l]._value);
+							}
+							mapDepN.put(nodeFcstVar._name, listStats.toArray(new String[]{}));
+						}
+						mapDep.put(nodeDepN._tag, mapDepN);
+					}
+					
+					//  <fix>
+					else if( nodeDepN._tag.startsWith("fix") ){
+						MVOrderedMap mapFix = new MVOrderedMap();
+						
+						//  <fcst_var>
+						for(int k=0; k < nodeDepN._children.length; k++){
+							MVNode nodeFcstVar = nodeDepN._children[k];					
+							MVOrderedMap mapFcstVar = new MVOrderedMap();
+							
+							//  <var>s
+							for(int l=0; l < nodeFcstVar._children.length; l++){
+								mapFcstVar.put(nodeFcstVar._children[l]._name, nodeFcstVar._children[l]._value);
+							}
+							mapFix.put(nodeFcstVar._name, mapFcstVar);
+						}
+						mapDep.put(nodeDepN._tag, mapFix);
+					}
+				}
+				job.addDepGroup( mapDep );
 			}
 			
 			//  <agg>
 			else if( node._tag.equals("agg") ){
 				
-				//  <field>
 				for(int j=0; j < node._children.length; j++){
-					MVNode nodeField = node._children[j];					
-					String[] listAggVal = new String[nodeField._children.length];
+					MVNode nodeAgg = node._children[j];	
+
+					//  <remove> and <clear>
+					if     ( nodeAgg._tag.equals("remove") ){		job.removeAggVal(nodeAgg._name);		continue;	}
+					else if( nodeAgg._tag.equals("clear") ) {		job.clearAggVal();						continue;	}
+					
+					//  <field>
+					String[] listAggVal = new String[nodeAgg._children.length];
 					MVOrderedMap mapAggVal = new MVOrderedMap();
-					for(int k=0; k < nodeField._children.length; k++){
+					for(int k=0; k < nodeAgg._children.length; k++){
+						MVNode nodeChild = nodeAgg._children[k];
 						
 						//  <val>
-						if( nodeField._tag.equals("val") ){ listAggVal[k] = nodeField._children[k]._value; }
+						if( nodeChild._tag.equals("val") ){ listAggVal[k] = nodeChild._value; }
 						
 						//  <set>
-						else if( nodeField._tag.equals("set") ){
-							String[] listAggSet = new String[nodeField._children.length];
-							for(int l=0; l < nodeField._children.length; l++){ listAggSet[l] = nodeField._children[l]._value; }
-							mapAggVal.put(nodeField._name, listAggSet);
+						else if( nodeChild._tag.equals("set") ){
+							String[] listAggSet = new String[nodeChild._children.length];
+							for(int l=0; l < nodeChild._children.length; l++){ listAggSet[l] = nodeChild._children[l]._value; }
+							mapAggVal.put(nodeChild._name, listAggSet);
 						}
 						
 						//  <date_list>
-						else if( nodeField._tag.equals("date_list") ){
-							listAggVal = (String[])_tableSpecDecl.get(nodeField._name);							
+						else if( nodeChild._tag.equals("date_list") ){
+							listAggVal = (String[])_tableSpecDecl.get(nodeChild._name);							
 						}
 					}
-					job.addAggVal(nodeField._name, listAggVal);
+					job.addAggVal(nodeAgg._name, listAggVal);
 				}
 			}
 			
@@ -172,7 +258,7 @@ public class MVPlotJobParser extends MVUtil{
 					MVNode nodeTmpl = node._children[j];
 					
 					//  <val_map>
-					if( nodeTmpl._tag.equals("tmpl_map") ){
+					if( nodeTmpl._tag.equals("val_map") ){
 						MVOrderedMap mapValMap = new MVOrderedMap();
 						for(int k=0; k < nodeTmpl._children.length; k++){
 							MVNode nodeKey = nodeTmpl._children[k]._children[0];
@@ -192,6 +278,31 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeTmpl._tag.equals("y2_label") )		{ job.setY2LabelTmpl(nodeTmpl._value);	} 
 					
 				}				
+			}
+			
+			//  <dep1_scale> <dep2_scale>
+			else if( node._tag.equals("dep1_scale") || node._tag.equals("dep2_scale") ){
+
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeDepScale = node._children[j];
+					
+					//  <remove>
+					if( nodeDepScale._tag.equals("remove") ){
+						if     ( node._tag.equals("dep1_scale") ){ job.removeDep1Scale(nodeDepScale._name); }
+						else if( node._tag.equals("dep2_scale") ){ job.removeDep2Scale(nodeDepScale._name); }
+					}
+					
+					//  <clear>
+					else if( nodeDepScale._tag.equals("clear") ){
+						if     ( node._tag.equals("dep1_scale") ){ job.clearDep1Scale(); }
+						else if( node._tag.equals("dep2_scale") ){ job.clearDep2Scale(); }
+					}
+
+					//  <field>
+					else if( node._tag.equals("dep1_scale") ){	job.addDep1Scale(nodeDepScale._name, nodeDepScale._value);	}
+					else if( node._tag.equals("dep2_scale") ){	job.addDep2Scale(nodeDepScale._name, nodeDepScale._value);	}					
+				}
+				
 			}
 			
 			else if( _tableFormatBoolean.containsKey(node._tag) ){
@@ -215,83 +326,39 @@ public class MVPlotJobParser extends MVUtil{
 			else{
 				System.out.println("  **  WARNING: unused plot tag '" + node._tag + "'");
 			}
-			
-			/*
-			else if( node._tag.equals("event_equal") ){ job.setEventEqual(node._value.equals("true")); }			
-			else if( node._tag.equals("plot1_diff") ){ job.setPlot1Diff(node._value.equals("true")); }			
-			else if( node._tag.equals("plot2_diff") ){ job.setPlot2Diff(node._value.equals("true")); }			
-			else if( node._tag.equals("num_stats") ){ job.setShowNStats(node._value.equals("true")); }			
-			else if( node._tag.equals("indy_stag") ){ job.setIndyStagger(node._value.equals("true")); }			
-			else if( node._tag.equals("grid_on") ){ job.setGridOn(node._value.equals("true")); }			
-			else if( node._tag.equals("sync_axes") ){ job.setSyncAxes(node._value.equals("true")); }
-			
-			else if( node._tag.equals("plot_type") ){ job.setPlotType(node._value); }
-			else if( node._tag.equals("plot_height") ){ job.setPlotHeight(node._value); }
-			else if( node._tag.equals("plot_widt") ){ job.setPlotWidth(node._value); }
-			else if( node._tag.equals("plot_res") ){ job.setPlotRes(node._value); }
-			else if( node._tag.equals("plot_units") ){ job.setPlotUnits(node._value); }
-			else if( node._tag.equals("mar") ){ job.setMar(node._value); }
-			else if( node._tag.equals("mgp") ){ job.setMgp(node._value); }
-			else if( node._tag.equals("cex") ){ job.setCex(node._value); }
-			else if( node._tag.equals("title_weight") ){ job.setTitleWeight(node._value); }
-			else if( node._tag.equals("title_size") ){ job.setTitleSize(node._value); }
-			else if( node._tag.equals("title_offset") ){ job.setTitleOffset(node._value); }
-			else if( node._tag.equals("title_align") ){ job.setTitleAlign(node._value); }
-			else if( node._tag.equals("xtlab_orient") ){ job.setXtlabOrient(node._value); }
-			else if( node._tag.equals("xtlab_perp") ){ job.setXtlabPerp(node._value); }
-			else if( node._tag.equals("xtlab_horiz") ){ job.setXtlabHoriz(node._value); }
-			else if( node._tag.equals("xlab_weight") ){ job.setXlabWeight(node._value); }
-			else if( node._tag.equals("xlab_size") ){ job.setXlabSize(node._value); }
-			else if( node._tag.equals("xlab_offset") ){ job.setXlabOffset(node._value); }
-			else if( node._tag.equals("xlab_align") ){ job.setXlabAlign(node._value); }
-			else if( node._tag.equals("ytlab_orient") ){ job.setYtlabOrient(node._value); }
-			else if( node._tag.equals("ytlab_perp") ){ job.setYtlabPerp(node._value); }
-			else if( node._tag.equals("ytalb_horiz") ){ job.setYtlabHoriz(node._value); }
-			else if( node._tag.equals("tlab_weight") ){ job.setYlabWeight(node._value); }
-			else if( node._tag.equals("ylab_size") ){ job.setYlabSize(node._value); }
-			else if( node._tag.equals("ylab_offset") ){ job.setYlabOffset(node._value); }
-			else if( node._tag.equals("ylab_align") ){ job.setYlabAlign(node._value); }
-			else if( node._tag.equals("grid_lty") ){ job.setGridLty(node._value); }
-			else if( node._tag.equals("grid_col") ){ job.setGridCol(node._value); }
-			else if( node._tag.equals("grid_lwd") ){ job.setGridLwd(node._value); }
-			else if( node._tag.equals("grid_x") ){ job.setGridX(node._value); }
-			else if( node._tag.equals("x2tlab_orient") ){ job.setX2tlabOrient(node._value); }
-			else if( node._tag.equals("x2tlab_perp") ){ job.setX2tlabPerp(node._value); }
-			else if( node._tag.equals("x2tlab_horiz") ){ job.setX2tlabHoriz(node._value); }
-			else if( node._tag.equals("x2lab_weight") ){ job.setX2labWeight(node._value); }
-			else if( node._tag.equals("x2lab_size") ){ job.setX2labSize(node._value); }
-			else if( node._tag.equals("x2lab_offset") ){ job.setX2labOffset(node._value); }
-			else if( node._tag.equals("x2lab_align") ){ job.setX2labAlign(node._value); }
-			else if( node._tag.equals("y2tlab_orient") ){ job.setY2tlabOrient(node._value); }
-			else if( node._tag.equals("yt2lab_perp") ){ job.setY2tlabPerp(node._value); }
-			else if( node._tag.equals("y2tlab_horiz") ){ job.setY2tlabHoriz(node._value); }
-			else if( node._tag.equals("y2lab_weight") ){ job.setY2labWeight(node._value); }
-			else if( node._tag.equals("y2lab_size") ){ job.setY2labSize(node._value); }
-			else if( node._tag.equals("y2lab_offset") ){ job.setY2labOffset(node._value); }
-			else if( node._tag.equals("y2lab_align") ){ job.setY2labAlign(node._value); }
-			else if( node._tag.equals("legend_size") ){ job.setLegendSize(node._value); }
-			else if( node._tag.equals("legend_box") ){ job.setLegendBox(node._value); }
-			else if( node._tag.equals("legend_inset") ){ job.setLegendInset(node._value); }
-			else if( node._tag.equals("box_boxwex") ){ job.setBoxBoxwex(node._value); }
-			else if( node._tag.equals("box_notch") ){ job.setBoxNotch(node._value); }
-			*/
-			
 		}
 		
 		return job;
 	}
 	
+	public static boolean checkJobCompleteness(MVPlotJob job){
+		if     ( job.getPlotTmpl().equals("")     )	{ return false; }
+		else if( job.getIndyVar().equals("")      )	{ return false; }
+		else if( 1 > job.getIndyVal().length      )	{ return false; }
+		else if( 1 > job.getDepGroups().length    )	{ return false; }
+		else if( 1 > job.getSeries1Val().size()   )	{ return false; }
+		else if( 1 > job.getSeries2Val().size()   )	{ return false; }
+		else if( 1 > job.getAggVal().size()       )	{ return false; }
+		else if( job.getRFileTmpl().equals("")    )	{ return false; }
+		else if( job.getPlotFileTmpl().equals("") )	{ return false; }
+		else if( job.getDataFileTmpl().equals("") )	{ return false; }
+		else if( job.getXLabelTmpl().equals("")   )	{ return false; }
+		else if( job.getY1LabelTmpl().equals("")  )	{ return false; }
+		else if( job.getY2LabelTmpl().equals("")  )	{ return false; }
+		
+		return true;
+	}
+	
 	public static final Hashtable _tableFormatBoolean = new Hashtable();
 	static{
 		try{
-			_tableFormatBoolean.put("event_equal",	MVPlotJob.class.getDeclaredMethod("getEventEqual",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("event_equal",	MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("plot1_diff",	MVPlotJob.class.getDeclaredMethod("setPlot1Diff",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("plot2_diff",	MVPlotJob.class.getDeclaredMethod("setPlot2Diff",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("num_stats",	MVPlotJob.class.getDeclaredMethod("setNumStats",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("indy_stag",	MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("grid_on",		MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{Boolean.class}));
-			_tableFormatBoolean.put("sync_axes",	MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{Boolean.class}));
+			_tableFormatBoolean.put("event_equal",	MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("plot1_diff",	MVPlotJob.class.getDeclaredMethod("setPlot1Diff",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("plot2_diff",	MVPlotJob.class.getDeclaredMethod("setPlot2Diff",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("num_stats",	MVPlotJob.class.getDeclaredMethod("setShowNStats",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("indy_stag",	MVPlotJob.class.getDeclaredMethod("setIndyStagger",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("grid_on",		MVPlotJob.class.getDeclaredMethod("setGridOn",		new Class[]{boolean.class}));
+			_tableFormatBoolean.put("sync_axes",	MVPlotJob.class.getDeclaredMethod("setSyncAxes",	new Class[]{boolean.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	
@@ -300,7 +367,7 @@ public class MVPlotJobParser extends MVUtil{
 		try{
 			_tableFormatString.put("plot_type",		MVPlotJob.class.getDeclaredMethod("setPlotType",	new Class[]{String.class}));
 			_tableFormatString.put("plot_height",	MVPlotJob.class.getDeclaredMethod("setPlotHeight",	new Class[]{String.class}));
-			_tableFormatString.put("plot_widt",		MVPlotJob.class.getDeclaredMethod("setPlotWidth",	new Class[]{String.class}));
+			_tableFormatString.put("plot_width",	MVPlotJob.class.getDeclaredMethod("setPlotWidth",	new Class[]{String.class}));
 			_tableFormatString.put("plot_res",		MVPlotJob.class.getDeclaredMethod("setPlotRes",		new Class[]{String.class}));
 			_tableFormatString.put("plot_units",	MVPlotJob.class.getDeclaredMethod("setPlotUnits",	new Class[]{String.class}));
 			_tableFormatString.put("mar",			MVPlotJob.class.getDeclaredMethod("setMar",			new Class[]{String.class}));
@@ -356,6 +423,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("lwd",			MVPlotJob.class.getDeclaredMethod("setLwd",			new Class[]{String.class}));
 			_tableFormatString.put("y1_lim",		MVPlotJob.class.getDeclaredMethod("setY1Lim",		new Class[]{String.class}));
 			_tableFormatString.put("y2_lim",		MVPlotJob.class.getDeclaredMethod("setY2Lim",		new Class[]{String.class}));
+			_tableFormatString.put("plot_cmd",		MVPlotJob.class.getDeclaredMethod("setPlotCmd",		new Class[]{String.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	
@@ -367,10 +435,10 @@ public class MVPlotJobParser extends MVUtil{
 		
 		for(int i=0; i < nodeDateList._children.length; i++){
 			MVNode nodeChild = nodeDateList._children[i];
-			if     ( nodeChild._tag.equals("field") )	{ strField = nodeChild._value; }
+			if     ( nodeChild._tag.equals("field") )	{ strField = nodeChild._name;  }
 			else if( nodeChild._tag.equals("start") )	{ strStart = nodeChild._value; }
-			else if( nodeChild._tag.equals("end") )		{ strEnd = nodeChild._value; }
-			else if( nodeChild._tag.equals("hour") )	{ strHour = nodeChild._value; }			
+			else if( nodeChild._tag.equals("end")   )	{ strEnd = nodeChild._value;   }
+			else if( nodeChild._tag.equals("hour")  )	{ strHour = nodeChild._value;  }			
 		}
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
@@ -447,8 +515,10 @@ class MVNode{
 	protected Node _node			= null;
 	protected String _tag			= "";
 	protected String _name			= "";
+	protected String _label			= "";
 	protected String _inherits		= "";
 	protected String _id			= "";
+	protected String _run			= "";
 	protected String _value			= "";
 	protected MVNode[] _children	= {};
 		
@@ -460,10 +530,12 @@ class MVNode{
 		NamedNodeMap mapAttr = node.getAttributes();
 		for(int i=0; i < mapAttr.getLength(); i++){
 			Node nodeAttr = mapAttr.item(i); 
-			String strAttrName = nodeAttr.getLocalName(); 
-			if     ( strAttrName.equals("name") )		{ _name = nodeAttr.getNodeValue();     }
-			else if( strAttrName.equals("id") )			{ _id = nodeAttr.getNodeValue();       }
-			else if( strAttrName.equals("inherits") )	{ _inherits = nodeAttr.getNodeValue(); }
+			String strAttrName = nodeAttr.getNodeName(); 
+			if     ( strAttrName.equals("name") )		{ _name		= nodeAttr.getNodeValue(); }
+			else if( strAttrName.equals("label") )		{ _label	= nodeAttr.getNodeValue(); }
+			else if( strAttrName.equals("inherits") )	{ _inherits	= nodeAttr.getNodeValue(); }
+			else if( strAttrName.equals("id") )			{ _id		= nodeAttr.getNodeValue(); }
+			else if( strAttrName.equals("run") )		{ _run		= nodeAttr.getNodeValue(); }
 			else{
 				System.out.println("  **  WARNING: unrecognized attribute name '" + strAttrName + "' in node '" + _tag + "'");
 			}

@@ -37,7 +37,7 @@ public class MVBatch extends MVUtil {
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
-	public static boolean _boolTheWorks			= false;
+	public static boolean _boolTheWorks			= true;
 	
 	public static boolean _boolWindows			= false;
 		
@@ -181,11 +181,11 @@ public class MVBatch extends MVUtil {
 //				jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
+//				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
 //				jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
 				
-//				MVPlotJobParser parser = new MVPlotJobParser("plot.xml", con);
-//				jobs = parser.parsePlotJobSpec();
+				MVPlotJobParser parser = new MVPlotJobParser("plot_lead_series_24.xml", con);
+				jobs = parser.parsePlotJobSpec();
 			}
 			
 			//  if on windows, change all plot image types to jpeg

@@ -8,17 +8,17 @@
 		<field name="initdate" />
 	</date_list>
 	
-	<plot name="valid24">
+	<plot name="lead_series24">
 	
 		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
 		
 		<!-- independent variable -->
 		<indep name="fcst_lead">
-			<val>240000</val>
-			<val>480000</val>
-			<val>720000</val>
-			<val>960000</val>
+			<val label="24">240000</val>
+			<val label="48">480000</val>
+			<val label="72">720000</val>
+			<val label="96">960000</val>
 		</indep>
 
 		<!-- series1 variables and values -->
@@ -45,6 +45,13 @@
 			</field>		
 		</series2>
 		
+		<!-- series values for calculating observation rate -->
+		<series_nobs>
+			<field name="model">
+				<val>ens-mean</val>
+			</field>		
+		</series_nobs>
+		
 		<!-- dependent variable(s) and plot series -->
 		<dep>
 			
@@ -53,20 +60,6 @@
 				<fcst_var name="APCP_24">
 					<stat>FBIAS</stat>
 				</fcst_var>
-				<series>
-					<field name="model">
-						<val>ens-mean</val>
-						<val>arw-tom-gep0</val>
-						<val>arw-fer-gep1</val>
-						<val>arw-sch-gep2</val>
-						<val>arw-tom-gep3</val>
-						<val>nmm-fer-gep4</val>
-						<val>arw-fer-gep5</val>
-						<val>arw-sch-gep6</val>
-						<val>arw-tom-gep7</val>
-						<val>nmm-fer-gep8</val>
-					</field>
-				</series>
 			</dep1>
 			
 			<!-- dependent variable 2 -->
@@ -74,9 +67,6 @@
 				<fcst_var name="APCP_24">
 					<stat>BASER</stat>
 				</fcst_var>
-				<field name="model">
-					<val>ens-mean</val>
-				</field>
 			</dep2>
 			
 			<!-- fixed values -->
@@ -114,7 +104,7 @@
 				<val>>=76.200</val>
 			</field>
 			
-			<field name="initdate">
+			<field name="fcst_valid_beg">
 				<val>2010-02-08 12:00:00</val>
 			</field>
 			
@@ -142,11 +132,14 @@
 				<pair> <key>MC_PCP</key>  <val>Stage IV</val> </pair>
 				<pair> <key>ADPSFC</key>  <val>Gauge</val>    </pair>
 			</val_map>
+			<val_map name="vx_mask">
+				<pair> <key>LAND</key>    <val>FULL</val>     </pair>
+			</val_map>
 			
 			<data_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.data</data_file>
 			<plot_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.png</plot_file>
 			<r_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.R</r_file>
-			<title>Valid: {fcst_valid_beg}V {dep1_1} {fcst_thresh?units=in}\\\" {dep1_1_stat1} vs. FCST_LEAD - Obs: {obtype?map=true}</title>
+			<title>EVENT PERFORMANCE for {dep1_1}  {fcst_thresh?units=in}\" {dep1_1_stat1}\nCONSTANT VALID TIME {fcst_valid_beg}V - Region: {vx_mask?map=true} Obs: {obtype?map=true}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1_stat1}</y1_label>
 			<y2_label>Base Rate (observed event frac.)</y2_label>
@@ -156,7 +149,7 @@
 		<event_equal>false</event_equal>
 		<plot1_diff>false</plot1_diff>
 		<plot2_diff>false</plot2_diff>
-		<num_stats>true</num_stats>
+		<num_stats>false</num_stats>
 		<indy_stag>false</indy_stag>
 		<grid_on>true</grid_on>
 		<sync_axes>false</sync_axes>
@@ -170,8 +163,8 @@
 		<mgp>c(1, 1, 0)</mgp>
 		<cex>1</cex>
 		<title_weight>2</title_weight>
-		<title_size>1</title_size>
-		<title_offset>-2.5</title_offset>
+		<title_size>1.4</title_size>
+		<title_offset>-.4</title_offset>
 		<title_align>.5</title_align>
 		<xtlab_orient>1</xtlab_orient>
 		<xtlab_perp>-.75</xtlab_perp>
@@ -211,14 +204,15 @@
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
 		
-		<plot_ci>c("none", "norm", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
-		<colors>c("#000000FF", "#FF0000FF", "#FFAA00FF", "#AAFF00FF", "#00FF00FF", "#00FFAAFF", "#00AAFFFF", "#0000FFFF", "#AA00FFFF", "#FF00AAFF", "#666666FF")</colors>
-		<pch></pch>
-		<type></type>
-		<lty>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2)</lty>
-		<lwd>c(2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2)</lwd>
-		<y1_lim></y1_lim>
-		<y2_lim>c(0, 1)</y2_lim>		
+		<plot_ci>c("norm", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
+		<colors>c("#33FF00FF", "#00FF19FF", "#00FF66FF", "#00FFB2FF", "#FF0000FF", "#00FFFFFF", "#00B3FFFF", "#0066FFFF", "#FF4C00FF", "#A6A600FF", "#000000FF", "#EFEFEFFF")</colors>
+		<pch>c(19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19)</pch>
+		<type>c("b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "h")</type>
+		<lty>c(1, 2, 3, 4, 1, 5, 6, 1, 2, 1, 1, 1)</lty>
+		<lwd>c(2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 40)</lwd>
+		<y1_lim>c(0,5)</y1_lim>
+		<y2_lim>c(0,1)</y2_lim>
+		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		
 	</plot>
 
 </plot_spec>

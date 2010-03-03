@@ -18,6 +18,8 @@ public class MVPlotJob extends MVUtil{
 	protected MVOrderedMap _mapSeries1Val	= new MVOrderedMap();
 	protected MVOrderedMap _mapSeries2Val	= new MVOrderedMap();
 	
+	protected MVOrderedMap _mapSeriesNobs	= new MVOrderedMap();
+	
 	protected MVOrderedMap _mapDep1Scale	= new MVOrderedMap();
 	protected MVOrderedMap _mapDep2Scale	= new MVOrderedMap();
 
@@ -34,12 +36,12 @@ public class MVPlotJob extends MVUtil{
 	protected String _strY2LabelTmpl		= "";
 	protected String _strPlotCmd			= "";
 	
-	protected boolean _boolEventEqual		= true;
-	protected boolean _boolPlot1Diff		= true;
+	protected boolean _boolEventEqual		= false;
+	protected boolean _boolPlot1Diff		= false;
 	protected boolean _boolPlot2Diff		= false;
-	protected boolean _boolShowNStats		= true;
-	protected boolean _boolIndyStagger		= true;
-	protected boolean _boolGridOn			= true;
+	protected boolean _boolShowNStats		= false;
+	protected boolean _boolIndyStagger		= false;
+	protected boolean _boolGridOn			= false;
 	protected boolean _boolSyncAxes			= false;
 	
 	protected String _strPlotType			= "png256";
@@ -98,8 +100,8 @@ public class MVPlotJob extends MVUtil{
 	protected String _strType				= "";
 	protected String _strLty				= "";
 	protected String _strLwd				= "";
-	protected String _strY1Lim				= "";
-	protected String _strY2Lim				= "";
+	protected String _strY1Lim				= "c(0,10)";
+	protected String _strY2Lim				= "c(0,10)";
 	
 	public static MVPlotJob		getBaseJob(Connection con)				throws Exception{ return new MVPlotJob();   }
 	public static MVPlotJob[]	getJobs(Connection con, MVPlotJob base)	throws Exception{ return new MVPlotJob[]{}; }
@@ -116,6 +118,7 @@ public class MVPlotJob extends MVUtil{
 		job._listDepGroup		= copyList(_listDepGroup);		
 		job._mapSeries1Val		= new MVOrderedMap(_mapSeries1Val);
 		job._mapSeries2Val		= new MVOrderedMap(_mapSeries2Val);
+		job._mapSeriesNobs		= new MVOrderedMap(_mapSeriesNobs);
 		job._mapDep1Scale		= new MVOrderedMap(_mapDep1Scale);
 		job._mapDep2Scale		= new MVOrderedMap(_mapDep2Scale);
 		job._mapAggVal			= new MVOrderedMap(_mapAggVal);
@@ -230,6 +233,12 @@ public class MVPlotJob extends MVUtil{
 	public void addSeries2Val(String field, String[] vals)				{ addSeries2Val(field, vals, _mapSeries2Val.size());	}
 	public void removeSeries2Val(String field)							{ _mapSeries2Val.remove(field);							}
 	public void clearSeries2Val()										{ _mapSeries2Val = new MVOrderedMap();					}
+	
+	public MVOrderedMap getSeriesNobs()									{ return _mapSeriesNobs;								}
+	public void addSeriesNobs(String field, String val, int index)		{ _mapSeriesNobs.put(field, val, index);				}
+	public void addSeriesNobs(String field, String val)					{ addSeriesNobs(field, val, _mapSeriesNobs.size());		}
+	public void removeSeriesNobs(String field)							{ _mapSeriesNobs.remove(field);							}
+	public void clearSeriesNobs()										{ _mapSeriesNobs = new MVOrderedMap();					}
 	
 	public MVOrderedMap getDep1Scale()									{ return _mapDep1Scale;									}
 	public void addDep1Scale(String field, String val)					{ _mapDep1Scale.put(field, val);						}
