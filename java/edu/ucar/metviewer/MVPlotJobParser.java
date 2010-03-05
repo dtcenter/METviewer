@@ -80,7 +80,7 @@ public class MVPlotJobParser extends MVUtil{
 				String strInherits = nodeChild._inherits;
 				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
 				MVPlotJob job = parsePlotJob(nodeChild, jobBase);
-				job.setConnection(_con);
+				if( null == job.getConnection() ){ job.setConnection(_con); }
 				_tablePlotDecl.put(nodeChild._name, job);
 				if( checkJobCompleteness(job) )	{ listJobs.add( job ); }
 				else							{ System.out.println("  **  WARNING: incomplete job " + nodeChild._name); }
@@ -101,8 +101,33 @@ public class MVPlotJobParser extends MVUtil{
 		for(int i=0; i < nodePlot._children.length; i++){
 			MVNode node = nodePlot._children[i];
 			
+			//  <connection>
+			if( node._tag.equals("connection") ){
+				String strHost = "";
+				String strDatabase = "";
+				String strUser = "";
+				String strPassword ="";
+				
+				for(int j=0; j < node._children.length; j++){
+					if     ( node._children[j]._tag.equals("host") )	{ strHost		= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("database") ){ strDatabase	= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("user") )	{ strUser		= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("password") ){ strPassword	= node._children[j]._value; }
+				}
+				
+				try {
+					//  connect to the database
+					Class.forName("com.mysql.jdbc.Driver").newInstance();
+					Connection con = DriverManager.getConnection("jdbc:mysql://" + strHost + "/" + strDatabase, strUser, strPassword);
+					if( con.isClosed() )	throw new Exception("database connection failed");
+					job.setConnection(con);
+				} catch(Exception ex){
+					System.out.println("  **  ERROR: parsePlotJob() caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
+				}
+			}
+			
 			//  <template>
-			if( node._tag.equals("template") ){
+			else if( node._tag.equals("template") ){
 				job.setPlotTmpl(node._value);
 			}
 			

@@ -10,6 +10,14 @@
 	
 	<plot name="lead_series24">
 	
+		<!-- database connection -->
+		<connection>
+			<host>kemosabe:3306</host>
+			<database>metvdb_hmt</database>
+			<user>pgoldenb</user>
+			<password>pgoldenb</password>		
+		</connection>
+	
 		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
 		

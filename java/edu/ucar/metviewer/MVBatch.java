@@ -37,7 +37,7 @@ public class MVBatch extends MVUtil {
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
-	public static boolean _boolTheWorks			= true;
+	public static boolean _boolTheWorks			= false;
 	
 	public static boolean _boolWindows			= false;
 		
