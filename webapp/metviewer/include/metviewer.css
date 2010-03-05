@@ -1,0 +1,45 @@
+
+body {
+    margin-top: 0;
+    margin-left: 0;
+    color: #434A44;
+    background-color: #f0f0f0;
+    font-family: verdana;
+    font-size: 8pt;
+}
+
+th, td {
+    margin-top: 0;
+    margin-left: 0;
+    font-family: verdana;
+    font-size: 8pt;
+    vertical-align: middle;
+}
+
+input, select, textarea {
+    font-family: verdana;
+    font-size: 10pt;
+}
+
+a:link		{	color: #cc6633;				}
+a:active	{	color: #cc6633;				}
+a:visited	{	color: #cc6633;				}
+
+.stdTiny	{	font-size: 7pt;				}
+.stdSmall	{	font-size: 8pt;				}
+.stdMed		{	font-size: 10pt;			}
+.header		{	font-size: 12pt; font-weight:bold;	}
+
+.underlined	{	text-decoration: underline;	}
+.error		{	color: #ff6666;				}
+
+.gButton {
+    font: 8pt verdana;
+    background: #cccccc;
+    color: #434A44;
+}
+.gInput {
+    font: 8pt verdana,geneva,arial,helvetica,sans-serif;
+    background: #cccccc;
+}
+
