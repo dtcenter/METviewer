@@ -4,8 +4,10 @@
 	<!-- set global properties for this build -->
 	<property name="src" location="java"/>
 	<property name="lib" location="lib"/>
+	<property name="webapp_lib" location="webapp/metviewer/WEB-INF/lib"/>
 	<property name="build" location="bin"/>
 	<property name="dist"  location="dist"/>
+	<property name="tomcat_home" location="/d1/pgoldenb/usr/local/apache-tomcat-5.5.28"/>
 
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -22,6 +24,12 @@
 				<pathelement location="${lib}/log4j-1.2.15.jar"/>
 				<pathelement location="${lib}/mysql-connector-java-5.1.6.jar"/>
 				<pathelement location="${lib}/xercesImpl.jar"/>
+				<pathelement location="${webapp_lib}/commons-fileupload-1.2.1.jar"/>
+				<pathelement location="${webapp_lib}/commons-io-1.3.2.jar"/>
+				<pathelement location="${webapp_lib}/freemarker-2.3.15.jar"/>
+				<pathelement location="${webapp_lib}/ognl-2.7.3.jar"/>
+				<pathelement location="${webapp_lib}/struts2-core-2.1.8.1.jar"/>
+				<pathelement location="${webapp_lib}/xwork-core-2.1.6.jar"/>
 			</classpath>
 		</javac>
 	</target>
@@ -41,15 +49,39 @@
 		<copy todir="${dist}/lib">
 			<fileset dir="${lib}"/>
 		</copy>
-		<copy todir="${dist}">
-			<file file="./batch.sh"/>
+		<copy todir="${dist}" file="./batch.sh"/>
+	</target>
+	
+	<target name="webapp" depends="dist" description="build the web application bundle">
+		
+		<!-- <delete dir="${tomcat_home}/work/Catalina/localhost/metviewer"/> -->
+		<delete dir="${dist}/metviewer"/>
+		<copy todir="${dist}/metviewer">
+			<fileset dir="webapp/metviewer"/>
 		</copy>
+		
+		<copy todir="${dist}/metviewer/WEB-INF/lib">
+			<fileset dir="${lib}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		<copy todir="${dist}/metviewer/WEB-INF/lib" file="${dist}/lib/metviewer.jar"/>
+		
+		<!--
+		<jar destfile="${dist}/metviewer.war" basedir="${dist}/metviewer"/>
+		
+		<delete file="${tomcat_home}/webapps/metviewer.war"/>
+		<delete dir="${tomcat_home}/webapps/metviewer"/>
+		<copy todir="${tomcat_home}/webapps" file="${dist}/metviewer.war"/>
+		-->
 	</target>
 
 	<!-- Delete the ${build} and ${dist} directory trees -->
 	<target name="clean" description="clean up">
 		<delete dir="${build}"/>
 		<delete dir="${dist}"/>
+		<delete file="${tomcat_home}/webapps/metviewer.war"/>
+		<delete dir="${tomcat_home}/webapps/metviewer"/>
 	</target>
 </project>
 
