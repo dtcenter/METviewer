@@ -18,7 +18,9 @@ boolSyncAxes	= #<sync_axes>#
 listY1limUsr	= #<y1_lim>#
 listY2limUsr	= #<y2_lim>#
 
-listPlotCI			= #<plot_ci>#
+listPlotCI		= #<plot_ci>#
+
+dblAlpha		= #<ci_alpha>#
 
 dfPlot = read.delim("#<data_file>#")
 
@@ -44,10 +46,6 @@ listDep2Scale = #<dep2_scale>#
 
 # build the list of independent values
 listIndy = #<indy_list>#
-#listFcstLead = sort(unique(dfPlot$fcst_lead))
-#if( 1 > length(listIndy) ){
-#	listIndy = listFcstLead	
-#}
 listX = 1:length(listIndy)
 listXlim = c(min(listX), max(listX))
 
@@ -56,14 +54,10 @@ listXlim = c(min(listX), max(listX))
 #	dfStats = eventEqualize(dfPlot, listFcstLead)
 #}
 
-listLegend = c()
-
-# determine the number of curves in the first series
-intNumSeries1 = 1
-for(strSeriesVar in names(listSeries1Val)){ intNumSeries1 = intNumSeries1 * length( listSeries1Val[[ strSeriesVar ]] ) }		
-
 # build the y1 plot series using information in the plot dataframe
+intNumSeries1 = numSeries(listSeries1Val, boolPlot1Diff)
 listSeries1 = list()
+listLegend = c()
 for( strDep1Name in names(listDep1Plot) ){
 	for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
 		
@@ -72,14 +66,13 @@ for( strDep1Name in names(listDep1Plot) ){
 		
 		# build the y1 plot series using information in the plot dataframe
 		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, boolPlot1Diff, 
-									listPlotCI[1:intNumSeries1])
+									listPlotCI[1:intNumSeries1], dblAlpha)
 		listSeries1 = append(listSeries1, listPlotData1$series)
 		listNStats  = listPlotData1$nstats
 		listLegend1 = paste(listPlotData1$legend, strDep1Stat)
 		listLegend = append(listLegend, listLegend1)
 	}
 }
-#intNumSeries1 = length(listSeries1) / 3
 
 # build the y2 plot series using information in the plot dataframe, if available
 listSeries2 = list()
@@ -95,9 +88,9 @@ if( 0 < length(listDep2Plot) ){
 			
 			# build the y2 plot series using information in the plot dataframe
 			listPlotData2 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep2Stat, listSeries2Val, boolPlot2Diff, 
-										listPlotCI[intNumSeries2+1:length(listPlotCI)])
+										listPlotCI[intNumSeries2+1:length(listPlotCI)], dblAlpha)
 			listSeries2 = append(listSeries2, listPlotData2$series)
-			listNStats  = listPlotData2$nstats
+			#listNStats  = listPlotData2$nstats
 			listLegend2 = paste(listPlotData2$legend, strDep2Stat)
 			listLegend = append(listLegend, listLegend2)
 		}
@@ -142,6 +135,7 @@ if( 0 < length(listY1limUsr) ){
 	dblY1Max = listY1limUsr[2]
 }
 listY1lim = c(dblY1Min, dblY1Max)
+listY1axp = append(listY1lim, 5)
 
 # specify plot window formatting
 par( 
@@ -295,13 +289,7 @@ if( TRUE == boolIndyStagger ){
 	listXStag = seq( -(intNumSeries1/2)*dblAdjScale, (intNumSeries1/2)*dblAdjScale, length=intNumSeries1 + 1 ) + ( dblAdjScale/2 )
 }
 
-
-
-
-
-
-
-
+# plot the y2-axis series first, so that they lie underneath the y1-axis series
 listY1Usr = par()$usr
 intFormatIndex=intNumSeries1+1
 if( 0 < length(listDep2Plot) ){
@@ -412,18 +400,7 @@ if( 0 < length(listDep2Plot) ){
 } # end: if( 0 < length(listDep2Plot) )
 par(new=TRUE, usr=listY1Usr, xaxs="r")
 
-
-
-
-
-
-
-
-
-
-
-
-# plot each series on the first dependent axis with the specified formatting
+# plot the y1-axis series
 intFormatIndex = 1
 for(i in 1:intNumSeries1){
 	
@@ -486,114 +463,7 @@ for(i in 1:intNumSeries1){
 	intFormatIndex = intFormatIndex + 1
 } # end: for(i in 1:intNumSeries1)
 
-#if( 0 < length(listDep2Plot) ){
-#
-#	# adjust the y2 bounds, if requested
-#	listY1Usr = par()$usr
-#	if( FALSE == boolSyncAxes ){
-#		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2)
-#		dblY2Min = listY2Bounds$min
-#		dblY2Max = listY2Bounds$max
-#		if( 0 < length(listY2limUsr) ){
-#			dblY2Min = listY2limUsr[1]
-#			dblY2Max = listY2limUsr[2]
-#		}
-#		dblY2Bufr = (dblY2Max - dblY2Min)*.04
-#		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr)
-#	}
-#	par(new=TRUE, usr=listY2Usr, xaxs="r")
-#	
-#	# add the y2 axis
-#	axis(
-#		4,						# axis of interest, 1: below, 2: left, 3: above and 4: right
-#		#at=NA,					# locations of tick marks
-#		labels=TRUE,			# tick labels on/off
-#		tick=TRUE,				# tick marks on/off
-#		tck=.01, 				# length of tick marks as a fraction of plot window
-#		las=#<y2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-#		padj=#<y2tlab_perp>#,	# axis label perpendicular location adjustment
-#		hadj=#<y2tlab_horiz>#,	# axis label parallel location adjustment
-#		cex.axis=1.,			# relative axis label magnification 
-#		col="gray"				# axis color
-#	)
-#	
-#	# plot each series on the second dependent axis with the specified formatting	
-#	for(i in 1:intNumSeries2){		
-#		
-#		# slice the series constituents from the series list
-#		listData	= listSeries2[[3*(i-1) + 1]]
-#		listDataLo	= listSeries2[[3*(i-1) + 2]]
-#		listDataUp	= listSeries2[[3*(i-1) + 3]]		
-#		listXAdj	= listX + listXStag[i]
-#				
-#		# remove the NAs from the x and y lists
-#		listDataInd	= !( is.na(listData) )
-#		listXAdj	= listXAdj[listDataInd]
-#		listData	= listData[listDataInd]		
-#		
-#		# get the formatting information for this series
-#		strCol		= listColors[intFormatIndex]
-#		intPch		= listPch[intFormatIndex]
-#		strType		= listType[intFormatIndex]
-#		intLty		= listLty[intFormatIndex]
-#		intLwd		= listLwd[intFormatIndex]
-#		strPlotCI	= listPlotCI[intFormatIndex]
-#		
-#		# plot the series line
-#		lines(
-#			listXAdj,		# x coordinates
-#			listData,			# y coordinates
-#			type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
-#								#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
-#			pch=intPch,			# point symbol - see example(points)
-#			font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-#			lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-#			col=strCol,			# line color
-#			lend=1,
-#			cex=1,				# line magnification
-#			lwd=intLwd			# line width
-#		)
-#		
-#		# add arrows to the line, if requested
-#		if( "none" != strPlotCI ) {
-#			listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo)
-#			listXAdj	= listXAdj[listDataInd]
-#			listDataLo	= listDataLo[listDataInd]
-#			listDataUp	= listDataUp[listDataInd]			
-#			
-#			arrows( 
-#				listXAdj, 			# x coordinate from which to draw
-#				listDataLo, 		# y coordinate from which to draw
-#				listXAdj, 			# x coordinate to which to draw
-#				listDataUp, 		# y coordinate to which to draw
-#				length=.02,			# length of the edges of the arrow head (in inches)
-#				angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
-#				code=3,				# arrow type - 1: up, 2: down and 3: both
-#				lwd=1,				# line width
-#				col=strCol,			# line color
-#				ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
-#				lmitre=1,			# line mitre limit, range 1-10
-#				lend=2				# line end style - 0: round, 1: butt and 2: square
-#			)
-#		}
-#		
-#		intFormatIndex = intFormatIndex + 1
-#	} # end: for(i in 1:intNumSeries2)
-#	
-#	# y2 axis label
-#	mtext(
-#		"#<y2_label>#",			# label
-#		font=#<y2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-#		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-#		side=4,					# axis of interest, 1: below, 2: left, 3: above and 4: right
-#		cex=#<y2lab_size>#,		# relative axis label magnification
-#		padj=#<y2lab_offset>#,	# axis label perpendicular location adjustment
-#		adj=#<y2lab_align>#,	# axis label parallel location adjustment
-#		line=1					# margin line, starting at 0 counting outwards
-#	)
-#	
-#} # end: if( 0 < length(listDep2Plot) )
-
+# add the legend
 legend(
 	x="bottom",						# x coordinate of legend
 	listLegend,						# vector of legend labels
@@ -608,7 +478,7 @@ legend(
 	#horiz=FALSE,					# horizontal configuration
 	adj=.08,						# string adjustment for text
 	xpd=TRUE,						# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
-	ncol=3,							# number of columns in legend
+	ncol=#<legend_ncol>#,			# number of columns in legend
 	#agginset=c(0, -.25),			# inset distance from margin
 	inset=#<legend_inset>#,			# inset distance from margin
 	x.intersp=1,					# horizontal character spacing factor
