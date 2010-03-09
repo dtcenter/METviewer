@@ -1,105 +1,105 @@
-setwd("#<r_work>#")
+setwd("#<r_work>#");
 
-source("include/Compute_STDerr.R")
-source("include/util_plot.R")
+source("include/Compute_STDerr.R");
+source("include/util_plot.R");
 
 #
 #  Plot Control Variables
 #
 
-boolEventEqual	= #<event_equal>#
-boolPlot1Diff	= #<plot1_diff>#
-boolPlot2Diff	= #<plot2_diff>#
-boolShowNStats	= #<show_nstats>#
-boolIndyStagger	= #<indy_stagger>#
-boolGridOn		= #<grid_on>#
-boolSyncAxes	= #<sync_axes>#
+boolEventEqual	= #<event_equal>#;
+boolPlot1Diff	= #<plot1_diff>#;
+boolPlot2Diff	= #<plot2_diff>#;
+boolShowNStats	= #<show_nstats>#;
+boolIndyStagger	= #<indy_stagger>#;
+boolGridOn		= #<grid_on>#;
+boolSyncAxes	= #<sync_axes>#;
 
-listY1limUsr	= #<y1_lim>#
-listY2limUsr	= #<y2_lim>#
+listY1limUsr	= #<y1_lim>#;
+listY2limUsr	= #<y2_lim>#;
 
-listPlotCI		= #<plot_ci>#
+listPlotCI		= #<plot_ci>#;
 
-dblAlpha		= #<ci_alpha>#
+dblAlpha		= #<ci_alpha>#;
 
-dfPlot = read.delim("#<data_file>#")
+dfPlot = read.delim("#<data_file>#");
 
-strIndyVar = "#<indy_var>#"
+strIndyVar = "#<indy_var>#";
 
-listDep1Plot = #<dep1_plot>#
+listDep1Plot = #<dep1_plot>#;
 
-listDep2Plot = #<dep2_plot>#		
+listDep2Plot = #<dep2_plot>#;	
 		
-listAggVal = #<agg_list>#
+listAggVal = #<agg_list>#;
 
-listSeries1Val = #<series1_list>#
+listSeries1Val = #<series1_list>#;
 
-listSeries2Val = #<series2_list>#
+listSeries2Val = #<series2_list>#;
 
-listDep1Scale = #<dep1_scale>#
+listDep1Scale = #<dep1_scale>#;
 
-listDep2Scale = #<dep2_scale>#
+listDep2Scale = #<dep2_scale>#;
 
 #
 #  Build the series data for the plot 
 #
 
 # build the list of independent values
-listIndy = #<indy_list>#
-listX = 1:length(listIndy)
-listXlim = c(min(listX), max(listX))
+listIndy = #<indy_list>#;
+listX = 1:length(listIndy);
+listXlim = c(min(listX), max(listX));
 
 # run event equalizer, if requested
 #if( TRUE == boolEventEqual ){
-#	dfStats = eventEqualize(dfPlot, listFcstLead)
+#	dfStats = eventEqualize(dfPlot, listFcstLead);
 #}
 
 # build the y1 plot series using information in the plot dataframe
-intNumSeries1 = numSeries(listSeries1Val, boolPlot1Diff)
-listSeries1 = list()
-listLegend = c()
+intNumSeries1 = numSeries(listSeries1Val, boolPlot1Diff);
+listSeries1 = list();
+listLegend = c();
 for( strDep1Name in names(listDep1Plot) ){
 	for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
 		
-		dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,]
+		dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
 		dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
 		
 		# build the y1 plot series using information in the plot dataframe
 		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, boolPlot1Diff, 
-									listPlotCI[1:intNumSeries1], dblAlpha)
-		listSeries1 = append(listSeries1, listPlotData1$series)
-		listNStats  = listPlotData1$nstats
-		listLegend1 = paste(listPlotData1$legend, strDep1Stat)
-		listLegend = append(listLegend, listLegend1)
+									listPlotCI[1:intNumSeries1], dblAlpha);
+		listSeries1 = append(listSeries1, listPlotData1$series);
+		listNStats  = listPlotData1$nstats;
+		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
+		listLegend = append(listLegend, listLegend1);
 	}
 }
 
 # build the y2 plot series using information in the plot dataframe, if available
-listSeries2 = list()
-intNumSeries2 = 0
+listSeries2 = list();
+intNumSeries2 = 0;
 if( 0 < length(listDep2Plot) ){
 	
-	listSeries2 = list()
+	listSeries2 = list();
 	for( strDep2Name in names(listDep2Plot) ){
 		for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
 			
-			dfPlotStat = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$stat_name == strDep2Stat,]
+			dfPlotStat = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$stat_name == strDep2Stat,];
 			dfPlotStat = scaleStats(dfPlotStat, listDep2Scale, paste(strDep2Name, "_", strDep2Stat, sep=""));
 			
 			# build the y2 plot series using information in the plot dataframe
 			listPlotData2 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep2Stat, listSeries2Val, boolPlot2Diff, 
-										listPlotCI[intNumSeries2+1:length(listPlotCI)], dblAlpha)
-			listSeries2 = append(listSeries2, listPlotData2$series)
+										listPlotCI[intNumSeries2+1:length(listPlotCI)], dblAlpha);
+			listSeries2 = append(listSeries2, listPlotData2$series);
 			#listNStats  = listPlotData2$nstats
-			listLegend2 = paste(listPlotData2$legend, strDep2Stat)
-			listLegend = append(listLegend, listLegend2)
+			listLegend2 = paste(listPlotData2$legend, strDep2Stat);
+			listLegend = append(listLegend, listLegend2);
 		}
 	}
-	intNumSeries2 = length(listSeries2) / 3
+	intNumSeries2 = length(listSeries2) / 3;
 }
 
 # specify the output file
-strPlotType = "#<plot_type>#"
+strPlotType = "#<plot_type>#";
 if( "jpeg" == strPlotType ){
 	jpeg(
 		"#<plot_file>#",		# output file name, with appropriate extension 
@@ -112,7 +112,7 @@ if( "jpeg" == strPlotType ){
 		#bg = "white",
 		#type = c("cairo", "Xlib", "quartz"),
 		#antialias
-	)
+	);
 } else {
 	bitmap(
 		"#<plot_file>#",		# output file name, with appropriate extension 
@@ -123,19 +123,19 @@ if( "jpeg" == strPlotType ){
 		units="#<plot_units>#",	# units for height and width
 		taa=4,					# bits of anti-aliasing for graphics
 		gaa=4					# bits of anti-aliasing for text
-	)
+	);
 }
 
 # specify the y-axis limits and labels
-listY1Bounds = seriesMinMax(listSeries1, intNumSeries1)
-dblY1Min = listY1Bounds$min
-dblY1Max = listY1Bounds$max
+listY1Bounds = seriesMinMax(listSeries1, intNumSeries1);
+dblY1Min = listY1Bounds$min;
+dblY1Max = listY1Bounds$max;
 if( 0 < length(listY1limUsr) ){
-	dblY1Min = listY1limUsr[1]
-	dblY1Max = listY1limUsr[2]
+	dblY1Min = listY1limUsr[1];
+	dblY1Max = listY1limUsr[2];
 }
-listY1lim = c(dblY1Min, dblY1Max)
-listY1axp = append(listY1lim, 5)
+listY1lim = c(dblY1Min, dblY1Max);
+listY1axp = append(listY1lim, 5);
 
 # specify plot window formatting
 par( 
@@ -143,7 +143,7 @@ par(
 	mgp=#<mgp>#,			# margin line for axis title, axis labels and axis line in form c(title, labels, line)
 	cex=#<cex>#,			# magnification for plot text
 	las=2 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-)
+);
 
 # specify the plot formatting
 plot(
@@ -163,7 +163,7 @@ plot(
 	cex.main=1,				# relative title magnification
 	cex.sub=1,				# relative subtitle magnification
 	fg="gray"
-)
+);
 
 # plot title
 mtext(
@@ -175,7 +175,7 @@ mtext(
 	padj=#<title_offset>#,	# axis label perpendicular location adjustment
 	adj=#<title_align>#,	# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
-)
+);
 
 # specify the x-axis
 axis(
@@ -189,7 +189,7 @@ axis(
 	hadj=#<xtlab_horiz>#,	# axis label parallel location adjustment 
 	cex.axis=1,				# relative axis label magnification 
 	col="gray"				# axis color
-)
+);
 
 # x-axis label
 mtext(
@@ -201,7 +201,7 @@ mtext(
 	padj=#<xlab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<xlab_align>#,		# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
-)
+);
 
 # specify the y-axis
 axis(
@@ -215,7 +215,7 @@ axis(
 	hadj=#<ytlab_horiz>#,	# axis label parallel location adjustment
 	cex.axis=1,				# relative axis label magnification 
 	col="gray"				# axis color
-)
+);
 
 # y-axis label
 mtext(
@@ -227,7 +227,7 @@ mtext(
 	padj=#<ylab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<ylab_align>#,		# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
-)
+);
 
 # add grid lines to the plot, if requested
 if( TRUE == boolGridOn ){
@@ -237,7 +237,7 @@ if( TRUE == boolGridOn ){
 		lwd=#<grid_lwd>#,		# line width
 		nx=0,					# number of cells in x direction, NULL for default
 		ny=NULL					# number of cells in y direction, NULL for default
-	)
+	);
 	
 	abline( 
 		v=#<grid_x>#,			# list of positions for the gridlines
@@ -245,7 +245,7 @@ if( TRUE == boolGridOn ){
 		col="#<grid_col>#",		# line color
 		lwd=#<grid_lwd>#,		# line width
 		cex=1					# line magnification
-	)
+	);
 }
 
 # add the number of stats at each independent axis tick, if requested
@@ -261,7 +261,7 @@ if( TRUE == boolShowNStats ){
 		hadj=#<x2tlab_horiz>#,	# axis label parallel location adjustment
 		cex.axis=.8,			# relative axis label magnification
 		col="gray"				# axis color
-	)
+	);
 	
 	mtext(
 		"NStats",				# label
@@ -272,41 +272,41 @@ if( TRUE == boolShowNStats ){
 		padj=#<x2lab_offset>#,	# axis label perpendicular location adjustment
 		adj=#<x2lab_align>#,	# axis label parallel location adjustment
 		line=1					# margin line, starting at 0 counting outwards
-	)	
+	);
 }
 
 # specify the series formatting
-listColors = #<colors>#
-listPch = #<pch>#
-listType = #<type>#
-listLty = #<lty>#
-listLwd = #<lwd>#
+listColors = #<colors>#;
+listPch = #<pch>#;
+listType = #<type>#;
+listLty = #<lty>#;
+listLwd = #<lwd>#;
 
 # build the x-adjustment increments, if requested
-listXStag = rep(0, intNumSeries1 + 1)
+listXStag = rep(0, intNumSeries1 + 1);
 if( TRUE == boolIndyStagger ){
-	dblAdjScale = (listX[length(listX)] - listX[1]) / 150
-	listXStag = seq( -(intNumSeries1/2)*dblAdjScale, (intNumSeries1/2)*dblAdjScale, length=intNumSeries1 + 1 ) + ( dblAdjScale/2 )
+	dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
+	listXStag = seq( -(intNumSeries1/2)*dblAdjScale, (intNumSeries1/2)*dblAdjScale, length=intNumSeries1 + 1 ) + ( dblAdjScale/2 );
 }
 
 # plot the y2-axis series first, so that they lie underneath the y1-axis series
-listY1Usr = par()$usr
-intFormatIndex=intNumSeries1+1
+listY1Usr = par()$usr;
+intFormatIndex=intNumSeries1+1;
 if( 0 < length(listDep2Plot) ){
 	
 	# adjust the y2 bounds, if requested
 	if( FALSE == boolSyncAxes ){
-		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2)
-		dblY2Min = listY2Bounds$min
-		dblY2Max = listY2Bounds$max
+		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2);
+		dblY2Min = listY2Bounds$min;
+		dblY2Max = listY2Bounds$max;
 		if( 0 < length(listY2limUsr) ){
-			dblY2Min = listY2limUsr[1]
-			dblY2Max = listY2limUsr[2]
+			dblY2Min = listY2limUsr[1];
+			dblY2Max = listY2limUsr[2];
 		}
-		dblY2Bufr = (dblY2Max - dblY2Min)*.04
-		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr)
+		dblY2Bufr = (dblY2Max - dblY2Min)*.04;
+		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
 	}
-	par(new=TRUE, usr=listY2Usr, xaxs="r")
+	par(new=TRUE, usr=listY2Usr, xaxs="r");
 	
 	# add the y2 axis
 	axis(
@@ -320,29 +320,29 @@ if( 0 < length(listDep2Plot) ){
 		hadj=#<y2tlab_horiz>#,	# axis label parallel location adjustment
 		cex.axis=1.,			# relative axis label magnification 
 		col="gray"				# axis color
-	)
+	);
 	
 	# plot each series on the second dependent axis with the specified formatting	
 	for(i in 1:intNumSeries2){		
 		
 		# slice the series constituents from the series list
-		listData	= listSeries2[[3*(i-1) + 1]]
-		listDataLo	= listSeries2[[3*(i-1) + 2]]
-		listDataUp	= listSeries2[[3*(i-1) + 3]]		
-		listXAdj	= listX + listXStag[i]
+		listData	= listSeries2[[3*(i-1) + 1]];
+		listDataLo	= listSeries2[[3*(i-1) + 2]];
+		listDataUp	= listSeries2[[3*(i-1) + 3]];
+		listXAdj	= listX + listXStag[i];
 		
 		# remove the NAs from the x and y lists
-		listDataInd	= !( is.na(listData) )
-		listXAdj	= listXAdj[listDataInd]
-		listData	= listData[listDataInd]		
+		listDataInd	= !( is.na(listData) );
+		listXAdj	= listXAdj[listDataInd];
+		listData	= listData[listDataInd];
 		
 		# get the formatting information for this series
-		strCol		= listColors[intFormatIndex]
-		intPch		= listPch[intFormatIndex]
-		strType		= listType[intFormatIndex]
-		intLty		= listLty[intFormatIndex]
-		intLwd		= listLwd[intFormatIndex]
-		strPlotCI	= listPlotCI[intFormatIndex]
+		strCol		= listColors[intFormatIndex];
+		intPch		= listPch[intFormatIndex];
+		strType		= listType[intFormatIndex];
+		intLty		= listLty[intFormatIndex];
+		intLwd		= listLwd[intFormatIndex];
+		strPlotCI	= listPlotCI[intFormatIndex];
 		
 		# plot the series line
 		lines(
@@ -357,14 +357,14 @@ if( 0 < length(listDep2Plot) ){
 			lend=1,
 			cex=1,				# line magnification
 			lwd=intLwd			# line width
-		)
+		);
 		
 		# add arrows to the line, if requested
 		if( "none" != strPlotCI ) {
-			listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo)
-			listXAdj	= listXAdj[listDataInd]
-			listDataLo	= listDataLo[listDataInd]
-			listDataUp	= listDataUp[listDataInd]			
+			listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);
+			listXAdj	= listXAdj[listDataInd];
+			listDataLo	= listDataLo[listDataInd];
+			listDataUp	= listDataUp[listDataInd];
 			
 			arrows( 
 				listXAdj, 			# x coordinate from which to draw
@@ -379,10 +379,10 @@ if( 0 < length(listDep2Plot) ){
 				ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
 				lmitre=1,			# line mitre limit, range 1-10
 				lend=2				# line end style - 0: round, 1: butt and 2: square
-			)
+			);
 		}
 		
-		intFormatIndex = intFormatIndex + 1
+		intFormatIndex = intFormatIndex + 1;
 	} # end: for(i in 1:intNumSeries2)
 	
 	# y2 axis label
@@ -395,33 +395,33 @@ if( 0 < length(listDep2Plot) ){
 		padj=#<y2lab_offset>#,	# axis label perpendicular location adjustment
 		adj=#<y2lab_align>#,	# axis label parallel location adjustment
 		line=1					# margin line, starting at 0 counting outwards
-	)
+	);
 	
 } # end: if( 0 < length(listDep2Plot) )
-par(new=TRUE, usr=listY1Usr, xaxs="r")
+par(new=TRUE, usr=listY1Usr, xaxs="r");
 
 # plot the y1-axis series
 intFormatIndex = 1
 for(i in 1:intNumSeries1){
 	
 	# slice the series constituents from the series list
-	listData	= listSeries1[[3*(i-1) + 1]]
-	listDataLo	= listSeries1[[3*(i-1) + 2]]
-	listDataUp	= listSeries1[[3*(i-1) + 3]]	
-	listXAdj = listX + listXStag[i]	
+	listData	= listSeries1[[3*(i-1) + 1]];
+	listDataLo	= listSeries1[[3*(i-1) + 2]];
+	listDataUp	= listSeries1[[3*(i-1) + 3]];
+	listXAdj = listX + listXStag[i]	;
 	
 	# remove the NAs from the x and y lists
-	listDataInd	= !( is.na(listData) )
-	listXAdj = listXAdj[listDataInd]
-	listData	= listData[listDataInd]
+	listDataInd	= !( is.na(listData) );
+	listXAdj = listXAdj[listDataInd];
+	listData	= listData[listDataInd];
 	
 	# get the formatting information for this series
-	strCol		= listColors[intFormatIndex]
-	intPch		= listPch[intFormatIndex]
-	strType		= listType[intFormatIndex]
-	intLty		= listLty[intFormatIndex]
-	intLwd		= listLwd[intFormatIndex]
-	strPlotCI	= listPlotCI[intFormatIndex]
+	strCol		= listColors[intFormatIndex];
+	intPch		= listPch[intFormatIndex];
+	strType		= listType[intFormatIndex];
+	intLty		= listLty[intFormatIndex];
+	intLwd		= listLwd[intFormatIndex];
+	strPlotCI	= listPlotCI[intFormatIndex];
 	
 	# plot the series line
 	lines(
@@ -435,14 +435,14 @@ for(i in 1:intNumSeries1){
 		col=strCol,			# line color
 		cex=1,				# line magnification
 		lwd=intLwd			# line width
-	)
+	);
 		
 	# add arrows to the line, if requested
 	if( "none" != strPlotCI ) {
-		listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo)
-		listXAdj	= listXAdj[listDataInd]
-		listDataLo	= listDataLo[listDataInd]
-		listDataUp	= listDataUp[listDataInd]
+		listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);
+		listXAdj	= listXAdj[listDataInd];
+		listDataLo	= listDataLo[listDataInd];
+		listDataUp	= listDataUp[listDataInd];
 
 		arrows( 
 			listXAdj, 			# x coordinate from which to draw
@@ -457,10 +457,10 @@ for(i in 1:intNumSeries1){
 			ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
 			lmitre=1,			# line mitre limit, range 1-10
 			lend=2				# line end style - 0: round, 1: butt and 2: square
-		)
+		);
 	}
 	
-	intFormatIndex = intFormatIndex + 1
+	intFormatIndex = intFormatIndex + 1;
 } # end: for(i in 1:intNumSeries1)
 
 # add the legend
@@ -483,9 +483,9 @@ legend(
 	inset=#<legend_inset>#,			# inset distance from margin
 	x.intersp=1,					# horizontal character spacing factor
 	y.intersp=.8					# vertical character spacing factor
-)
+);
 
 #<plot_cmd>#
 
-dev.off()
+dev.off();
 

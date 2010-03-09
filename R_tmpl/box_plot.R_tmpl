@@ -1,44 +1,44 @@
-setwd("#<r_work>#")
+setwd("#<r_work>#");
 
-source("include/util_plot.R")
+source("include/util_plot.R");
 
 #
 #  Plot Control Variables
 #
 
-boolGridOn		= #<grid_on>#
+boolGridOn		= #<grid_on>#;
 		
-listY1limUsr	= #<y1_lim>#
+listY1limUsr	= #<y1_lim>#;
 		
-dfPlot = read.delim("#<data_file>#")
+dfPlot = read.delim("#<data_file>#");
 
-strIndyVar = "#<indy_var>#"
+strIndyVar = "#<indy_var>#";
 
-listDep1Plot = #<dep1_plot>#
+listDep1Plot = #<dep1_plot>#;
 		
-listAggVal = #<agg_list>#
+listAggVal = #<agg_list>#;
 		
-listSeries1Val = #<series1_list>#
+listSeries1Val = #<series1_list>#;
 
-listSeriesNobs = #<series_nobs>#
+listSeriesNobs = #<series_nobs>#;
 		
-listDep1Scale = #<dep1_scale>#
+listDep1Scale = #<dep1_scale>#;
 
-listIndy = #<indy_list>#
+listIndy = #<indy_list>#;
 
-listColors = #<colors>#
+listColors = #<colors>#;
 
-listSeriesVar = names(listSeries1Val)
-matPermVal = permute(listSeries1Val)
+listSeriesVar = names(listSeries1Val);
+matPermVal = permute(listSeries1Val);
 
 # calculate the horizonal location increment
-dblBuf = .3
-intNumPerm = nrow(matPermVal)
-dblInc = (1 - dblBuf) / intNumPerm
-listX = 1:length(listIndy)
+dblBuf = .3;
+intNumPerm = nrow(matPermVal);
+dblInc = (1 - dblBuf) / intNumPerm;
+listX = 1:length(listIndy);
 
 # specify the output file
-strPlotType = "#<plot_type>#"
+strPlotType = "#<plot_type>#";
 if( "jpeg" == strPlotType ){
 	jpeg(
 		"#<plot_file>#",		# output file name, with appropriate extension 
@@ -51,7 +51,7 @@ if( "jpeg" == strPlotType ){
 		#bg = "white",
 		#type = c("cairo", "Xlib", "quartz"),
 		#antialias
-	)
+	);
 } else {
 	bitmap(
 		"#<plot_file>#",		# output file name, with appropriate extension 
@@ -62,7 +62,7 @@ if( "jpeg" == strPlotType ){
 		units="#<plot_units>#",	# units for height and width
 		taa=4,					# bits of anti-aliasing for graphics
 		gaa=4					# bits of anti-aliasing for text
-	)
+	);
 }
 
 # specify plot window formatting
@@ -71,27 +71,27 @@ par(
 	mgp=#<mgp>#,			# margin line for axis title, axis labels and axis line in form c(title, labels, line)
 	cex=#<cex>#,			# magnification for plot text
 	las=0 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-)
+);
 
 # build a box series for each plot series permutation
-boolAdd = FALSE
+boolAdd = FALSE;
 for(intPermVal in 1:nrow(matPermVal)){
 	
-	listBox = list()
-	listAt = listX - .5 + (dblBuf/2) + (intPermVal - 1) * dblInc
+	listBox = list();
+	listAt = listX - .5 + (dblBuf/2) + (intPermVal - 1) * dblInc;
 	
 	
 	# construct the data frame for the current series
-	listPermVal = matPermVal[intPermVal,]			
+	listPermVal = matPermVal[intPermVal,];
 	for(intVar in 1:length(listSeriesVar)){
 		for(strIndy in listIndy){
 			listBox[[ strIndy ]] = dfPlot[ dfPlot[[ listSeriesVar[intVar] ]] == listPermVal[intVar] &
-										   dfPlot[[ strIndyVar ]] == strIndy, ]$stat_value
+										   dfPlot[[ strIndyVar ]] == strIndy, ]$stat_value;
 		}
 	}
 	
-	if( boolAdd != TRUE )	strYaxt="s"
-	else					strYaxt="n"
+	if( boolAdd != TRUE ){ strYaxt="s"; }
+	else				 { strYaxt="n"; }
 	
 	boxplot(
 		listBox,				# box data as a list of vectors 
@@ -104,9 +104,9 @@ for(intPermVal in 1:nrow(matPermVal)){
 		yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
 		add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
 		tck=.01 				# length of tick marks as a fraction of plot window		
-	)
+	);
 	
-	boolAdd = TRUE
+	boolAdd = TRUE;
 }
 
 # add grid lines to the plot, if requested
@@ -117,7 +117,7 @@ if( TRUE == boolGridOn ){
 		lwd=#<grid_lwd>#,		# line width
 		nx=0,					# number of cells in x direction, NULL for default
 		ny=NULL					# number of cells in y direction, NULL for default
-	)
+	);
 }
 
 # plot title
@@ -130,7 +130,7 @@ mtext(
 	padj=#<title_offset>#,	# axis label perpendicular location adjustment
 	adj=#<title_align>#,	# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
-)
+);
 
 # specify the x-axis
 axis(
@@ -144,7 +144,7 @@ axis(
 	hadj=#<xtlab_horiz>#,	# axis label parallel location adjustment 
 	cex.axis=1,				# relative axis label magnification 
 	col="gray"				# axis color
-)
+);
 
 # x-axis label
 mtext(
@@ -156,7 +156,7 @@ mtext(
 	padj=#<xlab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<xlab_align>#,		# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
-)
+);
 
 # y-axis label
 mtext(
@@ -168,30 +168,30 @@ mtext(
 	padj=#<ylab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<ylab_align>#,		# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
-)
+);
 
 # add the number of stats at each independent axis tick, if requested
 if( 0 < length(listSeriesNobs) ){
 	
 	# build a data frame of nobs series data
-	dfNobs = dfPlot
+	dfNobs = dfPlot;
 	for(strSeriesNobsVar in names(listSeriesNobs)){
-		strSeriesNobsVal = listSeriesNobs[[strSeriesNobsVar]] 
-		dfNobs = dfNobs[dfNobs[[strSeriesNobsVar]] == strSeriesNobsVal,]
+		strSeriesNobsVal = listSeriesNobs[[strSeriesNobsVar]];
+		dfNobs = dfNobs[dfNobs[[strSeriesNobsVar]] == strSeriesNobsVal,];
 	}
 	
 	# build the list of nobs, one for each independent variable value
-	listNobs = c()
-	listObsRate = c()
+	listNobs = c();
+	listObsRate = c();
 	for(strIndyVal in listIndy){
-		dblTotalSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$total)
-		dblNobsSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$nobs)
-		listNobs = append(listNobs, dblNobsSum)
-		listObsRate = append(listObsRate, dblNobsSum / dblTotalSum)
+		dblTotalSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$total);
+		dblNobsSum = sum(dfNobs[dfNobs[[strIndyVar]] == strIndyVal,]$nobs);
+		listNobs = append(listNobs, dblNobsSum);
+		listObsRate = append(listObsRate, dblNobsSum / dblTotalSum);
 	}
-	listNobsLabels = gsub(" ", "", formatC(round(listNobs), format="G", digits=6))	
-	listObsRateLabels = formatC(listObsRate, format="f", digits=4)
-	listX2Labels = paste(listObsRateLabels, paste("(", listNobsLabels, ")", sep=""))
+	listNobsLabels = gsub(" ", "", formatC(round(listNobs), format="G", digits=6));
+	listObsRateLabels = formatC(listObsRate, format="f", digits=4);
+	listX2Labels = paste(listObsRateLabels, paste("(", listNobsLabels, ")", sep=""));
 	
 	axis(
 		3,						# axis of interest, 1: below, 2: left, 3: above and 4: right
@@ -204,7 +204,7 @@ if( 0 < length(listSeriesNobs) ){
 		hadj=#<x2tlab_horiz>#,	# axis label parallel location adjustment
 		cex.axis=.8,			# relative axis label magnification
 		col="black"				# axis color
-	)
+	);
 	
 	mtext(
 		"Observation Rate",		# label
@@ -215,10 +215,10 @@ if( 0 < length(listSeriesNobs) ){
 		padj=#<x2lab_offset>#,	# axis label perpendicular location adjustment
 		adj=#<x2lab_align>#,	# axis label parallel location adjustment
 		line=1					# margin line, starting at 0 counting outwards
-	)	
+	);
 }
 
-listLegend = paste(matPermVal, listDep1Plot[[ names(listDep1Plot) ]])
+listLegend = paste(matPermVal, listDep1Plot[[ names(listDep1Plot) ]]);
 
 legend(
 	x="bottom",				# x coordinate of legend
@@ -239,7 +239,6 @@ legend(
 	inset=#<legend_inset>#,	# inset distance from margin
 	x.intersp=1,			# horizontal character spacing factor
 	y.intersp=.8			# vertical character spacing factor
-)
+);
 
-dev.off()
-
+dev.off();
