@@ -361,24 +361,28 @@ if( 0 < length(listDep2Plot) ){
 		
 		# add arrows to the line, if requested
 		if( "none" != strPlotCI ) {
-			listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);
-			listDataLo	= listDataLo[listDataInd];
-			listDataUp	= listDataUp[listDataInd];
-			
-			arrows( 
-				listXAdj, 			# x coordinate from which to draw
-				listDataLo, 		# y coordinate from which to draw
-				listXAdj, 			# x coordinate to which to draw
-				listDataUp, 		# y coordinate to which to draw
-				length=.02,			# length of the edges of the arrow head (in inches)
-				angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
-				code=3,				# arrow type - 1: up, 2: down and 3: both
-				lwd=intLwd,			# line width
-				col=strCol,			# line color
-				ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
-				lmitre=1,			# line mitre limit, range 1-10
-				lend=2				# line end style - 0: round, 1: butt and 2: square
-			);
+			listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);		
+			if( 0 < sum(listDataInd) ){
+				listXAdj	= listX + listXStag[i];
+				listXAdj	= listXAdj[listDataInd];
+				listDataLo	= listDataLo[listDataInd];
+				listDataUp	= listDataUp[listDataInd];
+				
+				arrows( 
+					listXAdj, 			# x coordinate from which to draw
+					listDataLo, 		# y coordinate from which to draw
+					listXAdj, 			# x coordinate to which to draw
+					listDataUp, 		# y coordinate to which to draw
+					length=.02,			# length of the edges of the arrow head (in inches)
+					angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
+					code=3,				# arrow type - 1: up, 2: down and 3: both
+					lwd=intLwd,			# line width
+					col=strCol,			# line color
+					ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
+					lmitre=1,			# line mitre limit, range 1-10
+					lend=2				# line end style - 0: round, 1: butt and 2: square
+				);
+			}
 		}
 		
 		intFormatIndex = intFormatIndex + 1;
@@ -407,11 +411,11 @@ for(i in 1:intNumSeries1){
 	listData	= listSeries1[[3*(i-1) + 1]];
 	listDataLo	= listSeries1[[3*(i-1) + 2]];
 	listDataUp	= listSeries1[[3*(i-1) + 3]];
-	listXAdj = listX + listXStag[i]	;
+	listXAdj	= listX + listXStag[i];
 	
 	# remove the NAs from the x and y lists
 	listDataInd	= !( is.na(listData) );
-	listXAdj = listXAdj[listDataInd];
+	listXAdj	= listXAdj[listDataInd];
 	listData	= listData[listDataInd];
 	
 	# get the formatting information for this series
@@ -437,25 +441,29 @@ for(i in 1:intNumSeries1){
 	);
 		
 	# add arrows to the line, if requested
-	if( "none" != strPlotCI ) {
-		listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);
-		listDataLo	= listDataLo[listDataInd];
-		listDataUp	= listDataUp[listDataInd];
-
-		arrows( 
-			listXAdj, 			# x coordinate from which to draw
-			listDataLo, 		# y coordinate from which to draw
-			listXAdj, 			# x coordinate to which to draw
-			listDataUp, 		# y coordinate to which to draw
-			length=.02,			# length of the edges of the arrow head (in inches)
-			angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
-			code=3,				# arrow type - 1: up, 2: down and 3: both
-			lwd=intLwd,			# line width
-			col=strCol,			# line color
-			ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
-			lmitre=1,			# line mitre limit, range 1-10
-			lend=2				# line end style - 0: round, 1: butt and 2: square
-		);
+	if( "none" != strPlotCI ) {		
+		listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);		
+		if( 0 < sum(listDataInd) ){
+			listXAdj	= listX + listXStag[i];
+			listXAdj	= listXAdj[listDataInd];
+			listDataLo	= listDataLo[listDataInd];
+			listDataUp	= listDataUp[listDataInd];
+			
+			arrows( 
+				listXAdj, 			# x coordinate from which to draw
+				listDataLo, 		# y coordinate from which to draw
+				listXAdj, 			# x coordinate to which to draw
+				listDataUp, 		# y coordinate to which to draw
+				length=.02,			# length of the edges of the arrow head (in inches)
+				angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
+				code=3,				# arrow type - 1: up, 2: down and 3: both
+				lwd=intLwd,			# line width
+				col=strCol,			# line color
+				ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
+				lmitre=1,			# line mitre limit, range 1-10
+				lend=2				# line end style - 0: round, 1: butt and 2: square
+			);
+		}
 	}
 	
 	intFormatIndex = intFormatIndex + 1;
