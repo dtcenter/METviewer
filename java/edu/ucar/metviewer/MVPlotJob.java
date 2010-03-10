@@ -91,8 +91,10 @@ public class MVPlotJob extends MVUtil{
 	protected String _strLegendSize			= ".8";
 	protected String _strLegendBox			= "o";
 	protected String _strLegendInset		= "c(0, -.25)";
+	protected String _strLegendNcol			= "3";
 	protected String _strBoxBoxwex			= "1";
 	protected String _strBoxNotch			= "FALSE";
+	protected String _strCIAlpha			= ".05";
 	
 	protected String _strPlotCI				= "";
 	protected String _strColors				= "";
@@ -100,8 +102,8 @@ public class MVPlotJob extends MVUtil{
 	protected String _strType				= "";
 	protected String _strLty				= "";
 	protected String _strLwd				= "";
-	protected String _strY1Lim				= "c(0,10)";
-	protected String _strY2Lim				= "c(0,10)";
+	protected String _strY1Lim				= "";
+	protected String _strY2Lim				= "";
 	
 	public static MVPlotJob		getBaseJob(Connection con)				throws Exception{ return new MVPlotJob();   }
 	public static MVPlotJob[]	getJobs(Connection con, MVPlotJob base)	throws Exception{ return new MVPlotJob[]{}; }
@@ -188,8 +190,10 @@ public class MVPlotJob extends MVUtil{
 		job._strLegendSize		= _strLegendSize;
 		job._strLegendBox		= _strLegendBox;
 		job._strLegendInset		= _strLegendInset;
+		job._strLegendNcol		= _strLegendNcol;
 		job._strBoxBoxwex		= _strBoxBoxwex;
 		job._strBoxNotch		= _strBoxNotch;
+		job._strCIAlpha			= _strCIAlpha;
 		
 		job._strPlotCI			= _strPlotCI;
 		job._strColors			= _strColors;
@@ -393,10 +397,14 @@ public class MVPlotJob extends MVUtil{
 	public void		setLegendBox(String legendBox)						{ _strLegendBox = legendBox;							}
 	public String	getLegendInset()									{ return _strLegendInset;								}
 	public void		setLegendInset(String legendInset)					{ _strLegendInset = legendInset;						}
+	public String	getLegendNcol()										{ return _strLegendNcol;								}
+	public void		setLegendNcol(String legendNcol)					{ _strLegendNcol = legendNcol;							}
 	public String	getBoxBoxwex()										{ return _strBoxBoxwex;									}
 	public void		setBoxBoxwex(String boxBoxwex)						{ _strBoxBoxwex = boxBoxwex;							}
 	public String	getBoxNotch()										{ return _strBoxNotch;									}
 	public void		setBoxNotch(String boxNotch)						{ _strBoxNotch = boxNotch;								}
+	public String	getCIAlpha()										{ return _strCIAlpha;									}
+	public void		setCIAlpha(String ciAlpha)							{ _strCIAlpha = ciAlpha;								}
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}

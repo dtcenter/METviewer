@@ -1,6 +1,22 @@
 
 <plot_spec>
+	 
+	<!-- database connection -->
+	<connection>
+		<host>kemosabe:3306</host>
+		<database>metvdb_hmt</database>
+		<user>pgoldenb</user>
+		<password>pgoldenb</password>		
+	</connection>
 	
+	<!-- file sytem -->
+	<folders>
+		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
+		<r_work>/d1/pgoldenb/var/qnse/R_work</r_work>
+		<plots>/d1/pgoldenb/var/qnse/plots</plots>
+	</folders>	
+
+	<!-- global date list -->	
 	<date_list name="initdates">
 		<start>2010-01-18</start>
 		<end>2010-02-05</end>
@@ -9,14 +25,6 @@
 	</date_list>
 	
 	<plot name="lead_series24">
-	
-		<!-- database connection -->
-		<connection>
-			<host>kemosabe:3306</host>
-			<database>metvdb_hmt</database>
-			<user>pgoldenb</user>
-			<password>pgoldenb</password>		
-		</connection>
 	
 		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
@@ -209,8 +217,10 @@
 		<legend_size>.8</legend_size>
 		<legend_box>o</legend_box>
 		<legend_inset>c(0, -.25)</legend_inset>
+		<legend_ncol>3</legend_ncol>
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
+		<ci_alpha>.05</ci_alpha>
 		
 		<plot_ci>c("norm", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
 		<colors>c("#33FF00FF", "#00FF19FF", "#00FF66FF", "#00FFB2FF", "#FF0000FF", "#00FFFFFF", "#00B3FFFF", "#0066FFFF", "#FF4C00FF", "#A6A600FF", "#000000FF", "#EFEFEFFF")</colors>

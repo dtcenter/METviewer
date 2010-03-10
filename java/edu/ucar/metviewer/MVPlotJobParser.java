@@ -15,7 +15,11 @@ public class MVPlotJobParser extends MVUtil{
 	protected Hashtable _tableSpecDecl = new Hashtable();
 	protected Hashtable _tablePlotDecl = new Hashtable();
 	protected MVNode _nodePlotSpec = null;
+	
 	protected Connection _con = null;
+	protected String _strRtmplFolder = "";
+	protected String _strRworkFolder = "";
+	protected String _strPlotsFolder = "";
 	
 	public static void main(String[] args) {
 		System.out.println("----  MVPlotJobParser  ----\n");
@@ -71,36 +75,16 @@ public class MVPlotJobParser extends MVUtil{
 		_nodePlotSpec = new MVNode(doc.getFirstChild());
 	}
 	
+	public String getRtmplFolder(){ return _strRtmplFolder; }
+	public String getRworkFolder(){ return _strRworkFolder; }
+	public String getPlotsFolder(){ return _strPlotsFolder; }
+	
 	public MVPlotJob[] parsePlotJobSpec(){
 		ArrayList listJobs = new ArrayList();
 		
 		for(int i=0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++){
-			MVNode nodeChild = _nodePlotSpec._children[i];
-			if( nodeChild._tag.equals("plot") ){
-				String strInherits = nodeChild._inherits;
-				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
-				MVPlotJob job = parsePlotJob(nodeChild, jobBase);
-				if( null == job.getConnection() ){ job.setConnection(_con); }
-				_tablePlotDecl.put(nodeChild._name, job);
-				if( checkJobCompleteness(job) )	{ listJobs.add( job ); }
-				else							{ System.out.println("  **  WARNING: incomplete job " + nodeChild._name); }
-			}
-			else if( nodeChild._tag.equals("date_list") ){
-				String strName = nodeChild._name;				
-				String[] listDates = parseDateList(nodeChild, _con);
-				_tableSpecDecl.put(strName, listDates);
-			}
-		}
-		
-		return (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
-	}
-	
-	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase){
-		MVPlotJob job = (null != jobBase? jobBase.copy() : new MVPlotJob());
+			MVNode node = _nodePlotSpec._children[i];
 
-		for(int i=0; i < nodePlot._children.length; i++){
-			MVNode node = nodePlot._children[i];
-			
 			//  <connection>
 			if( node._tag.equals("connection") ){
 				String strHost = "";
@@ -120,14 +104,59 @@ public class MVPlotJobParser extends MVUtil{
 					Class.forName("com.mysql.jdbc.Driver").newInstance();
 					Connection con = DriverManager.getConnection("jdbc:mysql://" + strHost + "/" + strDatabase, strUser, strPassword);
 					if( con.isClosed() )	throw new Exception("database connection failed");
-					job.setConnection(con);
+					_con = con;
 				} catch(Exception ex){
 					System.out.println("  **  ERROR: parsePlotJob() caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
 				}
 			}
 			
+			//  <folders>
+			else if( node._tag.equals("folders") ){
+				for(int j=0; j < node._children.length; j++){
+					if     ( node._children[j]._tag.equals("r_tmpl") )	{ _strRtmplFolder	= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("r_work") )	{ _strRworkFolder	= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("plots") )	{ _strPlotsFolder	= node._children[j]._value; }
+				}
+			}
+
+			//  <date_list>
+			else if( node._tag.equals("date_list") ){
+				String strName = node._name;				
+				String[] listDates = parseDateList(node, _con);
+				_tableSpecDecl.put(strName, listDates);
+			}
+
+			//  <plot>
+			else if( node._tag.equals("plot") ){
+
+				//  make sure the database connection has been established
+				if( _con == null ){
+					System.out.println("  **  ERROR: database connection missing for plot " + node._name);
+					return new MVPlotJob[]{};
+				}
+				
+				//  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs 
+				String strInherits = node._inherits;
+				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
+				MVPlotJob job = parsePlotJob(node, jobBase);
+				job.setConnection(_con);
+				_tablePlotDecl.put(node._name, job);
+				if( checkJobCompleteness(job) )	{ listJobs.add( job ); }
+				//else							{ System.out.println("  **  WARNING: incomplete job " + node._name); }
+			}
+		}
+		
+		return (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
+	}
+	
+	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase){
+		MVPlotJob job = (null != jobBase? jobBase.copy() : new MVPlotJob());
+
+		for(int i=0; i < nodePlot._children.length; i++){
+			MVNode node = nodePlot._children[i];
+			
 			//  <template>
-			else if( node._tag.equals("template") ){
+			if( node._tag.equals("template") ){
 				job.setPlotTmpl(node._value);
 			}
 			
@@ -139,8 +168,8 @@ public class MVPlotJobParser extends MVUtil{
 				for(int j=0; j < intIndyNum; j++){
 					MVNode nodeIndyVal = node._children[j];
 					listIndyVal[j] = nodeIndyVal._value;
-					if( !nodeIndyVal._label.equals("") )	{ listIndyLabel[j] = nodeIndyVal._name;  }
-					else								{ listIndyLabel[j] = nodeIndyVal._value; }
+					if( !nodeIndyVal._label.equals("") )	{ listIndyLabel[j] = nodeIndyVal._label; }
+					else									{ listIndyLabel[j] = nodeIndyVal._value; }
 				}
 				job.setIndyVar(node._name);
 				job.setIndyVal(listIndyVal);
@@ -437,8 +466,10 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("legend_size",	MVPlotJob.class.getDeclaredMethod("setLegendSize",	new Class[]{String.class}));
 			_tableFormatString.put("legend_box",	MVPlotJob.class.getDeclaredMethod("setLegendBox",	new Class[]{String.class}));
 			_tableFormatString.put("legend_inset",	MVPlotJob.class.getDeclaredMethod("setLegendInset",	new Class[]{String.class}));
+			_tableFormatString.put("legend_ncol",	MVPlotJob.class.getDeclaredMethod("setLegendNcol",	new Class[]{String.class}));
 			_tableFormatString.put("box_boxwex",	MVPlotJob.class.getDeclaredMethod("setBoxBoxwex",	new Class[]{String.class}));
 			_tableFormatString.put("box_notch",		MVPlotJob.class.getDeclaredMethod("setBoxNotch",	new Class[]{String.class}));
+			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));
 			
 			_tableFormatString.put("plot_ci",		MVPlotJob.class.getDeclaredMethod("setPlotCI",		new Class[]{String.class}));
 			_tableFormatString.put("colors",		MVPlotJob.class.getDeclaredMethod("setColors",		new Class[]{String.class}));
