@@ -254,6 +254,9 @@ public class MVUtil{
 					if( strFormat.equals("HH") ){		strVal = strVal.substring(0, strVal.length() - 4);		}
 					if( strFormat.equals("HHmm") ){		strVal = strVal.substring(0, strVal.length() - 2);		}
 					while( strFormat.length() > strVal.length() ){ strVal = "0" + strVal; }
+
+				} else if( strTmplTagName.equals("inithour") ){
+					if( strFormat.equals("HH") ){		while(2 > strVal.length()){ strVal = "0" + strVal; }	}					
 				}
 			}
 			
@@ -556,6 +559,8 @@ public class MVUtil{
 	 * Creates a string representation of an R collection containing the list of values in the input
 	 * list, val.
 	 * @param val List of values to print in the R collection
+	 * @param ticks (optional) Print tickmarks around values, for when constituents are factors as 
+	 *              opposed to numeric, defaults to true
 	 * @return String representation of the R collection
 	 */
 	public static String printRCol(Object[] val, boolean ticks){

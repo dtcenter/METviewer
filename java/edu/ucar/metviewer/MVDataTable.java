@@ -8,8 +8,8 @@ import java.util.*;
  * data sets.  After the MVDataTable is loaded, subsets of rows can be built using the subset command. 
  */
 public class MVDataTable{
-	public ArrayList _listFields = new ArrayList();
-	public ArrayList _listRows = new ArrayList();
+	protected ArrayList _listFields = new ArrayList();
+	protected ArrayList _listRows = new ArrayList();
 
 	/**
 	 * Create a MVDataTable which contains the contents of the input {@ ResultSet}.
@@ -110,6 +110,13 @@ public class MVDataTable{
 			rows[i].remove(field);
 		}
 	}
+	
+	/**
+	 * Indicates whether or not the input field is present among the fields in the able
+	 * @param field Name of the field to test
+	 * @return true if the input field is present among this table's field names, false otherwise
+	 */
+	public boolean containsField(String field){ return _listFields.contains(field); }
 	
 	/**
 	 * Replace a field name, specified by the index field, with the new name.

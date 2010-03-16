@@ -351,9 +351,15 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 	return( list(series=listSeries[], nstats=listNStats, legend=listLegend) );
 }
 
-# padSpaces() adds spaces to the right of the input string, str, for formatting purposes.
-padSpaces = function(str, len=16){
-	while( len > nchar(str) ){		str = paste(" ", str, sep="");		}
+# padLeft() adds spaces to the left of the input string, str, for formatting purposes.
+padLeft = function(str, len=16){
+	while( len > nchar(str) ){ str = paste(" ", str, sep=""); }
+	return(str);
+}
+
+# padRight() adds spaces to the right of the input string, str, for formatting purposes.
+padRight = function(str, len=16){
+	while( len > nchar(str) ){ str = paste(str, " ", sep=""); }
 	return(str);
 }
 
@@ -375,4 +381,27 @@ scaleStats = function(dfPlotStat, listDepScale, strScaleName){
 		}
 	}
 	return( dfPlotStat );
+}
+
+# formatTimeSpan() assumes the input is a numeric representing the number of seconds.
+#   A string in the format Dd HH:mm:ss.mmmm is returned.
+formatTimeSpan = function(s){
+	intDays = floor(s / (24 * 60 * 60));
+	s = s - (intDays * 24 * 60 * 60);
+	intHours = floor(s / (60 * 60));
+	s = s - (intHours * 60 * 60);
+	intMins = floor(s / 60);
+	s = s - (intMins * 60);
+	dblSec = s;
+	
+	strFormat = "";
+	if( 0 < intDays ){ strFormat = paste(strFormat, intDays, "d ", sep=""); }
+	if( 10 > intHours ){ strFormat = paste(strFormat, "0", sep=""); }
+	strFormat = paste(strFormat, intHours, ":", sep="");
+	if( 10 > intMins ){ strFormat = paste(strFormat, "0", sep=""); }
+	strFormat = paste(strFormat, intMins, ":", sep="");
+	if( 10 > dblSec ){ strFormat = paste(strFormat, "0", sep=""); }
+	strFormat = paste(strFormat, format(dblSec, digits=6), sep="");
+	
+	return( strFormat );
 }

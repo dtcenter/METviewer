@@ -359,6 +359,19 @@ public class MVPlotJobParser extends MVUtil{
 				
 			}
 			
+			//  <bootstrapping>
+			else if( node._tag.equals("bootstrapping") ){
+				job.setBootstrapping(true);
+				
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeBoot = node._children[j];					
+					if( nodeBoot._tag.equals("boot_repl") )			{ job.setBootRepl(nodeBoot._value);                           }
+					else if( nodeBoot._tag.equals("boot_ci") )		{ job.setBootCI(nodeBoot._value);                             }
+					else if( nodeBoot._tag.equals("boot_diff1") )	{ job.setBootDiff1(nodeBoot._value.equalsIgnoreCase("true")); }
+					else if( nodeBoot._tag.equals("boot_diff2") )	{ job.setBootDiff2(nodeBoot._value.equalsIgnoreCase("true")); }
+				}				
+			}
+			
 			else if( _tableFormatBoolean.containsKey(node._tag) ){
 				Method m = (Method)_tableFormatBoolean.get(node._tag);
 				try{
@@ -410,7 +423,8 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatBoolean.put("plot1_diff",	MVPlotJob.class.getDeclaredMethod("setPlot1Diff",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("plot2_diff",	MVPlotJob.class.getDeclaredMethod("setPlot2Diff",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("num_stats",	MVPlotJob.class.getDeclaredMethod("setShowNStats",	new Class[]{boolean.class}));
-			_tableFormatBoolean.put("indy_stag",	MVPlotJob.class.getDeclaredMethod("setIndyStagger",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("indy1_stag",	MVPlotJob.class.getDeclaredMethod("setIndy1Stagger",new Class[]{boolean.class}));
+			_tableFormatBoolean.put("indy2_stag",	MVPlotJob.class.getDeclaredMethod("setIndy2Stagger",new Class[]{boolean.class}));
 			_tableFormatBoolean.put("grid_on",		MVPlotJob.class.getDeclaredMethod("setGridOn",		new Class[]{boolean.class}));
 			_tableFormatBoolean.put("sync_axes",	MVPlotJob.class.getDeclaredMethod("setSyncAxes",	new Class[]{boolean.class}));
 		}catch(NoSuchMethodException e){}
@@ -440,7 +454,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("xlab_align",	MVPlotJob.class.getDeclaredMethod("setXlabAlign",	new Class[]{String.class}));
 			_tableFormatString.put("ytlab_orient",	MVPlotJob.class.getDeclaredMethod("setYtlabOrient",	new Class[]{String.class}));
 			_tableFormatString.put("ytlab_perp",	MVPlotJob.class.getDeclaredMethod("setYtlabPerp",	new Class[]{String.class}));
-			_tableFormatString.put("ytalb_horiz",	MVPlotJob.class.getDeclaredMethod("setYtlabHoriz",	new Class[]{String.class}));
+			_tableFormatString.put("ytlab_horiz",	MVPlotJob.class.getDeclaredMethod("setYtlabHoriz",	new Class[]{String.class}));
 			_tableFormatString.put("tlab_weight",	MVPlotJob.class.getDeclaredMethod("setYlabWeight",	new Class[]{String.class}));
 			_tableFormatString.put("ylab_size",		MVPlotJob.class.getDeclaredMethod("setYlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("ylab_offset",	MVPlotJob.class.getDeclaredMethod("setYlabOffset",	new Class[]{String.class}));

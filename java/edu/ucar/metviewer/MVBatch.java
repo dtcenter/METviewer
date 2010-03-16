@@ -27,7 +27,7 @@ public class MVBatch extends MVUtil {
 	public static final Pattern _patRTmpl		= Pattern.compile("#<(\\w+)>#");
 	
 	public static final boolean _boolPlot		= true;
-	public static boolean _boolSQLSort			= false;
+	public static boolean _boolSQLSort			= true;
 	
 	public static String[] _list24				= {};
 	public static String[] _list06				= {};
@@ -39,7 +39,7 @@ public class MVBatch extends MVUtil {
 	public static int _intPlotIndex				= 0;
 	public static boolean _boolTheWorks			= false;
 
-	public static boolean _boolHMT				= true; 
+	public static boolean _boolHMT				= false; 
 	
 	public static boolean _boolWindows			= false;
 		
@@ -59,7 +59,7 @@ public class MVBatch extends MVUtil {
 		
 			MVPlotJob[] jobs = {};
 
-			if( _boolHMT ){
+			if( /* _boolHMT */ 1 < argv.length ){
 	
 				//  set the default base date to the most recent Sunday
 				Calendar calBaseDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -246,7 +246,7 @@ public class MVBatch extends MVUtil {
 		System.out.println("\n----  MVBatch Done  ----");
 	}
 	
-	public static void runJob(MVPlotJob job) throws SQLException, IOException, InterruptedException {
+	public static void runJob(MVPlotJob job) throws Exception {
 		
 		/*
 		 * Run a query and build a set of plots for each group of dependent variables
@@ -268,10 +268,15 @@ public class MVBatch extends MVUtil {
 			Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
 			Map.Entry[] listDep2Plot	= ( null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
 			
+			//  combine the dependent variables for each axis into one list
+			ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
+			listDepAll.addAll( Arrays.asList(listDep2Plot) );
+			Map.Entry[] listDepPlot = (Map.Entry[])listDepAll.toArray(new Map.Entry[]{});			
+
 			/*
 			 *  Build the plot query SQL
 			 */
-						
+									
 			//  build a comma delimited lists of the query fields as the select and sort lists
 			String strSelectList = "", strSortList = "";
 			Map.Entry[] listQueryFields = append( append(listAggVal, listSeries1Val), listSeries2Val );
@@ -308,29 +313,39 @@ public class MVBatch extends MVUtil {
 			} else {
 				strSelectList += "  sh." + job.getIndyVar() + ",\n";
 			}
-			strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
 			
-			//  determine if the job calls for confidence intervals and add the fields if necessary
-			boolean boolNormalCI = false, boolBootCI = false;
-			String[] listPlotCI = parseRCol(job.getPlotCI()); 
-			for(int i=0; i < listPlotCI.length; i++){
-				if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
-				else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
+			if( job.getBootstrapping() ){
+				strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
+			} else {
+				strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
+
+				//  determine if the job calls for confidence intervals and add the fields if necessary
+				boolean boolNormalCI = false, boolBootCI = false;
+				String[] listPlotCI = parseRCol(job.getPlotCI()); 
+				for(int i=0; i < listPlotCI.length; i++){
+					if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
+					else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
+				}
+				if( boolNormalCI ){ strSelectList += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
+				if( boolBootCI )  { strSelectList += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }			
 			}
-			if( boolNormalCI ){ strSelectList += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
-			if( boolBootCI )  { strSelectList += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }
 			
 			//  if nobs is requested, add baserate and total
 			if( 0 < listSeriesNobs.length ){
-				strSelectList += ",\n  (ldc.total * sgb.stat_value) nobs,\n  ldc.total";
+				strSelectList += ",\n  (ldcts.total * sgb.stat_value) nobs,\n  ldcts.total";
 			}
 
 			//  build the list of tables for the FROM clause
-			String strFromList = "  stat_header sh,\n  stat_group sg";
+			String strFromList = "  stat_header sh";
+			if( job.getBootstrapping() ){
+				strFromList += ",\n  line_data_ctc ldctc";
+			} else {
+				strFromList += ",\n  stat_group sg";
+			}
 			
 			//  if nobs is requested, add baserate and total
 			if( 0 < listSeriesNobs.length ){
-				strFromList += ",\n  stat_group sgb,\n  line_data_cts ldc";
+				strFromList += ",\n  stat_group sgb,\n  line_data_cts ldcts";
 			}
 			
 			//  build the where clause from the tables of field names and values
@@ -374,19 +389,16 @@ public class MVBatch extends MVUtil {
 			}
 			*/
 			
-			//  combine the dependent variables for each axis into one list
-			ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
-			listDepAll.addAll( Arrays.asList(listDep2Plot) );
-			Map.Entry[] listDepPlot = (Map.Entry[])listDepAll.toArray(new Map.Entry[]{});			
-			
 			//  build the dependent variable where clause
 			strWhere += "  AND\n  (\n";
 			for(int i=0; i < listDepPlot.length; i++){
 				String strFcstVar = (String)listDepPlot[i].getKey();
 				String[] listStatGroupName = (String[])listDepPlot[i].getValue();
 				String[] listStatGroupLuId = new String[listStatGroupName.length];
-				for(int j=0; j < listStatGroupName.length; j++){
-					listStatGroupLuId[j] = (String)_tableFcstVarIndex.get(listStatGroupName[j]);
+				String strDepStatClause = "";
+				if( !job.getBootstrapping() ){
+					for(int j=0; j < listStatGroupName.length; j++){ listStatGroupLuId[j] = (String)_tableFcstVarIndex.get(listStatGroupName[j]); }
+					strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
 				}
 				
 				//  fixed field sql
@@ -409,16 +421,20 @@ public class MVBatch extends MVUtil {
 				}
 				
 				strWhere += (0 < i? "    OR\n" : "") + "    (\n      sh.fcst_var = '" + strFcstVar + "'\n" +
-							"      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n" +
-							strFixed + strSeries + "    )\n";
+							strDepStatClause + strFixed + strSeries + "    )\n";
 			}
-			strWhere += "  )\n  AND sh.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
+			
+			//  add the table joining clauses
+			if( job.getBootstrapping() ){
+				strWhere += "  )\n  AND sh.stat_header_id = ldctc.stat_header_id";
+			} else {
+				strWhere += "  )\n  AND sh.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
 
-			//  if nobs is requested, link in the appropriate tables
-			if( 0 < listSeriesNobs.length ){
-				strWhere += "\n  AND sgb.stat_group_lu_id = '0'\n" +
-							  "  AND sh.stat_header_id = sgb.stat_header_id\n" +
-							  "  AND sh.stat_header_id = ldc.stat_header_id";
+				if( 0 < listSeriesNobs.length ){
+					strWhere += "\n  AND sgb.stat_group_lu_id = '0'\n" +
+								  "  AND sh.stat_header_id = sgb.stat_header_id\n" +
+								  "  AND sh.stat_header_id = ldcnt.stat_header_id";
+				}			
 			}
 
 			//  put the query components together
@@ -456,23 +472,25 @@ public class MVBatch extends MVUtil {
 				continue;
 			}
 						
-			//  convert the stat_group_lu_id to stat_name
-			tab.addField("stat_name");
-			for(int i=0; i < listDepPlot.length; i++){
-				final String strFcstVar = (String)listDepPlot[i].getKey();
-				String[] listStatName = (String[])listDepPlot[i].getValue();
-				
-				for(int j=0; j < listStatName.length; j++){
-					final String strStatGroupLuId = (String)_tableFcstVarIndex.get(listStatName[j]);
-					MVRowComp c = new MVRowComp(){
-						public boolean equals(MVOrderedMap row){
-							String strFcstVarRow = (String)row.get("fcst_var"); 
-							String strStatGroupLuIdRow = (String)row.get("stat_group_lu_id");
-							return (strFcstVarRow.equals(strFcstVar) && strStatGroupLuIdRow.equals(strStatGroupLuId)); 
-						}
-					};
-					tab.set("stat_name", c, listStatName[j]); 
-				}				
+			//  convert the stat_group_lu_id to stat_name, if present
+			if( tab.containsField("stat_group_lu_id") ){
+				tab.addField("stat_name");
+				for(int i=0; i < listDepPlot.length; i++){
+					final String strFcstVar = (String)listDepPlot[i].getKey();
+					String[] listStatName = (String[])listDepPlot[i].getValue();
+					
+					for(int j=0; j < listStatName.length; j++){
+						final String strStatGroupLuId = (String)_tableFcstVarIndex.get(listStatName[j]);
+						MVRowComp c = new MVRowComp(){
+							public boolean equals(MVOrderedMap row){
+								String strFcstVarRow = (String)row.get("fcst_var"); 
+								String strStatGroupLuIdRow = (String)row.get("stat_group_lu_id");
+								return (strFcstVarRow.equals(strFcstVar) && strStatGroupLuIdRow.equals(strStatGroupLuId)); 
+							}
+						};
+						tab.set("stat_name", c, listStatName[j]); 
+					}				
+				}
 			}
 			
 			//  add set fields to the table to handle aggregating over sets of values
@@ -511,6 +529,7 @@ public class MVBatch extends MVUtil {
 			/*
 			 *  Build a list of plot permutations to run
 			 */
+			
 			MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
 			for(int intPerm=0; intPerm < listAggPerm.length; intPerm++){
 				
@@ -539,26 +558,42 @@ public class MVBatch extends MVUtil {
 
 				MVOrderedMap mapTmplVals = new MVOrderedMap();
 
+				//  bootstrap data
+				MVOrderedMap mapBootStatic = new MVOrderedMap( listAggPerm[intPerm] );
+				MVOrderedMap mapSeries1Val = new MVOrderedMap( job.getSeries1Val() );
+				MVOrderedMap mapSeries2Val = new MVOrderedMap( job.getSeries2Val() );
+				
 				//  add the independent and dependent variables 
 				mapTmplVals.put("indy_var", job.getIndyVar());
 				Map.Entry[][] listDepPlotList = {listDep1Plot, listDep2Plot};
+				ArrayList listBootStats1 = new ArrayList();
+				ArrayList listBootStats2 = new ArrayList();
 				for(int intDepPlot = 0; intDepPlot < 2; intDepPlot++){
 					Map.Entry[] listDepCur = listDepPlotList[intDepPlot];
 					String strDepName = "dep" + (intDepPlot+1);
 					
 					//  add the stats for each fcst_var
 					for(int i=0; i < listDepCur.length; i++){
+						
+						//  add the stat names
 						String strFcstVar = (String)listDepCur[i].getKey();
 						mapTmplVals.put(strDepName + "_" + (i+1), strFcstVar);
-						String[] listStats = (String[])listDepCur[i].getValue();
+						mapBootStatic.put("fcst_var", strFcstVar);
+						String[] listStats = (String[])listDepCur[i].getValue();						
 						for(int j=0; j < listStats.length; j++){
 							mapTmplVals.put(strDepName + "_" + (i+1) + "_stat" + (j+1), listStats[j]);
+							if( job.getBootstrapping() && 0 == intDepPlot ){ listBootStats1.add(listStats[j]); }
+							if( job.getBootstrapping() && 1 == intDepPlot ){ listBootStats2.add(listStats[j]); }
 						}
 						
+						//  add the fixed fields and values
 						MVOrderedMap mapFixCur = (MVOrderedMap)mapFix.get(strFcstVar);
 						Map.Entry[] listFixCurVal = mapFixCur.getOrderedEntries();
 						for(int j=0; j < listFixCurVal.length; j++){
-							mapTmplVals.put((String)listFixCurVal[j].getKey(), (String)listFixCurVal[j].getValue());
+							String strFixVar = (String)listFixCurVal[j].getKey();
+							String strFixVal = (String)listFixCurVal[j].getValue();
+							mapTmplVals.put(strFixVar, strFixVal);
+							if( job.getBootstrapping() && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
 						}
 					}
 				}
@@ -579,15 +614,73 @@ public class MVBatch extends MVUtil {
 				/*
 				 *  Print the data file in the R_work subfolder and file specified by the data file template
 				 */
+				
 				_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
 				_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
 				_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");
 
 				String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapTmplVals, job.getTmplMaps());
+				if( job.getBootstrapping() ){ strDataFile = strDataFile + ".boot"; }
 				(new File(strDataFile)).getParentFile().mkdirs();
 				printFormattedResults(tabPerm, new PrintStream(strDataFile), "\t");
 				tabPerm = null;
 				
+								
+				/*
+				 *  If bootstrapping is requested, generate the bootstrapped data 
+				 */
+								
+				if( job.getBootstrapping() ){
+
+					//  construct and create the path for the bootstrap data output file
+					String strBootInfo = strDataFile.replaceFirst("\\.data.boot$", ".boot.info");
+					String strBootOutput = strDataFile.replaceFirst("\\.boot$", "");
+					File fileBootOutput = new File(strBootOutput); 
+
+					//  build the map containing tag values for the boot info template
+					Hashtable tableBootInfo = new Hashtable();
+					tableBootInfo.put("boot_diff1",		job.getBootDiff1()? "TRUE" : "FALSE");
+					tableBootInfo.put("boot_diff2",		job.getBootDiff2()? "TRUE" : "FALSE");
+					tableBootInfo.put("boot_repl",		job.getBootRepl());
+					tableBootInfo.put("boot_ci",		job.getBootCI());
+					tableBootInfo.put("ci_alpha",		job.getCIAlpha());
+					tableBootInfo.put("indy_var",		job.getIndyVar());
+					tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
+					tableBootInfo.put("series1_list",	job.getSeries1Val().getRDecl());
+					tableBootInfo.put("series2_list",	job.getSeries2Val().getRDecl());
+					tableBootInfo.put("boot_stat1",		printRCol((String[])listBootStats1.toArray(new String[]{}), true));
+					tableBootInfo.put("boot_stat2",		printRCol((String[])listBootStats2.toArray(new String[]{}), true));
+					tableBootInfo.put("boot_static",	mapBootStatic.getRDecl());
+					tableBootInfo.put("boot_input",		strDataFile);
+					tableBootInfo.put("boot_output",	strBootOutput);
+					tableBootInfo.put("working_dir",	_strRworkFolder + "include");
+				
+					//  populate the boot info file
+					populateTemplateFile(_strRtmplFolder + "boot.info_tmpl", strBootInfo, tableBootInfo);
+													
+					//  run boot.R to generate the data file for plotting
+					if( !fileBootOutput.exists() ){
+						fileBootOutput.getParentFile().mkdirs();
+						runRscript(_strRworkFolder + "include/boot.R", new String[]{strBootInfo});
+					}
+
+					//  if boot_diffN is turned on, add __BOOT_DIFFN__ to the plot series
+					for(int i=0; i < 2; i++){
+						MVOrderedMap mapSeriesVal = null;
+						String strDiffSeries = "";
+						if     ( i == 0 && job.getBootDiff1() ){ mapSeriesVal = mapSeries1Val; strDiffSeries = "__BOOT_DIFF1__"; }
+						else if( i == 1 && job.getBootDiff2() ){ mapSeriesVal = mapSeries2Val; strDiffSeries = "__BOOT_DIFF2__"; }
+						else                                   { continue; }						
+						String[] listSeriesVar = mapSeriesVal.keyList();
+						ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
+						listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
+						mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], listDiffVal.toArray(new String[]{}));
+					}					
+					
+					//  remove the .boot suffix from the data file
+					strDataFile = strBootOutput;
+				}
+
 				
 				/*
 				 *  Generate filenames and plot labels from the templates 
@@ -615,11 +708,11 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("indy_var",		job.getIndyVar());
 				tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
 				tableRTags.put("indy_label",	(0 < job.getIndyLabel().length? printRCol(job.getIndyLabel(), true) : "c()"));
-				tableRTags.put("dep1_plot",		mapDep1.getRDecl());
+				tableRTags.put("dep1_plot",		mapDep1.getRDecl());				
 				tableRTags.put("dep2_plot",		(null != mapDep2? mapDep2.getRDecl() : "c()"));
 				tableRTags.put("agg_list",		listAggPerm[intPerm].getRDecl());
-				tableRTags.put("series1_list",	job.getSeries1Val().getRDecl());
-				tableRTags.put("series2_list",	job.getSeries2Val().getRDecl());
+				tableRTags.put("series1_list",	mapSeries1Val.getRDecl());
+				tableRTags.put("series2_list",	mapSeries2Val.getRDecl());
 				tableRTags.put("series_nobs",	job.getSeriesNobs().getRDecl());
 				tableRTags.put("dep1_scale",	job.getDep1Scale().getRDecl());
 				tableRTags.put("dep2_scale",	job.getDep2Scale().getRDecl());
@@ -634,7 +727,8 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("plot1_diff",	(job.getPlot1Diff()?	"TRUE" : "FALSE"));
 				tableRTags.put("plot2_diff",	(job.getPlot2Diff()?	"TRUE" : "FALSE"));
 				tableRTags.put("show_nstats",	(job.getShowNStats()?	"TRUE" : "FALSE"));
-				tableRTags.put("indy_stagger",	(job.getIndyStagger()?	"TRUE" : "FALSE"));
+				tableRTags.put("indy1_stagger",	(job.getIndy1Stagger()?	"TRUE" : "FALSE"));
+				tableRTags.put("indy2_stagger",	(job.getIndy2Stagger()?	"TRUE" : "FALSE"));
 				tableRTags.put("grid_on",		(job.getGridOn()?		"TRUE" : "FALSE"));
 				tableRTags.put("sync_axes",		(job.getSyncAxes()?		"TRUE" : "FALSE"));
 				
@@ -726,26 +820,8 @@ public class MVBatch extends MVUtil {
 				/*
 				 *  Read the template in, replacing the appropriate tags with generated R code
 				 */
-				
-				BufferedReader reader = new BufferedReader( new FileReader(_strRtmplFolder + job.getPlotTmpl()) );
-				PrintStream writer = new PrintStream(strRFile);
-				while( reader.ready() ){
-					String strRtmplLine = reader.readLine();
-					String strRPlotLine = strRtmplLine;
-					
-					Matcher matRtmplLine = _patRTmpl.matcher(strRtmplLine);
-					while( matRtmplLine.find() ){
-						String strRtmplTag = matRtmplLine.group(1);
-						if( !tableRTags.containsKey(strRtmplTag) ){ continue; }
-						String strRTagVal = (String)tableRTags.get(strRtmplTag);
-						strRPlotLine = strRPlotLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
-					}
-					
-					writer.println(strRPlotLine);
-				}
-				reader.close();
-				writer.close();
-				tableRTags = null;
+
+				populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
 	
 				
 				/*
@@ -753,40 +829,12 @@ public class MVBatch extends MVUtil {
 				 */			
 
 				if( _boolPlot ){
-					System.out.println("\nRunning 'Rscript " + strRFile + "'");
-					Process proc = Runtime.getRuntime().exec("Rscript " + strRFile);
-					if( _boolProcWait ){
-						proc.waitFor();
-					} else {
-						try{
-							Thread.sleep(10000);
-						}catch(InterruptedException ie){}
-					}
-		
-					String strRscriptOut = "";
-					BufferedReader readerProcIn = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
-					while( readerProcIn.ready() ){
-						strRscriptOut += readerProcIn.readLine() + "\n";
-					}
-					readerProcIn.close();			
-					if( !"".equals(strRscriptOut) ){
-						System.out.println("\n==== Start Rscript output  ====\n" + strRscriptOut + "====   End Rscript output  ====");
-					}
-					
-					String strRscriptErr = "";
-					BufferedReader readerProcError = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
-					while( readerProcError.ready() ){
-						strRscriptErr += readerProcError.readLine() + "\n";
-					}
-					readerProcError.close();
-					if( !"".equals(strRscriptErr) ){
-						System.out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
-					}
-					
-					System.out.println("\nRunning Rscript complete\n");
+					runRscript(strRFile);
 				}
+				
 			} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
 
+			//  try to throw memory back onto the heap
 			res = null;
 			tab.clear();
 			tab = null;
@@ -796,12 +844,288 @@ public class MVBatch extends MVUtil {
 
 	}
 
-	/*
-	public static final SimpleDateFormat m_formatDB = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.US);
-	public static final SimpleDateFormat m_formatDBms = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.S", Locale.US);
-	public static final SimpleDateFormat m_formatPlot = new SimpleDateFormat("yyyyMMddHH", Locale.US);
-	*/
+	public static final Pattern _patBoot = Pattern.compile("(?i)\\s*boot\\(\\s*([^\\)]+)\\s*\\)\\s*");
+	
+	public static String buildSQL(MVPlotJob job, MVOrderedMap dep){
 
+		//  get the dependent variable and fixed value maps for this group
+		MVOrderedMap mapDep1 = (MVOrderedMap)dep.get("dep1");
+		MVOrderedMap mapDep2 = (MVOrderedMap)dep.get("dep2");
+		MVOrderedMap mapFix = (MVOrderedMap)dep.get("fix");
+		
+		//  establish lists of entires for each group of variables and values
+		Map.Entry[] listAggVal		= job.getAggVal().getOrderedEntries();
+		Map.Entry[] listSeries1Val	= job.getSeries1Val().getOrderedEntries();
+		Map.Entry[] listSeries2Val	= ( null != job.getSeries2Val()? job.getSeries2Val().getOrderedEntries() : new Map.Entry[]{});
+		Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
+		Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
+		Map.Entry[] listDep2Plot	= ( null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
+		
+		//  determine if bootstrapping has been requested
+		boolean boolBootDep1 = false;
+		for(int i=0; !boolBootDep1 && i < listDep1Plot.length; i++){
+			String[] listStats = (String[])listDep1Plot[i].getValue();
+			for(int j=0; !boolBootDep1 && j < listStats.length; j++){
+				Matcher matBoot = _patBoot.matcher(listStats[j]);
+				if( matBoot.matches() ){ boolBootDep1 = true; }
+			}			
+		}
+		
+		/*
+		 *  Build the plot query SQL
+		 */
+					
+		//  build a comma delimited lists of the query fields as the select and sort lists
+		String strSelectList = "", strSortList = "";
+		Map.Entry[] listQueryFields = append( append(listAggVal, listSeries1Val), listSeries2Val );
+		Hashtable tableFields = new Hashtable();
+		for(int i=0; i < listQueryFields.length; i++){
+			String strSelectVar = (String)listQueryFields[i].getKey();
+			String strSortVar = strSelectVar;
+			if( tableFields.containsKey(strSelectVar) ){ continue; }
+			tableFields.put(strSelectVar, "true");
+			if( strSelectVar.equals("inithour") ){
+				strSelectVar = "HOUR(sh.initdate) inithour";
+				strSortVar = "inithour";
+			} else if( strSelectVar.equals("initdate") ){
+				strSelectVar = getSQLDateFormat("sh.initdate") + " initdate";
+				strSortVar = "initdate";
+			} else if( strSelectVar.equals("validhour") ){
+				strSelectVar = "HOUR(sh.fcst_valid_beg) validhour";
+				strSortVar = "validhour";
+			} else if( strSelectVar.equals("fcst_valid_beg") ){
+				strSelectVar = getSQLDateFormat("sh.fcst_valid_beg") + " fcst_valid_beg";
+				strSortVar = "fcst_valid_beg";
+			} else {
+				strSelectVar = "sh." + strSelectVar;
+				strSortVar = strSelectVar;
+			}
+			strSelectList += (0 < i? ",\n" : "") + "  " + strSelectVar;
+			strSortList += (0 < i? ",\n" : "") + "  " + strSortVar;
+		}
+		
+		//  add valid time, forecast variable, independent variable and stat group to the list
+		strSelectList += ",\n  " + getSQLDateFormat("sh.fcst_valid_beg") + " fcst_valid_beg,\n  sh.fcst_var,\n";			
+		if( job.getIndyVar().equals("initdate") || job.getIndyVar().equals("fcst_valid_beg") ){
+			strSelectList += "  " + getSQLDateFormat("sh." + job.getIndyVar()) + " " + job.getIndyVar() + ",\n";
+		} else {
+			strSelectList += "  sh." + job.getIndyVar() + ",\n";
+		}
+		
+		if( boolBootDep1 ){
+			strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
+		} else {
+			strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
+
+			//  determine if the job calls for confidence intervals and add the fields if necessary
+			boolean boolNormalCI = false, boolBootCI = false;
+			String[] listPlotCI = parseRCol(job.getPlotCI()); 
+			for(int i=0; i < listPlotCI.length; i++){
+				if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
+				else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
+			}
+			if( boolNormalCI ){ strSelectList += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
+			if( boolBootCI )  { strSelectList += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }			
+		}
+		
+		//  if nobs is requested, add baserate and total
+		if( 0 < listSeriesNobs.length ){
+			strSelectList += ",\n  (ldcts.total * sgb.stat_value) nobs,\n  ldcts.total";
+		}
+
+		//  build the list of tables for the FROM clause
+		String strFromList = "  stat_header sh";
+		if( boolBootDep1 ){
+			strFromList += ",\n  line_data_ctc ldctc";
+		} else {
+			strFromList += ",\n  stat_group sg";
+		}
+		
+		//  if nobs is requested, add baserate and total
+		if( 0 < listSeriesNobs.length ){
+			strFromList += ",\n  stat_group sgb,\n  line_data_cts ldcts";
+		}
+		
+		//  build the where clause from the tables of field names and values
+		String strWhere = "";
+		
+		//  build the aggregate fields where clause
+		for(int i=0; i < listAggVal.length; i++){
+			String strField = (String)listAggVal[i].getKey();
+			if     ( strField.equals("inithour") )		{ strField = "HOUR(sh.initdate)"; 					}
+			else if( strField.equals("initdate") )		{ strField = getSQLDateFormat("sh.initdate");		}
+			else if( strField.equals("inithour") )		{ strField = "HOUR(sh.fcst_valid_beg)"; 			}
+			else if( strField.equals("fcst_valid_beg") ){ strField = getSQLDateFormat("sh.fcst_valid_beg"); }
+			else										{ strField = "sh." + strField;						}
+
+			String strValueList = "";
+			Object objValue = listAggVal[i].getValue();
+			if( objValue instanceof String[] ){
+				strValueList = buildValueList( (String[])objValue );
+			} else if( objValue instanceof MVOrderedMap ){
+				Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();					
+				for(int j=0; j < listSets.length; j++){
+					strValueList += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
+				} 					
+			}
+			strWhere += "  " + (0 < i? "AND " : "") + strField + " IN (" + strValueList + ")\n";
+		}
+		
+		//  add the independent variable values, if necessary
+		if( 0 < job.getIndyVal().length ){
+			strWhere += "  AND sh." + job.getIndyVar() + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
+		}
+
+		/*
+		//  build the series fields where clause
+		int intNumSeries = 0;
+		for(int i=0; i < listSeries1Val.length; i++){
+			String strField = (String)listSeries1Val[i].getKey();
+			String[] listValues = (String[])listSeries1Val[i].getValue();
+			strWhere += "  AND sh." + strField + " IN (" + buildValueList(listValues) + ")\n";
+			intNumSeries += listValues.length;
+		}
+		*/
+		
+		//  combine the dependent variables for each axis into one list
+		ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
+		listDepAll.addAll( Arrays.asList(listDep2Plot) );
+		Map.Entry[] listDepPlot = (Map.Entry[])listDepAll.toArray(new Map.Entry[]{});			
+		
+		//  build the dependent variable where clause
+		strWhere += "  AND\n  (\n";
+		boolean boolBootDep = false;
+		for(int i=0; i < listDepPlot.length; i++){
+			String strFcstVar = (String)listDepPlot[i].getKey();
+			String[] listStatGroupName = (String[])listDepPlot[i].getValue();
+			String[] listStatGroupLuId = new String[listStatGroupName.length];
+			String strDepStatClause = "";
+			for(int j=0; !boolBootDep && j < listStatGroupName.length; j++){
+				Matcher matBoot = _patBoot.matcher(listStatGroupName[j]);
+				if( matBoot.matches() ){ boolBootDep = true; }
+				else{ listStatGroupLuId[j] = (String)_tableFcstVarIndex.get(listStatGroupName[j]); }
+			}
+			if( !boolBootDep ){
+				strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
+			}
+			
+			//  fixed field sql
+			String strFixed = "";
+			MVOrderedMap mapFixed = (MVOrderedMap)mapFix.get(strFcstVar);
+			Map.Entry[] listFixed = mapFixed.getOrderedEntries();
+			for(int j=0; j < listFixed.length; j++){
+				String strField = (String)listFixed[j].getKey();
+				String strValue = (String)listFixed[j].getValue();
+				strFixed += "      AND sh." + strField + formatSQLConstraint(strValue) + "\n";
+			}
+			
+			//  build the series fields where clause
+			String strSeries = "";
+			Map.Entry[] listSeriesVal = (i < listDep1Plot.length? listSeries1Val : listSeries2Val);
+			for(int j=0; j < listSeriesVal.length; j++){
+				String strField = (String)listSeriesVal[j].getKey();
+				String[] listValues = (String[])listSeriesVal[j].getValue();
+				strSeries += "      AND sh." + strField + " IN (" + buildValueList(listValues) + ")\n";
+			}
+			
+			strWhere += (0 < i? "    OR\n" : "") + "    (\n      sh.fcst_var = '" + strFcstVar + "'\n" +
+						strDepStatClause + strFixed + strSeries + "    )\n";
+		}
+		if( boolBootDep ){
+			strWhere += "  )\n  AND sh.stat_header_id = ldctc.stat_header_id";
+		} else {
+			strWhere += "  )\n  AND sh.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
+		}
+
+		//  if nobs is requested, link in the appropriate tables
+		if( 0 < listSeriesNobs.length ){
+			strWhere += "\n  AND sgb.stat_group_lu_id = '0'\n" +
+						  "  AND sh.stat_header_id = sgb.stat_header_id\n" +
+						  "  AND sh.stat_header_id = ldcnt.stat_header_id";
+		}
+
+		//  put the query components together
+		String strQuery = "SELECT\n" + strSelectList + "\n" +
+						  "FROM\n" + strFromList + "\n" +
+						  "WHERE\n" + strWhere + 
+						  (_boolSQLSort? "\nORDER BY\n" + strSortList : "") + ";";
+		
+		return strQuery;
+	}
+	
+	/**
+	 * Populate the template tags in the input template file named tmpl with values from the input
+	 * table vals and write the result to the output file named output.
+	 * @param tmpl Template file to populate
+	 * @param output Output file to write
+	 * @param vals Table containing values corresponding to tags in the input template
+	 * @throws Exception
+	 */
+	public static void populateTemplateFile(String tmpl, String output, Hashtable vals) throws Exception{
+		BufferedReader reader = new BufferedReader( new FileReader(tmpl) );
+		PrintStream writer = new PrintStream(output);
+		while( reader.ready() ){
+			String strTmplLine = reader.readLine();
+			String strOutputLine = strTmplLine;
+			
+			Matcher matRtmplLine = _patRTmpl.matcher(strTmplLine);
+			while( matRtmplLine.find() ){
+				String strRtmplTag = matRtmplLine.group(1);
+				if( !vals.containsKey(strRtmplTag) ){ continue; }
+				String strRTagVal = (String)vals.get(strRtmplTag);
+				strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
+			}
+			
+			writer.println(strOutputLine);
+		}
+		reader.close();
+		writer.close();
+	}
+	
+	/**
+	 * Run the input R script named r using the Rscript command.  The output and error output will
+	 * be written to standard output.
+	 * @param r R script to run
+	 * @param args (optional) Arguments to pass to the R script
+	 * @throws Exception
+	 */
+	public static void runRscript(String r, String[] args) throws Exception{
+		
+		String strArgList = "";
+		for(int i=0; null != args && i < args.length; i++){ strArgList += " " + args[i]; }
+		
+		System.out.println("\nRunning 'Rscript " + r + "'");
+		Process proc = Runtime.getRuntime().exec("Rscript " + r + strArgList);
+		if( _boolProcWait ){
+			proc.waitFor();
+		} else {
+			try{
+				Thread.sleep(10000);
+			}catch(InterruptedException ie){}
+		}
+
+		String strRscriptOut = "";
+		BufferedReader readerProcIn = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
+		while( readerProcIn.ready() ){
+			strRscriptOut += readerProcIn.readLine() + "\n";
+		}
+		readerProcIn.close();			
+		if( !"".equals(strRscriptOut) ){
+			System.out.println("\n==== Start Rscript output  ====\n" + strRscriptOut + "====   End Rscript output  ====");
+		}
+		
+		String strRscriptErr = "";
+		BufferedReader readerProcError = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
+		while( readerProcError.ready() ){
+			strRscriptErr += readerProcError.readLine() + "\n";
+		}
+		readerProcError.close();
+		if( !"".equals(strRscriptErr) ){
+			System.out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
+		}
+	}
+	public static void runRscript(String r) throws Exception{ runRscript(r, new String[]{}); }
+	
 	/**
 	 * Prints a textual representation of the input {@link ResultSet} with the column names in the 
 	 * first row to the specified {@link PrintStream} destination.  

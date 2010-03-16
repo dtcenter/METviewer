@@ -40,7 +40,8 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolPlot1Diff		= false;
 	protected boolean _boolPlot2Diff		= false;
 	protected boolean _boolShowNStats		= false;
-	protected boolean _boolIndyStagger		= false;
+	protected boolean _boolIndy1Stagger		= false;
+	protected boolean _boolIndy2Stagger		= false;
 	protected boolean _boolGridOn			= false;
 	protected boolean _boolSyncAxes			= false;
 	
@@ -96,6 +97,12 @@ public class MVPlotJob extends MVUtil{
 	protected String _strBoxNotch			= "FALSE";
 	protected String _strCIAlpha			= ".05";
 	
+	protected boolean _boolBootstrapping	= false;	
+	protected String _strBootRepl			= "1000";
+	protected String _strBootCI				= "c()";
+	protected boolean _strBootDiff1			= false;
+	protected boolean _strBootDiff2			= false;
+	
 	protected String _strPlotCI				= "";
 	protected String _strColors				= "";
 	protected String _strPch				= "";
@@ -139,7 +146,8 @@ public class MVPlotJob extends MVUtil{
 		job._boolPlot1Diff		= _boolPlot1Diff;
 		job._boolPlot2Diff		= _boolPlot2Diff;
 		job._boolShowNStats		= _boolShowNStats;
-		job._boolIndyStagger	= _boolIndyStagger;
+		job._boolIndy1Stagger	= _boolIndy1Stagger;
+		job._boolIndy2Stagger	= _boolIndy2Stagger;
 		job._boolGridOn			= _boolGridOn;
 		job._boolSyncAxes		= _boolSyncAxes;
 		
@@ -194,6 +202,12 @@ public class MVPlotJob extends MVUtil{
 		job._strBoxBoxwex		= _strBoxBoxwex;
 		job._strBoxNotch		= _strBoxNotch;
 		job._strCIAlpha			= _strCIAlpha;
+
+		job._boolBootstrapping	= _boolBootstrapping;
+		job._strBootRepl		= _strBootRepl;
+		job._strBootCI			= _strBootCI;
+		job._strBootDiff1		= _strBootDiff1;
+		job._strBootDiff2		= _strBootDiff2;
 		
 		job._strPlotCI			= _strPlotCI;
 		job._strColors			= _strColors;
@@ -296,8 +310,10 @@ public class MVPlotJob extends MVUtil{
 	public void		setPlot2Diff(boolean plot2Diff)						{ _boolPlot2Diff = plot2Diff; 							}
 	public boolean	getShowNStats()										{ return _boolShowNStats;								}
 	public void		setShowNStats(boolean showNStats)					{ _boolShowNStats = showNStats; 						}
-	public boolean	getIndyStagger()									{ return _boolIndyStagger;								}
-	public void		setIndyStagger(boolean indyStagger)					{ _boolIndyStagger = indyStagger;						}
+	public boolean	getIndy1Stagger()									{ return _boolIndy1Stagger;								}
+	public void		setIndy1Stagger(boolean indy1Stagger)				{ _boolIndy1Stagger = indy1Stagger;						}
+	public boolean	getIndy2Stagger()									{ return _boolIndy2Stagger;								}
+	public void		setIndy2Stagger(boolean indy2Stagger)				{ _boolIndy2Stagger = indy2Stagger;						}
 	public boolean	getGridOn()											{ return _boolGridOn;									}
 	public void		setGridOn(boolean gridOn)							{ _boolGridOn = gridOn; 								}
 	public boolean	getSyncAxes()										{ return _boolSyncAxes;									}
@@ -405,6 +421,17 @@ public class MVPlotJob extends MVUtil{
 	public void		setBoxNotch(String boxNotch)						{ _strBoxNotch = boxNotch;								}
 	public String	getCIAlpha()										{ return _strCIAlpha;									}
 	public void		setCIAlpha(String ciAlpha)							{ _strCIAlpha = ciAlpha;								}
+
+	public boolean	getBootstrapping()									{ return _boolBootstrapping;							}
+	public void		setBootstrapping(boolean bootstrapping)				{ _boolBootstrapping = bootstrapping; 					}
+	public String	getBootRepl()										{ return _strBootRepl;									}
+	public void		setBootRepl(String bootRepl)						{ _strBootRepl = bootRepl;								}
+	public String	getBootCI()											{ return _strBootCI;									}
+	public void		setBootCI(String bootCI)							{ _strBootCI = bootCI;									}
+	public boolean	getBootDiff1()										{ return _strBootDiff1;									}
+	public void		setBootDiff1(boolean bootDiff1)						{ _strBootDiff1 = bootDiff1;							}
+	public boolean	getBootDiff2()										{ return _strBootDiff2;									}
+	public void		setBootDiff2(boolean bootDiff2)						{ _strBootDiff2 = bootDiff2;							}
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}

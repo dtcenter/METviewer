@@ -11,7 +11,8 @@ boolEventEqual	= #<event_equal>#;
 boolPlot1Diff	= #<plot1_diff>#;
 boolPlot2Diff	= #<plot2_diff>#;
 boolShowNStats	= #<show_nstats>#;
-boolIndyStagger	= #<indy_stagger>#;
+boolIndy1Stagger= #<indy1_stagger>#;
+boolIndy2Stagger= #<indy2_stagger>#;
 boolGridOn		= #<grid_on>#;
 boolSyncAxes	= #<sync_axes>#;
 
@@ -283,10 +284,10 @@ listLty = #<lty>#;
 listLwd = #<lwd>#;
 
 # build the x-adjustment increments, if requested
-listXStag = rep(0, intNumSeries1 + 1);
-if( TRUE == boolIndyStagger ){
-	dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
-	listXStag = seq( -(intNumSeries1/2)*dblAdjScale, (intNumSeries1/2)*dblAdjScale, length=intNumSeries1 + 1 ) + ( dblAdjScale/2 );
+dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
+listXStag = rep(0, intNumSeries2 + 1);
+if( TRUE == boolIndy2Stagger ){
+	listXStag = seq( -(intNumSeries2/2)*dblAdjScale, (intNumSeries2/2)*dblAdjScale, length=intNumSeries2 + 1 ) + ( dblAdjScale/2 );
 }
 
 # plot the y2-axis series first, so that they lie underneath the y1-axis series
@@ -402,6 +403,12 @@ if( 0 < length(listDep2Plot) ){
 	
 } # end: if( 0 < length(listDep2Plot) )
 par(new=TRUE, usr=listY1Usr, xaxs="r");
+
+# build the x-adjustment increments, if requested
+listXStag = rep(0, intNumSeries1 + 1);
+if( TRUE == boolIndy1Stagger ){
+	listXStag = seq( -(intNumSeries1/2)*dblAdjScale, (intNumSeries1/2)*dblAdjScale, length=intNumSeries1 + 1 ) + ( dblAdjScale/2 );
+}
 
 # plot the y1-axis series
 intFormatIndex = 1

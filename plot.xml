@@ -166,10 +166,20 @@
 		<plot1_diff>false</plot1_diff>
 		<plot2_diff>false</plot2_diff>
 		<num_stats>false</num_stats>
-		<indy_stag>false</indy_stag>
+		<indy1_stag>false</indy1_stag>
+		<indy2_stag>false</indy2_stag>
 		<grid_on>true</grid_on>
 		<sync_axes>false</sync_axes>
-
+		
+		<!-- bootstrapping configuration
+		<bootstrapping>
+			<boot_repl>1000</boot_repl>
+			<boot_ci>bca</boot_ci>
+			<boot_diff1>TRUE</boot_diff1>
+			<boot_diff2>TRUE</boot_diff2>
+		</bootstrapping>		
+ 		-->
+ 		
 		<plot_type>png256</plot_type>
 		<plot_height>8.5</plot_height>
 		<plot_width>11</plot_width>
@@ -191,7 +201,7 @@
 		<xlab_align>.5</xlab_align>
 		<ytlab_orient>1</ytlab_orient>
 		<ytlab_perp>.5</ytlab_perp>
-		<ytalb_horiz>.5</ytalb_horiz>
+		<ytlab_horiz>.5</ytlab_horiz>
 		<tlab_weight>1</tlab_weight>
 		<ylab_size>1</ylab_size>
 		<ylab_offset>-2</ylab_offset>
