@@ -28,18 +28,19 @@ public class MVBatch extends MVUtil {
 	
 	public static final boolean _boolPlot		= true;
 	public static boolean _boolSQLSort			= true;
+	public static boolean _boolCacheBoot		= true;
 	
 	public static String[] _list24				= {};
 	public static String[] _list06				= {};
 	public static String[] _listBase			= {};
-	public static String _strBaseDate			= "";
-	public static String _strBaseDateDefault	= "2010-02-21 12:00:00";
+	public static String _strBaseDate			= "2010-03-14 00:00:00";
+	public static String _strBaseDateDefault	= "";
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
-	public static boolean _boolTheWorks			= false;
 
-	public static boolean _boolHMT				= false; 
+	public static boolean _boolTheWorks			= false;
+	public static boolean _boolHMT				= false;
 	
 	public static boolean _boolWindows			= false;
 		
@@ -173,11 +174,11 @@ public class MVBatch extends MVUtil {
 					}
 				} else {
 //					jobs = append(jobs, MVPlotJobInit24.getJobs(con));
-					jobs = append(jobs, MVPlotJobInit06.getJobs(con));
+//					jobs = append(jobs, MVPlotJobInit06.getJobs(con));
 //					jobs = append(jobs, MVPlotJobValid24.getJobs(con));
 //					jobs = append(jobs, MVPlotJobValid06.getJobs(con));
 //					jobs = append(jobs, MVPlotJob30Day24.getJobs(con));
-//					jobs = append(jobs, MVPlotJob30Day06.getJobs(con));
+					jobs = append(jobs, MVPlotJob30Day06.getJobs(con));
 //					jobs = append(jobs, MVPlotJobAgg24.getJobs(con));
 //					jobs = append(jobs, MVPlotJobAgg06.getJobs(con));
 //					jobs = append(jobs, MVPlotJobThresh24.getJobs(con));
@@ -368,7 +369,7 @@ public class MVBatch extends MVUtil {
 					Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();					
 					for(int j=0; j < listSets.length; j++){
 						strValueList += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
-					} 					
+					}
 				}
 				strWhere += "  " + (0 < i? "AND " : "") + strField + " IN (" + strValueList + ")\n";
 			}
@@ -556,7 +557,7 @@ public class MVBatch extends MVUtil {
 				 *  Build a map of all plot-specific values to use with the templates 
 				 */
 
-				MVOrderedMap mapTmplVals = new MVOrderedMap();
+				MVOrderedMap mapTmplVals = job.getTmplVal();
 
 				//  bootstrap data
 				MVOrderedMap mapBootStatic = new MVOrderedMap( listAggPerm[intPerm] );
@@ -659,7 +660,7 @@ public class MVBatch extends MVUtil {
 					populateTemplateFile(_strRtmplFolder + "boot.info_tmpl", strBootInfo, tableBootInfo);
 													
 					//  run boot.R to generate the data file for plotting
-					if( !fileBootOutput.exists() ){
+					if( !fileBootOutput.exists() || !_boolCacheBoot ){
 						fileBootOutput.getParentFile().mkdirs();
 						runRscript(_strRworkFolder + "include/boot.R", new String[]{strBootInfo});
 					}
@@ -731,6 +732,8 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("indy2_stagger",	(job.getIndy2Stagger()?	"TRUE" : "FALSE"));
 				tableRTags.put("grid_on",		(job.getGridOn()?		"TRUE" : "FALSE"));
 				tableRTags.put("sync_axes",		(job.getSyncAxes()?		"TRUE" : "FALSE"));
+				tableRTags.put("dump_points1",	(job.getDumpPoints1()?	"TRUE" : "FALSE"));
+				tableRTags.put("dump_points2",	(job.getDumpPoints2()?	"TRUE" : "FALSE"));
 				
 				// calculate the number of plot curves
 				int intNumDep1 = 0;
@@ -814,7 +817,9 @@ public class MVBatch extends MVUtil {
 				tableRTags.put("lty",		job.getLty().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLty());
 				tableRTags.put("lwd",		job.getLwd().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLwd());
 				tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
+				tableRTags.put("y1_bufr",	job.getY1Bufr());
 				tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()" : job.getY2Lim());
+				tableRTags.put("y2_bufr",	job.getY2Bufr());
 				
 				
 				/*

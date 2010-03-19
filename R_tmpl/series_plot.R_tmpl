@@ -15,6 +15,8 @@ boolIndy1Stagger= #<indy1_stagger>#;
 boolIndy2Stagger= #<indy2_stagger>#;
 boolGridOn		= #<grid_on>#;
 boolSyncAxes	= #<sync_axes>#;
+boolDumpPoints1	= #<dump_points1>#;
+boolDumpPoints2	= #<dump_points2>#;
 
 listY1limUsr	= #<y1_lim>#;
 listY2limUsr	= #<y2_lim>#;
@@ -23,10 +25,12 @@ listPlotCI		= #<plot_ci>#;
 
 dblAlpha		= #<ci_alpha>#;
 
-dfPlot = read.delim("#<data_file>#");
+strDataFile		= "#<data_file>#";
 
-strIndyVar = "#<indy_var>#";
+strIndyVar		= "#<indy_var>#";
 
+listIndy = #<indy_list>#;
+		
 listDep1Plot = #<dep1_plot>#;
 
 listDep2Plot = #<dep2_plot>#;	
@@ -45,8 +49,9 @@ listDep2Scale = #<dep2_scale>#;
 #  Build the series data for the plot 
 #
 
+dfPlot = read.delim(strDataFile);
+		
 # build the list of independent values
-listIndy = #<indy_list>#;
 listX = 1:length(listIndy);
 listXlim = c(min(listX), max(listX));
 
@@ -71,8 +76,13 @@ for( strDep1Name in names(listDep1Plot) ){
 		listSeries1 = append(listSeries1, listPlotData1$series);
 		listNStats  = listPlotData1$nstats;
 		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
-		listLegend = append(listLegend, listLegend1);
+		listLegend = append(listLegend, listLegend1);		
 	}
+}
+
+if( TRUE == boolDumpPoints1 ){
+	strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
+	write.table(listSeries1, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
 }
 
 # build the y2 plot series using information in the plot dataframe, if available
@@ -165,6 +175,11 @@ plot(
 	cex.sub=1,				# relative subtitle magnification
 	fg="gray"
 );
+
+# set the axis expansion factor
+dblY1BufrPct = #<y1_bufr>#;
+dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;
+par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr));
 
 # plot title
 mtext(
@@ -304,7 +319,8 @@ if( 0 < length(listDep2Plot) ){
 			dblY2Min = listY2limUsr[1];
 			dblY2Max = listY2limUsr[2];
 		}
-		dblY2Bufr = (dblY2Max - dblY2Min)*.04;
+		dblY2BufrPct = #<y2_bufr>#;				
+		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
 		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
 	}
 	par(new=TRUE, usr=listY2Usr, xaxs="r");
@@ -333,9 +349,9 @@ if( 0 < length(listDep2Plot) ){
 		listXAdj	= listX + listXStag[i];
 		
 		# remove the NAs from the x and y lists
-		listDataInd	= !( is.na(listData) );
-		listXAdj	= listXAdj[listDataInd];
-		listData	= listData[listDataInd];
+		#listDataInd	= !( is.na(listData) );
+		#listXAdj	= listXAdj[listDataInd];
+		#listData	= listData[listDataInd];
 		
 		# get the formatting information for this series
 		strCol		= listColors[intFormatIndex];
@@ -421,9 +437,9 @@ for(i in 1:intNumSeries1){
 	listXAdj	= listX + listXStag[i];
 	
 	# remove the NAs from the x and y lists
-	listDataInd	= !( is.na(listData) );
-	listXAdj	= listXAdj[listDataInd];
-	listData	= listData[listDataInd];
+	#listDataInd	= !( is.na(listData) );
+	#listXAdj	= listXAdj[listDataInd];
+	#listData	= listData[listDataInd];
 	
 	# get the formatting information for this series
 	strCol		= listColors[intFormatIndex];

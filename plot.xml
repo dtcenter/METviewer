@@ -170,6 +170,8 @@
 		<indy2_stag>false</indy2_stag>
 		<grid_on>true</grid_on>
 		<sync_axes>false</sync_axes>
+		<dump_points1>false</dump_points1>
+		<dump_points2>false</dump_points2>
 		
 		<!-- bootstrapping configuration
 		<bootstrapping>
@@ -239,7 +241,9 @@
 		<lty>c(1, 2, 3, 4, 1, 5, 6, 1, 2, 1, 1, 1)</lty>
 		<lwd>c(2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 40)</lwd>
 		<y1_lim>c(0,5)</y1_lim>
+		<y1_bufr>.04</y1_bufr>
 		<y2_lim>c(0,1)</y2_lim>
+		<y2_bufr>.04</y2_bufr>
 		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		
 	</plot>
 

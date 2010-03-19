@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "/d1/pgoldenb/var/qnse/R_work/data/summer/time_series/APCP_03_FBIAS_FULL_00Z_UW_MEAN.boot.info";
+strInputInfoFile = "../data/year/thresh_series/APCP_24_FBIAS_FULL_12Zf24_UW_MEAN.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -182,7 +182,7 @@ for(strIndyVal in listIndyVal){
 		bootStat = boot(dfBoot, booter.iid, intNumReplicates);
 		dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
 		intNumBoots = intNumBoots + 1;
-		
+
 		# for each series permutation and statistic, generate confidence intervals and store the output
 		intBootIndex = 1;
 		for(strStat in listStat){
@@ -202,7 +202,7 @@ for(strIndyVal in listIndyVal){
 				stBootCI = Sys.time();
 				bootCI = boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex);
 				dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-
+	
 				# store the bootstrapped stat value and CI values in the output dataframe
 				dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
 				dfOut[listOutInd,]$stat_bcl = bootCI[[strCIType]][4];

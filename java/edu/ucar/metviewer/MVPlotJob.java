@@ -26,6 +26,7 @@ public class MVPlotJob extends MVUtil{
 	protected MVOrderedMap _mapAggVal		= new MVOrderedMap();
 	
 	protected MVOrderedMap _mapTmplMaps		= new MVOrderedMap();
+	protected MVOrderedMap _mapTmplVal		= new MVOrderedMap();
 	
 	protected String _strDataFileTmpl		= "";
 	protected String _strPlotFileTmpl		= "";
@@ -44,6 +45,8 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolIndy2Stagger		= false;
 	protected boolean _boolGridOn			= false;
 	protected boolean _boolSyncAxes			= false;
+	protected boolean _boolDumpPoints1		= false;
+	protected boolean _boolDumpPoints2		= false;
 	
 	protected String _strPlotType			= "png256";
 	protected String _strPlotHeight			= "8.5";
@@ -110,7 +113,9 @@ public class MVPlotJob extends MVUtil{
 	protected String _strLty				= "";
 	protected String _strLwd				= "";
 	protected String _strY1Lim				= "";
+	protected String _strY1Bufr				= ".04";
 	protected String _strY2Lim				= "";
+	protected String _strY2Bufr				= ".04";
 	
 	public static MVPlotJob		getBaseJob(Connection con)				throws Exception{ return new MVPlotJob();   }
 	public static MVPlotJob[]	getJobs(Connection con, MVPlotJob base)	throws Exception{ return new MVPlotJob[]{}; }
@@ -132,6 +137,7 @@ public class MVPlotJob extends MVUtil{
 		job._mapDep2Scale		= new MVOrderedMap(_mapDep2Scale);
 		job._mapAggVal			= new MVOrderedMap(_mapAggVal);
 		job._mapTmplMaps		= new MVOrderedMap(_mapTmplMaps);
+		job._mapTmplVal			= new MVOrderedMap(_mapTmplVal);
 		
 		job._strDataFileTmpl	= _strDataFileTmpl;
 		job._strPlotFileTmpl	= _strPlotFileTmpl;
@@ -150,6 +156,8 @@ public class MVPlotJob extends MVUtil{
 		job._boolIndy2Stagger	= _boolIndy2Stagger;
 		job._boolGridOn			= _boolGridOn;
 		job._boolSyncAxes		= _boolSyncAxes;
+		job._boolDumpPoints1	= _boolDumpPoints1;
+		job._boolDumpPoints2	= _boolDumpPoints2;
 		
 		job._strPlotType		= _strPlotType;
 		job._strPlotHeight		= _strPlotHeight;
@@ -216,7 +224,9 @@ public class MVPlotJob extends MVUtil{
 		job._strLty				= _strLty;
 		job._strLwd				= _strLwd;
 		job._strY1Lim			= _strY1Lim;
+		job._strY1Bufr			= _strY1Bufr;
 		job._strY2Lim			= _strY2Lim;
+		job._strY2Bufr			= _strY2Bufr;
 		
 		return job; 
 	}
@@ -285,6 +295,9 @@ public class MVPlotJob extends MVUtil{
 	public void removeTmplMap(String field)								{ _mapTmplMaps.remove(field);							}
 	public void clearTmplMap()											{ _mapTmplMaps = new MVOrderedMap();					}
 
+	public MVOrderedMap getTmplVal()									{ return _mapTmplVal;									}
+	public void		addTmplVal(String id, String name)					{ _mapTmplVal.put(id, name);							}
+	
 	public String	getDataFileTmpl()									{ return _strDataFileTmpl;								}
 	public void		setDataFileTmpl(String dataFileTmpl)				{ _strDataFileTmpl = dataFileTmpl;						}
 	public String	getPlotFileTmpl()									{ return _strPlotFileTmpl;								}
@@ -318,6 +331,10 @@ public class MVPlotJob extends MVUtil{
 	public void		setGridOn(boolean gridOn)							{ _boolGridOn = gridOn; 								}
 	public boolean	getSyncAxes()										{ return _boolSyncAxes;									}
 	public void		setSyncAxes(boolean syncAxes)						{ _boolSyncAxes = syncAxes; 							}
+	public boolean	getDumpPoints1()									{ return _boolDumpPoints1;								}
+	public void		setDumpPoints1(boolean dumpPoints1)					{ _boolDumpPoints1 = dumpPoints1; 						}
+	public boolean	getDumpPoints2()									{ return _boolDumpPoints2;								}
+	public void		setDumpPoints2(boolean dumpPoints2)					{ _boolDumpPoints2 = dumpPoints2; 						}
 	
 	public String	getPlotType()										{ return _strPlotType;									}
 	public void		setPlotType(String plotType)						{ _strPlotType = plotType;								}
@@ -447,7 +464,11 @@ public class MVPlotJob extends MVUtil{
 	public void		setLwd(String lwd)									{ _strLwd = lwd;										}
 	public String	getY1Lim()											{ return _strY1Lim;										}
 	public void		setY1Lim(String y1Lim)								{ _strY1Lim = y1Lim;									}
+	public String	getY1Bufr()											{ return _strY1Bufr;									}
+	public void		setY1Bufr(String y1Bufr)							{ _strY1Bufr = y1Bufr;									}
 	public String	getY2Lim()											{ return _strY2Lim;										}
 	public void		setY2Lim(String y2Lim)								{ _strY2Lim = y2Lim;									}
+	public String	getY2Bufr()											{ return _strY2Bufr;									}
+	public void		setY2Bufr(String y2Bufr)							{ _strY2Bufr = y2Bufr;									}
 	
 }

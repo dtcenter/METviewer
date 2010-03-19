@@ -12,15 +12,18 @@ import org.apache.xerces.parsers.*;
 
 public class MVPlotJobParser extends MVUtil{
 	
-	protected Hashtable _tableSpecDecl = new Hashtable();
+	protected Hashtable _tableDateListDecl = new Hashtable();
+	protected Hashtable _tableDateRangeDecl = new Hashtable();
 	protected Hashtable _tablePlotDecl = new Hashtable();
+	protected Hashtable _tableTmplVal = new Hashtable();
 	protected MVNode _nodePlotSpec = null;
 	
 	protected Connection _con = null;
 	protected String _strRtmplFolder = "";
 	protected String _strRworkFolder = "";
 	protected String _strPlotsFolder = "";
-	
+
+	/*
 	public static void main(String[] args) {
 		System.out.println("----  MVPlotJobParser  ----\n");
 
@@ -48,6 +51,7 @@ public class MVPlotJobParser extends MVUtil{
 		}
 		System.out.println("----  MVPlotJobParser Done  ----");
 	}
+	*/
 	
 	public MVPlotJobParser(String spec, Connection con) throws Exception{		
 		_con = con;
@@ -123,7 +127,19 @@ public class MVPlotJobParser extends MVUtil{
 			else if( node._tag.equals("date_list") ){
 				String strName = node._name;				
 				String[] listDates = parseDateList(node, _con);
-				_tableSpecDecl.put(strName, listDates);
+				_tableDateListDecl.put(strName, listDates);
+			}
+
+			//  <date_range>
+			else if( node._tag.equals("date_range") ){
+				String strName = node._name;
+				String strBegin = "";
+				String strEnd = "";
+				for(int j=0; j < node._children.length; j++){
+					if     ( node._children[j]._tag.equals("start") ){ strBegin = node._children[j]._value; }
+					else if( node._children[j]._tag.equals("end")   ){ strEnd   = node._children[j]._value; }
+				}
+				_tableDateRangeDecl.put(strName, "BETWEEN '" + strBegin + "' AND '" + strEnd + "'");
 			}
 
 			//  <plot>
@@ -261,7 +277,31 @@ public class MVPlotJobParser extends MVUtil{
 							
 							//  <var>s
 							for(int l=0; l < nodeFcstVar._children.length; l++){
-								mapFcstVar.put(nodeFcstVar._children[l]._name, nodeFcstVar._children[l]._value);
+								MVNode nodeChild = nodeFcstVar._children[l];
+								String strValue = "";
+								//mapFcstVar.put(nodeChild._name, nodeChild._value);
+								
+								//  atomic values
+								if( 1 > nodeChild._children.length ){ strValue = nodeChild._value; }
+								
+								//  <set>
+								else if( nodeChild._children[0]._tag.equals("set") ){
+
+								}
+								
+								//  <date_range>
+								else if( nodeChild._children[0]._tag.equals("date_range") ){
+									MVNode nodeDateRange = nodeChild._children[0];
+									strValue = _tableDateRangeDecl.get(nodeDateRange._name).toString();
+									if( !nodeDateRange._id.equals("") ){ job.addTmplVal(nodeDateRange._id, nodeDateRange._name); }
+								}
+
+								//  <date_list>
+								else if( nodeChild._children[0]._tag.equals("date_list") ){
+
+								}
+								
+								mapFcstVar.put(nodeChild._name, strValue); 
 							}
 							mapFix.put(nodeFcstVar._name, mapFcstVar);
 						}
@@ -299,7 +339,7 @@ public class MVPlotJobParser extends MVUtil{
 						
 						//  <date_list>
 						else if( nodeChild._tag.equals("date_list") ){
-							listAggVal = (String[])_tableSpecDecl.get(nodeChild._name);							
+							listAggVal = (String[])_tableDateListDecl.get(nodeChild._name);							
 						}
 					}
 					job.addAggVal(nodeAgg._name, listAggVal);
@@ -427,6 +467,8 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatBoolean.put("indy2_stag",	MVPlotJob.class.getDeclaredMethod("setIndy2Stagger",new Class[]{boolean.class}));
 			_tableFormatBoolean.put("grid_on",		MVPlotJob.class.getDeclaredMethod("setGridOn",		new Class[]{boolean.class}));
 			_tableFormatBoolean.put("sync_axes",	MVPlotJob.class.getDeclaredMethod("setSyncAxes",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("dump_points1",	MVPlotJob.class.getDeclaredMethod("setDumpPoints1",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("dump_points2",	MVPlotJob.class.getDeclaredMethod("setDumpPoints2",	new Class[]{boolean.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	
@@ -492,7 +534,9 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("lty",			MVPlotJob.class.getDeclaredMethod("setLty",			new Class[]{String.class}));
 			_tableFormatString.put("lwd",			MVPlotJob.class.getDeclaredMethod("setLwd",			new Class[]{String.class}));
 			_tableFormatString.put("y1_lim",		MVPlotJob.class.getDeclaredMethod("setY1Lim",		new Class[]{String.class}));
+			_tableFormatString.put("y1_bufr",		MVPlotJob.class.getDeclaredMethod("setY1Bufr",		new Class[]{String.class}));
 			_tableFormatString.put("y2_lim",		MVPlotJob.class.getDeclaredMethod("setY2Lim",		new Class[]{String.class}));
+			_tableFormatString.put("y2_bufr",		MVPlotJob.class.getDeclaredMethod("setY2Bufr",		new Class[]{String.class}));
 			_tableFormatString.put("plot_cmd",		MVPlotJob.class.getDeclaredMethod("setPlotCmd",		new Class[]{String.class}));
 		}catch(NoSuchMethodException e){}
 	}
@@ -623,7 +667,7 @@ class MVNode{
 				listChildren.add( new MVNode(nodeChild) );				
 			}			
 		}
-		_children = (0 < listChildren.size()? (MVNode[])listChildren.toArray(new MVNode[]{}) : null);
+		_children = (0 < listChildren.size()? (MVNode[])listChildren.toArray(new MVNode[]{}) : new MVNode[]{});
 	}
 	
 	public static String printNode(MVNode mvnode, int lev){
