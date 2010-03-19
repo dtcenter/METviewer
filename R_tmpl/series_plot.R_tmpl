@@ -437,7 +437,7 @@ for(i in 1:intNumSeries1){
 	listXAdj	= listX + listXStag[i];
 	
 	# remove the NAs from the x and y lists
-	listDataInd	= !( is.na(listDat) );
+	listDataInd	= !( is.na(listData) );
 	#listXAdj	= listXAdj[listDataInd];
 	#listData	= listData[listDataInd];
 	
