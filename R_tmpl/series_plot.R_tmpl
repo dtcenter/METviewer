@@ -349,7 +349,7 @@ if( 0 < length(listDep2Plot) ){
 		listXAdj	= listX + listXStag[i];
 		
 		# remove the NAs from the x and y lists
-		#listDataInd	= !( is.na(listData) );
+		listDataInd	= !( is.na(listData) );
 		#listXAdj	= listXAdj[listDataInd];
 		#listData	= listData[listDataInd];
 		
@@ -437,7 +437,7 @@ for(i in 1:intNumSeries1){
 	listXAdj	= listX + listXStag[i];
 	
 	# remove the NAs from the x and y lists
-	#listDataInd	= !( is.na(listData) );
+	listDataInd	= !( is.na(listDat) );
 	#listXAdj	= listXAdj[listDataInd];
 	#listData	= listData[listDataInd];
 	
