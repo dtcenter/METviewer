@@ -4,7 +4,6 @@ import java.util.*;
 import java.sql.*;
 import java.io.*;
 import java.text.*;
-import org.apache.log4j.*;
 
 public class MVLoad extends MVUtil {
 

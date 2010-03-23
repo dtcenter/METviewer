@@ -4,8 +4,8 @@ import java.util.*;
 import java.util.regex.*;
 import java.sql.*;
 import java.io.*;
-import org.apache.log4j.*;
 import edu.ucar.metviewer.hmt.*;
+//import org.apache.log4j.*;
 
 public class MVBatch extends MVUtil {
 	
