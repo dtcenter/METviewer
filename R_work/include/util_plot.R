@@ -1,31 +1,31 @@
-
-# mapStatGroupId contains the mapping from stat_name to stat_group_lu_id
-mapStatGroupId	= list(BASER=0, FMEAN=1, ACC=2, FBIAS=3, PODY=4, PODN=5, POFD=6, FAR=7, CSI=8, GSS=9,
-                       HK=10, HSS=11, ODDS=12, FBAR=13, FSTDEV=14, OBAR=15, OSTDEV=16, PR_CORR=17,
-                       ME=18, ESTDEV=19, MBIAS=20, MAE=21, MSE=22, BCMSE=23, BCRMSE=23, RMSE=24,
-                       E10=25, E25=26, E50=27, E75=28, E90=29, BRIER=30, BASER=31, FMEAN=32, ACC=33, 
-					   FBIAS=34, PODY=35, PODN=36, POFD=37, FAR=38, CSI=39, GSS=40, HK=41, HSS=42, 
-					   ODDS=43, FBS=44, FSS=45);
-
-# mapFcstLevSurf contains a mapping from fcst_var to fcst_lev surface level values 
-mapFcstLevSurf  = list(TMP="Z2", DPT="Z2", WIND="Z10", APCP_03="A3", APCP_24="A24");
-
-# buildQueryList() formats the list of input values into a single string list suitable
-#   for use in a SQL query.  For example, if values = c(1, 2, 3), then buildQueryList
-#   will return the string "1, 2, 3" if ticks is FALSE and "'1', '2', '3'" if ticks is
-#   TRUE.
-buildQueryList = function(values, ticks=TRUE){
-	strQueryList = "";
-	for(strValue in values){
-		if("" != strQueryList){ strQueryList = paste(strQueryList, ",", sep=""); }
-		if( TRUE == ticks ){
-			strQueryList = paste(strQueryList, "'", strValue, "'", sep="") ;
-		}else{
-			strQueryList = paste(strQueryList, strValue, sep="");
-		}
-	}
-	return(strQueryList);
-}
+#
+## mapStatGroupId contains the mapping from stat_name to stat_group_lu_id
+#mapStatGroupId	= list(BASER=0, FMEAN=1, ACC=2, FBIAS=3, PODY=4, PODN=5, POFD=6, FAR=7, CSI=8, GSS=9,
+#                       HK=10, HSS=11, ODDS=12, FBAR=13, FSTDEV=14, OBAR=15, OSTDEV=16, PR_CORR=17,
+#                       ME=18, ESTDEV=19, MBIAS=20, MAE=21, MSE=22, BCMSE=23, BCRMSE=23, RMSE=24,
+#                       E10=25, E25=26, E50=27, E75=28, E90=29, BRIER=30, BASER=31, FMEAN=32, ACC=33, 
+#					   FBIAS=34, PODY=35, PODN=36, POFD=37, FAR=38, CSI=39, GSS=40, HK=41, HSS=42, 
+#					   ODDS=43, FBS=44, FSS=45);
+#
+## mapFcstLevSurf contains a mapping from fcst_var to fcst_lev surface level values 
+#mapFcstLevSurf  = list(TMP="Z2", DPT="Z2", WIND="Z10", APCP_03="A3", APCP_24="A24");
+#
+## buildQueryList() formats the list of input values into a single string list suitable
+##   for use in a SQL query.  For example, if values = c(1, 2, 3), then buildQueryList
+##   will return the string "1, 2, 3" if ticks is FALSE and "'1', '2', '3'" if ticks is
+##   TRUE.
+#buildQueryList = function(values, ticks=TRUE){
+#	strQueryList = "";
+#	for(strValue in values){
+#		if("" != strQueryList){ strQueryList = paste(strQueryList, ",", sep=""); }
+#		if( TRUE == ticks ){
+#			strQueryList = paste(strQueryList, "'", strValue, "'", sep="") ;
+#		}else{
+#			strQueryList = paste(strQueryList, strValue, sep="");
+#		}
+#	}
+#	return(strQueryList);
+#}
 
 # parseLev() assumes that the input is a list of pressure level strings of one of the
 #   following formats: Z0, P250 or P200-350 and attempts to parse the value.  If 
@@ -50,27 +50,32 @@ parseLev = function(listLev){
 	return( listRet );
 }
 
-# seriesMinMax() assumes that the input list contains lists of numerics representing
+# seriesMinMax() assumes that the input series contains lists of numerics representing
 #   the series values, low error bar values and high error bar values in 3-tuples.  
 #   If so, seriesMinMax will return the minimum value of the low error bar values and
 #   the maximum value of the high error bar values.  This method is called by plotting
-#   functions to determine sensible axis bounds.
-seriesMinMax = function(listSeries, Nmodels){	
-	min = Inf; max = -Inf;
-	for( i in 1:Nmodels ) {
-		listMin = na.omit( listSeries[[3*(i-1)+2]] );
-		if( 0 < length(listMin) ){
-			min2 = min(listMin);
-			if( min2 < min ){ min = min2; }
-		}
-		
-		listMax = na.omit( listSeries[[3*(i-1)+3]] );
-		if( 0 < length(listMax) ){
-			max2 = max(listMax);
-			if( max2 > max ){ max = max2; }
+#   functions to determine sensible axis bounds.  For exponential bounds, set log=TRUE.
+#   If log=TRUE, then only the bounding integer exponents of 10 will be returned.
+seriesMinMax = function(series, numModels, log=FALSE){	
+	dblMin = Inf; dblMax = -Inf;
+	for( i in 1:numModels ) {				
+		listData = append(series[[3*(i-1)+2]], series[[3*(i-1)+3]]);
+		listData = listData[!is.na(listData)];
+		if( TRUE == log ){ listData = listData[listData > 0]; }
+		if( 0 < length(listData) ){
+			if( TRUE == log ){
+				dblMinCur = floor( log10(min(listData)) );
+				dblMaxCur = ceiling( log10(max(listData)) );
+			} else {
+				dblMinCur = min(listData);
+				dblMaxCur = max(listData);
+			}
+			
+			if( dblMinCur < dblMin ){ dblMin = dblMinCur; }
+			if( dblMaxCur > dblMax ){ dblMax = dblMaxCur; }
 		}
 	}
-	return( list(min=min, max=max) );
+	return( list(min=dblMin, max=dblMax) );
 }
 
 # numSeries() calculates the number of series based on the information in the listSeriesVal
@@ -317,12 +322,14 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				dblLoCI = dblMed - dblStdErr;
 				dblUpCI  = dblMed + dblStdErr;
 			} else if( "norm" == strPlotCI ){
-				if( -9999 != dfStatsVal$stat_ncl & -9999 != dfStatsVal$stat_ncu ){
+				if( !is.na(dfStatsVal$stat_ncl) & !is.na(dfStatsVal$stat_ncu) &
+					-9999 != dfStatsVal$stat_ncl & -9999 != dfStatsVal$stat_ncu ){
 					dblLoCI = dfStatsVal$stat_ncl;
 					dblUpCI = dfStatsVal$stat_ncu;
 				}
 			} else if( "boot" == strPlotCI ){
-				if( -9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
+				if( !is.na(dfStatsVal$stat_bcl) & !is.na(dfStatsVal$stat_bcu) &
+					-9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
 					dblLoCI = dfStatsVal$stat_bcl;
 					dblUpCI = dfStatsVal$stat_bcu;
 				}
@@ -404,4 +411,11 @@ formatTimeSpan = function(s){
 	strFormat = paste(strFormat, format(dblSec, digits=6), sep="");
 	
 	return( strFormat );
+}
+
+# logLim() calculates the appropriate minimum and maximum exponents of 10 that bound
+#   the input values, passed as an array.
+logLim = function(x){
+	listData = x[x > 0 & !is.na(x)];
+	return( list(min=floor( log10(min(listData)) ), max=ceiling( log10(max(listData)) )) );
 }

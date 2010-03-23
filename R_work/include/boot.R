@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "../data/year/thresh_series/APCP_24_FBIAS_FULL_12Zf24_UW_MEAN.boot.info";
+strInputInfoFile = "/d1/pgoldenb/var/qnse/R_work/data/year/thresh_series/APCP_03_GSS_NWC_00Zf12_UW_MEAN.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -55,9 +55,9 @@ for(intOutCol in 1:ncol(matOut)){
 	else if( intOutCol == ncol(matOut) - 1 ){ listOutPerm[[ strIndyVar ]] = matOut[,intOutCol]; }
 	else									{ listOutPerm$stat_name = matOut[,intOutCol]; }
 }
-listOutPerm$stat_value = rep(0, intNumOut);
-listOutPerm$stat_bcl = rep(0, intNumOut);
-listOutPerm$stat_bcu = rep(0, intNumOut);
+listOutPerm$stat_value = rep(NA, intNumOut);
+listOutPerm$stat_bcl = rep(NA, intNumOut);
+listOutPerm$stat_bcu = rep(NA, intNumOut);
 dfOut = data.frame(listOutPerm);
 
 # stat calculations
@@ -73,32 +73,6 @@ calcBASER		= function(d){ return( (d$fy_oy + d$fn_oy) / d$total );             }
 
 # booter function
 booter.iid = function(d, i){
-	
-#	dfA = data.frame(
-#			total	= sum( d[i,]$AFWAop_total ),
-#			fy_oy	= sum( d[i,]$AFWAop_fy_oy ),
-#			fy_on	= sum( d[i,]$AFWAop_fy_on ),
-#			fn_oy	= sum( d[i,]$AFWAop_fn_oy ),
-#			fn_on	= sum( d[i,]$AFWAop_fn_on )
-#	);
-#	
-#	dfQ = data.frame(
-#			total	= sum( d[i,]$QNSE_total ),
-#			fy_oy	= sum( d[i,]$QNSE_fy_oy ),
-#			fy_on	= sum( d[i,]$QNSE_fy_on ),
-#			fn_oy	= sum( d[i,]$QNSE_fn_oy ),
-#			fn_on	= sum( d[i,]$QNSE_fn_on )
-#	);
-#	
-#	dblGssA = calcGSS(dfA);
-#	dblGssQ = calcGSS(dfQ);
-#	dblGssDel = dblGssA - dblGssQ;
-#	
-#	dblFbiasA = calcFBIAS(dfA);
-#	dblFbiasQ = calcFBIAS(dfQ);
-#	dblFbiasDel = dblFbiasA - dblFbiasQ;
-#
-#	return( c(dblGssA, dblGssQ, dblGssDel, dblFbiasA, dblFbiasQ, dblFbiasDel) );
 
 	# initialize storage
 	boolPermDiff = FALSE;
@@ -109,6 +83,7 @@ booter.iid = function(d, i){
 		listRet[[strStat]] = c();
 	}
 
+	# for each series permutation, build a summed contingency table and calculate statistics
 	for(intPerm in 1:nrow(matPerm)){
 		
 		# if the difference stat is requested, calculate it during the last permutation
@@ -175,11 +150,11 @@ for(strIndyVal in listIndyVal){
 				listBoot[[strCountName]] = listCounts;
 			}		
 		}
-		
+
 		# bootstrap the series data
 		dfBoot = data.frame(listBoot);
 		stBoot = Sys.time();
-		bootStat = boot(dfBoot, booter.iid, intNumReplicates);
+		bootStat = try(boot(dfBoot, booter.iid, intNumReplicates));
 		dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
 		intNumBoots = intNumBoots + 1;
 
@@ -200,14 +175,16 @@ for(strIndyVal in listIndyVal){
 				
 				# calculate the confidence interval for the current stat and series permutation
 				stBootCI = Sys.time();
-				bootCI = boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex);
+				bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
 				dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-	
+
 				# store the bootstrapped stat value and CI values in the output dataframe
-				dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
-				dfOut[listOutInd,]$stat_bcl = bootCI[[strCIType]][4];
-				dfOut[listOutInd,]$stat_bcu = bootCI[[strCIType]][5];
-				intBootIndex = intBootIndex + 1;
+				if( class(bootCI) == "bootci" ){
+					dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
+					dfOut[listOutInd,]$stat_bcl = bootCI[[strCIType]][4];
+					dfOut[listOutInd,]$stat_bcu = bootCI[[strCIType]][5];
+					intBootIndex = intBootIndex + 1;
+				}
 			}
 		}
 	

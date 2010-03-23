@@ -241,4 +241,6 @@ legend(
 	y.intersp=.8			# vertical character spacing factor
 );
 
+#<plot_cmd>#
+
 dev.off();

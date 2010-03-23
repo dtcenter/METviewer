@@ -469,6 +469,8 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatBoolean.put("sync_axes",	MVPlotJob.class.getDeclaredMethod("setSyncAxes",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("dump_points1",	MVPlotJob.class.getDeclaredMethod("setDumpPoints1",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("dump_points2",	MVPlotJob.class.getDeclaredMethod("setDumpPoints2",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("log_y1",		MVPlotJob.class.getDeclaredMethod("setLogY1",		new Class[]{boolean.class}));
+			_tableFormatBoolean.put("log_y2",		MVPlotJob.class.getDeclaredMethod("setLogY2",		new Class[]{boolean.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	

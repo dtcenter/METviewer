@@ -17,6 +17,8 @@ boolGridOn		= #<grid_on>#;
 boolSyncAxes	= #<sync_axes>#;
 boolDumpPoints1	= #<dump_points1>#;
 boolDumpPoints2	= #<dump_points2>#;
+boolLogY1		= #<log_y1>#;
+boolLogY2		= #<log_y2>#;
 
 listY1limUsr	= #<y1_lim>#;
 listY2limUsr	= #<y2_lim>#;
@@ -138,15 +140,22 @@ if( "jpeg" == strPlotType ){
 }
 
 # specify the y-axis limits and labels
-listY1Bounds = seriesMinMax(listSeries1, intNumSeries1);
-dblY1Min = listY1Bounds$min;
-dblY1Max = listY1Bounds$max;
-if( 0 < length(listY1limUsr) ){
-	dblY1Min = listY1limUsr[1];
-	dblY1Max = listY1limUsr[2];
+listY1Bounds = seriesMinMax(listSeries1, intNumSeries1, boolLogY1);
+if( TRUE == boolLogY1 ){
+	dblY1Min = 10^listY1Bounds$min;	
+	dblY1Max = 10^listY1Bounds$max;	
+	listY1axp = c(dblY1Min, dblY1Max, 3);
+} else {
+	if( 0 < length(listY1limUsr) ){
+		dblY1Min = listY1limUsr[1];
+		dblY1Max = listY1limUsr[2];
+	} else {
+		dblY1Min = listY1Bounds$min;
+		dblY1Max = listY1Bounds$max;
+	}
+	listY1axp = c(dblY1Min, dblY1Max, 5);
 }
 listY1lim = c(dblY1Min, dblY1Max);
-listY1axp = append(listY1lim, 5);
 
 # specify plot window formatting
 par( 
@@ -176,10 +185,14 @@ plot(
 	fg="gray"
 );
 
-# set the axis expansion factor
-dblY1BufrPct = #<y1_bufr>#;
-dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;
-par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr));
+# set the plot window limits
+if( TRUE == boolLogY1 ){
+	par(ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max), yaxp=listY1axp);
+} else {
+	dblY1BufrPct = #<y1_bufr>#;
+	dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;
+	par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr));
+}
 
 # plot title
 mtext(
@@ -307,6 +320,7 @@ if( TRUE == boolIndy2Stagger ){
 
 # plot the y2-axis series first, so that they lie underneath the y1-axis series
 listY1Usr = par()$usr;
+par(ylog=FALSE);
 intFormatIndex=intNumSeries1+1;
 if( 0 < length(listDep2Plot) ){
 	
@@ -418,7 +432,13 @@ if( 0 < length(listDep2Plot) ){
 	);
 	
 } # end: if( 0 < length(listDep2Plot) )
-par(new=TRUE, usr=listY1Usr, xaxs="r");
+
+# restore the plot window limits for y1
+if( TRUE == boolLogY1 ){
+	par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max));
+} else {
+	par(new=TRUE, usr=listY1Usr, xaxs="r");
+}
 
 # build the x-adjustment increments, if requested
 listXStag = rep(0, intNumSeries1 + 1);

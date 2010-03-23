@@ -172,6 +172,8 @@
 		<sync_axes>false</sync_axes>
 		<dump_points1>false</dump_points1>
 		<dump_points2>false</dump_points2>
+		<log_y1>false</log_y1>
+		<log_y2>false</log_y2>
 		
 		<!-- bootstrapping configuration
 		<bootstrapping>

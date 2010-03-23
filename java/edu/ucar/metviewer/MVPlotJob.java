@@ -47,6 +47,8 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolSyncAxes			= false;
 	protected boolean _boolDumpPoints1		= false;
 	protected boolean _boolDumpPoints2		= false;
+	protected boolean _boolLogY1			= false;
+	protected boolean _boolLogY2			= false;
 	
 	protected String _strPlotType			= "png256";
 	protected String _strPlotHeight			= "8.5";
@@ -158,6 +160,8 @@ public class MVPlotJob extends MVUtil{
 		job._boolSyncAxes		= _boolSyncAxes;
 		job._boolDumpPoints1	= _boolDumpPoints1;
 		job._boolDumpPoints2	= _boolDumpPoints2;
+		job._boolLogY1			= _boolLogY1;
+		job._boolLogY2			= _boolLogY2;
 		
 		job._strPlotType		= _strPlotType;
 		job._strPlotHeight		= _strPlotHeight;
@@ -335,6 +339,10 @@ public class MVPlotJob extends MVUtil{
 	public void		setDumpPoints1(boolean dumpPoints1)					{ _boolDumpPoints1 = dumpPoints1; 						}
 	public boolean	getDumpPoints2()									{ return _boolDumpPoints2;								}
 	public void		setDumpPoints2(boolean dumpPoints2)					{ _boolDumpPoints2 = dumpPoints2; 						}
+	public boolean	getLogY1()											{ return _boolLogY1;									}
+	public void		setLogY1(boolean logY1)								{ _boolLogY1 = logY1; 									}
+	public boolean	getLogY2()											{ return _boolLogY2;									}
+	public void		setLogY2(boolean logY2)								{ _boolLogY2 = logY2; 									}
 	
 	public String	getPlotType()										{ return _strPlotType;									}
 	public void		setPlotType(String plotType)						{ _strPlotType = plotType;								}
