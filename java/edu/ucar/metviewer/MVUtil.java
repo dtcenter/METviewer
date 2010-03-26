@@ -555,6 +555,11 @@ public class MVUtil{
 		return listRet;
 	}
 	
+	public static boolean contains(int[] list, int data){
+		for(int i=0; i < list.length; i++){ if( list[i] == data ) return true; }
+		return false;
+	}
+	
 	/**
 	 * Creates a string representation of an R collection containing the list of values in the input
 	 * list, val.

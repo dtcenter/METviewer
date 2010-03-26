@@ -398,7 +398,7 @@ public class MVBatch extends MVUtil {
 				String[] listStatGroupLuId = new String[listStatGroupName.length];
 				String strDepStatClause = "";
 				if( !job.getBootstrapping() ){
-					for(int j=0; j < listStatGroupName.length; j++){ listStatGroupLuId[j] = (String)_tableFcstVarIndex.get(listStatGroupName[j]); }
+					for(int j=0; j < listStatGroupName.length; j++){ listStatGroupLuId[j] = (String)_tableStatIndex.get(listStatGroupName[j]); }
 					strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
 				}
 				
@@ -481,7 +481,7 @@ public class MVBatch extends MVUtil {
 					String[] listStatName = (String[])listDepPlot[i].getValue();
 					
 					for(int j=0; j < listStatName.length; j++){
-						final String strStatGroupLuId = (String)_tableFcstVarIndex.get(listStatName[j]);
+						final String strStatGroupLuId = (String)_tableStatIndex.get(listStatName[j]);
 						MVRowComp c = new MVRowComp(){
 							public boolean equals(MVOrderedMap row){
 								String strFcstVarRow = (String)row.get("fcst_var"); 
@@ -994,55 +994,106 @@ public class MVBatch extends MVUtil {
 	/**
 	 * Mapping from stat_name to stat_group_lu_id, used in SQL queries
 	 */
-	public static final Hashtable _tableFcstVarIndex = new Hashtable();
+	public static final Hashtable _tableStatIndex = new Hashtable();
 	static{
-		_tableFcstVarIndex.put("BASER", 	"0");
-		_tableFcstVarIndex.put("FMEAN", 	"1");
-		_tableFcstVarIndex.put("ACC", 		"2");
-		_tableFcstVarIndex.put("FBIAS", 	"3");
-		_tableFcstVarIndex.put("PODY", 		"4");
-		_tableFcstVarIndex.put("PODN", 		"5");
-		_tableFcstVarIndex.put("POFD", 		"6");
-		_tableFcstVarIndex.put("FAR", 		"7");
-		_tableFcstVarIndex.put("CSI", 		"8");
-		_tableFcstVarIndex.put("GSS", 		"9");
-		_tableFcstVarIndex.put("HK", 		"10");
-		_tableFcstVarIndex.put("HSS", 		"11");
-		_tableFcstVarIndex.put("ODDS", 		"12");
-		_tableFcstVarIndex.put("FBAR", 		"13");
-		_tableFcstVarIndex.put("FSTDEV", 	"14");
-		_tableFcstVarIndex.put("OBAR", 		"15");
-		_tableFcstVarIndex.put("OSTDEV",	"16");
-		_tableFcstVarIndex.put("PR_CORR",	"17");
-		_tableFcstVarIndex.put("ME", 		"18");
-		_tableFcstVarIndex.put("ESTDEV", 	"19");
-		_tableFcstVarIndex.put("MBIAS", 	"20");
-		_tableFcstVarIndex.put("MAE", 		"21");
-		_tableFcstVarIndex.put("MSE", 		"22");
-		_tableFcstVarIndex.put("BCMSE", 	"23");
-		_tableFcstVarIndex.put("BCRMSE", 	"23");
-		_tableFcstVarIndex.put("RMSE", 		"24");
-		_tableFcstVarIndex.put("E10", 		"25");
-		_tableFcstVarIndex.put("E25", 		"26");
-		_tableFcstVarIndex.put("E50", 		"27");
-		_tableFcstVarIndex.put("E75", 		"28");
-		_tableFcstVarIndex.put("E90", 		"29");
-		_tableFcstVarIndex.put("BRIER", 	"30");
-		_tableFcstVarIndex.put("NBR_BASER",	"31");
-		_tableFcstVarIndex.put("NBR_FMEAN",	"32");
-		_tableFcstVarIndex.put("NBR_ACC", 	"33");
-		_tableFcstVarIndex.put("NBR_FBIAS", "34");
-		_tableFcstVarIndex.put("NBR_PODY", 	"35");
-		_tableFcstVarIndex.put("NBR_PODN", 	"36");
-		_tableFcstVarIndex.put("NBR_POFD", 	"37");
-		_tableFcstVarIndex.put("NBR_FAR", 	"38");
-		_tableFcstVarIndex.put("NBR_CSI", 	"39");
-		_tableFcstVarIndex.put("NBR_GSS", 	"40");
-		_tableFcstVarIndex.put("NBR_HK", 	"41");
-		_tableFcstVarIndex.put("NBR_HSS", 	"42");
-		_tableFcstVarIndex.put("NBR_ODDS", 	"43");
-		_tableFcstVarIndex.put("NBR_FBS", 	"44");
-		_tableFcstVarIndex.put("NBR_FSS", 	"45");
+		_tableStatIndex.put("BASER", 	"0");
+		_tableStatIndex.put("FMEAN", 	"1");
+		_tableStatIndex.put("ACC", 		"2");
+		_tableStatIndex.put("FBIAS", 	"3");
+		_tableStatIndex.put("PODY", 	"4");
+		_tableStatIndex.put("PODN", 	"5");
+		_tableStatIndex.put("POFD", 	"6");
+		_tableStatIndex.put("FAR", 		"7");
+		_tableStatIndex.put("CSI", 		"8");
+		_tableStatIndex.put("GSS", 		"9");
+		_tableStatIndex.put("HK", 		"10");
+		_tableStatIndex.put("HSS", 		"11");
+		_tableStatIndex.put("ODDS", 	"12");
+		_tableStatIndex.put("FBAR", 	"13");
+		_tableStatIndex.put("FSTDEV", 	"14");
+		_tableStatIndex.put("OBAR", 	"15");
+		_tableStatIndex.put("OSTDEV",	"16");
+		_tableStatIndex.put("PR_CORR",	"17");
+		_tableStatIndex.put("ME", 		"18");
+		_tableStatIndex.put("ESTDEV", 	"19");
+		_tableStatIndex.put("MBIAS", 	"20");
+		_tableStatIndex.put("MAE", 		"21");
+		_tableStatIndex.put("MSE", 		"22");
+		_tableStatIndex.put("BCMSE", 	"23");
+		_tableStatIndex.put("BCRMSE", 	"23");
+		_tableStatIndex.put("RMSE", 	"24");
+		_tableStatIndex.put("E10", 		"25");
+		_tableStatIndex.put("E25", 		"26");
+		_tableStatIndex.put("E50", 		"27");
+		_tableStatIndex.put("E75", 		"28");
+		_tableStatIndex.put("E90", 		"29");
+		_tableStatIndex.put("BRIER", 	"30");
+		_tableStatIndex.put("NBR_BASER","31");
+		_tableStatIndex.put("NBR_FMEAN","32");
+		_tableStatIndex.put("NBR_ACC", 	"33");
+		_tableStatIndex.put("NBR_FBIAS","34");
+		_tableStatIndex.put("NBR_PODY", "35");
+		_tableStatIndex.put("NBR_PODN", "36");
+		_tableStatIndex.put("NBR_POFD", "37");
+		_tableStatIndex.put("NBR_FAR", 	"38");
+		_tableStatIndex.put("NBR_CSI", 	"39");
+		_tableStatIndex.put("NBR_GSS", 	"40");
+		_tableStatIndex.put("NBR_HK", 	"41");
+		_tableStatIndex.put("NBR_HSS", 	"42");
+		_tableStatIndex.put("NBR_ODDS", "43");
+		_tableStatIndex.put("NBR_FBS", 	"44");
+		_tableStatIndex.put("NBR_FSS", 	"45");
+	}
+	
+	public static final Hashtable _tableStatLine = new Hashtable();
+	static{
+		_tableStatLine.put("BASER", 	"CTS");
+		_tableStatLine.put("FMEAN", 	"CTS");
+		_tableStatLine.put("ACC", 		"CTS");
+		_tableStatLine.put("FBIAS", 	"CTS");
+		_tableStatLine.put("PODY", 		"CTS");
+		_tableStatLine.put("PODN", 		"CTS");
+		_tableStatLine.put("POFD", 		"CTS");
+		_tableStatLine.put("FAR", 		"CTS");
+		_tableStatLine.put("CSI", 		"CTS");
+		_tableStatLine.put("GSS", 		"CTS");
+		_tableStatLine.put("HK", 		"CTS");
+		_tableStatLine.put("HSS", 		"CTS");
+		_tableStatLine.put("ODDS", 		"CTS");
+		_tableStatLine.put("FBAR", 		"CNT");
+		_tableStatLine.put("FSTDEV", 	"CNT");
+		_tableStatLine.put("OBAR", 		"CNT");
+		_tableStatLine.put("OSTDEV",	"CNT");
+		_tableStatLine.put("PR_CORR",	"CNT");
+		_tableStatLine.put("ME", 		"CNT");
+		_tableStatLine.put("ESTDEV", 	"CNT");
+		_tableStatLine.put("MBIAS", 	"CNT");
+		_tableStatLine.put("MAE", 		"CNT");
+		_tableStatLine.put("MSE", 		"CNT");
+		_tableStatLine.put("BCMSE", 	"CNT");
+		_tableStatLine.put("BCRMSE", 	"CNT");
+		_tableStatLine.put("RMSE", 		"CNT");
+		_tableStatLine.put("E10", 		"CNT");
+		_tableStatLine.put("E25", 		"CNT");
+		_tableStatLine.put("E50", 		"CNT");
+		_tableStatLine.put("E75", 		"CNT");
+		_tableStatLine.put("E90", 		"CNT");
+		_tableStatLine.put("BRIER", 	"PSTD");
+		_tableStatLine.put("NBR_BASER",	"NBRCTS");
+		_tableStatLine.put("NBR_FMEAN",	"NBRCTS");
+		_tableStatLine.put("NBR_ACC", 	"NBRCTS");
+		_tableStatLine.put("NBR_FBIAS",	"NBRCTS");
+		_tableStatLine.put("NBR_PODY",	"NBRCTS");
+		_tableStatLine.put("NBR_PODN",	"NBRCTS");
+		_tableStatLine.put("NBR_POFD",	"NBRCTS");
+		_tableStatLine.put("NBR_FAR", 	"NBRCTS");
+		_tableStatLine.put("NBR_CSI", 	"NBRCTS");
+		_tableStatLine.put("NBR_GSS", 	"NBRCTS");
+		_tableStatLine.put("NBR_HK", 	"NBRCTS");
+		_tableStatLine.put("NBR_HSS", 	"NBRCTS");
+		_tableStatLine.put("NBR_ODDS",	"NBRCTS");
+		_tableStatLine.put("NBR_FBS", 	"NBRCNT");
+		_tableStatLine.put("NBR_FSS", 	"NBRCNT");
 	}
 
 	/**
