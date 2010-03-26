@@ -23,6 +23,8 @@ public class MVLoad extends MVUtil {
 	public static final Pattern _patModeSingle	= Pattern.compile("^(C?[FO]\\d{3})$");
 	public static final Pattern _patModePair	= Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
 	
+	public static boolean _boolVerbose				= false;
+	
 	public static Hashtable _tableStatHeaders		= new Hashtable(1024);
 	public static int _intInsertSize				= 1;
 	public static boolean _boolStatHeaderTableCheck	= true;
@@ -175,8 +177,8 @@ public class MVLoad extends MVUtil {
 					DataFileInfo info = processDataFile(listDataFiles[j], con);
 					if( null == info ){ continue; }
 					long intProcessDataFileTime = (new java.util.Date()).getTime() - intProcessDataFileBegin;
-					System.out.println("  " + info._dataFilePath + "/" + info._dataFileFilename + "\n" + 
-									   padBegin("data file time: ", 32) + formatTimeSpan(intProcessDataFileTime));
+					System.out.println("  " + info._dataFilePath + "/" + info._dataFileFilename + 
+										(_boolVerbose? "\n" + padBegin("data file time: ", 32) + formatTimeSpan(intProcessDataFileTime) : ""));
 					
 					if( info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ){
 						loadStatFile(info, con);
@@ -196,7 +198,7 @@ public class MVLoad extends MVUtil {
 			long intLoadTime = (new java.util.Date()).getTime() - intLoadTimeStart;
 			double dblLinesPerMSec =  (double)_intLinesTotal / (double)(intLoadTime);
 			
-			System.out.println("  ==== grid_stat ====\n" +
+			System.out.println("    ==== grid_stat ====\n\n" +
 							   padBegin("load total: ", 36) + formatTimeSpan(intLoadTime) + "\n" +
 							   (_boolStatHeaderDBCheck? padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" : "") +
 							   (_boolStatHeaderTableCheck? padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" : "") +
@@ -209,7 +211,7 @@ public class MVLoad extends MVUtil {
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
 							   padBegin("num files: ", 36) + intNumFiles + "\n" +
 							   padBegin("end time: ", 36) + format.format(new java.util.Date()) + "\n\n" +
-							   "  ==== mode ====\n" +
+							   "    ==== mode ====\n\n" +
 							   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
 							   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
@@ -219,6 +221,7 @@ public class MVLoad extends MVUtil {
 				applyIndexes(con);
 			}
 
+			System.out.println(padBegin("end time: ", 36) + format.format(new java.util.Date()) + "\n");
 		} catch (Exception e) {
 			System.err.println("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
 			e.printStackTrace();
@@ -586,13 +589,15 @@ public class MVLoad extends MVUtil {
 		long intStatHeaderLoadTime = (new java.util.Date()).getTime() - intStatHeaderLoadStart;
 		double dblLinesPerMSec = (double)(intLine - 1) / (double)(intStatHeaderLoadTime);
 		
-		System.out.println(padBegin("stat_header records: ", 32) + intStatHeaderRecords + "\n" +
-						   padBegin("stat_header inserts: ", 32) + intStatHeaderInserts + "\n" +
-						   padBegin("line_data records: ", 32) + intLineDataRecords + "\n" +
-						   padBegin("line_data inserts: ", 32) + intLineDataInserts + "\n" +
-						   padBegin("total load time: ", 32) + formatTimeSpan(intStatHeaderLoadTime) + "\n" +
-						   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 32) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
-						   padBegin("lines / msec: ", 32) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
+		if( _boolVerbose ){
+			System.out.println(padBegin("stat_header records: ", 32) + intStatHeaderRecords + "\n" +
+							   padBegin("stat_header inserts: ", 32) + intStatHeaderInserts + "\n" +
+							   padBegin("line_data records: ", 32) + intLineDataRecords + "\n" +
+							   padBegin("line_data inserts: ", 32) + intLineDataInserts + "\n" +
+							   padBegin("total load time: ", 32) + formatTimeSpan(intStatHeaderLoadTime) + "\n" +
+							   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 32) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
+							   padBegin("lines / msec: ", 32) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
+		}
 	}
 	
 	//  line_type_lu_id values for the various mode line types
@@ -767,12 +772,14 @@ public class MVLoad extends MVUtil {
 		_intModeObjPairRecords += intModeObjPairInserts;
 		
 		//  print a performance report
-		long intModeHeaderLoadTime = (new java.util.Date()).getTime() - intModeHeaderLoadStart;		
-		System.out.println(padBegin("mode_header inserts: ", 32) + intModeHeaderInserts + "\n" +
-						   padBegin("mode_cts inserts: ", 32) + intModeCtsInserts + "\n" +
-						   padBegin("mode_obj_single inserts: ", 32) + intModeObjSingleInserts + "\n" +
-						   padBegin("mode_obj_pair inserts: ", 32) + intModeObjPairInserts + "\n" +
-						   padBegin("total load time: ", 32) + formatTimeSpan(intModeHeaderLoadTime) + "\n\n");
+		if( _boolVerbose ){
+			long intModeHeaderLoadTime = (new java.util.Date()).getTime() - intModeHeaderLoadStart;		
+			System.out.println(padBegin("mode_header inserts: ", 32) + intModeHeaderInserts + "\n" +
+							   padBegin("mode_cts inserts: ", 32) + intModeCtsInserts + "\n" +
+							   padBegin("mode_obj_single inserts: ", 32) + intModeObjSingleInserts + "\n" +
+							   padBegin("mode_obj_pair inserts: ", 32) + intModeObjPairInserts + "\n" +
+							   padBegin("total load time: ", 32) + formatTimeSpan(intModeHeaderLoadTime) + "\n\n");
+		}
 	}
 	
 	public static String replaceInvalidValues(String strData){ return strData.replace("NA", "-9999").replace("nan", "-9999"); }
@@ -926,7 +933,7 @@ public class MVLoad extends MVUtil {
 		_tableIndexes.put("stat_header_fcst_lead_idx",		"fcst_lead");
 		_tableIndexes.put("stat_header_vx_mask_idx",		"vx_mask");
 		_tableIndexes.put("stat_header_interp_mthd_idx",	"interp_mthd");
-		_tableIndexes.put("stat_header_initdate_idx",		"initdate");
+		_tableIndexes.put("stat_header_fcst_init_beg_idx",	"fcst_init_beg");
 		_tableIndexes.put("stat_header_fcst_valid_beg_idx",	"fcst_valid_beg");
 		_tableIndexes.put("mode_header_model_idx",			"model");
 		_tableIndexes.put("mode_header_fcst_var_idx",		"fcst_var");
@@ -936,11 +943,11 @@ public class MVLoad extends MVUtil {
 	
 	public static void applyIndexes(Connection con, boolean drop) throws Exception{
 		
-		System.out.println("  ==== indexes ====\n" + (drop? "  dropping..." : ""));
-		Map.Entry[] listIndexes = (Map.Entry[])(_tableIndexes.keySet().toArray(new Map.Entry[]{}));
-		for(int i=0; i < listIndexes.length; i++){
-			String strIndexName = listIndexes[i].getKey().toString();
-			String strField = listIndexes[i].getValue().toString();
+		System.out.println("    ==== indexes ====\n\n" + (drop? "  dropping..." : ""));
+		for(Iterator iterEntries = _tableIndexes.entrySet().iterator(); iterEntries.hasNext();){
+			Map.Entry entry = (Map.Entry)iterEntries.next();
+			String strIndexName = entry.getKey().toString();
+			String strField = entry.getValue().toString();
 			long intIndexStart = (new java.util.Date()).getTime();
 			
 			//  build a create index statment and run it
@@ -955,7 +962,8 @@ public class MVLoad extends MVUtil {
 			//  print out a performance message
 			long intIndexTime = (new java.util.Date()).getTime() - intIndexStart;
 			System.out.println(padBegin( strIndexName + ": ", 32) + formatTimeSpan(intIndexTime));
-		}		
+		}
+		System.out.println();
 	}
 	public static void applyIndexes(Connection con) throws Exception{ applyIndexes(con, false); }
 }
