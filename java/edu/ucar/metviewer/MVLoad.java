@@ -30,6 +30,8 @@ public class MVLoad extends MVUtil {
 	public static long _intStatHeaderSearchTime		= 0;
 	public static long _intStatHeaderTableTime		= 0;
 	
+	public static boolean _boolApplyIndexes			= true;
+	
 	public static int _intLinesTotal				= 0;
 	public static int _intStatHeaderRecords			= 0;
 	public static int _intStatHeaderInserts			= 0;
@@ -212,6 +214,10 @@ public class MVLoad extends MVUtil {
 							   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
 							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n\n");
+			
+			if( _boolApplyIndexes ){
+				applyIndexes(con);
+			}
 
 		} catch (Exception e) {
 			System.err.println("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
