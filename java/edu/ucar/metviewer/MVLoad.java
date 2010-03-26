@@ -32,13 +32,15 @@ public class MVLoad extends MVUtil {
 	public static long _intStatHeaderSearchTime		= 0;
 	public static long _intStatHeaderTableTime		= 0;
 	
+	public static boolean _boolDropIndexes			= false;
 	public static boolean _boolApplyIndexes			= true;
 	
-	public static int _intLinesTotal				= 0;
+	public static int _intStatLinesTotal			= 0;
 	public static int _intStatHeaderRecords			= 0;
 	public static int _intStatHeaderInserts			= 0;
 	public static int _intLineDataRecords			= 0;
 	public static int _intLineDataInserts			= 0;
+	public static int _intModeLinesTotal			= 0;
 	public static int _intModeHeaderRecords			= 0;
 	public static int _intModeCtsRecords			= 0;
 	public static int _intModeObjSingleRecords		= 0;
@@ -155,7 +157,12 @@ public class MVLoad extends MVUtil {
 			
 			long intLoadTimeStart = (new java.util.Date()).getTime();
 			int intNumFiles = 0;
-			int intLinesPrev = 0;
+			int intStatLinesPrev = 0;
+			int intModeLinesPrev = 0;
+			
+			if( _boolDropIndexes ){
+				dropIndexes(con);
+			}
 			
 			MVOrderedMap[] listPerm = permute(mapLoadVar).getRows();
 			for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
@@ -188,15 +195,18 @@ public class MVLoad extends MVUtil {
 					intNumFiles++;
 				}
 				
-				int intLinesPerm = _intLinesTotal - intLinesPrev;
-				intLinesPrev = _intLinesTotal;
+				int intStatLinesPerm = _intStatLinesTotal - intStatLinesPrev;
+				int intModeLinesPerm = _intModeLinesTotal - intModeLinesPrev;
+				intStatLinesPrev = _intStatLinesTotal;
+				intModeLinesPrev = _intModeLinesTotal;
 				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " complete - insert time: " + 
-								   formatTimeSpan( (new java.util.Date()).getTime() - intPermStart ) + "  lines: " + intLinesPerm + "\n");
+								   formatTimeSpan( (new java.util.Date()).getTime() - intPermStart ) + "  stat lines: " + intStatLinesPerm + 
+								   "  mode lines: " + intModeLinesPerm + "\n");
 			}
 
 			//  print a performance report
 			long intLoadTime = (new java.util.Date()).getTime() - intLoadTimeStart;
-			double dblLinesPerMSec =  (double)_intLinesTotal / (double)(intLoadTime);
+			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);
 			
 			System.out.println("    ==== grid_stat ====\n\n" +
 							   padBegin("load total: ", 36) + formatTimeSpan(intLoadTime) + "\n" +
@@ -206,7 +216,7 @@ public class MVLoad extends MVUtil {
 							   padBegin("stat header inserts: ", 36) + _intStatHeaderInserts + "\n" +
 							   padBegin("line data records: ", 36) + _intLineDataRecords + "\n" +
 							   padBegin("line data inserts: ", 36) + _intLineDataInserts + "\n" +
-							   padBegin("total lines: ", 36) + _intLinesTotal + "\n" +
+							   padBegin("total lines: ", 36) + _intStatLinesTotal + "\n" +
 							   padBegin("insert size: ", 36) + _intInsertSize + "\n" +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
 							   padBegin("num files: ", 36) + intNumFiles + "\n" +
@@ -215,7 +225,8 @@ public class MVLoad extends MVUtil {
 							   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
 							   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
-							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n\n");
+							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
+							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n\n");
 			
 			if( _boolApplyIndexes ){
 				applyIndexes(con);
@@ -579,7 +590,7 @@ public class MVLoad extends MVUtil {
 		reader.close();
 		_tableStatHeaders.clear();
 		
-		_intLinesTotal += (intLine - 1);
+		_intStatLinesTotal += (intLine - 1);
 		_intStatHeaderRecords += intStatHeaderRecords;
 		_intStatHeaderInserts += intStatHeaderInserts;
 		_intLineDataInserts += intLineDataInserts;
@@ -766,6 +777,7 @@ public class MVLoad extends MVUtil {
 		reader.close();
 		
 		//  increment the global mode counters
+		_intModeLinesTotal += (intLine - 1);
 		_intModeHeaderRecords += intModeHeaderInserts;
 		_intModeCtsRecords += intModeCtsInserts;
 		_intModeObjSingleRecords += intModeObjSingleInserts;
@@ -966,6 +978,7 @@ public class MVLoad extends MVUtil {
 		System.out.println();
 	}
 	public static void applyIndexes(Connection con) throws Exception{ applyIndexes(con, false); }
+	public static void dropIndexes(Connection con) throws Exception{ applyIndexes(con, true); }
 }
 
 class DataFileInfo {
