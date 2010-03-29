@@ -675,6 +675,19 @@ public class MVLoad extends MVUtil {
 			//  format the valid times for the database insert  
 			String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
 			String strObsValidBeg = _formatDB.format(dateObsValidBeg);
+			
+			//  calculate the number of seconds corresponding to fcst_lead
+			String strFcstLead = listToken[2];
+			int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(4,6));
+			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(2,4)) * 60;
+			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0,2)) * 3600;
+			
+			//  determine the init time by combining fcst_valid_beg and fcst_lead
+			Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+			calFcstInitBeg.setTime(dateFcstValidBeg);
+			calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
+			java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
+			String strFcstInit = _formatDB.format(dateFcstInitBeg);
 
 			//  build an update statement for the mode header
 			int intModeHeaderId = intModeHeaderIdNext++;
@@ -688,6 +701,7 @@ public class MVLoad extends MVUtil {
 					"'" + listToken[2] + "', " +			//  fcst_lead
 					"'" + strFcstValidBeg + "', " +			//  fcst_valid
 					"'" + listToken[4] + "', " +			//  fcst_accum
+					"'" + strFcstInit + "', " +				//  fcst_init
 					"'" + listToken[5] + "', " +			//  obs_lead
 					"'" + strObsValidBeg + "', " +			//  obs_valid
 					"'" + listToken[7] + "', " +			//  obs_accum
