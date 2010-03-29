@@ -377,12 +377,14 @@ public class MVLoad extends MVUtil {
 				long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
 				if( _boolStatHeaderDBCheck ){
 					String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-					ResultSet res = con.createStatement().executeQuery(strStatHeaderSelect);
+					Statement stmt = con.createStatement();
+					ResultSet res = stmt.executeQuery(strStatHeaderSelect);
 					if( res.next() ){
 						String strStatHeaderIdDup = res.getString(1);
 						boolFoundStatHeader = true;
 						System.out.println("  **  WARNING: found duplicate stat_header record with id " + strStatHeaderIdDup + "\n        " + strFileLine);
 					}
+					stmt.close();
 				}
 				intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
 				_intStatHeaderSearchTime += intStatHeaderSearchTime;
@@ -525,7 +527,7 @@ public class MVLoad extends MVUtil {
 				}
 				String strStatHeaderInsert = "INSERT INTO stat_header VALUES " + strValueList + ";";
 				try{
-					int intResStatHeaderInsert = con.createStatement().executeUpdate(strStatHeaderInsert);
+					int intResStatHeaderInsert = executeUpdate(con, strStatHeaderInsert);
 					if( listInsertValues.size() != intResStatHeaderInsert ){
 						System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intResStatHeaderInsert + "\n        " + strFileLine);
 					}
@@ -554,7 +556,7 @@ public class MVLoad extends MVUtil {
 					//  build and execute the line data insert statement
 					String strLineDataTable = "line_data_" + strLineType.toLowerCase();
 					String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + strValueList + ";";	
-					int intResLineDataInsert = con.createStatement().executeUpdate(strLineDataInsert);
+					int intResLineDataInsert = executeUpdate(con, strLineDataInsert);
 					if( listValues.size() != intResLineDataInsert ){ System.out.println("  **  WARNING: unexpected result from line_data INSERT: " + 
 																						intResLineDataInsert + "\n        " + strFileLine); }
 					intLineDataInserts++;
@@ -573,7 +575,7 @@ public class MVLoad extends MVUtil {
 						strStatGroupInsertValues += (i == 0? "" : ", ") + listStatGroupInsertValues.get(i).toString();		
 					}
 					String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
-					int intStatGroupInsert = con.createStatement().executeUpdate(strStatGroupInsert);
+					int intStatGroupInsert = executeUpdate(con, strStatGroupInsert);
 					if( listStatGroupInsertValues.size() != intStatGroupInsert ){
 						System.out.println("  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " + 
 											listStatGroupInsertValues.size() + "\n        " + strFileLine);
@@ -589,6 +591,7 @@ public class MVLoad extends MVUtil {
 		}
 		reader.close();
 		_tableStatHeaders.clear();
+		_tableStatHeaders = new Hashtable();
 		
 		_intStatLinesTotal += (intLine - 1);
 		_intStatHeaderRecords += intStatHeaderRecords;
@@ -601,13 +604,13 @@ public class MVLoad extends MVUtil {
 		double dblLinesPerMSec = (double)(intLine - 1) / (double)(intStatHeaderLoadTime);
 		
 		if( _boolVerbose ){
-			System.out.println(padBegin("stat_header records: ", 32) + intStatHeaderRecords + "\n" +
-							   padBegin("stat_header inserts: ", 32) + intStatHeaderInserts + "\n" +
-							   padBegin("line_data records: ", 32) + intLineDataRecords + "\n" +
-							   padBegin("line_data inserts: ", 32) + intLineDataInserts + "\n" +
-							   padBegin("total load time: ", 32) + formatTimeSpan(intStatHeaderLoadTime) + "\n" +
-							   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 32) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
-							   padBegin("lines / msec: ", 32) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
+			System.out.println(padBegin("stat_header records: ", 36) + intStatHeaderRecords + "\n" +
+							   padBegin("stat_header inserts: ", 36) + intStatHeaderInserts + "\n" +
+							   padBegin("line_data records: ", 36) + intLineDataRecords + "\n" +
+							   padBegin("line_data inserts: ", 36) + intLineDataInserts + "\n" +
+							   padBegin("total load time: ", 36) + formatTimeSpan(intStatHeaderLoadTime) + "\n" +
+							   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 36) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
+							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
 		}
 	}
 	
@@ -699,7 +702,7 @@ public class MVLoad extends MVUtil {
 
 			//  insert the record into the mode_header database table
 			String strModeHeaderInsert = "INSERT INTO mode_header VALUES (" + strValueList + ");";
-			int intModeHeaderInsert = con.createStatement().executeUpdate(strModeHeaderInsert);
+			int intModeHeaderInsert = executeUpdate(con, strModeHeaderInsert);
 			if( 1 != intModeHeaderInsert ){
 				System.out.println("  **  WARNING: unexpected result from mode_header INSERT: " + intModeHeaderInsert + "\n        " + strFileLine);
 			}
@@ -717,7 +720,7 @@ public class MVLoad extends MVUtil {
 				
 				//  insert the record into the mode_cts database table
 				String strModeCtsInsert = "INSERT INTO mode_cts VALUES (" + strValueList + ");";
-				int intModeCtsInsert = con.createStatement().executeUpdate(strModeCtsInsert);
+				int intModeCtsInsert = executeUpdate(con, strModeCtsInsert);
 				if( 1 != intModeCtsInsert ){
 					System.out.println("  **  WARNING: unexpected result from mode_cts INSERT: " + intModeCtsInsert + "\n        " + strFileLine);
 				}
@@ -738,7 +741,7 @@ public class MVLoad extends MVUtil {
 				
 				//  insert the record into the mode_obj_single database table
 				String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strValueList + ");";
-				int intModeObjSingleInsert = con.createStatement().executeUpdate(strModeObjSingleInsert);
+				int intModeObjSingleInsert = executeUpdate(con, strModeObjSingleInsert);
 				if( 1 != intModeObjSingleInsert ){
 					System.out.println("  **  WARNING: unexpected result from mode_obj_single INSERT: " + intModeObjSingleInsert + "\n        " + strFileLine);
 				}
@@ -766,7 +769,7 @@ public class MVLoad extends MVUtil {
 				
 				//  insert the record into the mode_obj_pair database table
 				String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strValueList + ");";
-				int intModeObjPairInsert = con.createStatement().executeUpdate(strModeObjPairInsert);
+				int intModeObjPairInsert = executeUpdate(con, strModeObjPairInsert);
 				if( 1 != intModeObjPairInsert ){
 					System.out.println("  **  WARNING: unexpected result from mode_obj_pair INSERT: " + intModeObjPairInsert + "\n        " + strFileLine);
 				}
@@ -794,15 +797,24 @@ public class MVLoad extends MVUtil {
 		}
 	}
 	
-	public static String replaceInvalidValues(String strData){ return strData.replace("NA", "-9999").replace("nan", "-9999"); }
-
+	public static int executeUpdate(Connection con, String update) throws SQLException{
+		Statement stmt = con.createStatement();
+		int intRes = stmt.executeUpdate(update);
+		stmt.close();
+		return intRes;
+	}
+	
+    public static String replaceInvalidValues(String strData){ return strData.replace("NA", "-9999").replace("nan", "-9999"); }
+	
 	public static int getNextId(Connection con, String table, String field) throws Exception {
 		int intId = -1;
-		ResultSet res = con.createStatement().executeQuery("SELECT MAX(" + field + ") FROM " + table + ";");
+		Statement stmt = con.createStatement();
+		ResultSet res = stmt.executeQuery("SELECT MAX(" + field + ") FROM " + table + ";");
 		if( !res.next() ){ throw new Exception("getNextId(" + table + ", " + field + ") unable to find max id"); }
 		String strId = res.getString(1);
 		if( null == strId ) { intId = 0; } 
 		else                { intId = (Integer.parseInt(strId) + 1); }
+		stmt.close();
 		return intId;
 	}
 
@@ -876,7 +888,8 @@ public class MVLoad extends MVUtil {
 			"  dfl.data_file_lu_id = df.data_file_lu_id " + 
 			"  AND df.filename = \'" + strFile + "\' " + 
 			"  AND df.path = \'" + strPath + "\';";
-		ResultSet res = con.createStatement().executeQuery(strDataFileQuery);
+		Statement stmt = con.createStatement();
+		ResultSet res = stmt.executeQuery(strDataFileQuery);
 
 		// if the data file is already present in the database, print a warning and return the id
 		if( res.next() ){
@@ -891,12 +904,13 @@ public class MVLoad extends MVUtil {
 		}
 
 		// if the file is not present in the data_file table, query for the largest data_file_id
-		res = con.createStatement().executeQuery("SELECT MAX(data_file_id) FROM data_file;");
+		res = stmt.executeQuery("SELECT MAX(data_file_id) FROM data_file;");
 		if( !res.next() ){ throw new Exception("processDataFile() unable to find max data_file_id"); }		
 		strDataFileId = res.getString(1);
 		if( null == strDataFileId ){ strDataFileId = "0"; }
 		else					   { strDataFileId = "" + (Integer.parseInt(strDataFileId) + 1); }
-
+		stmt.close();
+		
 		// add the input file to the data_file table
 		String strDataFileInsert = 
 			"INSERT INTO data_file VALUES (" + 
@@ -906,7 +920,7 @@ public class MVLoad extends MVUtil {
 				"'" + strPath + "', " +			// path
 				"'" + strLoadDate + "', " +		// load_date
 				"'" + strModDate + "');";		// mod_date
-		int intRes = con.createStatement().executeUpdate(strDataFileInsert);
+		int intRes = executeUpdate(con, strDataFileInsert);
 		if( 1 != intRes ){ System.out.println("  **  WARNING: unexpected result from data_file INSERT: " + intRes); }
 		
 		return new DataFileInfo(strDataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
@@ -969,7 +983,7 @@ public class MVLoad extends MVUtil {
 			String strIndex = "";
 			if( drop ){ strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";                     }
 			else      { strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");"; }
-			con.createStatement().executeUpdate(strIndex);
+			executeUpdate(con, strIndex);
 			
 			//  print out a performance message
 			long intIndexTime = (new java.util.Date()).getTime() - intIndexStart;
