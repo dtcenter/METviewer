@@ -33,8 +33,8 @@ public class MVBatch extends MVUtil {
 	public static String[] _list24				= {};
 	public static String[] _list06				= {};
 	public static String[] _listBase			= {};
-	public static String _strBaseDate			= "2010-03-14 00:00:00";
-	public static String _strBaseDateDefault	= "";
+	public static String _strBaseDate			= "";
+	public static String _strBaseDateDefault	= "2010-03-14 00:00:00";
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
@@ -174,7 +174,7 @@ public class MVBatch extends MVUtil {
 					}
 				} else {
 //					jobs = append(jobs, MVPlotJobInit24.getJobs(con));
-					jobs = append(jobs, MVPlotJobInit06.getJobs(con));
+//					jobs = append(jobs, MVPlotJobInit06.getJobs(con));
 //					jobs = append(jobs, MVPlotJobValid24.getJobs(con));
 //					jobs = append(jobs, MVPlotJobValid06.getJobs(con));
 //					jobs = append(jobs, MVPlotJob30Day24.getJobs(con));
@@ -187,7 +187,7 @@ public class MVBatch extends MVUtil {
 //					jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
 //					jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
 //					jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-//					jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
+					jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
 //					jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
 					
 //					MVPlotJobParser parser = new MVPlotJobParser("plot_lead_series_24.xml", con);
