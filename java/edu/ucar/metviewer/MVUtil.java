@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.*;
@@ -76,12 +77,13 @@ public class MVUtil{
 	 */
 	public static String[] buildDateList(String start, String end, int incr, String format){
 		SimpleDateFormat formatDate = new SimpleDateFormat(format);
+		formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
 		ArrayList listDates = new ArrayList();
 		
 		try{
 			java.util.Date dateStart = formatDate.parse(start);
 			java.util.Date dateEnd = formatDate.parse(end);
-			Calendar cal = Calendar.getInstance();
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));			
 			cal.setTime(dateStart);
 			
 			while( (incr > 0 && cal.getTime().getTime() <= dateEnd.getTime()) ||
@@ -540,6 +542,18 @@ public class MVUtil{
 	public static String[]		append( String[] s1,	String s2)		{ return append(s1, new String[]{s2});						}
 	public static Map.Entry[]	append( Map.Entry[] s1,	Map.Entry[] s2)	{ return (Map.Entry[])append(s1, s2, new Map.Entry[]{});	}
 	public static MVPlotJob[]	append( MVPlotJob[] s1, MVPlotJob[] s2)	{ return (MVPlotJob[])append(s1, s2, new MVPlotJob[]{});	}
+	
+	public static String[] unique(String[] data){
+		Hashtable table = new Hashtable();
+		for(int i=0; i < data.length; i++){ if( !table.containsKey(data[i]) ){ table.put(data[i], "true"); } }
+		return (String[])table.keySet().toArray(new String[]{});
+	}
+	
+	public static int sum(int[] data){
+		int intSum = 0;
+		for(int i=0; i < data.length; i++){ intSum += data[i]; }
+		return intSum;
+	}
 	
 	public static String[]		toArray(ArrayList list)					{ return (String[])list.toArray(new String[]{});			}
 	
