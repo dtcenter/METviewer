@@ -10,11 +10,11 @@
 <body style="margin:20px">
 
 	<h2>Select Database</h2>
-	
-	<s:form>
-		<s:select label="Database" name="database" list="databases"/>
-		<s:submit value="Select"/>
-	</s:form>
+
+	<p>	
+	<s:select cssClass="gInput" label="Database" name="database" list="databases"/>
+	<s:submit cssClass="gButton" value="Select"/>
+	</p>
 
 </body>
 </html>
