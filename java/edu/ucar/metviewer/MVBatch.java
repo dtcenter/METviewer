@@ -567,7 +567,7 @@ public class MVBatch extends MVUtil {
 				}
 			}
 
-			printFormattedResults(tab); System.out.println("" + tab.getNumRows() + " rows\n");
+			//printFormattedResults(tab); System.out.println("" + tab.getNumRows() + " rows\n");
 			
 			
 			/*
@@ -608,19 +608,19 @@ public class MVBatch extends MVUtil {
 				
 				//  calculate mode stats for each permutation
 				for(int i=0; i < listModePerm.length; i++){
-					//System.out.println("mode perm:\n" + listModePerm[i].getRDecl());
+					//System.out.println("mode perm:\n" + listModePerm[i].getRDecl() + "\n");
 					MVDataTable tabModeCase = tab;
 					for(int j=0; j < listModeCase.length; j++){						
 						final String strModeCase = listModeCase[j];
 						final String strModeVal = listModePerm[i].getStr( listModeCase[j] );
 						tabModeCase = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr(strModeCase).equals(strModeVal); } });
 					}
-					//printFormattedResults(tabModeCase); System.out.println("" + tabModeCase.getNumRows() + " rows\n");					
 					if( 0 == tabModeCase.getNumRows() ){
-						tabModeStat.removeRow(i);
-						tabModePerm.removeRow(i);
+						//System.out.println("  ****  missing mode case  ****\n");
+						tabModeStat.removeRow(intModeStatIndex);
+						tabModePerm.removeRow(intModeStatIndex);
 						continue;
-					}
+					} 
 					
 					//  build tables for each line type
 					MVDataTable tabSimpFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^F\\d{3}$"); } });
@@ -637,7 +637,7 @@ public class MVBatch extends MVUtil {
 					MVDataTable tabClusPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^CF\\d{3}_CO\\d{3}$"); } });
 					
 					//  counts of simple/matched/unmatched forecast/observation objects
-					MVOrderedMap mapCaseData = tabModeStat.getRow(intModeStatIndex);
+					MVOrderedMap mapCaseData = tabModeStat.getRow(intModeStatIndex++);
 					mapCaseData.putStr("nsimp",		tabSimpFcst.getNumRows() + tabSimpObs.getNumRows());
 					mapCaseData.putStr("nsimpf",	tabSimpFcst.getNumRows());
 					mapCaseData.putStr("nsimpfm",	tabSimpFcstM.getNumRows());
@@ -722,9 +722,9 @@ public class MVBatch extends MVUtil {
 					mapCaseData.putStr("MCD", median( tabClusPair.getDoubleColumn("centroid_dist") ));
 					mapCaseData.putStr("MAD", median( tabClusPair.getDoubleColumn("angle_diff") ));
 					
-					tabModeStat.set(mapCaseData, intModeStatIndex++);
+					//System.out.println("tabModeStat after calcs:"); printFormattedResults(tabModeStat); System.out.println("" + tabModeStat.getNumRows() + " rows\n");					
 				}
-				printFormattedResults(tabModeStat);
+				//System.out.println("tabModeStat:"); printFormattedResults(tabModeStat); System.out.println("" + tabModeStat.getNumRows() + " rows\n");
 
 				//  build a data table with the stats
 				MVDataTable tabModePlot = new MVDataTable();
@@ -744,7 +744,7 @@ public class MVBatch extends MVUtil {
 						tabModePlot.addRows(tabModePlotVar.getRows());
 					}
 				}
-				printFormattedResults(tabModePlot);
+				//System.out.println("tabModePlot:"); printFormattedResults(tabModePlot); System.out.println("" + tabModeStat.getNumRows() + " rows\n");
 				tab.clear();
 				tab = tabModePlot;
 			}

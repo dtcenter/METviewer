@@ -75,6 +75,7 @@ seriesMinMax = function(series, numModels, log=FALSE){
 			if( dblMaxCur > dblMax ){ dblMax = dblMaxCur; }
 		}
 	}
+	if( Inf == dblMin | dblMin == dblMax ){ dblMin = 0; dblMax = 1; }
 	return( list(min=dblMin, max=dblMax) );
 }
 
