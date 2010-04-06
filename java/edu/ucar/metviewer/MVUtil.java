@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Map;
@@ -14,6 +15,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 public class MVUtil{
+	
+	public static final double INVALID_DATA = -9999;
 
 	public static String getSQLDateFormat(String field){ return "DATE_FORMAT(" + field + ", '%Y-%m-%d %H:%i:%s')"; }
 	
@@ -272,7 +275,7 @@ public class MVUtil{
 			}catch(Exception e){}
 			
 			//  if the tag is a threshold, format it accordingly
-			strVal = (strTmplTagName.equals("fcst_thresh")? formatFcstThresh(strTmplTag, strVal) : strVal);
+			strVal = (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")? formatFcstThresh(strTmplTag, strVal) : strVal);
 			
 			strRet = strRet.replace("{" + strTmplTag + "}", strVal);
 		}
@@ -515,9 +518,15 @@ public class MVUtil{
 	}
 
 	public static boolean contains(String[] list, String val){
-		for(int i=0; i < list.length; i++){ if( list[i].equalsIgnoreCase(val) ){ return true; } }
+		for(int i=0; i < list.length; i++){ if( list[i].equals(val) ){ return true; } }
 		return false;
 	}
+	
+	public static boolean contains(int[] list, int data){
+		for(int i=0; i < list.length; i++){ if( list[i] == data ){ return true; } }
+		return false;
+	}
+	
 	
 	/**
 	 * Append the first array with the values of the second
@@ -550,13 +559,21 @@ public class MVUtil{
 	}
 	
 	public static int sum(int[] data){
+		if( 1 > data.length ){ return (int)0; }
 		int intSum = 0;
 		for(int i=0; i < data.length; i++){ intSum += data[i]; }
 		return intSum;
 	}
 	
+	public static double median(double[] m) {
+		if( 1 > m.length ){ return INVALID_DATA; }
+		Arrays.sort(m);		
+	    int intMiddle = m.length / 2;
+	    if( 1 == m.length % 2 ){ return m[intMiddle]; }
+	    else                   { return (m[intMiddle-1] + m[intMiddle]) / 2.0; }
+	}
+
 	public static String[]		toArray(ArrayList list)					{ return (String[])list.toArray(new String[]{});			}
-	
 	
 	public static MVOrderedMap[] copyList(MVOrderedMap[] list){
 		MVOrderedMap[] listRet = new MVOrderedMap[list.length];
@@ -567,11 +584,6 @@ public class MVUtil{
 		String[] listRet = new String[list.length];
 		for(int i=0; i < list.length; i++){ listRet[i] = list[i]; }
 		return listRet;
-	}
-	
-	public static boolean contains(int[] list, int data){
-		for(int i=0; i < list.length; i++){ if( list[i] == data ) return true; }
-		return false;
 	}
 	
 	/**

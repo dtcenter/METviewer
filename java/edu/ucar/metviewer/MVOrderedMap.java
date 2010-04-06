@@ -57,6 +57,20 @@ public class MVOrderedMap extends Hashtable {
 	public String getStr(String key){ return (String)get(key); }
 	
 	/**
+	 * Pseudo-override of the Hashtable get() method to cast the return value as an int.
+	 * @param key Symbol (String) used as the index for the value
+	 * @return The inserted value, cast as an int
+	 */
+	public int getInt(String key){ return Integer.parseInt(get(key).toString()); }
+	
+	/**
+	 * Pseudo-override of the Hashtable get() method to cast the return value as an double.
+	 * @param key Symbol (String) used as the index for the value
+	 * @return The inserted value, cast as a double
+	 */
+	public double getDouble(String key){ return Double.parseDouble(get(key).toString()); }
+	
+	/**
 	 * Inserts the key/value pair into the table, putting the key into the ordered list at the
 	 * position specified by index
 	 * @param key Symbol used as the index for value 
@@ -74,6 +88,23 @@ public class MVOrderedMap extends Hashtable {
 	 * key at the end of the ordered list
 	 */
 	public Object put(Object key, Object value){ return put(key, value, _listKeys.size()); }
+	
+	/**
+	 * Pseudo-override to ease the process of inserting integers into the map
+	 */
+	public Object putInt(Object key, int value){ return put(key, new Integer(value)); }
+
+	/**
+	 * Pseudo-override to ease the process of inserting doubles into the map
+	 */
+	public Object putDbl(Object key, double value){ return put(key, new Double(value)); }
+	
+	/**
+	 * Pseudo-overrides to ensure that the map input has type String
+	 */
+	public Object putStr(Object key, Object value){ return put(key, value.toString()); }
+	public Object putStr(Object key, int value)   { return put(key, "" + value);       }
+	public Object putStr(Object key, double value){ return put(key, "" + value);       }
 
 	/**
 	 * Overrides remove() in {@link Hashtable} to remove the key/value pair from the table

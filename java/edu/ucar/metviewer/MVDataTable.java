@@ -61,6 +61,15 @@ public class MVDataTable{
 	public MVDataTable(){}
 	
 	/**
+	 * Copy constructor
+	 */
+	public MVDataTable(MVDataTable tab){
+		for(int i=0; i < tab._listFields.size(); i++){ _listFields.add( tab._listFields.get(i) ); }
+		MVOrderedMap[] listRows = tab.getRows();
+		for(int i=0; i < listRows.length; i++){ _listRows.add( new MVOrderedMap( listRows[i] ) ); }
+	}
+	
+	/**
 	 * Accessor for the MVDataTable fields
 	 */
 	public String[] getFields(){ return (String[])_listFields.toArray(new String[]{}); }
@@ -69,6 +78,66 @@ public class MVDataTable{
 	 * Accessor for the MVDataTable rows.  Each hastable is indexed by the field names.
 	 */
 	public MVOrderedMap[] getRows(){ return (MVOrderedMap[])_listRows.toArray(new MVOrderedMap[]{}); }
+	
+	/**
+	 * Builds a new MVDataTable by applying the input {@link MVRowComp} equals() function to each row
+	 * of this MVDataTable.  Each row is a {@link MVOrderedMap} of values, stored by field names.
+	 * @param c Discriminates which rows are included into the subset, using the equals() function
+	 * @return A new MVDataTable containing the appropriate subset of rows
+	 */
+	public MVDataTable getRows(MVRowComp c){
+		MVDataTable ret = new MVDataTable();
+		
+		ret._listFields = (ArrayList)_listFields.clone();
+		MVOrderedMap[] rows = (MVOrderedMap[])_listRows.toArray(new MVOrderedMap[]{});
+		for(int i=0; i < rows.length; i++){
+			//if( c.equals(rows[i]) ){ ret._listRows.add(new MVOrderedMap(rows[i])); }
+			if( c.equals(rows[i]) ){ ret._listRows.add(rows[i]); }
+		}
+		
+		return ret;
+	}
+	
+	public MVOrderedMap getRow(int row){
+		if( 0 > row || _listRows.size() - 1 < row ){ return null; }
+		return (MVOrderedMap)_listRows.get(row);
+	}
+	
+	/**
+	 * Accessor for individual columns
+	 */
+	public String[] getColumn(String field){
+		if( !_listFields.contains(field) ){ return null; }
+		String[] listRet = new String[_listRows.size()];
+		for(int i=0; i < _listRows.size(); i++){
+			listRet[i] = ((MVOrderedMap)_listRows.get(i)).getStr(field);
+		}
+		return listRet;
+	}
+	
+	/**
+	 * Accessor for individual columns, cast as an integer
+	 */
+	public int[] getIntColumn(String field){
+		if( !_listFields.contains(field) ){ return null; }
+		int[] listRet = new int[_listRows.size()];
+		for(int i=0; i < _listRows.size(); i++){
+			listRet[i] = ((MVOrderedMap)_listRows.get(i)).getInt(field);
+		}
+		return listRet;
+	}
+	
+	/**
+	 * Accessor for individual columns, cast as a double
+	 */
+	public double[] getDoubleColumn(String field){
+		if( !_listFields.contains(field) ){ return null; }
+		double[] listRet = new double[_listRows.size()];
+		for(int i=0; i < _listRows.size(); i++){
+			listRet[i] = ((MVOrderedMap)_listRows.get(i)).getDouble(field);
+		}
+		return listRet;
+	}
 	
 	/**
 	 * The number of rows in the table
@@ -94,7 +163,8 @@ public class MVDataTable{
 		}
 	}
 	public void addField(String field, String val){ addField(field, val, _listFields.size()); }
-	public void addField(String field)			  { addField(field, ""); 					  }
+	public void addField(String field)            { addField(field, ""); 					  }	
+	public void addFields(String[] fields)        {	for(int i=0; i < fields.length; i++){ addField(fields[i]); } }
 	
 	/**
 	 * Remove the field and all associated data from the MVDataTable.  The MVDataTable is not affected
@@ -178,6 +248,12 @@ public class MVDataTable{
 		_listRows.add(row);
 	}
 	public void addRow(MVOrderedMap row){ addRow(row, _listRows.size()); }
+	public void addRows(MVOrderedMap[] rows){ for(int i=0; null != rows && i < rows.length; i++){ addRow(rows[i]); } }
+	
+	public void removeRow(int row){
+		if( 0 > row || _listRows.size() - 1 < row ){ return; }
+		_listRows.remove(row);
+	}
 
 	/**
 	 * Set a particular element in the MVDataTable to the value specified.  If the specified 
@@ -241,24 +317,21 @@ public class MVDataTable{
 			set((String)listVals[i].getKey(), c, (String)listVals[i].getValue());
 		}
 	}
-	
+
 	/**
-	 * Builds a new MVDataTable by applying the input {@link MVRowComp} equals() function to each row
-	 * of this MVDataTable.  Each row is a {@link MVOrderedMap} of values, stored by field names.
-	 * @param c Discriminates which rows are included into the subset, using the equals() function
-	 * @return A new MVDataTable containing the appropriate subset of rows
+	 * Set a column of data, specified by input field, to an array of values, specified by input
+	 * vals.  If the input array has a different length than the number of rows in the table, the
+	 * values are either partially used or recycled.  
+	 * @param field The field name of the column to set
+	 * @param vals Values to set the column to
 	 */
-	public MVDataTable subset(MVRowComp c){
-		MVDataTable ret = new MVDataTable();
-		
-		ret._listFields = (ArrayList)_listFields.clone();
-		MVOrderedMap[] rows = (MVOrderedMap[])_listRows.toArray(new MVOrderedMap[]{});
-		for(int i=0; i < rows.length; i++){
-			//if( c.equals(rows[i]) ){ ret._listRows.add(new MVOrderedMap(rows[i])); }
-			if( c.equals(rows[i]) ){ ret._listRows.add(rows[i]); }
+	public void setColumn(String field, String[] vals){
+		if( null == vals || 1 > vals.length ){ return; }
+		int intValIndex = 0;
+		for(int i=0; i < getNumRows(); i++){
+			set(field, i, vals[intValIndex]);
+			intValIndex = (intValIndex == vals.length - 1? 0 : intValIndex + 1);
 		}
-		
-		return ret;
 	}
 	
 	/**

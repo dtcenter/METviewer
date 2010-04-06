@@ -444,14 +444,12 @@ public class MVPlotJobParser extends MVUtil{
 		else if( 1 > job.getIndyVal().length      )	{ return false; }
 		else if( 1 > job.getDepGroups().length    )	{ return false; }
 		else if( 1 > job.getSeries1Val().size()   )	{ return false; }
-		else if( 1 > job.getSeries2Val().size()   )	{ return false; }
 		else if( 1 > job.getAggVal().size()       )	{ return false; }
 		else if( job.getRFileTmpl().equals("")    )	{ return false; }
 		else if( job.getPlotFileTmpl().equals("") )	{ return false; }
 		else if( job.getDataFileTmpl().equals("") )	{ return false; }
 		else if( job.getXLabelTmpl().equals("")   )	{ return false; }
 		else if( job.getY1LabelTmpl().equals("")  )	{ return false; }
-		else if( job.getY2LabelTmpl().equals("")  )	{ return false; }
 		
 		return true;
 	}

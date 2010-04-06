@@ -137,7 +137,6 @@ public class MVLoad extends MVUtil {
 			/*
 			*/
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
-			/*
 			mapLoadVar.put("model", new String[] {"arw-tom-gep0", "arw-fer-gep1", "arw-sch-gep2", "arw-tom-gep3", "nmm-fer-gep4", 
 					  							  "arw-fer-gep5", "arw-sch-gep6", "arw-tom-gep7", "nmm-fer-gep8", "gfs", "ens-mean"});
 			String[] listDates = buildDateList("2009122118V_06h", "2010022112V_06h", 6 * 3600, "yyyyMMddHH'V_06h'");
@@ -146,11 +145,12 @@ public class MVLoad extends MVUtil {
 				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
 			});
 			mapLoadVar.put("date", listDates);
-			mapLoadVar.put("data_type", new String[]{"mode", "grid_stat"});
-			*/
+			mapLoadVar.put("data_type", new String[]{"mode", "grid_stat", "point_stat"});
+			/*
 			mapLoadVar.put("model", new String[] {"ens-mean"});
 			mapLoadVar.put("date", new String[]{"2010012418V_06h"});
 			mapLoadVar.put("data_type", new String[]{"mode"});
+			*/
 
 			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/HMT/West/dwr_domains/{model}/{date}/{data_type}";
 			
