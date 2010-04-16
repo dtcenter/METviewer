@@ -12,9 +12,9 @@ public class MVBatch extends MVUtil {
 	//private static final Logger _logger = Logger.getLogger(MVBatch.class);
 	//private static final PrintStream _logStream = System.out;
 	
-	public static String _strHost				= "taku";
+	public static String _strHost				= "kemosabe";
 	public static String _strPort				= "3306";	
-	public static String _strDatabase			= "metvdb_hmtr";
+	public static String _strDatabase			= "metvdb3_hmt";
 	public static String _strUser				= "pgoldenb";
 	public static String _strPwd				= "pgoldenb";
 	
@@ -34,7 +34,7 @@ public class MVBatch extends MVUtil {
 	public static String[] _list06				= {};
 	public static String[] _listBase			= {};
 	public static String _strBaseDate			= "";
-	public static String _strBaseDateDefault	= "2010-03-14 12:00:00";
+	public static String _strBaseDateDefault	= "2010-02-21 0:00:00";	
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
@@ -61,12 +61,14 @@ public class MVBatch extends MVUtil {
 
 			if( 1 < argv.length ){
 	
+				/*
 				//  set the default base date to the most recent Sunday
 				Calendar calBaseDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 				try{ calBaseDate.setTime( _formatDate.parse( _formatDate.format(new java.util.Date()) ) ); }catch(Exception e){}
 				calBaseDate.set(Calendar.HOUR_OF_DAY, 12);
 				while( Calendar.SUNDAY != calBaseDate.get(Calendar.DAY_OF_WEEK) ){ calBaseDate.add(Calendar.DATE, -1); }
 				_strBaseDateDefault = _formatDB.format( calBaseDate.getTime() );
+				*/
 		
 				if( 2 > argv.length ){
 					System.out.println("usage:\n% java [jvm_args] MVBatch {db_host} {works} [{plot_type} {date1} [date2]...]\n\n----  MVBatch Done  ----");
@@ -232,6 +234,7 @@ public class MVBatch extends MVUtil {
 				_intNumPlots += intNumJobPlots;
 			}
 			System.out.println("Running " + _intNumPlots + " plots");
+			System.out.println("begin time: " + _formatDB.format(new java.util.Date()) + "\n");
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				runJob(jobs[intJob]);
@@ -244,6 +247,7 @@ public class MVBatch extends MVUtil {
 			try{ if( con != null )	con.close(); }catch(SQLException e){}
 		}
 
+		System.out.println("end time: " + _formatDB.format(new java.util.Date()) + "\n");
 		System.out.println("\n----  MVBatch Done  ----");
 	}
 	
@@ -301,14 +305,16 @@ public class MVBatch extends MVUtil {
 					if( boolModePlot ){
 						strSelectVar = "HOUR( SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) ) initdate";
 					} else {
-						strSelectVar = "HOUR(h.initdate) inithour";
+						//strSelectVar = "HOUR(h.initdate) inithour";
+						strSelectVar = "HOUR(h.fcst_init_beg) inithour";
 					}
 					strSortVar = "inithour";
 				} else if( strSelectVar.equals("initdate") ){
 					if( boolModePlot ){
 						strSelectVar = getSQLDateFormat("SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )") + " initdate";
 					} else {
-						strSelectVar = getSQLDateFormat("h.initdate") + " initdate";
+						//strSelectVar = getSQLDateFormat("h.initdate") + " initdate";
+						strSelectVar = getSQLDateFormat("h.fcst_init_beg") + " initdate";
 					}
 					strSortVar = "initdate";
 				} else if( strSelectVar.equals("validhour") ){
@@ -346,7 +352,7 @@ public class MVBatch extends MVUtil {
 				strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
 			} else if( boolModePlot ){
 				strSelectList += "  mos.object_id,\n  mos.object_cat,\n  mos.area,\n  mop.object_id object_id_p,\n  mop.interest,\n" +
-				  				 "  mop.intersection_area,\n  mop.area_ratio,\n  mop.centroid_dist,\n  mop.angle_diff"; //mode_nobs ,\n  mc.total";
+				  				 "  mop.intersection_area,\n  mop.area_ratio,\n  mop.centroid_dist,\n  mop.angle_diff,\n  mc.total";
 			} else {
 				strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
 
@@ -369,7 +375,7 @@ public class MVBatch extends MVUtil {
 			//  build the list of tables for the FROM clause
 			String strFromList = "";			
 			if( boolModePlot ){
-				strFromList = "  mode_header h,\n  mode_obj_pair mop,\n  mode_obj_single mos";  //mode_nobs ,\n  mode_cts mc";
+				strFromList = "  mode_header h,\n  mode_obj_pair mop,\n  mode_obj_single mos,\n  mode_cts mc";
 			} else {
 				strFromList = "  stat_header h";
 				if( job.getBootstrapping() ){
@@ -393,11 +399,13 @@ public class MVBatch extends MVUtil {
 				
 				if( strField.equals("inithour") ){
 					if( boolModePlot ){ strField = "HOUR( SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) )"; }
-					else              { strField = "HOUR(h.initdate)"; }
+					//else              { strField = "HOUR(h.initdate)"; }
+					else              { strField = "HOUR(h.fcst_init_beg)"; }
 				}
 				else if( strField.equals("initdate") ){
 					if( boolModePlot ){ strField = "SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )"; }
-					else              { strField = getSQLDateFormat("h.initdate"); }
+					//else              { strField = getSQLDateFormat("h.initdate"); }
+					else              { strField = getSQLDateFormat("h.fcst_init_beg"); }
 				}
 				else if( strField.equals("fcst_valid_beg") ){ strField = getSQLDateFormat("h.fcst_valid_beg"); }
 				else if( strField.equals("fcst_valid") )    { strField = getSQLDateFormat("h.fcst_valid");     }
@@ -469,8 +477,8 @@ public class MVBatch extends MVUtil {
 
 			if( boolModePlot ){
 				strWhere += "  )\n  AND mop.mode_header_id = h.mode_header_id\n" +
-							"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)";  //mode_nobs \n" +
-							//mode_nobs "  AND mc.field = 'OBJECT'\n  AND mc.mode_header_id = h.mode_header_id";
+							"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)\n" +
+							"  AND mc.field = 'OBJECT'\n  AND mc.mode_header_id = mop.mode_header_id";
 			} else {
 				//  add the table joining clauses
 				if( job.getBootstrapping() ){
@@ -501,17 +509,24 @@ public class MVBatch extends MVUtil {
 
 			//  run the query against the database connection and parse the results
 			long intStartTime = (new java.util.Date()).getTime();
+			/*
 			PreparedStatement stmt = job.getConnection().prepareStatement(strQuery);
 			ResultSet res = stmt.executeQuery();
 			MVDataTable tab = new MVDataTable(res);
+			*/
+			Statement stmt = job.getConnection().createStatement();
+			ResultSet res = stmt.executeQuery(strQuery);
+			MVDataTable tab = new MVDataTable(res);
+			stmt.close();
+			
 			System.out.println("query returned " + tab.getNumRows() + " rows in " + 
 								formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ));
 			
 			//  reformat the field names in the data table
 			String[] listFields = tab.getFields();
 			for(int i=0; i < listFields.length; i++){
-				if( listFields[i].equals("HOUR(h.initdate)") ){ 
-				//metvdb3 if( listFields[i].equals("HOUR(h.fcst_init_beg)") ){ 
+				//if( listFields[i].equals("HOUR(h.initdate)") ){ 
+				if( listFields[i].equals("HOUR(h.fcst_init_beg)") ){ 
 					tab.setFieldName(i, "inithour");
 				}
 			}
@@ -601,7 +616,7 @@ public class MVBatch extends MVUtil {
 				//  create a table to store mode statistics
 				MVDataTable tabModeStat = new MVDataTable(tabModePerm);
 				String[] listModeStatFields = {"nsimp", "nsimpf", "nsimpfm", "nsimpfu", "nsimpo", "nsimpom", "nsimpou", "asimp", "asimpf", "asimpfm", "asimpfu", "asimpo",
-											   "asimpom", "asimpou", "nclus", "nclusf", "ncluso", "acov", "pom", "pam", "awcsi", "MMI", "MMIF", "MMIO", "MIA", "MAR", "MCD", "MAD"};
+											   "asimpom", "asimpou", "nclus", "nclusf", "ncluso", "ACOV", "pom", "pam", "awcsi", "MMI", "MMIF", "MMIO", "MIA", "MAR", "MCD", "MAD"};
 				for(int i=0; i < listModeStatFields.length; i++){ tabModeStat.addField(listModeStatFields[i]); }
 				int intModeStatIndex = 0;
 				//printFormattedResults(tabModeStat);
@@ -661,7 +676,8 @@ public class MVBatch extends MVUtil {
 					mapCaseData.putStr("ncluso",	tabClusObs.getNumRows());
 					
 					//  compute the aerial coverage of observation points
-					mapCaseData.putStr("acov",	mapCaseData.getInt("asimpo") / 11702);
+					double dblCaseTotal = median(tabModeCase.getDoubleColumn("total"));
+					mapCaseData.putStr("ACOV",	mapCaseData.getDouble("asimpo") / dblCaseTotal);
 					
 					//  percentage of simple objects and area matched
 					mapCaseData.putStr("pom",	(mapCaseData.getDouble("nsimpfm") + mapCaseData.getDouble("nsimpom")) / mapCaseData.getDouble("nsimp")); 
@@ -1274,7 +1290,7 @@ public class MVBatch extends MVUtil {
 
 	public static final Hashtable _tableModeStatIndex = new Hashtable();
 	static{
-		_tableModeStatIndex.put("NOBS",		"0");
+		_tableModeStatIndex.put("ACOV",		"0");
 		_tableModeStatIndex.put("MMI", 		"1");
 		_tableModeStatIndex.put("PERC", 	"2");
 		_tableModeStatIndex.put("MIA", 		"3");
