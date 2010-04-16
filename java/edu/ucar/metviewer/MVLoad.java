@@ -17,23 +17,26 @@ public class MVLoad extends MVUtil {
 	public static String _strDatabase			= "metvdb3_hmt";
 	public static String _strUser				= "pgoldenb";
 	public static String _strPwd				= "pgoldenb";
+
+	public static boolean _boolVerbose				= false;
+	public static int _intInsertSize				= 1;
+	public static boolean _boolStatHeaderTableCheck	= true;
+	public static boolean _boolStatHeaderDBCheck	= false;
+	public static boolean _boolModeHeaderDBCheck	= true;
+	public static boolean _boolDropIndexes			= false;
+	public static boolean _boolApplyIndexes			= true;
 	
 	public static DecimalFormat _formatPerf		= new DecimalFormat("0.000");
 
 	public static final Pattern _patModeSingle	= Pattern.compile("^(C?[FO]\\d{3})$");
 	public static final Pattern _patModePair	= Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
 	
-	public static boolean _boolVerbose				= false;
-	
 	public static Hashtable _tableStatHeaders		= new Hashtable(1024);
-	public static int _intInsertSize				= 1;
-	public static boolean _boolStatHeaderTableCheck	= true;
-	public static boolean _boolStatHeaderDBCheck	= false;
+	public static Hashtable _tableModeHeaders		= new Hashtable(1024);
+
 	public static long _intStatHeaderSearchTime		= 0;
 	public static long _intStatHeaderTableTime		= 0;
-	
-	public static boolean _boolDropIndexes			= false;
-	public static boolean _boolApplyIndexes			= true;
+	public static long _intModeHeaderSearchTime		= 0;
 	
 	public static int _intStatLinesTotal			= 0;
 	public static int _intStatHeaderRecords			= 0;
@@ -139,20 +142,21 @@ public class MVLoad extends MVUtil {
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
 			mapLoadVar.put("model", new String[] {"arw-tom-gep0", "arw-fer-gep1", "arw-sch-gep2", "arw-tom-gep3", "nmm-fer-gep4", 
 					  							  "arw-fer-gep5", "arw-sch-gep6", "arw-tom-gep7", "nmm-fer-gep8", "gfs", "ens-mean"});
-			String[] listDates = buildDateList("2009122118V_06h", "2010022112V_06h", 6 * 3600, "yyyyMMddHH'V_06h'");
-			listDates = append(listDates, buildDateList("2009122212V_24h", "2010022212V_24h", 24 * 3600, "yyyyMMddHH'V_24h'"));
+			String[] listDates = buildDateList("2009122118V_06h", "2010040518V_06h", 6 * 3600, "yyyyMMddHH'V_06h'");
+			listDates = append(listDates, buildDateList("2009122212V_24h", "2010040512V_24h", 24 * 3600, "yyyyMMddHH'V_24h'"));
 			Arrays.sort(listDates, new Comparator(){
 				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
 			});
 			mapLoadVar.put("date", listDates);
 			mapLoadVar.put("data_type", new String[]{"mode", "grid_stat", "point_stat"});
+
 			/*
 			mapLoadVar.put("model", new String[] {"ens-mean"});
 			mapLoadVar.put("date", new String[]{"2010012418V_06h"});
-			mapLoadVar.put("data_type", new String[]{"mode"});
+			mapLoadVar.put("data_type", new String[]{"grid_stat"});
 			*/
 
-			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/HMT/West/dwr_domains/{model}/{date}/{data_type}";
+			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/HMT/West/rerun/dwr_domains/{model}/{date}/{data_type}";
 			
 			
 			long intLoadTimeStart = (new java.util.Date()).getTime();
@@ -185,7 +189,7 @@ public class MVLoad extends MVUtil {
 					if( null == info ){ continue; }
 					long intProcessDataFileTime = (new java.util.Date()).getTime() - intProcessDataFileBegin;
 					System.out.println("  " + info._dataFilePath + "/" + info._dataFileFilename + 
-										(_boolVerbose? "\n" + padBegin("data file time: ", 32) + formatTimeSpan(intProcessDataFileTime) : ""));
+										(_boolVerbose? "\n" + padBegin("data file time: ", 36) + formatTimeSpan(intProcessDataFileTime) : ""));
 					
 					if( info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ){
 						loadStatFile(info, con);
@@ -194,6 +198,8 @@ public class MVLoad extends MVUtil {
 					}
 					intNumFiles++;
 				}
+				
+				_tableModeHeaders.clear();
 				
 				int intStatLinesPerm = _intStatLinesTotal - intStatLinesPrev;
 				int intModeLinesPerm = _intModeLinesTotal - intModeLinesPrev;
@@ -226,6 +232,7 @@ public class MVLoad extends MVUtil {
 							   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
 							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
+							   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
 							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n\n");
 			
 			if( _boolApplyIndexes ){
@@ -294,9 +301,10 @@ public class MVLoad extends MVUtil {
 			
 			//  calculate the number of seconds corresponding to fcst_lead
 			String strFcstLead = listToken[2];
-			int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(4,6));
-			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(2,4)) * 60;
-			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0,2)) * 3600;
+			int intFcstLeadLen = strFcstLead.length();
+			int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(intFcstLeadLen-2, intFcstLeadLen));
+			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(intFcstLeadLen-4, intFcstLeadLen-2)) * 60;
+			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0, intFcstLeadLen-4)) * 3600;
 			
 			//  determine the init time by combining fcst_valid_beg and fcst_lead
 			Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -480,8 +488,8 @@ public class MVLoad extends MVUtil {
 				int intStatGroupNormIndex = 0;			
 
 				//  for each stat group, build an insert statment
-				for(int i=0; i < listStatGroupLuIdBoth.length; i++){
-					int intStatGroupLuId = listStatGroupLuIdBoth[i];
+				for(int i=0; i < listStatGroupLuIdAll.length; i++){
+					int intStatGroupLuId = listStatGroupLuIdAll[i];
 					String strStatGroupInsertValues = "" + intStatGroupLuId + ", " +
 													  intStatHeaderId + ", " +
 													  intLineDataId + ", ";
@@ -626,6 +634,7 @@ public class MVLoad extends MVUtil {
 		
 		//  performance counters
 		long intModeHeaderLoadStart = (new java.util.Date()).getTime();
+		long intModeHeaderSearchTime = 0;
 		int intModeHeaderInserts = 0;
 		int intModeCtsInserts = 0;
 		int intModeObjSingleInserts = 0;
@@ -688,14 +697,9 @@ public class MVLoad extends MVUtil {
 			calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
 			java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
 			String strFcstInit = _formatDB.format(dateFcstInitBeg);
-
-			//  build an update statement for the mode header
-			int intModeHeaderId = intModeHeaderIdNext++;
-			String strValueList = "" +
-					intModeHeaderId + ", " +				//  mode_header_id
-					intLineTypeLuId + ", " +				//  line_type_lu_id
-					info._dataFileId + ", " + 				//  data_file_id
-					intLine + ", " + 						//  linenumber
+			
+			//  build a value list from the header information
+			String strModeHeaderValueList = "" +
 					"'" + listToken[0] + "', " +			//  version
 					"'" + listToken[1] + "', " +			//  model
 					"'" + listToken[2] + "', " +			//  fcst_lead
@@ -713,14 +717,77 @@ public class MVLoad extends MVUtil {
 					"'" + listToken[13] + "', " +			//  fcst_lev
 					"'" + listToken[14] + "', " +			//  obs_var
 					"'" + listToken[15] + "'";				//  obs_lev
+			
+			String strModeHeaderWhereClause = "" +
+					"  version = '" + listToken[0] + "'\n" +
+					"  AND model = '" + listToken[1] + "'\n" +
+					"  AND fcst_lead = '" + listToken[2] + "'\n" +
+					"  AND fcst_valid = '" + strFcstValidBeg + "'\n" +
+					"  AND fcst_accum = '" + listToken[4] + "'\n" +
+					"  AND fcst_init = '" + strFcstInit + "'\n" +
+					"  AND obs_lead = '" + listToken[5] + "'\n" +
+					"  AND obs_valid = '" + strObsValidBeg + "'\n" +
+					"  AND obs_accum = '" + listToken[7] + "'\n" +
+					"  AND fcst_rad = '" + listToken[8] + "'\n" +
+					"  AND fcst_thr = '" + listToken[9] + "'\n" +
+					"  AND obs_rad = '" + listToken[10] + "'\n" +
+					"  AND obs_thr = '" + listToken[11] + "'\n" +
+					"  AND fcst_var = '" + listToken[12] + "'\n" +
+					"  AND fcst_lev = '" + listToken[13] + "'\n" +
+					"  AND obs_var = '" + listToken[14] + "'\n" +
+					"  AND obs_lev = '" + listToken[15] + "';";
 
-			//  insert the record into the mode_header database table
-			String strModeHeaderInsert = "INSERT INTO mode_header VALUES (" + strValueList + ");";
-			int intModeHeaderInsert = executeUpdate(con, strModeHeaderInsert);
-			if( 1 != intModeHeaderInsert ){
-				System.out.println("  **  WARNING: unexpected result from mode_header INSERT: " + intModeHeaderInsert + "\n        " + strFileLine);
+			//  look for the header key in the table
+			int intModeHeaderId = -1;
+			if( _tableModeHeaders.containsKey(strModeHeaderValueList) ){
+				intModeHeaderId = ((Integer)_tableModeHeaders.get(strModeHeaderValueList)).intValue(); 
 			}
-			intModeHeaderInserts++;
+			
+			//  if the mode_header does not yet exist, create one
+			else {
+				
+				//  look for an existing mode_header record with the same information
+				boolean boolFoundModeHeader = false;
+				long intModeHeaderSearchBegin = (new java.util.Date()).getTime();
+				if( _boolModeHeaderDBCheck ){
+					String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n" + strModeHeaderWhereClause;
+					Statement stmt = con.createStatement();
+					ResultSet res = stmt.executeQuery(strModeHeaderSelect);
+					if( res.next() ){
+						String strModeHeaderIdDup = res.getString(1);
+						intModeHeaderId = Integer.parseInt(strModeHeaderIdDup);
+						boolFoundModeHeader = true;
+						System.out.println("  **  WARNING: found duplicate mode_header record with id " + strModeHeaderIdDup + "\n        " + strFileLine);
+					}
+					stmt.close();
+				}
+				intModeHeaderSearchTime = (new java.util.Date()).getTime() - intModeHeaderSearchBegin;
+				_intModeHeaderSearchTime += intModeHeaderSearchTime;
+
+				//  if the mode_header was not found, add it to the table
+				if( !boolFoundModeHeader ){
+					
+					intModeHeaderId = intModeHeaderIdNext++;
+					_tableModeHeaders.put(strModeHeaderValueList, new Integer(intModeHeaderId));
+					
+					//  build an insert statement for the mode header
+					strModeHeaderValueList = "" +
+							intModeHeaderId + ", " +				//  mode_header_id
+							intLineTypeLuId + ", " +				//  line_type_lu_id
+							info._dataFileId + ", " + 				//  data_file_id
+							intLine + ", " + 						//  linenumber
+							strModeHeaderValueList;
+					
+					//  insert the record into the mode_header database table
+					String strModeHeaderInsert = "INSERT INTO mode_header VALUES (" + strModeHeaderValueList + ");";
+					int intModeHeaderInsert = executeUpdate(con, strModeHeaderInsert);
+					if( 1 != intModeHeaderInsert ){
+						System.out.println("  **  WARNING: unexpected result from mode_header INSERT: " + intModeHeaderInsert + "\n        " + strFileLine);
+					}
+					intModeHeaderInserts++;
+				}
+			}
+			
 			
 			/*
 			 * * * *  mode_cts insert  * * * *
@@ -729,11 +796,11 @@ public class MVLoad extends MVUtil {
 			if( MODE_CTS == intLineTypeLuId ){
 				
 				//  build the value list for the mode_cts insert
-				strValueList = "" + intModeHeaderId + ", '" + listToken[16] + "'";
-				for(int i=0; i < 18; i++){ strValueList += ", " + replaceInvalidValues(listToken[17 + i]); }
+				String strCTSValueList = "" + intModeHeaderId + ", '" + listToken[16] + "'";
+				for(int i=0; i < 18; i++){ strCTSValueList += ", " + replaceInvalidValues(listToken[17 + i]); }
 				
 				//  insert the record into the mode_cts database table
-				String strModeCtsInsert = "INSERT INTO mode_cts VALUES (" + strValueList + ");";
+				String strModeCtsInsert = "INSERT INTO mode_cts VALUES (" + strCTSValueList + ");";
 				int intModeCtsInsert = executeUpdate(con, strModeCtsInsert);
 				if( 1 != intModeCtsInsert ){
 					System.out.println("  **  WARNING: unexpected result from mode_cts INSERT: " + intModeCtsInsert + "\n        " + strFileLine);
@@ -750,11 +817,11 @@ public class MVLoad extends MVUtil {
 
 				//  build the value list for the mode_cts insert
 				int intModeObjId =  intModeObjIdNext++;
-				strValueList = "" + intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + listToken[17] + "'";
-				for(int i=0; i < 21; i++){ strValueList += ", " + replaceInvalidValues(listToken[18 + i]); }
+				String strSingleValueList = "" + intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + listToken[17] + "'";
+				for(int i=0; i < 21; i++){ strSingleValueList += ", " + replaceInvalidValues(listToken[18 + i]); }
 				
 				//  insert the record into the mode_obj_single database table
-				String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strValueList + ");";
+				String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strSingleValueList + ");";
 				int intModeObjSingleInsert = executeUpdate(con, strModeObjSingleInsert);
 				if( 1 != intModeObjSingleInsert ){
 					System.out.println("  **  WARNING: unexpected result from mode_obj_single INSERT: " + intModeObjSingleInsert + "\n        " + strFileLine);
@@ -777,12 +844,12 @@ public class MVLoad extends MVUtil {
 				int intModeObjectIdObs = ((Integer)tableModeObjectId.get(matModePair.group(2))).intValue();
 
 				//  build the value list for the mode_cts insert
-				strValueList = "" + intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " + 
-							   "'" + listToken[16] + "', '" + listToken[17] + "'";
-				for(int i=0; i < 12; i++){ strValueList += ", " + replaceInvalidValues(listToken[39 + i]); }
+				String strPairValueList = "" + intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " + 
+										  "'" + listToken[16] + "', '" + listToken[17] + "'";
+				for(int i=0; i < 12; i++){ strPairValueList += ", " + replaceInvalidValues(listToken[39 + i]); }
 				
 				//  insert the record into the mode_obj_pair database table
-				String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strValueList + ");";
+				String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strPairValueList + ");";
 				int intModeObjPairInsert = executeUpdate(con, strModeObjPairInsert);
 				if( 1 != intModeObjPairInsert ){
 					System.out.println("  **  WARNING: unexpected result from mode_obj_pair INSERT: " + intModeObjPairInsert + "\n        " + strFileLine);
@@ -790,6 +857,8 @@ public class MVLoad extends MVUtil {
 				intModeObjPairInserts++;
 
 			}
+			
+			intLine++;
 		}
 		reader.close();
 		
@@ -803,11 +872,12 @@ public class MVLoad extends MVUtil {
 		//  print a performance report
 		if( _boolVerbose ){
 			long intModeHeaderLoadTime = (new java.util.Date()).getTime() - intModeHeaderLoadStart;		
-			System.out.println(padBegin("mode_header inserts: ", 32) + intModeHeaderInserts + "\n" +
-							   padBegin("mode_cts inserts: ", 32) + intModeCtsInserts + "\n" +
-							   padBegin("mode_obj_single inserts: ", 32) + intModeObjSingleInserts + "\n" +
-							   padBegin("mode_obj_pair inserts: ", 32) + intModeObjPairInserts + "\n" +
-							   padBegin("total load time: ", 32) + formatTimeSpan(intModeHeaderLoadTime) + "\n\n");
+			System.out.println(padBegin("mode_header inserts: ", 36) + intModeHeaderInserts + "\n" +
+							   padBegin("mode_cts inserts: ", 36) + intModeCtsInserts + "\n" +
+							   padBegin("mode_obj_single inserts: ", 36) + intModeObjSingleInserts + "\n" +
+							   padBegin("mode_obj_pair inserts: ", 36) + intModeObjPairInserts + "\n" +
+							   (_boolModeHeaderDBCheck? padBegin("mode_header search time: ", 36) + formatTimeSpan(intModeHeaderSearchTime) + "\n": "") +
+							   padBegin("total load time: ", 36) + formatTimeSpan(intModeHeaderLoadTime) + "\n\n");
 		}
 	}
 	
@@ -1001,7 +1071,7 @@ public class MVLoad extends MVUtil {
 			
 			//  print out a performance message
 			long intIndexTime = (new java.util.Date()).getTime() - intIndexStart;
-			System.out.println(padBegin( strIndexName + ": ", 32) + formatTimeSpan(intIndexTime));
+			System.out.println(padBegin( strIndexName + ": ", 36) + formatTimeSpan(intIndexTime));
 		}
 		System.out.println();
 	}
