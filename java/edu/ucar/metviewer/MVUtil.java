@@ -1,18 +1,10 @@
 package edu.ucar.metviewer;
 
-import java.awt.Color;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.TimeZone;
+import java.awt.*;
+import java.sql.*;
+import java.util.*;
 import java.util.regex.*;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import java.text.*;
 
 public class MVUtil{
 	
@@ -47,10 +39,11 @@ public class MVUtil{
 				strWhere += ( strWhere.equals("") ? "WHERE" : "AND" ) + " HOUR(" + field + ") = '" + hour + "' "; 
 			}
 			
-			PreparedStatement stmt = con.prepareStatement("SELECT DISTINCT " + getSQLDateFormat(field) + 
-														  "FROM stat_header " + strWhere + "ORDER BY " + field + "");
-			ResultSet res = stmt.executeQuery();
+			Statement stmt = con.createStatement();
+			String strTable = (field.equalsIgnoreCase("fcst_valid") || field.equalsIgnoreCase("fcst_init")? "mode_header" : "stat_header");
+			ResultSet res = stmt.executeQuery("SELECT DISTINCT " + getSQLDateFormat(field) + "FROM " + strTable + " " + strWhere + "ORDER BY " + field);
 			for(int i=0; res.next(); i++){ listDates.add( res.getString(1) ); }
+			stmt.close();
 		} catch (Exception e) {
 			System.err.println("  **  ERROR: caught " + e.getClass() + " in buildDateAggList(): " + e.getMessage());
 			e.printStackTrace();
@@ -565,13 +558,14 @@ public class MVUtil{
 		return intSum;
 	}
 	
-	public static double median(double[] m) {
-		if( 1 > m.length ){ return INVALID_DATA; }
+	public static double median(double[] m, double def) {
+		if( 1 > m.length ){ return def; }
 		Arrays.sort(m);		
 	    int intMiddle = m.length / 2;
 	    if( 1 == m.length % 2 ){ return m[intMiddle]; }
 	    else                   { return (m[intMiddle-1] + m[intMiddle]) / 2.0; }
 	}
+	public static double median(double[] m){ return median(m, INVALID_DATA); }
 
 	public static String[]		toArray(ArrayList list)					{ return (String[])list.toArray(new String[]{});			}
 	

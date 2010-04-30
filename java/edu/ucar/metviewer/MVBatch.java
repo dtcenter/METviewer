@@ -21,6 +21,8 @@ public class MVBatch extends MVUtil {
 	public static String _strRtmplFolder		= "/home/pgoldenb/apps/verif/metviewer/R_tmpl/";
 	public static String _strRworkFolder		= "/d1/pgoldenb/var/hmt/R_work/";
 	public static String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
+
+	public static String _strInitdateField		= "fcst_init_beg";
 	
 	public static boolean _boolProcWait			= true;
 
@@ -234,7 +236,7 @@ public class MVBatch extends MVUtil {
 				_intNumPlots += intNumJobPlots;
 			}
 			System.out.println("Running " + _intNumPlots + " plots");
-			System.out.println("begin time: " + _formatDB.format(new java.util.Date()) + "\n");
+			System.out.println("\nbegin time: " + _formatDB.format(new java.util.Date()) + "\n");
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				runJob(jobs[intJob]);
@@ -247,850 +249,895 @@ public class MVBatch extends MVUtil {
 			try{ if( con != null )	con.close(); }catch(SQLException e){}
 		}
 
-		System.out.println("end time: " + _formatDB.format(new java.util.Date()) + "\n");
+		System.out.println("\nend time: " + _formatDB.format(new java.util.Date()) + "\n");
 		System.out.println("\n----  MVBatch Done  ----");
 	}
 	
 	public static void runJob(MVPlotJob job) throws Exception {
 		
-		/*
-		 * Run a query and build a set of plots for each group of dependent variables
-		 */
+		//  build a list of fixed value permutations for all plots
+		MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
+		if( 0 < job.getPlotFixVal().size() ){
+			MVDataTable tabPlotFixPerm = permute(job.getPlotFixVal());
+			listPlotFixPerm = tabPlotFixPerm.getRows();
+		}
+
+		//  run the plot jobs once for each permutation of plot fixed values
+		MVOrderedMap mapTmplVals = job.getTmplVal();
+		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
+			Map.Entry[] listPlotFixVal = listPlotFixPerm[intPlotFix].getOrderedEntries();
+			
+			for(int i=0; i < listPlotFixVal.length; i++){
+				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), listPlotFixVal[i].getValue().toString());
+			}
+			
 		
-		MVOrderedMap[] listDep = job.getDepGroups();
-		for(int intDep=0; intDep < listDep.length; intDep++){
-		
-			//  get the dependent variable and fixed value maps for this group
-			MVOrderedMap mapDep1 = (MVOrderedMap)listDep[intDep].get("dep1");
-			MVOrderedMap mapDep2 = (MVOrderedMap)listDep[intDep].get("dep2");
-			MVOrderedMap mapFix = (MVOrderedMap)listDep[intDep].get("fix");
-			
-			//  establish lists of entires for each group of variables and values
-			Map.Entry[] listAggVal		= job.getAggVal().getOrderedEntries();
-			Map.Entry[] listSeries1Val	= job.getSeries1Val().getOrderedEntries();
-			Map.Entry[] listSeries2Val	= (null != job.getSeries2Val()? job.getSeries2Val().getOrderedEntries() : new Map.Entry[]{});
-			Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
-			Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
-			Map.Entry[] listDep2Plot	= (null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
-			
-			//  combine the dependent variables for each axis into one list
-			ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
-			listDepAll.addAll( Arrays.asList(listDep2Plot) );
-			Map.Entry[] listDepPlot = (Map.Entry[])listDepAll.toArray(new Map.Entry[]{});			
-
-			//  determine if the stats are point/grid or mode
-			boolean boolModePlot = false;
-			for(int i=0; i < listDepPlot.length; i++){
-				String[] listStats = (String[])listDepPlot[i].getValue();
-				for(int j=0; j < listStats.length; j++){
-					if( _tableModeStatIndex.containsKey(listStats[j]) ){ boolModePlot = true; }
-				}
-			}
-
-			
 			/*
-			 *  Build the plot query SQL
+			 * Run a query and build a set of plots for each group of dependent variables
 			 */
-									
-			//  build a comma delimited lists of the query fields as the select and sort lists
-			String strSelectList = "", strSortList = "";
-			Map.Entry[] listQueryFields = append( append(listAggVal, listSeries1Val), listSeries2Val );
-			Hashtable tableFields = new Hashtable();
-			for(int i=0; i < listQueryFields.length; i++){
-				String strSelectVar = (String)listQueryFields[i].getKey();
-				String strSortVar = strSelectVar;
-				if( tableFields.containsKey(strSelectVar) ){ continue; }
-				tableFields.put(strSelectVar, "true");
-				if( strSelectVar.equals("inithour") ){
-					if( boolModePlot ){
-						strSelectVar = "HOUR( SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) ) initdate";
-					} else {
-						//strSelectVar = "HOUR(h.initdate) inithour";
-						strSelectVar = "HOUR(h.fcst_init_beg) inithour";
-					}
-					strSortVar = "inithour";
-				} else if( strSelectVar.equals("initdate") ){
-					if( boolModePlot ){
-						strSelectVar = getSQLDateFormat("SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )") + " initdate";
-					} else {
-						//strSelectVar = getSQLDateFormat("h.initdate") + " initdate";
-						strSelectVar = getSQLDateFormat("h.fcst_init_beg") + " initdate";
-					}
-					strSortVar = "initdate";
-				} else if( strSelectVar.equals("validhour") ){
-					if( boolModePlot ){ strSelectVar = "HOUR(h.fcst_valid) validhour"; }
-					else              { strSelectVar = "HOUR(h.fcst_valid_beg) validhour"; }
-					strSortVar = "validhour";
-				} else if( strSelectVar.equals("fcst_valid_beg") ){
-					strSelectVar = getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
-					strSortVar = "fcst_valid_beg";
-				} else if( strSelectVar.equals("fcst_valid") ){
-					strSelectVar = getSQLDateFormat("h.fcst_valid") + " fcst_valid";
-					strSortVar = "fcst_valid";
-				} else {
-					strSelectVar = "h." + strSelectVar;
-					strSortVar = strSelectVar;
-				}
-				strSelectList += (0 < i? ",\n" : "") + "  " + strSelectVar;
-				strSortList += (0 < i? ",\n" : "") + "  " + strSortVar;
-			}
 			
-			//  add valid time, forecast variable, independent variable and stat group to the list
-			if( boolModePlot ){
-				strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid") + " fcst_valid";
-			} else {
-				strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
-			}
-			strSelectList += ",\n  h.fcst_var,\n";			
-			if( job.getIndyVar().equals("initdate") || job.getIndyVar().equals("fcst_valid_beg") || job.getIndyVar().equals("fcst_valid") ){
-				strSelectList += "  " + getSQLDateFormat("h." + job.getIndyVar()) + " " + job.getIndyVar() + ",\n";
-			} else {
-				strSelectList += "  h." + job.getIndyVar() + ",\n";
-			}
+			MVOrderedMap[] listDep = job.getDepGroups();
+			for(int intDep=0; intDep < listDep.length; intDep++){
 			
-			if( job.getBootstrapping() ){
-				strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
-			} else if( boolModePlot ){
-				strSelectList += "  mos.object_id,\n  mos.object_cat,\n  mos.area,\n  mop.object_id object_id_p,\n  mop.interest,\n" +
-				  				 "  mop.intersection_area,\n  mop.area_ratio,\n  mop.centroid_dist,\n  mop.angle_diff,\n  mc.total";
-			} else {
-				strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
-
-				//  determine if the job calls for confidence intervals and add the fields if necessary
-				boolean boolNormalCI = false, boolBootCI = false;
-				String[] listPlotCI = parseRCol(job.getPlotCI()); 
-				for(int i=0; i < listPlotCI.length; i++){
-					if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
-					else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
-				}
-				if( boolNormalCI ){ strSelectList += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
-				if( boolBootCI )  { strSelectList += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }
+				//  get the dependent variable and fixed value maps for this group
+				MVOrderedMap mapDep1 = (MVOrderedMap)listDep[intDep].get("dep1");
+				MVOrderedMap mapDep2 = (MVOrderedMap)listDep[intDep].get("dep2");
+				MVOrderedMap mapFix = (MVOrderedMap)listDep[intDep].get("fix");
 				
-				//  if nobs is requested, add baserate and total
-				if( 0 < listSeriesNobs.length ){
-					strSelectList += ",\n  (ldcts.total * sgb.stat_value) nobs,\n  ldcts.total";
-				}
-			}
-
-			//  build the list of tables for the FROM clause
-			String strFromList = "";			
-			if( boolModePlot ){
-				strFromList = "  mode_header h,\n  mode_obj_pair mop,\n  mode_obj_single mos,\n  mode_cts mc";
-			} else {
-				strFromList = "  stat_header h";
-				if( job.getBootstrapping() ){
-					strFromList += ",\n  line_data_ctc ldctc";
-				} else {
-					strFromList += ",\n  stat_group sg";
-				}
-								
-				//  if nobs is requested, add baserate and total
-				if( 0 < listSeriesNobs.length ){
-					strFromList += ",\n  stat_group sgb,\n  line_data_cts ldcts";
-				}
-			}
-			
-			//  build the where clause from the tables of field names and values
-			String strWhere = "";
-			
-			//  build the aggregate fields where clause
-			for(int i=0; i < listAggVal.length; i++){
-				String strField = (String)listAggVal[i].getKey();
+				//  establish lists of entires for each group of variables and values
+				Map.Entry[] listAggVal		= job.getAggVal().getOrderedEntries();
+				Map.Entry[] listSeries1Val	= job.getSeries1Val().getOrderedEntries();
+				Map.Entry[] listSeries2Val	= (null != job.getSeries2Val()? job.getSeries2Val().getOrderedEntries() : new Map.Entry[]{});
+				Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
+				Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
+				Map.Entry[] listDep2Plot	= (null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
 				
-				if( strField.equals("inithour") ){
-					if( boolModePlot ){ strField = "HOUR( SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) )"; }
-					//else              { strField = "HOUR(h.initdate)"; }
-					else              { strField = "HOUR(h.fcst_init_beg)"; }
-				}
-				else if( strField.equals("initdate") ){
-					if( boolModePlot ){ strField = "SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )"; }
-					//else              { strField = getSQLDateFormat("h.initdate"); }
-					else              { strField = getSQLDateFormat("h.fcst_init_beg"); }
-				}
-				else if( strField.equals("fcst_valid_beg") ){ strField = getSQLDateFormat("h.fcst_valid_beg"); }
-				else if( strField.equals("fcst_valid") )    { strField = getSQLDateFormat("h.fcst_valid");     }
-				else										{ strField = "h." + strField;                      }
-
-				String strValueList = "";
-				Object objValue = listAggVal[i].getValue();
-				if( objValue instanceof String[] ){
-					strValueList = buildValueList( (String[])objValue );
-				} else if( objValue instanceof MVOrderedMap ){
-					Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();					
-					for(int j=0; j < listSets.length; j++){
-						strValueList += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
-					}
-				}
-				strWhere += "  " + (0 < i? "AND " : "") + strField + " IN (" + strValueList + ")\n";
-			}
-			
-			//  add the independent variable values, if necessary
-			if( 0 < job.getIndyVal().length ){
-				strWhere += "  AND h." + job.getIndyVar() + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
-			}
-
-			/*
-			//  build the series fields where clause
-			int intNumSeries = 0;
-			for(int i=0; i < listSeries1Val.length; i++){
-				String strField = (String)listSeries1Val[i].getKey();
-				String[] listValues = (String[])listSeries1Val[i].getValue();
-				strWhere += "  AND h." + strField + " IN (" + buildValueList(listValues) + ")\n";
-				intNumSeries += listValues.length;
-			}
-			*/
-			
-			//  build the dependent variable where clause
-			strWhere += "  AND\n  (\n";
-			for(int i=0; i < listDepPlot.length; i++){
-				String strFcstVar = (String)listDepPlot[i].getKey();
-				String[] listStatGroupName = (String[])listDepPlot[i].getValue();
-				String[] listStatGroupLuId = new String[listStatGroupName.length];
-				String strDepStatClause = "";
-				if( !boolModePlot && !job.getBootstrapping() ){
-					for(int j=0; j < listStatGroupName.length; j++){ listStatGroupLuId[j] = (String)_tableStatIndex.get(listStatGroupName[j]); }
-					strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
-				}
-				
-				//  fixed field sql
-				String strFixed = "";
-				MVOrderedMap mapFixed = (MVOrderedMap)mapFix.get(strFcstVar);
-				Map.Entry[] listFixed = mapFixed.getOrderedEntries();
-				for(int j=0; j < listFixed.length; j++){
-					String strField = (String)listFixed[j].getKey();
-					String strValue = (String)listFixed[j].getValue();
-					strFixed += "      AND h." + strField + formatSQLConstraint(strValue) + "\n";
-				}
-				
-				//  build the series fields where clause
-				String strSeries = "";
-				Map.Entry[] listSeriesVal = (i < listDep1Plot.length? listSeries1Val : listSeries2Val);
-				for(int j=0; j < listSeriesVal.length; j++){
-					String strField = (String)listSeriesVal[j].getKey();
-					String[] listValues = (String[])listSeriesVal[j].getValue();
-					strSeries += "      AND h." + strField + " IN (" + buildValueList(listValues) + ")\n";
-				}
-				
-				strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var = '" + strFcstVar + "'\n" +
-							strDepStatClause + strFixed + strSeries + "    )\n";
-			}
-
-			if( boolModePlot ){
-				strWhere += "  )\n  AND mop.mode_header_id = h.mode_header_id\n" +
-							"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)\n" +
-							"  AND mc.field = 'OBJECT'\n  AND mc.mode_header_id = mop.mode_header_id";
-			} else {
-				//  add the table joining clauses
-				if( job.getBootstrapping() ){
-					strWhere += "  )\n  AND h.stat_header_id = ldctc.stat_header_id";
-				} else {
-					strWhere += "  )\n  AND h.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
-
-					if( 0 < listSeriesNobs.length ){
-						strWhere += "\n  AND sgb.stat_group_lu_id = '0'\n" +
-									  "  AND h.stat_header_id = sgb.stat_header_id\n" +
-									  "  AND h.stat_header_id = ldcts.stat_header_id";
-					}			
-				}
-			}
-
-			//  put the query components together
-			String strQuery = "SELECT\n" + strSelectList + "\n" +
-							  "FROM\n" + strFromList + "\n" +
-							  "WHERE\n" + strWhere + 
-							  (_boolSQLSort? "\nORDER BY\n" + strSortList : "") + ";";
-			
-			System.out.println("strQuery:\n\n" + strQuery + "\n");
-			
-			
-			/*
-			 *  Run the query
-			 */
-
-			//  run the query against the database connection and parse the results
-			long intStartTime = (new java.util.Date()).getTime();
-			/*
-			PreparedStatement stmt = job.getConnection().prepareStatement(strQuery);
-			ResultSet res = stmt.executeQuery();
-			MVDataTable tab = new MVDataTable(res);
-			*/
-			Statement stmt = job.getConnection().createStatement();
-			ResultSet res = stmt.executeQuery(strQuery);
-			MVDataTable tab = new MVDataTable(res);
-			stmt.close();
-			
-			System.out.println("query returned " + tab.getNumRows() + " rows in " + 
-								formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ));
-			
-			//  reformat the field names in the data table
-			String[] listFields = tab.getFields();
-			for(int i=0; i < listFields.length; i++){
-				//if( listFields[i].equals("HOUR(h.initdate)") ){ 
-				if( listFields[i].equals("HOUR(h.fcst_init_beg)") ){ 
-					tab.setFieldName(i, "inithour");
-				}
-			}
-			
-			//  if there is no data, do not try to plot it
-			if( 1 > tab.getNumRows() ){
-				System.out.println("  **  WARNING: query returned no data");
-				continue;
-			}
-						
-			//  convert the stat_group_lu_id to stat_name, if present
-			if( tab.containsField("stat_group_lu_id") ){
-				tab.addField("stat_name");
+				//  combine the dependent variables for each axis into one list
+				ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
+				listDepAll.addAll( Arrays.asList(listDep2Plot) );
+				Map.Entry[] listDepPlot = (Map.Entry[])listDepAll.toArray(new Map.Entry[]{});			
+	
+				//  determine if the stats are point/grid or mode
+				boolean boolModePlot = false;
 				for(int i=0; i < listDepPlot.length; i++){
-					final String strFcstVar = (String)listDepPlot[i].getKey();
-					String[] listStatName = (String[])listDepPlot[i].getValue();
-					
-					for(int j=0; j < listStatName.length; j++){
-						final String strStatGroupLuId = (String)_tableStatIndex.get(listStatName[j]);
-						MVRowComp c = new MVRowComp(){
-							public boolean equals(MVOrderedMap row){
-								String strFcstVarRow = (String)row.get("fcst_var"); 
-								String strStatGroupLuIdRow = (String)row.get("stat_group_lu_id");
-								return (strFcstVarRow.equals(strFcstVar) && strStatGroupLuIdRow.equals(strStatGroupLuId)); 
-							}
-						};
-						tab.set("stat_name", c, listStatName[j]); 
-					}				
-				}
-			}
-			
-			//  add set fields to the table to handle aggregating over sets of values
-			for(int i=0; i < listAggVal.length; i++){
-				
-				//  if the aggregate values are not sets, continue
-				Object objAggVal = listAggVal[i].getValue();
-				if( objAggVal instanceof String[] ){ continue; }
-				
-				//  if the aggregate values are sets, add a set field to the table
-				final String strAggVar = listAggVal[i].getKey().toString();
-				String strSetField = strAggVar + "_set"; 
-				tab.addField(strSetField);
-				Map.Entry[] listSetVal = ((MVOrderedMap)objAggVal).getOrderedEntries();
-				
-				for(int j=0; j < listSetVal.length; j++){
-					final String[] listSet = (String[])listSetVal[j].getValue();
-					MVRowComp c = new MVRowComp(){
-						public boolean equals(MVOrderedMap row){
-							return contains(listSet, row.getStr(strAggVar));
-						}
-					};
-					tab.set(strSetField, c, listSetVal[j].getKey().toString());
-				}
-			}
-
-			//printFormattedResults(tab); System.out.println("" + tab.getNumRows() + " rows\n");
-			
-			
-			/*
-			 *  MODE calculations
-			 */
-			
-			//  calculate the mode statistics, if appropriate
-			if( boolModePlot ){
-				
-				//  break the mode data into cases for calculating stats
-				String[] listModeCase = {"model", "fcst_var", "fcst_rad", "fcst_thr", "fcst_lead"};
-				MVOrderedMap mapModeCase = new MVOrderedMap();
-				for(int i=0; i < listModeCase.length; i++){
-					if( !tab.containsField(listModeCase[i]) ){ continue; }
-					mapModeCase.put(listModeCase[i], unique( tab.getColumn(listModeCase[i]) ));
-				}
-				
-				//  add the aggregation variable values to the cases
-				for(int i=0; i < listAggVal.length; i++){
-					String strAggVar = listAggVal[i].getKey().toString();					
-					if( contains(listModeCase, strAggVar) ){ continue; }
-					mapModeCase.put(strAggVar, (String[])listAggVal[i].getValue());
-				}
-					
-				//  build a list of all cases for which to calculate mode stats
-				MVDataTable tabModePerm = permute(mapModeCase);
-				MVOrderedMap[] listModePerm = tabModePerm.getRows();
-				listModeCase = mapModeCase.keyList();				
-				//printFormattedResults(tabModePerm);
-
-				//  create a table to store mode statistics
-				MVDataTable tabModeStat = new MVDataTable(tabModePerm);
-				String[] listModeStatFields = {"nsimp", "nsimpf", "nsimpfm", "nsimpfu", "nsimpo", "nsimpom", "nsimpou", "asimp", "asimpf", "asimpfm", "asimpfu", "asimpo",
-											   "asimpom", "asimpou", "nclus", "nclusf", "ncluso", "ACOV", "pom", "pam", "awcsi", "MMI", "MMIF", "MMIO", "MIA", "MAR", "MCD", "MAD"};
-				for(int i=0; i < listModeStatFields.length; i++){ tabModeStat.addField(listModeStatFields[i]); }
-				int intModeStatIndex = 0;
-				//printFormattedResults(tabModeStat);
-				
-				//  calculate mode stats for each permutation
-				for(int i=0; i < listModePerm.length; i++){
-					//System.out.println("mode perm:\n" + listModePerm[i].getRDecl() + "\n");
-					MVDataTable tabModeCase = tab;
-					for(int j=0; j < listModeCase.length; j++){						
-						final String strModeCase = listModeCase[j];
-						final String strModeVal = listModePerm[i].getStr( listModeCase[j] );
-						tabModeCase = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr(strModeCase).equals(strModeVal); } });
-					}
-					if( 0 == tabModeCase.getNumRows() ){
-						//System.out.println("  ****  missing mode case  ****\n");
-						tabModeStat.removeRow(intModeStatIndex);
-						tabModePerm.removeRow(intModeStatIndex);
-						continue;
-					} 
-					
-					//  build tables for each line type
-					MVDataTable tabSimpFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^F\\d{3}$"); } });
-					MVDataTable tabSimpObs   = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^O\\d{3}$"); } });
-					MVDataTable tabSimpPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^F\\d{3}_O\\d{3}$"); } });
-					
-					MVDataTable tabSimpFcstM = tabSimpFcst.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return !row.getStr("object_cat").matches("^C[FO]000$"); } });
-					MVDataTable tabSimpFcstU = tabSimpFcst.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_cat").matches("^C[FO]000$"); } });
-					MVDataTable tabSimpObsM  = tabSimpObs. getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return !row.getStr("object_cat").matches("^C[FO]000$"); } });
-					MVDataTable tabSimpObsU  = tabSimpObs. getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_cat").matches("^C[FO]000$"); } });
-					
-					MVDataTable tabClusFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^CF\\d{3}$"); } });
-					MVDataTable tabClusObs   = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^CO\\d{3}$"); } });
-					MVDataTable tabClusPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^CF\\d{3}_CO\\d{3}$"); } });
-					
-					//  counts of simple/matched/unmatched forecast/observation objects
-					MVOrderedMap mapCaseData = tabModeStat.getRow(intModeStatIndex++);
-					mapCaseData.putStr("nsimp",		tabSimpFcst.getNumRows() + tabSimpObs.getNumRows());
-					mapCaseData.putStr("nsimpf",	tabSimpFcst.getNumRows());
-					mapCaseData.putStr("nsimpfm",	tabSimpFcstM.getNumRows());
-					mapCaseData.putStr("nsimpfu",	tabSimpFcstU.getNumRows());
-					mapCaseData.putStr("nsimpo",	tabSimpObs.getNumRows());
-					mapCaseData.putStr("nsimpom",	tabSimpObsM.getNumRows());
-					mapCaseData.putStr("nsimpou",	tabSimpObsU.getNumRows());
-					
-					//  areas of simple/matched/unmatched forecast/observation objects
-					mapCaseData.putStr("asimp",		sum(tabSimpFcst.getIntColumn("area")) + sum(tabSimpObs.getIntColumn("area")) );
-					mapCaseData.putStr("asimpf",	sum(tabSimpFcst.getIntColumn("area")) );
-					mapCaseData.putStr("asimpfm",	sum(tabSimpFcstM.getIntColumn("area")) );
-					mapCaseData.putStr("asimpfu",	sum(tabSimpFcstU.getIntColumn("area")) );
-					mapCaseData.putStr("asimpo",	sum(tabSimpObs.getIntColumn("area")) );
-					mapCaseData.putStr("asimpom",	sum(tabSimpObsM.getIntColumn("area")) );
-					mapCaseData.putStr("asimpou",	sum(tabSimpObsU.getIntColumn("area")) );
-					
-					//  counts of cluster forecast/observation objects
-					mapCaseData.putStr("nclus",		tabClusFcst.getNumRows() + tabClusObs.getNumRows());
-					mapCaseData.putStr("nclusf",	tabClusFcst.getNumRows());
-					mapCaseData.putStr("ncluso",	tabClusObs.getNumRows());
-					
-					//  compute the aerial coverage of observation points
-					double dblCaseTotal = median(tabModeCase.getDoubleColumn("total"));
-					mapCaseData.putStr("ACOV",	mapCaseData.getDouble("asimpo") / dblCaseTotal);
-					
-					//  percentage of simple objects and area matched
-					mapCaseData.putStr("pom",	(mapCaseData.getDouble("nsimpfm") + mapCaseData.getDouble("nsimpom")) / mapCaseData.getDouble("nsimp")); 
-					mapCaseData.putStr("pam",	(mapCaseData.getDouble("asimpfm") + mapCaseData.getDouble("asimpom")) / mapCaseData.getDouble("asimp"));
-					
-					//  compute the area-weighted CSI using hits, misses, and false-alarms
-					double dblHits = (mapCaseData.getDouble("asimpfm") + mapCaseData.getDouble("asimpom")) / 2;
-					mapCaseData.putStr("awcsi",	dblHits / (dblHits + mapCaseData.getDouble("asimpou") + mapCaseData.getDouble("asimpfu")));
-
-					//  find maximum interest among the forecast objects
-					MVOrderedMap tableMIFcst = new MVOrderedMap();
-					MVOrderedMap[] listSimpFcst = tabSimpFcst.getRows();
-					for(int j=0; j < listSimpFcst.length; j++){
-						String strObjectId = listSimpFcst[j].getStr("object_id");
-						double dblInt = listSimpFcst[j].getDouble("interest");
-						if( !tableMIFcst.containsKey(strObjectId) || dblInt > tableMIFcst.getDouble(strObjectId)){
-							tableMIFcst.putStr(strObjectId, dblInt);
-						}
-					}
-					
-					//  find the maximum interest among the observed objects
-					MVOrderedMap tableMIObs = new MVOrderedMap();
-					MVOrderedMap[] listSimpObs = tabSimpObs.getRows();
-					for(int j=0; j < listSimpObs.length; j++){
-						String strObjectId = listSimpObs[j].getStr("object_id");
-						double dblInt = listSimpObs[j].getDouble("interest");
-						if( !tableMIObs.containsKey(strObjectId) || dblInt > tableMIObs.getDouble(strObjectId)){
-							tableMIObs.putStr(strObjectId, dblInt);
-						}
-					}
-
-					//  determine the maximum interest for forecast, observed and both
-					Map.Entry[] listMIFcstObj = tableMIFcst.getOrderedEntries();
-					double[] listMIFcst = new double[tableMIFcst.size()];
-					double[] listMI = new double[tableMIFcst.size() + tableMIObs.size()];
-					int intMIIndex = 0;
-					for(int j=0; j < listMIFcstObj.length; j++){
-						double dblMIFcst = Double.parseDouble(listMIFcstObj[j].getValue().toString()); 
-						listMIFcst[j] = dblMIFcst;
-						listMI[intMIIndex++] = dblMIFcst;
-					}
-					Map.Entry[] listMIObsObj = tableMIObs.getOrderedEntries();
-					double[] listMIObs = new double[tableMIObs.size()];
-					for(int j=0; j < listMIObsObj.length; j++){
-						double dblMIObs = Double.parseDouble(listMIObsObj[j].getValue().toString()); 
-						listMIObs[j] = dblMIObs;
-						listMI[intMIIndex++] = dblMIObs;
-					}
-					
-					//  save the MMI for forecast, observed and both
-					mapCaseData.putStr("MMI",  median(listMI));
-					mapCaseData.putStr("MMIF", median(listMIFcst));
-					mapCaseData.putStr("MMIO", median(listMIObs));
-
-					//  calculate median scores for clustered objects
-					mapCaseData.putStr("MIA", median( tabClusPair.getDoubleColumn("intersection_area") ));
-					mapCaseData.putStr("MAR", median( tabClusPair.getDoubleColumn("area_ratio") ));
-					mapCaseData.putStr("MCD", median( tabClusPair.getDoubleColumn("centroid_dist") ));
-					mapCaseData.putStr("MAD", median( tabClusPair.getDoubleColumn("angle_diff") ));
-					
-					//System.out.println("tabModeStat after calcs:"); printFormattedResults(tabModeStat); System.out.println("" + tabModeStat.getNumRows() + " rows\n");					
-				}
-				//System.out.println("tabModeStat:"); printFormattedResults(tabModeStat); System.out.println("" + tabModeStat.getNumRows() + " rows\n");
-
-				//  build a data table with the stats
-				MVDataTable tabModePlot = new MVDataTable();
-				tabModePlot.addFields(tabModePerm.getFields());
-				tabModePlot.addField("stat_name");
-				tabModePlot.addField("stat_value");
-				for(int i=0; i < listDepPlot.length; i++){
-					
-					//  build a small table for each fcst_var and stat
-					final String strFcstVar = (String)listDepPlot[i].getKey();
-					String[] listStatName = (String[])listDepPlot[i].getValue();
-					for(int j=0; j < listStatName.length; j++){
-						MVDataTable tabModePlotVar = new MVDataTable(tabModePerm);
-						tabModePlotVar.addField("stat_name", listStatName[j]);
-						tabModePlotVar.addField("stat_value");
-						tabModePlotVar.setColumn("stat_value", tabModeStat.getColumn(listStatName[j]));
-						tabModePlot.addRows(tabModePlotVar.getRows());
+					String[] listStats = (String[])listDepPlot[i].getValue();
+					for(int j=0; j < listStats.length; j++){
+						if( _tableModeStatIndex.containsKey(listStats[j]) ){ boolModePlot = true; }
 					}
 				}
-				//System.out.println("tabModePlot:"); printFormattedResults(tabModePlot); System.out.println("" + tabModeStat.getNumRows() + " rows\n");
-				tab.clear();
-				tab = tabModePlot;
-			}
-			
-			//  determine if the indy values require tick marks
-			boolean boolIndyValTick = false;
-			String[] listIndyVal = job.getIndyVal();
-			for(int i=0; i < listIndyVal.length; i++){
-				try{ Double.parseDouble(listIndyVal[i]); }catch(Exception e){ boolIndyValTick = true; }
-			}
-			
-			/*
-			 *  Build a list of plot permutations to run
-			 */
-			
-			MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
-			for(int intPerm=0; intPerm < listAggPerm.length; intPerm++){
-				
-				System.out.println("\n* * * * * * * * * * * *\n  PLOT - " + (_intPlotIndex++ + 1) + " / " + _intNumPlots + "\n* * * * * * * * * * * *\n");
-				
-				/*
-				 *  Build a data table that contains the data specific to this permutation 
-				 */
-
-				MVDataTable tabPerm = tab;
-				String[] listKeys = listAggPerm[intPerm].keyList();
-				for(int i=0; i < listKeys.length; i++){
-					final String strKey = listKeys[i];
-					final String strVal = (String)listAggPerm[intPerm].get(strKey);
-					tabPerm = tabPerm.getRows(new MVRowComp(){
-						public boolean equals(MVOrderedMap row){ return row.get(strKey).equals(strVal);	}
-					});
-				}
-				
-					
-				/*
-				 *  Build a map of all plot-specific values to use with the templates 
-				 */
-
-				MVOrderedMap mapTmplVals = job.getTmplVal();
-
-				//  bootstrap data
-				MVOrderedMap mapBootStatic = new MVOrderedMap( listAggPerm[intPerm] );
-				MVOrderedMap mapSeries1Val = new MVOrderedMap( job.getSeries1Val() );
-				MVOrderedMap mapSeries2Val = new MVOrderedMap( job.getSeries2Val() );
-				
-				//  add the independent and dependent variables 
-				mapTmplVals.put("indy_var", job.getIndyVar());
-				Map.Entry[][] listDepPlotList = {listDep1Plot, listDep2Plot};
-				ArrayList listBootStats1 = new ArrayList();
-				ArrayList listBootStats2 = new ArrayList();
-				for(int intDepPlot = 0; intDepPlot < 2; intDepPlot++){
-					Map.Entry[] listDepCur = listDepPlotList[intDepPlot];
-					String strDepName = "dep" + (intDepPlot+1);
-					
-					//  add the stats for each fcst_var
-					for(int i=0; i < listDepCur.length; i++){
-						
-						//  add the stat names
-						String strFcstVar = (String)listDepCur[i].getKey();
-						mapTmplVals.put(strDepName + "_" + (i+1), strFcstVar);
-						mapBootStatic.put("fcst_var", strFcstVar);
-						String[] listStats = (String[])listDepCur[i].getValue();						
-						for(int j=0; j < listStats.length; j++){
-							mapTmplVals.put(strDepName + "_" + (i+1) + "_stat" + (j+1), listStats[j]);
-							if( job.getBootstrapping() && 0 == intDepPlot ){ listBootStats1.add(listStats[j]); }
-							if( job.getBootstrapping() && 1 == intDepPlot ){ listBootStats2.add(listStats[j]); }
-						}
-						
-						//  add the fixed fields and values
-						MVOrderedMap mapFixCur = (MVOrderedMap)mapFix.get(strFcstVar);
-						Map.Entry[] listFixCurVal = mapFixCur.getOrderedEntries();
-						for(int j=0; j < listFixCurVal.length; j++){
-							String strFixVar = (String)listFixCurVal[j].getKey();
-							String strFixVal = (String)listFixCurVal[j].getValue();
-							mapTmplVals.put(strFixVar, strFixVal);
-							if( job.getBootstrapping() && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
-						}
-					}
-				}
-
-				//  add the aggregate values to the template values map
-				mapTmplVals.putAll(listAggPerm[intPerm]);
-				System.out.println(mapTmplVals.getRDecl() + "\n");
-
-				if( 1 > tabPerm.getNumRows() ){
-					System.out.println("no plot data found");
-					continue;
-				}
-				
-				//printFormattedResults(tabPerm); System.out.println("" + tabPerm.getNumRows() + " rows\n");
-				System.out.println("Plotting " + tabPerm.getNumRows() + " rows\n");
-
-				
-				/*
-				 *  Print the data file in the R_work subfolder and file specified by the data file template
-				 */
-				
-				_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
-				_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
-				_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");
-
-				String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapTmplVals, job.getTmplMaps());
-				if( job.getBootstrapping() ){ strDataFile = strDataFile + ".boot"; }
-				(new File(strDataFile)).getParentFile().mkdirs();
-				printFormattedResults(tabPerm, new PrintStream(strDataFile), "\t");
-				tabPerm = null;
-				
-								
-				/*
-				 *  If bootstrapping is requested, generate the bootstrapped data 
-				 */
-								
-				if( job.getBootstrapping() ){
-
-					//  construct and create the path for the bootstrap data output file
-					String strBootInfo = strDataFile.replaceFirst("\\.data.boot$", ".boot.info");
-					String strBootOutput = strDataFile.replaceFirst("\\.boot$", "");
-					File fileBootOutput = new File(strBootOutput); 
-
-					//  build the map containing tag values for the boot info template
-					Hashtable tableBootInfo = new Hashtable();
-					tableBootInfo.put("boot_diff1",		job.getBootDiff1()? "TRUE" : "FALSE");
-					tableBootInfo.put("boot_diff2",		job.getBootDiff2()? "TRUE" : "FALSE");
-					tableBootInfo.put("boot_repl",		job.getBootRepl());
-					tableBootInfo.put("boot_ci",		job.getBootCI());
-					tableBootInfo.put("ci_alpha",		job.getCIAlpha());
-					tableBootInfo.put("indy_var",		job.getIndyVar());
-					tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
-					tableBootInfo.put("series1_list",	job.getSeries1Val().getRDecl());
-					tableBootInfo.put("series2_list",	job.getSeries2Val().getRDecl());
-					tableBootInfo.put("boot_stat1",		printRCol((String[])listBootStats1.toArray(new String[]{}), true));
-					tableBootInfo.put("boot_stat2",		printRCol((String[])listBootStats2.toArray(new String[]{}), true));
-					tableBootInfo.put("boot_static",	mapBootStatic.getRDecl());
-					tableBootInfo.put("boot_input",		strDataFile);
-					tableBootInfo.put("boot_output",	strBootOutput);
-					tableBootInfo.put("working_dir",	_strRworkFolder + "include");
-				
-					//  populate the boot info file
-					populateTemplateFile(_strRtmplFolder + "boot.info_tmpl", strBootInfo, tableBootInfo);
-													
-					//  run boot.R to generate the data file for plotting
-					if( !fileBootOutput.exists() || !_boolCacheBoot ){
-						fileBootOutput.getParentFile().mkdirs();
-						runRscript(_strRworkFolder + "include/boot.R", new String[]{strBootInfo});
-					}
-
-					//  if boot_diffN is turned on, add __BOOT_DIFFN__ to the plot series
-					for(int i=0; i < 2; i++){
-						MVOrderedMap mapSeriesVal = null;
-						String strDiffSeries = "";
-						if     ( i == 0 && job.getBootDiff1() ){ mapSeriesVal = mapSeries1Val; strDiffSeries = "__BOOT_DIFF1__"; }
-						else if( i == 1 && job.getBootDiff2() ){ mapSeriesVal = mapSeries2Val; strDiffSeries = "__BOOT_DIFF2__"; }
-						else                                   { continue; }						
-						String[] listSeriesVar = mapSeriesVal.keyList();
-						ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
-						listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
-						mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], listDiffVal.toArray(new String[]{}));
-					}					
-					
-					//  remove the .boot suffix from the data file
-					strDataFile = strBootOutput;
-				}
-
-				
-				/*
-				 *  Generate filenames and plot labels from the templates 
-				 */
-
-				//  use the map of all plot values to populate the template strings
-				String strPlotFile	= _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapTmplVals, job.getTmplMaps());
-				String strRFile		= _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapTmplVals, job.getTmplMaps());
-				String strTitle		= buildTemplateString(job.getTitleTmpl(), mapTmplVals, job.getTmplMaps());
-				String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapTmplVals, job.getTmplMaps());
-				String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapTmplVals, job.getTmplMaps());				
-				String strY2Label	= buildTemplateString(job.getY2LabelTmpl(), mapTmplVals, job.getTmplMaps());				
-
-				//  create the plot and R script output folders, if necessary
-				(new File(strPlotFile)).getParentFile().mkdirs();
-				(new File(strRFile)).getParentFile().mkdirs();
-								
-				/*
-				 *  Generate the map of R template tags for the plot
-				 */
-				
-				Hashtable tableRTags = new Hashtable();
-
-				tableRTags.put("r_work",		_strRworkFolder);
-				tableRTags.put("indy_var",		job.getIndyVar());
-				tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
-				tableRTags.put("indy_label",	(0 < job.getIndyLabel().length? printRCol(job.getIndyLabel(), true) : "c()"));
-				tableRTags.put("dep1_plot",		mapDep1.getRDecl());				
-				tableRTags.put("dep2_plot",		(null != mapDep2? mapDep2.getRDecl() : "c()"));
-				tableRTags.put("agg_list",		listAggPerm[intPerm].getRDecl());
-				tableRTags.put("series1_list",	mapSeries1Val.getRDecl());
-				tableRTags.put("series2_list",	mapSeries2Val.getRDecl());
-				tableRTags.put("series_nobs",	job.getSeriesNobs().getRDecl());
-				tableRTags.put("dep1_scale",	job.getDep1Scale().getRDecl());
-				tableRTags.put("dep2_scale",	job.getDep2Scale().getRDecl());
-				tableRTags.put("plot_file",		strPlotFile);
-				tableRTags.put("data_file",		strDataFile);
-				tableRTags.put("plot_title",	strTitle);
-				tableRTags.put("x_label",		strXLabel);
-				tableRTags.put("y1_label",		strY1Label);
-				tableRTags.put("y2_label",		strY2Label);
-				tableRTags.put("plot_cmd", 		job.getPlotCmd());
-				tableRTags.put("event_equal",	(job.getEventEqual()?	"TRUE" : "FALSE"));
-				tableRTags.put("plot1_diff",	(job.getPlot1Diff()?	"TRUE" : "FALSE"));
-				tableRTags.put("plot2_diff",	(job.getPlot2Diff()?	"TRUE" : "FALSE"));
-				tableRTags.put("show_nstats",	(job.getShowNStats()?	"TRUE" : "FALSE"));
-				tableRTags.put("indy1_stagger",	(job.getIndy1Stagger()?	"TRUE" : "FALSE"));
-				tableRTags.put("indy2_stagger",	(job.getIndy2Stagger()?	"TRUE" : "FALSE"));
-				tableRTags.put("grid_on",		(job.getGridOn()?		"TRUE" : "FALSE"));
-				tableRTags.put("sync_axes",		(job.getSyncAxes()?		"TRUE" : "FALSE"));
-				tableRTags.put("dump_points1",	(job.getDumpPoints1()?	"TRUE" : "FALSE"));
-				tableRTags.put("dump_points2",	(job.getDumpPoints2()?	"TRUE" : "FALSE"));
-				tableRTags.put("log_y1",		(job.getLogY1()?		"TRUE" : "FALSE"));
-				tableRTags.put("log_y2",		(job.getLogY2()?		"TRUE" : "FALSE"));
-				
-				// calculate the number of plot curves
-				int intNumDep1 = 0;
-				for(int i=0; i < listDep1Plot.length; i++){
-					intNumDep1 += ((String[])listDep1Plot[i].getValue()).length;
-				}
-				int intNumDep2 = 0;
-				for(int i=0; i < listDep2Plot.length; i++){
-					intNumDep2 += ((String[])listDep2Plot[i].getValue()).length;
-				}
-				int intNumSeries1Perm = 1;
-				for(int i=0; i < listSeries1Val.length; i++){
-					String[] listVal = (String[])listSeries1Val[i].getValue();
-					intNumSeries1Perm *= listVal.length;
-				}				
-				int intNumSeries2Perm = 1;
-				for(int i=0; i < listSeries2Val.length; i++){
-					intNumSeries2Perm *= ((String[])listSeries2Val[i].getValue()).length;
-				}
-				
-				tableRTags.put("plot_type",		job.getPlotType());
-				tableRTags.put("plot_width",	job.getPlotWidth());
-				tableRTags.put("plot_height",	job.getPlotHeight());
-				tableRTags.put("plot_res",		job.getPlotRes());
-				tableRTags.put("plot_units",	job.getPlotUnits());
-				tableRTags.put("mar",			job.getMar());
-				tableRTags.put("mgp",			job.getMgp());
-				tableRTags.put("cex",			job.getCex());
-				tableRTags.put("title_weight",	job.getTitleWeight());
-				tableRTags.put("title_size",	job.getTitleSize());
-				tableRTags.put("title_offset",	job.getTitleOffset());
-				tableRTags.put("title_align",	job.getTitleAlign());
-				tableRTags.put("xtlab_orient",	job.getXtlabOrient());
-				tableRTags.put("xtlab_perp",	job.getXtlabPerp());
-				tableRTags.put("xtlab_horiz",	job.getXtlabHoriz());
-				tableRTags.put("xlab_weight",	job.getXlabWeight());
-				tableRTags.put("xlab_size",		job.getXlabSize());
-				tableRTags.put("xlab_offset",	job.getXlabOffset());
-				tableRTags.put("xlab_align",	job.getXlabAlign());
-				tableRTags.put("ytlab_orient",	job.getYtlabOrient());
-				tableRTags.put("ytlab_perp",	job.getYtlabPerp());
-				tableRTags.put("ytlab_horiz",	job.getYtlabHoriz());
-				tableRTags.put("ylab_weight",	job.getYlabWeight());
-				tableRTags.put("ylab_size",		job.getYlabSize());
-				tableRTags.put("ylab_offset",	job.getYlabOffset());
-				tableRTags.put("ylab_align",	job.getYlabAlign());
-				tableRTags.put("grid_lty",		job.getGridLty());
-				tableRTags.put("grid_col",		job.getGridCol());
-				tableRTags.put("grid_lwd",		job.getGridLwd());
-				tableRTags.put("grid_x",		job.getGridX());
-				tableRTags.put("x2tlab_orient",	job.getX2tlabOrient());
-				tableRTags.put("x2tlab_perp",	job.getX2tlabPerp());
-				tableRTags.put("x2tlab_horiz",	job.getX2tlabHoriz());
-				tableRTags.put("x2lab_weight",	job.getX2labWeight());
-				tableRTags.put("x2lab_size",	job.getX2labSize());
-				tableRTags.put("x2lab_offset",	job.getX2labOffset());
-				tableRTags.put("x2lab_align",	job.getX2labAlign());
-				tableRTags.put("y2tlab_orient",	job.getY2tlabOrient());
-				tableRTags.put("y2tlab_perp",	job.getY2tlabPerp());
-				tableRTags.put("y2tlab_horiz",	job.getY2tlabHoriz());
-				tableRTags.put("y2lab_weight",	job.getY2labWeight());
-				tableRTags.put("y2lab_size",	job.getY2labSize());
-				tableRTags.put("y2lab_offset",	job.getY2labOffset());
-				tableRTags.put("y2lab_align",	job.getY2labAlign());
-				tableRTags.put("legend_size",	job.getLegendSize());
-				tableRTags.put("legend_box",	job.getLegendBox());
-				tableRTags.put("legend_inset",	job.getLegendInset());
-				tableRTags.put("legend_ncol",	job.getLegendNcol());
-				tableRTags.put("box_boxwex",	job.getBoxBoxwex());
-				tableRTags.put("box_notch",		job.getBoxNotch());
-				tableRTags.put("ci_alpha",		job.getCIAlpha());
-				
-				int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));
-				int intNumDep2Series = intNumDep2 * (intNumSeries2Perm + (job.getPlot2Diff()? 1 : 0));
-				int intNumDepSeries = intNumDep1Series + intNumDep2Series;
-				
-				tableRTags.put("plot_ci",	job.getPlotCI().equals("")? printRCol( rep("none", intNumDepSeries) )	: job.getPlotCI());
-				tableRTags.put("colors",	job.getColors().equals("")?	"rainbow(" + intNumDepSeries + ")"		: job.getColors());
-				tableRTags.put("pch",		job.getPch().equals("")?	printRCol( rep(20, intNumDepSeries) )	: job.getPch());
-				tableRTags.put("type",		job.getType().equals("")?	printRCol( rep("b",	intNumDepSeries) )	: job.getType());
-				tableRTags.put("lty",		job.getLty().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLty());
-				tableRTags.put("lwd",		job.getLwd().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLwd());
-				tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
-				tableRTags.put("y1_bufr",	job.getY1Bufr());
-				tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()" : job.getY2Lim());
-				tableRTags.put("y2_bufr",	job.getY2Bufr());
-				
-				
-				/*
-				 *  Read the template in, replacing the appropriate tags with generated R code
-				 */
-
-				populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
 	
 				
 				/*
-				 *  Attempt to run the generated R script
-				 */			
-
-				if( _boolPlot ){
-					runRscript(strRFile);
+				 *  Build the plot query SQL
+				 */
+										
+				//  build a comma delimited lists of the query fields as the select and sort lists
+				String strSelectList = "", strSortList = "";
+				Map.Entry[] listQueryFields = append( append(listAggVal, listSeries1Val), listSeries2Val );
+				Hashtable tableFields = new Hashtable();
+				for(int i=0; i < listQueryFields.length; i++){
+					String strSelectVar = (String)listQueryFields[i].getKey();
+					String strSortVar = strSelectVar;
+					if( tableFields.containsKey(strSelectVar) ){ continue; }
+					tableFields.put(strSelectVar, "true");
+					if( strSelectVar.equals("inithour") ){
+						if( boolModePlot ){
+							strSelectVar = "HOUR( SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) ) initdate";
+						} else {
+							strSelectVar = "HOUR(h." + _strInitdateField + ") inithour";
+						}
+						strSortVar = "inithour";
+					} else if( strSelectVar.equals("initdate") ){
+						if( boolModePlot ){
+							strSelectVar = getSQLDateFormat("SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )") + " initdate";
+						} else {
+							strSelectVar = getSQLDateFormat("h." + _strInitdateField) + " initdate";
+						}
+						strSortVar = "initdate";
+					} else if( strSelectVar.equals("validhour") ){
+						if( boolModePlot ){ strSelectVar = "HOUR(h.fcst_valid) validhour"; }
+						else              { strSelectVar = "HOUR(h.fcst_valid_beg) validhour"; }
+						strSortVar = "validhour";
+					} else if( strSelectVar.equals("fcst_valid_beg") ){
+						strSelectVar = getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
+						strSortVar = "fcst_valid_beg";
+					} else if( strSelectVar.equals("fcst_valid") ){
+						strSelectVar = getSQLDateFormat("h.fcst_valid") + " fcst_valid";
+						strSortVar = "fcst_valid";
+					} else {
+						strSelectVar = "h." + strSelectVar;
+						strSortVar = strSelectVar;
+					}
+					strSelectList += (0 < i? ",\n" : "") + "  " + strSelectVar;
+					strSortList += (0 < i? ",\n" : "") + "  " + strSortVar;
 				}
 				
-			} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
+				//  add valid time, forecast variable, independent variable and stat group to the list
+				if( boolModePlot ){
+					strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid") + " fcst_valid";
+				} else {
+					strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
+				}
+				strSelectList += ",\n  h.fcst_var,\n";			
+				if( job.getIndyVar().equals("initdate") || job.getIndyVar().equals("fcst_valid_beg") || job.getIndyVar().equals("fcst_valid") ){
+					strSelectList += "  " + getSQLDateFormat("h." + job.getIndyVar()) + " " + job.getIndyVar() + ",\n";
+				} else {
+					strSelectList += "  h." + job.getIndyVar() + ",\n";
+				}
+				
+				if( job.getBootstrapping() ){
+					strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
+				} else if( boolModePlot ){
+					strSelectList += "  mos.object_id,\n  mos.object_cat,\n  mos.area,\n  mos.intensity_50,\n  mos.intensity_90,\n" +
+									 "  mop.object_id object_id_p,\n  mop.interest,\n  mop.intersection_area,\n  mop.area_ratio,\n" +
+									 "  mop.centroid_dist,\n  mop.angle_diff,\n  mc.total";
+				} else {
+					strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
+	
+					//  determine if the job calls for confidence intervals and add the fields if necessary
+					boolean boolNormalCI = false, boolBootCI = false;
+					String[] listPlotCI = parseRCol(job.getPlotCI()); 
+					for(int i=0; i < listPlotCI.length; i++){
+						if     ( listPlotCI[i].equals("norm") ){ boolNormalCI = true; }
+						else if( listPlotCI[i].equals("boot") ){ boolBootCI   = true; }
+					}
+					if( boolNormalCI ){ strSelectList += ",\n  sg.stat_ncl,\n  sg.stat_ncu"; }
+					if( boolBootCI )  { strSelectList += ",\n  sg.stat_bcl,\n  sg.stat_bcu"; }
+					
+					//  if nobs is requested, add baserate and total
+					if( 0 < listSeriesNobs.length ){
+						strSelectList += ",\n  (ldcts.total * sgb.stat_value) nobs,\n  ldcts.total";
+					}
+				}
+	
+				//  build the list of tables for the FROM clause
+				String strFromList = "";			
+				if( boolModePlot ){
+					strFromList = "  mode_header h,\n  mode_obj_pair mop,\n  mode_obj_single mos,\n  mode_cts mc";
+				} else {
+					strFromList = "  stat_header h";
+					if( job.getBootstrapping() ){
+						strFromList += ",\n  line_data_ctc ldctc";
+					} else {
+						strFromList += ",\n  stat_group sg";
+					}
+									
+					//  if nobs is requested, add baserate and total
+					if( 0 < listSeriesNobs.length ){
+						strFromList += ",\n  stat_group sgb,\n  line_data_cts ldcts";
+					}
+				}
+				
+				//  build the where clause from the tables of field names and values
+				String strWhere = "";
+				
+				//  build the aggregate fields where clause
+				Map.Entry[] listFixAggFields = append(listAggVal, listPlotFixVal);
+				for(int i=0; i < listFixAggFields.length; i++){
+					String strField = (String)listFixAggFields[i].getKey();
+					
+					if( strField.equals("inithour") ){
+						if( boolModePlot ){ strField = "HOUR( SUBTIME( h.fcst_init, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) )"; }
+						else              { strField = "HOUR(h." + _strInitdateField + ")"; }
+					}
+					else if( strField.equals("initdate") ){
+						if( boolModePlot ){ strField = "SUBTIME( h.fcst_init, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )"; }
+						else              { strField = getSQLDateFormat("h." + _strInitdateField); }
+					}
+					else if( strField.equals("fcst_valid_beg") ){ strField = getSQLDateFormat("h.fcst_valid_beg"); }
+					else if( strField.equals("fcst_valid") )    { strField = getSQLDateFormat("h.fcst_valid");     }
+					else										{ strField = "h." + strField;                      }
 
-			//  try to throw memory back onto the heap
-			res = null;
-			tab.clear();
-			tab = null;
-			//System.gc();
-			
-		} // end: for(int intDep=0; intDep < listDep.length; intDep++)
+					String strCondition = "";
+					Object objValue = listFixAggFields[i].getValue();
+					if( objValue instanceof String[] ){
+						strCondition = "IN (" + buildValueList( (String[])objValue ) + ")";
+					} else if( objValue instanceof MVOrderedMap ){
+						Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();
+						for(int j=0; j < listSets.length; j++){
+							strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
+						}
+						strCondition = "IN (" + strCondition + ")";
+					} else if( objValue instanceof String && objValue.toString().startsWith("BETWEEN") ){
+						strCondition = objValue.toString();
+					}
+					strWhere += "  " + (0 < i? "AND " : "") + strField + " " + strCondition + "\n";
+				}
+				
+				//  add the independent variable values, if necessary
+				if( 0 < job.getIndyVal().length ){
+					strWhere += "  AND h." + job.getIndyVar() + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
+				}
+	
+				/*
+				//  build the series fields where clause
+				int intNumSeries = 0;
+				for(int i=0; i < listSeries1Val.length; i++){
+					String strField = (String)listSeries1Val[i].getKey();
+					String[] listValues = (String[])listSeries1Val[i].getValue();
+					strWhere += "  AND h." + strField + " IN (" + buildValueList(listValues) + ")\n";
+					intNumSeries += listValues.length;
+				}
+				*/
+				
+				//  build the dependent variable where clause
+				strWhere += "  AND\n  (\n";
+				for(int i=0; i < listDepPlot.length; i++){
+					String strFcstVar = (String)listDepPlot[i].getKey();
+					String[] listStatGroupName = (String[])listDepPlot[i].getValue();
+					String[] listStatGroupLuId = new String[listStatGroupName.length];
+					String strDepStatClause = "";
+					if( !boolModePlot && !job.getBootstrapping() ){
+						for(int j=0; j < listStatGroupName.length; j++){ listStatGroupLuId[j] = (String)_tableStatIndex.get(listStatGroupName[j]); }
+						strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
+					}
+					
+					//  fixed field sql
+					String strFixed = "";
+					MVOrderedMap mapFixed = (MVOrderedMap)mapFix.get(strFcstVar);
+					Map.Entry[] listFixed = mapFixed.getOrderedEntries();
+					for(int j=0; j < listFixed.length; j++){
+						String strField = (String)listFixed[j].getKey();
+						String strValue = (String)listFixed[j].getValue();
+						strFixed += "      AND h." + strField + formatSQLConstraint(strValue) + "\n";
+					}
+					
+					//  build the series fields where clause
+					String strSeries = "";
+					Map.Entry[] listSeriesVal = (i < listDep1Plot.length? listSeries1Val : listSeries2Val);
+					for(int j=0; j < listSeriesVal.length; j++){
+						String strField = (String)listSeriesVal[j].getKey();
+						String[] listValues = (String[])listSeriesVal[j].getValue();
+						strSeries += "      AND h." + strField + " IN (" + buildValueList(listValues) + ")\n";
+					}
+					
+					strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var = '" + strFcstVar + "'\n" +
+								strDepStatClause + strFixed + strSeries + "    )\n";
+				}
+	
+				if( boolModePlot ){
+					strWhere += "  )\n  AND mop.mode_header_id = h.mode_header_id\n" +
+								"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)\n" +
+								"  AND mc.field = 'OBJECT'\n  AND mc.mode_header_id = mop.mode_header_id";
+				} else {
+					//  add the table joining clauses
+					if( job.getBootstrapping() ){
+						strWhere += "  )\n  AND h.stat_header_id = ldctc.stat_header_id";
+					} else {
+						strWhere += "  )\n  AND h.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
+	
+						if( 0 < listSeriesNobs.length ){
+							strWhere += "\n  AND sgb.stat_group_lu_id = '0'\n" +
+										  "  AND h.stat_header_id = sgb.stat_header_id\n" +
+										  "  AND h.stat_header_id = ldcts.stat_header_id";
+						}			
+					}
+				}
+	
+				//  put the query components together
+				String strQuery = "SELECT\n" + strSelectList + "\n" +
+								  "FROM\n" + strFromList + "\n" +
+								  "WHERE\n" + strWhere + 
+								  (_boolSQLSort? "\nORDER BY\n" + strSortList : "") + ";";
+				
+				System.out.println("strQuery:\n\n" + strQuery + "\n");
+				
+				
+				/*
+				 *  Run the query
+				 */
+	
+				//  run the query against the database connection and parse the results
+				long intStartTime = (new java.util.Date()).getTime();
+				Statement stmt = job.getConnection().createStatement();
+				ResultSet res = stmt.executeQuery(strQuery);
+				MVDataTable tab = new MVDataTable(res);
+				stmt.close();
+				
+				System.out.println("query returned " + tab.getNumRows() + " rows in " + 
+									formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ));
+				
+				//  reformat the field names in the data table
+				String[] listFields = tab.getFields();
+				for(int i=0; i < listFields.length; i++){
+					if( listFields[i].equals("HOUR(h." + _strInitdateField + ")") ){ 
+						tab.setFieldName(i, "inithour");
+					}
+				}
+				
+				//  if there is no data, do not try to plot it
+				if( 1 > tab.getNumRows() ){
+					System.out.println("  **  WARNING: query returned no data");
+					continue;
+				}
+							
+				//  convert the stat_group_lu_id to stat_name, if present
+				if( tab.containsField("stat_group_lu_id") ){
+					tab.addField("stat_name");
+					for(int i=0; i < listDepPlot.length; i++){
+						final String strFcstVar = (String)listDepPlot[i].getKey();
+						String[] listStatName = (String[])listDepPlot[i].getValue();
+						
+						for(int j=0; j < listStatName.length; j++){
+							final String strStatGroupLuId = (String)_tableStatIndex.get(listStatName[j]);
+							MVRowComp c = new MVRowComp(){
+								public boolean equals(MVOrderedMap row){
+									String strFcstVarRow = (String)row.get("fcst_var"); 
+									String strStatGroupLuIdRow = (String)row.get("stat_group_lu_id");
+									return (strFcstVarRow.equals(strFcstVar) && strStatGroupLuIdRow.equals(strStatGroupLuId)); 
+								}
+							};
+							tab.set("stat_name", c, listStatName[j]); 
+						}				
+					}
+				}
+				
+				//  add set fields to the table to handle aggregating over sets of values
+				for(int i=0; i < listAggVal.length; i++){
+					
+					//  if the aggregate values are not sets, continue
+					Object objAggVal = listAggVal[i].getValue();
+					if( objAggVal instanceof String[] ){ continue; }
+					
+					//  if the aggregate values are sets, add a set field to the table
+					final String strAggVar = listAggVal[i].getKey().toString();
+					String strSetField = strAggVar + "_set"; 
+					tab.addField(strSetField);
+					Map.Entry[] listSetVal = ((MVOrderedMap)objAggVal).getOrderedEntries();
+					
+					for(int j=0; j < listSetVal.length; j++){
+						final String[] listSet = (String[])listSetVal[j].getValue();
+						MVRowComp c = new MVRowComp(){
+							public boolean equals(MVOrderedMap row){
+								return contains(listSet, row.getStr(strAggVar));
+							}
+						};
+						tab.set(strSetField, c, listSetVal[j].getKey().toString());
+					}
+				}
+	
+				//printFormattedTable(tab); System.out.println("" + tab.getNumRows() + " rows\n");
+				
+				
+				/*
+				 *  MODE calculations
+				 */
+				
+				//  calculate the mode statistics, if appropriate
+				if( boolModePlot ){
+					
+					//  break the mode data into cases for calculating stats
+					String[] listModeCase = {"model", "fcst_var", "fcst_rad", "fcst_thr", "fcst_lead"};
+					MVOrderedMap mapModeCase = new MVOrderedMap();
+					for(int i=0; i < listModeCase.length; i++){
+						if( !tab.containsField(listModeCase[i]) ){ continue; }
+						mapModeCase.put(listModeCase[i], unique( tab.getColumn(listModeCase[i]) ));
+					}
+					
+					//  add the aggregation variable values to the cases
+					for(int i=0; i < listAggVal.length; i++){
+						String strAggVar = listAggVal[i].getKey().toString();					
+						if( contains(listModeCase, strAggVar) ){ continue; }
+						mapModeCase.put(strAggVar, (String[])listAggVal[i].getValue());
+					}
+						
+					//  build a list of all cases for which to calculate mode stats
+					MVDataTable tabModePerm = permute(mapModeCase);
+					MVOrderedMap[] listModePerm = tabModePerm.getRows();
+					listModeCase = mapModeCase.keyList();				
+					//printFormattedTable(tabModePerm);
+	
+					//  create a table to store mode statistics
+					MVDataTable tabModeStat = new MVDataTable(tabModePerm);
+					String[] listModeStatFields = {"nsimp", "nsimpf", "nsimpfm", "nsimpfu", "nsimpo", "nsimpom", "nsimpou", "asimp", "asimpf", "asimpfm", "asimpfu", "asimpo",
+												   "asimpom", "asimpou", "nclus", "nclusf", "ncluso", "ACOV", "pom", "pam", "awcsi", "MMI", "MMIF", "MMIO", "MIA", "MAR", "MCD", 
+												   "MAD", "P50", "P90"};
+					for(int i=0; i < listModeStatFields.length; i++){ tabModeStat.addField(listModeStatFields[i]); }
+					int intModeStatIndex = 0;
+					//printFormattedTable(tabModeStat);
+					
+					//  calculate mode stats for each permutation
+					for(int i=0; i < listModePerm.length; i++){						
+						MVDataTable tabModeCase = tab;
+						for(int j=0; j < listModeCase.length; j++){						
+							final String strModeCase = listModeCase[j];
+							final String strModeVal = listModePerm[i].getStr( listModeCase[j] );
+							tabModeCase = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr(strModeCase).equals(strModeVal); } });
+						}
+						if( 0 == tabModeCase.getNumRows() ){
+							//System.out.println("  ****  missing mode case  ****\n");
+							tabModeStat.removeRow(intModeStatIndex);
+							tabModePerm.removeRow(intModeStatIndex);
+							continue;
+						}
+						//System.out.println("mode perm:\n" + listModePerm[i].getRDecl() + "\n\ntabModeCase:\n"); tabModeCase.sort("object_id"); tabModeCase.sort("fcst_valid"); printFormattedTable(tabModeCase);
+						
+						//  build tables for each line type
+						//MVDataTable tabSimpFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^F\\d{3}$"); } });
+						//MVDataTable tabSimpObs   = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^O\\d{3}$"); } });
+						MVDataTable tabSimpFcst  = getUniqueModeObjRows(tabModeCase, "object_id", "^F\\d{3}$"); tabSimpFcst.sort("object_id"); tabSimpFcst.sort("fcst_valid");
+						MVDataTable tabSimpObs   = getUniqueModeObjRows(tabModeCase, "object_id", "^O\\d{3}$"); tabSimpObs. sort("object_id"); tabSimpObs. sort("fcst_valid");
+						//MVDataTable tabSimpPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^F\\d{3}_O\\d{3}$"); } });
+
+						MVDataTable tabSimpFcstM = tabSimpFcst.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return !row.getStr("object_cat").matches("^C[FO]000$"); } });
+						MVDataTable tabSimpFcstU = tabSimpFcst.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_cat").matches("^C[FO]000$"); } });
+						MVDataTable tabSimpObsM  = tabSimpObs. getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return !row.getStr("object_cat").matches("^C[FO]000$"); } });
+						MVDataTable tabSimpObsU  = tabSimpObs. getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_cat").matches("^C[FO]000$"); } });
+						
+						//MVDataTable tabClusFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^CF\\d{3}$"); } });
+						//MVDataTable tabClusObs   = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^CO\\d{3}$"); } });
+						MVDataTable tabClusFcst  = getUniqueModeObjRows(tabModeCase, "object_id", "^CF\\d{3}$"); tabClusFcst.sort("object_id"); tabClusFcst.sort("fcst_valid");
+						MVDataTable tabClusObs   = getUniqueModeObjRows(tabModeCase, "object_id", "^CO\\d{3}$"); tabClusObs. sort("object_id"); tabClusObs. sort("fcst_valid");
+						MVDataTable tabClusPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^CF\\d{3}_CO\\d{3}$"); } });
+						//System.out.println("\ntabClusFcst:\n"); printFormattedTable(tabClusFcst); System.out.println("\ntabClusObs:\n"); printFormattedTable(tabClusObs);
+
+						//  counts of simple/matched/unmatched forecast/observation objects
+						MVOrderedMap mapCaseData = tabModeStat.getRow(intModeStatIndex++);
+						mapCaseData.putStr("nsimp",		tabSimpFcst.getNumRows() + tabSimpObs.getNumRows());
+						mapCaseData.putStr("nsimpf",	tabSimpFcst.getNumRows());
+						mapCaseData.putStr("nsimpfm",	tabSimpFcstM.getNumRows());
+						mapCaseData.putStr("nsimpfu",	tabSimpFcstU.getNumRows());
+						mapCaseData.putStr("nsimpo",	tabSimpObs.getNumRows());
+						mapCaseData.putStr("nsimpom",	tabSimpObsM.getNumRows());
+						mapCaseData.putStr("nsimpou",	tabSimpObsU.getNumRows());
+						
+						//  areas of simple/matched/unmatched forecast/observation objects
+						mapCaseData.putStr("asimp",		sum(tabSimpFcst.getIntColumn("area")) + sum(tabSimpObs.getIntColumn("area")) );
+						mapCaseData.putStr("asimpf",	sum(tabSimpFcst.getIntColumn("area")) );
+						mapCaseData.putStr("asimpfm",	sum(tabSimpFcstM.getIntColumn("area")) );
+						mapCaseData.putStr("asimpfu",	sum(tabSimpFcstU.getIntColumn("area")) );
+						mapCaseData.putStr("asimpo",	sum(tabSimpObs.getIntColumn("area")) );
+						mapCaseData.putStr("asimpom",	sum(tabSimpObsM.getIntColumn("area")) );
+						mapCaseData.putStr("asimpou",	sum(tabSimpObsU.getIntColumn("area")) );
+						
+						//  counts of cluster forecast/observation objects
+						mapCaseData.putStr("nclus",		tabClusFcst.getNumRows() + tabClusObs.getNumRows());
+						mapCaseData.putStr("nclusf",	tabClusFcst.getNumRows());
+						mapCaseData.putStr("ncluso",	tabClusObs.getNumRows());
+						
+						//  compute the aerial coverage of observation points
+						double dblCaseTotal = median(tabModeCase.getDoubleColumn("total"));
+						mapCaseData.putStr("ACOV",	mapCaseData.getDouble("asimpo") / (dblCaseTotal * (double)tabSimpObs.getNumRows()));
+						
+						//  percentage of simple objects and area matched
+						mapCaseData.putStr("pom",	(mapCaseData.getDouble("nsimpfm") + mapCaseData.getDouble("nsimpom")) / mapCaseData.getDouble("nsimp")); 
+						mapCaseData.putStr("pam",	(mapCaseData.getDouble("asimpfm") + mapCaseData.getDouble("asimpom")) / mapCaseData.getDouble("asimp"));
+						
+						//  compute the area-weighted CSI using hits, misses, and false-alarms
+						double dblHits = (mapCaseData.getDouble("asimpfm") + mapCaseData.getDouble("asimpom")) / 2;
+						mapCaseData.putStr("awcsi",	dblHits / (dblHits + mapCaseData.getDouble("asimpou") + mapCaseData.getDouble("asimpfu")));
+	
+						//  find maximum interest among the forecast objects
+						MVOrderedMap tableMIFcst = new MVOrderedMap();
+						MVOrderedMap[] listSimpFcst = tabSimpFcst.getRows();
+						for(int j=0; j < listSimpFcst.length; j++){
+							String strObjectId = listSimpFcst[j].getStr("object_id");
+							double dblInt = listSimpFcst[j].getDouble("interest");
+							if( !tableMIFcst.containsKey(strObjectId) || dblInt > tableMIFcst.getDouble(strObjectId)){
+								tableMIFcst.putStr(strObjectId, dblInt);
+							}
+						}
+						
+						//  find the maximum interest among the observed objects
+						MVOrderedMap tableMIObs = new MVOrderedMap();
+						MVOrderedMap[] listSimpObs = tabSimpObs.getRows();
+						for(int j=0; j < listSimpObs.length; j++){
+							String strObjectId = listSimpObs[j].getStr("object_id");
+							double dblInt = listSimpObs[j].getDouble("interest");
+							if( !tableMIObs.containsKey(strObjectId) || dblInt > tableMIObs.getDouble(strObjectId)){
+								tableMIObs.putStr(strObjectId, dblInt);
+							}
+						}
+	
+						//  determine the maximum interest for forecast, observed and both
+						Map.Entry[] listMIFcstObj = tableMIFcst.getOrderedEntries();
+						double[] listMIFcst = new double[tableMIFcst.size()];
+						double[] listMI = new double[tableMIFcst.size() + tableMIObs.size()];
+						int intMIIndex = 0;
+						for(int j=0; j < listMIFcstObj.length; j++){
+							double dblMIFcst = Double.parseDouble(listMIFcstObj[j].getValue().toString()); 
+							listMIFcst[j] = dblMIFcst;
+							listMI[intMIIndex++] = dblMIFcst;
+						}
+						Map.Entry[] listMIObsObj = tableMIObs.getOrderedEntries();
+						double[] listMIObs = new double[tableMIObs.size()];
+						for(int j=0; j < listMIObsObj.length; j++){
+							double dblMIObs = Double.parseDouble(listMIObsObj[j].getValue().toString()); 
+							listMIObs[j] = dblMIObs;
+							listMI[intMIIndex++] = dblMIObs;
+						}
+						
+						//  save the MMI for forecast, observed and both and add them to the case data
+						double dblMMI = median(listMI);
+						double dblMMIF = median(listMIFcst);
+						double dblMMIO = median(listMIObs);
+						mapCaseData.putStr("MMI",  dblMMI == INVALID_DATA? "NA" : "" + dblMMI );
+						mapCaseData.putStr("MMIF", dblMMIF == INVALID_DATA? "NA" : "" + dblMMIF );
+						mapCaseData.putStr("MMIO", dblMMIO == INVALID_DATA? "NA" : "" + dblMMIO );
+	
+						//  calculate median scores for clustered objects and add them to the case data
+						double dblMIA = median( tabClusPair.getDoubleColumn("intersection_area") );
+						double dblMAR = median( tabClusPair.getDoubleColumn("area_ratio") );
+						double dblMCD = median( tabClusPair.getDoubleColumn("centroid_dist") );
+						double dblMAD = median( tabClusPair.getDoubleColumn("angle_diff") );
+						mapCaseData.putStr("MIA", dblMIA == INVALID_DATA? "NA" : "" + dblMIA );
+						mapCaseData.putStr("MAR", dblMAR == INVALID_DATA? "NA" : "" + dblMAR );
+						mapCaseData.putStr("MCD", dblMCD == INVALID_DATA? "NA" : "" + dblMCD );
+						mapCaseData.putStr("MAD", dblMAD == INVALID_DATA? "NA" : "" + dblMAD );
+	
+						//  calculate the median intensity difference between fcst and obs for the 50th and 90th percentiles
+						int intNClus = mapCaseData.getInt("nclusf");
+						if( 0 < intNClus ){
+							double[] listP50 = new double[intNClus];
+							double[] listP90 = new double[intNClus];
+							
+							for(int j=0; j < intNClus; j++){
+								listP50[j] = tabClusFcst.getDbl("intensity_50", j) - tabClusObs.getDbl("intensity_50", j);
+								listP90[j] = tabClusFcst.getDbl("intensity_90", j) - tabClusObs.getDbl("intensity_90", j);
+							}
+							
+							mapCaseData.putStr("P50", median(listP50));
+							mapCaseData.putStr("P90", median(listP90));
+						} else {
+							mapCaseData.putStr("P50", "NA");
+							mapCaseData.putStr("P90", "NA");
+						}
+												
+						//System.out.println("tabModeStat after calcs:"); printFormattedTable(tabModeStat); System.out.println("" + tabModeStat.getNumRows() + " rows\n");					
+					}
+					//System.out.println("tabModeStat:"); printFormattedTable(tabModeStat); System.out.println("" + tabModeStat.getNumRows() + " rows\n");
+	
+					//  build a data table with the stats
+					MVDataTable tabModePlot = new MVDataTable();
+					tabModePlot.addFields(tabModePerm.getFields());
+					tabModePlot.addField("stat_name");
+					tabModePlot.addField("stat_value");
+					for(int i=0; i < listDepPlot.length; i++){
+						
+						//  build a small table for each fcst_var and stat
+						String[] listStatName = (String[])listDepPlot[i].getValue();
+						for(int j=0; j < listStatName.length; j++){
+							MVDataTable tabModePlotVar = new MVDataTable(tabModePerm);
+							tabModePlotVar.addField("stat_name", listStatName[j]);
+							tabModePlotVar.addField("stat_value");
+							tabModePlotVar.setColumn("stat_value", tabModeStat.getColumn(listStatName[j]));
+							tabModePlot.addRows(tabModePlotVar.getRows());
+						}
+					}
+					//System.out.println("tabModePlot:"); printFormattedResults(tabModePlot); System.out.println("" + tabModeStat.getNumRows() + " rows\n");
+					tab.clear();
+					tab = tabModePlot;
+				}
+				
+				//  determine if the indy values require tick marks
+				boolean boolIndyValTick = false;
+				String[] listIndyVal = job.getIndyVal();
+				for(int i=0; i < listIndyVal.length; i++){
+					try{ Double.parseDouble(listIndyVal[i]); }catch(Exception e){ boolIndyValTick = true; }
+				}
+				
+				/*
+				 *  Build a list of plot permutations to run
+				 */
+				
+				MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
+				for(int intPerm=0; intPerm < listAggPerm.length; intPerm++){
+					
+					System.out.println("\n* * * * * * * * * * * *\n  PLOT - " + (_intPlotIndex++ + 1) + " / " + _intNumPlots + "\n* * * * * * * * * * * *\n");
+					
+					/*
+					 *  Build a data table that contains the data specific to this permutation 
+					 */
+	
+					MVDataTable tabPerm = tab;
+					String[] listKeys = listAggPerm[intPerm].keyList();
+					for(int i=0; i < listKeys.length; i++){
+						final String strKey = listKeys[i];
+						final String strVal = (String)listAggPerm[intPerm].get(strKey);
+						tabPerm = tabPerm.getRows(new MVRowComp(){
+							public boolean equals(MVOrderedMap row){ return row.get(strKey).equals(strVal);	}
+						});
+					}
+					
+						
+					/*
+					 *  Build a map of all plot-specific values to use with the templates 
+					 */
+	
+					//MVOrderedMap mapTmplVals = job.getTmplVal();
+					MVOrderedMap mapPlotTmplVals = new MVOrderedMap( mapTmplVals );
+	
+					//  bootstrap data
+					MVOrderedMap mapBootStatic = new MVOrderedMap( listAggPerm[intPerm] );
+					MVOrderedMap mapSeries1Val = new MVOrderedMap( job.getSeries1Val() );
+					MVOrderedMap mapSeries2Val = new MVOrderedMap( job.getSeries2Val() );
+					
+					//  add the independent and dependent variables 
+					mapPlotTmplVals.put("indy_var", job.getIndyVar());
+					Map.Entry[][] listDepPlotList = {listDep1Plot, listDep2Plot};
+					ArrayList listBootStats1 = new ArrayList();
+					ArrayList listBootStats2 = new ArrayList();
+					for(int intDepPlot = 0; intDepPlot < 2; intDepPlot++){
+						Map.Entry[] listDepCur = listDepPlotList[intDepPlot];
+						String strDepName = "dep" + (intDepPlot+1);
+						
+						//  add the stats for each fcst_var
+						for(int i=0; i < listDepCur.length; i++){
+							
+							//  add the stat names
+							String strFcstVar = (String)listDepCur[i].getKey();
+							mapPlotTmplVals.put(strDepName + "_" + (i+1), strFcstVar);
+							mapBootStatic.put("fcst_var", strFcstVar);
+							String[] listStats = (String[])listDepCur[i].getValue();						
+							for(int j=0; j < listStats.length; j++){
+								mapPlotTmplVals.put(strDepName + "_" + (i+1) + "_stat" + (j+1), listStats[j]);
+								if( job.getBootstrapping() && 0 == intDepPlot ){ listBootStats1.add(listStats[j]); }
+								if( job.getBootstrapping() && 1 == intDepPlot ){ listBootStats2.add(listStats[j]); }
+							}
+							
+							//  add the fixed fields and values
+							MVOrderedMap mapFixCur = (MVOrderedMap)mapFix.get(strFcstVar);
+							Map.Entry[] listFixCurVal = mapFixCur.getOrderedEntries();
+							for(int j=0; j < listFixCurVal.length; j++){
+								String strFixVar = (String)listFixCurVal[j].getKey();
+								String strFixVal = (String)listFixCurVal[j].getValue();
+								mapPlotTmplVals.put(strFixVar, strFixVal);
+								if( job.getBootstrapping() && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
+							}
+						}
+					}
+	
+					//  add the aggregate values to the template values map
+					mapPlotTmplVals.putAll(listAggPerm[intPerm]);
+					System.out.println(mapPlotTmplVals.getRDecl() + "\n");
+	
+					if( 1 > tabPerm.getNumRows() ){
+						System.out.println("no plot data found");
+						continue;
+					}
+					
+					//printFormattedResults(tabPerm); System.out.println("" + tabPerm.getNumRows() + " rows\n");
+					System.out.println("Plotting " + tabPerm.getNumRows() + " rows\n");
+	
+					
+					/*
+					 *  Print the data file in the R_work subfolder and file specified by the data file template
+					 */
+					
+					_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
+					_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
+					_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");
+	
+					String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+					if( job.getBootstrapping() ){ strDataFile = strDataFile + ".boot"; }
+					(new File(strDataFile)).getParentFile().mkdirs();
+					printFormattedTable(tabPerm, new PrintStream(strDataFile), "\t");
+					tabPerm = null;
+					
+									
+					/*
+					 *  If bootstrapping is requested, generate the bootstrapped data 
+					 */
+									
+					if( job.getBootstrapping() ){
+	
+						//  construct and create the path for the bootstrap data output file
+						String strBootInfo = strDataFile.replaceFirst("\\.data.boot$", ".boot.info");
+						String strBootOutput = strDataFile.replaceFirst("\\.boot$", "");
+						File fileBootOutput = new File(strBootOutput); 
+	
+						//  build the map containing tag values for the boot info template
+						Hashtable tableBootInfo = new Hashtable();
+						tableBootInfo.put("boot_diff1",		job.getBootDiff1()? "TRUE" : "FALSE");
+						tableBootInfo.put("boot_diff2",		job.getBootDiff2()? "TRUE" : "FALSE");
+						tableBootInfo.put("boot_repl",		job.getBootRepl());
+						tableBootInfo.put("boot_ci",		job.getBootCI());
+						tableBootInfo.put("ci_alpha",		job.getCIAlpha());
+						tableBootInfo.put("indy_var",		job.getIndyVar());
+						tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
+						tableBootInfo.put("series1_list",	job.getSeries1Val().getRDecl());
+						tableBootInfo.put("series2_list",	job.getSeries2Val().getRDecl());
+						tableBootInfo.put("boot_stat1",		printRCol((String[])listBootStats1.toArray(new String[]{}), true));
+						tableBootInfo.put("boot_stat2",		printRCol((String[])listBootStats2.toArray(new String[]{}), true));
+						tableBootInfo.put("boot_static",	mapBootStatic.getRDecl());
+						tableBootInfo.put("boot_input",		strDataFile);
+						tableBootInfo.put("boot_output",	strBootOutput);
+						tableBootInfo.put("working_dir",	_strRworkFolder + "include");
+					
+						//  populate the boot info file
+						populateTemplateFile(_strRtmplFolder + "boot.info_tmpl", strBootInfo, tableBootInfo);
+														
+						//  run boot.R to generate the data file for plotting
+						if( !fileBootOutput.exists() || !_boolCacheBoot ){
+							fileBootOutput.getParentFile().mkdirs();
+							runRscript(_strRworkFolder + "include/boot.R", new String[]{strBootInfo});
+						}
+	
+						//  if boot_diffN is turned on, add __BOOT_DIFFN__ to the plot series
+						for(int i=0; i < 2; i++){
+							MVOrderedMap mapSeriesVal = null;
+							String strDiffSeries = "";
+							if     ( i == 0 && job.getBootDiff1() ){ mapSeriesVal = mapSeries1Val; strDiffSeries = "__BOOT_DIFF1__"; }
+							else if( i == 1 && job.getBootDiff2() ){ mapSeriesVal = mapSeries2Val; strDiffSeries = "__BOOT_DIFF2__"; }
+							else                                   { continue; }						
+							String[] listSeriesVar = mapSeriesVal.keyList();
+							ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
+							listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
+							mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], listDiffVal.toArray(new String[]{}));
+						}					
+						
+						//  remove the .boot suffix from the data file
+						strDataFile = strBootOutput;
+					}
+	
+					
+					/*
+					 *  Generate filenames and plot labels from the templates 
+					 */
+	
+					//  use the map of all plot values to populate the template strings
+					String strPlotFile	= _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+					String strRFile		= _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+					String strTitle		= buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
+					String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+					String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());				
+					String strY2Label	= buildTemplateString(job.getY2LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());				
+	
+					//  create the plot and R script output folders, if necessary
+					(new File(strPlotFile)).getParentFile().mkdirs();
+					(new File(strRFile)).getParentFile().mkdirs();
+									
+					/*
+					 *  Generate the map of R template tags for the plot
+					 */
+					
+					Hashtable tableRTags = new Hashtable();
+	
+					tableRTags.put("r_work",		_strRworkFolder);
+					tableRTags.put("indy_var",		job.getIndyVar());
+					tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
+					tableRTags.put("indy_label",	(0 < job.getIndyLabel().length? printRCol(job.getIndyLabel(), true) : "c()"));
+					tableRTags.put("dep1_plot",		mapDep1.getRDecl());				
+					tableRTags.put("dep2_plot",		(null != mapDep2? mapDep2.getRDecl() : "c()"));
+					tableRTags.put("agg_list",		listAggPerm[intPerm].getRDecl());
+					tableRTags.put("series1_list",	mapSeries1Val.getRDecl());
+					tableRTags.put("series2_list",	mapSeries2Val.getRDecl());
+					tableRTags.put("series_nobs",	job.getSeriesNobs().getRDecl());
+					tableRTags.put("dep1_scale",	job.getDep1Scale().getRDecl());
+					tableRTags.put("dep2_scale",	job.getDep2Scale().getRDecl());
+					tableRTags.put("plot_file",		strPlotFile);
+					tableRTags.put("data_file",		strDataFile);
+					tableRTags.put("plot_title",	strTitle);
+					tableRTags.put("x_label",		strXLabel);
+					tableRTags.put("y1_label",		strY1Label);
+					tableRTags.put("y2_label",		strY2Label);
+					tableRTags.put("plot_cmd", 		job.getPlotCmd());
+					tableRTags.put("event_equal",	(job.getEventEqual()?	"TRUE" : "FALSE"));
+					tableRTags.put("plot1_diff",	(job.getPlot1Diff()?	"TRUE" : "FALSE"));
+					tableRTags.put("plot2_diff",	(job.getPlot2Diff()?	"TRUE" : "FALSE"));
+					tableRTags.put("show_nstats",	(job.getShowNStats()?	"TRUE" : "FALSE"));
+					tableRTags.put("indy1_stagger",	(job.getIndy1Stagger()?	"TRUE" : "FALSE"));
+					tableRTags.put("indy2_stagger",	(job.getIndy2Stagger()?	"TRUE" : "FALSE"));
+					tableRTags.put("grid_on",		(job.getGridOn()?		"TRUE" : "FALSE"));
+					tableRTags.put("sync_axes",		(job.getSyncAxes()?		"TRUE" : "FALSE"));
+					tableRTags.put("dump_points1",	(job.getDumpPoints1()?	"TRUE" : "FALSE"));
+					tableRTags.put("dump_points2",	(job.getDumpPoints2()?	"TRUE" : "FALSE"));
+					tableRTags.put("log_y1",		(job.getLogY1()?		"TRUE" : "FALSE"));
+					tableRTags.put("log_y2",		(job.getLogY2()?		"TRUE" : "FALSE"));
+					
+					// calculate the number of plot curves
+					int intNumDep1 = 0;
+					for(int i=0; i < listDep1Plot.length; i++){
+						intNumDep1 += ((String[])listDep1Plot[i].getValue()).length;
+					}
+					int intNumDep2 = 0;
+					for(int i=0; i < listDep2Plot.length; i++){
+						intNumDep2 += ((String[])listDep2Plot[i].getValue()).length;
+					}
+					int intNumSeries1Perm = 1;
+					for(int i=0; i < listSeries1Val.length; i++){
+						String[] listVal = (String[])listSeries1Val[i].getValue();
+						intNumSeries1Perm *= listVal.length;
+					}				
+					int intNumSeries2Perm = 1;
+					for(int i=0; i < listSeries2Val.length; i++){
+						intNumSeries2Perm *= ((String[])listSeries2Val[i].getValue()).length;
+					}
+					
+					tableRTags.put("plot_type",		job.getPlotType());
+					tableRTags.put("plot_width",	job.getPlotWidth());
+					tableRTags.put("plot_height",	job.getPlotHeight());
+					tableRTags.put("plot_res",		job.getPlotRes());
+					tableRTags.put("plot_units",	job.getPlotUnits());
+					tableRTags.put("mar",			job.getMar());
+					tableRTags.put("mgp",			job.getMgp());
+					tableRTags.put("cex",			job.getCex());
+					tableRTags.put("title_weight",	job.getTitleWeight());
+					tableRTags.put("title_size",	job.getTitleSize());
+					tableRTags.put("title_offset",	job.getTitleOffset());
+					tableRTags.put("title_align",	job.getTitleAlign());
+					tableRTags.put("xtlab_orient",	job.getXtlabOrient());
+					tableRTags.put("xtlab_perp",	job.getXtlabPerp());
+					tableRTags.put("xtlab_horiz",	job.getXtlabHoriz());
+					tableRTags.put("xlab_weight",	job.getXlabWeight());
+					tableRTags.put("xlab_size",		job.getXlabSize());
+					tableRTags.put("xlab_offset",	job.getXlabOffset());
+					tableRTags.put("xlab_align",	job.getXlabAlign());
+					tableRTags.put("ytlab_orient",	job.getYtlabOrient());
+					tableRTags.put("ytlab_perp",	job.getYtlabPerp());
+					tableRTags.put("ytlab_horiz",	job.getYtlabHoriz());
+					tableRTags.put("ylab_weight",	job.getYlabWeight());
+					tableRTags.put("ylab_size",		job.getYlabSize());
+					tableRTags.put("ylab_offset",	job.getYlabOffset());
+					tableRTags.put("ylab_align",	job.getYlabAlign());
+					tableRTags.put("grid_lty",		job.getGridLty());
+					tableRTags.put("grid_col",		job.getGridCol());
+					tableRTags.put("grid_lwd",		job.getGridLwd());
+					tableRTags.put("grid_x",		job.getGridX());
+					tableRTags.put("x2tlab_orient",	job.getX2tlabOrient());
+					tableRTags.put("x2tlab_perp",	job.getX2tlabPerp());
+					tableRTags.put("x2tlab_horiz",	job.getX2tlabHoriz());
+					tableRTags.put("x2lab_weight",	job.getX2labWeight());
+					tableRTags.put("x2lab_size",	job.getX2labSize());
+					tableRTags.put("x2lab_offset",	job.getX2labOffset());
+					tableRTags.put("x2lab_align",	job.getX2labAlign());
+					tableRTags.put("y2tlab_orient",	job.getY2tlabOrient());
+					tableRTags.put("y2tlab_perp",	job.getY2tlabPerp());
+					tableRTags.put("y2tlab_horiz",	job.getY2tlabHoriz());
+					tableRTags.put("y2lab_weight",	job.getY2labWeight());
+					tableRTags.put("y2lab_size",	job.getY2labSize());
+					tableRTags.put("y2lab_offset",	job.getY2labOffset());
+					tableRTags.put("y2lab_align",	job.getY2labAlign());
+					tableRTags.put("legend_size",	job.getLegendSize());
+					tableRTags.put("legend_box",	job.getLegendBox());
+					tableRTags.put("legend_inset",	job.getLegendInset());
+					tableRTags.put("legend_ncol",	job.getLegendNcol());
+					tableRTags.put("box_boxwex",	job.getBoxBoxwex());
+					tableRTags.put("box_notch",		job.getBoxNotch());
+					tableRTags.put("ci_alpha",		job.getCIAlpha());
+					
+					int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));
+					int intNumDep2Series = intNumDep2 * (intNumSeries2Perm + (job.getPlot2Diff()? 1 : 0));
+					int intNumDepSeries = intNumDep1Series + intNumDep2Series;
+					
+					tableRTags.put("plot_ci",	job.getPlotCI().equals("")? printRCol( rep("none", intNumDepSeries) )	: job.getPlotCI());
+					tableRTags.put("colors",	job.getColors().equals("")?	"rainbow(" + intNumDepSeries + ")"		: job.getColors());
+					tableRTags.put("pch",		job.getPch().equals("")?	printRCol( rep(20, intNumDepSeries) )	: job.getPch());
+					tableRTags.put("type",		job.getType().equals("")?	printRCol( rep("b",	intNumDepSeries) )	: job.getType());
+					tableRTags.put("lty",		job.getLty().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLty());
+					tableRTags.put("lwd",		job.getLwd().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLwd());
+					tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
+					tableRTags.put("y1_bufr",	job.getY1Bufr());
+					tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()" : job.getY2Lim());
+					tableRTags.put("y2_bufr",	job.getY2Bufr());
+					
+					
+					/*
+					 *  Read the template in, replacing the appropriate tags with generated R code
+					 */
+	
+					populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
+		
+					
+					/*
+					 *  Attempt to run the generated R script
+					 */			
+	
+					if( _boolPlot ){
+						runRscript(strRFile);
+					}
+					
+				} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
+	
+				//  try to throw memory back onto the heap
+				res = null;
+				tab.clear();
+				tab = null;
+				//System.gc();
+				
+			} // end: for(int intDep=0; intDep < listDep.length; intDep++)
+		
+		} // end: for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++)
 
 	}
 		
@@ -1168,39 +1215,13 @@ public class MVBatch extends MVUtil {
 	public static void runRscript(String r) throws Exception{ runRscript(r, new String[]{}); }
 	
 	/**
-	 * Prints a textual representation of the input {@link ResultSet} with the column names in the 
-	 * first row to the specified {@link PrintStream} destination.  
-	 * @param res The ResultSet to print
-	 * @param str The stream to write the formatted results to (defaults to System.out)
-	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
-	 * @throws SQLException
-	 */
-	public static void printFormattedResults(ResultSet res, PrintStream str, String delim) throws SQLException{
-		ResultSetMetaData met = res.getMetaData();
-
-		for(int i=1; i < met.getColumnCount()+1; i++){
-			String strField = (delim.equals(" ")? padEnd(met.getColumnName(i)) : (1 < i? delim : "") + met.getColumnName(i));
-			str.print( strField );
-		}
-		str.println();					
-		while( res.next() ){
-			for(int i=1; i < met.getColumnCount()+1; i++){
-				String strVal = (delim.equals(" ")? padEnd(res.getString(i)) : (1 < i? delim : "") + res.getString(i));
-				str.print( strVal );
-			}
-			str.println();
-		}
-	}
-	public static void printFormattedResults(ResultSet res) throws SQLException{ printFormattedResults(res, System.out, " "); }
-	
-	/**
 	 * Prints a textual representation of the input {@link MVDataTable} with the field names in the 
 	 * first row to the specified {@link PrintStream} destination.  
 	 * @param res The MVDataTable to print
 	 * @param str The stream to write the formatted results to (defaults to System.out)
 	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
 	 */
-	public static void printFormattedResults(MVDataTable tab, PrintStream str, String delim){
+	public static void printFormattedTable(MVDataTable tab, PrintStream str, String delim){
 		String[] fields = tab.getFields();
 		int[] intFieldWidths = new int[tab.getNumFields()];
 		for(int i=0; i < fields.length; i++){
@@ -1221,7 +1242,7 @@ public class MVBatch extends MVUtil {
 			str.println();
 		}
 	}
-	public static void printFormattedResults(MVDataTable tab){ printFormattedResults(tab, System.out, " "); }
+	public static void printFormattedTable(MVDataTable tab){ printFormattedTable(tab, System.out, " "); }
 
 	public static String formatSQLConstraint(String value){
 		String strRet = " = '" + value + "'";
@@ -1230,6 +1251,22 @@ public class MVBatch extends MVUtil {
 		if( matBetween.matches() ){ strRet = " " + value; }
 		
 		return strRet;
+	}
+
+	public static MVDataTable getUniqueModeObjRows(MVDataTable table, String field, String objPattern){
+		final String strField = field;
+		final String strObjPattern = objPattern;
+		final MVOrderedMap mapObjRow = new MVOrderedMap();
+		return table.getRows(
+				new MVRowComp(){
+					public boolean equals(MVOrderedMap row){
+						String strSimpFcstVal = row.getStr("fcst_valid") + "#" + row.getStr(strField);
+						if( !row.getStr(strField).matches(strObjPattern) || mapObjRow.containsKey(strSimpFcstVal) ){ return false; }
+						mapObjRow.put(strSimpFcstVal, "TRUE");
+						return true;
+					}
+				}
+		);
 	}
 	
 	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'[^']+'\\s+and\\s+'[^']+'\\s*");
@@ -1291,15 +1328,16 @@ public class MVBatch extends MVUtil {
 	public static final Hashtable _tableModeStatIndex = new Hashtable();
 	static{
 		_tableModeStatIndex.put("ACOV",		"0");
-		_tableModeStatIndex.put("MMI", 		"1");
-		_tableModeStatIndex.put("PERC", 	"2");
-		_tableModeStatIndex.put("MIA", 		"3");
-		_tableModeStatIndex.put("MAR", 		"4");
-		_tableModeStatIndex.put("MCD", 		"5");
-		_tableModeStatIndex.put("MAD", 		"6");
-		_tableModeStatIndex.put("P50", 		"7");
-		_tableModeStatIndex.put("P90", 		"8");
-		_tableModeStatIndex.put("MMIFO",	"9");
+		_tableModeStatIndex.put("PERC", 	"1");
+		_tableModeStatIndex.put("MIA", 		"2");
+		_tableModeStatIndex.put("MAR", 		"3");
+		_tableModeStatIndex.put("MCD", 		"4");
+		_tableModeStatIndex.put("MAD", 		"5");
+		_tableModeStatIndex.put("P50", 		"6");
+		_tableModeStatIndex.put("P90", 		"7");
+		_tableModeStatIndex.put("MMI", 		"8");
+		_tableModeStatIndex.put("MMIF",		"9");
+		_tableModeStatIndex.put("MMIO",		"10");
 	}
 	
 	public static final Hashtable _tableStatLine = new Hashtable();

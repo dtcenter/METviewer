@@ -222,7 +222,7 @@
 		<x2lab_offset>-.5</x2lab_offset>
 		<x2lab_align>.5</x2lab_align>
 		<y2tlab_orient>1</y2tlab_orient>
-		<yt2lab_perp>.5</yt2lab_perp>
+		<y2tlab_perp>.5</y2tlab_perp>
 		<y2tlab_horiz>.5</y2tlab_horiz>
 		<y2lab_weight>1</y2lab_weight>
 		<y2lab_size>1</y2lab_size>

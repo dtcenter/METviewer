@@ -103,6 +103,13 @@ public class MVDataTable{
 		return (MVOrderedMap)_listRows.get(row);
 	}
 	
+	public String getStr(String field, int row){
+		if( 0 > row || _listRows.size() - 1 < row || !_listFields.contains(field) ){ return null; }
+		return ((MVOrderedMap)_listRows.get(row)).getStr(field);
+	}
+	public double getDbl(String field, int row){ return Double.parseDouble(getStr(field, row)); }
+	public double getInt(String field, int row){ return Integer.parseInt(getStr(field, row));   }
+	
 	/**
 	 * Accessor for individual columns
 	 */
@@ -352,6 +359,21 @@ public class MVDataTable{
 	
 	public void clear(){
 		for(int i=0; i < _listRows.size(); i++){ ((MVOrderedMap)_listRows.get(i)).clear(); }
-		_listRows.clear();
+		_listRows.clear();		
 	}
+	
+	public void sort(String field, boolean desc){
+		final String strField = field;
+		final boolean boolDesc = desc;
+		MVOrderedMap[] listRows = getRows();
+		Arrays.sort(listRows, new MVRowComp(){
+			public int compare(MVOrderedMap row1, MVOrderedMap row2){
+				if( boolDesc ){	return row1.getStr(strField).compareTo(row2.getStr(strField)); }
+				else          {	return row2.getStr(strField).compareTo(row1.getStr(strField)); }
+			}
+		});
+		_listRows.clear();
+		_listRows.addAll(Arrays.asList(listRows));
+	}
+	public void sort(String field){ sort(field, true); }
 }

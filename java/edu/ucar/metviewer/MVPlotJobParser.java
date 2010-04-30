@@ -192,6 +192,50 @@ public class MVPlotJobParser extends MVUtil{
 				job.setIndyLabel(listIndyLabel);
 			}
 			
+			//  <plot_fix>
+			else if( node._tag.equals("plot_fix") ){
+				
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeFix = node._children[j];	
+
+					//  <remove> and <clear>
+					if     ( nodeFix._tag.equals("remove") ){		job.removePlotFixVal(nodeFix._name);	continue;	}
+					else if( nodeFix._tag.equals("clear") ) {		job.clearPlotFixVal();					continue;	}
+					
+					//  <field>
+					String[] listFixVal = new String[nodeFix._children.length];
+					MVOrderedMap mapAggVal = new MVOrderedMap();
+					MVOrderedMap mapTmplVal = new MVOrderedMap();
+					for(int k=0; k < nodeFix._children.length; k++){
+						MVNode nodeChild = nodeFix._children[k];
+						
+						//  <val>
+						if( nodeChild._tag.equals("val") ){ listFixVal[k] = nodeChild._value; }
+						
+						//  <set>
+						else if( nodeChild._tag.equals("set") ){
+							String[] listAggSet = new String[nodeChild._children.length];
+							for(int l=0; l < nodeChild._children.length; l++){ listAggSet[l] = nodeChild._children[l]._value; }
+							mapAggVal.put(nodeChild._name, listAggSet);
+						}
+						
+						//  <date_list>
+						else if( nodeChild._tag.equals("date_list") ){
+							listFixVal = (String[])_tableDateListDecl.get(nodeChild._name);							
+						}
+						
+						//  <date_range>
+						else if( nodeChild._tag.equals("date_range") ){
+							String strDateRangeVal = _tableDateRangeDecl.get(nodeChild._name).toString(); 
+							listFixVal[k] = strDateRangeVal;
+							mapTmplVal.put(strDateRangeVal, nodeChild._name);							
+						}
+					}
+					job.addPlotFixVal(nodeFix._name, listFixVal);
+					if( 0 < mapTmplVal.size() ){ job.addTmplMap(nodeFix._name, mapTmplVal); }
+				}
+			}
+			
 			//  <series1> or <series2>
 			else if( node._tag.equals("series1") || node._tag.equals("series2") ){
 				for(int j=0; j < node._children.length; j++){
@@ -513,7 +557,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("x2lab_offset",	MVPlotJob.class.getDeclaredMethod("setX2labOffset",	new Class[]{String.class}));
 			_tableFormatString.put("x2lab_align",	MVPlotJob.class.getDeclaredMethod("setX2labAlign",	new Class[]{String.class}));
 			_tableFormatString.put("y2tlab_orient",	MVPlotJob.class.getDeclaredMethod("setY2tlabOrient",new Class[]{String.class}));
-			_tableFormatString.put("yt2lab_perp",	MVPlotJob.class.getDeclaredMethod("setY2tlabPerp",	new Class[]{String.class}));
+			_tableFormatString.put("y2tlab_perp",	MVPlotJob.class.getDeclaredMethod("setY2tlabPerp",	new Class[]{String.class}));
 			_tableFormatString.put("y2tlab_horiz",	MVPlotJob.class.getDeclaredMethod("setY2tlabHoriz",	new Class[]{String.class}));
 			_tableFormatString.put("y2lab_weight",	MVPlotJob.class.getDeclaredMethod("setY2labWeight",	new Class[]{String.class}));
 			_tableFormatString.put("y2lab_size",	MVPlotJob.class.getDeclaredMethod("setY2labSize",	new Class[]{String.class}));

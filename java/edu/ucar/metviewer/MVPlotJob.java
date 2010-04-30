@@ -13,6 +13,8 @@ public class MVPlotJob extends MVUtil{
 	protected String[] _listIndyVal			= {};
 	protected String[] _listIndyLabel		= {};
 	
+	protected MVOrderedMap _mapPlotFixVal	= new MVOrderedMap();
+	
 	protected MVOrderedMap[] _listDepGroup	= {};
 	
 	protected MVOrderedMap _mapSeries1Val	= new MVOrderedMap();
@@ -131,6 +133,7 @@ public class MVPlotJob extends MVUtil{
 		job._strIndyVar			= _strIndyVar;
 		job._listIndyVal		= copyList(_listIndyVal);
 		job._listIndyLabel		= copyList(_listIndyLabel);
+		job._mapPlotFixVal		= new MVOrderedMap(_mapPlotFixVal);
 		job._listDepGroup		= copyList(_listDepGroup);		
 		job._mapSeries1Val		= new MVOrderedMap(_mapSeries1Val);
 		job._mapSeries2Val		= new MVOrderedMap(_mapSeries2Val);
@@ -245,6 +248,12 @@ public class MVPlotJob extends MVUtil{
 	public void		setIndyVal(String[] indyVal)						{ _listIndyVal = indyVal;								}
 	public String[]	getIndyLabel()										{ return _listIndyLabel;								}
 	public void		setIndyLabel(String[] indyLabel)					{ _listIndyLabel = indyLabel;							}
+	
+	public MVOrderedMap getPlotFixVal()									{ return _mapPlotFixVal;								}
+	public void addPlotFixVal(String field, String[] vals, int index)	{ _mapPlotFixVal.put(field, vals, index);				}
+	public void addPlotFixVal(String field, String[] vals)				{ addPlotFixVal(field, vals, _mapPlotFixVal.size());	}
+	public void removePlotFixVal(String field)							{ _mapPlotFixVal.remove(field);							}
+	public void clearPlotFixVal()										{ _mapPlotFixVal = new MVOrderedMap();					}
 	
 	public MVOrderedMap[] getDepGroups()								{ return _listDepGroup;									}
 	public void addDepGroup(MVOrderedMap depGroup){
