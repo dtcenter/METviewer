@@ -366,13 +366,13 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeAgg._tag.equals("clear") ) {		job.clearAggVal();						continue;	}
 					
 					//  <field>
-					String[] listAggVal = new String[nodeAgg._children.length];
+					ArrayList listAggVal = new ArrayList();
 					MVOrderedMap mapAggVal = new MVOrderedMap();
 					for(int k=0; k < nodeAgg._children.length; k++){
 						MVNode nodeChild = nodeAgg._children[k];
 						
 						//  <val>
-						if( nodeChild._tag.equals("val") ){ listAggVal[k] = nodeChild._value; }
+						if( nodeChild._tag.equals("val") ){ listAggVal.add(nodeChild._value); }
 						
 						//  <set>
 						else if( nodeChild._tag.equals("set") ){
@@ -383,10 +383,10 @@ public class MVPlotJobParser extends MVUtil{
 						
 						//  <date_list>
 						else if( nodeChild._tag.equals("date_list") ){
-							listAggVal = (String[])_tableDateListDecl.get(nodeChild._name);							
+							listAggVal.addAll(Arrays.asList( (String[])_tableDateListDecl.get(nodeChild._name) ));							
 						}
 					}
-					job.addAggVal(nodeAgg._name, listAggVal);
+					job.addAggVal(nodeAgg._name, (String[])listAggVal.toArray(new String[]{}));
 				}
 			}
 			

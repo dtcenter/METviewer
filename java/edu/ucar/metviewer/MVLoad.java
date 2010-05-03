@@ -23,7 +23,7 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolStatHeaderTableCheck	= true;
 	public static boolean _boolStatHeaderDBCheck	= false;
 	public static boolean _boolModeHeaderDBCheck	= true;
-	public static boolean _boolDropIndexes			= false;
+	public static boolean _boolDropIndexes			= true;
 	public static boolean _boolApplyIndexes			= true;
 	
 	public static DecimalFormat _formatPerf		= new DecimalFormat("0.000");
@@ -148,7 +148,7 @@ public class MVLoad extends MVUtil {
 				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
 			});
 			mapLoadVar.put("date", listDates);
-			mapLoadVar.put("data_type", new String[]{"mode", "grid_stat", "point_stat"});
+			mapLoadVar.put("data_type", new String[]{"mode"/*, "grid_stat", "point_stat"*/});
 
 			/*
 			mapLoadVar.put("model", new String[] {"ens-mean"});
@@ -687,9 +687,10 @@ public class MVLoad extends MVUtil {
 			
 			//  calculate the number of seconds corresponding to fcst_lead
 			String strFcstLead = listToken[2];
-			int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(4,6));
-			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(2,4)) * 60;
-			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0,2)) * 3600;
+			int intFcstLeadLen = strFcstLead.length();
+			int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(intFcstLeadLen-2, intFcstLeadLen));
+			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(intFcstLeadLen-4, intFcstLeadLen-2)) * 60;
+			intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0, intFcstLeadLen-4)) * 3600;
 			
 			//  determine the init time by combining fcst_valid_beg and fcst_lead
 			Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -1037,6 +1038,7 @@ public class MVLoad extends MVUtil {
 	
 	public static final Hashtable _tableIndexes = new Hashtable();
 	static{
+		/*
 		_tableIndexes.put("stat_header_model_idx",			"model");
 		_tableIndexes.put("stat_header_fcst_var_idx",		"fcst_var");
 		_tableIndexes.put("stat_header_fcst_lev_idx",		"fcst_lev");
@@ -1045,6 +1047,7 @@ public class MVLoad extends MVUtil {
 		_tableIndexes.put("stat_header_interp_mthd_idx",	"interp_mthd");
 		_tableIndexes.put("stat_header_fcst_init_beg_idx",	"fcst_init_beg");
 		_tableIndexes.put("stat_header_fcst_valid_beg_idx",	"fcst_valid_beg");
+		*/
 		_tableIndexes.put("mode_header_model_idx",			"model");
 		_tableIndexes.put("mode_header_fcst_var_idx",		"fcst_var");
 		_tableIndexes.put("mode_header_fcst_lev_idx",		"fcst_lev");
