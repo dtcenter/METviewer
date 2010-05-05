@@ -676,7 +676,6 @@ public class MVPlotJobParser extends MVUtil{
 		String strStart = "";
 		String strEnd = "";
 		String strHour = "";
-		String strInc = "";
 		
 		for(int i=0; i < nodeDateList._children.length; i++){
 			MVNode nodeChild = nodeDateList._children[i];
@@ -684,7 +683,6 @@ public class MVPlotJobParser extends MVUtil{
 			else if( nodeChild._tag.equals("start") )	{ strStart = nodeChild._value; }
 			else if( nodeChild._tag.equals("end")   )	{ strEnd   = nodeChild._value; }
 			else if( nodeChild._tag.equals("hour")  )	{ strHour  = nodeChild._value; }			
-			else if( nodeChild._tag.equals("inc")   )	{ strInc   = nodeChild._value; }			
 		}
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
