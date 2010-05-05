@@ -50,15 +50,9 @@ public class MVUtil{
 		}
 		return (String[])listDates.toArray(new String[]{});
 	}
-	public static String[] buildDateAggList(Connection con, String field, String begin, String end){
-		return buildDateAggList(con, field, begin, end, "");
-	}
-	public static String[] buildDateAggList(Connection con, String field, String inithour){
-		return buildDateAggList(con, field, "", "", inithour);
-	}
-	public static String[] buildDateAggList(Connection con, String field){
-		return buildDateAggList(con, field, "", "", "");
-	}
+	public static String[] buildDateAggList(Connection con, String field, String begin, String end){ return buildDateAggList(con, field, begin, end, "");   }
+	public static String[] buildDateAggList(Connection con, String field, String inithour)         { return buildDateAggList(con, field, "", "", inithour); }
+	public static String[] buildDateAggList(Connection con, String field)                          { return buildDateAggList(con, field, "", "", "");       }
 
 	/**
 	 * Build a list of strings representing consecutive dates between the input dates start and

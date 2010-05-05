@@ -73,10 +73,10 @@ public class MVLoad extends MVUtil {
 		_tableLineType.put("CTC",		new int[][]{ new int[]{1},	new int[]{4} });
 		_tableLineType.put("CTS",		new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{} });
 		_tableLineType.put("CNT",		new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{} });
-		_tableLineType.put("PCT",		new int[][]{ new int[]{4},	new int[]{5} });
-		_tableLineType.put("PSTD",		new int[][]{ new int[]{5},	new int[]{6},	new int[]{}, new int[]{}, new int[]{30} });
-		_tableLineType.put("PJC",		new int[][]{ new int[]{6},	new int[]{9} });
-		_tableLineType.put("PRC",		new int[][]{ new int[]{7},	new int[]{5} });
+		_tableLineType.put("PCT",		new int[][]{ new int[]{4},	new int[]{1} });
+		_tableLineType.put("PSTD",		new int[][]{ new int[]{5},	new int[]{5},	new int[]{}, new int[]{}, new int[]{30} });
+		_tableLineType.put("PJC",		new int[][]{ new int[]{6},	new int[]{1} });
+		_tableLineType.put("PRC",		new int[][]{ new int[]{7},	new int[]{1} });
 		_tableLineType.put("SL1L2",		new int[][]{ new int[]{8},	new int[]{5} });
 		_tableLineType.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5} });
 		_tableLineType.put("VL1L2",		new int[][]{ new int[]{10},	new int[]{7} });
@@ -99,11 +99,19 @@ public class MVLoad extends MVUtil {
 	static {			
 		_tableStatGroupIndices.put("CTS",		new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{} });
 		_tableStatGroupIndices.put("CNT",		new int[][]{ new int[]{47, 48, 49, 50, 51}, new int[]{22, 27, 32, 37, 42, 52, 57}, new int[]{62, 65, 68, 71, 74, 77, 80, 83, 86, 89}, new int[]{} });
-		_tableStatGroupIndices.put("PSTD",		new int[][]{ new int[]{22, 23, 24, 25, 26, 30}, new int[]{}, new int[]{}, new int[]{27} });
+		_tableStatGroupIndices.put("PSTD",		new int[][]{ new int[]{22, 23, 24, 25, 26}, new int[]{}, new int[]{}, new int[]{27} });
 		_tableStatGroupIndices.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{} });
 		_tableStatGroupIndices.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{} });
 	}
 
+	public static final Hashtable _tableThreshGroupIndices = new Hashtable(); 
+	static {			
+		_tableThreshGroupIndices.put("PCT",  new int[]{23});
+		_tableThreshGroupIndices.put("PSTD", new int[]{30});
+		_tableThreshGroupIndices.put("PJC",	 new int[]{23});
+		_tableThreshGroupIndices.put("PRC",  new int[]{23});
+	}
+	
 	public static void main(String[] argv) {
 		System.out.println("----  MVLoad  ----\n");
 		Connection con = null;
@@ -414,6 +422,7 @@ public class MVLoad extends MVUtil {
 			int[][] listLineTypeInfo = (int[][])_tableLineType.get(strLineType);
 			int intNumLineDataFields = listLineTypeInfo[1][0];
 			boolean boolHasStatGroups = _tableStatGroupIndices.containsKey(strLineType);
+			boolean boolHasThreshGroups = _tableThreshGroupIndices.containsKey(strLineType);
 			int[][] listStatGroupIndices = null;
 			int[] listLineDataIndices = null;
 			
@@ -520,13 +529,14 @@ public class MVLoad extends MVUtil {
 					listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 				}
 			}
+			
+			
+			/*
+			 * * * *  stat_header commit  * * * * 
+			 */			
 
 			//  if the insert flag it true, insert all of the line_data values and stat_group values 
 			if( _intInsertSize <= listInsertValues.size() || (0 < listInsertValues.size() && !reader.ready()) ){
-				
-				/*
-				 * * * *  stat_header commit  * * * * 
-				 */
 				
 				//  build and execute the stat header insert statement, if the list length has reached the insert size or the end of the file
 				String strValueList = "";

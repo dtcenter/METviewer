@@ -291,6 +291,36 @@ public class MVPlotJobParser extends MVUtil{
 					
 					//  <clear>
 					if( nodeDepN._tag.equals("clear") ){ job.clearDepGroups(); }
+
+					//  <mode_group>
+					else if( nodeDepN._tag.equals("mode_group") ){
+						ArrayList listModeGroup = new ArrayList();
+
+						String strDepN = "";
+						for(int k=0; k < nodeDepN._children.length; k++){
+							MVNode nodeDepNMode = nodeDepN._children[k];
+
+							//  <dep1> or <dep2>
+							if( nodeDepNMode._tag.startsWith("dep") ){
+								MVOrderedMap mapDepNMode = new MVOrderedMap();
+								strDepN = nodeDepNMode._tag;
+								
+								//  <fcst_var>
+								for(int l=0; l < nodeDepNMode._children.length; l++){
+									MVNode nodeFcstVar = nodeDepNMode._children[l];					
+									ArrayList listStats = new ArrayList();
+									
+									//  <stat>s
+									for(int m=0; m < nodeFcstVar._children.length; m++){
+										listStats.add(nodeFcstVar._children[m]._value);
+									}
+									mapDepNMode.put(nodeFcstVar._name, listStats.toArray(new String[]{}));
+								}
+								listModeGroup.add(mapDepNMode);
+							}
+						}
+						mapDep.put(strDepN, (MVOrderedMap[])listModeGroup.toArray(new MVOrderedMap[]{}));						
+					}
 					
 					//  <dep1> or <dep2>
 					else if( nodeDepN._tag.startsWith("dep") ){
@@ -646,13 +676,15 @@ public class MVPlotJobParser extends MVUtil{
 		String strStart = "";
 		String strEnd = "";
 		String strHour = "";
+		String strInc = "";
 		
 		for(int i=0; i < nodeDateList._children.length; i++){
 			MVNode nodeChild = nodeDateList._children[i];
 			if     ( nodeChild._tag.equals("field") )	{ strField = nodeChild._name;  }
 			else if( nodeChild._tag.equals("start") )	{ strStart = nodeChild._value; }
-			else if( nodeChild._tag.equals("end")   )	{ strEnd = nodeChild._value;   }
-			else if( nodeChild._tag.equals("hour")  )	{ strHour = nodeChild._value;  }			
+			else if( nodeChild._tag.equals("end")   )	{ strEnd   = nodeChild._value; }
+			else if( nodeChild._tag.equals("hour")  )	{ strHour  = nodeChild._value; }			
+			else if( nodeChild._tag.equals("inc")   )	{ strInc   = nodeChild._value; }			
 		}
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
