@@ -98,8 +98,11 @@ public class MVBatch extends MVUtil {
 						}
 					}
 				}
-								
 				String[] listJobNames = mapJobs.keyList();
+				if( 0 < listJobNamesInput.size() ){
+					listJobNames = (String[])listJobNamesInput.toArray(new String[]{});
+				}
+								
 				System.out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
 				for(int i=0; i < listJobNames.length; i++){
 					System.out.println("  " + listJobNames[i]);
