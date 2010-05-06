@@ -12,6 +12,9 @@ import org.apache.xerces.parsers.*;
 
 public class MVPlotJobParser extends MVUtil{
 	
+	protected MVPlotJob[] _listJobs = {};
+	protected MVOrderedMap _mapJobs = new MVOrderedMap();
+	
 	protected Hashtable _tableDateListDecl = new Hashtable();
 	protected Hashtable _tableDateRangeDecl = new Hashtable();
 	protected Hashtable _tablePlotDecl = new Hashtable();
@@ -77,13 +80,17 @@ public class MVPlotJobParser extends MVUtil{
 		//  parse the input document and build the MVNode data structure
 		Document doc = builder.parse(spec);
 		_nodePlotSpec = new MVNode(doc.getFirstChild());
+		parsePlotJobSpec();
 	}
+	
+	public MVPlotJob[] getJobsList(){ return _listJobs; }
+	public MVOrderedMap getJobsMap(){ return _mapJobs; }
 	
 	public String getRtmplFolder(){ return _strRtmplFolder; }
 	public String getRworkFolder(){ return _strRworkFolder; }
 	public String getPlotsFolder(){ return _strPlotsFolder; }
 	
-	public MVPlotJob[] parsePlotJobSpec(){
+	protected void parsePlotJobSpec(){
 		ArrayList listJobs = new ArrayList();
 		
 		for(int i=0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++){
@@ -148,7 +155,7 @@ public class MVPlotJobParser extends MVUtil{
 				//  make sure the database connection has been established
 				if( _con == null ){
 					System.out.println("  **  ERROR: database connection missing for plot " + node._name);
-					return new MVPlotJob[]{};
+					return;
 				}
 				
 				//  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs 
@@ -157,12 +164,14 @@ public class MVPlotJobParser extends MVUtil{
 				MVPlotJob job = parsePlotJob(node, jobBase);
 				job.setConnection(_con);
 				_tablePlotDecl.put(node._name, job);
-				if( checkJobCompleteness(job) )	{ listJobs.add( job ); }
-				//else							{ System.out.println("  **  WARNING: incomplete job " + node._name); }
+				if( checkJobCompleteness(job) )	{
+					if( !node._run.equalsIgnoreCase("false") ){ _mapJobs.put(node._name, job); }
+					listJobs.add( job );
+				}
 			}
 		}
 		
-		return (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
+		_listJobs = (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
 	}
 	
 	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase){
@@ -203,35 +212,37 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeFix._tag.equals("clear") ) {		job.clearPlotFixVal();					continue;	}
 					
 					//  <field>
-					String[] listFixVal = new String[nodeFix._children.length];
-					MVOrderedMap mapAggVal = new MVOrderedMap();
+					ArrayList listFixVal = new ArrayList();
+					MVOrderedMap mapFixVal = new MVOrderedMap();
 					MVOrderedMap mapTmplVal = new MVOrderedMap();
 					for(int k=0; k < nodeFix._children.length; k++){
 						MVNode nodeChild = nodeFix._children[k];
 						
 						//  <val>
-						if( nodeChild._tag.equals("val") ){ listFixVal[k] = nodeChild._value; }
+						if( nodeChild._tag.equals("val") ){ listFixVal.add(nodeChild._value); }
 						
 						//  <set>
 						else if( nodeChild._tag.equals("set") ){
 							String[] listAggSet = new String[nodeChild._children.length];
 							for(int l=0; l < nodeChild._children.length; l++){ listAggSet[l] = nodeChild._children[l]._value; }
-							mapAggVal.put(nodeChild._name, listAggSet);
+							mapFixVal.put(nodeChild._name, listAggSet);
 						}
 						
 						//  <date_list>
 						else if( nodeChild._tag.equals("date_list") ){
-							listFixVal = (String[])_tableDateListDecl.get(nodeChild._name);							
+							listFixVal.addAll( Arrays.asList((String[])_tableDateListDecl.get(nodeChild._name)) );
 						}
 						
 						//  <date_range>
 						else if( nodeChild._tag.equals("date_range") ){
 							String strDateRangeVal = _tableDateRangeDecl.get(nodeChild._name).toString(); 
-							listFixVal[k] = strDateRangeVal;
+							listFixVal.add(strDateRangeVal);
 							mapTmplVal.put(strDateRangeVal, nodeChild._name);							
 						}
 					}
-					job.addPlotFixVal(nodeFix._name, listFixVal);
+					if     ( 0 < listFixVal.size() ){ job.addPlotFixVal(nodeFix._name, (String[])listFixVal.toArray(new String[]{})); }
+					else if( 0 < mapFixVal.size() ) { job.addPlotFixVal(nodeFix._name, mapFixVal); }
+					
 					if( 0 < mapTmplVal.size() ){ job.addTmplMap(nodeFix._name, mapTmplVal); }
 				}
 			}
@@ -416,7 +427,8 @@ public class MVPlotJobParser extends MVUtil{
 							listAggVal.addAll(Arrays.asList( (String[])_tableDateListDecl.get(nodeChild._name) ));							
 						}
 					}
-					job.addAggVal(nodeAgg._name, (String[])listAggVal.toArray(new String[]{}));
+					if     ( 0 < listAggVal.size() ){ job.addAggVal(nodeAgg._name, (String[])listAggVal.toArray(new String[]{})); }
+					else if( 0 < mapAggVal.size() ) { job.addAggVal(nodeAgg._name, mapAggVal); }
 				}
 			}
 			

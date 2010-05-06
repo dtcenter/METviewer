@@ -5,6 +5,8 @@ import java.sql.Connection;
 
 public class MVPlotJob extends MVUtil{
 
+	protected String _strJobName			= "";
+	
 	protected Connection _con				= null;
 	
 	protected String _strPlotTmpl			= "";
@@ -128,6 +130,7 @@ public class MVPlotJob extends MVUtil{
 	public MVPlotJob copy(){
 		MVPlotJob job = new MVPlotJob();
 		
+		job._strJobName			= _strJobName + "_copy";		
 		job._con				= _con;		
 		job._strPlotTmpl		= _strPlotTmpl;		
 		job._strIndyVar			= _strIndyVar;
@@ -238,6 +241,8 @@ public class MVPlotJob extends MVUtil{
 		return job; 
 	}
 	
+	public String	getJobName()										{ return _strJobName;									}
+	public void		setJobName(String jobName)							{ _strJobName = jobName;								}	
 	public Connection getConnection()									{ return _con;											}
 	public void		setConnection(Connection con)						{ _con = con;											} 	
 	public String	getPlotTmpl()										{ return _strPlotTmpl;									}
@@ -252,6 +257,8 @@ public class MVPlotJob extends MVUtil{
 	public MVOrderedMap getPlotFixVal()									{ return _mapPlotFixVal;								}
 	public void addPlotFixVal(String field, String[] vals, int index)	{ _mapPlotFixVal.put(field, vals, index);				}
 	public void addPlotFixVal(String field, String[] vals)				{ addPlotFixVal(field, vals, _mapPlotFixVal.size());	}
+	public void addPlotFixVal(String field, MVOrderedMap sets, int index){ _mapPlotFixVal.put(field, sets, index);				}
+	public void addPlotFixVal(String field, MVOrderedMap sets)			{ addPlotFixVal(field, sets, _mapPlotFixVal.size());	}
 	public void removePlotFixVal(String field)							{ _mapPlotFixVal.remove(field);							}
 	public void clearPlotFixVal()										{ _mapPlotFixVal = new MVOrderedMap();					}
 	

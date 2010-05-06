@@ -1,6 +1,7 @@
 package edu.ucar.metviewer;
 
 import java.awt.*;
+import java.io.PrintStream;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.*;
@@ -560,6 +561,26 @@ public class MVUtil{
 	    else                   { return (m[intMiddle-1] + m[intMiddle]) / 2.0; }
 	}
 	public static double median(double[] m){ return median(m, INVALID_DATA); }
+	public static int median(int[] m, int def){
+		if( 1 > m.length ){ return def; }
+		Arrays.sort(m);
+	    int intMiddle = m.length / 2;
+	    if( 1 == m.length % 2 ){ return m[intMiddle]; }
+	    else                   { return (m[intMiddle-1] + m[intMiddle]) / 2; }
+	}
+	public static int median(int[] m){ return median(m, (int)INVALID_DATA); }
+	
+	public static int min(int[] m){
+		int intMin = Integer.MAX_VALUE;
+		for(int i=0; i < m.length; i++){ if( m[i] < intMin ){ intMin = m[i]; } }
+		return intMin;
+	}
+
+	public static int max(int[] m){
+		int intMax = Integer.MIN_VALUE;
+		for(int i=0; i < m.length; i++){ if( m[i] > intMax ){ intMax = m[i]; } }
+		return intMax;
+	}
 
 	public static String[]		toArray(ArrayList list)					{ return (String[])list.toArray(new String[]{});			}
 	
@@ -598,4 +619,55 @@ public class MVUtil{
 		String strList = matRCol.group(1);
 		return strList.split("\"\\s*,\\s*\"");
 	}
+	
+	public static class TxtProgBar{
+		
+		protected double _dblValue = 0;
+		protected double _dblMaxValue = 100;
+		protected int _intLength = 21;
+		protected PrintStream _str = System.out;
+		
+		public TxtProgBar(PrintStream str, double value, double maxValue, int length){
+			_str = str;
+			_dblValue = value;
+			_dblMaxValue = maxValue;
+			_intLength = (5 > length? 5 : (0 == length % 2 ? length + 1 : length));
+			
+			int intMid = _intLength / 2;
+			for(int i=0; i < _intLength; i++){
+//				if     ( 0 == i )              { _str.print("["); }
+//				else if( _intLength - 1 == i ) { _str.print("]"); }
+//				else if( intMid == i )         { _str.print("|"); }
+//				else                           { _str.print("-"); }
+				if     ( 0 == i )              { _str.print("\\"); }
+				else if( _intLength - 1 == i ) { _str.print("/"); }
+				else if( intMid == i )         { _str.print("|"); }
+				else                           { _str.print("_"); }
+			}
+			_str.println();
+		}
+		public TxtProgBar(double value, double maxValue, int length){ this(System.out, value, maxValue, length); }
+		public TxtProgBar(double maxValue, int length)              { this(System.out, 0, maxValue, length);     }
+		public TxtProgBar(double maxValue)                          { this(System.out, 0, maxValue, 21);         }
+		public TxtProgBar(int length)                               { this(System.out, 0, 100, length);          }
+		public TxtProgBar()                                         { this(System.out, 0, 100, 21);              }
+		
+		public void updateProgress(double value){
+			if( _dblValue > value ){ return; }
+
+			int intProgPrev = (int)Math.round( (_dblValue / _dblMaxValue) * (double)_intLength );
+			int intProgCur  = (int)Math.round( (value / _dblMaxValue) * (double)_intLength);
+			
+			int intMid = _intLength / 2;
+			for(int i=intProgPrev; i < intProgCur; i++){
+				if     ( 0 == i )              { _str.print(" "); }
+				else if( _intLength - 1 == i ) { _str.print(" "); }
+				else if( intMid == i )         { _str.print("#"); }
+				else                           { _str.print("#"); }
+			}
+			_dblValue = value;
+			//if( _intLength == intProgCur ){ _str.println(); }		
+		}
+	}
+
 }
