@@ -1,0 +1,524 @@
+
+<plot_spec>
+	
+	<!-- database connection -->
+	<connection>
+		<host>kemosabe:3306</host>
+		<database>metvdb_qnse2</database>
+		<user>pgoldenb</user>
+		<password>pgoldenb</password>		
+	</connection>
+	
+	<!-- file sytem -->
+	<folders>
+		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
+		<r_work>/d1/pgoldenb/var/qnse/R_work</r_work>
+		<plots>/d1/pgoldenb/var/qnse/plots</plots>
+	</folders>
+	
+	<!-- date ranges -->
+	<date_range name="year">
+		<start>2008-06-01</start>
+		<end>2009-06-02</end>
+	</date_range>	
+	<date_range name="summer">
+		<start>2008-06-01</start>
+		<end>2008-09-02</end>
+	</date_range>	
+	<date_range name="fall">
+		<start>2008-09-01</start>
+		<end>2008-12-02</end>
+	</date_range>	
+	<date_range name="winter">
+		<start>2008-12-01</start>
+		<end>2009-03-02</end>
+	</date_range>	
+	<date_range name="spring">
+		<start>2009-03-01</start>
+		<end>2009-06-02</end>
+	</date_range>	
+	
+	<!-- base plot template -->
+	<plot name="qnse_precip_thresh" run="false">
+	 	
+		<!-- plot type -->
+		<template>series_plot.R_tmpl</template>
+
+		<!-- series1 variables and values -->
+		<series1>
+			<field name="model">
+				<val>QNSE</val>			
+				<val>AFWAop</val>			
+			</field>		
+		</series1>
+		
+		<!-- series2 variables and values -->
+		<series2>
+			<field name="model">
+				<val>AFWAop</val>			
+			</field>		
+		</series2>
+		
+		<!-- aggregate fields and values		 -->		
+		<agg>
+<!--			<field name="inithour">-->
+<!--				<val>0</val>-->
+<!--				<val>12</val>-->
+<!--			</field>-->
+<!--			-->
+<!--			<field name="fcst_lead">-->
+<!--				<val>120000</val>-->
+<!--				<val>240000</val>-->
+<!--				<val>360000</val>-->
+<!--				<val>480000</val>-->
+<!--			</field>-->
+			
+			<field name="interp_mthd">
+				<val>UW_MEAN</val>
+			</field>
+			
+			<field name="vx_mask">
+				<val>FULL</val>
+<!--				<val>GMC</val>-->
+<!--				<val>NEC</val>-->
+<!--				<val>NWC</val>-->
+<!--				<val>SEC</val>-->
+<!--				<val>SWC</val>-->
+<!--				<val>APL</val>-->
+<!--				<val>GRB</val>-->
+<!--				<val>LMV</val>-->
+<!--				<val>MDW</val>-->
+<!--				<val>NMT</val>-->
+<!--				<val>NPL</val>-->
+<!--				<val>SMT</val>-->
+<!--				<val>SPL</val>-->
+<!--				<val>SWD</val>-->
+			</field>
+		</agg>
+		
+		<!-- templates -->
+		<tmpl>
+			<data_file>{season}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{inithour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.data</data_file>
+			<plot_file>{season}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{inithour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.png</plot_file>
+			<r_file>{season}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{inithour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.R</r_file>
+			<title>{dep1_1} {dep1_1_stat1} {vx_mask} {inithour?format=HH}Zf{fcst_lead?format=HH} {interp_mthd} vs. FCST_THRESH</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1} {dep1_1_stat1} {vx_mask} {inithour?format=HH}Zf{fcst_lead?format=HH} {interp_mthd}</y1_label>
+			<y2_label>Adj Base Rate</y2_label>
+		</tmpl>
+		
+		<!-- plot formatting and options -->
+		<grid_on>true</grid_on>
+		<event_equal>true</event_equal>
+		<indy1_stag>true</indy1_stag>
+		<dump_points1>true</dump_points1>
+
+		<mar>c(7, 5, 4, 4)</mar>
+		<plot_type>png16m</plot_type>
+		<ci_alpha>.01</ci_alpha>
+		
+		<mgp>c(1, 1.2, 0)</mgp>
+		<cex>.8</cex>
+		<title_weight>2</title_weight>
+		<title_size>1.2</title_size>
+		<title_offset>-.4</title_offset>
+		<title_align>.5</title_align>
+		<xtlab_orient>1</xtlab_orient>
+		<xtlab_perp>-.75</xtlab_perp>
+		<xtlab_horiz>.5</xtlab_horiz>
+		<xlab_weight>2</xlab_weight>
+		<xlab_size>1</xlab_size>
+		<xlab_offset>1.6</xlab_offset>
+		<xlab_align>.5</xlab_align>
+		<ytlab_orient>1</ytlab_orient>
+		<ytlab_perp>.5</ytlab_perp>
+		<ytlab_horiz>.5</ytlab_horiz>
+		<tlab_weight>2</tlab_weight>
+		<ylab_size>1</ylab_size>
+		<ylab_offset>-2.5</ylab_offset>
+		<ylab_align>.5</ylab_align>
+		<grid_lty>3</grid_lty>
+		<grid_col>#CCCCCC</grid_col>
+		<grid_lwd>1</grid_lwd>
+		<grid_x>listX</grid_x>
+		<x2tlab_orient>1</x2tlab_orient>
+		<x2tlab_perp>1</x2tlab_perp>
+		<x2tlab_horiz>.5</x2tlab_horiz>
+		<x2lab_weight>1</x2lab_weight>
+		<x2lab_size>.8</x2lab_size>
+		<x2lab_offset>-.7</x2lab_offset>
+		<x2lab_align>.5</x2lab_align>
+		<y2tlab_orient>1</y2tlab_orient>
+		<y2tlab_perp>.5</y2tlab_perp>
+		<y2tlab_horiz>.5</y2tlab_horiz>
+		<y2lab_weight>1</y2lab_weight>
+		<y2lab_size>1</y2lab_size>
+		<y2lab_offset>1.5</y2lab_offset>
+		<y2lab_align>.5</y2lab_align>
+		<legend_size>1</legend_size>
+		<legend_box>o</legend_box>
+		<legend_inset>c(0, -.15)</legend_inset>
+		<legend_ncol>2</legend_ncol>
+		
+		<bootstrapping>
+			<boot_repl>1000</boot_repl>
+			<boot_ci>bca</boot_ci>
+			<boot_diff1>TRUE</boot_diff1>
+		</bootstrapping>
+		
+		<plot_ci>c("boot", "boot", "boot", "none")</plot_ci>
+		<colors>c("#FF0000FF", "#00FF00FF", "#0000FFFF", "#AAAAAAFF")</colors>
+		<pch>c(20, 20, 20, 20)</pch>
+		<type>c("b", "b", "b", "l")</type>
+		<lty>c(3, 3, 3, 1)</lty>
+		<lwd>c(1.5, 1.5, 1.5, 1)</lwd>
+
+		<y2_lim>c(0,.5)</y2_lim>
+		<y2_bufr>0</y2_bufr>
+		
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report1" inherits="qnse_precip_thresh">
+		<indep name="fcst_thresh">
+			<val label=">0.01">>0.254</val>
+			<val label=">0.02">>0.508</val>
+			<val label=">0.05">>1.270</val>
+			<val label=">0.1">>2.540</val>
+			<val label=">0.15">>3.810</val>
+			<val label=">0.25">>6.350</val>
+			<val label=">0.35">>8.890</val>
+			<val label=">0.5">>12.700</val>
+			<val label=">1">>25.400</val>
+		</indep>	
+
+		<agg>
+			<field name="inithour">
+				<val>0</val>
+				<val>12</val>
+			</field>
+			
+			<field name="fcst_lead">
+				<val>120000</val>
+				<val>360000</val>
+			</field>
+		</agg>
+		
+		<dep>
+			<dep1><fcst_var name="APCP_03"><stat>GSS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_03">
+					<var name="fcst_lev">A3</var>
+					<var name="initdate"><date_range id="season" name="year"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+		
+		<y1_lim>c(-.05,.3)</y1_lim>
+	</plot>
+ 		
+	<!-- 
+	<plot name="qnse_precip_thresh_report2" inherits="qnse_precip_thresh" run="false">
+		<indep name="fcst_thresh">
+			<val label=">0.01">>0.254</val>
+			<val label=">0.02">>0.508</val>
+			<val label=">0.05">>1.270</val>
+			<val label=">0.1">>2.540</val>
+			<val label=">0.15">>3.810</val>
+			<val label=">0.25">>6.350</val>
+			<val label=">0.35">>8.890</val>
+			<val label=">0.5">>12.700</val>
+			<val label=">1">>25.400</val>
+		</indep>	
+
+		<agg>
+			<field name="inithour">
+				<val>0</val>
+			</field>
+			
+			<field name="fcst_lead">
+				<val>120000</val>
+				<val>240000</val>
+			</field>
+		</agg>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report3" inherits="qnse_precip_thresh_report2">
+		<dep>
+			<dep1><fcst_var name="APCP_03"><stat>GSS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_03">
+					<var name="fcst_lev">A3</var>
+					<var name="initdate"><date_range id="season" name="summer"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report4" inherits="qnse_precip_thresh_report2">
+		<dep>
+			<dep1><fcst_var name="APCP_03"><stat>GSS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_03">
+					<var name="fcst_lev">A3</var>
+					<var name="initdate"><date_range id="season" name="winter"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report5" inherits="qnse_precip_thresh" run="false">
+		<indep name="fcst_thresh">
+			<val label=">0.01">>0.254</val>
+			<val label=">0.02">>0.508</val>
+			<val label=">0.05">>1.270</val>
+			<val label=">0.1">>2.540</val>
+			<val label=">0.15">>3.810</val>
+			<val label=">0.25">>6.350</val>
+			<val label=">0.35">>8.890</val>
+			<val label=">0.5">>12.700</val>
+			<val label=">1">>25.400</val>
+		</indep>	
+
+		<agg>
+			<field name="inithour">
+				<val>0</val>
+			</field>
+			
+			<field name="fcst_lead">
+				<val>240000</val>
+			</field>
+		</agg>
+		
+		<bootstrapping>
+			<boot_repl>1000</boot_repl>
+			<boot_ci>bca</boot_ci>
+			<boot_diff1>FALSE</boot_diff1>
+		</bootstrapping>
+		
+		<plot_ci>c("boot", "boot", "none")</plot_ci>
+		<colors>c("#FF0000FF", "#0000FFFF", "#AAAAAAFF")</colors>
+		<pch>c(20, 20, 20)</pch>
+		<type>c("b", "b", "l")</type>
+		<lty>c(3, 3, 1)</lty>
+		<lwd>c(1.5, 1.5, 1)</lwd>
+		
+		<y1_lim>c(0,3)</y1_lim>
+		
+		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report6" inherits="qnse_precip_thresh_report5">
+		<dep>
+			<dep1><fcst_var name="APCP_03"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_03">
+					<var name="fcst_lev">A3</var>
+					<var name="initdate"><date_range id="season" name="year"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report7" inherits="qnse_precip_thresh_report5">
+		<dep>
+			<dep1><fcst_var name="APCP_03"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_03">
+					<var name="fcst_lev">A3</var>
+					<var name="initdate"><date_range id="season" name="summer"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>		
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report8" inherits="qnse_precip_thresh_report5">
+		<dep>
+			<dep1><fcst_var name="APCP_03"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_03">
+					<var name="fcst_lev">A3</var>
+					<var name="initdate"><date_range id="season" name="winter"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report9" inherits="qnse_precip_thresh" run="false">
+		<indep name="fcst_thresh">
+			<val label=">0.01">>0.254</val>
+			<val label=">0.25">>6.350</val>
+			<val label=">0.5">>12.700</val>
+			<val label=">0.75">>19.050</val>
+			<val label=">1">>25.400</val>
+			<val label=">1.25">>31.750</val>
+			<val label=">1.5">>38.100</val>
+			<val label=">2">>50.800</val>
+			<val label=">3">>76.200</val>
+		</indep>	
+		
+		<agg>
+			<field name="inithour">
+				<val>0</val>
+				<val>12</val>
+			</field>
+			
+			<field name="fcst_lead">
+				<val>240000</val>
+				<val>360000</val>
+			</field>
+		</agg>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report10" inherits="qnse_precip_thresh_report9">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>GSS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="year"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report11" inherits="qnse_precip_thresh_report9">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>GSS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="summer"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report12" inherits="qnse_precip_thresh_report9">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>GSS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="winter"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+ 		
+	<plot name="qnse_precip_thresh_report13" inherits="qnse_precip_thresh" run="false">		
+		<indep name="fcst_thresh">
+			<val label=">0.01">>0.254</val>
+			<val label=">0.25">>6.350</val>
+			<val label=">0.5">>12.700</val>
+			<val label=">0.75">>19.050</val>
+			<val label=">1">>25.400</val>
+			<val label=">1.25">>31.750</val>
+			<val label=">1.5">>38.100</val>
+			<val label=">2">>50.800</val>
+			<val label=">3">>76.200</val>
+		</indep>	
+		
+		<agg>
+			<field name="inithour">
+				<val>12</val>
+			</field>
+			
+			<field name="fcst_lead">
+				<val>240000</val>
+			</field>
+		</agg>
+		
+		<bootstrapping>
+			<boot_repl>1000</boot_repl>
+			<boot_ci>bca</boot_ci>
+			<boot_diff1>FALSE</boot_diff1>
+		</bootstrapping>
+		
+		<plot_ci>c("boot", "boot", "none")</plot_ci>
+		<colors>c("#FF0000FF", "#0000FFFF", "#AAAAAAFF")</colors>
+		<pch>c(20, 20, 20)</pch>
+		<type>c("b", "b", "l")</type>
+		<lty>c(3, 3, 1)</lty>
+		<lwd>c(1.5, 1.5, 1)</lwd>
+		
+		<y1_lim>c(0,4)</y1_lim>
+		
+		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report14" inherits="qnse_precip_thresh_report13">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="year"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+
+	<plot name="qnse_precip_thresh_report15" inherits="qnse_precip_thresh_report13">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="summer"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report16" inherits="qnse_precip_thresh_report13">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="fall"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report17" inherits="qnse_precip_thresh_report13">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="winter"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	
+	<plot name="qnse_precip_thresh_report18" inherits="qnse_precip_thresh_report13">
+		<dep>
+			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>
+			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
+			<fix>
+				<fcst_var name="APCP_24">
+					<var name="fcst_lev">A24</var>
+					<var name="initdate"><date_range id="season" name="spring"/></var>
+				</fcst_var>
+			</fix>		
+		</dep>
+	</plot>
+	 -->
+ 	 
+</plot_spec>
