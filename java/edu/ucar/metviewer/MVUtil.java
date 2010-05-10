@@ -639,9 +639,9 @@ public class MVUtil{
 //				else if( _intLength - 1 == i ) { _str.print("]"); }
 //				else if( intMid == i )         { _str.print("|"); }
 //				else                           { _str.print("-"); }
-				if     ( 0 == i )              { _str.print("\\"); }
-				else if( _intLength - 1 == i ) { _str.print("/"); }
-				else if( intMid == i )         { _str.print("|"); }
+				if     ( 0 == i )              { _str.print("|"); }
+				else if( _intLength - 1 == i ) { _str.print("|"); }
+				else if( intMid == i )         { _str.print("v"); }
 				else                           { _str.print("_"); }
 			}
 			_str.println();
@@ -662,8 +662,8 @@ public class MVUtil{
 			for(int i=intProgPrev; i < intProgCur; i++){
 				if     ( 0 == i )              { _str.print(" "); }
 				else if( _intLength - 1 == i ) { _str.print(" "); }
-				else if( intMid == i )         { _str.print("#"); }
-				else                           { _str.print("#"); }
+				else if( intMid == i )         { _str.print("^"); }
+				else                           { _str.print("^"); }
 			}
 			_dblValue = value;
 			//if( _intLength == intProgCur ){ _str.println(); }		
