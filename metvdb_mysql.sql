@@ -1,9 +1,9 @@
 -- This file is intended for MySQL
 
 use mysql;
-DROP DATABASE IF EXISTS metvdb3_hmt;
-CREATE DATABASE metvdb3_hmt;
-use metvdb3_hmt;
+DROP DATABASE IF EXISTS metvdb4_hwt;
+CREATE DATABASE metvdb4_hwt;
+use metvdb4_hwt;
 
 
 -- data_file_type_lu is a look-up table containing information about the different types
@@ -13,10 +13,10 @@ use metvdb3_hmt;
 
 CREATE TABLE data_file_lu
 (
-    data_file_lu_id     INT UNSIGNED NOT NULL,
-    type_name           VARCHAR(32),
-    type_desc           VARCHAR(128),
-    PRIMARY KEY (data_file_lu_id)
+	data_file_lu_id     INT UNSIGNED NOT NULL,
+	type_name           VARCHAR(32),
+	type_desc           VARCHAR(128),
+	PRIMARY KEY (data_file_lu_id)
 );
     
     
@@ -52,10 +52,10 @@ CREATE TABLE data_file
 
 CREATE TABLE line_type_lu
 (
-    line_type_lu_id     INT UNSIGNED NOT NULL,
-    line_type_name      VARCHAR(32),
-    line_type_desc      VARCHAR(512),
-    PRIMARY KEY (line_type_lu_id)
+	line_type_lu_id     INT UNSIGNED NOT NULL,
+	line_type_name      VARCHAR(32),
+	line_type_desc      VARCHAR(512),
+	PRIMARY KEY (line_type_lu_id)
 );
 
 
@@ -70,16 +70,16 @@ CREATE TABLE stat_header
 	stat_header_id      INT UNSIGNED NOT NULL,
 	version             VARCHAR(8),
 	model               VARCHAR(64),
-	fcst_lead           DOUBLE,
+	fcst_lead           INT UNSIGNED,
 	fcst_valid_beg      DATETIME,
 	fcst_valid_end      DATETIME,
-    fcst_init_beg       DATETIME,
-	obs_lead            DOUBLE,
+	fcst_init_beg       DATETIME,
+	obs_lead            INT UNSIGNED,
 	obs_valid_beg       DATETIME,
 	obs_valid_end       DATETIME,
-	fcst_var            VARCHAR(16),
+	fcst_var            VARCHAR(64),
 	fcst_lev            VARCHAR(16),
-	obs_var             VARCHAR(16),
+	obs_var             VARCHAR(64),
 	obs_lev             VARCHAR(16),
 	obtype              VARCHAR(32),
 	vx_mask             VARCHAR(32),
@@ -249,15 +249,27 @@ CREATE TABLE line_data_pct
 	data_file_id        INT UNSIGNED NOT NULL,
 	line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-    n_thresh            DOUBLE,
-    thresh_i            DOUBLE,
-    oy_i                DOUBLE,
-    on_i                DOUBLE,
-    thresh_n            DOUBLE,
+    n_thresh            INT UNSIGNED,
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_pct_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
             REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_pct_thresh contains threshold data for a particular line_data_pct record and
+--   threshold.  The number of thresholds stored is given by the line_data_pct field n_thresh.
+
+CREATE TABLE line_data_pct_thresh
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    thresh_i            DOUBLE,
+    oy_i                INT UNSIGNED,
+    on_i                INT UNSIGNED,
+    CONSTRAINT line_data_pct_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_pct(line_data_id)
 );
 
 
@@ -272,16 +284,29 @@ CREATE TABLE line_data_pstd
 	line_num            INT UNSIGNED,
     total               INT UNSIGNED,
 	alpha               DOUBLE,
-    n_thresh            DOUBLE,
+    n_thresh            INT UNSIGNED,
     reliability         DOUBLE,
     resolution          DOUBLE,
     uncertainty         DOUBLE,
     roc_auc             DOUBLE,
-    thresh_i            DOUBLE,
-    PRIMARY KEY (line_data_id),
+   PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_pstd_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
             REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_pstd_thresh contains threshold data for a particular line_data_pstd record and
+--   threshold.  The number of thresholds stored is given by the line_data_pstd field n_thresh.
+
+CREATE TABLE line_data_pstd_thresh
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    thresh_i            DOUBLE,
+    CONSTRAINT line_data_pstd_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_pstd(line_data_id)
 );
 
 
@@ -295,7 +320,21 @@ CREATE TABLE line_data_pjc
 	data_file_id        INT UNSIGNED NOT NULL,
 	line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-    n_thresh            DOUBLE,
+    n_thresh            INT UNSIGNED,
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_pjc_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_pjc_thresh contains threshold data for a particular line_data_pjc record and
+--   threshold.  The number of thresholds stored is given by the line_data_pjc field n_thresh.
+
+CREATE TABLE line_data_pjc_thresh
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
     thresh_i            DOUBLE,
     oy_tp_i             DOUBLE,
     on_tp_i             DOUBLE,
@@ -303,11 +342,9 @@ CREATE TABLE line_data_pjc
     refinement_i        DOUBLE,
     likelihood_i        DOUBLE,
     baser_i             DOUBLE,
-    thresh_n            DOUBLE,
-    PRIMARY KEY (line_data_id),
-    CONSTRAINT line_data_pjc_stat_header_id_pk
-            FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
+    CONSTRAINT line_data_pjc_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_pjc(line_data_id)
 );
 
 
@@ -321,15 +358,27 @@ CREATE TABLE line_data_prc
 	data_file_id        INT UNSIGNED NOT NULL,
 	line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-    n_thresh            DOUBLE,
-    thresh_i            DOUBLE,
-    pody_i              DOUBLE,
-    pofd_i              DOUBLE,
-    thresh_n            DOUBLE,
+    n_thresh            INT UNSIGNED,
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_prc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
             REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_prc_thresh contains threshold data for a particular line_data_prc record and
+--   threshold.  The number of thresholds stored is given by the line_data_prc field n_thresh.
+
+CREATE TABLE line_data_prc_thresh
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    thresh_i            DOUBLE,
+    pody_i              DOUBLE,
+    pofd_i              DOUBLE,
+    CONSTRAINT line_data_prc_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_prc(line_data_id)
 );
 
 
@@ -546,34 +595,53 @@ CREATE TABLE line_data_isc
 
 CREATE TABLE mode_header
 (
-    mode_header_id      INT UNSIGNED NOT NULL,
-    line_type_lu_id     INT UNSIGNED NOT NULL,
-    data_file_id        INT UNSIGNED NOT NULL,
-    linenumber          INT UNSIGNED,
-    version             VARCHAR(128),
-    model               VARCHAR(128),
-    fcst_lead           INT UNSIGNED,
-    fcst_valid          DATETIME,
-    fcst_accum          INT UNSIGNED,
-    fcst_init           DATETIME,
-    obs_lead            INT UNSIGNED,
-    obs_valid           DATETIME,
-    obs_accum           INT UNSIGNED,
-    fcst_rad            VARCHAR(128),
-    fcst_thr            VARCHAR(128),
-    obs_rad             INT UNSIGNED,
-    obs_thr             VARCHAR(128),
-    fcst_var            VARCHAR(128),
-    fcst_lev            VARCHAR(128),
-    obs_var             VARCHAR(128),
-    obs_lev             VARCHAR(128),
-    PRIMARY KEY (mode_header_id),
-    CONSTRAINT mode_header_line_type_lu_pk
-            FOREIGN KEY(line_type_lu_id)
-            REFERENCES line_type_lu(line_type_lu_id),
-    CONSTRAINT mode_header_data_file_id_pk
-        FOREIGN KEY(data_file_id)
-        REFERENCES data_file(data_file_id)
+	mode_header_id      INT UNSIGNED NOT NULL,
+	line_type_lu_id     INT UNSIGNED NOT NULL,
+	data_file_id        INT UNSIGNED NOT NULL,
+	linenumber          INT UNSIGNED,
+	version             VARCHAR(8),
+	model               VARCHAR(64),
+	fcst_lead           INT UNSIGNED,
+	fcst_valid          DATETIME,
+	fcst_accum          INT UNSIGNED,
+	fcst_init           DATETIME,
+	obs_lead            INT UNSIGNED,
+	obs_valid           DATETIME,
+	obs_accum           INT UNSIGNED,
+	fcst_rad            INT UNSIGNED,
+	fcst_thr            VARCHAR(16),
+	obs_rad             INT UNSIGNED,
+	obs_thr             VARCHAR(16),
+	fcst_var            VARCHAR(64),
+	fcst_lev            VARCHAR(16),
+	obs_var             VARCHAR(64),
+	obs_lev             VARCHAR(16),
+	PRIMARY KEY (mode_header_id),
+	CONSTRAINT mode_header_line_type_lu_pk
+		FOREIGN KEY(line_type_lu_id)
+		REFERENCES line_type_lu(line_type_lu_id),
+	CONSTRAINT mode_header_data_file_id_pk
+		FOREIGN KEY(data_file_id)
+		REFERENCES data_file(data_file_id),
+	CONSTRAINT stat_header_unique_pk
+		UNIQUE INDEX (
+			model,
+			fcst_lead,
+			fcst_valid,
+			fcst_accum,
+			fcst_init,
+			obs_lead,
+			obs_valid,
+			obs_accum,
+			fcst_rad,
+			fcst_thr,
+			obs_rad,
+			obs_thr,
+			fcst_var,
+			fcst_lev,
+			obs_var,
+			obs_lev
+        )
 );
 
 
