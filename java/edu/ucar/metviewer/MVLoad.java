@@ -14,7 +14,7 @@ public class MVLoad extends MVUtil {
 	public static String _strHost				= "kemosabe";
 	public static String _strPort				= "3306";
 	// public static String _strHostPort		= "pigpen:3306";
-	public static String _strDatabase			= "metvdb3_hmt";
+	public static String _strDatabase			= "metvdb4_hwt";
 	public static String _strUser				= "pgoldenb";
 	public static String _strPwd				= "pgoldenb";
 
@@ -22,9 +22,9 @@ public class MVLoad extends MVUtil {
 	public static int _intInsertSize				= 1;
 	public static boolean _boolStatHeaderTableCheck	= true;
 	public static boolean _boolStatHeaderDBCheck	= false;
-	public static boolean _boolModeHeaderDBCheck	= true;
-	public static boolean _boolDropIndexes			= true;
-	public static boolean _boolApplyIndexes			= true;
+	public static boolean _boolModeHeaderDBCheck	= false;
+	public static boolean _boolDropIndexes			= false;
+	public static boolean _boolApplyIndexes			= false;
 	
 	public static DecimalFormat _formatPerf		= new DecimalFormat("0.000");
 
@@ -43,6 +43,10 @@ public class MVLoad extends MVUtil {
 	public static int _intStatHeaderInserts			= 0;
 	public static int _intLineDataRecords			= 0;
 	public static int _intLineDataInserts			= 0;
+	public static int _intStatGroupRecords			= 0;
+	public static int _intStatGroupInserts			= 0;
+	public static int _intThreshRecords				= 0;
+	public static int _intThreshInserts				= 0;
 	public static int _intModeLinesTotal			= 0;
 	public static int _intModeHeaderRecords			= 0;
 	public static int _intModeCtsRecords			= 0;
@@ -104,12 +108,17 @@ public class MVLoad extends MVUtil {
 		_tableStatGroupIndices.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{} });
 	}
 
+	/*
+	 * thresh group data indices for probabilistic line data
+	 *   - index of first repeating probabilistic fields
+	 *   - number of fields in each repeating set
+	 */
 	public static final Hashtable _tableThreshGroupIndices = new Hashtable(); 
 	static {			
-		_tableThreshGroupIndices.put("PCT",  new int[]{23});
-		_tableThreshGroupIndices.put("PSTD", new int[]{30});
-		_tableThreshGroupIndices.put("PJC",	 new int[]{23});
-		_tableThreshGroupIndices.put("PRC",  new int[]{23});
+		_tableThreshGroupIndices.put("PCT",  new int[]{23, 3});
+		_tableThreshGroupIndices.put("PSTD", new int[]{30, 1});
+		_tableThreshGroupIndices.put("PJC",	 new int[]{23, 7});
+		_tableThreshGroupIndices.put("PRC",  new int[]{23, 3});
 	}
 	
 	public static void main(String[] argv) {
@@ -146,7 +155,6 @@ public class MVLoad extends MVUtil {
 
 			//  * * * *  HMT data  * * * *
 			/*
-			*/
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
 			mapLoadVar.put("model", new String[] {"arw-tom-gep0", "arw-fer-gep1", "arw-sch-gep2", "arw-tom-gep3", "nmm-fer-gep4", 
 					  							  "arw-fer-gep5", "arw-sch-gep6", "arw-tom-gep7", "nmm-fer-gep8", "gfs", "ens-mean"});
@@ -156,16 +164,29 @@ public class MVLoad extends MVUtil {
 				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
 			});
 			mapLoadVar.put("date", listDates);
-			mapLoadVar.put("data_type", new String[]{"mode"/*, "grid_stat", "point_stat"*/});
+			mapLoadVar.put("data_type", new String[]{"mode", "grid_stat", "point_stat"});
 
-			/*
+			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/HMT/West/rerun/dwr_domains/{model}/{date}/{data_type}";
+
 			mapLoadVar.put("model", new String[] {"ens-mean"});
 			mapLoadVar.put("date", new String[]{"2010012418V_06h"});
 			mapLoadVar.put("data_type", new String[]{"grid_stat"});
 			*/
 
-			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/HMT/West/rerun/dwr_domains/{model}/{date}/{data_type}";
-			
+			//  * * * *  HWT data  * * * *
+			MVOrderedMap mapLoadVar = new MVOrderedMap();
+			mapLoadVar.put("model", new String[] {"srf"});
+//			String[] listDates = buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
+//			listDates = append(listDates, buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
+			String[] listDates = buildDateList("2010042412V_06h", "2010042415V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
+			//listDates = append(listDates, buildDateList("2010042412V_06h", "20100424212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
+			Arrays.sort(listDates, new Comparator(){
+				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
+			});
+			mapLoadVar.put("date", listDates);
+			mapLoadVar.put("data_type", new String[]{"grid_stat"});
+
+			String strBaseFolderTmpl = "/d1/pgoldenb/var/hwt/data/{date}/{data_type}";
 			
 			long intLoadTimeStart = (new java.util.Date()).getTime();
 			int intNumFiles = 0;
@@ -230,6 +251,10 @@ public class MVLoad extends MVUtil {
 							   padBegin("stat header inserts: ", 36) + _intStatHeaderInserts + "\n" +
 							   padBegin("line data records: ", 36) + _intLineDataRecords + "\n" +
 							   padBegin("line data inserts: ", 36) + _intLineDataInserts + "\n" +
+							   padBegin("stat group records: ", 36) + _intStatGroupRecords + "\n" +
+							   padBegin("stat group inserts: ", 36) + _intStatGroupInserts + "\n" +
+							   padBegin("thresh records: ", 36) + _intThreshRecords + "\n" +
+							   padBegin("thresh inserts: ", 36) + _intThreshInserts + "\n" +
 							   padBegin("total lines: ", 36) + _intStatLinesTotal + "\n" +
 							   padBegin("insert size: ", 36) + _intInsertSize + "\n" +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
@@ -264,6 +289,13 @@ public class MVLoad extends MVUtil {
 		ArrayList listInsertValues		= new ArrayList();
 		Hashtable tableLineDataValues	= new Hashtable();
 		ArrayList listStatGroupInsertValues = new ArrayList();
+		Hashtable tableThreshValues		= new Hashtable();
+		
+		//  initialize the threshold value lists
+		tableThreshValues.put("PCT", new ArrayList());
+		tableThreshValues.put("PSTD", new ArrayList());
+		tableThreshValues.put("PJC", new ArrayList());
+		tableThreshValues.put("PRC", new ArrayList());
 		
 		//  performance counters
 		long intStatHeaderLoadStart = (new java.util.Date()).getTime();
@@ -272,7 +304,10 @@ public class MVLoad extends MVUtil {
 		int intStatHeaderInserts = 0;
 		int intLineDataRecords = 0;
 		int intLineDataInserts = 0;
+		int intStatGroupRecords = 0;
 		int intStatGroupInserts = 0;
+		int intThreshRecords = 0;
+		int intThreshInserts = 0;
 
 		//  get the next stat record ids from the database
 		int intStatHeaderIdNext = getNextId(con, "stat_header", "stat_header_id");
@@ -424,6 +459,7 @@ public class MVLoad extends MVUtil {
 			boolean boolHasStatGroups = _tableStatGroupIndices.containsKey(strLineType);
 			boolean boolHasThreshGroups = _tableThreshGroupIndices.containsKey(strLineType);
 			int[][] listStatGroupIndices = null;
+			int[] listThreshGroupIndices = null;
 			int[] listLineDataIndices = null;
 			
 			String strLineDataValueList = "" +
@@ -459,7 +495,7 @@ public class MVLoad extends MVUtil {
 			} else {
 				listLineDataIndices = new int[intNumLineDataFields];
 				for(int i=0; i < intNumLineDataFields; i++){ listLineDataIndices[i] = 22 + i; } 
-			}
+			}			
 			
 			//  add the appropriate fields for the line data insert
 			for(int i=0; i < listLineDataIndices.length; i++){
@@ -528,6 +564,34 @@ public class MVLoad extends MVUtil {
 
 					listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 				}
+				intStatGroupRecords++;
+			}
+			
+			
+			/*
+			 * * * *  thresh_group insert  * * * *
+			 */
+			
+			if( boolHasThreshGroups ){
+				
+				//  get the index information about the current line type
+				listThreshGroupIndices = (int[])_tableThreshGroupIndices.get(strLineType);
+				int intGroupIndex = listThreshGroupIndices[0];
+				int intGroupSize = listThreshGroupIndices[1];
+				int intNumGroups = Integer.parseInt(listToken[22]) - 1;
+				ArrayList listThreshValues = (ArrayList)tableThreshValues.get(strLineType);
+			
+				//  build a insert value statement for each threshold group
+				for(int i=0; i < intNumGroups; i++){
+					String strThreshValues = "(" + intLineDataId + ", " + (i+1);
+					for(int j=0; j < intGroupSize; j++){
+						strThreshValues += ", " + replaceInvalidValues( listToken[intGroupIndex++] );
+					}
+					strThreshValues += ")";
+					listThreshValues.add(strThreshValues);
+					intThreshRecords++;
+				}
+				tableThreshValues.put(strLineType, listThreshValues);				
 			}
 			
 			
@@ -601,6 +665,28 @@ public class MVLoad extends MVUtil {
 					intStatGroupInserts++;
 				}
 				listStatGroupInsertValues.clear();
+				
+				/*
+				 * * * *  thresh_group commit  * * * * 
+				 */
+				
+				//  insert probabilistic data into the thresh tables
+				String[] listThreshTypes = (String[])tableThreshValues.keySet().toArray(new String[]{});
+				for(int i=0; i < listThreshTypes.length; i++){
+					String[] listThreshValues = (String[])((ArrayList)tableThreshValues.get(listThreshTypes[i])).toArray(new String[]{});
+					if( 1 > listThreshValues.length ){ continue; }
+					String strThreshInsert = "INSERT INTO line_data_" + listThreshTypes[i].toLowerCase() + "_thresh VALUES ";
+					for(int j=0; j < listThreshValues.length; j++){
+						strThreshInsert += (0 < j? ", " : "") + listThreshValues[j];
+					}
+					int intThreshInsert = executeUpdate(con, strThreshInsert);
+					if( listThreshValues.length != intThreshInsert ){
+						System.out.println("  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " + 
+										   listThreshValues.length + "\n        " + strFileLine);
+					}
+					intThreshInserts++;
+					tableThreshValues.put(listThreshTypes[i], new ArrayList());
+				}
 			}
 			
 			intLineDataId++;
@@ -616,6 +702,10 @@ public class MVLoad extends MVUtil {
 		_intStatHeaderInserts += intStatHeaderInserts;
 		_intLineDataInserts += intLineDataInserts;
 		_intLineDataRecords += intLineDataRecords;
+		_intStatGroupRecords += intStatGroupRecords;
+		_intStatGroupInserts += intStatGroupInserts;
+		_intThreshRecords += intThreshRecords;
+		_intThreshInserts += intThreshInserts;
 		
 		//  print a performance report
 		long intStatHeaderLoadTime = (new java.util.Date()).getTime() - intStatHeaderLoadStart;
@@ -626,6 +716,10 @@ public class MVLoad extends MVUtil {
 							   padBegin("stat_header inserts: ", 36) + intStatHeaderInserts + "\n" +
 							   padBegin("line_data records: ", 36) + intLineDataRecords + "\n" +
 							   padBegin("line_data inserts: ", 36) + intLineDataInserts + "\n" +
+							   padBegin("stat_group records: ", 36) + intStatGroupRecords + "\n" +
+							   padBegin("stat_group inserts: ", 36) + intStatGroupInserts + "\n" +
+							   padBegin("thresh records: ", 36) + intThreshRecords + "\n" +
+							   padBegin("thresh inserts: ", 36) + intThreshInserts + "\n" +
 							   padBegin("total load time: ", 36) + formatTimeSpan(intStatHeaderLoadTime) + "\n" +
 							   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 36) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
