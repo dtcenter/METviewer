@@ -251,6 +251,10 @@ public class MVUtil{
 				} else if( strTmplTagName.equals("inithour") ){
 					if( strFormat.equals("HH") ){		while(2 > strVal.length()){ strVal = "0" + strVal; }	}					
 				}
+				
+				if( mapParms.getStr("format").equalsIgnoreCase("R") ){
+					strVal = formatR(strVal);
+				}
 			}
 			
 			//  if the tag value is a date, format it accordingly
@@ -263,7 +267,10 @@ public class MVUtil{
 			}catch(Exception e){}
 			
 			//  if the tag is a threshold, format it accordingly
-			strVal = (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")? formatFcstThresh(strTmplTag, strVal) : strVal);
+			if( strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr") ||
+				strTmplTagName.equals("obs_thresh")  || strTmplTagName.equals("obs_thr") ){
+				strVal = formatFcstThresh(strTmplTag, strVal);
+			}
 			
 			strRet = strRet.replace("{" + strTmplTag + "}", strVal);
 		}
@@ -620,6 +627,47 @@ public class MVUtil{
 		return strList.split("\"\\s*,\\s*\"");
 	}
 	
+	/**
+	 * Returns a string representation of the MVOrderedMap in R declaration syntax
+	 * @param map Data structure to convert to R list representation
+	 * @return The R-syntax representation of the input map
+	 */
+	public static String getRDecl(MVOrderedMap map){
+		String strRDecl = "list(\n";
+		String[] listKeys = (String[])map._listKeys.toArray(new String[]{});
+		for(int i=0; i < listKeys.length; i++){
+			strRDecl += (0 < i? ",\n" : "") + MVBatch.padBegin( formatR(listKeys[i]) ) + " = ";
+			Object objVal = map.get(listKeys[i]);
+			if( objVal instanceof String ){
+				strRDecl += "\"" + objVal.toString() + "\"";
+			} else if( objVal instanceof String[] ){
+				strRDecl += "c(";
+				String[] listVal = (String[])objVal;
+				for(int j=0; j < listVal.length; j++){
+					strRDecl += (0 < j? ", " : "") + "\"" + listVal[j] + "\"";
+				}
+				strRDecl += ")";
+			} else if( objVal instanceof MVOrderedMap ){
+				strRDecl += ((MVOrderedMap)objVal).getRDecl();
+			} else {
+				strRDecl += "\"???\",\n";
+			}
+		}
+		strRDecl += "\n)";
+		return strRDecl;
+	}
+	
+	public static String formatR(String in){
+		return in.replace("(",	"")
+				 .replace(")",	"")
+				 .replace(".",	"_d_")
+				 .replace("<=",	"le")
+				 .replace(">=",	"ge")
+				 .replace("=",	"eq")
+				 .replace("<",	"lt")
+				 .replace(">",	"gt");
+	}
+	
 	public static class TxtProgBar{
 		
 		protected double _dblValue = 0;
@@ -635,10 +683,6 @@ public class MVUtil{
 			
 			int intMid = _intLength / 2;
 			for(int i=0; i < _intLength; i++){
-//				if     ( 0 == i )              { _str.print("["); }
-//				else if( _intLength - 1 == i ) { _str.print("]"); }
-//				else if( intMid == i )         { _str.print("|"); }
-//				else                           { _str.print("-"); }
 				if     ( 0 == i )              { _str.print("|"); }
 				else if( _intLength - 1 == i ) { _str.print("|"); }
 				else if( intMid == i )         { _str.print("v"); }

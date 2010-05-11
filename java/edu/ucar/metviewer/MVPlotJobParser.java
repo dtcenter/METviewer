@@ -619,6 +619,8 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("type",			MVPlotJob.class.getDeclaredMethod("setType",		new Class[]{String.class}));
 			_tableFormatString.put("lty",			MVPlotJob.class.getDeclaredMethod("setLty",			new Class[]{String.class}));
 			_tableFormatString.put("lwd",			MVPlotJob.class.getDeclaredMethod("setLwd",			new Class[]{String.class}));
+			_tableFormatString.put("con_series",	MVPlotJob.class.getDeclaredMethod("setConSeries",	new Class[]{String.class}));
+			_tableFormatString.put("legend",		MVPlotJob.class.getDeclaredMethod("setLegend",		new Class[]{String.class}));
 			_tableFormatString.put("y1_lim",		MVPlotJob.class.getDeclaredMethod("setY1Lim",		new Class[]{String.class}));
 			_tableFormatString.put("y1_bufr",		MVPlotJob.class.getDeclaredMethod("setY1Bufr",		new Class[]{String.class}));
 			_tableFormatString.put("y2_lim",		MVPlotJob.class.getDeclaredMethod("setY2Lim",		new Class[]{String.class}));

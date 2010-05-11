@@ -14,7 +14,7 @@ public class MVLoad extends MVUtil {
 	public static String _strHost				= "kemosabe";
 	public static String _strPort				= "3306";
 	// public static String _strHostPort		= "pigpen:3306";
-	public static String _strDatabase			= "metvdb4_hwt";
+	public static String _strDatabase			= "metvdb5_hwt";
 	public static String _strUser				= "pgoldenb";
 	public static String _strPwd				= "pgoldenb";
 
@@ -70,26 +70,27 @@ public class MVLoad extends MVUtil {
 	 *     - with both normal & bootstrap confidence interval
 	 *     - only bootstrap confidence interval
 	 *     - only normal confidence interval
+	 *     - no confidence intervals
 	 */
 	public static final Hashtable _tableLineType	= new Hashtable();
 	static {
-		_tableLineType.put("FHO",		new int[][]{ new int[]{0},	new int[]{3} });
-		_tableLineType.put("CTC",		new int[][]{ new int[]{1},	new int[]{4} });
-		_tableLineType.put("CTS",		new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{} });
-		_tableLineType.put("CNT",		new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{} });
-		_tableLineType.put("PCT",		new int[][]{ new int[]{4},	new int[]{1} });
-		_tableLineType.put("PSTD",		new int[][]{ new int[]{5},	new int[]{5},	new int[]{}, new int[]{}, new int[]{30} });
-		_tableLineType.put("PJC",		new int[][]{ new int[]{6},	new int[]{1} });
-		_tableLineType.put("PRC",		new int[][]{ new int[]{7},	new int[]{1} });
-		_tableLineType.put("SL1L2",		new int[][]{ new int[]{8},	new int[]{5} });
-		_tableLineType.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5} });
-		_tableLineType.put("VL1L2",		new int[][]{ new int[]{10},	new int[]{7} });
-		_tableLineType.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7} });
-		_tableLineType.put("MPR",		new int[][]{ new int[]{12},	new int[]{8} });
-		_tableLineType.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4} });
-		_tableLineType.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{31, 32, 33, 35, 36, 37, 38, 39, 41, 43}, new int[]{34, 40, 42}, new int[]{} });
-		_tableLineType.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{44, 45}, new int[]{} });
-		_tableLineType.put("ISC",		new int[][]{ new int[]{16},	new int[]{10} });
+		_tableLineType.put("FHO",		new int[][]{ new int[]{0},	new int[]{3},	new int[]{} });
+		_tableLineType.put("CTC",		new int[][]{ new int[]{1},	new int[]{4},	new int[]{} });
+		_tableLineType.put("CTS",		new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{},	new int[]{} });
+		_tableLineType.put("CNT",		new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{},	new int[]{} });
+		_tableLineType.put("PCT",		new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
+		_tableLineType.put("PSTD",		new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{30},	new int[]{31, 32, 33, 34} });
+		_tableLineType.put("PJC",		new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
+		_tableLineType.put("PRC",		new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
+		_tableLineType.put("SL1L2",		new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
+		_tableLineType.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5},	new int[]{} });
+		_tableLineType.put("VL1L2",		new int[][]{ new int[]{10},	new int[]{7},	new int[]{} });
+		_tableLineType.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7},	new int[]{} });
+		_tableLineType.put("MPR",		new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
+		_tableLineType.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
+		_tableLineType.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{},	new int[]{} });
+		_tableLineType.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{},	new int[]{} });
+		_tableLineType.put("ISC",		new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
 	}
 
 	/*
@@ -98,14 +99,15 @@ public class MVLoad extends MVUtil {
 	 *   - stat group indices with normal & bootstrap CIs (5 members)
 	 *   - stat group indices with bootstrap CI only (3 members)
 	 *   - stat group indices with normal CI only (3 members)
+	 *   - stat group indices with no CIs (1 member)
 	 */
 	public static final Hashtable _tableStatGroupIndices = new Hashtable(); 
 	static {			
-		_tableStatGroupIndices.put("CTS",		new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{} });
-		_tableStatGroupIndices.put("CNT",		new int[][]{ new int[]{47, 48, 49, 50, 51}, new int[]{22, 27, 32, 37, 42, 52, 57}, new int[]{62, 65, 68, 71, 74, 77, 80, 83, 86, 89}, new int[]{} });
-		_tableStatGroupIndices.put("PSTD",		new int[][]{ new int[]{22, 23, 24, 25, 26}, new int[]{}, new int[]{}, new int[]{27} });
-		_tableStatGroupIndices.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{} });
-		_tableStatGroupIndices.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{} });
+		_tableStatGroupIndices.put("CTS",		new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices.put("CNT",		new int[][]{ new int[]{47, 48, 49, 50, 51}, new int[]{22, 27, 32, 37, 42, 52, 57}, new int[]{62, 65, 68, 71, 74, 77, 80, 83, 86, 89}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices.put("PSTD",		new int[][]{ new int[]{22}, new int[]{}, new int[]{}, new int[]{27}, new int[]{23, 24, 25, 26} });
+		_tableStatGroupIndices.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
 	}
 
 	/*
@@ -176,9 +178,9 @@ public class MVLoad extends MVUtil {
 			//  * * * *  HWT data  * * * *
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
 			mapLoadVar.put("model", new String[] {"srf"});
-//			String[] listDates = buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
-//			listDates = append(listDates, buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
-			String[] listDates = buildDateList("2010042412V_06h", "2010042415V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
+			String[] listDates = buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
+			listDates = append(listDates, buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
+			//String[] listDates = buildDateList("2010042412V_06h", "2010042415V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
 			//listDates = append(listDates, buildDateList("2010042412V_06h", "20100424212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
 			Arrays.sort(listDates, new Comparator(){
 				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
@@ -516,21 +518,25 @@ public class MVLoad extends MVUtil {
 			if( boolHasStatGroups ){
 				int[] listStatGroupLuIdBoth = listLineTypeInfo[2];
 				int[] listStatGroupLuIdBoot = listLineTypeInfo[3];
-				int[] listStatGroupLuIdNorm = listLineTypeInfo[4];				
+				int[] listStatGroupLuIdNorm = listLineTypeInfo[4];		
+				int[] listStatGroupLuIdNone = listLineTypeInfo[5];		
 				int[] listStatGroupLuIdAll = new int[ listStatGroupLuIdBoth.length + 
 				                                      listStatGroupLuIdBoot.length +
-				                                      listStatGroupLuIdNorm.length ];
+				                                      listStatGroupLuIdNorm.length +
+				                                      listStatGroupLuIdNone.length ];
 				
 				//  build the list of all stat_group_lu_ids
 				int intStatGroupLuIdIndex = 0;
 				for(int i=0; i < listStatGroupLuIdBoth.length; i++){ listStatGroupLuIdAll[intStatGroupLuIdIndex++] = listStatGroupLuIdBoth[i]; }
 				for(int i=0; i < listStatGroupLuIdBoot.length; i++){ listStatGroupLuIdAll[intStatGroupLuIdIndex++] = listStatGroupLuIdBoot[i]; }
 				for(int i=0; i < listStatGroupLuIdNorm.length; i++){ listStatGroupLuIdAll[intStatGroupLuIdIndex++] = listStatGroupLuIdNorm[i]; }
+				for(int i=0; i < listStatGroupLuIdNone.length; i++){ listStatGroupLuIdAll[intStatGroupLuIdIndex++] = listStatGroupLuIdNone[i]; }
 				
 				//  initialize the token indices for the stat group
 				int intStatGroupBothIndex = 0;
 				int intStatGroupBootIndex = 0;
-				int intStatGroupNormIndex = 0;			
+				int intStatGroupNormIndex = 0;
+				int intStatGroupNoneIndex = 0;
 
 				//  for each stat group, build an insert statment
 				for(int i=0; i < listStatGroupLuIdAll.length; i++){
@@ -539,7 +545,15 @@ public class MVLoad extends MVUtil {
 													  intStatHeaderId + ", " +
 													  intLineDataId + ", ";
 					
-					if( contains(listStatGroupLuIdBoot, intStatGroupLuId) ){
+					if( contains(listStatGroupLuIdBoth, intStatGroupLuId) ){
+						int intTokenIndex = listStatGroupIndices[1][intStatGroupBothIndex++];
+						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", " + 
+													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
+													replaceInvalidValues(listToken[intTokenIndex + 2]) + ", " + 
+													replaceInvalidValues(listToken[intTokenIndex + 3]) + ", " + 
+													replaceInvalidValues(listToken[intTokenIndex + 4]);
+					}
+					else if( contains(listStatGroupLuIdBoot, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[2][intStatGroupBootIndex++];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + 
 													", 0, 0, " + 
@@ -553,15 +567,10 @@ public class MVLoad extends MVUtil {
 													replaceInvalidValues(listToken[intTokenIndex + 2]) + 
 													", 0, 0";
 					}
-					else{
-						int intTokenIndex = listStatGroupIndices[1][intStatGroupBothIndex++];
-						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", " + 
-													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
-													replaceInvalidValues(listToken[intTokenIndex + 2]) + ", " + 
-													replaceInvalidValues(listToken[intTokenIndex + 3]) + ", " + 
-													replaceInvalidValues(listToken[intTokenIndex + 4]);
+					else {
+						int intTokenIndex = listStatGroupIndices[4][intStatGroupNoneIndex++];
+						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", 0, 0, 0, 0"; 
 					}
-
 					listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 				}
 				intStatGroupRecords++;

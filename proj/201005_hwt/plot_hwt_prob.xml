@@ -1,0 +1,205 @@
+
+<plot_spec>
+	 
+	<!-- database connection -->
+	<connection>
+		<host>kemosabe:3306</host>
+		<database>metvdb5_hwt</database>
+		<user>pgoldenb</user>
+		<password>pgoldenb</password>		
+	</connection>
+	
+	<!-- file sytem -->
+	<folders>
+		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
+		<r_work>/d1/pgoldenb/var/hwt/R_work</r_work>
+		<plots>/d1/pgoldenb/var/hwt/plots</plots>
+	</folders>	
+
+	<!-- global date list -->	
+	<date_list name="fcst_valid_agg">
+		<start>2010-04-24 15:00:00</start>
+		<end>2010-05-01 12:00:00</end>
+		<field name="fcst_valid_beg" />
+	</date_list>
+	
+	<plot name="lead_series_prob">
+	
+		<!-- plot type -->
+		<template>series_plot.R_tmpl</template>
+		
+		<!-- independent variable -->
+		<indep name="fcst_lead">
+			<val label="6">60000</val>
+			<val label="9">90000</val>
+			<val label="12">120000</val>
+			<val label="15">150000</val>
+			<val label="18">180000</val>
+			<val label="21">210000</val>
+			<val label="24">240000</val>
+			<val label="27">270000</val>
+			<val label="30">300000</val>
+			<val label="33">330000</val>
+			<val label="36">360000</val>
+			<val label="39">390000</val>
+			<val label="42">420000</val>
+			<val label="45">450000</val>
+			<val label="48">480000</val>
+			<val label="51">510000</val>
+			<val label="54">540000</val>
+			<val label="57">570000</val>
+			<val label="60">600000</val>
+			<val label="63">630000</val>
+			<val label="66">660000</val>
+			<val label="69">690000</val>
+			<val label="72">720000</val>
+			<val label="75">750000</val>
+			<val label="78">780000</val>
+			<val label="81">810000</val>
+			<val label="84">840000</val>
+			<val label="87">870000</val>
+		</indep>
+
+		<!-- series1 variables and values -->
+		<series1>
+			<field name="model">
+				<val>srf</val>			
+			</field>		
+		</series1>
+		
+		<!-- dependent variable(s) and plot series -->
+		<dep>
+			
+			<!-- dependent variable 1 -->
+			<dep1>
+				<fcst_var name="PROB(APCP_06>6.35)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+<!--					<stat>ROC_AUC</stat>-->
+				</fcst_var>
+				<fcst_var name="PROB(APCP_06>12.70)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+<!--					<stat>ROC_AUC</stat>-->
+				</fcst_var>
+			</dep1>
+			
+						
+			<!-- fixed values -->
+			<fix>
+				<fcst_var name="PROB(APCP_06>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
+			</fix>		
+		</dep>
+		
+		<!-- aggregate fields and values -->
+		<agg>
+			<field name="fcst_valid_beg">
+<!--				<date_list name="fcst_valid_agg"/>-->
+				<val>2010-04-30 00:00:00</val>
+			</field>
+		</agg>
+		
+		<!-- templates -->
+		<tmpl>
+			<data_file>lead_series_valid/{fcst_valid_beg}V/{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.data</data_file>
+			<plot_file>lead_series_valid/{fcst_valid_beg}V/{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.png</plot_file>
+			<r_file>thresh_series_valid/{fcst_valid_beg}V/{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.R</r_file>
+			<title>{dep1_1_stat1} {dep1_1_stat2} {dep1_1_stat3} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1_stat1}, {dep1_1_stat2}, {dep1_1_stat3}</y1_label>
+		</tmpl>
+		
+		<!-- plot formatting and options -->
+		<event_equal>false</event_equal>
+		<plot1_diff>false</plot1_diff>
+		<plot2_diff>false</plot2_diff>
+		<num_stats>false</num_stats>
+		<indy1_stag>false</indy1_stag>
+		<indy2_stag>false</indy2_stag>
+		<grid_on>true</grid_on>
+		<sync_axes>false</sync_axes>
+		<dump_points1>false</dump_points1>
+		<dump_points2>false</dump_points2>
+		<log_y1>false</log_y1>
+		<log_y2>false</log_y2>
+ 		
+<!--		<plot_type>png256</plot_type>-->
+		<plot_type>png16m</plot_type>
+		<plot_height>8.5</plot_height>
+		<plot_width>11</plot_width>
+		<plot_res>72</plot_res>
+		<plot_units>in</plot_units>
+		<mar>c(6, 5, 5, 4)</mar>
+		<mgp>c(1, 1, 0)</mgp>
+		<cex>1</cex>
+		<title_weight>2</title_weight>
+		<title_size>1.4</title_size>
+		<title_offset>-.4</title_offset>
+		<title_align>.5</title_align>
+		<xtlab_orient>1</xtlab_orient>
+		<xtlab_perp>-.75</xtlab_perp>
+		<xtlab_horiz>.5</xtlab_horiz>
+		<xlab_weight>1</xlab_weight>
+		<xlab_size>1</xlab_size>
+		<xlab_offset>1.3</xlab_offset>
+		<xlab_align>.5</xlab_align>
+		<ytlab_orient>1</ytlab_orient>
+		<ytlab_perp>.5</ytlab_perp>
+		<ytlab_horiz>.75</ytlab_horiz>
+		<tlab_weight>1</tlab_weight>
+		<ylab_size>1</ylab_size>
+		<ylab_offset>-4</ylab_offset>
+		<ylab_align>.5</ylab_align>
+		<grid_lty>3</grid_lty>
+		<grid_col>#CCCCCC</grid_col>
+		<grid_lwd>1</grid_lwd>
+		<grid_x>listX</grid_x>
+		<x2tlab_orient>1</x2tlab_orient>
+		<x2tlab_perp>1</x2tlab_perp>
+		<x2tlab_horiz>.5</x2tlab_horiz>
+		<x2lab_weight>1</x2lab_weight>
+		<x2lab_size>.8</x2lab_size>
+		<x2lab_offset>-.5</x2lab_offset>
+		<x2lab_align>.5</x2lab_align>
+		<y2tlab_orient>1</y2tlab_orient>
+		<y2tlab_perp>.5</y2tlab_perp>
+		<y2tlab_horiz>.5</y2tlab_horiz>
+		<y2lab_weight>1</y2lab_weight>
+		<y2lab_size>1</y2lab_size>
+		<y2lab_offset>1</y2lab_offset>
+		<y2lab_align>.5</y2lab_align>
+		<legend_size>.8</legend_size>
+		<legend_box>o</legend_box>
+		<legend_inset>c(0, -.18)</legend_inset>
+		<legend_ncol>2</legend_ncol>
+		<box_boxwex>1</box_boxwex>
+		<box_notch>FALSE</box_notch>
+		<ci_alpha>.05</ci_alpha>
+		
+		<plot_ci>c("none", "none", "none", "none", "none", "none")</plot_ci>
+		<colors>c("#FF3300FF", "#33FF33FF", "#0033FFFF", "#FF6600FF", "#66CC66FF", "#0066DDFF")</colors>
+		<pch>c(20, 20, 20, 20, 20, 20)</pch>
+		<type>c("b", "b", "b", "b", "b", "b")</type>
+		<lty>c(1, 1, 2, 2, 3, 3)</lty>
+		<lwd>c(1, 1, 1, 1, 1, 1)</lwd>
+		<con_series>c(1, 1, 1, 1, 1, 1)</con_series>
+		<legend>
+			c("srf PROB(APCP_06>0.25\") RELIABILITY",
+			  "srf PROB(APCP_06>0.25\") RESOLUTION",
+			  "srf PROB(APCP_06>0.25\") UNCERTAINTY",
+			  "srf PROB(APCP_06>0.50\") RELIABILITY",
+			  "srf PROB(APCP_06>0.50\") RESOLUTION",
+			  "srf PROB(APCP_06>0.50\") UNCERTAINTY")		
+		</legend>
+		
+<!--		<y1_lim>c(0,1)</y1_lim>-->
+<!--		<y1_bufr>.04</y1_bufr>-->
+<!--		<y2_lim>c(0,1)</y2_lim>-->
+<!--		<y2_bufr>.04</y2_bufr>-->
+<!--		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		-->
+	</plot>
+
+</plot_spec>

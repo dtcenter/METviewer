@@ -47,6 +47,8 @@ listDep1Scale = #<dep1_scale>#;
 
 listDep2Scale = #<dep2_scale>#;
 
+listLegendUsr = #<legend>#
+
 #
 #  Build the series data for the plot 
 #
@@ -63,7 +65,7 @@ listXlim = c(min(listX), max(listX));
 #}
 
 # build the y1 plot series using information in the plot dataframe
-intNumSeries1 = numSeries(listSeries1Val, boolPlot1Diff);
+intNumSeries1 = numSeries(listSeries1Val, listDep1Plot, boolPlot1Diff);
 listSeries1 = list();
 listLegend = c();
 for( strDep1Name in names(listDep1Plot) ){
@@ -110,6 +112,8 @@ if( 0 < length(listDep2Plot) ){
 	}
 	intNumSeries2 = length(listSeries2) / 3;
 }
+
+if( 0 < length(listLegendUsr) ){ listLegend = listLegendUsr; }
 
 # specify the output file
 strPlotType = "#<plot_type>#";
@@ -310,6 +314,7 @@ listPch = #<pch>#;
 listType = #<type>#;
 listLty = #<lty>#;
 listLwd = #<lwd>#;
+listConSeries = #<con_series>#;
 
 # build the x-adjustment increments, if requested
 dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
@@ -362,11 +367,6 @@ if( 0 < length(listDep2Plot) ){
 		listDataUp	= listSeries2[[3*(i-1) + 3]];
 		listXAdj	= listX + listXStag[i];
 		
-		# remove the NAs from the x and y lists
-		listDataInd	= !( is.na(listData) );
-		#listXAdj	= listXAdj[listDataInd];
-		#listData	= listData[listDataInd];
-		
 		# get the formatting information for this series
 		strCol		= listColors[intFormatIndex];
 		intPch		= listPch[intFormatIndex];
@@ -374,6 +374,13 @@ if( 0 < length(listDep2Plot) ){
 		intLty		= listLty[intFormatIndex];
 		intLwd		= listLwd[intFormatIndex];
 		strPlotCI	= listPlotCI[intFormatIndex];
+		
+		# remove the NAs from the x and y lists
+		listDataInd	= !( is.na(listData) );
+		if( listConSeries[intFormatIndex] != 0 ){
+			listXAdj	= listXAdj[listDataInd];
+			listData	= listData[listDataInd];
+		}
 		
 		# plot the series line
 		lines(
@@ -458,8 +465,10 @@ for(i in 1:intNumSeries1){
 	
 	# remove the NAs from the x and y lists
 	listDataInd	= !( is.na(listData) );
-	#listXAdj	= listXAdj[listDataInd];
-	#listData	= listData[listDataInd];
+	if( listConSeries[intFormatIndex] != 0 ){
+		listXAdj	= listXAdj[listDataInd];
+		listData	= listData[listDataInd];
+	}
 	
 	# get the formatting information for this series
 	strCol		= listColors[intFormatIndex];

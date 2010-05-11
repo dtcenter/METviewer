@@ -118,6 +118,8 @@ public class MVPlotJob extends MVUtil{
 	protected String _strType				= "";
 	protected String _strLty				= "";
 	protected String _strLwd				= "";
+	protected String _strConSeries			= "";
+	protected String _strLegend				= "";
 	protected String _strY1Lim				= "";
 	protected String _strY1Bufr				= ".04";
 	protected String _strY2Lim				= "";
@@ -233,6 +235,8 @@ public class MVPlotJob extends MVUtil{
 		job._strType			= _strType;
 		job._strLty				= _strLty;
 		job._strLwd				= _strLwd;
+		job._strConSeries		= _strConSeries;
+		job._strLegend			= _strLegend;
 		job._strY1Lim			= _strY1Lim;
 		job._strY1Bufr			= _strY1Bufr;
 		job._strY2Lim			= _strY2Lim;
@@ -486,6 +490,10 @@ public class MVPlotJob extends MVUtil{
 	public void		setLty(String lty)									{ _strLty = lty;										}
 	public String	getLwd()											{ return _strLwd;										}
 	public void		setLwd(String lwd)									{ _strLwd = lwd;										}
+	public String	getConSeries()										{ return _strConSeries;									}
+	public void		setConSeries(String conSeries)						{ _strConSeries = conSeries;							}
+	public String	getLegend()											{ return _strLegend;									}
+	public void		setLegend(String legend)							{ _strLegend = legend;									}
 	public String	getY1Lim()											{ return _strY1Lim;										}
 	public void		setY1Lim(String y1Lim)								{ _strY1Lim = y1Lim;									}
 	public String	getY1Bufr()											{ return _strY1Bufr;									}

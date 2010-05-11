@@ -140,29 +140,7 @@ public class MVOrderedMap extends Hashtable {
 	 * Returns a string representation of the MVOrderedMap in R declaration syntax
 	 */
 	public String getRDecl(){
-		String strRDecl = "list(\n";
-		String[] listKeys = (String[])_listKeys.toArray(new String[]{});
-		for(int i=0; i < listKeys.length; i++){
-			
-			strRDecl += (0 < i? ",\n" : "") + MVBatch.padBegin(listKeys[i]) + " = ";
-			Object objVal = get(listKeys[i]);
-			if( objVal instanceof String ){
-				strRDecl += "\"" + objVal.toString() + "\"";
-			} else if( objVal instanceof String[] ){
-				strRDecl += "c(";
-				String[] listVal = (String[])objVal;
-				for(int j=0; j < listVal.length; j++){
-					strRDecl += (0 < j? ", " : "") + "\"" + listVal[j] + "\"";
-				}
-				strRDecl += ")";
-			} else if( objVal instanceof MVOrderedMap ){
-				strRDecl += ((MVOrderedMap)objVal).getRDecl();
-			} else {
-				strRDecl += "\"???\",\n";
-			}
-		}
-		strRDecl += "\n)";
-		return strRDecl;
+		return MVUtil.getRDecl(this);
 	}
 	
 	public static final Pattern _patMap = Pattern.compile("(?s)map\\((.*)\\)");

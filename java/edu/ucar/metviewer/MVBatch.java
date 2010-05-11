@@ -24,7 +24,7 @@ public class MVBatch extends MVUtil {
 	public static String _strRworkFolder		= "/d1/pgoldenb/var/hmt/R_work/";
 	public static String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
 
-	public static String _strInitdateField		= "fcst_init_beg";
+	public static String _strInitdateField		= "fcst_init_beg"; //"initdate";
 	
 	public static boolean _boolProcWait			= true;
 
@@ -667,6 +667,12 @@ public class MVBatch extends MVUtil {
 				stmt.close();				
 				System.out.println("query returned " + tab.getNumRows() + " rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ));
 				
+				//  if there is no data, do not try to plot it
+				if( 1 > tab.getNumRows() ){
+					System.out.println("  **  WARNING: query returned no data");
+					continue;
+				}
+
 				//  reformat the field names in the data table
 				String[] listFields = tab.getFields();
 				for(int i=0; i < listFields.length; i++){
@@ -675,12 +681,6 @@ public class MVBatch extends MVUtil {
 					}
 				}
 				
-				//  if there is no data, do not try to plot it
-				if( 1 > tab.getNumRows() ){
-					System.out.println("  **  WARNING: query returned no data");
-					continue;
-				}
-							
 				//  convert the stat_group_lu_id to stat_name, if present
 				if( tab.containsField("stat_group_lu_id") ){
 					tab.addField("stat_name");
@@ -701,6 +701,11 @@ public class MVBatch extends MVUtil {
 						}				
 					}
 				}
+				
+				//  reformat the fcst_var
+				String[] listFcstVar = tab.getColumn("fcst_var");
+				for(int i=0; i < listFcstVar.length; i++){ listFcstVar[i] = formatR(listFcstVar[i]); }
+				tab.setColumn("fcst_var", listFcstVar);				
 				
 				//  add set fields to the table to handle aggregating over sets of values
 				for(int i=0; i < listAggVal.length; i++){
@@ -1054,7 +1059,7 @@ public class MVBatch extends MVUtil {
 						MVOrderedMap mapSeries1Val = new MVOrderedMap( job.getSeries1Val() );
 						MVOrderedMap mapSeries2Val = new MVOrderedMap( job.getSeries2Val() );
 						
-						//  add the independent and dependent variables 
+						//  add the independent and dependent variables to the template value map
 						mapPlotTmplVals.put("indy_var", job.getIndyVar());
 						Map.Entry[][] listDepPlotList = {listDep1Plot, listDep2Plot};
 						ArrayList listBootStats1 = new ArrayList();
@@ -1308,6 +1313,8 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("type",		job.getType().equals("")?	printRCol( rep("b",	intNumDepSeries) )	: job.getType());
 						tableRTags.put("lty",		job.getLty().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLty());
 						tableRTags.put("lwd",		job.getLwd().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLwd());
+						tableRTags.put("con_series",job.getConSeries().equals("")? printRCol( rep(0, intNumDepSeries) )	: job.getConSeries());
+						tableRTags.put("legend",	job.getLegend().equals("")? "c()" : job.getLegend());
 						tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
 						tableRTags.put("y1_bufr",	job.getY1Bufr());
 						tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()" : job.getY2Lim());
@@ -1485,53 +1492,57 @@ public class MVBatch extends MVUtil {
 	 */
 	public static final Hashtable _tableStatIndex = new Hashtable();
 	static{
-		_tableStatIndex.put("BASER", 	"0");
-		_tableStatIndex.put("FMEAN", 	"1");
-		_tableStatIndex.put("ACC", 		"2");
-		_tableStatIndex.put("FBIAS", 	"3");
-		_tableStatIndex.put("PODY", 	"4");
-		_tableStatIndex.put("PODN", 	"5");
-		_tableStatIndex.put("POFD", 	"6");
-		_tableStatIndex.put("FAR", 		"7");
-		_tableStatIndex.put("CSI", 		"8");
-		_tableStatIndex.put("GSS", 		"9");
-		_tableStatIndex.put("HK", 		"10");
-		_tableStatIndex.put("HSS", 		"11");
-		_tableStatIndex.put("ODDS", 	"12");
-		_tableStatIndex.put("FBAR", 	"13");
-		_tableStatIndex.put("FSTDEV", 	"14");
-		_tableStatIndex.put("OBAR", 	"15");
-		_tableStatIndex.put("OSTDEV",	"16");
-		_tableStatIndex.put("PR_CORR",	"17");
-		_tableStatIndex.put("ME", 		"18");
-		_tableStatIndex.put("ESTDEV", 	"19");
-		_tableStatIndex.put("MBIAS", 	"20");
-		_tableStatIndex.put("MAE", 		"21");
-		_tableStatIndex.put("MSE", 		"22");
-		_tableStatIndex.put("BCMSE", 	"23");
-		_tableStatIndex.put("BCRMSE", 	"23");
-		_tableStatIndex.put("RMSE", 	"24");
-		_tableStatIndex.put("E10", 		"25");
-		_tableStatIndex.put("E25", 		"26");
-		_tableStatIndex.put("E50", 		"27");
-		_tableStatIndex.put("E75", 		"28");
-		_tableStatIndex.put("E90", 		"29");
-		_tableStatIndex.put("BRIER", 	"30");
-		_tableStatIndex.put("NBR_BASER","31");
-		_tableStatIndex.put("NBR_FMEAN","32");
-		_tableStatIndex.put("NBR_ACC", 	"33");
-		_tableStatIndex.put("NBR_FBIAS","34");
-		_tableStatIndex.put("NBR_PODY", "35");
-		_tableStatIndex.put("NBR_PODN", "36");
-		_tableStatIndex.put("NBR_POFD", "37");
-		_tableStatIndex.put("NBR_FAR", 	"38");
-		_tableStatIndex.put("NBR_CSI", 	"39");
-		_tableStatIndex.put("NBR_GSS", 	"40");
-		_tableStatIndex.put("NBR_HK", 	"41");
-		_tableStatIndex.put("NBR_HSS", 	"42");
-		_tableStatIndex.put("NBR_ODDS", "43");
-		_tableStatIndex.put("NBR_FBS", 	"44");
-		_tableStatIndex.put("NBR_FSS", 	"45");
+		_tableStatIndex.put("BASER", 		"0");
+		_tableStatIndex.put("FMEAN", 		"1");
+		_tableStatIndex.put("ACC", 			"2");
+		_tableStatIndex.put("FBIAS", 		"3");
+		_tableStatIndex.put("PODY", 		"4");
+		_tableStatIndex.put("PODN", 		"5");
+		_tableStatIndex.put("POFD", 		"6");
+		_tableStatIndex.put("FAR", 			"7");
+		_tableStatIndex.put("CSI", 			"8");
+		_tableStatIndex.put("GSS", 			"9");
+		_tableStatIndex.put("HK", 			"10");
+		_tableStatIndex.put("HSS", 			"11");
+		_tableStatIndex.put("ODDS", 		"12");
+		_tableStatIndex.put("FBAR", 		"13");
+		_tableStatIndex.put("FSTDEV", 		"14");
+		_tableStatIndex.put("OBAR", 		"15");
+		_tableStatIndex.put("OSTDEV",		"16");
+		_tableStatIndex.put("PR_CORR",		"17");
+		_tableStatIndex.put("ME", 			"18");
+		_tableStatIndex.put("ESTDEV", 		"19");
+		_tableStatIndex.put("MBIAS", 		"20");
+		_tableStatIndex.put("MAE", 			"21");
+		_tableStatIndex.put("MSE", 			"22");
+		_tableStatIndex.put("BCMSE", 		"23");
+		_tableStatIndex.put("BCRMSE", 		"23");
+		_tableStatIndex.put("RMSE", 		"24");
+		_tableStatIndex.put("E10", 			"25");
+		_tableStatIndex.put("E25", 			"26");
+		_tableStatIndex.put("E50", 			"27");
+		_tableStatIndex.put("E75", 			"28");
+		_tableStatIndex.put("E90", 			"29");
+		_tableStatIndex.put("BRIER", 		"30");
+		_tableStatIndex.put("RELIABILITY",	"31");
+		_tableStatIndex.put("RESOLUTION",	"32");
+		_tableStatIndex.put("UNCERTAINTY",	"33");
+		_tableStatIndex.put("ROC_AUC", 		"34");
+		_tableStatIndex.put("NBR_BASER",	"35");
+		_tableStatIndex.put("NBR_FMEAN",	"36");
+		_tableStatIndex.put("NBR_ACC", 		"37");
+		_tableStatIndex.put("NBR_FBIAS",	"38");
+		_tableStatIndex.put("NBR_PODY", 	"39");
+		_tableStatIndex.put("NBR_PODN", 	"40");
+		_tableStatIndex.put("NBR_POFD",		"41");
+		_tableStatIndex.put("NBR_FAR", 		"42");
+		_tableStatIndex.put("NBR_CSI", 		"43");
+		_tableStatIndex.put("NBR_GSS", 		"44");
+		_tableStatIndex.put("NBR_HK", 		"45");
+		_tableStatIndex.put("NBR_HSS", 		"46");
+		_tableStatIndex.put("NBR_ODDS",		"47");
+		_tableStatIndex.put("NBR_FBS", 		"48");
+		_tableStatIndex.put("NBR_FSS", 		"49");
 	}
 
 	public static final Hashtable _tableModeStatIndex = new Hashtable();

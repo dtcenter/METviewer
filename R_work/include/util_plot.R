@@ -80,9 +80,16 @@ seriesMinMax = function(series, numModels, log=FALSE){
 }
 
 # numSeries() calculates the number of series based on the information in the listSeriesVal
-#   input.  Each permutation of series values yields a series, plus an extra series for the
-#   difference associated with the last series.
-numSeries = function(listSeriesVal, boolDiff){
+#   and listDepVal input.  Each permutation of series values yields a series, plus an extra 
+#   series for the difference associated with the last series.
+numSeries = function(listSeriesVal, listDepVal, boolDiff){
+	intNumStats = 0;
+	for( strDep1Name in names(listDep1Plot) ){
+		for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+			intNumStats = intNumStats + 1;		
+		}
+	}
+	
 	intNumSeries = 1;
 	listSeriesVar = names(listSeriesVal);
 	for(intSeriesVar in 1:length(listSeriesVar)){
@@ -94,7 +101,7 @@ numSeries = function(listSeriesVal, boolDiff){
 		intNumSeries = intNumSeries * intNumSeriesVal;
 	}
 	
-	return( (intNumSeries) );
+	return( intNumSeries * intNumStats );
 }
 
 # eventEqualize() assumes that the input dfStats contains data indexed by fcst_valid_beg 
