@@ -1,0 +1,58 @@
+<load_spec>
+	<connection>
+		<host>kemosabe:3306</host>
+		<database>metvdb3_test</database>
+		<user>pgoldenb</user>
+		<password>pgoldenb</password>
+	</connection>
+
+	<date_list name="folder_dates_06">
+		<start>2009122118V_06h</start>
+		<end>2010013118V_06h</end>
+		<inc>21600</inc>
+		<format>yyyyMMddHH'V_06h'</format>
+	</date_list>
+
+	<date_list name="folder_dates_24">
+		<start>2009122212V_24h</start>
+		<end>2010013112V_24h</end>
+		<inc>86400</inc>
+		<format>yyyyMMddHH'V_24h'</format>
+	</date_list>
+
+	<verbose>false</verbose>
+	<insert_size>1</insert_size>
+	<stat_header_table_check>true</stat_header_table_check>
+	<stat_header_db_check>false</stat_header_db_check>
+	<mode_header_db_check>true</mode_header_db_check>
+	<drop_indexes>false</drop_indexes>
+	<apply_indexes>true</apply_indexes>
+	
+	<folder_tmpl>/var/autofs/mnt/pd6/score/DTC/HMT/West/dwr_domains/{model}/{date}/{data_type}</folder_tmpl>
+	
+	<load_val>
+		<field name="model">
+			<val>arw-tom-gep0</val>			
+			<val>arw-fer-gep1</val>			
+			<val>arw-sch-gep2</val>			
+			<val>arw-tom-gep3</val>			
+			<val>nmm-fer-gep4</val>			
+			<val>arw-fer-gep5</val>			
+			<val>arw-sch-gep6</val>			
+			<val>arw-tom-gep7</val>			
+			<val>arw-fer-gep8</val>			
+			<val>gfs</val>			
+			<val>ens-mean</val>			
+		</field>
+		
+		<field name="date">
+			<date_list name="folder_dates_06"/>
+		</field>
+		
+		<field name="data_type">
+			<val>grid_stat</val>
+			<val>point_stat</val>
+			<val>mode</val>
+		</field>
+	</load_val>
+</load_spec>
