@@ -23,13 +23,14 @@
 		<field name="fcst_valid_beg" />
 	</date_list>
 	
-	<plot name="lead_series_prob">
+	<plot name="lead_series_prob" run="false">
 	
 		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
 		
 		<!-- independent variable -->
 		<indep name="fcst_lead">
+			<val label="3">30000</val>
 			<val label="6">60000</val>
 			<val label="9">90000</val>
 			<val label="12">120000</val>
@@ -60,57 +61,13 @@
 			<val label="87">870000</val>
 		</indep>
 
-		<!-- series1 variables and values -->
-		<series1>
-			<field name="model">
-				<val>srf</val>			
-			</field>		
-		</series1>
-		
-		<!-- dependent variable(s) and plot series -->
-		<dep>
-			
-			<!-- dependent variable 1 -->
-			<dep1>
-				<fcst_var name="PROB(APCP_06>6.35)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-<!--					<stat>ROC_AUC</stat>-->
-				</fcst_var>
-				<fcst_var name="PROB(APCP_06>12.70)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-<!--					<stat>ROC_AUC</stat>-->
-				</fcst_var>
-			</dep1>
-			
-						
-			<!-- fixed values -->
-			<fix>
-				<fcst_var name="PROB(APCP_06>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
-			</fix>		
-		</dep>
-		
 		<!-- aggregate fields and values -->
 		<agg>
 			<field name="fcst_valid_beg">
-<!--				<date_list name="fcst_valid_agg"/>-->
-				<val>2010-04-30 00:00:00</val>
+				<date_list name="fcst_valid_agg"/>
+<!--				<val>2010-04-30 00:00:00</val>-->
 			</field>
 		</agg>
-		
-		<!-- templates -->
-		<tmpl>
-			<data_file>lead_series_valid/{fcst_valid_beg}V/{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.data</data_file>
-			<plot_file>lead_series_valid/{fcst_valid_beg}V/{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.png</plot_file>
-			<r_file>thresh_series_valid/{fcst_valid_beg}V/{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.R</r_file>
-			<title>{dep1_1_stat1} {dep1_1_stat2} {dep1_1_stat3} - CONST VALID TIME {fcst_valid_beg}V</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1}, {dep1_1_stat2}, {dep1_1_stat3}</y1_label>
-		</tmpl>
 		
 		<!-- plot formatting and options -->
 		<event_equal>false</event_equal>
@@ -132,7 +89,7 @@
 		<plot_width>11</plot_width>
 		<plot_res>72</plot_res>
 		<plot_units>in</plot_units>
-		<mar>c(6, 5, 5, 4)</mar>
+		<mar>c(8, 5, 5, 4)</mar>
 		<mgp>c(1, 1, 0)</mgp>
 		<cex>1</cex>
 		<title_weight>2</title_weight>
@@ -173,33 +130,232 @@
 		<y2lab_align>.5</y2lab_align>
 		<legend_size>.8</legend_size>
 		<legend_box>o</legend_box>
-		<legend_inset>c(0, -.18)</legend_inset>
 		<legend_ncol>2</legend_ncol>
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
 		<ci_alpha>.05</ci_alpha>
 		
-		<plot_ci>c("none", "none", "none", "none", "none", "none")</plot_ci>
-		<colors>c("#FF3300FF", "#33FF33FF", "#0033FFFF", "#FF6600FF", "#66CC66FF", "#0066DDFF")</colors>
-		<pch>c(20, 20, 20, 20, 20, 20)</pch>
-		<type>c("b", "b", "b", "b", "b", "b")</type>
-		<lty>c(1, 1, 2, 2, 3, 3)</lty>
-		<lwd>c(1, 1, 1, 1, 1, 1)</lwd>
-		<con_series>c(1, 1, 1, 1, 1, 1)</con_series>
+	</plot>
+	
+	<plot name="lead_series_rru" inherits="lead_series_prob" run="false">
+
+		<plot_ci>c("none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
+		<colors>c("#FF3300FF", "#33FF33FF", "#0033FFFF", "#FF6600FF", "#66CC66FF", "#0066DDFF", "#FF3300FF", "#33FF33FF", "#0033FFFF", "#FF6600FF", "#66CC66FF", "#0066DDFF")</colors>
+		<pch>c(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20)</pch>
+		<type>c("b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b")</type>
+		<lty>c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4)</lty>
+		<lwd>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)</lwd>
+		<con_series>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)</con_series>
+		
+		<legend_inset>c(0, -.26)</legend_inset>
+	</plot>
+	
+	<plot name="lead_series_rru06" inherits="lead_series_rru">
+		<series1><field name="model"><val>srf</val></field></series1>
+	
+		<dep>
+			<dep1>
+				<fcst_var name="PROB(APCP_06>6.35)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+				<fcst_var name="PROB(APCP_06>12.70)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+				<fcst_var name="PROB(APCP_06>25.40)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+				<fcst_var name="PROB(APCP_06>50.80)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+			</dep1>
+			
+			<fix>
+				<fcst_var name="PROB(APCP_06>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
+			</fix>					
+		</dep>
+		
+		<!-- templates -->
+		<tmpl>
+			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.data</data_file>
+			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.png</plot_file>
+			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.R</r_file>
+			<title>APCP_06 {dep1_1_stat1} {dep1_1_stat2} {dep1_1_stat3} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>APCP_06 {dep1_1_stat1}, {dep1_1_stat2}, {dep1_1_stat3}</y1_label>
+		</tmpl>
+		
 		<legend>
 			c("srf PROB(APCP_06>0.25\") RELIABILITY",
 			  "srf PROB(APCP_06>0.25\") RESOLUTION",
 			  "srf PROB(APCP_06>0.25\") UNCERTAINTY",
 			  "srf PROB(APCP_06>0.50\") RELIABILITY",
 			  "srf PROB(APCP_06>0.50\") RESOLUTION",
-			  "srf PROB(APCP_06>0.50\") UNCERTAINTY")		
+			  "srf PROB(APCP_06>0.50\") UNCERTAINTY",		
+			  "srf PROB(APCP_06>1\") RELIABILITY",
+			  "srf PROB(APCP_06>1\") RESOLUTION",
+			  "srf PROB(APCP_06>1\") UNCERTAINTY",		
+			  "srf PROB(APCP_06>2\") RELIABILITY",
+			  "srf PROB(APCP_06>2\") RESOLUTION",
+			  "srf PROB(APCP_06>2\") UNCERTAINTY")		
 		</legend>
+	</plot>
+	
+	<plot name="lead_series_rru03" inherits="lead_series_rru">
+		<series1><field name="model"><val>sref</val></field></series1>
+	
+		<dep>
+			<dep1>
+				<fcst_var name="PROB(APCP_03>6.35)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+				<fcst_var name="PROB(APCP_03>12.70)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+				<fcst_var name="PROB(APCP_03>25.40)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+				<fcst_var name="PROB(APCP_03>50.80)">
+					<stat>RELIABILITY</stat>
+					<stat>RESOLUTION</stat>
+					<stat>UNCERTAINTY</stat>
+				</fcst_var>
+			</dep1>
+			
+			<fix>
+				<fcst_var name="PROB(APCP_03>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
+				<fcst_var name="PROB(APCP_03>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
+				<fcst_var name="PROB(APCP_03>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
+				<fcst_var name="PROB(APCP_03>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
+			</fix>					
+		</dep>
 		
-<!--		<y1_lim>c(0,1)</y1_lim>-->
-<!--		<y1_bufr>.04</y1_bufr>-->
-<!--		<y2_lim>c(0,1)</y2_lim>-->
-<!--		<y2_bufr>.04</y2_bufr>-->
-<!--		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		-->
+		<!-- templates -->
+		<tmpl>
+			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.data</data_file>
+			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.png</plot_file>
+			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.R</r_file>
+			<title>APCP_03 {dep1_1_stat1} {dep1_1_stat2} {dep1_1_stat3} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>APCP_03 {dep1_1_stat1}, {dep1_1_stat2}, {dep1_1_stat3}</y1_label>
+		</tmpl>
+		
+		<legend>
+			c("srf PROB(APCP_03>0.25\") RELIABILITY",
+			  "srf PROB(APCP_03>0.25\") RESOLUTION",
+			  "srf PROB(APCP_03>0.25\") UNCERTAINTY",
+			  "srf PROB(APCP_03>0.50\") RELIABILITY",
+			  "srf PROB(APCP_03>0.50\") RESOLUTION",
+			  "srf PROB(APCP_03>0.50\") UNCERTAINTY",		
+			  "srf PROB(APCP_03>1\") RELIABILITY",
+			  "srf PROB(APCP_03>1\") RESOLUTION",
+			  "srf PROB(APCP_03>1\") UNCERTAINTY",		
+			  "srf PROB(APCP_03>2\") RELIABILITY",
+			  "srf PROB(APCP_03>2\") RESOLUTION",
+			  "srf PROB(APCP_03>2\") UNCERTAINTY")		
+		</legend>
+	</plot>
+	
+	<plot name="lead_series_roc" inherits="lead_series_prob" run="false">
+		<plot_ci>c("none", "none", "none", "none")</plot_ci>
+		<colors>c("#FF3300FF", "#FF6600FF", "#FF3300FF", "#FF6600FF")</colors>
+		<pch>c(20, 20, 20, 20)</pch>
+		<type>c("b", "b", "b", "b")</type>
+		<lty>c(1, 2, 3, 4)</lty>
+		<lwd>c(1, 1, 1, 1)</lwd>
+		<con_series>c(1, 1, 1, 1)</con_series>
+
+		<legend_inset>c(0, -.18)</legend_inset>
+	</plot>
+
+	<plot name="lead_series_roc06" inherits="lead_series_roc">
+		<series1><field name="model"><val>srf</val></field></series1>
+	
+		<dep>
+			<dep1>
+				<fcst_var name="PROB(APCP_06>6.35)"><stat>ROC_AUC</stat></fcst_var>
+				<fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var>
+				<fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var>
+				<fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var>
+			</dep1>
+			
+			<fix>
+				<fcst_var name="PROB(APCP_06>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
+				<fcst_var name="PROB(APCP_06>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
+			</fix>								
+		</dep>
+		
+		<!-- templates -->
+		<tmpl>
+			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}.data</data_file>
+			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}.png</plot_file>
+			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}.R</r_file>
+			<title>APCP_06 {dep1_1_stat1} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>APCP_06 {dep1_1_stat1}</y1_label>
+		</tmpl>
+		
+		<legend>
+			c("srf PROB(APCP_06>0.25\") ROC_AUC",
+			  "srf PROB(APCP_06>0.50\") ROC_AUC",		
+			  "srf PROB(APCP_06>1\") ROC_AUC",		
+			  "srf PROB(APCP_06>2\") ROC_AUC")		
+		</legend>		
+	</plot>
+
+	<plot name="lead_series_roc03" inherits="lead_series_roc">
+		<series1><field name="model"><val>sref</val></field></series1>
+	
+		<dep>
+			<dep1>
+				<fcst_var name="PROB(APCP_03>6.35)"><stat>ROC_AUC</stat></fcst_var>
+				<fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var>
+				<fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var>
+				<fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var>
+			</dep1>
+			
+			<fix>
+				<fcst_var name="PROB(APCP_03>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
+				<fcst_var name="PROB(APCP_03>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
+				<fcst_var name="PROB(APCP_03>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
+				<fcst_var name="PROB(APCP_03>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
+			</fix>								
+		</dep>
+		
+		<!-- templates -->
+		<tmpl>
+			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}.data</data_file>
+			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}.png</plot_file>
+			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}.R</r_file>
+			<title>APCP_03 {dep1_1_stat1} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>APCP_03 {dep1_1_stat1}</y1_label>
+		</tmpl>
+		
+		<legend>
+			c("srf PROB(APCP_03>0.25\") ROC_AUC",
+			  "srf PROB(APCP_03>0.50\") ROC_AUC",		
+			  "srf PROB(APCP_03>1\") ROC_AUC",		
+			  "srf PROB(APCP_03>2\") ROC_AUC")		
+		</legend>		
 	</plot>
 
 </plot_spec>

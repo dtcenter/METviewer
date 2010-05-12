@@ -179,7 +179,7 @@ public class MVLoad extends MVUtil {
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
 			mapLoadVar.put("model", new String[] {"srf"});
 			String[] listDates = buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
-			listDates = append(listDates, buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
+			listDates = append(listDates, buildDateList("2010042412V_03h", "2010050212V_03h", 3 * 3600, "yyyyMMddHH'V_03h'"));
 			//String[] listDates = buildDateList("2010042412V_06h", "2010042415V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
 			//listDates = append(listDates, buildDateList("2010042412V_06h", "20100424212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
 			Arrays.sort(listDates, new Comparator(){
