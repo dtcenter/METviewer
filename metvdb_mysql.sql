@@ -1,9 +1,9 @@
 -- This file is intended for MySQL
 
 use mysql;
-DROP DATABASE IF EXISTS metvdb5_hwt;
-CREATE DATABASE metvdb5_hwt;
-use metvdb5_hwt;
+DROP DATABASE IF EXISTS metvdb_hwt;
+CREATE DATABASE metvdb_hwt;
+use metvdb_hwt;
 
 
 -- data_file_type_lu is a look-up table containing information about the different types

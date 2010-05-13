@@ -11,12 +11,12 @@ public class MVLoad extends MVUtil {
 	// private static final Logger _logger = Logger.getLogger(MVBatch.class);
 	// private static final PrintStream _logStream = System.out;
 
-	public static String _strHost				= "kemosabe";
-	public static String _strPort				= "3306";
-	// public static String _strHostPort		= "pigpen:3306";
-	public static String _strDatabase			= "metvdb5_hwt";
-	public static String _strUser				= "pgoldenb";
-	public static String _strPwd				= "pgoldenb";
+	//public static String _strHost				= "kemosabe";
+	//public static String _strPort				= "3306";
+	//public static String _strHostPort		= "pigpen:3306";
+	//public static String _strDatabase			= "metvdb5_hwt";
+	//public static String _strUser				= "pgoldenb";
+	//public static String _strPwd				= "pgoldenb";
 
 	public static boolean _boolVerbose				= false;
 	public static int _intInsertSize				= 1;
@@ -129,20 +129,8 @@ public class MVLoad extends MVUtil {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		try {
-			if( 0 < argv.length ){ _strHost = argv[0]; }
-			System.out.println(padBegin("database host: ", 36) + _strHost + "\n" +
-							   padBegin("begin time: ", 36) + format.format(new java.util.Date()) + "\n");
+			System.out.println(padBegin("begin time: ", 36) + format.format(new java.util.Date()) + "\n");
 
-			// connect to the database
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			con = DriverManager.getConnection("jdbc:mysql://" + _strHost + ":" + _strPort + "/" + _strDatabase, _strUser, _strPwd);
-			if( con.isClosed() ){ throw new Exception("database connection failed"); }
-
-			// if the insert size is greater than 1, ensure that the db header check is off
-			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){
-				throw new Exception("insert size (" + _intInsertSize + ") > 1 and database header check turned on");
-			}
-			
 			// * * * *   QNSE data  * * * *
 			/*
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
@@ -173,9 +161,8 @@ public class MVLoad extends MVUtil {
 			mapLoadVar.put("model", new String[] {"ens-mean"});
 			mapLoadVar.put("date", new String[]{"2010012418V_06h"});
 			mapLoadVar.put("data_type", new String[]{"grid_stat"});
-			*/
 
-			//  * * * *  HWT data  * * * *
+			//  * * * *  HWT prob data  * * * *
 			MVOrderedMap mapLoadVar = new MVOrderedMap();
 			mapLoadVar.put("model", new String[] {"srf"});
 			String[] listDates = buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
@@ -188,10 +175,43 @@ public class MVLoad extends MVUtil {
 			mapLoadVar.put("date", listDates);
 			mapLoadVar.put("data_type", new String[]{"grid_stat"});
 
-			String strBaseFolderTmpl = "/d1/pgoldenb/var/hwt/data/{date}/{data_type}";
+			String strBaseFolderTmpl = "/d1/pgoldenb/var/hwt/data/{date}/{data_type}";			
+			*/
+
+			if( 1 > argv.length ){
+				System.out.println("usage: ./load.sh [load_file]\n\n----  MVLoad Done  ----");
+				return;
+			}
+			
+			//  parse the plot job
+			MVLoadJobParser parser = new MVLoadJobParser(argv[0]);
+			MVLoadJob job = parser.getLoadJob();
+			
+			/*
+			// connect to the database
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBName(), job.getDBPassword());
+			if( con.isClosed() ){ throw new Exception("database connection failed"); }
+			*/
+			
+			con = job.getConnection();
+			
+			_boolVerbose				= job.getVerbose();
+			_intInsertSize				= job.getInsertSize();
+			_boolStatHeaderTableCheck	= job.getStatHeaderTableCheck();
+			_boolStatHeaderDBCheck		= job.getStatHeaderDBCheck();
+			_boolModeHeaderDBCheck		= job.getModeHeaderDBCheck();
+			_boolDropIndexes			= job.getDropIndexes();
+			_boolApplyIndexes			= job.getApplyIndexes();
+			
+			// if the insert size is greater than 1, ensure that the db header check is off
+			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){
+				throw new Exception("insert size (" + _intInsertSize + ") > 1 and database header check turned on");
+			}
 			
 			long intLoadTimeStart = (new java.util.Date()).getTime();
-			int intNumFiles = 0;
+			int intNumStatFiles = 0;
+			int intNumModeFiles = 0;
 			int intStatLinesPrev = 0;
 			int intModeLinesPrev = 0;
 			
@@ -199,9 +219,9 @@ public class MVLoad extends MVUtil {
 				dropIndexes(con);
 			}
 			
-			MVOrderedMap[] listPerm = permute(mapLoadVar).getRows();
+			MVOrderedMap[] listPerm = permute(job.getLoadVal()).getRows();
 			for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
-				String strBaseFolder = buildTemplateString(strBaseFolderTmpl, listPerm[intPerm]);
+				String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);
 				
 				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder + "\n" + 
 								   listPerm[intPerm].getRDecl());
@@ -224,10 +244,11 @@ public class MVLoad extends MVUtil {
 					
 					if( info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ){
 						loadStatFile(info, con);
+						intNumStatFiles++;
 					} else if( info._dataFileLuTypeName.equals("mode_obj") || info._dataFileLuTypeName.equals("mode_cts") ){
 						loadModeFile(info, con);
+						intNumModeFiles++;
 					}
-					intNumFiles++;
 				}
 				
 				_tableModeHeaders.clear();
@@ -245,8 +266,7 @@ public class MVLoad extends MVUtil {
 			long intLoadTime = (new java.util.Date()).getTime() - intLoadTimeStart;
 			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);
 			
-			System.out.println("    ==== grid_stat ====\n\n" +
-							   padBegin("load total: ", 36) + formatTimeSpan(intLoadTime) + "\n" +
+			System.out.println("\n    ==== grid_stat ====\n\n" +
 							   (_boolStatHeaderDBCheck? padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" : "") +
 							   (_boolStatHeaderTableCheck? padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" : "") +
 							   padBegin("stat header records: ", 36) + _intStatHeaderRecords + "\n" +
@@ -260,21 +280,22 @@ public class MVLoad extends MVUtil {
 							   padBegin("total lines: ", 36) + _intStatLinesTotal + "\n" +
 							   padBegin("insert size: ", 36) + _intInsertSize + "\n" +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
-							   padBegin("num files: ", 36) + intNumFiles + "\n" +
-							   padBegin("end time: ", 36) + format.format(new java.util.Date()) + "\n\n" +
+							   padBegin("num files: ", 36) + intNumStatFiles + "\n\n" +
 							   "    ==== mode ====\n\n" +
+							   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
 							   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
 							   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
 							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
-							   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
-							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n\n");
+							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n" +
+							   padBegin("num files: ", 36) + intNumModeFiles + "\n\n");
 			
 			if( _boolApplyIndexes ){
 				applyIndexes(con);
 			}
 
-			System.out.println(padBegin("end time: ", 36) + format.format(new java.util.Date()) + "\n");
+			System.out.println(padBegin("end time: ", 36) + format.format(new java.util.Date()) + "\n" +
+					   		   padBegin("load total: ", 36) + formatTimeSpan(intLoadTime) + "\n");
 		} catch (Exception e) {
 			System.err.println("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
 			e.printStackTrace();

@@ -1,23 +1,16 @@
 <load_spec>
 	<connection>
 		<host>kemosabe:3306</host>
-		<database>metvdb3_test</database>
+		<database>metvdb_hwt</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>
 	</connection>
 
-	<date_list name="folder_dates_06">
-		<start>2009122118V_06h</start>
-		<end>2010013118V_06h</end>
-		<inc>21600</inc>
-		<format>yyyyMMddHH'V_06h'</format>
-	</date_list>
-
-	<date_list name="folder_dates_24">
-		<start>2009122212V_24h</start>
-		<end>2010013112V_24h</end>
-		<inc>86400</inc>
-		<format>yyyyMMddHH'V_24h'</format>
+	<date_list name="folder_dates">
+		<start>2010051000V</start>
+		<end>2010051406V</end>
+		<inc>3600</inc>
+		<format>yyyyMMddHH'V'</format>
 	</date_list>
 
 	<verbose>false</verbose>
@@ -28,30 +21,53 @@
 	<drop_indexes>false</drop_indexes>
 	<apply_indexes>true</apply_indexes>
 	
-	<folder_tmpl>/var/autofs/mnt/pd6/score/DTC/HMT/West/dwr_domains/{model}/{date}/{data_type}</folder_tmpl>
+	<folder_tmpl>/linus_d1/jensen/out/{model}/{date}/{fcst_var}/{data_type}</folder_tmpl>
 	
 	<load_val>
 		<field name="model">
-			<val>arw-tom-gep0</val>			
-			<val>arw-fer-gep1</val>			
-			<val>arw-sch-gep2</val>			
-			<val>arw-tom-gep3</val>			
-			<val>nmm-fer-gep4</val>			
-			<val>arw-fer-gep5</val>			
-			<val>arw-sch-gep6</val>			
-			<val>arw-tom-gep7</val>			
-			<val>arw-fer-gep8</val>			
-			<val>gfs</val>			
-			<val>ens-mean</val>			
+			<val>hrrr</val>
+			<val>ssef_s4c0_arw</val>
+			<val>ssef_s4cn_arw</val>
+			<val>ssef_s4m10_arw</val>
+			<val>ssef_s4m13_arw</val>
+			<val>ssef_s4m16_arw</val>
+			<val>ssef_s4m19_arw</val>
+			<val>ssef_s4m4_arw</val>
+			<val>ssef_s4m5_nmm</val>
+			<val>ssef_s4m8_arw</val>
+			<val>ssef_s4c0_nmm</val>
+			<val>ssef_s4cn_nmm</val>
+			<val>ssef_s4m11_arw</val>
+			<val>ssef_s4m14_arw</val>
+			<val>ssef_s4m17_arw</val>
+			<val>ssef_s4m3_arw</val>
+			<val>ssef_s4m4_nmm</val>
+			<val>ssef_s4m6_arw</val>
+			<val>ssef_s4m9_arw</val>
+			<val>ssef_s4c0_arps</val>
+			<val>ssef_s4cn_arps</val>
+			<val>ssef_s4ens</val>
+			<val>ssef_s4m12_arw</val>
+			<val>ssef_s4m15_arw</val>
+			<val>ssef_s4m18_arw</val>
+			<val>ssef_s4m3_nmm</val>
+			<val>ssef_s4m5_arw</val>
+			<val>ssef_s4m7_arw</val>
+			<val>ssef_spc1</val>
 		</field>
 		
 		<field name="date">
-			<date_list name="folder_dates_06"/>
+<!--			<val>2010051200V</val>-->
+			<date_list name="folder_dates"/>
+		</field>
+		
+		<field name="fcst_var">
+			<val>retop</val>
+			<val>refc</val>
 		</field>
 		
 		<field name="data_type">
 			<val>grid_stat</val>
-			<val>point_stat</val>
 			<val>mode</val>
 		</field>
 	</load_val>

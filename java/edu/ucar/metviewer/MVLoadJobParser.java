@@ -15,34 +15,12 @@ public class MVLoadJobParser extends MVUtil{
 	protected Hashtable _tableDateListDecl = new Hashtable();
 	protected Hashtable _tableDateRangeDecl = new Hashtable();
 	protected MVNode _nodeLoadSpec = null;
+	protected MVLoadJob _job = null;
 	
 	protected Connection _con = null;
 
-	public static void main(String[] args) {
-		System.out.println("----  MVLoadJobParser  ----\n");
+	public MVLoadJobParser(String spec) throws Exception{		
 
-		Connection con = null;
-		try {
-
-			//  parse the data structure
-			MVLoadJobParser parser = new MVLoadJobParser("load.xml", con);
-			MVLoadJob[] jobs = parser.parseLoadJobSpec();
-			int intNumJobs = jobs.length;
-			
-		} catch(SAXParseException se){
-			System.out.println("  **  ERROR: caught " + se.getClass() + ": " + se.getMessage());
-		} catch(Exception ex){
-			System.out.println("  **  ERROR: caught " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
-		} finally {
-			try{ if( con != null )	con.close(); }catch(SQLException e){}
-		}
-		System.out.println("----  MVLoadJobParser Done  ----");
-	}
-	
-	public MVLoadJobParser(String spec, Connection con) throws Exception{		
-		_con = con;
-		
 		//  instantiate and configure the xml parser
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		//dbf.setSchema(schema);
@@ -64,11 +42,13 @@ public class MVLoadJobParser extends MVUtil{
 		//  parse the input document and build the MVNode data structure
 		Document doc = builder.parse(spec);
 		_nodeLoadSpec = new MVNode(doc.getFirstChild());
+		
+		parseLoadJobSpec();
 	}
 	
-	public MVLoadJob[] parseLoadJobSpec(){
-		ArrayList listJobs = new ArrayList();
-		
+	public MVLoadJob getLoadJob(){ return _job; }
+	
+	public void parseLoadJobSpec(){
 		MVLoadJob job = new MVLoadJob();
 		for(int i=0; null != _nodeLoadSpec && i < _nodeLoadSpec._children.length; i++){
 			MVNode node = _nodeLoadSpec._children[i];
@@ -129,7 +109,6 @@ public class MVLoadJobParser extends MVUtil{
 
 			//  <load_val>
 			else if( node._tag.equals("load_val") ){
-				MVOrderedMap mapLoadVal = new MVOrderedMap();
 				for(int j=0; j < node._children.length; j++){
 					MVNode nodeField = node._children[j];
 					String strFieldName = nodeField._name;
@@ -145,13 +124,13 @@ public class MVLoadJobParser extends MVUtil{
 							listVal.addAll( Arrays.asList( (String[])_tableDateListDecl.get(nodeChild._name) ) );							
 						}
 					}
-					mapLoadVal.put(strFieldName, (String[])listVal.toArray(new String[]{}));
+					job.addLoadVal(strFieldName, (String[])listVal.toArray(new String[]{}));
 				}
 			}
 			
 		}
 		
-		return (MVLoadJob[])listJobs.toArray(new MVLoadJob[]{});
+		_job = job;
 	}
 	
 	public static boolean checkJobCompleteness(MVLoadJob job){
