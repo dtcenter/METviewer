@@ -1,75 +1,70 @@
 
 <plot_spec>
 	 
-	<!-- database connection -->
 	<connection>
 		<host>kemosabe:3306</host>
-		<database>metvdb5_hwt</database>
+		<database>metvdb_hwt</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>		
 	</connection>
 	
-	<!-- file sytem -->
 	<folders>
 		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
 		<r_work>/d1/pgoldenb/var/hwt/R_work</r_work>
-		<plots>/d1/pgoldenb/var/hwt/plots</plots>
+		<plots>/d1/pgoldenb/var/hwt/plots_prob</plots>
 	</folders>	
 
-	<!-- global date list -->	
-	<date_list name="fcst_valid_agg">
-		<start>2010-04-24 15:00:00</start>
-		<end>2010-05-01 12:00:00</end>
-		<field name="fcst_valid_beg" />
-	</date_list>
+	<plot name="hwt_prob" run="false">
 	
-	<plot name="lead_series_prob" run="false">
-	
-		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
 		
-		<!-- independent variable -->
 		<indep name="fcst_lead">
+			<val label="0">0</val>
+			<val label="1">10000</val>
+			<val label="2">20000</val>
 			<val label="3">30000</val>
+			<val label="4">40000</val>
+			<val label="5">50000</val>
 			<val label="6">60000</val>
+			<val label="7">70000</val>
+			<val label="8">80000</val>
 			<val label="9">90000</val>
+			<val label="10">100000</val>
+			<val label="11">110000</val>
 			<val label="12">120000</val>
+			<val label="13">130000</val>
+			<val label="14">140000</val>
 			<val label="15">150000</val>
+			<val label="16">160000</val>
+			<val label="17">170000</val>
 			<val label="18">180000</val>
+			<val label="19">190000</val>
+			<val label="20">200000</val>
 			<val label="21">210000</val>
+			<val label="22">220000</val>
+			<val label="23">230000</val>
 			<val label="24">240000</val>
+			<val label="25">250000</val>
+			<val label="26">260000</val>
 			<val label="27">270000</val>
-			<val label="30">300000</val>
-			<val label="33">330000</val>
-			<val label="36">360000</val>
-			<val label="39">390000</val>
-			<val label="42">420000</val>
-			<val label="45">450000</val>
-			<val label="48">480000</val>
-			<val label="51">510000</val>
-			<val label="54">540000</val>
-			<val label="57">570000</val>
-			<val label="60">600000</val>
-			<val label="63">630000</val>
-			<val label="66">660000</val>
-			<val label="69">690000</val>
-			<val label="72">720000</val>
-			<val label="75">750000</val>
-			<val label="78">780000</val>
-			<val label="81">810000</val>
-			<val label="84">840000</val>
-			<val label="87">870000</val>
+			<val label="28">280000</val>
 		</indep>
-
-		<!-- aggregate fields and values -->
+		
+		<series1>
+			<field name="inithour">
+				<val>0</val>
+				<val>21</val>
+			</field>
+		</series1>
+		
 		<agg>
-			<field name="fcst_valid_beg">
-				<date_list name="fcst_valid_agg"/>
-<!--				<val>2010-04-30 00:00:00</val>-->
+			<field name="vx_mask">
+				<val>FULL</val>
+<!--				<val>VORTEX2</val>-->
+<!--				<val>DAILY</val>-->
 			</field>
 		</agg>
 		
-		<!-- plot formatting and options -->
 		<event_equal>false</event_equal>
 		<plot1_diff>false</plot1_diff>
 		<plot2_diff>false</plot2_diff>
@@ -89,7 +84,6 @@
 		<plot_width>11</plot_width>
 		<plot_res>72</plot_res>
 		<plot_units>in</plot_units>
-		<mar>c(8, 5, 5, 4)</mar>
 		<mgp>c(1, 1, 0)</mgp>
 		<cex>1</cex>
 		<title_weight>2</title_weight>
@@ -137,225 +131,1379 @@
 		
 	</plot>
 	
-	<plot name="lead_series_rru" inherits="lead_series_prob" run="false">
-
-		<plot_ci>c("none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
-		<colors>c("#FF3300FF", "#33FF33FF", "#0033FFFF", "#FF6600FF", "#66CC66FF", "#0066DDFF", "#FF3300FF", "#33FF33FF", "#0033FFFF", "#FF6600FF", "#66CC66FF", "#0066DDFF")</colors>
-		<pch>c(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20)</pch>
-		<type>c("b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b")</type>
-		<lty>c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4)</lty>
-		<lwd>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)</lwd>
-		<con_series>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)</con_series>
+	<plot name="hwt_prob_brr" inherits="hwt_prob" run="false">
 		
-		<legend_inset>c(0, -.26)</legend_inset>
-	</plot>
-	
-	<plot name="lead_series_rru06" inherits="lead_series_rru">
-		<series1><field name="model"><val>srf</val></field></series1>
-	
-		<dep>
-			<dep1>
-				<fcst_var name="PROB(APCP_06>6.35)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-				<fcst_var name="PROB(APCP_06>12.70)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-				<fcst_var name="PROB(APCP_06>25.40)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-				<fcst_var name="PROB(APCP_06>50.80)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-			</dep1>
-			
-			<fix>
-				<fcst_var name="PROB(APCP_06>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
-			</fix>					
-		</dep>
+		<mar>c(7, 5, 5, 2)</mar>
+		<legend_inset>c(0, -.22)</legend_inset>
 		
-		<!-- templates -->
-		<tmpl>
-			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.data</data_file>
-			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.png</plot_file>
-			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.R</r_file>
-			<title>APCP_06 {dep1_1_stat1} {dep1_1_stat2} {dep1_1_stat3} - CONST VALID TIME {fcst_valid_beg}V</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>APCP_06 {dep1_1_stat1}, {dep1_1_stat2}, {dep1_1_stat3}</y1_label>
-		</tmpl>
+		<plot_ci>c("none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
+		<pch>c(20, 20, 20, 20, 20, 20, 20, 20)</pch>
+		<type>c("b", "b", "b", "b", "b", "b", "b", "b")</type>
+		<lty>c(1, 1, 2, 2, 3, 3, 4, 4)</lty>
+		<con_series>c(1, 1, 1, 1, 1, 1, 1, 1)</con_series>		
+		<colors>c("#000000FF", "#FF55AAFF", "#000000FF", "#FF55AAFF", "#000000FF", "#FF55AAFF", "#000000FF", "#FF55AAFF")</colors>
+		<lwd>c(3, 3, 2, 2, 2, 2, 2, 2)</lwd>
 		
 		<legend>
-			c("srf PROB(APCP_06>0.25\") RELIABILITY",
-			  "srf PROB(APCP_06>0.25\") RESOLUTION",
-			  "srf PROB(APCP_06>0.25\") UNCERTAINTY",
-			  "srf PROB(APCP_06>0.50\") RELIABILITY",
-			  "srf PROB(APCP_06>0.50\") RESOLUTION",
-			  "srf PROB(APCP_06>0.50\") UNCERTAINTY",		
-			  "srf PROB(APCP_06>1\") RELIABILITY",
-			  "srf PROB(APCP_06>1\") RESOLUTION",
-			  "srf PROB(APCP_06>1\") UNCERTAINTY",		
-			  "srf PROB(APCP_06>2\") RELIABILITY",
-			  "srf PROB(APCP_06>2\") RESOLUTION",
-			  "srf PROB(APCP_06>2\") UNCERTAINTY")		
+			c("ssef_s4ens BRIER SCORE",
+			  "sref BRIER SCORE",
+			  "ssef_s4ens REL.",
+			  "sref REL.",
+			  "ssef_s4ens RES.",
+			  "sref RES.",
+			  "ssef_s4ens UNC.",
+			  "sref UNC.")		
 		</legend>
 	</plot>
 	
-	<plot name="lead_series_rru03" inherits="lead_series_rru">
-		<series1><field name="model"><val>sref</val></field></series1>
-	
-		<dep>
-			<dep1>
-				<fcst_var name="PROB(APCP_03>6.35)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-				<fcst_var name="PROB(APCP_03>12.70)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-				<fcst_var name="PROB(APCP_03>25.40)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-				<fcst_var name="PROB(APCP_03>50.80)">
-					<stat>RELIABILITY</stat>
-					<stat>RESOLUTION</stat>
-					<stat>UNCERTAINTY</stat>
-				</fcst_var>
-			</dep1>
-			
-			<fix>
-				<fcst_var name="PROB(APCP_03>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
-				<fcst_var name="PROB(APCP_03>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
-				<fcst_var name="PROB(APCP_03>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
-				<fcst_var name="PROB(APCP_03>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
-			</fix>					
-		</dep>
-		
-		<!-- templates -->
+	<plot name="hwt_prob_brr03" inherits="hwt_prob_brr" run="false">
 		<tmpl>
-			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.data</data_file>
-			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.png</plot_file>
-			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}_{dep1_1_stat2}_{dep1_1_stat3}.R</r_file>
-			<title>APCP_03 {dep1_1_stat1} {dep1_1_stat2} {dep1_1_stat3} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<data_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.R</r_file>
+			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {init_range}</title>
 			<x_label>FCST_LEAD</x_label>
-			<y1_label>APCP_03 {dep1_1_stat1}, {dep1_1_stat2}, {dep1_1_stat3}</y1_label>
+			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
-		
-		<legend>
-			c("srf PROB(APCP_03>0.25\") RELIABILITY",
-			  "srf PROB(APCP_03>0.25\") RESOLUTION",
-			  "srf PROB(APCP_03>0.25\") UNCERTAINTY",
-			  "srf PROB(APCP_03>0.50\") RELIABILITY",
-			  "srf PROB(APCP_03>0.50\") RESOLUTION",
-			  "srf PROB(APCP_03>0.50\") UNCERTAINTY",		
-			  "srf PROB(APCP_03>1\") RELIABILITY",
-			  "srf PROB(APCP_03>1\") RESOLUTION",
-			  "srf PROB(APCP_03>1\") UNCERTAINTY",		
-			  "srf PROB(APCP_03>2\") RELIABILITY",
-			  "srf PROB(APCP_03>2\") RESOLUTION",
-			  "srf PROB(APCP_03>2\") UNCERTAINTY")		
-		</legend>
 	</plot>
 	
-	<plot name="lead_series_roc" inherits="lead_series_prob" run="false">
-		<plot_ci>c("none", "none", "none", "none")</plot_ci>
-		<colors>c("#FF3300FF", "#FF6600FF", "#FF3300FF", "#FF6600FF")</colors>
-		<pch>c(20, 20, 20, 20)</pch>
-		<type>c("b", "b", "b", "b")</type>
-		<lty>c(1, 2, 3, 4)</lty>
-		<lwd>c(1, 1, 1, 1)</lwd>
-		<con_series>c(1, 1, 1, 1)</con_series>
-
-		<legend_inset>c(0, -.18)</legend_inset>
-	</plot>
-
-	<plot name="lead_series_roc06" inherits="lead_series_roc">
-		<series1><field name="model"><val>srf</val></field></series1>
-	
-		<dep>
-			<dep1>
-				<fcst_var name="PROB(APCP_06>6.35)"><stat>ROC_AUC</stat></fcst_var>
-				<fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var>
-				<fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var>
-				<fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var>
-			</dep1>
-			
-			<fix>
-				<fcst_var name="PROB(APCP_06>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
-				<fcst_var name="PROB(APCP_06>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
-			</fix>								
-		</dep>
-		
-		<!-- templates -->
+	<plot name="hwt_prob_brr06" inherits="hwt_prob_brr" run="false">
 		<tmpl>
-			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}.data</data_file>
-			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}.png</plot_file>
-			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_06_{dep1_1_stat1}.R</r_file>
-			<title>APCP_06 {dep1_1_stat1} - CONST VALID TIME {fcst_valid_beg}V</title>
+			<data_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.R</r_file>
+			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {init_range}</title>
 			<x_label>FCST_LEAD</x_label>
-			<y1_label>APCP_06 {dep1_1_stat1}</y1_label>
+			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
+	</plot>
+	
+	<plot name="hwt_prob_auc" inherits="hwt_prob" run="false">
+		<mar>c(5, 5, 5, 2)</mar>
+		<legend_inset>c(0, -.15)</legend_inset>
+
+		<plot_ci>c("none", "none")</plot_ci>
+		<pch>c(20, 20)</pch>
+		<type>c("b", "b")</type>
+		<lty>c(1, 1)</lty>
+		<con_series>c(1, 1)</con_series>		
+		<colors>c("#000000FF", "#FF55AAFF")</colors>
+		<lwd>c(2, 2)</lwd>
 		
-		<legend>
-			c("srf PROB(APCP_06>0.25\") ROC_AUC",
-			  "srf PROB(APCP_06>0.50\") ROC_AUC",		
-			  "srf PROB(APCP_06>1\") ROC_AUC",		
-			  "srf PROB(APCP_06>2\") ROC_AUC")		
-		</legend>		
+		<legend>c("ssef_s4ens ROC_AUC", "sref ROC_AUC")</legend>
+	</plot>
+	
+	<plot name="hwt_prob_auc03" inherits="hwt_prob_auc" run="false">
+		<tmpl>
+			<data_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.R</r_file>
+			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {init_range}</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>APCP_03 Area Under ROC Curve</y1_label>
+		</tmpl>
+	</plot>
+	
+	<plot name="hwt_prob_auc06" inherits="hwt_prob_auc" run="false">
+		<tmpl>
+			<data_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_init/{init_range}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.R</r_file>
+			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {init_range}</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>APCP_06 Area Under ROC Curve</y1_label>
+		</tmpl>
+	</plot>
+	
+	<date_range name="2010051200"><start>2010-005-11 21:00:00</start><end>2010-05-12 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051200" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051200" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051200" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051200" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051200" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051200" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051200" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051200" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051200" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051200" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051200" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051200" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051200"/></var></fcst_var></fix>					
+		</dep>
 	</plot>
 
-	<plot name="lead_series_roc03" inherits="lead_series_roc">
-		<series1><field name="model"><val>sref</val></field></series1>
-	
+	<date_range name="2010051212"><start>2010-05-12 09:00:00</start><end>2010-05-12 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051212" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
 		<dep>
-			<dep1>
-				<fcst_var name="PROB(APCP_03>6.35)"><stat>ROC_AUC</stat></fcst_var>
-				<fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var>
-				<fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var>
-				<fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var>
-			</dep1>
-			
-			<fix>
-				<fcst_var name="PROB(APCP_03>6.35)"><var name="obs_thresh">>=6.350</var></fcst_var>
-				<fcst_var name="PROB(APCP_03>12.70)"><var name="obs_thresh">>=12.700</var></fcst_var>
-				<fcst_var name="PROB(APCP_03>25.40)"><var name="obs_thresh">>=25.400</var></fcst_var>
-				<fcst_var name="PROB(APCP_03>50.80)"><var name="obs_thresh">>=50.800</var></fcst_var>
-			</fix>								
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
 		</dep>
-		
-		<!-- templates -->
-		<tmpl>
-			<data_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}.data</data_file>
-			<plot_file>lead_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}.png</plot_file>
-			<r_file>thresh_series_valid/{fcst_valid_beg}V_APCP_03_{dep1_1_stat1}.R</r_file>
-			<title>APCP_03 {dep1_1_stat1} - CONST VALID TIME {fcst_valid_beg}V</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>APCP_03 {dep1_1_stat1}</y1_label>
-		</tmpl>
-		
-		<legend>
-			c("srf PROB(APCP_03>0.25\") ROC_AUC",
-			  "srf PROB(APCP_03>0.50\") ROC_AUC",		
-			  "srf PROB(APCP_03>1\") ROC_AUC",		
-			  "srf PROB(APCP_03>2\") ROC_AUC")		
-		</legend>		
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051212" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051212" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051212" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051212" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051212" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051212" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051212" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051212" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051212" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051212" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051212" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051212"/></var></fcst_var></fix>					
+		</dep>
 	</plot>
+
+	<date_range name="2010051300"><start>2010-05-12 21:00:00</start><end>2010-05-13 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051300" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051300" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051300" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051300" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051300" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051300" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051300" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051300" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051300" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051300" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051300" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051300" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051300"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051312"><start>2010-05-13 09:00:00</start><end>2010-05-13 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051312" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051312" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051312" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051312" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051312" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051312" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051312" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051312" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051312" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051312" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051312" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051312" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051312"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051400"><start>2010-05-13 21:00:00</start><end>2010-05-14 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051400" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051400" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051400" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051400" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051400" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051400" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051400" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051400" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051400" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051400" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051400" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051400" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051400"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051412"><start>2010-05-14 09:00:00</start><end>2010-05-14 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051412" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051412" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051412" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051412" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051412" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051412" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051412" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051412" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051412" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051412" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051412" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051412" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051412"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051500"><start>2010-05-14 21:00:00</start><end>2010-05-15 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051500" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051500" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051500" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051500" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051500" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051500" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051500" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051500" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051500" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051500" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051500" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051500" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051500"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051512"><start>2010-05-15 09:00:00</start><end>2010-05-15 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051512" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051512" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051512" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051512" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051512" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051512" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051512" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051512" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051512" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051512" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051512" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051512" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051512"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051600"><start>2010-05-15 21:00:00</start><end>2010-05-16 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051600" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051600" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051600" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051600" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051600" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051600" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051600" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051600" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051600" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051600" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051600" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051600" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051600"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051612"><start>2010-05-16 09:00:00</start><end>2010-05-16 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051612" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051612" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051612" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051612" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051612" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051612" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051612" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051612" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051612" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051612" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051612" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051612" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051612"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051700"><start>2010-05-16 21:00:00</start><end>2010-05-17 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051700" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051700" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051700" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051700" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051700" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051700" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051700" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051700" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051700" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051700" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051700" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051700" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051700"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051712"><start>2010-05-17 09:00:00</start><end>2010-05-17 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051712" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051712" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051712" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051712" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051712" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051712" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051712" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051712" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051712" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051712" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051712" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051712" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051712"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051800"><start>2010-05-17 21:00:00</start><end>2010-05-18 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051800" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051800" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051800" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051800" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051800" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051800" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051800" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051800" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051800" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051800" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051800" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051800" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051800"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051812"><start>2010-05-18 09:00:00</start><end>2010-05-18 12:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051812" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051812" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051812" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051812" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051812" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051812" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051812" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051812" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051812" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051812" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051812" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051812" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051812"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
+	<date_range name="2010051900"><start>2010-05-18 21:00:00</start><end>2010-05-19 00:00:00</end></date_range>		
+	<plot name="hwt_prob_brr_1270_2010051900" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051900" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051900" inherits="hwt_prob_brr06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051900" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>12.70)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051900" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>25.40)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051900" inherits="hwt_prob_auc06">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_06>50.80)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_1270_2010051900" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_2540_2010051900" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_brr_5080_2010051900" inherits="hwt_prob_brr03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_1270_2010051900" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>12.70)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_2540_2010051900" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>25.40)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>		
+	<plot name="hwt_prob_auc_5080_2010051900" inherits="hwt_prob_auc03">
+		<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
+		<dep>
+			<dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1>
+			<fix><fcst_var name="PROB(APCP_03>50.80)"><var name="initdate"><date_range id="init_range" name="2010051900"/></var></fcst_var></fix>					
+		</dep>
+	</plot>
+
 
 </plot_spec>

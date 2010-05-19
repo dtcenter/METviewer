@@ -8,7 +8,7 @@
 
 	<date_list name="folder_dates">
 		<start>2010051000V</start>
-		<end>2010051406V</end>
+		<end>2010051900V</end>
 		<inc>3600</inc>
 		<format>yyyyMMddHH'V'</format>
 	</date_list>
@@ -25,6 +25,8 @@
 	
 	<load_val>
 		<field name="model">
+			<val>nam</val>
+			<val>sref</val>
 			<val>hrrr</val>
 			<val>ssef_s4c0_arw</val>
 			<val>ssef_s4cn_arw</val>
@@ -57,13 +59,14 @@
 		</field>
 		
 		<field name="date">
-<!--			<val>2010051200V</val>-->
 			<date_list name="folder_dates"/>
 		</field>
 		
 		<field name="fcst_var">
 			<val>retop</val>
 			<val>refc</val>
+			<val>prob_03h</val>
+			<val>prob_06h</val>
 		</field>
 		
 		<field name="data_type">

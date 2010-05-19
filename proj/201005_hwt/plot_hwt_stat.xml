@@ -4,162 +4,133 @@
 	<!-- database connection -->
 	<connection>
 		<host>kemosabe:3306</host>
-		<database>metvdb_hmt</database>
+		<database>metvdb_hwt</database>
 		<user>pgoldenb</user>
-		<password>pgoldenb</password>		
+		<password>pgoldenb</password>
 	</connection>
-	
+
 	<!-- file sytem -->
 	<folders>
 		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
-		<r_work>/d1/pgoldenb/var/qnse/R_work</r_work>
-		<plots>/d1/pgoldenb/var/qnse/plots</plots>
-	</folders>	
+		<r_work>/d1/pgoldenb/var/hwt/R_work</r_work>
+		<plots>/d1/pgoldenb/var/hwt/plots</plots>
+	</folders>
 
-	<!-- global date list -->	
-	<date_list name="initdates">
-		<start>2010-01-18</start>
-		<end>2010-02-05</end>
-		<hour>12</hour>
-		<field name="initdate" />
+	<date_list name="fcst_init_beg">
+		<start>2010-05-10</start>
+		<end>2010-05-16</end>
+		<field name="fcst_init_beg" />
 	</date_list>
-	
-	<plot name="lead_series24">
-	
+
+	<plot name="hwt_stat" run="false">
+
 		<!-- plot type -->
 		<template>series_plot.R_tmpl</template>
-		
+
 		<!-- independent variable -->
 		<indep name="fcst_lead">
+			<val label="0">0</val>
+			<val label="1">10000</val>
+			<val label="2">20000</val>
+			<val label="3">30000</val>
+			<val label="4">40000</val>
+			<val label="5">50000</val>
+			<val label="6">60000</val>
+			<val label="7">70000</val>
+			<val label="8">80000</val>
+			<val label="9">90000</val>
+			<val label="10">100000</val>
+			<val label="11">110000</val>
+			<val label="12">120000</val>
+			<val label="13">130000</val>
+			<val label="14">140000</val>
+			<val label="15">150000</val>
+			<val label="16">160000</val>
+			<val label="17">170000</val>
+			<val label="18">180000</val>
+			<val label="19">190000</val>
+			<val label="20">200000</val>
+			<val label="21">210000</val>
+			<val label="22">220000</val>
+			<val label="23">230000</val>
 			<val label="24">240000</val>
-			<val label="48">480000</val>
-			<val label="72">720000</val>
-			<val label="96">960000</val>
+			<val label="25">250000</val>
+			<val label="26">260000</val>
+			<val label="27">270000</val>
+			<val label="28">280000</val>
 		</indep>
 
 		<!-- series1 variables and values -->
 		<series1>
 			<field name="model">
-				<val>arw-tom-gep0</val>			
-				<val>arw-fer-gep1</val>			
-				<val>arw-sch-gep2</val>			
-				<val>arw-tom-gep3</val>			
-				<val>nmm-fer-gep4</val>			
-				<val>arw-fer-gep5</val>			
-				<val>arw-sch-gep6</val>			
-				<val>arw-tom-gep7</val>			
-				<val>arw-fer-gep8</val>			
-				<val>gfs</val>			
-				<val>ens-mean</val>			
-			</field>		
+				<val>ssef_s4m3_arw</val>
+				<val>ssef_s4m4_arw</val>
+				<val>ssef_s4m5_arw</val>
+				<val>ssef_s4m6_arw</val>
+				<val>ssef_s4m7_arw</val>
+				<val>ssef_s4m8_arw</val>
+				<val>ssef_s4m9_arw</val>
+				<val>ssef_s4m10_arw</val>
+				<val>ssef_s4m11_arw</val>
+				<val>ssef_s4m12_arw</val>
+				<val>ssef_s4m13_arw</val>
+				<val>ssef_s4m14_arw</val>
+				<val>ssef_s4m15_arw</val>
+				<val>ssef_s4m16_arw</val>
+				<val>ssef_s4m17_arw</val>
+				<val>ssef_s4m18_arw</val>
+				<val>ssef_s4m19_arw</val>
+				<val>ssef_s4c0_arps</val>
+				<val>ssef_s4cn_arps</val>
+				<val>ssef_s4c0_arw</val>
+				<val>ssef_s4cn_arw</val>
+				<val>ssef_s4c0_nmm</val>
+				<val>ssef_s4cn_nmm</val>
+				<val>ssef_s4m3_nmm</val>
+				<val>ssef_s4m4_nmm</val>
+				<val>ssef_s4m5_nmm</val>
+				<val>ssef_s4ens</val>
+				<val>ssef_spc1</val>
+				<val>nam</val>
+				<val>hrrr</val>
+			</field>
 		</series1>
-		
+
 		<!-- series2 variables and values -->
 		<series2>
 			<field name="model">
-				<val>ens-mean</val>			
-			</field>		
+				<val>ssef_s4c0_arps</val>
+				<val>ssef_s4m3_arw</val>
+				<val>ssef_s4m11_arw</val>
+				<val>ssef_s4m3_nmm</val>
+				<val>hrrr</val>
+			</field>
 		</series2>
-		
+
 		<!-- series values for calculating observation rate -->
 		<series_nobs>
 			<field name="model">
-				<val>ens-mean</val>
-			</field>		
+				<val>hrrr</val>
+			</field>
 		</series_nobs>
-		
-		<!-- dependent variable(s) and plot series -->
-		<dep>
-			
-			<!-- dependent variable 1 -->
-			<dep1>
-				<fcst_var name="APCP_24">
-					<stat>FBIAS</stat>
-				</fcst_var>
-			</dep1>
-			
-			<!-- dependent variable 2 -->
-			<dep2>
-				<fcst_var name="APCP_24">
-					<stat>BASER</stat>
-				</fcst_var>
-			</dep2>
-			
-			<!-- fixed values -->
-			<fix>
-				<fcst_var name="APCP_24">
-					<var name="fcst_lev">A24</var>
-				</fcst_var>
-			</fix>		
-		</dep>
-		
+
 		<!-- aggregate fields and values -->
 		<agg>
 			<field name="vx_mask">
-				<val>LAND</val>
-				<val>HUC4_1605</val>
-				<val>HUC4_1803</val>
-				<val>HUC4_1804</val>
-				<val>HUC4_1805</val>
-				<val>HUC4_1806</val>
-				<val>CNRFC</val>
+				<val>FULL</val>
+				<val>VORTEX2</val>
+				<val>DAILY</val>
+			</field>
+
+			<field name="interp_mthd">
+				<val>UW_MEAN</val>
 			</field>
 			
-			<field name="obtype">
-				<val>MC_PCP</val>
-				<val>ADPSFC</val>
-			</field>
-			
-			<field name="fcst_thresh">
-				<val>>0.000</val>
-				<val>>=0.254</val>
-				<val>>=12.700</val>
-				<val>>=127.000</val>
-				<val>>=2.540</val>
-				<val>>=25.400</val>
-				<val>>=76.200</val>
-			</field>
-			
-			<field name="fcst_valid_beg">
-				<val>2010-02-08 12:00:00</val>
-			</field>
-			
-			<!--  example date_list  
 			<field name="initdate">
-				<date_list id="initdates"/>
-			</field>
-			 -->
-			
-			<!--  example set
-			<field name="fcst_lead">
-				<set name="Day1">
-					<val>60000</val>
-					<val>120000</val>
-					<val>180000</val>
-					<val>240000</val>
-				</set>
-			</field>
-			-->
+<!--				<val>2010-05-17 00:00:00</val>-->
+				<date_list name="fcst_init_beg"/>
+			</field>			
 		</agg>
-		
-		<!-- templates -->
-		<tmpl>
-			<val_map name="obtype">
-				<pair> <key>MC_PCP</key>  <val>Stage IV</val> </pair>
-				<pair> <key>ADPSFC</key>  <val>Gauge</val>    </pair>
-			</val_map>
-			<val_map name="vx_mask">
-				<pair> <key>LAND</key>    <val>FULL</val>     </pair>
-			</val_map>
-			
-			<data_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.data</data_file>
-			<plot_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.png</plot_file>
-			<r_file>{vx_mask}/lead_series_valid/{fcst_valid_beg}V/{obtype}_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters;units=in}.R</r_file>
-			<title>EVENT PERFORMANCE for {dep1_1}  {fcst_thresh?units=in}\" {dep1_1_stat1}\nCONSTANT VALID TIME {fcst_valid_beg}V - Region: {vx_mask?map=true} Obs: {obtype?map=true}</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1}</y1_label>
-			<y2_label>Base Rate (observed event frac.)</y2_label>
-		</tmpl>
 		
 		<!-- plot formatting and options -->
 		<event_equal>false</event_equal>
@@ -175,21 +146,13 @@
 		<log_y1>false</log_y1>
 		<log_y2>false</log_y2>
 		
-		<!-- bootstrapping configuration
-		<bootstrapping>
-			<boot_repl>1000</boot_repl>
-			<boot_ci>bca</boot_ci>
-			<boot_diff1>TRUE</boot_diff1>
-			<boot_diff2>TRUE</boot_diff2>
-		</bootstrapping>		
- 		-->
- 		
-		<plot_type>png256</plot_type>
+		<!-- <plot_type>png256</plot_type>-->
+		<plot_type>png16m</plot_type>
 		<plot_height>8.5</plot_height>
 		<plot_width>11</plot_width>
 		<plot_res>72</plot_res>
 		<plot_units>in</plot_units>
-		<mar>c(8, 4, 5, 4)</mar>
+		<mar>c(10, 4, 5, 4)</mar>
 		<mgp>c(1, 1, 0)</mgp>
 		<cex>1</cex>
 		<title_weight>2</title_weight>
@@ -201,7 +164,7 @@
 		<xtlab_horiz>.5</xtlab_horiz>
 		<xlab_weight>1</xlab_weight>
 		<xlab_size>1</xlab_size>
-		<xlab_offset>2</xlab_offset>
+		<xlab_offset>1.5</xlab_offset>
 		<xlab_align>.5</xlab_align>
 		<ytlab_orient>1</ytlab_orient>
 		<ytlab_perp>.5</ytlab_perp>
@@ -230,25 +193,135 @@
 		<y2lab_align>.5</y2lab_align>
 		<legend_size>.8</legend_size>
 		<legend_box>o</legend_box>
-		<legend_inset>c(0, -.25)</legend_inset>
-		<legend_ncol>3</legend_ncol>
+		<legend_inset>c(0, -.35)</legend_inset>
+		<legend_ncol>4</legend_ncol>
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
 		<ci_alpha>.05</ci_alpha>
-		
-		<plot_ci>c("norm", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none", "none")</plot_ci>
-		<colors>c("#33FF00FF", "#00FF19FF", "#00FF66FF", "#00FFB2FF", "#FF0000FF", "#00FFFFFF", "#00B3FFFF", "#0066FFFF", "#FF4C00FF", "#A6A600FF", "#000000FF", "#EFEFEFFF")</colors>
-		<pch>c(19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19)</pch>
-		<type>c("b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "h")</type>
-		<lty>c(1, 2, 3, 4, 1, 5, 6, 1, 2, 1, 1, 1)</lty>
-		<lwd>c(2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 40)</lwd>
-		<con_series>c(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)</con_series>
+
+		<plot_ci>c("none", "none", "none", "none", "none", "none", "none", "none", "none", "none", 
+				   "none", "none", "none", "none", "none", "none", "none", "none", "none", "none", 
+				   "none", "none", "none", "none", "none", "none", "none", "none", "none", "none",
+				   "none", "none", "none", "none", "none")</plot_ci>
+		<colors>c("#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF",
+				  "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#33FF33FF", "#FF3300FF", "#FF3300FF", "#FF3300FF",
+				  "#FF3300FF", "#FF3300FF", "#FF3300FF", "#A6A600FF", "#A6A600FF", "#A6A600FF", "#000000FF", "#990099FF", "#775533FF", "#0000CCFF", 
+				  "#EFEFEFFF", "#EFEFEFFF", "#EFEFEFFF", "#EFEFEFFF", "#EFEFEFFF")</colors>
+		<pch>c(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 
+			   20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+			   20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+			   20, 20, 20, 20, 20)</pch>
+		<type>c("l", "l", "l", "l", "l", "l", "l", "l", "l", "l",
+				"l", "l", "l", "l", "l", "l", "l", "l", "l", "l",
+				"l", "l", "l", "l", "l", "l", "l", "l", "l", "l",
+				"h", "h", "h", "h", "h")</type>
+		<lty>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1)</lty>
+		<lwd>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+			   3, 1, 1, 1, 1, 1, 3, 3, 3, 3,
+			   20, 20, 20, 20, 20)</lwd>
+		 <con_series>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		 			   0, 0, 0, 0, 0)</con_series> 
+		<!-- <con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)</con_series> -->
 		<!-- <legend>c("series1", "series2", "series3")</legend> -->
-		<y1_lim>c(0,5)</y1_lim>
-		<y1_bufr>.04</y1_bufr>
-		<y2_lim>c(0,1)</y2_lim>
-		<y2_bufr>.04</y2_bufr>
-		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>
+<!--		<y1_lim>c(0,5)</y1_lim>-->
+<!--		<y1_bufr>.04</y1_bufr>-->
+		<y2_lim>c(0,.75)</y2_lim>
+		<y2_bufr>0</y2_bufr>
+	</plot>
+
+	<plot name="hwt_stat_init_refc" inherits="hwt_stat" run="false">
+		<agg>
+			<field name="fcst_thresh">
+				<val>>=20.000</val>
+				<val>>=30.000</val>
+				<val>>=35.000</val>
+				<val>>=40.000</val>
+				<val>>=45.000</val>
+				<val>>=50.000</val>
+				<val>>=60.000</val>
+			</field>
+		</agg>
+		
+		<tmpl>
+			<data_file>{vx_mask}/grid_stat/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
+			<title>EVENT PERFORMANCE for REFC {fcst_thresh} dBZ {dep1_1_stat1}\nCONSTANT INIT TIME {initdate} - Region: {vx_mask}</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1_stat1}</y1_label>
+			<y2_label>Base Rate (observed event frac.)</y2_label>
+		</tmpl>
+
+		<plot_cmd>
+			par(usr=listY1Usr);
+			if( listDep1Plot$REFC == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
+		</plot_cmd>				
+	</plot>
+
+	<plot name="hwt_stat_init_refc_gss" inherits="hwt_stat_init_refc">
+		<dep><dep1><fcst_var name="REFC"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_refc_csi" inherits="hwt_stat_init_refc">
+		<dep><dep1><fcst_var name="REFC"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_refc_far" inherits="hwt_stat_init_refc">
+		<dep><dep1><fcst_var name="REFC"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_refc_pody" inherits="hwt_stat_init_refc">
+		<dep><dep1><fcst_var name="REFC"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_refc_fbias" inherits="hwt_stat_init_refc">
+		<dep><dep1><fcst_var name="REFC"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+	</plot>
+
+	<plot name="hwt_stat_init_retop" inherits="hwt_stat" run="false">
+		<agg>
+			<field name="fcst_thresh">
+				<val>>=18.000</val>
+				<val>>=25.000</val>
+				<val>>=30.000</val>
+				<val>>=35.000</val>
+				<val>>=40.000</val>
+				<val>>=45.000</val>
+			</field>
+		</agg>
+		
+		<tmpl>
+			<data_file>{vx_mask}/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
+			<title>EVENT PERFORMANCE for RETOP {fcst_thresh} kfT {dep1_1_stat1}\nCONSTANT INIT TIME {initdate} - Region: {vx_mask}</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1_stat1}</y1_label>
+			<y2_label>Base Rate (observed event frac.)</y2_label>
+		</tmpl>
+		
+		<plot_cmd>
+			par(usr=listY1Usr);
+			if( listDep1Plot$RETOP == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
+		</plot_cmd>				
+	</plot>
+
+	<plot name="hwt_stat_init_retop_gss" inherits="hwt_stat_init_retop">
+		<dep><dep1><fcst_var name="RETOP"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_retop_csi" inherits="hwt_stat_init_retop">
+		<dep><dep1><fcst_var name="RETOP"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_retop_far" inherits="hwt_stat_init_retop">
+		<dep><dep1><fcst_var name="RETOP"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_retop_pody" inherits="hwt_stat_init_retop">
+		<dep><dep1><fcst_var name="RETOP"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+	</plot>
+	<plot name="hwt_stat_init_retop_fbias" inherits="hwt_stat_init_retop">
+		<dep><dep1><fcst_var name="RETOP"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
 	</plot>
 
 </plot_spec>
