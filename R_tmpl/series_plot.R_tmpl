@@ -521,12 +521,16 @@ for(i in 1:intNumSeries1){
 	intFormatIndex = intFormatIndex + 1;
 } # end: for(i in 1:intNumSeries1)
 
+listLwdLeg = listLwd;
+listLwdLeg[listLwdLeg > 3] = 3;
+
 # add the legend
 legend(
 	x="bottom",						# x coordinate of legend
 	listLegend,						# vector of legend labels
 	col=listColors,					# vector of point and line colors 
 	lty=listLty,					# vector of line types
+	lwd=listLwdLeg,					# vector of line widths
 	pch=listPch,					# vector of point symbols
 	cex=#<legend_size>#,			# relative magnification
 	bty="#<legend_box>#",			# legend box type - o: box, n: none
