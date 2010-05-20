@@ -88,11 +88,16 @@ public class MVLoadJobParser extends MVUtil{
 				String strFormat = "";
 				
 				for(int j=0; j < node._children.length; j++){
-					if( node._children[j]._tag.equals("start") )       { strStart = node._children[j]._value;                 }
-					else if( node._children[j]._tag.equals("end") )    { strEnd = node._children[j]._value;                   }
-					else if( node._children[j]._tag.equals("inc") )    { intInc = Integer.parseInt(node._children[j]._value); }
-					else if( node._children[j]._tag.equals("format") ) { strFormat = node._children[j]._value;                }
+					MVNode nodeChild = node._children[j];
+					if     ( nodeChild._tag.equals("inc") )    { intInc = Integer.parseInt(nodeChild._value); }
+					else if( nodeChild._tag.equals("format") ) { strFormat = nodeChild._value;                }
 				}
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeChild = node._children[j];
+					if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+					else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+				}
+				
 				String[] listDates = buildDateList(strStart, strEnd, intInc, strFormat);
 				_tableDateListDecl.put(strName, listDates);
 			}

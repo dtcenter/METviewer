@@ -168,18 +168,26 @@ public class MVBatch extends MVUtil {
 				for(int j=0; j < listDep.length; j++){
 					Object objDep1 = listDep[j].get("dep1");
 					if( objDep1 instanceof MVOrderedMap[] ){ intNumJobPlots *= ((MVOrderedMap[])objDep1).length; }
-					Object objDep2 = listDep[j].get("dep2");
-					if( objDep2 instanceof MVOrderedMap[] ){ intNumJobPlots *= ((MVOrderedMap[])objDep2).length; }	
 				}
 
 				_intNumPlots += intNumJobPlots;
 			}
-			System.out.println("Running " + _intNumPlots + " plots");
-			System.out.println("\nbegin time: " + _formatDB.format(new java.util.Date()) + "\n");
+			java.util.Date dateStart = new java.util.Date();
+			System.out.println("Running " + _intNumPlots + " plots\n" + 
+							   "Begin time: " + _formatDB.format(dateStart) + "\n");
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				runJob(jobs[intJob]);
 			}
+
+			java.util.Date dateEnd = new java.util.Date();
+			long intPlotTime = dateEnd.getTime() - dateStart.getTime();
+			long intPlotAvg = (0 < _intNumPlots? intPlotTime / (long)_intNumPlots : 0);
+			System.out.println("\n" + 
+							   padBegin("End time: ") + _formatDB.format(dateEnd) + "\n" +
+							   padBegin("Total time: ") + formatTimeSpan(intPlotTime) + "\n" +
+							   padBegin("Avg plot time: ") + formatTimeSpan(intPlotAvg) + "\n");
+
 
 		} catch (Exception e) {
 			System.err.println("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
@@ -188,7 +196,6 @@ public class MVBatch extends MVUtil {
 			try{ if( con != null )	con.close(); }catch(SQLException e){}
 		}
 
-		System.out.println("\nend time: " + _formatDB.format(new java.util.Date()) + "\n");
 		System.out.println("\n----  MVBatch Done  ----");
 	}
 	
@@ -398,9 +405,12 @@ public class MVBatch extends MVUtil {
 					mapDep2 = (MVOrderedMap)objDep2;
 				}
 				
-				//  get teh dependent variable fixed values for this group
+				//  get the dependent variable fixed values for this group
 				MVOrderedMap mapFix = (MVOrderedMap)listDep[intDep].get("fix");
-				
+
+				//  build the aggregation variable permutations
+				MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
+
 				//  establish lists of entires for each group of variables and values
 				Map.Entry[] listAggVal		= job.getAggVal().getOrderedEntries();
 				Map.Entry[] listSeries1Val	= job.getSeries1Val().getOrderedEntries();
@@ -408,6 +418,7 @@ public class MVBatch extends MVUtil {
 				Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
 				Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
 				Map.Entry[] listDep2Plot	= (null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
+				Map.Entry[] listDepFix		= (null != mapFix ? mapFix.getOrderedEntries() : new Map.Entry[]{});
 				
 				//  combine the dependent variables for each axis into one list
 				ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
@@ -425,10 +436,12 @@ public class MVBatch extends MVUtil {
 	
 				//  determine if the stats are point/grid or mode
 				boolean boolModePlot = false;
+				boolean boolModeACOV = false;
 				for(int i=0; i < listDepPlot.length; i++){
 					String[] listStats = (String[])listDepPlot[i].getValue();
 					for(int j=0; j < listStats.length; j++){
 						if( _tableModeStatIndex.containsKey(listStats[j]) ){ boolModePlot = true; }
+						if( listStats[j].equalsIgnoreCase("ACOV") )        { boolModeACOV = true; }
 					}
 				}
 	
@@ -486,19 +499,22 @@ public class MVBatch extends MVUtil {
 				} else {
 					strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
 				}
-				strSelectList += ",\n  h.fcst_var,\n";			
+				strSelectList += ",\n  h.fcst_var,\n";
+				/*
 				if( job.getIndyVar().equals("initdate") || job.getIndyVar().equals("fcst_valid_beg") || job.getIndyVar().equals("fcst_valid") ){
 					strSelectList += "  " + getSQLDateFormat("h." + job.getIndyVar()) + " " + job.getIndyVar() + ",\n";
 				} else {
 					strSelectList += "  h." + job.getIndyVar() + ",\n";
 				}
+				*/
+				strSelectList += "  " + formatField(job.getIndyVar(), boolModePlot) + " " + job.getIndyVar() + ",\n";
 				
 				if( job.getBootstrapping() ){
 					strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
 				} else if( boolModePlot ){
 					strSelectList += "  mos.object_id,\n  mos.object_cat,\n  mos.area,\n  mos.intensity_50,\n  mos.intensity_90,\n" +
 									 "  mop.object_id object_id_p,\n  mop.interest,\n  mop.intersection_area,\n  mop.area_ratio,\n" +
-									 "  mop.centroid_dist,\n  mop.angle_diff,\n  mc.total";
+									 "  mop.centroid_dist,\n  mop.angle_diff" + (boolModeACOV? ",\n  mc.total" : "");
 				} else {
 					strSelectList += "  sg.stat_group_lu_id,\n  sg.stat_value";
 	
@@ -521,7 +537,7 @@ public class MVBatch extends MVUtil {
 				//  build the list of tables for the FROM clause
 				String strFromList = "";			
 				if( boolModePlot ){
-					strFromList = "  mode_header h,\n  mode_obj_pair mop,\n  mode_obj_single mos,\n  mode_cts mc";
+					strFromList = "  mode_header h,\n  mode_obj_pair mop,\n  mode_obj_single mos" + (boolModeACOV? ",\n  mode_cts mc" : "");
 				} else {
 					strFromList = "  stat_header h";
 					if( job.getBootstrapping() ){
@@ -543,21 +559,6 @@ public class MVBatch extends MVUtil {
 				Map.Entry[] listFixAggFields = append(listAggVal, listPlotFixVal);
 				for(int i=0; i < listFixAggFields.length; i++){
 					String strField = (String)listFixAggFields[i].getKey();
-					
-					if( strField.equals("inithour") ){
-						//if( boolModePlot ){ strField = "HOUR( SUBTIME( h.fcst_init, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) )"; }
-						if( boolModePlot ){ strField = "HOUR( h.fcst_init )"; }
-						else              { strField = "HOUR(h." + _strInitdateField + ")"; }
-					}
-					else if( strField.equals("initdate") ){
-						//if( boolModePlot ){ strField = "SUBTIME( h.fcst_init, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') )"; }
-						if( boolModePlot ){ strField = getSQLDateFormat("h.fcst_init"); }
-						else              { strField = getSQLDateFormat("h." + _strInitdateField); }
-					}
-					else if( strField.equals("fcst_valid_beg") ){ strField = getSQLDateFormat("h.fcst_valid_beg"); }
-					else if( strField.equals("fcst_valid") )    { strField = getSQLDateFormat("h.fcst_valid");     }
-					else										{ strField = "h." + strField;                      }
-
 					String strCondition = "";
 					Object objValue = listFixAggFields[i].getValue();
 					if( objValue instanceof String[] ){
@@ -568,10 +569,11 @@ public class MVBatch extends MVUtil {
 							strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
 						}
 						strCondition = "IN (" + strCondition + ")";
-					} else if( objValue instanceof String && objValue.toString().startsWith("BETWEEN") ){
-						strCondition = objValue.toString();
+					} else if( objValue instanceof String ){
+						if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
+						else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
 					}
-					strWhere += "  " + (0 < i? "AND " : "") + strField + " " + strCondition + "\n";
+					strWhere += "  " + (0 < i? "AND " : "") + formatField(strField, boolModePlot) + " " + strCondition + "\n";
 				}
 				
 				//  add the independent variable values, if necessary
@@ -609,7 +611,7 @@ public class MVBatch extends MVUtil {
 					for(int j=0; j < listFixed.length; j++){
 						String strField = (String)listFixed[j].getKey();
 						String strValue = (String)listFixed[j].getValue();
-						strFixed += "      AND h." + strField + formatSQLConstraint(strValue) + "\n";
+						strFixed += "      AND " + formatField(strField, boolModePlot) + formatSQLConstraint(strValue) + "\n";
 					}
 					
 					//  build the series fields where clause
@@ -618,7 +620,7 @@ public class MVBatch extends MVUtil {
 					for(int j=0; j < listSeriesVal.length; j++){
 						String strField = (String)listSeriesVal[j].getKey();
 						String[] listValues = (String[])listSeriesVal[j].getValue();
-						strSeries += "      AND h." + strField + " IN (" + buildValueList(listValues) + ")\n";
+						strSeries += "      AND " + formatField(strField, boolModePlot) + " IN (" + buildValueList(listValues) + ")\n";
 					}
 					
 					strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var = '" + strFcstVar + "'\n" +
@@ -627,8 +629,8 @@ public class MVBatch extends MVUtil {
 	
 				if( boolModePlot ){
 					strWhere += "  )\n  AND mop.mode_header_id = h.mode_header_id\n" +
-								"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)\n" +
-								"  AND mc.field = 'OBJECT'\n  AND mc.mode_header_id = mop.mode_header_id";
+								"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)" + 
+								(boolModeACOV? "\n  AND mc.field = 'OBJECT'\n  AND mc.mode_header_id = mop.mode_header_id" : "");
 				} else {
 					//  add the table joining clauses
 					if( job.getBootstrapping() ){
@@ -670,6 +672,7 @@ public class MVBatch extends MVUtil {
 				//  if there is no data, do not try to plot it
 				if( 1 > tab.getNumRows() ){
 					System.out.println("  **  WARNING: query returned no data");
+					_intPlotIndex += listAggPerm.length;
 					continue;
 				}
 
@@ -840,8 +843,10 @@ public class MVBatch extends MVUtil {
 						mapCaseData.putStr("ncluso",	tabClusObs.getNumRows());
 						
 						//  compute the aerial coverage of observation points
-						double dblCaseTotal = median(tabModeCase.getDoubleColumn("total"));
-						mapCaseData.putStr("ACOV",	mapCaseData.getDouble("asimpo") / (dblCaseTotal * (double)tabSimpObs.getNumRows()));
+						if( boolModeACOV ){
+							double dblCaseTotal = median(tabModeCase.getDoubleColumn("total"));
+							mapCaseData.putStr("ACOV",	mapCaseData.getDouble("asimpo") / (dblCaseTotal * (double)tabSimpObs.getNumRows()));
+						}
 						
 						//  percentage of simple objects and area matched
 						mapCaseData.putStr("pom",	(mapCaseData.getDouble("nsimpfm") + mapCaseData.getDouble("nsimpom")) / mapCaseData.getDouble("nsimp")); 
@@ -1004,7 +1009,7 @@ public class MVBatch extends MVUtil {
 					 *  Run a plot for each permutation of aggregate values
 					 */
 					
-					MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
+					//MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
 					for(int intPerm=0; intPerm < listAggPerm.length; intPerm++){
 						
 						System.out.println("\n* * * * * * * * * * * *\n  PLOT - " + (_intPlotIndex++ + 1) + " / " + _intNumPlots + "\n* * * * * * * * * * * *\n");
@@ -1460,6 +1465,22 @@ public class MVBatch extends MVUtil {
 	public static void printFormattedTable(MVDataTable tab, int maxRows){ printFormattedTable(tab, System.out, " ", maxRows); }
 	public static void printFormattedTable(MVDataTable tab, PrintStream str, String delim){ printFormattedTable(tab, str, delim, -1); }
 
+	public static String formatField(String field, boolean mode){
+		if( field.equals("inithour") ){
+			if( mode ){ return "HOUR( h.fcst_init )"; }
+			else      { return "HOUR(h." + _strInitdateField + ")"; }
+		}
+		else if( field.equals("initdate") ){
+			if( mode ){ return getSQLDateFormat("h.fcst_init"); }
+			else      { return getSQLDateFormat("h." + _strInitdateField); }
+		}
+		else if( field.equals("fcst_init_beg") ) { return getSQLDateFormat("h.fcst_init_beg");  }
+		else if( field.equals("fcst_init") )     { return getSQLDateFormat("h.fcst_init");      }
+		else if( field.equals("fcst_valid_beg") ){ return getSQLDateFormat("h.fcst_valid_beg"); }
+		else if( field.equals("fcst_valid") )    { return getSQLDateFormat("h.fcst_valid");     }
+		else									 { return "h." + field;                         }
+	}
+	
 	public static String formatSQLConstraint(String value){
 		String strRet = " = '" + value + "'";
 		

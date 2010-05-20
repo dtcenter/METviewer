@@ -89,6 +89,26 @@ public class MVUtil{
 		return (String[])listDates.toArray(new String[]{});
 	}
 	
+	public static String parseDateOffset(MVNode node, String format){
+		int intOffset = 0;
+		int intHour = 0;
+		
+		for(int i=0; i < node._children.length; i++){
+			MVNode nodeChild = node._children[i];
+			if     ( nodeChild._tag.equals("day_offset") ){ intOffset = Integer.parseInt(nodeChild._value); }
+			else if( nodeChild._tag.equals("hour")       ){ intHour   = Integer.parseInt(nodeChild._value); }
+		}
+		
+		SimpleDateFormat formatOffset = new SimpleDateFormat(format);
+		formatOffset.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.add(Calendar.DATE, intOffset);
+		cal.set(Calendar.HOUR_OF_DAY, intHour);
+		
+		return formatOffset.format(cal.getTime());
+	}
+	public static String parseDateOffset(MVNode node){ return parseDateOffset(node, "yyyy-MM-dd"); }
+	
 	/**
 	 * Concatenate the elements of the input list with surrounding ticks and separated by commas for
 	 * use in the where clause of a SQL query.  For example, the function call  

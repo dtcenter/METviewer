@@ -1,6 +1,7 @@
 package edu.ucar.metviewer;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.lang.reflect.*;
 import java.sql.*;
@@ -694,11 +695,12 @@ public class MVPlotJobParser extends MVUtil{
 		for(int i=0; i < nodeDateList._children.length; i++){
 			MVNode nodeChild = nodeDateList._children[i];
 			if     ( nodeChild._tag.equals("field") )	{ strField = nodeChild._name;  }
-			else if( nodeChild._tag.equals("start") )	{ strStart = nodeChild._value; }
-			else if( nodeChild._tag.equals("end")   )	{ strEnd   = nodeChild._value; }
 			else if( nodeChild._tag.equals("hour")  )	{ strHour  = nodeChild._value; }			
+			else if( nodeChild._tag.equals("start") )	{ strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0]) : nodeChild._value); }
+			else if( nodeChild._tag.equals("end")   )	{ strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0]) : nodeChild._value); }
 		}
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
 	}
+
 }
