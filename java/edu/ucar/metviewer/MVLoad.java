@@ -25,6 +25,7 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolModeHeaderDBCheck	= false;
 	public static boolean _boolDropIndexes			= false;
 	public static boolean _boolApplyIndexes			= false;
+	public static boolean _boolIndexOnly			= false;
 	
 	public static DecimalFormat _formatPerf		= new DecimalFormat("0.000");
 
@@ -129,72 +130,33 @@ public class MVLoad extends MVUtil {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		try {
-			System.out.println(padBegin("begin time: ", 36) + format.format(new java.util.Date()) + "\n");
-
-			// * * * *   QNSE data  * * * *
-			/*
-			MVOrderedMap mapLoadVar = new MVOrderedMap();
-			mapLoadVar.put("model", new String[] { "AFWAop", "QNSE" });
-			//mapLoadVar.put("date", buildDateList("2008060212", "2008060512", 36 * 3600, "yyyyMMddHH"));
-			mapLoadVar.put("date", buildDateList("2008060212", "2008080112", 36 * 3600, "yyyyMMddHH"));
-			//mapLoadVar.put("date", new String[]{"2008060212"});
-
-			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/AFWA_RC/{model}/{date}/metprd";
-			//String strBaseFolderTmpl = "c:/src/QNSE_met/{model}/{date}/metprd";
-			 */
-
-			//  * * * *  HMT data  * * * *
-			/*
-			MVOrderedMap mapLoadVar = new MVOrderedMap();
-			mapLoadVar.put("model", new String[] {"arw-tom-gep0", "arw-fer-gep1", "arw-sch-gep2", "arw-tom-gep3", "nmm-fer-gep4", 
-					  							  "arw-fer-gep5", "arw-sch-gep6", "arw-tom-gep7", "nmm-fer-gep8", "gfs", "ens-mean"});
-			String[] listDates = buildDateList("2009122118V_06h", "2010040518V_06h", 6 * 3600, "yyyyMMddHH'V_06h'");
-			listDates = append(listDates, buildDateList("2009122212V_24h", "2010040512V_24h", 24 * 3600, "yyyyMMddHH'V_24h'"));
-			Arrays.sort(listDates, new Comparator(){
-				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
-			});
-			mapLoadVar.put("date", listDates);
-			mapLoadVar.put("data_type", new String[]{"mode", "grid_stat", "point_stat"});
-
-			String strBaseFolderTmpl = "/var/autofs/mnt/pd6/score/DTC/HMT/West/rerun/dwr_domains/{model}/{date}/{data_type}";
-
-			mapLoadVar.put("model", new String[] {"ens-mean"});
-			mapLoadVar.put("date", new String[]{"2010012418V_06h"});
-			mapLoadVar.put("data_type", new String[]{"grid_stat"});
-
-			//  * * * *  HWT prob data  * * * *
-			MVOrderedMap mapLoadVar = new MVOrderedMap();
-			mapLoadVar.put("model", new String[] {"srf"});
-			String[] listDates = buildDateList("2010042412V_06h", "2010050212V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
-			listDates = append(listDates, buildDateList("2010042412V_03h", "2010050212V_03h", 3 * 3600, "yyyyMMddHH'V_03h'"));
-			//String[] listDates = buildDateList("2010042412V_06h", "2010042415V_06h", 3 * 3600, "yyyyMMddHH'V_06h'");
-			//listDates = append(listDates, buildDateList("2010042412V_06h", "20100424212V_06h", 3 * 3600, "yyyyMMddHH'V_03h'"));
-			Arrays.sort(listDates, new Comparator(){
-				public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
-			});
-			mapLoadVar.put("date", listDates);
-			mapLoadVar.put("data_type", new String[]{"grid_stat"});
-
-			String strBaseFolderTmpl = "/d1/pgoldenb/var/hwt/data/{date}/{data_type}";			
-			*/
-
-			if( 1 > argv.length ){
-				System.out.println("usage: ./load.sh [load_file]\n\n----  MVLoad Done  ----");
+		
+			//  parse the input arguments
+			if( 1 > argv.length || 2 < argv.length ){
+				System.out.println(getUsage() + "\n\n----  MVLoad Done  ----");
 				return;
+			}
+			if( 2 == argv.length ){
+				if( argv[1].equalsIgnoreCase("-index") ){ _boolIndexOnly = true; }
+				else{
+					System.out.println("ERROR: unrecognized argument \"" + argv[1] + "\"\n" + getUsage() + "\n\n----  MVLoad Done  ----");
+					return;
+				}
 			}
 			
 			//  parse the plot job
+			System.out.println("Begin time: " + format.format(new java.util.Date()) + "\n" +
+							   "Parsing: " + argv[0] + "\n");
 			MVLoadJobParser parser = new MVLoadJobParser(argv[0]);
 			MVLoadJob job = parser.getLoadJob();
-			
-			/*
-			// connect to the database
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBName(), job.getDBPassword());
-			if( con.isClosed() ){ throw new Exception("database connection failed"); }
-			*/
-			
+
+			//  process the elements of the job
 			con = job.getConnection();
+			System.out.println("Database Connection:\n" +
+					   		   "      host: " + job.getDBHost() + "\n" +
+					   		   "  database: " + job.getDBName() + "\n" +
+					   		   "      user: " + job.getDBUser() + "\n" +
+					   		   "  password: " + job.getDBPassword() + "\n");							   
 			
 			_boolVerbose				= job.getVerbose();
 			_intInsertSize				= job.getInsertSize();
@@ -203,7 +165,7 @@ public class MVLoad extends MVUtil {
 			_boolModeHeaderDBCheck		= job.getModeHeaderDBCheck();
 			_boolDropIndexes			= job.getDropIndexes();
 			_boolApplyIndexes			= job.getApplyIndexes();
-			
+						
 			// if the insert size is greater than 1, ensure that the db header check is off
 			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){
 				throw new Exception("insert size (" + _intInsertSize + ") > 1 and database header check turned on");
@@ -215,18 +177,29 @@ public class MVLoad extends MVUtil {
 			int intStatLinesPrev = 0;
 			int intModeLinesPrev = 0;
 			
+			//  drop the database indexes, if requested
 			if( _boolDropIndexes ){
 				dropIndexes(con);
 			}
 			
+			//  if the job involves only applying indexes, do so and return
+			if( _boolIndexOnly && _boolApplyIndexes ){
+				applyIndexes(con);
+				System.out.println("\n----  MVLoad Done  ----");
+				return;
+			}
+			
+			//  build a folder with each permutation of load values and load the data therein
 			MVOrderedMap[] listPerm = permute(job.getLoadVal()).getRows();
 			for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
-				String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);
 				
+				//  determine the name of the current folder
+				String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);				
 				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder + "\n" + 
 								   listPerm[intPerm].getRDecl());
 				long intPermStart = (new java.util.Date()).getTime();
 
+				//  try to access the folder and its contents, and continue if it does not exist
 				File fileBaseFolder = new File(strBaseFolder);
 				if (!fileBaseFolder.exists()) {
 					System.out.println("  **  WARNING: base folder not found: " + fileBaseFolder);
@@ -234,6 +207,7 @@ public class MVLoad extends MVUtil {
 				}
 				File[] listDataFiles = fileBaseFolder.listFiles();
 				
+				//  for each fine in the folder, determine its type and load it if appropriate
 				for (int j = 0; j < listDataFiles.length; j++) {
 					long intProcessDataFileBegin = (new java.util.Date()).getTime();
 					DataFileInfo info = processDataFile(listDataFiles[j], con);
@@ -252,7 +226,8 @@ public class MVLoad extends MVUtil {
 				}
 				
 				_tableModeHeaders.clear();
-				
+								
+				//  bookkeeping
 				int intStatLinesPerm = _intStatLinesTotal - intStatLinesPrev;
 				int intModeLinesPerm = _intModeLinesTotal - intModeLinesPrev;
 				intStatLinesPrev = _intStatLinesTotal;
@@ -288,14 +263,14 @@ public class MVLoad extends MVUtil {
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
 							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
 							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n" +
-							   padBegin("num files: ", 36) + intNumModeFiles + "\n\n");
+							   padBegin("num files: ", 36) + intNumModeFiles + "\n");
 			
 			if( _boolApplyIndexes ){
 				applyIndexes(con);
 			}
 
-			System.out.println(padBegin("end time: ", 36) + format.format(new java.util.Date()) + "\n" +
-					   		   padBegin("load total: ", 36) + formatTimeSpan(intLoadTime) + "\n");
+			System.out.println("End time: " + format.format(new java.util.Date()) + "\n" +
+					   		   "Load total: " + formatTimeSpan(intLoadTime) + "\n");
 		} catch (Exception e) {
 			System.err.println("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
 			e.printStackTrace();
@@ -304,6 +279,15 @@ public class MVLoad extends MVUtil {
 		}
 
 		System.out.println("\n----  MVLoad Done  ----");
+	}
+	
+	public static String getUsage(){
+		return	"Usage:  mv_load\n" +
+				"          load_spec_file\n" +
+				"          [-index]\n" +
+				"\n" +
+				"          where   \"load_spec_file\" specifies the XML load specification document\n" +
+				"                  \"-index\" indicates that no data should be loaded, and only the indexing commands applied\n";
 	}
 
 	public static void loadStatFile(DataFileInfo info, Connection con) throws Exception{
@@ -1170,31 +1154,29 @@ public class MVLoad extends MVUtil {
 		_tableCovThreshLineTypes.put("NBRCTS", new Boolean(true));
 	}
 	
-	public static final Hashtable _tableIndexes = new Hashtable();
+	public static final MVOrderedMap _mapIndexes = new MVOrderedMap();
 	static{
-		/*
-		_tableIndexes.put("stat_header_model_idx",			"model");
-		_tableIndexes.put("stat_header_fcst_var_idx",		"fcst_var");
-		_tableIndexes.put("stat_header_fcst_lev_idx",		"fcst_lev");
-		_tableIndexes.put("stat_header_fcst_lead_idx",		"fcst_lead");
-		_tableIndexes.put("stat_header_vx_mask_idx",		"vx_mask");
-		_tableIndexes.put("stat_header_interp_mthd_idx",	"interp_mthd");
-		_tableIndexes.put("stat_header_fcst_init_beg_idx",	"fcst_init_beg");
-		_tableIndexes.put("stat_header_fcst_valid_beg_idx",	"fcst_valid_beg");
-		*/
-		_tableIndexes.put("mode_header_model_idx",			"model");
-		_tableIndexes.put("mode_header_fcst_var_idx",		"fcst_var");
-		_tableIndexes.put("mode_header_fcst_lev_idx",		"fcst_lev");
-		_tableIndexes.put("mode_header_fcst_rad_idx",		"fcst_rad");
+		_mapIndexes.put("stat_header_model_idx",			"model");
+		_mapIndexes.put("stat_header_fcst_var_idx",			"fcst_var");
+		_mapIndexes.put("stat_header_fcst_lev_idx",			"fcst_lev");
+		_mapIndexes.put("stat_header_fcst_lead_idx",		"fcst_lead");
+		_mapIndexes.put("stat_header_vx_mask_idx",			"vx_mask");
+		_mapIndexes.put("stat_header_interp_mthd_idx",		"interp_mthd");
+		_mapIndexes.put("stat_header_fcst_init_beg_idx",	"fcst_init_beg");
+		_mapIndexes.put("stat_header_fcst_valid_beg_idx",	"fcst_valid_beg");
+		_mapIndexes.put("mode_header_model_idx",			"model");
+		_mapIndexes.put("mode_header_fcst_var_idx",			"fcst_var");
+		_mapIndexes.put("mode_header_fcst_lev_idx",			"fcst_lev");
+		_mapIndexes.put("mode_header_fcst_rad_idx",			"fcst_rad");
 	}
 	
 	public static void applyIndexes(Connection con, boolean drop) throws Exception{
 		
-		System.out.println("    ==== indexes ====\n\n" + (drop? "  dropping..." : ""));
-		for(Iterator iterEntries = _tableIndexes.entrySet().iterator(); iterEntries.hasNext();){
-			Map.Entry entry = (Map.Entry)iterEntries.next();
-			String strIndexName = entry.getKey().toString();
-			String strField = entry.getValue().toString();
+		System.out.println("    ==== indexes ====\n" + (drop? "  dropping..." : ""));
+		Map.Entry[] listIndexes = _mapIndexes.getOrderedEntries();
+		for(int i=0; i < listIndexes.length; i++){
+			String strIndexName = listIndexes[i].getKey().toString();
+			String strField = listIndexes[i].getValue().toString();
 			long intIndexStart = (new java.util.Date()).getTime();
 			
 			//  build a create index statment and run it
@@ -1204,7 +1186,11 @@ public class MVLoad extends MVUtil {
 			String strIndex = "";
 			if( drop ){ strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";                     }
 			else      { strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");"; }
-			executeUpdate(con, strIndex);
+			try{
+				executeUpdate(con, strIndex);
+			}catch(Exception e){
+				System.out.println("  **  ERROR: caught " + e.getClass() + " applying index " + strIndexName + ": " + e.getMessage());
+			}
 			
 			//  print out a performance message
 			long intIndexTime = (new java.util.Date()).getTime() - intIndexStart;
