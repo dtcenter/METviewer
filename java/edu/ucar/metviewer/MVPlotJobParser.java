@@ -189,17 +189,45 @@ public class MVPlotJobParser extends MVUtil{
 			//  <indep>
 			else if( node._tag.equals("indep") ){
 				int intIndyNum = node._children.length;
-				String[] listIndyVal = new String[intIndyNum];
-				String[] listIndyLabel = new String[intIndyNum];
+				ArrayList listIndyVal = new ArrayList();
+				ArrayList listIndyLabel = new ArrayList();
 				for(int j=0; j < intIndyNum; j++){
 					MVNode nodeIndyVal = node._children[j];
-					listIndyVal[j] = nodeIndyVal._value;
-					if( !nodeIndyVal._label.equals("") )	{ listIndyLabel[j] = nodeIndyVal._label; }
-					else									{ listIndyLabel[j] = nodeIndyVal._value; }
+					if( nodeIndyVal._tag.equals("val") ){
+						listIndyVal.add( nodeIndyVal._value );
+						if( !nodeIndyVal._label.equals("") )	{ listIndyLabel.add( nodeIndyVal._label ); }
+						else									{ listIndyLabel.add( nodeIndyVal._value ); }
+					}
+					
+					else if( nodeIndyVal._tag.equalsIgnoreCase("date_list") ){
+						String strStart = "";
+						String strEnd = "";
+						int intInc = 0;
+						String strFormat = _formatDB.toPattern();
+						
+						for(int k=0; k < nodeIndyVal._children.length; k++){
+							MVNode nodeChild = nodeIndyVal._children[k];
+							if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+							else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+							else if( nodeChild._tag.equals("inc") )          { intInc = Integer.parseInt(nodeChild._value); }
+							else if( nodeChild._tag.equals("label_format") ) { strFormat = nodeChild._value;                }
+						}
+						
+						SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
+						formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
+						String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
+						String[] listLabels = new String[listDates.length];
+						for(int k=0; k < listDates.length; k++){
+							try{ listLabels[k] = formatLabel.format( _formatDB.parse(listDates[k]) ); }catch(Exception e){}
+						}
+						
+						listIndyVal.addAll( Arrays.asList(listDates) );
+						listIndyLabel.addAll( Arrays.asList(listLabels) );
+					}
 				}
 				job.setIndyVar(node._name);
-				job.setIndyVal(listIndyVal);
-				job.setIndyLabel(listIndyLabel);
+				job.setIndyVal( (String[])listIndyVal.toArray(new String[]{}) );
+				job.setIndyLabel( (String[])listIndyLabel.toArray(new String[]{}) );
 			}
 			
 			//  <plot_fix>
