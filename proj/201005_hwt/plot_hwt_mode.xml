@@ -13,20 +13,14 @@
 	<folders>
 		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
 		<r_work>/d1/pgoldenb/var/hwt/R_work</r_work>
-		<plots>/d1/pgoldenb/var/hwt/plots_mode</plots>
+		<plots>/d1/pgoldenb/var/hwt/plots</plots>
 	</folders>
 	
 	<date_list name="fcst_init">
-		<start>2010-05-17</start>
-		<end>2010-05-18</end>
+		<start><date_offset><day_offset>-2</day_offset></date_offset></start>
+		<end><offset_days><day_offset>0</day_offset></offset_days></end>
 		<field name="fcst_init" />
 	</date_list>
-
-<!--	<date_list name="fcst_init">-->
-<!--		<start><offset_days>-1</offset_days></start>-->
-<!--		<end><offset_days>0</offset_days></end>-->
-<!--		<field name="fcst_init" />-->
-<!--	</date_list>-->
 
 	<plot name="hwt_mode" run="false">
 	
@@ -65,52 +59,6 @@
 			<val label="27">270000</val>
 			<val label="28">280000</val>
 		</indep>
-
-		<!-- series1 variables and values -->
-<!--		<series1>-->
-<!--			<field name="model">-->
-<!--				<val>ssef_s4m3_arw</val>-->
-<!--				<val>ssef_s4m4_arw</val>-->
-<!--				<val>ssef_s4m5_arw</val>-->
-<!--				<val>ssef_s4m6_arw</val>-->
-<!--				<val>ssef_s4m7_arw</val>-->
-<!--				<val>ssef_s4m8_arw</val>-->
-<!--				<val>ssef_s4m9_arw</val>-->
-<!--				<val>ssef_s4m10_arw</val>-->
-<!--				<val>ssef_s4m11_arw</val>-->
-<!--				<val>ssef_s4m12_arw</val>-->
-<!--				<val>ssef_s4m13_arw</val>-->
-<!--				<val>ssef_s4m14_arw</val>-->
-<!--				<val>ssef_s4m15_arw</val>-->
-<!--				<val>ssef_s4m16_arw</val>-->
-<!--				<val>ssef_s4m17_arw</val>-->
-<!--				<val>ssef_s4m18_arw</val>-->
-<!--				<val>ssef_s4m19_arw</val>-->
-<!--				<val>ssef_s4c0_arps</val>-->
-<!--				<val>ssef_s4cn_arps</val>-->
-<!--				<val>ssef_s4c0_arw</val>-->
-<!--				<val>ssef_s4cn_arw</val>-->
-<!--				<val>ssef_s4c0_nmm</val>-->
-<!--				<val>ssef_s4cn_nmm</val>-->
-<!--				<val>ssef_s4m3_nmm</val>-->
-<!--				<val>ssef_s4m4_nmm</val>-->
-<!--				<val>ssef_s4m5_nmm</val>-->
-<!--				<val>ssef_s4ens</val>-->
-<!--				<val>ssef_spc1</val>-->
-<!--				<val>hrrr</val>-->
-<!--			</field>-->
-<!--		</series1>-->
-
-		<!-- series2 variables and values -->
-<!--		<series2>-->
-<!--			<field name="model">-->
-<!--				<val>ssef_s4c0_arps</val>-->
-<!--				<val>ssef_s4m3_arw</val>-->
-<!--				<val>ssef_s4m11_arw</val>-->
-<!--				<val>ssef_s4m3_nmm</val>-->
-<!--				<val>hrrr</val>-->
-<!--			</field>-->
-<!--		</series2>-->
 
 		<!-- aggregate fields and values -->
 		<plot_fix>
@@ -238,7 +186,7 @@
 		<y2_bufr>0</y2_bufr>
 	</plot>
 	
-	<plot name="hmt_mode_refc" inherits="hwt_mode">
+	<plot name="hmt_mode_refc" inherits="hwt_mode" run="false">
 	
 		<dep>
 			<mode_group>
@@ -268,7 +216,7 @@
 		</plot_cmd>		
 	</plot>
 	
-	<plot name="hmt_mode_refc_vortex2" inherits="hmt_mode_refc" run="false">
+	<plot name="hmt_mode_refc_vortex2" inherits="hmt_mode_refc">
 		<series1>
 			<field name="model">
 				<val>ssef_s4m3_arw_vortex2</val>
@@ -360,7 +308,7 @@
 		</tmpl>
 	</plot>
 
-	<plot name="hmt_mode_retop" inherits="hwt_mode">
+	<plot name="hmt_mode_retop" inherits="hwt_mode" run="false">
 		<dep>
 			<mode_group>
 				<dep1><fcst_var name="RETOP"><stat>MMI</stat></fcst_var></dep1>
@@ -389,7 +337,7 @@
 		</plot_cmd>		
 	</plot>
 
-	<plot name="hmt_mode_retop_vortex2" inherits="hmt_mode_retop" run="false">
+	<plot name="hmt_mode_retop_vortex2" inherits="hmt_mode_retop">
 		<series1>
 			<field name="model">
 				<val>ssef_s4m3_arw_vortex2</val>

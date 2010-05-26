@@ -17,8 +17,8 @@
 	</folders>
 
 	<date_list name="fcst_init_beg">
-		<start>2010-05-10</start>
-		<end>2010-05-16</end>
+		<start><date_offset><day_offset>-2</day_offset></date_offset></start>
+		<end><offset_days><day_offset>0</day_offset></offset_days></end>
 		<field name="fcst_init_beg" />
 	</date_list>
 
@@ -266,18 +266,23 @@
 
 	<plot name="hwt_stat_init_refc_gss" inherits="hwt_stat_init_refc">
 		<dep><dep1><fcst_var name="REFC"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+		<y1_lim>c(0,1)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_refc_csi" inherits="hwt_stat_init_refc">
 		<dep><dep1><fcst_var name="REFC"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+		<y1_lim>c(0,1)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_refc_far" inherits="hwt_stat_init_refc">
 		<dep><dep1><fcst_var name="REFC"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+		<y1_lim>c(0,1.2)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_refc_pody" inherits="hwt_stat_init_refc">
 		<dep><dep1><fcst_var name="REFC"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+		<y1_lim>c(0,1.2)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_refc_fbias" inherits="hwt_stat_init_refc">
 		<dep><dep1><fcst_var name="REFC"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
+		<y1_lim>c(0,10)</y1_lim>
 	</plot>
 
 	<plot name="hwt_stat_init_retop" inherits="hwt_stat" run="false">
@@ -293,9 +298,9 @@
 		</agg>
 		
 		<tmpl>
-			<data_file>{vx_mask}/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_init/{initdate}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for RETOP {fcst_thresh} kfT {dep1_1_stat1}\nCONSTANT INIT TIME {initdate} - Region: {vx_mask}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1_stat1}</y1_label>
@@ -310,18 +315,23 @@
 
 	<plot name="hwt_stat_init_retop_gss" inherits="hwt_stat_init_retop">
 		<dep><dep1><fcst_var name="RETOP"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+		<y1_lim>c(0,1)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_retop_csi" inherits="hwt_stat_init_retop">
 		<dep><dep1><fcst_var name="RETOP"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+		<y1_lim>c(0,1)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_retop_far" inherits="hwt_stat_init_retop">
 		<dep><dep1><fcst_var name="RETOP"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+		<y1_lim>c(0,1.2)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_retop_pody" inherits="hwt_stat_init_retop">
 		<dep><dep1><fcst_var name="RETOP"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+		<y1_lim>c(0,1.2)</y1_lim>
 	</plot>
 	<plot name="hwt_stat_init_retop_fbias" inherits="hwt_stat_init_retop">
 		<dep><dep1><fcst_var name="RETOP"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
+		<y1_lim>c(0,10)</y1_lim>
 	</plot>
 
 </plot_spec>

@@ -193,12 +193,15 @@ public class MVPlotJobParser extends MVUtil{
 				ArrayList listIndyLabel = new ArrayList();
 				for(int j=0; j < intIndyNum; j++){
 					MVNode nodeIndyVal = node._children[j];
+					
+					//  <val>
 					if( nodeIndyVal._tag.equals("val") ){
 						listIndyVal.add( nodeIndyVal._value );
 						if( !nodeIndyVal._label.equals("") )	{ listIndyLabel.add( nodeIndyVal._label ); }
 						else									{ listIndyLabel.add( nodeIndyVal._value ); }
 					}
 					
+					//  <date_list>
 					else if( nodeIndyVal._tag.equalsIgnoreCase("date_list") ){
 						String strStart = "";
 						String strEnd = "";
@@ -245,28 +248,52 @@ public class MVPlotJobParser extends MVUtil{
 					MVOrderedMap mapFixVal = new MVOrderedMap();
 					MVOrderedMap mapTmplVal = new MVOrderedMap();
 					for(int k=0; k < nodeFix._children.length; k++){
-						MVNode nodeChild = nodeFix._children[k];
+						MVNode nodeFixVal = nodeFix._children[k];
 						
 						//  <val>
-						if( nodeChild._tag.equals("val") ){ listFixVal.add(nodeChild._value); }
+						if( nodeFixVal._tag.equals("val") ){ listFixVal.add(nodeFixVal._value); }
 						
 						//  <set>
-						else if( nodeChild._tag.equals("set") ){
-							String[] listAggSet = new String[nodeChild._children.length];
-							for(int l=0; l < nodeChild._children.length; l++){ listAggSet[l] = nodeChild._children[l]._value; }
-							mapFixVal.put(nodeChild._name, listAggSet);
+						else if( nodeFixVal._tag.equals("set") ){
+							String[] listAggSet = new String[nodeFixVal._children.length];
+							for(int l=0; l < nodeFixVal._children.length; l++){ listAggSet[l] = nodeFixVal._children[l]._value; }
+							mapFixVal.put(nodeFixVal._name, listAggSet);
 						}
 						
 						//  <date_list>
-						else if( nodeChild._tag.equals("date_list") ){
-							listFixVal.addAll( Arrays.asList((String[])_tableDateListDecl.get(nodeChild._name)) );
+						/*
+						else if( nodeFixVal._tag.equals("date_list") ){
+							listFixVal.addAll( Arrays.asList((String[])_tableDateListDecl.get(nodeFixVal._name)) );
 						}
+						*/
+						
+						//  <date_list>
+						else if( nodeFixVal._tag.equalsIgnoreCase("date_list") ){
+							String strStart = "";
+							String strEnd = "";
+							int intInc = 0;
+							String strFormat = _formatDB.toPattern();
+							
+							for(int l=0; l < nodeFixVal._children.length; l++){
+								MVNode nodeChild = nodeFixVal._children[l];
+								if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+								else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+								else if( nodeChild._tag.equals("inc") )   { intInc = Integer.parseInt(nodeChild._value); }
+							}
+							
+							SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
+							formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
+							String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
+							
+							listFixVal.addAll( Arrays.asList(listDates) );
+						}
+
 						
 						//  <date_range>
-						else if( nodeChild._tag.equals("date_range") ){
-							String strDateRangeVal = _tableDateRangeDecl.get(nodeChild._name).toString(); 
+						else if( nodeFixVal._tag.equals("date_range") ){
+							String strDateRangeVal = _tableDateRangeDecl.get(nodeFixVal._name).toString(); 
 							listFixVal.add(strDateRangeVal);
-							mapTmplVal.put(strDateRangeVal, nodeChild._name);							
+							mapTmplVal.put(strDateRangeVal, nodeFixVal._name);							
 						}
 					}
 					if     ( 0 < listFixVal.size() ){ job.addPlotFixVal(nodeFix._name, (String[])listFixVal.toArray(new String[]{})); }

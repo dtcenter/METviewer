@@ -243,14 +243,18 @@ public class MVUtil{
 			String strTmplTag = matTmpl.group(1);
 			String strTmplTagName = matTmpl.group(2);
 			
+			MVOrderedMap mapParms = parseTagParams(strTmplTag);
+			//String strVal = ((String)vals.get(strTmplTagName)).replace(" ", "_");
+			if( strTmplTagName.equals("date") ){
+				vals.put("date", _formatDate.format(new java.util.Date()));				
+			}
+			
 			if( !vals.containsKey(strTmplTagName) ){
 				System.out.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg perm");
 				continue;
 			}
-			
-			MVOrderedMap mapParms = parseTagParams(strTmplTag);
-			//String strVal = ((String)vals.get(strTmplTagName)).replace(" ", "_");
-			String strVal = ((String)vals.get(strTmplTagName));
+
+			String strVal = ((String)vals.get(strTmplTagName));			
 			
 			//  if there is a corresponding tag value map, use the map value
 			if( mapParms.containsKey("map") && mapParms.getStr("map").equalsIgnoreCase("true") &&
@@ -280,8 +284,7 @@ public class MVUtil{
 			//  if the tag value is a date, format it accordingly
 			java.util.Date dateParse = null;
 			try{
-				if( null != (dateParse = _formatDB.parse(strVal)) ||
-					null != (dateParse = _formatDBms.parse(strVal)) ){
+				if( null != (dateParse = _formatDB.parse(strVal)) || null != (dateParse = _formatDBms.parse(strVal)) ){
 					strVal = _formatPlot.format(dateParse);
 				}
 			}catch(Exception e){}

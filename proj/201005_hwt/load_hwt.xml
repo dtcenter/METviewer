@@ -7,11 +7,18 @@
 	</connection>
 
 	<date_list name="folder_dates">
-		<start>2010051000V</start>
-		<end>2010051900V</end>
+		<start>2010052113V</start>
+		<end>2010052512V</end>
 		<inc>3600</inc>
 		<format>yyyyMMddHH'V'</format>
 	</date_list>
+
+<!--	<date_list name="folder_dates">-->
+<!--		<start><date_offset><day_offset>-1</day_offset><hour>12</hour></date_offset></start>-->
+<!--		<end><date_offset><day_offset>0</day_offset><hour>6</hour></date_offset></end>-->
+<!--		<inc>3600</inc>-->
+<!--		<format>yyyyMMddHH'V'</format>-->
+<!--	</date_list>-->
 
 	<verbose>false</verbose>
 	<insert_size>1</insert_size>
@@ -19,9 +26,10 @@
 	<stat_header_db_check>false</stat_header_db_check>
 	<mode_header_db_check>true</mode_header_db_check>
 	<drop_indexes>false</drop_indexes>
-	<apply_indexes>true</apply_indexes>
+	<apply_indexes>false</apply_indexes>
 	
-	<folder_tmpl>/linus_d1/jensen/out/{model}/{date}/{fcst_var}/{data_type}</folder_tmpl>
+<!--	<folder_tmpl>/linus_d1/jensen/out/{model}/{date}/{fcst_var}/{data_type}</folder_tmpl>-->
+	<folder_tmpl>/linus_d1/dtcrt/data/out/{model}/{date}/{fcst_var}/{data_type}</folder_tmpl>
 	
 	<load_val>
 		<field name="model">

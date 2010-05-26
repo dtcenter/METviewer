@@ -745,7 +745,8 @@ public class MVBatch extends MVUtil {
 				if( boolModePlot ){
 					
 					//  break the mode data into cases for calculating stats - TODO: include all mode_header fields here?
-					String[] listModeCase = {"model", "fcst_var", "fcst_rad", "fcst_thr", "fcst_lead"};
+					String[] listModeCase = {"model", "fcst_lead", "fcst_valid", "fcst_init", "fcst_accum", "obs_lead", "obs_valid", "obs_accum",
+											 "fcst_rad", "fcst_thr", "obs_rad", "obs_thr", "fcst_var", "fcst_lev", "obs_var", "obs_lev"};
 					MVOrderedMap mapModeCase = new MVOrderedMap();
 					for(int i=0; i < listModeCase.length; i++){
 						if( !tab.containsField(listModeCase[i]) ){ continue; }
