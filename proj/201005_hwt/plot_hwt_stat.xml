@@ -58,6 +58,8 @@
 			<val label="26">260000</val>
 			<val label="27">270000</val>
 			<val label="28">280000</val>
+			<val label="29">290000</val>
+			<val label="30">300000</val>
 		</indep>
 
 		<!-- series1 variables and values -->

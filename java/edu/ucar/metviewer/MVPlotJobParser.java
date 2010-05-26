@@ -261,33 +261,9 @@ public class MVPlotJobParser extends MVUtil{
 						}
 						
 						//  <date_list>
-						/*
 						else if( nodeFixVal._tag.equals("date_list") ){
 							listFixVal.addAll( Arrays.asList((String[])_tableDateListDecl.get(nodeFixVal._name)) );
 						}
-						*/
-						
-						//  <date_list>
-						else if( nodeFixVal._tag.equalsIgnoreCase("date_list") ){
-							String strStart = "";
-							String strEnd = "";
-							int intInc = 0;
-							String strFormat = _formatDB.toPattern();
-							
-							for(int l=0; l < nodeFixVal._children.length; l++){
-								MVNode nodeChild = nodeFixVal._children[l];
-								if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
-								else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
-								else if( nodeChild._tag.equals("inc") )   { intInc = Integer.parseInt(nodeChild._value); }
-							}
-							
-							SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
-							formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
-							String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
-							
-							listFixVal.addAll( Arrays.asList(listDates) );
-						}
-
 						
 						//  <date_range>
 						else if( nodeFixVal._tag.equals("date_range") ){
