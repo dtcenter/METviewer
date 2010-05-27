@@ -532,13 +532,14 @@ legend(
 	lty=listLty,					# vector of line types
 	lwd=listLwdLeg,					# vector of line widths
 	pch=listPch,					# vector of point symbols
+	merge=FALSE,					# merge points and lines
 	cex=#<legend_size>#,			# relative magnification
 	bty="#<legend_box>#",			# legend box type - o: box, n: none
 	#bg="#EEEEEEFF",				# background color
 	#box.lty=,						# legend box line type
 	#box.lwd=,						# legend box line width	
 	#horiz=FALSE,					# horizontal configuration
-	adj=.08,						# string adjustment for text
+	adj=0,							# string adjustment for text
 	xpd=TRUE,						# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
 	ncol=#<legend_ncol>#,			# number of columns in legend
 	#agginset=c(0, -.25),			# inset distance from margin
