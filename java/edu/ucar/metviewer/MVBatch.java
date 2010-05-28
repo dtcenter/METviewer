@@ -672,7 +672,9 @@ public class MVBatch extends MVUtil {
 				//  if there is no data, do not try to plot it
 				if( 1 > tab.getNumRows() ){
 					System.out.println("  **  WARNING: query returned no data");
-					_intPlotIndex += listAggPerm.length;
+					int intNumModeGroupPlots = (0 < listMapDep1Mode.length? listMapDep1Mode.length : (0 < listMapDep2Mode.length? listMapDep2Mode.length : 1));
+					int intNumQueryPlots = (intNumModeGroupPlots * listAggPerm.length);
+					_intPlotIndex += intNumQueryPlots;
 					continue;
 				}
 
@@ -846,7 +848,7 @@ public class MVBatch extends MVUtil {
 						//  compute the aerial coverage of observation points
 						if( boolModeACOV ){
 							double dblCaseTotal = median(tabModeCase.getDoubleColumn("total"));
-							mapCaseData.putStr("ACOV",	mapCaseData.getDouble("asimpo") / (dblCaseTotal * (double)tabSimpObs.getNumRows()));
+							mapCaseData.put("ACOV",	new double[]{ mapCaseData.getDouble("asimpo") / (dblCaseTotal * (double)tabSimpObs.getNumRows()) });
 						}
 						
 						//  percentage of simple objects and area matched
@@ -897,23 +899,16 @@ public class MVBatch extends MVUtil {
 							listMI[intMIIndex++] = dblMIObs;
 						}
 						
-						//  save the MMI for forecast, observed and both and add them to the case data
-						double dblMMI = median(listMI);
-						double dblMMIF = median(listMIFcst);
-						double dblMMIO = median(listMIObs);
-						mapCaseData.putStr("MMI",  dblMMI == INVALID_DATA? "NA" : "" + dblMMI );
-						mapCaseData.putStr("MMIF", dblMMIF == INVALID_DATA? "NA" : "" + dblMMIF );
-						mapCaseData.putStr("MMIO", dblMMIO == INVALID_DATA? "NA" : "" + dblMMIO );
-	
-						//  calculate median scores for clustered objects and add them to the case data
-						double dblMIA = median( tabClusPair.getDoubleColumn("intersection_area") );
-						double dblMAR = median( tabClusPair.getDoubleColumn("area_ratio") );
-						double dblMCD = median( tabClusPair.getDoubleColumn("centroid_dist") );
-						double dblMAD = median( tabClusPair.getDoubleColumn("angle_diff") );
-						mapCaseData.putStr("MIA", dblMIA == INVALID_DATA? "NA" : "" + dblMIA );
-						mapCaseData.putStr("MAR", dblMAR == INVALID_DATA? "NA" : "" + dblMAR );
-						mapCaseData.putStr("MCD", dblMCD == INVALID_DATA? "NA" : "" + dblMCD );
-						mapCaseData.putStr("MAD", dblMAD == INVALID_DATA? "NA" : "" + dblMAD );
+						//  add the maximum interest scores to the data table
+						mapCaseData.put("MMI",  listMI);
+						mapCaseData.put("MMIF", listMIFcst);
+						mapCaseData.put("MMIO", listMIObs);						 
+						
+						//  add the scores for clustered objects to the data table
+						mapCaseData.put("MIA", tabClusPair.getDoubleColumn("intersection_area"));
+						mapCaseData.put("MAR", tabClusPair.getDoubleColumn("area_ratio"));
+						mapCaseData.put("MCD", tabClusPair.getDoubleColumn("centroid_dist"));
+						mapCaseData.put("MAD", tabClusPair.getDoubleColumn("angle_diff"));						
 	
 						//  calculate the median intensity difference between fcst and obs for the 50th and 90th percentiles
 						int intNClus = mapCaseData.getInt("nclusf");
@@ -926,11 +921,11 @@ public class MVBatch extends MVUtil {
 								listP90[j] = tabClusFcst.getDbl("intensity_90", j) - tabClusObs.getDbl("intensity_90", j);
 							}
 							
-							mapCaseData.putStr("P50", median(listP50));
-							mapCaseData.putStr("P90", median(listP90));
+							mapCaseData.put("P50", listP50);
+							mapCaseData.put("P90", listP90);
 						} else {
-							mapCaseData.putStr("P50", "NA");
-							mapCaseData.putStr("P90", "NA");
+							mapCaseData.put("P50", new double[]{});
+							mapCaseData.put("P90", new double[]{});
 						}
 						
 						bar.updateProgress((double)i);
@@ -954,10 +949,23 @@ public class MVBatch extends MVUtil {
 							if( mapModeStats.containsKey(listStatName[j]) ){ continue; }
 							mapModeStats.put(listStatName[j], "true");
 							MVDataTable tabModePlotVar = new MVDataTable(tabModePerm);
-							tabModePlotVar.addField("stat_name", listStatName[j]);
+
+							tabModePlotVar.addField("stat_name");
 							tabModePlotVar.addField("stat_value");
-							tabModePlotVar.setColumn("stat_value", tabModeStat.getColumn(listStatName[j]));
-							tabModePlot.addRows(tabModePlotVar.getRows());
+							for(int k=0; k < tabModePlotVar.getNumRows(); k++){
+								MVOrderedMap mapPerm = tabModePlotVar.getRow(k);
+								MVOrderedMap mapModeStat = tabModeStat.getRow(k);
+								double[] listStat = (double[])mapModeStat.get(listStatName[j]);
+								if( 1 > listStat.length ){ continue; }
+								for(int l=0; l < listStat.length; l++){
+									MVOrderedMap mapPermStat = new MVOrderedMap(mapPerm);
+									mapPermStat.putStr("stat_name", listStatName[j]);
+									mapPermStat.putStr("stat_value", "" + listStat[l]);
+									tabModePlot.addRow(mapPermStat);
+								}
+							}
+							
+							
 						}
 					}
 					//System.out.println("\ntabModePlot:"); printFormattedTable(tabModePlot, -1); System.out.println("" + tabModePlot.getNumRows() + " rows\n");
