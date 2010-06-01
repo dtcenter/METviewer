@@ -13,7 +13,7 @@
 	<folders>
 		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
 		<r_work>/d1/pgoldenb/var/hwt/R_work</r_work>
-		<plots>/d1/pgoldenb/var/hwt/plots</plots>
+		<plots>/d1/pgoldenb/var/hwt/plots_mode</plots>
 	</folders>
 	
 	<date_list name="fcst_init">
@@ -58,13 +58,15 @@
 			<val label="26">260000</val>
 			<val label="27">270000</val>
 			<val label="28">280000</val>
+			<val label="29">290000</val>
+			<val label="30">300000</val>
 		</indep>
 
 		<!-- aggregate fields and values -->
 		<plot_fix>
 			<field name="initdate">
-<!--				<val>2010-05-18 00:00:00</val>-->
-				<date_list name="fcst_init"/>
+				<val>2010-05-17 00:00:00</val>
+<!--				<date_list name="fcst_init"/>-->
 			</field>
 		</plot_fix>
 		
@@ -87,7 +89,7 @@
 		<event_equal>false</event_equal>
 		<plot1_diff>false</plot1_diff>
 		<plot2_diff>false</plot2_diff>
-		<num_stats>false</num_stats>
+		<num_stats>true</num_stats>
 		<indy1_stag>false</indy1_stag>
 		<indy2_stag>false</indy2_stag>
 		<grid_on>true</grid_on>
@@ -191,16 +193,16 @@
 		<dep>
 			<mode_group>
 				<dep1><fcst_var name="REFC"><stat>MMI</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>MMIF</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>MMIO</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>MIA</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>MAR</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>MCD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>MAD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>P50</stat></fcst_var></dep1>
-				<dep1><fcst_var name="REFC"><stat>P90</stat></fcst_var></dep1>
+<!--				<dep1><fcst_var name="REFC"><stat>MMIF</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>MMIO</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>MIA</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>MAR</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>MCD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>MAD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>P50</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="REFC"><stat>P90</stat></fcst_var></dep1>-->
 			</mode_group>
-<!--			<dep2><fcst_var name="REFC"><stat>ACOV</stat></fcst_var></dep2>			-->
+			<dep2><fcst_var name="REFC"><stat>ACOV</stat></fcst_var></dep2>			
 			<fix><fcst_var name="REFC"></fcst_var></fix>		
 		</dep>		
 
@@ -251,6 +253,8 @@
 				<val>hrrr_vortex2</val>
 			</field>
 		</series1>
+		
+		<series2><field name="model"><val>ssef_s4ens_vortex2</val></field></series2>
 	
 		<tmpl>
 			<data_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
@@ -262,172 +266,172 @@
 		</tmpl>
 	</plot>
 
-	<plot name="hmt_mode_refc_daily" inherits="hmt_mode_refc">
-		<series1>
-			<field name="model">
-				<val>ssef_s4m3_arw_daily</val>
-				<val>ssef_s4m4_arw_daily</val>
-				<val>ssef_s4m5_arw_daily</val>
-				<val>ssef_s4m6_arw_daily</val>
-				<val>ssef_s4m7_arw_daily</val>
-				<val>ssef_s4m8_arw_daily</val>
-				<val>ssef_s4m9_arw_daily</val>
-				<val>ssef_s4m10_arw_daily</val>
-				<val>ssef_s4m11_arw_daily</val>
-				<val>ssef_s4m12_arw_daily</val>
-				<val>ssef_s4m13_arw_daily</val>
-				<val>ssef_s4m14_arw_daily</val>
-				<val>ssef_s4m15_arw_daily</val>
-				<val>ssef_s4m16_arw_daily</val>
-				<val>ssef_s4m17_arw_daily</val>
-				<val>ssef_s4m18_arw_daily</val>
-				<val>ssef_s4m19_arw_daily</val>
-				<val>ssef_s4c0_arps_daily</val>
-				<val>ssef_s4cn_arps_daily</val>
-				<val>ssef_s4c0_arw_daily</val>
-				<val>ssef_s4cn_arw_daily</val>
-				<val>ssef_s4c0_nmm_daily</val>
-				<val>ssef_s4cn_nmm_daily</val>
-				<val>ssef_s4m3_nmm_daily</val>
-				<val>ssef_s4m4_nmm_daily</val>
-				<val>ssef_s4m5_nmm_daily</val>
-				<val>ssef_s4ens_daily</val>
-				<val>ssef_spc1_daily</val>
-				<val>nam_daily</val>
-				<val>hrrr_daily</val>
-			</field>
-		</series1>
-	
-		<tmpl>
-			<data_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
-			<title>DAILY MODE PERFORMANCE for {dep1_1} {fcst_thr} dBZ\nCONSTANT INIT TIME {initdate}</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1?map=true}</y1_label>
-		</tmpl>
-	</plot>
-
-	<plot name="hmt_mode_retop" inherits="hwt_mode" run="false">
-		<dep>
-			<mode_group>
-				<dep1><fcst_var name="RETOP"><stat>MMI</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>MMIF</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>MMIO</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>MIA</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>MAR</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>MCD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>MAD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>P50</stat></fcst_var></dep1>
-				<dep1><fcst_var name="RETOP"><stat>P90</stat></fcst_var></dep1>
-			</mode_group>
+<!--	<plot name="hmt_mode_refc_daily" inherits="hmt_mode_refc">-->
+<!--		<series1>-->
+<!--			<field name="model">-->
+<!--				<val>ssef_s4m3_arw_daily</val>-->
+<!--				<val>ssef_s4m4_arw_daily</val>-->
+<!--				<val>ssef_s4m5_arw_daily</val>-->
+<!--				<val>ssef_s4m6_arw_daily</val>-->
+<!--				<val>ssef_s4m7_arw_daily</val>-->
+<!--				<val>ssef_s4m8_arw_daily</val>-->
+<!--				<val>ssef_s4m9_arw_daily</val>-->
+<!--				<val>ssef_s4m10_arw_daily</val>-->
+<!--				<val>ssef_s4m11_arw_daily</val>-->
+<!--				<val>ssef_s4m12_arw_daily</val>-->
+<!--				<val>ssef_s4m13_arw_daily</val>-->
+<!--				<val>ssef_s4m14_arw_daily</val>-->
+<!--				<val>ssef_s4m15_arw_daily</val>-->
+<!--				<val>ssef_s4m16_arw_daily</val>-->
+<!--				<val>ssef_s4m17_arw_daily</val>-->
+<!--				<val>ssef_s4m18_arw_daily</val>-->
+<!--				<val>ssef_s4m19_arw_daily</val>-->
+<!--				<val>ssef_s4c0_arps_daily</val>-->
+<!--				<val>ssef_s4cn_arps_daily</val>-->
+<!--				<val>ssef_s4c0_arw_daily</val>-->
+<!--				<val>ssef_s4cn_arw_daily</val>-->
+<!--				<val>ssef_s4c0_nmm_daily</val>-->
+<!--				<val>ssef_s4cn_nmm_daily</val>-->
+<!--				<val>ssef_s4m3_nmm_daily</val>-->
+<!--				<val>ssef_s4m4_nmm_daily</val>-->
+<!--				<val>ssef_s4m5_nmm_daily</val>-->
+<!--				<val>ssef_s4ens_daily</val>-->
+<!--				<val>ssef_spc1_daily</val>-->
+<!--				<val>nam_daily</val>-->
+<!--				<val>hrrr_daily</val>-->
+<!--			</field>-->
+<!--		</series1>-->
+<!--	-->
+<!--		<tmpl>-->
+<!--			<data_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>-->
+<!--			<plot_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>-->
+<!--			<r_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>-->
+<!--			<title>DAILY MODE PERFORMANCE for {dep1_1} {fcst_thr} dBZ\nCONSTANT INIT TIME {initdate}</title>-->
+<!--			<x_label>FCST_LEAD</x_label>-->
+<!--			<y1_label>{dep1_1_stat1?map=true}</y1_label>-->
+<!--		</tmpl>-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="hmt_mode_retop" inherits="hwt_mode" run="false">-->
+<!--		<dep>-->
+<!--			<mode_group>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MMI</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MMIF</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MMIO</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MIA</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MAR</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MCD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>MAD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>P50</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="RETOP"><stat>P90</stat></fcst_var></dep1>-->
+<!--			</mode_group>-->
 <!--			<dep2><fcst_var name="RETOP"><stat>ACOV</stat></fcst_var></dep2>			-->
-			<fix><fcst_var name="RETOP"></fcst_var></fix>		
-		</dep>		
-
-		<agg>		
-			<field name="fcst_thr">
-				<val>>=25.000</val>
-			</field>
-		</agg>
-	
-		<plot_cmd>
-			par(usr=listY1Usr);
-			if( listDep1Plot$RETOP == "P50" | listDep1Plot$RETOP == "P90" ){ abline(h=0, lty=1, col="#999999FF"); }
-		</plot_cmd>		
-	</plot>
-
-	<plot name="hmt_mode_retop_vortex2" inherits="hmt_mode_retop">
-		<series1>
-			<field name="model">
-				<val>ssef_s4m3_arw_vortex2</val>
-				<val>ssef_s4m4_arw_vortex2</val>
-				<val>ssef_s4m5_arw_vortex2</val>
-				<val>ssef_s4m6_arw_vortex2</val>
-				<val>ssef_s4m7_arw_vortex2</val>
-				<val>ssef_s4m8_arw_vortex2</val>
-				<val>ssef_s4m9_arw_vortex2</val>
-				<val>ssef_s4m10_arw_vortex2</val>
-				<val>ssef_s4m11_arw_vortex2</val>
-				<val>ssef_s4m12_arw_vortex2</val>
-				<val>ssef_s4m13_arw_vortex2</val>
-				<val>ssef_s4m14_arw_vortex2</val>
-				<val>ssef_s4m15_arw_vortex2</val>
-				<val>ssef_s4m16_arw_vortex2</val>
-				<val>ssef_s4m17_arw_vortex2</val>
-				<val>ssef_s4m18_arw_vortex2</val>
-				<val>ssef_s4m19_arw_vortex2</val>
-				<val>ssef_s4c0_arps_vortex2</val>
-				<val>ssef_s4cn_arps_vortex2</val>
-				<val>ssef_s4c0_arw_vortex2</val>
-				<val>ssef_s4cn_arw_vortex2</val>
-				<val>ssef_s4c0_nmm_vortex2</val>
-				<val>ssef_s4cn_nmm_vortex2</val>
-				<val>ssef_s4m3_nmm_vortex2</val>
-				<val>ssef_s4m4_nmm_vortex2</val>
-				<val>ssef_s4m5_nmm_vortex2</val>
-				<val>ssef_s4ens_vortex2</val>
-				<val>ssef_spc1_vortex2</val>
-				<val>nam_vortex2</val>
-				<val>hrrr_vortex2</val>
-			</field>
-		</series1>
-	
-		<tmpl>
-			<data_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
-			<title>VORTEX2 MODE PERFORMANCE for {dep1_1} {fcst_thr} dBZ\nCONSTANT INIT TIME {initdate}</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1?map=true}</y1_label>
-		</tmpl>
-	</plot>
-
-	<plot name="hmt_mode_retop_daily" inherits="hmt_mode_retop">
-		<series1>
-			<field name="model">
-				<val>ssef_s4m3_arw_daily</val>
-				<val>ssef_s4m4_arw_daily</val>
-				<val>ssef_s4m5_arw_daily</val>
-				<val>ssef_s4m6_arw_daily</val>
-				<val>ssef_s4m7_arw_daily</val>
-				<val>ssef_s4m8_arw_daily</val>
-				<val>ssef_s4m9_arw_daily</val>
-				<val>ssef_s4m10_arw_daily</val>
-				<val>ssef_s4m11_arw_daily</val>
-				<val>ssef_s4m12_arw_daily</val>
-				<val>ssef_s4m13_arw_daily</val>
-				<val>ssef_s4m14_arw_daily</val>
-				<val>ssef_s4m15_arw_daily</val>
-				<val>ssef_s4m16_arw_daily</val>
-				<val>ssef_s4m17_arw_daily</val>
-				<val>ssef_s4m18_arw_daily</val>
-				<val>ssef_s4m19_arw_daily</val>
-				<val>ssef_s4c0_arps_daily</val>
-				<val>ssef_s4cn_arps_daily</val>
-				<val>ssef_s4c0_arw_daily</val>
-				<val>ssef_s4cn_arw_daily</val>
-				<val>ssef_s4c0_nmm_daily</val>
-				<val>ssef_s4cn_nmm_daily</val>
-				<val>ssef_s4m3_nmm_daily</val>
-				<val>ssef_s4m4_nmm_daily</val>
-				<val>ssef_s4m5_nmm_daily</val>
-				<val>ssef_s4ens_daily</val>
-				<val>ssef_spc1_daily</val>
-				<val>nam_daily</val>
-				<val>hrrr_daily</val>
-			</field>
-		</series1>
-	
-		<tmpl>
-			<data_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
-			<title>DAILY MODE PERFORMANCE for {dep1_1} {fcst_thr} dBZ\nCONSTANT INIT TIME {initdate}</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1?map=true}</y1_label>
-		</tmpl>
-	</plot>
+<!--			<fix><fcst_var name="RETOP"></fcst_var></fix>		-->
+<!--		</dep>		-->
+<!---->
+<!--		<agg>		-->
+<!--			<field name="fcst_thr">-->
+<!--				<val>>=25.000</val>-->
+<!--			</field>-->
+<!--		</agg>-->
+<!--	-->
+<!--		<plot_cmd>-->
+<!--			par(usr=listY1Usr);-->
+<!--			if( listDep1Plot$RETOP == "P50" | listDep1Plot$RETOP == "P90" ){ abline(h=0, lty=1, col="#999999FF"); }-->
+<!--		</plot_cmd>		-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="hmt_mode_retop_vortex2" inherits="hmt_mode_retop">-->
+<!--		<series1>-->
+<!--			<field name="model">-->
+<!--				<val>ssef_s4m3_arw_vortex2</val>-->
+<!--				<val>ssef_s4m4_arw_vortex2</val>-->
+<!--				<val>ssef_s4m5_arw_vortex2</val>-->
+<!--				<val>ssef_s4m6_arw_vortex2</val>-->
+<!--				<val>ssef_s4m7_arw_vortex2</val>-->
+<!--				<val>ssef_s4m8_arw_vortex2</val>-->
+<!--				<val>ssef_s4m9_arw_vortex2</val>-->
+<!--				<val>ssef_s4m10_arw_vortex2</val>-->
+<!--				<val>ssef_s4m11_arw_vortex2</val>-->
+<!--				<val>ssef_s4m12_arw_vortex2</val>-->
+<!--				<val>ssef_s4m13_arw_vortex2</val>-->
+<!--				<val>ssef_s4m14_arw_vortex2</val>-->
+<!--				<val>ssef_s4m15_arw_vortex2</val>-->
+<!--				<val>ssef_s4m16_arw_vortex2</val>-->
+<!--				<val>ssef_s4m17_arw_vortex2</val>-->
+<!--				<val>ssef_s4m18_arw_vortex2</val>-->
+<!--				<val>ssef_s4m19_arw_vortex2</val>-->
+<!--				<val>ssef_s4c0_arps_vortex2</val>-->
+<!--				<val>ssef_s4cn_arps_vortex2</val>-->
+<!--				<val>ssef_s4c0_arw_vortex2</val>-->
+<!--				<val>ssef_s4cn_arw_vortex2</val>-->
+<!--				<val>ssef_s4c0_nmm_vortex2</val>-->
+<!--				<val>ssef_s4cn_nmm_vortex2</val>-->
+<!--				<val>ssef_s4m3_nmm_vortex2</val>-->
+<!--				<val>ssef_s4m4_nmm_vortex2</val>-->
+<!--				<val>ssef_s4m5_nmm_vortex2</val>-->
+<!--				<val>ssef_s4ens_vortex2</val>-->
+<!--				<val>ssef_spc1_vortex2</val>-->
+<!--				<val>nam_vortex2</val>-->
+<!--				<val>hrrr_vortex2</val>-->
+<!--			</field>-->
+<!--		</series1>-->
+<!--	-->
+<!--		<tmpl>-->
+<!--			<data_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>-->
+<!--			<plot_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>-->
+<!--			<r_file>VORTEX2/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>-->
+<!--			<title>VORTEX2 MODE PERFORMANCE for {dep1_1} {fcst_thr} dBZ\nCONSTANT INIT TIME {initdate}</title>-->
+<!--			<x_label>FCST_LEAD</x_label>-->
+<!--			<y1_label>{dep1_1_stat1?map=true}</y1_label>-->
+<!--		</tmpl>-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="hmt_mode_retop_daily" inherits="hmt_mode_retop">-->
+<!--		<series1>-->
+<!--			<field name="model">-->
+<!--				<val>ssef_s4m3_arw_daily</val>-->
+<!--				<val>ssef_s4m4_arw_daily</val>-->
+<!--				<val>ssef_s4m5_arw_daily</val>-->
+<!--				<val>ssef_s4m6_arw_daily</val>-->
+<!--				<val>ssef_s4m7_arw_daily</val>-->
+<!--				<val>ssef_s4m8_arw_daily</val>-->
+<!--				<val>ssef_s4m9_arw_daily</val>-->
+<!--				<val>ssef_s4m10_arw_daily</val>-->
+<!--				<val>ssef_s4m11_arw_daily</val>-->
+<!--				<val>ssef_s4m12_arw_daily</val>-->
+<!--				<val>ssef_s4m13_arw_daily</val>-->
+<!--				<val>ssef_s4m14_arw_daily</val>-->
+<!--				<val>ssef_s4m15_arw_daily</val>-->
+<!--				<val>ssef_s4m16_arw_daily</val>-->
+<!--				<val>ssef_s4m17_arw_daily</val>-->
+<!--				<val>ssef_s4m18_arw_daily</val>-->
+<!--				<val>ssef_s4m19_arw_daily</val>-->
+<!--				<val>ssef_s4c0_arps_daily</val>-->
+<!--				<val>ssef_s4cn_arps_daily</val>-->
+<!--				<val>ssef_s4c0_arw_daily</val>-->
+<!--				<val>ssef_s4cn_arw_daily</val>-->
+<!--				<val>ssef_s4c0_nmm_daily</val>-->
+<!--				<val>ssef_s4cn_nmm_daily</val>-->
+<!--				<val>ssef_s4m3_nmm_daily</val>-->
+<!--				<val>ssef_s4m4_nmm_daily</val>-->
+<!--				<val>ssef_s4m5_nmm_daily</val>-->
+<!--				<val>ssef_s4ens_daily</val>-->
+<!--				<val>ssef_spc1_daily</val>-->
+<!--				<val>nam_daily</val>-->
+<!--				<val>hrrr_daily</val>-->
+<!--			</field>-->
+<!--		</series1>-->
+<!--	-->
+<!--		<tmpl>-->
+<!--			<data_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>-->
+<!--			<plot_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>-->
+<!--			<r_file>DAILY/mode/lead_series_init/{initdate}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>-->
+<!--			<title>DAILY MODE PERFORMANCE for {dep1_1} {fcst_thr} dBZ\nCONSTANT INIT TIME {initdate}</title>-->
+<!--			<x_label>FCST_LEAD</x_label>-->
+<!--			<y1_label>{dep1_1_stat1?map=true}</y1_label>-->
+<!--		</tmpl>-->
+<!--	</plot>-->
 
 
 
