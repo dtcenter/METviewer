@@ -386,10 +386,6 @@ public class MVBatch extends MVUtil {
 			MVOrderedMap[] listDep = job.getDepGroups();
 			for(int intDep=0; intDep < listDep.length; intDep++){
 			
-				//  get the dependent variable and fixed value maps for this group
-				//MVOrderedMap mapDep1 = (MVOrderedMap)listDep[intDep].get("dep1");
-				//MVOrderedMap mapDep2 = (MVOrderedMap)listDep[intDep].get("dep2");
-				
 				//  get axis y1 dependent variables for the current group
 				MVOrderedMap mapDep1 = null;
 				MVOrderedMap[] listMapDep1Mode = {};
@@ -425,7 +421,6 @@ public class MVBatch extends MVUtil {
 				Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
 				Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
 				Map.Entry[] listDep2Plot	= (null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
-				Map.Entry[] listDepFix		= (null != mapFix ? mapFix.getOrderedEntries() : new Map.Entry[]{});
 				
 				//  combine the dependent variables for each axis into one list
 				ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
@@ -507,13 +502,6 @@ public class MVBatch extends MVUtil {
 					strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
 				}
 				strSelectList += ",\n  h.fcst_var,\n";
-				/*
-				if( job.getIndyVar().equals("initdate") || job.getIndyVar().equals("fcst_valid_beg") || job.getIndyVar().equals("fcst_valid") ){
-					strSelectList += "  " + getSQLDateFormat("h." + job.getIndyVar()) + " " + job.getIndyVar() + ",\n";
-				} else {
-					strSelectList += "  h." + job.getIndyVar() + ",\n";
-				}
-				*/
 				strSelectList += "  " + formatField(job.getIndyVar(), boolModePlot) + " " + job.getIndyVar() + ",\n";
 				
 				if( job.getBootstrapping() ){
@@ -588,17 +576,6 @@ public class MVBatch extends MVUtil {
 					strWhere += "  AND h." + job.getIndyVar() + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
 				}
 	
-				/*
-				//  build the series fields where clause
-				int intNumSeries = 0;
-				for(int i=0; i < listSeries1Val.length; i++){
-					String strField = (String)listSeries1Val[i].getKey();
-					String[] listValues = (String[])listSeries1Val[i].getValue();
-					strWhere += "  AND h." + strField + " IN (" + buildValueList(listValues) + ")\n";
-					intNumSeries += listValues.length;
-				}
-				*/
-				
 				//  build the dependent variable where clause
 				strWhere += "  AND\n  (\n";
 				for(int i=0; i < listDepPlot.length; i++){
@@ -669,7 +646,19 @@ public class MVBatch extends MVUtil {
 				/*
 				 *  Run the query
 				 */
-	
+
+				//  make sure the database connection is functional (because Connection.isValid() throws an AbstractMethodError)
+				try{
+					Statement stmt = job.getConnection().createStatement();
+					stmt.executeQuery("SELECT COUNT(*) FROM stat_group_lu");
+					stmt.close();				
+				}catch(Exception e){
+					Class.forName("com.mysql.jdbc.Driver").newInstance();
+					Connection con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBUser(), job.getDBPassword());
+					if( con.isClosed() )	throw new Exception("database re-connection failed");
+					job.setConnection(con);
+				}
+				
 				//  run the query against the database connection and parse the results
 				long intStartTime = (new java.util.Date()).getTime();
 				Statement stmt = job.getConnection().createStatement();

@@ -8,7 +8,11 @@ public class MVPlotJob extends MVUtil{
 	protected String _strJobName			= "";
 	
 	protected Connection _con				= null;
-	
+	protected String _strDBHost				= "";
+	protected String _strDBName				= "";
+	protected String _strDBUser				= "";
+	protected String _strDBPassword			= "";
+
 	protected String _strPlotTmpl			= "";
 	
 	protected String _strIndyVar			= "";
@@ -106,7 +110,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strBoxNotch			= "FALSE";
 	protected String _strCIAlpha			= ".05";
 	
-	protected boolean _boolBootstrapping	= false;	
+	protected boolean _boolBootstrapping	= false;
 	protected String _strBootRepl			= "1000";
 	protected String _strBootCI				= "c()";
 	protected boolean _strBootDiff1			= false;
@@ -132,14 +136,18 @@ public class MVPlotJob extends MVUtil{
 	public MVPlotJob copy(){
 		MVPlotJob job = new MVPlotJob();
 		
-		job._strJobName			= _strJobName + "_copy";		
-		job._con				= _con;		
-		job._strPlotTmpl		= _strPlotTmpl;		
+		job._strJobName			= _strJobName + "_copy";
+		job._con				= _con;
+		job._strDBHost			= _strDBHost;
+		job._strDBName			= _strDBName;
+		job._strDBUser			= _strDBUser;
+		job._strDBPassword		= _strDBPassword;
+		job._strPlotTmpl		= _strPlotTmpl;
 		job._strIndyVar			= _strIndyVar;
 		job._listIndyVal		= copyList(_listIndyVal);
 		job._listIndyLabel		= copyList(_listIndyLabel);
 		job._mapPlotFixVal		= new MVOrderedMap(_mapPlotFixVal);
-		job._listDepGroup		= copyList(_listDepGroup);		
+		job._listDepGroup		= copyList(_listDepGroup);
 		job._mapSeries1Val		= new MVOrderedMap(_mapSeries1Val);
 		job._mapSeries2Val		= new MVOrderedMap(_mapSeries2Val);
 		job._mapSeriesNobs		= new MVOrderedMap(_mapSeriesNobs);
@@ -242,15 +250,23 @@ public class MVPlotJob extends MVUtil{
 		job._strY2Lim			= _strY2Lim;
 		job._strY2Bufr			= _strY2Bufr;
 		
-		return job; 
+		return job;
 	}
 	
 	public String	getJobName()										{ return _strJobName;									}
-	public void		setJobName(String jobName)							{ _strJobName = jobName;								}	
+	public void		setJobName(String jobName)							{ _strJobName = jobName;								}
 	public Connection getConnection()									{ return _con;											}
-	public void		setConnection(Connection con)						{ _con = con;											} 	
+	public void		setConnection(Connection con)						{ _con = con;											}
+	public String	getDBHost()											{ return _strDBHost;									}
+	public void		setDBHost(String dbHost)							{ _strDBHost = dbHost;									}
+	public String	getDBName()											{ return _strDBName;									}
+	public void		setDBName(String dbName)							{ _strDBName = dbName;									}
+	public String	getDBUser()											{ return _strDBUser;									}
+	public void		setDBUser(String dbUser)							{ _strDBUser = dbUser;									}
+	public String	getDBPassword()										{ return _strDBPassword;								}
+	public void		setDBPassword(String dbPassword)					{ _strDBPassword = dbPassword;							}
 	public String	getPlotTmpl()										{ return _strPlotTmpl;									}
-	public void		setPlotTmpl(String plotTmpl)						{ _strPlotTmpl = plotTmpl;								}	
+	public void		setPlotTmpl(String plotTmpl)						{ _strPlotTmpl = plotTmpl;								}
 	public String	getIndyVar()										{ return _strIndyVar;									}
 	public void		setIndyVar(String indyVar)							{ _strIndyVar = indyVar;								}
 	public String[]	getIndyVal()										{ return _listIndyVal;									}
