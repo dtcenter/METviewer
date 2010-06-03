@@ -124,7 +124,7 @@ public class MVLoadJobParser extends MVUtil{
 							listVal.addAll( Arrays.asList( (String[])_tableDateListDecl.get(nodeChild._name) ) );							
 						}
 					}
-					job.addLoadVal(strFieldName, (String[])listVal.toArray(new String[]{}));
+					job.addLoadVal(strFieldName, toArray(listVal));
 				}
 			}
 			

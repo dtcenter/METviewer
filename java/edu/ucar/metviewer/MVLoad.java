@@ -687,7 +687,7 @@ public class MVLoad extends MVUtil {
 				//  insert probabilistic data into the thresh tables
 				String[] listThreshTypes = (String[])tableThreshValues.keySet().toArray(new String[]{});
 				for(int i=0; i < listThreshTypes.length; i++){
-					String[] listThreshValues = (String[])((ArrayList)tableThreshValues.get(listThreshTypes[i])).toArray(new String[]{});
+					String[] listThreshValues = toArray( (ArrayList)tableThreshValues.get(listThreshTypes[i]) );
 					if( 1 > listThreshValues.length ){ continue; }
 					String strThreshInsert = "INSERT INTO line_data_" + listThreshTypes[i].toLowerCase() + "_thresh VALUES ";
 					for(int j=0; j < listThreshValues.length; j++){

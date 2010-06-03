@@ -18,6 +18,7 @@ public class MVPlotJobParser extends MVUtil{
 	
 	protected Hashtable _tableDateListDecl = new Hashtable();
 	protected Hashtable _tableDateRangeDecl = new Hashtable();
+	protected Hashtable _tableDateRangeListDecl = new Hashtable();
 	protected Hashtable _tablePlotDecl = new Hashtable();
 	protected Hashtable _tableTmplVal = new Hashtable();
 	protected MVNode _nodePlotSpec = null;
@@ -140,14 +141,44 @@ public class MVPlotJobParser extends MVUtil{
 
 			//  <date_range>
 			else if( node._tag.equals("date_range") ){
-				String strName = node._name;
-				String strBegin = "";
-				String strEnd = "";
-				for(int j=0; j < node._children.length; j++){
-					if     ( node._children[j]._tag.equals("start") ){ strBegin = node._children[j]._value; }
-					else if( node._children[j]._tag.equals("end")   ){ strEnd   = node._children[j]._value; }
+				_tableDateRangeDecl.put(node._name, parseDateRange(node));
+			}
+			
+			//  <date_range_list>
+			else if( node._tag.equals("date_range_list") ){
+				
+				//  gather the elements of the range list
+				String strRangeStart = "";
+				String strRangeEnd = "";
+				int intRangeLength = -1;
+				int intInc = -1;
+				String strFormat = _formatDB.toPattern();
+				for(int l=0; l < node._children.length; l++){
+					MVNode nodeChild = node._children[l];
+					if     ( nodeChild._tag.equals("range_start") ) { strRangeStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+					else if( nodeChild._tag.equals("range_end") )   { strRangeEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }					
+					else if( nodeChild._tag.equalsIgnoreCase("range_length") ){	intRangeLength = Integer.parseInt(nodeChild._value); }					
+					else if( nodeChild._tag.equalsIgnoreCase("inc") )         { intInc         = Integer.parseInt(nodeChild._value); }
 				}
-				_tableDateRangeDecl.put(strName, "BETWEEN '" + strBegin + "' AND '" + strEnd + "'");
+			
+				//  parse the begin and end times
+				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+				long intEndTime = -1;
+				try{
+					cal.setTime( _formatDB.parse(strRangeStart) );
+					intEndTime = _formatDB.parse(strRangeEnd).getTime();
+				}catch(Exception e){}
+				
+				//  build the list
+				ArrayList listDateRange = new ArrayList();
+				while( cal.getTime().getTime() <= intEndTime ){
+					String strStartCur = _formatDB.format( cal.getTime() );
+					cal.add(Calendar.MINUTE, intRangeLength);
+					String strEndCur   = _formatDB.format( cal.getTime() );
+					listDateRange.add("BETWEEN '" + strStartCur + "' AND '" + strEndCur + "'");
+					cal.add(Calendar.MINUTE, intInc - intRangeLength);					
+				}
+				_tableDateRangeListDecl.put(node._name, toArray(listDateRange));
 			}
 
 			//  <plot>
@@ -229,8 +260,8 @@ public class MVPlotJobParser extends MVUtil{
 					}
 				}
 				job.setIndyVar(node._name);
-				job.setIndyVal( (String[])listIndyVal.toArray(new String[]{}) );
-				job.setIndyLabel( (String[])listIndyLabel.toArray(new String[]{}) );
+				job.setIndyVal( toArray(listIndyVal) );
+				job.setIndyLabel( toArray(listIndyLabel) );
 			}
 			
 			//  <plot_fix>
@@ -271,8 +302,15 @@ public class MVPlotJobParser extends MVUtil{
 							listFixVal.add(strDateRangeVal);
 							mapTmplVal.put(strDateRangeVal, nodeFixVal._name);							
 						}
+
+						//  <date_range_list>
+						else if( nodeFixVal._tag.equals("date_range_list") ){
+							String[] listDateRange = (String[])_tableDateRangeListDecl.get(nodeFixVal._name); 
+							listFixVal.addAll(Arrays.asList(listDateRange));
+						}
+
 					}
-					if     ( 0 < listFixVal.size() ){ job.addPlotFixVal(nodeFix._name, (String[])listFixVal.toArray(new String[]{})); }
+					if     ( 0 < listFixVal.size() ){ job.addPlotFixVal(nodeFix._name, toArray(listFixVal)); }
 					else if( 0 < mapFixVal.size() ) { job.addPlotFixVal(nodeFix._name, mapFixVal); }
 					
 					if( 0 < mapTmplVal.size() ){ job.addTmplMap(nodeFix._name, mapTmplVal); }
@@ -732,6 +770,19 @@ public class MVPlotJobParser extends MVUtil{
 		}
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
+	}
+	
+	public static String parseDateRange(MVNode nodeDateRange){
+		String strName = nodeDateRange._name;
+		String strStart = "";
+		String strEnd = "";
+		String strFormat = _formatDB.toPattern();
+		for(int j=0; j < nodeDateRange._children.length; j++){
+			MVNode nodeChild = nodeDateRange._children[j]; 
+			if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+			else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+		}
+		return "BETWEEN '" + strStart + "' AND '" + strEnd + "'";
 	}
 
 }

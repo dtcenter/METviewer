@@ -29,6 +29,7 @@ public class MVBatch extends MVUtil {
 	public static boolean _boolProcWait			= true;
 
 	public static final Pattern _patRTmpl		= Pattern.compile("#<(\\w+)>#");
+	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
 	
 	public static final boolean _boolPlot		= true;
 	public static boolean _boolSQLSort			= true;
@@ -76,7 +77,7 @@ public class MVBatch extends MVUtil {
 				listArgvHMT.addAll( Arrays.asList(argv) );
 				listArgvHMT.remove(0);
 				
-				jobs = buildHMTJobs(con, (String[])listArgvHMT.toArray(new String[]{}));
+				jobs = buildHMTJobs(con, toArray(listArgvHMT));
 				
 			} else {
 				
@@ -100,7 +101,7 @@ public class MVBatch extends MVUtil {
 				}
 				String[] listJobNames = mapJobs.keyList();
 				if( 0 < listJobNamesInput.size() ){
-					listJobNames = (String[])listJobNamesInput.toArray(new String[]{});
+					listJobNames = toArray(listJobNamesInput);
 				}
 								
 				System.out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
@@ -367,8 +368,14 @@ public class MVBatch extends MVUtil {
 		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
 			Map.Entry[] listPlotFixVal = listPlotFixPerm[intPlotFix].getOrderedEntries();
 			
+			//  add the fixed values to the template value map
 			for(int i=0; i < listPlotFixVal.length; i++){
-				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), listPlotFixVal[i].getValue().toString());
+				String strFixVal = listPlotFixVal[i].getValue().toString();
+				Matcher matDateRange = _patDateRange.matcher(strFixVal);
+				if( matDateRange.matches() ){
+					strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
+				}
+				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
 			}
 			
 		
@@ -606,12 +613,14 @@ public class MVBatch extends MVUtil {
 					
 					//  fixed field sql
 					String strFixed = "";
-					MVOrderedMap mapFixed = (MVOrderedMap)mapFix.get(strFcstVar);
-					Map.Entry[] listFixed = mapFixed.getOrderedEntries();
-					for(int j=0; j < listFixed.length; j++){
-						String strField = (String)listFixed[j].getKey();
-						String strValue = (String)listFixed[j].getValue();
-						strFixed += "      AND " + formatField(strField, boolModePlot) + formatSQLConstraint(strValue) + "\n";
+					if( null != mapFix && mapFix.containsKey(strFcstVar) ){
+						MVOrderedMap mapFixed = (MVOrderedMap)mapFix.get(strFcstVar);
+						Map.Entry[] listFixed = mapFixed.getOrderedEntries();
+						for(int j=0; j < listFixed.length; j++){
+							String strField = (String)listFixed[j].getKey();
+							String strValue = (String)listFixed[j].getValue();
+							strFixed += "      AND " + formatField(strField, boolModePlot) + formatSQLConstraint(strValue) + "\n";
+						}
 					}
 					
 					//  build the series fields where clause
@@ -746,7 +755,7 @@ public class MVBatch extends MVUtil {
 				//  calculate the mode statistics, if appropriate
 				if( boolModePlot ){
 					
-					//  break the mode data into cases for calculating stats - TODO: include all mode_header fields here?
+					//  break the mode data into cases for calculating stats
 					String[] listModeCase = {"model", "fcst_lead", "fcst_valid", "fcst_init", "fcst_accum", "obs_lead", "obs_valid", "obs_accum",
 											 "fcst_rad", "fcst_thr", "obs_rad", "obs_thr", "fcst_var", "fcst_lev", "obs_var", "obs_lev"};
 					MVOrderedMap mapModeCase = new MVOrderedMap();
@@ -770,7 +779,7 @@ public class MVBatch extends MVUtil {
 					//System.out.println("\ntabModePerm:"); printFormattedTable(tabModePerm);
 					
 					long intStartTimeMode = (new java.util.Date()).getTime();
-					System.out.println("building mode stats\n");
+					System.out.println("building mode stats: " + tabModePerm.getNumRows() + " permutations\n");
 					TxtProgBar bar = new TxtProgBar((double)listModePerm.length - 1);
 					int[] listSingleObjCounts = new int[listModePerm.length];
 	
@@ -803,19 +812,14 @@ public class MVBatch extends MVUtil {
 						//System.out.println("mode perm:\n" + listModePerm[i].getRDecl() + "\n\ntabModeCase:");	tabModeCase.sort("object_id"); tabModeCase.sort("fcst_valid"); printFormattedTable(tabModeCase);
 						
 						//  build tables for each line type
-						//MVDataTable tabSimpFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^F\\d{3}$"); } });
-						//MVDataTable tabSimpObs   = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^O\\d{3}$"); } });
 						MVDataTable tabSimpFcst  = getUniqueModeObjRows(tabModeCase, "object_id", "^F\\d{3}$"); tabSimpFcst.sort("object_id"); tabSimpFcst.sort("fcst_valid");
 						MVDataTable tabSimpObs   = getUniqueModeObjRows(tabModeCase, "object_id", "^O\\d{3}$"); tabSimpObs. sort("object_id"); tabSimpObs. sort("fcst_valid");
-						//MVDataTable tabSimpPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^F\\d{3}_O\\d{3}$"); } });
 
 						MVDataTable tabSimpFcstM = tabSimpFcst.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return !row.getStr("object_cat").matches("^C[FO]000$"); } });
 						MVDataTable tabSimpFcstU = tabSimpFcst.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_cat").matches("^C[FO]000$"); } });
 						MVDataTable tabSimpObsM  = tabSimpObs. getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return !row.getStr("object_cat").matches("^C[FO]000$"); } });
 						MVDataTable tabSimpObsU  = tabSimpObs. getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_cat").matches("^C[FO]000$"); } });
 						
-						//MVDataTable tabClusFcst  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^CF\\d{3}$"); } });
-						//MVDataTable tabClusObs   = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id").matches("^CO\\d{3}$"); } });
 						MVDataTable tabClusFcst  = getUniqueModeObjRows(tabModeCase, "object_id", "^CF\\d{3}$"); tabClusFcst.sort("object_id"); tabClusFcst.sort("fcst_valid");
 						MVDataTable tabClusObs   = getUniqueModeObjRows(tabModeCase, "object_id", "^CO\\d{3}$"); tabClusObs. sort("object_id"); tabClusObs. sort("fcst_valid");
 						MVDataTable tabClusPair  = tabModeCase.getRows(new MVRowComp(){ public boolean equals(MVOrderedMap row){ return row.getStr("object_id_p").matches("^CF\\d{3}_CO\\d{3}$"); } });
@@ -1097,13 +1101,15 @@ public class MVBatch extends MVUtil {
 								}
 								
 								//  add the fixed fields and values
-								MVOrderedMap mapFixCur = (MVOrderedMap)mapFix.get(strFcstVar);
-								Map.Entry[] listFixCurVal = mapFixCur.getOrderedEntries();
-								for(int j=0; j < listFixCurVal.length; j++){
-									String strFixVar = (String)listFixCurVal[j].getKey();
-									String strFixVal = (String)listFixCurVal[j].getValue();
-									mapPlotTmplVals.put(strFixVar, strFixVal);
-									if( job.getBootstrapping() && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
+								if( null != mapFix && mapFix.containsKey(strFcstVar) ){
+									MVOrderedMap mapFixCur = (MVOrderedMap)mapFix.get(strFcstVar);
+									Map.Entry[] listFixCurVal = mapFixCur.getOrderedEntries();
+									for(int j=0; j < listFixCurVal.length; j++){
+										String strFixVar = (String)listFixCurVal[j].getKey();
+										String strFixVal = (String)listFixCurVal[j].getValue();
+										mapPlotTmplVals.put(strFixVar, strFixVal);
+										if( job.getBootstrapping() && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
+									}
 								}
 							}
 						}
@@ -1158,8 +1164,8 @@ public class MVBatch extends MVUtil {
 							tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
 							tableBootInfo.put("series1_list",	job.getSeries1Val().getRDecl());
 							tableBootInfo.put("series2_list",	job.getSeries2Val().getRDecl());
-							tableBootInfo.put("boot_stat1",		printRCol((String[])listBootStats1.toArray(new String[]{}), true));
-							tableBootInfo.put("boot_stat2",		printRCol((String[])listBootStats2.toArray(new String[]{}), true));
+							tableBootInfo.put("boot_stat1",		printRCol(toArray(listBootStats1), true));
+							tableBootInfo.put("boot_stat2",		printRCol(toArray(listBootStats2), true));
 							tableBootInfo.put("boot_static",	mapBootStatic.getRDecl());
 							tableBootInfo.put("boot_input",		strDataFile);
 							tableBootInfo.put("boot_output",	strBootOutput);
@@ -1184,7 +1190,7 @@ public class MVBatch extends MVUtil {
 								String[] listSeriesVar = mapSeriesVal.keyList();
 								ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
 								listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
-								mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], listDiffVal.toArray(new String[]{}));
+								mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], toArray(listDiffVal));
 							}					
 							
 							//  remove the .boot suffix from the data file
@@ -1515,7 +1521,6 @@ public class MVBatch extends MVUtil {
 		);
 	}
 	
-	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'[^']+'\\s+and\\s+'[^']+'\\s*");
 	
 	/**
 	 * Mapping from stat_name to stat_group_lu_id, used in SQL queries
