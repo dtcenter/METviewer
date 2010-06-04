@@ -427,31 +427,29 @@ public class MVLoad extends MVUtil {
 			//  if the stat_header does not yet exist, create one
 			} else {
 				_intStatHeaderTableTime += (new java.util.Date()).getTime() - intStatHeaderTableBegin;				
-				intStatHeaderId = intStatHeaderIdNext++;
-				_tableStatHeaders.put(strStatHeaderValueList, new Integer(intStatHeaderId));
 				
 				//  look for an existing stat_header record with the same information
-				boolean boolFoundStatHeader = false;
 				long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
 				if( _boolStatHeaderDBCheck ){
 					String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
 					Statement stmt = con.createStatement();
 					ResultSet res = stmt.executeQuery(strStatHeaderSelect);
 					if( res.next() ){
-						String strStatHeaderIdDup = res.getString(1);
-						boolFoundStatHeader = true;
-						System.out.println("  **  WARNING: found duplicate stat_header record with id " + strStatHeaderIdDup + "\n        " + strFileLine);
+						intStatHeaderId = res.getInt(1);
+						System.out.println("  **  WARNING: found duplicate stat_header record with id " + intStatHeaderId + "\n        " + strFileLine);
 					}
 					stmt.close();
 				}
 				intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
 				_intStatHeaderSearchTime += intStatHeaderSearchTime;
 				
-				if( !boolFoundStatHeader ){
-					//  add the value list to the values list
+				//  if not present in the table or database, add a stat_header record with a new stat_header_id
+				if( -1 == intStatHeaderId ){
+					intStatHeaderId = intStatHeaderIdNext++;
 					listInsertValues.add("(" + intStatHeaderId + ", " + strStatHeaderValueList + ")");
 					intStatHeaderRecords++;
 				}
+				_tableStatHeaders.put(strStatHeaderValueList, new Integer(intStatHeaderId));
 			}	
 
 			
