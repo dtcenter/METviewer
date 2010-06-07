@@ -235,7 +235,7 @@ public class MVBatch extends MVUtil {
 		//  connect to the database
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 		con = DriverManager.getConnection("jdbc:mysql://" + _strHost + ":" + _strPort + "/" + _strDatabase, _strUser, _strPwd);
-		if( con.isClosed() )	throw new Exception("database connection failed");
+		if( con.isClosed() )	throw new Exception("METViewer error: database connection failed");
 		
 		System.out.println("connected to " + _strDatabase + "@" + _strHost + "\nthe works: " + _boolTheWorks);
 
@@ -421,6 +421,11 @@ public class MVBatch extends MVUtil {
 				Map.Entry[] listSeriesNobs	= job.getSeriesNobs().getOrderedEntries();
 				Map.Entry[] listDep1Plot	= mapDep1.getOrderedEntries();
 				Map.Entry[] listDep2Plot	= (null != mapDep2 ? mapDep2.getOrderedEntries() : new Map.Entry[]{});
+				
+				//  if there are y2 dependent values, but no y2 series values, error out
+				if( 0 < listDep2Plot.length && 1 > listSeries2Val.length ){
+					throw new Exception("METViewer error: dep2 values present, but no series2 values in job " + job.getJobName());
+				}
 				
 				//  combine the dependent variables for each axis into one list
 				ArrayList listDepAll = new ArrayList( Arrays.asList(listDep1Plot) );
@@ -655,7 +660,7 @@ public class MVBatch extends MVUtil {
 				}catch(Exception e){
 					Class.forName("com.mysql.jdbc.Driver").newInstance();
 					Connection con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBUser(), job.getDBPassword());
-					if( con.isClosed() )	throw new Exception("database re-connection failed");
+					if( con.isClosed() )	throw new Exception("METViewer error: database re-connection failed");
 					job.setConnection(con);
 				}
 				

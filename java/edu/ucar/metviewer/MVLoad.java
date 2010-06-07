@@ -168,7 +168,7 @@ public class MVLoad extends MVUtil {
 						
 			// if the insert size is greater than 1, ensure that the db header check is off
 			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){
-				throw new Exception("insert size (" + _intInsertSize + ") > 1 and database header check turned on");
+				throw new Exception("METViewer load error: insert size (" + _intInsertSize + ") > 1 and database header check turned on");
 			}
 			
 			long intLoadTimeStart = (new java.util.Date()).getTime();
@@ -786,7 +786,7 @@ public class MVLoad extends MVUtil {
 			if( 2 == intDataFileLuId )         { intLineTypeLuId = MODE_CTS;    }
 			else if( matModeSingle.matches() ) { intLineTypeLuId = MODE_SINGLE; }
 			else if( matModePair.matches() )   { intLineTypeLuId = MODE_PAIR;   }
-			else { throw new Exception("loadModeFile() unable to determine line type " + listToken[16] + "\n        " + strFileLine); }
+			else { throw new Exception("METViewer load error: loadModeFile() unable to determine line type " + listToken[16] + "\n        " + strFileLine); }
 			
 			
 			/*
@@ -1011,7 +1011,7 @@ public class MVLoad extends MVUtil {
 		int intId = -1;
 		Statement stmt = con.createStatement();
 		ResultSet res = stmt.executeQuery("SELECT MAX(" + field + ") FROM " + table + ";");
-		if( !res.next() ){ throw new Exception("getNextId(" + table + ", " + field + ") unable to find max id"); }
+		if( !res.next() ){ throw new Exception("METViewer load error: getNextId(" + table + ", " + field + ") unable to find max id"); }
 		String strId = res.getString(1);
 		if( null == strId ) { intId = 0; } 
 		else                { intId = (Integer.parseInt(strId) + 1); }
@@ -1106,7 +1106,7 @@ public class MVLoad extends MVUtil {
 
 		// if the file is not present in the data_file table, query for the largest data_file_id
 		res = stmt.executeQuery("SELECT MAX(data_file_id) FROM data_file;");
-		if( !res.next() ){ throw new Exception("processDataFile() unable to find max data_file_id"); }		
+		if( !res.next() ){ throw new Exception("METViewer load error: processDataFile() unable to find max data_file_id"); }		
 		strDataFileId = res.getString(1);
 		if( null == strDataFileId ){ strDataFileId = "0"; }
 		else					   { strDataFileId = "" + (Integer.parseInt(strDataFileId) + 1); }

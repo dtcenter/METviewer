@@ -66,7 +66,7 @@ public class MVLoadJobParser extends MVUtil{
 					//  connect to the database
 					Class.forName("com.mysql.jdbc.Driver").newInstance();
 					Connection con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBUser(), job.getDBPassword());
-					if( con.isClosed() )	throw new Exception("database connection failed");
+					if( con.isClosed() )	throw new Exception("METViewer load error: database connection failed");
 					_con = con;
 					job.setConnection(con);
 				} catch(Exception ex){

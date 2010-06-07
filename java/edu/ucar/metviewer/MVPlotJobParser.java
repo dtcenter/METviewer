@@ -92,31 +92,29 @@ public class MVPlotJobParser extends MVUtil{
 	public String getRworkFolder(){ return _strRworkFolder; }
 	public String getPlotsFolder(){ return _strPlotsFolder; }
 	
-	protected void parsePlotJobSpec(){
+	protected void parsePlotJobSpec() throws Exception{
 		ArrayList listJobs = new ArrayList();
+		String strDBHost = "";
+		String strDBName = "";
+		String strDBUser = "";
+		String strDBPassword ="";		
 		
 		for(int i=0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++){
 			MVNode node = _nodePlotSpec._children[i];
-
 			//  <connection>
 			if( node._tag.equals("connection") ){
-				String strHost = "";
-				String strDatabase = "";
-				String strUser = "";
-				String strPassword ="";
-				
 				for(int j=0; j < node._children.length; j++){
-					if     ( node._children[j]._tag.equals("host") )	{ strHost		= node._children[j]._value; }
-					else if( node._children[j]._tag.equals("database") ){ strDatabase	= node._children[j]._value; }
-					else if( node._children[j]._tag.equals("user") )	{ strUser		= node._children[j]._value; }
-					else if( node._children[j]._tag.equals("password") ){ strPassword	= node._children[j]._value; }
+					if     ( node._children[j]._tag.equals("host") )	{ strDBHost		= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("database") ){ strDBName		= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("user") )	{ strDBUser		= node._children[j]._value; }
+					else if( node._children[j]._tag.equals("password") ){ strDBPassword	= node._children[j]._value; }
 				}
-				
+
 				try {
 					//  connect to the database
 					Class.forName("com.mysql.jdbc.Driver").newInstance();
-					Connection con = DriverManager.getConnection("jdbc:mysql://" + strHost + "/" + strDatabase, strUser, strPassword);
-					if( con.isClosed() )	throw new Exception("database connection failed");
+					Connection con = DriverManager.getConnection("jdbc:mysql://" + strDBHost + "/" + strDBName, strDBUser, strDBPassword);
+					if( con.isClosed() )	throw new Exception("METViewer error: database connection failed");
 					_con = con;
 				} catch(Exception ex){
 					System.out.println("  **  ERROR: parsePlotJob() caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
@@ -194,11 +192,24 @@ public class MVPlotJobParser extends MVUtil{
 				String strInherits = node._inherits;
 				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
 				MVPlotJob job = parsePlotJob(node, jobBase);
+				
+				//  set the job database information  
 				job.setConnection(_con);
+				job.setDBHost(strDBHost);
+				job.setDBName(strDBName);
+				job.setDBUser(strDBUser);
+				job.setDBPassword(strDBPassword);
+				
+				//  add the job to the jobs table and to the runnable jobs, if appropriate
 				_tablePlotDecl.put(node._name, job);
-				if( checkJobCompleteness(job) )	{
-					if( !node._run.equalsIgnoreCase("false") ){ _mapJobs.put(node._name, job); }
+				String strCompleteness = checkJobCompleteness(job);
+				boolean boolComplete = strCompleteness.equals("");
+				boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
+				if( boolComplete )	{
+					if( boolPlotRun ){ _mapJobs.put(node._name, job); }
 					listJobs.add( job );
+				} else if( boolPlotRun ){
+					throw new Exception("plot set to run lacks " + strCompleteness);
 				}
 			}
 		}
@@ -594,20 +605,20 @@ public class MVPlotJobParser extends MVUtil{
 		return job;
 	}
 	
-	public static boolean checkJobCompleteness(MVPlotJob job){
-		if     ( job.getPlotTmpl().equals("")     )	{ return false; }
-		else if( job.getIndyVar().equals("")      )	{ return false; }
-		else if( 1 > job.getIndyVal().length      )	{ return false; }
-		else if( 1 > job.getDepGroups().length    )	{ return false; }
-		else if( 1 > job.getSeries1Val().size()   )	{ return false; }
-		else if( 1 > job.getAggVal().size()       )	{ return false; }
-		else if( job.getRFileTmpl().equals("")    )	{ return false; }
-		else if( job.getPlotFileTmpl().equals("") )	{ return false; }
-		else if( job.getDataFileTmpl().equals("") )	{ return false; }
-		else if( job.getXLabelTmpl().equals("")   )	{ return false; }
-		else if( job.getY1LabelTmpl().equals("")  )	{ return false; }
+	public static String checkJobCompleteness(MVPlotJob job){
+		if     ( job.getPlotTmpl().equals("")     )	{ return "template";	}
+		else if( job.getIndyVar().equals("")      )	{ return "indep";		}
+		else if( 1 > job.getIndyVal().length      )	{ return "indep";		}
+		else if( 1 > job.getDepGroups().length    )	{ return "dep";			}
+		else if( 1 > job.getSeries1Val().size()   )	{ return "series1";		}
+		else if( 1 > job.getAggVal().size()       )	{ return "agg";			}
+		else if( job.getRFileTmpl().equals("")    )	{ return "r_file";		}
+		else if( job.getPlotFileTmpl().equals("") )	{ return "plot_file";	}
+		else if( job.getDataFileTmpl().equals("") )	{ return "data_file";	}
+		else if( job.getXLabelTmpl().equals("")   )	{ return "x_label";		}
+		else if( job.getY1LabelTmpl().equals("")  )	{ return "y1_label";	}
 		
-		return true;
+		return "";
 	}
 	
 	public static final Hashtable _tableFormatBoolean = new Hashtable();
