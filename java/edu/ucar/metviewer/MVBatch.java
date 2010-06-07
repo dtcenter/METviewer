@@ -48,6 +48,18 @@ public class MVBatch extends MVUtil {
 	
 	public static boolean _boolWindows			= false;
 		
+	public static String getUsage(){
+		return	"Usage:  mv_batch\n" +
+				"          plot_spec_file\n" +
+				"          [job_name]\n" +
+				"          [-list | -sql]\n" +
+				"\n" +
+				"          where   \"plot_spec_file\" specifies the XML plot specification document\n" +
+				"                  \"job_name\" specifies the name of the job from the plot specification to run\n" +
+				"                  \"-list\" indicates that the available plot jobs should be listed and no plots run\n" +
+				"                  \"-sql\" indicates that the queries for each plot jobs should be listed and no plots run\n";
+	}	
+	
 	public static void main(String[] argv) {
 		System.out.println("----  MVBatch  ----\n");
 		Connection con = null;
@@ -198,18 +210,6 @@ public class MVBatch extends MVUtil {
 		}
 
 		System.out.println("\n----  MVBatch Done  ----");
-	}
-	
-	public static String getUsage(){
-		return	"Usage:  mv_batch\n" +
-				"          plot_spec_file\n" +
-				"          [job_name]\n" +
-				"          [-list | -sql]\n" +
-				"\n" +
-				"          where   \"plot_spec_file\" specifies the XML plot specification document\n" +
-				"                  \"job_name\" specifies the name of the job from the plot specification to run\n" +
-				"                  \"-list\" indicates that the available plot jobs should be listed and no plots run\n" +
-				"                  \"-sql\" indicates that the queries for each plot jobs should be listed and no plots run\n";
 	}
 	
 	/**
@@ -441,7 +441,7 @@ public class MVBatch extends MVUtil {
 				Map.Entry[] listDepPlotMode = (Map.Entry[])listDepModeAll.toArray(new Map.Entry[]{});
 				if( 1 > listDepPlotMode.length ){ listDepPlotMode = listDepPlot; }
 	
-				//  determine if the stats are point/grid or mode
+				//  determine if the stats are point_stat/grid_stat or mode
 				boolean boolModePlot = false;
 				boolean boolModeACOV = false;
 				for(int i=0; i < listDepPlot.length; i++){
@@ -451,6 +451,9 @@ public class MVBatch extends MVUtil {
 						if( listStats[j].equalsIgnoreCase("ACOV") )        { boolModeACOV = true; }
 					}
 				}
+				
+				//  flag for probabilistic fcst_var scrubbing (e.g. for probabilistic thresh_series)
+				boolean boolProbScrub = false;
 	
 				
 				/*
@@ -593,6 +596,14 @@ public class MVBatch extends MVUtil {
 						strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
 					}
 					
+					//  build the fcst_var criteria
+					String strFcstVarClause = " = '" + strFcstVar + "'";
+					Matcher matProb = _patProb.matcher(strFcstVar);
+					if( matProb.matches() && strFcstVar.contains("{thr}") ){
+						boolProbScrub = true;
+						strFcstVarClause = " LIKE '" + strFcstVar.replace("{thr}", "%") + "'";
+					}
+										
 					//  fixed field sql
 					String strFixed = "";
 					if( null != mapFix && mapFix.containsKey(strFcstVar) ){
@@ -614,7 +625,7 @@ public class MVBatch extends MVUtil {
 						strSeries += "      AND " + formatField(strField, boolModePlot) + " IN (" + buildValueList(listValues) + ")\n";
 					}
 					
-					strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var = '" + strFcstVar + "'\n" +
+					strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var" + strFcstVarClause + "\n" +
 								strDepStatClause + strFixed + strSeries + "    )\n";
 				}
 	
@@ -689,12 +700,26 @@ public class MVBatch extends MVUtil {
 					}
 				}
 				
+				//  scrub the probabilistic fcst_var values, if appropriate
+				if( boolProbScrub ){
+					String[] listFcstVar = tab.getColumn("fcst_var");
+					for(int i=0; i < listFcstVar.length; i++){
+						Matcher matProb = _patProb.matcher( listFcstVar[i] );
+						if( matProb.matches() ){ listFcstVar[i] = "PROB_" + matProb.group(1); }
+					}
+					tab.setColumn("fcst_var", listFcstVar);
+				}				
+				
 				//  convert the stat_group_lu_id to stat_name, if present
 				if( tab.containsField("stat_group_lu_id") ){
 					tab.addField("stat_name");
 					for(int i=0; i < listDepPlot.length; i++){
-						final String strFcstVar = (String)listDepPlot[i].getKey();
 						String[] listStatName = (String[])listDepPlot[i].getValue();
+						
+						String strFcstVar = (String)listDepPlot[i].getKey();
+						Matcher matProb = _patProb.matcher(strFcstVar);
+						if( boolProbScrub && matProb.matches() ){ strFcstVar = "PROB_" + matProb.group(1); }
+						final String strFcstVarComp = strFcstVar;
 						
 						for(int j=0; j < listStatName.length; j++){
 							final String strStatGroupLuId = (String)_tableStatIndex.get(listStatName[j]);
@@ -702,7 +727,7 @@ public class MVBatch extends MVUtil {
 								public boolean equals(MVOrderedMap row){
 									String strFcstVarRow = (String)row.get("fcst_var"); 
 									String strStatGroupLuIdRow = (String)row.get("stat_group_lu_id");
-									return (strFcstVarRow.equals(strFcstVar) && strStatGroupLuIdRow.equals(strStatGroupLuId)); 
+									return (strFcstVarRow.equals(strFcstVarComp) && strStatGroupLuIdRow.equals(strStatGroupLuId)); 
 								}
 							};
 							tab.set("stat_name", c, listStatName[j]); 
