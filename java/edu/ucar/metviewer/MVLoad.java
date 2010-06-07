@@ -195,14 +195,13 @@ public class MVLoad extends MVUtil {
 				
 				//  determine the name of the current folder
 				String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);				
-				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder + "\n" + 
-								   listPerm[intPerm].getRDecl());
+				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder /* + "\n" + listPerm[intPerm].getRDecl() */);
 				long intPermStart = (new java.util.Date()).getTime();
 
 				//  try to access the folder and its contents, and continue if it does not exist
 				File fileBaseFolder = new File(strBaseFolder);
 				if (!fileBaseFolder.exists()) {
-					System.out.println("  **  WARNING: base folder not found: " + fileBaseFolder);
+					//System.out.println("  **  WARNING: base folder not found: " + fileBaseFolder);
 					continue;
 				}
 				File[] listDataFiles = fileBaseFolder.listFiles();
