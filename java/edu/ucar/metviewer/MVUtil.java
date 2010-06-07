@@ -10,6 +10,8 @@ import java.text.*;
 public class MVUtil{
 	
 	public static final double INVALID_DATA = -9999;
+	
+	public static final Pattern _patProb		= Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
 
 	public static String getSQLDateFormat(String field){ return "DATE_FORMAT(" + field + ", '%Y-%m-%d %H:%i:%s')"; }
 	
@@ -102,8 +104,10 @@ public class MVUtil{
 		SimpleDateFormat formatOffset = new SimpleDateFormat(format);
 		formatOffset.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		cal.add(Calendar.DATE, intOffset);
 		cal.set(Calendar.HOUR_OF_DAY, intHour);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.add(Calendar.DATE, intOffset);
 		
 		return formatOffset.format(cal.getTime());
 	}
@@ -681,6 +685,10 @@ public class MVUtil{
 	}
 	
 	public static String formatR(String in){
+		
+		Matcher matProb = _patProb.matcher(in);
+		if( matProb.matches() ){ return "PROB_" + matProb.group(1); }		
+		
 		return in.replace("(",	"")
 				 .replace(")",	"")
 				 .replace(".",	"_d_")
