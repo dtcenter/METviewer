@@ -119,6 +119,16 @@
 			</field>			
 		</agg>
 		
+		<tmpl>
+			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
+			<title>AGGREGATION for {dep1_1} {fcst_thresh} kfT {dep1_1_stat1}\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1_stat1}</y1_label>
+			<y2_label>Base Rate (observed event frac.)</y2_label>
+		</tmpl>
+		
 		<!-- plot formatting and options -->
 		<event_equal>false</event_equal>
 		<plot1_diff>false</plot1_diff>
@@ -214,10 +224,6 @@
 		 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		 			   0, 0, 0, 0, 0)</con_series> 
-		<!-- <con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)</con_series> -->
-		<!-- <legend>c("series1", "series2", "series3")</legend> -->
-<!--		<y1_lim>c(0,5)</y1_lim>-->
-<!--		<y1_bufr>.04</y1_bufr>-->
 		<y2_lim>c(0,.75)</y2_lim>
 		<y2_bufr>0</y2_bufr>
 	</plot>
@@ -235,16 +241,6 @@
 			</field>
 		</agg>
 		
-		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
-			<title>AGGREGATION for REFC {fcst_thresh} dBZ {dep1_1_stat1}\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1}</y1_label>
-			<y2_label>Base Rate (observed event frac.)</y2_label>
-		</tmpl>
-
 		<plot_cmd>
 			par(usr=listY1Usr);
 			if( listDep1Plot$REFC == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
@@ -284,16 +280,6 @@
 			</field>
 		</agg>
 		
-		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_{fcst_thresh?symbol=letters}.R</r_file>
-			<title>AGGREGATION for RETOP {fcst_thresh} kfT {dep1_1_stat1}\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1_stat1}</y1_label>
-			<y2_label>Base Rate (observed event frac.)</y2_label>
-		</tmpl>
-		
 		<plot_cmd>
 			par(usr=listY1Usr);
 			if( listDep1Plot$RETOP == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
@@ -320,5 +306,43 @@
 		<dep><dep1><fcst_var name="RETOP"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
 		<y1_lim>c(0,10)</y1_lim>
 	</plot>
+	
+	<plot name="hwt_stat_init_apcp06" inherits="hwt_stat" run="false">
+		<agg>
+			<field name="fcst_thresh">
+				<val>>6.350</val>
+				<val>>12.700</val>
+				<val>>25.400</val>
+				<val>>50.800</val>
+			</field>
+		</agg>
+		
+		<plot_cmd>
+			par(usr=listY1Usr);
+			if( listDep1Plot$APCP_06 == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
+		</plot_cmd>				
+	</plot>
+	
+	<plot name="hwt_stat_init_apcp06_gss" inherits="hwt_stat_init_apcp06">
+		<dep><dep1><fcst_var name="APCP_06"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
+		<y1_lim>c(0,1)</y1_lim>
+	</plot>
+	<plot name="hwt_stat_init_apcp06_csi" inherits="hwt_stat_init_apcp06">
+		<dep><dep1><fcst_var name="APCP_06"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
+		<y1_lim>c(0,1)</y1_lim>
+	</plot>
+	<plot name="hwt_stat_init_apcp06_far" inherits="hwt_stat_init_apcp06">
+		<dep><dep1><fcst_var name="APCP_06"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
+		<y1_lim>c(0,1.2)</y1_lim>
+	</plot>
+	<plot name="hwt_stat_init_apcp06_pody" inherits="hwt_stat_init_apcp06">
+		<dep><dep1><fcst_var name="APCP_06"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
+		<y1_lim>c(0,1.2)</y1_lim>
+	</plot>
+	<plot name="hwt_stat_init_apcp06_fbias" inherits="hwt_stat_init_apcp06">
+		<dep><dep1><fcst_var name="APCP_06"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
+		<y1_lim>c(0,10)</y1_lim>
+	</plot>
+	
 
 </plot_spec>

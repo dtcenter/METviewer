@@ -14,14 +14,6 @@
 		<plots>/d1/pgoldenb/var/hwt/plots</plots>
 	</folders>
 	
-	<date_range_list name="fcst_init_beg_range">
-		<range_start>2010-05-10 21:00:00</range_start>
-<!--		<range_start><date_offset><day_offset>-3</day_offset><hour>21</hour></date_offset></range_start>-->
-		<range_end><date_offset><day_offset>-1</day_offset><hour>21</hour></date_offset></range_end>
-		<range_length>180</range_length>		
-		<inc>720</inc>
-	</date_range_list>
-	
 	<plot name="hwt_prob" run="false">
 	
 		<template>series_plot.R_tmpl</template>
@@ -74,16 +66,10 @@
 			</field>
 		</agg>
 		
-		<plot_fix>
-			<field name="fcst_init_beg">
-				<date_range_list name="fcst_init_beg_range"/>
-			</field>
-		</plot_fix>
-		
 		<event_equal>false</event_equal>
 		<plot1_diff>false</plot1_diff>
 		<plot2_diff>false</plot2_diff>
-		<num_stats>false</num_stats>
+		<num_stats>true</num_stats>
 		<indy1_stag>false</indy1_stag>
 		<indy2_stag>false</indy2_stag>
 		<grid_on>true</grid_on>
@@ -103,7 +89,7 @@
 		<cex>1</cex>
 		<title_weight>2</title_weight>
 		<title_size>1.4</title_size>
-		<title_offset>-.4</title_offset>
+		<title_offset>-.5</title_offset>
 		<title_align>.5</title_align>
 		<xtlab_orient>1</xtlab_orient>
 		<xtlab_perp>-.75</xtlab_perp>
@@ -163,10 +149,10 @@
 	
 	<plot name="hwt_prob_brr03" inherits="hwt_prob_brr" run="false">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.R</r_file>
-			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {fcst_init_beg}</title>
+			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.R</r_file>
+			<title>AGGREGATION for BRR APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\"\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
@@ -174,10 +160,10 @@
 	
 	<plot name="hwt_prob_brr06" inherits="hwt_prob_brr" run="false">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.R</r_file>
-			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {fcst_init_beg}</title>
+			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.R</r_file>
+			<title>AGGREGATION for BRR APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\"\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
@@ -221,14 +207,15 @@
 		<colors>c("#000000FF", "#FF55AAFF", "#FFAA00FF")</colors>
 		<lwd>c(2, 2, 2)</lwd>
 		
+<!--		<legend>c("ssef_s4ens ROC_AUC", "sref ROC_AUC")</legend>-->
 	</plot>
 	
 	<plot name="hwt_prob_auc03" inherits="hwt_prob_auc" run="false">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.R</r_file>
-			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {fcst_init_beg}</title>
+			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.R</r_file>
+			<title>AGGREGATION for AUC APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\"\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>APCP_03 Area Under ROC Curve</y1_label>
 		</tmpl>
@@ -236,10 +223,10 @@
 	
 	<plot name="hwt_prob_auc06" inherits="hwt_prob_auc" run="false">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{fcst_init_beg}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.R</r_file>
-			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\" - CONST INIT TIME {fcst_init_beg}</title>
+			<data_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/lead_series_agg/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.R</r_file>
+			<title>AGGREGATION for AUC APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\"\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>APCP_06 Area Under ROC Curve</y1_label>
 		</tmpl>
