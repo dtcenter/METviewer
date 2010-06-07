@@ -122,8 +122,8 @@
 		<agg>
 			<field name="vx_mask">
 				<val>FULL</val>
-				<val>VORTEX2</val>
-				<val>DAILY</val>
+<!--				<val>VORTEX2</val>-->
+<!--				<val>DAILY</val>-->
 			</field>
 
 			<field name="interp_mthd">
@@ -131,8 +131,8 @@
 			</field>
 			
 			<field name="initdate">
-<!--				<val>2010-05-28 12:00:00</val>-->
-				<date_list name="fcst_init_beg"/>
+				<val>2010-05-28 12:00:00</val>
+<!--				<date_list name="fcst_init_beg"/>-->
 			</field>			
 		</agg>
 		
@@ -249,12 +249,12 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>=20.000</val>
-				<val>>=30.000</val>
-				<val>>=35.000</val>
-				<val>>=40.000</val>
-				<val>>=45.000</val>
-				<val>>=50.000</val>
-				<val>>=60.000</val>
+<!--				<val>>=30.000</val>-->
+<!--				<val>>=35.000</val>-->
+<!--				<val>>=40.000</val>-->
+<!--				<val>>=45.000</val>-->
+<!--				<val>>=50.000</val>-->
+<!--				<val>>=60.000</val>-->
 			</field>
 		</agg>
 		
@@ -268,97 +268,97 @@
 		<dep><dep1><fcst_var name="REFC"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
 		<y1_lim>c(0,1)</y1_lim>
 	</plot>
-	<plot name="hwt_stat_init_refc_csi" inherits="hwt_stat_init_refc">
-		<dep><dep1><fcst_var name="REFC"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
-		<y1_lim>c(0,1)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_refc_far" inherits="hwt_stat_init_refc">
-		<dep><dep1><fcst_var name="REFC"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
-		<y1_lim>c(0,1.2)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_refc_pody" inherits="hwt_stat_init_refc">
-		<dep><dep1><fcst_var name="REFC"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
-		<y1_lim>c(0,1.2)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_refc_fbias" inherits="hwt_stat_init_refc">
-		<dep><dep1><fcst_var name="REFC"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>
-		<y1_lim>c(0,10)</y1_lim>
-	</plot>
-
-	<plot name="hwt_stat_init_retop" inherits="hwt_stat" run="false">
-		<agg>
-			<field name="fcst_thresh">
-				<val>>=18.000</val>
-				<val>>=25.000</val>
-				<val>>=30.000</val>
-				<val>>=35.000</val>
-				<val>>=40.000</val>
-				<val>>=45.000</val>
-			</field>
-		</agg>
-		
-		<plot_cmd>
-			par(usr=listY1Usr);
-			if( listDep1Plot$RETOP == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
-		</plot_cmd>				
-	</plot>
-
-	<plot name="hwt_stat_init_retop_gss" inherits="hwt_stat_init_retop">
-		<dep><dep1><fcst_var name="RETOP"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
-		<y1_lim>c(0,1)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_retop_csi" inherits="hwt_stat_init_retop">
-		<dep><dep1><fcst_var name="RETOP"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
-		<y1_lim>c(0,1)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_retop_far" inherits="hwt_stat_init_retop">
-		<dep><dep1><fcst_var name="RETOP"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
-		<y1_lim>c(0,1.2)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_retop_pody" inherits="hwt_stat_init_retop">
-		<dep><dep1><fcst_var name="RETOP"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
-		<y1_lim>c(0,1.2)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_retop_fbias" inherits="hwt_stat_init_retop">
-		<dep><dep1><fcst_var name="RETOP"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>
-		<y1_lim>c(0,10)</y1_lim>
-	</plot>
-	
-	<plot name="hwt_stat_init_apcp06" inherits="hwt_stat" run="false">
-		<agg>
-			<field name="fcst_thresh">
-				<val>>6.350</val>
-				<val>>12.700</val>
-				<val>>25.400</val>
-				<val>>50.800</val>
-			</field>
-		</agg>
-		
-		<plot_cmd>
-			par(usr=listY1Usr);
-			if( listDep1Plot$APCP_06 == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
-		</plot_cmd>				
-	</plot>
-	
-	<plot name="hwt_stat_init_apcp06_gss" inherits="hwt_stat_init_apcp06">
-		<dep><dep1><fcst_var name="APCP_06"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
-		<y1_lim>c(0,1)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_apcp06_csi" inherits="hwt_stat_init_apcp06">
-		<dep><dep1><fcst_var name="APCP_06"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
-		<y1_lim>c(0,1)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_apcp06_far" inherits="hwt_stat_init_apcp06">
-		<dep><dep1><fcst_var name="APCP_06"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
-		<y1_lim>c(0,1.2)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_apcp06_pody" inherits="hwt_stat_init_apcp06">
-		<dep><dep1><fcst_var name="APCP_06"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
-		<y1_lim>c(0,1.2)</y1_lim>
-	</plot>
-	<plot name="hwt_stat_init_apcp06_fbias" inherits="hwt_stat_init_apcp06">
-		<dep><dep1><fcst_var name="APCP_06"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>
-		<y1_lim>c(0,10)</y1_lim>
-	</plot>
+<!--	<plot name="hwt_stat_init_refc_csi" inherits="hwt_stat_init_refc">-->
+<!--		<dep><dep1><fcst_var name="REFC"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_refc_far" inherits="hwt_stat_init_refc">-->
+<!--		<dep><dep1><fcst_var name="REFC"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1.2)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_refc_pody" inherits="hwt_stat_init_refc">-->
+<!--		<dep><dep1><fcst_var name="REFC"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1.2)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_refc_fbias" inherits="hwt_stat_init_refc">-->
+<!--		<dep><dep1><fcst_var name="REFC"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="REFC"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="REFC"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,10)</y1_lim>-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="hwt_stat_init_retop" inherits="hwt_stat" run="false">-->
+<!--		<agg>-->
+<!--			<field name="fcst_thresh">-->
+<!--				<val>>=18.000</val>-->
+<!--				<val>>=25.000</val>-->
+<!--				<val>>=30.000</val>-->
+<!--				<val>>=35.000</val>-->
+<!--				<val>>=40.000</val>-->
+<!--				<val>>=45.000</val>-->
+<!--			</field>-->
+<!--		</agg>-->
+<!--		-->
+<!--		<plot_cmd>-->
+<!--			par(usr=listY1Usr);-->
+<!--			if( listDep1Plot$RETOP == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }-->
+<!--		</plot_cmd>				-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="hwt_stat_init_retop_gss" inherits="hwt_stat_init_retop">-->
+<!--		<dep><dep1><fcst_var name="RETOP"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_retop_csi" inherits="hwt_stat_init_retop">-->
+<!--		<dep><dep1><fcst_var name="RETOP"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_retop_far" inherits="hwt_stat_init_retop">-->
+<!--		<dep><dep1><fcst_var name="RETOP"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1.2)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_retop_pody" inherits="hwt_stat_init_retop">-->
+<!--		<dep><dep1><fcst_var name="RETOP"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1.2)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_retop_fbias" inherits="hwt_stat_init_retop">-->
+<!--		<dep><dep1><fcst_var name="RETOP"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="RETOP"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="RETOP"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,10)</y1_lim>-->
+<!--	</plot>-->
+<!--	-->
+<!--	<plot name="hwt_stat_init_apcp06" inherits="hwt_stat" run="false">-->
+<!--		<agg>-->
+<!--			<field name="fcst_thresh">-->
+<!--				<val>>6.350</val>-->
+<!--				<val>>12.700</val>-->
+<!--				<val>>25.400</val>-->
+<!--				<val>>50.800</val>-->
+<!--			</field>-->
+<!--		</agg>-->
+<!--		-->
+<!--		<plot_cmd>-->
+<!--			par(usr=listY1Usr);-->
+<!--			if( listDep1Plot$APCP_06 == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }-->
+<!--		</plot_cmd>				-->
+<!--	</plot>-->
+<!--	-->
+<!--	<plot name="hwt_stat_init_apcp06_gss" inherits="hwt_stat_init_apcp06">-->
+<!--		<dep><dep1><fcst_var name="APCP_06"><stat>GSS</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_apcp06_csi" inherits="hwt_stat_init_apcp06">-->
+<!--		<dep><dep1><fcst_var name="APCP_06"><stat>CSI</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_apcp06_far" inherits="hwt_stat_init_apcp06">-->
+<!--		<dep><dep1><fcst_var name="APCP_06"><stat>FAR</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1.2)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_apcp06_pody" inherits="hwt_stat_init_apcp06">-->
+<!--		<dep><dep1><fcst_var name="APCP_06"><stat>PODY</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,1.2)</y1_lim>-->
+<!--	</plot>-->
+<!--	<plot name="hwt_stat_init_apcp06_fbias" inherits="hwt_stat_init_apcp06">-->
+<!--		<dep><dep1><fcst_var name="APCP_06"><stat>FBIAS</stat></fcst_var></dep1><dep2><fcst_var name="APCP_06"><stat>BASER</stat></fcst_var></dep2><fix><fcst_var name="APCP_06"></fcst_var></fix></dep>-->
+<!--		<y1_lim>c(0,10)</y1_lim>-->
+<!--	</plot>-->
 
 </plot_spec>

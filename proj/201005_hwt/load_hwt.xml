@@ -18,7 +18,8 @@
 		<!-- data in dtcrt for full load -->
 	<folder_tmpl>/linus_d1/dtcrt/data/out/{model}/{valid_time}/{fcst_var}/{data_type}</folder_tmpl>
 	<date_list name="folder_dates">
-		<start>2010051914V</start>
+<!--		<start>2010051914V</start>-->
+		<start><date_offset><day_offset>-3</day_offset><hour>7</hour></date_offset></start>
 		<end><date_offset><day_offset>0</day_offset><hour>6</hour></date_offset></end>
 		<inc>3600</inc>
 		<format>yyyyMMddHH'V'</format>
@@ -44,7 +45,7 @@
 	<load_val>
 		<field name="model">
 			<val>nam</val>
-<!--			<val>sref</val>-->
+			<val>sref</val>
 			<val>hrrr</val>
 			<val>ssef_s4c0_arw</val>
 			<val>ssef_s4cn_arw</val>
@@ -85,10 +86,10 @@
 		</field>
 		
 		<field name="fcst_var">
-<!--			<val>retop</val>-->
-<!--			<val>refc</val>-->
-<!--			<val>prob_03h</val>-->
-<!--			<val>prob_06h</val>-->
+			<val>retop</val>
+			<val>refc</val>
+			<val>prob_03h</val>
+			<val>prob_06h</val>
 			<val>apcp_06h</val>
 		</field>
 		

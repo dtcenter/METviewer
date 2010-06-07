@@ -15,8 +15,9 @@
 	</folders>
 	
 	<date_range_list name="fcst_init_beg_range">
-		<range_start>2010-05-10 21:00:00</range_start>
-<!--		<range_start><date_offset><day_offset>-3</day_offset><hour>21</hour></date_offset></range_start>-->
+<!--		<range_start>2010-05-28 21:00:00</range_start>-->
+<!--		<range_end>2010-05-29 00:00:00</range_end>-->
+		<range_start><date_offset><day_offset>-4</day_offset><hour>21</hour></date_offset></range_start>
 		<range_end><date_offset><day_offset>-1</day_offset><hour>21</hour></date_offset></range_end>
 		<range_length>180</range_length>		
 		<inc>720</inc>
