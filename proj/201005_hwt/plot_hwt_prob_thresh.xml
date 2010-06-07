@@ -134,9 +134,9 @@
 	
 	<plot name="hwt_prob_brr03" inherits="hwt_prob_brr">
  		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} BRR\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
 			<x_label>PROB_THRESH</x_label>
 			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
@@ -147,9 +147,9 @@
 	
 	<plot name="hwt_prob_brr06" inherits="hwt_prob_brr">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} BRR\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
 			<x_label>PROB_THRESH</x_label>
 			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
@@ -173,9 +173,9 @@
 	
 	<plot name="hwt_prob_auc03" inherits="hwt_prob_auc">
  		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} AUC\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
 			<x_label>PROB_THRESH</x_label>
 			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
@@ -186,9 +186,9 @@
 	
 	<plot name="hwt_prob_auc06" inherits="hwt_prob_auc">
  		<tmpl>
-			<data_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/lead_series_init/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} AUC\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
 			<x_label>PROB_THRESH</x_label>
 			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
