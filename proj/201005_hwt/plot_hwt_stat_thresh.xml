@@ -100,7 +100,6 @@
 			<plot_file>{vx_mask}/grid_stat/lead_series_thresh/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}.png</plot_file>
 			<r_file>{vx_mask}/grid_stat/lead_series_thresh/{date}/ANALYS_{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for {dep1_1} FCST_LEAD F{fcst_lead?format=HH} {dep1_1_stat1}\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
-			<x_label>FCST_THRESH (kFT)</x_label>
 			<y1_label>{dep1_1_stat1}</y1_label>
 			<y2_label>Base Rate (observed event frac.)</y2_label>
 		</tmpl>
@@ -214,6 +213,10 @@
 			<val>>=60.000</val>
 		</indep>
 		
+		<tmpl>
+			<x_label>FCST_THRESH (dBZ)</x_label>			
+		</tmpl>
+		
 		<plot_cmd>
 			par(usr=listY1Usr);
 			if( listDep1Plot$REFC == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
@@ -251,6 +254,10 @@
 			<val>>=45.000</val>
 		</indep>
 
+		<tmpl>
+			<x_label>FCST_THRESH (kFT)</x_label>			
+		</tmpl>
+		
 		<plot_cmd>
 			par(usr=listY1Usr);
 			if( listDep1Plot$RETOP == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
@@ -285,6 +292,10 @@
 			<val>>25.400</val>
 			<val>>50.800</val>
 		</indep>
+		
+		<tmpl>
+			<x_label>FCST_THRESH (mm)</x_label>			
+		</tmpl>
 		
 		<plot_cmd>
 			par(usr=listY1Usr);

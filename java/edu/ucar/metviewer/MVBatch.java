@@ -43,6 +43,7 @@ public class MVBatch extends MVUtil {
 	
 	public static int _intNumPlots				= 0;
 	public static int _intPlotIndex				= 0;
+	public static int _intNumPlotsRun			= 0;
 
 	public static boolean _boolTheWorks			= false;
 	
@@ -198,6 +199,7 @@ public class MVBatch extends MVUtil {
 			long intPlotAvg = (0 < _intNumPlots? intPlotTime / (long)_intNumPlots : 0);
 			System.out.println("\n" + 
 							   padBegin("End time: ") + _formatDB.format(dateEnd) + "\n" +
+							   padBegin("Plots run: ") + _intNumPlotsRun + " of " + _intNumPlots + "\n" +
 							   padBegin("Total time: ") + formatTimeSpan(intPlotTime) + "\n" +
 							   padBegin("Avg plot time: ") + formatTimeSpan(intPlotAvg) + "\n");
 
@@ -992,6 +994,8 @@ public class MVBatch extends MVUtil {
 						}
 					}
 					//System.out.println("\ntabModePlot:"); printFormattedTable(tabModePlot, -1); System.out.println("" + tabModePlot.getNumRows() + " rows\n");
+					tabModeStat.clear();	tabModeStat = null;
+					tabModePerm.clear();	tabModePerm = null;
 					tab.clear();
 					tab = tabModePlot;
 					
@@ -1000,7 +1004,8 @@ public class MVBatch extends MVUtil {
 							   		   "      min objs: " + min(listSingleObjCounts) + "\n" +
 							   		   "  meadian objs: " + median(listSingleObjCounts) + "\n" +
 							   		   "      max objs: " + max(listSingleObjCounts) + "\n\n");
-				}
+				
+				}  // end: if( boolModePlot )
 				
 				//  determine if the indy values require tick marks
 				boolean boolIndyValTick = false;
@@ -1373,6 +1378,7 @@ public class MVBatch extends MVUtil {
 		
 						if( _boolPlot ){
 							runRscript(strRFile);
+							_intNumPlotsRun++;
 						}
 						
 					} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
