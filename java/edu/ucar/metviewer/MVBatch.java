@@ -463,14 +463,17 @@ public class MVBatch extends MVUtil {
 				 */
 										
 				//  build a comma delimited lists of the query fields as the select and sort lists
-				String strSelectList = "", strSortList = "";
+				String strSelectList = "", strSortList = "", strModeTempList = "";
 				Map.Entry[] listQueryFields = append( append(listAggVal, listSeries1Val), listSeries2Val );
 				Hashtable tableFields = new Hashtable();
 				for(int i=0; i < listQueryFields.length; i++){
 					String strSelectVar = (String)listQueryFields[i].getKey();
 					String strSortVar = strSelectVar;
+					String strTempVar = strSelectVar;
 					if( tableFields.containsKey(strSelectVar) ){ continue; }
 					tableFields.put(strSelectVar, "true");
+					
+					//  format the field, depending on its type
 					if( strSelectVar.equals("inithour") ){
 						if( boolModePlot ){
 							//strSelectVar = "HOUR( SUBTIME( h.fcst_valid, CONCAT('0 ', FORMAT(h.fcst_lead/10000, 0), ':00:00') ) ) initdate";
@@ -494,6 +497,9 @@ public class MVBatch extends MVUtil {
 					} else if( strSelectVar.equals("fcst_valid_beg") ){
 						strSelectVar = getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
 						strSortVar = "fcst_valid_beg";
+					} else if( strSelectVar.equals("fcst_init") ){
+						strSelectVar = getSQLDateFormat("h.fcst_init") + " fcst_init";
+						strSortVar = "fcst_init";
 					} else if( strSelectVar.equals("fcst_valid") ){
 						strSelectVar = getSQLDateFormat("h.fcst_valid") + " fcst_valid";
 						strSortVar = "fcst_valid";
@@ -503,7 +509,14 @@ public class MVBatch extends MVUtil {
 					}
 					strSelectList += (0 < i? ",\n" : "") + "  " + strSelectVar;
 					strSortList += (0 < i? ",\n" : "") + "  " + strSortVar;
+					
+					//  add the field to the mode temp table, if appropriate
+					if( boolModePlot ){
+						String strTempType = _tableModeHeaderSQLType.get(strTempVar).toString();
+						strModeTempList += "    " + padEnd(strTempVar, 20) + strTempType + ",\n";
+					}
 				}
+				String strSelectListModeTemp = strSelectList;
 				
 				//  add valid time, forecast variable, independent variable and stat group to the list
 				if( boolModePlot ){
@@ -630,7 +643,9 @@ public class MVBatch extends MVUtil {
 					strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var" + strFcstVarClause + "\n" +
 								strDepStatClause + strFixed + strSeries + "    )\n";
 				}
-	
+				String strWhereModeTemp = strWhere + "  )";
+				
+				
 				if( boolModePlot ){
 					strWhere += "  )\n  AND mop.mode_header_id = h.mode_header_id\n" +
 								"  AND (mop.mode_obj_fcst_id = mos.mode_obj_id OR\n       mop.mode_obj_obs_id = mos.mode_obj_id)" + 
@@ -650,13 +665,163 @@ public class MVBatch extends MVUtil {
 					}
 				}
 	
-				//  put the query components together
-				String strQuery = "SELECT\n" + strSelectList + "\n" +
-								  "FROM\n" + strFromList + "\n" +
-								  "WHERE\n" + strWhere + 
-								  (_boolSQLSort? "\nORDER BY\n" + strSortList : "") + ";";
+				//  if the plots are not mode stats, combine the query components into a single SELECT
+				ArrayList listQuery = new ArrayList();
+				if( !boolModePlot ){
+					listQuery.add( 
+						"SELECT\n" + strSelectList + "\n" +
+						"FROM\n" + strFromList + "\n" +
+						"WHERE\n" + strWhere + 
+						(_boolSQLSort? "\nORDER BY\n" + strSortList : "") + ";");
+				}
 				
-				System.out.println("strQuery:\n\n" + strQuery + "\n");
+				//  if the plots are mode plots, build a series of temp tables to aggregate the data 
+				else {
+					
+					//  build the list of fields for the mode stats
+					String strIndyVarType = _tableModeHeaderSQLType.get(job.getIndyVar()).toString();
+					strModeTempList += ( !strModeTempList.contains("fcst_init")?  "    fcst_init           DATETIME,\n" : "");
+					strModeTempList += ( !strModeTempList.contains("fcst_valid")? "    fcst_valid          DATETIME,\n" : "");
+					strModeTempList += "    fcst_var            VARCHAR(64),\n" +
+									   "    " + padEnd(job.getIndyVar(), 20) + strIndyVarType + ",\n" +
+									   "    object_id           VARCHAR(128),\n" +
+									   "    object_cat          VARCHAR(128),\n";
+					
+					strSelectListModeTemp += ",\n";
+					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_init")?  "  h.fcst_init,\n" : "");
+					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_valid")? "  h.fcst_valid,\n" : "");
+					strSelectListModeTemp += "  h.fcst_var,\n  h." + job.getIndyVar() + ",\n";
+					
+					//  the mode SQL starts with declarations of temp tables
+					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single_cf;");
+					listQuery.add(
+						"CREATE TEMPORARY TABLE mode_single_cf\n" +
+						"(\n" +
+						strModeTempList +
+						"    area                INT UNSIGNED,\n" +
+						"    intensity_50        DOUBLE,\n" +
+						"    intensity_90        DOUBLE,\n" +
+						"    INDEX (fcst_valid),\n" +
+						"    INDEX (object_id),\n" +
+						"    INDEX (object_cat)\n" +
+						");");
+						
+					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single_co;");
+					listQuery.add(
+						"CREATE TEMPORARY TABLE mode_single_co\n" +
+						"(\n" +
+						strModeTempList +
+						"    area                INT UNSIGNED,\n" +
+						"    intensity_50        DOUBLE,\n" +
+						"    intensity_90        DOUBLE,\n" +
+						"    INDEX (fcst_valid),\n" +
+						"    INDEX (object_id),\n" +
+						"    INDEX (object_cat)\n" +
+						");");
+						
+					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_pair;");
+					listQuery.add(
+						"CREATE TEMPORARY TABLE mode_pair\n" +
+						"(\n" +
+						strModeTempList +
+						"    interest            DOUBLE,\n" +
+						"    intersection_area   INT UNSIGNED,\n" +
+						"    area_ratio          DOUBLE,\n" +
+						"    centroid_dist       DOUBLE,\n" +
+						"    angle_diff          DOUBLE,\n" +
+						"    INDEX (fcst_valid),\n" +
+						"    INDEX (object_id),\n" +
+						"    INDEX (object_cat)\n" +
+						");");
+
+					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_stat;");
+					listQuery.add(
+						"CREATE TEMPORARY TABLE mode_stat\n" +
+						"(\n" +
+						strModeTempList +
+						"    stat_name           VARCHAR(32),\n" +
+						"    stat_value          DOUBLE\n" +
+						");");
+
+					//  insert data from the mode_obj_single and mode_obj_pair tables into the temp tables
+					listQuery.add(
+							"INSERT INTO mode_single_cf\n" +
+							"SELECT\n" + strSelectListModeTemp +
+							"  mos.object_id,\n" +
+							"  mos.object_cat,\n" +
+							"  mos.area,\n" +
+							"  mos.intensity_50,\n" +
+							"  mos.intensity_90\n" +
+							"FROM\n" +
+							"  mode_header h,\n" +
+							"  mode_obj_single mos\n" +
+							"WHERE\n" + strWhereModeTemp + "\n" +
+							"  AND mos.object_id LIKE 'CF%'\n" +
+							"  AND mos.mode_header_id = h.mode_header_id;");					
+							
+					listQuery.add(
+							"INSERT INTO mode_single_co\n" +
+							"SELECT\n" + strSelectListModeTemp +
+							"  mos.object_id,\n" +
+							"  mos.object_cat,\n" +
+							"  mos.area,\n" +
+							"  mos.intensity_50,\n" +
+							"  mos.intensity_90\n" +
+							"FROM\n" +
+							"  mode_header h,\n" +
+							"  mode_obj_single mos\n" +
+							"WHERE\n" + strWhereModeTemp + "\n" +
+							"  AND mos.object_id LIKE 'CO%'\n" +
+							"  AND mos.mode_header_id = h.mode_header_id;");					
+							
+					listQuery.add(
+						"INSERT INTO mode_pair\n" +
+						"SELECT\n" + strSelectListModeTemp +
+						"  mop.object_id,\n" +
+						"  mop.object_cat,\n" +
+						"  mop.interest,\n" +
+						"  mop.intersection_area,\n" +
+						"  mop.area_ratio,\n" +
+						"  mop.centroid_dist,\n" +
+						"  mop.angle_diff\n" +
+						"FROM\n" +
+						"  mode_header h,\n" +
+						"  mode_obj_pair mop\n" +
+						"WHERE\n" + strWhereModeTemp + "\n" +
+						"  AND mop.mode_header_id = h.mode_header_id;");
+					
+					//  add the mode pair stats to the mode_stats table
+					String[] strModePairStats = {"MMIF", "MMIO", "MIA", "MAR", "MCD", "MAD"};
+					for(int i=0; i < strModePairStats.length; i++){
+						String strModeStatSQL = buildModePairStatTable(strSelectListModeTemp, strModePairStats[i]);
+						listQuery.add(strModeStatSQL);
+						if( strModePairStats[i].startsWith("MMI") ){ listQuery.add(strModeStatSQL.replaceAll("'" + strModePairStats[i] + "'", "'MMI'")); }						
+					}
+					
+					//  add the mode single stats to the mode_stats table
+					String[] strModeSingleStats = {"P50", "P90"};
+					for(int i=0; i < strModeSingleStats.length; i++){
+						String strModeStatSQL = buildModeSingleStatTable(strSelectListModeTemp, strModeSingleStats[i]);
+						listQuery.add(strModeStatSQL);
+					}
+					
+					//  build a select that will pull the data table for the plots
+					strSelectListModeTemp = strSelectListModeTemp.replaceAll("h\\.", "");
+					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_init",  getSQLDateFormat("fcst_init")  + " fcst_init");
+					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_valid", getSQLDateFormat("fcst_valid") + " fcst_valid");
+					listQuery.add(
+						"SELECT\n" +
+						strSelectListModeTemp +
+						"  object_id,\n" +
+						"  object_cat,\n" +
+						"  stat_name,\n" +
+						"  stat_value\n" +  
+						"FROM mode_stat;");
+				} 
+				
+				System.out.println("strQuery:\n\n");
+				String[] listSQL = toArray(listQuery);
+				for(int i=0; i < listSQL.length; i++){ System.out.println(listSQL[i] + "\n"); }
 				
 				if( _boolSQLOnly ){ continue; }
 				
@@ -673,16 +838,25 @@ public class MVBatch extends MVUtil {
 				}catch(Exception e){
 					Class.forName("com.mysql.jdbc.Driver").newInstance();
 					Connection con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBUser(), job.getDBPassword());
-					if( con.isClosed() )	throw new Exception("METViewer error: database re-connection failed");
+					if( con.isClosed() ){ throw new Exception("METViewer error: database re-connection failed"); }
 					job.setConnection(con);
 				}
 				
 				//  run the query against the database connection and parse the results
 				long intStartTime = (new java.util.Date()).getTime();
+				/*
 				Statement stmt = job.getConnection().createStatement();
-				ResultSet res = stmt.executeQuery(strQuery);
+				ResultSet res = stmt.executeQuery(listSQL[0]);
 				MVDataTable tab = new MVDataTable(res);
-				stmt.close();				
+				stmt.close();
+				*/
+				MVDataTable tab = null;
+				for(int i=0; i < listSQL.length; i++){
+					Statement stmt = job.getConnection().createStatement();
+					stmt.execute(listSQL[i]);
+					if( i == listSQL.length - 1 ){ tab = new MVDataTable(stmt.getResultSet()); }
+					stmt.close();
+				}
 				System.out.println("query returned " + tab.getNumRows() + " rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ));
 				
 				//  if there is no data, do not try to plot it
@@ -774,7 +948,7 @@ public class MVBatch extends MVUtil {
 				 */
 				
 				//  calculate the mode statistics, if appropriate
-				if( boolModePlot ){
+				if( false /* boolModePlot */ ){
 					
 					//  break the mode data into cases for calculating stats
 					String[] listModeCase = {"model", "fcst_lead", "fcst_valid", "fcst_init", "fcst_accum", "obs_lead", "obs_valid", "obs_accum",
@@ -1386,7 +1560,6 @@ public class MVBatch extends MVUtil {
 				} // end: for(int intDepMode = 0; intDepMode < listMapDepMode.length; intDepMode++)
 	
 				//  try to throw memory back onto the heap
-				res = null;
 				tab.clear();
 				tab = null;
 				//System.gc();
@@ -1546,6 +1719,73 @@ public class MVBatch extends MVUtil {
 		);
 	}
 	
+	public static String buildModePairStatTable(String strSelectList, String strStat){
+		
+		//  build the list of fields involved in the computations
+		String strSelectListStat = strSelectList.replaceAll("h\\.", "");
+		String strGroupListMMI = strSelectListStat;
+		
+		//  set the object_id field, depending on the stat
+		String strObjectId = "object_id";
+		if     ( strStat.equals("MMIF") ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) object_id"; }
+		else if( strStat.equals("MMIO") ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) object_id";    }
+		
+		//  set the table stat field, object_id pattern and group by clause, depending on the stat
+		String strTableStat = _tableModePairStatFields.get(strStat).toString();
+		
+		String strObjectIdPattern = "CF%_CO%";
+		if( strStat.startsWith("MMI") ){ strObjectIdPattern = "F%_O%"; }
+		
+		String strGroupBy = "";
+		if( strStat.startsWith("MMI") ){ strGroupBy = "\nGROUP BY\n" + strGroupListMMI + "  object_id"; }
+		
+		//  build the query
+		String strQuery =
+			"INSERT INTO mode_stat\n" +
+			"SELECT\n" + strSelectListStat +
+			"  " + strObjectId + ",\n" +
+			"  object_cat,\n" +
+			"  '" + strStat + "' stat_name,\n" +
+			"  " + strTableStat + " stat_value\n" +  
+			"FROM mode_pair\n" +
+			"WHERE object_id LIKE '" + strObjectIdPattern + "'" +
+			strGroupBy + ";";
+		
+		return strQuery;		
+	}
+	
+	public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
+	public static String buildModeSingleStatTable(String strSelectList, String strStat){
+		
+		//  build the list of fields involved in the computations
+		String strSelectListStat = strSelectList.replaceAll("h\\.", "cf.");
+		
+		//  build the where clause using the input select fields
+		String strWhere = "";
+		Matcher mat = _patModeSingle.matcher(strSelectList);
+		while( mat.find() ){
+			strWhere += "\n  AND cf." + mat.group(1) + " = co." + mat.group(1);
+		}
+		
+		//  set the table stat field, object_id pattern and group by clause, depending on the stat
+		String strTableStat = _tableModeSingleStatFields.get(strStat).toString();
+		
+		//  build the query
+		String strQuery =
+			"INSERT INTO mode_stat\n" +
+			"SELECT\n" + strSelectListStat +
+			"  cf.object_id,\n" +
+			"  cf.object_cat,\n" +
+			"  '" + strStat + "' stat_name,\n" +
+			"  cf." + strTableStat + " - co." + strTableStat + " stat_value\n" +  
+			"FROM mode_single_cf cf, mode_single_co co\n" +
+			"WHERE\n" +
+			"  SUBSTR(cf.object_id, 3) = SUBSTR(co.object_id, 3)" +
+			strWhere + ";";
+		
+		return strQuery;		
+	}
+	
 	
 	/**
 	 * Mapping from stat_name to stat_group_lu_id, used in SQL queries
@@ -1682,6 +1922,85 @@ public class MVBatch extends MVUtil {
 		_tableFcstLevSurface.put("APCP_03", "A3");
 		_tableFcstLevSurface.put("APCP_24", "APCP_03");
 	}
+	
+	public static final Hashtable _tableModeHeaderSQLType = new Hashtable();
+	static{
+		_tableModeHeaderSQLType.put("model",		"VARCHAR(64)");
+		_tableModeHeaderSQLType.put("fcst_lead",	"INT UNSIGNED");
+		_tableModeHeaderSQLType.put("fcst_valid",	"DATETIME");
+		_tableModeHeaderSQLType.put("fcst_accum",	"INT UNSIGNED");
+		_tableModeHeaderSQLType.put("fcst_init",	"DATETIME");
+		_tableModeHeaderSQLType.put("obs_lead",		"INT UNSIGNED");
+		_tableModeHeaderSQLType.put("obs_valid",	"DATETIME");
+		_tableModeHeaderSQLType.put("obs_accum",	"INT UNSIGNED");
+		_tableModeHeaderSQLType.put("fcst_rad",		"INT UNSIGNED");
+		_tableModeHeaderSQLType.put("fcst_thr",		"VARCHAR(16)");
+		_tableModeHeaderSQLType.put("obs_rad",		"INT UNSIGNED");
+		_tableModeHeaderSQLType.put("obs_thr",		"VARCHAR(16)");
+		_tableModeHeaderSQLType.put("fcst_var",		"VARCHAR(64)");
+		_tableModeHeaderSQLType.put("fcst_lev",		"VARCHAR(16)");
+		_tableModeHeaderSQLType.put("obs_var",		"VARCHAR(64)");
+		_tableModeHeaderSQLType.put("obs_lev", 		"VARCHAR(16)");
+	}
+	
+	public static final Hashtable _tableModePairSQLTypes = new Hashtable();
+	static{
+		_tableModePairSQLTypes.put("centroid_dist",					"DOUBLE");
+		_tableModePairSQLTypes.put("boundary_dist",					"DOUBLE");
+		_tableModePairSQLTypes.put("convex_hull_dist",				"DOUBLE");
+		_tableModePairSQLTypes.put("angle_diff",					"DOUBLE");
+		_tableModePairSQLTypes.put("area_ratio",					"DOUBLE");
+		_tableModePairSQLTypes.put("intersection_area",				"INT UNSIGNED");
+		_tableModePairSQLTypes.put("union_area",					"INT UNSIGNED");
+		_tableModePairSQLTypes.put("symmetric_diff",				"INTEGER");
+		_tableModePairSQLTypes.put("intersection_over_area",		"DOUBLE");
+		_tableModePairSQLTypes.put("complexity_ratio",				"DOUBLE");
+		_tableModePairSQLTypes.put("percentile_intensity_ratio",	"DOUBLE");
+		_tableModePairSQLTypes.put("interest",						"DOUBLE");
+	}
+	
+	public static final Hashtable _tableModeSingleSQLTypes = new Hashtable();
+	static{
+		_tableModeSingleSQLTypes.put("centroid_x",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("centroid_y",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("centroid_lat",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("centroid_lon",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("axis_avg",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("length",			"DOUBLE");
+		_tableModeSingleSQLTypes.put("width",			"DOUBLE");
+		_tableModeSingleSQLTypes.put("area",			"INT UNSIGNED");
+		_tableModeSingleSQLTypes.put("area_filter",		"INT UNSIGNED");
+		_tableModeSingleSQLTypes.put("area_thresh",		"INT UNSIGNED");
+		_tableModeSingleSQLTypes.put("curvature",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("curvature_x",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("curvature_y",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("complexity",		"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_10",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_25",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_50",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_75",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_90",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_nn",	"DOUBLE");
+		_tableModeSingleSQLTypes.put("intensity_sum",	"DOUBLE");
+	}
+	
+	public static final Hashtable _tableModePairStatFields = new Hashtable();
+	static{
+		_tableModePairStatFields.put("MMI",				"MAX(interest)");
+		_tableModePairStatFields.put("MMIF",			"MAX(interest)");
+		_tableModePairStatFields.put("MMIO",			"MAX(interest)");
+		_tableModePairStatFields.put("MIA",				"intersection_area");
+		_tableModePairStatFields.put("MAR",				"area_ratio");
+		_tableModePairStatFields.put("MCD",				"centroid_dist");
+		_tableModePairStatFields.put("MAD",				"angle_diff");
+	}
+	
+	public static final Hashtable _tableModeSingleStatFields = new Hashtable();
+	static{
+		_tableModeSingleStatFields.put("P50",			"intensity_50");
+		_tableModeSingleStatFields.put("P90",			"intensity_90");
+	}
+	
 }
 
 
