@@ -71,6 +71,24 @@ public class MVOrderedMap extends Hashtable {
 	public double getDouble(String key){ return Double.parseDouble(get(key).toString()); }
 	
 	/**
+	 * Pseudo-override of the Hashtable get() method to use the input as a pattern, using
+	 * the * character as a wildcard, which returns a list of matched values
+	 * @param key Pattern used to match keys for the value(s)
+	 * @return List of matched values
+	 */
+	public String[] getStrPattern(String key){
+		ArrayList listRet = new ArrayList();
+		String strPat = key.replace(".", "\\.").replace("*", ".*").replace("(", "\\(").replace(")", "\\)");
+		Pattern patKey = Pattern.compile(strPat);
+		for(int i=0; i < _listKeys.size(); i++){
+			String strKey = _listKeys.get(i).toString();
+			Matcher matKey = patKey.matcher(strKey);
+			if( matKey.matches() ){ listRet.add( getStr(strKey) ); }
+		}
+		return (String[])listRet.toArray(new String[]{});
+	}
+	
+	/**
 	 * Inserts the key/value pair into the table, putting the key into the ordered list at the
 	 * position specified by index
 	 * @param key Symbol used as the index for value 

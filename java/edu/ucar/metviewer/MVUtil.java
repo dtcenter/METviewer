@@ -16,11 +16,11 @@ public class MVUtil{
 	public static String getSQLDateFormat(String field){ return "DATE_FORMAT(" + field + ", '%Y-%m-%d %H:%i:%s')"; }
 	
 	/**
-	 * Query the database for a list of all ordered distinct initdates and return them for use as 
+	 * Query the database for a list of all ordered distinct fcst_init_begs and return them for use as 
 	 * an aggregate value list.  If a date range is desired, specify either or both the begin and
 	 * end dates in the SQL format YYYY-MM-dd HH:mm:ss.  
 	 * @param con database connection to use for query
-	 * @param begin database field name for date of interest, for example fcst_valid_beg or initdate
+	 * @param begin database field name for date of interest, for example fcst_valid_beg or fcst_init_beg
 	 * @param begin optional begin date for list
 	 * @param end optional end date for list
 	 * @param hour optional 24-hour clock hour value for restricting the search
@@ -276,7 +276,7 @@ public class MVUtil{
 					if( strFormat.equals("HHmm") ){		strVal = strVal.substring(0, strVal.length() - 2);		}
 					while( strFormat.length() > strVal.length() ){ strVal = "0" + strVal; }
 
-				} else if( strTmplTagName.equals("inithour") ){
+				} else if( strTmplTagName.equals("init_hour") ){
 					if( strFormat.equals("HH") ){		while(2 > strVal.length()){ strVal = "0" + strVal; }	}					
 				}
 				
@@ -686,17 +686,21 @@ public class MVUtil{
 	
 	public static String formatR(String in){
 		
+		String strFormatR = in;
 		Matcher matProb = _patProb.matcher(in);
-		if( matProb.matches() ){ return "PROB_" + matProb.group(1); }		
+		if( matProb.matches() ){
+			if( !in.contains("*") ){ strFormatR = "PROB_" + matProb.group(1) + matProb.group(2) + matProb.group(3); }
+			else                   { strFormatR = "PROB_" + matProb.group(1);                                       } 
+		}		
 		
-		return in.replace("(",	"")
-				 .replace(")",	"")
-				 .replace(".",	"_d_")
-				 .replace("<=",	"le")
-				 .replace(">=",	"ge")
-				 .replace("=",	"eq")
-				 .replace("<",	"lt")
-				 .replace(">",	"gt");
+		return strFormatR.replace("(",	"")
+						 .replace(")",	"")
+						 .replace(".",	"_d_")
+						 .replace("<=",	"le")
+						 .replace(">=",	"ge")
+						 .replace("=",	"eq")
+						 .replace("<",	"lt")
+						 .replace(">",	"gt");
 	}
 	
 	public static class TxtProgBar{
