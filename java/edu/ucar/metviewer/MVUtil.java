@@ -276,7 +276,7 @@ public class MVUtil{
 					if( strFormat.equals("HHmm") ){		strVal = strVal.substring(0, strVal.length() - 2);		}
 					while( strFormat.length() > strVal.length() ){ strVal = "0" + strVal; }
 
-				} else if( strTmplTagName.equals("init_hour") ){
+				} else if( strTmplTagName.equals("init_hour") || strTmplTagName.equals("valid_hour") ){
 					if( strFormat.equals("HH") ){		while(2 > strVal.length()){ strVal = "0" + strVal; }	}					
 				}
 				

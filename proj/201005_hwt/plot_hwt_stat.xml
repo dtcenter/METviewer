@@ -121,8 +121,8 @@
 		<!-- aggregate fields and values -->
 		<agg>
 			<field name="vx_mask">
-<!--				<val>FULL</val>-->
-<!--				<val>VORTEX2</val>-->
+				<val>FULL</val>
+				<val>VORTEX2</val>
 				<val>DAILY</val>
 			</field>
 
@@ -131,8 +131,8 @@
 			</field>
 			
 			<field name="fcst_init_beg">
-				<val>2010-05-28 00:00:00</val>
-<!--				<date_list name="fcst_init_beg"/>-->
+<!--				<val>2010-05-28 00:00:00</val>-->
+				<date_list name="fcst_init_beg"/>
 			</field>			
 		</agg>
 		
@@ -239,7 +239,7 @@
 		 <con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		 			   0, 0, 0, 0, 0, 0, 0)</con_series> 
+		 			   1, 0, 0, 0, 0, 0, 0)</con_series> 
 		<y2_lim>c(0,.75)</y2_lim>
 		<y2_bufr>0</y2_bufr>
 	</plot>
@@ -248,12 +248,12 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>=20.000</val>
-<!--				<val>>=30.000</val>-->
-<!--				<val>>=35.000</val>-->
-<!--				<val>>=40.000</val>-->
-<!--				<val>>=45.000</val>-->
-<!--				<val>>=50.000</val>-->
-<!--				<val>>=60.000</val>-->
+				<val>>=30.000</val>
+				<val>>=35.000</val>
+				<val>>=40.000</val>
+				<val>>=45.000</val>
+				<val>>=50.000</val>
+				<val>>=60.000</val>
 			</field>
 		</agg>
 		
@@ -292,11 +292,11 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>=18.000</val>
-<!--				<val>>=25.000</val>-->
-<!--				<val>>=30.000</val>-->
-<!--				<val>>=35.000</val>-->
-<!--				<val>>=40.000</val>-->
-<!--				<val>>=45.000</val>-->
+				<val>>=25.000</val>
+				<val>>=30.000</val>
+				<val>>=35.000</val>
+				<val>>=40.000</val>
+				<val>>=45.000</val>
 			</field>
 		</agg>
 
@@ -336,9 +336,9 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>6.350</val>
-<!--				<val>>12.700</val>-->
-<!--				<val>>25.400</val>-->
-<!--				<val>>50.800</val>-->
+				<val>>12.700</val>
+				<val>>25.400</val>
+				<val>>50.800</val>
 			</field>
 		</agg>
 
@@ -349,7 +349,12 @@
 		<plot_cmd>
 			par(usr=listY1Usr);
 			if( listDep1Plot$APCP_06 == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
-		</plot_cmd>				
+		</plot_cmd>		
+		
+		<con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 0, 0)</con_series> 
 	</plot>
 	
 	<plot name="hwt_stat_init_apcp06_gss" inherits="hwt_stat_init_apcp06">

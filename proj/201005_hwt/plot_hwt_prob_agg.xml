@@ -60,8 +60,8 @@
 		
 		<agg>
 			<field name="vx_mask">
-<!--				<val>FULL</val>-->
-<!--				<val>VORTEX2</val>-->
+				<val>FULL</val>
+				<val>VORTEX2</val>
 				<val>DAILY</val>
 			</field>
 		</agg>
@@ -79,7 +79,6 @@
 		<log_y1>false</log_y1>
 		<log_y2>false</log_y2>
  		
-<!--		<plot_type>png256</plot_type>-->
 		<plot_type>png16m</plot_type>
 		<plot_height>8.5</plot_height>
 		<plot_width>11</plot_width>

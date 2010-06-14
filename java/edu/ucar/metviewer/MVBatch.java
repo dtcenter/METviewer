@@ -474,9 +474,9 @@ public class MVBatch extends MVUtil {
 					
 					//  format the field, depending on its type
 					if( strSelectVar.equals("init_hour") ){
-						strSelectVar = "HOUR(h.fcst_init_beg) init_hour";
+						strSelectVar = (boolModePlot? "HOUR(h.fcst_init) init_hour" : "HOUR(h.fcst_init_beg) init_hour");
 					} else if( strSelectVar.equals("valid_hour") ){
-						strSelectVar = "HOUR(h.fcst_valid_beg) valid_hour";
+						strSelectVar = (boolModePlot? "HOUR(h.fcst_valid) valid_hour" : "HOUR(h.fcst_valid_beg) valid_hour");
 					} else if( strSelectVar.equals("fcst_valid_beg") ){
 						strSelectVar = getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg";
 					} else if( strSelectVar.equals("fcst_valid") ){
@@ -539,11 +539,12 @@ public class MVBatch extends MVUtil {
 				//  add init time, valid time, forecast variable, independent variable and stat group to the list
 				strSelectList += ",\n  h.fcst_var";
 				strSelectList += ",\n  " + formatField(job.getIndyVar(), boolModePlot) + " " + job.getIndyVar();
-				if( !strSelectList.contains("fcst_init") ){
+				//if( !strSelectList.contains("fcst_init") ){
+				if( !strSelectList.matches("(?s).*fcst_init\\w*,.*") ){
 					if( boolModePlot ){ strSelectList += ",\n  " + getSQLDateFormat("h.fcst_init") + " fcst_init"; }
 					else              { strSelectList += ",\n  " + getSQLDateFormat("h.fcst_init_beg") + " fcst_init_beg"; }
 				}
-				if( !strSelectList.contains("fcst_valid") ){
+				if( !strSelectList.matches("(?s).*fcst_valid\\w*,.*") ){
 					if( boolModePlot ){ strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid") + " fcst_valid"; }
 					else              { strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg"; }
 				}
@@ -587,7 +588,7 @@ public class MVBatch extends MVUtil {
 				
 				//  add the independent variable values, if necessary
 				if( 0 < job.getIndyVal().length ){
-					strWhere += "  AND h." + job.getIndyVar() + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
+					strWhere += "  AND " + formatField(job.getIndyVar(), boolModePlot) + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
 				}
 	
 				//  build the dependent variable where clause
@@ -695,7 +696,6 @@ public class MVBatch extends MVUtil {
 					String strTempListMode = strTempList + 
 						"    object_id           VARCHAR(128),\n" +
 						"    object_cat          VARCHAR(128),\n";
-
 					
 					//  build the list of fields for the mode stats
 					strSelectListModeTemp += ",\n";
@@ -1581,10 +1581,8 @@ public class MVBatch extends MVUtil {
 	
 
 	public static String formatField(String field, boolean mode){
-		if( field.equals("init_hour") ){
-			if( mode ){ return "HOUR( h.fcst_init )"; }
-			else      { return "HOUR(h.fcst_init_beg)"; }
-		}
+		if( field.equals("init_hour") )          { return (mode? "HOUR(h.fcst_init)"  : "HOUR(h.fcst_init_beg)");  }
+		else if( field.equals("valid_hour") )    { return (mode? "HOUR(h.fcst_valid)" : "HOUR(h.fcst_valid_beg)"); }
 		else if( field.equals("fcst_init_beg") ) { return getSQLDateFormat("h.fcst_init_beg");  }
 		else if( field.equals("fcst_init") )     { return getSQLDateFormat("h.fcst_init");      }
 		else if( field.equals("fcst_valid_beg") ){ return getSQLDateFormat("h.fcst_valid_beg"); }

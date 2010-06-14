@@ -34,20 +34,20 @@
 		
 		<agg>
 			<field name="vx_mask">
-<!--				<val>FULL</val>-->
-<!--				<val>VORTEX2</val>-->
+				<val>FULL</val>
+				<val>VORTEX2</val>
 				<val>DAILY</val>
 			</field>
 			
 			<field name="fcst_lead">
-<!--				<val>60000</val>-->
-<!--				<val>90000</val>-->
+				<val>60000</val>
+				<val>90000</val>
 				<val>120000</val>
-<!--				<val>150000</val>-->
-<!--				<val>180000</val>-->
-<!--				<val>210000</val>-->
-<!--				<val>240000</val>-->
-<!--				<val>270000</val>-->
+				<val>150000</val>
+				<val>180000</val>
+				<val>210000</val>
+				<val>240000</val>
+				<val>270000</val>
 			</field>
 		</agg>
 		
@@ -64,7 +64,6 @@
 		<log_y1>false</log_y1>
 		<log_y2>false</log_y2>
  		
-<!--		<plot_type>png256</plot_type>-->
 		<plot_type>png16m</plot_type>
 		<plot_height>8.5</plot_height>
 		<plot_width>11</plot_width>
@@ -138,7 +137,7 @@
 			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.png</plot_file>
 			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_BRR_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} BRR\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
-			<x_label>PROB_THRESH</x_label>
+			<x_label>PROB_THRESH (in.)</x_label>
 			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
 
@@ -151,7 +150,7 @@
 			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.png</plot_file>
 			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_BRR_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} BRR\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
-			<x_label>PROB_THRESH</x_label>
+			<x_label>PROB_THRESH (in.)</x_label>
 			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
 
@@ -177,7 +176,7 @@
 			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.png</plot_file>
 			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_03_AUC_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} AUC\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
-			<x_label>PROB_THRESH</x_label>
+			<x_label>PROB_THRESH (in.)</x_label>
 			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
 
@@ -190,7 +189,7 @@
 			<plot_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.png</plot_file>
 			<r_file>{vx_mask}/grid_stat/thresh_series/{date}/PROB_APCP_06_AUC_F{fcst_lead?format=HH}.R</r_file>
 			<title>AGGREGATION for FCST_LEAD F{fcst_lead?format=HH} AUC\nOVER FCST_THRESH ENDING {date} - Region: {vx_mask}</title>
-			<x_label>PROB_THRESH</x_label>
+			<x_label>PROB_THRESH (in.)</x_label>
 			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
 		</tmpl>
 
