@@ -60,8 +60,8 @@
 		
 		<agg>
 			<field name="vx_mask">
-				<val>FULL</val>
-				<val>VORTEX2</val>
+<!--				<val>FULL</val>-->
+<!--				<val>VORTEX2</val>-->
 				<val>DAILY</val>
 			</field>
 		</agg>
@@ -205,9 +205,7 @@
 		<lty>c(1, 1, 1)</lty>
 		<con_series>c(1, 1, 1)</con_series>		
 		<colors>c("#000000FF", "#FF55AAFF", "#FFAA00FF")</colors>
-		<lwd>c(2, 2, 2)</lwd>
-		
-<!--		<legend>c("ssef_s4ens ROC_AUC", "sref ROC_AUC")</legend>-->
+		<lwd>c(2, 2, 2)</lwd>		
 	</plot>
 	
 	<plot name="hwt_prob_auc03" inherits="hwt_prob_auc" run="false">

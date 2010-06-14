@@ -154,10 +154,10 @@
 
 		<!-- templates -->
 		<tmpl>
-			<data_file>mode/lead_series_agg/{initdate?map=true}b/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters;units=in}.data</data_file>
-			<plot_file>mode/lead_series_agg/{initdate?map=true}b/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters;units=in}.png</plot_file>
-			<r_file>mode/lead_series_agg/{initdate?map=true}b/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters;units=in}.R</r_file>
-			<title>MODE {dep1_1} {dep1_1_stat1} {fcst_thr?units=in}\" - 30 DAY AGGREGATION ENDING {initdate?map=true}</title>
+			<data_file>mode/lead_series_agg/{fcst_init?map=true}b/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters;units=in}.data</data_file>
+			<plot_file>mode/lead_series_agg/{fcst_init?map=true}b/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters;units=in}.png</plot_file>
+			<r_file>mode/lead_series_agg/{fcst_init?map=true}b/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters;units=in}.R</r_file>
+			<title>MODE {dep1_1} {dep1_1_stat1} {fcst_thr?units=in}\" - 30 DAY AGGREGATION ENDING {fcst_init?map=true}</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>
 			<y2_label>ens-mean ACOV</y2_label>
@@ -165,19 +165,19 @@
 	</plot>
 
 	<!-- base plot object for the aggregation plots -->
-	<plot name="hmt_mode_24_agg_01" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100110"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_02" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100117"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_03" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100124"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_04" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100131"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_05" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100207"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_06" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100214"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_07" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100221"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_08" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100228"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_09" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100307"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_10" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100314"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_11" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100321"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_12" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100328"/></field></plot_fix></plot>
-	<plot name="hmt_mode_24_agg_13" inherits="hmt_mode_24_agg"><plot_fix><field name="initdate"><date_range name="20100404"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_01" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100110"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_02" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100117"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_03" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100124"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_04" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100131"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_05" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100207"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_06" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100214"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_07" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100221"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_08" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100228"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_09" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100307"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_10" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100314"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_11" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100321"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_12" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100328"/></field></plot_fix></plot>
+	<plot name="hmt_mode_24_agg_13" inherits="hmt_mode_24_agg"><plot_fix><field name="fcst_init"><date_range name="20100404"/></field></plot_fix></plot>
 
 
 	<!-- 

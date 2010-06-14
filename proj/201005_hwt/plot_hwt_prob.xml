@@ -69,8 +69,8 @@
 		
 		<agg>
 			<field name="vx_mask">
-				<val>FULL</val>
-				<val>VORTEX2</val>
+<!--				<val>FULL</val>-->
+<!--				<val>VORTEX2</val>-->
 				<val>DAILY</val>
 			</field>
 		</agg>

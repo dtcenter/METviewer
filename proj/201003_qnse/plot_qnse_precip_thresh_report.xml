@@ -209,7 +209,7 @@
 			<fix>
 				<fcst_var name="APCP_03">
 					<var name="fcst_lev">A3</var>
-					<var name="initdate"><date_range id="season" name="year"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="year"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -250,7 +250,7 @@
 			<fix>
 				<fcst_var name="APCP_03">
 					<var name="fcst_lev">A3</var>
-					<var name="initdate"><date_range id="season" name="summer"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="summer"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -263,7 +263,7 @@
 			<fix>
 				<fcst_var name="APCP_03">
 					<var name="fcst_lev">A3</var>
-					<var name="initdate"><date_range id="season" name="winter"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="winter"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -317,7 +317,7 @@
 			<fix>
 				<fcst_var name="APCP_03">
 					<var name="fcst_lev">A3</var>
-					<var name="initdate"><date_range id="season" name="year"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="year"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -330,7 +330,7 @@
 			<fix>
 				<fcst_var name="APCP_03">
 					<var name="fcst_lev">A3</var>
-					<var name="initdate"><date_range id="season" name="summer"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="summer"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>		
@@ -343,7 +343,7 @@
 			<fix>
 				<fcst_var name="APCP_03">
 					<var name="fcst_lev">A3</var>
-					<var name="initdate"><date_range id="season" name="winter"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="winter"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -382,7 +382,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="year"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="year"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -395,7 +395,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="summer"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="summer"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -408,7 +408,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="winter"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="winter"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -462,7 +462,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="year"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="year"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -475,7 +475,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="summer"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="summer"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -488,7 +488,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="fall"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="fall"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -501,7 +501,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="winter"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="winter"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>
@@ -514,7 +514,7 @@
 			<fix>
 				<fcst_var name="APCP_24">
 					<var name="fcst_lev">A24</var>
-					<var name="initdate"><date_range id="season" name="spring"/></var>
+					<var name="fcst_init_beg"><date_range id="season" name="spring"/></var>
 				</fcst_var>
 			</fix>		
 		</dep>

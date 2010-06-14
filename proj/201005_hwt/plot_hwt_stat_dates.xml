@@ -24,7 +24,7 @@
 		<!-- independent variable -->
 		<indep name="fcst_init_beg">
 			<date_list>
-				<start>2010-05-10 00:00:00</start>
+				<start>2010-05-14 00:00:00</start>
 				<end><offset_days><day_offset>0</day_offset></offset_days></end>
 				<inc>43200</inc>
 				<label_format>MMddHH</label_format>
@@ -88,8 +88,8 @@
 		<!-- aggregate fields and values -->
 		<agg>
 			<field name="vx_mask">
-				<val>FULL</val>
-				<val>VORTEX2</val>
+<!--				<val>FULL</val>-->
+<!--				<val>VORTEX2</val>-->
 				<val>DAILY</val>
 			</field>
 
@@ -98,14 +98,14 @@
 			</field>
 			
 			<field name="fcst_lead">
-				<val>20000</val>
-				<val>40000</val>
-				<val>60000</val>
-				<val>90000</val>
+<!--				<val>20000</val>-->
+<!--				<val>40000</val>-->
+<!--				<val>60000</val>-->
+<!--				<val>90000</val>-->
 				<val>120000</val>
-				<val>180000</val>
-				<val>240000</val>
-				<val>300000</val>
+<!--				<val>180000</val>-->
+<!--				<val>240000</val>-->
+<!--				<val>300000</val>-->
 			</field>
 		</agg>
 		
@@ -197,9 +197,9 @@
 			   20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
 			   20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
 			   20, 20, 20, 20, 20)</pch>
-		<type>c("l", "l", "l", "l", "l", "l", "l", "l", "l", "l",
-				"l", "l", "l", "l", "l", "l", "l", "l", "l", "l",
-				"l", "l", "l", "l", "l", "l", "l", "l", "l", "l",
+		<type>c("b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
+				"b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
+				"b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
 				"h", "h", "h", "h", "h")</type>
 		<lty>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -209,9 +209,9 @@
 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 3,
 			   3, 1, 1, 1, 1, 1, 3, 3, 3, 3,
 			   20, 20, 20, 20, 20)</lwd>
-		 <con_series>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		 			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		 <con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 			   0, 0, 0, 0, 0)</con_series>
 		<y2_lim>c(0,.75)</y2_lim>
 		<y2_bufr>0</y2_bufr>
@@ -221,12 +221,12 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>=20.000</val>
-				<val>>=30.000</val>
-				<val>>=35.000</val>
-				<val>>=40.000</val>
-				<val>>=45.000</val>
-				<val>>=50.000</val>
-				<val>>=60.000</val>
+<!--				<val>>=30.000</val>-->
+<!--				<val>>=35.000</val>-->
+<!--				<val>>=40.000</val>-->
+<!--				<val>>=45.000</val>-->
+<!--				<val>>=50.000</val>-->
+<!--				<val>>=60.000</val>-->
 			</field>
 		</agg>
 		
@@ -271,11 +271,11 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>=18.000</val>
-				<val>>=25.000</val>
-				<val>>=30.000</val>
-				<val>>=35.000</val>
-				<val>>=40.000</val>
-				<val>>=45.000</val>
+<!--				<val>>=25.000</val>-->
+<!--				<val>>=30.000</val>-->
+<!--				<val>>=35.000</val>-->
+<!--				<val>>=40.000</val>-->
+<!--				<val>>=45.000</val>-->
 			</field>
 		</agg>
 		
@@ -310,9 +310,9 @@
 		<agg>
 			<field name="fcst_thresh">
 				<val>>6.350</val>
-				<val>>12.700</val>
-				<val>>25.400</val>
-				<val>>50.800</val>
+<!--				<val>>12.700</val>-->
+<!--				<val>>25.400</val>-->
+<!--				<val>>50.800</val>-->
 			</field>
 		</agg>
 		
