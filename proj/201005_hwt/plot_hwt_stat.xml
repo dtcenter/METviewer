@@ -351,10 +351,10 @@
 			if( listDep1Plot$APCP_06 == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
 		</plot_cmd>		
 		
-		<con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 0, 0)</con_series> 
+		<con_series>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+					  1, 1, 0, 0, 0, 0, 0)</con_series> 
 	</plot>
 	
 	<plot name="hwt_stat_init_apcp06_gss" inherits="hwt_stat_init_apcp06">

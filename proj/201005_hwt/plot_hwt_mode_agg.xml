@@ -13,7 +13,7 @@
 	<folders>
 		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
 		<r_work>/d1/pgoldenb/var/hwt/R_work</r_work>
-		<plots>/d1/pgoldenb/var/hwt/plots_mode_agg</plots>
+		<plots>/d1/pgoldenb/var/hwt/plots</plots>
 	</folders>
 	
 	<date_range name="fcst_init_range">

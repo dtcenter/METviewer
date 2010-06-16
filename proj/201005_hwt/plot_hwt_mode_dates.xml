@@ -226,9 +226,9 @@
 		<series2><field name="model"><val>hrrr_vortex2</val></field></series2>
 		
 		<tmpl>
-			<data_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
+			<data_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.data</data_file>
+			<plot_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.png</plot_file>
+			<r_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for REFC {fcst_thr} dBZ {dep1_1_stat1}\nCONSTANT FCST_LEAD F{fcst_lead?format=HH} ENDING {date} - Region: VORTEX2</title>
 			<x_label>FCST_INIT</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>
@@ -275,9 +275,9 @@
 		<series2><field name="model"><val>hrrr_daily</val></field></series2>
 		
 		<tmpl>
-			<data_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
+			<data_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.data</data_file>
+			<plot_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.png</plot_file>
+			<r_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for REFC {fcst_thr} dBZ {dep1_1_stat1}\nCONSTANT FCST_LEAD F{fcst_lead?format=HH} ENDING {date} - Region: DAILY</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>
@@ -352,9 +352,9 @@
 		<series2><field name="model"><val>hrrr_vortex2</val></field></series2>
 		
 		<tmpl>
-			<data_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
+			<data_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.data</data_file>
+			<plot_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.png</plot_file>
+			<r_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for RETOP {fcst_thr} kFT {dep1_1_stat1}\nCONSTANT FCST_LEAD F{fcst_lead?format=HH} ENDING {date} - Region: VORTEX2</title>
 			<x_label>FCST_INIT</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>
@@ -401,9 +401,9 @@
 		<series2><field name="model"><val>hrrr_daily</val></field></series2>
 		
 		<tmpl>
-			<data_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
+			<data_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.data</data_file>
+			<plot_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.png</plot_file>
+			<r_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for RETOP {fcst_thr} kFT {dep1_1_stat1}\nCONSTANT FCST_LEAD F{fcst_lead?format=HH} ENDING {date} - Region: DAILY</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>
@@ -481,9 +481,9 @@
 		</series2>
 		
 		<tmpl>
-			<data_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
+			<data_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.data</data_file>
+			<plot_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.png</plot_file>
+			<r_file>VORTEX2/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for APCP_06 {fcst_thr}\" {dep1_1_stat1}\nCONSTANT FCST_LEAD F{fcst_lead?format=HH} ENDING {date} - Region: VORTEX2</title>
 			<x_label>FCST_INIT</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>
@@ -532,9 +532,9 @@
 		</series2>
 		
 		<tmpl>
-			<data_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.data</data_file>
-			<plot_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.png</plot_file>
-			<r_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_{fcst_thr?symbol=letters}.R</r_file>
+			<data_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.data</data_file>
+			<plot_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.png</plot_file>
+			<r_file>DAILY/mode/date_series/{date}/{dep1_1}_{dep1_1_stat1}_F{fcst_lead?format=HH}_{fcst_thr?symbol=letters}.R</r_file>
 			<title>EVENT PERFORMANCE for APCP_06 {fcst_thr}\" {dep1_1_stat1}\nCONSTANT FCST_LEAD F{fcst_lead?format=HH} ENDING {date} - Region: DAILY</title>
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1_stat1?map=true}</y1_label>

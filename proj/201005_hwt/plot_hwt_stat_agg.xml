@@ -220,7 +220,7 @@
 			   20, 20, 20, 20, 20)</lwd>
 		 <con_series>c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		 			   0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
 		 			   0, 0, 0, 0, 0)</con_series> 
 		<y2_lim>c(0,.75)</y2_lim>
 		<y2_bufr>0</y2_bufr>
@@ -332,7 +332,12 @@
 			if( listDep1Plot$APCP_06 == "FBIAS" ){ abline(h=1, lty=1, col="#999999FF"); }
 		</plot_cmd>
 		
-		<tmpl><title>AGGREGATION for {dep1_1} {fcst_thresh}\" {dep1_1_stat1}\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title></tmpl>				
+		<tmpl><title>AGGREGATION for {dep1_1} {fcst_thresh}\" {dep1_1_stat1}\nOVER FCST_LEAD ENDING {date} - Region: {vx_mask}</title></tmpl>
+		
+		<con_series>c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+ 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+ 					  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+ 					  0, 0, 0, 0, 0)</con_series> 
 	</plot>
 	
 	<plot name="hwt_stat_init_apcp06_gss" inherits="hwt_stat_init_apcp06">
