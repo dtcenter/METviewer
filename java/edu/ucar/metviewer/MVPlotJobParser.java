@@ -784,7 +784,6 @@ public class MVPlotJobParser extends MVUtil{
 	}
 	
 	public static String parseDateRange(MVNode nodeDateRange){
-		String strName = nodeDateRange._name;
 		String strStart = "";
 		String strEnd = "";
 		String strFormat = _formatDB.toPattern();

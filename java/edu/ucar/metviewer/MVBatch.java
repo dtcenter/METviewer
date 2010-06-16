@@ -1175,29 +1175,21 @@ public class MVBatch extends MVUtil {
 						 *  Print the data file in the R_work subfolder and file specified by the data file template
 						 */
 						
+						//  construct the file system paths for the files used to build the plot 
 						_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
 						_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
-						_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");
-		
+						_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
 						String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
 						if( job.getBootstrapping() ){ strDataFile = strDataFile + ".boot"; }
 						(new File(strDataFile)).getParentFile().mkdirs();
-						
-						//  MVDATATABLE
-						/*
-						//printFormattedTable(tabPerm, new PrintStream(strDataFile), "\t");
-						tabPerm = null;
-						*/
-						//  END MVDATATABLE
-						
-						//  TEMP_TABLE
+
+						//  get the data for the current plot from the plot_data temp table and write it to a data file
 						stmt = job.getConnection().createStatement();
 						String strPlotDataSelect = "SELECT\n" + strSelectList + "\nFROM plot_data;";
 						if( _boolVerbose ){ System.out.println(strPlotDataSelect); }
 						stmt.execute(strPlotDataSelect);
 						printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
 						stmt.close();
-						//  END TEMP_TABLE
 										
 						/*
 						 *  If bootstrapping is requested, generate the bootstrapped data 
