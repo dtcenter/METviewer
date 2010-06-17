@@ -26,7 +26,10 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolDropIndexes			= false;
 	public static boolean _boolApplyIndexes			= false;
 	public static boolean _boolIndexOnly			= false;
-	
+
+	public static boolean _boolLineTypeLoad			= false;
+	public static Hashtable _tableLineTypeLoad		= new Hashtable();
+
 	public static DecimalFormat _formatPerf		= new DecimalFormat("0.000");
 
 	public static final Pattern _patModeSingle	= Pattern.compile("^(C?[FO]\\d{3})$");
@@ -116,7 +119,8 @@ public class MVLoad extends MVUtil {
 	 *   - index of first repeating probabilistic fields
 	 *   - number of fields in each repeating set
 	 */
-	public static final Hashtable _tableThreshGroupIndices = new Hashtable(); 
+	public static final String[] _listThreshType = {"PCT", "PSTD", "PJC", "PRC"};
+	public static final Hashtable _tableThreshGroupIndices = new Hashtable();
 	static {			
 		_tableThreshGroupIndices.put("PCT",  new int[]{23, 3});
 		_tableThreshGroupIndices.put("PSTD", new int[]{30, 1});
@@ -292,16 +296,12 @@ public class MVLoad extends MVUtil {
 	public static void loadStatFile(DataFileInfo info, Connection con) throws Exception{
 
 		//  data structures for storing value strings
-		ArrayList listInsertValues		= new ArrayList();
-		Hashtable tableLineDataValues	= new Hashtable();
-		ArrayList listStatGroupInsertValues = new ArrayList();
-		Hashtable tableThreshValues		= new Hashtable();
-		
-		//  initialize the threshold value lists
-		tableThreshValues.put("PCT", new ArrayList());
-		tableThreshValues.put("PSTD", new ArrayList());
-		tableThreshValues.put("PJC", new ArrayList());
-		tableThreshValues.put("PRC", new ArrayList());
+		MVLoadStatInsertData d = new MVLoadStatInsertData();
+		d._con = con;
+		d._tableThreshValues.put("PCT", new ArrayList());
+		d._tableThreshValues.put("PSTD", new ArrayList());
+		d._tableThreshValues.put("PJC", new ArrayList());
+		d._tableThreshValues.put("PRC", new ArrayList());
 		
 		//  performance counters
 		long intStatHeaderLoadStart = (new java.util.Date()).getTime();
@@ -334,7 +334,13 @@ public class MVLoad extends MVUtil {
 				continue;
 			}
 			
-			String strFileLine = strFilename + ":" + intLine;
+			//  if the line type load selector is activated, check that the current line type is on the list
+			d._strLineType = listToken[20];
+			if( _boolLineTypeLoad ){
+				if( !_tableLineTypeLoad.containsKey(d._strLineType) ){ continue; }
+			}
+			
+			d._strFileLine = strFilename + ":" + intLine;
 			
 			//  parse the valid times
 			java.util.Date dateFcstValidBeg = _formatStat.parse(listToken[3]);
@@ -435,7 +441,7 @@ public class MVLoad extends MVUtil {
 					ResultSet res = stmt.executeQuery(strStatHeaderSelect);
 					if( res.next() ){
 						intStatHeaderId = res.getInt(1);
-						System.out.println("  **  WARNING: found duplicate stat_header record with id " + intStatHeaderId + "\n        " + strFileLine);
+						System.out.println("  **  WARNING: found duplicate stat_header record with id " + intStatHeaderId + "\n        " + d._strFileLine);
 					}
 					stmt.close();
 				}
@@ -445,7 +451,7 @@ public class MVLoad extends MVUtil {
 				//  if not present in the table or database, add a stat_header record with a new stat_header_id
 				if( -1 == intStatHeaderId ){
 					intStatHeaderId = intStatHeaderIdNext++;
-					listInsertValues.add("(" + intStatHeaderId + ", " + strStatHeaderValueList + ")");
+					d._listInsertValues.add("(" + intStatHeaderId + ", " + strStatHeaderValueList + ")");
 					intStatHeaderRecords++;
 				}
 				_tableStatHeaders.put(strStatHeaderValueList, new Integer(intStatHeaderId));
@@ -457,11 +463,10 @@ public class MVLoad extends MVUtil {
 			 */			
 			
 			//  build a value list for the line data insert
-			String strLineType = listToken[20];
-			int[][] listLineTypeInfo = (int[][])_tableLineType.get(strLineType);
+			int[][] listLineTypeInfo = (int[][])_tableLineType.get(d._strLineType);
 			int intNumLineDataFields = listLineTypeInfo[1][0];
-			boolean boolHasStatGroups = _tableStatGroupIndices.containsKey(strLineType);
-			boolean boolHasThreshGroups = _tableThreshGroupIndices.containsKey(strLineType);
+			boolean boolHasStatGroups = _tableStatGroupIndices.containsKey(d._strLineType);
+			boolean boolHasThreshGroups = _tableThreshGroupIndices.containsKey(d._strLineType);
 			int[][] listStatGroupIndices = null;
 			int[] listThreshGroupIndices = null;
 			int[] listLineDataIndices = null;
@@ -475,26 +480,26 @@ public class MVLoad extends MVUtil {
 			
 			//  if the line data requires a cov_thresh value, add it
 			String strCovThresh = listToken[18];
-			if( _tableCovThreshLineTypes.containsKey(strLineType) ){
-				if( strCovThresh.equals("NA") ){ System.out.println("  **  WARNING: cov_thresh value NA with line type '" + strLineType + "'\n        " + strFileLine); }
+			if( _tableCovThreshLineTypes.containsKey(d._strLineType) ){
+				if( strCovThresh.equals("NA") ){ System.out.println("  **  WARNING: cov_thresh value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine); }
 				strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
 			} else if( !strCovThresh.equals("NA") ){
-				System.out.println("  **  WARNING: unexpected cov_thresh value '" + strCovThresh + "' with line type '" + strLineType + "'\n        " + strFileLine);
+				System.out.println("  **  WARNING: unexpected cov_thresh value '" + strCovThresh + "' with line type '" + d._strLineType + "'\n        " + d._strFileLine);
 			}
 
 			//  if the line data requires an alpha value, add it
 			String strAlpha = listToken[19];
-			if( _tableAlphaLineTypes.containsKey(strLineType) ){
-				if( strAlpha.equals("NA") ){ System.out.println("  **  WARNING: alpha value NA with line type '" + strLineType + "'\n        " + strFileLine); }
+			if( _tableAlphaLineTypes.containsKey(d._strLineType) ){
+				if( strAlpha.equals("NA") ){ System.out.println("  **  WARNING: alpha value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine); }
 				strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
 			} else if( !strAlpha.equals("NA") ){
-				System.out.println("  **  WARNING: unexpected alpha value '" + strAlpha + "' in line type '" + strLineType + "'\n        " + strFileLine);
+				System.out.println("  **  WARNING: unexpected alpha value '" + strAlpha + "' in line type '" + d._strLineType + "'\n        " + d._strFileLine);
 			}
 			strLineDataValueList += (0 < intNumLineDataFields? ", " : "");
 			
 			//  build the list of token indices that will be added to the line_data insert
 			if( boolHasStatGroups ){
-				listStatGroupIndices = (int[][])_tableStatGroupIndices.get(strLineType);
+				listStatGroupIndices = (int[][])_tableStatGroupIndices.get(d._strLineType);
 				listLineDataIndices = listStatGroupIndices[0];
 			} else {
 				listLineDataIndices = new int[intNumLineDataFields];
@@ -508,9 +513,9 @@ public class MVLoad extends MVUtil {
 			
 			//  add the values list to the line type values map
 			ArrayList listLineTypeValues = new ArrayList();
-			if( tableLineDataValues.containsKey(strLineType) ){ listLineTypeValues = (ArrayList)tableLineDataValues.get(strLineType); }
+			if( d._tableLineDataValues.containsKey(d._strLineType) ){ listLineTypeValues = (ArrayList)d._tableLineDataValues.get(d._strLineType); }
 			listLineTypeValues.add("(" + strLineDataValueList + ")");
-			tableLineDataValues.put(strLineType, listLineTypeValues);
+			d._tableLineDataValues.put(d._strLineType, listLineTypeValues);
 			
 			
 			/*
@@ -573,7 +578,7 @@ public class MVLoad extends MVUtil {
 						int intTokenIndex = listStatGroupIndices[4][intStatGroupNoneIndex++];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", 0, 0, 0, 0"; 
 					}
-					listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
+					d._listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 				}
 				intStatGroupRecords++;
 			}
@@ -586,11 +591,11 @@ public class MVLoad extends MVUtil {
 			if( boolHasThreshGroups ){
 				
 				//  get the index information about the current line type
-				listThreshGroupIndices = (int[])_tableThreshGroupIndices.get(strLineType);
+				listThreshGroupIndices = (int[])_tableThreshGroupIndices.get(d._strLineType);
 				int intGroupIndex = listThreshGroupIndices[0];
 				int intGroupSize = listThreshGroupIndices[1];
 				int intNumGroups = Integer.parseInt(listToken[22]) - 1;
-				ArrayList listThreshValues = (ArrayList)tableThreshValues.get(strLineType);
+				ArrayList listThreshValues = (ArrayList)d._tableThreshValues.get(d._strLineType);
 			
 				//  build a insert value statement for each threshold group
 				for(int i=0; i < intNumGroups; i++){
@@ -602,108 +607,31 @@ public class MVLoad extends MVUtil {
 					listThreshValues.add(strThreshValues);
 					intThreshRecords++;
 				}
-				tableThreshValues.put(strLineType, listThreshValues);				
+				d._tableThreshValues.put(d._strLineType, listThreshValues);				
 			}
-			
-			
-			/*
-			 * * * *  stat_header commit  * * * * 
-			 */			
-
-			//  if the insert flag it true, insert all of the line_data values and stat_group values 
-			if( _intInsertSize <= listInsertValues.size() || (0 < listInsertValues.size() && !reader.ready()) ){
-				
-				//  build and execute the stat header insert statement, if the list length has reached the insert size or the end of the file
-				String strValueList = "";
-				for(int i=0; i < listInsertValues.size(); i++){
-					strValueList += (0 < i? ", " : "") + listInsertValues.get(i).toString(); 
-				}
-				String strStatHeaderInsert = "INSERT INTO stat_header VALUES " + strValueList + ";";
-				try{
-					int intResStatHeaderInsert = executeUpdate(con, strStatHeaderInsert);
-					if( listInsertValues.size() != intResStatHeaderInsert ){
-						System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intResStatHeaderInsert + "\n        " + strFileLine);
-					}
-				}catch(Exception e){
-					throw e;
-				}
-				listInsertValues.clear();
-				intStatHeaderInserts++;
-
-				/*
-				 * * * *  line_data commit  * * * * 
-				 */
-				
-				//  for each line type, build an insert statement with the appropriate list of values
-				for(Iterator iterEntries = tableLineDataValues.entrySet().iterator(); iterEntries.hasNext();){
-					Map.Entry entry = (Map.Entry)iterEntries.next();
-					strLineType = entry.getKey().toString();
-					ArrayList listValues = (ArrayList)entry.getValue();
-					
-					//  build the list of value lists for this line type
-					strValueList = "";
-					for(int i=0; i < listValues.size(); i++){
-						strValueList += (0 < i? ", " : "") + listValues.get(i).toString();
-					}
-				
-					//  build and execute the line data insert statement
-					String strLineDataTable = "line_data_" + strLineType.toLowerCase();
-					String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + strValueList + ";";	
-					int intResLineDataInsert = executeUpdate(con, strLineDataInsert);
-					if( listValues.size() != intResLineDataInsert ){ System.out.println("  **  WARNING: unexpected result from line_data INSERT: " + 
-																						intResLineDataInsert + "\n        " + strFileLine); }
-					intLineDataInserts++;
-				}
-				tableLineDataValues.clear();
-			
-				
-				/*
-				 * * * *  stat_group commit  * * * * 
-				 */
-
-				//  build a stat_group insert with all stored values
-				if( 0 < listStatGroupInsertValues.size() ){
-					String strStatGroupInsertValues = "";
-					for(int i=0; i < listStatGroupInsertValues.size(); i++){
-						strStatGroupInsertValues += (i == 0? "" : ", ") + listStatGroupInsertValues.get(i).toString();		
-					}
-					String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
-					int intStatGroupInsert = executeUpdate(con, strStatGroupInsert);
-					if( listStatGroupInsertValues.size() != intStatGroupInsert ){
-						System.out.println("  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " + 
-											listStatGroupInsertValues.size() + "\n        " + strFileLine);
-					}
-					intStatGroupInserts++;
-				}
-				listStatGroupInsertValues.clear();
-				
-				/*
-				 * * * *  thresh_group commit  * * * * 
-				 */
-				
-				//  insert probabilistic data into the thresh tables
-				String[] listThreshTypes = (String[])tableThreshValues.keySet().toArray(new String[]{});
-				for(int i=0; i < listThreshTypes.length; i++){
-					String[] listThreshValues = toArray( (ArrayList)tableThreshValues.get(listThreshTypes[i]) );
-					if( 1 > listThreshValues.length ){ continue; }
-					String strThreshInsert = "INSERT INTO line_data_" + listThreshTypes[i].toLowerCase() + "_thresh VALUES ";
-					for(int j=0; j < listThreshValues.length; j++){
-						strThreshInsert += (0 < j? ", " : "") + listThreshValues[j];
-					}
-					int intThreshInsert = executeUpdate(con, strThreshInsert);
-					if( listThreshValues.length != intThreshInsert ){
-						System.out.println("  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " + 
-										   listThreshValues.length + "\n        " + strFileLine);
-					}
-					intThreshInserts++;
-					tableThreshValues.put(listThreshTypes[i], new ArrayList());
-				}
+						
+			//  if the insert threshhold has been reached, commit the stored data to the database 
+			if( _intInsertSize <= d._listInsertValues.size() ){				
+				int[] listInserts		= commitStatData(d);
+				intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
+				intLineDataInserts		+= listInserts[INDEX_LINE_DATA];
+				intStatGroupInserts		+= listInserts[INDEX_STAT_GROUP];
+				intThreshInserts		+= listInserts[INDEX_THRESH];				
 			}
 			
 			intLineDataId++;
 			intLineDataRecords++;
 			intLine++;
-		}
+
+		}  // end: while( reader.ready() )
+		
+		//  commit all the remaining stored data
+		int[] listInserts		= commitStatData(d);
+		intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
+		intLineDataInserts		+= listInserts[INDEX_LINE_DATA];
+		intStatGroupInserts		+= listInserts[INDEX_STAT_GROUP];
+		intThreshInserts		+= listInserts[INDEX_THRESH];
+		
 		reader.close();
 		_tableStatHeaders.clear();
 		_tableStatHeaders = new Hashtable();
@@ -735,6 +663,137 @@ public class MVLoad extends MVUtil {
 							   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 36) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
 		}
+	}
+	
+	/*
+	 * MVLoadStatInsertData is used to store insert value lists for the various types of grid_stat and point_stat
+	 * tables.  The structure is built in loadStatFile() and is unloaded and executed in commitStatData().
+	 */
+	static class MVLoadStatInsertData{
+		public Connection	_con						= null;
+		public ArrayList	_listInsertValues			= new ArrayList(); 
+		public Hashtable	_tableLineDataValues		= new Hashtable();
+		public ArrayList	_listStatGroupInsertValues	= new ArrayList();
+		public Hashtable	_tableThreshValues			= new Hashtable();
+		public String		_strLineType				= "";
+		public String		_strFileLine				= "";
+	}
+	
+	
+	public static final int INDEX_STAT_HEADERS	= 0;
+	public static final int INDEX_LINE_DATA		= 1;
+	public static final int INDEX_STAT_GROUP	= 2;
+	public static final int INDEX_THRESH		= 3;
+	
+	/**
+	 * Loads the insert value lists stored in the data structure MVLoadStatInsertData.  This method was designed to be called from
+	 * loadStatFile(), which is responsible for building insert value lists for the various types of grid_stat and point_stat 
+	 * database tables.
+	 * @param d Data structure loaded with insert value lists
+	 * @return An array of four integers, indexed by the INDEX_* members, representing the number of database inserts of each type
+	 * @throws Exception
+	 */
+	
+	public static int[] commitStatData(MVLoadStatInsertData d)
+	throws Exception {
+
+		int[] listInserts = new int[]{0, 0, 0, 0};		
+		String strValueList = "";
+		
+		/*
+		 * * * *  stat_header commit  * * * * 
+		 */			
+
+		//  build and execute the stat header insert statement, if the list length has reached the insert size or the end of the file
+		if( 0 < d._listInsertValues.size() ){			
+			for(int i=0; i < d._listInsertValues.size(); i++){
+				strValueList += (0 < i? ", " : "") + d._listInsertValues.get(i).toString(); 
+			}
+			String strStatHeaderInsert = "INSERT INTO stat_header VALUES " + strValueList + ";";
+			try{
+				int intResStatHeaderInsert = executeUpdate(d._con, strStatHeaderInsert);
+				if( d._listInsertValues.size() != intResStatHeaderInsert ){
+					System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intResStatHeaderInsert + "\n        " + d._strFileLine);
+				}
+			}catch(Exception e){
+				throw e;
+			}
+			d._listInsertValues.clear();
+			listInserts[INDEX_STAT_HEADERS]++; //  intStatHeaderInserts++;
+		}
+
+		
+		/*
+		 * * * *  line_data commit  * * * * 
+		 */
+		
+		//  for each line type, build an insert statement with the appropriate list of values
+		for(Iterator iterEntries = d._tableLineDataValues.entrySet().iterator(); iterEntries.hasNext();){
+			Map.Entry entry = (Map.Entry)iterEntries.next();
+			d._strLineType = entry.getKey().toString();
+			ArrayList listValues = (ArrayList)entry.getValue();
+			
+			//  build the list of value lists for this line type
+			strValueList = "";
+			for(int i=0; i < listValues.size(); i++){
+				strValueList += (0 < i? ", " : "") + listValues.get(i).toString();
+			}
+		
+			//  build and execute the line data insert statement
+			String strLineDataTable = "line_data_" + d._strLineType.toLowerCase();
+			String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + strValueList + ";";	
+			int intResLineDataInsert = executeUpdate(d._con, strLineDataInsert);
+			if( listValues.size() != intResLineDataInsert ){ System.out.println("  **  WARNING: unexpected result from line_data INSERT: " + 
+																				intResLineDataInsert + "\n        " + d._strFileLine); }
+			listInserts[INDEX_LINE_DATA]++; //  intLineDataInserts++;
+		}
+		d._tableLineDataValues.clear();
+	
+		
+		/*
+		 * * * *  stat_group commit  * * * * 
+		 */
+
+		//  build a stat_group insert with all stored values
+		if( 0 < d._listStatGroupInsertValues.size() ){
+			String strStatGroupInsertValues = "";
+			for(int i=0; i < d._listStatGroupInsertValues.size(); i++){
+				strStatGroupInsertValues += (i == 0? "" : ", ") + d._listStatGroupInsertValues.get(i).toString();		
+			}
+			String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
+			int intStatGroupInsert = executeUpdate(d._con, strStatGroupInsert);
+			if( d._listStatGroupInsertValues.size() != intStatGroupInsert ){
+				System.out.println("  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " + 
+								   d._listStatGroupInsertValues.size() + "\n        " + d._strFileLine);
+			}
+			listInserts[INDEX_STAT_GROUP]++; //  intStatGroupInserts++;
+		}
+		d._listStatGroupInsertValues.clear();
+		
+		/*
+		 * * * *  thresh_group commit  * * * * 
+		 */
+		
+		//  insert probabilistic data into the thresh tables
+		String[] listThreshTypes = (String[])d._tableThreshValues.keySet().toArray(new String[]{});
+		for(int i=0; i < listThreshTypes.length; i++){
+			String[] listThreshValues = toArray( (ArrayList)d._tableThreshValues.get(listThreshTypes[i]) );
+			if( 1 > listThreshValues.length ){ continue; }
+			String strThreshInsert = "INSERT INTO line_data_" + listThreshTypes[i].toLowerCase() + "_thresh VALUES ";
+			for(int j=0; j < listThreshValues.length; j++){
+				strThreshInsert += (0 < j? ", " : "") + listThreshValues[j];
+				listInserts[INDEX_THRESH]++; //  intThreshInserts++;
+			}
+			int intThreshInsert = executeUpdate(d._con, strThreshInsert);
+			if( listThreshValues.length != intThreshInsert ){
+				System.out.println("  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " + 
+								   listThreshValues.length + "\n        " + d._strFileLine);
+			}
+			// listInserts[INDEX_THRESH]++; //  intThreshInserts++;
+			d._tableThreshValues.put(listThreshTypes[i], new ArrayList());
+		}
+		
+		return listInserts;
 	}
 	
 	//  line_type_lu_id values for the various mode line types
