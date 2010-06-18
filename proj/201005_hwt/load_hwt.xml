@@ -1,7 +1,7 @@
 <load_spec>
 	<connection>
 		<host>kemosabe:3306</host>
-		<database>metvdb_hwt</database>
+		<database>metvdb_hwt_test</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>
 	</connection>
@@ -19,8 +19,8 @@
 	<folder_tmpl>/linus_d1/dtcrt/data/out/{model}/{valid_time}/{fcst_var}/{data_type}</folder_tmpl>
 	<date_list name="folder_dates">
 <!--		<start>2010051914V</start>-->
-		<start><date_offset><day_offset>-3</day_offset><hour>7</hour></date_offset></start>
-		<end><date_offset><day_offset>0</day_offset><hour>6</hour></date_offset></end>
+		<start>2010061613V</start>
+		<end>2010061706V</end>
 		<inc>3600</inc>
 		<format>yyyyMMddHH'V'</format>
 	</date_list>
@@ -98,4 +98,5 @@
 			<val>mode</val>
 		</field>
 	</load_val>
+	
 </load_spec>

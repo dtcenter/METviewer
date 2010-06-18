@@ -128,6 +128,11 @@ public class MVLoadJobParser extends MVUtil{
 				}
 			}
 			
+			//  <line_type>
+			else if( node._tag.equals("line_type") ){
+				for(int j=0; j < node._children.length; j++){ job.addLineTypeLoad(node._children[j]._value); }
+				if( 0 < job.getLineTypeLoadMap().size() ){ job.setLineTypeLoad(true); }
+			}			
 		}
 		
 		_job = job;

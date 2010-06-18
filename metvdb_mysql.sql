@@ -1,9 +1,9 @@
 -- This file is intended for MySQL
 
 use mysql;
-DROP DATABASE IF EXISTS metvdb_hwt;
-CREATE DATABASE metvdb_hwt;
-use metvdb_hwt;
+DROP DATABASE IF EXISTS metvdb_hwt_test;
+CREATE DATABASE metvdb_hwt_test;
+use metvdb_hwt_test;
 
 
 -- data_file_type_lu is a look-up table containing information about the different types
@@ -13,10 +13,10 @@ use metvdb_hwt;
 
 CREATE TABLE data_file_lu
 (
-	data_file_lu_id     INT UNSIGNED NOT NULL,
-	type_name           VARCHAR(32),
-	type_desc           VARCHAR(128),
-	PRIMARY KEY (data_file_lu_id)
+    data_file_lu_id     INT UNSIGNED NOT NULL,
+    type_name           VARCHAR(32),
+    type_desc           VARCHAR(128),
+    PRIMARY KEY (data_file_lu_id)
 );
     
     
@@ -27,21 +27,21 @@ CREATE TABLE data_file_lu
 
 CREATE TABLE data_file
 (
-	data_file_id        INT UNSIGNED NOT NULL,
-	data_file_lu_id     INT UNSIGNED NOT NULL,
-	filename            VARCHAR(256),
-	path                VARCHAR(512),
-	load_date           DATETIME,
-	mod_date            DATETIME,
-	PRIMARY KEY (data_file_id),
-	CONSTRAINT data_file_unique_pk
-		UNIQUE INDEX (
-			filename,
-			path
-		),
-	CONSTRAINT stat_header_data_file_lu_id_pk
-			FOREIGN KEY(data_file_lu_id)
-			REFERENCES data_file_lu(data_file_lu_id)
+    data_file_id        INT UNSIGNED NOT NULL,
+    data_file_lu_id     INT UNSIGNED NOT NULL,
+    filename            VARCHAR(256),
+    path                VARCHAR(512),
+    load_date           DATETIME,
+    mod_date            DATETIME,
+    PRIMARY KEY (data_file_id),
+    CONSTRAINT data_file_unique_pk
+        UNIQUE INDEX (
+            filename,
+            path
+        ),
+    CONSTRAINT stat_header_data_file_lu_id_pk
+            FOREIGN KEY(data_file_lu_id)
+            REFERENCES data_file_lu(data_file_lu_id)
 );
 
 
@@ -52,10 +52,10 @@ CREATE TABLE data_file
 
 CREATE TABLE line_type_lu
 (
-	line_type_lu_id     INT UNSIGNED NOT NULL,
-	line_type_name      VARCHAR(32),
-	line_type_desc      VARCHAR(512),
-	PRIMARY KEY (line_type_lu_id)
+    line_type_lu_id     INT UNSIGNED NOT NULL,
+    line_type_name      VARCHAR(32),
+    line_type_desc      VARCHAR(512),
+    PRIMARY KEY (line_type_lu_id)
 );
 
 
@@ -67,46 +67,46 @@ CREATE TABLE line_type_lu
 
 CREATE TABLE stat_header
 (
-	stat_header_id      INT UNSIGNED NOT NULL,
-	version             VARCHAR(8),
-	model               VARCHAR(64),
-	fcst_lead           INT UNSIGNED,
-	fcst_valid_beg      DATETIME,
-	fcst_valid_end      DATETIME,
-	fcst_init_beg       DATETIME,
-	obs_lead            INT UNSIGNED,
-	obs_valid_beg       DATETIME,
-	obs_valid_end       DATETIME,
-	fcst_var            VARCHAR(64),
-	fcst_lev            VARCHAR(16),
-	obs_var             VARCHAR(64),
-	obs_lev             VARCHAR(16),
-	obtype              VARCHAR(32),
-	vx_mask             VARCHAR(32),
-	interp_mthd         VARCHAR(16),
-	interp_pnts         INT UNSIGNED,
-	fcst_thresh         VARCHAR(16),
-	obs_thresh          VARCHAR(16),
-	PRIMARY KEY (stat_header_id),
-	CONSTRAINT stat_header_unique_pk
-		UNIQUE INDEX (
-			model,
-			fcst_lead,
-			fcst_valid_beg,
-    		fcst_init_beg,
-			obs_lead,
-			obs_valid_beg,
-			fcst_var,
-			fcst_lev,
-			obs_var,
-			obs_lev,
-			obtype,
-			vx_mask,
-			interp_mthd,
-			interp_pnts,
-			fcst_thresh,
-			obs_thresh
-		)
+    stat_header_id      INT UNSIGNED NOT NULL,
+    version             VARCHAR(8),
+    model               VARCHAR(64),
+    fcst_lead           INT UNSIGNED,
+    fcst_valid_beg      DATETIME,
+    fcst_valid_end      DATETIME,
+    fcst_init_beg       DATETIME,
+    obs_lead            INT UNSIGNED,
+    obs_valid_beg       DATETIME,
+    obs_valid_end       DATETIME,
+    fcst_var            VARCHAR(64),
+    fcst_lev            VARCHAR(16),
+    obs_var             VARCHAR(64),
+    obs_lev             VARCHAR(16),
+    obtype              VARCHAR(32),
+    vx_mask             VARCHAR(32),
+    interp_mthd         VARCHAR(16),
+    interp_pnts         INT UNSIGNED,
+    fcst_thresh         VARCHAR(16),
+    obs_thresh          VARCHAR(16),
+    PRIMARY KEY (stat_header_id),
+    CONSTRAINT stat_header_unique_pk
+        UNIQUE INDEX (
+            model,
+            fcst_lead,
+            fcst_valid_beg,
+            fcst_init_beg,
+            obs_lead,
+            obs_valid_beg,
+            fcst_var,
+            fcst_lev,
+            obs_var,
+            obs_lev,
+            obtype,
+            vx_mask,
+            interp_mthd,
+            interp_pnts,
+            fcst_thresh,
+            obs_thresh
+        )
 );
 
 
@@ -164,8 +164,8 @@ CREATE TABLE line_data_fho
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     f_rate              DOUBLE,
     h_rate              DOUBLE,
@@ -184,8 +184,8 @@ CREATE TABLE line_data_ctc
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     fy_oy               DOUBLE,
     fy_on               DOUBLE,
@@ -205,10 +205,10 @@ CREATE TABLE line_data_cts
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-	alpha               DOUBLE,
+    alpha               DOUBLE,
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_cts_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
@@ -223,10 +223,10 @@ CREATE TABLE line_data_cnt
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-	alpha               DOUBLE,    
+    alpha               DOUBLE,    
     sp_corr             DOUBLE,
     kt_corr             DOUBLE,
     ranks               DOUBLE,
@@ -246,8 +246,8 @@ CREATE TABLE line_data_pct
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
     PRIMARY KEY (line_data_id),
@@ -280,10 +280,10 @@ CREATE TABLE line_data_pstd
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-	alpha               DOUBLE,
+    alpha               DOUBLE,
     n_thresh            INT UNSIGNED,
    PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_pstd_stat_header_id_pk
@@ -313,8 +313,8 @@ CREATE TABLE line_data_pjc
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
     PRIMARY KEY (line_data_id),
@@ -351,8 +351,8 @@ CREATE TABLE line_data_prc
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
     PRIMARY KEY (line_data_id),
@@ -385,8 +385,8 @@ CREATE TABLE line_data_sl1l2
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     fbar                DOUBLE,
     obar                DOUBLE,
@@ -407,8 +407,8 @@ CREATE TABLE line_data_sal1l2
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     fabar               DOUBLE,
     oabar               DOUBLE,
@@ -429,8 +429,8 @@ CREATE TABLE line_data_vl1l2
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     ufbar               DOUBLE,
     vfbar               DOUBLE,
@@ -453,8 +453,8 @@ CREATE TABLE line_data_val1l2
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     ufabar              DOUBLE,
     vfabar              DOUBLE,
@@ -477,8 +477,8 @@ CREATE TABLE line_data_mpr
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     mp_index            DOUBLE,
     obs_lat             DOUBLE,
@@ -502,10 +502,10 @@ CREATE TABLE line_data_nbrctc
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-	cov_thresh          VARCHAR(32),
+    cov_thresh          VARCHAR(32),
     fy_oy               INT UNSIGNED,
     fy_on               INT UNSIGNED,
     fn_oy               INT UNSIGNED,
@@ -524,11 +524,11 @@ CREATE TABLE line_data_nbrcts
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-	cov_thresh          VARCHAR(32),
-	alpha               DOUBLE,
+    cov_thresh          VARCHAR(32),
+    alpha               DOUBLE,
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_nbrcts_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
@@ -543,10 +543,10 @@ CREATE TABLE line_data_nbrcnt
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-	alpha               DOUBLE,
+    alpha               DOUBLE,
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_nbrcnt_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
@@ -561,8 +561,8 @@ CREATE TABLE line_data_isc
 (
     line_data_id        INT UNSIGNED NOT NULL,
     stat_header_id      INT UNSIGNED NOT NULL,    
-	data_file_id        INT UNSIGNED NOT NULL,
-	line_num            INT UNSIGNED,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
     total               INT UNSIGNED,
     tile_dim            DOUBLE,
     time_xll            DOUBLE,
@@ -591,52 +591,52 @@ CREATE TABLE line_data_isc
 
 CREATE TABLE mode_header
 (
-	mode_header_id      INT UNSIGNED NOT NULL,
-	line_type_lu_id     INT UNSIGNED NOT NULL,
-	data_file_id        INT UNSIGNED NOT NULL,
-	linenumber          INT UNSIGNED,
-	version             VARCHAR(8),
-	model               VARCHAR(64),
-	fcst_lead           INT UNSIGNED,
-	fcst_valid          DATETIME,
-	fcst_accum          INT UNSIGNED,
-	fcst_init           DATETIME,
-	obs_lead            INT UNSIGNED,
-	obs_valid           DATETIME,
-	obs_accum           INT UNSIGNED,
-	fcst_rad            INT UNSIGNED,
-	fcst_thr            VARCHAR(16),
-	obs_rad             INT UNSIGNED,
-	obs_thr             VARCHAR(16),
-	fcst_var            VARCHAR(64),
-	fcst_lev            VARCHAR(16),
-	obs_var             VARCHAR(64),
-	obs_lev             VARCHAR(16),
-	PRIMARY KEY (mode_header_id),
-	CONSTRAINT mode_header_line_type_lu_pk
-		FOREIGN KEY(line_type_lu_id)
-		REFERENCES line_type_lu(line_type_lu_id),
-	CONSTRAINT mode_header_data_file_id_pk
-		FOREIGN KEY(data_file_id)
-		REFERENCES data_file(data_file_id),
-	CONSTRAINT stat_header_unique_pk
-		UNIQUE INDEX (
-			model,
-			fcst_lead,
-			fcst_valid,
-			fcst_accum,
-			fcst_init,
-			obs_lead,
-			obs_valid,
-			obs_accum,
-			fcst_rad,
-			fcst_thr,
-			obs_rad,
-			obs_thr,
-			fcst_var,
-			fcst_lev,
-			obs_var,
-			obs_lev
+    mode_header_id      INT UNSIGNED NOT NULL,
+    line_type_lu_id     INT UNSIGNED NOT NULL,
+    data_file_id        INT UNSIGNED NOT NULL,
+    linenumber          INT UNSIGNED,
+    version             VARCHAR(8),
+    model               VARCHAR(64),
+    fcst_lead           INT UNSIGNED,
+    fcst_valid          DATETIME,
+    fcst_accum          INT UNSIGNED,
+    fcst_init           DATETIME,
+    obs_lead            INT UNSIGNED,
+    obs_valid           DATETIME,
+    obs_accum           INT UNSIGNED,
+    fcst_rad            INT UNSIGNED,
+    fcst_thr            VARCHAR(16),
+    obs_rad             INT UNSIGNED,
+    obs_thr             VARCHAR(16),
+    fcst_var            VARCHAR(64),
+    fcst_lev            VARCHAR(16),
+    obs_var             VARCHAR(64),
+    obs_lev             VARCHAR(16),
+    PRIMARY KEY (mode_header_id),
+    CONSTRAINT mode_header_line_type_lu_pk
+        FOREIGN KEY(line_type_lu_id)
+        REFERENCES line_type_lu(line_type_lu_id),
+    CONSTRAINT mode_header_data_file_id_pk
+        FOREIGN KEY(data_file_id)
+        REFERENCES data_file(data_file_id),
+    CONSTRAINT stat_header_unique_pk
+        UNIQUE INDEX (
+            model,
+            fcst_lead,
+            fcst_valid,
+            fcst_accum,
+            fcst_init,
+            obs_lead,
+            obs_valid,
+            obs_accum,
+            fcst_rad,
+            fcst_thr,
+            obs_rad,
+            obs_thr,
+            fcst_var,
+            fcst_lev,
+            obs_var,
+            obs_lev
         )
 );
 

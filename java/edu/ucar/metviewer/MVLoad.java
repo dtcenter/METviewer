@@ -8,16 +8,6 @@ import java.text.*;
 
 public class MVLoad extends MVUtil {
 
-	// private static final Logger _logger = Logger.getLogger(MVBatch.class);
-	// private static final PrintStream _logStream = System.out;
-
-	//public static String _strHost				= "kemosabe";
-	//public static String _strPort				= "3306";
-	//public static String _strHostPort		= "pigpen:3306";
-	//public static String _strDatabase			= "metvdb5_hwt";
-	//public static String _strUser				= "pgoldenb";
-	//public static String _strPwd				= "pgoldenb";
-
 	public static boolean _boolVerbose				= false;
 	public static int _intInsertSize				= 1;
 	public static boolean _boolStatHeaderTableCheck	= true;
@@ -96,6 +86,7 @@ public class MVLoad extends MVUtil {
 		_tableLineType.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{},	new int[]{} });
 		_tableLineType.put("ISC",		new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
 	}
+	
 
 	/*
 	 * stat group data indices for line data fields and stat group fields
@@ -169,6 +160,9 @@ public class MVLoad extends MVUtil {
 			_boolModeHeaderDBCheck		= job.getModeHeaderDBCheck();
 			_boolDropIndexes			= job.getDropIndexes();
 			_boolApplyIndexes			= job.getApplyIndexes();
+			
+			_boolLineTypeLoad			= job.getLineTypeLoad();
+			_tableLineTypeLoad			= job.getLineTypeLoadMap();
 						
 			// if the insert size is greater than 1, ensure that the db header check is off
 			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){

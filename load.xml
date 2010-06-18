@@ -55,4 +55,25 @@
 			<val>mode</val>
 		</field>
 	</load_val>
+	
+<!--	<line_type>-->
+<!--		<val>FHO</val>-->
+<!--		<val>CTC</val>-->
+<!--		<val>CTS</val>-->
+<!--		<val>CNT</val>-->
+<!--		<val>PCT</val>-->
+<!--		<val>PSTD</val>-->
+<!--		<val>PJC</val>-->
+<!--		<val>PRC</val>-->
+<!--		<val>SL1L2</val>-->
+<!--		<val>SAL1L2</val>-->
+<!--		<val>VL1L2</val>-->
+<!--		<val>VAL1L2</val>-->
+<!--		<val>MPR</val>-->
+<!--		<val>NBRCTC</val>-->
+<!--		<val>NBRCTS</val>-->
+<!--		<val>NBRCNT</val>-->
+<!--		<val>ISC</val>-->
+<!--	</line_type>-->
+	
 </load_spec>

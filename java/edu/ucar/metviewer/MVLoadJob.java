@@ -11,6 +11,9 @@ public class MVLoadJob{
 	protected String _strDBUser					= "";
 	protected String _strDBPassword				= "";
 	
+	protected boolean _boolLineTypeLoad			= false;
+	protected MVOrderedMap _mapLineTypeLoad		= new MVOrderedMap();
+	
 	protected boolean _boolVerbose				= false;
 	protected int _intInsertSize				= 1;
 	protected boolean _boolStatHeaderTableCheck	= true;
@@ -34,6 +37,13 @@ public class MVLoadJob{
 	public String	getDBPassword()										{ return _strDBPassword;								}															
 	public void		setDBPassword(String dbPassword)					{ _strDBPassword = dbPassword;							}
 	
+	public boolean	getLineTypeLoad()									{ return _boolLineTypeLoad;								}
+	public void		setLineTypeLoad(boolean lineTypeLoad)				{ _boolLineTypeLoad = lineTypeLoad;						}
+	public MVOrderedMap getLineTypeLoadMap()							{ return _mapLineTypeLoad;								}
+	public void addLineTypeLoad(String type)							{ _mapLineTypeLoad.put(type, new Boolean(true));		}
+	public void removeLineTypeLoad(String type)							{ _mapLineTypeLoad.remove(type);						}
+	public void clearLineTypeLoad()										{ _mapLineTypeLoad = new MVOrderedMap();				}
+
 	public boolean	getVerbose()										{ return _boolVerbose;									}
 	public void		setVerbose(boolean verbose)							{ _boolVerbose = verbose;								}
 	public int		getInsertSize()										{ return _intInsertSize;								}
