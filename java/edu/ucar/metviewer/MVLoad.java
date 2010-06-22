@@ -546,7 +546,7 @@ public class MVLoad extends MVUtil {
 													  intStatHeaderId + ", " +
 													  intLineDataId + ", ";
 					
-					if( contains(listStatGroupLuIdBoth, intStatGroupLuId) ){
+					if( -1 < Arrays.binarySearch(listStatGroupLuIdBoth, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[1][intStatGroupBothIndex++];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
@@ -554,14 +554,14 @@ public class MVLoad extends MVUtil {
 													replaceInvalidValues(listToken[intTokenIndex + 3]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 4]);
 					}
-					else if( contains(listStatGroupLuIdBoot, intStatGroupLuId) ){
+					else if( -1 < Arrays.binarySearch(listStatGroupLuIdBoot, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[2][intStatGroupBootIndex++];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + 
 													", 0, 0, " + 
 													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 2]);
 					}
-					else if( contains(listStatGroupLuIdNorm, intStatGroupLuId) ){
+					else if( -1 < Arrays.binarySearch(listStatGroupLuIdNorm, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[3][intStatGroupNormIndex++];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 

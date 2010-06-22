@@ -3,6 +3,10 @@ package edu.ucar.metviewer;
 import java.util.*;
 import java.sql.Connection;
 
+/**
+ * Storage class for a xml plot specification, implementing the java bean interface.  Instances are populated
+ * by the MVPlotJobParser and handled by MVBatch.     
+ */
 public class MVPlotJob extends MVUtil{
 
 	protected String _strJobName			= "";
@@ -18,6 +22,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strIndyVar			= "";
 	protected String[] _listIndyVal			= {};
 	protected String[] _listIndyLabel		= {};
+	protected MVPlotDep _depIndy			= null;
 	
 	protected MVOrderedMap _mapPlotFixVal	= new MVOrderedMap();
 	
@@ -133,6 +138,10 @@ public class MVPlotJob extends MVUtil{
 	public static MVPlotJob[]	getJobs(Connection con, MVPlotJob base)	throws Exception{ return new MVPlotJob[]{}; }
 	public static MVPlotJob[]	getJobs(Connection con)					throws Exception{ return new MVPlotJob[]{}; }
 	
+	/**
+	 * Deep copy of the MVPlotJob, useful for inheritance.
+	 * @return Copy of this MVPlotJob
+	 */
 	public MVPlotJob copy(){
 		MVPlotJob job = new MVPlotJob();
 		
@@ -146,6 +155,7 @@ public class MVPlotJob extends MVUtil{
 		job._strIndyVar			= _strIndyVar;
 		job._listIndyVal		= copyList(_listIndyVal);
 		job._listIndyLabel		= copyList(_listIndyLabel);
+		job._depIndy			= _depIndy;
 		job._mapPlotFixVal		= new MVOrderedMap(_mapPlotFixVal);
 		job._listDepGroup		= copyList(_listDepGroup);
 		job._mapSeries1Val		= new MVOrderedMap(_mapSeries1Val);
@@ -273,6 +283,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setIndyVal(String[] indyVal)						{ _listIndyVal = indyVal;								}
 	public String[]	getIndyLabel()										{ return _listIndyLabel;								}
 	public void		setIndyLabel(String[] indyLabel)					{ _listIndyLabel = indyLabel;							}
+	public MVPlotDep getIndyDep()										{ return _depIndy;										}
+	public void		setIndyDep(MVPlotDep dep)							{ _depIndy = dep;										}
 	
 	public MVOrderedMap getPlotFixVal()									{ return _mapPlotFixVal;								}
 	public void addPlotFixVal(String field, String[] vals, int index)	{ _mapPlotFixVal.put(field, vals, index);				}

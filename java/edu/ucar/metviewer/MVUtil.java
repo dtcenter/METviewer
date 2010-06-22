@@ -91,7 +91,15 @@ public class MVUtil{
 		return (String[])listDates.toArray(new String[]{});
 	}
 	
-	public static String parseDateOffset(MVNode node, String format){
+	/**
+	 * Build a String representation of the date specified by the input <date_offset> {@link MVNode}.  The offset
+	 * is taken either from the current date (default) or from the date specified by the input date.
+	 * @param node MVNode structure specifying the offset
+	 * @param format (optional) String representation of the input/output date formats
+	 * @param date (optional) String representation of the date from which to offset
+	 * @return String representation of the offset date
+	 */
+	public static String parseDateOffset(MVNode node, String format, String date){
 		int intOffset = 0;
 		int intHour = 0;
 		
@@ -104,6 +112,9 @@ public class MVUtil{
 		SimpleDateFormat formatOffset = new SimpleDateFormat(format);
 		formatOffset.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		try{
+			cal.setTime( formatOffset.parse(date) );
+		} catch(Exception e){}
 		cal.set(Calendar.HOUR_OF_DAY, intHour);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
@@ -111,7 +122,8 @@ public class MVUtil{
 		
 		return formatOffset.format(cal.getTime());
 	}
-	public static String parseDateOffset(MVNode node){ return parseDateOffset(node, "yyyy-MM-dd"); }
+	public static String parseDateOffset(MVNode node, String format){ return parseDateOffset(node, format, null); }
+	public static String parseDateOffset(MVNode node){ return parseDateOffset(node, "yyyy-MM-dd", null); }
 	
 	/**
 	 * Concatenate the elements of the input list with surrounding ticks and separated by commas for
@@ -530,6 +542,12 @@ public class MVUtil{
 		return ret;
 	}
 	
+	/**
+	 * Build a list by removing elements of the input list at the specified frequency.
+	 * @param list List to decimate
+	 * @param freq (optional) Frequency at which to remove members from the input list, defaults to 30
+	 * @return Decimated list
+	 */
 	public static String[] decimate(String[] list, int freq){
 		String[] ret = new String[list.length];
 		for(int i=0; i < list.length; i++){ ret[i] = (i % freq == 0? list[i] : ""); }
@@ -537,16 +555,6 @@ public class MVUtil{
 	}
 	public static String[] decimate(String[] list){
 		return decimate( list, Math.round( (float)list.length / 30f ) );
-	}
-
-	public static boolean contains(String[] list, String val){
-		for(int i=0; i < list.length; i++){ if( list[i].equals(val) ){ return true; } }
-		return false;
-	}
-	
-	public static boolean contains(int[] list, int data){
-		for(int i=0; i < list.length; i++){ if( list[i] == data ){ return true; } }
-		return false;
 	}
 	
 	
@@ -587,42 +595,29 @@ public class MVUtil{
 		return intSum;
 	}
 	
-	public static double median(double[] m, double def) {
-		if( 1 > m.length ){ return def; }
-		Arrays.sort(m);		
-	    int intMiddle = m.length / 2;
-	    if( 1 == m.length % 2 ){ return m[intMiddle]; }
-	    else                   { return (m[intMiddle-1] + m[intMiddle]) / 2.0; }
-	}
-	public static double median(double[] m){ return median(m, INVALID_DATA); }
-	public static int median(int[] m, int def){
-		if( 1 > m.length ){ return def; }
-		Arrays.sort(m);
-	    int intMiddle = m.length / 2;
-	    if( 1 == m.length % 2 ){ return m[intMiddle]; }
-	    else                   { return (m[intMiddle-1] + m[intMiddle]) / 2; }
-	}
-	public static int median(int[] m){ return median(m, (int)INVALID_DATA); }
-	
-	public static int min(int[] m){
-		int intMin = Integer.MAX_VALUE;
-		for(int i=0; i < m.length; i++){ if( m[i] < intMin ){ intMin = m[i]; } }
-		return intMin;
-	}
-
-	public static int max(int[] m){
-		int intMax = Integer.MIN_VALUE;
-		for(int i=0; i < m.length; i++){ if( m[i] > intMax ){ intMax = m[i]; } }
-		return intMax;
-	}
-
+	/**
+	 * Attempt to convert the input ArrayList, which is assumed to contain all Strings, to a String[]. 
+	 * @param list ArrayList to convert
+	 * @return Converted list
+	 */
 	public static String[]		toArray(ArrayList list)					{ return (String[])list.toArray(new String[]{});			}
 	
+	/**
+	 * Create a deep copy of the input list
+	 * @param list List to copy
+	 * @return Copied list
+	 */
 	public static MVOrderedMap[] copyList(MVOrderedMap[] list){
 		MVOrderedMap[] listRet = new MVOrderedMap[list.length];
 		for(int i=0; i < list.length; i++){ listRet[i] = new MVOrderedMap(list[i]); }		
 		return listRet;
 	}
+
+	/**
+	 * Create a deep copy of the input list
+	 * @param list List to copy
+	 * @return Copied list
+	 */
 	public static String[] copyList(String[] list){
 		String[] listRet = new String[list.length];
 		for(int i=0; i < list.length; i++){ listRet[i] = list[i]; }
@@ -684,6 +679,12 @@ public class MVUtil{
 		return strRDecl;
 	}
 	
+	
+	/**
+	 * Format the input String so that it conforms to R variable name standards  
+	 * @param in String to format
+	 * @return Formatted String
+	 */
 	public static String formatR(String in){
 		
 		String strFormatR = in;
@@ -703,6 +704,7 @@ public class MVUtil{
 						 .replace(">",	"gt");
 	}
 	
+	/*
 	public static class TxtProgBar{
 		
 		protected double _dblValue = 0;
@@ -748,5 +750,5 @@ public class MVUtil{
 			//if( _intLength == intProgCur ){ _str.println(); }		
 		}
 	}
-
+	*/
 }

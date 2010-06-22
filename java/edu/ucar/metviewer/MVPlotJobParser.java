@@ -217,6 +217,13 @@ public class MVPlotJobParser extends MVUtil{
 		_listJobs = (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
 	}
 	
+	/**
+	 * Parse a single xml plot specification &lt;plot&gt; node from an xml plot specification
+	 * and return the resulting MVPlotJob.  The inherited job is specified by the input jobBase. 
+	 * @param nodePlot XML plot specification object to parse
+	 * @param jobBase MVPlotJob whose characteristics to inherit
+	 * @return Populated MVPlot structure
+	 */
 	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase){
 		MVPlotJob job = (null != jobBase? jobBase.copy() : new MVPlotJob());
 
@@ -230,6 +237,8 @@ public class MVPlotJobParser extends MVUtil{
 			
 			//  <indep>
 			else if( node._tag.equals("indep") ){
+				
+				/*
 				int intIndyNum = node._children.length;
 				ArrayList listIndyVal = new ArrayList();
 				ArrayList listIndyLabel = new ArrayList();
@@ -270,9 +279,20 @@ public class MVPlotJobParser extends MVUtil{
 						listIndyLabel.addAll( Arrays.asList(listLabels) );
 					}
 				}
+				
 				job.setIndyVar(node._name);
 				job.setIndyVal( toArray(listIndyVal) );
 				job.setIndyLabel( toArray(listIndyLabel) );
+				*/
+
+				job.setIndyVar(node._name);
+				if( !"".equals(node._depends) ){
+					job.setIndyDep(new MVPlotDep(node._depends, node));
+				} else {
+					String[][] listIndy = parseIndyNode(node, "");
+					job.setIndyVal( listIndy[0] );
+					job.setIndyLabel( listIndy[1] );
+				}
 			}
 			
 			//  <plot_fix>
@@ -608,7 +628,8 @@ public class MVPlotJobParser extends MVUtil{
 	public static String checkJobCompleteness(MVPlotJob job){
 		if     ( job.getPlotTmpl().equals("")     )	{ return "template";	}
 		else if( job.getIndyVar().equals("")      )	{ return "indep";		}
-		else if( 1 > job.getIndyVal().length      )	{ return "indep";		}
+		else if( 1 > job.getIndyVal().length && 
+				 null == job.getIndyDep()         )	{ return "indep";		}
 		else if( 1 > job.getDepGroups().length    )	{ return "dep";			}
 		else if( 1 > job.getSeries1Val().size()   )	{ return "series1";		}
 		else if( 1 > job.getAggVal().size()       )	{ return "agg";			}
@@ -719,6 +740,12 @@ public class MVPlotJobParser extends MVUtil{
 		return buildDepMap(nodeDep);
 	}
 	
+	/**
+	 * Populate an MVOrderedMap data structure with information specified in the input XML plot
+	 * specification &lt;dep&gt; node.  The returned data structure should be added to an MVPlotJob. 
+	 * @param nodeDep
+	 * @return
+	 */
 	public static MVOrderedMap buildDepMap(MVNode nodeDep){
 
 		//  <dep>
@@ -765,7 +792,14 @@ public class MVPlotJobParser extends MVUtil{
 		return mapDep;
 	}
 	
-	
+	/**
+	 * Build a list of String date representations, specified by the information in the input 
+	 * &lt;date_list&gt; node.  The input database connection is used to query for all dates of the
+	 * specified field between the start and end date.  
+	 * @param nodeDateList XML plot specification node specifying the date list
+	 * @param con Database connection to query against
+	 * @return List of String representations of specified dates
+	 */
 	public static String[] parseDateList(MVNode nodeDateList, Connection con){
 		String strField = "";
 		String strStart = "";
@@ -782,7 +816,12 @@ public class MVPlotJobParser extends MVUtil{
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);
 	}
-	
+
+	/**
+	 * Form a SQL between clause using the information in the input &lt;date_range&gt; node. 
+	 * @param nodeDateRange Contains date range information
+	 * @return String containing SQL between clause
+	 */
 	public static String parseDateRange(MVNode nodeDateRange){
 		String strStart = "";
 		String strEnd = "";
@@ -794,5 +833,57 @@ public class MVPlotJobParser extends MVUtil{
 		}
 		return "BETWEEN '" + strStart + "' AND '" + strEnd + "'";
 	}
+	
+	/**
+	 * Parse the &lt;indep&gt; node of a xml plot specification, returning the parsed information in the
+	 * form of two lists.  The first list contains the independent variable values and the second list
+	 * contains the labels.  
+	 * @param node XML plot specification &lt;indep&gt; node
+	 * @param dep (optional) String representation of a dependency value date
+	 * @return Two lists of independent variable values and labels, respectively
+	 */
+	public static String[][] parseIndyNode(MVNode node, String dep){
+		int intIndyNum = node._children.length;
+		ArrayList listIndyVal = new ArrayList();
+		ArrayList listIndyLabel = new ArrayList();
+		for(int j=0; j < intIndyNum; j++){
+			MVNode nodeIndyVal = node._children[j];
+			
+			//  <val>
+			if( nodeIndyVal._tag.equals("val") ){
+				listIndyVal.add( nodeIndyVal._value );
+				if( !nodeIndyVal._label.equals("") )	{ listIndyLabel.add( nodeIndyVal._label ); }
+				else									{ listIndyLabel.add( nodeIndyVal._value ); }
+			}
+			
+			//  <date_list>
+			else if( nodeIndyVal._tag.equalsIgnoreCase("date_list") ){
+				String strStart = "";
+				String strEnd = "";
+				int intInc = 0;
+				String strFormat = _formatDB.toPattern();
+				
+				for(int k=0; k < nodeIndyVal._children.length; k++){
+					MVNode nodeChild = nodeIndyVal._children[k];
+					if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat, dep) : nodeChild._value); }
+					else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat, dep) : nodeChild._value); }
+					else if( nodeChild._tag.equals("inc") )          { intInc = Integer.parseInt(nodeChild._value); }
+					else if( nodeChild._tag.equals("label_format") ) { strFormat = nodeChild._value;                }
+				}
+				
+				SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
+				formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
+				String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
+				String[] listLabels = new String[listDates.length];
+				for(int k=0; k < listDates.length; k++){
+					try{ listLabels[k] = formatLabel.format( _formatDB.parse(listDates[k]) ); }catch(Exception e){}
+				}
+				
+				listIndyVal.addAll( Arrays.asList(listDates) );
+				listIndyLabel.addAll( Arrays.asList(listLabels) );
+			}
+		}		
 
+		return new String[][]{ toArray(listIndyVal), toArray(listIndyLabel) };
+	}
 }

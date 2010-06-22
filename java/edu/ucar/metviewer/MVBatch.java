@@ -385,6 +385,18 @@ public class MVBatch extends MVUtil {
 				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
 			}
 			
+			//  if the independent variable uses a dependency, populate the values
+			MVPlotDep depIndy = job.getIndyDep();
+			if( null != depIndy ){
+				String strDep = "";
+				if( mapTmplVals.containsKey(depIndy.getDepVar()) ){
+					strDep = _formatDB.format( _formatPlot.parse( mapTmplVals.getStr(depIndy.getDepVar()) ) );
+				}
+				String[][] listIndy = MVPlotJobParser.parseIndyNode(depIndy.getSpec(), strDep);
+				job.setIndyVal(listIndy[0]);
+				job.setIndyLabel(listIndy[1]);
+			}
+			
 		
 			/*
 			 * Run a query and build a set of plots for each group of dependent variables

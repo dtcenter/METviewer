@@ -11,6 +11,7 @@ public class MVNode{
 	protected String _inherits		= "";
 	protected String _id			= "";
 	protected String _run			= "";
+	protected String _depends		= "";
 	protected String _value			= "";
 	protected MVNode[] _children	= {};
 		
@@ -28,6 +29,7 @@ public class MVNode{
 			else if( strAttrName.equals("inherits") )	{ _inherits	= nodeAttr.getNodeValue(); }
 			else if( strAttrName.equals("id") )			{ _id		= nodeAttr.getNodeValue(); }
 			else if( strAttrName.equals("run") )		{ _run		= nodeAttr.getNodeValue(); }
+			else if( strAttrName.equals("depends") )	{ _depends	= nodeAttr.getNodeValue(); }
 			else{
 				System.out.println("  **  WARNING: unrecognized attribute name '" + strAttrName + "' in node '" + _tag + "'");
 			}

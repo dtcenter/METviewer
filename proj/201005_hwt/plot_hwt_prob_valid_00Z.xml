@@ -15,20 +15,31 @@
 	</folders>
 	
 	<date_range name="fcst_init_range">
-		<start><offset_days><day_offset>-2</day_offset><hour>21</hour></offset_days></start>
-		<end><offset_days><day_offset>-1</day_offset><hour>0</hour></offset_days></end>
-<!--		<start>2010-06-09 21:00:00</start>-->
-<!--		<end>2010-06-10 00:00:00</end>-->
-	</date_range>	
+<!--		<start><offset_days><day_offset>-2</day_offset><hour>21</hour></offset_days></start>-->
+<!--		<end><offset_days><day_offset>-1</day_offset><hour>0</hour></offset_days></end>-->
+		<start>2010-06-09 21:00:00</start>
+		<end>2010-06-10 00:00:00</end>
+	</date_range>
+	
+	<date_range_list name="fcst_init_beg_range">
+<!--		<range_start>2010-05-28 21:00:00</range_start>-->
+<!--		<range_end>2010-05-29 00:00:00</range_end>-->
+		<range_start><date_offset><day_offset>-14</day_offset><hour>21</hour></date_offset></range_start>
+		<range_end><date_offset><day_offset>-7</day_offset><hour>21</hour></date_offset></range_end>
+		<range_length>180</range_length>		
+		<inc>720</inc>
+	</date_range_list>
 	
 	<plot name="hwt_prob" run="false">
 	
 		<template>series_plot.R_tmpl</template>
 		
-		<indep name="fcst_valid_beg">
+		<indep name="fcst_valid_beg" depends="fcst_init_beg">
 			<date_list>
-				<start><offset_days><day_offset>-1</day_offset><hour>0</hour></offset_days></start>
-				<end><offset_days><day_offset>0</day_offset><hour>6</hour></offset_days></end>
+				<start><offset_days><day_offset>0</day_offset><hour>0</hour></offset_days></start>
+				<end><offset_days><day_offset>1</day_offset><hour>6</hour></offset_days></end>
+<!--				<start><offset_days><day_offset>-1</day_offset><hour>0</hour></offset_days></start>-->
+<!--				<end><offset_days><day_offset>0</day_offset><hour>6</hour></offset_days></end>-->
 <!--				<start>2010-06-10 00:00:00</start>-->
 <!--				<end>2010-06-11 06:00:00</end>-->
 				<inc>10800</inc>
@@ -38,7 +49,8 @@
 		
 		<plot_fix>
 			<field name="fcst_init_beg">
-				<date_range name="fcst_init_range"/>
+<!--				<date_range name="fcst_init_range"/>-->
+					<date_range_list name="fcst_init_beg_range"/>
 			</field>		
 		</plot_fix>
 		
@@ -52,8 +64,8 @@
 		
 		<agg>
 			<field name="vx_mask">
-				<val>FULL</val>
-				<val>VORTEX2</val>
+<!--				<val>FULL</val>-->
+<!--				<val>VORTEX2</val>-->
 				<val>DAILY</val>
 			</field>
 		</agg>
@@ -139,9 +151,9 @@
 	
 	<plot name="hwt_prob_brr03" inherits="hwt_prob_brr" run="false">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/date_series_valid/{fcst_init_beg}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/date_series_valid/{fcst_init_beg}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/date_series_valid/{fcst_init_beg}/PROB_APCP_03_BRR_{obs_thresh?symbol=letters}.R</r_file>
 			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\"</title>
 			<x_label>FCST_VALID_BEG</x_label>
 			<y1_label>APCP_03 BRIER SCORE, REL., RES., UNC.</y1_label>
@@ -150,9 +162,9 @@
 	
 	<plot name="hwt_prob_brr06" inherits="hwt_prob_brr" run="false">
 		<tmpl>
-			<data_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.R</r_file>
+			<data_file>{vx_mask}/grid_stat/date_series_valid/{fcst_init_beg}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.data</data_file>
+			<plot_file>{vx_mask}/grid_stat/date_series_valid/{fcst_init_beg}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.png</plot_file>
+			<r_file>{vx_mask}/grid_stat/date_series_valid/{fcst_init_beg}/PROB_APCP_06_BRR_{obs_thresh?symbol=letters}.R</r_file>
 			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\"</title>
 			<x_label>FCST_VALID_BEG</x_label>
 			<y1_label>APCP_06 BRIER SCORE, REL., RES., UNC.</y1_label>
@@ -163,87 +175,87 @@
     	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
         <dep><dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>
     </plot>    
-    <plot name="hwt_prob_brr03_2540" inherits="hwt_prob_brr03">
-    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>
-    </plot>    
-    <plot name="hwt_prob_brr03_5080" inherits="hwt_prob_brr03">
-    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>
-    </plot>        
-    <plot name="hwt_prob_brr06_1270" inherits="hwt_prob_brr06">
-    	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>
-    </plot>    
-    <plot name="hwt_prob_brr06_2540" inherits="hwt_prob_brr06">
-    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>
-    </plot>    
-    <plot name="hwt_prob_brr06_5080" inherits="hwt_prob_brr06">
-    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>
-    </plot>
-        
-	
-	<plot name="hwt_prob_auc" inherits="hwt_prob" run="false">
-		<mar>c(11, 4, 3, 4)</mar>
-		<legend_inset>c(0, -.35)</legend_inset>
-
-		<plot_ci>c("none", "none", "none")</plot_ci>
-		<pch>c(20, 20, 20)</pch>
-		<type>c("b", "b", "b")</type>
-		<lty>c(1, 1, 1)</lty>
-		<con_series>c(1, 1, 1)</con_series>		
-		<colors>c("#000000FF", "#FF55AAFF", "#FFAA00FF")</colors>
-		<lwd>c(2, 2, 2)</lwd>
-		
-	</plot>
-	
-	<plot name="hwt_prob_auc03" inherits="hwt_prob_auc" run="false">
-		<tmpl>
-			<data_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.R</r_file>
-			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\"</title>
-			<x_label>FCST_VALID_BEG</x_label>
-			<y1_label>APCP_03 Area Under ROC Curve</y1_label>
-		</tmpl>
-	</plot>
-	
-	<plot name="hwt_prob_auc06" inherits="hwt_prob_auc" run="false">
-		<tmpl>
-			<data_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.data</data_file>
-			<plot_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.png</plot_file>
-			<r_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.R</r_file>
-			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\"</title>
-			<x_label>FCST_VALID_BEG</x_label>
-			<y1_label>APCP_06 Area Under ROC Curve</y1_label>
-		</tmpl>
-	</plot>
-	
-    <plot name="hwt_prob_auc03_1270" inherits="hwt_prob_auc03">
-    	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>
-    </plot>
-    <plot name="hwt_prob_auc03_2540" inherits="hwt_prob_auc03">
-    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>
-    </plot>
-    <plot name="hwt_prob_auc03_5080" inherits="hwt_prob_auc03">
-    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>
-    </plot>
-    <plot name="hwt_prob_auc06_1270" inherits="hwt_prob_auc06">
-    	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>
-    </plot>
-    <plot name="hwt_prob_auc06_2540" inherits="hwt_prob_auc06">
-    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>
-    </plot>
-    <plot name="hwt_prob_auc06_5080" inherits="hwt_prob_auc06">
-    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>
-        <dep><dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>
-    </plot>
+<!--    <plot name="hwt_prob_brr03_2540" inherits="hwt_prob_brr03">-->
+<!--    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>-->
+<!--    </plot>    -->
+<!--    <plot name="hwt_prob_brr03_5080" inherits="hwt_prob_brr03">-->
+<!--    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>-->
+<!--    </plot>        -->
+<!--    <plot name="hwt_prob_brr06_1270" inherits="hwt_prob_brr06">-->
+<!--    	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>-->
+<!--    </plot>    -->
+<!--    <plot name="hwt_prob_brr06_2540" inherits="hwt_prob_brr06">-->
+<!--    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>-->
+<!--    </plot>    -->
+<!--    <plot name="hwt_prob_brr06_5080" inherits="hwt_prob_brr06">-->
+<!--    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>BRIER</stat><stat>RELIABILITY</stat><stat>RESOLUTION</stat><stat>UNCERTAINTY</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
+<!--        -->
+<!--	-->
+<!--	<plot name="hwt_prob_auc" inherits="hwt_prob" run="false">-->
+<!--		<mar>c(11, 4, 3, 4)</mar>-->
+<!--		<legend_inset>c(0, -.35)</legend_inset>-->
+<!---->
+<!--		<plot_ci>c("none", "none", "none")</plot_ci>-->
+<!--		<pch>c(20, 20, 20)</pch>-->
+<!--		<type>c("b", "b", "b")</type>-->
+<!--		<lty>c(1, 1, 1)</lty>-->
+<!--		<con_series>c(1, 1, 1)</con_series>		-->
+<!--		<colors>c("#000000FF", "#FF55AAFF", "#FFAA00FF")</colors>-->
+<!--		<lwd>c(2, 2, 2)</lwd>-->
+<!--		-->
+<!--	</plot>-->
+<!--	-->
+<!--	<plot name="hwt_prob_auc03" inherits="hwt_prob_auc" run="false">-->
+<!--		<tmpl>-->
+<!--			<data_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.data</data_file>-->
+<!--			<plot_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.png</plot_file>-->
+<!--			<r_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_03_AUC_{obs_thresh?symbol=letters}.R</r_file>-->
+<!--			<title>{vx_mask} APCP_03 {dep1_1_stat1} {obs_thresh?units=in}\"</title>-->
+<!--			<x_label>FCST_VALID_BEG</x_label>-->
+<!--			<y1_label>APCP_03 Area Under ROC Curve</y1_label>-->
+<!--		</tmpl>-->
+<!--	</plot>-->
+<!--	-->
+<!--	<plot name="hwt_prob_auc06" inherits="hwt_prob_auc" run="false">-->
+<!--		<tmpl>-->
+<!--			<data_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.data</data_file>-->
+<!--			<plot_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.png</plot_file>-->
+<!--			<r_file>{vx_mask}/grid_stat/date_series_valid/{date}/PROB_APCP_06_AUC_{obs_thresh?symbol=letters}.R</r_file>-->
+<!--			<title>{vx_mask} APCP_06 {dep1_1_stat1} {obs_thresh?units=in}\"</title>-->
+<!--			<x_label>FCST_VALID_BEG</x_label>-->
+<!--			<y1_label>APCP_06 Area Under ROC Curve</y1_label>-->
+<!--		</tmpl>-->
+<!--	</plot>-->
+<!--	-->
+<!--    <plot name="hwt_prob_auc03_1270" inherits="hwt_prob_auc03">-->
+<!--    	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_03>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
+<!--    <plot name="hwt_prob_auc03_2540" inherits="hwt_prob_auc03">-->
+<!--    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_03>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
+<!--    <plot name="hwt_prob_auc03_5080" inherits="hwt_prob_auc03">-->
+<!--    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_03>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
+<!--    <plot name="hwt_prob_auc06_1270" inherits="hwt_prob_auc06">-->
+<!--    	<agg><field name="obs_thresh"><val>>=12.700</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_06>12.70)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
+<!--    <plot name="hwt_prob_auc06_2540" inherits="hwt_prob_auc06">-->
+<!--    	<agg><field name="obs_thresh"><val>>=25.400</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_06>25.40)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
+<!--    <plot name="hwt_prob_auc06_5080" inherits="hwt_prob_auc06">-->
+<!--    	<agg><field name="obs_thresh"><val>>=50.800</val></field></agg>-->
+<!--        <dep><dep1><fcst_var name="PROB(APCP_06>50.80)"><stat>ROC_AUC</stat></fcst_var></dep1></dep>-->
+<!--    </plot>-->
 
 </plot_spec>
