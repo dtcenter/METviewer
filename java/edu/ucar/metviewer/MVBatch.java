@@ -1174,9 +1174,8 @@ public class MVBatch extends MVUtil {
 						stmt.close();
 						//  END TEMP_TABLE
 
-						//if( 1 > tabPerm.getNumRows() /* MVDATATABLE: intNumPlotDataRows */ ){
 						if( 1 > intNumPlotDataRows ){
-							System.out.println("no plot data found");
+							System.out.println("no plot data found\n");
 							continue;
 						}
 
@@ -1416,6 +1415,7 @@ public class MVBatch extends MVUtil {
 						if( _boolPlot ){
 							runRscript(strRFile);
 							_intNumPlotsRun++;
+							System.out.println();
 						}
 						
 					} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)

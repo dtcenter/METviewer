@@ -12,6 +12,42 @@
 function onLoad(){
 	//window.location = "";
 }
+
+var _url = "http://kemosabe/metviewer/ 
+
+function getRequestObject(){
+    var req;
+
+    // branch for native XMLHttpRequest object
+    if (window.XMLHttpRequest) { req = new XMLHttpRequest(); }
+        
+    // branch for IE/Windows ActiveX version
+    else if (window.ActiveXObject) {
+        try{ req = new ActiveXObject("Microsoft.XMLHTTP"); } 
+        catch (e) { try { req = new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {} }
+    }
+
+    return req;
+}
+
+function doStuff(){
+
+    var req = getRequestObject();
+
+    // when the data is ready, populate the conference data controls
+    req.onreadystatechange =
+    function() {
+		if (req.readyState == 4) {
+			if (req.status == 200) { var strResponse = req.responseText; }
+        }
+    };
+
+    req.open('GET', url + "&date=" + (new Date()).getMilliseconds(), true);
+    req.send(null);
+}
+
+
+
 //--></script>
 
 <h2>METViewer</h2>
