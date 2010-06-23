@@ -1,4 +1,4 @@
-package edu.ucar.metviewer.web;
+package edu.ucar.metviewer;
 
 import java.io.*;
 import javax.servlet.*;

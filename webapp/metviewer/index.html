@@ -13,15 +13,12 @@ function onLoad(){
 	//window.location = "";
 }
 
-var _url = "http://kemosabe/metviewer/ 
+var _url = "http://kemosabe/metviewer/";
 
 function getRequestObject(){
     var req;
 
-    // branch for native XMLHttpRequest object
     if (window.XMLHttpRequest) { req = new XMLHttpRequest(); }
-        
-    // branch for IE/Windows ActiveX version
     else if (window.ActiveXObject) {
         try{ req = new ActiveXObject("Microsoft.XMLHTTP"); } 
         catch (e) { try { req = new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {} }
@@ -46,13 +43,18 @@ function doStuff(){
     req.send(null);
 }
 
+function test(){
+	var s = "Test string";
+	alert(s);
+}
 
 
 //--></script>
 
 <h2>METViewer</h2>
 <p>
-Welcome to METViewer
+	Welcome to METViewer<br/>
+	<input type="button" class="gButton" onclick="javascript:test()" value="Test"/>
 </p>
 
 </body>

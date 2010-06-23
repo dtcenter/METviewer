@@ -27,7 +27,7 @@
     <!-- Define servlets that are included in the example application -->
     <servlet>
         <servlet-name>MVServlet</servlet-name>
-        <servlet-class>edu.ucar.metviewer.web.MVServlet</servlet-class>
+        <servlet-class>edu.ucar.metviewer.MVServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
