@@ -48,7 +48,7 @@ public class MVLoadJobParser extends MVUtil{
 	
 	public MVLoadJob getLoadJob(){ return _job; }
 	
-	public void parseLoadJobSpec(){
+	public void parseLoadJobSpec() throws Exception{
 		MVLoadJob job = new MVLoadJob();
 		for(int i=0; null != _nodeLoadSpec && i < _nodeLoadSpec._children.length; i++){
 			MVNode node = _nodeLoadSpec._children[i];
@@ -71,6 +71,7 @@ public class MVLoadJobParser extends MVUtil{
 					job.setConnection(con);
 				} catch(Exception ex){
 					System.out.println("  **  ERROR: parseLoadJobSpec() caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
+					throw ex;
 				}
 			}
 			
