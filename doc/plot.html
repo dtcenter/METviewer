@@ -46,7 +46,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 		</ul>
 	</li><br/>
 
-	<li><span class="code">&lt;date_range&gt;</span> see <a href="common_xml.html">common xml</a></li><br/>
+	<li><span class="code">&lt;date_list&gt;</span> see <a href="common_xml.html">common xml</a></li><br/>
 	
 	<li>
 		<span class="code">&lt;date_range&gt;</span>: a structure that specifies a date range, including all dates and times between 
@@ -73,17 +73,18 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	
 	<li>
 		<span class="code">&lt;plot&gt;</span>: a structure that specifies plot characteristics and may inherit characteristics from other <span class="code">&lt;plot&gt;</span>
-		structures<br/>
-		<b>Attributes:</b>
+		structures
+		<br/><b>Attributes:</b>
 		<ul style="list-style-image:url('att_bullet.gif')">
 			<li><span class="code">name</span>: name for the plot structure, used when plot's characteristics are inherited by later <span class="code">&lt;plot&gt;</span> structures</li>
 			<li><span class="code">inherits</span>: name of another <span class="code">&lt;plot&gt;</span> structure whose characteristics to inherit</li>
+			<li><span class="code">run</span>: (optional) <span class="code">true</span> or <span class="code">false</span>, specifying whether or not to run this plot job</li>
 		</ul><br/>
 		
 		<ul>
 			<li><span class="code">&lt;template&gt;</span>: the name of the R plot script template to use</li><br/>
-			<li><span class="code">&lt;indep&gt;</span>: a structure that defines the independent variable and its values for the plot<br/>
-				<b>Attributes:</b>
+			<li><span class="code">&lt;indep&gt;</span>: a structure that defines the independent variable and its values for the plot
+				<br/><b>Attributes:</b>
 				<ul style="list-style-image:url('att_bullet.gif')">
 					<li><span class="code">name</span>: database field name of the independent variable</li>
 				</ul><br/>
@@ -98,8 +99,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;series1&gt;</span>: describes the database field names and values that constitute the various lines, or series, corresponding to
 			the left y axis (y1-axis) of the plot<br/>			
 				<ul>				
-					<li><span class="code">&lt;field&gt;</span>: a database field whose values constitute the members of the series<br/>
-						<b>Attributes:</b>
+					<li><span class="code">&lt;field&gt;</span>: a database field whose values constitute the members of the series
+						<br/><b>Attributes:</b>
 						<ul style="list-style-image:url('att_bullet.gif')">
 							<li><span class="code">name</span>: the database field name whose values are contained in the child tags</li>
 						</ul><br/>
@@ -120,8 +121,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<span class="term">plot_fix</span> field values will be used to create a database query and all plots will be run with the resulting data held constant.  The
 			fields can be used in the <span class="term">tmpl</span> values, described below, to create paths, filenames and labels for the plots.   
 				<ul>				
-					<li><span class="code">&lt;field&gt;</span>: a database field whose values constitute the members of the series<br/>
-						<b>Attributes:</b>
+					<li><span class="code">&lt;field&gt;</span>: a database field whose values constitute the members of the series
+						<br/><b>Attributes:</b>
 						<ul style="list-style-image:url('att_bullet.gif')">
 							<li><span class="code">name</span>: the database field name whose values are contained in the child tags</li>
 						</ul><br/>
@@ -148,7 +149,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;tmpl&gt;</span>: 
 				<ul>
 					<li><span class="code">&lt;val_map&gt;</span>: a map of key/value pairs used for when templates are populated
-						<b>Attributes:</b>
+						<br/><b>Attributes:</b>
 						<ul style="list-style-image:url('att_bullet.gif')">
 							<li><span class="code">name</span>: the database field name whose values should be mapped using the enclosed pairs</li>
 						</ul><br/>
@@ -175,6 +176,46 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 				</ul>
 			</li><br/>
 						
+			<li><span class="code">&lt;dep&gt;</span>: information about the dependent variables of the plot.  Each curve of the plot is assumed to have a constant fcst_var and
+			constant statistic.  The stats plotted on the two dependent axes (y1 and y2) are specified using the identical <span class="term">dep1</span> and 
+			<span class="term">dep2</span> structures.  Fixed values, which correspond to each fcst_var, are specified using the <span class="term">fix</span> structure.   
+				<ul>
+					<li><span class="code">&lt;dep1&gt;</span>: the fcst_var/stat pairs for the first dependent axis (y1)
+						<ul>
+							<li><span class="code">&lt;fcst_var&gt;</span>: the fcst_var for which the enclosed list of stats will be plotted
+								<br/><b>Attributes:</b>
+								<ul style="list-style-image:url('att_bullet.gif')">
+									<li><span class="code">name</span>: the fcst_var whose statistics will be plotted
+								</ul><br/>
+								<ul>
+									<li><span class="code">&lt;stat&gt;</span>: the name of the stat to plot, whose name must be identical to the name in the MET User's Guide</li>
+								</ul>
+							</li>
+						</ul>
+					</li><br/>
+					<li><span class="code">&lt;dep2&gt;</span>: the fcst_var/stat pairs for the second dependent axis (y2), whose structure is identical to that of 
+					<li><span class="code">&lt;fix&gt;</span>: a list of database field/value pairs to hold constant for each fcst_var included in <span class="term">dep1</span> and 
+					<span class="term">dep2</span>
+						<ul>
+							<li><span class="code">&lt;fcst_var&gt;</span>: the fcst_var for which the enclosed list of stats will be plotted
+								<br/><b>Attributes:</b>
+								<ul style="list-style-image:url('att_bullet.gif')">
+									<li><span class="code">name</span>: the fcst_var whose statistics will be plotted
+								</ul><br/>
+								<ul>
+									<li><span class="code">&lt;var&gt;</span>: the database field/value pair to hold constant
+										<br/><b>Attributes:</b>
+										<ul style="list-style-image:url('att_bullet.gif')">
+											<li><span class="code">name</span>: the database field whose value to hold constant
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li><br/>
+
 			<li><span class="code">&lt;bootstrapping&gt;</span>: contains information about how to calculate and display bootstrapping information; if present, bootstrapping is
 			turned on</br>
 				<ul>
