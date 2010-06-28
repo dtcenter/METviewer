@@ -331,7 +331,8 @@ public class MVPlotJobParser extends MVUtil{
 						else if( nodeFixVal._tag.equals("date_range") ){
 							String strDateRangeVal = _tableDateRangeDecl.get(nodeFixVal._name).toString(); 
 							listFixVal.add(strDateRangeVal);
-							mapTmplVal.put(strDateRangeVal, nodeFixVal._name);							
+							mapTmplVal.put(strDateRangeVal, nodeFixVal._name);
+							if( !nodeFixVal._id.equals("") ){ job.addTmplVal(nodeFixVal._id, nodeFixVal._name); }
 						}
 
 						//  <date_range_list>
@@ -543,8 +544,14 @@ public class MVPlotJobParser extends MVUtil{
 						MVOrderedMap mapValMap = new MVOrderedMap();
 						for(int k=0; k < nodeTmpl._children.length; k++){
 							MVNode nodeKey = nodeTmpl._children[k]._children[0];
+							String strKey = "";							
+							if( 0 < nodeKey._children.length && nodeKey._children[0]._tag.equals("date_range") ){
+								strKey = _tableDateRangeDecl.get(nodeKey._children[0]._name).toString(); 
+							}
+							else { strKey = nodeKey._value; }
+							
 							MVNode nodeVal = nodeTmpl._children[k]._children[1];
-							mapValMap.put(nodeKey._value, nodeVal._value);
+							mapValMap.put(strKey, nodeVal._value);
 						}
 						job.addTmplMap(nodeTmpl._name, mapValMap);
 					}

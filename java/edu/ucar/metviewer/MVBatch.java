@@ -377,10 +377,16 @@ public class MVBatch extends MVUtil {
 			
 			//  add the fixed values to the template value map
 			for(int i=0; i < listPlotFixVal.length; i++){
+				String strFixVar = listPlotFixVal[i].getKey().toString();
 				String strFixVal = listPlotFixVal[i].getValue().toString();
-				Matcher matDateRange = _patDateRange.matcher(strFixVal);
-				if( matDateRange.matches() ){
-					strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
+				MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
+				if( null != mapTmpl && mapTmpl.containsKey(strFixVal) ){
+					strFixVal = mapTmpl.getStr(strFixVal);
+				} else { 
+					Matcher matDateRange = _patDateRange.matcher(strFixVal);
+					if( matDateRange.matches() ){
+						strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
+					}
 				}
 				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
 			}
