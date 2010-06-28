@@ -60,9 +60,9 @@ listX = 1:length(listIndy);
 listXlim = c(min(listX), max(listX));
 
 # run event equalizer, if requested
-#if( TRUE == boolEventEqual ){
-#	dfStats = eventEqualize(dfPlot, listFcstLead);
-#}
+if( TRUE == boolEventEqual ){
+	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val);
+}
 
 # build the y1 plot series using information in the plot dataframe
 intNumSeries1 = numSeries(listSeries1Val, listDep1Plot, boolPlot1Diff);

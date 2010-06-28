@@ -1,31 +1,3 @@
-#
-## mapStatGroupId contains the mapping from stat_name to stat_group_lu_id
-#mapStatGroupId	= list(BASER=0, FMEAN=1, ACC=2, FBIAS=3, PODY=4, PODN=5, POFD=6, FAR=7, CSI=8, GSS=9,
-#                       HK=10, HSS=11, ODDS=12, FBAR=13, FSTDEV=14, OBAR=15, OSTDEV=16, PR_CORR=17,
-#                       ME=18, ESTDEV=19, MBIAS=20, MAE=21, MSE=22, BCMSE=23, BCRMSE=23, RMSE=24,
-#                       E10=25, E25=26, E50=27, E75=28, E90=29, BRIER=30, BASER=31, FMEAN=32, ACC=33, 
-#					   FBIAS=34, PODY=35, PODN=36, POFD=37, FAR=38, CSI=39, GSS=40, HK=41, HSS=42, 
-#					   ODDS=43, FBS=44, FSS=45);
-#
-## mapFcstLevSurf contains a mapping from fcst_var to fcst_lev surface level values 
-#mapFcstLevSurf  = list(TMP="Z2", DPT="Z2", WIND="Z10", APCP_03="A3", APCP_24="A24");
-#
-## buildQueryList() formats the list of input values into a single string list suitable
-##   for use in a SQL query.  For example, if values = c(1, 2, 3), then buildQueryList
-##   will return the string "1, 2, 3" if ticks is FALSE and "'1', '2', '3'" if ticks is
-##   TRUE.
-#buildQueryList = function(values, ticks=TRUE){
-#	strQueryList = "";
-#	for(strValue in values){
-#		if("" != strQueryList){ strQueryList = paste(strQueryList, ",", sep=""); }
-#		if( TRUE == ticks ){
-#			strQueryList = paste(strQueryList, "'", strValue, "'", sep="") ;
-#		}else{
-#			strQueryList = paste(strQueryList, strValue, sep="");
-#		}
-#	}
-#	return(strQueryList);
-#}
 
 # parseLev() assumes that the input is a list of pressure level strings of one of the
 #   following formats: Z0, P250 or P200-350 and attempts to parse the value.  If 
@@ -105,33 +77,26 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff){
 }
 
 # eventEqualize() assumes that the input dfStats contains data indexed by fcst_valid_beg 
-#   and fcst_lead fields.  It builds a new dataframe which contains the same data except
-#   for records that don't have corresponding fcst_valid_beg values for a given fcst_lead.
-#   This ensures that incomplete or missing data sets are not used in plots.
-eventEqualize = function(dfStats, listFcstLead, strIndyVar){
+#   and the independent variable values.  It builds a new dataframe which contains the same 
+#   data except for records that don't have corresponding fcst_valid_beg values in each for a each 
+eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 	
-	# convert the dates from strings to POSIXct
+	# convert the dates from strings to POSIXct, and create a unique member to use for equalization
 	dfStats$fcst_valid_beg = as.POSIXct(dfStats$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
 	dfStats$equalize = paste(dfStats$fcst_valid_beg, dfStats[[strIndyVar]]);
-	#dfStats$equalize = dfStats$fcst_valid_beg;
-	
+
 	# create a list of permutations representing the plot series
 	dfSeriesPerm = data.frame( permute(listSeriesVal) );
 	names(dfSeriesPerm) = names(listSeriesVal);
 	
 	# for each fcst_lead value, equalize the plot series by fcst_valid_beg
 	cat("  event equalization...");
-	boolWarnings = FALSE;
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
-	for(intFcstLead in listFcstLead){
+	for(strIndyVal in listIndyVal){
 		
 		# examine the stats for the current lead time
-		dfFcstLead = dfStats[dfStats$fcst_lead == intFcstLead,];
-		if( 1 > nrow(dfFcstLead) ){
-			#boolWarnings = TRUE;
-			#cat("\n    WARNING: no stats found for fcst_lead =", intFcstLead);
-			next;
-		}
+		dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
+		if( 1 > nrow(dfIndy) ){ next; }
 		
 		# find the minimal list of dates which all series have in common
 		listDates = array();
@@ -139,36 +104,38 @@ eventEqualize = function(dfStats, listFcstLead, strIndyVar){
 		for(intSeries in 1:nrow(dfSeriesPerm)){
 			for(strSeriesVar in names(listSeriesVal)){
 				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
-				dfComp = dfFcstLead[dfFcstLead[[strSeriesVar]] == valSeries,];
+				dfComp = dfIndy[dfIndy[[strSeriesVar]] == valSeries,];
 			}
-			
+
+			# if empty, initialize the equalization list
 			if( 0 < sum(is.na(listEqualize)) ){
 				listEqualize = dfComp$equalize;
-			} else {
+			}
+			
+			# if there is an equalization list, equalize the current series data
+			else {
 				listInd = listEqualize %in% dfComp$equalize;
-				
+
+				# report the discarded records
 				listDiscard = listEqualize[ !listInd ];
-				for(strDiscard in listDiscard){
-					boolWarnings = TRUE;
-					cat("\n    WARNING: discarding", paste(dfSeriesPerm[intSeries,]), "series member", strDiscard);
-				}
+				listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
+				for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
 				
+				# update the equalization list
 				listEqualize = listEqualize[listInd];
 			}			
 		}
 		
 		# create an equalized set of data for the minimal list of dates
-		dfFcstLeadEq = dfFcstLead[dfFcstLead$equalize %in% listEqualize,];
+		dfIndyEq = dfIndy[dfIndy$equalize %in% listEqualize,];
 		intEqRow = nrow(dfStatsEq);
-		dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfFcstLeadEq)),] = dfFcstLeadEq;
+		dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfIndyEq)),] = dfIndyEq;
 	}
 	
 	if( nrow(dfStatsEq) != nrow(dfStats) ){
-		boolWarnings = TRUE;
 		cat("\n    WARNING: event equalization removed ", (nrow(dfStats) - nrow(dfStatsEq)), " rows", sep="");
 	}
-	if( TRUE == boolWarnings){		cat("\n  event equalization done\n");		}
-	else{							cat(" done\n");								}
+	cat("\n  event equalization done\n");
 	dfStats = dfStatsEq;
 	
 	return( dfStats );
@@ -275,7 +242,6 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 	intIndyIndex = 1;
 	for(indy in listIndyVal){
 		dfStatsIndy = dfStats[dfStats[[strIndyVar]] == indy,];
-		
 		intSeriesIndex = 1;
 		for(intPermVal in 1:nrow(matPermVal)){
 			listPermVal = matPermVal[intPermVal,];
@@ -287,6 +253,8 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 
 			# if the last perm val is diff, then set the diff flag
 			if( "__DIFF__" == listPermVal[length(listPermVal)] ){
+				
+				# swap the last series data with the __DIFF__ data
 				listSeries[[intMedIndex]][intIndyIndex] = listSeries[[intMedIndex - 3]][intIndyIndex];
 				listSeries[[intLoIndex]][intIndyIndex] = listSeries[[intLoIndex - 3]][intIndyIndex];
 				listSeries[[intUpIndex]][intIndyIndex] = listSeries[[intUpIndex - 3]][intIndyIndex];
@@ -294,8 +262,19 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				intLoIndex = intLoIndex - 3;
 				intUpIndex = intUpIndex - 3;
 
-				if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value - dfStatsComp$stat_value); }
-				else                          { listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;       }
+				# if there is no data to consider, skip to the next permutation
+				if( FALSE == exists("dfStatsVal") | FALSE == exists("dfStatsComp") ){
+					intSeriesIndex = intSeriesIndex + 1;
+					next;
+				}
+				
+				# sort the data by fcst_valid_beg to take a pairwise difference
+				dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),];
+				dfStatsComp = dfStatsComp[order(dfStatsComp$fcst_valid_beg),];
+
+				# calculate the difference
+				if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value) - sqrt(dfStatsComp$stat_value); }
+				else                          { listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;             }
 				
 			} else {
 				
@@ -357,10 +336,16 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 	# build the legend for the list of curves
 	listLegend = c();
 	for(intPermVal in 1:nrow(matPermVal)){
-		listPermVal = matPermVal[intPermVal,]	;		
+		listPermVal = matPermVal[intPermVal,];		
 		strLegend = "";
 		for(strVal in listPermVal){ strLegend = paste(strLegend, " ", strVal, sep=""); }
-		listLegend = append(listLegend, strLegend);
+		if( "__DIFF__" == listPermVal[length(listPermVal)] ){
+			intLegendLen = length(listLegend);
+			listLegend[intLegendLen + 1] = listLegend[intLegendLen];
+			listLegend[intLegendLen] = strLegend;
+		} else {
+			listLegend = append(listLegend, strLegend);
+		}
 	}
 	
 	return( list(series=listSeries[], nstats=listNStats, legend=listLegend) );
