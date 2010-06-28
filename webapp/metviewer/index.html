@@ -9,52 +9,86 @@
 <body onLoad="onLoad()" style="padding-left:20px">
 
 <script type="text/javascript"><!--
+
+var _url;
+var _txtResponse;
+var _txtPost;
+var _txtGet;
+
 function onLoad(){
-	//window.location = "";
+	_url			= window.location + "servlet";
+	_txtResponse	= document.getElementById("txtResponse");
+	_txtPost		= document.getElementById("txtPost");
+	_txtGet			= document.getElementById("txtGet");
 }
 
-var _url = "http://kemosabe/metviewer/";
-
-function getRequestObject(){
-    var req;
-
-    if (window.XMLHttpRequest) { req = new XMLHttpRequest(); }
-    else if (window.ActiveXObject) {
-        try{ req = new ActiveXObject("Microsoft.XMLHTTP"); } 
-        catch (e) { try { req = new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {} }
-    }
-
-    return req;
+function getRequest(){
+	var req;
+	if (window.XMLHttpRequest) { req = new XMLHttpRequest(); }
+	else if (window.ActiveXObject) {
+		try{ req = new ActiveXObject("Microsoft.XMLHTTP"); } 
+		catch (e) { try { req = new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {} }
+	}
+	return req;
 }
 
-function doStuff(){
+function sendRequest(reqType, reqData){
 
-    var req = getRequestObject();
-
-    // when the data is ready, populate the conference data controls
-    req.onreadystatechange =
+	//  set the request to wait until the data is ready
+	var strResponse = "";
+	var req = getRequest();
+	req.onreadystatechange =
     function() {
 		if (req.readyState == 4) {
-			if (req.status == 200) { var strResponse = req.responseText; }
+			if (req.status == 200) { strResponse = req.responseText; }
+			else                   { strResponse = "error: req.status = " + req.status; }
+			processResponse(strResponse);
         }
-    };
+	};
 
-    req.open('GET', url + "&date=" + (new Date()).getMilliseconds(), true);
-    req.send(null);
+	var reqURL = _url + "?date=" + (new Date()).getMilliseconds();
+  
+	//  send the request in the manner specified
+    if( reqType == "GET" ){
+		req.open(reqType, reqURL + "?date=" + (new Date()).getMilliseconds() + "&data=" + encodeURI(reqData), true);
+		req.send(null);
+	} else {
+		var reqPostData = "<?xml version='1.0' encoding='UTF-8'?><request><data>" + encodeURI(reqData) + "</data></request>";
+		req.open(reqType, reqURL, true);
+		req.setRequestHeader("Content-Type", "text/xml");
+		req.setRequestHeader("Content-length", reqPostData.length);
+		req.setRequestHeader("Connection", "close");
+		req.send(reqPostData);
+	}
 }
 
-function test(){
-	var s = "Test string";
-	alert(s);
+function processResponse(strResponse){
+	_txtResponse.innerHTML += "response:\n" + strResponse + "\n";
 }
 
+function testPost(){
+	sendRequest("POST", _txtPost.value);
+}
+
+function testGet(){
+	sendRequest("GET", _txtGet.value);
+}
 
 //--></script>
 
 <h2>METViewer</h2>
 <p>
 	Welcome to METViewer<br/>
-	<input type="button" class="gButton" onclick="javascript:test()" value="Test"/>
+	
+	<input type="text" id="txtPost"/>
+	<input type="button" class="gButton" onclick="javascript:testPost()" value="Post"/><br/><br/>
+	
+	<input type="text" id="txtGet"/>
+	<input type="button" class="gButton" onclick="javascript:testGet()" value="Get"/><br/><br/>
+	
+	<b>Response:</b><br/>
+	<textarea rows="40" cols="120" id="txtResponse"></textarea>
+	
 </p>
 
 </body>
