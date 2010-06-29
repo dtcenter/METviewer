@@ -8,6 +8,7 @@ source("include/util_plot.R");
 #
 
 boolEventEqual	= #<event_equal>#;
+boolVertPlot	= #<vert_plot>#
 boolPlot1Diff	= #<plot1_diff>#;
 boolPlot2Diff	= #<plot2_diff>#;
 boolShowNStats	= #<show_nstats>#;
@@ -169,9 +170,37 @@ par(
 	las=2 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
 
+
+# configuration variables for a horizontal series plot
+if( FALSE == boolVertPlot ){
+	listXSeries = listX;
+	listY1Series = listSeries1[[1]];
+	intXAxis = 1;
+	intY1Axis = 2;
+	intX2Axis = 3;
+	intY2Axis = 4;
+	intGridNx = 0;
+	intGridNy = NULL;	
+
+# configuration variables for a vertical plot
+} else {
+	listXSeries = listSeries1[[1]];
+	listY1Series = listX;
+	listTmp = listXlim;
+	listXlim = listY1lim;
+	listY1lim = listTmp;
+	intXAxis = 2;
+	intY1Axis = 1;
+	intX2Axis = 4;
+	intY2Axis = 3;
+	intGridNx = NULL;
+	intGridNy = 0;
+}
+
 # specify the plot formatting
 plot(
-	listSeries1[[1]],		# series data
+	listXSeries,			# series x data
+	listY1Series,			# series y1 data
 	type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
 							#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
 	xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
@@ -194,9 +223,11 @@ if( TRUE == boolLogY1 ){
 	par(ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max), yaxp=listY1axp);
 } else {
 	dblY1BufrPct = #<y1_bufr>#;
-	dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;
-	par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr));
+	dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;	
+	if( FALSE == boolVertPlot ){ par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr)); }
+	else                       { par(usr=c(dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr, par()$usr[3:4])); }
 }
+
 
 # plot title
 mtext(
@@ -212,7 +243,7 @@ mtext(
 
 # specify the x-axis
 axis(
-	1,						# axis of interest, 1: below, 2: left, 3: above and 4: right 
+	intXAxis,				# axis of interest, 1: below, 2: left, 3: above and 4: right 
 	at=listX,				# locations of tick marks
 	labels=#<indy_label>#,	# axis labels
 	tick=TRUE,				# tick marks on/off
@@ -229,7 +260,7 @@ mtext(
 	"#<x_label>#",			# label
 	font=#<xlab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
 	las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	side=1,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+	side=intXAxis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 	cex=#<xlab_size>#,		# relative axis label magnification
 	padj=#<xlab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<xlab_align>#,		# axis label parallel location adjustment
@@ -238,7 +269,7 @@ mtext(
 
 # specify the y-axis
 axis(
-	2,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+	intY1Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
 	#at=NA,					# locations of tick marks
 	labels=TRUE,			# tick labels on/off
 	tick=TRUE,				# tick marks on/off
@@ -255,7 +286,7 @@ mtext(
 	"#<y1_label>#",			# label
 	font=#<ylab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
 	las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	side=2,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+	side=intY1Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 	cex=#<ylab_size>#,		# relative axis label magnification
 	padj=#<ylab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<ylab_align>#,		# axis label parallel location adjustment
@@ -268,23 +299,34 @@ if( TRUE == boolGridOn ){
 		lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
 		col="#<grid_col>#",		# line color
 		lwd=#<grid_lwd>#,		# line width
-		nx=0,					# number of cells in x direction, NULL for default
-		ny=NULL					# number of cells in y direction, NULL for default
+		nx=intGridNx,			# number of cells in x direction, NULL for default
+		ny=intGridNy			# number of cells in y direction, NULL for default
 	);
 	
-	abline( 
-		v=#<grid_x>#,			# list of positions for the gridlines
-		lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-		col="#<grid_col>#",		# line color
-		lwd=#<grid_lwd>#,		# line width
-		cex=1					# line magnification
-	);
+	if( FALSE == boolVertPlot ){
+		abline( 
+			v=#<grid_x>#,			# list of positions for the gridlines
+			lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+			col="#<grid_col>#",		# line color
+			lwd=#<grid_lwd>#,		# line width
+			cex=1					# line magnification
+		);
+	} else {
+		abline( 
+			h=#<grid_x>#,			# list of positions for the gridlines
+			lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+			col="#<grid_col>#",		# line color
+			lwd=#<grid_lwd>#,		# line width
+			cex=1					# line magnification
+		);
+	}
+	
 }
 
 # add the number of stats at each independent axis tick, if requested
 if( TRUE == boolShowNStats ){
 	axis(
-		3,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+		intX2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
 		at=listX,				# locations of tick marks
 		labels=listNStats,		# axis labels
 		tick=TRUE,				# tick marks on/off
@@ -299,7 +341,7 @@ if( TRUE == boolShowNStats ){
 	mtext(
 		"NStats",				# label
 		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-		side=3,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+		side=intX2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 		font=#<x2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
 		cex=#<x2lab_size>#,		# relative axis label magnification
 		padj=#<x2lab_offset>#,	# axis label perpendicular location adjustment
@@ -346,7 +388,7 @@ if( 0 < length(listDep2Plot) ){
 	
 	# add the y2 axis
 	axis(
-		4,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+		intY2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
 		#at=NA,					# locations of tick marks
 		labels=TRUE,			# tick labels on/off
 		tick=TRUE,				# tick marks on/off
@@ -382,6 +424,9 @@ if( 0 < length(listDep2Plot) ){
 			listData	= listData[listDataInd];
 		}
 		
+		# if the plot is a vertical profile, swap the series coordinates
+		if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
+		
 		# plot the series line
 		lines(
 			listXAdj,			# x coordinates
@@ -406,11 +451,23 @@ if( 0 < length(listDep2Plot) ){
 				listDataLo	= listDataLo[listDataInd];
 				listDataUp	= listDataUp[listDataInd];
 				
+				listXFr		= listXAdj;
+				listXTo 	= listXAdj;
+				listYFr 	= listDataLo;
+				listYTo 	= listDataUp;
+				
+				# if the plot is a vertical profile, swap the series coordinates
+				if( TRUE == boolVertPlot ){
+					listTmp = listXFr; listXFr = listXTo; listXTo = listTmp;
+					listTmp = listYFr; listYFr = listYTo; listYTo = listTmp;
+				}
+				
+				# draw the arrows
 				arrows( 
-					listXAdj, 			# x coordinate from which to draw
-					listDataLo, 		# y coordinate from which to draw
-					listXAdj, 			# x coordinate to which to draw
-					listDataUp, 		# y coordinate to which to draw
+					listXFr, 			# x coordinate from which to draw
+					listYFr, 			# y coordinate from which to draw
+					listXTo, 			# x coordinate to which to draw
+					listYTo, 			# y coordinate to which to draw
 					length=.02,			# length of the edges of the arrow head (in inches)
 					angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
 					code=3,				# arrow type - 1: up, 2: down and 3: both
@@ -431,7 +488,7 @@ if( 0 < length(listDep2Plot) ){
 		"#<y2_label>#",			# label
 		font=#<y2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
 		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-		side=4,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+		side=intY2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 		cex=#<y2lab_size>#,		# relative axis label magnification
 		padj=#<y2lab_offset>#,	# axis label perpendicular location adjustment
 		adj=#<y2lab_align>#,	# axis label parallel location adjustment
@@ -478,6 +535,9 @@ for(i in 1:intNumSeries1){
 	intLwd		= listLwd[intFormatIndex];
 	strPlotCI	= listPlotCI[intFormatIndex];
 	
+	# if the plot is a vertical profile, swap the series coordinates
+	if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
+	
 	# plot the series line
 	lines(
 		listXAdj,			# x coordinates
@@ -501,11 +561,22 @@ for(i in 1:intNumSeries1){
 			listDataLo	= listDataLo[listDataInd];
 			listDataUp	= listDataUp[listDataInd];
 			
+			listXFr		= listXAdj;
+			listXTo 	= listXAdj;
+			listYFr 	= listDataLo;
+			listYTo 	= listDataUp;
+			
+			# if the plot is a vertical profile, swap the series coordinates
+			if( TRUE == boolVertPlot ){
+				listTmp = listXFr; listXFr = listXTo; listXTo = listTmp;
+				listTmp = listYFr; listYFr = listYTo; listYTo = listTmp;
+			}
+			
 			arrows( 
-				listXAdj, 			# x coordinate from which to draw
-				listDataLo, 		# y coordinate from which to draw
-				listXAdj, 			# x coordinate to which to draw
-				listDataUp, 		# y coordinate to which to draw
+				listXFr, 			# x coordinate from which to draw
+				listYFr, 			# y coordinate from which to draw
+				listXTo, 			# x coordinate to which to draw
+				listYTo, 			# y coordinate to which to draw
 				length=.02,			# length of the edges of the arrow head (in inches)
 				angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
 				code=3,				# arrow type - 1: up, 2: down and 3: both

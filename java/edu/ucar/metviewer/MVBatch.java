@@ -1306,6 +1306,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("y2_label",		strY2Label);
 						tableRTags.put("plot_cmd", 		job.getPlotCmd());
 						tableRTags.put("event_equal",	(job.getEventEqual()?	"TRUE" : "FALSE"));
+						tableRTags.put("vert_plot",		(job.getVertPlot()?		"TRUE" : "FALSE"));
 						tableRTags.put("plot1_diff",	(job.getPlot1Diff()?	"TRUE" : "FALSE"));
 						tableRTags.put("plot2_diff",	(job.getPlot2Diff()?	"TRUE" : "FALSE"));
 						tableRTags.put("show_nstats",	(job.getShowNStats()?	"TRUE" : "FALSE"));
