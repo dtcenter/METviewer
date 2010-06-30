@@ -21,6 +21,7 @@ public class MVPlotJob extends MVUtil{
 	
 	protected String _strIndyVar			= "";
 	protected String[] _listIndyVal			= {};
+	protected String[] _listIndyPlotVal		= {};
 	protected String[] _listIndyLabel		= {};
 	protected MVPlotDep _depIndy			= null;
 	
@@ -52,6 +53,7 @@ public class MVPlotJob extends MVUtil{
 	
 	protected boolean _boolEventEqual		= false;
 	protected boolean _boolVertPlot			= false;
+	protected boolean _boolXReverse			= false;
 	protected boolean _boolPlot1Diff		= false;
 	protected boolean _boolPlot2Diff		= false;
 	protected boolean _boolShowNStats		= false;
@@ -155,6 +157,7 @@ public class MVPlotJob extends MVUtil{
 		job._strPlotTmpl		= _strPlotTmpl;
 		job._strIndyVar			= _strIndyVar;
 		job._listIndyVal		= copyList(_listIndyVal);
+		job._listIndyPlotVal	= copyList(_listIndyPlotVal);
 		job._listIndyLabel		= copyList(_listIndyLabel);
 		job._depIndy			= _depIndy;
 		job._mapPlotFixVal		= new MVOrderedMap(_mapPlotFixVal);
@@ -179,6 +182,7 @@ public class MVPlotJob extends MVUtil{
 		
 		job._boolEventEqual		= _boolEventEqual;
 		job._boolVertPlot		= _boolVertPlot;
+		job._boolXReverse		= _boolXReverse;
 		job._boolPlot1Diff		= _boolPlot1Diff;
 		job._boolPlot2Diff		= _boolPlot2Diff;
 		job._boolShowNStats		= _boolShowNStats;
@@ -283,6 +287,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setIndyVar(String indyVar)							{ _strIndyVar = indyVar;								}
 	public String[]	getIndyVal()										{ return _listIndyVal;									}
 	public void		setIndyVal(String[] indyVal)						{ _listIndyVal = indyVal;								}
+	public String[]	getIndyPlotVal()									{ return _listIndyPlotVal;								}
+	public void		setIndyPlotVal(String[] indyPlotVal)				{ _listIndyPlotVal = indyPlotVal;						}
 	public String[]	getIndyLabel()										{ return _listIndyLabel;								}
 	public void		setIndyLabel(String[] indyLabel)					{ _listIndyLabel = indyLabel;							}
 	public MVPlotDep getIndyDep()										{ return _depIndy;										}
@@ -373,6 +379,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setEventEqual(boolean eventEqual)					{ _boolEventEqual = eventEqual; 						}
 	public boolean	getVertPlot()										{ return _boolVertPlot;									}
 	public void		setVertPlot(boolean vertPlot)						{ _boolVertPlot = vertPlot; 							}
+	public boolean	getXReverse()										{ return _boolXReverse;									}
+	public void		setXReverse(boolean xReverse)						{ _boolXReverse = xReverse; 							}
 	public boolean	getPlot1Diff()										{ return _boolPlot1Diff;								}
 	public void		setPlot1Diff(boolean plot1Diff)						{ _boolPlot1Diff = plot1Diff; 							}
 	public boolean	getPlot2Diff()										{ return _boolPlot2Diff;								}

@@ -8,7 +8,8 @@ source("include/util_plot.R");
 #
 
 boolEventEqual	= #<event_equal>#;
-boolVertPlot	= #<vert_plot>#
+boolVertPlot	= #<vert_plot>#;
+boolXReverse	= #<x_reverse>#;
 boolPlot1Diff	= #<plot1_diff>#;
 boolPlot2Diff	= #<plot2_diff>#;
 boolShowNStats	= #<show_nstats>#;
@@ -34,6 +35,8 @@ strIndyVar		= "#<indy_var>#";
 
 listIndy = #<indy_list>#;
 		
+listIndyPlotVal = #<indy_plot_val>#;
+		
 listDep1Plot = #<dep1_plot>#;
 
 listDep2Plot = #<dep2_plot>#;	
@@ -58,7 +61,12 @@ dfPlot = read.delim(strDataFile);
 		
 # build the list of independent values
 listX = 1:length(listIndy);
-listXlim = c(min(listX), max(listX));
+if( length(listIndyPlotVal) == length(listIndy) ){ listX = listIndyPlotVal; }
+if( FALSE == boolXReverse ){
+	listXlim = c(min(listX), max(listX));
+} else {
+	listXlim = c(max(listX), min(listX));
+}
 
 # run event equalizer, if requested
 if( TRUE == boolEventEqual ){
@@ -458,8 +466,8 @@ if( 0 < length(listDep2Plot) ){
 				
 				# if the plot is a vertical profile, swap the series coordinates
 				if( TRUE == boolVertPlot ){
-					listTmp = listXFr; listXFr = listXTo; listXTo = listTmp;
-					listTmp = listYFr; listYFr = listYTo; listYTo = listTmp;
+					listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
+					listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
 				}
 				
 				# draw the arrows
@@ -568,8 +576,8 @@ for(i in 1:intNumSeries1){
 			
 			# if the plot is a vertical profile, swap the series coordinates
 			if( TRUE == boolVertPlot ){
-				listTmp = listXFr; listXFr = listXTo; listXTo = listTmp;
-				listTmp = listYFr; listYFr = listYTo; listYTo = listTmp;
+				listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
+				listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
 			}
 			
 			arrows( 

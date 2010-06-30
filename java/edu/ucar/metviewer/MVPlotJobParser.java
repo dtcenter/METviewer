@@ -237,54 +237,6 @@ public class MVPlotJobParser extends MVUtil{
 			
 			//  <indep>
 			else if( node._tag.equals("indep") ){
-				
-				/*
-				int intIndyNum = node._children.length;
-				ArrayList listIndyVal = new ArrayList();
-				ArrayList listIndyLabel = new ArrayList();
-				for(int j=0; j < intIndyNum; j++){
-					MVNode nodeIndyVal = node._children[j];
-					
-					//  <val>
-					if( nodeIndyVal._tag.equals("val") ){
-						listIndyVal.add( nodeIndyVal._value );
-						if( !nodeIndyVal._label.equals("") )	{ listIndyLabel.add( nodeIndyVal._label ); }
-						else									{ listIndyLabel.add( nodeIndyVal._value ); }
-					}
-					
-					//  <date_list>
-					else if( nodeIndyVal._tag.equalsIgnoreCase("date_list") ){
-						String strStart = "";
-						String strEnd = "";
-						int intInc = 0;
-						String strFormat = _formatDB.toPattern();
-						
-						for(int k=0; k < nodeIndyVal._children.length; k++){
-							MVNode nodeChild = nodeIndyVal._children[k];
-							if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
-							else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
-							else if( nodeChild._tag.equals("inc") )          { intInc = Integer.parseInt(nodeChild._value); }
-							else if( nodeChild._tag.equals("label_format") ) { strFormat = nodeChild._value;                }
-						}
-						
-						SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
-						formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
-						String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
-						String[] listLabels = new String[listDates.length];
-						for(int k=0; k < listDates.length; k++){
-							try{ listLabels[k] = formatLabel.format( _formatDB.parse(listDates[k]) ); }catch(Exception e){}
-						}
-						
-						listIndyVal.addAll( Arrays.asList(listDates) );
-						listIndyLabel.addAll( Arrays.asList(listLabels) );
-					}
-				}
-				
-				job.setIndyVar(node._name);
-				job.setIndyVal( toArray(listIndyVal) );
-				job.setIndyLabel( toArray(listIndyLabel) );
-				*/
-
 				job.setIndyVar(node._name);
 				if( !"".equals(node._depends) ){
 					job.setIndyDep(new MVPlotDep(node._depends, node));
@@ -292,6 +244,7 @@ public class MVPlotJobParser extends MVUtil{
 					String[][] listIndy = parseIndyNode(node, "");
 					job.setIndyVal( listIndy[0] );
 					job.setIndyLabel( listIndy[1] );
+					job.setIndyPlotVal( listIndy[2] );
 				}
 			}
 			
@@ -654,6 +607,7 @@ public class MVPlotJobParser extends MVUtil{
 		try{
 			_tableFormatBoolean.put("event_equal",	MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("vert_plot",	MVPlotJob.class.getDeclaredMethod("setVertPlot",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("x_reverse",	MVPlotJob.class.getDeclaredMethod("setXReverse",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("plot1_diff",	MVPlotJob.class.getDeclaredMethod("setPlot1Diff",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("plot2_diff",	MVPlotJob.class.getDeclaredMethod("setPlot2Diff",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("num_stats",	MVPlotJob.class.getDeclaredMethod("setShowNStats",	new Class[]{boolean.class}));
@@ -844,8 +798,8 @@ public class MVPlotJobParser extends MVUtil{
 	
 	/**
 	 * Parse the &lt;indep&gt; node of a xml plot specification, returning the parsed information in the
-	 * form of two lists.  The first list contains the independent variable values and the second list
-	 * contains the labels.  
+	 * form of two lists.  The first list contains the independent variable values, the second list
+	 * contains the labels and the third contains the plot values.
 	 * @param node XML plot specification &lt;indep&gt; node
 	 * @param dep (optional) String representation of a dependency value date
 	 * @return Two lists of independent variable values and labels, respectively
@@ -854,6 +808,7 @@ public class MVPlotJobParser extends MVUtil{
 		int intIndyNum = node._children.length;
 		ArrayList listIndyVal = new ArrayList();
 		ArrayList listIndyLabel = new ArrayList();
+		ArrayList listIndyPlotVal = new ArrayList();
 		for(int j=0; j < intIndyNum; j++){
 			MVNode nodeIndyVal = node._children[j];
 			
@@ -862,6 +817,7 @@ public class MVPlotJobParser extends MVUtil{
 				listIndyVal.add( nodeIndyVal._value );
 				if( !nodeIndyVal._label.equals("") )	{ listIndyLabel.add( nodeIndyVal._label ); }
 				else									{ listIndyLabel.add( nodeIndyVal._value ); }
+				if( !nodeIndyVal._plotVal.equals("") )  { listIndyPlotVal.add( nodeIndyVal._plotVal ); }
 			}
 			
 			//  <date_list>
@@ -892,6 +848,6 @@ public class MVPlotJobParser extends MVUtil{
 			}
 		}		
 
-		return new String[][]{ toArray(listIndyVal), toArray(listIndyLabel) };
+		return new String[][]{ toArray(listIndyVal), toArray(listIndyLabel), toArray(listIndyPlotVal) };
 	}
 }

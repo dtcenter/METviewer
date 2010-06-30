@@ -1290,6 +1290,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("indy_var",		job.getIndyVar());
 						tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
 						tableRTags.put("indy_label",	(0 < job.getIndyLabel().length? printRCol(job.getIndyLabel(), true) : "c()"));
+						tableRTags.put("indy_plot_val",	(0 < job.getIndyPlotVal().length? printRCol(job.getIndyPlotVal(), false) : "c()"));
 						tableRTags.put("dep1_plot",		mapDep1Plot.getRDecl());				
 						tableRTags.put("dep2_plot",		(null != mapDep2Plot? mapDep2Plot.getRDecl() : "c()"));
 						tableRTags.put("agg_list",		listAggPerm[intPerm].getRDecl());
@@ -1307,6 +1308,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("plot_cmd", 		job.getPlotCmd());
 						tableRTags.put("event_equal",	(job.getEventEqual()?	"TRUE" : "FALSE"));
 						tableRTags.put("vert_plot",		(job.getVertPlot()?		"TRUE" : "FALSE"));
+						tableRTags.put("x_reverse",		(job.getXReverse()?		"TRUE" : "FALSE"));
 						tableRTags.put("plot1_diff",	(job.getPlot1Diff()?	"TRUE" : "FALSE"));
 						tableRTags.put("plot2_diff",	(job.getPlot2Diff()?	"TRUE" : "FALSE"));
 						tableRTags.put("show_nstats",	(job.getShowNStats()?	"TRUE" : "FALSE"));
