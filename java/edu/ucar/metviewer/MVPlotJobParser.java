@@ -224,7 +224,7 @@ public class MVPlotJobParser extends MVUtil{
 	 * @param jobBase MVPlotJob whose characteristics to inherit
 	 * @return Populated MVPlot structure
 	 */
-	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase){
+	public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase) throws Exception{
 		MVPlotJob job = (null != jobBase? jobBase.copy() : new MVPlotJob());
 
 		for(int i=0; i < nodePlot._children.length; i++){
@@ -399,7 +399,9 @@ public class MVPlotJobParser extends MVUtil{
 							
 							//  <stat>s
 							for(int l=0; l < nodeFcstVar._children.length; l++){
-								listStats.add(nodeFcstVar._children[l]._value);
+								String strStat = nodeFcstVar._children[l]._value;
+								if( !MVBatch._tableStatIndex.containsKey(strStat) ){ throw new Exception("unknown stat name " + strStat); }
+								listStats.add(strStat);
 							}
 							mapDepN.put(nodeFcstVar._name, listStats.toArray(new String[]{}));
 						}
