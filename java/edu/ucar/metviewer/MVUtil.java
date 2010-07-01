@@ -284,8 +284,9 @@ public class MVUtil{
 				String strFormat = mapParms.getStr("format");
 				
 				if( strTmplTagName.equals("fcst_lead") ){
-					if( strFormat.equals("HH") ){		strVal = strVal.substring(0, strVal.length() - 4);		}
-					if( strFormat.equals("HHmm") ){		strVal = strVal.substring(0, strVal.length() - 2);		}
+					if( strVal.equals("0") )          { strVal = "00000";                                  }
+					if( strFormat.equals("HH") )      { strVal = strVal.substring(0, strVal.length() - 4); }
+					if( strFormat.equals("HHmm") )    { strVal = strVal.substring(0, strVal.length() - 2); }
 					while( strFormat.length() > strVal.length() ){ strVal = "0" + strVal; }
 
 				} else if( strTmplTagName.equals("init_hour") || strTmplTagName.equals("valid_hour") ){

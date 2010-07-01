@@ -519,7 +519,7 @@ public class MVBatch extends MVUtil {
 				
 				//  add contingency table stats for bootstrap calculations, if necessary 
 				if( job.getBootstrapping() ){
-					strSelectList += "  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
+					strSelectList += ",\n  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
 					strTempList += "    total               INT UNSIGNED,\n" +
 								   "    fy_oy               DOUBLE,\n" +
 								   "    fy_on               DOUBLE,\n" +
@@ -718,8 +718,8 @@ public class MVBatch extends MVUtil {
 					//  build the list of fields for the mode stats
 					strSelectListModeTemp += ",\n";
 					strSelectListModeTemp += "  h.fcst_var,\n  h." + job.getIndyVar() + ",\n";
-					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_init")?  "  h.fcst_init,\n" : "");
-					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_valid")? "  h.fcst_valid,\n" : "");
+					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_init,")?  "  h.fcst_init,\n" : "");
+					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_valid,")? "  h.fcst_valid,\n" : "");
 					
 					//  the mode SQL starts with declarations of temp tables
 					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single_cf;");
@@ -836,6 +836,7 @@ public class MVBatch extends MVUtil {
 
 					String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
 					strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
+					strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
 					listQuery.add(
 						"INSERT INTO mode_stat\n" +
 						"SELECT\n" + strSelectListModeTemp +
@@ -856,8 +857,8 @@ public class MVBatch extends MVUtil {
 						
 					//  build a select that will pull the data table for the plots
 					strSelectListModeTemp = strSelectListModeTemp.replaceAll("h\\.", "");
-					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_init",  getSQLDateFormat("fcst_init")  + " fcst_init");
-					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_valid", getSQLDateFormat("fcst_valid") + " fcst_valid");
+					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_init,",  getSQLDateFormat("fcst_init")  + " fcst_init,");
+					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_valid,", getSQLDateFormat("fcst_valid") + " fcst_valid,");
 					listQuery.add(
 						"INSERT INTO job_data\n" +
 						"SELECT\n" +
@@ -1632,7 +1633,7 @@ public class MVBatch extends MVUtil {
 		
 		//  build the list of fields involved in the computations
 		String strSelectListStat = strSelectList.replaceAll("h\\.", "");
-		String strGroupListMMI = strSelectListStat;
+		String strGroupListMMI = strSelectListStat.replaceAll("HOUR\\([^\\)]+\\) ", "");
 		
 		//  set the object_id field, depending on the stat
 		String strObjectId = "object_id";

@@ -1,7 +1,9 @@
 library(boot);
 
+source("R_work/include/util_plot.R");
+
 # parse the command line arguments
-strInputInfoFile = "/d1/pgoldenb/var/qnse/R_work/data/year/thresh_series/APCP_03_GSS_NWC_00Zf12_UW_MEAN.boot.info";
+strInputInfoFile = "/d1/pgoldenb/var/qnse/R_work/data/year/thresh_series/APCP_03_GSS_FULL_00Zf12_UW_MEAN.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -37,7 +39,7 @@ for(intSeries in 1:2){
 	# store the CI permutations for each series group
 	if( 1 == intSeries ){ matCIPerm1 = permute(listOut); }
 	if( 2 == intSeries ){ matCIPerm2 = permute(listOut); }
-	
+
 	# add the independent variable and statistics to create the list for the output data frame
 	listOut[[strIndyVar]] = listIndyVal;
 	listOut$stat_name = listStat;
@@ -45,6 +47,9 @@ for(intSeries in 1:2){
 	if( !exists("matOut") ){ matOut = matrix(nrow=0, ncol=length(names(listOut))); }
 	matOut = rbind(matOut, matOutSeries);
 }
+
+# run event equalizer
+dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val);
 
 # build a dataframe (dfOut) to store the bootstrapped statistics
 listOutPerm = list();
