@@ -90,7 +90,13 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 				</ul><br/>
 		
 				<ul>
-					<li><span class="code">&lt;val&gt;</span>: a single value</li>
+					<li><span class="code">&lt;val&gt;</span>: a single value
+						<br/><b>Attributes:</b>
+						<ul style="list-style-image:url('att_bullet.gif')">
+							<li><span class="code">label</span>: (optional) x-axis label</li>
+							<li><span class="code">plot_val</span>: (optional) x-axis position</li>
+						</ul><br/>
+					</li>
 					<li><span class="code">&lt;date_list&gt;</span>: refers to a previously declared <span class="code">&lt;date_list&gt;</span>, using the name attribute
 					(see <a href="common_xml.html">common xml</a>)</li>
 				</ul>			
@@ -225,6 +231,15 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 					for the y1-axis series</li>
 					<li><span class="code">&lt;boot_diff2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, turns on a difference calculation
 					for the y2-axis series</li>
+				</ul><br/>
+				<span style="padding-left:30px">When using bootstrapping, the following constraints apply:</span>
+				<ul>
+					<li>bootstrapping is only supported on the x1-axis</li>
+					<li>bootstrapping is performed once for each plot that is created</li>
+					<li>a plot cannot have both bootstrapped and non-bootstrapped data on the x1-axis</li>
+					<li>if the bootstrapping difference curve is turned on, the plot1 difference curve must be turned off</li>
+					<li>to display the calculated bootstrap CIs, set the plot_cis to "boot"</li>
+					<li>the plot must contain statistics for only one fcst_var</li>
 				</ul>
 			</li><br/>
 			
