@@ -1,0 +1,235 @@
+
+<plot_spec>
+	 
+	<connection>
+		<host>dakota:3306</host>
+		<database>metvdb_qnse</database>
+		<user>pgoldenb</user>
+		<password>pgoldenb</password>		
+	</connection>
+	
+	<folders>
+		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
+		<r_work>/d1/pgoldenb/var/qnse/R_work</r_work>
+		<plots>/d1/pgoldenb/var/qnse/plots</plots>
+	</folders>	
+
+	<date_range name="year"  ><start>2008-06-01 00:00:00</start><end>2009-06-03 00:00:00</end></date_range>	
+	<date_range name="summer"><start>2008-06-01 00:00:00</start><end>2008-09-03 00:00:00</end></date_range>	
+	<date_range name="fall"  ><start>2008-09-01 00:00:00</start><end>2008-12-03 00:00:00</end></date_range>	
+	<date_range name="winter"><start>2008-12-01 00:00:00</start><end>2009-03-03 00:00:00</end></date_range>	
+	<date_range name="spring"><start>2009-03-01 00:00:00</start><end>2009-06-03 00:00:00</end></date_range>		
+	
+	<plot name="qnse_mode" run="false">
+	
+		<template>series_plot.R_tmpl</template>
+		
+		<plot_fix>
+			<field name="fcst_init">
+				<date_range name="year"/>
+				<date_range name="summer"/>
+				<date_range name="fall"/>
+				<date_range name="winter"/>
+				<date_range name="spring"/>
+			</field>
+		</plot_fix>
+
+		<agg>		
+			<field name="fcst_rad">
+				<val>5</val>
+				<val>10</val>
+			</field>
+		</agg>
+	
+		<series1>
+			<field name="model">
+				<val>QNSE</val>
+				<val>AFWAop</val>
+			</field>		
+		</series1>
+		
+		<series2>
+			<field name="model">
+				<val>QNSE</val>
+			</field>		
+		</series2>
+		
+		<tmpl>
+			<val_map name="dep1_1_stat1">
+				<pair><key>ACOV</key>  <val>Aerial Coverage</val></pair>
+				<pair><key>MMI</key>   <val>Median of Maximum Interest</val></pair>
+				<pair><key>MMIF</key>  <val>Median of Maximum Interest (Fcst)</val></pair>
+				<pair><key>MMIO</key>  <val>Median of Maximum Interest (Obs)</val></pair>
+				<pair><key>MIA</key>   <val>Median Intesection Area</val></pair>
+				<pair><key>MAR</key>   <val>Median Area Ratio</val></pair>
+				<pair><key>MCD</key>   <val>Median Centroid Distance</val></pair>
+				<pair><key>MAD</key>   <val>Median Angle Difference</val></pair>
+				<pair><key>P50</key>   <val>Median 50% Intensity Difference (fcst vs obs)</val></pair>
+				<pair><key>P90</key>   <val>Median 90% Intensity Difference (fcst vs obs)</val></pair>
+			</val_map>
+		</tmpl>
+		
+		<!-- plot formatting and options -->
+		<event_equal>false</event_equal>
+		<plot1_diff>false</plot1_diff>
+		<plot2_diff>false</plot2_diff>
+		<num_stats>true</num_stats>
+		<indy1_stag>false</indy1_stag>
+		<indy2_stag>false</indy2_stag>
+		<grid_on>true</grid_on>
+		<sync_axes>false</sync_axes>
+		<dump_points1>false</dump_points1>
+		<dump_points2>false</dump_points2>
+		<log_y1>false</log_y1>
+		<log_y2>false</log_y2>
+		
+		<plot_type>png16m</plot_type>
+		<plot_height>8.5</plot_height>
+		<plot_width>11</plot_width>
+		<plot_res>72</plot_res>
+		<plot_units>in</plot_units>
+		<mar>c(6, 4, 5, 4)</mar>
+		<mgp>c(1, 1, 0)</mgp>
+		<cex>1</cex>
+		<title_weight>2</title_weight>
+		<title_size>1.4</title_size>
+		<title_offset>-2</title_offset>
+		<title_align>.5</title_align>
+		<xtlab_orient>1</xtlab_orient>
+		<xtlab_perp>-.75</xtlab_perp>
+		<xtlab_horiz>.5</xtlab_horiz>
+		<xlab_weight>1</xlab_weight>
+		<xlab_size>1</xlab_size>
+		<xlab_offset>2</xlab_offset>
+		<xlab_align>.5</xlab_align>
+		<ytlab_orient>1</ytlab_orient>
+		<ytlab_perp>.5</ytlab_perp>
+		<ytlab_horiz>.5</ytlab_horiz>
+		<tlab_weight>1</tlab_weight>
+		<ylab_size>1</ylab_size>
+		<ylab_offset>-2</ylab_offset>
+		<ylab_align>.5</ylab_align>
+		<grid_lty>3</grid_lty>
+		<grid_col>#CCCCCC</grid_col>
+		<grid_lwd>1</grid_lwd>
+		<grid_x>listX</grid_x>
+		<x2tlab_orient>1</x2tlab_orient>
+		<x2tlab_perp>1</x2tlab_perp>
+		<x2tlab_horiz>.5</x2tlab_horiz>
+		<x2lab_weight>1</x2lab_weight>
+		<x2lab_size>.8</x2lab_size>
+		<x2lab_offset>-.5</x2lab_offset>
+		<x2lab_align>.5</x2lab_align>
+		<y2tlab_orient>1</y2tlab_orient>
+		<y2tlab_perp>.5</y2tlab_perp>
+		<y2tlab_horiz>.5</y2tlab_horiz>
+		<y2lab_weight>1</y2lab_weight>
+		<y2lab_size>1</y2lab_size>
+		<y2lab_offset>1</y2lab_offset>
+		<y2lab_align>.5</y2lab_align>
+		<legend_size>.8</legend_size>
+		<legend_box>o</legend_box>
+		<legend_inset>c(0, -.17)</legend_inset>
+		<legend_ncol>3</legend_ncol>
+		<box_boxwex>1</box_boxwex>
+		<box_notch>FALSE</box_notch>
+		<ci_alpha>.05</ci_alpha>
+		
+		<plot_ci>c("none", "none", "none")</plot_ci>
+		<colors>c("#FF0000FF", "#0000FFFF", "#CCCCCCFF")</colors>
+		<pch>c(20, 20, 20)</pch>
+		<type>c("b", "b", "l")</type>
+		<lty>c(1, 1, 1)</lty>
+		<lwd>c(1, 1, 1)</lwd>
+		<con_series>c(1, 1, 1)</con_series> 
+	</plot>
+	
+	<plot name="qnse_mode_apcp03" inherits="qnse_mode">
+		<indep name="fcst_lead">
+			<val label="3">30000</val>
+			<val label="6">60000</val>
+			<val label="9">90000</val>
+			<val label="12">120000</val>
+			<val label="15">150000</val>
+			<val label="18">180000</val>
+			<val label="21">210000</val>
+			<val label="24">240000</val>
+			<val label="27">270000</val>
+			<val label="30">300000</val>
+			<val label="33">330000</val>
+			<val label="36">360000</val>
+			<val label="39">390000</val>
+			<val label="42">420000</val>
+			<val label="45">450000</val>
+			<val label="48">480000</val>
+		</indep>
+		
+		<agg>		
+			<field name="init_hour">
+				<val>0</val>
+				<val>12</val>
+			</field>
+		</agg>
+		
+		<tmpl>			
+			<data_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_{init_hour?format=HH}Z_rad{fcst_rad}.data</data_file>
+			<plot_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_{init_hour?format=HH}Z_rad{fcst_rad}.png</plot_file>
+			<r_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_{init_hour?format=HH}Z_rad{fcst_rad}.R</r_file>
+			<title>{dep1_1} {dep1_1_stat1} {init_hour?format=HH}Z Radius {fcst_rad} vs. FCST_LEAD</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1} {dep1_1_stat1} {init_hour?format=HH}Z</y1_label>
+			<y2_label></y2_label>			
+		</tmpl>
+	
+		<dep>
+			<mode_group>
+				<dep1><fcst_var name="APCP_03"><stat>MMI</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MMIF</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MMIO</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MIA</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MAR</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MCD</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MAD</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>P50</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>P90</stat></fcst_var></dep1>
+			</mode_group>
+			<dep2><fcst_var name="APCP_03"><stat>ACOV</stat></fcst_var></dep2>			
+			<fix><fcst_var name="APCP_03"></fcst_var></fix>		
+		</dep>		
+	</plot>
+	
+	<plot name="qnse_mode_apcp24" inherits="qnse_mode">
+		<indep name="fcst_lead">
+			<val label="24">240000</val>
+			<val label="36">360000</val>
+			<val label="48">480000</val>
+		</indep>
+		
+		<tmpl>
+			<data_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.data</data_file>
+			<plot_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.png</plot_file>
+			<r_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.R</r_file>
+			<title>{dep1_1} {dep1_1_stat1} Radius {fcst_rad} vs. FCST_LEAD</title>
+			<x_label>FCST_LEAD</x_label>
+			<y1_label>{dep1_1} {dep1_1_stat1}</y1_label>
+			<y2_label></y2_label>			
+		</tmpl>
+	
+		<dep>
+			<mode_group>
+				<dep1><fcst_var name="APCP_24"><stat>MMI</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>MMIF</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>MMIO</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>MIA</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>MAR</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>MCD</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>MAD</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>P50</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_24"><stat>P90</stat></fcst_var></dep1>
+			</mode_group>
+			<dep2><fcst_var name="APCP_24"><stat>ACOV</stat></fcst_var></dep2>			
+			<fix><fcst_var name="APCP_24"></fcst_var></fix>		
+		</dep>		
+	</plot>
+	
+</plot_spec>
