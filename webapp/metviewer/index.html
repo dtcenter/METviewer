@@ -14,12 +14,14 @@ var _url;
 var _txtResponse;
 var _txtPost;
 var _txtGet;
+var _selDB;
 
 function onLoad(){
 	_url			= window.location + "servlet";
 	_txtResponse	= document.getElementById("txtResponse");
 	_txtPost		= document.getElementById("txtPost");
 	_txtGet			= document.getElementById("txtGet");
+	_selDB			= document.getElementById("selDB");
 }
 
 function getRequest(){
@@ -50,10 +52,10 @@ function sendRequest(reqType, reqData){
   
 	//  send the request in the manner specified
     if( reqType == "GET" ){
-		req.open(reqType, reqURL + "?date=" + (new Date()).getMilliseconds() + "&data=" + encodeURI(reqData), true);
+		req.open(reqType, reqURL + "&data=" + encodeURI(reqData), true);
 		req.send(null);
 	} else {
-		var reqPostData = "<?xml version='1.0' encoding='UTF-8'?><request><data>" + encodeURI(reqData) + "</data></request>";
+		var reqPostData = "<?xml version='1.0' encoding='UTF-8'?><request>" + reqData + "</request>";
 		req.open(reqType, reqURL, true);
 		req.setRequestHeader("Content-Type", "text/xml");
 		req.setRequestHeader("Content-length", reqPostData.length);
@@ -74,6 +76,14 @@ function testGet(){
 	sendRequest("GET", _txtGet.value);
 }
 
+function listDB(){
+	sendRequest("POST", "<list_db/>");
+}
+
+function selectDB(){
+	
+}
+
 //--></script>
 
 <h2>METViewer</h2>
@@ -87,8 +97,12 @@ function testGet(){
 	<input type="button" class="gButton" onclick="javascript:testGet()" value="Get"/><br/><br/>
 	
 	<b>Response:</b><br/>
-	<textarea rows="40" cols="120" id="txtResponse"></textarea>
-	
+	<textarea rows="20" cols="80" id="txtResponse"></textarea>
+</p>
+<p>
+	<select id="selDB"></select>
+	<input type="button" class="gButton" onclick="javascript:listDB()" value="List"/>
+	<input type="button" class="gButton" onclick="javascript:selectDB()" value="Select"/><br/><br/>
 </p>
 
 </body>

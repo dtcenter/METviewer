@@ -63,13 +63,11 @@
 			<fileset dir="webapp/metviewer"/>
 		</copy>
 		
-		<!-- no_struts
 		<copy todir="${dist}/metviewer/WEB-INF/lib">
 			<fileset dir="${lib}">
 				<include name="*.jar"/>
 			</fileset>
 		</copy>
-		-->
 		<copy todir="${dist}/metviewer/WEB-INF/lib" file="${dist}/lib/metviewer.jar"/>
 		
 		<!--
