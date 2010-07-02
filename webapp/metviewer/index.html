@@ -22,6 +22,8 @@ function onLoad(){
 	_txtPost		= document.getElementById("txtPost");
 	_txtGet			= document.getElementById("txtGet");
 	_selDB			= document.getElementById("selDB");
+
+	listDB();
 }
 
 function getRequest(){
@@ -37,14 +39,14 @@ function getRequest(){
 function sendRequest(reqType, reqData){
 
 	//  set the request to wait until the data is ready
-	var strResponse = "";
+	var strResp = "";
 	var req = getRequest();
 	req.onreadystatechange =
     function() {
 		if (req.readyState == 4) {
-			if (req.status == 200) { strResponse = req.responseText; }
-			else                   { strResponse = "error: req.status = " + req.status; }
-			processResponse(strResponse);
+			if (req.status == 200) { strResp = req.responseText; }
+			else                   { strResp = "ERROR: req.status = " + req.status; }
+			processResponse(reqData, strResp);
         }
 	};
 
@@ -55,7 +57,7 @@ function sendRequest(reqType, reqData){
 		req.open(reqType, reqURL + "&data=" + encodeURI(reqData), true);
 		req.send(null);
 	} else {
-		var reqPostData = "<?xml version='1.0' encoding='UTF-8'?><request>" + reqData + "</request>";
+		var reqPostData = "<request>" + reqData + "</request>";
 		req.open(reqType, reqURL, true);
 		req.setRequestHeader("Content-Type", "text/xml");
 		req.setRequestHeader("Content-length", reqPostData.length);
@@ -64,8 +66,34 @@ function sendRequest(reqType, reqData){
 	}
 }
 
-function processResponse(strResponse){
-	_txtResponse.innerHTML += "response:\n" + strResponse + "\n";
+function processResponse(strReq, strResp){
+	console("response: " + strResp + "\n");
+
+	if( null != (listParse = strReq.match( /list_db/ )) ){
+		//  parse the list of databases
+		var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
+
+		//  clear the database select list and populate it with the database list
+		while( 0 < _selDB.length ){ _selDB.remove(_selDB.selectedIndex); }		
+		for(intDB in listDB){
+			var optDB = document.createElement('option');
+			optDB.text=listDB[intDB];
+			try{ _selDB.add(optDB, null); }catch(ex){ _selDB.add(optDB); }
+		}
+	}
+
+	else if( null != (listParse = strReq.match( /connect_db/ )) ){
+		//  parse the list of databases
+		var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
+
+		//  clear the database select list and populate it with the database list
+		while( 0 < _selDB.length ){ _selDB.remove(_selDB.selectedIndex); }		
+		for(intDB in listDB){
+			var optDB = document.createElement('option');
+			optDB.text=listDB[intDB];
+			try{ _selDB.add(optDB, null); }catch(ex){ _selDB.add(optDB); }
+		}
+	}
 }
 
 function testPost(){
@@ -81,8 +109,10 @@ function listDB(){
 }
 
 function selectDB(){
-	
+	sendRequest("POST", "<connect_db>" + _selDB.options[_selDB.selectedIndex].text + "</connect_db>");	
 }
+
+function console(str){ _txtResponse.innerHTML += str; }
 
 //--></script>
 
@@ -96,13 +126,13 @@ function selectDB(){
 	<input type="text" id="txtGet"/>
 	<input type="button" class="gButton" onclick="javascript:testGet()" value="Get"/><br/><br/>
 	
+	<select id="selDB"></select>
+	<!-- <input type="button" class="gButton" onclick="javascript:listDB()" value="List"/> -->
+	<input type="button" class="gButton" onclick="javascript:selectDB()" value="Select"/><br/><br/>
+	<span id="spanDBStatus">Disconnected</span>
+
 	<b>Response:</b><br/>
 	<textarea rows="20" cols="80" id="txtResponse"></textarea>
-</p>
-<p>
-	<select id="selDB"></select>
-	<input type="button" class="gButton" onclick="javascript:listDB()" value="List"/>
-	<input type="button" class="gButton" onclick="javascript:selectDB()" value="Select"/><br/><br/>
 </p>
 
 </body>
