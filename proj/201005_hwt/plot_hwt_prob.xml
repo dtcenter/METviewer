@@ -115,7 +115,7 @@
 		<ytlab_orient>1</ytlab_orient>
 		<ytlab_perp>.5</ytlab_perp>
 		<ytlab_horiz>.75</ytlab_horiz>
-		<tlab_weight>1</tlab_weight>
+		<ylab_weight>1</ylab_weight>
 		<ylab_size>1</ylab_size>
 		<ylab_offset>-4</ylab_offset>
 		<ylab_align>.5</ylab_align>
