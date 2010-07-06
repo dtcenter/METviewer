@@ -18,9 +18,9 @@
 	<insert_size>1</insert_size>
 	<stat_header_table_check>true</stat_header_table_check>
 	<stat_header_db_check>false</stat_header_db_check>
-	<mode_header_db_check>true</mode_header_db_check>
-	<drop_indexes>true</drop_indexes>
-	<apply_indexes>true</apply_indexes>
+	<mode_header_db_check>false</mode_header_db_check>
+	<drop_indexes>false</drop_indexes>
+	<apply_indexes>false</apply_indexes>
 	
 	<load_val>
 		<field name="model">

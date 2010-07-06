@@ -11,19 +11,26 @@
 <script type="text/javascript"><!--
 
 var _url;
+var _tdStatus;
 var _txtResponse;
 var _txtPost;
 var _txtGet;
 var _selDB;
+var _strDBStatus;
+
+var _boolDBStatus = false;
 
 function onLoad(){
 	_url			= window.location + "servlet";
+	_tdStatus		= document.getElementById("tdStatus");
 	_txtResponse	= document.getElementById("txtResponse");
 	_txtPost		= document.getElementById("txtPost");
 	_txtGet			= document.getElementById("txtGet");
 	_selDB			= document.getElementById("selDB");
+	_strDBStatus	= document.getElementById("spanDBStatus");
 
-	listDB();
+	listDBReq();
+	updateDBStatus();
 }
 
 function getRequest(){
@@ -38,6 +45,8 @@ function getRequest(){
 
 function sendRequest(reqType, reqData){
 
+	_tdStatus.innerHTML = "Loading...";
+
 	//  set the request to wait until the data is ready
 	var strResp = "";
 	var req = getRequest();
@@ -46,6 +55,7 @@ function sendRequest(reqType, reqData){
 		if (req.readyState == 4) {
 			if (req.status == 200) { strResp = req.responseText; }
 			else                   { strResp = "ERROR: req.status = " + req.status; }
+			_tdStatus.innerHTML = "&nbsp;";
 			processResponse(reqData, strResp);
         }
 	};
@@ -67,73 +77,76 @@ function sendRequest(reqType, reqData){
 }
 
 function processResponse(strReq, strResp){
-	console("response: " + strResp + "\n");
+	console("request: " + strReq + "\nresponse: " + strResp + "\n");
 
-	if( null != (listParse = strReq.match( /list_db/ )) ){
-		//  parse the list of databases
-		var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
+	if     ( null != (listResp = strReq.match( /list_db/    )) ){ listDBProc(strResp);   }
+	else if( null != (listResp = strReq.match( /connect_db/ )) ){ selectDBProc(strResp); }
+}
 
-		//  clear the database select list and populate it with the database list
-		while( 0 < _selDB.length ){ _selDB.remove(_selDB.selectedIndex); }		
-		for(intDB in listDB){
-			var optDB = document.createElement('option');
-			optDB.text=listDB[intDB];
-			try{ _selDB.add(optDB, null); }catch(ex){ _selDB.add(optDB); }
-		}
-	}
+function testPostReq(){ sendRequest("POST", _txtPost.value); }
+function testGetReq() { sendRequest("GET", _txtGet.value);   }
 
-	else if( null != (listParse = strReq.match( /connect_db/ )) ){
-		//  parse the list of databases
-		var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
+function listDBReq(){ sendRequest("POST", "<list_db/>"); }
+function listDBProc(strResp){
 
-		//  clear the database select list and populate it with the database list
-		while( 0 < _selDB.length ){ _selDB.remove(_selDB.selectedIndex); }		
-		for(intDB in listDB){
-			var optDB = document.createElement('option');
-			optDB.text=listDB[intDB];
-			try{ _selDB.add(optDB, null); }catch(ex){ _selDB.add(optDB); }
-		}
+	//  parse the list of databases
+	var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
+
+	//  clear the database select list and populate it with the database list
+	while( 0 < _selDB.length ){ _selDB.remove(_selDB.selectedIndex); }		
+	for(intDB in listDB){
+		var optDB = document.createElement('option');
+		optDB.text=listDB[intDB];
+		try{ _selDB.add(optDB, null); }catch(ex){ _selDB.add(optDB); }
 	}
 }
 
-function testPost(){
-	sendRequest("POST", _txtPost.value);
-}
-
-function testGet(){
-	sendRequest("GET", _txtGet.value);
-}
-
-function listDB(){
-	sendRequest("POST", "<list_db/>");
-}
-
-function selectDB(){
-	sendRequest("POST", "<connect_db>" + _selDB.options[_selDB.selectedIndex].text + "</connect_db>");	
+function selectDBReq(){ sendRequest("POST", "<connect_db>" + _selDB.options[_selDB.selectedIndex].text + "</connect_db>"); }
+function selectDBProc(strResp){	
+	
 }
 
 function console(str){ _txtResponse.innerHTML += str; }
 
+function updateDBStatus(){
+	if( _boolDBStatus ){
+		_strDBStatus.innerHTML = "Connected";
+	} else {
+		_strDBStatus.innerHTML = "Disconnected";
+	}
+	
+}
+
 //--></script>
 
-<h2>METViewer</h2>
-<p>
-	Welcome to METViewer<br/>
+<table width="100%" border="1" cellspacing="0" cellpadding="3">
+	<tr>
+		<td class="title">METViewer</td>
+		<td class="status" id="tdStatus" align="right">&nbsp;</td>		
+	</tr>
 	
-	<input type="text" id="txtPost"/>
-	<input type="button" class="gButton" onclick="javascript:testPost()" value="Post"/><br/><br/>
+	<tr><td colspan="2">
 	
-	<input type="text" id="txtGet"/>
-	<input type="button" class="gButton" onclick="javascript:testGet()" value="Get"/><br/><br/>
+		<!-- 
+		<input type="text" id="txtPost"/>
+		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/><br/><br/>
 	
-	<select id="selDB"></select>
-	<!-- <input type="button" class="gButton" onclick="javascript:listDB()" value="List"/> -->
-	<input type="button" class="gButton" onclick="javascript:selectDB()" value="Select"/><br/><br/>
-	<span id="spanDBStatus">Disconnected</span>
+		<input type="text" id="txtGet"/>
+		<input type="button" class="gButton" onclick="javascript:testGetReq()" value="Get"/><br/><br/>
+		 -->
+		 
+		<select id="selDB"></select>
+		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
+		<input type="button" class="gButton" onclick="javascript:selectDBReq()" value="Select"/>
+		<span id="spanDBStatus" style="padding-left:40px">Disconnected</span><br/><br/>
+	
+		<b>Response:</b><br/>
+		<textarea rows="20" cols="80" id="txtResponse"></textarea>
 
-	<b>Response:</b><br/>
-	<textarea rows="20" cols="80" id="txtResponse"></textarea>
-</p>
+	</td></tr>
+
+</table>
+
 
 </body>
 </html>

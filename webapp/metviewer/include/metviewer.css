@@ -9,11 +9,25 @@ body {
 }
 
 th, td {
+	/*
     margin-top: 0;
     margin-left: 0;
+    */
     font-family: verdana;
     font-size: 8pt;
     vertical-align: middle;
+}
+
+td.title {
+	color: #3366cc;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+td.status {
+	color: #cc3333;
+	font-size: 14px;
+	font-weight: bold;
 }
 
 input, select, textarea {
@@ -47,4 +61,14 @@ a:visited	{	color: #cc6633;				}
     font-family: verdana;
     background: #cccccc;
 }
+
+/*
+       navy: #2b3e42
+  dark grey: #747e80
+ light grey: #d5e1dd
+      ivory: #f7f3e8
+        red: #f2583e
+       blue: #77bed2
+
+*/
 

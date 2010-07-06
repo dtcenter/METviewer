@@ -14,11 +14,11 @@
 		<plots>/d1/pgoldenb/var/qnse/plots</plots>
 	</folders>	
 
-	<date_range name="year"  ><start>2008-06-01 00:00:00</start><end>2009-06-03 00:00:00</end></date_range>	
-	<date_range name="summer"><start>2008-06-01 00:00:00</start><end>2008-09-03 00:00:00</end></date_range>	
-	<date_range name="fall"  ><start>2008-09-01 00:00:00</start><end>2008-12-03 00:00:00</end></date_range>	
-	<date_range name="winter"><start>2008-12-01 00:00:00</start><end>2009-03-03 00:00:00</end></date_range>	
-	<date_range name="spring"><start>2009-03-01 00:00:00</start><end>2009-06-03 00:00:00</end></date_range>		
+	<date_range name="year"  ><start>2008-06-01 00:00:00</start><end>2009-06-02 00:00:00</end></date_range>	
+	<date_range name="summer"><start>2008-06-01 00:00:00</start><end>2008-09-02 00:00:00</end></date_range>	
+	<date_range name="fall"  ><start>2008-09-01 00:00:00</start><end>2008-12-02 00:00:00</end></date_range>	
+	<date_range name="winter"><start>2008-12-01 00:00:00</start><end>2009-03-02 00:00:00</end></date_range>	
+	<date_range name="spring"><start>2009-03-01 00:00:00</start><end>2009-06-02 00:00:00</end></date_range>		
 	
 	<plot name="qnse_lead" run="false">
 	

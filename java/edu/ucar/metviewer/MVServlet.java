@@ -140,7 +140,16 @@ public class MVServlet extends HttpServlet {
 					}
 					
 					strResp += "</connect_db>";
+				}				
+				
+				//  not handled
+				else {
+					strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
 				}
+			}
+			
+			if( strResp.equals("") ){
+				strResp = "<error>could not parse request</error>";
 			}
 			
 			out.println(strResp);

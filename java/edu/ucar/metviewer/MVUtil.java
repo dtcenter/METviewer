@@ -152,6 +152,8 @@ public class MVUtil{
 	 */
 	public static MVDataTable permute(MVOrderedMap table){
 		
+		if( null == table || 1 > table.size() ){ return new MVDataTable(); }
+		
 		//  use the ordered list of table entries, if appropriate
 		Map.Entry[] listVals = {};
 		listVals = ((MVOrderedMap)table).getOrderedEntries();
