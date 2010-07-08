@@ -903,7 +903,6 @@ public class MVBatch extends MVUtil {
 					
 					stmt = job.getConnection().createStatement();
 					stmt.execute(listSQL[i]);
-					//  MVDATATABLE: if( i == listSQL.length - 1 ){ tab = new MVDataTable(stmt.getResultSet()); }
 					stmt.close();
 				}
 				if( _boolSQLOnly ){ return; }
