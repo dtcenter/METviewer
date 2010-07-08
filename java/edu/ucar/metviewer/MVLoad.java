@@ -1209,6 +1209,7 @@ public class MVLoad extends MVUtil {
 		_mapIndexes.put("stat_header_model_idx",			"model");
 		_mapIndexes.put("stat_header_fcst_var_idx",			"fcst_var");
 		_mapIndexes.put("stat_header_fcst_lev_idx",			"fcst_lev");
+		_mapIndexes.put("stat_header_fcst_thresh_idx",		"fcst_thresh");
 		_mapIndexes.put("stat_header_fcst_lead_idx",		"fcst_lead");
 		_mapIndexes.put("stat_header_vx_mask_idx",			"vx_mask");
 		_mapIndexes.put("stat_header_interp_mthd_idx",		"interp_mthd");
