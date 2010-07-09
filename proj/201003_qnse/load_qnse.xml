@@ -20,7 +20,7 @@
 	<stat_header_db_check>false</stat_header_db_check>
 	<mode_header_db_check>false</mode_header_db_check>
 	<drop_indexes>false</drop_indexes>
-	<apply_indexes>false</apply_indexes>
+	<apply_indexes>true</apply_indexes>
 	
 	<load_val>
 		<field name="model">
@@ -29,7 +29,35 @@
 		</field>
 		
 		<field name="fcst_init">
-			<date_list name="folder_dates"/>
+<!--			<date_list name="folder_dates"/>-->
+			<val>2008070400</val>
+			<val>2008070512</val>
+			<val>2008070700</val>
+			<val>2008070812</val>
+			<val>2008071000</val>
+			<val>2008071112</val>
+			<val>2008071300</val>
+			<val>2008071412</val>
+			<val>2008071600</val>
+			<val>2008071712</val>
+			<val>2008071900</val>
+			<val>2008072012</val>
+			<val>2008072200</val>
+			<val>2008072312</val>
+			<val>2008072500</val>
+			<val>2008072612</val>
+			<val>2008072800</val>
+			<val>2008091512</val>
+			<val>2008101512</val>
+			<val>2008101700</val>
+			<val>2008101812</val>
+			<val>2008102112</val>
+			<val>2008121112</val>
+			<val>2009030100</val>
+			<val>2009040112</val>
+			<val>2009042212</val>
+			<val>2009052400</val>
+			<val>2009052512</val>
 		</field>
 	</load_val>
 	

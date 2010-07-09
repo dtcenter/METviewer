@@ -2,7 +2,7 @@
 <plot_spec>
 	 
 	<connection>
-		<host>dakota:3306</host>
+		<host>kemosabe:3306</host>
 		<database>metvdb_qnse</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>		
@@ -38,21 +38,21 @@
 		
 		<plot_fix>
 			<field name="fcst_init_beg">
-				<date_range name="year"/>
+<!--				<date_range name="year"/>-->
 				<date_range name="summer"/>
-				<date_range name="fall"/>
-				<date_range name="winter"/>
-				<date_range name="spring"/>
+<!--				<date_range name="fall"/>-->
+<!--				<date_range name="winter"/>-->
+<!--				<date_range name="spring"/>-->
 			</field>
 		</plot_fix>
 
 		<agg>		
 			<field name="fcst_lead">
-				<val>0</val>
+<!--				<val>0</val>-->
 				<val>120000</val>
-				<val>240000</val>
-				<val>360000</val>
-				<val>480000</val>
+<!--				<val>240000</val>-->
+<!--				<val>360000</val>-->
+<!--				<val>480000</val>-->
 			</field>
 			
 			<field name="interp_mthd">
@@ -61,20 +61,20 @@
 			</field>
 			
 			<field name="vx_mask">
-				<val>FULL</val>
-				<val>GMC</val>
-				<val>NEC</val>
-				<val>NWC</val>
-				<val>SEC</val>
-				<val>SWC</val>
-				<val>APL</val>
-				<val>GRB</val>
-				<val>LMV</val>
-				<val>MDW</val>
-				<val>NMT</val>
-				<val>NPL</val>
-				<val>SMT</val>
-				<val>SPL</val>
+<!--				<val>FULL</val>-->
+<!--				<val>GMC</val>-->
+<!--				<val>NEC</val>-->
+<!--				<val>NWC</val>-->
+<!--				<val>SEC</val>-->
+<!--				<val>SWC</val>-->
+<!--				<val>APL</val>-->
+<!--				<val>GRB</val>-->
+<!--				<val>LMV</val>-->
+<!--				<val>MDW</val>-->
+<!--				<val>NMT</val>-->
+<!--				<val>NPL</val>-->
+<!--				<val>SMT</val>-->
+<!--				<val>SPL</val>-->
 				<val>SWD</val>
 			</field>			
 		</agg>
@@ -184,31 +184,31 @@
 	<plot name="qnse_vert_tmp_bcrmse" inherits="qnse_vert">
 		<dep><dep1><fcst_var name="TMP"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="TMP"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
 	</plot>
-	<plot name="qnse_vert_tmp_me" inherits="qnse_vert">
-		<dep><dep1><fcst_var name="TMP"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="TMP"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
-	</plot>
-
-	<plot name="qnse_vert_dpt_bcrmse" inherits="qnse_vert">
-		<dep><dep1><fcst_var name="DPT"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
-	</plot>
-	<plot name="qnse_vert_dpt_me" inherits="qnse_vert">
-		<dep><dep1><fcst_var name="DPT"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
-	</plot>
-
-
-	<plot name="qnse_vert_wind" inherits="qnse_vert" run="false">
-		<indep name="fcst_lev">
-			<val label="850" plot_val="850">P850</val>
-			<val label="700" plot_val="700">P700</val>
-			<val label="500" plot_val="500">P500</val>
-		</indep>
-	</plot>
-
-	<plot name="qnse_vert_wind_bcrmse" inherits="qnse_vert_wind">
-		<dep><dep1><fcst_var name="WIND"><stat>BCRMSE</stat></fcst_var></dep1> <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
-	</plot>
-	<plot name="qnse_vert_wind_me" inherits="qnse_vert_wind">
-		<dep><dep1><fcst_var name="WIND"><stat>ME</stat></fcst_var></dep1>     <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
-	</plot>
+<!--	<plot name="qnse_vert_tmp_me" inherits="qnse_vert">-->
+<!--		<dep><dep1><fcst_var name="TMP"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="TMP"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="qnse_vert_dpt_bcrmse" inherits="qnse_vert">-->
+<!--		<dep><dep1><fcst_var name="DPT"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!--	<plot name="qnse_vert_dpt_me" inherits="qnse_vert">-->
+<!--		<dep><dep1><fcst_var name="DPT"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!---->
+<!---->
+<!--	<plot name="qnse_vert_wind" inherits="qnse_vert" run="false">-->
+<!--		<indep name="fcst_lev">-->
+<!--			<val label="850" plot_val="850">P850</val>-->
+<!--			<val label="700" plot_val="700">P700</val>-->
+<!--			<val label="500" plot_val="500">P500</val>-->
+<!--		</indep>-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="qnse_vert_wind_bcrmse" inherits="qnse_vert_wind">-->
+<!--		<dep><dep1><fcst_var name="WIND"><stat>BCRMSE</stat></fcst_var></dep1> <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!--	<plot name="qnse_vert_wind_me" inherits="qnse_vert_wind">-->
+<!--		<dep><dep1><fcst_var name="WIND"><stat>ME</stat></fcst_var></dep1>     <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
 
 </plot_spec>
