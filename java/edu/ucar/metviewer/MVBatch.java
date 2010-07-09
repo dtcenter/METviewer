@@ -1243,7 +1243,7 @@ public class MVBatch extends MVUtil {
 							//  run boot.R to generate the data file for plotting
 							if( !fileBootOutput.exists() || !_boolCacheBoot ){
 								fileBootOutput.getParentFile().mkdirs();
-								runRscript(_strRworkFolder + "include/boot.R", new String[]{strBootInfo});
+								runRscript(job.getRscript(), _strRworkFolder + "include/boot.R", new String[]{strBootInfo});
 							}
 		
 							//  if boot_diffN is turned on, add __BOOT_DIFFN__ to the plot series
@@ -1422,7 +1422,7 @@ public class MVBatch extends MVUtil {
 						 */			
 		
 						if( _boolPlot ){
-							runRscript(strRFile);
+							runRscript(job.getRscript(), strRFile);
 							_intNumPlotsRun++;
 							System.out.println();
 						}
@@ -1431,11 +1431,6 @@ public class MVBatch extends MVUtil {
 				
 				} // end: for(int intDepMode = 0; intDepMode < listMapDepMode.length; intDepMode++)
 	
-				//  try to throw memory back onto the heap
-				//  MVDATATABLE: tab.clear();
-				//  MVDATATABLE: tab = null;
-				//System.gc();
-				
 			} // end: for(int intDep=0; intDep < listDep.length; intDep++)
 		
 		} // end: for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++)
@@ -1474,17 +1469,18 @@ public class MVBatch extends MVUtil {
 	/**
 	 * Run the input R script named r using the Rscript command.  The output and error output will
 	 * be written to standard output.
-	 * @param r R script to run
+	 * @param Rscript Rscript command
+	 * @param script R script to run
 	 * @param args (optional) Arguments to pass to the R script
 	 * @throws Exception
 	 */
-	public static void runRscript(String r, String[] args) throws Exception{
+	public static void runRscript(String Rscript, String script, String[] args) throws Exception{
 		
 		String strArgList = "";
 		for(int i=0; null != args && i < args.length; i++){ strArgList += " " + args[i]; }
 		
-		System.out.println("\nRunning 'Rscript " + r + "'");
-		Process proc = Runtime.getRuntime().exec("Rscript " + r + strArgList);
+		System.out.println("\nRunning '" + Rscript + " " + script + "'");
+		Process proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
 		if( _boolProcWait ){
 			proc.waitFor();
 		} else {
@@ -1514,7 +1510,7 @@ public class MVBatch extends MVUtil {
 		}
 		System.out.println();
 	}
-	public static void runRscript(String r) throws Exception{ runRscript(r, new String[]{}); }
+	public static void runRscript(String Rscript, String script) throws Exception{ runRscript(Rscript, script, new String[]{}); }
 	
 	/**
 	 * Prints a textual representation of the input {@link MVDataTable} with the field names in the 

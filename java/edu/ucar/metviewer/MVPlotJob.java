@@ -16,6 +16,8 @@ public class MVPlotJob extends MVUtil{
 	protected String _strDBName				= "";
 	protected String _strDBUser				= "";
 	protected String _strDBPassword			= "";
+	
+	protected String _strRscript			= "";
 
 	protected String _strPlotTmpl			= "";
 	
@@ -154,6 +156,7 @@ public class MVPlotJob extends MVUtil{
 		job._strDBName			= _strDBName;
 		job._strDBUser			= _strDBUser;
 		job._strDBPassword		= _strDBPassword;
+		job._strRscript			= _strRscript;
 		job._strPlotTmpl		= _strPlotTmpl;
 		job._strIndyVar			= _strIndyVar;
 		job._listIndyVal		= copyList(_listIndyVal);
@@ -281,6 +284,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setDBUser(String dbUser)							{ _strDBUser = dbUser;									}
 	public String	getDBPassword()										{ return _strDBPassword;								}
 	public void		setDBPassword(String dbPassword)					{ _strDBPassword = dbPassword;							}
+	public String	getRscript()										{ return _strRscript;									}
+	public void		setRscript(String Rscript)							{ _strRscript = Rscript;								}
 	public String	getPlotTmpl()										{ return _strPlotTmpl;									}
 	public void		setPlotTmpl(String plotTmpl)						{ _strPlotTmpl = plotTmpl;								}
 	public String	getIndyVar()										{ return _strIndyVar;									}

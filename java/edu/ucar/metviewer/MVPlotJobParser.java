@@ -24,6 +24,7 @@ public class MVPlotJobParser extends MVUtil{
 	protected MVNode _nodePlotSpec = null;
 	
 	protected Connection _con = null;
+	protected String _strRscript = "Rscript";
 	protected String _strRtmplFolder = "";
 	protected String _strRworkFolder = "";
 	protected String _strPlotsFolder = "";
@@ -121,6 +122,11 @@ public class MVPlotJobParser extends MVUtil{
 				}
 			}
 			
+			//  <rscript>
+			else if( node._tag.equals("rscript") ){
+				_strRscript = node._value;
+			}
+				
 			//  <folders>
 			else if( node._tag.equals("folders") ){
 				for(int j=0; j < node._children.length; j++){
@@ -195,6 +201,7 @@ public class MVPlotJobParser extends MVUtil{
 				
 				//  set the job database information  
 				job.setConnection(_con);
+				job.setRscript(_strRscript);
 				job.setDBHost(strDBHost);
 				job.setDBName(strDBName);
 				job.setDBUser(strDBUser);

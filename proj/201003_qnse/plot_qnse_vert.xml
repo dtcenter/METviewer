@@ -2,11 +2,13 @@
 <plot_spec>
 	 
 	<connection>
-		<host>kemosabe:3306</host>
+		<host>dakota:3306</host>
 		<database>metvdb_qnse</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>		
 	</connection>
+	
+	<rscript>/usr/local/bin/Rscript</rscript>
 	
 	<folders>
 		<r_tmpl>/home/pgoldenb/apps/verif/metviewer/R_tmpl</r_tmpl>
@@ -14,11 +16,11 @@
 		<plots>/d1/pgoldenb/var/qnse/plots</plots>
 	</folders>	
 
-	<date_range name="year"  ><start>2008-06-01 00:00:00</start><end>2009-06-02 00:00:00</end></date_range>	
-	<date_range name="summer"><start>2008-06-01 00:00:00</start><end>2008-09-02 00:00:00</end></date_range>	
-	<date_range name="fall"  ><start>2008-09-01 00:00:00</start><end>2008-12-02 00:00:00</end></date_range>	
-	<date_range name="winter"><start>2008-12-01 00:00:00</start><end>2009-03-02 00:00:00</end></date_range>	
-	<date_range name="spring"><start>2009-03-01 00:00:00</start><end>2009-06-02 00:00:00</end></date_range>		
+	<date_range name="year"  ><start>2008-06-01 00:00:00</start><end>2009-06-01 00:00:00</end></date_range>	
+	<date_range name="summer"><start>2008-06-01 00:00:00</start><end>2008-09-01 00:00:00</end></date_range>	
+	<date_range name="fall"  ><start>2008-09-01 00:00:00</start><end>2008-12-01 00:00:00</end></date_range>	
+	<date_range name="winter"><start>2008-12-01 00:00:00</start><end>2009-03-01 00:00:00</end></date_range>	
+	<date_range name="spring"><start>2009-03-01 00:00:00</start><end>2009-06-01 00:00:00</end></date_range>		
 	
 	<plot name="qnse_vert" run="false">
 	
@@ -38,43 +40,43 @@
 		
 		<plot_fix>
 			<field name="fcst_init_beg">
-<!--				<date_range name="year"/>-->
+				<date_range name="year"/>
 				<date_range name="summer"/>
-<!--				<date_range name="fall"/>-->
-<!--				<date_range name="winter"/>-->
-<!--				<date_range name="spring"/>-->
+				<date_range name="fall"/>
+				<date_range name="winter"/>
+				<date_range name="spring"/>
 			</field>
 		</plot_fix>
 
 		<agg>		
 			<field name="fcst_lead">
-<!--				<val>0</val>-->
+				<val>0</val>
 				<val>120000</val>
-<!--				<val>240000</val>-->
-<!--				<val>360000</val>-->
-<!--				<val>480000</val>-->
+				<val>240000</val>
+				<val>360000</val>
+				<val>480000</val>
 			</field>
 			
 			<field name="interp_mthd">
-<!--				<val>UW_MEAN</val>-->
+				<val>UW_MEAN</val>
 				<val>DW_MEAN</val>
 			</field>
 			
 			<field name="vx_mask">
-<!--				<val>FULL</val>-->
-<!--				<val>GMC</val>-->
-<!--				<val>NEC</val>-->
-<!--				<val>NWC</val>-->
-<!--				<val>SEC</val>-->
-<!--				<val>SWC</val>-->
-<!--				<val>APL</val>-->
-<!--				<val>GRB</val>-->
-<!--				<val>LMV</val>-->
-<!--				<val>MDW</val>-->
-<!--				<val>NMT</val>-->
-<!--				<val>NPL</val>-->
-<!--				<val>SMT</val>-->
-<!--				<val>SPL</val>-->
+				<val>FULL</val>
+				<val>GMC</val>
+				<val>NEC</val>
+				<val>NWC</val>
+				<val>SEC</val>
+				<val>SWC</val>
+				<val>APL</val>
+				<val>GRB</val>
+				<val>LMV</val>
+				<val>MDW</val>
+				<val>NMT</val>
+				<val>NPL</val>
+				<val>SMT</val>
+				<val>SPL</val>
 				<val>SWD</val>
 			</field>			
 		</agg>
@@ -170,45 +172,45 @@
 		<legend_ncol>3</legend_ncol>
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
-		<ci_alpha>.05</ci_alpha>
+		<ci_alpha>.01</ci_alpha>
 		
 		<plot_ci>c("std", "std", "std")</plot_ci>
 		<colors>c("#FF0000FF", "#00FF00FF", "#0000FFFF")</colors>
-		<pch>c(19, 19, 19)</pch>
+		<pch>c(20, 20, 20)</pch>
 		<type>c("b", "b", "b")</type>
-		<lty>c(1, 1, 1)</lty>
-		<lwd>c(1, 1, 1)</lwd>
+		<lty>c(3, 3, 3)</lty>
+		<lwd>c(1.5, 1.5, 1.5)</lwd>
 		<con_series>c(1, 1, 1)</con_series>
 	</plot>
 	
 	<plot name="qnse_vert_tmp_bcrmse" inherits="qnse_vert">
 		<dep><dep1><fcst_var name="TMP"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="TMP"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
 	</plot>
-<!--	<plot name="qnse_vert_tmp_me" inherits="qnse_vert">-->
-<!--		<dep><dep1><fcst_var name="TMP"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="TMP"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
-<!--	</plot>-->
-<!---->
-<!--	<plot name="qnse_vert_dpt_bcrmse" inherits="qnse_vert">-->
-<!--		<dep><dep1><fcst_var name="DPT"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
-<!--	</plot>-->
-<!--	<plot name="qnse_vert_dpt_me" inherits="qnse_vert">-->
-<!--		<dep><dep1><fcst_var name="DPT"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
-<!--	</plot>-->
-<!---->
-<!---->
-<!--	<plot name="qnse_vert_wind" inherits="qnse_vert" run="false">-->
-<!--		<indep name="fcst_lev">-->
-<!--			<val label="850" plot_val="850">P850</val>-->
-<!--			<val label="700" plot_val="700">P700</val>-->
-<!--			<val label="500" plot_val="500">P500</val>-->
-<!--		</indep>-->
-<!--	</plot>-->
-<!---->
-<!--	<plot name="qnse_vert_wind_bcrmse" inherits="qnse_vert_wind">-->
-<!--		<dep><dep1><fcst_var name="WIND"><stat>BCRMSE</stat></fcst_var></dep1> <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
-<!--	</plot>-->
-<!--	<plot name="qnse_vert_wind_me" inherits="qnse_vert_wind">-->
-<!--		<dep><dep1><fcst_var name="WIND"><stat>ME</stat></fcst_var></dep1>     <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	-->
-<!--	</plot>-->
+	<plot name="qnse_vert_tmp_me" inherits="qnse_vert">
+		<dep><dep1><fcst_var name="TMP"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="TMP"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
+	</plot>
+
+	<plot name="qnse_vert_dpt_bcrmse" inherits="qnse_vert">
+		<dep><dep1><fcst_var name="DPT"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
+	</plot>
+	<plot name="qnse_vert_dpt_me" inherits="qnse_vert">
+		<dep><dep1><fcst_var name="DPT"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="DPT"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
+	</plot>
+
+
+	<plot name="qnse_vert_wind" inherits="qnse_vert" run="false">
+		<indep name="fcst_lev">
+			<val label="850" plot_val="850">P850</val>
+			<val label="700" plot_val="700">P700</val>
+			<val label="500" plot_val="500">P500</val>
+		</indep>
+	</plot>
+
+	<plot name="qnse_vert_wind_bcrmse" inherits="qnse_vert_wind">
+		<dep><dep1><fcst_var name="WIND"><stat>BCRMSE</stat></fcst_var></dep1> <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
+	</plot>
+	<plot name="qnse_vert_wind_me" inherits="qnse_vert_wind">
+		<dep><dep1><fcst_var name="WIND"><stat>ME</stat></fcst_var></dep1>     <fix><fcst_var name="WIND"><var name="obtype">ADPUPA</var></fcst_var></fix></dep>	
+	</plot>
 
 </plot_spec>
