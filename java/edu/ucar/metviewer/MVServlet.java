@@ -108,11 +108,13 @@ public class MVServlet extends HttpServlet {
 					strResp = "<list_db>";
 					for(int j=0; j < _listDB.length; j++){ strResp += "<db>" + _listDB[j] + "</db>"; }
 					strResp += "</list_db>";
-			    	_logger.debug("doPost() - list_db response: " + strRequestBody);
+			    	//_logger.debug("doPost() - list_db response: " + strRequestBody);
 				}
 				
 				//  <connect_db> request
 				else if( nodeCall._tag.equalsIgnoreCase("connect_db") ){
+
+					//  parse the input request, and initialize the response
 					strResp = "<connect_db>";
 					String strDB = nodeCall._value;
 			    	_logger.debug("doPost() - connect_db: connecting to " + strDB);
@@ -140,7 +142,48 @@ public class MVServlet extends HttpServlet {
 					}
 					
 					strResp += "</connect_db>";
-				}				
+				}
+				
+				//  <list_val> request
+				else if( nodeCall._tag.equalsIgnoreCase("list_val") ){
+					
+					//  parse the input request, and initialize the response
+					strResp = "<list_val>";
+					String strId = nodeCall._children[0]._value;
+					String strField = nodeCall._children[1]._value;
+			    	_logger.debug("doPost() - list_val: listing values for field " + strField + " and id " + strId);
+			    	strResp += "<id>" + strId + "</id>";
+					
+					//  validate the database connection
+					Connection con = null;
+					if( null == session.getAttribute("con") ){						
+				    	_logger.error("doPost() - list_val: no session connection found");
+				    	strResp += "<error>no session connection found</error>";
+					} 
+					
+					//  if the connection is valid, query the database for field values
+					else {
+						
+						//  build a select statment and execute it
+						con = (Connection)session.getAttribute("con");
+						String strFieldDB = strField.toLowerCase();
+						Statement stmt = con.createStatement();
+						String strSQL = "SELECT DISTINCT " + strFieldDB + " FROM stat_header ORDER BY " + strFieldDB;
+						stmt.executeQuery(strSQL);
+						_logger.debug("doPost() - list_val: " + strSQL);
+						
+						//  add the list of field values from the query to the response
+						int intNumVal = 0;
+						ResultSet res = stmt.getResultSet();
+						while( res.next() ){
+							strResp += "<val>" + res.getString(1) + "</val>";
+							intNumVal++;
+						}
+						_logger.debug("doPost() - list_val: returned " + intNumVal + " values");
+						stmt.close();
+					}
+					strResp += "</list_val>";
+				}
 				
 				//  not handled
 				else {
@@ -152,9 +195,11 @@ public class MVServlet extends HttpServlet {
 				strResp = "<error>could not parse request</error>";
 			}
 			
+			_logger.debug("doPost() - response: " + strResp);
 			out.println(strResp);
         }catch(Exception e){
         	_logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage());
+        	out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
         }
     }
 }

@@ -10,29 +10,79 @@
 
 <script type="text/javascript"><!--
 
+var _boolIE = false;
+
 var _url;
-var _tdStatus;
-var _txtResponse;
-var _txtPost;
-var _txtGet;
-var _selDB;
-var _strDBStatus;
 
 var _boolDBStatus = false;
 
+var _listFixVar = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_VALID_END", "FCST_INIT_BEG", "OBS_LEAD", "OBS_VALID_BEG", "0BS_VALID_END", "FCST_LEV", "OBS_LEV",
+                   "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH"];
+
+var _intFixSize = 0;
+var _intFixIdNext = 0;
+var _listFixDiv = new Array();
+
+var _listIndepVar = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH"];
+
+/**
+ * When the page loads, perform the initialization duties including setting pointers to DHTML elements,
+ * loading the list of databases and populating the various database field lists.
+ */
+
 function onLoad(){
 	_url			= window.location + "servlet";
-	_tdStatus		= document.getElementById("tdStatus");
-	_txtResponse	= document.getElementById("txtResponse");
-	_txtPost		= document.getElementById("txtPost");
-	_txtGet			= document.getElementById("txtGet");
-	_selDB			= document.getElementById("selDB");
-	_strDBStatus	= document.getElementById("spanDBStatus");
 
+	_boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
+
+	var divLoading = document.getElementById("divLoading");
+	if( !_boolIE ){
+	    divLoading.style.top = (window.innerHeight / 2) - 40;
+	    divLoading.style.left = (window.innerWidth / 2) - 60;
+	} else {
+		divLoading.style.top = (document.body.clientHeight / 2) - 40;
+		divLoading.style.left = (document.body.clientWidth / 2) - 60;
+		//divLoading.style.setExpression("top", "(document.body.clientHeight / 2) - 30");
+		//divLoading.style.setExpression("left", "(document.body.clientWidth / 2) - 60");
+	}
+
+	/*
+	console("browser codeName: " + navigator.appCodeName + "\n" +
+			"browser name: " + navigator.appName + "\n" +
+			"browser version: " + navigator.appVersion + "\n" +
+			"cookies enabled: " + navigator.cookieEnabled + "\n" +
+			"platform: " + navigator.platform + "\n" +
+			"user-agent header: " + navigator.userAgent + "\n" +
+			"IE: " + (_boolIE? "true" : "false") + "\n\n");
+	*/
+	console("load() - IE: " + (_boolIE? "true" : "false") + "\n\n");
+
+	//  initialize the database list and controls
 	listDBReq();
-	updateDBStatus();
+	selectDBProc("<disconnected>");
+	
+	//  initialize the fixed value controls
+	_listFixDiv.push( document.getElementById("divFix0") );
+	fillSelect("selFix0", _listFixVar);
+	fillSelect("selIndepVar", _listIndepVar);
 }
 
+/**
+ * Clear and populate a select list with the specified id with the items in the specified list
+ */
+function fillSelect(strId, listOpt){
+	var sel = document.getElementById(strId);
+	while( 0 < sel.length ){ sel.remove(sel.length - 1); }
+	for(i in listOpt){
+		var opt = document.createElement("option");
+		opt.text = listOpt[i];
+		try{ sel.add(opt, null); }catch(ex){ sel.add(opt); }
+	}
+}
+
+/**
+ * Create a request object in a browser-dependent manner
+ */
 function getRequest(){
 	var req;
 	if (window.XMLHttpRequest) { req = new XMLHttpRequest(); }
@@ -43,9 +93,13 @@ function getRequest(){
 	return req;
 }
 
-function sendRequest(reqType, reqData){
+/**
+ * Send an XML request to the server asynchronously, and call processResponse() when the response arrives
+ */
+function sendRequest(reqType, reqData, funResp){
 
-	_tdStatus.innerHTML = "Loading...";
+	dimScreen(true);
+	console("sendRequest() - request: " + reqData + "\n");
 
 	//  set the request to wait until the data is ready
 	var strResp = "";
@@ -55,8 +109,8 @@ function sendRequest(reqType, reqData){
 		if (req.readyState == 4) {
 			if (req.status == 200) { strResp = req.responseText; }
 			else                   { strResp = "ERROR: req.status = " + req.status; }
-			_tdStatus.innerHTML = "&nbsp;";
-			processResponse(reqData, strResp);
+			funResp(strResp);
+			dimScreen(false);
         }
 	};
 
@@ -76,73 +130,266 @@ function sendRequest(reqType, reqData){
 	}
 }
 
-function processResponse(strReq, strResp){
-	console("request: " + strReq + "\nresponse: " + strResp + "\n");
+/**
+ * Test functions related to the GET and POST test controls
+ */
+function testResp(strResp){ console("testResp() - response: " + strResp + "\n\n"); }
+function testPostReq()    { sendRequest("POST", document.getElementById("txtPost").value, testResp); }
+function testGetReq()     { sendRequest("GET", document.getElementById("txtGet").value, testResp);   }
 
-	if     ( null != (listResp = strReq.match( /list_db/    )) ){ listDBProc(strResp);   }
-	else if( null != (listResp = strReq.match( /connect_db/ )) ){ selectDBProc(strResp); }
-}
-
-function testPostReq(){ sendRequest("POST", _txtPost.value); }
-function testGetReq() { sendRequest("GET", _txtGet.value);   }
-
-function listDBReq(){ sendRequest("POST", "<list_db/>"); }
+/**
+ * Request and process the list of databases, populating the database list select control 
+ */
+function listDBReq(){ sendRequest("POST", "<list_db/>", listDBProc); }
 function listDBProc(strResp){
+	console("listDBProc() - response: " + strResp + "\n\n");
 
-	//  parse the list of databases
+	//  parse the list of databases and populate the list
 	var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
-
-	//  clear the database select list and populate it with the database list
-	while( 0 < _selDB.length ){ _selDB.remove(_selDB.selectedIndex); }		
-	for(intDB in listDB){
-		var optDB = document.createElement('option');
-		optDB.text=listDB[intDB];
-		try{ _selDB.add(optDB, null); }catch(ex){ _selDB.add(optDB); }
-	}
+	fillSelect("selDB", listDB);
 }
 
-function selectDBReq(){ sendRequest("POST", "<connect_db>" + _selDB.options[_selDB.selectedIndex].text + "</connect_db>"); }
-function selectDBProc(strResp){	
-	
+/**
+ * Request and process the database connect command, updating the GUI database status control
+ */
+function selectDBReq(){
+	var selDB = document.getElementById("selDB");
+	sendRequest("POST", "<connect_db>" + selDB.options[selDB.selectedIndex].text + "</connect_db>", selectDBProc);
 }
+function selectDBProc(strResp){
+	console("selectDBProc() - response: " + strResp + "\n\n");
 
-function console(str){ _txtResponse.innerHTML += str; }
-
-function updateDBStatus(){
+	//  update the connection status
+	_boolDBStatus = (-1 < strResp.indexOf("<connected>") );
+	var strDBStatus	= document.getElementById("spanDBStatus");
+	var spanPlotControls = document.getElementById("spanPlotControls");	
 	if( _boolDBStatus ){
-		_strDBStatus.innerHTML = "Connected";
+		strDBStatus.style.color = "#66cc66";
+		strDBStatus.innerHTML = "Connected";
+		spanPlotControls.style.display = "inline";
 	} else {
-		_strDBStatus.innerHTML = "Disconnected";
+		strDBStatus.style.color = "#cc6666";
+		strDBStatus.innerHTML = "Disconnected";
+		spanPlotControls.style.display = "none";
 	}
+}
+
+/**
+ * Create a GUI control cluster for specifying a fixed plot variable value
+ */
+function addFixVar(){
+
+	//  if the first fix div is not displayed, show it and bail
+	if( 1 > _intFixSize ){
+		_listFixDiv[0].style.display = "block";
+		_intFixIdNext++;
+		_intFixSize++;
+		return;
+	}
+
+	//  clone the fixed value controls
+	var intFixId = _intFixIdNext++;
+	var divFix = _listFixDiv[0].cloneNode(true);
+
+	//  update the components of the cloned fixed value controls
+	divFix.id = "divFix" + intFixId;
+	var selFix = divFix.getElementsByTagName("select")[0];
+	selFix.id = "selFix" + intFixId;
+	var btnFix = divFix.getElementsByTagName("input")[0];
+	btnFix.setAttribute("onclick", "javascript:selectFixVarReq(" + intFixId + ")");
+	if( _boolIE ){ btnFix.attachEvent("onclick", new Function("selectFixVarReq(" + intFixId + ")")); }
+	var selFixVal = divFix.getElementsByTagName("select")[1];
+	while( 0 < selFixVal.length ){ selFixVal.remove(selFixVal.length - 1); }
+	selFixVal.style.display = "none";		
+	selFixVal.id = "selFixVal" + intFixId;
+	var lnkFix = divFix.getElementsByTagName("a")[0];
+	lnkFix.setAttribute("onclick", "javascript:removeFixVar(" + intFixId + ")");
+	if( _boolIE ){ lnkFix.attachEvent("onclick", new Function("removeFixVar(" + intFixId + ")")); }
+	var hidFix = divFix.getElementsByTagName("input")[1];
+	hidFix.value = "" + intFixId;
 	
+	//  add the new fixed variable value section to the page
+	_listFixDiv.push(divFix);
+	_intFixSize++;
+	document.getElementById("divFix").insertBefore(divFix, document.getElementById("imgFix"));
+}
+
+/**
+ * Search the list of active fix divs for the one with the specified id and returns it's array index,
+ * returning -1 if it is not found
+ */
+function getFixDiv(intFixId){
+	var intFixIndex = -1;
+	for(i in _listFixDiv){
+		var intFixIdCur = _listFixDiv[i].getElementsByTagName("input")[1].value;
+		if( intFixId == intFixIdCur ){ intFixIndex = i; }
+	}
+	return intFixIndex;
+}
+
+/**
+ * Remove the specified fix div from the list of fixed variable controls
+ */
+function removeFixVar(intFixId){
+
+	//  attempt to find the specified fix div, and if the fix div was not found, bail
+	var intFixIndex = getFixDiv(intFixId);
+	if( 0 > intFixIndex ){
+		console("removeFixVar() - WARNING: fix div " + intFixId + " not found\n\n");
+		return;
+	}
+
+	//  if the requested fix div is the only remaining one in the list, simply hide it and bail
+	if( 1 == _intFixSize && 0 == intFixIndex ){
+		var selFixVal = _listFixDiv[0].getElementsByTagName("select")[1];
+		while( 0 < selFixVal.length ){ selFixVal.remove(selFixVal.length - 1); }
+		selFixVal.style.display = "none";		
+		_listFixDiv[0].style.display = "none";
+		_intFixSize = 0;
+		return;
+	}
+
+	//  otherwise, remove the specified div from the list and hide it
+	var divFix = _listFixDiv[intFixIndex]; 
+	_listFixDiv.splice(intFixIndex, 1);
+	divFix.style.display = "none";
+	_intFixSize--;	
+}
+
+/**
+ * Send a request to retrieve the database values for the selected fix field 
+ */
+function selectFixVarReq(intFixId){
+	console("selectFixVarReq(" + intFixId + ")\n");
+
+	//  attempt to find the specified fix div, and if the fix div was not found, bail
+	var intFixIndex = getFixDiv(intFixId);
+	if( 0 > intFixIndex ){
+		console("selectFixVarReq() - WARNING: fix div " + intFixId + " not found\n\n");
+		return;
+	}
+
+	//  build a criteria list from the preceeding fixed values
+	for(i=0; i < intFixIndex; i++){
+		
+	}
+
+	//  build a list_val request for the selected field
+	var divFix = _listFixDiv[intFixIndex];
+	var selFix = divFix.getElementsByTagName("select")[0];
+	var strField = selFix.options[selFix.selectedIndex].text;
+	sendRequest("POST", "<list_val><id>" + intFixId + "</id><field>" + strField + "</field></list_val>", selectFixVarResp); 	
+
+	console("selectFixVarReq() complete\n\n");
+}
+
+function selectFixVarResp(strResp){
+
+	//  parse the response
+	var listProc = strResp.match( /<list_val><id>(\d+)<\/id>(.*)<\/list_val>/ );
+	if( null == listProc ){
+		console("selectFixVarResp() - ERROR: could not parse response: " + strResp + "\n\n");
+		return;		
+	}
+	var intFixId = listProc[1];
+	var listVal = listProc[2].replace( /^<val>/, "" ).replace( /<\/val>$/, "" ).split( /<\/val><val>/ );
+
+	//  retrieve and validate the fix div
+	var intFixIndex = getFixDiv(intFixId);
+	if( 0 > intFixIndex ){
+		console("selectFixVarResp() - ERROR: index for fix id " + intFixId + " not found\n\n");
+		return;		
+	}
+	var divFix = _listFixDiv[intFixIndex];
+
+	//  add the field values to the value select list
+	var selFixVal = divFix.getElementsByTagName("select")[1];
+	selFixVal.style.display = "inline";
+	fillSelect("selFixVal" + intFixId, listVal);
+	
+	console("selectFixVarResp() complete\n\n");
+}
+
+/**
+ * Debugging facility which dumps the DHTML for the input element into the console 
+ */
+function serialize(strId){
+	var doc = document.getElementById(strId);
+	var strXML = "";
+	try     { strXML = XML( (new XMLSerializer()).serializeToString(doc) ).toXMLString(); }
+	catch(e){ strXML = doc.outerHTML; } 
+	console(strXML + "\n\n");		
+}
+
+/**
+ * Wrapper for appending information to the console text box
+ */
+function console(str){ document.getElementById("txtConsole").value += str; }
+
+/**
+ * Dims the screen while the web app is waiting for the servlet
+ */
+function dimScreen(boolDim){
+	document.getElementById("divDimScreen").style.display = (boolDim? "block" : "none");
+	document.getElementById("divLoading").style.display = (boolDim? "block" : "none");
 }
 
 //--></script>
 
-<table width="100%" border="1" cellspacing="0" cellpadding="3">
-	<tr>
-		<td class="title">METViewer</td>
-		<td class="status" id="tdStatus" align="right">&nbsp;</td>		
-	</tr>
-	
-	<tr><td colspan="2">
-	
+<div id="divDimScreen" class="dimScreen">&nbsp;</div>
+<div id="divLoading" class="loading" align="center" valign="center" onclick="javascript:dimScreen(false)">
+	Loading...<br/><img src="include/loading_white.gif" style="padding-top:10px"/></div>
+
+<table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
+	<tr><td class="title">METViewer</td></tr>
+	<tr><td><hr/></td></tr>	
+	<tr><td>	
 		<!-- 
 		<input type="text" id="txtPost"/>
-		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/><br/><br/>
-	
+		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/><br/><br/>	
 		<input type="text" id="txtGet"/>
 		<input type="button" class="gButton" onclick="javascript:testGetReq()" value="Get"/><br/><br/>
 		 -->
 		 
+		<span class="header">Database:</span>&nbsp;&nbsp;
 		<select id="selDB"></select>
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
-		<input type="button" class="gButton" onclick="javascript:selectDBReq()" value="Select"/>
-		<span id="spanDBStatus" style="padding-left:40px">Disconnected</span><br/><br/>
+		<input type="button" class="gButton" onclick="javascript:selectDBReq()" value="Connect"/>
+		<span class="bold" style="padding-left:40px">Status:</span>
+		</span><span id="spanDBStatus" class="bold"></span><br/><br/><br/><br/>
+	</td></tr>
+		
+	<tr><td height="100%" style="vertical-align:top"><span id="spanPlotControls" style="display:none">
 	
-		<b>Response:</b><br/>
-		<textarea rows="20" cols="80" id="txtResponse"></textarea>
-
+		<div id="divFix">
+			<span class="header">Fixed Values</span><a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFix')">Serialize</a><br/><br/>
+		
+			<div id="divFix0" style="display:none">				
+				<span class="bold" style="padding-left:20px; padding-right:10px">Database Field:</span>
+				<select id="selFix0"></select>&nbsp
+				<input type="button" class="gButton" onclick="javascript:selectFixVarReq(0)" value="Select"/>&nbsp;&nbsp;
+				<select id="selFixVal0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
+				<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;<a class="link" onclick="javascript:removeFixVar(0)">Remove Fixed Value</a>
+				<input type="hidden" value="0"/><br/><br/>
+			</div>
+		
+			<img id="imgFix" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
+		</div><br/><br/>
+		
+		<div id="divIndep">
+			<span class="header">Independent Variable &amp; Values</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndep')">Serialize</a><br/><br/>
+		
+			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
+			<select id="selIndepVar"></select>
+		
+		</div>
+	
+	</span>&nbsp;</td></tr>
+	
+	<tr><td>
+		<b>Console:</b><input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/><br/>
+		<textarea rows="20" cols="160" id="txtConsole"></textarea>
 	</td></tr>
 
 </table>

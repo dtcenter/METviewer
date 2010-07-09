@@ -1206,6 +1206,8 @@ public class MVLoad extends MVUtil {
 	
 	public static final MVOrderedMap _mapIndexes = new MVOrderedMap();
 	static{
+		_mapIndexes.put("stat_header_fcst_thresh_idx",		"fcst_thresh");
+		/*
 		_mapIndexes.put("stat_header_model_idx",			"model");
 		_mapIndexes.put("stat_header_fcst_var_idx",			"fcst_var");
 		_mapIndexes.put("stat_header_fcst_lev_idx",			"fcst_lev");
@@ -1219,6 +1221,7 @@ public class MVLoad extends MVUtil {
 		_mapIndexes.put("mode_header_fcst_var_idx",			"fcst_var");
 		_mapIndexes.put("mode_header_fcst_lev_idx",			"fcst_lev");
 		_mapIndexes.put("mode_header_fcst_rad_idx",			"fcst_rad");
+		*/
 	}
 	
 	public static void applyIndexes(Connection con, boolean drop) throws Exception{
