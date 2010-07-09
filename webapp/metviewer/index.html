@@ -16,8 +16,7 @@ var _url;
 
 var _boolDBStatus = false;
 
-var _listFixVar = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_VALID_END", "FCST_INIT_BEG", "OBS_LEAD", "OBS_VALID_BEG", "0BS_VALID_END", "FCST_LEV", "OBS_LEV",
-                   "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH"];
+var _listFixVar = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
 
 var _intFixSize = 0;
 var _intFixIdNext = 0;
@@ -256,6 +255,27 @@ function removeFixVar(intFixId){
 	_intFixSize--;	
 }
 
+function buildFixCrit(endIndex){
+	var strFixCrit = "";
+	for(i=0; i <= endIndex; i++){
+		var divFixCrit = _listFixDiv[i];
+		var selFixCrit = divFixCrit.getElementsByTagName("select")[0];
+		var strFixCritCur = "<field name=\"" + selFixCrit.options[ selFixCrit.selectedIndex ].text + "\">";
+		var selFixCritVal = divFixCrit.getElementsByTagName("select")[1];
+		var intFixCritNum = 0;
+		for(j=0; j < selFixCritVal.length; j++){
+			var optFixCritVal = selFixCritVal.options[j];
+			if( optFixCritVal.selected ){
+				strFixCritCur += "<val>" + optFixCritVal.text + "</val>";
+				intFixCritNum++;
+			}
+		}
+		strFixCritCur += "</field>";
+		if( 0 < intFixCritNum ){ strFixCrit += strFixCritCur; }
+	}
+	return strFixCrit;
+}
+
 /**
  * Send a request to retrieve the database values for the selected fix field 
  */
@@ -269,16 +289,12 @@ function selectFixVarReq(intFixId){
 		return;
 	}
 
-	//  build a criteria list from the preceeding fixed values
-	for(i=0; i < intFixIndex; i++){
-		
-	}
-
 	//  build a list_val request for the selected field
+	var strFixCrit = buildFixCrit(intFixIndex - 1);
 	var divFix = _listFixDiv[intFixIndex];
 	var selFix = divFix.getElementsByTagName("select")[0];
 	var strField = selFix.options[selFix.selectedIndex].text;
-	sendRequest("POST", "<list_val><id>" + intFixId + "</id><field>" + strField + "</field></list_val>", selectFixVarResp); 	
+	sendRequest("POST", "<list_val><id>" + intFixId + "</id><fix_field>" + strField + "</fix_field>" + strFixCrit + "</list_val>", selectFixVarResp); 	
 
 	console("selectFixVarReq() complete\n\n");
 }
@@ -337,7 +353,7 @@ function dimScreen(boolDim){
 //--></script>
 
 <div id="divDimScreen" class="dimScreen">&nbsp;</div>
-<div id="divLoading" class="loading" align="center" valign="center" onclick="javascript:dimScreen(false)">
+<div id="divLoading" class="loading" align="center" onclick="javascript:dimScreen(false)">
 	Loading...<br/><img src="include/loading_white.gif" style="padding-top:10px"/></div>
 
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
@@ -356,7 +372,7 @@ function dimScreen(boolDim){
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
 		<input type="button" class="gButton" onclick="javascript:selectDBReq()" value="Connect"/>
 		<span class="bold" style="padding-left:40px">Status:</span>
-		</span><span id="spanDBStatus" class="bold"></span><br/><br/><br/><br/>
+		<span id="spanDBStatus" class="bold"></span><br/><br/><br/><br/>
 	</td></tr>
 		
 	<tr><td height="100%" style="vertical-align:top"><span id="spanPlotControls" style="display:none">
@@ -366,7 +382,7 @@ function dimScreen(boolDim){
 		
 			<div id="divFix0" style="display:none">				
 				<span class="bold" style="padding-left:20px; padding-right:10px">Database Field:</span>
-				<select id="selFix0"></select>&nbsp
+				<select id="selFix0"></select>&nbsp;
 				<input type="button" class="gButton" onclick="javascript:selectFixVarReq(0)" value="Select"/>&nbsp;&nbsp;
 				<select id="selFixVal0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
 				<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;<a class="link" onclick="javascript:removeFixVar(0)">Remove Fixed Value</a>
@@ -381,7 +397,7 @@ function dimScreen(boolDim){
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndep')">Serialize</a><br/><br/>
 		
 			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
-			<select id="selIndepVar"></select>
+			<select id="selIndepVar"></select>&nbsp;
 		
 		</div>
 	
