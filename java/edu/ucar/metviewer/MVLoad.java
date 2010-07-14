@@ -141,7 +141,8 @@ public class MVLoad extends MVUtil {
 			
 			//  parse the plot job
 			System.out.println("Begin time: " + format.format(new java.util.Date()) + "\n" +
-							   "Parsing: " + argv[0] + "\n");
+							   "Parsing: " + argv[0] + "\n" +
+							   (_boolIndexOnly? "Applying Index Settings Only\n" : ""));
 			MVLoadJobParser parser = new MVLoadJobParser(argv[0]);
 			MVLoadJob job = parser.getLoadJob();
 
