@@ -250,7 +250,7 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			intMedIndex	= (3*(intSeriesIndex-1)) + 1;
 			intLoIndex	= (3*(intSeriesIndex-1)) + 2;
 			intUpIndex	= (3*(intSeriesIndex-1)) + 3;
-
+			
 			# if the last perm val is diff, then set the diff flag
 			if( "__DIFF__" == listPermVal[length(listPermVal)] ){
 				
@@ -269,8 +269,8 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 				
 				# sort the data by fcst_valid_beg to take a pairwise difference
-				dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),];
-				dfStatsComp = dfStatsComp[order(dfStatsComp$fcst_valid_beg),];
+				#dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),];
+				#dfStatsComp = dfStatsComp[order(dfStatsComp$fcst_valid_beg),];
 
 				# calculate the difference
 				if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value) - sqrt(dfStatsComp$stat_value); }
@@ -284,6 +284,8 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				for(intVar in 1:length(listSeriesVar)){
 					dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
 				}
+				dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),];				
+				dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_init_beg),];				
 				
 				# if there is no data for this case, skip to the next permutation
 				if( 1 > nrow(dfStatsVal) ){
