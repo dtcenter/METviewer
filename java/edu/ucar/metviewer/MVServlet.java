@@ -3,6 +3,7 @@ package edu.ucar.metviewer;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.xml.parsers.*;
@@ -20,6 +21,18 @@ public class MVServlet extends HttpServlet {
 	public static String _strDBPassword = "";
 	public static String[] _listDB = {};
 	
+	public static boolean _boolListValCache = true;
+	public static Hashtable _tableListValCache = new Hashtable();
+	public static boolean _boolListStatCache = true;
+	public static Hashtable _tableListStatCache = new Hashtable();
+	
+	public static final String _strListStatModeResp = "<stat>MMI</stat><stat>MMIF</stat><stat>MMIO</stat><stat>MIA</stat><stat>MAR</stat>" + 
+													  "<stat>MCD</stat><stat>MAD</stat><stat>P50</stat><stat>P90</stat>";
+	
+	/**
+	 * Read the resource bundle containing database configuration information and initialize the global
+	 * variables
+	 */
 	public void init() throws ServletException {
 		_logger.debug("init() - loading properties...");
 		try{
@@ -34,6 +47,11 @@ public class MVServlet extends HttpServlet {
 		_logger.debug("init() - done loading properties");
 	}
 
+	/**
+	 * Override the parent's method with a debugging implementation that echoes inputs
+	 * @param request Contains request information, including parameters
+	 * @param response Used to send information back to the requester 
+	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
@@ -59,6 +77,13 @@ public class MVServlet extends HttpServlet {
         out.println("howdy from MVServlet");
     }
 
+	/**
+	 * Override the parent's method with an implementation that reads XML from the body of the request
+	 * and parses it into one of several commands.  The XML request command is carried out and an XML response
+	 * is constructed and sent back to the requester.
+	 * @param request Contains request information, including parameters
+	 * @param response Used to send information back to the requester 
+	 */
     public void doPost(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
@@ -110,7 +135,13 @@ public class MVServlet extends HttpServlet {
 				}
 				
 				else if( nodeCall._tag.equalsIgnoreCase("connect_db") ){ strResp += handleConnectDB(nodeCall, session); }
-				else if( nodeCall._tag.equalsIgnoreCase("list_val") )  { strResp += handleListVal  (nodeCall, session); }
+				else if( nodeCall._tag.equalsIgnoreCase("list_val") )  { strResp += handleListVal  (nodeCall, strRequestBody, session); }
+				else if( nodeCall._tag.equalsIgnoreCase("list_stat") ) { strResp += handleListStat (nodeCall, strRequestBody, session); }
+
+				else if( nodeCall._tag.equalsIgnoreCase("list_val_clear_cache") ){
+					_tableListValCache.clear();
+					strResp = "<list_val_clear_cache>success</list_val_clear_cache>";
+				}
 				
 				//  not handled
 				else {
@@ -172,17 +203,19 @@ public class MVServlet extends HttpServlet {
     }
     
     /**
-     * Attempt to list database values for the specified field with the specified constraints
+     * List database values for the specified field with the specified constraints, using cached data if appropriate, and
+     * return it in serialized XML
      * @param nodeCall MVNode containing request information
+     * @param requestBody the XML sent by the client which is used to cache the response
      * @param session HttpSession accompanying the request
      * @return XML response information
      * @throws Exception
      */
-    public static String handleListVal(MVNode nodeCall, HttpSession session) throws Exception{
+    public static String handleListVal(MVNode nodeCall, String requestBody, HttpSession session) throws Exception{
 
     	//  validate the database connection
 		if( null == session.getAttribute("con") ){						
-	    	_logger.error("handleListVal() - list_val: no session connection found");
+	    	_logger.error("handleListVal() - no session connection found");
 	    	return "<error>no session connection found</error>";
 		} 
 		Connection con = (Connection)session.getAttribute("con");
@@ -190,9 +223,19 @@ public class MVServlet extends HttpServlet {
 		//  parse the input request, and initialize the response
 		String strResp = "<list_val>";
 		String strId = nodeCall._children[0]._value;
-		String strFixField = nodeCall._children[1]._value;
-    	_logger.debug("handleListVal() - list_val: listing values for field " + strFixField + " and id " + strId);
+		String strHeaderField = nodeCall._children[1]._value;
+		String strHeaderTable = nodeCall._children[1]._tag.equals("stat_field")? "stat_header" : "mode_header";
+    	_logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
     	strResp += "<id>" + strId + "</id>";
+    	
+    	//  check the list val cache for the request data
+    	//String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody;
+    	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
+    	if( _boolListValCache && _tableListValCache.containsKey(strCacheKey) ){
+    		String strListVal = _tableListValCache.get(strCacheKey).toString(); 
+        	_logger.debug("handleListVal() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListVal);
+    		return strListVal;
+    	}
     	
     	//  parse the list of constraints into a SQL where clause
     	String strWhere = "";
@@ -205,11 +248,11 @@ public class MVServlet extends HttpServlet {
     		strWhere += ") ";
     	}
 		
-		//  build a select statment and execute it
-		String strFieldDB = strFixField.toLowerCase();
+		//  build a query for the values and execute it
+		String strFieldDB = strHeaderField.toLowerCase();
 		Statement stmt = con.createStatement();
-		String strSQL = "SELECT DISTINCT " + strFieldDB + " FROM stat_header " + strWhere + "ORDER BY " + strFieldDB;
-		_logger.debug("handleListVal() - list_val: " + strSQL);
+		String strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + "ORDER BY " + strFieldDB;
+		_logger.debug("handleListVal() - sql: " + strSQL);
 		long intStart = (new java.util.Date()).getTime();
 		stmt.executeQuery(strSQL);
 		
@@ -220,11 +263,73 @@ public class MVServlet extends HttpServlet {
 			strResp += "<val>" + res.getString(1) + "</val>";
 			intNumVal++;
 		}
-		_logger.debug("handleListVal() - list_val: returned " + intNumVal + " values in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
+		_logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
 		
 		//  clean up  
 		stmt.close();
 		strResp += "</list_val>";
+		_tableListValCache.put(strCacheKey, strResp);
+		return strResp;
+    }
+    
+    /**
+     * List statistics for the specified fcst_var, using cached data if appropriate, and return it in serialized XML
+     * @param nodeCall MVNode containing request information
+     * @param requestBody the XML sent by the client which is used to cache the response
+     * @param session HttpSession accompanying the request
+     * @return XML response information
+     * @throws Exception
+     */
+    public static String handleListStat(MVNode nodeCall, String requestBody, HttpSession session) throws Exception{
+
+    	//  validate the database connection
+		if( null == session.getAttribute("con") ){						
+	    	_logger.error("handleListVal() - no session connection found");
+	    	return "<error>no session connection found</error>";
+		} 
+		Connection con = (Connection)session.getAttribute("con");
+		
+		//  if the request is for the mode stats, return the static list
+		String strId = nodeCall._children[0]._value;
+		String strFcstVar = nodeCall._children[1]._value;
+		if( nodeCall._children[0]._tag.equals("mode_fcst_var") ){
+			String strResp = "<list_stat><id>" + strId + "</id>" + _strListStatModeResp + "</list_stat>";
+			_logger.debug("handleListStat() - returning mode stats: " + strResp);
+			return strResp;
+		}
+		
+    	//  check the list val cache for the request data
+    	//String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody;
+    	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
+    	if( _boolListStatCache && _tableListStatCache.containsKey(strCacheKey) ){
+    		String strListStat = _tableListStatCache.get(strCacheKey).toString(); 
+        	_logger.debug("handleListStat() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListStat);
+    		return strListStat;
+    	}
+    	
+		//  build a query for the statistics and execute it
+		String strSQL = "SELECT DISTINCT sgl.stat_group_name FROM stat_header sh, stat_group sg, stat_group_lu sgl " +
+						"WHERE sh.fcst_var = '" + strFcstVar + "' AND sg.stat_header_id = sh.stat_header_id AND " +
+							"sg.stat_group_lu_id = sgl.stat_group_lu_id ORDER BY sgl.stat_group_name";
+    	_logger.debug("handleListStat() - listing stats for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
+		Statement stmt = con.createStatement();
+		long intStart = (new java.util.Date()).getTime();
+		stmt.executeQuery(strSQL);
+
+		//  add the list of field values from the query to the response
+		String strResp = "<list_stat><id>" + strId + "</id>";
+		int intNumStat = 0;
+		ResultSet res = stmt.getResultSet();
+		while( res.next() ){
+			strResp += "<stat>" + res.getString(1) + "</stat>";
+			intNumStat++;
+		}
+		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
+		
+		//  clean up  
+		stmt.close();
+		strResp += "</list_stat>";
+		_tableListStatCache.put(strCacheKey, strResp);
 		return strResp;
     }
 }
