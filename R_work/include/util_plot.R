@@ -284,8 +284,13 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				for(intVar in 1:length(listSeriesVar)){
 					dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
 				}
-				dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),];				
-				dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_init_beg),];				
+				
+				# sort the dataset by valid time and lead time
+				listFields = names(dfStatsVal);
+				if( "fcst_valid_beg" %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),]; }				
+				if( "fcst_valid"     %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid),];     }				
+				if( "fcst_init_beg"  %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_init_beg),];  }				
+				if( "fcst_init"      %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_init),];      }				
 				
 				# if there is no data for this case, skip to the next permutation
 				if( 1 > nrow(dfStatsVal) ){
