@@ -32,6 +32,7 @@ public class MVLoad extends MVUtil {
 	public static long _intStatHeaderTableTime		= 0;
 	public static long _intModeHeaderSearchTime		= 0;
 	
+	public static int _intNumStatFiles				= 0;
 	public static int _intStatLinesTotal			= 0;
 	public static int _intStatHeaderRecords			= 0;
 	public static int _intStatHeaderInserts			= 0;
@@ -41,6 +42,7 @@ public class MVLoad extends MVUtil {
 	public static int _intStatGroupInserts			= 0;
 	public static int _intThreshRecords				= 0;
 	public static int _intThreshInserts				= 0;
+	public static int _intNumModeFiles				= 0;
 	public static int _intModeLinesTotal			= 0;
 	public static int _intModeHeaderRecords			= 0;
 	public static int _intModeCtsRecords			= 0;
@@ -171,10 +173,6 @@ public class MVLoad extends MVUtil {
 			}
 			
 			long intLoadTimeStart = (new java.util.Date()).getTime();
-			int intNumStatFiles = 0;
-			int intNumModeFiles = 0;
-			int intStatLinesPrev = 0;
-			int intModeLinesPrev = 0;
 			
 			//  drop the database indexes, if requested
 			if( _boolDropIndexes ){
@@ -188,53 +186,49 @@ public class MVLoad extends MVUtil {
 				return;
 			}
 			
-			//  build a folder with each permutation of load values and load the data therein
-			MVOrderedMap[] listPerm = permute(job.getLoadVal()).getRows();
-			for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
-				
-				//  determine the name of the current folder
-				String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);				
-				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder /* + "\n" + listPerm[intPerm].getRDecl() */);
-				long intPermStart = (new java.util.Date()).getTime();
-
-				//  try to access the folder and its contents, and continue if it does not exist
-				File fileBaseFolder = new File(strBaseFolder);
-				if (!fileBaseFolder.exists()) {
-					//System.out.println("  **  WARNING: base folder not found: " + fileBaseFolder);
-					continue;
-				}
-				File[] listDataFiles = fileBaseFolder.listFiles();
-				
-				//  for each fine in the folder, determine its type and load it if appropriate
-				for (int j = 0; j < listDataFiles.length; j++) {
-					long intProcessDataFileBegin = (new java.util.Date()).getTime();
-					DataFileInfo info = processDataFile(listDataFiles[j], con);
-					if( null == info ){ continue; }
-					long intProcessDataFileTime = (new java.util.Date()).getTime() - intProcessDataFileBegin;
-					System.out.println("  " + info._dataFilePath + "/" + info._dataFileFilename + 
-										(_boolVerbose? "\n" + padBegin("data file time: ", 36) + formatTimeSpan(intProcessDataFileTime) : ""));
-					
-					if( info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ){
-						loadStatFile(info, con);
-						intNumStatFiles++;
-					} else if( info._dataFileLuTypeName.equals("mode_obj") || info._dataFileLuTypeName.equals("mode_cts") ){
-						loadModeFile(info, con);
-						intNumModeFiles++;
-					}
-				}
-				
-				_tableModeHeaders.clear();
-								
-				//  bookkeeping
-				int intStatLinesPerm = _intStatLinesTotal - intStatLinesPrev;
-				int intModeLinesPerm = _intModeLinesTotal - intModeLinesPrev;
-				intStatLinesPrev = _intStatLinesTotal;
-				intModeLinesPrev = _intModeLinesTotal;
-				System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " complete - insert time: " + 
-								   formatTimeSpan( (new java.util.Date()).getTime() - intPermStart ) + "  stat lines: " + intStatLinesPerm + 
-								   "  mode lines: " + intModeLinesPerm + "\n");
+			//  if there are <load_file> files specified, load them
+			String[] listLoadFiles = job.getLoadFiles();
+			if( 0 < listLoadFiles.length ){				
+				for(int i=0; i < listLoadFiles.length; i++){ processFile(new File(listLoadFiles[i]), con); }
 			}
+			
+			//  if there is a file template specified, load it
+			if( null != job.getFolderTmpl() && !job.getFolderTmpl().equals("") ){
+				int intStatLinesPrev = 0;
+				int intModeLinesPrev = 0;
+				
+				//  build a folder with each permutation of load values and load the data therein
+				MVOrderedMap[] listPerm = permute(job.getLoadVal()).getRows();
+				for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
+					
+					//  determine the name of the current folder
+					String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);				
+					System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder /* + "\n" + listPerm[intPerm].getRDecl() */);
+					long intPermStart = (new java.util.Date()).getTime();
 
+					//  try to access the folder and its contents, and continue if it does not exist
+					File fileBaseFolder = new File(strBaseFolder);
+					if (!fileBaseFolder.exists()) {
+						//System.out.println("  **  WARNING: base folder not found: " + fileBaseFolder);
+						continue;
+					}
+					
+					//  process each fine in the folder
+					File[] listDataFiles = fileBaseFolder.listFiles();
+					for (int j = 0; j < listDataFiles.length; j++) { processFile(listDataFiles[j], con); }					
+					_tableModeHeaders.clear();
+									
+					//  bookkeeping
+					int intStatLinesPerm = _intStatLinesTotal - intStatLinesPrev;
+					int intModeLinesPerm = _intModeLinesTotal - intModeLinesPrev;
+					intStatLinesPrev = _intStatLinesTotal;
+					intModeLinesPrev = _intModeLinesTotal;
+					System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " complete - insert time: " + 
+									   formatTimeSpan( (new java.util.Date()).getTime() - intPermStart ) + "  stat lines: " + intStatLinesPerm + 
+									   "  mode lines: " + intModeLinesPerm + "\n");
+				}
+			}
+						
 			//  print a performance report
 			long intLoadTime = (new java.util.Date()).getTime() - intLoadTimeStart;
 			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);
@@ -253,7 +247,7 @@ public class MVLoad extends MVUtil {
 							   padBegin("total lines: ", 36) + _intStatLinesTotal + "\n" +
 							   padBegin("insert size: ", 36) + _intInsertSize + "\n" +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
-							   padBegin("num files: ", 36) + intNumStatFiles + "\n\n" +
+							   padBegin("num files: ", 36) + _intNumStatFiles + "\n\n" +
 							   "    ==== mode ====\n\n" +
 							   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
 							   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
@@ -261,7 +255,7 @@ public class MVLoad extends MVUtil {
 							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
 							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
 							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n" +
-							   padBegin("num files: ", 36) + intNumModeFiles + "\n");
+							   padBegin("num files: ", 36) + _intNumModeFiles + "\n");
 			
 			if( _boolApplyIndexes ){
 				applyIndexes(con);
@@ -287,7 +281,41 @@ public class MVLoad extends MVUtil {
 				"          where   \"load_spec_file\" specifies the XML load specification document\n" +
 				"                  \"-index\" indicates that no data should be loaded, and only the indexing commands applied\n";
 	}
-
+	
+	/**
+	 * Attempt to load the input file into the database data_file table, and then, if successful, into the appropriate
+	 * set of tables: stat or mode.
+	 * @param file File to process
+	 * @param con Connection to the database to load
+	 * @throws Exception
+	 */
+	public static void processFile(File file, Connection con) throws Exception{
+		long intProcessDataFileBegin = (new java.util.Date()).getTime();
+		DataFileInfo info = processDataFile(file, con);
+		if( null == info ){ return; }
+		long intProcessDataFileTime = (new java.util.Date()).getTime() - intProcessDataFileBegin;
+		System.out.println("  " + info._dataFilePath + "/" + info._dataFileFilename + 
+							(_boolVerbose? "\n" + padBegin("data file time: ", 36) + formatTimeSpan(intProcessDataFileTime) : ""));
+		
+		if( info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ){
+			loadStatFile(info, con);
+			_intNumStatFiles++;
+		} else if( info._dataFileLuTypeName.equals("mode_obj") || info._dataFileLuTypeName.equals("mode_cts") ){
+			loadModeFile(info, con);
+			_intNumModeFiles++;
+		}
+	}
+	
+	/**
+	 * Load the MET output data from the data file underlying the input DataFileInfo object into the database underlying the
+	 * input Connection.  The header information can be checked in two different ways: using a table for the current file
+	 * (specified by _boolStatHeaderTableCheck) or by searching the stat_header table for a duplicate (specified by
+	 * _boolStatHeaderDBCheck).  Records in line_data tables, stat_group tables and line_data_thresh tables are created 
+	 * from the data in the input file.  If necessary, records in the stat_header table are created as well.
+	 * @param info Contains MET output data file information
+	 * @param con Connection to the target database
+	 * @throws Exception
+	 */
 	public static void loadStatFile(DataFileInfo info, Connection con) throws Exception{
 
 		//  data structures for storing value strings
@@ -688,7 +716,6 @@ public class MVLoad extends MVUtil {
 	 * @return An array of four integers, indexed by the INDEX_* members, representing the number of database inserts of each type
 	 * @throws Exception
 	 */
-	
 	public static int[] commitStatData(MVLoadStatInsertData d)
 	throws Exception {
 
@@ -796,6 +823,15 @@ public class MVLoad extends MVUtil {
 	public static final int MODE_SINGLE		= 17;
 	public static final int MODE_PAIR		= 18;
 	
+	/**
+	 * Load the MET output data from the data file underlying the input DataFileInfo object into the database underlying the
+	 * input Connection.  The header information can be checked in two different ways: using a table for the current file
+	 * (specified by _boolModeHeaderTableCheck).  Records in mode_obj_pair tables, mode_obj_single tables and mode_cts tables
+	 * are created from the data in the input file.  If necessary, records in the mode_header table are created.
+	 * @param info Contains MET output data file information
+	 * @param con Connection to the target database
+	 * @throws Exception
+	 */
 	public static void loadModeFile(DataFileInfo info, Connection con) throws Exception{
 
 		//  data structure for storing mode object ids
@@ -1051,6 +1087,14 @@ public class MVLoad extends MVUtil {
 		}
 	}
 	
+	/**
+	 * Executes the input update statement against the database underlying the input Connection and cleans
+	 * up any resources upon completion.
+	 * @param con
+	 * @param update SQL UPDATE statement to execute
+	 * @return Number of records affected (output of Statement.executeUpdate() call)
+	 * @throws SQLException
+	 */
 	public static int executeUpdate(Connection con, String update) throws SQLException{
 		Statement stmt = con.createStatement();
 		int intRes = stmt.executeUpdate(update);
@@ -1060,6 +1104,16 @@ public class MVLoad extends MVUtil {
 	
     public static String replaceInvalidValues(String strData){ return strData.replace("NA", "-9999").replace("nan", "-9999"); }
 	
+    /**
+     * Build and execute a query that retrieves the next table record id, whose name is specified by the input field,
+     * from the specified input table.  The statement is run against the input Connection and the next available id
+     * is returned.
+     * @param con
+     * @param table Database table whose next available id is returned
+     * @param field Field name of the table id record
+     * @return Next available id
+     * @throws Exception
+     */
 	public static int getNextId(Connection con, String table, String field) throws Exception {
 		int intId = -1;
 		Statement stmt = con.createStatement();

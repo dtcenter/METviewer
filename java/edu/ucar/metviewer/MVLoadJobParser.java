@@ -1,14 +1,10 @@
 package edu.ucar.metviewer;
 
-import java.io.*;
 import java.util.*;
-import java.lang.reflect.*;
 import java.sql.*;
-
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
-import org.apache.xerces.parsers.*;
 
 public class MVLoadJobParser extends MVUtil{
 	
@@ -99,15 +95,22 @@ public class MVLoadJobParser extends MVUtil{
 			}
 			
 			//  simple string fields
-			else if( node._tag.equals("verbose") )                 { job.setVerbose( node._value.equalsIgnoreCase("true") );              }
-			else if( node._tag.equals("insert_size") )             { job.setInsertSize( Integer.parseInt(node._value) );                  }
-			else if( node._tag.equals("stat_header_table_check") ) { job.setStatHeaderTableCheck( node._value.equalsIgnoreCase("true") ); }
-			else if( node._tag.equals("stat_header_db_check") )    { job.setStatHeaderDBCheck( node._value.equalsIgnoreCase("true") );    }
-			else if( node._tag.equals("mode_header_db_check") )    { job.setModeHeaderDBCheck( node._value.equalsIgnoreCase("true") );    }
-			else if( node._tag.equals("drop_indexes") )            { job.setDropIndexes( node._value.equalsIgnoreCase("true") );          }
-			else if( node._tag.equals("apply_indexes") )           { job.setApplyIndexes( node._value.equalsIgnoreCase("true") );         }
-			else if( node._tag.equals("folder_tmpl") )             { job.setFolderTmpl( node._value );                                    }
+			else if( node._tag.equals("insert_size") )             { job.setInsertSize           ( Integer.parseInt(node._value) );        }
+			else if( node._tag.equals("verbose") )                 { job.setVerbose              ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("stat_header_table_check") ) { job.setStatHeaderTableCheck ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("stat_header_db_check") )    { job.setStatHeaderDBCheck    ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("mode_header_db_check") )    { job.setModeHeaderDBCheck    ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("drop_indexes") )            { job.setDropIndexes          ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("apply_indexes") )           { job.setApplyIndexes         ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("folder_tmpl") )             { job.setFolderTmpl           ( node._value );                          }
 
+			//  <load_files>
+			else if( node._tag.equals("load_files") ){
+				ArrayList listLoadFiles = new ArrayList();
+				for(int j=0; j < node._children.length; j++){ listLoadFiles.add( node._children[j]._value ); }				
+				job.setLoadFiles( toArray(listLoadFiles) );
+			}
+			
 			//  <load_val>
 			else if( node._tag.equals("load_val") ){
 				for(int j=0; j < node._children.length; j++){

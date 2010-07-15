@@ -25,6 +25,8 @@ public class MVLoadJob{
 	protected String _strFolderTmpl				= "";
 	protected MVOrderedMap _mapLoadVal			= new MVOrderedMap();
 	
+	protected String[] _listLoadFiles			= {};
+	
 	public Connection getConnection()									{ return _con;											}
 	public void		setConnection(Connection con)						{ _con = con;											}
 
@@ -67,4 +69,7 @@ public class MVLoadJob{
 	public void addLoadVal(String field, String[] vals)					{ addLoadVal(field, vals, _mapLoadVal.size());			}
 	public void removeLoadVal(String field)								{ _mapLoadVal.remove(field);							}
 	public void clearLoadVal()											{ _mapLoadVal = new MVOrderedMap();						}
+	
+	public String[]	getLoadFiles()										{ return _listLoadFiles;								}
+	public void		setLoadFiles(String[] loadFiles)					{ _listLoadFiles = loadFiles;							}
 }

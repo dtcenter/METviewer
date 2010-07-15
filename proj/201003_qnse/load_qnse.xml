@@ -6,7 +6,13 @@
 		<password>pgoldenb</password>
 	</connection>
 
-	<folder_tmpl>/dakota_d3/projects/AFWA_RC/MET/{fcst_init}/{model}/metprd</folder_tmpl>
+	<load_files>
+		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_ADPUPA_000000L_20080614_120000V.stat</file>
+		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_ONLYSF_000000L_20080614_120000V.stat</file>
+		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_WINDS_000000L_20080614_120000V.stat</file>
+	</load_files>
+
+<!--	<folder_tmpl>/dakota_d3/projects/AFWA_RC/MET/{fcst_init}/{model}/metprd</folder_tmpl>-->
 	<date_list name="folder_dates">
 		<start>2008060212</start>
 		<end>2009053112</end>
@@ -20,7 +26,7 @@
 	<stat_header_db_check>false</stat_header_db_check>
 	<mode_header_db_check>false</mode_header_db_check>
 	<drop_indexes>false</drop_indexes>
-	<apply_indexes>true</apply_indexes>
+	<apply_indexes>false</apply_indexes>
 	
 	<load_val>
 		<field name="model">
