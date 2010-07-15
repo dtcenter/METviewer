@@ -11,21 +11,24 @@
 <script type="text/javascript"><!--
 
 var _boolIE = false;
+var _boolDim = false;
 
 var _url;
 
 var _boolDBStatus = false;
 
-var _listFixVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
-var _listFixVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_INIT", "FCST_LEV"];
-var _listFixVar = _listFixVarStat;
-
-var _intDepSize = 1;
 var _intDepIdNext = 1;
 var _listDepDiv = new Array();
 
-var _intFixSize = 0;
-var _intFixIdNext = 0;
+var _divFieldVal;
+var _intFieldValIdNext = 0;
+
+var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
+var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_INIT", "FCST_LEV"];
+var _listVar = _listVarStat;
+
+var _listSeries1Div = new Array();
+var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 
 var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH"];
@@ -37,7 +40,7 @@ var _strPlotData = "stat";
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
  * 
- *  Administrative Controls
+ *  Administration/Utility Functions
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
  
@@ -51,17 +54,6 @@ function onLoad(){
 
 	_boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
 
-	var divLoading = document.getElementById("divLoading");
-	if( !_boolIE ){
-	    divLoading.style.top = (window.innerHeight / 2) - 40;
-	    divLoading.style.left = (window.innerWidth / 2) - 60;
-	} else {
-		divLoading.style.top = (document.body.clientHeight / 2) - 40;
-		divLoading.style.left = (document.body.clientWidth / 2) - 60;
-		//divLoading.style.setExpression("top", "(document.body.clientHeight / 2) - 30");
-		//divLoading.style.setExpression("left", "(document.body.clientWidth / 2) - 60");
-	}
-
 	/*
 	console("browser codeName: " + navigator.appCodeName + "\n" +
 			"browser name: " + navigator.appName + "\n" +
@@ -73,17 +65,26 @@ function onLoad(){
 	*/
 	console("load() - IE: " + (_boolIE? "true" : "false") + "\n\n");
 
+	window.onscroll = function(e){
+		if( _boolDim ){ dimScreen(true); }
+	}
+
 	//  initialize the database list and controls
 	listDBReq();
 	selectDBResp("<disconnected>");
 
+	_divFieldVal = document.getElementById("divFieldVal");
+	fillSelect(document.getElementById("selField"), _listVar);
+	
 	//  initialize the dep list
 	_listDepDiv.push( document.getElementById("divDep0") );
 
-	//  initialize the fixed value controls
-	_listFixDiv.push( document.getElementById("divFix0") );
-	fillSelect("selFix0", _listFixVar);
-	fillSelect("selIndyVar", _listIndyVar);
+	//  initialize the series lists
+	addSeries1Div();
+	document.getElementById("lnkRemoveFieldVal0").style.display = "none";	
+
+	//  initialize the independent variable controls
+	fillSelect(document.getElementById("selIndyVar"), _listIndyVar);
 }
 
 
@@ -91,11 +92,34 @@ function onLoad(){
  * Wrapper for appending information to the console text box
  */
 function console(str){ document.getElementById("txtConsole").value += str; }
+function consoleClear(){ document.getElementById("txtConsole").value = ""; }
 
 /**
  * Dims the screen while the web app is waiting for the servlet
  */
 function dimScreen(boolDim){
+
+	//  adjust the size and location of the dim screen elements
+	var divLoading = document.getElementById("divLoading");
+	var divDimScreen = document.getElementById("divDimScreen");
+	if( !_boolIE ){
+	    divLoading.style.left = (window.innerWidth / 2) - 60 + window.pageXOffset;
+	    divLoading.style.top = (window.innerHeight / 2) - 40 + window.pageYOffset;
+	    divDimScreen.style.left = window.pageXOffset;
+	    divDimScreen.style.top = window.pageYOffset;
+	    divDimScreen.style.width = window.innerWidth;
+	    divDimScreen.style.heigth = window.innerHeight;
+	} else {
+		divLoading.style.left = (document.body.clientWidth / 2) - 60 + document.body.scrollLeft;
+		divLoading.style.top = (document.body.clientHeight / 2) - 40 + document.body.scrollTop;
+	    divDimScreen.style.left = document.body.scrollLeft;
+	    divDimScreen.style.top = document.body.scrollTop;
+	    divDimScreen.style.width = document.body.clientWidth;
+	    divDimScreen.style.heigth = document.body.clientHeight;
+	}
+
+	//  display the dim screen controls
+	_boolDim = boolDim;
 	document.title = "METViewer" + (boolDim? " - Loading..." : "");
 	document.getElementById("divDimScreen").style.display = (boolDim? "block" : "none");
 	document.getElementById("divLoading").style.display = (boolDim? "block" : "none");
@@ -109,20 +133,20 @@ function serialize(strId){
 	var strXML = "";
 	try     { strXML = XML( (new XMLSerializer()).serializeToString(doc) ).toXMLString(); }
 	catch(e){ strXML = doc.outerHTML; } 
-	console(strXML + "\n\n");		
+	console("\n" + strXML + "\n\n");		
 }
 
 /**
- * Make a server call to clear the <list_val> cache
+ * Button handlers that call the server to clear the <list_val>  and <list_stat> caches
  */
-function listValClearCacheReq(){ sendRequest("POST", "<list_val_clear_cache/>", listValClearCacheResp); }
-function listValClearCacheResp(strResp){ console("listValClearCacheResp() - response: " + strResp + "\n\n"); }
+function listValClearCacheReq(){ sendRequest("POST", "<list_val_clear_cache/>", nullResp); }
+function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>", nullResp); }
 
 /**
  * Clear and populate a select list with the specified id with the items in the specified list
  */
-function fillSelect(strId, listOpt){
-	var sel = document.getElementById(strId);
+function fillSelect(sel, listOpt){
+	//var sel = document.getElementById(strId);
 	while( 0 < sel.length ){ sel.remove(sel.length - 1); }
 	for(i in listOpt){
 		var opt = document.createElement("option");
@@ -144,6 +168,13 @@ function findDivId(listDiv, intDivId, intInputIndex){
  	return intIndex;	
 }
 
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
+ * 
+ *  AJAX Functions
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ 
 /**
  * Create a request object in a browser-dependent manner
  */
@@ -160,7 +191,7 @@ function getRequest(){
 /**
  * Send an XML request to the server asynchronously, and call processResponse() when the response arrives
  */
-function sendRequest(reqType, reqData, funResp){
+function sendRequest(reqType, reqData, fnResp){
 
 	dimScreen(true);
 	console("sendRequest() - request: " + reqData + "\n");
@@ -171,9 +202,14 @@ function sendRequest(reqType, reqData, funResp){
 	req.onreadystatechange =
     function() {
 		if (req.readyState == 4) {
+
+			//  classify the response type
 			if (req.status == 200) { strResp = req.responseText; }
-			else                   { strResp = "ERROR: req.status = " + req.status; }
-			funResp(strResp);
+			else                   { strResp = "<error>req.status " + req.status + "</error>"; }
+
+			//  dispatch the response
+			console("sendRequest() - response: " + strResp + "\n\n");
+			fnResp(strResp);
 			dimScreen(false);
         }
 	};
@@ -194,6 +230,12 @@ function sendRequest(reqType, reqData, funResp){
 	}
 }
 
+/**
+ * A response handler that does nothing
+ */
+function nullResp(strResp){}
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
  * 
  *  Database Controls
@@ -212,11 +254,10 @@ function testResp(strResp){ console("testResp() - response: " + strResp + "\n\n"
  */
 function listDBReq(){ sendRequest("POST", "<list_db/>", listDBResp); }
 function listDBResp(strResp){
-	console("listDBResp() - response: " + strResp + "\n\n");
 
 	//  parse the list of databases and populate the list
 	var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
-	fillSelect("selDB", listDB);
+	fillSelect(document.getElementById("selDB"), listDB);
 }
 
 /**
@@ -227,7 +268,6 @@ function selectDBReq(){
 	sendRequest("POST", "<connect_db>" + selDB.options[selDB.selectedIndex].text + "</connect_db>", selectDBResp);
 }
 function selectDBResp(strResp){
-	console("selectDBResp() - response: " + strResp + "\n\n");
 
 	//  update the connection status
 	_boolDBStatus = (-1 < strResp.indexOf("<connected>") );
@@ -282,7 +322,6 @@ function addDep(){
 
  	//  add the new fixed variable value section to the page
  	_listDepDiv.push(divDep);
- 	_intDepSize++;
  	document.getElementById("divDep").insertBefore(divDep, document.getElementById("imgDep"));
 
  	//  ensure the first remove link is visible
@@ -293,25 +332,8 @@ function addDep(){
  * Remove the specified dep div from the list of dependent variable controls
  */
 function removeDepVar(intDepId){
-
- 	//  attempt to find the specified dep div, and if the dep div was not found, bail
- 	var intDepIndex = findDivId(_listDepDiv, intDepId, 3);
- 	if( 0 > intDepIndex ){
- 		console("removeDepVar() - WARNING: dep div " + intDepId + " not found\n\n");
- 		return;
- 	}
-
- 	//  otherwise, remove the specified div from the list and hide it
- 	var divDep = _listDepDiv[intDepIndex]; 
- 	_listDepDiv.splice(intDepIndex, 1);
- 	divDep.style.display = "none";
- 	_intDepSize--;	
-
- 	//  if there is only one dep div remaining in the list, hide the remove link and bail
- 	if( 1 == _intDepSize ){
- 		_listDepDiv[0].getElementsByTagName("span")[1].style.display = "none";
- 		return;
- 	}
+	removeFieldValDiv(intDepId, _listDepDiv, 3);	
+ 	if( 1 == _listDepDiv.length ){ _listDepDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
 }
 
 /**
@@ -320,20 +342,7 @@ function removeDepVar(intDepId){
 function listFcstVarReq(intDepId){
 	sendRequest("POST", "<list_val><id>" + intDepId + "</id><" + _strPlotData + "_field>FCST_VAR</" + _strPlotData + "_field>" + "</list_val>", listFcstVarResp);
 }
-function listFcstVarResp(strResp){
-
-	//  parse the response
-	var listProc = strResp.match( /<list_val><id>(\d+)<\/id>(.*)<\/list_val>/ );
-	if( null == listProc ){
-		console("listFcstVarResp() - ERROR: could not parse response: " + strResp + "\n\n");
-		return;		
-	}
-	var intDepId = listProc[1];
-	var listVal = listProc[2].replace( /^<val>/, "" ).replace( /<\/val>$/, "" ).split( /<\/val><val>/ );
-
-	//  populate the fcst_var select with the search results
-	fillSelect("selFcstVar" + intDepId, listVal);
-}
+function listFcstVarResp(strResp){ selectFieldResp(strResp, _listDepDiv, 3, 0); }
 
 /**
  * List the statistics available for the specified forecast variable and populate the statistics select
@@ -342,7 +351,7 @@ function listFcstVarResp(strResp){
 function selectFcstVarReq(intId){
 	var selFcstVar = document.getElementById("selFcstVar" + intId);
 	sendRequest("POST",
-				"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].value + 
+				"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].text + 
 					"</" + _strPlotData + "_fcst_var></list_stat>", 
 				selectFcstVarResp);	
 }
@@ -358,9 +367,9 @@ function selectFcstVarResp(strResp){
 	var listStat = listProc[2].replace( /^<stat>/, "" ).replace( /<\/stat>$/, "" ).split( /<\/stat><stat>/ );
 
 	//  populate and display the stats select control
-	var strSelStatId = "selStat" + intDepId;
-	fillSelect(strSelStatId, listStat);
-	document.getElementById(strSelStatId).style.display = "inline";
+	var selFcstVar = document.getElementById("selStat" + intDepId);
+	fillSelect(selFcstVar, listStat);
+	selFcstVar.style.display = "inline";
 	document.getElementById("lblStat" + intDepId).style.display = "inline";
 }
 
@@ -372,7 +381,7 @@ function buildFcstVarCrit(){
 	var strFixCrit = "<field name=\"FCST_VAR\">";
 	for(i in _listDepDiv){
 		var selFcstVar = _listDepDiv[i].getElementsByTagName("select")[0];
-		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].value + "</val>";
+		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].text + "</val>";
 	}
 	strFixCrit += "</field>";
 	return strFixCrit;
@@ -381,78 +390,168 @@ function buildFcstVarCrit(){
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
  * 
+ *  Field Value Controls
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/**
+ * Create a field val div of the specified category and add it to the from and to the input controls
+ * list
+ */
+function addFieldValDiv(category, listDiv){
+
+	//  use the next field val id
+	var intId = _intFieldValIdNext++;
+
+	//  clone the field value div and update the controls
+	var divFieldVal = _divFieldVal.cloneNode(true);	
+	divFieldVal.id = "divFieldVal" + intId;
+	divFieldVal.getElementsByTagName("select")[0].id = "selFieldVal" + intId;
+	var btnFieldVal = divFieldVal.getElementsByTagName("input")[0];
+	btnFieldVal.setAttribute("onclick", "javascript:select" + category + "VarReq(" + intId + ")");
+	if( _boolIE ){ btnFieldVal.attachEvent("onclick", new Function("select" + category + "VarReq(" + intId + ")")); }
+	var selVal = divFieldVal.getElementsByTagName("select")[1];
+	while( 0 < selVal.length ){ selVal.remove(selVal.length - 1); }
+	selVal.style.display = "none";		
+	selVal.id = "selVal" + intId;
+	divFieldVal.getElementsByTagName("span")[1].id = "lnkRemoveFieldVal" + intId;
+	var lnkRemove = divFieldVal.getElementsByTagName("a")[0];
+	lnkRemove.setAttribute("onclick", "javascript:remove" + category + "Div(" + intId + ")");
+	if( _boolIE ){ lnkRemove.attachEvent("onclick", new Function("remove" + category + "Div(" + intId + ")")); }
+	divFieldVal.getElementsByTagName("input")[1].value = "" + intId;
+	divFieldVal.style.display = "inline";
+
+	//  add the new div to the input controls list and add it to the form
+	listDiv.push( divFieldVal );
+	document.getElementById("div" + category).insertBefore(divFieldVal, document.getElementById("img" + category));
+		
+}
+
+/**
+ * Remove the field val div with the specified id from the from and the controls list.  The index of
+ * the hidden id field is specified by intInputId.
+ */
+function removeFieldValDiv(intId, listDiv, intInputId){
+
+	//  attempt to find the specified div, and if not found, bail
+	var intIndex = findDivId(listDiv, intId, intInputId);
+	if( 0 > intIndex ){
+		console("removeFieldValDiv() - WARNING: div " + intId + " not found\n\n");
+		return;
+	}
+
+ 	//  remove the specified div from the list and hide it
+ 	var divFieldVal =  listDiv[intIndex];
+ 	listDiv.splice(intIndex, 1);
+ 	divFieldVal.style.display = "none";
+
+}
+ 
+/**
+ * Build a list_val server request for the field val with the specified id in the specified controls
+ * list.  The request includes the fixed value criteria up to the specified index.  The response xml
+ * is passed to the specified response function.  
+ */
+function selectFieldReq(intId, listDiv, intFixEnd, fnResp){
+
+	//  attempt to find the specified div, and if not found, bail
+	var intIndex = findDivId(listDiv, intId, 1);
+	if( 0 > intIndex ){
+		console("selectFieldReq() - ERROR: div " + intId + " not found\n\n");
+		return;
+	}
+
+	//  build a list_val request for the selected field
+	var strFcstVarCrit = buildFcstVarCrit();
+	var strFixCrit = buildFixCrit(intFixEnd);
+	var selField = listDiv[intIndex].getElementsByTagName("select")[0];
+	var strField = selField.options[selField.selectedIndex].text;
+	sendRequest("POST", 
+				"<list_val><id>" + intId + "</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" + 
+				strFcstVarCrit + strFixCrit + "</list_val>", 
+				fnResp); 	
+}
+
+/**
+ * Handle the specified <list_val> response XML (strResp), populating the div from the input list with the 
+ * id contained in the response <id>.  The div id is determined by examining the hidden field with the 
+ * specified index (intIdIndex).  The select control of the specified index (intSelIndex) will be populated. 
+ */
+function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
+
+	//  parse the response
+	var listProc = strResp.match( /<list_val><id>(\d+)<\/id>(.*)<\/list_val>/ );
+	if( null == listProc ){
+		console("selectFieldResp() - ERROR: could not parse response: " + strResp + "\n\n");
+		return;		
+	}
+	var intId = listProc[1];
+	var listVal = listProc[2].replace( /^<val>/, "" ).replace( /<\/val>$/, "" ).split( /<\/val><val>/ );
+
+	//  retrieve and validate the div from the input div list
+	var intIndex = findDivId(listDiv, intId, intIdIndex);
+	if( 0 > intIndex ){
+		console("selectFieldResp() - ERROR: index for div id " + intId + " not found\n\n");
+		return;		
+	}
+
+	//  add the field values to the value select list
+	var selVal = listDiv[intIndex].getElementsByTagName("select")[intSelIndex];
+	selVal.style.display = "inline";
+	fillSelect(selVal, listVal);
+		
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
+ * 
+ *  Series Variable Controls
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+function addSeries1Div(){
+	addFieldValDiv("Series1", _listSeries1Div);
+	for(i in _listSeries1Div){ _listSeries1Div[i].getElementsByTagName("span")[1].style.display = "inline"; }
+}
+function removeSeries1Div(intId){
+	removeFieldValDiv(intId, _listSeries1Div, 1);
+ 	if( 1 == _listSeries1Div.length ){ _listSeries1Div[0].getElementsByTagName("span")[1].style.display = "none"; }
+}
+function selectSeries1VarReq(intId){ selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp); }
+function selectSeries1VarResp(strResp){ selectFieldResp(strResp, _listSeries1Div, 1, 1); }
+
+function addSeries2Div(){
+	addFieldValDiv("Series2", _listSeries2Div);
+	for(i in _listSeries2Div){ _listSeries2Div[i].getElementsByTagName("span")[1].style.display = "inline"; }
+}
+function removeSeries2Div(intId){
+	removeFieldValDiv(intId, _listSeries2Div, 1);
+ 	if( 1 == _listSeries2Div.length ){ _listSeries2Div[0].getElementsByTagName("span")[1].style.display = "none"; }
+}
+function selectSeries2VarReq(intId){ selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp); }
+function selectSeries2VarResp(strResp){ selectFieldResp(strResp, _listSeries2Div, 1, 1); }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
+ * 
  *  Fixed Variable Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- 
-/**
- * Create a GUI control cluster for specifying a fixed plot variable value
- */
-function addFixVar(){
-
-	//  if the first fix div is not displayed, show it and bail
-	if( 1 > _intFixSize ){
-		_listFixDiv[0].style.display = "block";
-		_intFixIdNext++;
-		_intFixSize++;
-		return;
-	}
-
-	//  clone the fixed value controls
-	var intFixId = _intFixIdNext++;
-	var divFix = _listFixDiv[0].cloneNode(true);
-
-	//  update the components of the cloned fixed value controls
-	divFix.id = "divFix" + intFixId;
-	var selFix = divFix.getElementsByTagName("select")[0];
-	selFix.id = "selFix" + intFixId;
-	var btnFix = divFix.getElementsByTagName("input")[0];
-	btnFix.setAttribute("onclick", "javascript:selectFixVarReq(" + intFixId + ")");
-	if( _boolIE ){ btnFix.attachEvent("onclick", new Function("selectFixVarReq(" + intFixId + ")")); }
-	var selFixVal = divFix.getElementsByTagName("select")[1];
-	while( 0 < selFixVal.length ){ selFixVal.remove(selFixVal.length - 1); }
-	selFixVal.style.display = "none";		
-	selFixVal.id = "selFixVal" + intFixId;
-	var lnkFix = divFix.getElementsByTagName("a")[0];
-	lnkFix.setAttribute("onclick", "javascript:removeFixVar(" + intFixId + ")");
-	if( _boolIE ){ lnkFix.attachEvent("onclick", new Function("removeFixVar(" + intFixId + ")")); }
-	var hidFix = divFix.getElementsByTagName("input")[1];
-	hidFix.value = "" + intFixId;
-	
-	//  add the new fixed variable value section to the page
-	_listFixDiv.push(divFix);
-	_intFixSize++;
-	document.getElementById("divFix").insertBefore(divFix, document.getElementById("imgFix"));
-}
 
 /**
- * Remove the specified fix div from the list of fixed variable controls
+ * Handlers to add, remove and populate the fixed variable controls
  */
-function removeFixVar(intFixId){
-
-	//  attempt to find the specified fix div, and if the fix div was not found, bail
-	var intFixIndex = findDivId(_listFixDiv, intFixId, 1);
-	if( 0 > intFixIndex ){
-		console("removeFixVar() - WARNING: fix div " + intFixId + " not found\n\n");
+function addFixVar()         { addFieldValDiv("Fix", _listFixDiv);       }
+function removeFixDiv(intId) { removeFieldValDiv(intId, _listFixDiv, 1); }
+function selectFixVarReq(intId){
+	var intIndexCrit = findDivId(_listFixDiv, intId, 1);
+	if( 0 > intIndexCrit ){
+		console("selectFixVarReq() - ERROR: index for id " + intId + " not found\n");
 		return;
-	}
-
-	//  if the requested fix div is the only remaining one in the list, simply hide it and bail
-	if( 1 == _intFixSize && 0 == intFixIndex ){
-		var selFixVal = _listFixDiv[0].getElementsByTagName("select")[1];
-		while( 0 < selFixVal.length ){ selFixVal.remove(selFixVal.length - 1); }
-		selFixVal.style.display = "none";		
-		_listFixDiv[0].style.display = "none";
-		_intFixSize = 0;
-		return;
-	}
-
-	//  otherwise, remove the specified div from the list and hide it
-	var divFix = _listFixDiv[intFixIndex]; 
-	_listFixDiv.splice(intFixIndex, 1);
-	divFix.style.display = "none";
-	_intFixSize--;	
+	} 
+	selectFieldReq(intId, _listFixDiv, intIndexCrit - 1, selectFixVarResp);
 }
+function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1); }
 
 /**
  * Construct a string of database field and value criteria that reflects the selected fields and values in
@@ -479,55 +578,6 @@ function buildFixCrit(endIndex){
 	return strFixCrit;
 }
 
-/**
- * Send a request to retrieve the database values for the selected fix field 
- */
-function selectFixVarReq(intFixId){
-
-	//  attempt to find the specified fix div, and if the fix div was not found, bail
-	var intFixIndex = findDivId(_listFixDiv, intFixId, 1);
-	if( 0 > intFixIndex ){
-		console("selectFixVarReq() - WARNING: fix div " + intFixId + " not found\n\n");
-		return;
-	}
-
-	//  build a list_val request for the selected field
-	var strFcstVarCrit = buildFcstVarCrit();
-	var strFixCrit = buildFixCrit(intFixIndex - 1);
-	var divFix = _listFixDiv[intFixIndex];
-	var selFix = divFix.getElementsByTagName("select")[0];
-	var strField = selFix.options[selFix.selectedIndex].text;
-	sendRequest("POST", 
-				"<list_val><id>" + intFixId + "</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" + 
-				strFcstVarCrit + strFixCrit + "</list_val>", 
-				selectFixVarResp); 	
-}
-
-function selectFixVarResp(strResp){
-
-	//  parse the response
-	var listProc = strResp.match( /<list_val><id>(\d+)<\/id>(.*)<\/list_val>/ );
-	if( null == listProc ){
-		console("selectFixVarResp() - ERROR: could not parse response: " + strResp + "\n\n");
-		return;		
-	}
-	var intFixId = listProc[1];
-	var listVal = listProc[2].replace( /^<val>/, "" ).replace( /<\/val>$/, "" ).split( /<\/val><val>/ );
-
-	//  retrieve and validate the fix div
-	var intFixIndex = findDivId(_listFixDiv, intFixId, 1);
-	if( 0 > intFixIndex ){
-		console("selectFixVarResp() - ERROR: index for fix id " + intFixId + " not found\n\n");
-		return;		
-	}
-	var divFix = _listFixDiv[intFixIndex];
-
-	//  add the field values to the value select list
-	var selFixVal = divFix.getElementsByTagName("select")[1];
-	selFixVal.style.display = "inline";
-	fillSelect("selFixVal" + intFixId, listVal);	
-}
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
  * 
@@ -546,7 +596,7 @@ function selectIndyVarReq(){
 	console("  strField: " + strField + "\n  strFixCrit: " + strFixCrit + "\n");
 	sendRequest("POST",
 				"<list_val><id>0</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" + 
-				strFcstVarCrit + strFixCrit + "</list_val>", 
+					strFcstVarCrit + strFixCrit + "</list_val>", 
 				selectIndyVarResp); 	
 	console("selectIndyVarReq() complete\n\n");
 }
@@ -622,22 +672,40 @@ function selectIndyVarResp(strResp){
 			<a class="link" onclick="javascript:addDep()">Add a Dependent Variable</a><br/><br/><br/>
 		</div><br/><br/>
 	
+		<div id="divFieldVal" style="display:none">
+			<span class="bold" style="padding-left:20px; padding-right:10px">Database Field:</span>
+			<select id="selField"></select>&nbsp;
+			<input type="button" class="gButton" onclick="javascript:selectFieldReq()" value="Select"/>&nbsp;&nbsp;
+			<select id="selVal" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
+			<span id="lnkRemove">
+				<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+				<a class="link" onclick="javascript:removeFieldVal()">Remove Field</a>
+			</span>
+			<input type="hidden" value=""/><br/><br/>
+		</div>	
+	
 		<div id="divFix">
 			<span class="header">Fixed Values</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFix')">Serialize</a><br/><br/>
-		
-			<div id="divFix0" style="display:none">				
-				<span class="bold" style="padding-left:20px; padding-right:10px">Database Field:</span>
-				<select id="selFix0"></select>&nbsp;
-				<input type="button" class="gButton" onclick="javascript:selectFixVarReq(0)" value="Select"/>&nbsp;&nbsp;
-				<select id="selFixVal0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
-				<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-				<a class="link" onclick="javascript:removeFixVar(0)">Remove Fixed Value</a>
-				<input type="hidden" value="0"/><br/><br/>
-			</div>
-		
+			 
 			<img id="imgFix" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
+		</div><br/><br/>
+		
+		<div id="divSeries1">
+			<span class="header">Series y1 Variables</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')">Serialize</a><br/><br/>
+		
+			<img id="imgSeries1" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addSeries1Div()">Add a Series1 Value</a><br/><br/><br/>
+		</div><br/><br/>
+		
+		<div id="divSeries2">
+			<span class="header">Series y2 Variables</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')">Serialize</a><br/><br/>
+		
+			<img id="imgSeries2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addSeries2Div()">Add a Series2 Value</a><br/><br/><br/>
 		</div><br/><br/>
 		
 		<div id="divIndy">
@@ -659,8 +727,10 @@ function selectIndyVarResp(strResp){
 	
 	<tr><td>
 		<b>Console:</b>
+		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
-		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/><br/>
+		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>		
+		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/><br/>
 		<textarea rows="20" cols="160" id="txtConsole"></textarea>
 	</td></tr>
 

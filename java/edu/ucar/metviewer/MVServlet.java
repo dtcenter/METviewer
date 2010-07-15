@@ -143,6 +143,11 @@ public class MVServlet extends HttpServlet {
 					strResp = "<list_val_clear_cache>success</list_val_clear_cache>";
 				}
 				
+				else if( nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache") ){
+					_tableListStatCache.clear();
+					strResp = "<list_stat_clear_cache>success</list_stat_clear_cache>";
+				}
+				
 				//  not handled
 				else {
 					strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
@@ -232,7 +237,7 @@ public class MVServlet extends HttpServlet {
     	//String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody;
     	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
     	if( _boolListValCache && _tableListValCache.containsKey(strCacheKey) ){
-    		String strListVal = _tableListValCache.get(strCacheKey).toString(); 
+    		String strListVal = _tableListValCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
         	_logger.debug("handleListVal() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListVal);
     		return strListVal;
     	}
@@ -302,7 +307,7 @@ public class MVServlet extends HttpServlet {
     	//String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody;
     	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
     	if( _boolListStatCache && _tableListStatCache.containsKey(strCacheKey) ){
-    		String strListStat = _tableListStatCache.get(strCacheKey).toString(); 
+    		String strListStat = _tableListStatCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
         	_logger.debug("handleListStat() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListStat);
     		return strListStat;
     	}
