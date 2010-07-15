@@ -1,7 +1,6 @@
 package edu.ucar.metviewer;
 
 import java.awt.*;
-import java.io.PrintStream;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.*;
