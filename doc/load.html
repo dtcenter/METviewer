@@ -45,6 +45,13 @@ top-level tag is <span class="code">&lt;load_spec&gt;</load_spec></span> which c
 	<li><span class="code">&lt;load_indexes&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether database indexes should be created
 		after loading new data</li><br/>
 
+	<li>
+		<span class="code">&lt;load_files&gt;</span>: a list structure containing individual MET output files to load into the database
+		<ul>
+			<li><span class="code">&lt;file&gt;</span>: contains a single MET output file to load</li>
+		</ul>		
+	</li><br/>
+
 	<li><span class="code">&lt;folder_tmpl&gt;</span>: a template string describing the file structure of the input MET files, which is populated with values specified in the
 		<span class="code">&lt;load_val&gt;</span> tag structure</li>
 	<li>
