@@ -3,7 +3,7 @@ library(boot);
 source("R_work/include/util_plot.R");
 
 # parse the command line arguments
-strInputInfoFile = "/d1/pgoldenb/var/qnse/R_work/data/year/thresh_series/APCP_03_GSS_FULL_00Zf12_UW_MEAN.boot.info";
+strInputInfoFile = "R_work/data/summer/thresh_series/APCP_03_GSS_NEC_00Zf24_UW_MEAN.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -134,7 +134,7 @@ for(strIndyVal in listIndyVal){
 		if( 2 == intSeries ){ matPerm = permute(listSeries2Val); listStat = listStat2; matCIPerm = matCIPerm2; boolDiff = boolDiff2; }
 
 		listBoot = list();
-		
+
 		# run the bootstrap flow for each series permutation
 		for(intPerm in 1:nrow(matPerm)){
 			listPerm = matPerm[intPerm,];
@@ -177,19 +177,22 @@ for(strIndyVal in listIndyVal){
 					listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
 				}
 				listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
-				
+
 				# calculate the confidence interval for the current stat and series permutation
 				stBootCI = Sys.time();
 				bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
 				dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
 
 				# store the bootstrapped stat value and CI values in the output dataframe
+				dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
 				if( class(bootCI) == "bootci" ){
-					dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
 					dfOut[listOutInd,]$stat_bcl = bootCI[[strCIType]][4];
 					dfOut[listOutInd,]$stat_bcu = bootCI[[strCIType]][5];
-					intBootIndex = intBootIndex + 1;
+				} else {
+					dfOut[listOutInd,]$stat_bcl = NA;
+					dfOut[listOutInd,]$stat_bcu = NA;
 				}
+				intBootIndex = intBootIndex + 1;				
 			}
 		}
 	
