@@ -1596,7 +1596,7 @@ public class MVBatch extends MVUtil {
 		else if( field.equals("fcst_init") )     { return getSQLDateFormat("h.fcst_init");      }
 		else if( field.equals("fcst_valid_beg") ){ return getSQLDateFormat("h.fcst_valid_beg"); }
 		else if( field.equals("fcst_valid") )    { return getSQLDateFormat("h.fcst_valid");     }
-		else									 { return "h." + field;                         }
+		else                                     { return "h." + field;                         }
 	}
 	
 	public static String formatSQLConstraint(String value){
@@ -1632,8 +1632,9 @@ public class MVBatch extends MVUtil {
 		
 		//  set the object_id field, depending on the stat
 		String strObjectId = "object_id";
-		if     ( strStat.equals("MMIF") ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) object_id"; }
-		else if( strStat.equals("MMIO") ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) object_id";    }
+		String strObjectIdName = "object_id";
+		if     ( strStat.equals("MMIF") ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) fcst_id"; strObjectIdName = "fcst_id"; }
+		else if( strStat.equals("MMIO") ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) obs_id";     strObjectIdName = "obs_id"; }
 		
 		//  set the table stat field, object_id pattern and group by clause, depending on the stat
 		String strTableStat = _tableModePairStatFields.get(strStat).toString();
@@ -1642,7 +1643,7 @@ public class MVBatch extends MVUtil {
 		if( strStat.startsWith("MMI") ){ strObjectIdPattern = "F%_O%"; }
 		
 		String strGroupBy = "";
-		if( strStat.startsWith("MMI") ){ strGroupBy = "\nGROUP BY\n" + strGroupListMMI + "  object_id"; }
+		if( strStat.startsWith("MMI") ){ strGroupBy = "\nGROUP BY\n" + strGroupListMMI + "  " + strObjectIdName; }
 		
 		//  build the query
 		String strQuery =
