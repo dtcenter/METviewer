@@ -21,6 +21,8 @@ public class MVServlet extends HttpServlet {
 	public static String _strDBPassword = "";
 	public static String[] _listDB = {};
 	
+	public static Hashtable _tableDBConnection = new Hashtable();
+	
 	public static boolean _boolListValCache = true;
 	public static Hashtable _tableListValCache = new Hashtable();
 	public static boolean _boolListStatCache = true;
@@ -48,7 +50,7 @@ public class MVServlet extends HttpServlet {
 	}
 
 	/**
-	 * Override the parent's method with a debugging implementation that echoes inputs
+	 * Override the parent's doGet() method with a debugging implementation that echoes inputs
 	 * @param request Contains request information, including parameters
 	 * @param response Used to send information back to the requester 
 	 */
@@ -78,7 +80,7 @@ public class MVServlet extends HttpServlet {
     }
 
 	/**
-	 * Override the parent's method with an implementation that reads XML from the body of the request
+	 * Override the parent's doPost() method with an implementation that reads XML from the body of the request
 	 * and parses it into one of several commands.  The XML request command is carried out and an XML response
 	 * is constructed and sent back to the requester.
 	 * @param request Contains request information, including parameters
@@ -97,13 +99,11 @@ public class MVServlet extends HttpServlet {
     	//  initialize the response writer and session
     	PrintWriter out = response.getWriter();
         response.setContentType("text/plain");        
-        HttpSession session = request.getSession();
-
+        
         //  attempt to parse the body of the request
         try{
 			//  instantiate and configure the xml parser
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			//dbf.setSchema(schema);
 		    dbf.setValidating(false);
 		    dbf.setNamespaceAware(false);
 		    
@@ -119,30 +119,64 @@ public class MVServlet extends HttpServlet {
 			});
 			
 			//  parse the input document and build the MVNode data structure
-			//Document doc = builder.parse(request.getInputStream());
 			Document doc = builder.parse( new ByteArrayInputStream(strRequestBody.getBytes()) );
 			MVNode nodeReq = new MVNode(doc.getFirstChild());
 			String strResp = "";
+			Connection con = null;
 			
+			//  examine the children of the request node
 			for(int i=0; i < nodeReq._children.length; i++){
 				MVNode nodeCall = nodeReq._children[i];
 
 				//  <list_db> request
 				if( nodeCall._tag.equalsIgnoreCase("list_db") ){
 					strResp = "<list_db>";
-					for(int j=0; j < _listDB.length; j++){ strResp += "<db>" + _listDB[j] + "</db>"; }
+					for(int j=0; j < _listDB.length; j++){ strResp += "<val>" + _listDB[j] + "</val>"; }
 					strResp += "</list_db>";
 				}
-				
-				else if( nodeCall._tag.equalsIgnoreCase("connect_db") ){ strResp += handleConnectDB(nodeCall, session); }
-				else if( nodeCall._tag.equalsIgnoreCase("list_val") )  { strResp += handleListVal  (nodeCall, strRequestBody, session); }
-				else if( nodeCall._tag.equalsIgnoreCase("list_stat") ) { strResp += handleListStat (nodeCall, strRequestBody, session); }
 
+				//  <db_con> node containing the database connection name
+				else if( nodeCall._tag.equalsIgnoreCase("db_con") )    {
+					
+					//  check the connection pool
+					String strDBCon = nodeCall._value; 
+					if( _tableDBConnection.containsKey(strDBCon) ){						
+						con = (Connection)_tableDBConnection.get(strDBCon);
+						if( !con.isClosed() ){
+							_logger.debug("doPost() - db_con: using cached connection " + strDBCon);
+							continue;
+						} else {
+							_logger.debug("doPost() - db_con: cached connection " + strDBCon + " is closed");
+						}
+					}
+					
+					//  attempt to open a new connection and store it in the session
+					try {
+						Class.forName("com.mysql.jdbc.Driver").newInstance();
+						con = DriverManager.getConnection("jdbc:mysql://" + _strDBHost + "/" + strDBCon, _strDBUser, _strDBPassword);
+						if( con.isClosed() )	throw new Exception("METViewer error: database connection failed");
+						_tableDBConnection.put(strDBCon, con);
+				    	_logger.debug("doPost() - db_con: created new connection " + strDBCon);
+					} catch(Exception ex){
+				    	_logger.error("doPost() - db_con: " + ex.getClass() + " connecting to database: " + ex.getMessage());
+				    	throw ex;
+					}
+
+				}
+				
+				//  <list_val>
+				else if( nodeCall._tag.equalsIgnoreCase("list_val") )  { strResp += handleListVal  (nodeCall, strRequestBody, con); }
+				
+				//  <list_stat>
+				else if( nodeCall._tag.equalsIgnoreCase("list_stat") ) { strResp += handleListStat (nodeCall, strRequestBody, con); }
+
+				//  <list_val_clear_cache>
 				else if( nodeCall._tag.equalsIgnoreCase("list_val_clear_cache") ){
 					_tableListValCache.clear();
 					strResp = "<list_val_clear_cache>success</list_val_clear_cache>";
 				}
 				
+				//  <list_stat_clear_cache>
 				else if( nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache") ){
 					_tableListStatCache.clear();
 					strResp = "<list_stat_clear_cache>success</list_stat_clear_cache>";
@@ -161,50 +195,11 @@ public class MVServlet extends HttpServlet {
 			_logger.debug("doPost() - response: " + strResp);
 			out.println(strResp);
         }catch(Exception e){
-        	_logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage());
+        	ByteArrayOutputStream s = new ByteArrayOutputStream();
+        	e.printStackTrace( new PrintStream(s) );
+        	_logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString());
         	out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
         }
-    }
-    
-    /**
-     * Attempt to connect to the specified database, disconnecting any existing connection, and return
-     * information about the connection
-     * @param nodeCall MVNode containing request information
-     * @param session HttpSession accompanying the request
-     * @return XML response information
-     * @throws Exception
-     */
-    public static String handleConnectDB(MVNode nodeCall, HttpSession session) throws Exception{
-    	
-		//  parse the input request, and initialize the response
-		String strResp = "<connect_db>";
-		String strDB = nodeCall._value;
-    	_logger.debug("handleConnectDB() - connect_db: connecting to " + strDB);
-		
-		//  if an open connection exists in the session, close it
-		Connection con = null;
-		if( null != session.getAttribute("con") ){ con = (Connection)session.getAttribute("con"); }
-		if( null != con && !con.isClosed() ){
-	    	_logger.debug("handleConnectDB() - connect_db: disconnecting existing connection");
-	    	strResp += "<disconnect>" + con.getMetaData().getURL() + "</disconnect>";
-	    	con.close();
-		}
-		
-		//  attempt to open a new connection and store it in the session
-		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			con = DriverManager.getConnection("jdbc:mysql://" + _strDBHost + "/" + strDB, _strDBUser, _strDBPassword);
-			if( con.isClosed() )	throw new Exception("METViewer error: database connection failed");
-			session.setAttribute("con", con);
-			strResp += "<connected>" + con.getMetaData().getURL() + "</connected>";
-	    	_logger.debug("handleConnectDB() - connect_db: connected to " + strDB);
-		} catch(Exception ex){
-			strResp += "<error>caught " + ex.getClass() + ": " + ex.getMessage() + "</error>";
-	    	_logger.error("handleConnectDB() - connect_db: caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
-		}
-		
-		strResp += "</connect_db>";
-		return strResp;
     }
     
     /**
@@ -212,24 +207,18 @@ public class MVServlet extends HttpServlet {
      * return it in serialized XML
      * @param nodeCall MVNode containing request information
      * @param requestBody the XML sent by the client which is used to cache the response
-     * @param session HttpSession accompanying the request
+     * @param con Database connection to search against
      * @return XML response information
      * @throws Exception
      */
-    public static String handleListVal(MVNode nodeCall, String requestBody, HttpSession session) throws Exception{
+    public static String handleListVal(MVNode nodeCall, String requestBody, Connection con) throws Exception{
 
-    	//  validate the database connection
-		if( null == session.getAttribute("con") ){						
-	    	_logger.error("handleListVal() - no session connection found");
-	    	return "<error>no session connection found</error>";
-		} 
-		Connection con = (Connection)session.getAttribute("con");
-				
 		//  parse the input request, and initialize the response
 		String strResp = "<list_val>";
 		String strId = nodeCall._children[0]._value;
 		String strHeaderField = nodeCall._children[1]._value;
-		String strHeaderTable = nodeCall._children[1]._tag.equals("stat_field")? "stat_header" : "mode_header";
+		boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
+		String strHeaderTable = boolMode? "mode_header" : "stat_header";
     	_logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
     	strResp += "<id>" + strId + "</id>";
     	
@@ -246,7 +235,8 @@ public class MVServlet extends HttpServlet {
     	String strWhere = "";
     	for(int i=2; i < nodeCall._children.length; i++){
     		MVNode nodeField = nodeCall._children[i];
-    		strWhere += (2 < i? "AND " : "WHERE ") + nodeField._name.toLowerCase() + " IN (";
+    		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode).replaceAll("h\\.", "");
+    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " IN (";
     		for(int j=0; j < nodeField._children.length; j++){
     			strWhere += (0 < j? ", " : "") + "'" + nodeField._children[j]._value + "'";
     		}
@@ -254,7 +244,7 @@ public class MVServlet extends HttpServlet {
     	}
 		
 		//  build a query for the values and execute it
-		String strFieldDB = strHeaderField.toLowerCase();
+		String strFieldDB = MVUtil.formatField(strHeaderField.toLowerCase(), boolMode).replaceAll("h\\.", "");
 		Statement stmt = con.createStatement();
 		String strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + "ORDER BY " + strFieldDB;
 		_logger.debug("handleListVal() - sql: " + strSQL);
@@ -281,19 +271,12 @@ public class MVServlet extends HttpServlet {
      * List statistics for the specified fcst_var, using cached data if appropriate, and return it in serialized XML
      * @param nodeCall MVNode containing request information
      * @param requestBody the XML sent by the client which is used to cache the response
-     * @param session HttpSession accompanying the request
+     * @param con Database connection to search against
      * @return XML response information
      * @throws Exception
      */
-    public static String handleListStat(MVNode nodeCall, String requestBody, HttpSession session) throws Exception{
+    public static String handleListStat(MVNode nodeCall, String requestBody, Connection con) throws Exception{
 
-    	//  validate the database connection
-		if( null == session.getAttribute("con") ){						
-	    	_logger.error("handleListVal() - no session connection found");
-	    	return "<error>no session connection found</error>";
-		} 
-		Connection con = (Connection)session.getAttribute("con");
-		
 		//  if the request is for the mode stats, return the static list
 		String strId = nodeCall._children[0]._value;
 		String strFcstVar = nodeCall._children[1]._value;
@@ -326,7 +309,7 @@ public class MVServlet extends HttpServlet {
 		int intNumStat = 0;
 		ResultSet res = stmt.getResultSet();
 		while( res.next() ){
-			strResp += "<stat>" + res.getString(1) + "</stat>";
+			strResp += "<val>" + res.getString(1) + "</val>";
 			intNumStat++;
 		}
 		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));

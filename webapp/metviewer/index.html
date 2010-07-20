@@ -1,12 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-    <title>METViewer</title>
-    <link rel="stylesheet" type="text/css" href="include/metviewer.css" />
-    <link rel="shortcut icon" href="include/favicon.ico" type="image/x-icon" />
+<title>METViewer</title>
+<link rel="stylesheet" type="text/css" href="include/metviewer.css"/>
+<link rel="shortcut icon" href="include/favicon.ico" type="image/x-icon"/>
 </head>
 
-<body onLoad="onLoad()" style="padding-left:20px">
+<body onLoad="onLoad()" style="padding-left: 20px">
 
 <script type="text/javascript"><!--
 
@@ -15,6 +15,7 @@ var _boolDim = false;
 
 var _url;
 
+var _strDBCon = "";
 var _boolDBStatus = false;
 
 var _intDepIdNext = 1;
@@ -23,23 +24,31 @@ var _listDepDiv = new Array();
 var _divFieldVal;
 var _intFieldValIdNext = 0;
 
-var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
-var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_INIT", "FCST_LEV"];
+var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
+var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_INIT", "FCST_LEV"];
 var _listVar = _listVarStat;
 
 var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 
-var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH"];
-var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR"];
+var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "INIT_HOUR"];
+var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "INIT_HOUR"];
 var _listIndyVar = _listIndyVarStat;
+var _intIndyValIdNext = 0;
 
 var _strPlotData = "stat";
 
+var _strFmtPlotWidth = "275px";
+var _intNumFmtPlotCol = 4;
+var _intFmtPlotTxtIndex = 0;
+var _intFmtPlotBoolIndex = 0;
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+var _listFmtSeries;
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Administration/Utility Functions
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -71,20 +80,115 @@ function onLoad(){
 
 	//  initialize the database list and controls
 	listDBReq();
-	selectDBResp("<disconnected>");
-
-	_divFieldVal = document.getElementById("divFieldVal");
-	fillSelect(document.getElementById("selField"), _listVar);
 	
 	//  initialize the dep list
 	_listDepDiv.push( document.getElementById("divDep0") );
 
 	//  initialize the series lists
+	_divFieldVal = document.getElementById("divFieldVal");
+	fillSelect(document.getElementById("selField"), _listVar);
 	addSeries1Div();
-	document.getElementById("lnkRemoveFieldVal0").style.display = "none";	
+	document.getElementById("lnkRemoveFieldVal0").style.display = "none";
 
 	//  initialize the independent variable controls
 	fillSelect(document.getElementById("selIndyVar"), _listIndyVar);
+
+	//  initialize the plot format controls
+	for(var i=1; i < _intNumFmtPlotCol; i++){
+		var tdFmtPlotBool = document.getElementById("trFmtPlotBool").insertCell(i);
+		tdFmtPlotBool.align = "right";
+		tdFmtPlotBool.style.width = _strFmtPlotWidth;
+		tdFmtPlotBool.appendChild( document.createTextNode("\u00a0") );
+	}
+	for(var i=1; i < _intNumFmtPlotCol; i++){
+		var tdFmtPlotTxt = document.getElementById("trFmtPlotTxt").insertCell(i);
+		tdFmtPlotTxt.align="right";
+		tdFmtPlotTxt.style.width = _strFmtPlotWidth;
+		tdFmtPlotTxt.appendChild( document.createTextNode("\u00a0") );
+	}
+
+	addFmtPlot("event_equal",	"false",	"bool");
+	addFmtPlot("plot1_diff",	"false",	"bool");
+	addFmtPlot("plot2_diff",	"false",	"bool");
+	addFmtPlot("num_stats",		"false",	"bool");
+	addFmtPlot("indy1_stag",	"false",	"bool");
+	addFmtPlot("indy2_stag",	"false",	"bool");
+	addFmtPlot("grid_on",		"true",		"bool");
+	addFmtPlot("sync_axes",		"false",	"bool");
+	addFmtPlot("dump_points1",	"false",	"bool");
+	addFmtPlot("dump_points2",	"false",	"bool");
+	addFmtPlot("log_y1",		"false",	"bool");
+	addFmtPlot("log_y2",		"false",	"bool");
+	
+	addFmtPlot("plot_type",		"png256",	"txt");
+	addFmtPlot("plot_height",	"8.5",		"txt");
+	addFmtPlot("plot_width",	"11",		"txt");
+	addFmtPlot("plot_res",		"72",		"txt");
+	addFmtPlot("plot_units",	"in",		"txt");
+	addFmtPlot("mar",			"c(8, 4, 5, 4)", "txt");
+	addFmtPlot("mgp",			"c(1, 1, 0)", "txt");
+	addFmtPlot("cex",			"1",		"txt");
+	addFmtPlot("title_weight",	"2",		"txt");
+	addFmtPlot("title_size",	"1.4",		"txt");
+	addFmtPlot("title_offset",	"-.4",		"txt");
+	addFmtPlot("title_align",	".5",		"txt");
+	addFmtPlot("xtlab_orient",	"1",		"txt");
+	addFmtPlot("xtlab_perp",	"-.75",		"txt");
+	addFmtPlot("xtlab_horiz",	".5",		"txt");
+	addFmtPlot("xlab_weight",	"1",		"txt");
+	addFmtPlot("xlab_size",		"1",		"txt");
+	addFmtPlot("xlab_offset",	"2",		"txt");
+	addFmtPlot("xlab_align",	".5",		"txt");
+	addFmtPlot("ytlab_orient",	"1",		"txt");
+	addFmtPlot("ytlab_perp",	".5",		"txt");
+	addFmtPlot("ytlab_horiz",	".5",		"txt");
+	addFmtPlot("ylab_weight",	"1",		"txt");
+	addFmtPlot("ylab_size",		"1",		"txt");
+	addFmtPlot("ylab_offset",	"-2",		"txt");
+	addFmtPlot("ylab_align",	".5",		"txt");
+	addFmtPlot("grid_lty",		"3",		"txt");
+	addFmtPlot("grid_col",		"#CCCCCC",	"txt");
+	addFmtPlot("grid_lwd",		"1",		"txt");
+	addFmtPlot("grid_x",		"listX",	"txt");
+	addFmtPlot("x2tlab_orient",	"1",		"txt");
+	addFmtPlot("x2tlab_perp",	"1",		"txt");
+	addFmtPlot("x2tlab_horiz",	".5",		"txt");
+	addFmtPlot("x2lab_weight",	"1",		"txt");
+	addFmtPlot("x2lab_size",	".8",		"txt");
+	addFmtPlot("x2lab_offset",	"-.5",		"txt");
+	addFmtPlot("x2lab_align",	".5",		"txt");
+	addFmtPlot("y2tlab_orient",	"1",		"txt");
+	addFmtPlot("y2tlab_perp",	".5",		"txt");
+	addFmtPlot("y2tlab_horiz",	".5",		"txt");
+	addFmtPlot("y2lab_weight",	"1",		"txt");
+	addFmtPlot("y2lab_size",	"1",		"txt");
+	addFmtPlot("y2lab_offset",	"1",		"txt");
+	addFmtPlot("y2lab_align",	".5",		"txt");
+	addFmtPlot("legend_size",	".8",		"txt");
+	addFmtPlot("legend_box",	"o",		"txt");
+	addFmtPlot("legend_inset",	"c(0, -.25)", "txt");
+	addFmtPlot("legend_ncol",	"3",		"txt");
+	addFmtPlot("box_boxwex",	"1",		"txt");
+	addFmtPlot("box_notch",		"FALSE",	"txt");
+	addFmtPlot("ci_alpha",		".05", 		"txt");
+}
+
+function parse(){
+	var strData = document.getElementById("txtData").value;
+	var strPattern = document.getElementById("txtPattern").value;
+
+	console("parse()\n  data: " + strData + "\n  pattern: " + strPattern + "\n");
+
+	var pat = new RegExp(strPattern);
+	var listParse = strData.match( pat );
+	if( null != listParse ){
+		console("  match:\n");
+		for(i in listParse){ console("    listParse[" + i + "]: " + listParse[i] + "\n"); }
+	} else {
+		console("  no match\n");
+	}
+
+	console("parse() complete\n\n");
 }
 
 
@@ -126,14 +230,14 @@ function dimScreen(boolDim){
 }
 
 /**
- * Debugging facility which dumps the DHTML for the input element into the console 
+ * Debugging facility which dumps the DHTML for the input element into the console
  */
 function serialize(strId){
 	var doc = document.getElementById(strId);
 	var strXML = "";
 	try     { strXML = XML( (new XMLSerializer()).serializeToString(doc) ).toXMLString(); }
-	catch(e){ strXML = doc.outerHTML; } 
-	console("\n" + strXML + "\n\n");		
+	catch(e){ strXML = doc.outerHTML; }
+	console("\n" + strXML + "\n\n");
 }
 
 /**
@@ -146,7 +250,6 @@ function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>"
  * Clear and populate a select list with the specified id with the items in the specified list
  */
 function fillSelect(sel, listOpt){
-	//var sel = document.getElementById(strId);
 	while( 0 < sel.length ){ sel.remove(sel.length - 1); }
 	for(i in listOpt){
 		var opt = document.createElement("option");
@@ -156,8 +259,19 @@ function fillSelect(sel, listOpt){
 }
 
 /**
+ * Build a list of the selected items in the specified select control 
+ */
+function getSelected(sel){
+	var listRet = new Array();
+	for(var i=0; i < sel.options.length; i++){
+		if( sel.options[i].selected ){ listRet.push( sel.options[i].text ); }
+	}
+	return listRet; 
+}
+
+/**
  * Search the specified div list for the member with the specified id and return its index.  The div id
- *  is determined from the value of the div input with the specified index.  
+ *  is determined from the value of the div input with the specified index.
  */
 function findDivId(listDiv, intDivId, intInputIndex){
  	var intIndex = -1;
@@ -165,12 +279,37 @@ function findDivId(listDiv, intDivId, intInputIndex){
  		var intIdCur = listDiv[i].getElementsByTagName("input")[intInputIndex].value;
  		if( intDivId == intIdCur ){ intIndex = i; }
  	}
- 	return intIndex;	
+ 	return intIndex;
 }
 
+/**
+ * A simple data structure for storing the components of a parsed <list_val> reponse
+ */
+function ListValResp(id, vals){
+	this.id = id;
+	this.vals = vals;
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/**
+ * Parse the specified <list_val> server response XML and return the results in a listVal object
+ */
+function parseListValResp(strResp, strType){
+	var listProc = strResp.match( new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>(.*)<\/val><\/list_" + strType + ">") );
+	if( null == listProc ){
+		console("parseListValResp() - ERROR: could not parse response: " + strResp + "\n\n");
+		return null;
+	}
+	return new ListValResp(listProc[1], listProc[2].split( /<\/val><val>/ ));
+}
+
+/**
+ * Print an array of string values to the console, for debugging
+ */
+function printList(listVal){ for(var i=0; i < listVal.length; i++){ console("    listVal[" + i + "]: " + listVal[i] + "\n"); } }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  AJAX Functions
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -182,7 +321,7 @@ function getRequest(){
 	var req;
 	if (window.XMLHttpRequest) { req = new XMLHttpRequest(); }
 	else if (window.ActiveXObject) {
-		try{ req = new ActiveXObject("Microsoft.XMLHTTP"); } 
+		try{ req = new ActiveXObject("Microsoft.XMLHTTP"); }
 		catch (e) { try { req = new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {} }
 	}
 	return req;
@@ -194,6 +333,9 @@ function getRequest(){
 function sendRequest(reqType, reqData, fnResp){
 
 	dimScreen(true);
+
+	//  add the database connection to the request, if appropriate
+	if( null == reqData.match( /<list_db\/>/ ) ){ reqData = "<db_con>" + _strDBCon + "</db_con>" + reqData; }
 	console("sendRequest() - request: " + reqData + "\n");
 
 	//  set the request to wait until the data is ready
@@ -209,7 +351,9 @@ function sendRequest(reqType, reqData, fnResp){
 
 			//  dispatch the response
 			console("sendRequest() - response: " + strResp + "\n\n");
-			fnResp(strResp);
+			var listParse = strResp.match( /<error>(.*)<\/error>/ );
+			if( null != listParse ){ alert("METViewer error: " + listParse[1]); }
+			else                   { fnResp(strResp);                           }
 			dimScreen(false);
         }
 	};
@@ -236,8 +380,8 @@ function sendRequest(reqType, reqData, fnResp){
 function nullResp(strResp){}
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Database Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -245,47 +389,34 @@ function nullResp(strResp){}
 /**
  * Test functions related to the GET and POST test controls
  */
-function testPostReq()    { sendRequest("POST", document.getElementById("txtPost").value, testResp); }
-function testGetReq()     { sendRequest("GET", document.getElementById("txtGet").value, testResp);   }
-function testResp(strResp){ console("testResp() - response: " + strResp + "\n\n"); }
+function testPostReq()    { sendRequest("POST", document.getElementById("txtPost").value, nullResp); }
+function testGetReq()     { sendRequest("GET", document.getElementById("txtGet").value, nullResp);   }
 
 /**
- * Request and process the list of databases, populating the database list select control 
+ * Request and process the list of databases, populating the database list select control
  */
 function listDBReq(){ sendRequest("POST", "<list_db/>", listDBResp); }
 function listDBResp(strResp){
-
-	//  parse the list of databases and populate the list
-	var listDB = strResp.replace(/<list_db><db>/, "").replace(/<\/db><\/list_db>/, "").split( /<\/db><db>/ );
-	fillSelect(document.getElementById("selDB"), listDB);
+	var resp = parseListValResp(strResp, "db");
+	fillSelect(document.getElementById("selDB"), resp.vals);
+	updateDBCon();
 }
 
 /**
- * Request and process the database connect command, updating the GUI database status control
+ * When the selected database is changed, update the data members and controls
  */
-function selectDBReq(){
+function updateDBCon(){
 	var selDB = document.getElementById("selDB");
-	sendRequest("POST", "<connect_db>" + selDB.options[selDB.selectedIndex].text + "</connect_db>", selectDBResp);
-}
-function selectDBResp(strResp){
+	_strDBCon = selDB.options[selDB.selectedIndex].text;
+	console("updateDBCon() - _strDBCon: " + _strDBCon + "\n\n");
 
-	//  update the connection status
-	_boolDBStatus = (-1 < strResp.indexOf("<connected>") );
-	var strDBStatus	= document.getElementById("spanDBStatus");
-	var spanPlotControls = document.getElementById("spanPlotControls");	
-
-	//  update the status controls
-	strDBStatus.style.color			= _boolDBStatus? "#66cc66"   : "#cc6666";
-	strDBStatus.innerHTML			= _boolDBStatus? "Connected" : "Disconnected";
-	spanPlotControls.style.display	= _boolDBStatus? "inline"    : "none";
-
-	//  initialize the fcst_var controls if a successful connection is made
-	if( _boolDBStatus ){ listFcstVarReq(0); }
+	//  populate the dep list of fcst_var
+	listFcstVarReq(0);
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Dependent Variable Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -309,7 +440,7 @@ function addDep(){
  	divDep.getElementsByTagName("input")[2].name = "radAxis" + intDepId;
  	var selStat = divDep.getElementsByTagName("select")[1];
  	while( 0 < selStat.length ){ selStat.remove(selStat.length - 1); }
- 	selStat.style.display = "none";		
+ 	selStat.style.display = "none";
  	selStat.id = "selStat" + intDepId;
  	var lblStat = divDep.getElementsByTagName("span")[0];
  	lblStat.style.display = "none";
@@ -332,7 +463,7 @@ function addDep(){
  * Remove the specified dep div from the list of dependent variable controls
  */
 function removeDepVar(intDepId){
-	removeFieldValDiv(intDepId, _listDepDiv, 3);	
+	removeFieldValDiv(intDepId, _listDepDiv, 3);
  	if( 1 == _listDepDiv.length ){ _listDepDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
 }
 
@@ -351,36 +482,31 @@ function listFcstVarResp(strResp){ selectFieldResp(strResp, _listDepDiv, 3, 0); 
 function selectFcstVarReq(intId){
 	var selFcstVar = document.getElementById("selFcstVar" + intId);
 	sendRequest("POST",
-				"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].text + 
-					"</" + _strPlotData + "_fcst_var></list_stat>", 
-				selectFcstVarResp);	
+				"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].text +
+					"</" + _strPlotData + "_fcst_var></list_stat>",
+				selectFcstVarResp);
 }
 function selectFcstVarResp(strResp){
 
 	//  parse the response
-	var listProc = strResp.match( /<list_stat><id>(\d+)<\/id>(.*)<\/list_stat>/ );
-	if( null == listProc ){
-		console("selectFcstVarResp() - ERROR: could not parse response: " + strResp + "\n\n");
-		return;		
-	}
-	var intDepId = listProc[1];
-	var listStat = listProc[2].replace( /^<stat>/, "" ).replace( /<\/stat>$/, "" ).split( /<\/stat><stat>/ );
+	var resp = parseListValResp(strResp, "stat");
+	if( null == resp ){ return; }
 
 	//  populate and display the stats select control
-	var selFcstVar = document.getElementById("selStat" + intDepId);
-	fillSelect(selFcstVar, listStat);
+	var selFcstVar = document.getElementById("selStat" + resp.id);
+	fillSelect(selFcstVar, resp.vals);
 	selFcstVar.style.display = "inline";
-	document.getElementById("lblStat" + intDepId).style.display = "inline";
+	document.getElementById("lblStat" + resp.id).style.display = "inline";
 }
 
 /**
- * Build an XML criteria string for a <list_val> command which contains the list of currently selected 
- * dependent variable fcst_var values  
+ * Build an XML criteria string for a <list_val> command which contains the list of currently selected
+ * dependent variable fcst_var values
  */
 function buildFcstVarCrit(){
 	var strFixCrit = "<field name=\"FCST_VAR\">";
 	for(i in _listDepDiv){
-		var selFcstVar = _listDepDiv[i].getElementsByTagName("select")[0];
+		var selFcstVar = _listDepDiv[i].getElementsByTagName("select")[0];		
 		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].text + "</val>";
 	}
 	strFixCrit += "</field>";
@@ -388,8 +514,8 @@ function buildFcstVarCrit(){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Field Value Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -404,7 +530,7 @@ function addFieldValDiv(category, listDiv){
 	var intId = _intFieldValIdNext++;
 
 	//  clone the field value div and update the controls
-	var divFieldVal = _divFieldVal.cloneNode(true);	
+	var divFieldVal = _divFieldVal.cloneNode(true);
 	divFieldVal.id = "divFieldVal" + intId;
 	divFieldVal.getElementsByTagName("select")[0].id = "selFieldVal" + intId;
 	var btnFieldVal = divFieldVal.getElementsByTagName("input")[0];
@@ -412,7 +538,7 @@ function addFieldValDiv(category, listDiv){
 	if( _boolIE ){ btnFieldVal.attachEvent("onclick", new Function("select" + category + "VarReq(" + intId + ")")); }
 	var selVal = divFieldVal.getElementsByTagName("select")[1];
 	while( 0 < selVal.length ){ selVal.remove(selVal.length - 1); }
-	selVal.style.display = "none";		
+	selVal.style.display = "none";
 	selVal.id = "selVal" + intId;
 	divFieldVal.getElementsByTagName("span")[1].id = "lnkRemoveFieldVal" + intId;
 	var lnkRemove = divFieldVal.getElementsByTagName("a")[0];
@@ -450,7 +576,7 @@ function removeFieldValDiv(intId, listDiv, intInputId){
 /**
  * Build a list_val server request for the field val with the specified id in the specified controls
  * list.  The request includes the fixed value criteria up to the specified index.  The response xml
- * is passed to the specified response function.  
+ * is passed to the specified response function.
  */
 function selectFieldReq(intId, listDiv, intFixEnd, fnResp){
 
@@ -466,45 +592,40 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp){
 	var strFixCrit = buildFixCrit(intFixEnd);
 	var selField = listDiv[intIndex].getElementsByTagName("select")[0];
 	var strField = selField.options[selField.selectedIndex].text;
-	sendRequest("POST", 
-				"<list_val><id>" + intId + "</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" + 
-				strFcstVarCrit + strFixCrit + "</list_val>", 
-				fnResp); 	
+	sendRequest("POST",
+				"<list_val><id>" + intId + "</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" +
+				strFcstVarCrit + strFixCrit + "</list_val>",
+				fnResp);
 }
 
 /**
- * Handle the specified <list_val> response XML (strResp), populating the div from the input list with the 
- * id contained in the response <id>.  The div id is determined by examining the hidden field with the 
- * specified index (intIdIndex).  The select control of the specified index (intSelIndex) will be populated. 
+ * Handle the specified <list_val> response XML (strResp), populating the div from the input list with the
+ * id contained in the response <id>.  The div id is determined by examining the hidden field with the
+ * specified index (intIdIndex).  The select control of the specified index (intSelIndex) will be populated.
  */
 function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
-
+	
 	//  parse the response
-	var listProc = strResp.match( /<list_val><id>(\d+)<\/id>(.*)<\/list_val>/ );
-	if( null == listProc ){
-		console("selectFieldResp() - ERROR: could not parse response: " + strResp + "\n\n");
-		return;		
-	}
-	var intId = listProc[1];
-	var listVal = listProc[2].replace( /^<val>/, "" ).replace( /<\/val>$/, "" ).split( /<\/val><val>/ );
+	var resp = parseListValResp(strResp, "val");
+	if( null == resp ){ return; }
 
 	//  retrieve and validate the div from the input div list
-	var intIndex = findDivId(listDiv, intId, intIdIndex);
+	var intIndex = findDivId(listDiv, resp.id, intIdIndex);
 	if( 0 > intIndex ){
-		console("selectFieldResp() - ERROR: index for div id " + intId + " not found\n\n");
-		return;		
+		console("selectFieldResp() - ERROR: index for div id " + resp.id + " not found\n\n");
+		return;
 	}
 
 	//  add the field values to the value select list
 	var selVal = listDiv[intIndex].getElementsByTagName("select")[intSelIndex];
 	selVal.style.display = "inline";
-	fillSelect(selVal, listVal);
+	fillSelect(selVal, resp.vals);
 		
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Series Variable Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -532,8 +653,8 @@ function selectSeries2VarReq(intId){ selectFieldReq(intId, _listSeries2Div, _lis
 function selectSeries2VarResp(strResp){ selectFieldResp(strResp, _listSeries2Div, 1, 1); }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Fixed Variable Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -548,7 +669,7 @@ function selectFixVarReq(intId){
 	if( 0 > intIndexCrit ){
 		console("selectFixVarReq() - ERROR: index for id " + intId + " not found\n");
 		return;
-	} 
+	}
 	selectFieldReq(intId, _listFixDiv, intIndexCrit - 1, selectFixVarResp);
 }
 function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1); }
@@ -563,117 +684,223 @@ function buildFixCrit(endIndex){
 		var divFixCrit = _listFixDiv[i];
 		var selFixCrit = divFixCrit.getElementsByTagName("select")[0];
 		var strFixCritCur = "<field name=\"" + selFixCrit.options[ selFixCrit.selectedIndex ].text + "\">";
-		var selFixCritVal = divFixCrit.getElementsByTagName("select")[1];
-		var intFixCritNum = 0;
-		for(j=0; j < selFixCritVal.length; j++){
-			var optFixCritVal = selFixCritVal.options[j];
-			if( optFixCritVal.selected ){
-				strFixCritCur += "<val>" + optFixCritVal.text + "</val>";
-				intFixCritNum++;
-			}
-		}
+		var listFixCritVal = getSelected( divFixCrit.getElementsByTagName("select")[1] );
+		for(var j=0; j < listFixCritVal.length; j++){ strFixCritCur += "<val>" + listFixCritVal[j] + "</val>"; }
 		strFixCritCur += "</field>";
-		if( 0 < intFixCritNum ){ strFixCrit += strFixCritCur; }
+		if( 0 < listFixCritVal.length ){ strFixCrit += strFixCritCur; }
 	}
 	return strFixCrit;
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
- * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  *  Independent Variable Controls
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function selectIndyVarReq(){
-	console("selectIndyVarReq()\n");
 	
 	//  build a list_val request for the selected independent field
 	var strFcstVarCrit = buildFcstVarCrit();
 	var strFixCrit = buildFixCrit(_listFixDiv.length - 1);
 	var selIndyVar = document.getElementById("selIndyVar");
 	var strField = selIndyVar.options[selIndyVar.selectedIndex].text;
-	console("  strField: " + strField + "\n  strFixCrit: " + strFixCrit + "\n");
 	sendRequest("POST",
-				"<list_val><id>0</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" + 
-					strFcstVarCrit + strFixCrit + "</list_val>", 
-				selectIndyVarResp); 	
-	console("selectIndyVarReq() complete\n\n");
+				"<list_val><id>0</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" +
+					strFcstVarCrit + strFixCrit + "</list_val>",
+				selectIndyVarResp);
 }
 function selectIndyVarResp(strResp){
-	console("selectIndyVarResp()\n  strResp: " + strResp + "\n");
+
+	//  parse the response
+	var resp = parseListValResp(strResp, "val");
+	if( null == resp ){ return; }
+
+	//  hide all currently display indy val controls
+	var tabIndyVal = document.getElementById("tabIndyVal");
+	while( 1 < tabIndyVal.rows.length ){ tabIndyVal.deleteRow(tabIndyVal.rows.length - 1); }
+
+	//  add a indy val control group for each indy value
+	var divIndy = document.getElementById("divIndy");
+	var trIndyVal0 = tabIndyVal.rows[0];
+	for( i in resp.vals ){
+		var trIndyVal = tabIndyVal.insertRow(tabIndyVal.rows.length);
+
+		var tdIndyChk = trIndyVal.insertCell(0);
+		tdIndyChk.appendChild( document.getElementById("spanIndyValChk").cloneNode(true) );
+		var tdIndyLab = trIndyVal.insertCell(1);
+		tdIndyLab.appendChild( document.getElementById("spanIndyValLab").cloneNode(true) );
+		trIndyVal.getElementsByTagName("span")[1].innerHTML = resp.vals[i];
+		trIndyVal.style.display = "table-row";
+		trIndyVal.getElementsByTagName("input")[1].value = resp.vals[i];
+	}
+}
 
 
-	console("selectIndyVarResp() complete\n\n");
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Plot Formatting Controls
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+function addFmtPlot(label, value, type){
+
+	var boolTypeTxt = (type == "txt");
+	var intFmtIndex = (boolTypeTxt? _intFmtPlotTxtIndex : _intFmtPlotBoolIndex);
+	var intCol = intFmtIndex % _intNumFmtPlotCol
+	var tabFmt = document.getElementById( boolTypeTxt? "tabFmtPlotTxt" : "tabFmtPlotBool" );
+	var tdFmt;
+
+	//  if the index is zero, populate the existing cell
+	if( 0 == intFmtIndex ){
+		tdFmt = tabFmt.rows[0].cells[0];
+	}
+
+	//  if the table requires a new row, create one
+	else if( 0 == intCol ){
+		var trFmt = tabFmt.insertRow( tabFmt.rows.length );
+		for(var i=0; i < _intNumFmtPlotCol; i++){
+			tdFmt = trFmt.insertCell(i);
+			tdFmt.align = "right";
+			tdFmt.style.width = _strFmtPlotWidth;
+			tdFmt.appendChild( document.createTextNode("\u00a0") );
+		}
+		tdFmt = trFmt.cells[0];
+	}
+
+	//  if a new row is not required, get the next available cell on the current row
+	else {
+		tdFmt = tabFmt.rows[ tabFmt.rows.length - 1 ].cells[intCol];
+	}
+
+	//  populate the controls with the specified input information
+	if( 0 != intFmtIndex ){
+		tdFmt.appendChild( document.getElementById( boolTypeTxt? "spanFmtPlotTxt" : "spanFmtPlotBool" ).cloneNode(true) );
+	}
+	tdFmt.getElementsByTagName("span")[1].innerHTML = label + ":";
+	if( boolTypeTxt ){
+		tdFmt.getElementsByTagName("input")[0].value = value;
+		_intFmtPlotTxtIndex++;
+	} else {
+		tdFmt.getElementsByTagName("select")[0].selectedIndex = ( "true" == value? 0 : 1 );
+		_intFmtPlotBoolIndex++;
+	}
+}
+
+/**
+ * Build the list of plot series reflected by the current state of the controls
+ */
+function buildSeriesList(){
+console("buildSeriesList()\n  listSeries1Perm:\n");
+
+	var listSeries1Perm = permuteSeries(_listSeries1Div, 0);
+	var listSeries2Perm = permuteSeries(_listSeries2Div, 0);
+printList(listSeries1Perm);
+console("\n");
+		
+	for(var i = 0; i < _listDepDiv.length; i++){
+		var strFcstVar = getSelected( _listDepDiv[i].getElementsByTagName("select")[0] )[0];
+		var listStat = getSelected( _listDepDiv[i].getElementsByTagName("select")[1] );
+
+console("  fcst_var: " + strFcstVar + "\n  listStat:\n");
+printList(listStat);
+
+
+
+	}
+	
+	//_listDepDiv
+	//_listSeries1Div
+	//_listSeries2Div
+
+console("buildSeriesList() complete\n\n");
+}
+
+/**
+ * Build a list of all series variable combinations for the specified list of series field divs, starting with
+ * the div at the specified index (0 for all permutations)
+ */
+function permuteSeries(listSeriesDiv, intIndex){
+
+	if( 1 > listSeriesDiv.length ){ return new Array(); }
+	var listVal = getSelected( listSeriesDiv[intIndex].getElementsByTagName("select")[1] );
+
+	//  if the index has reached the end of the list, return the selected values from the last control
+	if( listSeriesDiv.length == intIndex + 1 ){ return listVal; }
+
+	//  otherwise, get the list for the next fcst_var and build upon it
+	var listValNext = permuteSeries(listSeriesDiv, intIndex + 1);
+	if( 1 > listVal.length ){ return listValNext; }
+	var listRet = new Array();
+	for(var i=0; i < listVal.length; i++){
+		for(var j=0; j < listValNext.length; j++){
+			listRet.push(listVal[i] + " " + listValNext[j]);
+		}
+	}
+	return listRet;
 }
 
 //--></script>
 
 <div id="divDimScreen" class="dimScreen">&nbsp;</div>
-<div id="divLoading" class="loading" align="center" onclick="javascript:dimScreen(false)">
-	Loading...<br/><img src="include/loading_white.gif" style="padding-top:10px"/></div>
+<div id="divLoading" class="loading" align="center" onclick="javascript:dimScreen(false)">Loading...<br/>
+<img src="include/loading_white.gif" style="padding-top:10px"/></div>
 
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td class="title">METViewer</td></tr>
-	<tr><td><hr/></td></tr>	
-	<tr><td>	
-		<!-- 
+	<tr><td><hr/></td></tr>
+	
+	<tr><td>
+		<!--
 		<input type="text" id="txtPost"/>
-		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/><br/><br/>	
+		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/><br/><br/>
 		<input type="text" id="txtGet"/>
 		<input type="button" class="gButton" onclick="javascript:testGetReq()" value="Get"/><br/><br/>
 		 -->
-		 
 		<span class="header">Database:</span>&nbsp;&nbsp;
-		<select id="selDB"></select>
+		<select id="selDB" onChange="javascript:updateDBCon()"></select>
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
-		<input type="button" class="gButton" onclick="javascript:selectDBReq()" value="Connect"/>
-		<span class="bold" style="padding-left:40px">Status:</span>
-		<span id="spanDBStatus" class="bold"></span>
-		<span style="padding-left:100px" class="bold">Plot Data:</span>
+		<span style="padding-left: 100px" class="bold">Plot Data:</span>
 		<select id="selPlotData"><option>Stat</option><option>Mode</option></select><br/><br/><br/>
 	</td></tr>
-		
-	<tr><td height="100%" style="vertical-align:top"><span id="spanPlotControls" style="display:none">
-	
+
+	<tr><td height="100%" style="vertical-align: top"> <span id="spanPlotControls" style="display:inline">
+
 		<div id="divDep">
 			<span class="header">Dependent Variables</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divDep')">Serialize</a><br/><br/>
-		
-			<div id="divDep0">
-				<table><tr>
-					<td class="bold" style="padding-left:20px; padding-right: 10px; height: 70px">Forecast Variable:</td>
-					<td>
-						<table>
-							<tr><td style="height:20px">&nbsp;</td></tr>
-							<tr><td>
-								<select id="selFcstVar0"></select>&nbsp;
-								<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Select"/><br/>
-							</td></tr>
-							<tr><td align="center">
-								<input type="radio" name="radAxis0" checked="checked" /> y1-axis&nbsp;&nbsp;
-		  						<input type="radio" name="radAxis0" /> y2-axis
-							</td></tr>
-						</table>						
-					</td>
-					<td>
-						<span id="lblStat0" class="bold" style="padding-left:20px; padding-right: 10px; display:none">Statistic:</span>
-						<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
-						<span style="display:none">
-							<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-							<a class="link" onclick="javascript:removeDepVar(0)">Remove Dependent Variable</a>
-						</span>
-						<input type="hidden" value="0"/>
-					</td>
-				</tr></table>
-			</div>
-			
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep')">Serialize</a><br/><br/>
+
+			<div id="divDep0"><table><tr>
+				<td class="bold" style="padding-left: 20px; padding-right: 10px; height: 70px">Forecast Variable:</td>
+				<td><table>
+					<tr><td style="height: 20px">&nbsp;</td></tr>
+					<tr><td>
+						<select id="selFcstVar0"></select>&nbsp;
+						<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Select"/><br/>
+					</td></tr>
+					<tr><td align="center">
+						<input type="radio" name="radAxis0" checked="checked"/> y1-axis&nbsp;&nbsp;
+						<input type="radio" name="radAxis0"/> y2-axis
+					</td></tr>
+				</table></td>
+				<td>
+					<span id="lblStat0" class="bold" style="padding-left:20px; padding-right:10px; display:none">Statistic:</span>
+					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
+					<span style="display:none">
+						<img src="include/sub_symbol.gif" style="padding-left: 20px"/>&nbsp;&nbsp;
+						<a class="link" onclick="javascript:removeDepVar(0)">Remove Dependent Variable</a>
+					</span>
+					<input type="hidden" value="0"/>
+				</td>
+			</tr></table></div>
+
 			<img id="imgDep" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addDep()">Add a Dependent Variable</a><br/><br/><br/>
 		</div><br/><br/>
-	
+
 		<div id="divFieldVal" style="display:none">
-			<span class="bold" style="padding-left:20px; padding-right:10px">Database Field:</span>
+			<span class="bold" style="padding-left: 20px; padding-right:10px">Database Field:</span>
 			<select id="selField"></select>&nbsp;
 			<input type="button" class="gButton" onclick="javascript:selectFieldReq()" value="Select"/>&nbsp;&nbsp;
 			<select id="selVal" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
@@ -682,60 +909,128 @@ function selectIndyVarResp(strResp){
 				<a class="link" onclick="javascript:removeFieldVal()">Remove Field</a>
 			</span>
 			<input type="hidden" value=""/><br/><br/>
-		</div>	
-	
+		</div>
+
 		<div id="divFix">
 			<span class="header">Fixed Values</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFix')">Serialize</a><br/><br/>
-			 
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divFix')">Serialize</a><br/><br/>
+
 			<img id="imgFix" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
 		</div><br/><br/>
-		
+
 		<div id="divSeries1">
 			<span class="header">Series y1 Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')">Serialize</a><br/><br/>
-		
+
 			<img id="imgSeries1" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addSeries1Div()">Add a Series1 Value</a><br/><br/><br/>
 		</div><br/><br/>
-		
+
 		<div id="divSeries2">
 			<span class="header">Series y2 Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')">Serialize</a><br/><br/>
-		
+
 			<img id="imgSeries2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addSeries2Div()">Add a Series2 Value</a><br/><br/><br/>
 		</div><br/><br/>
-		
+
 		<div id="divIndy">
 			<span class="header">Independent Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')">Serialize</a><br/><br/>
-		
+
 			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
 			<select id="selIndyVar"></select>&nbsp;
 			<input type="button" class="gButton" onclick="javascript:selectIndyVarReq()" value="Select"/><br/><br/>
-			
-			<div id="divIndyVal0">
-				<input type="checkbox" id="chkIndyVal0" value="test value" style="vertical-align:middle">Include</input>&nbsp;&nbsp;
-				label: <input type="text" id="txtIndyLabel0" size="10"/>&nbsp;&nbsp;
-				plot val: <input type="text" id="txtIndyPlotVal0" size="10"/><br/>
-			</div>
-		</div>
-	
+
+			<table id="tabIndyVal" style="padding-left:60px"><tr id="trIndyVal" style="display:none">
+				<td style="width: 100px">
+					<span id="spanIndyValChk">
+						<input type="checkbox" value="test value" style="vertical-align:middle" check="checked"/>
+						<span id="spanIndyVal" style="font-weight: bold">(indy val)</span>&nbsp;&nbsp;
+					</span>
+				</td>
+				<td id="tdIndyValLab">
+					<span id="spanIndyValLab">
+						label: <input type="text" size="8"/>&nbsp;&nbsp;
+						plot val: <input type="text" size="8"/><br/>
+					</span>
+				</td>
+			</tr></table>
+		</div><br/><br/>
+
+		<div id="divFmtPlot">
+			<span class="header">Plot Formatting</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtPlot')">Serialize</a><br/><br/>
+
+			<table id="tabFmtPlotBool" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotBool">
+				<td align="right">&nbsp;
+					<span id="spanFmtPlotBool" style="padding-right:38px">
+						<span class="bold">Bool Field:</span>
+						<select><option>true</option><option>false</option></select>
+					</span>
+				</td>
+			</tr></table><br/><br/>
+
+			<table id="tabFmtPlotTxt" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotTxt">
+				<td align="right">&nbsp;
+					<span id="spanFmtPlotTxt">
+						<span class="bold">Format Field:</span>
+						<input type="text" size="12"/>
+					</span>
+				</td>
+			</tr></table>
+		</div><br/><br/>
+
+		<div id="divFmtSeries">
+			<span class="header">Series Formatting</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')">Serialize</a><br/><br/>
+
+			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="1"><tr>
+				<td align="right" id="tdFmtSeriesName" style="width: 350px">
+					<span class="bold" style="font-size:10pt; padding-right: 20px">Series Name</span>
+				</td>
+				<td align="right" id="tdFmtSeriesFmt1" style="width: 200px">
+					<span class="bold">plot_ci:</span><input type="text" size="12"/><br/>
+					<span class="bold">colors:</span><input type="text" size="12"/><br/>
+					<span class="bold">pch:</span><input type="text" size="12"/><br/>
+					<span class="bold">type:</span><input type="text" size="12"/><br/>
+				</td>
+				<td align="right" id="tdFmtSeriesFmt2" style="width: 275px">
+					<span class="bold">lty:</span><input type="text" size="12"/><br/>
+					<span class="bold">lwd:</span><input type="text" size="12"/><br/>
+					<span class="bold">con_series:</span><input type="text" size="12"/><br/>
+				</td>
+			</tr></table>
+
+		</div><br/><br/>
+		
 	</span>&nbsp;</td></tr>
-	
-	<tr><td>
+
+	<tr>
+		<td><span class="header">Regex Test</span>
+		<table>
+			<tr>
+				<td>Data:</td>
+				<td><input type="text" id="txtData" size="50"/></td>
+			</tr>
+			<tr>
+				<td>Pattern:</td>
+				<td><input type="text" id="txtPattern" size="50"/></td>
+			</tr>
+			<tr><td colspan="2"><input type="button" class="gButton"onclick="javascript:parse()" value="Parse"/></td></tr>
+		</table><br/><br/>
+
 		<b>Console:</b>
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
-		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>		
-		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/><br/>
-		<textarea rows="20" cols="160" id="txtConsole"></textarea>
-	</td></tr>
+		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
+		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
+		<input type="button" class="gButton" onclick="javascript:buildSeriesList()" value="Perm"/><br/>
+		<textarea rows="20" cols="160" id="txtConsole"></textarea></td>
+	</tr>
 
 </table>
-
 
 </body>
 </html>

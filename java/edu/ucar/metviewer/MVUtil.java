@@ -15,6 +15,24 @@ public class MVUtil{
 	public static String getSQLDateFormat(String field){ return "DATE_FORMAT(" + field + ", '%Y-%m-%d %H:%i:%s')"; }
 	
 	/**
+	 * Return the SQL expression that corresponds to the specified field name.  In most cases, this will simply be
+	 * the input field with an 'h.' prepended. 
+	 * @param field User specified field name
+	 * @param mode true if the output field should belong to the mode_header table, otherwise it will belong to
+	 *   the stat_header table 
+	 * @return Formatted field
+	 */
+	public static String formatField(String field, boolean mode){
+		if( field.equals("init_hour") )          { return (mode? "HOUR(h.fcst_init)"  : "HOUR(h.fcst_init_beg)");  }
+		else if( field.equals("valid_hour") )    { return (mode? "HOUR(h.fcst_valid)" : "HOUR(h.fcst_valid_beg)"); }
+		else if( field.equals("fcst_init_beg") ) { return getSQLDateFormat("h.fcst_init_beg");  }
+		else if( field.equals("fcst_init") )     { return getSQLDateFormat("h.fcst_init");      }
+		else if( field.equals("fcst_valid_beg") ){ return getSQLDateFormat("h.fcst_valid_beg"); }
+		else if( field.equals("fcst_valid") )    { return getSQLDateFormat("h.fcst_valid");     }
+		else									 { return "h." + field;                         }
+	}
+	
+	/**
 	 * Query the database for a list of all ordered distinct fcst_init_begs and return them for use as 
 	 * an aggregate value list.  If a date range is desired, specify either or both the begin and
 	 * end dates in the SQL format YYYY-MM-dd HH:mm:ss.  
