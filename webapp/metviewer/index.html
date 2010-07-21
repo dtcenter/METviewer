@@ -44,8 +44,6 @@ var _intNumFmtPlotCol = 4;
 var _intFmtPlotTxtIndex = 0;
 var _intFmtPlotBoolIndex = 0;
 
-var _listFmtSeries;
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -699,6 +697,10 @@ function buildFixCrit(endIndex){
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/**
+ * Build and run a request for values for the currently selected independent variable and populate
+ * the independent variable value list with the results
+ */
 function selectIndyVarReq(){
 	
 	//  build a list_val request for the selected independent field
@@ -744,6 +746,11 @@ function selectIndyVarResp(strResp){
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/**
+ * Construct plot formatting controls with the specified label, value and type.  The currently
+ * supported values of type are "txt" and "bool".  The controls are placed at the next available
+ * place for their respective type. 
+ */
 function addFmtPlot(label, value, type){
 
 	var boolTypeTxt = (type == "txt");
@@ -791,46 +798,103 @@ function addFmtPlot(label, value, type){
 /**
  * Build the list of plot series reflected by the current state of the controls
  */
-function buildSeriesList(){
-console("buildSeriesList()\n  listSeries1Perm:\n");
+function buildSeriesDiv(){
 
-	var listSeries1Perm = permuteSeries(_listSeries1Div, 0);
-	var listSeries2Perm = permuteSeries(_listSeries2Div, 0);
-printList(listSeries1Perm);
-console("\n");
+	var tabFmtSeries = document.getElementById("tabFmtSeries");
+	tabFmtSeries.style.display = "inline";
+	var intNumSeries = 0;
+	
+	//  clear all existing series, except the first two
+	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }	
+	
+	//  build permutation of the series values
+	var listSeries1Perm = permuteSeries(_listSeries1Div, 0, getPlotDiff(1));
+	var listSeries2Perm = permuteSeries(_listSeries2Div, 0, getPlotDiff(2));
+
+	//  for each dep div, consider the fcst_var and selected stats
+	for(var i=0; i < _listDepDiv.length; i++){
+
+		//  determine the y axis to which these permutations belong 
+		var chkY1 = _listDepDiv[i].getElementsByTagName("input")[1];
+		var boolY1 = chkY1.checked;
+		var listSeriesPerm = (boolY1? listSeries1Perm : listSeries2Perm);
 		
-	for(var i = 0; i < _listDepDiv.length; i++){
+		//  get the dep var information
 		var strFcstVar = getSelected( _listDepDiv[i].getElementsByTagName("select")[0] )[0];
 		var listStat = getSelected( _listDepDiv[i].getElementsByTagName("select")[1] );
 
-console("  fcst_var: " + strFcstVar + "\n  listStat:\n");
-printList(listStat);
+		//  build a series for each combination of fcst_var, stat and series permutation
+		for(var j=0; j < listStat.length; j++){
+			for(var k=0; k < listSeriesPerm.length; k++){
 
+				//  build the series name
+				var strSeriesName =  listSeriesPerm[k] + " " + strFcstVar + " " + listStat[j];
 
+				var trFmtSeries;
+				var tdName;
 
-	}
+				//  if the series is the first to be built, use the existing controls
+				if( 0 == intNumSeries++ ){
+					trFmtSeries = tabFmtSeries.rows[0];
+					tdName = trFmtSeries.cells[0];
+				}
+
+				//  otherwise, build a new set of series formatting controls
+				else {
+					var trHR = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
+					var tdHR = trHR.insertCell(0);
+					tdHR.colSpan = "3";
+					tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
+					
+					trFmtSeries = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
+				
+					var tdName = trFmtSeries.insertCell(0);
+					tdName.align = "right";
+					tdName.style.width = "350px";
+					tdName.style.paddingTop = "20px";
+					tdName.appendChild( document.getElementById("spanFmtSeriesName").cloneNode(true) );					
 	
-	//_listDepDiv
-	//_listSeries1Div
-	//_listSeries2Div
+					var tdFmt1 = trFmtSeries.insertCell(1);
+					tdFmt1.align = "right";
+					tdFmt1.style.width = "200px";
+					tdFmt1.style.paddingTop = "20px";
+					tdFmt1.appendChild( document.getElementById("spanFmtSeriesFmt1").cloneNode(true) );
+	
+					var tdFmt2 = trFmtSeries.insertCell(2);
+					tdFmt2.align = "right";
+					tdFmt2.style.width = "275px";
+					tdFmt2.style.paddingTop = "20px";
+					tdFmt2.appendChild( document.getElementById("spanFmtSeriesFmt2").cloneNode(true) );
+				}
 
-console("buildSeriesList() complete\n\n");
+				//  populate the controls with the series name
+				tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
+				tdName.getElementsByTagName("span")[3].innerHTML = (boolY1? "Y1" : "Y2") + " Series"; 
+			}
+		}
+	}
 }
 
 /**
  * Build a list of all series variable combinations for the specified list of series field divs, starting with
- * the div at the specified index (0 for all permutations)
+ * the div at the specified index (0 for all permutations).  If a difference curve is specified, add it to the
+ * series.
  */
-function permuteSeries(listSeriesDiv, intIndex){
+function permuteSeries(listSeriesDiv, intIndex, boolDiff){
 
 	if( 1 > listSeriesDiv.length ){ return new Array(); }
 	var listVal = getSelected( listSeriesDiv[intIndex].getElementsByTagName("select")[1] );
 
 	//  if the index has reached the end of the list, return the selected values from the last control
-	if( listSeriesDiv.length == intIndex + 1 ){ return listVal; }
+	if( listSeriesDiv.length == intIndex + 1 ){
+		if( boolDiff ){ listVal.splice(listVal.length - 1, 0, "__DIFF__"); }
+console("permuteSeries() - boolDiff: " + boolDiff + "\n");
+printList(listVal);
+		return listVal;
+	}
 
 	//  otherwise, get the list for the next fcst_var and build upon it
-	var listValNext = permuteSeries(listSeriesDiv, intIndex + 1);
+	var listValNext = permuteSeries(listSeriesDiv, intIndex + 1, boolDiff);
 	if( 1 > listVal.length ){ return listValNext; }
 	var listRet = new Array();
 	for(var i=0; i < listVal.length; i++){
@@ -839,6 +903,23 @@ function permuteSeries(listSeriesDiv, intIndex){
 		}
 	}
 	return listRet;
+}
+
+/**
+ * Return the boolean value of the format setting for plotN_diff, where N is specified as either 1 or 2
+ */
+function getPlotDiff(y){
+	var tab = document.getElementById("tabFmtPlotBool");
+	for(var i=0; i < tab.rows.length; i++){ 
+		for(var j=0; j < tab.rows[i].cells.length; j++){
+			var strLabel = tab.rows[i].cells[j].getElementsByTagName("span")[1].innerHTML;
+			if( "plot" + y + "_diff:" == strLabel ){
+				var strDiff = getSelected( tab.rows[i].cells[j].getElementsByTagName("select")[0] )[0]; 
+				return ("true" == strDiff);
+			}
+		}
+	}
+	return false;
 }
 
 //--></script>
@@ -966,7 +1047,7 @@ function permuteSeries(listSeriesDiv, intIndex){
 			<table id="tabFmtPlotBool" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotBool">
 				<td align="right">&nbsp;
 					<span id="spanFmtPlotBool" style="padding-right:38px">
-						<span class="bold">Bool Field:</span>
+						<span>Bool Field:</span>
 						<select><option>true</option><option>false</option></select>
 					</span>
 				</td>
@@ -975,7 +1056,7 @@ function permuteSeries(listSeriesDiv, intIndex){
 			<table id="tabFmtPlotTxt" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotTxt">
 				<td align="right">&nbsp;
 					<span id="spanFmtPlotTxt">
-						<span class="bold">Format Field:</span>
+						<span>Format Field:</span>
 						<input type="text" size="12"/>
 					</span>
 				</td>
@@ -984,24 +1065,40 @@ function permuteSeries(listSeriesDiv, intIndex){
 
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')">Serialize</a>
+			<span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>
+			<br/><br/>
 
-			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="1"><tr>
-				<td align="right" id="tdFmtSeriesName" style="width: 350px">
-					<span class="bold" style="font-size:10pt; padding-right: 20px">Series Name</span>
+			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="0" style="display:none">
+			<tr>
+				<td align="right" style="width: 350px">
+					<span id="spanFmtSeriesName">
+						<span class="tiny">&nbsp;</span><br/>
+						<span class="bold" style="font-size:10pt; padding-right:20px">Series Name</span><br/>
+						<span class="tiny" style="padding-right:20px">(series1 or 2)</span>
+					</span>
 				</td>
-				<td align="right" id="tdFmtSeriesFmt1" style="width: 200px">
-					<span class="bold">plot_ci:</span><input type="text" size="12"/><br/>
-					<span class="bold">colors:</span><input type="text" size="12"/><br/>
-					<span class="bold">pch:</span><input type="text" size="12"/><br/>
-					<span class="bold">type:</span><input type="text" size="12"/><br/>
+				<td align="right" style="width:200px">
+					<span id="spanFmtSeriesFmt1">
+						<span class="bold">plot_ci:</span><input type="text" size="12"/><br/>
+						<span class="bold">colors:</span><input type="text" size="12"/><br/>
+						<span class="bold">pch:</span><input type="text" size="12"/><br/>
+						<span class="bold">type:</span><input type="text" size="12"/><br/>
+					</span>
 				</td>
-				<td align="right" id="tdFmtSeriesFmt2" style="width: 275px">
-					<span class="bold">lty:</span><input type="text" size="12"/><br/>
-					<span class="bold">lwd:</span><input type="text" size="12"/><br/>
-					<span class="bold">con_series:</span><input type="text" size="12"/><br/>
+				<td align="right" style="width:275px">
+					<span id="spanFmtSeriesFmt2">
+						<span class="bold">lty:</span><input type="text" size="12"/><br/>
+						<span class="bold">lwd:</span><input type="text" size="12"/><br/>
+						<span class="bold">con_series:</span><input type="text" size="12"/><br/>
+						<span class="bold">legend:</span><input type="text" size="12"/><br/>
+					</span>
 				</td>
-			</tr></table>
+			</tr>
+			<tr><td colspan="3" style="display:none">
+				<span id="spanFmtSeriesHR" style="padding-left:30px; padding-top:20px"><hr align="right" style="width:90%"/></span>
+			</td></tr>			
+			</table>
 
 		</div><br/><br/>
 		
@@ -1025,8 +1122,7 @@ function permuteSeries(listSeriesDiv, intIndex){
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
-		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
-		<input type="button" class="gButton" onclick="javascript:buildSeriesList()" value="Perm"/><br/>
+		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/><br/><br/>
 		<textarea rows="20" cols="160" id="txtConsole"></textarea></td>
 	</tr>
 
