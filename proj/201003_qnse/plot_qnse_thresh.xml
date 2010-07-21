@@ -28,11 +28,11 @@
 
 		<plot_fix>
 			<field name="fcst_init_beg">
-				<date_range name="year"/>
+<!--				<date_range name="year"/>-->
 				<date_range name="summer"/>
-				<date_range name="fall"/>
-				<date_range name="winter"/>
-				<date_range name="spring"/>
+<!--				<date_range name="fall"/>-->
+<!--				<date_range name="winter"/>-->
+<!--				<date_range name="spring"/>-->
 			</field>
 		</plot_fix>
 
@@ -43,20 +43,20 @@
 			
 			<field name="vx_mask">
 				<val>FULL</val>
-				<val>GMC</val>
-				<val>NEC</val>
-				<val>NWC</val>
-				<val>SEC</val>
-				<val>SWC</val>
-				<val>APL</val>
-				<val>GRB</val>
-				<val>LMV</val>
-				<val>MDW</val>
-				<val>NMT</val>
-				<val>NPL</val>
-				<val>SMT</val>
-				<val>SPL</val>
-				<val>SWD</val>
+<!--				<val>GMC</val>-->
+<!--				<val>NEC</val>-->
+<!--				<val>NWC</val>-->
+<!--				<val>SEC</val>-->
+<!--				<val>SWC</val>-->
+<!--				<val>APL</val>-->
+<!--				<val>GRB</val>-->
+<!--				<val>LMV</val>-->
+<!--				<val>MDW</val>-->
+<!--				<val>NMT</val>-->
+<!--				<val>NPL</val>-->
+<!--				<val>SMT</val>-->
+<!--				<val>SPL</val>-->
+<!--				<val>SWD</val>-->
 			</field>
 		</agg>
 		
@@ -157,81 +157,81 @@
 		
 	</plot>
 	
-	<plot name="qnse_thresh_apcp03" inherits="qnse_thresh" run="false">
-		<agg>
-			<field name="init_hour">
-				<val>0</val>
-				<val>12</val>
-			</field>
-			
-			<field name="fcst_lead">
-				<val>120000</val>
-				<val>240000</val>
-				<val>360000</val>
-				<val>480000</val>
-			</field>			
-		</agg>
-	
-		<indep name="fcst_thresh">
-			<val label=">0.01">>0.254</val>
-			<val label=">0.02">>0.508</val>
-			<val label=">0.05">>1.270</val>
-			<val label=">0.1">>2.540</val>
-			<val label=">0.15">>3.810</val>
-			<val label=">0.25">>6.350</val>
-			<val label=">0.35">>8.890</val>
-			<val label=">0.5">>12.700</val>
-			<val label=">1">>25.400</val>
-		</indep>
-
-		<tmpl>
-			<data_file>{fcst_init_beg}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{init_hour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.data</data_file>
-			<plot_file>{fcst_init_beg}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{init_hour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.png</plot_file>
-			<r_file>{fcst_init_beg}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{init_hour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.R</r_file>
-			<title>{dep1_1} {dep1_1_stat1} {vx_mask} {init_hour?format=HH}Zf{fcst_lead?format=HH} {interp_mthd} vs. FCST_THRESH</title>
-			<x_label>FCST_THRESH</x_label>
-			<y1_label>{dep1_1} {dep1_1_stat1} {vx_mask} {init_hour?format=HH}Zf{fcst_lead?format=HH} {interp_mthd}</y1_label>
-			<y2_label>Adj Base Rate</y2_label>
-		</tmpl>
-	</plot>
-
-	<plot name="qnse_thresh_apcp03_gss" inherits="qnse_thresh_apcp03">
-		<dep>
-			<dep1><fcst_var name="APCP_03"><stat>GSS</stat></fcst_var></dep1>
-			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
-			<fix><fcst_var name="APCP_03"><var name="fcst_lev">A3</var></fcst_var></fix>		
-		</dep>
-	</plot>
-	
-	<plot name="qnse_thresh_apcp03_fbias" inherits="qnse_thresh_apcp03">
-		<dep>
-			<dep1><fcst_var name="APCP_03"><stat>FBIAS</stat></fcst_var></dep1>
-			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>
-			<fix><fcst_var name="APCP_03"><var name="fcst_lev">A3</var></fcst_var></fix>		
-		</dep>
-		
-		<bootstrapping>
-			<boot_repl>1000</boot_repl>
-			<boot_ci>bca</boot_ci>
-			<boot_diff1>FALSE</boot_diff1>
-		</bootstrapping>
-		
-		<plot_ci>c("boot", "boot", "none")</plot_ci>
-		<colors>c("#FF0000FF", "#0000FFFF", "#AAAAAAFF")</colors>
-		<pch>c(20, 20, 20)</pch>
-		<type>c("b", "b", "l")</type>
-		<lty>c(3, 3, 1)</lty>
-		<lwd>c(1.5, 1.5, 1)</lwd>
-		
-		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		
-	</plot>
-
+<!--	<plot name="qnse_thresh_apcp03" inherits="qnse_thresh" run="false">-->
+<!--		<agg>-->
+<!--			<field name="init_hour">-->
+<!--				<val>0</val>-->
+<!--				<val>12</val>-->
+<!--			</field>-->
+<!--			-->
+<!--			<field name="fcst_lead">-->
+<!--				<val>120000</val>-->
+<!--				<val>240000</val>-->
+<!--				<val>360000</val>-->
+<!--				<val>480000</val>-->
+<!--			</field>			-->
+<!--		</agg>-->
+<!--	-->
+<!--		<indep name="fcst_thresh">-->
+<!--			<val label=">0.01">>0.254</val>-->
+<!--			<val label=">0.02">>0.508</val>-->
+<!--			<val label=">0.05">>1.270</val>-->
+<!--			<val label=">0.1">>2.540</val>-->
+<!--			<val label=">0.15">>3.810</val>-->
+<!--			<val label=">0.25">>6.350</val>-->
+<!--			<val label=">0.35">>8.890</val>-->
+<!--			<val label=">0.5">>12.700</val>-->
+<!--			<val label=">1">>25.400</val>-->
+<!--		</indep>-->
+<!---->
+<!--		<tmpl>-->
+<!--			<data_file>{fcst_init_beg}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{init_hour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.data</data_file>-->
+<!--			<plot_file>{fcst_init_beg}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{init_hour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.png</plot_file>-->
+<!--			<r_file>{fcst_init_beg}/thresh_series/{dep1_1}_{dep1_1_stat1}_{vx_mask}_{init_hour?format=HH}Zf{fcst_lead?format=HH}_{interp_mthd}.R</r_file>-->
+<!--			<title>{dep1_1} {dep1_1_stat1} {vx_mask} {init_hour?format=HH}Zf{fcst_lead?format=HH} {interp_mthd} vs. FCST_THRESH</title>-->
+<!--			<x_label>FCST_THRESH</x_label>-->
+<!--			<y1_label>{dep1_1} {dep1_1_stat1} {vx_mask} {init_hour?format=HH}Zf{fcst_lead?format=HH} {interp_mthd}</y1_label>-->
+<!--			<y2_label>Adj Base Rate</y2_label>-->
+<!--		</tmpl>-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="qnse_thresh_apcp03_gss" inherits="qnse_thresh_apcp03">-->
+<!--		<dep>-->
+<!--			<dep1><fcst_var name="APCP_03"><stat>GSS</stat></fcst_var></dep1>-->
+<!--			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>-->
+<!--			<fix><fcst_var name="APCP_03"><var name="fcst_lev">A3</var></fcst_var></fix>		-->
+<!--		</dep>-->
+<!--	</plot>-->
+<!--	-->
+<!--	<plot name="qnse_thresh_apcp03_fbias" inherits="qnse_thresh_apcp03">-->
+<!--		<dep>-->
+<!--			<dep1><fcst_var name="APCP_03"><stat>FBIAS</stat></fcst_var></dep1>-->
+<!--			<dep2><fcst_var name="APCP_03"><stat>BASER</stat></fcst_var></dep2>-->
+<!--			<fix><fcst_var name="APCP_03"><var name="fcst_lev">A3</var></fcst_var></fix>		-->
+<!--		</dep>-->
+<!--		-->
+<!--		<bootstrapping>-->
+<!--			<boot_repl>1000</boot_repl>-->
+<!--			<boot_ci>bca</boot_ci>-->
+<!--			<boot_diff1>FALSE</boot_diff1>-->
+<!--		</bootstrapping>-->
+<!--		-->
+<!--		<plot_ci>c("boot", "boot", "none")</plot_ci>-->
+<!--		<colors>c("#FF0000FF", "#0000FFFF", "#AAAAAAFF")</colors>-->
+<!--		<pch>c(20, 20, 20)</pch>-->
+<!--		<type>c("b", "b", "l")</type>-->
+<!--		<lty>c(3, 3, 1)</lty>-->
+<!--		<lwd>c(1.5, 1.5, 1)</lwd>-->
+<!--		-->
+<!--		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>		-->
+<!--	</plot>-->
+<!---->
 	<plot name="qnse_thresh_apcp24" inherits="qnse_thresh" run="false">
 		<agg>
 			<field name="fcst_lead">
 				<val>240000</val>
-				<val>360000</val>
-				<val>480000</val>
+<!--				<val>360000</val>-->
+<!--				<val>480000</val>-->
 			</field>			
 		</agg>
 	
@@ -266,27 +266,27 @@
 		</dep>
 	</plot>
 		
-	<plot name="qnse_thresh_apcp24_fbias" inherits="qnse_thresh_apcp24">
-		<dep>
-			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>
-			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>
-			<fix><fcst_var name="APCP_24"><var name="fcst_lev">A24</var></fcst_var></fix>		
-		</dep>
-		
-		<bootstrapping>
-			<boot_repl>1000</boot_repl>
-			<boot_ci>bca</boot_ci>
-			<boot_diff1>FALSE</boot_diff1>
-		</bootstrapping>
-		
-		<plot_ci>c("boot", "boot", "none")</plot_ci>
-		<colors>c("#FF0000FF", "#0000FFFF", "#AAAAAAFF")</colors>
-		<pch>c(20, 20, 20)</pch>
-		<type>c("b", "b", "l")</type>
-		<lty>c(3, 3, 1)</lty>
-		<lwd>c(1.5, 1.5, 1)</lwd>
-		
-		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>
-	</plot>
+<!--	<plot name="qnse_thresh_apcp24_fbias" inherits="qnse_thresh_apcp24">-->
+<!--		<dep>-->
+<!--			<dep1><fcst_var name="APCP_24"><stat>FBIAS</stat></fcst_var></dep1>-->
+<!--			<dep2><fcst_var name="APCP_24"><stat>BASER</stat></fcst_var></dep2>-->
+<!--			<fix><fcst_var name="APCP_24"><var name="fcst_lev">A24</var></fcst_var></fix>		-->
+<!--		</dep>-->
+<!--		-->
+<!--		<bootstrapping>-->
+<!--			<boot_repl>1000</boot_repl>-->
+<!--			<boot_ci>bca</boot_ci>-->
+<!--			<boot_diff1>FALSE</boot_diff1>-->
+<!--		</bootstrapping>-->
+<!--		-->
+<!--		<plot_ci>c("boot", "boot", "none")</plot_ci>-->
+<!--		<colors>c("#FF0000FF", "#0000FFFF", "#AAAAAAFF")</colors>-->
+<!--		<pch>c(20, 20, 20)</pch>-->
+<!--		<type>c("b", "b", "l")</type>-->
+<!--		<lty>c(3, 3, 1)</lty>-->
+<!--		<lwd>c(1.5, 1.5, 1)</lwd>-->
+<!--		-->
+<!--		<plot_cmd>par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</plot_cmd>-->
+<!--	</plot>-->
  	
 </plot_spec>

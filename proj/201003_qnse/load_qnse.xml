@@ -1,6 +1,6 @@
 <load_spec>
 	<connection>
-		<host>kemosabe:3306</host>
+		<host>dakota:3306</host>
 		<database>metvdb_qnse</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>
@@ -20,7 +20,7 @@
 		<format>yyyyMMddHH</format>
 	</date_list>
 
-	<verbose>false</verbose>
+	<verbose>true</verbose>
 	<insert_size>1</insert_size>
 	<stat_header_table_check>true</stat_header_table_check>
 	<stat_header_db_check>false</stat_header_db_check>

@@ -29,17 +29,17 @@
 		<plot_fix>
 			<field name="fcst_init">
 				<date_range name="year"/>
-				<date_range name="summer"/>
-				<date_range name="fall"/>
-				<date_range name="winter"/>
-				<date_range name="spring"/>
+<!--				<date_range name="summer"/>-->
+<!--				<date_range name="fall"/>-->
+<!--				<date_range name="winter"/>-->
+<!--				<date_range name="spring"/>-->
 			</field>
 		</plot_fix>
 
 		<agg>		
 			<field name="fcst_rad">
 				<val>5</val>
-				<val>10</val>
+<!--				<val>10</val>-->
 			</field>
 		</agg>
 	
@@ -80,7 +80,7 @@
 		<indy2_stag>false</indy2_stag>
 		<grid_on>true</grid_on>
 		<sync_axes>false</sync_axes>
-		<dump_points1>false</dump_points1>
+		<dump_points1>true</dump_points1>
 		<dump_points2>false</dump_points2>
 		<log_y1>false</log_y1>
 		<log_y2>false</log_y2>
@@ -137,13 +137,13 @@
 		<box_notch>FALSE</box_notch>
 		<ci_alpha>.05</ci_alpha>
 		
-		<plot_ci>c("none", "none", "none")</plot_ci>
-		<colors>c("#FF0000FF", "#0000FFFF", "#CCCCCCFF")</colors>
-		<pch>c(20, 20, 20)</pch>
-		<type>c("b", "b", "l")</type>
-		<lty>c(1, 1, 1)</lty>
-		<lwd>c(1, 1, 1)</lwd>
-		<con_series>c(1, 1, 1)</con_series> 
+		<plot_ci>c("none", "none", "none", "none", "none")</plot_ci>
+		<colors>c("#FF0000FF", "#0000FFFF", "#FF0000FF", "#0000FFFF", "#CCCCCCFF")</colors>
+		<pch>c(20, 20, 20, 20, 20)</pch>
+		<type>c("b", "b", "b", "b", "l")</type>
+		<lty>c(1, 1, 2, 2, 1)</lty>
+		<lwd>c(1, 1, 1, 1, 1)</lwd>
+		<con_series>c(1, 1, 1, 1, 1)</con_series> 
 	</plot>
 	
 	<plot name="qnse_mode_apcp03" inherits="qnse_mode">
@@ -169,7 +169,7 @@
 		<agg>		
 			<field name="init_hour">
 				<val>0</val>
-				<val>12</val>
+<!--				<val>12</val>-->
 			</field>
 		</agg>
 		
@@ -185,53 +185,55 @@
 	
 		<dep>
 			<mode_group>
-				<dep1><fcst_var name="APCP_03"><stat>MMI</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>MMIF</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>MMIO</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>MIA</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>MAR</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>MCD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>MAD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>P50</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_03"><stat>P90</stat></fcst_var></dep1>
+				<dep1><fcst_var name="APCP_03"><stat>MMIF</stat><stat>MMIO</stat></fcst_var></dep1>
+
+<!--				<dep1><fcst_var name="APCP_03"><stat>MMI</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>MMIF</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>MMIO</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>MIA</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>MAR</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>MCD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>MAD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>P50</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>P90</stat></fcst_var></dep1>-->
 			</mode_group>
 			<dep2><fcst_var name="APCP_03"><stat>ACOV</stat></fcst_var></dep2>			
 			<fix><fcst_var name="APCP_03"></fcst_var></fix>		
 		</dep>		
 	</plot>
 	
-	<plot name="qnse_mode_apcp24" inherits="qnse_mode">
-		<indep name="fcst_lead">
-			<val label="24">240000</val>
-			<val label="36">360000</val>
-			<val label="48">480000</val>
-		</indep>
-		
-		<tmpl>
-			<data_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.data</data_file>
-			<plot_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.png</plot_file>
-			<r_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.R</r_file>
-			<title>{dep1_1} {dep1_1_stat1} Radius {fcst_rad} vs. FCST_LEAD</title>
-			<x_label>FCST_LEAD</x_label>
-			<y1_label>{dep1_1} {dep1_1_stat1}</y1_label>
-			<y2_label></y2_label>			
-		</tmpl>
-	
-		<dep>
-			<mode_group>
-				<dep1><fcst_var name="APCP_24"><stat>MMI</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>MMIF</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>MMIO</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>MIA</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>MAR</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>MCD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>MAD</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>P50</stat></fcst_var></dep1>
-				<dep1><fcst_var name="APCP_24"><stat>P90</stat></fcst_var></dep1>
-			</mode_group>
-			<dep2><fcst_var name="APCP_24"><stat>ACOV</stat></fcst_var></dep2>			
-			<fix><fcst_var name="APCP_24"></fcst_var></fix>		
-		</dep>		
-	</plot>
+<!--	<plot name="qnse_mode_apcp24" inherits="qnse_mode">-->
+<!--		<indep name="fcst_lead">-->
+<!--			<val label="24">240000</val>-->
+<!--			<val label="36">360000</val>-->
+<!--			<val label="48">480000</val>-->
+<!--		</indep>-->
+<!--		-->
+<!--		<tmpl>-->
+<!--			<data_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.data</data_file>-->
+<!--			<plot_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.png</plot_file>-->
+<!--			<r_file>{fcst_init}/mode/{dep1_1}_{dep1_1_stat1}_rad{fcst_rad}.R</r_file>-->
+<!--			<title>{dep1_1} {dep1_1_stat1} Radius {fcst_rad} vs. FCST_LEAD</title>-->
+<!--			<x_label>FCST_LEAD</x_label>-->
+<!--			<y1_label>{dep1_1} {dep1_1_stat1}</y1_label>-->
+<!--			<y2_label></y2_label>			-->
+<!--		</tmpl>-->
+<!--	-->
+<!--		<dep>-->
+<!--			<mode_group>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MMI</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MMIF</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MMIO</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MIA</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MAR</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MCD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>MAD</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>P50</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_24"><stat>P90</stat></fcst_var></dep1>-->
+<!--			</mode_group>-->
+<!--			<dep2><fcst_var name="APCP_24"><stat>ACOV</stat></fcst_var></dep2>			-->
+<!--			<fix><fcst_var name="APCP_24"></fcst_var></fix>		-->
+<!--		</dep>		-->
+<!--	</plot>-->
 	
 </plot_spec>
