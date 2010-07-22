@@ -50,7 +50,7 @@ var _intFmtPlotBoolIndex = 0;
  *  Administration/Utility Functions
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- 
+
 /**
  * When the page loads, perform the initialization duties including setting pointers to DHTML elements,
  * loading the list of databases and populating the various database field lists.
@@ -78,7 +78,7 @@ function onLoad(){
 
 	//  initialize the database list and controls
 	listDBReq();
-	
+
 	//  initialize the dep list
 	_listDepDiv.push( document.getElementById("divDep0") );
 
@@ -117,7 +117,7 @@ function onLoad(){
 	addFmtPlot("dump_points2",	"false",	"bool");
 	addFmtPlot("log_y1",		"false",	"bool");
 	addFmtPlot("log_y2",		"false",	"bool");
-	
+
 	addFmtPlot("plot_type",		"png256",	"txt");
 	addFmtPlot("plot_height",	"8.5",		"txt");
 	addFmtPlot("plot_width",	"11",		"txt");
@@ -169,6 +169,10 @@ function onLoad(){
 	addFmtPlot("box_boxwex",	"1",		"txt");
 	addFmtPlot("box_notch",		"FALSE",	"txt");
 	addFmtPlot("ci_alpha",		".05", 		"txt");
+	
+	buildSeriesDiv();
+	
+console("onLoad() complete - 1\n\n");
 }
 
 function parse(){
@@ -257,14 +261,14 @@ function fillSelect(sel, listOpt){
 }
 
 /**
- * Build a list of the selected items in the specified select control 
+ * Build a list of the selected items in the specified select control
  */
 function getSelected(sel){
 	var listRet = new Array();
 	for(var i=0; i < sel.options.length; i++){
 		if( sel.options[i].selected ){ listRet.push( sel.options[i].text ); }
 	}
-	return listRet; 
+	return listRet;
 }
 
 /**
@@ -311,7 +315,7 @@ function printList(listVal){ for(var i=0; i < listVal.length; i++){ console("   
  *  AJAX Functions
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- 
+
 /**
  * Create a request object in a browser-dependent manner
  */
@@ -357,7 +361,7 @@ function sendRequest(reqType, reqData, fnResp){
 	};
 
 	var reqURL = _url + "?date=" + (new Date()).getMilliseconds();
-  
+
 	//  send the request in the manner specified
     if( reqType == "GET" ){
 		req.open(reqType, reqURL + "&data=" + encodeURI(reqData), true);
@@ -440,6 +444,8 @@ function addDep(){
  	while( 0 < selStat.length ){ selStat.remove(selStat.length - 1); }
  	selStat.style.display = "none";
  	selStat.id = "selStat" + intDepId;
+ 	selStat.setAttribute("onchange", "javascript:buildSeriesDiv()");
+ 	if( _boolIE ){ selStat.attachEvent("onchange", new Function("buildSeriesDiv()")); }
  	var lblStat = divDep.getElementsByTagName("span")[0];
  	lblStat.style.display = "none";
  	lblStat.id = "lblStat" + intDepId;
@@ -504,7 +510,7 @@ function selectFcstVarResp(strResp){
 function buildFcstVarCrit(){
 	var strFixCrit = "<field name=\"FCST_VAR\">";
 	for(i in _listDepDiv){
-		var selFcstVar = _listDepDiv[i].getElementsByTagName("select")[0];		
+		var selFcstVar = _listDepDiv[i].getElementsByTagName("select")[0];
 		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].text + "</val>";
 	}
 	strFixCrit += "</field>";
@@ -548,7 +554,7 @@ function addFieldValDiv(category, listDiv){
 	//  add the new div to the input controls list and add it to the form
 	listDiv.push( divFieldVal );
 	document.getElementById("div" + category).insertBefore(divFieldVal, document.getElementById("img" + category));
-		
+
 }
 
 /**
@@ -570,7 +576,7 @@ function removeFieldValDiv(intId, listDiv, intInputId){
  	divFieldVal.style.display = "none";
 
 }
- 
+
 /**
  * Build a list_val server request for the field val with the specified id in the specified controls
  * list.  The request includes the fixed value criteria up to the specified index.  The response xml
@@ -602,7 +608,7 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp){
  * specified index (intIdIndex).  The select control of the specified index (intSelIndex) will be populated.
  */
 function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
-	
+
 	//  parse the response
 	var resp = parseListValResp(strResp, "val");
 	if( null == resp ){ return; }
@@ -618,7 +624,7 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
 	var selVal = listDiv[intIndex].getElementsByTagName("select")[intSelIndex];
 	selVal.style.display = "inline";
 	fillSelect(selVal, resp.vals);
-		
+
 }
 
 
@@ -630,6 +636,9 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
 
 function addSeries1Div(){
 	addFieldValDiv("Series1", _listSeries1Div);
+	var selVal = _listSeries1Div[ _listSeries1Div.length - 1 ].getElementsByTagName("select")[1];
+	selVal.setAttribute("onchange", "javascript:buildSeriesDiv()");
+ 	if( _boolIE ){ selVal.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 	for(i in _listSeries1Div){ _listSeries1Div[i].getElementsByTagName("span")[1].style.display = "inline"; }
 }
 function removeSeries1Div(intId){
@@ -641,6 +650,9 @@ function selectSeries1VarResp(strResp){ selectFieldResp(strResp, _listSeries1Div
 
 function addSeries2Div(){
 	addFieldValDiv("Series2", _listSeries2Div);
+	var selVal = _listSeries2Div[ _listSeries2Div.length - 1 ].getElementsByTagName("select")[1];
+	selVal.setAttribute("onchange", "javascript:buildSeriesDiv()");
+ 	if( _boolIE ){ selVal.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 	for(i in _listSeries2Div){ _listSeries2Div[i].getElementsByTagName("span")[1].style.display = "inline"; }
 }
 function removeSeries2Div(intId){
@@ -702,7 +714,7 @@ function buildFixCrit(endIndex){
  * the independent variable value list with the results
  */
 function selectIndyVarReq(){
-	
+
 	//  build a list_val request for the selected independent field
 	var strFcstVarCrit = buildFcstVarCrit();
 	var strFixCrit = buildFixCrit(_listFixDiv.length - 1);
@@ -749,7 +761,7 @@ function selectIndyVarResp(strResp){
 /**
  * Construct plot formatting controls with the specified label, value and type.  The currently
  * supported values of type are "txt" and "bool".  The controls are placed at the next available
- * place for their respective type. 
+ * place for their respective type.
  */
 function addFmtPlot(label, value, type){
 
@@ -799,14 +811,14 @@ function addFmtPlot(label, value, type){
  * Build the list of plot series reflected by the current state of the controls
  */
 function buildSeriesDiv(){
-
+console("buildSeriesDiv()\n");
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
-	tabFmtSeries.style.display = "inline";
+	var spanFmtSeriesNone = document.getElementById("spanFmtSeriesNone");
 	var intNumSeries = 0;
-	
+
 	//  clear all existing series, except the first two
-	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }	
-	
+	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }
+
 	//  build permutation of the series values
 	var listSeries1Perm = permuteSeries(_listSeries1Div, 0, getPlotDiff(1));
 	var listSeries2Perm = permuteSeries(_listSeries2Div, 0, getPlotDiff(2));
@@ -814,11 +826,11 @@ function buildSeriesDiv(){
 	//  for each dep div, consider the fcst_var and selected stats
 	for(var i=0; i < _listDepDiv.length; i++){
 
-		//  determine the y axis to which these permutations belong 
+		//  determine the y axis to which these permutations belong
 		var chkY1 = _listDepDiv[i].getElementsByTagName("input")[1];
 		var boolY1 = chkY1.checked;
 		var listSeriesPerm = (boolY1? listSeries1Perm : listSeries2Perm);
-		
+
 		//  get the dep var information
 		var strFcstVar = getSelected( _listDepDiv[i].getElementsByTagName("select")[0] )[0];
 		var listStat = getSelected( _listDepDiv[i].getElementsByTagName("select")[1] );
@@ -845,21 +857,21 @@ function buildSeriesDiv(){
 					var tdHR = trHR.insertCell(0);
 					tdHR.colSpan = "3";
 					tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
-					
+
 					trFmtSeries = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
-				
+
 					var tdName = trFmtSeries.insertCell(0);
 					tdName.align = "right";
 					tdName.style.width = "350px";
 					tdName.style.paddingTop = "20px";
-					tdName.appendChild( document.getElementById("spanFmtSeriesName").cloneNode(true) );					
-	
+					tdName.appendChild( document.getElementById("spanFmtSeriesName").cloneNode(true) );
+
 					var tdFmt1 = trFmtSeries.insertCell(1);
 					tdFmt1.align = "right";
 					tdFmt1.style.width = "200px";
 					tdFmt1.style.paddingTop = "20px";
 					tdFmt1.appendChild( document.getElementById("spanFmtSeriesFmt1").cloneNode(true) );
-	
+
 					var tdFmt2 = trFmtSeries.insertCell(2);
 					tdFmt2.align = "right";
 					tdFmt2.style.width = "275px";
@@ -869,10 +881,16 @@ function buildSeriesDiv(){
 
 				//  populate the controls with the series name
 				tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
-				tdName.getElementsByTagName("span")[3].innerHTML = (boolY1? "Y1" : "Y2") + " Series"; 
+				tdName.getElementsByTagName("span")[3].innerHTML = (boolY1? "Y1" : "Y2") + " Series";
 			}
 		}
 	}
+	
+	//  show or hide the controls, depending on the number of series
+	tabFmtSeries.style.display		= (1 > intNumSeries ? "none" : "inline");
+	spanFmtSeriesNone.style.display	= (1 > intNumSeries ? "inline" : "none");
+	
+console("buildSeriesDiv() complete\n\n");
 }
 
 /**
@@ -888,8 +906,6 @@ function permuteSeries(listSeriesDiv, intIndex, boolDiff){
 	//  if the index has reached the end of the list, return the selected values from the last control
 	if( listSeriesDiv.length == intIndex + 1 ){
 		if( boolDiff ){ listVal.splice(listVal.length - 1, 0, "__DIFF__"); }
-console("permuteSeries() - boolDiff: " + boolDiff + "\n");
-printList(listVal);
 		return listVal;
 	}
 
@@ -910,11 +926,11 @@ printList(listVal);
  */
 function getPlotDiff(y){
 	var tab = document.getElementById("tabFmtPlotBool");
-	for(var i=0; i < tab.rows.length; i++){ 
+	for(var i=0; i < tab.rows.length; i++){
 		for(var j=0; j < tab.rows[i].cells.length; j++){
 			var strLabel = tab.rows[i].cells[j].getElementsByTagName("span")[1].innerHTML;
 			if( "plot" + y + "_diff:" == strLabel ){
-				var strDiff = getSelected( tab.rows[i].cells[j].getElementsByTagName("select")[0] )[0]; 
+				var strDiff = getSelected( tab.rows[i].cells[j].getElementsByTagName("select")[0] )[0];
 				return ("true" == strDiff);
 			}
 		}
@@ -931,7 +947,7 @@ function getPlotDiff(y){
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td class="title">METViewer</td></tr>
 	<tr><td><hr/></td></tr>
-	
+
 	<tr><td>
 		<!--
 		<input type="text" id="txtPost"/>
@@ -946,7 +962,8 @@ function getPlotDiff(y){
 		<select id="selPlotData"><option>Stat</option><option>Mode</option></select><br/><br/><br/>
 	</td></tr>
 
-	<tr><td height="100%" style="vertical-align: top"> <span id="spanPlotControls" style="display:inline">
+	<tr><td height="100%" style="vertical-align: top"><span id="spanPlotControls" style="display:inline">
+		<table><tr><td class="grey">
 
 		<div id="divDep">
 			<span class="header">Dependent Variables</span>
@@ -967,7 +984,8 @@ function getPlotDiff(y){
 				</table></td>
 				<td>
 					<span id="lblStat0" class="bold" style="padding-left:20px; padding-right:10px; display:none">Statistic:</span>
-					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
+					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"
+						onchange="javascript:buildSeriesDiv()"></select>&nbsp;&nbsp;
 					<span style="display:none">
 						<img src="include/sub_symbol.gif" style="padding-left: 20px"/>&nbsp;&nbsp;
 						<a class="link" onclick="javascript:removeDepVar(0)">Remove Dependent Variable</a>
@@ -979,7 +997,7 @@ function getPlotDiff(y){
 			<img id="imgDep" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addDep()">Add a Dependent Variable</a><br/><br/><br/>
 		</div><br/><br/>
-
+		
 		<div id="divFieldVal" style="display:none">
 			<span class="bold" style="padding-left: 20px; padding-right:10px">Database Field:</span>
 			<select id="selField"></select>&nbsp;
@@ -992,6 +1010,8 @@ function getPlotDiff(y){
 			<input type="hidden" value=""/><br/><br/>
 		</div>
 
+		</td></tr><tr><td>
+		
 		<div id="divFix">
 			<span class="header">Fixed Values</span>
 			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divFix')">Serialize</a><br/><br/>
@@ -1000,6 +1020,8 @@ function getPlotDiff(y){
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
 		</div><br/><br/>
 
+		</td></tr><tr><td class="grey">
+		
 		<div id="divSeries1">
 			<span class="header">Series y1 Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')">Serialize</a><br/><br/>
@@ -1008,6 +1030,8 @@ function getPlotDiff(y){
 			<a class="link" onclick="javascript:addSeries1Div()">Add a Series1 Value</a><br/><br/><br/>
 		</div><br/><br/>
 
+		</td></tr><tr><td>
+		
 		<div id="divSeries2">
 			<span class="header">Series y2 Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')">Serialize</a><br/><br/>
@@ -1016,6 +1040,8 @@ function getPlotDiff(y){
 			<a class="link" onclick="javascript:addSeries2Div()">Add a Series2 Value</a><br/><br/><br/>
 		</div><br/><br/>
 
+		</td></tr><tr><td class="grey">
+		
 		<div id="divIndy">
 			<span class="header">Independent Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')">Serialize</a><br/><br/>
@@ -1040,6 +1066,8 @@ function getPlotDiff(y){
 			</tr></table>
 		</div><br/><br/>
 
+		</td></tr><tr><td>
+		
 		<div id="divFmtPlot">
 			<span class="header">Plot Formatting</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtPlot')">Serialize</a><br/><br/>
@@ -1063,11 +1091,15 @@ function getPlotDiff(y){
 			</tr></table>
 		</div><br/><br/>
 
+		</td></tr><tr><td class="grey">
+		
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')">Serialize</a>
 			<span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>
 			<br/><br/>
+			
+			<span id="spanFmtSeriesNone" style="padding-left:40px" class="bold">(no series selected)</span>
 
 			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="0" style="display:none">
 			<tr>
@@ -1097,11 +1129,11 @@ function getPlotDiff(y){
 			</tr>
 			<tr><td colspan="3" style="display:none">
 				<span id="spanFmtSeriesHR" style="padding-left:30px; padding-top:20px"><hr align="right" style="width:90%"/></span>
-			</td></tr>			
+			</td></tr>
 			</table>
 
-		</div><br/><br/>
-		
+		</div><br/><br/>		
+		</td></tr></table>
 	</span>&nbsp;</td></tr>
 
 	<tr>
