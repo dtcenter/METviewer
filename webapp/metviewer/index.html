@@ -44,7 +44,7 @@
 				<td><table>
 					<tr><td style="height: 20px">&nbsp;</td></tr>
 					<tr><td>
-						<select id="selFcstVar0"></select>&nbsp;
+						<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
 						<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Select"/><br/>
 					</td></tr>
 					<tr><td align="center">
@@ -117,7 +117,7 @@
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')">Serialize</a><br/><br/>
 
 			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
-			<select id="selIndyVar"></select>&nbsp;
+			<select id="selIndyVar" onchange="javascript:clearIndyVal()"></select>&nbsp;
 			<input type="button" class="gButton" onclick="javascript:selectIndyVarReq()" value="Select"/><br/><br/>
 
 			<table id="tabIndyVal" style="padding-left:60px"><tr id="trIndyVal" style="display:none">

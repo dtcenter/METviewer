@@ -254,7 +254,7 @@ function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>"
  * Clear and populate a select list with the specified id with the items in the specified list
  */
 function fillSelect(sel, listOpt){
-	while( 0 < sel.length ){ sel.remove(sel.length - 1); }
+	clearSelect(sel);
 	for(i in listOpt){
 		var opt = document.createElement("option");
 		opt.text = listOpt[i];
@@ -272,6 +272,11 @@ function getSelected(sel){
 	}
 	return listRet;
 }
+
+/**
+ * Remove all elements from a select control
+ */
+function clearSelect(sel){ while( 0 < sel.length ){ sel.remove(sel.length - 1); } }
 
 /**
  * Search the specified div list for the member with the specified id and return its index.  The div id
@@ -436,7 +441,10 @@ function addDep(){
 
  	//  update the components of the cloned fixed value controls
  	divDep.id = "divDep" + intDepId;
- 	divDep.getElementsByTagName("select")[0].id = "selFcstVar" + intDepId;
+ 	var selFcstVar = divDep.getElementsByTagName("select")[0];
+ 	selFcstVar.id = "selFcstVar" + intDepId;
+ 	selFcstVar.setAttribute("onchange", "javascript:clearDepStat(" + intDepId + ")");
+ 	if( _boolIE ){ selFcstVar.attachEvent("onchange", new Function("clearDepStat(" + intDepId + ")")); }
  	var btnFcstVar = divDep.getElementsByTagName("input")[0];
  	btnFcstVar.setAttribute("onclick", "javascript:selectFcstVarReq(" + intDepId + ")");
  	if( _boolIE ){ btnFcstVar.attachEvent("onclick", new Function("selectFcstVarReq(" + intDepId + ")")); }
@@ -449,7 +457,7 @@ function addDep(){
  	radAxis2.setAttribute("onchange", "javascript:buildSeriesDiv()");
  	if( _boolIE ){ radAxis2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
  	var selStat = divDep.getElementsByTagName("select")[1];
- 	while( 0 < selStat.length ){ selStat.remove(selStat.length - 1); }
+ 	clearSelect(selStat);
  	selStat.style.display = "none";
  	selStat.id = "selStat" + intDepId;
  	selStat.setAttribute("onchange", "javascript:buildSeriesDiv()");
@@ -525,6 +533,17 @@ function buildFcstVarCrit(){
 	return strFixCrit;
 }
 
+/**
+ * Clears the dep stat select control of the specified index when a change is made to the fcst_var 
+ * select 
+ */
+function clearDepStat(intIndex){
+	var selStat = _listDepDiv[intIndex].getElementsByTagName("select")[1];
+	clearSelect(selStat);
+	selStat.style.display = "none";
+	document.getElementById("lblStat" + intIndex).style.display = "noneft";
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -544,12 +563,15 @@ function addFieldValDiv(category, listDiv){
 	//  clone the field value div and update the controls
 	var divFieldVal = _divFieldVal.cloneNode(true);
 	divFieldVal.id = "divFieldVal" + intId;
-	divFieldVal.getElementsByTagName("select")[0].id = "selFieldVal" + intId;
+	var selVar = divFieldVal.getElementsByTagName("select")[0];
+	selVar.id = "selFieldVal" + intId;
+	selVar.setAttribute("onchange", "javascript:clearFieldVal(selVal" + intId + ")");
+ 	if( _boolIE ){ selVar.attachEvent("onchange", new Function("clearFieldVal(selVal" + intId + ")")); }
 	var btnFieldVal = divFieldVal.getElementsByTagName("input")[0];
 	btnFieldVal.setAttribute("onclick", "javascript:select" + category + "VarReq(" + intId + ")");
 	if( _boolIE ){ btnFieldVal.attachEvent("onclick", new Function("select" + category + "VarReq(" + intId + ")")); }
 	var selVal = divFieldVal.getElementsByTagName("select")[1];
-	while( 0 < selVal.length ){ selVal.remove(selVal.length - 1); }
+	clearSelect(selVal);
 	selVal.style.display = "none";
 	selVal.id = "selVal" + intId;
 	divFieldVal.getElementsByTagName("span")[1].id = "lnkRemoveFieldVal" + intId;
@@ -562,7 +584,6 @@ function addFieldValDiv(category, listDiv){
 	//  add the new div to the input controls list and add it to the form
 	listDiv.push( divFieldVal );
 	document.getElementById("div" + category).insertBefore(divFieldVal, document.getElementById("img" + category));
-
 }
 
 /**
@@ -635,6 +656,15 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
 
 }
 
+/**
+ * Clears the specified field value select control of the specified index when a change is made
+ * to the field var 
+ */
+function clearFieldVal(selVal){
+	clearSelect(selVal);
+	selVal.style.display = "none";
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -642,33 +672,49 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-function addSeries1Div(){
-	addFieldValDiv("Series1", _listSeries1Div);
-	var selVal = _listSeries1Div[ _listSeries1Div.length - 1 ].getElementsByTagName("select")[1];
-	selVal.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ selVal.attachEvent("onchange", new Function("buildSeriesDiv()")); }
-	for(i in _listSeries1Div){ _listSeries1Div[i].getElementsByTagName("span")[1].style.display = "inline"; }
-}
-function removeSeries1Div(intId){
-	removeFieldValDiv(intId, _listSeries1Div, 1);
- 	if( 1 == _listSeries1Div.length ){ _listSeries1Div[0].getElementsByTagName("span")[1].style.display = "none"; }
-}
-function selectSeries1VarReq(intId){ selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp); }
-function selectSeries1VarResp(strResp){ selectFieldResp(strResp, _listSeries1Div, 1, 1); }
+/**
+ * Handlers to add and remove a series1 div and process select requests and responses
+ */
+function addSeries1Div()               { addSeriesDiv(1); }
+function removeSeries1Div(intId)       { removeSeriesDiv(1, intId); }
+function selectSeries1VarReq(intId)    { selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp); }
+function selectSeries1VarResp(strResp) { selectFieldResp(strResp, _listSeries1Div, 1, 1); }
 
-function addSeries2Div(){
-	addFieldValDiv("Series2", _listSeries2Div);
-	var selVal = _listSeries2Div[ _listSeries2Div.length - 1 ].getElementsByTagName("select")[1];
+/**
+ * Handlers to add and remove a series2 div and process select requests and responses
+ */
+function addSeries2Div()               { addSeriesDiv(2); }
+function removeSeries2Div(intId)       { removeSeriesDiv(2, intId); }
+function selectSeries2VarReq(intId)    { selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp); }
+function selectSeries2VarResp(strResp) { selectFieldResp(strResp, _listSeries2Div, 1, 1); }
+
+/**
+ * Build and add a series div for the specified series with configured controls 
+ */
+function addSeriesDiv(intSeries){
+	//  determine the appropriate div list
+	var listSeriesDiv = (1 == intSeries? _listSeries1Div : _listSeries2Div);
+	
+	//  add a field val div and modify its components for duty as a series div
+	addFieldValDiv("Series" + intSeries, listSeriesDiv);
+	var intSeriesIndex = listSeriesDiv.length - 1;
+	var selVal = listSeriesDiv[ intSeriesIndex ].getElementsByTagName("select")[1];
 	selVal.setAttribute("onchange", "javascript:buildSeriesDiv()");
  	if( _boolIE ){ selVal.attachEvent("onchange", new Function("buildSeriesDiv()")); }
-	for(i in _listSeries2Div){ _listSeries2Div[i].getElementsByTagName("span")[1].style.display = "inline"; }
+	for(i in listSeriesDiv){ listSeriesDiv[i].getElementsByTagName("span")[1].style.display = "inline"; }
 }
-function removeSeries2Div(intId){
-	removeFieldValDiv(intId, _listSeries2Div, 1);
- 	if( 1 == _listSeries2Div.length ){ _listSeries2Div[0].getElementsByTagName("span")[1].style.display = "none"; }
+
+/**
+ * Dispose of and hide the series div of the specified series with the specified id
+ */
+function removeSeriesDiv(intSeries, intId){
+	//  determine the appropriate div list
+	var listSeriesDiv = (1 == intSeries? _listSeries1Div : _listSeries2Div);
+	
+	//  dispose of and hide the series div
+	removeFieldValDiv(intId, listSeriesDiv, 1);
+ 	if( 1 == listSeriesDiv.length ){ listSeriesDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
 }
-function selectSeries2VarReq(intId){ selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp); }
-function selectSeries2VarResp(strResp){ selectFieldResp(strResp, _listSeries2Div, 1, 1); }
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -759,6 +805,12 @@ function selectIndyVarResp(strResp){
 	}
 }
 
+function clearIndyVal(){
+	//  hide all currently display indy val controls
+	var tabIndyVal = document.getElementById("tabIndyVal");
+	while( 1 < tabIndyVal.rows.length ){ tabIndyVal.deleteRow(tabIndyVal.rows.length - 1); }
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -819,7 +871,6 @@ function addFmtPlot(label, value, type){
  * Build the list of plot series reflected by the current state of the controls
  */
 function buildSeriesDiv(){
-console("buildSeriesDiv()\n");
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
 	var spanFmtSeriesNone = document.getElementById("spanFmtSeriesNone");
 	var intNumSeries = 0;
@@ -897,8 +948,6 @@ console("buildSeriesDiv()\n");
 	//  show or hide the controls, depending on the number of series
 	tabFmtSeries.style.display		= (1 > intNumSeries ? "none" : "inline");
 	spanFmtSeriesNone.style.display	= (1 > intNumSeries ? "inline" : "none");
-	
-console("buildSeriesDiv() complete\n\n");
 }
 
 /**
