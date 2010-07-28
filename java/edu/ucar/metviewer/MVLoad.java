@@ -188,12 +188,12 @@ public class MVLoad extends MVUtil {
 			
 			//  if there are <load_file> files specified, load them
 			String[] listLoadFiles = job.getLoadFiles();
-			if( 0 < listLoadFiles.length ){				
+			if( !_boolIndexOnly && 0 < listLoadFiles.length ){				
 				for(int i=0; i < listLoadFiles.length; i++){ processFile(new File(listLoadFiles[i]), con); }
 			}
 			
 			//  if there is a file template specified, load it
-			if( null != job.getFolderTmpl() && !job.getFolderTmpl().equals("") ){
+			if( !_boolIndexOnly && null != job.getFolderTmpl() && !job.getFolderTmpl().equals("") ){
 				int intStatLinesPrev = 0;
 				int intModeLinesPrev = 0;
 				
@@ -231,32 +231,34 @@ public class MVLoad extends MVUtil {
 						
 			//  print a performance report
 			long intLoadTime = (new java.util.Date()).getTime() - intLoadTimeStart;
-			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);
+			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);			
+			if( !_boolIndexOnly ){
+				System.out.println("\n    ==== grid_stat ====\n\n" +
+								   (_boolStatHeaderDBCheck? padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" : "") +
+								   (_boolStatHeaderTableCheck? padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" : "") +
+								   padBegin("stat header records: ", 36) + _intStatHeaderRecords + "\n" +
+								   padBegin("stat header inserts: ", 36) + _intStatHeaderInserts + "\n" +
+								   padBegin("line data records: ", 36) + _intLineDataRecords + "\n" +
+								   padBegin("line data inserts: ", 36) + _intLineDataInserts + "\n" +
+								   padBegin("stat group records: ", 36) + _intStatGroupRecords + "\n" +
+								   padBegin("stat group inserts: ", 36) + _intStatGroupInserts + "\n" +
+								   padBegin("thresh records: ", 36) + _intThreshRecords + "\n" +
+								   padBegin("thresh inserts: ", 36) + _intThreshInserts + "\n" +
+								   padBegin("total lines: ", 36) + _intStatLinesTotal + "\n" +
+								   padBegin("insert size: ", 36) + _intInsertSize + "\n" +
+								   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
+								   padBegin("num files: ", 36) + _intNumStatFiles + "\n\n" +
+								   "    ==== mode ====\n\n" +
+								   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
+								   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
+								   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
+								   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
+								   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
+								   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n" +
+								   padBegin("num files: ", 36) + _intNumModeFiles + "\n");
+			}
 			
-			System.out.println("\n    ==== grid_stat ====\n\n" +
-							   (_boolStatHeaderDBCheck? padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" : "") +
-							   (_boolStatHeaderTableCheck? padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" : "") +
-							   padBegin("stat header records: ", 36) + _intStatHeaderRecords + "\n" +
-							   padBegin("stat header inserts: ", 36) + _intStatHeaderInserts + "\n" +
-							   padBegin("line data records: ", 36) + _intLineDataRecords + "\n" +
-							   padBegin("line data inserts: ", 36) + _intLineDataInserts + "\n" +
-							   padBegin("stat group records: ", 36) + _intStatGroupRecords + "\n" +
-							   padBegin("stat group inserts: ", 36) + _intStatGroupInserts + "\n" +
-							   padBegin("thresh records: ", 36) + _intThreshRecords + "\n" +
-							   padBegin("thresh inserts: ", 36) + _intThreshInserts + "\n" +
-							   padBegin("total lines: ", 36) + _intStatLinesTotal + "\n" +
-							   padBegin("insert size: ", 36) + _intInsertSize + "\n" +
-							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n" +
-							   padBegin("num files: ", 36) + _intNumStatFiles + "\n\n" +
-							   "    ==== mode ====\n\n" +
-							   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
-							   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
-							   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
-							   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
-							   padBegin("mode_obj_pair inserts: ", 36) + _intModeObjPairRecords + "\n" +
-							   padBegin("total lines: ", 36) + _intModeLinesTotal + "\n" +
-							   padBegin("num files: ", 36) + _intNumModeFiles + "\n");
-			
+			//  apply the indexes, if requested
 			if( _boolApplyIndexes ){
 				applyIndexes(con);
 			}
