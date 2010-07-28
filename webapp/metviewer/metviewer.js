@@ -8,7 +8,8 @@ var _strDBCon = "";
 var _boolDBStatus = false;
 
 var _intDepIdNext = 1;
-var _listDepDiv = new Array();
+var _listDep1Div = new Array();
+var _listDep2Div = new Array();
 
 var _divFieldVal;
 var _intFieldValIdNext = 0;
@@ -69,7 +70,8 @@ function onLoad(){
 	listDBReq();
 
 	//  initialize the dep list
-	_listDepDiv.push( document.getElementById("divDep0") );
+	var divDep0 = document.getElementById("divDep1").getElementsByTagName("div")[0];
+	_listDep1Div.push( divDep0 );
 
 	//  initialize the series lists
 	_divFieldVal = document.getElementById("divFieldVal");
@@ -312,9 +314,14 @@ function parseListValResp(strResp, strType){
 }
 
 /**
- * Print an array of string values to the console, for debugging
+ * It is assumed that the input list contains strings.  The elements of list are searched for an
+ * exact match to the input string val and the first index containing a match is returned.  If no
+ * match is found, -1 is returned. 
  */
-function printList(listVal){ for(var i=0; i < listVal.length; i++){ console("    listVal[" + i + "]: " + listVal[i] + "\n"); } }
+function listSearch(val, list){
+	for(i in list){ if( list[i] == val ){ return i; } }
+	return -1;
+}
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -420,7 +427,7 @@ function updateDBCon(){
 	console("updateDBCon() - _strDBCon: " + _strDBCon + "\n\n");
 
 	//  populate the dep list of fcst_var
-	listFcstVarReq(0);
+	listFcstVar1Req(0);
 }
 
 
@@ -430,14 +437,26 @@ function updateDBCon(){
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+function addDep1(){ addDep(1); }
+function removeDep1Var(intDepId){ removeDepVar(1, intDepId); }
+function listFcstVar1Req(intDepId){ listFcstVarReq(intDepId, listFcstVar1Resp); }
+function listFcstVar1Resp(strResp){ selectFieldResp(strResp, _listDep1Div, 1, 0); }
+
+function addDep2(){ addDep(2); }
+function removeDep2Var(intDepId){ removeDepVar(2, intDepId); }
+function listFcstVar2Req(intDepId){ listFcstVarReq(intDepId, listFcstVar2Resp); }
+function listFcstVar2Resp(strResp){ selectFieldResp(strResp, _listDep2Div, 1, 0); }
+
 /**
  * Create a GUI control cluster for specifying a dependent variable fcst_var and stat(s)
  */
-function addDep(){
+function addDep(intY){
 
+	var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
+	
  	//  clone the dependent variable controls
  	var intDepId = _intDepIdNext++;
- 	var divDep = _listDepDiv[0].cloneNode(true);
+ 	var divDep = _listDep1Div[0].cloneNode(true);
 
  	//  update the components of the cloned fixed value controls
  	divDep.id = "divDep" + intDepId;
@@ -448,14 +467,6 @@ function addDep(){
  	var btnFcstVar = divDep.getElementsByTagName("input")[0];
  	btnFcstVar.setAttribute("onclick", "javascript:selectFcstVarReq(" + intDepId + ")");
  	if( _boolIE ){ btnFcstVar.attachEvent("onclick", new Function("selectFcstVarReq(" + intDepId + ")")); }
- 	var radAxis1 = divDep.getElementsByTagName("input")[1]; 
-	radAxis1.name = "radAxis" + intDepId;
- 	radAxis1.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ radAxis1.attachEvent("onchange", new Function("buildSeriesDiv()")); }
- 	var radAxis2 = divDep.getElementsByTagName("input")[2]; 
- 	radAxis2.name = "radAxis" + intDepId;
- 	radAxis2.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ radAxis2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
  	var selStat = divDep.getElementsByTagName("select")[1];
  	clearSelect(selStat);
  	selStat.style.display = "none";
@@ -466,34 +477,37 @@ function addDep(){
  	lblStat.style.display = "none";
  	lblStat.id = "lblStat" + intDepId;
  	var lnkDep = divDep.getElementsByTagName("a")[0];
- 	lnkDep.setAttribute("onclick", "javascript:removeDepVar(" + intDepId + ")");
- 	if( _boolIE ){ lnkDep.attachEvent("onclick", new Function("removeDepVar(" + intDepId + ")")); }
+ 	lnkDep.setAttribute("onclick", "javascript:removeDep" + intY + "Var(" + intDepId + ")");
+ 	if( _boolIE ){ lnkDep.attachEvent("onclick", new Function("removeDep" + intY + "Var(" + intDepId + ")")); }
  	divDep.getElementsByTagName("span")[1].style.display = "inline";
- 	divDep.getElementsByTagName("input")[3].value = "" + intDepId;
+ 	divDep.getElementsByTagName("input")[1].value = "" + intDepId;
 
  	//  add the new fixed variable value section to the page
- 	_listDepDiv.push(divDep);
- 	document.getElementById("divDep").insertBefore(divDep, document.getElementById("imgDep"));
+ 	listDepDiv.push(divDep);
+	var divDepParent = document.getElementById("divDep" + intY);
+	var divImgParent = document.getElementById("imgDep" + intY);
+ 	divDepParent.insertBefore(divDep, divImgParent);
 
  	//  ensure the first remove link is visible
-	_listDepDiv[0].getElementsByTagName("span")[1].style.display = "inline";
+ 	listDepDiv[0].getElementsByTagName("span")[1].style.display = "inline";
 }
 
 /**
  * Remove the specified dep div from the list of dependent variable controls
  */
-function removeDepVar(intDepId){
-	removeFieldValDiv(intDepId, _listDepDiv, 3);
- 	if( 1 == _listDepDiv.length ){ _listDepDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
+function removeDepVar(intY, intDepId){
+	var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
+	removeFieldValDiv(intDepId, listDepDiv, 1);
+ 	if( 1 == intY && 1 == listDepDiv.length ){ listDepDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
 }
 
 /**
  * List the fcst_var database field values, and populate the dependent variable fcst_var select with the results
  */
-function listFcstVarReq(intDepId){
-	sendRequest("POST", "<list_val><id>" + intDepId + "</id><" + _strPlotData + "_field>FCST_VAR</" + _strPlotData + "_field>" + "</list_val>", listFcstVarResp);
+function listFcstVarReq(intDepId, fnListFcstVarResp){
+	sendRequest("POST", "<list_val><id>" + intDepId + "</id><" + _strPlotData + "_field>FCST_VAR</" + _strPlotData + "_field>" + "</list_val>", fnListFcstVarResp);
 }
-function listFcstVarResp(strResp){ selectFieldResp(strResp, _listDepDiv, 3, 0); }
+function listFcstVarResp(strResp, listDepDiv){ selectFieldResp(strResp, listDepDiv, 1, 0); }
 
 /**
  * List the statistics available for the specified forecast variable and populate the statistics select
@@ -523,10 +537,11 @@ function selectFcstVarResp(strResp){
  * Build an XML criteria string for a <list_val> command which contains the list of currently selected
  * dependent variable fcst_var values
  */
-function buildFcstVarCrit(){
+function buildFcstVarCrit(intY){
+	var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
 	var strFixCrit = "<field name=\"FCST_VAR\">";
-	for(i in _listDepDiv){
-		var selFcstVar = _listDepDiv[i].getElementsByTagName("select")[0];
+	for(i in listDepDiv){
+		var selFcstVar = listDepDiv[i].getElementsByTagName("select")[0];
 		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].text + "</val>";
 	}
 	strFixCrit += "</field>";
@@ -538,7 +553,8 @@ function buildFcstVarCrit(){
  * select 
  */
 function clearDepStat(intIndex){
-	var selStat = _listDepDiv[intIndex].getElementsByTagName("select")[1];
+	//var selStat = _listDep1Div[intIndex].getElementsByTagName("select")[1];
+	var selStat = document.getElementById("selStat" + intIndex);
 	clearSelect(selStat);
 	selStat.style.display = "none";
 	document.getElementById("lblStat" + intIndex).style.display = "noneft";
@@ -609,9 +625,10 @@ function removeFieldValDiv(intId, listDiv, intInputId){
 /**
  * Build a list_val server request for the field val with the specified id in the specified controls
  * list.  The request includes the fixed value criteria up to the specified index.  The response xml
- * is passed to the specified response function.
+ * is passed to the specified response function.  If the specified y-axis is 1 or 2, the fcst_var
+ * criteria for the specified axis is added.
  */
-function selectFieldReq(intId, listDiv, intFixEnd, fnResp){
+function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
 
 	//  attempt to find the specified div, and if not found, bail
 	var intIndex = findDivId(listDiv, intId, 1);
@@ -620,9 +637,13 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp){
 		return;
 	}
 
-	//  build a list_val request for the selected field
-	var strFcstVarCrit = buildFcstVarCrit();
+	//  gather the criteria
+	var strFcstVarCrit = "";
+	if( 1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarCrit(intY); }
+	else                        { strFcstVarCrit += buildFcstVarCrit();    }
 	var strFixCrit = buildFixCrit(intFixEnd);
+
+	//  build a list_val request for the selected field
 	var selField = listDiv[intIndex].getElementsByTagName("select")[0];
 	var strField = selField.options[selField.selectedIndex].text;
 	sendRequest("POST",
@@ -677,7 +698,7 @@ function clearFieldVal(selVal){
  */
 function addSeries1Div()               { addSeriesDiv(1); }
 function removeSeries1Div(intId)       { removeSeriesDiv(1, intId); }
-function selectSeries1VarReq(intId)    { selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp); }
+function selectSeries1VarReq(intId)    { selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp, 1); }
 function selectSeries1VarResp(strResp) { selectFieldResp(strResp, _listSeries1Div, 1, 1); }
 
 /**
@@ -685,7 +706,7 @@ function selectSeries1VarResp(strResp) { selectFieldResp(strResp, _listSeries1Di
  */
 function addSeries2Div()               { addSeriesDiv(2); }
 function removeSeries2Div(intId)       { removeSeriesDiv(2, intId); }
-function selectSeries2VarReq(intId)    { selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp); }
+function selectSeries2VarReq(intId)    { selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp, 2); }
 function selectSeries2VarResp(strResp) { selectFieldResp(strResp, _listSeries2Div, 1, 1); }
 
 /**
@@ -881,68 +902,71 @@ function buildSeriesDiv(){
 	//  build permutation of the series values
 	var listSeries1Perm = permuteSeries(_listSeries1Div, 0, getPlotDiff(1));
 	var listSeries2Perm = permuteSeries(_listSeries2Div, 0, getPlotDiff(2));
+	
+	//  build all y1 and y2 series
+	for(var intY=1; intY <= 2; intY++){
 
-	//  for each dep div, consider the fcst_var and selected stats
-	for(var i=0; i < _listDepDiv.length; i++){
-
-		//  determine the y axis to which these permutations belong
-		var chkY1 = _listDepDiv[i].getElementsByTagName("input")[1];
-		var boolY1 = chkY1.checked;
-		var listSeriesPerm = (boolY1? listSeries1Perm : listSeries2Perm);
-
-		//  get the dep var information
-		var strFcstVar = getSelected( _listDepDiv[i].getElementsByTagName("select")[0] )[0];
-		var listStat = getSelected( _listDepDiv[i].getElementsByTagName("select")[1] );
-
-		//  build a series for each combination of fcst_var, stat and series permutation
-		for(var j=0; j < listStat.length; j++){
-			for(var k=0; k < listSeriesPerm.length; k++){
-
-				//  build the series name
-				var strSeriesName =  listSeriesPerm[k] + " " + strFcstVar + " " + listStat[j];
-
-				var trFmtSeries;
-				var tdName;
-
-				//  if the series is the first to be built, use the existing controls
-				if( 0 == intNumSeries++ ){
-					trFmtSeries = tabFmtSeries.rows[0];
-					tdName = trFmtSeries.cells[0];
+		var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
+		var listSeriesPerm = (1 == intY? listSeries1Perm : listSeries2Perm);	
+			
+		//  for each dep div, consider the fcst_var and selected stats
+		for(var i=0; i < listDepDiv.length; i++){
+	
+			//  get the dep var information
+			var strFcstVar = getSelected( listDepDiv[i].getElementsByTagName("select")[0] )[0];
+			var listStat = getSelected( listDepDiv[i].getElementsByTagName("select")[1] );
+	
+			//  build a series for each combination of fcst_var, stat and series permutation
+			for(var j=0; j < listStat.length; j++){
+				for(var k=0; k < listSeriesPerm.length; k++){
+	
+					//  build the series name
+					var strSeriesName =  listSeriesPerm[k] + " " + strFcstVar + " " + listStat[j];
+	
+					var trFmtSeries;
+					var tdName;
+	
+					//  if the series is the first to be built, use the existing controls
+					if( 0 == intNumSeries++ ){
+						trFmtSeries = tabFmtSeries.rows[0];
+						tdName = trFmtSeries.cells[0];
+					}
+	
+					//  otherwise, build a new set of series formatting controls
+					else {
+						var trHR = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
+						var tdHR = trHR.insertCell(0);
+						tdHR.colSpan = "3";
+						tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
+	
+						trFmtSeries = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
+	
+						var tdName = trFmtSeries.insertCell(0);
+						tdName.align = "right";
+						tdName.style.width = "350px";
+						tdName.style.paddingTop = "20px";
+						tdName.appendChild( document.getElementById("spanFmtSeriesName").cloneNode(true) );
+	
+						var tdFmt1 = trFmtSeries.insertCell(1);
+						tdFmt1.align = "right";
+						tdFmt1.style.width = "200px";
+						tdFmt1.style.paddingTop = "20px";
+						tdFmt1.appendChild( document.getElementById("spanFmtSeriesFmt1").cloneNode(true) );
+	
+						var tdFmt2 = trFmtSeries.insertCell(2);
+						tdFmt2.align = "right";
+						tdFmt2.style.width = "275px";
+						tdFmt2.style.paddingTop = "20px";
+						tdFmt2.appendChild( document.getElementById("spanFmtSeriesFmt2").cloneNode(true) );
+					}
+	
+					//  populate the controls with the series name
+					tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
+					tdName.getElementsByTagName("span")[3].innerHTML = (1 == intY? "Y1" : "Y2") + " Series";
 				}
-
-				//  otherwise, build a new set of series formatting controls
-				else {
-					var trHR = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
-					var tdHR = trHR.insertCell(0);
-					tdHR.colSpan = "3";
-					tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
-
-					trFmtSeries = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
-
-					var tdName = trFmtSeries.insertCell(0);
-					tdName.align = "right";
-					tdName.style.width = "350px";
-					tdName.style.paddingTop = "20px";
-					tdName.appendChild( document.getElementById("spanFmtSeriesName").cloneNode(true) );
-
-					var tdFmt1 = trFmtSeries.insertCell(1);
-					tdFmt1.align = "right";
-					tdFmt1.style.width = "200px";
-					tdFmt1.style.paddingTop = "20px";
-					tdFmt1.appendChild( document.getElementById("spanFmtSeriesFmt1").cloneNode(true) );
-
-					var tdFmt2 = trFmtSeries.insertCell(2);
-					tdFmt2.align = "right";
-					tdFmt2.style.width = "275px";
-					tdFmt2.style.paddingTop = "20px";
-					tdFmt2.appendChild( document.getElementById("spanFmtSeriesFmt2").cloneNode(true) );
-				}
-
-				//  populate the controls with the series name
-				tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
-				tdName.getElementsByTagName("span")[3].innerHTML = (boolY1? "Y1" : "Y2") + " Series";
 			}
 		}
+	
 	}
 	
 	//  show or hide the controls, depending on the number of series

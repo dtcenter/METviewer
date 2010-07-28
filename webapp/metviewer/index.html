@@ -35,39 +35,64 @@
 	<tr><td height="100%" style="vertical-align: top"><span id="spanPlotControls" style="display:inline">
 		<table><tr><td class="grey">
 
-		<div id="divDep">
-			<span class="header">Dependent Variables</span>
-			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep')">Serialize</a><br/><br/>
+		<span class="header" style="font-size:18px">Y1 Axis</span><br/><br/>
 
-			<div id="divDep0"><table><tr>
+		<div id="divDep1" style="padding-left:30px">
+			<span class="header" style="font-size:14px">Dependent Variables</span>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep1')">Serialize</a><br/><br/>
+
+			<div><table><tr>
 				<td class="bold" style="padding-left: 20px; padding-right: 10px; height: 70px">Forecast Variable:</td>
-				<td><table>
-					<tr><td style="height: 20px">&nbsp;</td></tr>
-					<tr><td>
-						<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
-						<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Select"/><br/>
-					</td></tr>
-					<tr><td align="center">
-						<input type="radio" name="radAxis0" checked="checked" onchange="javascript:buildSeriesDiv()"/> y1-axis&nbsp;&nbsp;
-						<input type="radio" name="radAxis0" onchange="javascript:buildSeriesDiv()"/> y2-axis
-					</td></tr>
-				</table></td>
+				<td>
+					<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
+					<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Select"/><br/>
+				</td>
 				<td>
 					<span id="lblStat0" class="bold" style="padding-left:20px; padding-right:10px; display:none">Statistic:</span>
 					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"
 						onchange="javascript:buildSeriesDiv()"></select>&nbsp;&nbsp;
 					<span style="display:none">
 						<img src="include/sub_symbol.gif" style="padding-left: 20px"/>&nbsp;&nbsp;
-						<a class="link" onclick="javascript:removeDepVar(0)">Remove Dependent Variable</a>
+						<a class="link" onclick="javascript:removeDep1Var(0)">Remove Dependent Variable</a>
 					</span>
 					<input type="hidden" value="0"/>
 				</td>
 			</tr></table></div>
 
-			<img id="imgDep" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-			<a class="link" onclick="javascript:addDep()">Add a Dependent Variable</a><br/><br/><br/>
+			<img id="imgDep1" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addDep1()">Add a Dependent y1 Variable</a><br/><br/><br/>
+		</div><br/><br/>				
+		
+		<div id="divSeries1" style="padding-left:30px">
+			<span class="header" style="font-size:14px">Series Variables</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')">Serialize</a><br/><br/>
+
+			<img id="imgSeries1" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addSeries1Div()">Add a Series y1 Value</a><br/><br/><br/>
+		</div><br/><br/>
+
+		</td></tr><tr><td>
+		
+		<span class="header" style="font-size:18px">Y2 Axis</span><br/><br/>
+
+		<div id="divDep2" style="padding-left:30px">
+			<span class="header" style="font-size:14px">Dependent Variables</span>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep2')">Serialize</a><br/><br/>
+
+			<img id="imgDep2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addDep2()">Add a Dependent y2 Variable</a><br/><br/><br/>
 		</div><br/><br/>
 		
+		<div id="divSeries2" style="padding-left:30px">
+			<span class="header" style="font-size:14px">Series Variables</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')">Serialize</a><br/><br/>
+
+			<img id="imgSeries2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addSeries2Div()">Add a Series y2 Value</a><br/><br/><br/>
+		</div><br/><br/>
+
+		</td></tr><tr><td class="grey">
+
 		<div id="divFieldVal" style="display:none">
 			<span class="bold" style="padding-left: 20px; padding-right:10px">Database Field:</span>
 			<select id="selField"></select>&nbsp;
@@ -79,8 +104,6 @@
 			</span>
 			<input type="hidden" value=""/><br/><br/>
 		</div>
-
-		</td></tr><tr><td>
 		
 		<div id="divFix">
 			<span class="header">Fixed Values</span>
@@ -90,28 +113,9 @@
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
 		</div><br/><br/>
 
-		</td></tr><tr><td class="grey">
-		
-		<div id="divSeries1">
-			<span class="header">Series y1 Variables</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')">Serialize</a><br/><br/>
-
-			<img id="imgSeries1" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-			<a class="link" onclick="javascript:addSeries1Div()">Add a Series1 Value</a><br/><br/><br/>
-		</div><br/><br/>
 
 		</td></tr><tr><td>
-		
-		<div id="divSeries2">
-			<span class="header">Series y2 Variables</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')">Serialize</a><br/><br/>
-
-			<img id="imgSeries2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-			<a class="link" onclick="javascript:addSeries2Div()">Add a Series2 Value</a><br/><br/><br/>
-		</div><br/><br/>
-
-		</td></tr><tr><td class="grey">
-		
+				
 		<div id="divIndy">
 			<span class="header">Independent Variables</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')">Serialize</a><br/><br/>
@@ -136,7 +140,7 @@
 			</tr></table>
 		</div><br/><br/>
 
-		</td></tr><tr><td>
+		</td></tr><tr><td class="grey">
 		
 		<div id="divFmtPlot">
 			<span class="header">Plot Formatting</span>
@@ -161,7 +165,7 @@
 			</tr></table>
 		</div><br/><br/>
 
-		</td></tr><tr><td class="grey">
+		</td></tr><tr><td>
 		
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
@@ -203,7 +207,7 @@
 			</table>
 		</div><br/><br/>
 		
-		</td></tr><tr><td>
+		</td></tr><tr><td class="grey">
 		
 		<div id="divBoot">
 			<span class="header">Bootstrapping</span>
