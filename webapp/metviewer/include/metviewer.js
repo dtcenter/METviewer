@@ -538,7 +538,14 @@ function selectFcstVarResp(strResp){
  * dependent variable fcst_var values
  */
 function buildFcstVarCrit(intY){
-	var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
+	
+	//  determine the list of dep divs to consider
+	var listDepDiv; 
+	if     ( 1 == intY ){ listDepDiv = _listDep1Div; }
+	else if( 2 == intY ){ listDepDiv = _listDep2Div; }
+	else                { listDepDiv = _listDep1Div.concat(_listDep2Div); }
+	
+	//  add the fcst_var from each dep div to the list
 	var strFixCrit = "<field name=\"FCST_VAR\">";
 	for(i in listDepDiv){
 		var selFcstVar = listDepDiv[i].getElementsByTagName("select")[0];
@@ -1021,10 +1028,10 @@ function getPlotDiff(y){
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*
-*  Bootstrap Controls
-*
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ *
+ *  Bootstrap Controls
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Update the bootstrapping controls according to the enabled checkbox setting
@@ -1037,3 +1044,144 @@ function updateBoot(){
 	divBoot.getElementsByTagName("input")[3].disabled = !chkBoot.checked;
 	divBoot.getElementsByTagName("input")[4].disabled = !chkBoot.checked;
 }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Plot Spec Functions
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/**
+ * Contruct the plot spec xml from information selected in the plot controls
+ */
+function buildPlotXML(){
+	
+	var listInput;
+	
+	var strDepXML = "";
+	
+	//  <template>
+	strDepXML += "<template>" + getSelected( document.getElementById("selTemplate") )[0] + ".R_tmpl</template>";	
+	
+	//  <dep>
+	strDepXML += "<dep>";
+	strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true) + "</dep1>";
+	strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true) + "</dep2>";
+	strDepXML += "<fix></fix></dep>";
+	
+	//  <series1> and <series2>
+	var strSeriesXML = "";
+	strDepXML += "<series1>" + buildFieldValXML("field", "val", _listSeries1Div, false) + "</series1>";
+	strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false) + "</series2>";
+	
+	//  <plot_fix>
+	strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false) + "</plot_fix>";
+	strDepXML += "<agg></agg>";
+	
+	//  <indep>
+	var divIndy = document.getElementById("divIndy");
+	var tabIndyVal = document.getElementById("tabIndyVal");
+	var strIndepField = getSelected( divIndy.getElementsByTagName("select")[0] )[0].toLowerCase();
+	strDepXML += "<indep name=\"" + strIndepField + "\">";
+	for(var i=0; i < tabIndyVal.rows.length; i++){
+		listInput = tabIndyVal.rows[i].getElementsByTagName("input");
+		var boolIndyValChk = listInput[0].checked;
+		var strVal = tabIndyVal.rows[i].getElementsByTagName("span")[1].innerHTML;
+		var strLab = listInput[1].value;
+		var strPlotVal = listInput[2].value;
+		if( boolIndyValChk ){
+			strDepXML += "<val label=\"" + strLab + "\" plot_val=\"" + strPlotVal + "\">" + strVal + "</val>";
+		}
+	}
+	strDepXML += "</indep>";
+	
+	//  <tmpl>
+	var divTitleLab = document.getElementById("divTitleLab");
+	listInput = divTitleLab.getElementsByTagName("input");
+	strDepXML += "<tmpl>";
+	strDepXML +=    "<title>" + listInput[0].value + "</title>";
+	strDepXML +=  "<x_label>" + listInput[1].value + "</x_label>";
+	strDepXML += "<y1_label>" + listInput[2].value + "</y1_label>";
+	strDepXML += "<y2_label>" + listInput[3].value + "</y2_label>";
+	strDepXML += "</tmpl>";
+	
+	//  bool formatting
+	var tabFmtPlotBool = document.getElementById("tabFmtPlotBool");
+	for(var i=0; i < tabFmtPlotBool.rows.length; i++){
+		for(var j=0; j < tabFmtPlotBool.rows[i].cells.length; j++){
+			var listSpan = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("span");
+			var listSel = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select");			
+			if( null == listSel || 1 > listSel.length ){ continue; }
+			var strName = listSpan[1].innerHTML.replace(/:$/, "");
+			strDepXML += "<" + strName + ">" + getSelected(listSel[0])[0] + "</" + strName + ">";
+		}
+	}
+	
+	//  txt formatting
+	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
+	for(var i=0; i < tabFmtPlotTxt.rows.length; i++){
+		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){
+			var listSpan = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("span");
+			var listInput = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("input");			
+			if( null == listInput || 1 > listInput.length ){ continue; }
+			var strName = listSpan[1].innerHTML.replace(/:$/, "");
+			strDepXML += "<" + strName + ">" + listInput[0].value + "</" + strName + ">";
+		}
+	}
+	
+	//  series formatting
+	var tabFmtSeries = document.getElementById("tabFmtSeries");
+	var listFmtSeries = new Array("", "", "", "", "", "", "", "");
+	var boolLegend = false;
+	for(var i=0; i < tabFmtSeries.rows.length; i++){
+		listInput = tabFmtSeries.rows[i].getElementsByTagName("input");
+		if( null == listInput || 8 > listInput.length ){ continue; }
+		for(var j=0; j < 8; j++){
+			var strVal = listInput[j].value;
+			if( 7 == j && strVal != "" ){ boolLegend = true; }
+			if( 0 == j || 1 == j || 3 == j || 7 == j){ strVal = "\"" + strVal + "\""; }
+			listFmtSeries[j] += (0 < i? ", " : "") + strVal;
+		}
+	}
+	strDepXML +=    "<plot_ci>c(" + listFmtSeries[0] + ")</plot_ci>";
+	strDepXML +=     "<colors>c(" + listFmtSeries[1] + ")</colors>";
+	strDepXML +=        "<pch>c(" + listFmtSeries[2] + ")</pch>";
+	strDepXML +=       "<type>c(" + listFmtSeries[3] + ")</type>";
+	strDepXML +=        "<lty>c(" + listFmtSeries[4] + ")</lty>";
+	strDepXML +=        "<lwd>c(" + listFmtSeries[5] + ")</lwd>";
+	strDepXML += "<con_series>c(" + listFmtSeries[6] + ")</con_series>";
+	if( boolLegend ){
+		strDepXML += "<legend>c(" + listFmtSeries[7] + ")</legend>";
+	}
+	
+	//  axis formatting
+	var divFmtAxis = document.getElementById("divFmtAxis");
+	listInput = divFmtAxis.getElementsByTagName("input");
+	strDepXML +=  "<y1_lim>" + listInput[0].value + "</y1_lim>";
+	strDepXML += "<y1_bufr>" + listInput[1].value + "</y1_bufr>";
+	strDepXML +=  "<y2_lim>" + listInput[2].value + "</y2_lim>";
+	strDepXML += "<y2_bufr>" + listInput[3].value + "</y2_bufr>";
+	
+	return strDepXML;
+}
+
+/**
+ * Build an XML structure with specified field tag and value tag from the information selected in the
+ * specified list of div controls
+ */
+function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField){
+	var strXML = "";
+	for(i in listDiv){
+		var listSel = listDiv[i].getElementsByTagName("select");
+		var strVar = getSelected( listSel[0] )[0];
+		if( !boolCapField ){ strVar = strVar.toLowerCase(); }
+		var listVal = getSelected( listSel[1] );
+		strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
+		for(j in listVal){ strXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
+		strXML += "</" + strFieldTag + ">";
+	}
+	return strXML;
+}
+
+function showXML(){ sendRequest("POST", "<plot>" + buildPlotXML() + "</plot>", nullResp); }

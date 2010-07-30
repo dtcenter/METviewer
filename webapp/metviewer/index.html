@@ -8,7 +8,7 @@
 
 <body onLoad="onLoad()" style="padding-left: 20px">
 
-<script type="text/javascript" src="metviewer.js"></script>
+<script type="text/javascript" src="include/metviewer.js"></script>
 
 <div id="divDimScreen" class="dimScreen">&nbsp;</div>
 <div id="divLoading" class="loading" align="center" onclick="javascript:dimScreen(false)">Loading...<br/>
@@ -29,7 +29,9 @@
 		<select id="selDB" onChange="javascript:updateDBCon()"></select>
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
-		<select id="selPlotData"><option>Stat</option><option>Mode</option></select><br/><br/><br/>
+		<select id="selPlotData"><option>Stat</option><option>Mode</option></select>
+		<span style="padding-left: 100px" class="bold">Template:</span>
+		<select id="selTemplate"><option>series_plot</option><option>box_plot</option><option>bar_plot</option></select><br/><br/><br/>
 	</td></tr>
 
 	<tr><td height="100%" style="vertical-align: top"><span id="spanPlotControls" style="display:inline">
@@ -141,7 +143,20 @@
 		</div><br/><br/>
 
 		</td></tr><tr><td class="grey">
+
+		<div id="divTitleLab">
+			<span class="header">Plot Titles &amp; Labels</span><br/><br/>
+
+			<table cellpadding="0" cellspacing="0">
+				<tr><td align="right" style="padding-left:30px">title:</td><td>&nbsp;<input type="text" size="80" value="test title"/></td></tr>
+				<tr><td align="right" style="padding-left:30px">x_label:</td><td>&nbsp;<input type="text" size="80" value="test x_label"/></td></tr>
+				<tr><td align="right" style="padding-left:30px">y1_label:</td><td>&nbsp;<input type="text" size="80" value="test y_label"/></td></tr>
+				<tr><td align="right" style="padding-left:30px">y2_label:</td><td>&nbsp;<input type="text" size="80" value=""/></td></tr>
+			</table><br/><br/>
+		</div>
 		
+		</td></tr><tr><td>
+
 		<div id="divFmtPlot">
 			<span class="header">Plot Formatting</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtPlot')">Serialize</a><br/><br/>
@@ -165,7 +180,7 @@
 			</tr></table>
 		</div><br/><br/>
 
-		</td></tr><tr><td>
+		</td></tr><tr><td class="grey">
 		
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
@@ -186,17 +201,17 @@
 				</td>
 				<td align="right" style="width:200px">
 					<span id="spanFmtSeriesFmt1">
-						<span class="bold">plot_ci:</span><input type="text" size="12"/><br/>
-						<span class="bold">colors:</span><input type="text" size="12"/><br/>
-						<span class="bold">pch:</span><input type="text" size="12"/><br/>
-						<span class="bold">type:</span><input type="text" size="12"/><br/>
+						<span class="bold">plot_ci:</span><input type="text" size="12" value="none"/><br/>
+						<span class="bold">colors:</span><input type="text" size="12" value="#FF0000FF"/><br/>
+						<span class="bold">pch:</span><input type="text" size="12" value="19"/><br/>
+						<span class="bold">type:</span><input type="text" size="12" value="b"/><br/>
 					</span>
 				</td>
 				<td align="right" style="width:275px">
 					<span id="spanFmtSeriesFmt2">
-						<span class="bold">lty:</span><input type="text" size="12"/><br/>
-						<span class="bold">lwd:</span><input type="text" size="12"/><br/>
-						<span class="bold">con_series:</span><input type="text" size="12"/><br/>
+						<span class="bold">lty:</span><input type="text" size="12" value="1"/><br/>
+						<span class="bold">lwd:</span><input type="text" size="12" value="1"/><br/>
+						<span class="bold">con_series:</span><input type="text" size="12" value="1"/><br/>
 						<span class="bold">legend:</span><input type="text" size="12"/><br/>
 					</span>
 				</td>
@@ -207,8 +222,23 @@
 			</table>
 		</div><br/><br/>
 		
-		</td></tr><tr><td class="grey">
+		</td></tr><tr><td>
 		
+		<div id="divFmtAxis">
+			<span class="header">Axis Bounds</span><br/><br/>
+
+			<table cellpadding="0" cellspacing="0">
+				<tr>
+					<td align="right" style="padding-left:30px">y1_lim:</td><td>&nbsp;<input type="text" size="12" value=""/></td>
+					<td align="right" style="padding-left:30px">y1_bufr:</td><td>&nbsp;<input type="text" size="12" value=".04"/></td>
+					<td align="right" style="padding-left:30px">y2_lim:</td><td>&nbsp;<input type="text" size="12" value="c(0,1)"/></td>
+					<td align="right" style="padding-left:30px">y2_bufr:</td><td>&nbsp;<input type="text" size="12" value="0"/></td>
+				</tr>
+			</table><br/><br/>
+		</div>
+		
+		</td></tr><tr><td class="grey">
+
 		<div id="divBoot">
 			<span class="header">Bootstrapping</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')">Serialize</a><br/><br/>
@@ -249,7 +279,8 @@
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
-		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/><br/><br/>
+		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
+		<input type="button" class="gButton" onclick="javascript:showXML()" value="XML"/><br/><br/>
 		<textarea rows="20" cols="160" id="txtConsole"></textarea></td>
 	</tr>
 
