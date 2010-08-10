@@ -3,7 +3,7 @@
 <head>
 <title>METViewer</title>
 <link rel="stylesheet" type="text/css" href="include/metviewer.css"/>
-<link rel="shortcut icon" href="include/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 </head>
 
 <body onLoad="onLoad()" style="padding-left: 20px">
@@ -29,7 +29,7 @@
 		<select id="selDB" onChange="javascript:updateDBCon()"></select>
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
-		<select id="selPlotData"><option>Stat</option><option>Mode</option></select>
+		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>Mode</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate"><option>series_plot</option><option>box_plot</option><option>bar_plot</option></select><br/><br/><br/>
 	</td></tr>
@@ -47,7 +47,7 @@
 				<td class="bold" style="padding-left: 20px; padding-right: 10px; height: 70px">Forecast Variable:</td>
 				<td>
 					<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
-					<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Select"/><br/>
+					<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Stats &#187;"/><br/>
 				</td>
 				<td>
 					<span id="lblStat0" class="bold" style="padding-left:20px; padding-right:10px; display:none">Statistic:</span>
@@ -98,7 +98,7 @@
 		<div id="divFieldVal" style="display:none">
 			<span class="bold" style="padding-left: 20px; padding-right:10px">Database Field:</span>
 			<select id="selField"></select>&nbsp;
-			<input type="button" class="gButton" onclick="javascript:selectFieldReq()" value="Select"/>&nbsp;&nbsp;
+			<input type="button" class="gButton" onclick="javascript:selectFieldReq()" value="Values &#187;"/>&nbsp;&nbsp;
 			<select id="selVal" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
 			<span id="lnkRemove">
 				<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
@@ -124,7 +124,7 @@
 
 			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
 			<select id="selIndyVar" onchange="javascript:clearIndyVal()"></select>&nbsp;
-			<input type="button" class="gButton" onclick="javascript:selectIndyVarReq()" value="Select"/><br/><br/>
+			<input type="button" class="gButton" onclick="javascript:selectIndyVarReq()" value="Values &#187;"/><br/><br/>
 
 			<table id="tabIndyVal" style="padding-left:60px"><tr id="trIndyVal" style="display:none">
 				<td style="width: 100px">
@@ -139,7 +139,13 @@
 						plot val: <input type="text" size="8"/><br/>
 					</span>
 				</td>
-			</tr></table>
+			</tr></table><br/>
+			<span id="spanIndyCheck" style="display:none">
+				<img src="include/add_symbol.gif" style="padding-left:80px"/>&nbsp;&nbsp;
+				<a class="link" onclick="javascript:indyCheck(true)">Check all</a>
+				<img src="include/sub_symbol.gif" style="padding-left:40px"/>&nbsp;&nbsp;
+				<a class="link" onclick="javascript:indyCheck(false)">Uncheck all</a>
+			</span>
 		</div><br/><br/>
 
 		</td></tr><tr><td class="grey">
@@ -185,7 +191,7 @@
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')">Serialize</a>
-			<span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>
+			<!-- <span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>  -->
 			<br/><br/>
 			
 			<span id="spanFmtSeriesNone" style="padding-left:40px" class="bold">(no series selected)</span>
@@ -256,7 +262,10 @@
 			</table>
 		</div><br/><br/>
 		
-		</td></tr></table>
+		</td></tr></table><br/><br/>
+		
+		<input type="button" class="header" onclick="javascript:runPlotReq()" value="&#187; Generate Plot &#171;"/><br/><br/>
+		
 	</span>&nbsp;</td></tr>
 
 	<tr>
@@ -280,7 +289,7 @@
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
-		<input type="button" class="gButton" onclick="javascript:showXML()" value="XML"/><br/><br/>
+		<input type="button" class="gButton" onclick="javascript:testPlotResp()" value="plot.html"/><br/><br/>
 		<textarea rows="20" cols="160" id="txtConsole"></textarea></td>
 	</tr>
 

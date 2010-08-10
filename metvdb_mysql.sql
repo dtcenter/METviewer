@@ -1,9 +1,9 @@
 -- This file is intended for MySQL
 
 use mysql;
-DROP DATABASE IF EXISTS metvdb_qnse;
-CREATE DATABASE metvdb_qnse;
-use metvdb_qnse;
+DROP DATABASE IF EXISTS metvdb_test;
+CREATE DATABASE metvdb_test;
+use metvdb_test;
 
 
 -- data_file_type_lu is a look-up table containing information about the different types
@@ -830,3 +830,61 @@ INSERT INTO stat_group_lu VALUES(48, 'FBS', 'Fractions Brier Score including boo
 INSERT INTO stat_group_lu VALUES(49, 'FSS', 'Fractions Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
 
 
+-- metvdb_rev contains information about metvdb revisions, and provides an indicator of
+--   the changes made in the current revision
+
+CREATE TABLE metvdb_rev
+(
+    rev_id              INT UNSIGNED NOT NULL,
+    rev_name            VARCHAR(16),
+    rev_detail          VARCHAR(2048),
+    PRIMARY KEY (rev_id)    
+);
+
+INSERT INTO metvdb_rev VALUES (0, '0.1', 'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
+
+
+-- instance_info contains information about the paricular instance of metvdb, including 
+--   dates of data updates and information about data table contents
+
+CREATE TABLE instance_info
+(
+    instance_info_id    INT UNSIGNED NOT NULL,
+    updater             VARCHAR(64),
+    update_date         DATETIME,
+    update_detail       VARCHAR(2048),
+    PRIMARY KEY (instance_info_id)    
+);
+
+INSERT INTO instance_info VALUES (0, 'pgoldenb', '2010-07-29 12:00:00', 'Initial load of fall data for testing new functionality');
+
+
+-- web_plot contains information about plots made by the web application, including the
+--   plot spec xml
+
+CREATE TABLE web_plot
+(
+    web_plot_id         INT UNSIGNED NOT NULL,
+    creation_date       DATETIME,
+    plot_xml            VARCHAR(20480),
+    PRIMARY KEY (web_plot_id)    
+);
+
+
+-- stat_fcst_var_stat maintains a join between fcst_var and stat names which is used
+--   by the web app interface
+
+CREATE
+ALGORITHM = TEMPTABLE
+VIEW stat_fcst_var_stat AS
+SELECT DISTINCT
+  sh.fcst_var,
+  sgl.stat_group_lu_id,
+  sgl.stat_group_name
+FROM
+  stat_header sh,
+  stat_group sg,
+  stat_group_lu sgl
+WHERE
+  sg.stat_header_id = sh.stat_header_id
+  AND sg.stat_group_lu_id = sgl.stat_group_lu_id;

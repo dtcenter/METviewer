@@ -4,50 +4,71 @@ import java.util.*;
 import java.util.regex.*;
 import java.sql.*;
 import java.io.*;
-import edu.ucar.metviewer.hmt.*;
+//import edu.ucar.metviewer.hmt.*;
 //import org.apache.log4j.*;
 
 public class MVBatch extends MVUtil {
 	
 	//private static final Logger _logger = Logger.getLogger(MVBatch.class);
-	//private static final PrintStream _logStream = System.out;
+	//private static final PrintStream _logStream = _out;
 	
-	public static boolean _boolSQLOnly			= false;
-	public static boolean _boolVerbose			= false;
+	public PrintStream _out				= System.out;
 	
-	public static String _strHost				= "kemosabe";
-	public static String _strPort				= "3306";	
-	public static String _strDatabase			= "metvdb3_hmt";
-	public static String _strUser				= "pgoldenb";
-	public static String _strPwd				= "pgoldenb";
+	public boolean _boolSQLOnly			= false;
+	public boolean _boolVerbose			= false;
 	
-	public static String _strRtmplFolder		= "/home/pgoldenb/apps/verif/metviewer/R_tmpl/";
-	public static String _strRworkFolder		= "/d1/pgoldenb/var/hmt/R_work/";
-	public static String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
+	public String _strHost				= "kemosabe";
+	public String _strPort				= "3306";	
+	public String _strDatabase			= "metvdb3_hmt";
+	public String _strUser				= "pgoldenb";
+	public String _strPwd				= "pgoldenb";
+	
+	public String _strRtmplFolder		= "/home/pgoldenb/apps/verif/metviewer/R_tmpl/";
+	public String _strRworkFolder		= "/d1/pgoldenb/var/hmt/R_work/";
+	public String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
 
-	public static boolean _boolProcWait			= true;
+	public boolean _boolProcWait			= true;
 
 	public static final Pattern _patRTmpl		= Pattern.compile("#<(\\w+)>#");
 	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
 	
-	public static final boolean _boolPlot		= true;
-	public static boolean _boolSQLSort			= true;
-	public static boolean _boolCacheBoot		= true;
+	public final boolean _boolPlot		= true;
+	public boolean _boolSQLSort			= true;
+	public boolean _boolCacheBoot		= true;
 	
-	public static String[] _list24				= {};
-	public static String[] _list06				= {};
-	public static String[] _listBase			= {};
-	public static String _strBaseDate			= "";
-	public static String _strBaseDateDefault	= "2010-02-21 0:00:00";	
+	/*
+	public String[] _list24				= {};
+	public String[] _list06				= {};
+	public String[] _listBase			= {};
+	public String _strBaseDate			= "";
+	public String _strBaseDateDefault	= "2010-02-21 0:00:00";
+	*/
 	
-	public static int _intNumPlots				= 0;
-	public static int _intPlotIndex				= 0;
-	public static int _intNumPlotsRun			= 0;
+	public int _intNumPlots				= 0;
+	public int _intPlotIndex			= 0;
+	public int _intNumPlotsRun			= 0;
 
-	public static boolean _boolTheWorks			= false;
+	public boolean _boolTheWorks		= false;
 	
-	public static boolean _boolWindows			= false;
+	public static boolean _boolWindows	= false;
+	
+	public MVBatch(PrintStream log, boolean boolWindows){
+		_out = log;
+		_boolWindows = boolWindows;
 		
+		//  windows settings
+		if( _boolWindows ){
+			_strRtmplFolder = "c:/src/apps/verif/metviewer/R_tmpl/";
+			_strRworkFolder = "c:/src/metv/R_work/";
+			_strPlotsFolder = "c:/src/metv/plots/";
+			_boolProcWait = false;
+		}
+		
+
+	}
+	public MVBatch(PrintStream log){ this(log, false); }
+	public MVBatch(){ this(System.out, false); }
+	
 	public static String getUsage(){
 		return	"Usage:  mv_batch\n" +
 				"          plot_spec_file\n" +
@@ -64,16 +85,10 @@ public class MVBatch extends MVUtil {
 	}	
 	
 	public static void main(String[] argv) {
-		System.out.println("----  MVBatch  ----\n");
+		MVBatch bat = new MVBatch();
+		
+		bat._out.println("----  MVBatch  ----\n");
 		Connection con = null;
-
-		//  windows settings
-		if( _boolWindows ){
-			_strRtmplFolder = "c:/src/apps/verif/metviewer/R_tmpl/";
-			_strRworkFolder = "c:/src/metv/R_work/";
-			_strPlotsFolder = "c:/src/metv/plots/";
-			_boolProcWait = false;
-		}
 		
 		try{
 		
@@ -81,7 +96,7 @@ public class MVBatch extends MVUtil {
 		
 			//  if no input file is present, bail
 			if( 1 > argv.length ){
-				System.out.println(getUsage() + "\n----  MVBatch Done  ----");
+				bat._out.println(getUsage() + "\n----  MVBatch Done  ----");
 				try{ if( con != null )	con.close(); }catch(SQLException e){}
 				return;
 			}
@@ -92,13 +107,13 @@ public class MVBatch extends MVUtil {
 				listArgvHMT.addAll( Arrays.asList(argv) );
 				listArgvHMT.remove(0);
 				
-				jobs = buildHMTJobs(con, toArray(listArgvHMT));
+				//jobs = bat.buildHMTJobs(con, toArray(listArgvHMT));
 				
 			} else {
 				
 				//  parse the input file
 				String strXMLInput = argv[0];
-				System.out.println("input file: " + strXMLInput + "\n");				
+				bat._out.println("input file: " + strXMLInput + "\n");				
 				MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
 				MVOrderedMap mapJobs = parser.getJobsMap();
 				
@@ -108,28 +123,28 @@ public class MVBatch extends MVUtil {
 				if( 1 < argv.length ){
 					for(int i=1; i < argv.length; i++){
 						if     ( argv[i].equals("-list") ){ boolList = true; }
-						else if( argv[i].equals("-sql")  ){ _boolSQLOnly = true; }
-						else if( argv[i].equals("-v")    ){ _boolVerbose = true; }
+						else if( argv[i].equals("-sql")  ){ bat._boolSQLOnly = true; }
+						else if( argv[i].equals("-v")    ){ bat._boolVerbose = true; }
 						else {
 							listJobNamesInput.add(argv[i]);
 						}
 					}
 				}
-				_boolVerbose = (_boolSQLOnly? true : _boolVerbose);
+				bat._boolVerbose = (bat._boolSQLOnly? true : bat._boolVerbose);
 				
 				String[] listJobNames = mapJobs.keyList();
 				if( 0 < listJobNamesInput.size() ){
 					listJobNames = toArray(listJobNamesInput);
 				}
 								
-				System.out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
+				bat._out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
 				for(int i=0; i < listJobNames.length; i++){
-					System.out.println("  " + listJobNames[i]);
+					bat._out.println("  " + listJobNames[i]);
 				}
 				
 				//  if only a list of plot jobs is requested, return
 				if( boolList ){
-					System.out.println("\n----  MVBatch Done  ----");
+					bat._out.println("\n----  MVBatch Done  ----");
 					try{ if( con != null )	con.close(); }catch(SQLException e){}
 					return;
 				}
@@ -141,7 +156,7 @@ public class MVBatch extends MVUtil {
 					ArrayList listJobs = new ArrayList();
 					for(int i=0; i < listJobNames.length; i++){
 						if( !mapJobs.containsKey(listJobNames[i]) ){
-							System.out.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
+							bat._out.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
 							continue;
 						}
 						listJobs.add( mapJobs.get(listJobNames[i]) );
@@ -150,9 +165,9 @@ public class MVBatch extends MVUtil {
 				}
 				
 				//  get the path information for the job
-				if( !parser.getRtmplFolder().equals("") ){ _strRtmplFolder = parser.getRtmplFolder(); }
-				if( !parser.getRworkFolder().equals("") ){ _strRworkFolder = parser.getRworkFolder(); }
-				if( !parser.getPlotsFolder().equals("") ){ _strPlotsFolder = parser.getPlotsFolder(); }
+				if( !parser.getRtmplFolder().equals("") ){ bat._strRtmplFolder = parser.getRtmplFolder(); }
+				if( !parser.getRworkFolder().equals("") ){ bat._strRworkFolder = parser.getRworkFolder(); }
+				if( !parser.getPlotsFolder().equals("") ){ bat._strPlotsFolder = parser.getPlotsFolder(); }
 
 			}  //  end: else - HMT Code
 			
@@ -162,7 +177,7 @@ public class MVBatch extends MVUtil {
 			}
 			
 			//  calculate the number of plots
-			_intNumPlots = 0;
+			bat._intNumPlots = 0;
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				
 				//  add a job for each permutation of plot fixed values
@@ -189,22 +204,21 @@ public class MVBatch extends MVUtil {
 					if( objDep1 instanceof MVOrderedMap[] ){ intNumJobPlots *= ((MVOrderedMap[])objDep1).length; }
 				}
 
-				_intNumPlots += intNumJobPlots;
+				bat._intNumPlots += intNumJobPlots;
 			}
 			java.util.Date dateStart = new java.util.Date();
-			System.out.println("Running " + _intNumPlots + " plots\n" + 
-							   "Begin time: " + _formatDB.format(dateStart) + "\n");
+			bat._out.println("Running " + bat._intNumPlots + " plots\n" + "Begin time: " + _formatDB.format(dateStart) + "\n");
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
-				runJob(jobs[intJob]);
+				bat.runJob(jobs[intJob]);
 			}
 
 			java.util.Date dateEnd = new java.util.Date();
 			long intPlotTime = dateEnd.getTime() - dateStart.getTime();
-			long intPlotAvg = (0 < _intNumPlots? intPlotTime / (long)_intNumPlots : 0);
-			System.out.println("\n" + 
+			long intPlotAvg = (0 < bat._intNumPlots? intPlotTime / (long)bat._intNumPlots : 0);
+			bat._out.println("\n" + 
 							   padBegin("End time: ") + _formatDB.format(dateEnd) + "\n" +
-							   padBegin("Plots run: ") + _intNumPlotsRun + " of " + _intNumPlots + "\n" +
+							   padBegin("Plots run: ") + bat._intNumPlotsRun + " of " + bat._intNumPlots + "\n" +
 							   padBegin("Total time: ") + formatTimeSpan(intPlotTime) + "\n" +
 							   padBegin("Avg plot time: ") + formatTimeSpan(intPlotAvg) + "\n");
 
@@ -216,7 +230,7 @@ public class MVBatch extends MVUtil {
 			try{ if( con != null )	con.close(); }catch(SQLException e){}
 		}
 
-		System.out.println("\n----  MVBatch Done  ----");
+		bat._out.println("\n----  MVBatch Done  ----");
 	}
 	
 	/**
@@ -225,13 +239,12 @@ public class MVBatch extends MVUtil {
 	 * @param argv List of input arguments passed to MVBatch
 	 * @return List of plot jobs
 	 * @throws Exception
-	 */
-	public static MVPlotJob[] buildHMTJobs(Connection con, String[] argv) throws Exception{
+	public MVPlotJob[] buildHMTJobs(Connection con, String[] argv) throws Exception{
 		
 		MVPlotJob[] jobs = {};
 
 		if( 2 > argv.length ){
-			System.out.println("usage:\n% java [jvm_args] MVBatch {db_host} {works} [{plot_type} {date1} [date2]...]\n\n----  MVBatch Done  ----");
+			_out.println("usage:\n% java [jvm_args] MVBatch {db_host} {works} [{plot_type} {date1} [date2]...]\n\n----  MVBatch Done  ----");
 			try{ if( con != null )	con.close(); }catch(SQLException e){}
 			return jobs;
 		}
@@ -244,7 +257,7 @@ public class MVBatch extends MVUtil {
 		con = DriverManager.getConnection("jdbc:mysql://" + _strHost + ":" + _strPort + "/" + _strDatabase, _strUser, _strPwd);
 		if( con.isClosed() )	throw new Exception("METViewer error: database connection failed");
 		
-		System.out.println("connected to " + _strDatabase + "@" + _strHost + "\nthe works: " + _boolTheWorks);
+		_out.println("connected to " + _strDatabase + "@" + _strHost + "\nthe works: " + _boolTheWorks);
 
 
 		//  parse the command line input to determine the job
@@ -253,7 +266,7 @@ public class MVBatch extends MVUtil {
 		if( 2 < argv.length ){
 			//  the first argument should be the plot type
 			strJob = argv[2];
-			System.out.println("input: '" + strJob + "'");
+			_out.println("input: '" + strJob + "'");
 			boolInput = true;
 			
 			//  parse the input folder list, if present
@@ -272,12 +285,12 @@ public class MVBatch extends MVUtil {
 			_listBase = toArray( listDatesBase );
 			
 			//  print out the lists that will be applied
-			for(int i=0; i < _list24.length; i++){ System.out.println("list24[" + i + "] = " + _list24[i]); }
-			if( 0 < _list24.length ){ System.out.println(); }
-			for(int i=0; i < _list06.length; i++){ System.out.println("list06[" + i + "] = " + _list06[i]); }
-			if( 0 < _list06.length ){ System.out.println(); }
-			for(int i=0; i < _listBase.length; i++){ System.out.println("listBase[" + i + "] = " + _listBase[i]); }
-			if( 0 < _listBase.length ){ System.out.println(); }
+			for(int i=0; i < _list24.length; i++){ _out.println("list24[" + i + "] = " + _list24[i]); }
+			if( 0 < _list24.length ){ _out.println(); }
+			for(int i=0; i < _list06.length; i++){ _out.println("list06[" + i + "] = " + _list06[i]); }
+			if( 0 < _list06.length ){ _out.println(); }
+			for(int i=0; i < _listBase.length; i++){ _out.println("listBase[" + i + "] = " + _listBase[i]); }
+			if( 0 < _listBase.length ){ _out.println(); }
 		}
 
 		if( boolInput ){
@@ -359,8 +372,9 @@ public class MVBatch extends MVUtil {
 		
 		return jobs;
 	}
+	 */
 	
-	public static void runJob(MVPlotJob job) throws Exception {
+	public void runJob(MVPlotJob job) throws Exception {
 		
 		//  build a list of fixed value permutations for all plots
 		MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
@@ -436,8 +450,9 @@ public class MVBatch extends MVUtil {
 				//  get the dependent variable fixed values for this group
 				MVOrderedMap mapFix = (MVOrderedMap)listDep[intDep].get("fix");
 
-				//  build the aggregation variable permutations
+				//  build the aggregation variable permutations, ensuring there is at least one permutation
 				MVOrderedMap[] listAggPerm = permute(job.getAggVal()).getRows();
+				if( 1 > listAggPerm.length ){ listAggPerm = new MVOrderedMap[]{new MVOrderedMap()}; }
 
 				//  establish lists of entires for each group of variables and values
 				Map.Entry[] listAggVal		= job.getAggVal().getOrderedEntries();
@@ -511,8 +526,13 @@ public class MVBatch extends MVUtil {
 					
 					//  add the field to the temp table field list
 					String strTempType = "";
-					if( boolModePlot ){ strTempType = _tableModeHeaderSQLType.get(strQueryField).toString(); }
-					else              { strTempType = _tableStatHeaderSQLType.get(strQueryField).toString(); }
+					if( boolModePlot ){
+						if( !_tableModeHeaderSQLType.containsKey(strQueryField) ){ throw new Exception("unrecognized mode_header field: " + strQueryField); }
+						strTempType = _tableModeHeaderSQLType.get(strQueryField).toString();
+					} else {
+						if( !_tableStatHeaderSQLType.containsKey(strQueryField) ){ throw new Exception("unrecognized stat_header field: " + strQueryField); }
+						strTempType = _tableStatHeaderSQLType.get(strQueryField).toString();
+					}
 					strTempList += "    " + padEnd(strQueryField, 20) + strTempType + ",\n";
 				}
 				String strSelectListModeTemp = strSelectList;
@@ -673,8 +693,14 @@ public class MVBatch extends MVUtil {
 
 				//  add date information, the fcst_var and the independent field to the temp table field list
 				String strIndyVarType = "";
-				if( boolModePlot ){ strIndyVarType = _tableModeHeaderSQLType.get(job.getIndyVar()).toString(); }
-				else              { strIndyVarType = _tableStatHeaderSQLType.get(job.getIndyVar()).toString(); }
+				String strIndyVar = job.getIndyVar();
+				if( boolModePlot ){
+					if( !_tableModeHeaderSQLType.containsKey(strIndyVar) ){ throw new Exception("unrecognized indep mode_header field: " + strIndyVar); }
+					strIndyVarType = _tableModeHeaderSQLType.get(strIndyVar).toString();
+				} else {
+					if( !_tableStatHeaderSQLType.containsKey(strIndyVar) ){ throw new Exception("unrecognized indep stat_header field: " + strIndyVar); }
+					strIndyVarType = _tableStatHeaderSQLType.get(strIndyVar).toString();
+				}
 				strTempList += "    fcst_var            VARCHAR(64),\n" +
 							   "    " + padEnd(job.getIndyVar(), 20) + strIndyVarType + ",\n";
 				if( boolModePlot ){
@@ -898,7 +924,7 @@ public class MVBatch extends MVUtil {
 				ResultSet res = null;
 				String[] listSQL = toArray(listQuery);				
 				for(int i=0; i < listSQL.length; i++){
-					if( _boolVerbose ){ System.out.println(listSQL[i] + "\n"); }
+					if( _boolVerbose ){ _out.println(listSQL[i] + "\n"); }
 					if( _boolSQLOnly ){ continue; }
 					
 					stmt = job.getConnection().createStatement();
@@ -914,11 +940,11 @@ public class MVBatch extends MVUtil {
 				int intNumJobDataRows = -1;
 				if( res.next() ){ intNumJobDataRows = res.getInt(1); }
 				stmt.close();
-				System.out.println("query returned " + intNumJobDataRows + " job_data rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ) + "\n");
+				_out.println("query returned " + intNumJobDataRows + " job_data rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ) + "\n");
 				
 				//  if there is no data, do not try to plot it
 				if( 1 > intNumJobDataRows ){
-					System.out.println("  **  WARNING: query returned no data");
+					_out.println("  **  WARNING: query returned no data");
 					int intNumModeGroupPlots = (0 < listMapDep1Mode.length? listMapDep1Mode.length : (0 < listMapDep2Mode.length? listMapDep2Mode.length : 1));
 					int intNumQueryPlots = (intNumModeGroupPlots * listAggPerm.length);
 					_intPlotIndex += intNumQueryPlots;
@@ -944,23 +970,23 @@ public class MVBatch extends MVUtil {
 				stmt.close();
 				
 				//  update the fcst_var values with the new values
-				if( _boolVerbose ){ System.out.println("Updating fcst_var values..."); }
+				if( _boolVerbose ){ _out.println("Updating fcst_var values..."); }
 				Map.Entry[] listFcstVarProc = mapFcstVar.getOrderedEntries();
 				for(int i=0; i < listFcstVarProc.length; i++){
 					String strFcstVarOld = listFcstVarProc[i].getKey().toString();
 					String strFcstVarNew = listFcstVarProc[i].getValue().toString();
 					stmt = job.getConnection().createStatement();
 					String strFcstVarUpdate = "UPDATE job_data SET fcst_var='" + strFcstVarNew + "' WHERE fcst_var='" + strFcstVarOld + "';";
-					if( _boolVerbose ){ System.out.println(strFcstVarUpdate); }
+					if( _boolVerbose ){ _out.println(strFcstVarUpdate); }
 					stmt.execute(strFcstVarUpdate);
 					stmt.close();
 				}
-				if( _boolVerbose ){ System.out.println("Done\n"); }
+				if( _boolVerbose ){ _out.println("Done\n"); }
 
 				//  add the stat_names, if appropriate
 				if( !boolModePlot ){
 					
-					if( _boolVerbose ){ System.out.println("Updating stat_name values..."); }
+					if( _boolVerbose ){ _out.println("Updating stat_name values..."); }
 					for(int i=0; i < listDepPlot.length; i++){
 						String[] listStatName = (String[])listDepPlot[i].getValue();						
 						String strFcstVar = (String)listDepPlot[i].getKey();
@@ -973,12 +999,12 @@ public class MVBatch extends MVUtil {
 								"UPDATE job_data " +
 								"SET stat_name='" + listStatName[j] + "' " +
 								"WHERE stat_group_lu_id=" + strStatGroupLuId + " AND fcst_var IN (" + strFcstVarComp + ");";
-							if( _boolVerbose ){ System.out.println(strStatNameUpdate); }
+							if( _boolVerbose ){ _out.println(strStatNameUpdate); }
 							stmt.execute(strStatNameUpdate);
 							stmt.close();
 						}				
 					}
-					if( _boolVerbose ){ System.out.println("Done\n"); }
+					if( _boolVerbose ){ _out.println("Done\n"); }
 				}				
 
 				//  add set fields to the table to handle aggregating over sets of values
@@ -989,7 +1015,7 @@ public class MVBatch extends MVUtil {
 					Object objAggVal = listAggVal[i].getValue();
 					if( objAggVal instanceof String[] ){ continue; }
 					
-					if( 0 == intAggUpdates++ && _boolVerbose ){ System.out.println("Updating set values..."); }
+					if( 0 == intAggUpdates++ && _boolVerbose ){ _out.println("Updating set values..."); }
 				
 					//  if the aggregate values are sets, add a set field to the table
 					final String strAggVar = listAggVal[i].getKey().toString();
@@ -998,7 +1024,7 @@ public class MVBatch extends MVUtil {
 					strSelectList += ",\n  " + strSetField;
 					stmt = job.getConnection().createStatement();
 					String strSetAlter = "ALTER TABLE job_data ADD COLUMN " + strSetField + " VARCHAR(64);";
-					if( _boolVerbose ){ System.out.println(strSetAlter); }
+					if( _boolVerbose ){ _out.println(strSetAlter); }
 					stmt.execute(strSetAlter);
 					stmt.close();
 					
@@ -1010,12 +1036,12 @@ public class MVBatch extends MVUtil {
 						String strSetList = buildValueList( (String[])listSetVal[j].getValue() );						
 						stmt = job.getConnection().createStatement();
 						String strSetUpdate = "UPDATE job_data SET " + strSetField + "='" + strSetName + "' WHERE " + strAggVar + " IN (" + strSetList + ");";
-						if( _boolVerbose ){ System.out.println(strSetUpdate); }
+						if( _boolVerbose ){ _out.println(strSetUpdate); }
 						stmt.execute(strSetUpdate);
 						stmt.close();
 					}
 				}
-				if( 0 < intAggUpdates && _boolVerbose ){ System.out.println("Done\n"); }
+				if( 0 < intAggUpdates && _boolVerbose ){ _out.println("Done\n"); }
 				
 				//  determine if the indy values require tick marks
 				boolean boolIndyValTick = false;
@@ -1060,7 +1086,7 @@ public class MVBatch extends MVUtil {
 					
 					for(int intPerm=0; intPerm < listAggPerm.length; intPerm++){
 						
-						System.out.println("* * * * * * * * * * * *\n  PLOT - " + (_intPlotIndex++ + 1) + " / " + _intNumPlots + "\n* * * * * * * * * * * *\n");
+						_out.println("* * * * * * * * * * * *\n  PLOT - " + (_intPlotIndex++ + 1) + " / " + _intNumPlots + "\n* * * * * * * * * * * *\n");
 						
 						/*
 						 *  Build a data table that contains the data specific to this permutation 
@@ -1079,7 +1105,7 @@ public class MVBatch extends MVUtil {
 							");");
 						
 						//  create a where clause for selecting plot data
-						String strPlotWhere = "  ";
+						String strPlotWhere = "";
 						String[] listKeysAgg = listAggPerm[intPerm].keyList();
 						for(int i=0; i < listKeysAgg.length; i++){
 							String strKey = listKeysAgg[i];
@@ -1104,13 +1130,13 @@ public class MVBatch extends MVUtil {
 						listQueryPlot.add(
 							"INSERT INTO plot_data\n" +
 							"SELECT\n" + strSelectList + "\n" +
-							"FROM job_data\n" +
-							"WHERE\n" + strPlotWhere + ";"
+							"FROM job_data" +
+							(!strPlotWhere.matches("\\s*")? "\nWHERE\n" + strPlotWhere : "") + ";"
 						);
 
 						listSQL = toArray(listQueryPlot);
 						for(int i=0; i < listSQL.length; i++){
-							if( _boolVerbose ){ System.out.println(listSQL[i] + "\n"); }
+							if( _boolVerbose ){ _out.println(listSQL[i] + "\n"); }
 							stmt = job.getConnection().createStatement();
 							stmt.execute(listSQL[i]);
 							stmt.close();
@@ -1169,7 +1195,7 @@ public class MVBatch extends MVUtil {
 		
 						//  add the aggregate values to the template values map
 						mapPlotTmplVals.putAll(listAggPerm[intPerm]);
-						System.out.println(mapPlotTmplVals.getRDecl() + "\n");
+						_out.println(mapPlotTmplVals.getRDecl() + "\n");
 		
 						//  TEMP_TABLE
 						stmt = job.getConnection().createStatement();
@@ -1181,11 +1207,11 @@ public class MVBatch extends MVUtil {
 						//  END TEMP_TABLE
 
 						if( 1 > intNumPlotDataRows ){
-							System.out.println("no plot data found\n");
+							_out.println("no plot data found\n");
 							continue;
 						}
 
-						System.out.println("Plotting " + intNumPlotDataRows + " rows");
+						_out.println("Plotting " + intNumPlotDataRows + " rows");
 		
 						
 						/*
@@ -1203,7 +1229,7 @@ public class MVBatch extends MVUtil {
 						//  get the data for the current plot from the plot_data temp table and write it to a data file
 						stmt = job.getConnection().createStatement();
 						String strPlotDataSelect = "SELECT\n" + strSelectList + "\nFROM plot_data;";
-						if( _boolVerbose ){ System.out.println(strPlotDataSelect); }
+						if( _boolVerbose ){ _out.println(strPlotDataSelect); }
 						stmt.execute(strPlotDataSelect);
 						printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
 						stmt.close();
@@ -1424,7 +1450,7 @@ public class MVBatch extends MVUtil {
 						if( _boolPlot ){
 							runRscript(job.getRscript(), strRFile);
 							_intNumPlotsRun++;
-							System.out.println();
+							_out.println();
 						}
 						
 					} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
@@ -1474,12 +1500,12 @@ public class MVBatch extends MVUtil {
 	 * @param args (optional) Arguments to pass to the R script
 	 * @throws Exception
 	 */
-	public static void runRscript(String Rscript, String script, String[] args) throws Exception{
+	public void runRscript(String Rscript, String script, String[] args) throws Exception{
 		
 		String strArgList = "";
 		for(int i=0; null != args && i < args.length; i++){ strArgList += " " + args[i]; }
 		
-		System.out.println("\nRunning '" + Rscript + " " + script + "'");
+		_out.println("\nRunning '" + Rscript + " " + script + "'");
 		Process proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
 		if( _boolProcWait ){
 			proc.waitFor();
@@ -1496,7 +1522,7 @@ public class MVBatch extends MVUtil {
 		}
 		readerProcIn.close();			
 		if( !"".equals(strRscriptOut) ){
-			System.out.println("\n==== Start Rscript output  ====\n" + strRscriptOut + "====   End Rscript output  ====");
+			_out.println("\n==== Start Rscript output  ====\n" + strRscriptOut + "====   End Rscript output  ====");
 		}
 		
 		String strRscriptErr = "";
@@ -1506,17 +1532,17 @@ public class MVBatch extends MVUtil {
 		}
 		readerProcError.close();
 		if( !"".equals(strRscriptErr) ){
-			System.out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
+			_out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
 		}
-		System.out.println();
+		_out.println();
 	}
-	public static void runRscript(String Rscript, String script) throws Exception{ runRscript(Rscript, script, new String[]{}); }
+	public void runRscript(String Rscript, String script) throws Exception{ runRscript(Rscript, script, new String[]{}); }
 	
 	/**
 	 * Prints a textual representation of the input {@link MVDataTable} with the field names in the 
 	 * first row to the specified {@link PrintStream} destination.  
 	 * @param res The MVDataTable to print
-	 * @param str The stream to write the formatted results to (defaults to System.out)
+	 * @param str The stream to write the formatted results to (defaults to _out)
 	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
 	 * @param maxRows The max number of rows to print, -1 to print all rows
 	 */
@@ -1543,19 +1569,19 @@ public class MVBatch extends MVUtil {
 		}
 		if( 0 < maxRows && maxRows < rows.length ){ str.println("(" + (rows.length - maxRows) + " more rows...)"); }
 	}
-	public static void printFormattedTable(MVDataTable tab){ printFormattedTable(tab, System.out, " ", 40); }
-	public static void printFormattedTable(MVDataTable tab, int maxRows){ printFormattedTable(tab, System.out, " ", maxRows); }
-	public static void printFormattedTable(MVDataTable tab, PrintStream str, String delim){ printFormattedTable(tab, str, delim, -1); }
+	public void printFormattedTable(MVDataTable tab){ printFormattedTable(tab, _out, " ", 40); }
+	public void printFormattedTable(MVDataTable tab, int maxRows){ printFormattedTable(tab, _out, " ", maxRows); }
+	public void printFormattedTable(MVDataTable tab, PrintStream str, String delim){ printFormattedTable(tab, str, delim, -1); }
 	
 	/**
 	 * Prints a textual representation of the input {@link ResultSet} with the field names in the 
 	 * first row to the specified {@link PrintStream} destination.  
 	 * @param res The ResultSet to print
-	 * @param str The stream to write the formatted results to (defaults to System.out)
+	 * @param str The stream to write the formatted results to (defaults to _out)
 	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
 	 * @param maxRows The max number of rows to print, -1 to print all rows
 	 */
-	public static void printFormattedTable(ResultSet res, PrintStream str, String delim, int maxRows){
+	public void printFormattedTable(ResultSet res, PrintStream str, String delim, int maxRows){
 		try{
 			ResultSetMetaData met = res.getMetaData();
 	
@@ -1581,12 +1607,12 @@ public class MVBatch extends MVUtil {
 			}
 			
 		}catch(Exception e){
-			System.out.println("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
+			_out.println("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
 		}
 	}
-	public static void printFormattedTable(ResultSet res){ printFormattedTable(res, System.out, " ", 40); }
-	public static void printFormattedTable(ResultSet res, int maxRows){ printFormattedTable(res, System.out, " ", maxRows); }
-	public static void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
+	public void printFormattedTable(ResultSet res){ printFormattedTable(res, _out, " ", 40); }
+	public void printFormattedTable(ResultSet res, int maxRows){ printFormattedTable(res, _out, " ", maxRows); }
+	public void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
 	
 
 	public static String formatField(String field, boolean mode){

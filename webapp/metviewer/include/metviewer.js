@@ -14,6 +14,8 @@ var _listDep2Div = new Array();
 var _divFieldVal;
 var _intFieldValIdNext = 0;
 
+var _listStatMode = ["MMI", "MMIO", "MMIF", "MIA", "MAR", "MCD", "MAD", "P50", "P90"];
+
 var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
 var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_INIT", "FCST_LEV"];
 var _listVar = _listVarStat;
@@ -47,7 +49,7 @@ var _intFmtPlotBoolIndex = 0;
  */
 
 function onLoad(){
-	_url			= window.location + "servlet";
+	_url = window.location + "servlet";
 
 	_boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
 
@@ -323,6 +325,60 @@ function listSearch(val, list){
 	return -1;
 }
 
+/**
+ * When the user changes selected plot data type, update the lists of variables appropriately and
+ * reset the controls.
+ */
+function updatePlotData(){
+
+	//  update the data members and lists accordingly
+	var strPlotData = getSelected( document.getElementById("selPlotData") )[0];
+	if( strPlotData == "Stat" ){
+		_strPlotData = "stat";
+		_listVar = _listVarStat;
+		_listIndyVar = _listIndyVarStat;
+	} else if( strPlotData == "Mode" ){
+		_strPlotData = "mode";
+		_listVar = _listVarMode;
+		_listIndyVar = _listIndyVarMode;
+	}
+	
+	clearControls();
+}
+
+/**
+ * Clear all variable/value controls and reset the select lists to the currently selected lists of 
+ * fcst_var and variables.
+ */
+function clearControls(){
+
+	//  reset the dep stat controls
+	clearDepStat(_listDep1Div[0].getElementsByTagName("input")[1].value);	
+	while( 1 < _listDep1Div.length ){ removeDep1Var(_listDep1Div[1].getElementsByTagName("input")[1].value); }
+	while( 0 < _listDep2Div.length ){ removeDep2Var(_listDep2Div[0].getElementsByTagName("input")[1].value); }
+	listFcstVar1Req(0);
+
+	//  reset the series controls
+	while( 0 < _listSeries1Div.length ){ removeSeries1Div( _listSeries1Div[0].getElementsByTagName("input")[1].value); }
+	while( 0 < _listSeries2Div.length ){ removeSeries2Div( _listSeries2Div[0].getElementsByTagName("input")[1].value); }
+
+	//  reset the select field variable list
+	var selField = document.getElementById("selField");
+	clearSelect(selField);
+	fillSelect(document.getElementById("selField"), _listVar);
+	addSeries1Div();
+	document.getElementById("lnkRemoveFieldVal0").style.display = "none";
+	
+	//  reset the fixed values
+	while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
+
+	//  reset the indep controls
+	var selIndyVar = document.getElementById("selIndyVar");
+	clearSelect(selIndyVar);
+	fillSelect(selIndyVar, _listIndyVar);
+	clearIndyVal();
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -486,6 +542,7 @@ function addDep(intY){
  	listDepDiv.push(divDep);
 	var divDepParent = document.getElementById("divDep" + intY);
 	var divImgParent = document.getElementById("imgDep" + intY);
+console("addDep(" + intY + ")\n  divDepParent: " + divDepParent + "\n  divImgParent: " + divImgParent + "\n\n");
  	divDepParent.insertBefore(divDep, divImgParent);
 
  	//  ensure the first remove link is visible
@@ -507,18 +564,29 @@ function removeDepVar(intY, intDepId){
 function listFcstVarReq(intDepId, fnListFcstVarResp){
 	sendRequest("POST", "<list_val><id>" + intDepId + "</id><" + _strPlotData + "_field>FCST_VAR</" + _strPlotData + "_field>" + "</list_val>", fnListFcstVarResp);
 }
-function listFcstVarResp(strResp, listDepDiv){ selectFieldResp(strResp, listDepDiv, 1, 0); }
 
 /**
  * List the statistics available for the specified forecast variable and populate the statistics select
  * with the results
  */
 function selectFcstVarReq(intId){
-	var selFcstVar = document.getElementById("selFcstVar" + intId);
-	sendRequest("POST",
-				"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].text +
-					"</" + _strPlotData + "_fcst_var></list_stat>",
-				selectFcstVarResp);
+	
+	//  query the database for stat_header stats, if appropriate
+	if( _strPlotData == "stat" ){
+		var selFcstVar = document.getElementById("selFcstVar" + intId);
+		sendRequest("POST",
+					"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].text +
+						"</" + _strPlotData + "_fcst_var></list_stat>",
+					selectFcstVarResp);
+	} 
+	
+	//  otherwise, use the static list of mode stats
+	else {
+		var selFcstVar = document.getElementById("selStat" + intId);
+		fillSelect(selFcstVar, _listStatMode);
+		selFcstVar.style.display = "inline";
+		document.getElementById("lblStat" + intId).style.display = "inline";
+	}
 }
 function selectFcstVarResp(strResp){
 
@@ -564,7 +632,7 @@ function clearDepStat(intIndex){
 	var selStat = document.getElementById("selStat" + intIndex);
 	clearSelect(selStat);
 	selStat.style.display = "none";
-	document.getElementById("lblStat" + intIndex).style.display = "noneft";
+	document.getElementById("lblStat" + intIndex).style.display = "none";
 }
 
 
@@ -814,12 +882,10 @@ function selectIndyVarResp(strResp){
 	if( null == resp ){ return; }
 
 	//  hide all currently display indy val controls
-	var tabIndyVal = document.getElementById("tabIndyVal");
-	while( 1 < tabIndyVal.rows.length ){ tabIndyVal.deleteRow(tabIndyVal.rows.length - 1); }
-
+	clearIndyVal();
+	
 	//  add a indy val control group for each indy value
 	var divIndy = document.getElementById("divIndy");
-	var trIndyVal0 = tabIndyVal.rows[0];
 	for( i in resp.vals ){
 		var trIndyVal = tabIndyVal.insertRow(tabIndyVal.rows.length);
 
@@ -831,12 +897,29 @@ function selectIndyVarResp(strResp){
 		trIndyVal.style.display = "table-row";
 		trIndyVal.getElementsByTagName("input")[1].value = resp.vals[i];
 	}
+	document.getElementById("spanIndyCheck").style.display = "inline";
 }
 
+/**
+ * Remove all rows of the indy table that contain values
+ */
 function clearIndyVal(){
 	//  hide all currently display indy val controls
 	var tabIndyVal = document.getElementById("tabIndyVal");
 	while( 1 < tabIndyVal.rows.length ){ tabIndyVal.deleteRow(tabIndyVal.rows.length - 1); }
+	document.getElementById("spanIndyCheck").style.display = "none";
+}
+
+/**
+ * Checks or unchecks all indy values, as specified
+ * @param boolCheck true to check, false to uncheck
+ */
+function indyCheck(boolCheck){
+	var tabIndyVal = document.getElementById("tabIndyVal");
+	for(var i=1; i < tabIndyVal.rows.length; i++){
+		var chkIndy = tabIndyVal.rows[i].getElementsByTagName("input")[0];
+		chkIndy.checked = boolCheck;
+	}
 }
 
 
@@ -1184,4 +1267,14 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField){
 	return strXML;
 }
 
-function showXML(){ sendRequest("POST", "<plot>" + buildPlotXML() + "</plot>", nullResp); }
+function runPlotReq(){ sendRequest("POST", "<plot>" + buildPlotXML() + "</plot>", runPlotResp); }
+function runPlotResp(strResp){
+console("runPlotResp(" + strResp + ")\n");
+	if( null != (listProc = strResp.match( /<plot>(.*)<\/plot>/ )) ){
+		var strPlot = listProc[1];
+		var win = window.open("plot.html", "METViewer - " + strPlot);
+	}
+console("runPlotResp() complete\n\n");
+}
+
+function testPlotResp(){ runPlotResp("<plot>plot_00021_20100810_084037</plot>"); }

@@ -26,7 +26,7 @@
 	<stat_header_db_check>false</stat_header_db_check>
 	<mode_header_db_check>false</mode_header_db_check>
 	<drop_indexes>false</drop_indexes>
-	<apply_indexes>false</apply_indexes>
+	<apply_indexes>true</apply_indexes>
 	
 	<load_val>
 		<field name="model">

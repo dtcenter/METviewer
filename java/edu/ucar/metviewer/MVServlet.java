@@ -3,13 +3,14 @@ package edu.ucar.metviewer;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
-
+import java.text.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.apache.log4j.*;
+import org.apache.xml.serialize.*;
 
 public class MVServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -20,6 +21,11 @@ public class MVServlet extends HttpServlet {
 	public static String _strDBUser = "";
 	public static String _strDBPassword = "";
 	public static String[] _listDB = {};
+	
+	public static String _strPlotXML = "";
+	public static String _strRTmpl = "";
+	public static String _strRWork = "";
+	public static String _strPlots = "";
 	
 	public static Hashtable _tableDBConnection = new Hashtable();
 	
@@ -39,10 +45,16 @@ public class MVServlet extends HttpServlet {
 		_logger.debug("init() - loading properties...");
 		try{
 			ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
-			_strDBHost     = bundle.getString("db.host");
-			_strDBUser     = bundle.getString("db.user");
-			_strDBPassword = bundle.getString("db.password");
-			_listDB        = bundle.getString("db.list").split("\\s*,\\s*");
+			_strDBHost		= bundle.getString("db.host");
+			_strDBUser		= bundle.getString("db.user");
+			_strDBPassword	= bundle.getString("db.password");
+			_listDB			= bundle.getString("db.list").split("\\s*,\\s*");
+			
+			_strPlotXML		= bundle.getString("folders.plot_xml");
+			_strRTmpl		= bundle.getString("folders.r_tmpl");
+			_strRWork		= bundle.getString("folders.r_work");
+			_strPlots		= bundle.getString("folders.plots");
+			
 		}catch(Exception e){
 			_logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
 		}				
@@ -94,7 +106,7 @@ public class MVServlet extends HttpServlet {
     	String strLine = "";
     	String strRequestBody = "";
     	while( (strLine = reader.readLine()) != null ){ strRequestBody = strRequestBody + strLine; }
-    	_logger.debug("doPost() - request: " + strRequestBody);
+    	_logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + strRequestBody);
        
     	//  initialize the response writer and session
     	PrintWriter out = response.getWriter();
@@ -182,6 +194,9 @@ public class MVServlet extends HttpServlet {
 					strResp = "<list_stat_clear_cache>success</list_stat_clear_cache>";
 				}
 				
+				//  <plot>
+				else if( nodeCall._tag.equalsIgnoreCase("plot") ) { strResp += handlePlot(strRequestBody, con); }
+
 				//  not handled
 				else {
 					strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
@@ -320,4 +335,109 @@ public class MVServlet extends HttpServlet {
 		_tableListStatCache.put(strCacheKey, strResp);
 		return strResp;
     }
+    
+    public static final SimpleDateFormat _formatPlot = new SimpleDateFormat("yyyyMMdd_HHmmss");
+    public static String handlePlot(String strRequest, Connection con) throws Exception{
+    	Statement stmt;    	
+    	String strWebPlotId = "0";
+    	String strPlotPrefix = "plot_";
+    	
+    	//  extract the plot xml from the request
+    	String strPlotXML = strRequest;
+    	strPlotXML = strPlotXML.substring(strPlotXML.indexOf("</db_con>") + 9);
+    	strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
+    	
+    	//  query the database to get the next web_plot_id
+    	try{
+	    	stmt = con.createStatement();
+	    	if( !stmt.execute("SELECT MAX(web_plot_id) FROM web_plot;") ){ throw new Exception("Statment.execute() returned false"); }
+	    	ResultSet res = stmt.getResultSet();
+	    	while( res.next() ){
+	    		int intWebPlotId = res.getInt(1);
+	    		if( !res.wasNull() ){ strWebPlotId = "" + (intWebPlotId + 1); } 
+	    	}
+	    	stmt.close();
+    	} catch(Exception e){
+    		_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " acquiring web_plot_id: " + e.getMessage());
+    		return "<error>failed to acquire web_plot_id</error>";
+    	}
+    	
+    	//  construct the names of the plot files
+    	java.util.Date datePlot = new java.util.Date();
+    	String strPlotPrefixId = strWebPlotId; 
+    	while( 5 > strPlotPrefixId.length() ){ strPlotPrefixId = "0" + strPlotPrefixId; }
+    	strPlotPrefix += strPlotPrefixId + "_" + _formatPlot.format(datePlot);
+
+    	//  add plot file information to the plot spec
+    	strPlotXML =
+    		"<plot_spec>" +
+    		 	"<folders>" +
+    		 		"<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
+    		 		"<r_work>" + _strRWork + "</r_work>" +
+    		 		"<plots>" + _strPlots + "</plots>" +
+    		 	"</folders>" +
+    		 	strPlotXML +
+    		"</plot_spec>";
+    	
+    	strPlotXML = strPlotXML.replace("<tmpl>",
+    		"<tmpl>" +
+    			"<data_file>" + strPlotPrefix + ".data" + "</data_file>" +
+    			"<plot_file>" + strPlotPrefix + ".png" + "</plot_file>" +
+    			"<r_file>" + strPlotPrefix + ".R" + "</r_file>");    			
+
+    	//  parse the input plot job
+    	MVPlotJobParser parser;
+    	MVPlotJob job;
+    	try{
+	    	parser = new MVPlotJobParser( new ByteArrayInputStream( strPlotXML.getBytes() ), con );
+	    	MVPlotJob[] jobs = parser.getJobsList();
+	    	if( 1 != jobs.length ){ throw new Exception("unexpected number of plot jobs generated: " + jobs.length); }
+	    	job = jobs[0];
+    	} catch(Exception e){
+    		_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
+    		return "<error>failed to parse plot job</error>";
+    	}
+   	
+        //  write the formatted plot XML to a file
+		Document doc = parser.getDocument();
+		try{	
+			FileOutputStream stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
+			XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
+			ser.setOutputByteStream(stream);
+			ser.serialize(doc);
+			stream.flush();
+			stream.close();
+		} catch(Exception e) {
+			_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
+			return "<error>failed to serialize plot xml</error>";
+		}    	
+    	
+    	//  run the plot job and write the batch output to the log file
+    	ByteArrayOutputStream log = new ByteArrayOutputStream();
+    	MVBatch bat = new MVBatch( new PrintStream(log) );
+    	try{
+			bat._strRtmplFolder = parser.getRtmplFolder();
+			bat._strRworkFolder = parser.getRworkFolder();
+			bat._strPlotsFolder = parser.getPlotsFolder();    		
+    		//bat._boolVerbose = true;
+    		bat.runJob( job );
+    	} catch(Exception e){
+        	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
+        	return "<error>failed to run plot</error>";        	
+    	}
+    	_logger.debug("handlePlot() - batch output:\n" + log.toString());
+    	
+    	//  store the web_plot information in the database
+    	try{
+	    	stmt = con.createStatement();
+	    	int intRes = stmt.executeUpdate("INSERT INTO web_plot VALUES (" + strWebPlotId + ", '" + MVUtil._formatDB.format(datePlot) + "', '" + strPlotXML + "');");
+	    	if( 1 != intRes ){ throw new Exception("unexpected result from web_plot INSERT statement: " + intRes); }
+    	} catch(Exception e){
+        	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " updating web_plot: " + e.getMessage());
+        	return "<error>failed to update web_plot</error>";
+    	}
+    	
+    	return "<plot>" + strPlotPrefix + "</plot>";
+    }
+
 }

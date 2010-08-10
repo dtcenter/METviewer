@@ -12,6 +12,8 @@ import org.xml.sax.*;
 import org.apache.xerces.parsers.*;
 
 public class MVPlotJobParser extends MVUtil{
+
+	protected Document _doc = null;
 	
 	protected MVPlotJob[] _listJobs = {};
 	protected MVOrderedMap _mapJobs = new MVOrderedMap();
@@ -59,9 +61,42 @@ public class MVPlotJobParser extends MVUtil{
 	}
 	*/
 	
+	/**
+	 * Build a parser whose input source is the specified URI
+	 * @param spec URI of the XML plot specification source
+	 * @param con Optional database connection to use in absense of plot_spec &lt;connection&gt;
+	 */
 	public MVPlotJobParser(String spec, Connection con) throws Exception{		
 		_con = con;
+		DocumentBuilder builder = getDocumentBuilder();
 		
+		//  parse the input document and build the MVNode data structure
+		_doc = builder.parse(spec);
+		_nodePlotSpec = new MVNode(_doc.getFirstChild());
+		parsePlotJobSpec();
+	}
+	public MVPlotJobParser(String spec) throws Exception{ this(spec, null); }
+
+	/**
+	 * Build a parser whose input source is the specified InputStream
+	 * @param in Stream from which the plot specification will be drawn
+	 * @param con Database connection for the plot data
+	 */
+	public MVPlotJobParser(InputStream in, Connection con) throws Exception{		
+		_con = con;
+		DocumentBuilder builder = getDocumentBuilder();
+		
+		//  parse the input document and build the MVNode data structure
+		_doc = builder.parse(in);
+		_nodePlotSpec = new MVNode(_doc.getFirstChild());
+		parsePlotJobSpec();
+	}
+	
+	/**
+	 * Create a parser-specific instance of the DocumentBuilder and return it 
+	 */
+	public static DocumentBuilder getDocumentBuilder() throws Exception{
+
 		//  instantiate and configure the xml parser
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		//dbf.setSchema(schema);
@@ -80,11 +115,10 @@ public class MVPlotJobParser extends MVUtil{
 			}
 		});
 		
-		//  parse the input document and build the MVNode data structure
-		Document doc = builder.parse(spec);
-		_nodePlotSpec = new MVNode(doc.getFirstChild());
-		parsePlotJobSpec();
+		return builder;
 	}
+	
+	public Document getDocument(){ return _doc; }
 	
 	public MVPlotJob[] getJobsList(){ return _listJobs; }
 	public MVOrderedMap getJobsMap(){ return _mapJobs; }
@@ -603,7 +637,8 @@ public class MVPlotJobParser extends MVUtil{
 				 null == job.getIndyDep()         )	{ return "indep";		}
 		else if( 1 > job.getDepGroups().length    )	{ return "dep";			}
 		else if( 1 > job.getSeries1Val().size()   )	{ return "series1";		}
-		else if( 1 > job.getAggVal().size()       )	{ return "agg";			}
+		else if( 1 > job.getAggVal().size() &&
+				 1 > job.getPlotFixVal().size() )	{ return "agg/plot_fix";}
 		else if( job.getRFileTmpl().equals("")    )	{ return "r_file";		}
 		else if( job.getPlotFileTmpl().equals("") )	{ return "plot_file";	}
 		else if( job.getDataFileTmpl().equals("") )	{ return "data_file";	}
