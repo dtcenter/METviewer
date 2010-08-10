@@ -562,6 +562,7 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeTmpl._tag.equals("x_label") )		{ job.setXLabelTmpl(nodeTmpl._value);	} 
 					else if( nodeTmpl._tag.equals("y1_label") )		{ job.setY1LabelTmpl(nodeTmpl._value);	} 
 					else if( nodeTmpl._tag.equals("y2_label") )		{ job.setY2LabelTmpl(nodeTmpl._value);	} 
+					else if( nodeTmpl._tag.equals("caption") )		{ job.setCaptionTmpl(nodeTmpl._value);	} 
 					
 				}				
 			}
@@ -719,6 +720,11 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("legend_box",	MVPlotJob.class.getDeclaredMethod("setLegendBox",	new Class[]{String.class}));
 			_tableFormatString.put("legend_inset",	MVPlotJob.class.getDeclaredMethod("setLegendInset",	new Class[]{String.class}));
 			_tableFormatString.put("legend_ncol",	MVPlotJob.class.getDeclaredMethod("setLegendNcol",	new Class[]{String.class}));
+			_tableFormatString.put("caption_weight",MVPlotJob.class.getDeclaredMethod("setCaptionWeight",new Class[]{String.class}));
+			_tableFormatString.put("caption_col",	MVPlotJob.class.getDeclaredMethod("setCaptionCol",	new Class[]{String.class}));
+			_tableFormatString.put("caption_size",	MVPlotJob.class.getDeclaredMethod("setCaptionSize",	new Class[]{String.class}));
+			_tableFormatString.put("caption_offset",MVPlotJob.class.getDeclaredMethod("setCaptionOffset",new Class[]{String.class}));
+			_tableFormatString.put("caption_align",	MVPlotJob.class.getDeclaredMethod("setCaptionAlign",new Class[]{String.class}));
 			_tableFormatString.put("box_boxwex",	MVPlotJob.class.getDeclaredMethod("setBoxBoxwex",	new Class[]{String.class}));
 			_tableFormatString.put("box_notch",		MVPlotJob.class.getDeclaredMethod("setBoxNotch",	new Class[]{String.class}));
 			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));

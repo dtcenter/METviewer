@@ -9,25 +9,16 @@ import java.io.*;
 
 public class MVBatch extends MVUtil {
 	
-	//private static final Logger _logger = Logger.getLogger(MVBatch.class);
-	//private static final PrintStream _logStream = _out;
-	
 	public PrintStream _out				= System.out;
 	
 	public boolean _boolSQLOnly			= false;
 	public boolean _boolVerbose			= false;
 	
-	public String _strHost				= "kemosabe";
-	public String _strPort				= "3306";	
-	public String _strDatabase			= "metvdb3_hmt";
-	public String _strUser				= "pgoldenb";
-	public String _strPwd				= "pgoldenb";
-	
 	public String _strRtmplFolder		= "/home/pgoldenb/apps/verif/metviewer/R_tmpl/";
 	public String _strRworkFolder		= "/d1/pgoldenb/var/hmt/R_work/";
 	public String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
 
-	public boolean _boolProcWait			= true;
+	public boolean _boolProcWait		= true;
 
 	public static final Pattern _patRTmpl		= Pattern.compile("#<(\\w+)>#");
 	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
@@ -36,20 +27,10 @@ public class MVBatch extends MVUtil {
 	public boolean _boolSQLSort			= true;
 	public boolean _boolCacheBoot		= true;
 	
-	/*
-	public String[] _list24				= {};
-	public String[] _list06				= {};
-	public String[] _listBase			= {};
-	public String _strBaseDate			= "";
-	public String _strBaseDateDefault	= "2010-02-21 0:00:00";
-	*/
-	
 	public int _intNumPlots				= 0;
 	public int _intPlotIndex			= 0;
 	public int _intNumPlotsRun			= 0;
 
-	public boolean _boolTheWorks		= false;
-	
 	public static boolean _boolWindows	= false;
 	
 	public MVBatch(PrintStream log, boolean boolWindows){
@@ -63,8 +44,6 @@ public class MVBatch extends MVUtil {
 			_strPlotsFolder = "c:/src/metv/plots/";
 			_boolProcWait = false;
 		}
-		
-
 	}
 	public MVBatch(PrintStream log){ this(log, false); }
 	public MVBatch(){ this(System.out, false); }
@@ -232,147 +211,6 @@ public class MVBatch extends MVUtil {
 
 		bat._out.println("\n----  MVBatch Done  ----");
 	}
-	
-	/**
-	 * Temporary function that uses classes in the edu.ucar.metviewer.hmt package to build jobs for the HMT project.
-	 * @param con Database connection
-	 * @param argv List of input arguments passed to MVBatch
-	 * @return List of plot jobs
-	 * @throws Exception
-	public MVPlotJob[] buildHMTJobs(Connection con, String[] argv) throws Exception{
-		
-		MVPlotJob[] jobs = {};
-
-		if( 2 > argv.length ){
-			_out.println("usage:\n% java [jvm_args] MVBatch {db_host} {works} [{plot_type} {date1} [date2]...]\n\n----  MVBatch Done  ----");
-			try{ if( con != null )	con.close(); }catch(SQLException e){}
-			return jobs;
-		}
-		
-		_strHost = argv[0];
-		_boolTheWorks = argv[1].equalsIgnoreCase("true");
-		
-		//  connect to the database
-		Class.forName("com.mysql.jdbc.Driver").newInstance();
-		con = DriverManager.getConnection("jdbc:mysql://" + _strHost + ":" + _strPort + "/" + _strDatabase, _strUser, _strPwd);
-		if( con.isClosed() )	throw new Exception("METViewer error: database connection failed");
-		
-		_out.println("connected to " + _strDatabase + "@" + _strHost + "\nthe works: " + _boolTheWorks);
-
-
-		//  parse the command line input to determine the job
-		boolean boolInput = false;
-		String strJob = "";
-		if( 2 < argv.length ){
-			//  the first argument should be the plot type
-			strJob = argv[2];
-			_out.println("input: '" + strJob + "'");
-			boolInput = true;
-			
-			//  parse the input folder list, if present
-			ArrayList listDates24 = new ArrayList();
-			ArrayList listDates06 = new ArrayList();
-			ArrayList listDatesBase = new ArrayList();
-			for(int i=3; i < argv.length; i++){
-				String strFolder = argv[i];
-				if( strFolder.matches(".+_24h$") ){ listDates24.add( _formatDB.format( _formatPlot.parse(strFolder.substring(0,10)) ) ); }
-				if( strFolder.matches(".+_06h$") ){ listDates06.add( _formatDB.format( _formatPlot.parse(strFolder.substring(0,10)) ) ); }
-				if( strFolder.matches("\\d{8}b$") ){ listDatesBase.add( _formatDB.format( _formatBase.parse(strFolder) ) ); }
-			}
-			
-			_list24 = toArray( listDates24 );
-			_list06 = toArray( listDates06 );
-			_listBase = toArray( listDatesBase );
-			
-			//  print out the lists that will be applied
-			for(int i=0; i < _list24.length; i++){ _out.println("list24[" + i + "] = " + _list24[i]); }
-			if( 0 < _list24.length ){ _out.println(); }
-			for(int i=0; i < _list06.length; i++){ _out.println("list06[" + i + "] = " + _list06[i]); }
-			if( 0 < _list06.length ){ _out.println(); }
-			for(int i=0; i < _listBase.length; i++){ _out.println("listBase[" + i + "] = " + _listBase[i]); }
-			if( 0 < _listBase.length ){ _out.println(); }
-		}
-
-		if( boolInput ){
-			if     ( strJob.equals("init24") )     { jobs = MVPlotJobInit24.getJobs(con);      } 
-			else if( strJob.equals("init06") )     { jobs = MVPlotJobInit06.getJobs(con);      } 
-			else if( strJob.equals("valid24") )    { jobs = MVPlotJobValid24.getJobs(con);     } 
-			else if( strJob.equals("valid06") )    { jobs = MVPlotJobValid06.getJobs(con);     }
-			else {
-			
-				for(int i=0; 1 > jobs.length || i < _listBase.length; i++){
-					if( 0 < _listBase.length ){ _strBaseDate = _listBase[i]; }						
-					if( strJob.equals("30day24") )         { jobs = append(jobs, MVPlotJob30Day24.getJobs(con));        }
-					else if( strJob.equals("30day06") )    { jobs = append(jobs, MVPlotJob30Day06.getJobs(con));        }
-					else if( strJob.equals("thresh06day") ){
-						//jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-						MVPlotJobThresh06Day._strDay = "Day1"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-						MVPlotJobThresh06Day._strDay = "Day2"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-						MVPlotJobThresh06Day._strDay = "Day3"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-						MVPlotJobThresh06Day._strDay = "Day4"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-						MVPlotJobThresh06Day._strDay = "Day5"; jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-					}
-					else if( strJob.equals("bar06day") )   { 
-						//jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-						MVPlotJobThresh06DayBar._strDay = "Day1"; jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-						MVPlotJobThresh06DayBar._strDay = "Day2"; jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-						MVPlotJobThresh06DayBar._strDay = "Day3"; jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-						MVPlotJobThresh06DayBar._strDay = "Day4"; jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-						MVPlotJobThresh06DayBar._strDay = "Day5"; jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-					}
-					else if( strJob.equals("agg24jobs") ){
-						jobs = append(jobs, MVPlotJobThresh24.getJobs(con));
-						jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
-						jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
-						jobs = append(jobs, MVPlotJobAgg24.getJobs(con));
-					}
-					else if( strJob.equals("agg06jobs") ){							
-						jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
-						jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
-						jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
-						jobs = append(jobs, MVPlotJobAgg06High.getJobs(con));
-						jobs = append(jobs, MVPlotJobAgg06Low.getJobs(con));
-					}
-
-					//  these jobs are included in the agg24jobs and agg06jobs
-					else if( strJob.equals("bar24") )      { jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));    } 
-					else if( strJob.equals("bar06") )      { jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));    }
-					else if( strJob.equals("box24") )      { jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));    } 
-					else if( strJob.equals("box06") )      { jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));    }
-					else if( strJob.equals("agg24") )      { jobs = append(jobs, MVPlotJobAgg24.getJobs(con));          }
-					else if( strJob.equals("agg06high") )  { jobs = append(jobs, MVPlotJobAgg06High.getJobs(con));      }
-					else if( strJob.equals("agg06low") )   { jobs = append(jobs, MVPlotJobAgg06Low.getJobs(con));       }
-					else if( strJob.equals("thresh24") )   { jobs = append(jobs, MVPlotJobThresh24.getJobs(con));       } 
-					else if( strJob.equals("thresh06") )   { jobs = append(jobs, MVPlotJobThresh06.getJobs(con));       }
-				}
-			}
-		} else {
-		
-//				jobs = append(jobs, MVPlotJobInit24.getJobs(con));
-//				jobs = append(jobs, MVPlotJobInit06.getJobs(con));
-//				jobs = append(jobs, MVPlotJobValid24.getJobs(con));
-//				jobs = append(jobs, MVPlotJobValid06.getJobs(con));
-			jobs = append(jobs, MVPlotJob30Day24.getJobs(con));
-//				jobs = append(jobs, MVPlotJob30Day06.getJobs(con));
-//				jobs = append(jobs, MVPlotJobAgg24.getJobs(con));
-//				jobs = append(jobs, MVPlotJobAgg06.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh24.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh06.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh06Day.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh24Bar.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh06Bar.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh06DayBar.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh24Box.getJobs(con));
-//				jobs = append(jobs, MVPlotJobThresh06Box.getJobs(con));
-//				jobs = append(jobs, MVPlotJobMode.getJobs(con));
-			
-//				MVPlotJobParser parser = new MVPlotJobParser("plot_lead_series_24.xml", con);
-//				jobs = parser.parsePlotJobSpec();
-		}
-		
-		return jobs;
-	}
-	 */
 	
 	public void runJob(MVPlotJob job) throws Exception {
 		
@@ -1299,8 +1137,9 @@ public class MVBatch extends MVUtil {
 						String strRFile		= _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
 						String strTitle		= buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
 						String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
-						String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());				
-						String strY2Label	= buildTemplateString(job.getY2LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());				
+						String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+						String strY2Label	= buildTemplateString(job.getY2LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+						String strCaption	= buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
 		
 						//  create the plot and R script output folders, if necessary
 						(new File(strPlotFile)).getParentFile().mkdirs();
@@ -1331,6 +1170,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("x_label",		strXLabel);
 						tableRTags.put("y1_label",		strY1Label);
 						tableRTags.put("y2_label",		strY2Label);
+						tableRTags.put("plot_caption",	strCaption);
 						tableRTags.put("plot_cmd", 		job.getPlotCmd());
 						tableRTags.put("event_equal",	(job.getEventEqual()?	"TRUE" : "FALSE"));
 						tableRTags.put("vert_plot",		(job.getVertPlot()?		"TRUE" : "FALSE"));
@@ -1414,6 +1254,11 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("legend_box",	job.getLegendBox());
 						tableRTags.put("legend_inset",	job.getLegendInset());
 						tableRTags.put("legend_ncol",	job.getLegendNcol());
+						tableRTags.put("caption_weight",job.getCaptionWeight());
+						tableRTags.put("caption_col",	job.getCaptionCol());
+						tableRTags.put("caption_size",	job.getCaptionSize());
+						tableRTags.put("caption_offset",job.getCaptionOffset());
+						tableRTags.put("caption_align",	job.getCaptionAlign());
 						tableRTags.put("box_boxwex",	job.getBoxBoxwex());
 						tableRTags.put("box_notch",		job.getBoxNotch());
 						tableRTags.put("ci_alpha",		job.getCIAlpha());

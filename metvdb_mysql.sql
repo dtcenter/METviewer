@@ -836,12 +836,13 @@ INSERT INTO stat_group_lu VALUES(49, 'FSS', 'Fractions Skill Score including boo
 CREATE TABLE metvdb_rev
 (
     rev_id              INT UNSIGNED NOT NULL,
+    rev_date            DATETIME,
     rev_name            VARCHAR(16),
     rev_detail          VARCHAR(2048),
     PRIMARY KEY (rev_id)    
 );
 
-INSERT INTO metvdb_rev VALUES (0, '0.1', 'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
+INSERT INTO metvdb_rev VALUES (0, '2010-07-29 12:00:00', '0.1', 'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
 
 
 -- instance_info contains information about the paricular instance of metvdb, including 

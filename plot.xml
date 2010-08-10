@@ -232,6 +232,11 @@
 		<legend_box>o</legend_box>
 		<legend_inset>c(0, -.25)</legend_inset>
 		<legend_ncol>3</legend_ncol>
+		<caption_weight>1</caption_weight>
+		<caption_col>#999999</caption_col>
+		<caption_size>.8</caption_size>
+		<caption_offset>5</caption_offset>
+		<caption_align>0</caption_align>
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
 		<ci_alpha>.05</ci_alpha>

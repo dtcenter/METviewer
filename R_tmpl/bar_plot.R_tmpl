@@ -235,6 +235,19 @@ legend(
 	y.intersp=.8				# vertical character spacing factor
 );
 
+# plot caption
+mtext(
+	"#<plot_caption>#",			# caption
+	font=#<caption_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+	col="#<caption_col>#",		# font color
+	las=0, 						# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+	side=1,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+	cex=#<caption_size>#,		# relative magnification
+	padj=#<caption_offset>#,	# axis label perpendicular location adjustment
+	adj=#<caption_align>#,		# axis label parallel location adjustment
+	line=1						# margin line, starting at 0 counting outwards
+);
+
 #<plot_cmd>#
 
 dev.off();

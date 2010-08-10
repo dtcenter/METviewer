@@ -48,40 +48,40 @@
 		<plot_fix>
 			<field name="fcst_init_beg">
 				<date_range name="year"/>
-				<date_range name="summer"/>
-				<date_range name="fall"/>
-				<date_range name="winter"/>
-				<date_range name="spring"/>
+<!--				<date_range name="summer"/>-->
+<!--				<date_range name="fall"/>-->
+<!--				<date_range name="winter"/>-->
+<!--				<date_range name="spring"/>-->
 			</field>
 		</plot_fix>
 
 		<agg>
 			<field name="init_hour">
 				<val>0</val>
-				<val>12</val>
+<!--				<val>12</val>-->
 			</field>
 			
 			<field name="interp_mthd">
 				<val>UW_MEAN</val>
-				<val>DW_MEAN</val>
+<!--				<val>DW_MEAN</val>-->
 			</field>
 			
 			<field name="vx_mask">
 				<val>FULL</val>
-				<val>GMC</val>
-				<val>NEC</val>
-				<val>NWC</val>
-				<val>SEC</val>
-				<val>SWC</val>
-				<val>APL</val>
-				<val>GRB</val>
-				<val>LMV</val>
-				<val>MDW</val>
-				<val>NMT</val>
-				<val>NPL</val>
-				<val>SMT</val>
-				<val>SPL</val>
-				<val>SWD</val>
+<!--				<val>GMC</val>-->
+<!--				<val>NEC</val>-->
+<!--				<val>NWC</val>-->
+<!--				<val>SEC</val>-->
+<!--				<val>SWC</val>-->
+<!--				<val>APL</val>-->
+<!--				<val>GRB</val>-->
+<!--				<val>LMV</val>-->
+<!--				<val>MDW</val>-->
+<!--				<val>NMT</val>-->
+<!--				<val>NPL</val>-->
+<!--				<val>SMT</val>-->
+<!--				<val>SPL</val>-->
+<!--				<val>SWD</val>-->
 			</field>			
 		</agg>
 		
@@ -108,6 +108,7 @@
 			<x_label>FCST_LEAD</x_label>
 			<y1_label>{dep1_1} {dep1_1_stat1} {vx_mask} {init_hour?format=HH}Z {interp_mthd}</y1_label>
 			<y2_label></y2_label>
+			<caption>Caption: {dep1_1} {dep1_1_stat1} {vx_mask} {init_hour?format=HH}Z {interp_mthd}</caption>
 		</tmpl>
 		
 		<event_equal>true</event_equal>
@@ -171,6 +172,11 @@
 		<legend_box>o</legend_box>
 		<legend_inset>c(0, -.17)</legend_inset>
 		<legend_ncol>3</legend_ncol>
+		<caption_weight>1</caption_weight>
+		<caption_col>#999999</caption_col>
+		<caption_size>.8</caption_size>
+		<caption_offset>5</caption_offset>
+		<caption_align>0</caption_align>
 		<box_boxwex>1</box_boxwex>
 		<box_notch>FALSE</box_notch>
 		<ci_alpha>.01</ci_alpha>
@@ -187,23 +193,23 @@
 	<plot name="qnse_lead_tmp_bcrmse" inherits="qnse_lead">
 		<dep><dep1><fcst_var name="TMP"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="TMP"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	
 	</plot>
-	<plot name="qnse_lead_tmp_me" inherits="qnse_lead">
-		<dep><dep1><fcst_var name="TMP"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="TMP"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	
-	</plot>
-
-	<plot name="qnse_lead_dpt_bcrmse" inherits="qnse_lead">
-		<dep><dep1><fcst_var name="DPT"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="DPT"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	
-	</plot>
-	<plot name="qnse_lead_dpt_me" inherits="qnse_lead">
-		<dep><dep1><fcst_var name="DPT"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="DPT"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	
-	</plot>
-
-	<plot name="qnse_lead_wind_bcrmse" inherits="qnse_lead">
-		<dep><dep1><fcst_var name="WIND"><stat>BCRMSE</stat></fcst_var></dep1> <fix><fcst_var name="WIND"><var name="fcst_lev">Z10</var></fcst_var></fix></dep>	
-	</plot>
-	<plot name="qnse_lead_wind_me" inherits="qnse_lead">
-		<dep><dep1><fcst_var name="WIND"><stat>ME</stat></fcst_var></dep1>     <fix><fcst_var name="WIND"><var name="fcst_lev">Z10</var></fcst_var></fix></dep>	
-	</plot>
+<!--	<plot name="qnse_lead_tmp_me" inherits="qnse_lead">-->
+<!--		<dep><dep1><fcst_var name="TMP"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="TMP"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="qnse_lead_dpt_bcrmse" inherits="qnse_lead">-->
+<!--		<dep><dep1><fcst_var name="DPT"><stat>BCRMSE</stat></fcst_var></dep1>  <fix><fcst_var name="DPT"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!--	<plot name="qnse_lead_dpt_me" inherits="qnse_lead">-->
+<!--		<dep><dep1><fcst_var name="DPT"><stat>ME</stat></fcst_var></dep1>      <fix><fcst_var name="DPT"><var name="fcst_lev">Z2</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!---->
+<!--	<plot name="qnse_lead_wind_bcrmse" inherits="qnse_lead">-->
+<!--		<dep><dep1><fcst_var name="WIND"><stat>BCRMSE</stat></fcst_var></dep1> <fix><fcst_var name="WIND"><var name="fcst_lev">Z10</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
+<!--	<plot name="qnse_lead_wind_me" inherits="qnse_lead">-->
+<!--		<dep><dep1><fcst_var name="WIND"><stat>ME</stat></fcst_var></dep1>     <fix><fcst_var name="WIND"><var name="fcst_lev">Z10</var></fcst_var></fix></dep>	-->
+<!--	</plot>-->
 
 <!--	<plot name="qnse_lead_precip" inherits="qnse_lead" run="false">-->
 <!--		<series2>-->

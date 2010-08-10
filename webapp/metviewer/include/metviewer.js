@@ -122,7 +122,7 @@ function onLoad(){
  	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }	
 
 	//  add the text formatting options
-	addFmtPlot("plot_type",		"png256",	"txt");
+	addFmtPlot("plot_type",		"png16m",	"txt");
 	addFmtPlot("plot_height",	"8.5",		"txt");
 	addFmtPlot("plot_width",	"11",		"txt");
 	addFmtPlot("plot_res",		"72",		"txt");
@@ -170,6 +170,11 @@ function onLoad(){
 	addFmtPlot("legend_box",	"o",		"txt");
 	addFmtPlot("legend_inset",	"c(0, -.25)", "txt");
 	addFmtPlot("legend_ncol",	"3",		"txt");
+	addFmtPlot("caption_weight","1",		"txt");
+	addFmtPlot("caption_col",	"#333333FF","txt");
+	addFmtPlot("caption_size",	".8",		"txt");
+	addFmtPlot("caption_offset","3",		"txt");
+	addFmtPlot("caption_align",	"0",		"txt");
 	addFmtPlot("box_boxwex",	"1",		"txt");
 	addFmtPlot("box_notch",		"FALSE",	"txt");
 	addFmtPlot("ci_alpha",		".05", 		"txt");
@@ -377,6 +382,62 @@ function clearControls(){
 	clearSelect(selIndyVar);
 	fillSelect(selIndyVar, _listIndyVar);
 	clearIndyVal();
+}
+
+
+function rainbow(num){
+	if( 1 > num )	{ return new Array();	}
+	if( 1 == num )	{ return ["#FF0000FF"]; }
+	
+	var listRet = new Array();
+	double dblInc = 1.0 / (double)(num-1);
+	double dblVal = 0;
+	for(int i=0; i < num; i++, dblVal += dblInc){
+		listRet[i] = Integer.toHexString( interpolateColor(dblVal).getRGB() ).toUpperCase();
+		listRet[i] = "#" + listRet[i].substring(2) +  "FF";
+	}
+	return listRet;
+}
+
+function interpolateColor(rel){
+	if     ( rel < 0.0 ) { return "FF0000"; }
+	else if( rel > 1.0 ) { return "FF00FF"; }
+
+	var min = 0;
+	var max = 1;
+	
+	switch( rel/0.16667 ){
+		/*
+		case 0:				return new Color(max, max*(min + (1-min)*(float)(rel/.25)), min);
+		case 1:	rel -= .25;	return new Color(min + max*(1-min)*(float)(1 - rel/.25), max, max*(min + (1-min)*(float)(rel/.25)));
+		case 2:	rel -= .50;	return new Color(min, max*(min + (1-min)*(float)(1 - rel/.25)), max);
+		case 3:	rel -= .75;	return new Color(max*(min + (1-min)*(float)(rel/.25)), min, max);
+		*/
+		case 0:					return hex(max) + hex(max*(min + (1-min)*(float)(rel/.25))) + hex(min);
+		case 1:	rel -= .16667;	return hex(min + max*(1-min)*(float)(1 - rel/.25)) + hex(max) + hex(min);
+		case 2:	rel -= .33333;	return hex(min) + hex(max) + hex(max*(min + (1-min)*(float)(rel/.25)));
+		case 3:	rel -= .50000;	return hex(min) + hex(max*(1-min)*(float)(1 - rel/.25)) + hex(max);
+		case 4:	rel -= .66667;	return hex(max*(min + (1-min)*(float)(rel/.25))) + hex(min) + hex(max);
+		case 5:	rel -= .83333;	return hex(max) + hex(min) + hex(max*(1-min)*(float)(1 - rel/.25));
+		default:				return hex(max) + hex(min) + hex(max);
+	}
+}
+
+function hex(val){
+	var strRet = (val * 255).toString(16).toUpperCase();
+	while( 2 > strRet.length ){ strRet = "0" + strRet; } 
+	return strRet;
+}
+
+function testRainbow(){
+	console("hex(0) = " + hex(0) + "\n");
+	console("hex(.25) = " + hex(.25) + "\n");
+	console("hex(.33) = " + hex(.33) + "\n");
+	console("hex(.5) = " + hex(.5) + "\n");
+	console("hex(.51) = " + hex(.51) + "\n");
+	console("hex(.9) = " + hex(.9) + "\n");
+	console("hex(1) = " + hex(1) + "\n");
+	console("\n");
 }
 
 
@@ -1187,6 +1248,7 @@ function buildPlotXML(){
 	strDepXML +=  "<x_label>" + listInput[1].value + "</x_label>";
 	strDepXML += "<y1_label>" + listInput[2].value + "</y1_label>";
 	strDepXML += "<y2_label>" + listInput[3].value + "</y2_label>";
+	strDepXML +=  "<caption>" + listInput[4].value + "</caption>";
 	strDepXML += "</tmpl>";
 	
 	//  bool formatting

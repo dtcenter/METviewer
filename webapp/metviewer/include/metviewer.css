@@ -28,7 +28,10 @@ a:active	{ color: #3366cc; cursor: pointer; text-decoration:none; }
 a:hover     { color: #3366cc; cursor: pointer; text-decoration:underline;}
 a:visited	{ color: #3366cc; cursor: pointer; text-decoration:none; }
 
-a.plotInfo  {	font-size: 10pt;			}
+a.plotInfo {
+	font-size: 9pt;
+	font-weight: bold;
+}
 
 .stdTiny	{	font-size: 7pt;				}
 .stdSmall	{	font-size: 8pt;				}

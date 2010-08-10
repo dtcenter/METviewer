@@ -51,6 +51,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strXLabelTmpl			= "";
 	protected String _strY1LabelTmpl		= "";
 	protected String _strY2LabelTmpl		= "";
+	protected String _strCaptionTmpl		= "";
 	protected String _strPlotCmd			= "";
 	
 	protected boolean _boolEventEqual		= false;
@@ -116,6 +117,11 @@ public class MVPlotJob extends MVUtil{
 	protected String _strLegendBox			= "o";
 	protected String _strLegendInset		= "c(0, -.25)";
 	protected String _strLegendNcol			= "3";
+	protected String _strCaptionWeight		= "1";
+	protected String _strCaptionCol			= "#999999";
+	protected String _strCaptionSize		= ".8";
+	protected String _strCaptionOffset		= "3";
+	protected String _strCaptionAlign		= ".5";	
 	protected String _strBoxBoxwex			= "1";
 	protected String _strBoxNotch			= "FALSE";
 	protected String _strCIAlpha			= ".05";
@@ -181,6 +187,7 @@ public class MVPlotJob extends MVUtil{
 		job._strXLabelTmpl		= _strXLabelTmpl;
 		job._strY1LabelTmpl		= _strY1LabelTmpl;
 		job._strY2LabelTmpl		= _strY2LabelTmpl;
+		job._strCaptionTmpl		= _strCaptionTmpl;
 		job._strPlotCmd			= _strPlotCmd;
 		
 		job._boolEventEqual		= _boolEventEqual;
@@ -246,6 +253,11 @@ public class MVPlotJob extends MVUtil{
 		job._strLegendBox		= _strLegendBox;
 		job._strLegendInset		= _strLegendInset;
 		job._strLegendNcol		= _strLegendNcol;
+		job._strCaptionWeight	= _strCaptionWeight;
+		job._strCaptionCol		= _strCaptionCol;
+		job._strCaptionSize		= _strCaptionSize;
+		job._strCaptionOffset	= _strCaptionOffset;
+		job._strCaptionAlign	= _strCaptionAlign;
 		job._strBoxBoxwex		= _strBoxBoxwex;
 		job._strBoxNotch		= _strBoxNotch;
 		job._strCIAlpha			= _strCIAlpha;
@@ -377,6 +389,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setY1LabelTmpl(String Y1LabelTmpl)					{ _strY1LabelTmpl = Y1LabelTmpl;						}
 	public String	getY2LabelTmpl()									{ return _strY2LabelTmpl;								}
 	public void		setY2LabelTmpl(String Y2LabelTmpl)					{ _strY2LabelTmpl = Y2LabelTmpl;						}
+	public String	getCaptionTmpl()									{ return _strCaptionTmpl;								}
+	public void		setCaptionTmpl(String captionTmpl)					{ _strCaptionTmpl = captionTmpl;						}
 	public String	getPlotCmd()										{ return _strPlotCmd;									}
 	public void		setPlotCmd(String plotCmd)							{ _strPlotCmd = plotCmd;								}
 	
@@ -505,6 +519,16 @@ public class MVPlotJob extends MVUtil{
 	public void		setLegendInset(String legendInset)					{ _strLegendInset = legendInset;						}
 	public String	getLegendNcol()										{ return _strLegendNcol;								}
 	public void		setLegendNcol(String legendNcol)					{ _strLegendNcol = legendNcol;							}
+	public String	getCaptionWeight()									{ return _strCaptionWeight;								}
+	public void		setCaptionWeight(String captionWeight)				{ _strCaptionWeight = captionWeight;					}
+	public String	getCaptionCol()										{ return _strCaptionCol;								}
+	public void		setCaptionCol(String captionCol)					{ _strCaptionCol = captionCol;							}
+	public String	getCaptionSize()									{ return _strCaptionSize;								}
+	public void		setCaptionSize(String captionSize)					{ _strCaptionSize = captionSize;						}
+	public String	getCaptionOffset()									{ return _strCaptionOffset;								}
+	public void		setCaptionOffset(String captionOffset)				{ _strCaptionOffset = captionOffset;					}
+	public String	getCaptionAlign()									{ return _strCaptionAlign;								}
+	public void		setCaptionAlign(String captionAlign)				{ _strCaptionAlign = captionAlign;						}
 	public String	getBoxBoxwex()										{ return _strBoxBoxwex;									}
 	public void		setBoxBoxwex(String boxBoxwex)						{ _strBoxBoxwex = boxBoxwex;							}
 	public String	getBoxNotch()										{ return _strBoxNotch;									}
