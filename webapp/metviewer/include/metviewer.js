@@ -384,21 +384,25 @@ function clearControls(){
 	clearIndyVal();
 }
 
-
+/**
+ * Construct a list of RGBA color hex represenations with the specified length and format #RRGGBBAA, 
+ * where the colors are spaced equally along the rainbow spectrum.
+ */
 function rainbow(num){
 	if( 1 > num )	{ return new Array();	}
 	if( 1 == num )	{ return ["#FF0000FF"]; }
-	
+
 	var listRet = new Array();
-	double dblInc = 1.0 / (double)(num-1);
-	double dblVal = 0;
-	for(int i=0; i < num; i++, dblVal += dblInc){
-		listRet[i] = Integer.toHexString( interpolateColor(dblVal).getRGB() ).toUpperCase();
-		listRet[i] = "#" + listRet[i].substring(2) +  "FF";
-	}
+	var dblInc = 1.0 / (num - 1);
+	var dblVal = 0;
+	for(var i=0; i < num; i++, dblVal += dblInc){ listRet.push("#" + interpolateColor(dblVal) +  "FF"); }
 	return listRet;
 }
 
+/**
+ * Create a hex representation of the specified "rainbow" color along the spectrum from 0 (red, 
+ * FF0000) to 1 (violet, FF00FF).   
+ */
 function interpolateColor(rel){
 	if     ( rel < 0.0 ) { return "FF0000"; }
 	else if( rel > 1.0 ) { return "FF00FF"; }
@@ -406,38 +410,24 @@ function interpolateColor(rel){
 	var min = 0;
 	var max = 1;
 	
-	switch( rel/0.16667 ){
-		/*
-		case 0:				return new Color(max, max*(min + (1-min)*(float)(rel/.25)), min);
-		case 1:	rel -= .25;	return new Color(min + max*(1-min)*(float)(1 - rel/.25), max, max*(min + (1-min)*(float)(rel/.25)));
-		case 2:	rel -= .50;	return new Color(min, max*(min + (1-min)*(float)(1 - rel/.25)), max);
-		case 3:	rel -= .75;	return new Color(max*(min + (1-min)*(float)(rel/.25)), min, max);
-		*/
-		case 0:					return hex(max) + hex(max*(min + (1-min)*(float)(rel/.25))) + hex(min);
-		case 1:	rel -= .16667;	return hex(min + max*(1-min)*(float)(1 - rel/.25)) + hex(max) + hex(min);
-		case 2:	rel -= .33333;	return hex(min) + hex(max) + hex(max*(min + (1-min)*(float)(rel/.25)));
-		case 3:	rel -= .50000;	return hex(min) + hex(max*(1-min)*(float)(1 - rel/.25)) + hex(max);
-		case 4:	rel -= .66667;	return hex(max*(min + (1-min)*(float)(rel/.25))) + hex(min) + hex(max);
-		case 5:	rel -= .83333;	return hex(max) + hex(min) + hex(max*(1-min)*(float)(1 - rel/.25));
+	switch( Math.floor(rel/.2) ){
+		case 0:					return hex(max) + hex(max*(min + (1-min)*(rel/.2))) + hex(min);
+		case 1:	rel -= .2;		return hex(min + max*(1-min)*(1 - rel/.2)) + hex(max) + hex(min);
+		case 2:	rel -= .4;		return hex(min) + hex(max) + hex(max*(min + (1-min)*(rel/.2)));
+		case 3:	rel -= .6;		return hex(min) + hex(max*(1-min)*(1 - rel/.2)) + hex(max);
+		case 4:	rel -= .8;		return hex(max*(min + (1-min)*(rel/.2))) + hex(min) + hex(max);
 		default:				return hex(max) + hex(min) + hex(max);
 	}
 }
 
+/**
+ * Create the two character hexadecimal representation of specified value, multiplied by 255.  The
+ * intended use is to create an RGB representation with 8-bit color depth. 
+ */
 function hex(val){
-	var strRet = (val * 255).toString(16).toUpperCase();
-	while( 2 > strRet.length ){ strRet = "0" + strRet; } 
+	var strRet = Math.round(val * 255).toString(16).toUpperCase();
+	while( 2 > strRet.length ){ strRet = "0" + strRet; }
 	return strRet;
-}
-
-function testRainbow(){
-	console("hex(0) = " + hex(0) + "\n");
-	console("hex(.25) = " + hex(.25) + "\n");
-	console("hex(.33) = " + hex(.33) + "\n");
-	console("hex(.5) = " + hex(.5) + "\n");
-	console("hex(.51) = " + hex(.51) + "\n");
-	console("hex(.9) = " + hex(.9) + "\n");
-	console("hex(1) = " + hex(1) + "\n");
-	console("\n");
 }
 
 
@@ -617,6 +607,7 @@ function removeDepVar(intY, intDepId){
 	var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
 	removeFieldValDiv(intDepId, listDepDiv, 1);
  	if( 1 == intY && 1 == listDepDiv.length ){ listDepDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
+ 	buildSeriesDiv();
 }
 
 /**
@@ -871,6 +862,7 @@ function removeSeriesDiv(intSeries, intId){
 	//  dispose of and hide the series div
 	removeFieldValDiv(intId, listSeriesDiv, 1);
  	if( 1 == listSeriesDiv.length ){ listSeriesDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
+ 	buildSeriesDiv();
 }
 
 
@@ -1047,6 +1039,27 @@ function buildSeriesDiv(){
 	var spanFmtSeriesNone = document.getElementById("spanFmtSeriesNone");
 	var intNumSeries = 0;
 
+console("buildSeriesDiv()\n");
+
+	//  build a table containing all current series settings
+	var table = new Hashtable();
+console("  building table\n");
+	for(var i=0; i < tabFmtSeries.rows.length; i++){		
+		var listSpan = tabFmtSeries.rows[i].getElementsByTagName("span");
+		var listInput = tabFmtSeries.rows[i].getElementsByTagName("input");
+//console("    rows[" + i + "] - listSpan.length = " + listSpan.length + "\n");
+		if( 2 > listSpan.length || tabFmtSeries.style.display == "none" ){ continue; }
+		
+		//  get the series name and values and put them in the table
+		var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;		
+		var strFmt = "";
+		for(var j=0; j < 8; j++){ strFmt += (0 < j? "|" : "") + listInput[j].value; }
+		
+console("    table.put():\n      " + strSeriesName + "\n      " + strFmt + "\n");
+		table.put(strSeriesName, strFmt);
+	}
+console("  building table complete\n\n");
+
 	//  clear all existing series, except the first two
 	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }
 
@@ -1061,18 +1074,18 @@ function buildSeriesDiv(){
 		var listSeriesPerm = (1 == intY? listSeries1Perm : listSeries2Perm);	
 			
 		//  for each dep div, consider the fcst_var and selected stats
-		for(var i=0; i < listDepDiv.length; i++){
+		for(var intDep=0; intDep < listDepDiv.length; intDep++){
 	
 			//  get the dep var information
-			var strFcstVar = getSelected( listDepDiv[i].getElementsByTagName("select")[0] )[0];
-			var listStat = getSelected( listDepDiv[i].getElementsByTagName("select")[1] );
+			var strFcstVar = getSelected( listDepDiv[intDep].getElementsByTagName("select")[0] )[0];
+			var listStat = getSelected( listDepDiv[intDep].getElementsByTagName("select")[1] );
 	
 			//  build a series for each combination of fcst_var, stat and series permutation
-			for(var j=0; j < listStat.length; j++){
-				for(var k=0; k < listSeriesPerm.length; k++){
+			for(var intStat=0; intStat < listStat.length; intStat++){
+				for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++){
 	
 					//  build the series name
-					var strSeriesName =  listSeriesPerm[k] + " " + strFcstVar + " " + listStat[j];
+					var strSeriesName =  listSeriesPerm[intSeries] + " " + strFcstVar + " " + listStat[intStat];
 	
 					var trFmtSeries;
 					var tdName;
@@ -1085,11 +1098,17 @@ function buildSeriesDiv(){
 	
 					//  otherwise, build a new set of series formatting controls
 					else {
-						var trHR = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
-						var tdHR = trHR.insertCell(0);
-						tdHR.colSpan = "3";
-						tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
+						
+						//  insert the <hr/> between series format controls
+						if( 2 == intNumSeries ){ tabFmtSeries.rows[1].style.display = "table-row"; }
+						else {
+							var trHR = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
+							var tdHR = trHR.insertCell(0);
+							tdHR.colSpan = "3";
+							tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
+						}
 	
+						//  insert a copy of the series format controls
 						trFmtSeries = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
 	
 						var tdName = trFmtSeries.insertCell(0);
@@ -1103,6 +1122,7 @@ function buildSeriesDiv(){
 						tdFmt1.style.width = "200px";
 						tdFmt1.style.paddingTop = "20px";
 						tdFmt1.appendChild( document.getElementById("spanFmtSeriesFmt1").cloneNode(true) );
+						tdFmt1.getElementsByTagName("input")[1].value = "";
 	
 						var tdFmt2 = trFmtSeries.insertCell(2);
 						tdFmt2.align = "right";
@@ -1112,17 +1132,50 @@ function buildSeriesDiv(){
 					}
 	
 					//  populate the controls with the series name
+					var strYSeries = (1 == intY? "Y1" : "Y2") + " Series";
 					tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
-					tdName.getElementsByTagName("span")[3].innerHTML = (1 == intY? "Y1" : "Y2") + " Series";
-				}
-			}
-		}
+					tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
+					
+					//  if there are format control settings for this series in the table, apply them					
+					var strVal = table.get(strSeriesName + " - " + strYSeries)
+					var listFmtTxt = trFmtSeries.getElementsByTagName("input");
+console("  table[" + strSeriesName + " - " + strYSeries + "]: " + strVal + "\n");
+					if( undefined != strVal ){
+						var listVal = strVal.split("|");
+						for(var i=0; i < listVal.length; i++){ listFmtTxt[i].value = listVal[i]; }
+					} 
+					
+					//  otherwise, apply default settings
+					else {
+						listFmtTxt[0].value = "none";
+						listFmtTxt[1].value = "";
+						listFmtTxt[2].value = "20";
+						listFmtTxt[3].value = "b";
+						listFmtTxt[4].value = "1";
+						listFmtTxt[5].value = "1";
+						listFmtTxt[6].value = "1";
+						listFmtTxt[7].value = "";
+					}
+					
+				}  // end: for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++)
+				
+			}  // end: for(var intStat=0; intStat < listStat.length; intStat++)
+			
+		}  // end: for(var intDep=0; intDep < listDepDiv.length; intDep++)
+		
+	}  // end: for(var intY=1; intY <= 2; intY++)
 	
+	//  set the default color for each series to the appropriate shade of rainbow
+	var listColors = rainbow(intNumSeries);
+	for(var i=0; i < intNumSeries; i++){
+		var txtColor = tabFmtSeries.rows[2*i].getElementsByTagName("input")[1];
+		if( "" == txtColor.value ){ txtColor.value = listColors[i]; }		
 	}
 	
 	//  show or hide the controls, depending on the number of series
 	tabFmtSeries.style.display		= (1 > intNumSeries ? "none" : "inline");
 	spanFmtSeriesNone.style.display	= (1 > intNumSeries ? "inline" : "none");
+console("buildSeriesDiv() complete\n\n");
 }
 
 /**
@@ -1331,12 +1384,10 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField){
 
 function runPlotReq(){ sendRequest("POST", "<plot>" + buildPlotXML() + "</plot>", runPlotResp); }
 function runPlotResp(strResp){
-console("runPlotResp(" + strResp + ")\n");
 	if( null != (listProc = strResp.match( /<plot>(.*)<\/plot>/ )) ){
 		var strPlot = listProc[1];
 		var win = window.open("plot.html", "METViewer - " + strPlot);
 	}
-console("runPlotResp() complete\n\n");
 }
 
 function testPlotResp(){ runPlotResp("<plot>plot_00021_20100810_084037</plot>"); }

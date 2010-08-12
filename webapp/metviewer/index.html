@@ -8,6 +8,7 @@
 
 <body onLoad="onLoad()" style="padding-left: 20px">
 
+<script type="text/javascript" src="include/Hashtable.js"></script>
 <script type="text/javascript" src="include/metviewer.js"></script>
 
 <div id="divDimScreen" class="dimScreen">&nbsp;</div>
@@ -208,22 +209,22 @@
 				</td>
 				<td align="right" style="width:200px">
 					<span id="spanFmtSeriesFmt1">
-						<span class="bold">plot_ci:</span><input type="text" size="12" value="none"/><br/>
-						<span class="bold">colors:</span><input type="text" size="12" value="#FF0000FF"/><br/>
-						<span class="bold">pch:</span><input type="text" size="12" value="19"/><br/>
-						<span class="bold">type:</span><input type="text" size="12" value="b"/><br/>
+						<span class="bold">plot_ci:</span><input type="text" size="12"/><br/>
+						<span class="bold">colors:</span><input type="text" size="12"/><br/>
+						<span class="bold">pch:</span><input type="text" size="12"/><br/>
+						<span class="bold">type:</span><input type="text" size="12"/><br/>
 					</span>
 				</td>
 				<td align="right" style="width:275px">
 					<span id="spanFmtSeriesFmt2">
-						<span class="bold">lty:</span><input type="text" size="12" value="1"/><br/>
-						<span class="bold">lwd:</span><input type="text" size="12" value="1"/><br/>
-						<span class="bold">con_series:</span><input type="text" size="12" value="1"/><br/>
+						<span class="bold">lty:</span><input type="text" size="12"/><br/>
+						<span class="bold">lwd:</span><input type="text" size="12"/><br/>
+						<span class="bold">con_series:</span><input type="text" size="12"/><br/>
 						<span class="bold">legend:</span><input type="text" size="12"/><br/>
 					</span>
 				</td>
 			</tr>
-			<tr><td colspan="3" style="display:none">
+			<tr style="display:none"><td colspan="3">
 				<span id="spanFmtSeriesHR" style="padding-left:30px; padding-top:20px"><hr align="right" style="width:90%"/></span>
 			</td></tr>
 			</table>
@@ -290,8 +291,7 @@
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
-		<input type="button" class="gButton" onclick="javascript:testPlotResp()" value="plot.html"/>
-		<input type="button" class="gButton" onclick="javascript:testRainbow()" value="rain"/><br/><br/>
+		<input type="button" class="gButton" onclick="javascript:testPlotResp()" value="plot.html"/><br/><br/>
 		<textarea rows="20" cols="160" id="txtConsole"></textarea></td>
 	</tr>
 
