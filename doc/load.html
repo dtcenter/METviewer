@@ -135,7 +135,32 @@ In this example, the load module would attempt to load any files with the suffix
 /d1/data/nmm/FULL/2010051915V<br/>
 /d1/data/nmm/SWC/2010051915V<br/>
 ...<br/>
+</p><br/>
+
+<h3>Troubleshooting</h3>
+
+<p style="padding-left:30px; padding-right:30px">
+<table cellpadding="3" cellspacing="0" border="1">
+	<tr>
+		<td class="header" align="right">Error:</td>
+		<td><b>
+		**  ERROR: Caught class com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException: Duplicate entry 
+		'CT07-NMM-LIN-R2-0-2005-07-15 12:00:00-2005-07-15 12:00:00-0-2005' for key 2
+		</b></td>
+	</tr>
+	<tr>
+		<td class="header" align="right">Solution:</td>
+		<td style="font-size:10px">
+		This error is caused by trying to insert a stat_header record into the database when an identical one already exists.  If identical stat_header information
+		is present in more than one stat file, set the <span class="code">&lt;stat_header_db_check&gt;</span> value to <span class="term">true</span>.  This setting
+		will reduce performance, because the stat_header table is checked for duplicate stat_header each time a row is inserted.  However, if a stat_header row
+		already exists in the table with the insert information, then the existing record will be used instead of trying to insert a dupilcate.
+		</td>
+	</tr>
+</table>
 </p>
+
+<br/><br/>
 
 </body>
 </html>

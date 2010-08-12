@@ -184,6 +184,36 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 					<li><span class="code">&lt;y2_label&gt;</span>: right y axis (y2-axis) label that will be placed on the plot</li>
 					<li><span class="code">&lt;caption&gt;</span>: caption that will be placed on the bottom of the plot</li>
 				</ul>
+				
+				<h4 style="padding-left:40px; text-decoration:underline; font-weight:normal">Template Formatting</h4>
+				<p style="padding-left:40px">
+				Template values have the syntax <span class="term">{var_name[?param1=val1[&param2=val2[...]]]}</span>.  For example, <span class="term">{fcst_lead?format=HH}</span> 
+				or <span class="term">{vx_mask?map=masks}</span> or <span class="term">{fcst_thresh?units=in&symbol=letters}</span>.  The var_name must be one of the database fields 
+				that is used in the plot fixed variables or agg variables.  When the template is applied, the current plot values for each variable replaces the tag in the template.  
+				The parameters can be used to format, convert or map the values.  The dependent variables forecast variables are represented using the syntax 
+				<span class="term">{depY_N}</span>, where Y is the y-axis (either 1 or 2) and N is the index of the fcst_var in the <span class="code">&lt;dep&gt;</span> structure, 
+				starting with 1.  The dependent variable statistics are represented using the syntax <span class="term">{depY_N_statS}</span>, where Y and N match the values of the 
+				parent fcst_var, and S is the index of the statistic, starting at 1 for each fcst_var.
+				</p>
+				<ul>
+					<li><span class="code">map=[name]</span>: indicates that the template <span class="code">&lt;val_map&gt;</span> structure with the given name should be applied</li>
+					<li><span class="code">format=[format_type]</span>: depending on the variable being formatted the following options apply:<br/>
+						<ul>
+							<li><span class="code">fcst_lead</span>: use HH for the two-character wide hour, HHmm for the four-character hour and minute</li>						
+							<li><span class="code">init_hour</span> or <span class="code">valid_hour</span>: use HH for the two-character wide hour <span class="code">init_hour</span></li>						
+							<li><span class="code">fcst_thresh</span>, <span class="code">fcst_thr</span>, <span class="code">obs_thresh</span> or <span class="code">obs_thr</span>: 
+							apply the specified decimal format to the threshold value, accoring to the formatting syntax for the java class 
+							<a href="http://download.oracle.com/javase/1.4.2/docs/api/java/text/DecimalFormat.html">DecimalFormat</a></li>						
+						</ul>
+						<span style="padding-left:15px">For any variable, <span class="term">format=R</span> will replace all non-variable characters (like &lt;, = and .) with 
+						appropriate letters and underscores.</span>
+					</li>
+					<li><span class="code">units=in</span>: can only be used if the variable is a threshold, converts the threshold value to inches from mm</li>
+					<li><span class="code">symbol=letters</span>: can only be used if the variable is a threshold, converts the threshold criteria to FORTRAN-like letters, 
+					e.g. &gt;= becomes ge</li>					
+				</ul>
+				
+				
 			</li><br/>
 						
 			<li><span class="code">&lt;dep&gt;</span>: information about the dependent variables of the plot.  Each curve of the plot is assumed to have a constant fcst_var and
@@ -316,8 +346,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;y2lab_align&gt;</span>:  <span class="term">mtext(adj)</span> - axis label parallel location adjustment - default value: <span class="term">.5</span></li>
 			<li><span class="code">&lt;legend_size&gt;</span>:  <span class="term">legend(size)</span> - relative magnification - default value: <span class="term">.8</span></li>
 			<li><span class="code">&lt;legend_box&gt;</span>:  <span class="term">legend(bty)</span> - legend box type - o: box, n: none - default value: <span class="term">o</span></li>
-			<li><span class="code">&lt;legend_inset&gt;</span>:  <span class="term">legend(inset)</span> - number of columns in legend - default value: <span class="term">c(0, -.25)</span></li>
-			<li><span class="code">&lt;legend_ncol&gt;</span>:  <span class="term">legend(ncol)</span> - inset distance from margin - default value: <span class="term">3</span></li>
+			<li><span class="code">&lt;legend_inset&gt;</span>:  <span class="term">legend(inset)</span> - inset distance from margin - default value: <span class="term">c(0, -.25)</span></li>
+			<li><span class="code">&lt;legend_ncol&gt;</span>:  <span class="term">legend(ncol)</span> - number of columns in legend - default value: <span class="term">3</span></li>
 			<li><span class="code">&lt;caption_weight&gt;</span>:  <span class="term">mtext(font)</span> - 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol - default value: <span class="term">1</span></li>
 			<li><span class="code">&lt;caption_col&gt;</span>:  <span class="term">mtext(col)</span> - font color - default value: <span class="term">#999999</span></li>
 			<li><span class="code">&lt;caption_size&gt;</span>:  <span class="term">mtext(cex)</span> - relative magnification - default value: <span class="term">.8</span></li>

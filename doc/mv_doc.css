@@ -82,3 +82,9 @@ li {
 	font-family: verdana;
 	font-size: 10px;
 }
+td.header {
+	color: #002866;
+	font-family: verdana;
+	font-size: 12px;
+	font-weight: bold;
+}
