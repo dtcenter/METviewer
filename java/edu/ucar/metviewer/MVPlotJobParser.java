@@ -638,8 +638,10 @@ public class MVPlotJobParser extends MVUtil{
 				 null == job.getIndyDep()         )	{ return "indep";		}
 		else if( 1 > job.getDepGroups().length    )	{ return "dep";			}
 		else if( 1 > job.getSeries1Val().size()   )	{ return "series1";		}
+		/*
 		else if( 1 > job.getAggVal().size() &&
 				 1 > job.getPlotFixVal().size() )	{ return "agg/plot_fix";}
+		*/
 		else if( job.getRFileTmpl().equals("")    )	{ return "r_file";		}
 		else if( job.getPlotFileTmpl().equals("") )	{ return "plot_file";	}
 		else if( job.getDataFileTmpl().equals("") )	{ return "data_file";	}

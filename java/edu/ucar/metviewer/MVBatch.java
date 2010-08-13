@@ -464,7 +464,8 @@ public class MVBatch extends MVUtil {
 				
 				//  add the independent variable values, if necessary
 				if( 0 < job.getIndyVal().length ){
-					strWhere += "  AND " + formatField(job.getIndyVar(), boolModePlot) + " IN (" + buildValueList(job.getIndyVal()) + ")\n";
+					strWhere += (!strWhere.equals("")? "  AND " : "") + formatField(job.getIndyVar(), boolModePlot) + 
+								" IN (" + buildValueList(job.getIndyVal()) + ")\n";
 				}
 	
 				//  build the dependent variable where clause

@@ -7,6 +7,8 @@ var _url;
 var _strDBCon = "";
 var _boolDBStatus = false;
 
+var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "Indy", "FmtPlot", "FmtSeries", "Boot"];
+
 var _intDepIdNext = 1;
 var _listDep1Div = new Array();
 var _listDep2Div = new Array();
@@ -430,6 +432,14 @@ function hex(val){
 	return strRet;
 }
 
+function toggleDebugDisp(show){
+	
+	//  update the visibility of the Serialize links
+	for(var i=0; i < _listLnkSer.length; i++){
+		document.getElementById("lnkSer" + _listLnkSer[i]).style.display = (show? "inline" : "none");		
+	}
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -580,20 +590,17 @@ function addDep(intY){
  	selStat.id = "selStat" + intDepId;
  	selStat.setAttribute("onchange", "javascript:buildSeriesDiv()");
  	if( _boolIE ){ selStat.attachEvent("onchange", new Function("buildSeriesDiv()")); }
- 	var lblStat = divDep.getElementsByTagName("span")[0];
- 	lblStat.style.display = "none";
- 	lblStat.id = "lblStat" + intDepId;
  	var lnkDep = divDep.getElementsByTagName("a")[0];
  	lnkDep.setAttribute("onclick", "javascript:removeDep" + intY + "Var(" + intDepId + ")");
  	if( _boolIE ){ lnkDep.attachEvent("onclick", new Function("removeDep" + intY + "Var(" + intDepId + ")")); }
- 	divDep.getElementsByTagName("span")[1].style.display = "inline";
+ 	divDep.getElementsByTagName("span")[0].style.display = "inline";
  	divDep.getElementsByTagName("input")[1].value = "" + intDepId;
 
  	//  add the new fixed variable value section to the page
  	listDepDiv.push(divDep);
 	var divDepParent = document.getElementById("divDep" + intY);
 	var divImgParent = document.getElementById("imgDep" + intY);
-console("addDep(" + intY + ")\n  divDepParent: " + divDepParent + "\n  divImgParent: " + divImgParent + "\n\n");
+	console("addDep(" + intY + ")\n  divDepParent: " + divDepParent + "\n  divImgParent: " + divImgParent + "\n\n");
  	divDepParent.insertBefore(divDep, divImgParent);
 
  	//  ensure the first remove link is visible
@@ -637,7 +644,6 @@ function selectFcstVarReq(intId){
 		var selFcstVar = document.getElementById("selStat" + intId);
 		fillSelect(selFcstVar, _listStatMode);
 		selFcstVar.style.display = "inline";
-		document.getElementById("lblStat" + intId).style.display = "inline";
 	}
 }
 function selectFcstVarResp(strResp){
@@ -650,7 +656,6 @@ function selectFcstVarResp(strResp){
 	var selFcstVar = document.getElementById("selStat" + resp.id);
 	fillSelect(selFcstVar, resp.vals);
 	selFcstVar.style.display = "inline";
-	document.getElementById("lblStat" + resp.id).style.display = "inline";
 }
 
 /**
@@ -684,7 +689,6 @@ function clearDepStat(intIndex){
 	var selStat = document.getElementById("selStat" + intIndex);
 	clearSelect(selStat);
 	selStat.style.display = "none";
-	document.getElementById("lblStat" + intIndex).style.display = "none";
 }
 
 
@@ -1036,6 +1040,24 @@ function addFmtPlot(label, value, type){
 	} else {
 		tdFmt.getElementsByTagName("select")[0].selectedIndex = ( "true" == value? 0 : 1 );
 		_intFmtPlotBoolIndex++;
+	}
+}
+
+function handleFmtPlotTxtDisp(){
+	var spanDisp = document.getElementById("spanFmtPlotTxtDisp");
+	var tab = document.getElementById("tabFmtPlotTxt");
+	var imgArrow = spanDisp.getElementsByTagName("img")[0];
+	var spanMsg = spanDisp.getElementsByTagName("span")[0];
+	if( null != spanMsg.innerHTML.match("Show.*") ){
+		console("  showing controls\n");
+		spanMsg.innerHTML = "Hide Plot Formatting";
+		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_down.gif";
+		tab.style.display = "table";
+	} else {
+		console("  hiding controls\n");	
+		spanMsg.innerHTML = "Show Plot Formatting";
+		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_right.gif";		
+		tab.style.display = "none";
 	}
 }
 

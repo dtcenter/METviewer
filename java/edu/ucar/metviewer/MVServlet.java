@@ -378,7 +378,7 @@ public class MVServlet extends HttpServlet {
 	    	stmt.close();
     	} catch(Exception e){
     		_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " acquiring web_plot_id: " + e.getMessage());
-    		return "<error>failed to acquire web_plot_id</error>";
+    		return "<error>failed to acquire web_plot_id - reason: " + e.getMessage() + "</error>";
     	}
     	
     	//  construct the names of the plot files
@@ -414,7 +414,7 @@ public class MVServlet extends HttpServlet {
 	    	job = jobs[0];
     	} catch(Exception e){
     		_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
-    		return "<error>failed to parse plot job</error>";
+    		return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
     	}
    	
         //  write the formatted plot XML to a file
@@ -428,7 +428,7 @@ public class MVServlet extends HttpServlet {
 			stream.close();
 		} catch(Exception e) {
 			_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
-			return "<error>failed to serialize plot xml</error>";
+			return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
 		}    	
     	
     	//  run the plot job and write the batch output to the log file
@@ -442,7 +442,7 @@ public class MVServlet extends HttpServlet {
     		bat.runJob( job );
     	} catch(Exception e){
         	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
-        	return "<error>failed to run plot</error>";        	
+        	return "<error>failed to run plot - reason: " + e.getMessage() + "</error>";        	
     	}
     	_logger.debug("handlePlot() - batch output:\n" + log.toString());
     	
@@ -453,8 +453,12 @@ public class MVServlet extends HttpServlet {
 	    	if( 1 != intRes ){ throw new Exception("unexpected result from web_plot INSERT statement: " + intRes); }
     	} catch(Exception e){
         	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " updating web_plot: " + e.getMessage());
-        	return "<error>failed to update web_plot</error>";
+        	return "<error>failed to update web_plot - reason: " + e.getMessage() + "</error>";
     	}
+    	
+    	//  build an archive with the R scripts and data
+    	String strTarCmd = "tar czvf ";
+    	
     	
     	return "<plot>" + strPlotPrefix + "</plot>";
     }

@@ -42,7 +42,7 @@
 
 		<div id="divDep1" style="padding-left:30px">
 			<span class="header" style="font-size:14px">Dependent Variables</span>
-			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep1')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep1')" id="lnkSerDep1">Serialize</a><br/><br/>
 
 			<div><table><tr>
 				<td class="bold" style="padding-left: 20px; padding-right: 10px; height: 70px">Forecast Variable:</td>
@@ -50,9 +50,8 @@
 					<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
 					<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Stats &#187;"/><br/>
 				</td>
-				<td>
-					<span id="lblStat0" class="bold" style="padding-left:20px; padding-right:10px; display:none">Statistic:</span>
-					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"
+				<td style="padding-left:10px">
+					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5" 
 						onchange="javascript:buildSeriesDiv()"></select>&nbsp;&nbsp;
 					<span style="display:none">
 						<img src="include/sub_symbol.gif" style="padding-left: 20px"/>&nbsp;&nbsp;
@@ -68,7 +67,7 @@
 		
 		<div id="divSeries1" style="padding-left:30px">
 			<span class="header" style="font-size:14px">Series Variables</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries1')" id="lnkSerSeries1">Serialize</a><br/><br/>
 
 			<img id="imgSeries1" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addSeries1Div()">Add a Series y1 Value</a><br/><br/><br/>
@@ -80,7 +79,7 @@
 
 		<div id="divDep2" style="padding-left:30px">
 			<span class="header" style="font-size:14px">Dependent Variables</span>
-			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep2')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divDep2')" id="lnkSerDep2">Serialize</a><br/><br/>
 
 			<img id="imgDep2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addDep2()">Add a Dependent y2 Variable</a><br/><br/><br/>
@@ -88,7 +87,7 @@
 		
 		<div id="divSeries2" style="padding-left:30px">
 			<span class="header" style="font-size:14px">Series Variables</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divSeries2')" id="lnkSerSeries2">Serialize</a><br/><br/>
 
 			<img id="imgSeries2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addSeries2Div()">Add a Series y2 Value</a><br/><br/><br/>
@@ -110,7 +109,7 @@
 		
 		<div id="divFix">
 			<span class="header">Fixed Values</span>
-			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divFix')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divFix')" id="lnkSerFix">Serialize</a><br/><br/>
 
 			<img id="imgFix" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
@@ -121,7 +120,7 @@
 				
 		<div id="divIndy">
 			<span class="header">Independent Variables</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')" id="lnkSerIndy">Serialize</a><br/><br/>
 
 			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
 			<select id="selIndyVar" onchange="javascript:clearIndyVal()"></select>&nbsp;
@@ -167,7 +166,7 @@
 
 		<div id="divFmtPlot">
 			<span class="header">Plot Formatting</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtPlot')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtPlot')" id="lnkSerFmtPlot">Serialize</a><br/><br/>
 
 			<table id="tabFmtPlotBool" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotBool">
 				<td align="right">&nbsp;
@@ -178,7 +177,10 @@
 				</td>
 			</tr></table><br/><br/>
 
-			<table id="tabFmtPlotTxt" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotTxt">
+			<span id="spanFmtPlotTxtDisp" onclick="javascript:handleFmtPlotTxtDisp()" style="padding-left:40px">
+				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Plot Formatting</span>			
+			</span><br/><br/>
+			<table id="tabFmtPlotTxt" cellspacing="0" cellpadding="0" border="0" style="display:none"><tr id="trFmtPlotTxt">
 				<td align="right">&nbsp;
 					<span id="spanFmtPlotTxt">
 						<span>Format Field:</span>
@@ -192,7 +194,7 @@
 		
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')">Serialize</a>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')" id="lnkSerFmtSeries">Serialize</a>
 			<!-- <span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>  -->
 			<br/><br/>
 			
@@ -249,7 +251,7 @@
 
 		<div id="divBoot">
 			<span class="header">Bootstrapping</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')" id="lnkSerBoot">Serialize</a><br/><br/>
 
 			<input type="checkbox" onchange="javascript:updateBoot()"/><span class="bold">Bootstrapping Enabled</span><br/><br/>
 			<table cellpadding="0" cellspacing="0">
