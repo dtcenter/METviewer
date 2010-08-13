@@ -5,8 +5,11 @@ import java.sql.*;
 import java.util.*;
 import java.util.regex.*;
 import java.text.*;
+import java.io.*;
 
 public class MVUtil{
+	
+	public static PrintStream _out = System.out;
 	
 	public static final double INVALID_DATA = -9999;
 	
@@ -103,7 +106,7 @@ public class MVUtil{
 			}
 		
 		}catch(Exception e){
-			System.out.println("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+			_out.println("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
 		}
 		return (String[])listDates.toArray(new String[]{});
 	}
@@ -285,7 +288,7 @@ public class MVUtil{
 			}
 			
 			if( !vals.containsKey(strTmplTagName) ){
-				System.out.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg perm");
+				_out.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg perm");
 				continue;
 			}
 
@@ -328,7 +331,7 @@ public class MVUtil{
 			//  if the tag is a threshold, format it accordingly
 			if( strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr") ||
 				strTmplTagName.equals("obs_thresh")  || strTmplTagName.equals("obs_thr") ){
-				strVal = formatFcstThresh(strTmplTag, strVal);
+				strVal = formatThresh(strTmplTag, strVal);
 			}
 			
 			strRet = strRet.replace("{" + strTmplTag + "}", strVal);
@@ -354,7 +357,7 @@ public class MVUtil{
 	 * @param fcstThresh Template map value to be formatted
 	 * @return
 	 */
-	public static String formatFcstThresh(String fcstTag, String fcstThresh){
+	public static String formatThresh(String fcstTag, String fcstThresh){
 		String strThreshRet = fcstThresh;
 		MVOrderedMap mapParams = parseTagParams(fcstTag);
 		DecimalFormat format = new DecimalFormat("0.000");
@@ -362,13 +365,13 @@ public class MVUtil{
 		//  attempt to parse the input threshold
 		String strSymbol = "", strThresh = "";
 		double dblThresh = -1.0;
-		Matcher matFcstThresh = _patFcstThresh.matcher(fcstThresh);
+		Matcher matFcstThresh = _patThresh.matcher(fcstThresh);
 		if( matFcstThresh.matches() ){
 			strSymbol = matFcstThresh.group(1);
 			strThresh = matFcstThresh.group(2);
 			dblThresh = Double.parseDouble(strThresh);
 		} else {
-			System.out.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
+			_out.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
 			return strThreshRet;
 		}
 		
@@ -404,7 +407,102 @@ public class MVUtil{
 		
 		return strThreshRet;
 	}
-	public static final Pattern _patFcstThresh = Pattern.compile("([<>=!]{1,2})(\\d+\\.\\d+)");
+	
+	/**
+	 * Sort the list of input thresholds, according to the numeric threshold value. 
+	 * @param thresh List of thresholds
+	 * @param asc true for ascending order
+	 * @return Sorted threshold list, by value
+	 */
+	public static final String[] sortThresh(String[] thresh){
+		return sortVals(thresh, true, _patThresh);
+	}
+	
+	public static final Pattern _patThresh = Pattern.compile("([<>=!]{1,2})(\\d+\\.\\d+)");
+	
+	/**
+	 * Sort the list of input levels, according to the first numeric level value. 
+	 * @param thresh List of thresholds
+	 * @param asc true for ascending order
+	 * @return Sorted threshold list, by value
+	 */
+	public static final String[] sortLev(String[] lev){
+		return sortVals(lev, true, _patLev);
+	}
+	
+	/**
+	 * Sort the input list of values by parsing them with the input pattern and sort them according
+	 * to the numerical portion (assumed to be group 2 of the matched pattern).
+	 * @param vals List of String representations of the values
+	 * @param asc true for ascending order
+	 * @param pat Pattern used to parse the input values
+	 * @return Sorted list, by numerical value
+	 */
+	public static final String[] sortVals(String[] vals, boolean asc, Pattern pat){
+		
+		//  parse the input values and store the numerical values in a sortable array
+		double[] listVal = new double[vals.length];		
+		Hashtable tableVal = new Hashtable();
+		for(int i=0; i < vals.length; i++){
+			
+			//  apply the pattern to the value
+			Matcher mat = pat.matcher(vals[i]);
+			if( !mat.matches() ){
+				_out.println("  **  WARNING: sortVals() could not parse value " + vals[i]);
+				continue;
+			}
+			
+			//  parse the value from the match
+			double dblVal = Double.parseDouble(mat.group(2));
+			if( 3 == mat.groupCount() && null != mat.group(3) ){
+				dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+			}
+			
+			//  store the numerical value and the value pair
+			listVal[i] = dblVal;
+			tableVal.put(new Double(listVal[i]), vals[i]);
+		}
+		
+		//  sort the numerical values and build a sorted list of values
+		Arrays.sort(listVal);		
+		String[] listRet = new String[vals.length];
+		for(int i=0; i < listVal.length; i++){
+			listRet[asc? i : listVal.length - 1 - i] = tableVal.get( new Double(listVal[i]) ).toString();			
+		}
+		
+		return listRet;
+	}
+
+	public static final Pattern _patLev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
+	
+	/**
+	 * Parse, format and sort the input list of lead times, removing the trailing 0000, if requested.
+	 * @param lead List of lead time values
+	 * @param asc true for ascending order
+	 * @param removeZeros true to remove the trailing 0000 from the lead time value
+	 * @return Sorted list of formatted lead times, by numerical value
+	 */
+	public static final String[] sortFormatLead(String[] lead, boolean asc, boolean removeZeros){
+		
+		//  parse and format the leads and store the numerical values in a sortable array
+		double[] listVal = new double[lead.length];		
+		Hashtable tableVal = new Hashtable();
+		for(int i=0; i < lead.length; i++){
+			listVal[i] = Double.parseDouble(lead[i]);
+			String strLead = lead[i];
+			if( removeZeros && strLead.endsWith("0000") ){ strLead = strLead.replaceAll("0000$", ""); }
+			tableVal.put(new Double(listVal[i]), strLead);
+		}
+		
+		//  sort the lead numerical values and build a sorted list of leads
+		Arrays.sort(listVal);		
+		String[] listRet = new String[lead.length];
+		for(int i=0; i < listVal.length; i++){
+			listRet[asc? i : listVal.length - 1 - i] = tableVal.get( new Double(listVal[i]) ).toString();			
+		}
+		
+		return listRet;
+	}
 	
 	/**
 	 * Parse template tag parameter pairs and return them in an ordered map.  For example,
@@ -730,7 +828,7 @@ public class MVUtil{
 		protected double _dblValue = 0;
 		protected double _dblMaxValue = 100;
 		protected int _intLength = 21;
-		protected PrintStream _str = System.out;
+		protected PrintStream _str = _out;
 		
 		public TxtProgBar(PrintStream str, double value, double maxValue, int length){
 			_str = str;
@@ -747,11 +845,11 @@ public class MVUtil{
 			}
 			_str.println();
 		}
-		public TxtProgBar(double value, double maxValue, int length){ this(System.out, value, maxValue, length); }
-		public TxtProgBar(double maxValue, int length)              { this(System.out, 0, maxValue, length);     }
-		public TxtProgBar(double maxValue)                          { this(System.out, 0, maxValue, 21);         }
-		public TxtProgBar(int length)                               { this(System.out, 0, 100, length);          }
-		public TxtProgBar()                                         { this(System.out, 0, 100, 21);              }
+		public TxtProgBar(double value, double maxValue, int length){ this(_out, value, maxValue, length); }
+		public TxtProgBar(double maxValue, int length)              { this(_out, 0, maxValue, length);     }
+		public TxtProgBar(double maxValue)                          { this(_out, 0, maxValue, 21);         }
+		public TxtProgBar(int length)                               { this(_out, 0, 100, length);          }
+		public TxtProgBar()                                         { this(_out, 0, 100, 21);              }
 		
 		public void updateProgress(double value){
 			if( _dblValue > value ){ return; }

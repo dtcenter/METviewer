@@ -921,8 +921,7 @@ function selectIndyVarReq(){
 	//  build a list_val request for the selected independent field
 	var strFcstVarCrit = buildFcstVarCrit();
 	var strFixCrit = buildFixCrit(_listFixDiv.length - 1);
-	var selIndyVar = document.getElementById("selIndyVar");
-	var strField = selIndyVar.options[selIndyVar.selectedIndex].text;
+	var strField = getSelected( document.getElementById("selIndyVar") )[0];
 	sendRequest("POST",
 				"<list_val><id>0</id><" + _strPlotData + "_field>" + strField + "</" + _strPlotData + "_field>" +
 					strFcstVarCrit + strFixCrit + "</list_val>",
@@ -939,16 +938,25 @@ function selectIndyVarResp(strResp){
 	
 	//  add a indy val control group for each indy value
 	var divIndy = document.getElementById("divIndy");
+	var strField = getSelected( document.getElementById("selIndyVar") )[0];
 	for( i in resp.vals ){
 		var trIndyVal = tabIndyVal.insertRow(tabIndyVal.rows.length);
 
+		//  build a control set for the independent variable value
 		var tdIndyChk = trIndyVal.insertCell(0);
 		tdIndyChk.appendChild( document.getElementById("spanIndyValChk").cloneNode(true) );
 		var tdIndyLab = trIndyVal.insertCell(1);
 		tdIndyLab.appendChild( document.getElementById("spanIndyValLab").cloneNode(true) );
 		trIndyVal.getElementsByTagName("span")[1].innerHTML = resp.vals[i];
 		trIndyVal.style.display = "table-row";
-		trIndyVal.getElementsByTagName("input")[1].value = resp.vals[i];
+		
+		//  set the default label
+		var strLabel = resp.vals[i];
+		if( "FCST_LEAD" == strField ){
+			var listParse = strLabel.match( /(\d+)0000$/ );
+			if( null != listParse ){ strLabel = listParse[1]; }
+		}
+		trIndyVal.getElementsByTagName("input")[1].value = strLabel;
 	}
 	document.getElementById("spanIndyCheck").style.display = "inline";
 }

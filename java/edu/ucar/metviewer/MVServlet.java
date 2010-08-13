@@ -259,21 +259,40 @@ public class MVServlet extends HttpServlet {
     	}
 		
 		//  build a query for the values and execute it
-		String strFieldDB = MVUtil.formatField(strHeaderField.toLowerCase(), boolMode).replaceAll("h\\.", "");
+    	String strField = strHeaderField.toLowerCase();
+		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
 		Statement stmt = con.createStatement();
 		String strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + "ORDER BY " + strFieldDB;
 		_logger.debug("handleListVal() - sql: " + strSQL);
 		long intStart = (new java.util.Date()).getTime();
 		stmt.executeQuery(strSQL);
 		
-		//  add the list of field values from the query to the response
+		//  build a list of values from the query
 		int intNumVal = 0;
 		ResultSet res = stmt.getResultSet();
+		ArrayList listRes = new ArrayList();
 		while( res.next() ){
-			strResp += "<val>" + res.getString(1) + "</val>";
+			listRes.add(res.getString(1));
 			intNumVal++;
 		}
-		_logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
+		_logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));		
+		String[] listVal = (String[])listRes.toArray(new String[]{});
+		
+		//  sort and format the results, depending on the field
+		if( strField.equals("fcst_thresh") || strField.equals("fcst_thr") || 
+			strField.equals("obs_thresh")  || strField.equals("obs_thr") ){
+			listVal = MVUtil.sortThresh(listVal);
+		} else if( strField.equals("fcst_lev") || strField.equals("obs_lev") ){
+			listVal = MVUtil.sortLev(listVal);
+		} 
+		/*
+		else if( strField.equals("fcst_lead") || strField.equals("obs_lead") ){
+			listVal = MVUtil.sortFormatLead(listVal, true, true);
+		}
+		*/
+		
+		//  add the list of field values to the response
+		for(int i=0; i < listVal.length; i++){ strResp += "<val>" + listVal[i] + "</val>"; }
 		
 		//  clean up  
 		stmt.close();
