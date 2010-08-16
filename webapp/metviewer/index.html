@@ -16,7 +16,7 @@
 <img src="include/loading_white.gif" style="padding-top:10px"/></div>
 
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
-	<tr><td class="title">METViewer</td></tr>
+	<tr><td class="title"><span onclick="javascript:debugClick('title')">METViewer</span></td></tr>
 	<tr><td><hr/></td></tr>
 
 	<tr><td>
@@ -26,7 +26,7 @@
 		<input type="text" id="txtGet"/>
 		<input type="button" class="gButton" onclick="javascript:testGetReq()" value="Get"/><br/><br/>
 		 -->
-		<span class="header">Database:</span>&nbsp;&nbsp;
+		<span class="header" onclick="javascript:debugClick('db')">Database:</span>&nbsp;&nbsp;
 		<select id="selDB" onChange="javascript:updateDBCon()"></select>
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
@@ -129,7 +129,7 @@
 			<table id="tabIndyVal" style="padding-left:60px"><tr id="trIndyVal" style="display:none">
 				<td style="width: 100px">
 					<span id="spanIndyValChk">
-						<input type="checkbox" value="test value" style="vertical-align:middle" check="checked"/>
+						<input type="checkbox" value="test value" style="vertical-align:middle" checked="checked"/>
 						<span id="spanIndyVal" style="font-weight: bold">(indy val)</span>&nbsp;&nbsp;
 					</span>
 				</td>
@@ -195,34 +195,39 @@
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtSeries')" id="lnkSerFmtSeries">Serialize</a>
+			<input id="btnFmtSeriesDefaults" type="button" class="gButton" onclick="javascript:setFmtSeriesDefaults()" value="Defaults" style="display:none"/>
 			<!-- <span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>  -->
+			<span id="spanFmtSeriesNum" class="bold" style="padding-left: 30px"># Series: 0</span>
 			<br/><br/>
 			
-			<span id="spanFmtSeriesNone" style="padding-left:40px" class="bold">(no series selected)</span>
-
-			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="0" style="display:none">
+			<span id="spanFmtSeriesDisp" onclick="javascript:handleFmtSeriesDisp()" style="padding-left:40px">
+				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Series Formatting</span>			
+			</span><br/><br/>
+			
+			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="0" style="display:none; padding-bottom:20px">
 			<tr>
 				<td align="right" style="width: 350px">
 					<span id="spanFmtSeriesName">
 						<span class="tiny">&nbsp;</span><br/>
-						<span class="bold" style="font-size:10pt; padding-right:20px">Series Name</span><br/>
+						<span class="bold" style="font-size:10pt; padding-right:20px">Series Name</span>
+						<input type="hidden"/><br/>
 						<span class="tiny" style="padding-right:20px">(series1 or 2)</span>
 					</span>
 				</td>
 				<td align="right" style="width:200px">
 					<span id="spanFmtSeriesFmt1">
-						<span class="bold">plot_ci:</span><input type="text" size="12"/><br/>
-						<span class="bold">colors:</span><input type="text" size="12"/><br/>
-						<span class="bold">pch:</span><input type="text" size="12"/><br/>
-						<span class="bold">type:</span><input type="text" size="12"/><br/>
+						<span class="bold">plot_ci:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
+						<span class="bold">colors:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
+						<span class="bold">pch:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
+						<span class="bold">type:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
 					</span>
 				</td>
 				<td align="right" style="width:275px">
 					<span id="spanFmtSeriesFmt2">
-						<span class="bold">lty:</span><input type="text" size="12"/><br/>
-						<span class="bold">lwd:</span><input type="text" size="12"/><br/>
-						<span class="bold">con_series:</span><input type="text" size="12"/><br/>
-						<span class="bold">legend:</span><input type="text" size="12"/><br/>
+						<span class="bold">lty:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
+						<span class="bold">lwd:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
+						<span class="bold">con_series:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
+						<span class="bold">legend:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
 					</span>
 				</td>
 			</tr>
@@ -230,7 +235,7 @@
 				<span id="spanFmtSeriesHR" style="padding-left:30px; padding-top:20px"><hr align="right" style="width:90%"/></span>
 			</td></tr>
 			</table>
-		</div><br/><br/>
+		</div>
 		
 		</td></tr><tr><td>
 		
@@ -254,7 +259,7 @@
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')" id="lnkSerBoot">Serialize</a><br/><br/>
 
 			<input type="checkbox" onchange="javascript:updateBoot()"/><span class="bold">Bootstrapping Enabled</span><br/><br/>
-			<table cellpadding="0" cellspacing="0">
+			<table id="tabBootParm" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
 					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1000"/></td>
 					<td align="right" style="padding-left:30px">boot_diff1:</td><td>&nbsp;<input type="text" size="12" value="FALSE"/></td>
@@ -272,7 +277,7 @@
 		
 	</span>&nbsp;</td></tr>
 
-	<tr>
+	<tr id="trDebug" style="display:none">
 		<td>
 		<hr/>
 		<span class="header">Regex Test</span>
