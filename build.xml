@@ -70,6 +70,10 @@
 		</copy>
 		<copy todir="${dist}/metviewer/WEB-INF/lib" file="${dist}/lib/metviewer.jar"/>
 		
+		<copy todir="${dist}/metviewer/doc">
+			<fileset dir="doc"/>
+		</copy>
+		
 		<!--
 		<jar destfile="${dist}/metviewer.war" basedir="${dist}/metviewer"/>
 		
