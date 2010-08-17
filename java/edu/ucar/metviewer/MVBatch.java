@@ -832,7 +832,7 @@ public class MVBatch extends MVUtil {
 						String strFcstVarComp = buildValueList(mapFcstVar.getStrPattern(strFcstVar));
 						
 						for(int j=0; j < listStatName.length; j++){
-							String strStatGroupLuId = (String)_tableStatIndex.get(listStatName[j]);							
+							String strStatGroupLuId = job.getBootstrapping()? "0" : (String)_tableStatIndex.get(listStatName[j]);				
 							stmt = job.getConnection().createStatement();
 							String strStatNameUpdate = 
 								"UPDATE job_data " +

@@ -3,7 +3,8 @@ library(boot);
 source("R_work/include/util_plot.R");
 
 # parse the command line arguments
-strInputInfoFile = "R_work/data/summer/thresh_series/APCP_03_GSS_NEC_00Zf24_UW_MEAN.boot.info";
+#strInputInfoFile = "R_work/data/thresh_series/APCP_03_GSS_FULL_00Zf12_UW_MEAN_MET.boot.info";
+strInputInfoFile = "R_work/data/thresh_series/APCP_03_PODY_FULL_00Zf12_UW_MEAN_MET.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -22,9 +23,11 @@ intNumBoots		= 0;
 
 # read the input data file into a data frame
 dfStatsRec = read.delim(strInputDataFile);
+intNumSeries = 1;
+if( 0 < length(listSeries2Val) ){ intNumSeries = 2; }
 
 # build a list for output permutations
-for(intSeries in 1:2){
+for(intSeries in 1:intNumSeries){
 	if( 1 == intSeries ){ listSeriesVal = listSeries1Val; boolDiff = boolDiff1; strDiffSeries = "__BOOT_DIFF1__"; listStat = listStat1; } 
 	if( 2 == intSeries ){ listSeriesVal = listSeries2Val; boolDiff = boolDiff2; strDiffSeries = "__BOOT_DIFF2__"; listStat = listStat2; } 
 
@@ -35,7 +38,7 @@ for(intSeries in 1:2){
 		strDiffVar = listSeriesVar[length(listSeriesVar)];
 		listOut[[strDiffVar]] = append(listOut[[strDiffVar]], strDiffSeries);
 	}
-	
+
 	# store the CI permutations for each series group
 	if( 1 == intSeries ){ matCIPerm1 = permute(listOut); }
 	if( 2 == intSeries ){ matCIPerm2 = permute(listOut); }
@@ -127,12 +130,11 @@ for(strIndyVal in listIndyVal){
 	dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
 	
 	# for each series group, bootstrap the statistics
-	for(intSeries in 1:2){
+	for(intSeries in 1:intNumSeries){
 
 		# build permutations for each plot series
 		if( 1 == intSeries ){ matPerm = permute(listSeries1Val); listStat = listStat1; matCIPerm = matCIPerm1; boolDiff = boolDiff1; }
 		if( 2 == intSeries ){ matPerm = permute(listSeries2Val); listStat = listStat2; matCIPerm = matCIPerm2; boolDiff = boolDiff2; }
-
 		listBoot = list();
 
 		# run the bootstrap flow for each series permutation
@@ -177,7 +179,7 @@ for(strIndyVal in listIndyVal){
 					listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
 				}
 				listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
-
+				
 				# calculate the confidence interval for the current stat and series permutation
 				stBootCI = Sys.time();
 				bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
@@ -196,7 +198,7 @@ for(strIndyVal in listIndyVal){
 			}
 		}
 	
-	} # end for(intSeries in 1:2)
+	} # end for(intSeries in 1:intNumSeries)
 } # end for(strIndy in listIndy)
 
 write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t");

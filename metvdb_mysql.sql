@@ -1,9 +1,9 @@
 -- This file is intended for MySQL
 
 use mysql;
-DROP DATABASE IF EXISTS metvdb_test;
-CREATE DATABASE metvdb_test;
-use metvdb_test;
+DROP DATABASE IF EXISTS metvdb_met_ncep;
+CREATE DATABASE metvdb_met_ncep;
+use metvdb_met_ncep;
 
 
 -- data_file_type_lu is a look-up table containing information about the different types

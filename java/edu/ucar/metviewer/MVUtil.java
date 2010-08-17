@@ -295,14 +295,6 @@ public class MVUtil{
 			String strVal = ((String)vals.get(strTmplTagName));			
 			
 			//  if there is a corresponding tag value map, use the map value			
-			/*
-			if( mapParms.containsKey("map") && mapParms.getStr("map").equalsIgnoreCase("true") &&
-					null != tmplMaps && tmplMaps.containsKey(strTmplTagName) ){
-					MVOrderedMap mapTmplVal = (MVOrderedMap)tmplMaps.get(strTmplTagName);
-					strVal = (mapTmplVal.containsKey(strVal)? mapTmplVal.getStr(strVal) : strVal);
-			}
-			*/
-			
 			if( mapParms.containsKey("map") ){
 				String strMapName = mapParms.get("map").toString();
 				if( strMapName.equalsIgnoreCase("true") ){
