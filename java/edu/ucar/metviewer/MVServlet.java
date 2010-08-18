@@ -3,6 +3,7 @@ package edu.ucar.metviewer;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.regex.*;
 import java.text.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -434,15 +435,28 @@ public class MVServlet extends HttpServlet {
     	//  run the plot job and write the batch output to the log file
     	ByteArrayOutputStream log = new ByteArrayOutputStream();
     	MVBatch bat = new MVBatch( new PrintStream(log) );
+		String strRErrorMsg = "";
     	try{
+    		//  configure the batch engine and run the job
 			bat._strRtmplFolder = parser.getRtmplFolder();
 			bat._strRworkFolder = parser.getRworkFolder();
 			bat._strPlotsFolder = parser.getPlotsFolder();    		
     		//bat._boolVerbose = true;
     		bat.runJob( job );
+    		String strPlotterOutput = log.toString();
+
+    		//  parse out R error messages, if present, throwing an exception if the error was fatal
+    		Matcher matOutput = Pattern.compile("(?sm)==== Start Rscript error  ====(.*)====   End Rscript error  ====").matcher(strPlotterOutput);
+    		if( matOutput.find() ){ strRErrorMsg = matOutput.group(1); }
+    		if( strPlotterOutput.contains("Execution halted") ){
+    			throw new Exception("R error");
+    		}
     	} catch(Exception e){
         	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
-        	return "<error>failed to run plot - reason: " + e.getMessage() + "</error>";        	
+        	return "<error>" +
+        				"failed to run plot - reason: " + e.getMessage() + 
+        				(!strRErrorMsg.equals("")? ":\n" + strRErrorMsg : "") + 
+        			"</error>";        	
     	}
     	_logger.debug("handlePlot() - batch output:\n" + log.toString());
     	
@@ -460,7 +474,7 @@ public class MVServlet extends HttpServlet {
     	String strTarCmd = "tar czvf ";
     	
     	
-    	return "<plot>" + strPlotPrefix + "</plot>";
+    	return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("")? "<r_error>" + strRErrorMsg + "</r_error>": "");
     }
 
 }

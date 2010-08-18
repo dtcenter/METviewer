@@ -628,6 +628,9 @@ public class MVPlotJobParser extends MVUtil{
 			}
 		}
 		
+		//  if there are no bootstrapping CIs specified, turn off bootstrapping
+		if( job.getBootstrapping() && !job.getPlotCI().contains("boot") ){ job.setBootstrapping(false); }
+		
 		return job;
 	}
 	

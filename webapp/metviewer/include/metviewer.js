@@ -8,7 +8,7 @@ var _strDBCon = "";
 var _boolDBStatus = false;
 
 var _intDebugState = 0;
-var _boolDebugDisp = false;
+var _boolDebugDisp = true;
 var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "Indy", "FmtPlot", "FmtSeries", "Boot"];
 
 var _intDepIdNext = 1;
@@ -124,10 +124,10 @@ function onLoad(){
 	var trFmtPlot = document.getElementById("trFmtPlotBool");
 	var selBool1 = trFmtPlot.cells[1].getElementsByTagName("select")[0];
 	selBool1.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ selBool1.attachEvent("onchange", new Function("buildSeriesDiv()")); }	
+ 	if( _boolIE ){ selBool1.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 	var selBool2 = trFmtPlot.cells[2].getElementsByTagName("select")[0];
 	selBool2.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }	
+ 	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 
 	//  add the text formatting options
 	addFmtPlot("plot_type",		"png16m",	"txt");
@@ -270,7 +270,7 @@ function setDebugDisp(show){
 	
 	//  update the visibility of the Serialize links
 	for(var i=0; i < _listLnkSer.length; i++){
-		document.getElementById("lnkSer" + _listLnkSer[i]).style.display = (show? "inline" : "none");		
+		document.getElementById("lnkSer" + _listLnkSer[i]).style.display = (show? "inline" : "none");
 	}
 	
 	_boolDebugDisp = show;
@@ -357,7 +357,7 @@ function parseListValResp(strResp, strType){
 /**
  * It is assumed that the input list contains strings.  The elements of list are searched for an
  * exact match to the input string val and the first index containing a match is returned.  If no
- * match is found, -1 is returned. 
+ * match is found, -1 is returned.
  */
 function listSearch(val, list){
 	for(i in list){ if( list[i] == val ){ return i; } }
@@ -386,13 +386,13 @@ function updatePlotData(){
 }
 
 /**
- * Clear all variable/value controls and reset the select lists to the currently selected lists of 
+ * Clear all variable/value controls and reset the select lists to the currently selected lists of
  * fcst_var and variables.
  */
 function clearControls(){
 
 	//  reset the dep stat controls
-	clearDepStat(_listDep1Div[0].getElementsByTagName("input")[1].value);	
+	clearDepStat(_listDep1Div[0].getElementsByTagName("input")[1].value);
 	while( 1 < _listDep1Div.length ){ removeDep1Var(_listDep1Div[1].getElementsByTagName("input")[1].value); }
 	while( 0 < _listDep2Div.length ){ removeDep2Var(_listDep2Div[0].getElementsByTagName("input")[1].value); }
 	listFcstVar1Req(0);
@@ -419,7 +419,7 @@ function clearControls(){
 }
 
 /**
- * Construct a list of RGBA color hex represenations with the specified length and format #RRGGBBAA, 
+ * Construct a list of RGBA color hex represenations with the specified length and format #RRGGBBAA,
  * where the colors are spaced equally along the rainbow spectrum.
  */
 function rainbow(num){
@@ -434,8 +434,8 @@ function rainbow(num){
 }
 
 /**
- * Create a hex representation of the specified "rainbow" color along the spectrum from 0 (red, 
- * FF0000) to 1 (violet, FF00FF).   
+ * Create a hex representation of the specified "rainbow" color along the spectrum from 0 (red,
+ * FF0000) to 1 (violet, FF00FF).
  */
 function interpolateColor(rel){
 	if     ( rel < 0.0 ) { return "FF0000"; }
@@ -456,7 +456,7 @@ function interpolateColor(rel){
 
 /**
  * Create the two character hexadecimal representation of specified value, multiplied by 255.  The
- * intended use is to create an RGB representation with 8-bit color depth. 
+ * intended use is to create an RGB representation with 8-bit color depth.
  */
 function hex(val){
 	var strRet = Math.round(val * 255).toString(16).toUpperCase();
@@ -508,7 +508,7 @@ function sendRequest(reqType, reqData, fnResp){
 
 			//  dispatch the response
 			console("sendRequest() - response: " + strResp + "\n\n");
-			var listParse = strResp.match( /<error>(.*)<\/error>/ );
+			var listParse = strResp.match( /<error>([\s\S]*)<\/error>/ );
 			if( null != listParse ){ alert("METViewer error: " + listParse[1]); }
 			else                   { fnResp(strResp);                           }
 			dimScreen(false);
@@ -567,7 +567,8 @@ function updateDBCon(){
 	_strDBCon = selDB.options[selDB.selectedIndex].text;
 	console("updateDBCon() - _strDBCon: " + _strDBCon + "\n\n");
 
-	//  populate the dep list of fcst_var
+	//  reset the controls
+	clearControls();
 	listFcstVar1Req(0);
 }
 
@@ -661,7 +662,7 @@ function selectFcstVarReq(intId){
 					"<list_stat><id>" + intId + "</id><" + _strPlotData + "_fcst_var>" + selFcstVar.options[selFcstVar.selectedIndex].text +
 						"</" + _strPlotData + "_fcst_var></list_stat>",
 					selectFcstVarResp);
-	} 
+	}
 	
 	//  otherwise, use the static list of mode stats
 	else {
@@ -689,7 +690,7 @@ function selectFcstVarResp(strResp){
 function buildFcstVarCrit(intY){
 	
 	//  determine the list of dep divs to consider
-	var listDepDiv; 
+	var listDepDiv;
 	if     ( 1 == intY ){ listDepDiv = _listDep1Div; }
 	else if( 2 == intY ){ listDepDiv = _listDep2Div; }
 	else                { listDepDiv = _listDep1Div.concat(_listDep2Div); }
@@ -705,8 +706,8 @@ function buildFcstVarCrit(intY){
 }
 
 /**
- * Clears the dep stat select control of the specified index when a change is made to the fcst_var 
- * select 
+ * Clears the dep stat select control of the specified index when a change is made to the fcst_var
+ * select
  */
 function clearDepStat(intIndex){
 	//var selStat = _listDep1Div[intIndex].getElementsByTagName("select")[1];
@@ -736,8 +737,8 @@ function addFieldValDiv(category, listDiv){
 	divFieldVal.id = "divFieldVal" + intId;
 	var selVar = divFieldVal.getElementsByTagName("select")[0];
 	selVar.id = "selFieldVal" + intId;
-	selVar.setAttribute("onchange", "javascript:clearFieldVal(selVal" + intId + ")");
- 	if( _boolIE ){ selVar.attachEvent("onchange", new Function("clearFieldVal(selVal" + intId + ")")); }
+	selVar.setAttribute("onchange", "javascript:clearFieldVal(" + intId + ")");
+ 	if( _boolIE ){ selVar.attachEvent("onchange", new Function("clearFieldVal(" + intId + ")")); }
 	var btnFieldVal = divFieldVal.getElementsByTagName("input")[0];
 	btnFieldVal.setAttribute("onclick", "javascript:select" + category + "VarReq(" + intId + ")");
 	if( _boolIE ){ btnFieldVal.attachEvent("onclick", new Function("select" + category + "VarReq(" + intId + ")")); }
@@ -745,6 +746,15 @@ function addFieldValDiv(category, listDiv){
 	clearSelect(selVal);
 	selVal.style.display = "none";
 	selVal.id = "selVal" + intId;
+	var tdFieldMove = divFieldVal.getElementsByTagName("td")[1];
+	tdFieldMove.id = "tdFieldMove" + intId;
+	tdFieldMove.style.display = "none";
+	var imgFieldUp = divFieldVal.getElementsByTagName("img")[0];
+	imgFieldUp.setAttribute("onclick", "javascript:move" + category + "FieldUp(" + intId + ")");
+	if( _boolIE ){ imgFieldUp.attachEvent("onclick", new Function("move" + category + "FieldUp(" + intId + ")")); }
+	var imgFieldDown = divFieldVal.getElementsByTagName("img")[1];
+	imgFieldDown.setAttribute("onclick", "javascript:move" + category + "FieldDown(" + intId + ")");
+	if( _boolIE ){ imgFieldDown.attachEvent("onclick", new Function("move" + category + "FieldDown(" + intId + ")")); }
 	divFieldVal.getElementsByTagName("span")[1].id = "lnkRemoveFieldVal" + intId;
 	var lnkRemove = divFieldVal.getElementsByTagName("a")[0];
 	lnkRemove.setAttribute("onclick", "javascript:remove" + category + "Div(" + intId + ")");
@@ -811,8 +821,9 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
  * Handle the specified <list_val> response XML (strResp), populating the div from the input list with the
  * id contained in the response <id>.  The div id is determined by examining the hidden field with the
  * specified index (intIdIndex).  The select control of the specified index (intSelIndex) will be populated.
+ * The field ordering arrows will be displayed as specified.
  */
-function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
+function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex, showArrows){
 
 	//  parse the response
 	var resp = parseListValResp(strResp, "val");
@@ -828,17 +839,67 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex){
 	//  add the field values to the value select list
 	var selVal = listDiv[intIndex].getElementsByTagName("select")[intSelIndex];
 	selVal.style.display = "inline";
+	if( showArrows ){
+		listDiv[intIndex].getElementsByTagName("td")[1].style.display = "table-cell";
+	}
 	fillSelect(selVal, resp.vals);
 
 }
 
 /**
  * Clears the specified field value select control of the specified index when a change is made
- * to the field var 
+ * to the field var
  */
-function clearFieldVal(selVal){
+function clearFieldVal(intId){
+	var selVal = document.getElementById("selVal" + intId);
 	clearSelect(selVal);
 	selVal.style.display = "none";
+	document.getElementById("tdFieldMove" + intId).style.display = "none";
+}
+
+/**
+ * Move the currently selected item in the select value control in the specified list with the
+ * specified id up one place.  This function will not attempt to do anything if there are fewer
+ * than two items in the select list, or if the first item is selected. 
+ */
+function moveFieldUp(listDiv, intId){
+	
+	//  find the selected element, and bail if there is not exactly one
+	var selVal = document.getElementById("selVal" + intId);
+	var listSel = getSelected(selVal);
+	var intSel = selVal.selectedIndex;
+	if( 2 > selVal.options.length || 1 != listSel.length || intSel == 0 ){ return; }
+	
+	//  move the selected option
+	//var optMove = selVal.options[intSel].cloneNode(true);
+	var optMove = document.createElement("option");
+	optMove.text = selVal.options[intSel].text;
+	selVal.remove(intSel);
+	if( _boolIE ){ selVal.add(optMove, intSel - 1); }
+	else         { selVal.add(optMove, selVal.options[intSel - 1]); }
+	selVal.selectedIndex = intSel - 1;
+}
+
+/**
+ * Move the currently selected item in the select value control in the specified list with the
+ * specified id down one place.  This function will not attempt to do anything if there are fewer
+ * than two items in the select list, or if the list item is selected. 
+ */
+function moveFieldDown(listDiv, intId){
+
+	//  find the selected element, and bail if there is not exactly one
+	var selVal = document.getElementById("selVal" + intId);
+	var listSel = getSelected(selVal);
+	var intSel = selVal.selectedIndex;
+	if( 2 > selVal.options.length || 1 != listSel.length || intSel == selVal.options.length - 1 ){ return; }
+	
+	//  move the selected option
+	var optMove = document.createElement("option");
+	optMove.text = selVal.options[intSel].text;
+	selVal.remove(intSel);
+	if( _boolIE ){ selVal.add(optMove, intSel >= selVal.options.length - 1? null : intSel + 1); }
+	else         { selVal.add(optMove, intSel >= selVal.options.length - 1? null : selVal.options[intSel + 1]); }
+	selVal.selectedIndex = intSel + 1;
 }
 
 
@@ -854,7 +915,9 @@ function clearFieldVal(selVal){
 function addSeries1Div()               { addSeriesDiv(1); }
 function removeSeries1Div(intId)       { removeSeriesDiv(1, intId); }
 function selectSeries1VarReq(intId)    { selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp, 1); }
-function selectSeries1VarResp(strResp) { selectFieldResp(strResp, _listSeries1Div, 1, 1); }
+function selectSeries1VarResp(strResp) { selectFieldResp(strResp, _listSeries1Div, 1, 1, true); }
+function moveSeries1FieldUp(intId)     { moveFieldUp(_listSeries1Div, intId); }
+function moveSeries1FieldDown(intId)   { moveFieldDown(_listSeries1Div, intId); }
 
 /**
  * Handlers to add and remove a series2 div and process select requests and responses
@@ -862,10 +925,12 @@ function selectSeries1VarResp(strResp) { selectFieldResp(strResp, _listSeries1Di
 function addSeries2Div()               { addSeriesDiv(2); }
 function removeSeries2Div(intId)       { removeSeriesDiv(2, intId); }
 function selectSeries2VarReq(intId)    { selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp, 2); }
-function selectSeries2VarResp(strResp) { selectFieldResp(strResp, _listSeries2Div, 1, 1); }
+function selectSeries2VarResp(strResp) { selectFieldResp(strResp, _listSeries2Div, 1, 1, true); }
+function moveSeries2FieldUp(intId)     { moveFieldUp(_listSeries2Div, intId); }
+function moveSeries2FieldDown(intId)   { moveFieldDown(_listSeries2Div, intId); }
 
 /**
- * Build and add a series div for the specified series with configured controls 
+ * Build and add a series div for the specified series with configured controls
  */
 function addSeriesDiv(intSeries){
 	//  determine the appropriate div list
@@ -913,7 +978,7 @@ function selectFixVarReq(intId){
 	}
 	selectFieldReq(intId, _listFixDiv, intIndexCrit - 1, selectFixVarResp);
 }
-function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1); }
+function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1, false); }
 
 /**
  * Construct a string of database field and value criteria that reflects the selected fields and values in
@@ -1068,10 +1133,10 @@ function addFmtPlot(label, value, type){
 }
 
 /**
- * Toggle the visibility of the plot formatting controls 
+ * Toggle the visibility of the plot formatting controls
  */
 function handleFmtPlotTxtDisp(){ handleFmtDisp("PlotTxt"); }
-function handleFmtSeriesDisp() { handleFmtDisp("Series");  }	
+function handleFmtSeriesDisp() { handleFmtDisp("Series");  }
 function handleFmtDisp(type){
 	var spanDisp = document.getElementById("spanFmt" + type + "Disp");
 	var tab = document.getElementById("tabFmt" + type);
@@ -1084,7 +1149,7 @@ function handleFmtDisp(type){
 		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "inline"; }
 	} else {
 		spanMsg.innerHTML = "Show Formatting Controls";
-		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_right.gif";		
+		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_right.gif";
 		tab.style.display = "none";
 		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "none"; }
 	}
@@ -1101,13 +1166,13 @@ function buildSeriesDiv(){
 	//  build a table containing all current series settings
 	var table = new Hashtable();
 	if( tabFmtSeries.style.display != "none" ){
-		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){		
+		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
 			var listSpan = tabFmtSeries.rows[intRow].getElementsByTagName("span");
 			var listInput = tabFmtSeries.rows[intRow].getElementsByTagName("input");
 			if( listInput[0].value == "false" ){ continue; }
 			
 			//  get the series name and values and put them in the table
-			var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;		
+			var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;
 			var strFmt = "";
 			for(var j=0; j < 9; j++){ strFmt += (0 < j? "|" : "") + listInput[j].value; }
 			
@@ -1126,7 +1191,7 @@ function buildSeriesDiv(){
 	for(var intY=1; intY <= 2; intY++){
 
 		var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
-		var listSeriesPerm = (1 == intY? listSeries1Perm : listSeries2Perm);	
+		var listSeriesPerm = (1 == intY? listSeries1Perm : listSeries2Perm);
 			
 		//  for each dep div, consider the fcst_var and selected stats
 		for(var intDep=0; intDep < listDepDiv.length; intDep++){
@@ -1204,11 +1269,11 @@ function buildSeriesDiv(){
 					if( undefined != strVal ){
 						var listVal = strVal.split("|");
 						for(var i=0; i < 9; i++){ listInput[i].value = listVal[i]; }
-					} 
+					}
 					
 					//  otherwise, apply default settings
 					else {
-						for(var i=0; i < 9; i++){ listInput[i].value = _listFmtSeriesDefaults[i]; } 
+						for(var i=0; i < 9; i++){ listInput[i].value = _listFmtSeriesDefaults[i]; }
 					}
 					
 					_intNumSeries++;
@@ -1225,7 +1290,7 @@ function buildSeriesDiv(){
 	var listColors = rainbow(_intNumSeries);
 	for(var i=0; i < _intNumSeries; i++){
 		var txtColor = tabFmtSeries.rows[2*i].getElementsByTagName("input")[2];
-		if( "" == txtColor.value ){ txtColor.value = listColors[i]; }		
+		if( "" == txtColor.value ){ txtColor.value = listColors[i]; }
 	}
 	
 	//  show or hide the controls, depending on the number of series
@@ -1235,8 +1300,8 @@ function buildSeriesDiv(){
 }
 
 /**
- * Sets the value of the specified series modification indicator control to the specified value, 
- * defaulting to true (modified). 
+ * Sets the value of the specified series modification indicator control to the specified value,
+ * defaulting to true (modified).
  */
 function setFmtSeriesMod(series, val){
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
@@ -1245,8 +1310,8 @@ function setFmtSeriesMod(series, val){
 }
 
 /**
- * Reset all series controls to their default values and set all series modification indicator 
- * controls to false (unmodified). 
+ * Reset all series controls to their default values and set all series modification indicator
+ * controls to false (unmodified).
  */
 function setFmtSeriesDefaults(){
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
@@ -1256,8 +1321,8 @@ function setFmtSeriesDefaults(){
 
 
 /**
- * Build a list of all series variable combinations for the specified list of series field divs, 
- * starting with the div at the specified index (0 for all permutations).  If a difference curve 
+ * Build a list of all series variable combinations for the specified list of series field divs,
+ * starting with the div at the specified index (0 for all permutations).  If a difference curve
  * is specified, add it to the series.
  */
 function permuteSeries(listSeriesDiv, intIndex, boolDiff){
@@ -1284,7 +1349,7 @@ function permuteSeries(listSeriesDiv, intIndex, boolDiff){
 }
 
 /**
- * Return the boolean value of the format setting for plotN_diff, where N is specified as either 
+ * Return the boolean value of the format setting for plotN_diff, where N is specified as either
  * 1 or 2
  */
 function getPlotDiff(y){
@@ -1315,12 +1380,6 @@ function updateBoot(){
 	var divBoot = document.getElementById("divBoot");
 	var chkBoot = divBoot.getElementsByTagName("input")[0];
 	document.getElementById("tabBootParm").style.display = (chkBoot.checked? "table" : "none");
-	/*
-	divBoot.getElementsByTagName("input")[1].disabled = !chkBoot.checked;
-	divBoot.getElementsByTagName("input")[2].disabled = !chkBoot.checked;
-	divBoot.getElementsByTagName("input")[3].disabled = !chkBoot.checked;
-	divBoot.getElementsByTagName("input")[4].disabled = !chkBoot.checked;
-	*/
 }
 
 
@@ -1340,7 +1399,7 @@ function buildPlotXML(){
 	var strDepXML = "";
 	
 	//  <template>
-	strDepXML += "<template>" + getSelected( document.getElementById("selTemplate") )[0] + ".R_tmpl</template>";	
+	strDepXML += "<template>" + getSelected( document.getElementById("selTemplate") )[0] + ".R_tmpl</template>";
 	
 	//  <dep>
 	strDepXML += "<dep>";
@@ -1390,7 +1449,7 @@ function buildPlotXML(){
 	for(var i=0; i < tabFmtPlotBool.rows.length; i++){
 		for(var j=0; j < tabFmtPlotBool.rows[i].cells.length; j++){
 			var listSpan = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("span");
-			var listSel = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select");			
+			var listSel = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select");
 			if( null == listSel || 1 > listSel.length ){ continue; }
 			var strName = listSpan[1].innerHTML.replace(/:$/, "");
 			strDepXML += "<" + strName + ">" + getSelected(listSel[0])[0] + "</" + strName + ">";
@@ -1402,7 +1461,7 @@ function buildPlotXML(){
 	for(var i=0; i < tabFmtPlotTxt.rows.length; i++){
 		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){
 			var listSpan = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("span");
-			var listInput = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("input");			
+			var listInput = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("input");
 			if( null == listInput || 1 > listInput.length ){ continue; }
 			var strName = listSpan[1].innerHTML.replace(/:$/, "");
 			strDepXML += "<" + strName + ">" + listInput[0].value + "</" + strName + ">";
@@ -1441,11 +1500,23 @@ function buildPlotXML(){
 	strDepXML +=  "<y2_lim>" + listInput[2].value + "</y2_lim>";
 	strDepXML += "<y2_bufr>" + listInput[3].value + "</y2_bufr>";
 	
+	//  bootstrapping
+	var chkBoot = document.getElementById("chkBoot");
+	if( chkBoot.checked ){
+		var listBootParm = document.getElementById("tabBootParm").getElementsByTagName("input");
+		strDepXML += "<bootstrapping>";
+		strDepXML += 	 "<boot_repl>" + listBootParm[0].value + "</boot_repl>";
+		strDepXML += 	"<boot_diff1>" + listBootParm[1].value + "</boot_diff1>";
+		strDepXML += 	   "<boot_ci>" + listBootParm[2].value + "</boot_ci>";
+		strDepXML +=	"<boot_diff2>" + listBootParm[3].value + "</boot_diff2>";
+		strDepXML += "</bootstrapping>";		
+	}
+	
 	return strDepXML;
 }
 
 /**
- * Build an XML structure with specified field tag and value tag from the information selected 
+ * Build an XML structure with specified field tag and value tag from the information selected
  * in the specified list of div controls
  */
 function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField){
@@ -1464,9 +1535,12 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField){
 
 function runPlotReq(){ sendRequest("POST", "<plot>" + buildPlotXML() + "</plot>", runPlotResp); }
 function runPlotResp(strResp){
+	if( null != (listProc = strResp.match( /<r_error>([\s\S]*)<\/r_error>/ )) ){
+		alert("R error message:\n" + listProc[1]);
+	}
 	if( null != (listProc = strResp.match( /<plot>(.*)<\/plot>/ )) ){
 		var strPlot = listProc[1];
-		var win = window.open("plot.html", "METViewer - " + strPlot);
+		var win = window.open("plot.html", strPlot);
 	}
 }
 

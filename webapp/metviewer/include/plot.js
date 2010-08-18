@@ -3,7 +3,7 @@ function onLoad(){
 console("onLoad()\n");
 
 	//  parse the elements to build the plot, xml and script URLs
-	var strPlotBase = window.name.substring(12);
+	var strPlotBase = window.name;
 	var strURLBase = window.location.href;
 	strURLBase = strURLBase.substring(0, strURLBase.lastIndexOf("/"));
 	

@@ -1,9 +1,6 @@
 library(boot);
 
-source("R_work/include/util_plot.R");
-
 # parse the command line arguments
-#strInputInfoFile = "R_work/data/thresh_series/APCP_03_GSS_FULL_00Zf12_UW_MEAN_MET.boot.info";
 strInputInfoFile = "R_work/data/thresh_series/APCP_03_PODY_FULL_00Zf12_UW_MEAN_MET.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {

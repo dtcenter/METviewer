@@ -1109,6 +1109,8 @@ public class MVBatch extends MVUtil {
 							if( !fileBootOutput.exists() || !_boolCacheBoot ){
 								fileBootOutput.getParentFile().mkdirs();
 								runRscript(job.getRscript(), _strRworkFolder + "include/boot.R", new String[]{strBootInfo});
+								
+								if( !fileBootOutput.exists() ){ throw new Exception("boot.R failed"); }
 							}
 		
 							//  if boot_diffN is turned on, add __BOOT_DIFFN__ to the plot series

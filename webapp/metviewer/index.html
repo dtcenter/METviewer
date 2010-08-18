@@ -100,15 +100,25 @@
 		</td></tr><tr><td class="grey">
 
 		<div id="divFieldVal" style="display:none">
-			<span class="bold" style="padding-left: 20px; padding-right:10px">Database Field:</span>
-			<select id="selField"></select>&nbsp;
-			<input type="button" class="gButton" onclick="javascript:selectFieldReq()" value="Values &#187;"/>&nbsp;&nbsp;
-			<select id="selVal" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
-			<span id="lnkRemove">
-				<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-				<a class="link" onclick="javascript:removeFieldVal()">Remove Field</a>
-			</span>
-			<input type="hidden" value=""/><br/><br/>
+			<table><tr>
+			<td>
+				<span class="bold" style="padding-left: 20px; padding-right:10px">Database Field:</span>
+				<select id="selField"></select>&nbsp;
+				<input type="button" class="gButton" onclick="javascript:selectFieldReq()" value="Values &#187;"/>&nbsp;&nbsp;
+				<select id="selVal" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5"></select>&nbsp;&nbsp;
+			</td>
+			<td>
+				<img src="include/arrow_up.gif"/><br/><br/>
+				<img src="include/arrow_down.gif"/>			
+			</td>
+			<td style="padding-left:30px">			
+				<span id="lnkRemove">
+					<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+					<a class="link" onclick="javascript:removeFieldVal()">Remove Field</a>
+				</span>
+				<input type="hidden" value=""/>
+			</td>
+			</tr></table><br/><br/>
 		</div>
 		
 		<div id="divFix">
@@ -268,7 +278,7 @@
 			<span class="stdTiny">(<a href="doc/plot.html#boot" target="_blank">help</a>)</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')" id="lnkSerBoot">Serialize</a><br/><br/>
 
-			<input type="checkbox" onchange="javascript:updateBoot()"/><span class="bold">Bootstrapping Enabled</span><br/><br/>
+			<input id="chkBoot" type="checkbox" onclick="javascript:updateBoot()"/><span class="bold">Bootstrapping Enabled</span><br/><br/>
 			<table id="tabBootParm" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
 					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1000"/></td>
