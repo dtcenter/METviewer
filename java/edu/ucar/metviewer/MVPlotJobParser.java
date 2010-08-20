@@ -824,6 +824,7 @@ public class MVPlotJobParser extends MVUtil{
 		String strStart = "";
 		String strEnd = "";
 		String strHour = "";
+		ArrayList listVals = new ArrayList();
 		
 		for(int i=0; i < nodeDateList._children.length; i++){
 			MVNode nodeChild = nodeDateList._children[i];
@@ -831,6 +832,7 @@ public class MVPlotJobParser extends MVUtil{
 			else if( nodeChild._tag.equals("hour")  )	{ strHour  = nodeChild._value; }			
 			else if( nodeChild._tag.equals("start") )	{ strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0]) : nodeChild._value); }
 			else if( nodeChild._tag.equals("end")   )	{ strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0]) : nodeChild._value); }
+			else if( nodeChild._tag.equals("val")   )	{ strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0]) : nodeChild._value); }
 		}
 		
 		return buildDateAggList(con, strField, strStart, strEnd, strHour);

@@ -28,7 +28,7 @@ var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 
-var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "INIT_HOUR"];
+var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "INIT_HOUR", "FCST_VALID_BEG"];
 var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "INIT_HOUR"];
 var _listIndyVar = _listIndyVarStat;
 var _intIndyValIdNext = 0;
@@ -108,6 +108,8 @@ function onLoad(){
 
 	//  add the boolean formatting option controls
 	addFmtPlot("event_equal",	"false",	"bool");
+	addFmtPlot("vert_plot",		"false",	"bool");
+	addFmtPlot("x_reverse",		"false",	"bool");
 	addFmtPlot("plot1_diff",	"false",	"bool");
 	addFmtPlot("plot2_diff",	"false",	"bool");
 	addFmtPlot("num_stats",		"false",	"bool");
@@ -121,11 +123,11 @@ function onLoad(){
 	addFmtPlot("log_y2",		"false",	"bool");
 
 	//  add onchange listeners to the plot_diff controls
-	var trFmtPlot = document.getElementById("trFmtPlotBool");
-	var selBool1 = trFmtPlot.cells[1].getElementsByTagName("select")[0];
+	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
+	var selBool1 = tabFmtPlot.rows[0].cells[3].getElementsByTagName("select")[0];
 	selBool1.setAttribute("onchange", "javascript:buildSeriesDiv()");
  	if( _boolIE ){ selBool1.attachEvent("onchange", new Function("buildSeriesDiv()")); }
-	var selBool2 = trFmtPlot.cells[2].getElementsByTagName("select")[0];
+	var selBool2 = tabFmtPlot.rows[1].cells[0].getElementsByTagName("select")[0];
 	selBool2.setAttribute("onchange", "javascript:buildSeriesDiv()");
  	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 
@@ -1403,17 +1405,17 @@ function buildPlotXML(){
 	
 	//  <dep>
 	strDepXML += "<dep>";
-	strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true) + "</dep1>";
-	strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true) + "</dep2>";
+	strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true, false) + "</dep1>";
+	strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true, false) + "</dep2>";
 	strDepXML += "<fix></fix></dep>";
 	
 	//  <series1> and <series2>
 	var strSeriesXML = "";
-	strDepXML += "<series1>" + buildFieldValXML("field", "val", _listSeries1Div, false) + "</series1>";
-	strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false) + "</series2>";
+	strDepXML += "<series1>" + buildFieldValXML("field", "val", _listSeries1Div, false, false) + "</series1>";
+	strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false, false) + "</series2>";
 	
 	//  <plot_fix>
-	strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false) + "</plot_fix>";
+	strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) + "</plot_fix>";
 	strDepXML += "<agg></agg>";
 	
 	//  <indep>
@@ -1492,6 +1494,9 @@ function buildPlotXML(){
 		strDepXML += "<legend>c(" + listFmtSeries[7] + ")</legend>";
 	}
 	
+	var strPlotCmd = document.getElementById("txtPlotCmd").value;
+	if( "" != strPlotCmd ){ strDepXML += "<plot_cmd>" + strPlotCmd + "</plot_cmd>"; }
+	
 	//  axis formatting
 	var divFmtAxis = document.getElementById("divFmtAxis");
 	listInput = divFmtAxis.getElementsByTagName("input");
@@ -1519,15 +1524,18 @@ function buildPlotXML(){
  * Build an XML structure with specified field tag and value tag from the information selected
  * in the specified list of div controls
  */
-function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField){
+function buildFieldValXML(strFieldTag, strValTag, listDiv, boolCapField, boolSet){
 	var strXML = "";
 	for(i in listDiv){
 		var listSel = listDiv[i].getElementsByTagName("select");
 		var strVar = getSelected( listSel[0] )[0];
 		if( !boolCapField ){ strVar = strVar.toLowerCase(); }
-		var listVal = getSelected( listSel[1] );
+		else               { strVar = strVar.toUpperCase(); }
+		var listVal = getSelected( listSel[1] );		
 		strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
+		if( 1 < listVal.length && boolSet ){ strXML += "<set name=\"" + strVar + "_" + i + "\">"; }
 		for(j in listVal){ strXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
+		if( 1 < listVal.length && boolSet ){ strXML += "</set>"; }
 		strXML += "</" + strFieldTag + ">";
 	}
 	return strXML;

@@ -48,33 +48,33 @@
 		<plot_fix>
 			<field name="fcst_init_beg">
 				<date_range name="year"/>
-<!--				<date_range name="summer"/>-->
-<!--				<date_range name="fall"/>-->
-<!--				<date_range name="winter"/>-->
-<!--				<date_range name="spring"/>-->
+				<date_range name="summer"/>
+				<date_range name="fall"/>
+				<date_range name="winter"/>
+				<date_range name="spring"/>
 			</field>
 		</plot_fix>
 
 		<agg>
 			<field name="init_hour">
 				<val>0</val>
-<!--				<val>12</val>-->
+				<val>12</val>
 			</field>
 			
 			<field name="interp_mthd">
 				<val>UW_MEAN</val>
-<!--				<val>DW_MEAN</val>-->
+				<val>DW_MEAN</val>
 			</field>
 			
 			<field name="vx_mask">
 				<val>FULL</val>
-<!--				<val>GMC</val>-->
-<!--				<val>NEC</val>-->
-<!--				<val>NWC</val>-->
-<!--				<val>SEC</val>-->
-<!--				<val>SWC</val>-->
-<!--				<val>APL</val>-->
-<!--				<val>GRB</val>-->
+				<val>GMC</val>
+				<val>NEC</val>
+				<val>NWC</val>
+				<val>SEC</val>
+				<val>SWC</val>
+				<val>APL</val>
+				<val>GRB</val>
 <!--				<val>LMV</val>-->
 <!--				<val>MDW</val>-->
 <!--				<val>NMT</val>-->

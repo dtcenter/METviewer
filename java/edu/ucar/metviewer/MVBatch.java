@@ -227,7 +227,7 @@ public class MVBatch extends MVUtil {
 		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
 			Map.Entry[] listPlotFixVal = listPlotFixPerm[intPlotFix].getOrderedEntries();
 			
-			//  add the fixed values to the template value map
+			//  add the fixed values to the template value map, and insert set values for this permutation
 			for(int i=0; i < listPlotFixVal.length; i++){
 				String strFixVar = listPlotFixVal[i].getKey().toString();
 				String strFixVal = listPlotFixVal[i].getValue().toString();
@@ -241,8 +241,24 @@ public class MVBatch extends MVUtil {
 					}
 				}
 				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
+				
 			}
 			
+			//  replace fixed value set names with their value maps
+			ArrayList listPlotFixValAdj = new ArrayList();
+			for(int i=0; i < listPlotFixVal.length; i++){
+				String strFixVar = listPlotFixVal[i].getKey().toString();
+				if( !strFixVar.endsWith("_set") ){
+					listPlotFixValAdj.add(listPlotFixVal[i]);
+					continue;
+				}
+				
+				String strFixVarAdj = strFixVar.replaceAll("_set$", "");
+				MVOrderedMap mapFixSet = (MVOrderedMap)mapPlotFixVal.get( strFixVarAdj );
+				listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet) );
+			}
+			listPlotFixVal = (Map.Entry[])listPlotFixValAdj.toArray(new Map.Entry[]{});
+
 			//  if the independent variable uses a dependency, populate the values
 			MVPlotDep depIndy = job.getIndyDep();
 			if( null != depIndy ){

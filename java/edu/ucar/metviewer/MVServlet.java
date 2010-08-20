@@ -344,7 +344,9 @@ public class MVServlet extends HttpServlet {
 		int intNumStat = 0;
 		ResultSet res = stmt.getResultSet();
 		while( res.next() ){
-			strResp += "<val>" + res.getString(1) + "</val>";
+			String strStat = res.getString(1);			
+			strResp += "<val>" + strStat + "</val>";
+			if( "BCMSE".equals(strStat) ){ strResp += "<val>BCRMSE</val>"; }
 			intNumStat++;
 		}
 		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
