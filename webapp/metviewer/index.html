@@ -186,10 +186,15 @@
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divFmtPlot')" id="lnkSerFmtPlot">Serialize</a><br/><br/>
 
 			<table id="tabFmtPlotBool" cellspacing="0" cellpadding="0" border="0"><tr id="trFmtPlotBool">
-				<td align="right">&nbsp;
-					<span id="spanFmtPlotBool" style="padding-right:38px">
-						<span>Bool Field:</span>
-						<select><option>true</option><option>false</option></select>
+				<td align="right">
+					<span id="spanFmtPlotBool">
+						<table border="0" cellpadding="0" cellspacing="0" style="padding-bottom:10px">
+							<tr>
+								<td class="fmtLabel" align="right">Bool Field</td>
+								<td rowspan="2"><select><option>true</option><option>false</option></select></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">bool_field</td></tr>
+						</table>
 					</span>
 				</td>
 			</tr></table><br/><br/>
@@ -198,15 +203,28 @@
 				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Plot Formatting</span>			
 			</span><br/><br/>
 			<table id="tabFmtPlotTxt" cellspacing="0" cellpadding="0" border="0" style="display:none"><tr id="trFmtPlotTxt">
-				<td align="right">&nbsp;
+				<td align="right">
 					<span id="spanFmtPlotTxt">
-						<span>Format Field:</span>
-						<input type="text" size="12"/>
+						<table border="0" cellpadding="0" cellspacing="0" style="padding-bottom:10px">
+							<tr>
+								<td class="fmtLabel" align="right">Format Field</td>
+								<td rowspan="2"><input type="text" size="12"/><select style="min-width:100px"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">fmt_field</td></tr>
+						</table>					
 					</span>
 				</td>
 			</tr></table><br/>
 			
-			<span style="padding-left:100px">plot_cmd: <input id="txtPlotCmd" type="text" size="80"/></span><br/><br/>
+			<span id="spanFmtPlotCmd" style="display:none">
+				<table border="0" cellpadding="0" cellspacing="0" style="padding-left:28px; padding-bottom:10px">
+					<tr>
+						<td class="fmtLabel" align="right">Plot Script Commands</td>
+						<td rowspan="2"><input id="txtPlotCmd" type="text" size="80"/></td>
+					</tr>
+					<tr><td class="fmtTag" align="right">plot_cmd</td></tr>
+				</table>			
+			</span>
 		</div><br/><br/>
 
 		</td></tr><tr><td class="grey">
@@ -226,7 +244,7 @@
 			
 			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="0" style="display:none; padding-bottom:20px">
 			<tr>
-				<td align="right" style="width: 350px">
+				<td align="right" style="width:350px">
 					<span id="spanFmtSeriesName">
 						<span class="tiny">&nbsp;</span><br/>
 						<span class="bold" style="font-size:10pt; padding-right:20px">Series Name</span>
@@ -234,21 +252,111 @@
 						<span class="tiny" style="padding-right:20px">(series1 or 2)</span>
 					</span>
 				</td>
-				<td align="right" style="width:200px">
-					<span id="spanFmtSeriesFmt1">
-						<span class="bold">plot_ci:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-						<span class="bold">colors:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-						<span class="bold">pch:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-						<span class="bold">type:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-					</span>
+				<td align="right">
+					<table id="tabFmtSeriesVal1" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Conf Interval Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>none</option>
+										<option>norm</option>
+										<option>boot</option>
+										<option>std</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">plot_ci</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Color</td>
+								<td rowspan="2"><input type="text" size="12"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">color</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Point Symbol</td>
+								<td rowspan="2"><input type="text" size="12"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">pch</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>p</option>
+										<option>l</option>
+										<option>o</option>
+										<option>b</option>
+										<option>s</option>
+										<option>h</option>
+										<option>n</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">type</td></tr>
+						</table>								
+					</td></tr>
+					</table>
 				</td>
-				<td align="right" style="width:275px">
-					<span id="spanFmtSeriesFmt2">
-						<span class="bold">lty:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-						<span class="bold">lwd:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-						<span class="bold">con_series:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-						<span class="bold">legend:</span><input type="text" size="12" onkeydown="setFmtSeriesMod(0)"/><br/>
-					</span>
+				<td align="right">
+					<table id="tabFmtSeriesVal2" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lty</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Width</td>
+								<td rowspan="2"><input type="text" size="12"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lwd</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Connect Across NA Values</td>
+								<td rowspan="2"><input type="text" size="12"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">con_series</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Legend Text</td>
+								<td rowspan="2"><input type="text" size="12"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">legend</td></tr>
+						</table>
+					</td></tr>
+					</table>
 				</td>
 			</tr>
 			<tr style="display:none"><td colspan="3">

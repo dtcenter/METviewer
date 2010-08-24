@@ -104,3 +104,15 @@ a.plotInfo {
 	display: none;
 	vertical-align: center;
 }
+
+.fmtLabel {
+	color:#636A64;
+	font-weight:bold;
+	padding-right:5px;
+}
+
+.fmtTag {
+	color:#838A84;
+	font-size: 7pt;	
+	padding-right:5px;
+}

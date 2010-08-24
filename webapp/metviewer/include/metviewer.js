@@ -21,7 +21,7 @@ var _intFieldValIdNext = 0;
 var _listStatMode = ["MMI", "MMIO", "MMIF", "MIA", "MAR", "MCD", "MAD", "P50", "P90"];
 
 var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
-var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_INIT", "FCST_LEV"];
+var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_LEV"];
 var _listVar = _listVarStat;
 
 var _listSeries1Div = new Array();
@@ -97,30 +97,28 @@ function onLoad(){
 		var tdFmtPlotBool = document.getElementById("trFmtPlotBool").insertCell(i);
 		tdFmtPlotBool.align = "right";
 		tdFmtPlotBool.style.width = _strFmtPlotWidth;
-		tdFmtPlotBool.appendChild( document.createTextNode("\u00a0") );
 	}
 	for(var i=1; i < _intNumFmtPlotCol; i++){
 		var tdFmtPlotTxt = document.getElementById("trFmtPlotTxt").insertCell(i);
 		tdFmtPlotTxt.align="right";
 		tdFmtPlotTxt.style.width = _strFmtPlotWidth;
-		tdFmtPlotTxt.appendChild( document.createTextNode("\u00a0") );
 	}
 
 	//  add the boolean formatting option controls
-	addFmtPlot("event_equal",	"false",	"bool");
-	addFmtPlot("vert_plot",		"false",	"bool");
-	addFmtPlot("x_reverse",		"false",	"bool");
-	addFmtPlot("plot1_diff",	"false",	"bool");
-	addFmtPlot("plot2_diff",	"false",	"bool");
-	addFmtPlot("num_stats",		"false",	"bool");
-	addFmtPlot("indy1_stag",	"false",	"bool");
-	addFmtPlot("indy2_stag",	"false",	"bool");
-	addFmtPlot("grid_on",		"true",		"bool");
-	addFmtPlot("sync_axes",		"false",	"bool");
-	addFmtPlot("dump_points1",	"false",	"bool");
-	addFmtPlot("dump_points2",	"false",	"bool");
-	addFmtPlot("log_y1",		"false",	"bool");
-	addFmtPlot("log_y2",		"false",	"bool");
+	addFmtPlot("Event Equalizer",				"event_equal",		"false",		"bool");
+	addFmtPlot("Vertical Levels Plot",			"vert_plot",		"false",		"bool");
+	addFmtPlot("Reverse X Values",				"x_reverse",		"false",		"bool");
+	addFmtPlot("Y1 Series Difference Curve",	"plot1_diff",		"false",		"bool");
+	addFmtPlot("Y2 Series Difference Curve",	"plot2_diff",		"false",		"bool");
+	addFmtPlot("Display Number of Stats",		"num_stats",		"false",		"bool");
+	addFmtPlot("Y1 Stagger Points",			"indy1_stag",		"false",		"bool");
+	addFmtPlot("Y2 Stagger Points",			"indy2_stag",		"false",		"bool");
+	addFmtPlot("Plot Grid",					"grid_on",			"true",			"bool");
+	addFmtPlot("Synch Y1 and Y2 Ranges",		"sync_axes",		"false",		"bool");
+	addFmtPlot("Print Y1 Series Values",		"dump_points1",		"false",		"bool");
+	addFmtPlot("Print Y2 Series Values",		"dump_points2",		"false",		"bool");
+	addFmtPlot("Y1 Axis Log Scale",			"log_y1",			"false",		"bool");
+	addFmtPlot("Y2 Axis Log Scale",			"log_y2",			"false",		"bool");
 
 	//  add onchange listeners to the plot_diff controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
@@ -132,63 +130,63 @@ function onLoad(){
  	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 
 	//  add the text formatting options
-	addFmtPlot("plot_type",		"png16m",	"txt");
-	addFmtPlot("plot_height",	"8.5",		"txt");
-	addFmtPlot("plot_width",	"11",		"txt");
-	addFmtPlot("plot_res",		"72",		"txt");
-	addFmtPlot("plot_units",	"in",		"txt");
-	addFmtPlot("mar",			"c(8, 4, 5, 4)", "txt");
-	addFmtPlot("mgp",			"c(1, 1, 0)", "txt");
-	addFmtPlot("cex",			"1",		"txt");
-	addFmtPlot("title_weight",	"2",		"txt");
-	addFmtPlot("title_size",	"1.4",		"txt");
-	addFmtPlot("title_offset",	"-.4",		"txt");
-	addFmtPlot("title_align",	".5",		"txt");
-	addFmtPlot("xtlab_orient",	"1",		"txt");
-	addFmtPlot("xtlab_perp",	"-.75",		"txt");
-	addFmtPlot("xtlab_horiz",	".5",		"txt");
-	addFmtPlot("xlab_weight",	"1",		"txt");
-	addFmtPlot("xlab_size",		"1",		"txt");
-	addFmtPlot("xlab_offset",	"2",		"txt");
-	addFmtPlot("xlab_align",	".5",		"txt");
-	addFmtPlot("ytlab_orient",	"1",		"txt");
-	addFmtPlot("ytlab_perp",	".5",		"txt");
-	addFmtPlot("ytlab_horiz",	".5",		"txt");
-	addFmtPlot("ylab_weight",	"1",		"txt");
-	addFmtPlot("ylab_size",		"1",		"txt");
-	addFmtPlot("ylab_offset",	"-2",		"txt");
-	addFmtPlot("ylab_align",	".5",		"txt");
-	addFmtPlot("grid_lty",		"3",		"txt");
-	addFmtPlot("grid_col",		"#CCCCCC",	"txt");
-	addFmtPlot("grid_lwd",		"1",		"txt");
-	addFmtPlot("grid_x",		"listX",	"txt");
-	addFmtPlot("x2tlab_orient",	"1",		"txt");
-	addFmtPlot("x2tlab_perp",	"1",		"txt");
-	addFmtPlot("x2tlab_horiz",	".5",		"txt");
-	addFmtPlot("x2lab_weight",	"1",		"txt");
-	addFmtPlot("x2lab_size",	".8",		"txt");
-	addFmtPlot("x2lab_offset",	"-.5",		"txt");
-	addFmtPlot("x2lab_align",	".5",		"txt");
-	addFmtPlot("y2tlab_orient",	"1",		"txt");
-	addFmtPlot("y2tlab_perp",	".5",		"txt");
-	addFmtPlot("y2tlab_horiz",	".5",		"txt");
-	addFmtPlot("y2lab_weight",	"1",		"txt");
-	addFmtPlot("y2lab_size",	"1",		"txt");
-	addFmtPlot("y2lab_offset",	"1",		"txt");
-	addFmtPlot("y2lab_align",	".5",		"txt");
-	addFmtPlot("legend_size",	".8",		"txt");
-	addFmtPlot("legend_box",	"o",		"txt");
-	addFmtPlot("legend_inset",	"c(0, -.25)", "txt");
-	addFmtPlot("legend_ncol",	"3",		"txt");
-	addFmtPlot("caption_weight","1",		"txt");
-	addFmtPlot("caption_col",	"#333333FF","txt");
-	addFmtPlot("caption_size",	".8",		"txt");
-	addFmtPlot("caption_offset","3",		"txt");
-	addFmtPlot("caption_align",	"0",		"txt");
-	addFmtPlot("box_boxwex",	"1",		"txt");
-	addFmtPlot("box_notch",		"FALSE",	"txt");
-	addFmtPlot("ci_alpha",		".05", 		"txt");
-
+	addFmtPlot("Plot Image Type",				"plot_type",		"png16m",		"txt");
+	addFmtPlot("Plot Height",					"plot_height",		"8.5",			"txt");
+	addFmtPlot("Plot Width",					"plot_width",		"11",			"txt");
+	addFmtPlot("Plot Resolution",				"plot_res",			"72",			"txt");
+	addFmtPlot("Plot Units",					"plot_units",		["in", "mm"],	"txt");
+	addFmtPlot("Plot Margins",					"mar",				"c(8, 4, 5, 4)","txt");
+	addFmtPlot("Axis Margin Line",				"mgp",				"c(1, 1, 0)", 	"txt");
+	addFmtPlot("Text Magnification",			"cex",				"1",			"txt");
+	addFmtPlot("Title Text Weight",				"title_weight",		["2", "1", "3", "4", "5"], "txt");
+	addFmtPlot("Title Text Size",				"title_size",		"1.4",			"txt");
+	addFmtPlot("Title Vert Offset",				"title_offset",		"-.4",			"txt");
+	addFmtPlot("Title Horiz Align",				"title_align",		".5",			"txt");
+	addFmtPlot("X1 Values Orientation",			"xtlab_orient",		["1", "3"],		"txt");
+	addFmtPlot("X1 Values Perp Offset ",		"xtlab_perp",		"-.75",			"txt");
+	addFmtPlot("X1 Values Horiz Align",			"xtlab_horiz",		".5",			"txt");
+	addFmtPlot("X1 Label Text Weight",			"xlab_weight",		["1", "2", "3", "4", "5"], "txt");
+	addFmtPlot("X1 Label Text Size",			"xlab_size",		"1",			"txt");
+	addFmtPlot("X1 Label Perp Offset",			"xlab_offset",		"2",			"txt");
+	addFmtPlot("X1 Label Horiz Align",			"xlab_align",		".5",			"txt");
+	addFmtPlot("Y1 Values Orientation",			"ytlab_orient",		["1", "3"],		"txt");
+	addFmtPlot("Y1 Values Perp Offset",			"ytlab_perp",		".5",			"txt");
+	addFmtPlot("Y1 Values Horiz Align",			"ytlab_horiz",		".5",			"txt");
+	addFmtPlot("Y1 Label Text Weight",			"ylab_weight",		["1", "2", "3", "4", "5"], "txt");
+	addFmtPlot("Y1 Label Text Size",			"ylab_size",		"1",			"txt");
+	addFmtPlot("Y1 Label Perp Offset",			"ylab_offset",		"-2",			"txt");
+	addFmtPlot("Y1 Label Horiz Align",			"ylab_align",		".5",			"txt");
+	addFmtPlot("Grid Line Type",				"grid_lty",			["3", "1", "2", "4", "5", "6"], "txt");
+	addFmtPlot("Grid Line Color",				"grid_col",			"#CCCCCC",		"txt");
+	addFmtPlot("Grid Line Width",				"grid_lwd",			"1",			"txt");
+	addFmtPlot("Grid X positions",				"grid_x",			"listX",		"txt");
+	addFmtPlot("X2 Stats Orientation",			"x2tlab_orient",	["1", "3"],		"txt");
+	addFmtPlot("X2 Stats Perp Offset",			"x2tlab_perp",		"1",			"txt");
+	addFmtPlot("X2 Stast Horiz Align",			"x2tlab_horiz",		".5",			"txt");
+	addFmtPlot("X2 Label Text Weight",			"x2lab_weight",		["1", "2", "3", "4", "5"], "txt");
+	addFmtPlot("X2 Label Text Size",			"x2lab_size",		".8",			"txt");
+	addFmtPlot("X2 Label Perp Offset",			"x2lab_offset",		"-.5",			"txt");
+	addFmtPlot("X2 Label Horiz Align",			"x2lab_align",		".5",			"txt");
+	addFmtPlot("Y2 Values Orientation",			"y2tlab_orient",	["1", "3"],		"txt");
+	addFmtPlot("Y2 Values Perp Offset",			"y2tlab_perp",		".5",			"txt");
+	addFmtPlot("Y2 Values Horiz Align",			"y2tlab_horiz",		".5",			"txt");
+	addFmtPlot("Y2 Label Text Weight",			"y2lab_weight",		["1", "2", "3", "4", "5"], "txt");
+	addFmtPlot("Y2 Label Text Size",			"y2lab_size",		"1",			"txt");
+	addFmtPlot("Y2 Label Perp Offset",			"y2lab_offset",		"1",			"txt");
+	addFmtPlot("Y2 Label Horiz Align",			"y2lab_align",		".5",			"txt");
+	addFmtPlot("Legend Text Size",				"legend_size",		".8",			"txt");
+	addFmtPlot("Legend Box Type",				"legend_box",		["o", "n"],		"txt");
+	addFmtPlot("Legend Box Position",			"legend_inset",		"c(0, -.25)",	"txt");
+	addFmtPlot("Legend # of Columns",			"legend_ncol",		"3",			"txt");
+	addFmtPlot("Caption Text Weight",			"caption_weight",	["1", "2", "3", "4", "5"], "txt");
+	addFmtPlot("Caption Text Color",			"caption_col",		"#333333FF",	"txt");
+	addFmtPlot("Caption Text Size",				"caption_size",		".8",			"txt");
+	addFmtPlot("Caption Perp Offset",			"caption_offset",	"3",			"txt");
+	addFmtPlot("Captoin Horiz Align",			"caption_align",	"0",			"txt");
+	addFmtPlot("Box Plot Box Width",			"box_boxwex",		"1",			"txt");
+	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
+	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");
+	
 	//  build the series formatting controls
 	buildSeriesDiv();
 	setFmtSeriesMod(0, "false");
@@ -281,11 +279,11 @@ function setDebugDisp(show){
 /**
  * Debugging facility which dumps the DHTML for the input element into the console
  */
-function serialize(strId){
-	var doc = document.getElementById(strId);
+function serialize(strId){ serializeNode(document.getElementById(strId)); }
+function serializeNode(node){
 	var strXML = "";
-	try     { strXML = XML( (new XMLSerializer()).serializeToString(doc) ).toXMLString(); }
-	catch(e){ strXML = doc.outerHTML; }
+	try     { strXML = XML( (new XMLSerializer()).serializeToString(node) ).toXMLString(); }
+	catch(e){ strXML = node.outerHTML; }
 	console("\n" + strXML + "\n\n");
 }
 
@@ -308,6 +306,11 @@ function fillSelect(sel, listOpt){
 }
 
 /**
+ * Remove all elements from a select control
+ */
+function clearSelect(sel){ while( 0 < sel.length ){ sel.remove(sel.length - 1); } }
+
+/**
  * Build a list of the selected items in the specified select control
  */
 function getSelected(sel){
@@ -319,9 +322,17 @@ function getSelected(sel){
 }
 
 /**
- * Remove all elements from a select control
+ * Options in the specified select control will be selected if they are present in the specified list
+ * of inputs and not selected if they are not.   
  */
-function clearSelect(sel){ while( 0 < sel.length ){ sel.remove(sel.length - 1); } }
+function setSelected(sel, val){
+	if( !(val instanceof Array) ){ val = [val]; }
+	var listOpt = new Array();
+	for(var i=0; i < sel.options.length; i++){ listOpt.push( sel.options[i].text ); }
+	for(var i=0; i < listOpt.length; i++){
+		sel.options[i].selected = (-1 != listSearch( listOpt[i], val ));
+	}
+}
 
 /**
  * Search the specified div list for the member with the specified id and return its index.  The div id
@@ -420,6 +431,52 @@ function clearControls(){
 	clearIndyVal();
 }
 
+/**
+ * The specified td element is assumed to contain the standard formatting control structure, and
+ * the setting XML tag name is extracted and returned.
+ */
+function getFmtTag(tdFmt){
+	var strRet = "";
+	var listTd = tdFmt.getElementsByTagName("td");
+	if( 1 < listTd.length ){ strRet = listTd[2].innerHTML; }
+	return strRet;
+}
+
+/**
+ * The specified td element is assumed to contain the standard formatting control structure, and
+ * the setting control value is extracted and returned.
+ */
+function getFmtVal(tdFmt){
+	var strVal = "";
+	var txtVal = tdFmt.getElementsByTagName("input")[0];
+	var boolTxt = ( undefined != txtVal && "none" != txtVal.style.display );
+	var selVal = tdFmt.getElementsByTagName("select")[0];
+	if( boolTxt ){ strVal = txtVal.value; }
+	else         { strVal = getSelected(selVal)[0]; }
+	return strVal;	
+}
+
+/**
+ * Set the label and tag of the formatting controls in the specified td element to the specified values  
+ */
+function setFmtLabelTag(tdFmt, label, tag){
+	var listTd = tdFmt.getElementsByTagName("td");
+	if( 1 < listTd.length ){
+		listTd[0].innerHTML = label;
+		listTd[2].innerHTML = tag;
+	}
+}
+
+/**
+ * Set the value of the formatting control in the specified td element to the specified value 
+ */
+function setFmtVal(tdFmt, val){
+	var txtVal = tdFmt.getElementsByTagName("input")[0];
+	var boolTxt = ( undefined != txtVal && "none" != txtVal.style.display );
+	if( boolTxt ){ txtVal.value = val; }
+	else         { setSelected(tdFmt.getElementsByTagName("select")[0], val); }
+}
+	
 /**
  * Construct a list of RGBA color hex represenations with the specified length and format #RRGGBBAA,
  * where the colors are spaced equally along the rainbow spectrum.
@@ -1090,7 +1147,7 @@ function indyCheck(boolCheck){
  * supported values of type are "txt" and "bool".  The controls are placed at the next available
  * place for their respective type.
  */
-function addFmtPlot(label, value, type){
+function addFmtPlot(label, tag, value, type){
 
 	var boolTypeTxt = (type == "txt");
 	var intFmtIndex = (boolTypeTxt? _intFmtPlotTxtIndex : _intFmtPlotBoolIndex);
@@ -1110,7 +1167,6 @@ function addFmtPlot(label, value, type){
 			tdFmt = trFmt.insertCell(i);
 			tdFmt.align = "right";
 			tdFmt.style.width = _strFmtPlotWidth;
-			tdFmt.appendChild( document.createTextNode("\u00a0") );
 		}
 		tdFmt = trFmt.cells[0];
 	}
@@ -1124,11 +1180,25 @@ function addFmtPlot(label, value, type){
 	if( 0 != intFmtIndex ){
 		tdFmt.appendChild( document.getElementById( boolTypeTxt? "spanFmtPlotTxt" : "spanFmtPlotBool" ).cloneNode(true) );
 	}
-	tdFmt.getElementsByTagName("span")[1].innerHTML = label + ":";
+	
+	//  update the label and tag
+	setFmtLabelTag(tdFmt, label, tag);
+
+	//  configure and populate the selection control for text settings
+	var listFmtTd = tdFmt.getElementsByTagName("td");
 	if( boolTypeTxt ){
-		tdFmt.getElementsByTagName("input")[0].value = value;
+		var boolSel = (value instanceof Array);
+		var selVal = listFmtTd[1].getElementsByTagName("select")[0];
+		var txtVal = listFmtTd[1].getElementsByTagName("input")[0];
+		selVal.style.display = (boolSel? "inline" : "none");
+		txtVal.style.display = (boolSel? "none" : "inline");
+		if( boolSel ){ fillSelect(selVal, value); }
+		else         { txtVal.value = value; }
 		_intFmtPlotTxtIndex++;
-	} else {
+	} 
+	
+	// configure and populate the select control for bool settings
+	else {
 		tdFmt.getElementsByTagName("select")[0].selectedIndex = ( "true" == value? 0 : 1 );
 		_intFmtPlotBoolIndex++;
 	}
@@ -1149,11 +1219,13 @@ function handleFmtDisp(type){
 		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_down.gif";
 		tab.style.display = "table";
 		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "inline"; }
+		else                  { document.getElementById("spanFmtPlotCmd").style.display = "inline"; }
 	} else {
 		spanMsg.innerHTML = "Show Formatting Controls";
 		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_right.gif";
 		tab.style.display = "none";
 		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "none"; }
+		else                  { document.getElementById("spanFmtPlotCmd").style.display = "none"; }
 	}
 }
 
@@ -1171,12 +1243,14 @@ function buildSeriesDiv(){
 		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
 			var listSpan = tabFmtSeries.rows[intRow].getElementsByTagName("span");
 			var listInput = tabFmtSeries.rows[intRow].getElementsByTagName("input");
+			var listFmtTd = getFmtSeriesVal(intRow);
 			if( listInput[0].value == "false" ){ continue; }
 			
 			//  get the series name and values and put them in the table
 			var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;
 			var strFmt = "";
-			for(var j=0; j < 9; j++){ strFmt += (0 < j? "|" : "") + listInput[j].value; }
+			strFmt = listInput[0].value;
+			for(var j=0; j < listFmtTd.length; j++){ strFmt += "|" + getFmtVal(listFmtTd[j]); }
 			
 			table.put(strSeriesName, strFmt);
 		}
@@ -1243,14 +1317,14 @@ function buildSeriesDiv(){
 						tdFmt1.align = "right";
 						tdFmt1.style.width = "200px";
 						tdFmt1.style.paddingTop = "20px";
-						tdFmt1.appendChild( document.getElementById("spanFmtSeriesFmt1").cloneNode(true) );
+						tdFmt1.appendChild( document.getElementById("tabFmtSeriesVal1").cloneNode(true) );
 						tdFmt1.getElementsByTagName("input")[1].value = "";
 	
 						var tdFmt2 = trFmtSeries.insertCell(2);
 						tdFmt2.align = "right";
 						tdFmt2.style.width = "275px";
 						tdFmt2.style.paddingTop = "20px";
-						tdFmt2.appendChild( document.getElementById("spanFmtSeriesFmt2").cloneNode(true) );
+						tdFmt2.appendChild( document.getElementById("tabFmtSeriesVal2").cloneNode(true) );
 					}
 	
 					//  populate the controls with the series name
@@ -1260,24 +1334,28 @@ function buildSeriesDiv(){
 					
 					//  add change handlers to the formatting inputs
 					var listInput = trFmtSeries.getElementsByTagName("input");
-					for(var i=1; i < 9; i++){
+					for(var i=1; i < listInput.length; i++){
 					 	listInput[i].setAttribute("onkeydown", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
 					 	if( _boolIE ){ listInput[i].attachEvent("onkeydown", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
+					}		
+					var listSel = trFmtSeries.getElementsByTagName("selects");
+					for(var i=0; i < listSel.length; i++){
+						listSel[i].setAttribute("onchange", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+					 	if( _boolIE ){ listSel[i].attachEvent("onchange", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
+					}					
+
+					//  get format settings for the current field, if available, otherwise use defaults
+					var strVal = table.get(strSeriesName + " - " + strYSeries);
+					var listVal = _listFmtSeriesDefaults;
+					if( undefined != strVal ){ var listVal = strVal.split("|"); }
+
+					//  apply the settings to the formatting controls
+					listInput[0].value = listVal[0];
+					var listFmtTd = getFmtSeriesVal( _intNumSeries * 2 );
+					for(var i=0; i < listFmtTd.length; i++){
+						setFmtVal(listFmtTd[i], listVal[i+1]);
 					}
-					
-					
-					//  if there are format control settings for this series in the table, apply them
-					var strVal = table.get(strSeriesName + " - " + strYSeries)
-					if( undefined != strVal ){
-						var listVal = strVal.split("|");
-						for(var i=0; i < 9; i++){ listInput[i].value = listVal[i]; }
-					}
-					
-					//  otherwise, apply default settings
-					else {
-						for(var i=0; i < 9; i++){ listInput[i].value = _listFmtSeriesDefaults[i]; }
-					}
-					
+
 					_intNumSeries++;
 					
 				}  // end: for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++)
@@ -1291,14 +1369,38 @@ function buildSeriesDiv(){
 	//  set the default color for each series to the appropriate shade of rainbow
 	var listColors = rainbow(_intNumSeries);
 	for(var i=0; i < _intNumSeries; i++){
-		var txtColor = tabFmtSeries.rows[2*i].getElementsByTagName("input")[2];
-		if( "" == txtColor.value ){ txtColor.value = listColors[i]; }
+		var listFmtTd = getFmtSeriesVal( i * 2 );
+		var strColor = getFmtVal( listFmtTd[1] );
+		if( "" == strColor ){ setFmtVal(listFmtTd[1], listColors[i]); }
 	}
 	
 	//  show or hide the controls, depending on the number of series
 	tabFmtSeries.style.display		= (1 > _intNumSeries ? "none" : tabFmtSeries.style.display);
 	spanFmtSeriesDisp.style.display	= (1 > _intNumSeries ? "none" : "inline");
 	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+}
+
+/**
+ * Build and return a list of the format control td structures in the specified row
+ */
+function getFmtSeriesVal(row){
+	
+	//  get and validate the requested row
+	var listTdFmt = new Array();
+	var tabFmtSeries = document.getElementById("tabFmtSeries");
+	var trFmtSeries = tabFmtSeries.rows[row];
+	if( 3 != trFmtSeries.cells.length ){ return listTdFmt; }
+	
+	//  build a list of formatting td elements
+	var tabVal1 = trFmtSeries.cells[1].getElementsByTagName("table")[0];
+	for(var i=0; i < tabVal1.rows.length; i++){ 
+		for(var j=0; j < tabVal1.rows[i].cells.length; j++){ listTdFmt.push(tabVal1.rows[i].cells[j]); }
+	}
+	var tabVal2 = trFmtSeries.cells[2].getElementsByTagName("table")[0];
+	for(var i=0; i < tabVal2.rows.length; i++){ 
+		for(var j=0; j < tabVal2.rows[i].cells.length; j++){ listTdFmt.push(tabVal2.rows[i].cells[j]); }
+	}
+	return listTdFmt;
 }
 
 /**
@@ -1320,7 +1422,6 @@ function setFmtSeriesDefaults(){
 	for(var i=0; i < _intNumSeries; i++){ setFmtSeriesMod(i, "false"); }
 	buildSeriesDiv();
 }
-
 
 /**
  * Build a list of all series variable combinations for the specified list of series field divs,
@@ -1358,10 +1459,10 @@ function getPlotDiff(y){
 	var tab = document.getElementById("tabFmtPlotBool");
 	for(var i=0; i < tab.rows.length; i++){
 		for(var j=0; j < tab.rows[i].cells.length; j++){
-			var strLabel = tab.rows[i].cells[j].getElementsByTagName("span")[1].innerHTML;
-			if( "plot" + y + "_diff:" == strLabel ){
-				var strDiff = getSelected( tab.rows[i].cells[j].getElementsByTagName("select")[0] )[0];
-				return ("true" == strDiff);
+			var listTd = tab.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTd.length ){ continue; }
+			if( "plot" + y + "_diff" == getFmtTag(tab.rows[i].cells[j]) ){
+				return ( "true" == getFmtVal(tab.rows[i].cells[j]) );
 			}
 		}
 	}
@@ -1450,23 +1551,42 @@ function buildPlotXML(){
 	var tabFmtPlotBool = document.getElementById("tabFmtPlotBool");
 	for(var i=0; i < tabFmtPlotBool.rows.length; i++){
 		for(var j=0; j < tabFmtPlotBool.rows[i].cells.length; j++){
-			var listSpan = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("span");
+			var listTdBool = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTdBool.length ){ continue; }
+			var strTag = getFmtTag(tabFmtPlotBool.rows[i].cells[j]);
+			var strVal = getFmtVal(tabFmtPlotBool.rows[i].cells[j]);
+			strDepXML += "<" + strTag + ">" + strVal + "</" + strTag + ">";
+			
+			/*
 			var listSel = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select");
-			if( null == listSel || 1 > listSel.length ){ continue; }
-			var strName = listSpan[1].innerHTML.replace(/:$/, "");
+			if( 1 > listTdBool.length || null == listSel || 1 > listSel.length ){ continue; }
+			var strName = listTdBool[2].innerHTML;
 			strDepXML += "<" + strName + ">" + getSelected(listSel[0])[0] + "</" + strName + ">";
+			*/
 		}
 	}
 	
 	//  txt formatting
 	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
 	for(var i=0; i < tabFmtPlotTxt.rows.length; i++){
-		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){
-			var listSpan = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("span");
-			var listInput = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("input");
-			if( null == listInput || 1 > listInput.length ){ continue; }
-			var strName = listSpan[1].innerHTML.replace(/:$/, "");
-			strDepXML += "<" + strName + ">" + listInput[0].value + "</" + strName + ">";
+		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){			
+			var listTdTxt = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTdTxt.length ){ continue; }
+			var strTag = getFmtTag(tabFmtPlotTxt.rows[i].cells[j]);
+			var strVal = getFmtVal(tabFmtPlotTxt.rows[i].cells[j]);
+			strDepXML += "<" + strTag + ">" + strVal + "</" + strTag + ">";
+
+			/*
+			var listTdTxt = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTdTxt.length ){ continue; }
+			var strName = listTdTxt[2].innerHTML;
+			var txtVal = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("input")[0];
+			var selVal = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("select")[0];
+			var strVal = "";
+			if( "inline" == txtVal.style.display ){ strVal = txtVal.value; }
+			else                                  { strVal = getSelected(selVal)[0]; }
+			strDepXML += "<" + strName + ">" + strVal + "</" + strName + ">";
+			*/
 		}
 	}
 	
@@ -1475,12 +1595,12 @@ function buildPlotXML(){
 	var listFmtSeries = new Array("", "", "", "", "", "", "", "");
 	var boolLegend = false;
 	for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
-		listInput = tabFmtSeries.rows[intRow].getElementsByTagName("input");
-		for(var j=1; j < 9; j++){
-			var strVal = listInput[j].value;
-			if( 8 == j && strVal != "" ){ boolLegend = true; }
-			if( 1 == j || 2 == j || 4 == j || 8 == j){ strVal = "\"" + strVal + "\""; }
-			listFmtSeries[j-1] += (0 < intRow? ", " : "") + strVal;
+		var listFmtTd = getFmtSeriesVal(intRow);
+		for(var i=0; i < listFmtSeries.length; i++){
+			var strVal = getFmtVal(listFmtTd[i]);
+			if( 7 == i && strVal != "" ){ boolLegend = true; }
+			if( 0 == i || 1 == i || 3 == i || 7 == i){ strVal = "\"" + strVal + "\""; }
+			listFmtSeries[i] += (0 < intRow? ", " : "") + strVal;			
 		}
 	}
 	strDepXML +=    "<plot_ci>c(" + listFmtSeries[0] + ")</plot_ci>";

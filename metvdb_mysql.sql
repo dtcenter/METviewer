@@ -813,21 +813,21 @@ INSERT INTO stat_group_lu VALUES(31, 'RELIABILITY', 'Reliability', FALSE, FALSE,
 INSERT INTO stat_group_lu VALUES(32, 'RESOLUTION', 'Resolution', FALSE, FALSE, 5);
 INSERT INTO stat_group_lu VALUES(33, 'UNCERTAINTY', 'Uncertainty', FALSE, FALSE, 5);
 INSERT INTO stat_group_lu VALUES(34, 'ROC_AUC', 'Area under the receiver operating characteristic curve', FALSE, FALSE, 5);
-INSERT INTO stat_group_lu VALUES(35, 'BASER', 'Base rate including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(36, 'FMEAN', 'Forecast mean including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(37, 'ACC', 'Accuracy including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(38, 'FBIAS', 'Frequency Bias including bootstrap upper and lower confidence limits', FALSE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(39, 'PODY', 'Probability of detecting yes including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(40, 'PODN', 'Probability of detecting no including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(41, 'POFD', 'Probability of FALSE detection including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(42, 'FAR', 'FALSE alarm ratio including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(43, 'CSI', 'Critical Success Index including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(44, 'GSS', 'Gilbert Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(45, 'HK', 'Hanssen-Kuipers Discriminant including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(46, 'HSS', 'Heidke Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(47, 'ODDS', 'Odds Ratio including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
-INSERT INTO stat_group_lu VALUES(48, 'FBS', 'Fractions Brier Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
-INSERT INTO stat_group_lu VALUES(49, 'FSS', 'Fractions Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
+INSERT INTO stat_group_lu VALUES(35, 'NBR_BASER', 'Base rate including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(36, 'NBR_FMEAN', 'Forecast mean including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(37, 'NBR_ACC', 'Accuracy including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(38, 'NBR_FBIAS', 'Frequency Bias including bootstrap upper and lower confidence limits', FALSE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(39, 'NBR_PODY', 'Probability of detecting yes including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(40, 'NBR_PODN', 'Probability of detecting no including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(41, 'NBR_POFD', 'Probability of FALSE detection including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(42, 'NBR_FAR', 'FALSE alarm ratio including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(43, 'NBR_CSI', 'Critical Success Index including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(44, 'NBR_GSS', 'Gilbert Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(45, 'NBR_HK', 'Hanssen-Kuipers Discriminant including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(46, 'NBR_HSS', 'Heidke Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(47, 'NBR_ODDS', 'Odds Ratio including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
+INSERT INTO stat_group_lu VALUES(48, 'NBR_FBS', 'Fractions Brier Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
+INSERT INTO stat_group_lu VALUES(49, 'NBR_FSS', 'Fractions Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
 
 
 -- metvdb_rev contains information about metvdb revisions, and provides an indicator of
