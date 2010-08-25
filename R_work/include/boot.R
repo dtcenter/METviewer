@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "R_work/data/thresh_series/APCP_03_PODY_FULL_00Zf12_UW_MEAN_MET.boot.info";
+strInputInfoFile = "data/Spring/thresh_series/APCP_03_FBIAS_NEC_00Zf12_UW_MEAN.boot.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -70,11 +70,11 @@ calcGSS = function(d){
 	dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
 	return( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) );
 }
-calcFBIAS		= function(d){ return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); }
-calcPODY		= function(d){ return( d$fy_oy / (d$fy_oy + d$fn_oy) );             }
-calcFAR			= function(d){ return( d$fy_on / (d$fy_oy + d$fy_on) );             }
-calcCSI			= function(d){ return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) );   }
-calcBASER		= function(d){ return( (d$fy_oy + d$fn_oy) / d$total );             }
+calcFBIAS		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) ){ return (NA); } else { return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); } }
+calcPODY		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) ){ return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fn_oy) ); }             }
+calcFAR			= function(d){ if( 0 == (d$fy_oy + d$fy_on) ){ return (NA); } else { return( d$fy_on / (d$fy_oy + d$fy_on) ); }             }
+calcCSI			= function(d){ if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){ return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ); }   }
+calcBASER		= function(d){ if( 0 == d$total ){ return (NA); }             else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
 
 # booter function
 booter.iid = function(d, i){
