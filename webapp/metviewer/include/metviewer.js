@@ -55,7 +55,9 @@ var _listFmtSeriesDefaults = ["false", "none", "", "20", "b", "1", "1", "1", ""]
  */
 
 function onLoad(){
-	_url = window.location + "servlet";
+	_url = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "servlet";
+	//_url = window.location + "servlet";
+	console("_url: " + _url + "\n\n");
 
 	_boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
 
@@ -76,8 +78,16 @@ function onLoad(){
 	//  initialize the debug controls
 	setDebugDisp(_boolDebugDisp);
 
-	//  initialize the database list and controls
-	listDBReq();
+	//  initialize the database list and controls	
+	var strDBLoad = document.getElementById("spanDBLoad").innerHTML;
+	if( "" == strDBLoad ){
+		listDBReq();
+	} else {		
+		_strDBCon = strDBLoad;
+		document.getElementById("selDB").style.display = "none";
+		console("onLoad() - loading single database: " + _strDBCon + "\n\n");
+		listFcstVar1Req(0);
+	}
 
 	//  initialize the dep list
 	var divDep0 = document.getElementById("divDep1").getElementsByTagName("div")[0];

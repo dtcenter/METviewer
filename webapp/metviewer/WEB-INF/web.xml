@@ -19,4 +19,9 @@
 		<url-pattern>/servlet</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>MVServlet</servlet-name>
+		<url-pattern>/db/*</url-pattern>
+    </servlet-mapping>
+
 </web-app>

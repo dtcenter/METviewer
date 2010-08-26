@@ -62,6 +62,8 @@ public class MVServlet extends HttpServlet {
 		_logger.debug("init() - done loading properties");
 	}
 
+	public static final Pattern _patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
+	
 	/**
 	 * Override the parent's doGet() method with a debugging implementation that echoes inputs
 	 * @param request Contains request information, including parameters
@@ -70,8 +72,28 @@ public class MVServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
     {
-        PrintWriter out = response.getWriter();
 
+		//  if the request specifies a database to load, redirect with the appropriate parameter
+		String strPath = request.getRequestURL().toString();
+		Matcher matDBLoad = _patDBLoad.matcher(strPath);
+		if( matDBLoad.matches() ){
+			String strDB = matDBLoad.group(1);
+			
+			//  ensure that the requested database exists
+			String[] listDBSort = (String[])_listDB.clone();
+			Arrays.sort(listDBSort);
+			if( 0 > Arrays.binarySearch(listDBSort, "metvdb_" + strDB) ){
+				printErrorPage(response);
+				return;
+			}
+
+			//  redirect the user to the web app
+			response.sendRedirect("/metviewer/metviewer.jsp?db=" + matDBLoad.group(1));			
+			return;
+		}
+				
+		//  if there is no specified database, print out the list of parameters for debugging  
+        PrintWriter out = response.getWriter();
         //response.setContentType("text/html");
         response.setContentType("text/plain");
         
@@ -448,7 +470,7 @@ public class MVServlet extends HttpServlet {
     		String strPlotterOutput = log.toString();
 
     		//  parse out R error messages, if present, throwing an exception if the error was fatal
-    		Matcher matOutput = Pattern.compile("(?sm)==== Start Rscript error  ====(.*)====   End Rscript error  ====").matcher(strPlotterOutput);
+    		Matcher matOutput = Pattern.compile("(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)").matcher(strPlotterOutput);
     		if( matOutput.find() ){ strRErrorMsg = matOutput.group(1); }
     		if( strPlotterOutput.contains("Execution halted") ){
     			throw new Exception("R error");
@@ -477,6 +499,22 @@ public class MVServlet extends HttpServlet {
     	
     	
     	return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("")? "<r_error>" + strRErrorMsg + "</r_error>": "");
+    }
+    
+    public static void printErrorPage(HttpServletResponse response) throws IOException{    	
+        PrintWriter out = response.getWriter();
+        response.setContentType("text/html");
+        out.print(
+			"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n\n" +
+			"<html>\n" +
+			"<head>\n" +
+			"<title>METViewer Error</title>\n" +
+			"<link rel=\"stylesheet\" type=\"text/css\" href=\"/metviewer/include/metviewer.css\"/>\n" +
+			"<link rel=\"shortcut icon\" href=\"/metviewer/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
+			"</head>\n" +
+			"<body style=\"padding-left:20px; padding-top:20px\">\n" +
+			"<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
+			"</body></html>\n\n");
     }
 
 }
