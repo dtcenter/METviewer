@@ -576,9 +576,11 @@ public class MVLoad extends MVUtil {
 					String strStatGroupInsertValues = "" + intStatGroupLuId + ", " +
 													  intStatHeaderId + ", " +
 													  intLineDataId + ", ";
+					String strStatValue = "";
 					
 					if( -1 < Arrays.binarySearch(listStatGroupLuIdBoth, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[1][intStatGroupBothIndex++];
+						strStatValue = listToken[intTokenIndex];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 2]) + ", " + 
@@ -587,6 +589,7 @@ public class MVLoad extends MVUtil {
 					}
 					else if( -1 < Arrays.binarySearch(listStatGroupLuIdBoot, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[2][intStatGroupBootIndex++];
+						strStatValue = listToken[intTokenIndex];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + 
 													", 0, 0, " + 
 													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
@@ -594,6 +597,7 @@ public class MVLoad extends MVUtil {
 					}
 					else if( -1 < Arrays.binarySearch(listStatGroupLuIdNorm, intStatGroupLuId) ){
 						int intTokenIndex = listStatGroupIndices[3][intStatGroupNormIndex++];
+						strStatValue = listToken[intTokenIndex];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 1]) + ", " + 
 													replaceInvalidValues(listToken[intTokenIndex + 2]) + 
@@ -601,8 +605,16 @@ public class MVLoad extends MVUtil {
 					}
 					else {
 						int intTokenIndex = listStatGroupIndices[4][intStatGroupNoneIndex++];
+						strStatValue = listToken[intTokenIndex];
 						strStatGroupInsertValues += replaceInvalidValues(listToken[intTokenIndex]) + ", 0, 0, 0, 0"; 
 					}
+					
+					//  if the stat value is legit, add it to the insert
+					/*
+					if( !strStatValue.equals("NA") && !strStatValue.equals("nan") ){
+						d._listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
+					}
+					*/
 					d._listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 				}
 				intStatGroupRecords++;

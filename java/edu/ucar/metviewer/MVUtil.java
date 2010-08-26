@@ -446,19 +446,26 @@ public class MVUtil{
 		//  parse the input values and store the numerical values in a sortable array
 		double[] listVal = new double[vals.length];		
 		Hashtable tableVal = new Hashtable();
+		double dblInvalid = -.00001;
 		for(int i=0; i < vals.length; i++){
 			
 			//  apply the pattern to the value
+			double dblVal = 0;
 			Matcher mat = pat.matcher(vals[i]);
-			if( !mat.matches() ){
-				_out.println("  **  WARNING: sortVals() could not parse value " + vals[i]);
-				continue;
-			}
 			
-			//  parse the value from the match
-			double dblVal = Double.parseDouble(mat.group(2));
-			if( 3 == mat.groupCount() && null != mat.group(3) ){
-				dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+			//  if the value matches, parse out the numerical value 
+			if( mat.matches() ){
+				dblVal = Double.parseDouble(mat.group(2));
+				if( 3 == mat.groupCount() && null != mat.group(3) ){
+					dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+				}
+			} 
+			
+			//  otherwise, use the literal value with a default numerical value
+			else {
+				dblVal = dblInvalid;
+				dblInvalid -= .00001;
+				_out.println("  **  WARNING: sortVals() could not parse value " + vals[i]);
 			}
 			
 			//  store the numerical value and the value pair

@@ -1239,21 +1239,19 @@ function buildSeriesDiv(){
 
 	//  build a table containing all current series settings
 	var table = new Hashtable();
-	if( tabFmtSeries.style.display != "none" ){
-		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
-			var listSpan = tabFmtSeries.rows[intRow].getElementsByTagName("span");
-			var listInput = tabFmtSeries.rows[intRow].getElementsByTagName("input");
-			var listFmtTd = getFmtSeriesVal(intRow);
-			if( listInput[0].value == "false" ){ continue; }
-			
-			//  get the series name and values and put them in the table
-			var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;
-			var strFmt = "";
-			strFmt = listInput[0].value;
-			for(var j=0; j < listFmtTd.length; j++){ strFmt += "|" + getFmtVal(listFmtTd[j]); }
-			
-			table.put(strSeriesName, strFmt);
-		}
+	for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
+		var listSpan = tabFmtSeries.rows[intRow].getElementsByTagName("span");
+		var listInput = tabFmtSeries.rows[intRow].getElementsByTagName("input");
+		if( listInput[0].value == "false" ){ continue; }
+		var listFmtTd = getFmtSeriesVal(intRow);
+		
+		//  get the series name and values and put them in the table
+		var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;
+		var strFmt = "";
+		strFmt = listInput[0].value;
+		for(var j=0; j < listFmtTd.length; j++){ strFmt += "|" + getFmtVal(listFmtTd[j]); }
+		
+		table.put(strSeriesName, strFmt);
 	}
 
 	//  clear all existing series, except the first two
@@ -1338,7 +1336,7 @@ function buildSeriesDiv(){
 					 	listInput[i].setAttribute("onkeydown", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
 					 	if( _boolIE ){ listInput[i].attachEvent("onkeydown", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
 					}		
-					var listSel = trFmtSeries.getElementsByTagName("selects");
+					var listSel = trFmtSeries.getElementsByTagName("select");
 					for(var i=0; i < listSel.length; i++){
 						listSel[i].setAttribute("onchange", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
 					 	if( _boolIE ){ listSel[i].attachEvent("onchange", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
@@ -1348,7 +1346,7 @@ function buildSeriesDiv(){
 					var strVal = table.get(strSeriesName + " - " + strYSeries);
 					var listVal = _listFmtSeriesDefaults;
 					if( undefined != strVal ){ var listVal = strVal.split("|"); }
-
+					
 					//  apply the settings to the formatting controls
 					listInput[0].value = listVal[0];
 					var listFmtTd = getFmtSeriesVal( _intNumSeries * 2 );
@@ -1378,6 +1376,10 @@ function buildSeriesDiv(){
 	tabFmtSeries.style.display		= (1 > _intNumSeries ? "none" : tabFmtSeries.style.display);
 	spanFmtSeriesDisp.style.display	= (1 > _intNumSeries ? "none" : "inline");
 	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+	
+	//  update the bootstrap diff fields
+	document.getElementById("txtBootDiff1").value = (getPlotDiff(1)? "TRUE" : "FALSE");
+	document.getElementById("txtBootDiff2").value = (getPlotDiff(2)? "TRUE" : "FALSE");
 }
 
 /**
@@ -1536,6 +1538,18 @@ function buildPlotXML(){
 	}
 	strDepXML += "</indep>";
 	
+	//  bootstrapping
+	var chkBoot = document.getElementById("chkBoot");
+	if( chkBoot.checked ){
+		var listBootParm = document.getElementById("tabBootParm").getElementsByTagName("input");
+		strDepXML += "<bootstrapping>";
+		strDepXML += 	 "<boot_repl>" + listBootParm[0].value + "</boot_repl>";
+		strDepXML += 	"<boot_diff1>" + listBootParm[1].value + "</boot_diff1>";
+		strDepXML += 	   "<boot_ci>" + listBootParm[2].value + "</boot_ci>";
+		strDepXML +=	"<boot_diff2>" + listBootParm[3].value + "</boot_diff2>";
+		strDepXML += "</bootstrapping>";		
+	}	
+	
 	//  <tmpl>
 	var divTitleLab = document.getElementById("divTitleLab");
 	listInput = divTitleLab.getElementsByTagName("input");
@@ -1555,14 +1569,8 @@ function buildPlotXML(){
 			if( 1 > listTdBool.length ){ continue; }
 			var strTag = getFmtTag(tabFmtPlotBool.rows[i].cells[j]);
 			var strVal = getFmtVal(tabFmtPlotBool.rows[i].cells[j]);
+			if( chkBoot.checked && strTag.match( /_diff$/ ) ){ strVal = "false"; }
 			strDepXML += "<" + strTag + ">" + strVal + "</" + strTag + ">";
-			
-			/*
-			var listSel = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select");
-			if( 1 > listTdBool.length || null == listSel || 1 > listSel.length ){ continue; }
-			var strName = listTdBool[2].innerHTML;
-			strDepXML += "<" + strName + ">" + getSelected(listSel[0])[0] + "</" + strName + ">";
-			*/
 		}
 	}
 	
@@ -1575,18 +1583,6 @@ function buildPlotXML(){
 			var strTag = getFmtTag(tabFmtPlotTxt.rows[i].cells[j]);
 			var strVal = getFmtVal(tabFmtPlotTxt.rows[i].cells[j]);
 			strDepXML += "<" + strTag + ">" + strVal + "</" + strTag + ">";
-
-			/*
-			var listTdTxt = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("td");
-			if( 1 > listTdTxt.length ){ continue; }
-			var strName = listTdTxt[2].innerHTML;
-			var txtVal = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("input")[0];
-			var selVal = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("select")[0];
-			var strVal = "";
-			if( "inline" == txtVal.style.display ){ strVal = txtVal.value; }
-			else                                  { strVal = getSelected(selVal)[0]; }
-			strDepXML += "<" + strName + ">" + strVal + "</" + strName + ">";
-			*/
 		}
 	}
 	
@@ -1624,18 +1620,6 @@ function buildPlotXML(){
 	strDepXML += "<y1_bufr>" + listInput[1].value + "</y1_bufr>";
 	strDepXML +=  "<y2_lim>" + listInput[2].value + "</y2_lim>";
 	strDepXML += "<y2_bufr>" + listInput[3].value + "</y2_bufr>";
-	
-	//  bootstrapping
-	var chkBoot = document.getElementById("chkBoot");
-	if( chkBoot.checked ){
-		var listBootParm = document.getElementById("tabBootParm").getElementsByTagName("input");
-		strDepXML += "<bootstrapping>";
-		strDepXML += 	 "<boot_repl>" + listBootParm[0].value + "</boot_repl>";
-		strDepXML += 	"<boot_diff1>" + listBootParm[1].value + "</boot_diff1>";
-		strDepXML += 	   "<boot_ci>" + listBootParm[2].value + "</boot_ci>";
-		strDepXML +=	"<boot_diff2>" + listBootParm[3].value + "</boot_diff2>";
-		strDepXML += "</bootstrapping>";		
-	}
 	
 	return strDepXML;
 }
