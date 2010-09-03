@@ -340,7 +340,8 @@ public class MVBatch extends MVUtil {
 				for(int i=0; i < listDepPlot.length; i++){
 					String[] listStats = (String[])listDepPlot[i].getValue();
 					for(int j=0; j < listStats.length; j++){
-						if( _tableModeStatIndex.containsKey(listStats[j]) ){ boolModePlot = true; }
+						if( _tableModeStatIndex.containsKey( parseModeStat(listStats[j])[0] ) ){ boolModePlot = true; }
+						else if( !_tableStatIndex.containsKey(listStats[j]) ){ throw new Exception("statistic " + listStats[j] + " not found"); }
 					}
 				}
 				
@@ -600,50 +601,133 @@ public class MVBatch extends MVUtil {
 					strSelectListModeTemp += ",\n";
 					strSelectListModeTemp += "  h.fcst_var,\n  h." + job.getIndyVar() + ",\n";
 					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_init,")?  "  h.fcst_init,\n" : "");
-					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_valid,")? "  h.fcst_valid,\n" : "");
+					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_valid,")? "  h.fcst_valid,\n" : "");					
 					
-					//  the mode SQL starts with declarations of temp tables
-					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single_cf;");
+					
+					String[] listModeSingleTables = {"mode_single", "mode_single2"};
+					for(int i=0; i < listModeSingleTables.length; i++){
+						listQuery.add("DROP TEMPORARY TABLE IF EXISTS " + listModeSingleTables[i] + ";");
+						listQuery.add(
+							"CREATE TEMPORARY TABLE " + listModeSingleTables[i] + "\n" +
+							"(\n" +
+							strTempListMode +
+							"    centroid_x          DOUBLE,\n" +
+							"    centroid_y          DOUBLE,\n" +
+							"    centroid_lat        DOUBLE,\n" +
+							"    centroid_lon        DOUBLE,\n" +
+							"    axis_avg            DOUBLE,\n" +
+							"    length              DOUBLE,\n" +
+							"    width               DOUBLE,\n" +
+							"    area                INT UNSIGNED,\n" +
+							"    area_filter         INT UNSIGNED,\n" +
+							"    area_thresh         INT UNSIGNED,\n" +
+							"    curvature           DOUBLE,\n" +
+							"    curvature_x         DOUBLE,\n" +
+							"    curvature_y         DOUBLE,\n" +
+							"    complexity          DOUBLE,\n" +
+							"    intensity_10        DOUBLE,\n" +
+							"    intensity_25        DOUBLE,\n" +
+							"    intensity_50        DOUBLE,\n" +
+							"    intensity_75        DOUBLE,\n" +
+							"    intensity_90        DOUBLE,\n" +
+							"    intensity_nn        DOUBLE,\n" +
+							"    intensity_sum       DOUBLE,\n" +
+						    "    fcst_flag           BOOLEAN,\n" +
+						    "    simple_flag         BOOLEAN,\n" +
+						    "    matched_flag        BOOLEAN,\n" +
+							"    INDEX (fcst_valid),\n" +
+							"    INDEX (object_id),\n" +
+							"    INDEX (object_cat)\n" +
+							");");
+					}
+
+					//  insert information from mode_obj_single into the temp tables with header data
 					listQuery.add(
-						"CREATE TEMPORARY TABLE mode_single_cf\n" +
-						"(\n" +
-						strTempListMode +
-						"    area                INT UNSIGNED,\n" +
-						"    intensity_50        DOUBLE,\n" +
-						"    intensity_90        DOUBLE,\n" +
-						"    INDEX (fcst_valid),\n" +
-						"    INDEX (object_id),\n" +
-						"    INDEX (object_cat)\n" +
-						");");
-						
-					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single_co;");
-					listQuery.add(
-						"CREATE TEMPORARY TABLE mode_single_co\n" +
-						"(\n" +
-						strTempListMode +
-						"    area                INT UNSIGNED,\n" +
-						"    intensity_50        DOUBLE,\n" +
-						"    intensity_90        DOUBLE,\n" +
-						"    INDEX (fcst_valid),\n" +
-						"    INDEX (object_id),\n" +
-						"    INDEX (object_cat)\n" +
-						");");
-						
+						"INSERT INTO mode_single\n" +
+						"SELECT\n" + strSelectListModeTemp +
+						"  mos.object_id,\n" +
+						"  mos.object_cat,\n" +
+						"  mos.centroid_x,\n" +
+						"  mos.centroid_y,\n" +
+						"  mos.centroid_lat,\n" +
+						"  mos.centroid_lon,\n" +
+						"  mos.axis_avg,\n" +
+						"  mos.length,\n" +
+						"  mos.width,\n" +
+						"  mos.area,\n" +
+						"  mos.area_filter,\n" +
+						"  mos.area_thresh,\n" +
+						"  mos.curvature,\n" +
+						"  mos.curvature_x,\n" +
+						"  mos.curvature_y,\n" +
+						"  mos.complexity,\n" +
+						"  mos.intensity_10,\n" +
+						"  mos.intensity_25,\n" +
+						"  mos.intensity_50,\n" +
+						"  mos.intensity_75,\n" +
+						"  mos.intensity_90,\n" +
+						"  mos.intensity_nn,\n" +
+						"  mos.intensity_sum,\n" +
+						"  IF(mos.object_id REGEXP '^C?F[[:digit:]]{3}$', 1, 0) fcst_flag,\n" +
+						"  IF(mos.object_id REGEXP '^[FO][[:digit:]]{3}$', 1, 0) simple_flag,\n" +
+						"  IF(mos.object_cat REGEXP '^C[FO]000$', 0, 1) matched_flag\n" +
+						"FROM\n" +
+						"  mode_header h,\n" +
+						"  mode_obj_single mos\n" +
+						"WHERE\n" + strWhereModeTemp + "\n" +
+						"  AND mos.mode_header_id = h.mode_header_id;");
+					listQuery.add("INSERT INTO mode_single2 SELECT * FROM mode_single;");
+							
 					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_pair;");
 					listQuery.add(
 						"CREATE TEMPORARY TABLE mode_pair\n" +
 						"(\n" +
 						strTempListMode +
-						"    interest            DOUBLE,\n" +
-						"    intersection_area   INT UNSIGNED,\n" +
-						"    area_ratio          DOUBLE,\n" +
 						"    centroid_dist       DOUBLE,\n" +
+						"    boundary_dist       DOUBLE,\n" +
+						"    convex_hull_dist    DOUBLE,\n" +
 						"    angle_diff          DOUBLE,\n" +
+						"    area_ratio          DOUBLE,\n" +
+						"    intersection_area   INT UNSIGNED,\n" +
+						"    union_area          INT UNSIGNED,\n" +
+						"    symmetric_diff      INTEGER,\n" +
+						"    intersection_over_area DOUBLE,\n" +
+						"    complexity_ratio    DOUBLE,\n" +
+						"    percentile_intensity_ratio DOUBLE,\n" +
+						"    interest            DOUBLE,\n" +
+						"    simple_flag         BOOLEAN,\n" +
+						"    matched_flag        BOOLEAN,\n" +
 						"    INDEX (fcst_valid),\n" +
 						"    INDEX (object_id),\n" +
 						"    INDEX (object_cat)\n" +
 						");");
 
+					listQuery.add(
+							"INSERT INTO mode_pair\n" +
+							"SELECT\n" + strSelectListModeTemp +
+							"  mop.object_id,\n" +
+							"  mop.object_cat,\n" +
+							"  mop.centroid_dist,\n" +
+							"  mop.boundary_dist,\n" +
+							"  mop.convex_hull_dist,\n" +
+							"  mop.angle_diff,\n" +
+							"  mop.area_ratio,\n" +
+							"  mop.intersection_area,\n" +
+							"  mop.union_area,\n" +
+							"  mop.symmetric_diff,\n" +
+							"  mop.intersection_over_area,\n" +
+							"  mop.complexity_ratio,\n" +
+							"  mop.percentile_intensity_ratio,\n" +
+							"  mop.interest,\n" +
+							"  IF(mop.object_id REGEXP '^F[[:digit:]]{3}_O[[:digit:]]{3}$', 1, 0) simple_flag,\n" +
+							"  IF(mop.interest >= 0.7, 1, 0) matched_flag\n" +
+							"FROM\n" +
+							"  mode_header h,\n" +
+							"  mode_obj_pair mop\n" +
+							"WHERE\n" + strWhereModeTemp + "\n" +
+							"  AND mop.mode_header_id = h.mode_header_id;");
+
+					//  build a table to store the calculated mode statistics 
 					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_stat;");
 					listQuery.add(
 						"CREATE TEMPORARY TABLE mode_stat\n" +
@@ -653,68 +737,7 @@ public class MVBatch extends MVUtil {
 						"    stat_value          DOUBLE\n" +
 						");");
 
-					//  insert data from the mode_obj_single and mode_obj_pair tables into the temp tables
-					listQuery.add(
-						"INSERT INTO mode_single_cf\n" +
-						"SELECT\n" + strSelectListModeTemp +
-						"  mos.object_id,\n" +
-						"  mos.object_cat,\n" +
-						"  mos.area,\n" +
-						"  mos.intensity_50,\n" +
-						"  mos.intensity_90\n" +
-						"FROM\n" +
-						"  mode_header h,\n" +
-						"  mode_obj_single mos\n" +
-						"WHERE\n" + strWhereModeTemp + "\n" +
-						"  AND mos.object_id LIKE 'CF%'\n" +
-						"  AND mos.mode_header_id = h.mode_header_id;");					
-							
-					listQuery.add(
-						"INSERT INTO mode_single_co\n" +
-						"SELECT\n" + strSelectListModeTemp +
-						"  mos.object_id,\n" +
-						"  mos.object_cat,\n" +
-						"  mos.area,\n" +
-						"  mos.intensity_50,\n" +
-						"  mos.intensity_90\n" +
-						"FROM\n" +
-						"  mode_header h,\n" +
-						"  mode_obj_single mos\n" +
-						"WHERE\n" + strWhereModeTemp + "\n" +
-						"  AND mos.object_id LIKE 'CO%'\n" +
-						"  AND mos.mode_header_id = h.mode_header_id;");					
-							
-					listQuery.add(
-						"INSERT INTO mode_pair\n" +
-						"SELECT\n" + strSelectListModeTemp +
-						"  mop.object_id,\n" +
-						"  mop.object_cat,\n" +
-						"  mop.interest,\n" +
-						"  mop.intersection_area,\n" +
-						"  mop.area_ratio,\n" +
-						"  mop.centroid_dist,\n" +
-						"  mop.angle_diff\n" +
-						"FROM\n" +
-						"  mode_header h,\n" +
-						"  mode_obj_pair mop\n" +
-						"WHERE\n" + strWhereModeTemp + "\n" +
-						"  AND mop.mode_header_id = h.mode_header_id;");
-					
-					//  add the mode pair stats to the mode_stats table
-					String[] strModePairStats = {"MMIF", "MMIO", "MIA", "MAR", "MCD", "MAD"};
-					for(int i=0; i < strModePairStats.length; i++){
-						String strModeStatSQL = buildModePairStatTable(strSelectListModeTemp, strModePairStats[i]);
-						listQuery.add(strModeStatSQL);
-						if( strModePairStats[i].startsWith("MMI") ){ listQuery.add(strModeStatSQL.replaceAll("'" + strModePairStats[i] + "'", "'MMI'")); }						
-					}
-					
-					//  add the mode single stats to the mode_stats table
-					String[] strModeSingleStats = {"P50", "P90"};
-					for(int i=0; i < strModeSingleStats.length; i++){
-						String strModeStatSQL = buildModeSingleStatTable(strSelectListModeTemp, strModeSingleStats[i]);
-						listQuery.add(strModeStatSQL);
-					}
-
+					//  add aerial coverage to the stats table 
 					String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
 					strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
 					strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
@@ -736,6 +759,47 @@ public class MVBatch extends MVUtil {
 						"GROUP BY\n" + strACOVGroup + ";"
 					);
 						
+					//  construct a query for the dependent variable statistics for the y1 and y2 axes 
+					for(int intY=1; intY <= 2; intY++){
+						Map.Entry[] listSeriesMode = (1 == intY? listSeries1Val : listSeries2Val);
+						MVOrderedMap[] listMapDepMode = (1 == intY? listMapDep1Mode : listMapDep2Mode);
+						if( 1 >  listMapDepMode.length ){ listMapDepMode = new MVOrderedMap[]{ (1 == intY? mapDep1 : mapDep2) }; }
+						
+						//  build a list of the group by variables, the independent variable plus series variables
+						ArrayList listGroupFields = new ArrayList();
+						listGroupFields.add(job.getIndyVar());
+						for(int i=0; i < listSeriesMode.length; i++){
+							listGroupFields.add( listSeriesMode[i].getKey().toString() );
+						}
+						String[] listGroupBy = (String[])listGroupFields.toArray(new String[]{});
+
+						//  for each member of the dep list, build queries for all the statistics
+						for(int intDepMode=0; intDepMode < listMapDepMode.length; intDepMode++){ 
+							Map.Entry[] listDepMode = listMapDepMode[intDepMode].getOrderedEntries();						
+							for(int intFcstVar=0; intFcstVar < listDepMode.length; intFcstVar++){
+								String[] listModeStats =  (String[])listDepMode[intFcstVar].getValue();
+								for(int intStatMode=0; intStatMode < listModeStats.length; intStatMode++){
+									
+									//  build the appropriate type of query, depending on the statistic
+									String[] listStatComp = parseModeStat(listModeStats[intStatMode]);
+									if( _tableModeSingleStatField.containsKey(listStatComp[0]) ){
+										if( !listStatComp[1].startsWith("D") ){
+											listQuery.add( buildModeSingleStatTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
+										} else {
+											listQuery.add( buildModeSingleStatDiffTable(strSelectListModeTemp, listModeStats[intStatMode]) );
+										}
+									} else if( _tableModePairStatField.containsKey(listStatComp[0]) ){
+										listQuery.add( buildModePairStatTable(strSelectListModeTemp, listModeStats[intStatMode]) );
+									} else if( listStatComp[0].equals("RATIO") || listStatComp[0].equals("AREARAT") || listModeStats[intStatMode].startsWith("OBJ") ){
+										listQuery.add( buildModeSingleStatRatioTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
+									}
+									
+									
+								}
+							}					
+						}
+					}
+										
 					//  build a select that will pull the data table for the plots
 					strSelectListModeTemp = strSelectListModeTemp.replaceAll("h\\.", "");
 					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_init,",  getSQLDateFormat("fcst_init")  + " fcst_init,");
@@ -748,6 +812,7 @@ public class MVBatch extends MVUtil {
 						"  stat_name,\n" +
 						"  stat_value\n" +  
 						"FROM mode_stat;");
+
 				}
 				
 				//  reformat the select list
@@ -1498,23 +1563,19 @@ public class MVBatch extends MVUtil {
 		return strRet;
 	}
 
-	public static MVDataTable getUniqueModeObjRows(MVDataTable table, String field, String objPattern){
-		final String strField = field;
-		final String strObjPattern = objPattern;
-		final MVOrderedMap mapObjRow = new MVOrderedMap();
-		return table.getRows(
-				new MVRowComp(){
-					public boolean equals(MVOrderedMap row){
-						String strSimpFcstVal = row.getStr("fcst_valid") + "#" + row.getStr(strField);
-						if( !row.getStr(strField).matches(strObjPattern) || mapObjRow.containsKey(strSimpFcstVal) ){ return false; }
-						mapObjRow.put(strSimpFcstVal, "TRUE");
-						return true;
-					}
-				}
-		);
-	}
-	
-	public static String buildModePairStatTable(String strSelectList, String strStat){
+	public static String buildModePairStatTable(String strSelectList, String stat){
+		
+		//  parse the stat into the stat name and the object flags
+		String[] listStatParse = parseModeStat(stat);
+		if( 2 != listStatParse.length ){ return ""; }
+		String strStatName = listStatParse[0];
+		String strStatFlag = listStatParse[1];
+		
+		//  build the object flag where clause
+		String strWhere = "";		
+		if( strStatFlag.charAt(0) != 'A' ){ strWhere += 										   "  fcst_flag = " +    ('F' == strStatFlag.charAt(0)? "1" : "0"); }
+		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "  simple_flag = " +  ('S' == strStatFlag.charAt(0)? "1" : "0"); }
+		strWhere = (strWhere.equals("")? "" : "\nWHERE\n" + strWhere);
 		
 		//  build the list of fields involved in the computations
 		String strSelectListStat = strSelectList.replaceAll("h\\.", "");
@@ -1523,17 +1584,15 @@ public class MVBatch extends MVUtil {
 		//  set the object_id field, depending on the stat
 		String strObjectId = "object_id";
 		String strObjectIdName = "object_id";
-		if     ( strStat.equals("MMIF") ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) fcst_id"; strObjectIdName = "fcst_id"; }
-		else if( strStat.equals("MMIO") ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) obs_id";     strObjectIdName = "obs_id"; }
+		String strGroupBy = "";
+		if( strStatName.equals("MAXINT") ){
+			strGroupBy = "\nGROUP BY\n" + strGroupListMMI + "  " + strObjectIdName;
+			if     ( strStatFlag.charAt(0) == 'F' ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) fcst_id"; strObjectIdName = "fcst_id"; }
+			else if( strStatFlag.charAt(0) == 'O' ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) obs_id";     strObjectIdName = "obs_id"; }
+		}
 		
 		//  set the table stat field, object_id pattern and group by clause, depending on the stat
-		String strTableStat = _tableModePairStatFields.get(strStat).toString();
-		
-		String strObjectIdPattern = "CF%_CO%";
-		if( strStat.startsWith("MMI") ){ strObjectIdPattern = "F%_O%"; }
-		
-		String strGroupBy = "";
-		if( strStat.startsWith("MMI") ){ strGroupBy = "\nGROUP BY\n" + strGroupListMMI + "  " + strObjectIdName; }
+		String strTableStat = _tableModePairStatField.get(strStatName).toString();
 		
 		//  build the query
 		String strQuery =
@@ -1541,48 +1600,128 @@ public class MVBatch extends MVUtil {
 			"SELECT\n" + strSelectListStat +
 			"  " + strObjectId + ",\n" +
 			"  object_cat,\n" +
-			"  '" + strStat + "' stat_name,\n" +
+			"  '" + stat + "' stat_name,\n" +
 			"  " + strTableStat + " stat_value\n" +  
-			"FROM mode_pair\n" +
-			"WHERE object_id LIKE '" + strObjectIdPattern + "'" +
-			strGroupBy + ";";
+			"FROM mode_pair" + strWhere + strGroupBy + ";";
 		
 		return strQuery;		
-	}
+	}	
 	
 	public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
-	public static String buildModeSingleStatTable(String strSelectList, String strStat){
+	public static String buildModeSingleStatDiffTable(String strSelectList, String stat){
 		
+		//  parse the stat into the stat name and the object flags
+		String[] listStatParse = parseModeStat(stat);
+		if( 2 != listStatParse.length ){ return ""; }
+		String strStatName = listStatParse[0];
+		String strStatFlag = listStatParse[1];
+
 		//  build the list of fields involved in the computations
-		String strSelectListStat = strSelectList.replaceAll("h\\.", "cf.");
+		String strSelectListStat = strSelectList.replaceAll("h\\.", "s.");
 		
 		//  build the where clause using the input select fields
 		String strWhere = "";
 		Matcher mat = _patModeSingle.matcher(strSelectList);
 		while( mat.find() ){
-			strWhere += "\n  AND cf." + mat.group(1) + " = co." + mat.group(1);
+			strWhere += "\n  AND s." + mat.group(1) + " = s2." + mat.group(1);
 		}
+		if( strStatFlag.charAt(1) != 'A' ){ 
+			strWhere += "\n  AND s.simple_flag = " +  ('S' == strStatFlag.charAt(1)? "1" : "0") +
+						"\n  AND s2.simple_flag = " + ('S' == strStatFlag.charAt(1)? "1" : "0");		
+		}
+		if( strStatFlag.charAt(2) != 'A' ){
+			strWhere += "\n  AND s.matched_flag = " +  ('M' == strStatFlag.charAt(2)? "1" : "0") +
+						"\n  AND s2.matched_flag = " + ('M' == strStatFlag.charAt(2)? "1" : "0");
+		}		
 		
 		//  set the table stat field, object_id pattern and group by clause, depending on the stat
-		String strTableStat = _tableModeSingleStatFields.get(strStat).toString();
+		String strTableStat = _tableModeSingleStatField.get(strStatName).toString();
 		
 		//  build the query
 		String strQuery =
 			"INSERT INTO mode_stat\n" +
 			"SELECT\n" + strSelectListStat +
-			"  cf.object_id,\n" +
-			"  cf.object_cat,\n" +
-			"  '" + strStat + "' stat_name,\n" +
-			"  cf." + strTableStat + " - co." + strTableStat + " stat_value\n" +  
-			"FROM mode_single_cf cf, mode_single_co co\n" +
+			"  s.object_id,\n" +
+			"  s.object_cat,\n" +
+			"  '" + stat + "' stat_name,\n" +
+			"  s." + strTableStat + " - s2." + strTableStat + " stat_value\n" +  
+			"FROM mode_single s, mode_single2 s2\n" +
 			"WHERE\n" +
-			"  SUBSTR(cf.object_id, 3) = SUBSTR(co.object_id, 3)" +
+			"  s.fcst_flag = 1\n" +
+			"  AND s2.fcst_flag = 0\n" +
+			"  AND RIGHT(s.object_id, 3) = RIGHT(s2.object_id, 3)" +
 			strWhere + ";";
 		
-		return strQuery;		
+		return strQuery;
 	}
 	
-	
+	public static String buildModeSingleStatTable(String selectList, String stat, String[] groups){
+
+		//  parse the stat into the stat name and the object flags
+		String[] listStatParse = parseModeStat(stat);
+		if( 2 != listStatParse.length ){ return ""; }
+		String strStatName = listStatParse[0];
+		String strStatFlag = listStatParse[1];
+		
+		//  build the list of fields involved in the computations
+		String strSelectListStat = selectList.replaceAll("h\\.", "");
+		
+		//  set the table stat field
+		String strTableStat = _tableModeSingleStatField.get(strStatName).toString();
+		
+		//  build the object flag where clause		
+		String strWhere = "";
+		if( strStatFlag.charAt(0) != 'A' ){ strWhere +=                                          "  fcst_flag = " +    ('F' == strStatFlag.charAt(0)? "1" : "0"); }
+		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "simple_flag = " +  ('S' == strStatFlag.charAt(1)? "1" : "0"); }
+		if( strStatFlag.charAt(2) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "matched_flag = " + ('M' == strStatFlag.charAt(2)? "1" : "0"); }
+		strWhere = (strWhere.equals("")? "" : "\nWHERE\n" + strWhere);
+		
+		//  build the group by clause
+		String strGroupBy = "";
+		if( strStatName.equals("CNT") ){ 
+			strGroupBy = "\nGROUP BY\n";
+			for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }			
+		}
+		
+		//  build the query
+		String strQuery =
+			"INSERT INTO mode_stat\n" +
+			"SELECT\n" + strSelectListStat +
+			"  object_id,\n" +
+			"  object_cat,\n" +
+			"  '" + stat + "' stat_name,\n" +
+			"  " + strTableStat + " stat_value\n" +  
+			"FROM mode_single" + strWhere + strGroupBy + ";";
+		
+		return strQuery;
+	}
+
+	public static String buildModeSingleStatRatioTable(String selectList, String stat, String[] groups){
+
+		//  build the list of fields involved in the computations
+		String strSelectListStat = selectList.replaceAll("h\\.", "");
+		
+		//  set the table stat field
+		String strTableStat = _tableModeRatioField.get(stat).toString();
+		
+		//  build the group by clause
+		String strGroupBy = "";
+		for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
+		
+		//  build the query
+		String strQuery =
+			"INSERT INTO mode_stat\n" +
+			"SELECT\n" + strSelectListStat +
+			"  object_id,\n" +
+			"  object_cat,\n" +
+			"  '" + stat + "' stat_name,\n" +
+			"  " + strTableStat + " stat_value\n" +  
+			"FROM mode_single\n" + 
+			"GROUP BY\n" + strGroupBy + ";";
+		
+		return strQuery;
+	}
+
 	/**
 	 * Mapping from stat_name to stat_group_lu_id, used in SQL queries
 	 */
@@ -1654,6 +1793,73 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("MMI", 		"8");
 		_tableModeStatIndex.put("MMIF",		"9");
 		_tableModeStatIndex.put("MMIO",		"10");
+		
+		_tableModeStatIndex.put("CNT",		"100");
+		_tableModeStatIndex.put("CENTX",	"101");
+		_tableModeStatIndex.put("CENTY",	"102");
+		_tableModeStatIndex.put("CENTLAT",	"103");
+		_tableModeStatIndex.put("CENTLON",	"104");
+		_tableModeStatIndex.put("AXAVG",	"105");
+		_tableModeStatIndex.put("LEN",		"106");
+		_tableModeStatIndex.put("WID",		"107");
+		_tableModeStatIndex.put("AREA",		"108");
+		_tableModeStatIndex.put("AREAFIL",	"109");
+		_tableModeStatIndex.put("AREATHR",	"110");
+		_tableModeStatIndex.put("CURV",		"111");
+		_tableModeStatIndex.put("CURVX",	"112");
+		_tableModeStatIndex.put("CURVY",	"113");
+		_tableModeStatIndex.put("CPLX",		"114");
+		_tableModeStatIndex.put("INT10",	"115");
+		_tableModeStatIndex.put("INT25",	"116");
+		_tableModeStatIndex.put("INT50",	"117");
+		_tableModeStatIndex.put("INT75",	"118");
+		_tableModeStatIndex.put("INT90",	"119");
+		_tableModeStatIndex.put("INTN",		"120");
+		_tableModeStatIndex.put("INTSUM",	"121");
+		_tableModeStatIndex.put("RATIO",	"122");
+		_tableModeStatIndex.put("AREARAT",	"123");
+		_tableModeStatIndex.put("OBJHITS",	"124");
+		_tableModeStatIndex.put("OBJMISSES","125");
+		_tableModeStatIndex.put("OBJFAS",	"126");
+		_tableModeStatIndex.put("OBJCSI",	"127");
+		_tableModeStatIndex.put("OBJPODY",	"128");
+		_tableModeStatIndex.put("OBJFAR",	"129");
+		_tableModeStatIndex.put("OBJAHITS",	"130");
+		_tableModeStatIndex.put("OBJAMISSES","131");
+		_tableModeStatIndex.put("OBJAFAS",	"132");
+		_tableModeStatIndex.put("OBJACSI",	"133");
+		_tableModeStatIndex.put("OBJAPODY",	"134");
+		_tableModeStatIndex.put("OBJAFAR",	"135");
+				
+		_tableModeStatIndex.put("CENTDIST",		"150");
+		_tableModeStatIndex.put("BOUNDDIST",	"151");
+		_tableModeStatIndex.put("HULLDIST",		"152");
+		_tableModeStatIndex.put("ANGLEDIFF",	"153");
+		_tableModeStatIndex.put("AREARAT",		"154");
+		_tableModeStatIndex.put("INTAREA",		"155");
+		_tableModeStatIndex.put("UNIONAREA",	"156");
+		_tableModeStatIndex.put("SYMDIFF",		"157");
+		_tableModeStatIndex.put("INTOVERAREA",	"158");
+		_tableModeStatIndex.put("CMPLXRATIO",	"159");
+		_tableModeStatIndex.put("PERCINTRATIO",	"160");
+		_tableModeStatIndex.put("INT",			"161");
+		_tableModeStatIndex.put("MAXINT",		"162");
+
+	}
+	
+	public static final Hashtable _tableModeStatRename = new Hashtable();
+	static{
+		_tableModeStatIndex.put("ACOV",		"0");
+		_tableModeStatIndex.put("PERC", 	"1");
+		_tableModeStatIndex.put("MIA", 		"MIA_ACM");
+		_tableModeStatIndex.put("MAR", 		"MAR_ACM");
+		_tableModeStatIndex.put("MCD", 		"MCD_ACM");
+		_tableModeStatIndex.put("MAD", 		"MAD_ACM");
+		_tableModeStatIndex.put("P50", 		"P50_DCM");
+		_tableModeStatIndex.put("P90", 		"P90_DCM`");
+		_tableModeStatIndex.put("MMI", 		"MMI_ASM");
+		_tableModeStatIndex.put("MMIF",		"MMI_FSM");
+		_tableModeStatIndex.put("MMIO",		"MMI_OSM");
 	}
 	
 	public static final Hashtable _tableStatLine = new Hashtable();
@@ -1705,18 +1911,6 @@ public class MVBatch extends MVUtil {
 		_tableStatLine.put("NBR_ODDS",	"NBRCTS");
 		_tableStatLine.put("NBR_FBS", 	"NBRCNT");
 		_tableStatLine.put("NBR_FSS", 	"NBRCNT");
-	}
-
-	/**
-	 * Mapping from fcst_var to fcst_lev surface values
-	 */
-	public static final Hashtable _tableFcstLevSurface = new Hashtable();
-	static{
-		_tableFcstLevSurface.put("TMP", "Z2");
-		_tableFcstLevSurface.put("DPT", "Z2");
-		_tableFcstLevSurface.put("WIND", "Z10");
-		_tableFcstLevSurface.put("APCP_03", "A3");
-		_tableFcstLevSurface.put("APCP_24", "APCP_03");
 	}
 	
 	public static final Hashtable _tableStatHeaderSQLType = new Hashtable();
@@ -1806,23 +2000,125 @@ public class MVBatch extends MVUtil {
 		_tableModeSingleSQLTypes.put("intensity_sum",	"DOUBLE");
 	}
 	
-	public static final Hashtable _tableModePairStatFields = new Hashtable();
+	public static final Hashtable _tableModeSingleStatField = new Hashtable();
 	static{
-		_tableModePairStatFields.put("MMI",				"MAX(interest)");
-		_tableModePairStatFields.put("MMIF",			"MAX(interest)");
-		_tableModePairStatFields.put("MMIO",			"MAX(interest)");
-		_tableModePairStatFields.put("MIA",				"intersection_area");
-		_tableModePairStatFields.put("MAR",				"area_ratio");
-		_tableModePairStatFields.put("MCD",				"centroid_dist");
-		_tableModePairStatFields.put("MAD",				"angle_diff");
+		_tableModeSingleStatField.put("CNT",			"COUNT(object_id)");
+		_tableModeSingleStatField.put("CENTX",			"centroid_x");
+		_tableModeSingleStatField.put("CENTY",			"centroid_y");
+		_tableModeSingleStatField.put("CENTLAT",		"centroid_lat");
+		_tableModeSingleStatField.put("CENTLON",		"centroid_lon");
+		_tableModeSingleStatField.put("AXAVG",			"axis_avg");
+		_tableModeSingleStatField.put("LEN",			"length");
+		_tableModeSingleStatField.put("WID",			"width");
+		_tableModeSingleStatField.put("AREA",			"area");
+		_tableModeSingleStatField.put("AREAFIL",		"area_filter");
+		_tableModeSingleStatField.put("AREATHR",		"area_threshold");
+		_tableModeSingleStatField.put("CURV",			"curvature");
+		_tableModeSingleStatField.put("CURVX",			"curvature_x");
+		_tableModeSingleStatField.put("CURVY",			"curvature_y");
+		_tableModeSingleStatField.put("CPLX",			"complexity");
+		_tableModeSingleStatField.put("INT10",			"intensity_10");
+		_tableModeSingleStatField.put("INT25",			"intensity_25");
+		_tableModeSingleStatField.put("INT50",			"intensity_50");
+		_tableModeSingleStatField.put("INT75",			"intensity_75");
+		_tableModeSingleStatField.put("INT90",			"intensity_90");
+		_tableModeSingleStatField.put("INTN",			"intensity_nn");
+		_tableModeSingleStatField.put("INTSUM",			"intensity_sum");
 	}
 	
-	public static final Hashtable _tableModeSingleStatFields = new Hashtable();
+	public static final Hashtable _tableModePairStatField = new Hashtable();
 	static{
-		_tableModeSingleStatFields.put("P50",			"intensity_50");
-		_tableModeSingleStatFields.put("P90",			"intensity_90");
+		_tableModePairStatField.put("CENTDIST",			"centroid_dist");
+		_tableModePairStatField.put("BOUNDDIST",		"boundary_dist");
+		_tableModePairStatField.put("HULLDIST",			"convex_hull_dist");
+		_tableModePairStatField.put("ANGLEDIFF",		"angle_diff");
+		_tableModePairStatField.put("AREARAT",			"area_ratio");
+		_tableModePairStatField.put("INTAREA",			"intersection_area");
+		_tableModePairStatField.put("UNIONAREA",		"union_area");
+		_tableModePairStatField.put("SYMDIFF",			"symmetric_diff");
+		_tableModePairStatField.put("INTOVERAREA",		"intersection_over_area");
+		_tableModePairStatField.put("CMPLXRATIO",		"complexity_ratio");
+		_tableModePairStatField.put("PERCINTRATIO",		"percentile_intensity_ratio");
+		_tableModePairStatField.put("INT",				"interest");
+		_tableModePairStatField.put("MAXINT",			"MAX(interest)");
 	}
 	
+	public static final Hashtable _tableModeRatioField = new Hashtable();
+	static{
+		_tableModeRatioField.put("RATIO_FSA_ASA",	"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(simple_flag = 1)"); 
+		_tableModeRatioField.put("RATIO_OSA_ASA",	"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_ASM_ASA",	"SUM(simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_ASU_ASA",	"SUM(simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_FSM_FSA",	"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_FSU_FSA",	"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");  
+		_tableModeRatioField.put("RATIO_OSM_OSA",	"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_OSU_OSA",	"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_FSM_ASM",	"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)");
+		_tableModeRatioField.put("RATIO_OSM_ASM",	"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)");
+		_tableModeRatioField.put("RATIO_FSU_ASU",	"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)");  
+		_tableModeRatioField.put("RATIO_OSU_ASU",	"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)");  		
+		_tableModeRatioField.put("RATIO_FSA_AAA",	"SUM(fcst_flag = 1 && simple_flag = 1) / count(object_id)");  
+		_tableModeRatioField.put("RATIO_OSA_AAA",	"SUM(fcst_flag = 0 && simple_flag = 1) / count(object_id)");  
+		_tableModeRatioField.put("RATIO_FSA_FAA",	"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1)"); 
+		_tableModeRatioField.put("RATIO_FCA_FAA",	"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1)");
+		_tableModeRatioField.put("RATIO_OSA_OAA",	"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0)");
+		_tableModeRatioField.put("RATIO_OCA_OAA",	"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0)");
+		_tableModeRatioField.put("RATIO_FCA_ACA",	"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(simple_flag = 0)");
+		_tableModeRatioField.put("RATIO_OCA_ACA",	"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(simple_flag = 0)");
+		_tableModeRatioField.put("RATIO_FSA_OSA",	"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_OSA_FSA",	"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_ACA_ASA",	"SUM(simple_flag = 0) / SUM(simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_ASA_ACA",	"SUM(simple_flag = 1) / SUM(simple_flag = 0)");
+		_tableModeRatioField.put("RATIO_FCA_FSA",	"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_FCA_FSA",	"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 0)");
+		_tableModeRatioField.put("RATIO_OCA_OSA",	"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
+		_tableModeRatioField.put("RATIO_OCA_OSA",	"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 0)");
+		
+		_tableModeRatioField.put("OBJHITS",		"SUM(simple_flag = 1 && matched_flag = 1) / 2");
+		_tableModeRatioField.put("OBJMISSES",	"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0)");
+		_tableModeRatioField.put("OBJFAS",		"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0)");
+		_tableModeRatioField.put("OBJCSI",		"SUM(simple_flag = 1 && matched_flag = 1) / (2 * SUM(simple_flag = 1 && matched_flag = 0)");
+		_tableModeRatioField.put("OBJPODY",		"SUM(simple_flag = 1 && matched_flag = 1) / " +
+															"( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) )");
+		_tableModeRatioField.put("OBJFAR",		"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / " +
+												"( SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) + SUM(simple_flag = 1 && matched_flag = 1) / 2 )");
+
+		_tableModeRatioField.put("AREARAT_FSA_ASA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )"); 
+		_tableModeRatioField.put("AREARAT_OSA_ASA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_ASM_ASA",	"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_ASU_ASA",	"SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FSM_FSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FSU_FSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");  
+		_tableModeRatioField.put("AREARAT_OSM_OSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OSU_OSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FSM_ASM",	"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OSM_ASM",	"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FSU_ASU",	"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");  
+		_tableModeRatioField.put("AREARAT_OSU_ASU",	"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");  		
+		_tableModeRatioField.put("AREARAT_FSA_AAA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / count(object_id)");  
+		_tableModeRatioField.put("AREARAT_OSA_AAA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / count(object_id)");  
+		_tableModeRatioField.put("AREARAT_FSA_FAA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )"); 
+		_tableModeRatioField.put("AREARAT_FCA_FAA",	"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OSA_OAA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OCA_OAA",	"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FCA_ACA",	"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OCA_ACA",	"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FSA_OSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OSA_FSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_ACA_ASA",	"SUM( IF(simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_ASA_ACA",	"SUM( IF(simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FCA_FSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FCA_FSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OCA_OSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OCA_OSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) )");
+		
+		_tableModeRatioField.put("OBJAHITS",		"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2");
+		_tableModeRatioField.put("OBJAMISSES",		"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) )");
+		_tableModeRatioField.put("OBJAFAS",			"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) )");
+		_tableModeRatioField.put("OBJACSI",			"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / (2 * SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");
+		_tableModeRatioField.put("OBJAPODY",		"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
+													"( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) )");
+		_tableModeRatioField.put("OBJAFAR",			"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / " +
+													"( SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) + SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2 )");
+	}
 }
-
-

@@ -61,15 +61,30 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 				<td>
 					<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
 					<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Stats &#187;"/><br/>
+					<input type="hidden" value="0"/>					
 				</td>
 				<td style="padding-left:10px">
 					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5" 
-						onchange="javascript:buildSeriesDiv()"></select>&nbsp;&nbsp;
+						onchange="javascript:updateDepStat(0)"></select>&nbsp;&nbsp;
+				</td>
+				<td style="display:none; padding-right:20px">
+					<span><input type="checkbox" onchange="javascript:modeStatDiffChk(0)"/> Difference<br/></span>				
+					<input type="checkbox" checked="checked"/> Fcst<br/>				
+					<input type="checkbox" checked="checked"/> Obs
+				</td>
+				<td style="display:none; padding-right:20px">
+					<input type="checkbox" checked="checked"/> Simple<br/>				
+					<input type="checkbox" checked="checked"/> Cluster
+				</td>
+				<td style="display:none; padding-right:20px">
+					<input type="checkbox" checked="checked"/> Matched<br/>				
+					<input type="checkbox" checked="checked"/> Unmatched
+				</td>
+				<td>
 					<span style="display:none">
 						<img src="include/sub_symbol.gif" style="padding-left: 20px"/>&nbsp;&nbsp;
 						<a class="link" onclick="javascript:removeDep1Var(0)">Remove Dependent Variable</a>
 					</span>
-					<input type="hidden" value="0"/>
 				</td>
 			</tr></table></div>
 

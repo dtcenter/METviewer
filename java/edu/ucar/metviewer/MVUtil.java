@@ -859,6 +859,21 @@ public class MVUtil{
 		public String toString(){ return key.toString() + "=" + value.toString(); }
 	}
 	
+	/**
+	 * Parse the input mode statistic, which is assume to have the form SSSS_FFF, where SSSS is the name
+	 * of a mode statistic with arbitrary lenght and FFF is a three character flag indicator string.
+	 * @param stat Mode stat to parse
+	 * @return if successful, a String[] of length 2, with the stat name as the first component and 
+	 * the flag indicator string as the second; otherwise, a String[] of length 1 containing the 
+	 * input stat 
+	 */
+	public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
+	public static String[] parseModeStat(String stat){
+		Matcher mat = _patModeStat.matcher(stat);
+		if( !mat.matches() ){ return new String[]{ stat }; }
+		return new String[]{ mat.group(1), mat.group(2) };
+	}
+	
 	/*
 	public static class TxtProgBar{
 		

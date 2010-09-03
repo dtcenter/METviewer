@@ -177,9 +177,18 @@ public class MVServlet extends HttpServlet {
 					String strDBCon = nodeCall._value; 
 					if( _tableDBConnection.containsKey(strDBCon) ){						
 						con = (Connection)_tableDBConnection.get(strDBCon);
+
+						//  if the connection is present, test it
 						if( !con.isClosed() ){
-							_logger.debug("doPost() - db_con: using cached connection " + strDBCon);
-							continue;
+							try{
+								Statement stmt = con.createStatement();
+								stmt.executeQuery("SELECT COUNT(*) FROM stat_group_lu;");
+								stmt.close();
+								_logger.debug("doPost() - db_con: using cached connection " + strDBCon);
+								continue;
+							}catch(Exception e){
+								_logger.debug("doPost() - db_con: cached connection " + strDBCon + " is inoperable");
+							}
 						} else {
 							_logger.debug("doPost() - db_con: cached connection " + strDBCon + " is closed");
 						}
@@ -206,16 +215,10 @@ public class MVServlet extends HttpServlet {
 				else if( nodeCall._tag.equalsIgnoreCase("list_stat") ) { strResp += handleListStat (nodeCall, strRequestBody, con); }
 
 				//  <list_val_clear_cache>
-				else if( nodeCall._tag.equalsIgnoreCase("list_val_clear_cache") ){
-					_tableListValCache.clear();
-					strResp = "<list_val_clear_cache>success</list_val_clear_cache>";
-				}
+				else if( nodeCall._tag.equalsIgnoreCase("list_val_clear_cache") ){ strResp += handleClearListValCache(con); }
 				
 				//  <list_stat_clear_cache>
-				else if( nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache") ){
-					_tableListStatCache.clear();
-					strResp = "<list_stat_clear_cache>success</list_stat_clear_cache>";
-				}
+				else if( nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache") ){ strResp += handleClearListStatCache(con); }
 				
 				//  <plot>
 				else if( nodeCall._tag.equalsIgnoreCase("plot") ) { strResp += handlePlot(strRequestBody, con); }
@@ -238,6 +241,51 @@ public class MVServlet extends HttpServlet {
         	_logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString());
         	out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
         }
+    }
+    
+    /**
+     * Clear cached <list_val> values for the input database 
+     * @param con
+     * @return reponse XML indicating progress
+     * @throws Exception
+     */
+    public static String handleClearListValCache(Connection con) throws Exception{
+    	if( !_boolListValCache ){ return "<error>caching list_val caching not activated</error>"; }    	
+    	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
+    	int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
+    	return "<list_val_clear_cache>success: removed " + intNumRemoved + " entries</list_val_clear_cache>";
+    }
+    
+    /**
+     * Clear cached <list_stat> values for the input database 
+     * @param con
+     * @return reponse XML indicating progress
+     * @throws Exception
+     */
+    public static String handleClearListStatCache(Connection con) throws Exception{
+    	if( !_boolListStatCache ){ return "<error>caching list_stat caching not activated</error>"; }
+    	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
+    	int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
+    	return "<list_stat_clear_cache>success: removed " + intNumRemoved + " entries</list_stat_clear_cache>";
+    }
+    
+    /**
+     * Searches all key values of the input table, which are assumed to be Strings, and removes any entry
+     * whose key matches the specified prefix
+     * @param prefix String key prefix to match
+     * @param table Table from which matching entries will be removed
+     * @return number of removed entries
+     */
+    public static int removeTableEntriesByKeyPrefix(String prefix, Hashtable table){
+    	int intNumRemoved = 0;
+    	Map.Entry[] listEntries = (Map.Entry[])table.entrySet().toArray(new Map.Entry[]{});
+    	for(int i=0; i < listEntries.length; i++){
+    		String strKey = listEntries[i].getKey().toString(); 
+    		if( !strKey.startsWith( prefix ) ){ continue; } 
+    		table.remove(strKey);
+			intNumRemoved++;
+    	}
+    	return intNumRemoved;
     }
     
     /**

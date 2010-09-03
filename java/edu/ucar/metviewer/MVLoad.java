@@ -610,12 +610,9 @@ public class MVLoad extends MVUtil {
 					}
 					
 					//  if the stat value is legit, add it to the insert
-					/*
-					if( !strStatValue.equals("NA") && !strStatValue.equals("nan") ){
+					if( !strStatValue.equalsIgnoreCase("NA") && !strStatValue.equalsIgnoreCase("nan") ){
 						d._listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 					}
-					*/
-					d._listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
 				}
 				intStatGroupRecords++;
 			}

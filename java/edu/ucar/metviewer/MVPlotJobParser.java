@@ -441,7 +441,8 @@ public class MVPlotJobParser extends MVUtil{
 							//  <stat>s
 							for(int l=0; l < nodeFcstVar._children.length; l++){
 								String strStat = nodeFcstVar._children[l]._value;
-								if( !MVBatch._tableStatIndex.containsKey(strStat) && !MVBatch._tableModeStatIndex.containsKey(strStat) ){
+								String[] listStatComp = parseModeStat(strStat);
+								if( !MVBatch._tableStatIndex.containsKey(strStat) && !MVBatch._tableModeStatIndex.containsKey(listStatComp[0]) ){
 									throw new Exception("unknown stat name " + strStat);
 								}
 								listStats.add(strStat);

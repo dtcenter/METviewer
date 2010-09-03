@@ -237,7 +237,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<a name="dep"></a>		
 			<li><span class="code">&lt;dep&gt;</span>: information about the dependent variables of the plot.  Each curve of the plot is assumed to have a constant fcst_var and
 			constant statistic.  The stats plotted on the two dependent axes (y1 and y2) are specified using the identical <span class="term">dep1</span> and 
-			<span class="term">dep2</span> structures.  Fixed values, which correspond to each fcst_var, are specified using the <span class="term">fix</span> structure.   
+			<span class="term">dep2</span> structures.  Fixed values, which correspond to each fcst_var, are specified using the <span class="term">fix</span> structure.  The
+			<a href="#mode_stat">MODE statistics</a> documentation can be viewed below on this page.   
 				<ul>
 					<li><span class="code">&lt;dep1&gt;</span>: the fcst_var/stat pairs for the first dependent axis (y1)
 						<ul>
@@ -404,7 +405,131 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			
 		</ul>
 	</li><br/>
-	
+	</ul>
 
+	<hr/>
+	<a name="mode_stat"></a>		
+	<h2>Mode Statistics</h2>
+	<h3 style="padding-left:20px">Single Object Statistics</h3>
+	<p style="padding-left:40px">
+	MODE statistics are broken up into two categories: single and pair statistics.  Single statistics are suffixed with a three letter code which indicates the group of objects
+	over which the statistic should be calculated or aggregated. The syntax for the three letter code is as follows: <span class="term">STATNAME_CCC</span> where   
+	<span class="term">STATNAME</span> is one of the Single Ojbect Statistics in the table below, and <span class="term">CCC</span> follows the following system:
+	
+	<ul>
+		<li><span class="term">[A|F|O|D]</span> - indicating All, Forecast, Observed or a Difference between the forecast statistic and the observed statistic</li>
+		<li><span class="term">[A|S|C]</span> - indicating All, Simple or Cluster objects</li>
+		<li><span class="term">[A|M|U]</span> - indicating All, Matched or Unmatched objects</li>
+	</ul>	
+	</p>
+		
+	<p style="padding-left:60px">	
+	<table border="1" cellspacing="0">
+	    <tr><th align="left">Single Object Stat</th>	<th align="left">METViewer Stat Name</th></tr>
+		<tr><td>COUNT(object_id)</td>					<td><span class="term">CNT</span></td></tr>
+		<tr><td>centroid_x</td>							<td><span class="term">CENTX</span></td></tr>
+		<tr><td>centroid_y</td>							<td><span class="term">CENTY</span></td></tr>
+		<tr><td>centroid_lat</td>						<td><span class="term">CENTLAT</span></td></tr>
+		<tr><td>centroid_lon</td>						<td><span class="term">CENTLON</span></td></tr>
+		<tr><td>axis_avg</td>							<td><span class="term">AXAVG</span></td></tr>
+		<tr><td>length</td>								<td><span class="term">LEN</span></td></tr>
+		<tr><td>width</td>								<td><span class="term">WID</span></td></tr>
+		<tr><td>area</td>								<td><span class="term">AREA</span></td></tr>
+		<tr><td>area_filter</td>						<td><span class="term">AREAFIL</span></td></tr>
+		<tr><td>area_threshold</td>						<td><span class="term">AREATHR</span></td></tr>
+		<tr><td>curvature</td>							<td><span class="term">CURV</span></td></tr>
+		<tr><td>curvature_x</td>						<td><span class="term">CURVX</span></td></tr>
+		<tr><td>curvature_y</td>						<td><span class="term">CURVY</span></td></tr>
+		<tr><td>complexity</td>							<td><span class="term">CPLX</span></td></tr>
+		<tr><td>intensity_10</td>						<td><span class="term">INT10</span></td></tr>
+		<tr><td>intensity_25</td>						<td><span class="term">INT25</span></td></tr>
+		<tr><td>intensity_50</td>						<td><span class="term">INT50</span></td></tr>
+		<tr><td>intensity_75</td>						<td><span class="term">INT75</span></td></tr>
+		<tr><td>intensity_90</td>						<td><span class="term">INT90</span></td></tr>
+		<tr><td>intensity_nn</td>						<td><span class="term">INTN</span></td></tr>
+		<tr><td>intensity_sum</td>						<td><span class="term">INTSUM</span></td></tr>
+	</table><br/>	
+	</p>
+		
+	<p style="padding-left:40px">	
+	In addition to the single object statistics, METViewer supports ratios of single object counts and areas, and also some contingency table statistics.  These statistics are specified
+	in the table below with their corresponding interpretation.  For the area-weighted version of these statistics, replace <span class="term">RATIO_</span> with 
+	<span class="term">AREARAT_</span> and <span class="term">OBJ</span> with <span class="term">OBJA</span>.
+	</p>
+	
+	<p style="padding-left:60px">
+	<table border="1" cellspacing="0">
+	    <tr><th align="left">Interpretation</th>														<th align="left">METViewer Stat Name</th></tr>
+	    <tr><td>What percentage of simple objects are forecast?</td>									<td><span class="term">RATIO_FSA_ASA</span></td></tr>
+	    <tr><td>What percentage of simple objects are observation?</td>									<td><span class="term">RATIO_OSA_ASA</span></td></tr>
+	    <tr><td>What percentage of simple objects are matched?</td>										<td><span class="term">RATIO_ASM_ASA</span></td></tr>
+	    <tr><td>What percentage of simple objects are unmatched?</td>									<td><span class="term">RATIO_ASU_ASA</span></td></tr>
+	    <tr><td>What percentage of simple forecast objects are matched?</td>							<td><span class="term">RATIO_FSM_FSA</span></td></tr>
+	    <tr><td>What percentage of simple forecast objects are unmatched?</td>							<td><span class="term">RATIO_FSU_FSA</span></td></tr>
+	    <tr><td>What percentage of simple observation objects are matched?</td>							<td><span class="term">RATIO_OSM_OSA</span></td></tr>
+	    <tr><td>What percentage of simple observation objects are unmatched?</td>						<td><span class="term">RATIO_OSU_OSA</span></td></tr>
+	    <tr><td>What percentage of simple matched objects that are forecast?</td>						<td><span class="term">RATIO_FSM_ASM</span></td></tr>
+	    <tr><td>What percentage of simple matched objects that are observation?</td>					<td><span class="term">RATIO_OSM_ASM</span></td></tr>
+	    <tr><td>What percentage of simple unmatched objects that are forecast?</td>						<td><span class="term">RATIO_FSU_ASU</span></td></tr>
+	    <tr><td>What percentage of simple unmatched objects that are observation?</td>					<td><span class="term">RATIO_OSU_ASU</span></td></tr>
+	    <tr><td>What percentage of all objects are simple?</td>											<td><span class="term">RATIO_ASA_AAA</span></td></tr>
+	    <tr><td>What percentage of all objects are cluster?</td>										<td><span class="term">RATIO_ACA_AAA</span></td></tr>
+	    <tr><td>What percentage of all forecast objects are simple?</td>								<td><span class="term">RATIO_FSA_FAA</span></td></tr>
+	    <tr><td>What percentage of all forecast objects are cluster?</td>								<td><span class="term">RATIO_FCA_FAA</span></td></tr>
+	    <tr><td>What percentage of all observation objects are simple?</td>								<td><span class="term">RATIO_OSA_OAA</span></td></tr>
+	    <tr><td>What percentage of all observation objects are cluster?</td>							<td><span class="term">RATIO_OCA_OAA</span></td></tr>
+	    <tr><td>What percentage of cluster objects are forecast?</td>									<td><span class="term">RATIO_FCA_ACA</span></td></tr>
+	    <tr><td>What percentage of cluster objects are observation?</td>								<td><span class="term">RATIO_OCA_ACA</span></td></tr>
+	    <tr><td>What is the ratio of simple forecasts to simple observations (frequency bias)?</td>		<td><span class="term">RATIO_FSA_OSA</span></td></tr>
+	    <tr><td>What is the ratio of simple observations to simple forecasts (1 / frequency bias)?</td>	<td><span class="term">RATIO_OSA_FSA</span></td></tr>
+	    <tr><td>What is the ratio of cluster objects to simple objects?</td>							<td><span class="term">RATIO_ACA_ASA</span></td></tr>
+	    <tr><td>What is the ratio of simple objects to cluster objects?</td>							<td><span class="term">RATIO_ASA_ACA</span></td></tr>
+	    <tr><td>What is the ratio of cluster forecast objects to simple forecast objects?</td>			<td><span class="term">RATIO_FCA_FSA</span></td></tr>
+	    <tr><td>What is the ratio of simple forecast objects to cluster forecast objects?</td>			<td><span class="term">RATIO_FSA_FCA</span></td></tr>
+	    <tr><td>What is the ratio of cluster observation objects to simple observation objects?</td>	<td><span class="term">RATIO_OCA_OSA</span></td></tr>
+	    <tr><td>What is the ratio of simple observation objects to cluster observation objects?</td>	<td><span class="term">RATIO_OSA_OCA</span></td></tr>
+	    <tr><td>Hits = (FSM + OSM)/2</td>																<td><span class="term">OBJHITS</span></td></tr>
+	    <tr><td>Misses = OSU</td>																		<td><span class="term">OBJMISSES</span></td></tr>
+	    <tr><td>False Alarms = FSU</td>																	<td><span class="term">OBJFAS</span></td></tr>
+	    <tr><td>Correct Negatives (areas only) = [(TOT - FSA) + (TOT - OSA)] / 2</td>					<td>(not implemented)</td></tr>
+	    <tr><td>CSI = hits / (misses + false alarms) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU + FSU]</td><td><span class="term">OBJCSI</span></td></tr>
+	    <tr><td>PODY = hits / (hits + misses) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU]</td>			<td><span class="term">OBJPODY</span></td></tr>
+	    <tr><td>FAR = false alarms / (hits + false alarms) = FSU / [(FSM + OSM)/2 + FSU]</td>			<td><span class="term">OBJFAR</span></td></tr>
+	    <tr><td>FBIAS = RATIO_FSA_OSA = FSA / OSA (a.k.a. RATIO_FSA_OSA above)</td>						<td><span class="term">OBJFBIAS</span></td></tr>
+	</table>
+	</p><br/><br/>
+	
+	
+	<h3 style="padding-left:20px">Pair Object Statistics</h3>
+	<p style="padding-left:40px">
+	MODE object pair statistics are specified using the following format: <span class="term">STATNAME_CC</span> where <span class="term">STATNAME</span> is one of the Object
+	Pair Statistics in the table below, and <span class="term">CC</span> follows the following system:
+	
+	<ul>
+		<li><span class="term">[A|F|O]</span> - indicating All, Forecast or Observed objects, where F and O should only be used with the MAXINT statistic</li>
+		<li><span class="term">[A|S|C]</span> - indicating All, Simple or Cluster pairs</li>
+	</ul>	
+	</p>
+	
+	<p style="padding-left:60px">
+	<table border="1" cellspacing="0">
+	    <tr><th align="left">Object Pair Stat</th>	<th align="left">METViewer Stat Name</th></tr>
+		<tr><td>centroid_dist</td>					<td><span class="term">CENTDIST</span></td></tr>
+		<tr><td>boundary_dist</td>					<td><span class="term">BOUNDDIST</span></td></tr>
+		<tr><td>convex_hull_dist</td>				<td><span class="term">HULLDIST</span></td></tr>
+		<tr><td>angle_diff</td>						<td><span class="term">ANGLEDIFF</span></td></tr>
+		<tr><td>area_ratio</td>						<td><span class="term">AREARAT</span></td></tr>
+		<tr><td>intersection_area</td>				<td><span class="term">INTAREA</span></td></tr>
+		<tr><td>union_area</td>						<td><span class="term">UNIONAREA</span></td></tr>
+		<tr><td>symmetric_diff</td>					<td><span class="term">SYMDIFF</span></td></tr>
+		<tr><td>intersection_over_area</td>			<td><span class="term">INTOVERAREA</span></td></tr>
+		<tr><td>complexity_ratio</td>				<td><span class="term">CMPLXRATIO</span></td></tr>
+		<tr><td>percentile_intensity_ratio</td>		<td><span class="term">PERCINTRATIO</span></td></tr>
+		<tr><td>interest</td>						<td><span class="term">INT</span></td></tr>
+		<tr><td>MAX(interest)</td>					<td><span class="term">MAXINT</span></td></tr>
+	</table>
+	</p>
+	
+	
 </body>
 </html>

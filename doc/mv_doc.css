@@ -60,6 +60,21 @@ b {
 li {
 	list-style-type: circle;
 }
+th {
+	background-color: #dddddd;
+} 
+td {
+	background-color: #ffffff; 
+	color: #222266;
+	font-family: verdana;
+	font-size: 11px;
+}
+td.header {
+	color: #002866;
+	font-family: verdana;
+	font-size: 12px;
+	font-weight: bold;
+}
 .code {
 	color: #0066ff;
 	font-family: courier;
@@ -81,10 +96,4 @@ li {
 	color: #ddbb00;
 	font-family: verdana;
 	font-size: 10px;
-}
-td.header {
-	color: #002866;
-	font-family: verdana;
-	font-size: 12px;
-	font-weight: bold;
 }

@@ -28,7 +28,8 @@
 		
 		<plot_fix>
 			<field name="fcst_init">
-				<date_range name="year"/>
+				<val>2008-06-04 00:00:00</val>
+<!--				<date_range name="year"/>-->
 <!--				<date_range name="summer"/>-->
 <!--				<date_range name="fall"/>-->
 <!--				<date_range name="winter"/>-->
@@ -185,7 +186,12 @@
 	
 		<dep>
 			<mode_group>
-				<dep1><fcst_var name="APCP_03"><stat>MMIF</stat><stat>MMIO</stat></fcst_var></dep1>
+<!--				<dep1><fcst_var name="APCP_03"><stat>AREA_AAA</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>CNT_FSU</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>INT90_FCM</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>INT90_DCM</stat></fcst_var></dep1>-->
+<!--				<dep1><fcst_var name="APCP_03"><stat>AREARAT_FSA_OSA</stat></fcst_var></dep1>-->
+				<dep1><fcst_var name="APCP_03"><stat>CENTY_FAA</stat></fcst_var></dep1>
 
 <!--				<dep1><fcst_var name="APCP_03"><stat>MMI</stat></fcst_var></dep1>-->
 <!--				<dep1><fcst_var name="APCP_03"><stat>MMIF</stat></fcst_var></dep1>-->
@@ -197,7 +203,9 @@
 <!--				<dep1><fcst_var name="APCP_03"><stat>P50</stat></fcst_var></dep1>-->
 <!--				<dep1><fcst_var name="APCP_03"><stat>P90</stat></fcst_var></dep1>-->
 			</mode_group>
-			<dep2><fcst_var name="APCP_03"><stat>ACOV</stat></fcst_var></dep2>			
+			<dep2>
+<!--				<fcst_var name="APCP_03"><stat>ACOV</stat></fcst_var>-->
+			</dep2>			
 			<fix><fcst_var name="APCP_03"></fcst_var></fix>		
 		</dep>		
 	</plot>
