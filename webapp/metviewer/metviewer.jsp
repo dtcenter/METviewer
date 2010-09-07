@@ -41,7 +41,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 		<select id="selDB" onChange="javascript:updateDBCon()"></select><span class="bold" id="spanDBLoad"><%= strDB %></span>
 		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
-		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>Mode</option></select>
+		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate"><option>series_plot</option><option>box_plot</option><option>bar_plot</option></select><br/><br/><br/>
 	</td></tr>

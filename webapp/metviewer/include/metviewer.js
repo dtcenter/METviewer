@@ -59,7 +59,7 @@ var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 
-var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "INIT_HOUR", "FCST_VALID_BEG"];
+var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "INIT_HOUR", "FCST_VALID_BEG", "INTERP_PNTS"];
 var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "INIT_HOUR"];
 var _listIndyVar = _listIndyVarStat;
 var _intIndyValIdNext = 0;
@@ -181,7 +181,7 @@ function onLoad(){
 	addFmtPlot("Text Magnification",			"cex",				"1",			"txt");
 	addFmtPlot("Title Text Weight",				"title_weight",		["2", "1", "3", "4", "5"], "txt");
 	addFmtPlot("Title Text Size",				"title_size",		"1.4",			"txt");
-	addFmtPlot("Title Vert Offset",				"title_offset",		"-.4",			"txt");
+	addFmtPlot("Title Vert Offset",				"title_offset",		"-2",			"txt");
 	addFmtPlot("Title Horiz Align",				"title_align",		".5",			"txt");
 	addFmtPlot("X1 Values Orientation",			"xtlab_orient",		["1", "3"],		"txt");
 	addFmtPlot("X1 Values Perp Offset ",		"xtlab_perp",		"-.75",			"txt");
@@ -430,7 +430,7 @@ function updatePlotData(){
 		_strPlotData = "stat";
 		_listVar = _listVarStat;
 		_listIndyVar = _listIndyVarStat;
-	} else if( strPlotData == "Mode" ){
+	} else if( strPlotData == "MODE" ){
 		_strPlotData = "mode";
 		_listVar = _listVarMode;
 		_listIndyVar = _listIndyVarMode;

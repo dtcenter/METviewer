@@ -2032,7 +2032,7 @@ public class MVBatch extends MVUtil {
 		_tableModePairStatField.put("BOUNDDIST",		"boundary_dist");
 		_tableModePairStatField.put("HULLDIST",			"convex_hull_dist");
 		_tableModePairStatField.put("ANGLEDIFF",		"angle_diff");
-		_tableModePairStatField.put("AREARAT",			"area_ratio");
+		_tableModePairStatField.put("AREARATIO",		"area_ratio");
 		_tableModePairStatField.put("INTAREA",			"intersection_area");
 		_tableModePairStatField.put("UNIONAREA",		"union_area");
 		_tableModePairStatField.put("SYMDIFF",			"symmetric_diff");
