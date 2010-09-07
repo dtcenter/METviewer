@@ -20,10 +20,11 @@ use Getopt::Long;
 sub usage {
 	if( -1 < $#ARGV ){ print "$_\n"; }
 	print "
-usage: $0 [-h] [-s {server}] [-c {db_name(s)}] [-d {db_name(s)}]
+usage: $0 [-h] [-v] [-s {server}] [-c {db_name(s)}] [-d {db_name(s)}]
 
   where:
          -h: (optional) prints this message and exits         
+         -v: (optional) verbose output, default no
          -s: (optional) use the web service at the host name {server}, defaults to orval         
          -c: (optional) clears the cache for the databases {db_name(s)} prior to loading, default no
          -d: (optional) load the cache for the database {db_name(s)}, defaults to all databases
@@ -35,10 +36,12 @@ usage: $0 [-h] [-s {server}] [-c {db_name(s)}] [-d {db_name(s)}]
 
 #  parse the input options
 $host = "orval";
+$verbose = 0;
 @clear = ();
 @db = ();
 GetOptions(
 	'help'        => \$help,
+	'verbose'     => \$verbose,
 	'server=s'    => \$host, 
 	'clears=s{,}' => \@clear,
 	'db=s{,}'     => \@db
@@ -47,7 +50,7 @@ or usage("invalid input option");
 
 if( $help ){ usage(); }
 
-print "host: $host\nclear: @clear\ndb: @db\n\n";
+if( $verbose ){ print "host: $host\nclear: @clear\ndb: @db\n\n"; }
 
 $url = "http://$host:8080/metviewer/servlet";
 
@@ -63,16 +66,16 @@ if( 0 > $#db ){
 # handle all FCST_VARs for each database
 foreach $db (@db){
 
-	print "$db";
+	if( $verbose ){ print "$db"; }
 	
 	# clear the database cache, if requested
 	@clearDB = grep(/$db/, @clear);
 	if( 0 <= $#clearDB ){
-	 	print "\n  clearing caches...\n";
+	 	if( $verbose ){ print "\n  clearing caches...\n"; }
 		$xmlClearVal = getRequest("<request><db_con>$db</db_con><list_val_clear_cache/></request>");
-		print "    $xmlClearVal\n";
+		if( $verbose ){ print "    $xmlClearVal\n"; }
 		$xmlClearStat = getRequest("<request><db_con>$db</db_con><list_stat_clear_cache/></request>");		
-		print "    $xmlClearStat\n  caches clear\n";
+		if( $verbose ){ print "    $xmlClearStat\n  caches clear\n"; }
 	} else { print " -"; }
 	
 	# get the list of FCST_VARs for the current database	
@@ -80,22 +83,22 @@ foreach $db (@db){
 	$xmlFcstVar = getRequest("<request><db_con>$db</db_con><list_val><id>0</id><stat_field>FCST_VAR</stat_field></list_val></request>");
 	$xmlFcstVar =~ s/<list_val><id>0<\/id><val>(.*)<\/val><\/list_val>/$1/;
 	@listFcstVar = split(/<\/val><val>/, $xmlFcstVar);
-	print "  retrieved " . ($#listFcstVar + 1) . " FCST_VARs in " . formatTimeInc(time() - $intStart) . "\n";
+	if( $verbose ){ print "  retrieved " . ($#listFcstVar + 1) . " FCST_VARs in " . formatTimeInc(time() - $intStart) . "\n"; }
 	
 	# request stats for each FCST_VAR
 	$intNumStat = 0;
 	foreach $strFcstVar (@listFcstVar){
-		print "  " . padRight($strFcstVar, 16);		
+		if( $verbose ){ print "  " . padRight($strFcstVar, 16); }		
 		$intStart = time();
 		$xmlStat = getRequest("<request><db_con>$db</db_con><list_stat><id>0</id><stat_fcst_var>$strFcstVar</stat_fcst_var></list_stat></request>");	
 		$xmlStat =~ s/<list_stat><id>0<\/id><val>(.*)<\/val><\/list_stat>/$1/;
 		@listStat = split(/<\/val><val>/, $xmlStat);		
-		print " - " . padRight($#listStat + 1, 3) . " stats in " . formatTimeInc(time() - $intStart) . "\n";
+		if( $verbose ){ print " - " . padRight($#listStat + 1, 3) . " stats in " . formatTimeInc(time() - $intStart) . "\n"; }
 	}	
-	print "\n";
+	if( $verbose ){ print "\n"; }
 }
 
-print "Total time: " . formatTimeInc(time() - $intStartLoad) . "\n\n";
+if( $verbose ){ print "Total time: " . formatTimeInc(time() - $intStartLoad) . "\n\n"; }
 
 # getRequest() assumes a single XML string input, which constitutes a request to the
 #   web service specified in the global $url.  The request is posted to the service
