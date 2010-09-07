@@ -50,17 +50,17 @@ public class MVBatch extends MVUtil {
 	
 	public static String getUsage(){
 		return	"Usage:  mv_batch\n" +
-				"          plot_spec_file\n" +
-				"          [job_name]\n" +
 				"          [-list]\n" +
 				"          [-v]\n" +
 				"          [-sql]\n" +
+				"          plot_spec_file\n" +
+				"          [job_name]\n" +
 				"\n" +
-				"          where   \"plot_spec_file\" specifies the XML plot specification document\n" +
-				"                  \"job_name\" specifies the name of the job from the plot specification to run\n" +
-				"                  \"-list\" indicates that the available plot jobs should be listed and no plots run\n" +
+				"        where     \"-list\" indicates that the available plot jobs should be listed and no plots run\n" +
 				"                  \"-v\" indicates verbose output\n" +
-				"                  \"-sql\" indicates that the queries for each plot jobs should be listed and no plots run\n";
+				"                  \"-sql\" indicates that the queries for each plot jobs should be listed and no plots run\n" +
+				"                  \"plot_spec_file\" specifies the XML plot specification document\n" +
+				"                  \"job_name\" specifies the name of the job from the plot specification to run\n";
 	}	
 	
 	public static void main(String[] argv) {
@@ -79,77 +79,86 @@ public class MVBatch extends MVUtil {
 				try{ if( con != null )	con.close(); }catch(SQLException e){}
 				return;
 			}
+
+			/*
+			//  parse the input file
+			String strXMLInput = argv[0];
+			bat._out.println("input file: " + strXMLInput + "\n");				
+			MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
+			MVOrderedMap mapJobs = parser.getJobsMap();
 			
-			if( argv[0].equals("-hmt") ){
-				
-				ArrayList listArgvHMT = new ArrayList();
-				listArgvHMT.addAll( Arrays.asList(argv) );
-				listArgvHMT.remove(0);
-				
-				//jobs = bat.buildHMTJobs(con, toArray(listArgvHMT));
-				
-			} else {
-				
-				//  parse the input file
-				String strXMLInput = argv[0];
-				bat._out.println("input file: " + strXMLInput + "\n");				
-				MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
-				MVOrderedMap mapJobs = parser.getJobsMap();
-				
-				//  parse the remaining input arguments
-				ArrayList listJobNamesInput = new ArrayList();
-				boolean boolList = false;
-				if( 1 < argv.length ){
-					for(int i=1; i < argv.length; i++){
-						if     ( argv[i].equals("-list") ){ boolList = true; }
-						else if( argv[i].equals("-sql")  ){ bat._boolSQLOnly = true; }
-						else if( argv[i].equals("-v")    ){ bat._boolVerbose = true; }
-						else {
-							listJobNamesInput.add(argv[i]);
-						}
+			//  parse the remaining input arguments
+			ArrayList listJobNamesInput = new ArrayList();
+			boolean boolList = false;
+			if( 1 < argv.length ){
+				for(int i=1; i < argv.length; i++){
+					if     ( argv[i].equals("-list") ){ boolList = true; }
+					else if( argv[i].equals("-sql")  ){ bat._boolSQLOnly = true; }
+					else if( argv[i].equals("-v")    ){ bat._boolVerbose = true; }
+					else {
+						listJobNamesInput.add(argv[i]);
 					}
 				}
-				bat._boolVerbose = (bat._boolSQLOnly? true : bat._boolVerbose);
-				
-				String[] listJobNames = mapJobs.keyList();
-				if( 0 < listJobNamesInput.size() ){
-					listJobNames = toArray(listJobNamesInput);
-				}
-								
-				bat._out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
-				for(int i=0; i < listJobNames.length; i++){
-					bat._out.println("  " + listJobNames[i]);
-				}
-				
-				//  if only a list of plot jobs is requested, return
-				if( boolList ){
-					bat._out.println("\n----  MVBatch Done  ----");
-					try{ if( con != null )	con.close(); }catch(SQLException e){}
+			}
+			*/
+
+			//  parse the command line options
+			boolean boolList = false;
+			int intArg = 0;
+			for(; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++){
+				if     ( argv[intArg].equals("-list") ){ boolList = true; }
+				else if( argv[intArg].equals("-sql")  ){ bat._boolSQLOnly = true; }
+				else if( argv[intArg].equals("-v")    ){ bat._boolVerbose = true; }
+				else{
+					System.out.println("  **  ERROR: unrecognized option '" + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
 					return;
 				}
-				
-				//  if a job name is present, run only that job, otherwise run all jobs
-				if( 1 > listJobNames.length ){
-					jobs = parser.getJobsList();
-				} else {
-					ArrayList listJobs = new ArrayList();
-					for(int i=0; i < listJobNames.length; i++){
-						if( !mapJobs.containsKey(listJobNames[i]) ){
-							bat._out.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
-							continue;
-						}
-						listJobs.add( mapJobs.get(listJobNames[i]) );
-					}
-					jobs = (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
-				}
-				
-				//  get the path information for the job
-				if( !parser.getRtmplFolder().equals("") ){ bat._strRtmplFolder = parser.getRtmplFolder(); }
-				if( !parser.getRworkFolder().equals("") ){ bat._strRworkFolder = parser.getRworkFolder(); }
-				if( !parser.getPlotsFolder().equals("") ){ bat._strPlotsFolder = parser.getPlotsFolder(); }
+			}
+			bat._boolVerbose = (bat._boolSQLOnly? true : bat._boolVerbose);
 
-			}  //  end: else - HMT Code
+			//  parse the input file
+			String strXMLInput = argv[intArg++];
+			bat._out.println("input file: " + strXMLInput + "\n");				
+			MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
+			MVOrderedMap mapJobs = parser.getJobsMap();
+
+			//  build a list of jobs to run
+			ArrayList listJobNamesInput = new ArrayList();
+			for(; intArg < argv.length; intArg++){ listJobNamesInput.add(argv[intArg]); }
+			String[] listJobNames = mapJobs.keyList();
+			if( 0 < listJobNamesInput.size() ){
+				listJobNames = toArray(listJobNamesInput);
+			}							
+			bat._out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
+			for(int i=0; i < listJobNames.length; i++){ bat._out.println("  " + listJobNames[i]); }
 			
+			//  if only a list of plot jobs is requested, return
+			if( boolList ){
+				bat._out.println("\n----  MVBatch Done  ----");
+				try{ if( con != null )	con.close(); }catch(SQLException e){}
+				return;
+			}
+			
+			//  if a job name is present, run only that job, otherwise run all jobs
+			if( 1 > listJobNames.length ){
+				jobs = parser.getJobsList();
+			} else {
+				ArrayList listJobs = new ArrayList();
+				for(int i=0; i < listJobNames.length; i++){
+					if( !mapJobs.containsKey(listJobNames[i]) ){
+						bat._out.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
+						continue;
+					}
+					listJobs.add( mapJobs.get(listJobNames[i]) );
+				}
+				jobs = (MVPlotJob[])listJobs.toArray(new MVPlotJob[]{});
+			}
+			
+			//  get the path information for the job
+			if( !parser.getRtmplFolder().equals("") ){ bat._strRtmplFolder = parser.getRtmplFolder(); }
+			if( !parser.getRworkFolder().equals("") ){ bat._strRworkFolder = parser.getRworkFolder(); }
+			if( !parser.getPlotsFolder().equals("") ){ bat._strPlotsFolder = parser.getPlotsFolder(); }
+
 			//  if on windows, change all plot image types to jpeg
 			if( _boolWindows ){
 				for(int i=0; i < jobs.length; i++){ jobs[i].setPlotType("jpeg"); }
