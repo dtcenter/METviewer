@@ -20,24 +20,41 @@
 	<li><a class="toc" href="common_xml.html">Common XML Structures</a></li>
 </ul>
 
+<p>
+The <a href="https://sdg/jira/browse/METVIEWER">JIRA site</a> for METViewer contains information about open and fixed bugs 
+</p>
+
 <h3>Development Tasks</h3>
 
 <ul>
 	<li>Change <span class="term">{date}</span> tag to <span class="term">{date_stamp}</span> and add offset parameter</li>
 	<li>Build update/remove in load module</li>
 	<li>Plots to implement: ROC, scatter, scatter/box</li>
-	<li>Webapp</li>
-	<li>Documentation</li>
 	<li>Build canned data/plot test script flow</li>
 	<li>y2-axis features: indy_stag, plot_diff, dump_points, log</li>
 	<li>Data and R script cleanup option</li>
-	<li>Add Perc Match mode stat</li>
+	<li>Add configurable seed value for bootstrapping</li>
+	<li>Add NOBS controls to web app</li>
+	<li>XML settings loader in web app</li>
+	<li>Add admin area to web app, including:
+		<ul>
+			<li>Add/edit/remove database connections</li>
+			<li>Database instance_info table controls for tracking changes</li>
+			<li>Default settings by database</li>
+		</ul>
+	</li>
 </ul>
 
-<h3>Completed Tasks</h3>
+<h3>Revision History</h3>
+<ul>
+	<li>20100907 - Pre-caching for web app stat lists, using script cache_load.pl</li>
+	<li>20100907 - NA-valued stats not loaded into database</li>
+	<li>20100907 - Full complement of MODE stats supported, including count ratios and area ratios</li>
+	<li>20100907 - <b class="tag">mv_0_1</b></li>
+</ul>
 
 
-
+<br/><br/>
 <h3>Adding a Plot Attribute</h3>
 
 <ul>

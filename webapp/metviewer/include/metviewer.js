@@ -845,7 +845,7 @@ function updateDepStat(id){
 	var boolVisSingle = false;
 	var boolVisPair = false;
 	var listStatSel = getSelected( divDep.getElementsByTagName("select")[1] );
-	if( "mode" == _strPlotData && 0 < listStatSel.length ){
+	if( "mode" == _strPlotData && 0 < listStatSel.length && null == listStatSel[0].match( /^ACOV$/ ) ){
 		boolVisPair = null == listStatSel[0].match( /^RATIO_.+/ ) && 
 				  	  null == listStatSel[0].match( /^AREARAT_.+/ ) && 
 				  	  null == listStatSel[0].match( /^OBJ.+/ );
@@ -856,7 +856,7 @@ function updateDepStat(id){
 	divDep.getElementsByTagName("td")[3].style.display = boolVisPair?      "table-cell" : "none";
 	divDep.getElementsByTagName("td")[4].style.display = boolVisPair?      "table-cell" : "none";
 	divDep.getElementsByTagName("td")[5].style.display = boolVisSingle?    "table-cell" : "none";
-	divDep.getElementsByTagName("span")[0].style.display = boolVisSingle? "inline" : "none";
+	divDep.getElementsByTagName("span")[0].style.display = boolVisSingle?  "inline" : "none";
 
 	buildSeriesDiv();
 }
@@ -1748,6 +1748,7 @@ function buildPlotXML(){
  */
 function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 	var strXML = "";
+	var tabField = new Hashtable(); 
 	for(i in listDiv){
 		
 		//  get the field value and format it
@@ -1762,13 +1763,24 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 			for(j in listVal){ listVal[j] = buildModeStatCode(listVal[j], listDiv[i]); }
 		}
 		
-		//  build the XML for this set of controls
+		//  build the XML for the list of values
+		var strValXML = "";
+		for(j in listVal){ strValXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
+		var strValXMLCur = tabField.get(strVar);
+		tabField.put( strVar, (undefined == strValXMLCur? strValXML : strValXMLCur + strValXML) );		
+	}
+	
+	//  build the XML for each field stored in the table
+	var listField = tabField.listKeys();
+	for(i in listField){
+		var strVar = listField[i];
 		strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
-		if( 1 < listVal.length && boolSet ){ strXML += "<set name=\"" + strVar + "_" + i + "\">"; }
-		for(j in listVal){ strXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
-		if( 1 < listVal.length && boolSet ){ strXML += "</set>"; }
+		if( boolSet ){ strXML += "<set name=\"" + strVar + "_" + i + "\">"; }
+		strXML += tabField.get(strVar);
+		if( boolSet ){ strXML += "</set>"; }
 		strXML += "</" + strFieldTag + ">";
 	}
+	
 	return strXML;
 }
 
@@ -1780,6 +1792,7 @@ function buildModeStatCode(stat, divDep){
 	
 	//  if the input stat does not need a code suffix, return it
 	if( "mode" != _strPlotData || 
+		null != stat.match( /^ACOV$/ ) ||
 		null != stat.match( /^RATIO_.+/ ) || 
 		null != stat.match( /^AREARAT_.+/ ) || 
 		null != stat.match( /^OBJ.+/ ) ){

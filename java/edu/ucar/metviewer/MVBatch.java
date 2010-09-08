@@ -1538,6 +1538,7 @@ public class MVBatch extends MVUtil {
 			while( res.next() ){
 				for(int i=1; i <= met.getColumnCount(); i++){
 					String strVal = res.getString(i); 
+					strVal = (strVal.equalsIgnoreCase("null")? "NA" : strVal);
 					str.print( delim.equals(" ")? padEnd(strVal, intFieldWidths[i-1]) : (1 < i? delim : "") + strVal );
 				}
 				str.println();

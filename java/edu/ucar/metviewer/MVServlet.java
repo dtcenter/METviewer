@@ -429,6 +429,14 @@ public class MVServlet extends HttpServlet {
     }
     
     public static final SimpleDateFormat _formatPlot = new SimpleDateFormat("yyyyMMdd_HHmmss");
+    
+    /**
+     * Save and parse the plot request XML, then generate the requested plot and return information about it.
+     * Update the web_plot table in the database from which the plot data was drawn. 
+     * @param strRequest XML plot specification
+     * @param con database connection
+     * @return status message
+     */
     public static String handlePlot(String strRequest, Connection con) throws Exception{
     	Statement stmt;    	
     	String strWebPlotId = "0";
@@ -543,12 +551,27 @@ public class MVServlet extends HttpServlet {
     	}
     	
     	//  build an archive with the R scripts and data
-    	String strTarCmd = "tar czvf ";
-    	
-    	
+    	String strTarCmd = "tar czvf " + 
+    						    bat._strPlotsFolder + strPlotPrefix + ".tar.gz " +
+    							bat._strRworkFolder + "scripts/" + strPlotPrefix + ".R " +
+    							bat._strRworkFolder + "data/" + strPlotPrefix + ".data " +
+    							bat._strRworkFolder + "include/Compute_STDerr.R " +
+    							bat._strRworkFolder + "include/util_plot.R";
+    	if( job.getBootstrapping() ){
+    		strTarCmd += " " + 
+    					 		bat._strRworkFolder + "include/boot.R " +
+    					 		bat._strRworkFolder + "data/" + strPlotPrefix + ".boot.info " +
+    					 		bat._strRworkFolder + "data/" + strPlotPrefix + ".data.boot ";
+    	}    							
+    	runCmd("pwd");
+
     	return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("")? "<r_error>" + strRErrorMsg + "</r_error>": "");
     }
     
+    /**
+     * Print an error message into writer of the input response 
+     * @param response
+     */
     public static void printErrorPage(HttpServletResponse response) throws IOException{    	
         PrintWriter out = response.getWriter();
         response.setContentType("text/html");
@@ -565,4 +588,30 @@ public class MVServlet extends HttpServlet {
 			"</body></html>\n\n");
     }
 
+    
+	public static void runCmd(String cmd) throws Exception{
+
+		//  run the command and wait for completion
+		String strMsg = "runCmd()\n$ " + cmd + "\n";
+		Process proc = Runtime.getRuntime().exec(cmd);
+		proc.waitFor();
+
+		//  read and print the standard error
+		String strStdErr = "";
+		BufferedReader readerProcError = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
+		while( readerProcError.ready() ){ strStdErr += readerProcError.readLine() + "\n"; }
+		readerProcError.close();
+		if( !"".equals(strStdErr) ){ strMsg += strStdErr; }
+
+		//  read and print the standard out
+		String strStdOut = "";
+		BufferedReader readerProcIn = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
+		while( readerProcIn.ready() ){ strStdOut += readerProcIn.readLine() + "\n"; }
+		readerProcIn.close();
+		if( !"".equals(strStdOut) ){ strMsg += strStdOut; }
+		
+		_logger.debug(strMsg);
+	}
+
+    
 }

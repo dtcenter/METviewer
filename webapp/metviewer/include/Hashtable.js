@@ -120,6 +120,19 @@ function Hashtable(){
 
     this.hash = this.hash2;
 
+    /**
+     * Returns an Array containing all keys in the table
+     */
+    this.listKeys = function() {
+    	var listKeys = new Array();
+    	for(i in this._listBuckets){
+    		var listBucket = this._listBuckets[i];
+    		if( undefined == listBucket ){ continue; }
+    		for(j in listBucket){ listKeys.push( listBucket[j]._key ); }
+    	}
+    	return listKeys;
+    }
+    
     /*
      * * * *  Accessors  * * * *
      */

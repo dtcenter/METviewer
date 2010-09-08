@@ -55,7 +55,9 @@ b {
 	font-family: verdana;
 	font-size: 11px;
 	font-weight: bold;
-	padding-left: 20px;
+}
+b.tag {
+	color: #0066ff;
 }
 li {
 	list-style-type: circle;
