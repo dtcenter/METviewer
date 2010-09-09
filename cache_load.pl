@@ -76,7 +76,7 @@ foreach $db (@db){
 		if( $verbose ){ print "    $xmlClearVal\n"; }
 		$xmlClearStat = getRequest("<request><db_con>$db</db_con><list_stat_clear_cache/></request>");		
 		if( $verbose ){ print "    $xmlClearStat\n  caches clear\n"; }
-	} else { print " -"; }
+	} elsif( $verbose ){ print " -"; }
 	
 	# get the list of FCST_VARs for the current database	
 	$intStart = time();

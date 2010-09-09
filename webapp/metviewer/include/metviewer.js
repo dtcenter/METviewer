@@ -32,7 +32,7 @@ var _listStatModeSingle = [
 						"RATIO_FSU_ASU", "RATIO_OSU_ASU", "RATIO_FSA_AAA", "RATIO_OSA_AAA", "RATIO_FSA_FAA", 
 						"RATIO_FCA_FAA", "RATIO_OSA_OAA", "RATIO_OCA_OAA", "RATIO_FCA_ACA", "RATIO_OCA_ACA", 
 						"RATIO_FSA_OSA", "RATIO_OSA_FSA", "RATIO_ACA_ASA", "RATIO_ASA_ACA", "RATIO_FCA_FSA", 
-						"RATIO_FCA_FSA", "RATIO_OCA_OSA", "RATIO_OCA_OSA", "OBJHITS", "OBJMISSES", "OBJFAS", 
+						"RATIO_FSA_FCA", "RATIO_OCA_OSA", "RATIO_OSA_OCA", "OBJHITS", "OBJMISSES", "OBJFAS", 
 						"OBJCSI", "OBJPODY", "OBJFAR", 
 
 						"AREARAT_FSA_ASA", "AREARAT_OSA_ASA", "AREARAT_ASM_ASA", "AREARAT_ASU_ASA", "AREARAT_FSM_FSA", 
@@ -40,7 +40,7 @@ var _listStatModeSingle = [
 						"AREARAT_FSU_ASU", "AREARAT_OSU_ASU", "AREARAT_FSA_AAA", "AREARAT_OSA_AAA", "AREARAT_FSA_FAA", 
 						"AREARAT_FCA_FAA", "AREARAT_OSA_OAA", "AREARAT_OCA_OAA", "AREARAT_FCA_ACA", "AREARAT_OCA_ACA", 
 						"AREARAT_FSA_OSA", "AREARAT_OSA_FSA", "AREARAT_ACA_ASA", "AREARAT_ASA_ACA", "AREARAT_FCA_FSA", 
-						"AREARAT_FCA_FSA", "AREARAT_OCA_OSA", "AREARAT_OCA_OSA", "OBJAHITS", "OBJAMISSES", "OBJAFAS", 
+						"AREARAT_FSA_FCA", "AREARAT_OCA_OSA", "AREARAT_OSA_OCA", "OBJAHITS", "OBJAMISSES", "OBJAFAS", 
 						"OBJACSI", "OBJAPODY", "OBJAFAR",
 					];
 
@@ -51,16 +51,20 @@ var _listStatModePair = [
 
 var _listStatMode = _listStatModeSingle.concat(_listStatModePair);
 
-var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
-var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", "FCST_RAD", "FCST_THR", "FCST_LEV"];
+var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", 
+                    "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
+var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", 
+                    "FCST_RAD", "FCST_THR", "FCST_LEV"];
 var _listVar = _listVarStat;
 
 var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 
-var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "INIT_HOUR", "FCST_VALID_BEG", "INTERP_PNTS"];
-var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "INIT_HOUR"];
+var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", 
+                        "INIT_HOUR", "INTERP_PNTS"];
+var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR",
+                        "FCST_RAD"];
 var _listIndyVar = _listIndyVarStat;
 var _intIndyValIdNext = 0;
 
@@ -152,14 +156,14 @@ function onLoad(){
 	addFmtPlot("Y1 Series Difference Curve",	"plot1_diff",		"false",		"bool");
 	addFmtPlot("Y2 Series Difference Curve",	"plot2_diff",		"false",		"bool");
 	addFmtPlot("Display Number of Stats",		"num_stats",		"false",		"bool");
-	addFmtPlot("Y1 Stagger Points",			"indy1_stag",		"false",		"bool");
-	addFmtPlot("Y2 Stagger Points",			"indy2_stag",		"false",		"bool");
-	addFmtPlot("Plot Grid",					"grid_on",			"true",			"bool");
+	addFmtPlot("Y1 Stagger Points",				"indy1_stag",		"false",		"bool");
+	addFmtPlot("Y2 Stagger Points",				"indy2_stag",		"false",		"bool");
+	addFmtPlot("Plot Grid",						"grid_on",			"true",			"bool");
 	addFmtPlot("Synch Y1 and Y2 Ranges",		"sync_axes",		"false",		"bool");
 	addFmtPlot("Print Y1 Series Values",		"dump_points1",		"false",		"bool");
 	addFmtPlot("Print Y2 Series Values",		"dump_points2",		"false",		"bool");
-	addFmtPlot("Y1 Axis Log Scale",			"log_y1",			"false",		"bool");
-	addFmtPlot("Y2 Axis Log Scale",			"log_y2",			"false",		"bool");
+	addFmtPlot("Y1 Axis Log Scale",				"log_y1",			"false",		"bool");
+	addFmtPlot("Y2 Axis Log Scale",				"log_y2",			"false",		"bool");
 
 	//  add onchange listeners to the plot_diff controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
@@ -224,7 +228,7 @@ function onLoad(){
 	addFmtPlot("Caption Text Size",				"caption_size",		".8",			"txt");
 	addFmtPlot("Caption Perp Offset",			"caption_offset",	"3",			"txt");
 	addFmtPlot("Captoin Horiz Align",			"caption_align",	"0",			"txt");
-	addFmtPlot("Box Plot Box Width",			"box_boxwex",		"1",			"txt");
+	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");
 	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
 	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");
 	

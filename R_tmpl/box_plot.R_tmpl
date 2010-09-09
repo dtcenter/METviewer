@@ -32,9 +32,14 @@ listSeriesVar = names(listSeries1Val);
 matPermVal = permute(listSeries1Val);
 
 # calculate the horizonal location increment
-dblBuf = .3;
 intNumPerm = nrow(matPermVal);
-dblInc = (1 - dblBuf) / intNumPerm;
+dblIndySpan = .75 * intNumPerm * #<box_boxwex>#;
+dblInc = 0;
+if( 1 < intNumPerm ){ 
+	dblInc = dblIndySpan / (intNumPerm - 1);
+} else {
+	dblIndySpan = 0; 
+}
 listX = 1:length(listIndy);
 
 # specify the output file
@@ -78,8 +83,7 @@ boolAdd = FALSE;
 for(intPermVal in 1:nrow(matPermVal)){
 	
 	listBox = list();
-	listAt = listX - .5 + (dblBuf/2) + (intPermVal - 1) * dblInc;
-	
+	listAt = listX - (dblIndySpan/2) + (intPermVal - 1) * dblInc;	
 	
 	# construct the data frame for the current series
 	listPermVal = matPermVal[intPermVal,];

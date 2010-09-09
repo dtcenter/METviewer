@@ -43,6 +43,8 @@
 
 		<!-- <jar jarfile="${dist}/lib/metviewer-${DSTAMP}.jar" basedir="${build}"/> -->
 		<jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}"/>
+
+		<!--
 		<copy todir="${dist}/R_tmpl">
 			<fileset dir="R_tmpl"/>
 		</copy>
@@ -53,6 +55,7 @@
 			<fileset dir="${lib}"/>
 		</copy>
 		<copy todir="${dist}" file="./batch.sh"/>
+		-->
 	</target>
 	
 	<target name="webapp" depends="dist" description="build the web application bundle">

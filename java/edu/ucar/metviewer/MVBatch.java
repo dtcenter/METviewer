@@ -608,7 +608,7 @@ public class MVBatch extends MVUtil {
 					
 					//  build the list of fields for the mode stats
 					strSelectListModeTemp += ",\n";
-					strSelectListModeTemp += "  h.fcst_var,\n  h." + job.getIndyVar() + ",\n";
+					strSelectListModeTemp += "  h.fcst_var,\n  " + formatField(job.getIndyVar(), boolModePlot) + ",\n";
 					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_init,")?  "  h.fcst_init,\n" : "");
 					strSelectListModeTemp += ( !strSelectListModeTemp.contains("fcst_valid,")? "  h.fcst_valid,\n" : "");					
 					
@@ -972,13 +972,15 @@ public class MVBatch extends MVUtil {
 				}
 				if( 0 < intAggUpdates && _boolVerbose ){ _out.println("Done\n"); }
 				
-				//  determine if the indy values require tick marks
+				//  determine if the indy values require tick marks				
+				boolean boolIndyValTick = true;
+				/*
 				boolean boolIndyValTick = false;
 				String[] listIndyVal = job.getIndyVal();
 				for(int i=0; i < listIndyVal.length; i++){
 					try{ Double.parseDouble(listIndyVal[i]); }catch(Exception e){ boolIndyValTick = true; }
 				}
-				
+				*/
 				
 				/*
 				 *  Run a plot for each mode group
@@ -2080,9 +2082,9 @@ public class MVBatch extends MVUtil {
 		_tableModeRatioField.put("RATIO_ACA_ASA",	"SUM(simple_flag = 0) / SUM(simple_flag = 1)");
 		_tableModeRatioField.put("RATIO_ASA_ACA",	"SUM(simple_flag = 1) / SUM(simple_flag = 0)");
 		_tableModeRatioField.put("RATIO_FCA_FSA",	"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");
-		_tableModeRatioField.put("RATIO_FCA_FSA",	"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 0)");
+		_tableModeRatioField.put("RATIO_FSA_FCA",	"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 0)");
 		_tableModeRatioField.put("RATIO_OCA_OSA",	"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
-		_tableModeRatioField.put("RATIO_OCA_OSA",	"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 0)");
+		_tableModeRatioField.put("RATIO_OSA_OCA",	"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 0)");
 		
 		_tableModeRatioField.put("OBJHITS",		"SUM(simple_flag = 1 && matched_flag = 1) / 2");
 		_tableModeRatioField.put("OBJMISSES",	"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0)");
@@ -2118,9 +2120,9 @@ public class MVBatch extends MVUtil {
 		_tableModeRatioField.put("AREARAT_ACA_ASA",	"SUM( IF(simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
 		_tableModeRatioField.put("AREARAT_ASA_ACA",	"SUM( IF(simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
 		_tableModeRatioField.put("AREARAT_FCA_FSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
-		_tableModeRatioField.put("AREARAT_FCA_FSA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_FSA_FCA",	"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) )");
 		_tableModeRatioField.put("AREARAT_OCA_OSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
-		_tableModeRatioField.put("AREARAT_OCA_OSA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) )");
+		_tableModeRatioField.put("AREARAT_OSA_OCA",	"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) )");
 		
 		_tableModeRatioField.put("OBJAHITS",		"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2");
 		_tableModeRatioField.put("OBJAMISSES",		"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) )");
