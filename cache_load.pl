@@ -35,7 +35,7 @@ usage: $0 [-h] [-v] [-s {server}] [-c {db_name(s)}] [-d {db_name(s)}]
 }
 
 #  parse the input options
-$host = "orval";
+chomp($host = qx/hostname/);
 $verbose = 0;
 @clear = ();
 @db = ();
@@ -50,7 +50,11 @@ or usage("invalid input option");
 
 if( $help ){ usage(); }
 
-if( $verbose ){ print "host: $host\nclear: @clear\ndb: @db\n\n"; }
+if( $verbose ){ 
+	print "host: $host\n";
+	if( -1 < $#clear ){ print "clear: @clear\n"; }
+	if( -1 < $#db )   { print "db: @db\n\n"; } 
+}
 
 $url = "http://$host:8080/metviewer/servlet";
 
