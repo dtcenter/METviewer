@@ -43,7 +43,9 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
 		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
-		<select id="selTemplate"><option>series_plot</option><option>box_plot</option><option>bar_plot</option></select><br/><br/><br/>
+		<select id="selTemplate" onchange="javascript:updateTmpl()">
+			<option>series_plot</option><option>box_plot</option><option>bar_plot</option>
+		</select><br/><br/><br/>
 	</td></tr>
 
 	<tr><td height="100%" style="vertical-align: top"><span id="spanPlotControls" style="display:inline">
@@ -105,6 +107,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 		
 		<span class="header" style="font-size:18px">Y2 Axis</span><br/><br/>
 
+		<span id="spanY2NA" class="header" style="padding-left:40px; display:none">N/A</span>
 		<div id="divDep2" style="padding-left:30px">
 			<span class="header" style="font-size:14px">Dependent Variables</span>
 			<span class="stdTiny">(<a href="doc/plot.html#dep" target="_blank">help</a>)</span>
@@ -122,7 +125,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			<img id="imgSeries2" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addSeries2Div()">Add a Series y2 Value</a><br/><br/><br/>
 		</div><br/><br/>
-
+		
 		</td></tr><tr><td class="grey">
 
 		<div id="divFieldVal" style="display:none">

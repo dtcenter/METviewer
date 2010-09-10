@@ -652,6 +652,17 @@ function nullResp(strResp){}
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
+ * When the plot template is switched, toggle the visibility of the Y2 controls
+ */
+function updateTmpl(){
+	var strTmpl = getSelected( document.getElementById("selTemplate") )[0];
+	var boolShowY2 = (null != strTmpl.match( /^series_plot$/ ));
+	document.getElementById("spanY2NA").style.display   = boolShowY2? "none" : "inline";
+	document.getElementById("divDep2").style.display    = boolShowY2? "inline" : "none";
+	document.getElementById("divSeries2").style.display = boolShowY2? "inline" : "none";
+}
+
+/**
  * Test functions related to the GET and POST test controls
  */
 function testPostReq()    { sendRequest("POST", document.getElementById("txtPost").value, nullResp); }

@@ -551,19 +551,23 @@ public class MVServlet extends HttpServlet {
     	}
     	
     	//  build an archive with the R scripts and data
-    	String strTarCmd = "tar czvf " + 
-    						    bat._strPlotsFolder + strPlotPrefix + ".tar.gz " +
-    							bat._strRworkFolder + "scripts/" + strPlotPrefix + ".R " +
-    							bat._strRworkFolder + "data/" + strPlotPrefix + ".data " +
-    							bat._strRworkFolder + "include/Compute_STDerr.R " +
-    							bat._strRworkFolder + "include/util_plot.R";
+    	String strTarCmd = "tar cvfC/home/pgoldenb/apps/verif/metviewer/dist/metviewer " + 
+    						    "plots/" + strPlotPrefix + ".tar.gz " +
+    							"R_work/scripts/" + strPlotPrefix + ".R " +
+    							"R_work/data/" + strPlotPrefix + ".data " +
+    							"R_work/include/Compute_STDerr.R " +
+    							"R_work/include/util_plot.R";
     	if( job.getBootstrapping() ){
     		strTarCmd += " " + 
-    					 		bat._strRworkFolder + "include/boot.R " +
-    					 		bat._strRworkFolder + "data/" + strPlotPrefix + ".boot.info " +
-    					 		bat._strRworkFolder + "data/" + strPlotPrefix + ".data.boot ";
-    	}    							
-    	runCmd("pwd");
+    							"R_work/include/boot.R " +
+    							"R_work/data/" + strPlotPrefix + ".boot.info " +
+    							"R_work/data/" + strPlotPrefix + ".data.boot ";
+    	}
+    	try{
+        	runCmd(strTarCmd);    		
+    	} catch(Exception e){
+    		_logger.error("handlePlot() - caught " + e.getClass() + " creating plot code archive: " + e.getMessage());
+    	}
 
     	return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("")? "<r_error>" + strRErrorMsg + "</r_error>": "");
     }
