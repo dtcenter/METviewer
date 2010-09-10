@@ -8,7 +8,7 @@ var _strDBCon = "";
 var _boolDBStatus = false;
 
 var _intDebugState = 0;
-var _boolDebugDisp = true;
+var _boolDebugDisp = false;
 var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "Indy", "FmtPlot", "FmtSeries", "Boot"];
 
 var _intDepIdNext = 1;
@@ -157,13 +157,13 @@ function onLoad(){
 	addFmtPlot("Y2 Series Difference Curve",	"plot2_diff",		"false",		"bool");
 	addFmtPlot("Display Number of Stats",		"num_stats",		"false",		"bool");
 	addFmtPlot("Y1 Stagger Points",				"indy1_stag",		"false",		"bool");
-	addFmtPlot("Y2 Stagger Points",				"indy2_stag",		"false",		"bool");
+	//addFmtPlot("Y2 Stagger Points",				"indy2_stag",		"false",		"bool");
 	addFmtPlot("Plot Grid",						"grid_on",			"true",			"bool");
 	addFmtPlot("Synch Y1 and Y2 Ranges",		"sync_axes",		"false",		"bool");
 	addFmtPlot("Print Y1 Series Values",		"dump_points1",		"false",		"bool");
-	addFmtPlot("Print Y2 Series Values",		"dump_points2",		"false",		"bool");
+	//addFmtPlot("Print Y2 Series Values",		"dump_points2",		"false",		"bool");
 	addFmtPlot("Y1 Axis Log Scale",				"log_y1",			"false",		"bool");
-	addFmtPlot("Y2 Axis Log Scale",				"log_y2",			"false",		"bool");
+	//addFmtPlot("Y2 Axis Log Scale",				"log_y2",			"false",		"bool");
 
 	//  add onchange listeners to the plot_diff controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
@@ -659,9 +659,18 @@ function nullResp(strResp){}
 function updateTmpl(){
 	var strTmpl = getSelected( document.getElementById("selTemplate") )[0];
 	var boolShowY2 = (null != strTmpl.match( /^series_plot$/ ));
-	document.getElementById("spanY2NA").style.display   = boolShowY2? "none" : "inline";
-	document.getElementById("divDep2").style.display    = boolShowY2? "inline" : "none";
-	document.getElementById("divSeries2").style.display = boolShowY2? "inline" : "none";
+	document.getElementById("spanY2NA").style.display    = boolShowY2? "none" : "inline";
+	document.getElementById("divDep2").style.display     = boolShowY2? "inline" : "none";
+	document.getElementById("divSeries2").style.display  = boolShowY2? "inline" : "none";
+	document.getElementById("spanBootNA").style.display  = boolShowY2? "none" : "inline";
+	document.getElementById("chkBoot").style.display     = boolShowY2? "inline" : "none";
+	document.getElementById("spanBoot").style.display    = boolShowY2? "inline" : "none";
+	document.getElementById("tabBootParm").style.display = boolShowY2? "inline" : "none";
+	var listFmtAxis = document.getElementById("divFmtAxis").getElementsByTagName("td");
+	listFmtAxis[4].style.display = boolShowY2? "inline" : "none";
+	listFmtAxis[5].style.display = boolShowY2? "inline" : "none";
+	listFmtAxis[6].style.display = boolShowY2? "inline" : "none";
+	listFmtAxis[7].style.display = boolShowY2? "inline" : "none";
 }
 
 /**

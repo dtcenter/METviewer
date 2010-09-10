@@ -200,7 +200,8 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			<span class="stdTiny">(<a href="doc/plot.html#boot" target="_blank">help</a>)</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')" id="lnkSerBoot">Serialize</a><br/><br/>
 
-			<input id="chkBoot" type="checkbox" onclick="javascript:updateBoot()"/><span class="bold">Bootstrapping Enabled</span><br/><br/>
+			<span id="spanBootNA" class="header" style="padding-left:40px; display:none">N/A</span>
+			<input id="chkBoot" type="checkbox" onclick="javascript:updateBoot()"/><span id="spanBoot" class="bold">Bootstrapping Enabled</span><br/><br/>
 			<table id="tabBootParm" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
 					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1000"/></td>
