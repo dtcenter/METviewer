@@ -31,8 +31,14 @@ listColors = #<colors>#;
 listSeriesVar = names(listSeries1Val);
 matPermVal = permute(listSeries1Val);
 
+# calculate the number of statistics
+intNumStats = 0;
+for(strFcstVar in names(listDep1Plot)){
+	intNumStats = intNumStats + length( listDep1Plot[[strFcstVar]] );
+}
+
 # calculate the horizonal location increment
-intNumPerm = nrow(matPermVal);
+intNumPerm = nrow(matPermVal) * intNumStats;
 dblIndySpan = .75 * intNumPerm * #<box_boxwex>#;
 dblInc = 0;
 if( 1 < intNumPerm ){ 
@@ -80,37 +86,46 @@ par(
 
 # build a box series for each plot series permutation
 boolAdd = FALSE;
-for(intPermVal in 1:nrow(matPermVal)){
+intPermX = 0;
+for(strFcstVar in names(listDep1Plot)){
+	listStats = listDep1Plot[[strFcstVar]];
+	for(strStat in listStats){		
+		for(intPermVal in 1:nrow(matPermVal)){
 	
-	listBox = list();
-	listAt = listX - (dblIndySpan/2) + (intPermVal - 1) * dblInc;	
-	
-	# construct the data frame for the current series
-	listPermVal = matPermVal[intPermVal,];
-	for(intVar in 1:length(listSeriesVar)){
-		for(strIndy in listIndy){
-			listBox[[ strIndy ]] = dfPlot[ dfPlot[[ listSeriesVar[intVar] ]] == listPermVal[intVar] &
-										   dfPlot[[ strIndyVar ]] == strIndy, ]$stat_value;
+			listBox = list();
+			listAt = listX - (dblIndySpan/2) + intPermX * dblInc;	
+			
+			# construct the data frame for the current series
+			listPermVal = matPermVal[intPermVal,];
+			for(intVar in 1:length(listSeriesVar)){
+				for(strIndy in listIndy){
+					listBox[[ strIndy ]] = dfPlot[ dfPlot[[ listSeriesVar[intVar] ]] == listPermVal[intVar] &
+												   dfPlot[[ strIndyVar ]] == strIndy &
+												   dfPlot$fcst_var == strFcstVar &
+												   dfPlot$stat_name == strStat, ]$stat_value;
+				}
+			}
+			
+			if( boolAdd != TRUE ){ strYaxt="s"; }
+			else				 { strYaxt="n"; }
+			
+			boxplot(
+				listBox,				# box data as a list of vectors 
+				at=listAt,				# vector of box positions
+				notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
+				boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
+				col=listColors[intPermX+1], # box color(s)
+				xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+				ylim=listY1limUsr,		# y1-axis limits
+				yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
+				add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
+				tck=.01 				# length of tick marks as a fraction of plot window		
+			);
+			
+			boolAdd = TRUE;
+			intPermX = intPermX + 1;
 		}
 	}
-	
-	if( boolAdd != TRUE ){ strYaxt="s"; }
-	else				 { strYaxt="n"; }
-	
-	boxplot(
-		listBox,				# box data as a list of vectors 
-		at=listAt,				# vector of box positions
-		notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
-		boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
-		col=listColors[intPermVal], # box color(s)
-		xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
-		ylim=listY1limUsr,		# y1-axis limits
-		yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
-		add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
-		tck=.01 				# length of tick marks as a fraction of plot window		
-	);
-	
-	boolAdd = TRUE;
 }
 
 # add grid lines to the plot, if requested
@@ -222,7 +237,12 @@ if( 0 < length(listSeriesNobs) ){
 	);
 }
 
-listLegend = paste(matPermVal, listDep1Plot[[ names(listDep1Plot) ]]);
+# build the legend
+listLegend = c();
+for(strFcstVar in names(listDep1Plot)){
+	listStat = listDep1Plot[[strFcstVar]];
+	for(strStat in listStat){ listLegend = append( listLegend, paste(matPermVal, strStat) ); }
+}
 
 legend(
 	x="bottom",				# x coordinate of legend
