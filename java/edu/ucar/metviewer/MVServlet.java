@@ -438,9 +438,6 @@ public class MVServlet extends HttpServlet {
      * @return status message
      */
     public static String handlePlot(String strRequest, Connection con) throws Exception{
-    	Statement stmt;    	
-    	String strWebPlotId = "0";
-    	String strPlotPrefix = "plot_";
     	
     	//  extract the plot xml from the request
     	String strPlotXML = strRequest;
@@ -448,30 +445,34 @@ public class MVServlet extends HttpServlet {
     	strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
     	
     	//  query the database to get the next web_plot_id
+    	java.util.Date datePlot = new java.util.Date();
+    	String strWebPlotId = "#";
     	try{
-	    	stmt = con.createStatement();
-	    	if( !stmt.execute("SELECT MAX(web_plot_id) FROM web_plot;") ){ throw new Exception("Statment.execute() returned false"); }
-	    	ResultSet res = stmt.getResultSet();
-	    	while( res.next() ){
-	    		int intWebPlotId = res.getInt(1);
-	    		if( !res.wasNull() ){ strWebPlotId = "" + (intWebPlotId + 1); } 
-	    	}
-	    	stmt.close();
+        	strWebPlotId = getWebPlotIdUpdate(strPlotXML, datePlot, con);
     	} catch(Exception e){
-    		_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " acquiring web_plot_id: " + e.getMessage());
-    		return "<error>failed to acquire web_plot_id - reason: " + e.getMessage() + "</error>";
+    		_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " establishing web_plot_id: " + e.getMessage());
+    		return "<error>failed to establish web_plot_id - reason: " + e.getMessage() + "</error>";
     	}
     	
     	//  construct the names of the plot files
-    	java.util.Date datePlot = new java.util.Date();
     	String strPlotPrefixId = strWebPlotId; 
     	while( 5 > strPlotPrefixId.length() ){ strPlotPrefixId = "0" + strPlotPrefixId; }
-    	strPlotPrefix += strPlotPrefixId + "_" + _formatPlot.format(datePlot);
+    	String strPlotPrefix = "plot_" + strPlotPrefixId + "_" + _formatPlot.format(datePlot);
 
     	//  add plot file information to the plot spec
+    	String strDBName = con.getMetaData().getURL();
+    	strDBName = strDBName.substring(strDBName.lastIndexOf("/") + 1);
     	strPlotXML =
     		"<plot_spec>" +
-    		 	"<folders>" +
+		 		"<!--" +
+		 		"<connection>" +
+					"<host>" + _strDBHost + "</host>" +
+					"<database>" + strDBName + "</database>" +
+					"<user>" + _strDBUser + "</user>" +
+					"<password>" + _strDBPassword + "</password>" +
+		 		"</connection>" +
+		 		"-->" +
+		 		"<folders>" +
     		 		"<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
     		 		"<r_work>" + _strRWork + "</r_work>" +
     		 		"<plots>" + _strPlots + "</plots>" +
@@ -540,16 +541,6 @@ public class MVServlet extends HttpServlet {
     	}
     	_logger.debug("handlePlot() - batch output:\n" + log.toString());
     	
-    	//  store the web_plot information in the database
-    	try{
-	    	stmt = con.createStatement();
-	    	int intRes = stmt.executeUpdate("INSERT INTO web_plot VALUES (" + strWebPlotId + ", '" + MVUtil._formatDB.format(datePlot) + "', '" + strPlotXML + "');");
-	    	if( 1 != intRes ){ throw new Exception("unexpected result from web_plot INSERT statement: " + intRes); }
-    	} catch(Exception e){
-        	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " updating web_plot: " + e.getMessage());
-        	return "<error>failed to update web_plot - reason: " + e.getMessage() + "</error>";
-    	}
-    	
     	//  build an archive with the R scripts and data
     	String strTarCmd = "tar cvfC/home/pgoldenb/apps/verif/metviewer/dist/metviewer " + 
     						    "plots/" + strPlotPrefix + ".tar.gz " +
@@ -564,12 +555,42 @@ public class MVServlet extends HttpServlet {
     							"R_work/data/" + strPlotPrefix + ".data.boot ";
     	}
     	try{
-        	runCmd(strTarCmd);    		
+        	//runCmd(strTarCmd);    		
     	} catch(Exception e){
     		_logger.error("handlePlot() - caught " + e.getClass() + " creating plot code archive: " + e.getMessage());
     	}
 
     	return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("")? "<r_error>" + strRErrorMsg + "</r_error>": "");
+    }
+    
+    /**
+     * Determine what the next web_plot_id should be by querying the database and then create a new entry for the
+     * plot.  This code must be syncronized to ensure that there is no conflict among plotting processes. 
+     * @param strPlotXML XML plot specification to store in the new dabase entry
+     * @param date Plot date used in plot name
+     * @param con Database connection that will be queried and updated against
+     * @return Web plot id value that was used
+     */
+    public static synchronized String getWebPlotIdUpdate(String strPlotXML, java.util.Date date, Connection con) throws Exception{
+
+    	//  retrieve the current latest web_plot_id from the database
+    	Statement stmt = con.createStatement();
+    	String strWebPlotId = "0";
+    	if( !stmt.execute("SELECT MAX(web_plot_id) FROM web_plot;") ){ throw new Exception("Statment.execute() returned false"); }
+    	ResultSet res = stmt.getResultSet();
+    	while( res.next() ){
+    		int intWebPlotId = res.getInt(1);
+    		if( !res.wasNull() ){ strWebPlotId = "" + (intWebPlotId + 1); } 
+    	}
+    	stmt.close();
+    	
+    	//  store the web_plot information in the database
+    	stmt = con.createStatement();
+    	int intRes = stmt.executeUpdate("INSERT INTO web_plot VALUES (" + strWebPlotId + ", '" + MVUtil._formatDB.format(date) + "', '" + strPlotXML + "');");
+    	if( 1 != intRes ){ throw new Exception("unexpected result from web_plot INSERT statement: " + intRes); }
+    	stmt.close();
+
+    	return strWebPlotId;
     }
     
     /**
