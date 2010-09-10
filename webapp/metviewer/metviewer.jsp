@@ -459,6 +459,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 		<b>Console:</b>
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
+		<input type="button" class="gButton" onclick="javascript:dbClearCacheReq()" value="Clear Database Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:testPlotResp()" value="plot.html"/><br/><br/>

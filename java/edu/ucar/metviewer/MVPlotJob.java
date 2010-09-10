@@ -122,7 +122,8 @@ public class MVPlotJob extends MVUtil{
 	protected String _strCaptionSize		= ".8";
 	protected String _strCaptionOffset		= "3";
 	protected String _strCaptionAlign		= ".5";	
-	protected String _strBoxBoxwex			= "1";
+	protected String _strBoxBoxwex			= ".2";
+	protected String _strBoxOutline			= "TRUE";
 	protected String _strBoxNotch			= "FALSE";
 	protected String _strCIAlpha			= ".05";
 	
@@ -258,6 +259,7 @@ public class MVPlotJob extends MVUtil{
 		job._strCaptionSize		= _strCaptionSize;
 		job._strCaptionOffset	= _strCaptionOffset;
 		job._strCaptionAlign	= _strCaptionAlign;
+		job._strBoxOutline		= _strBoxOutline;
 		job._strBoxBoxwex		= _strBoxBoxwex;
 		job._strBoxNotch		= _strBoxNotch;
 		job._strCIAlpha			= _strCIAlpha;
@@ -529,6 +531,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setCaptionOffset(String captionOffset)				{ _strCaptionOffset = captionOffset;					}
 	public String	getCaptionAlign()									{ return _strCaptionAlign;								}
 	public void		setCaptionAlign(String captionAlign)				{ _strCaptionAlign = captionAlign;						}
+	public String	getBoxOutline()										{ return _strBoxOutline;								}
+	public void		setBoxOutline(String boxOutline)					{ _strBoxOutline = boxOutline;							}
 	public String	getBoxBoxwex()										{ return _strBoxBoxwex;									}
 	public void		setBoxBoxwex(String boxBoxwex)						{ _strBoxBoxwex = boxBoxwex;							}
 	public String	getBoxNotch()										{ return _strBoxNotch;									}

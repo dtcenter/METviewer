@@ -228,6 +228,7 @@ function onLoad(){
 	addFmtPlot("Caption Text Size",				"caption_size",		".8",			"txt");
 	addFmtPlot("Caption Perp Offset",			"caption_offset",	"3",			"txt");
 	addFmtPlot("Captoin Horiz Align",			"caption_align",	"0",			"txt");
+	addFmtPlot("Box Plot Show Outliers",		"box_outline",		["TRUE", "FALSE"], "txt");
 	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");
 	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
 	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");
@@ -335,7 +336,8 @@ function serializeNode(node){
 /**
  * Button handlers that call the server to clear the <list_val>  and <list_stat> caches
  */
-function listValClearCacheReq(){ sendRequest("POST", "<list_val_clear_cache/>", nullResp); }
+function dbClearCacheReq()      { sendRequest("POST", "<db_clear_cache/>", nullResp); }
+function listValClearCacheReq() { sendRequest("POST", "<list_val_clear_cache/>", nullResp); }
 function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>", nullResp); }
 
 /**

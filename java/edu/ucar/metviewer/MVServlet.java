@@ -35,9 +35,6 @@ public class MVServlet extends HttpServlet {
 	public static boolean _boolListStatCache = true;
 	public static Hashtable _tableListStatCache = new Hashtable();
 	
-	public static final String _strListStatModeResp = "<stat>MMI</stat><stat>MMIF</stat><stat>MMIO</stat><stat>MIA</stat><stat>MAR</stat>" + 
-													  "<stat>MCD</stat><stat>MAD</stat><stat>P50</stat><stat>P90</stat>";
-	
 	/**
 	 * Read the resource bundle containing database configuration information and initialize the global
 	 * variables
@@ -220,6 +217,9 @@ public class MVServlet extends HttpServlet {
 				//  <list_stat_clear_cache>
 				else if( nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache") ){ strResp += handleClearListStatCache(con); }
 				
+				//  <db_clear_cache>
+				else if( nodeCall._tag.equalsIgnoreCase("db_clear_cache") ){ strResp += handleClearDBCache(); }
+				
 				//  <plot>
 				else if( nodeCall._tag.equalsIgnoreCase("plot") ) { strResp += handlePlot(strRequestBody, con); }
 
@@ -267,6 +267,27 @@ public class MVServlet extends HttpServlet {
     	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
     	int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
     	return "<list_stat_clear_cache>success: removed " + intNumRemoved + " entries</list_stat_clear_cache>";
+    }
+    
+    /**
+     * Clear the database connection table of all connections, closing them in the process
+     * @return response XML indicating progress
+     * @throws Exception
+     */
+    public static synchronized String handleClearDBCache() throws Exception{
+    	
+    	//  remove each database connection from the connection table, commit its transactions and close it
+    	Map.Entry[] listDB = (Map.Entry[])_tableDBConnection.entrySet().toArray(new Map.Entry[]{});    	
+    	for(int i=0; i < listDB.length; i++){
+    		String strDB = listDB[i].getKey().toString();
+    		Connection con = (Connection)_tableDBConnection.remove(strDB);
+    		try{
+    			con.commit();
+    			con.close();
+    		} catch(Exception e){}
+    	}
+    	
+    	return "<db_clear_cache>success: removed " + listDB.length + " database connections</db_clear_cache>";
     }
     
     /**
@@ -372,6 +393,8 @@ public class MVServlet extends HttpServlet {
 		return strResp;
     }
     
+    public static final Pattern _patProbFcstVar = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]{1,2})([^\\)]+)\\)");
+    
     /**
      * List statistics for the specified fcst_var, using cached data if appropriate, and return it in serialized XML
      * @param nodeCall MVNode containing request information
@@ -386,7 +409,7 @@ public class MVServlet extends HttpServlet {
 		String strId = nodeCall._children[0]._value;
 		String strFcstVar = nodeCall._children[1]._value;
 		if( nodeCall._children[0]._tag.equals("mode_fcst_var") ){
-			String strResp = "<list_stat><id>" + strId + "</id>" + _strListStatModeResp + "</list_stat>";
+			String strResp = "<list_stat><id>" + strId + "</id></list_stat>";
 			_logger.debug("handleListStat() - returning mode stats: " + strResp);
 			return strResp;
 		}
@@ -413,10 +436,16 @@ public class MVServlet extends HttpServlet {
 		String strResp = "<list_stat><id>" + strId + "</id>";
 		int intNumStat = 0;
 		ResultSet res = stmt.getResultSet();
+		Hashtable tabProb = new Hashtable();
 		while( res.next() ){
 			String strStat = res.getString(1);			
 			strResp += "<val>" + strStat + "</val>";
 			if( "BCMSE".equals(strStat) ){ strResp += "<val>BCRMSE</val>"; }
+			/*
+			Matcher matProb = _patProbFcstVar.matcher(strStat);
+			if( matProb.matches() ){
+			}
+			*/
 			intNumStat++;
 		}
 		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));

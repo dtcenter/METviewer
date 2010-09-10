@@ -109,12 +109,14 @@ for(strFcstVar in names(listDep1Plot)){
 			if( boolAdd != TRUE ){ strYaxt="s"; }
 			else				 { strYaxt="n"; }
 			
+			strColor = listColors[intPermX+1];
 			boxplot(
 				listBox,				# box data as a list of vectors 
 				at=listAt,				# vector of box positions
 				notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
 				boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
-				col=listColors[intPermX+1], # box color(s)
+				col=strColor,			# box color(s)
+				outline=#<box_outline>#,# draw outliers - TRUE: draw, FALSE: no draw
 				xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
 				ylim=listY1limUsr,		# y1-axis limits
 				yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t

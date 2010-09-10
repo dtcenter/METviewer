@@ -1354,6 +1354,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("caption_size",	job.getCaptionSize());
 						tableRTags.put("caption_offset",job.getCaptionOffset());
 						tableRTags.put("caption_align",	job.getCaptionAlign());
+						tableRTags.put("box_outline",	job.getBoxOutline());
 						tableRTags.put("box_boxwex",	job.getBoxBoxwex());
 						tableRTags.put("box_notch",		job.getBoxNotch());
 						tableRTags.put("ci_alpha",		job.getCIAlpha());
