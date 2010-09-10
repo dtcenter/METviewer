@@ -31,9 +31,6 @@ p {
 	padding-left: 20px;
 	padding-right: 20px;
 }
-li {
-	list-style-position: inside;
-}
 a {
 	color: #0066ff;
 	/* font-family: courier; */
@@ -41,27 +38,25 @@ a {
 	/* font-weight: bold; */
 	text-decoration: none;
 }
-a.loc {
-	color: #0066ff;
-	font-size: 10px;
-}
-a.toc {
-	color: #0066ff;
-	font-size: 14px;
-	font-weight: bold;
-}
+a.loc { color: #0066ff; font-size: 10px; }
+a.toc { color: #0066ff; font-size: 14px; font-weight: bold; }
+
 b {
 	color: #7f7f7f;
 	font-family: verdana;
 	font-size: 11px;
 	font-weight: bold;
 }
-b.tag {
-	color: #0066ff;
-}
+b.tag  { color: #0066ff; }
+b.inst { color: #0066ff; font-size: 14px; }
+
 li {
+	list-style-position: inside;
 	list-style-type: circle;
 }
+li.inst     { list-style-type: decimal;     }
+li.inst_sub { list-style-type: lower-alpha; }
+
 th {
 	background-color: #dddddd;
 } 

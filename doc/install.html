@@ -1,0 +1,55 @@
+<html>
+<head>
+	<title>METViewer Documentation</title>
+	<link rel="stylesheet" type="text/css" href="mv_doc.css" />
+	<link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
+</head>
+<body>
+
+<p class="loc" style="padding-top:10px">
+<b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Installing METViewer
+</p><hr/>
+
+<h2>Installing METViewer</h2>
+
+<ol>
+	<li class="inst">METViewer relies on the following tools.  These must be installed and tested prior to installing METViewer:<br/><br/>
+		<ul>
+			<li>
+				<b class="inst">Java JDK</b> - 
+					<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.6
+			</li>
+			<li>
+				<b class="inst">ant</b> - <a href="http://ant.apache.org/bindownload.cgi" target="_blank">download</a> and install the latest version
+			</li>
+			<li>
+				<b class="inst">MySQL</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
+			</li>
+			<li>
+				<b class="inst">Apache Tomcat</b> - 
+					<a href="http://tomcat.apache.org/download-55.cgi" target="_blank">download</a> and install version 5.5; test the sample JSP web apps 		
+			</li>
+			<li>
+				<b class="inst">R</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
+			</li>
+		</ul><br/><br/>
+	</li>
+	<li class="inst">Download and build the METViewer source code (link needed).<br/><br/>
+		<ul>
+			<li class="inst">Unpack the METViewer source bundle:<br/>
+				<span class="term" style="padding-left:40px">$ tar xzf metviewer.tar.gz</span><br/><br/>			 
+			</li>
+			<li class="inst">Build the application:<br/>
+				<span class="term" style="padding-left:40px">$ cd metviewer</span><br/>		 
+				<span class="term" style="padding-left:40px">$ ant dist</span><br/><br/>
+			</li>
+			<li class="inst">Set the <span class="term">$METV_BASE</span> environment variable:<br/>
+				<span class="term" style="padding-left:40px">$ export METV_BASE=`pwd`</span><br/><br/>
+			</li>
+		</ul><br/><br/>
+	</li>
+	
+</ol>
+
+</body>
+</html>
