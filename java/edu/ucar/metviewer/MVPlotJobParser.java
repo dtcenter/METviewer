@@ -734,6 +734,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("box_outline",	MVPlotJob.class.getDeclaredMethod("setBoxOutline",	new Class[]{String.class}));
 			_tableFormatString.put("box_boxwex",	MVPlotJob.class.getDeclaredMethod("setBoxBoxwex",	new Class[]{String.class}));
 			_tableFormatString.put("box_notch",		MVPlotJob.class.getDeclaredMethod("setBoxNotch",	new Class[]{String.class}));
+			_tableFormatString.put("box_avg",		MVPlotJob.class.getDeclaredMethod("setBoxAvg",		new Class[]{String.class}));
 			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));
 			
 			_tableFormatString.put("plot_ci",		MVPlotJob.class.getDeclaredMethod("setPlotCI",		new Class[]{String.class}));
@@ -826,7 +827,6 @@ public class MVPlotJobParser extends MVUtil{
 		String strStart = "";
 		String strEnd = "";
 		String strHour = "";
-		ArrayList listVals = new ArrayList();
 		
 		for(int i=0; i < nodeDateList._children.length; i++){
 			MVNode nodeChild = nodeDateList._children[i];

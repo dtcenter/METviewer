@@ -1357,6 +1357,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("box_outline",	job.getBoxOutline());
 						tableRTags.put("box_boxwex",	job.getBoxBoxwex());
 						tableRTags.put("box_notch",		job.getBoxNotch());
+						tableRTags.put("box_avg",		job.getBoxAvg());
 						tableRTags.put("ci_alpha",		job.getCIAlpha());
 						
 						int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));

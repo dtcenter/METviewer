@@ -61,8 +61,8 @@ var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 
-var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", 
-                        "INIT_HOUR", "INTERP_PNTS"];
+var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "OBS_THRESH", "FCST_VALID_BEG", "VALID_HOUR", 
+                        "FCST_INIT_BEG", "INIT_HOUR", "INTERP_PNTS"];
 var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR",
                         "FCST_RAD"];
 var _listIndyVar = _listIndyVarStat;
@@ -231,6 +231,7 @@ function onLoad(){
 	addFmtPlot("Box Plot Show Outliers",		"box_outline",		["TRUE", "FALSE"], "txt");
 	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");
 	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
+	addFmtPlot("Box Plot Show Avg",				"box_avg",			["FALSE", "TRUE"], "txt");
 	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");
 	
 	//  build the series formatting controls

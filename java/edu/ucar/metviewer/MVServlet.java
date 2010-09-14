@@ -343,9 +343,15 @@ public class MVServlet extends HttpServlet {
     	for(int i=2; i < nodeCall._children.length; i++){
     		MVNode nodeField = nodeCall._children[i];
     		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode).replaceAll("h\\.", "");
+    		/*
     		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " IN (";
     		for(int j=0; j < nodeField._children.length; j++){
     			strWhere += (0 < j? ", " : "") + "'" + nodeField._children[j]._value + "'";
+    		}
+    		*/
+    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " LIKE (";
+    		for(int j=0; j < nodeField._children.length; j++){
+    			strWhere += (0 < j? ", " : "") + "'" + nodeField._children[j]._value.replace("*", "%") + "'";
     		}
     		strWhere += ") ";
     	}
@@ -384,7 +390,24 @@ public class MVServlet extends HttpServlet {
 		*/
 		
 		//  add the list of field values to the response
-		for(int i=0; i < listVal.length; i++){ strResp += "<val>" + listVal[i] + "</val>"; }
+		Hashtable tabProb = new Hashtable();
+		for(int i=0; i < listVal.length; i++){
+			
+			//  add the database field value to the list
+			strResp += "<val>" + listVal[i] + "</val>";			
+			
+			//  if the database field value is probabilistic, add a wild card version 
+			if( !strField.equals("fcst_var") ){ continue; }
+			Matcher matProb = _patProbFcstVar.matcher(listVal[i]);
+			if( matProb.matches() ){
+				String strProbKey = matProb.group(1) + matProb.group(2);
+				String strProbFcstVar = "PROB(" + strProbKey + "*)";
+				if( !tabProb.containsKey(strProbKey) ){
+					strResp += "<val>" + strProbFcstVar + "</val>";
+					tabProb.put(strProbKey, strProbFcstVar);
+				}
+			}	
+		}
 		
 		//  clean up  
 		stmt.close();
@@ -425,7 +448,7 @@ public class MVServlet extends HttpServlet {
     	
 		//  build a query for the statistics and execute it
 		String strSQL = "SELECT DISTINCT sgl.stat_group_name FROM stat_header sh, stat_group sg, stat_group_lu sgl " +
-						"WHERE sh.fcst_var = '" + strFcstVar + "' AND sg.stat_header_id = sh.stat_header_id AND " +
+						"WHERE sh.fcst_var LIKE '" + strFcstVar.replace("*", "%") + "' AND sg.stat_header_id = sh.stat_header_id AND " +
 							"sg.stat_group_lu_id = sgl.stat_group_lu_id ORDER BY sgl.stat_group_name";
     	_logger.debug("handleListStat() - listing stats for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
 		Statement stmt = con.createStatement();
@@ -436,16 +459,10 @@ public class MVServlet extends HttpServlet {
 		String strResp = "<list_stat><id>" + strId + "</id>";
 		int intNumStat = 0;
 		ResultSet res = stmt.getResultSet();
-		Hashtable tabProb = new Hashtable();
 		while( res.next() ){
 			String strStat = res.getString(1);			
 			strResp += "<val>" + strStat + "</val>";
 			if( "BCMSE".equals(strStat) ){ strResp += "<val>BCRMSE</val>"; }
-			/*
-			Matcher matProb = _patProbFcstVar.matcher(strStat);
-			if( matProb.matches() ){
-			}
-			*/
 			intNumStat++;
 		}
 		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));

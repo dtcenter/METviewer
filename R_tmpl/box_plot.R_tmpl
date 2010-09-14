@@ -7,6 +7,8 @@ source("include/util_plot.R");
 #
 
 boolGridOn		= #<grid_on>#;
+boolLogY1		= #<log_y1>#;
+boolBoxAvg		= #<box_avg>#;
 		
 listY1limUsr	= #<y1_lim>#;
 		
@@ -47,6 +49,13 @@ if( 1 < intNumPerm ){
 	dblIndySpan = 0; 
 }
 listX = 1:length(listIndy);
+
+# if log scale prepare the data and boxplot parameters
+strLogParm = "";
+if( boolLogY1 ){
+	dfPlot[dfPlot$stat_value == 0,]$stat_value = NA;
+	strLogParm = "y";
+}
 
 # specify the output file
 strPlotType = "#<plot_type>#";
@@ -108,7 +117,8 @@ for(strFcstVar in names(listDep1Plot)){
 			
 			if( boolAdd != TRUE ){ strYaxt="s"; }
 			else				 { strYaxt="n"; }
-			
+
+			# call the boxplot() function to build the series of boxes
 			strColor = listColors[intPermX+1];
 			boxplot(
 				listBox,				# box data as a list of vectors 
@@ -120,9 +130,21 @@ for(strFcstVar in names(listDep1Plot)){
 				xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
 				ylim=listY1limUsr,		# y1-axis limits
 				yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
+				log=strLogParm,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
 				add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
 				tck=.01 				# length of tick marks as a fraction of plot window		
 			);
+			
+			# if the box mean is activated, add them to the plot
+			if( boolBoxAvg ){
+				listMean = c();
+				for(strIndy in names(listBox)){				
+					listMeanVal = listBox[[strIndy]];
+					listMeanVal[is.na(listMeanVal)] = 0;
+					listMean[length(listMean) + 1] = mean(listMeanVal);
+				}
+				points(listAt, listMean, type="p", pch=8);
+			}
 			
 			boolAdd = TRUE;
 			intPermX = intPermX + 1;

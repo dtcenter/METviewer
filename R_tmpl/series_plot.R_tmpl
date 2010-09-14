@@ -87,7 +87,8 @@ for( strDep1Name in names(listDep1Plot) ){
 		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, boolPlot1Diff, 
 									listPlotCI[1:intNumSeries1], dblAlpha);
 		listSeries1 = append(listSeries1, listPlotData1$series);
-		listNStats  = listPlotData1$nstats;
+		if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
+		else                              { listNStats = listPlotData1$nstats; }
 		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
 		listLegend = append(listLegend, listLegend1);		
 	}
