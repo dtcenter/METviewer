@@ -224,6 +224,7 @@ function onLoad(){
 	addFmtPlot("Caption Text Size",				"caption_size",		".8",			"txt");
 	addFmtPlot("Caption Perp Offset",			"caption_offset",	"3",			"txt");
 	addFmtPlot("Captoin Horiz Align",			"caption_align",	"0",			"txt");
+	addFmtPlot("Box Plot Points",				"box_pts",			["FALSE", "TRUE"], "txt");
 	addFmtPlot("Box Plot Show Outliers",		"box_outline",		["TRUE", "FALSE"], "txt");
 	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");
 	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
@@ -668,6 +669,7 @@ function updateTmpl(){
 	listFmtAxis[5].style.display = boolShowY2? "inline" : "none";
 	listFmtAxis[6].style.display = boolShowY2? "inline" : "none";
 	listFmtAxis[7].style.display = boolShowY2? "inline" : "none";
+	updateBoot();
 }
 
 /**

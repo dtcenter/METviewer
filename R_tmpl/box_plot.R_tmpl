@@ -9,7 +9,8 @@ source("include/util_plot.R");
 boolGridOn		= #<grid_on>#;
 boolLogY1		= #<log_y1>#;
 boolBoxAvg		= #<box_avg>#;
-		
+boolBoxPts		= #<box_pts>#;
+
 listY1limUsr	= #<y1_lim>#;
 		
 dfPlot = read.delim("#<data_file>#");
@@ -29,6 +30,8 @@ listDep1Scale = #<dep1_scale>#;
 listIndy = #<indy_list>#;
 
 listColors = #<colors>#;
+
+listPch = #<pch>#;
 
 listSeriesVar = names(listSeries1Val);
 matPermVal = permute(listSeries1Val);
@@ -93,47 +96,111 @@ par(
 	las=0 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
 
+# if the plot contains points, establish the plot window and y axis
+if( boolBoxPts ){
+	
+	# determine the min and max data values
+	if( 2 != length(listY1limUsr) ){
+		listYlim = c(min(dfPlot$stat_value), max(dfPlot$stat_value));
+	} else {
+		listYlim = listY1limUsr;
+	}
+	
+	# create the plot window
+	plot(
+		listX,					# series x data
+		rep(0, length(listX)),	# series y1 data
+		type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
+								#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
+		xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+		xaxs="r",				# x-axis style - r: regular, i: internal
+		yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
+		yaxs="r",				# x-axis style - r: regular, i: internal
+		ylim=listYlim,			# y1-axis limits
+		xlab="",				# x-axis label
+		ylab="",				# y1-axis label
+		lwd=1,					# line width
+		cex.lab=1,				# relative axis label magnification
+		cex.main=1,				# relative title magnification
+		cex.sub=1,				# relative subtitle magnification
+		fg="gray"
+	);
+	
+	# specify the y-axis
+	axis(
+		2,						# axis of interest, 1: below, 2: left, 3: above and 4: right
+		labels=TRUE,			# tick labels on/off
+		tick=TRUE,				# tick marks on/off
+		tck=.01, 				# length of tick marks as a fraction of plot window
+		las=#<ytlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+		padj=#<ytlab_perp>#,	# axis label perpendicular location adjustment
+		hadj=#<ytlab_horiz>#,	# axis label parallel location adjustment
+		cex.axis=1,				# relative axis label magnification 
+		col="gray"				# axis color
+	);	
+}
+
+
 # build a box series for each plot series permutation
 boolAdd = FALSE;
-intPermX = 0;
+intPermIndex = 1;
 for(strFcstVar in names(listDep1Plot)){
 	listStats = listDep1Plot[[strFcstVar]];
-	for(strStat in listStats){		
+	for(strStat in listStats){				
+		dfPlotStat = dfPlot[ dfPlot$fcst_var == strFcstVar & dfPlot$stat_name == strStat,];		
 		for(intPermVal in 1:nrow(matPermVal)){
 	
 			listBox = list();
-			listAt = listX - (dblIndySpan/2) + intPermX * dblInc;	
+			listAt = listX - (dblIndySpan/2) + (intPermIndex - 1) * dblInc;	
+			strColor = listColors[intPermIndex];
 			
-			# construct the data frame for the current series
+			# construct the box data for the current series
 			listPermVal = matPermVal[intPermVal,];
+			dfBox = dfPlotStat;
 			for(intVar in 1:length(listSeriesVar)){
-				for(strIndy in listIndy){
-					listBox[[ strIndy ]] = dfPlot[ dfPlot[[ listSeriesVar[intVar] ]] == listPermVal[intVar] &
-												   dfPlot[[ strIndyVar ]] == strIndy &
-												   dfPlot$fcst_var == strFcstVar &
-												   dfPlot$stat_name == strStat, ]$stat_value;
-				}
+				dfBox = dfBox[ dfBox[[ listSeriesVar[intVar] ]] == listPermVal[intVar], ];
+			}			
+			for(strIndy in listIndy){
+				listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
 			}
 			
-			if( boolAdd != TRUE ){ strYaxt="s"; }
-			else				 { strYaxt="n"; }
-
-			# call the boxplot() function to build the series of boxes
-			strColor = listColors[intPermX+1];
-			boxplot(
-				listBox,				# box data as a list of vectors 
-				at=listAt,				# vector of box positions
-				notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
-				boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
-				col=strColor,			# box color(s)
-				outline=#<box_outline>#,# draw outliers - TRUE: draw, FALSE: no draw
-				xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
-				ylim=listY1limUsr,		# y1-axis limits
-				yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
-				log=strLogParm,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
-				add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
-				tck=.01 				# length of tick marks as a fraction of plot window		
-			);
+			# if only points are displayed, call the points() function 		
+			if( boolBoxPts ){
+				intPch = listPch[intPermIndex];
+				intIndy = 1;
+				for(strIndy in names(listBox)){
+					listPts = listBox[[strIndy]];
+					listPtsAt = rep(listAt[intIndy], length(listPts));
+					points(
+						listPtsAt,	 		# x coordinate vector
+						listPts,			# y coordinate vector
+						type="p",			# type of plot - p: points
+						pch=intPch,			# point symbol - see example(points)
+						col=strColor		# point color
+					);
+					intIndy = intIndy + 1;
+				}
+			} 
+			
+			# otherwise, call the boxplot() function to build the series of boxes
+			else {
+				if( boolAdd != TRUE ){ strYaxt="s"; }
+				else				 { strYaxt="n"; }
+				boxplot(
+					listBox,				# box data as a list of vectors 
+					at=listAt,				# vector of box positions
+					notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
+					boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
+					col=strColor,			# box color(s)
+					outline=#<box_outline>#,# draw outliers - TRUE: draw, FALSE: no draw
+					xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+					ylim=listY1limUsr,		# y1-axis limits
+					yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
+					log=strLogParm,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
+					add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
+					tck=.01 				# length of tick marks as a fraction of plot window		
+				);
+			}
 			
 			# if the box mean is activated, add them to the plot
 			if( boolBoxAvg ){
@@ -147,7 +214,7 @@ for(strFcstVar in names(listDep1Plot)){
 			}
 			
 			boolAdd = TRUE;
-			intPermX = intPermX + 1;
+			intPermIndex = intPermIndex + 1;
 		}
 	}
 }
@@ -265,7 +332,11 @@ if( 0 < length(listSeriesNobs) ){
 listLegend = c();
 for(strFcstVar in names(listDep1Plot)){
 	listStat = listDep1Plot[[strFcstVar]];
-	for(strStat in listStat){ listLegend = append( listLegend, paste(matPermVal, strStat) ); }
+	for(strStat in listStat){
+		for(intPerm in 1:nrow(matPermVal)){
+			listLegend = append( listLegend, paste(paste(matPermVal[intPerm,], collapse=" "), strStat) );
+		}
+	}
 }
 
 legend(
@@ -280,7 +351,7 @@ legend(
 	#box.lty=,				# legend box line type
 	#box.lwd=,				# legend box line width	
 	#horiz=FALSE,			# horizontal configuration
-	adj=.08,				# string adjustment for text
+	adj=.05,				# string adjustment for text
 	xpd=TRUE,				# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
 	ncol=3,					# number of columns in legend
 	#agginset=c(0, -.25),	# inset distance from margin

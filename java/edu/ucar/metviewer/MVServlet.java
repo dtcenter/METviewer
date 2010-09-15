@@ -343,13 +343,9 @@ public class MVServlet extends HttpServlet {
     	for(int i=2; i < nodeCall._children.length; i++){
     		MVNode nodeField = nodeCall._children[i];
     		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode).replaceAll("h\\.", "");
-    		/*
-    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " IN (";
-    		for(int j=0; j < nodeField._children.length; j++){
-    			strWhere += (0 < j? ", " : "") + "'" + nodeField._children[j]._value + "'";
-    		}
-    		*/
-    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " LIKE (";
+    		String strSQLOp = "IN";
+    		if( nodeField._name.toLowerCase().equals("fcst_var") ){ strSQLOp = "LIKE"; }
+    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " " + strSQLOp + " (";
     		for(int j=0; j < nodeField._children.length; j++){
     			strWhere += (0 < j? ", " : "") + "'" + nodeField._children[j]._value.replace("*", "%") + "'";
     		}

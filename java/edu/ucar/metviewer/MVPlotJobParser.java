@@ -731,6 +731,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("caption_size",	MVPlotJob.class.getDeclaredMethod("setCaptionSize",	new Class[]{String.class}));
 			_tableFormatString.put("caption_offset",MVPlotJob.class.getDeclaredMethod("setCaptionOffset",new Class[]{String.class}));
 			_tableFormatString.put("caption_align",	MVPlotJob.class.getDeclaredMethod("setCaptionAlign",new Class[]{String.class}));
+			_tableFormatString.put("box_pts",		MVPlotJob.class.getDeclaredMethod("setBoxPts",		new Class[]{String.class}));
 			_tableFormatString.put("box_outline",	MVPlotJob.class.getDeclaredMethod("setBoxOutline",	new Class[]{String.class}));
 			_tableFormatString.put("box_boxwex",	MVPlotJob.class.getDeclaredMethod("setBoxBoxwex",	new Class[]{String.class}));
 			_tableFormatString.put("box_notch",		MVPlotJob.class.getDeclaredMethod("setBoxNotch",	new Class[]{String.class}));
