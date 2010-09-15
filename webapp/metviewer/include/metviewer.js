@@ -18,10 +18,6 @@ var _listDep2Div = new Array();
 var _divFieldVal;
 var _intFieldValIdNext = 0;
 
-/*
-var _listStatMode = ["MMI", "MMIO", "MMIF", "MIA", "MAR", "MCD", "MAD", "P50", "P90"];
-*/
-
 var _listStatModeSingle = [
 						"ACOV", "CNT", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "AREA", "AREAFIL", 
 						"AREATHR", "CURV", "CURVX", "CURVY", "CPLX", "INT10", "INT25", "INT50", "INT75", "INT90", 
@@ -45,8 +41,8 @@ var _listStatModeSingle = [
 					];
 
 var _listStatModePair = [						
-						"CENTDIST", "BOUNDDIST", "HULLDIST", "ANGLEDIFF", "AREARAT", "INTAREA", "UNIONAREA", 
-						"SYMDIFF", "INTOVERAREA", "CMPLXRATIO", "PERCINTRATIO",  "INT", "MAXINT"
+						"CENTDIST", "BOUNDDIST", "HULLDIST", "ANGLEDIFF", "AREARATIO", "INTAREA", "UNIONAREA", 
+						"SYMDIFF", "INTOVERAREA", "CMPLXRATIO", "PERCINTRATIO",  "INT", "MAXINT", "MAXINTF", "MAXINTO"
 					];
 
 var _listStatMode = _listStatModeSingle.concat(_listStatModePair);
@@ -880,9 +876,9 @@ function updateDepStat(id){
 	}
 
 	//  toggle the visibility of the checkbox table cells
-	divDep.getElementsByTagName("td")[3].style.display = boolVisPair?      "table-cell" : "none";
+	divDep.getElementsByTagName("td")[3].style.display = boolVisSingle?    "table-cell" : "none";
 	divDep.getElementsByTagName("td")[4].style.display = boolVisPair?      "table-cell" : "none";
-	divDep.getElementsByTagName("td")[5].style.display = boolVisSingle?    "table-cell" : "none";
+	divDep.getElementsByTagName("td")[5].style.display = boolVisPair?      "table-cell" : "none";
 	divDep.getElementsByTagName("span")[0].style.display = boolVisSingle?  "inline" : "none";
 
 	buildSeriesDiv();
@@ -1831,11 +1827,13 @@ function buildModeStatCode(stat, divDep){
 	var boolFcst = divDep.getElementsByTagName("input")[3].checked;
 	var boolObs  = divDep.getElementsByTagName("input")[4].checked;	
 	var strCode = "_";
-	if( boolDiff )                { strCode += "D"; }
-	else if( boolFcst && boolObs ){ strCode += "A"; }
-	else if( boolFcst )           { strCode += "F"; }
-	else if( boolObs )            { strCode += "O"; }
-	else                          { strCode += "A"; }
+	if( -1 < listSearch(stat, _listStatModeSingle) ){
+		if( boolDiff )                { strCode += "D"; }
+		else if( boolFcst && boolObs ){ strCode += "A"; }
+		else if( boolFcst )           { strCode += "F"; }
+		else if( boolObs )            { strCode += "O"; }
+		else                          { strCode += "A"; }
+	}
 
 	//  determine the second letter of the code [A|S|C]
 	var boolSimp = divDep.getElementsByTagName("input")[5].checked;
@@ -1848,12 +1846,10 @@ function buildModeStatCode(stat, divDep){
 	//  determine the third letter of the code [A|M|U]
 	var boolMat  = divDep.getElementsByTagName("input")[7].checked;
 	var boolUnm  = divDep.getElementsByTagName("input")[8].checked;
-	if( -1 < listSearch(stat, _listStatModeSingle) ){
-		if( boolMat && boolUnm )      { strCode += "A"; }
-		else if( boolMat )            { strCode += "M"; }
-		else if( boolUnm )            { strCode += "U"; }
-		else                          { strCode += "A"; }
-	}
+	if( boolMat && boolUnm )      { strCode += "A"; }
+	else if( boolMat )            { strCode += "M"; }
+	else if( boolUnm )            { strCode += "U"; }
+	else                          { strCode += "A"; }
 	
 	return stat + strCode;
 }

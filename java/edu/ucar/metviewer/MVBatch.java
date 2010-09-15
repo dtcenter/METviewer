@@ -746,28 +746,6 @@ public class MVBatch extends MVUtil {
 						"    stat_value          DOUBLE\n" +
 						");");
 
-					//  add aerial coverage to the stats table 
-					String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
-					strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
-					strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
-					listQuery.add(
-						"INSERT INTO mode_stat\n" +
-						"SELECT\n" + strSelectListModeTemp +
-						"  '' object_id,\n" +
-						"  '' object_cat,\n" +
-						"  'ACOV' stat_name,\n" +
-						"  sum(mos.area) / mc.total stat_value\n" +
-						"FROM\n" +
-						"  mode_header h,\n" +
-						"  mode_obj_single mos,\n" +
-						"  mode_cts mc\n" +
-						"WHERE\n" + strWhereModeTemp + "\n" +
-						"  AND mc.field = 'OBJECT'\n" +
-						"  AND mos.mode_header_id = h.mode_header_id\n" +
-						"  AND mc.mode_header_id = mos.mode_header_id\n" +
-						"GROUP BY\n" + strACOVGroup + ";"
-					);
-						
 					//  construct a query for the dependent variable statistics for the y1 and y2 axes 
 					for(int intY=1; intY <= 2; intY++){
 						Map.Entry[] listSeriesMode = (1 == intY? listSeries1Val : listSeries2Val);
@@ -798,12 +776,41 @@ public class MVBatch extends MVUtil {
 											listQuery.add( buildModeSingleStatDiffTable(strSelectListModeTemp, listModeStats[intStatMode]) );
 										}
 									} else if( _tableModePairStatField.containsKey(listStatComp[0]) ){
-										listQuery.add( buildModePairStatTable(strSelectListModeTemp, listModeStats[intStatMode]) );
+										if( listStatComp[0].equals("MAXINT") ){
+											String[] listMaxintQueries = {
+												buildModePairStatTable(strSelectListModeTemp, "MAXINTF_" + listStatComp[1]),
+												buildModePairStatTable(strSelectListModeTemp, "MAXINTO_" + listStatComp[1])
+											};
+											listMaxintQueries[0] = listMaxintQueries[0].replace("MAXINTF", "MAXINT");
+											listMaxintQueries[1] = listMaxintQueries[1].replace("MAXINTO", "MAXINT");
+											listQuery.addAll( Arrays.asList(listMaxintQueries) );
+										} else {
+											listQuery.add( buildModePairStatTable(strSelectListModeTemp, listModeStats[intStatMode]) );
+										}
 									} else if( listStatComp[0].equals("RATIO") || listStatComp[0].equals("AREARAT") || listModeStats[intStatMode].startsWith("OBJ") ){
 										listQuery.add( buildModeSingleStatRatioTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
+									} else if( listStatComp[0].equals("ACOV") ){
+										String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
+										strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
+										strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
+										listQuery.add(
+											"INSERT INTO mode_stat\n" +
+											"SELECT\n" + strSelectListModeTemp +
+											"  '' object_id,\n" +
+											"  '' object_cat,\n" +
+											"  'ACOV' stat_name,\n" +
+											"  sum(mos.area) / mc.total stat_value\n" +
+											"FROM\n" +
+											"  mode_header h,\n" +
+											"  mode_obj_single mos,\n" +
+											"  mode_cts mc\n" +
+											"WHERE\n" + strWhereModeTemp + "\n" +
+											"  AND mc.field = 'OBJECT'\n" +
+											"  AND mos.mode_header_id = h.mode_header_id\n" +
+											"  AND mc.mode_header_id = mos.mode_header_id\n" +
+											"GROUP BY\n" + strACOVGroup + ";"
+										);
 									}
-									
-									
 								}
 							}					
 						}
@@ -1587,8 +1594,8 @@ public class MVBatch extends MVUtil {
 		
 		//  build the object flag where clause
 		String strWhere = "";		
-		if( strStatFlag.charAt(0) != 'A' ){ strWhere += 										   "  fcst_flag = " +    ('F' == strStatFlag.charAt(0)? "1" : "0"); }
-		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "  simple_flag = " +  ('S' == strStatFlag.charAt(0)? "1" : "0"); }
+		if( strStatFlag.charAt(0) != 'A' ){ strWhere +=                                            "  simple_flag = " +  ('S' == strStatFlag.charAt(0)? "1" : "0"); }
+		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "  matched_flag = " +  ('M' == strStatFlag.charAt(0)? "1" : "0"); }
 		strWhere = (strWhere.equals("")? "" : "\nWHERE\n" + strWhere);
 		
 		//  build the list of fields involved in the computations
@@ -1599,17 +1606,17 @@ public class MVBatch extends MVUtil {
 		String strObjectId = "object_id";
 		String strObjectIdName = "object_id";
 		String strGroupBy = "";
-		if( strStatName.equals("MAXINT") ){
+		if( strStatName.startsWith("MAXINT") ){
+			if     ( strStatName.equals("MAXINTF") ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) fcst_id"; strObjectIdName = "fcst_id"; }
+			else if( strStatName.equals("MAXINTO") ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) obs_id";     strObjectIdName = "obs_id"; }
 			strGroupBy = "\nGROUP BY\n" + strGroupListMMI + "  " + strObjectIdName;
-			if     ( strStatFlag.charAt(0) == 'F' ){ strObjectId = "SUBSTR(object_id, 1, LOCATE('_', object_id)-1) fcst_id"; strObjectIdName = "fcst_id"; }
-			else if( strStatFlag.charAt(0) == 'O' ){ strObjectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) obs_id";     strObjectIdName = "obs_id"; }
 		}
 		
 		//  set the table stat field, object_id pattern and group by clause, depending on the stat
 		String strTableStat = _tableModePairStatField.get(strStatName).toString();
 		
 		//  build the query
-		String strQuery =
+		return 
 			"INSERT INTO mode_stat\n" +
 			"SELECT\n" + strSelectListStat +
 			"  " + strObjectId + ",\n" +
@@ -1617,8 +1624,6 @@ public class MVBatch extends MVUtil {
 			"  '" + stat + "' stat_name,\n" +
 			"  " + strTableStat + " stat_value\n" +  
 			"FROM mode_pair" + strWhere + strGroupBy + ";";
-		
-		return strQuery;		
 	}	
 	
 	public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
@@ -1849,7 +1854,7 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("BOUNDDIST",	"151");
 		_tableModeStatIndex.put("HULLDIST",		"152");
 		_tableModeStatIndex.put("ANGLEDIFF",	"153");
-		_tableModeStatIndex.put("AREARAT",		"154");
+		_tableModeStatIndex.put("AREARATIO",	"154");
 		_tableModeStatIndex.put("INTAREA",		"155");
 		_tableModeStatIndex.put("UNIONAREA",	"156");
 		_tableModeStatIndex.put("SYMDIFF",		"157");
@@ -1858,7 +1863,8 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("PERCINTRATIO",	"160");
 		_tableModeStatIndex.put("INT",			"161");
 		_tableModeStatIndex.put("MAXINT",		"162");
-
+		_tableModeStatIndex.put("MAXINTF",		"163");
+		_tableModeStatIndex.put("MAXINTO",		"164");
 	}
 	
 	public static final Hashtable _tableModeStatRename = new Hashtable();
@@ -2055,6 +2061,8 @@ public class MVBatch extends MVUtil {
 		_tableModePairStatField.put("PERCINTRATIO",		"percentile_intensity_ratio");
 		_tableModePairStatField.put("INT",				"interest");
 		_tableModePairStatField.put("MAXINT",			"MAX(interest)");
+		_tableModePairStatField.put("MAXINTF",			"MAX(interest)");
+		_tableModePairStatField.put("MAXINTO",			"MAX(interest)");
 	}
 	
 	public static final Hashtable _tableModeRatioField = new Hashtable();
