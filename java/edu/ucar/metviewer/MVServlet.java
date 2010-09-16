@@ -344,12 +344,13 @@ public class MVServlet extends HttpServlet {
     		MVNode nodeField = nodeCall._children[i];
     		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode).replaceAll("h\\.", "");
     		String strSQLOp = "IN";
-    		if( nodeField._name.toLowerCase().equals("fcst_var") ){ strSQLOp = "LIKE"; }
-    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " " + strSQLOp + " (";
+    		String strValList = "";
     		for(int j=0; j < nodeField._children.length; j++){
-    			strWhere += (0 < j? ", " : "") + "'" + nodeField._children[j]._value.replace("*", "%") + "'";
+    			String strVal = nodeField._children[j]._value;
+    			if( strVal.contains("*") ){ strSQLOp = "LIKE"; }
+    			strValList += (0 < j? ", " : "") + "'" + strVal.replace("*", "%") + "'";
     		}
-    		strWhere += ") ";
+    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ") ";
     	}
 		
 		//  build a query for the values and execute it
