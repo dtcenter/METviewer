@@ -8,6 +8,8 @@ source("include/util_plot.R");
 
 boolGridOn		= #<grid_on>#;
 boolLogY1		= #<log_y1>#;
+boolEventEqual	= #<event_equal>#;
+boolPlotDiff	= #<plot1_diff>#;
 boolBoxAvg		= #<box_avg>#;
 boolBoxPts		= #<box_pts>#;
 
@@ -34,7 +36,6 @@ listColors = #<colors>#;
 listPch = #<pch>#;
 
 listSeriesVar = names(listSeries1Val);
-matPermVal = permute(listSeries1Val);
 
 # calculate the number of statistics
 intNumStats = 0;
@@ -42,8 +43,22 @@ for(strFcstVar in names(listDep1Plot)){
 	intNumStats = intNumStats + length( listDep1Plot[[strFcstVar]] );
 }
 
-# calculate the horizonal location increment
+# run event equalizer, if requested
+if( TRUE == boolEventEqual || TRUE == boolPlotDiff ){
+	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val);
+}
+
+# add a diff series, if requested
+if( TRUE == boolPlotDiff ){
+	strSeriesVarDiff = listSeriesVar[length(listSeriesVar)];	
+	listSeries1Val[[ strSeriesVarDiff ]] = append(listSeries1Val[[ strSeriesVarDiff ]], "__DIFF__");
+} 
+
+# build the series value permutations
+matPermVal = permute(listSeries1Val);
 intNumPerm = nrow(matPermVal) * intNumStats;
+
+# calculate the horizonal location increment
 dblIndySpan = .75 * intNumPerm * #<box_boxwex>#;
 dblInc = 0;
 if( 1 < intNumPerm ){ 
@@ -147,21 +162,46 @@ intPermIndex = 1;
 for(strFcstVar in names(listDep1Plot)){
 	listStats = listDep1Plot[[strFcstVar]];
 	for(strStat in listStats){				
-		dfPlotStat = dfPlot[ dfPlot$fcst_var == strFcstVar & dfPlot$stat_name == strStat,];		
+		
+		# segregate the data pertaining to the current stat
+		dfPlotStat = dfPlot[ dfPlot$fcst_var == strFcstVar & dfPlot$stat_name == strStat,];
+		
+		# sort the dataset by valid time and lead time
+		listFields = names(dfPlotStat);
+		if( "fcst_valid_beg" %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid_beg),]; }				
+		if( "fcst_valid"     %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid),];     }				
+		if( "fcst_init_beg"  %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init_beg),];  }				
+		if( "fcst_init"      %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init),];      }						
+		
+		# build a data series for each permutation of series values 
 		for(intPermVal in 1:nrow(matPermVal)){
-	
-			listBox = list();
+			
+			# initialize the storage for this series
+			listPermVal = matPermVal[intPermVal,];
 			listAt = listX - (dblIndySpan/2) + (intPermIndex - 1) * dblInc;	
+			listBox = list();
 			strColor = listColors[intPermIndex];
 			
-			# construct the box data for the current series
-			listPermVal = matPermVal[intPermVal,];
-			dfBox = dfPlotStat;
-			for(intVar in 1:length(listSeriesVar)){
-				dfBox = dfBox[ dfBox[[ listSeriesVar[intVar] ]] == listPermVal[intVar], ];
-			}			
-			for(strIndy in listIndy){
-				listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
+			# if the current series is a diff series, calculate the pairwise differences
+			if( "__DIFF__" == listPermVal[length(listPermVal)] ){
+				
+				# build the list of pairwise differences for each independent variable value
+				for(strIndy in listIndy){
+					listBox[[strIndy]] = dfBox    [ dfBox    [[ strIndyVar ]] == strIndy, ]$stat_value -
+										 dfBoxComp[ dfBoxComp[[ strIndyVar ]] == strIndy, ]$stat_value;
+				}
+			}
+			
+			# otherwise, construct the box data for the current series from the plot data
+			else {
+				if( TRUE == exists("dfBox") ){ dfBoxComp = dfBox; } 
+				dfBox = dfPlotStat;
+				for(intVar in 1:length(listSeriesVar)){
+					dfBox = dfBox[ dfBox[[ listSeriesVar[intVar] ]] == listPermVal[intVar], ];
+				}			
+				for(strIndy in listIndy){
+					listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
+				}
 			}
 			
 			# if only points are displayed, call the points() function 		

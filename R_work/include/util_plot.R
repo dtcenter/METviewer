@@ -268,10 +268,6 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 					next;
 				}
 				
-				# sort the data by fcst_valid_beg to take a pairwise difference
-				#dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),];
-				#dfStatsComp = dfStatsComp[order(dfStatsComp$fcst_valid_beg),];
-
 				# calculate the difference
 				if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value) - sqrt(dfStatsComp$stat_value); }
 				else                          { listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;             }

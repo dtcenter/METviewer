@@ -571,9 +571,8 @@ public class MVServlet extends HttpServlet {
     		//  parse out R error messages, if present, throwing an exception if the error was fatal
     		Matcher matOutput = Pattern.compile("(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)").matcher(strPlotterOutput);
     		if( matOutput.find() ){ strRErrorMsg = matOutput.group(1); }
-    		if( strPlotterOutput.contains("Execution halted") ){
-    			throw new Exception("R error");
-    		}
+    		if( strPlotterOutput.contains("Execution halted") ){ throw new Exception("R error"); }
+    		if( strPlotterOutput.contains("query returned no data") ){ throw new Exception("query returned no data"); }
     	} catch(Exception e){
         	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
         	return "<error>" +
