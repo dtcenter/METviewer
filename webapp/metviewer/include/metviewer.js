@@ -1773,7 +1773,8 @@ function buildPlotXML(){
  */
 function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 	var strXML = "";
-	var tabField = new Hashtable(); 
+	var tabField = new Hashtable();
+	var listField = new Array();
 	for(i in listDiv){
 		
 		//  get the field value and format it
@@ -1792,11 +1793,12 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 		var strValXML = "";
 		for(j in listVal){ strValXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
 		var strValXMLCur = tabField.get(strVar);
+		listField.push(strVar);
 		tabField.put( strVar, (undefined == strValXMLCur? strValXML : strValXMLCur + strValXML) );		
 	}
 	
 	//  build the XML for each field stored in the table
-	var listField = tabField.listKeys();
+	//var listField = tabField.listKeys();
 	for(i in listField){
 		var strVar = listField[i];
 		strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";

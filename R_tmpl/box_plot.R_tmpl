@@ -2,6 +2,9 @@ setwd("#<r_work>#");
 
 source("include/util_plot.R");
 
+strDataFile = "#<data_file>#";
+strPlotFile = "#<plot_file>#";
+
 #
 #  Plot Control Variables
 #
@@ -15,7 +18,7 @@ boolBoxPts		= #<box_pts>#;
 
 listY1limUsr	= #<y1_lim>#;
 		
-dfPlot = read.delim("#<data_file>#");
+dfPlot = read.delim(strDataFile);
 
 strIndyVar = "#<indy_var>#";
 
@@ -79,7 +82,7 @@ if( boolLogY1 ){
 strPlotType = "#<plot_type>#";
 if( "jpeg" == strPlotType ){
 	jpeg(
-		"#<plot_file>#",		# output file name, with appropriate extension 
+		strPlotFile,			# output file name, with appropriate extension 
 		width=#<plot_width>#,	# width of the display region, in specified units
 		height=#<plot_height>#,	# height of the display region, in specified units
 		res=#<plot_res>#,		# resolution, in dots per inch
@@ -92,7 +95,7 @@ if( "jpeg" == strPlotType ){
 	);
 } else {
 	bitmap(
-		"#<plot_file>#",		# output file name, with appropriate extension 
+		strPlotFile,			# output file name, with appropriate extension 
 		type="#<plot_type>#",	# type of bitmap
 		width=#<plot_width>#,	# width of the display region, in specified units
 		height=#<plot_height>#,	# height of the display region, in specified units
@@ -112,6 +115,7 @@ par(
 );
 
 # if the plot contains points, establish the plot window and y axis
+listYlim = c();
 if( boolBoxPts ){
 	
 	# determine the min and max data values
@@ -157,8 +161,10 @@ if( boolBoxPts ){
 
 
 # build a box series for each plot series permutation
-boolAdd = FALSE;
-intPermIndex = 1;
+#intPermIndex = 1;
+#boolAdd = FALSE;
+listBoxes = list();
+listMeans = list();
 for(strFcstVar in names(listDep1Plot)){
 	listStats = listDep1Plot[[strFcstVar]];
 	for(strStat in listStats){				
@@ -178,9 +184,9 @@ for(strFcstVar in names(listDep1Plot)){
 			
 			# initialize the storage for this series
 			listPermVal = matPermVal[intPermVal,];
-			listAt = listX - (dblIndySpan/2) + (intPermIndex - 1) * dblInc;	
+#			listAt = listX - (dblIndySpan/2) + (intPermIndex - 1) * dblInc;	
 			listBox = list();
-			strColor = listColors[intPermIndex];
+#			strColor = listColors[intPermIndex];
 			
 			# if the current series is a diff series, calculate the pairwise differences
 			if( "__DIFF__" == listPermVal[length(listPermVal)] ){
@@ -204,43 +210,61 @@ for(strFcstVar in names(listDep1Plot)){
 				}
 			}
 			
-			# if only points are displayed, call the points() function 		
-			if( boolBoxPts ){
-				intPch = listPch[intPermIndex];
-				intIndy = 1;
-				for(strIndy in names(listBox)){
-					listPts = listBox[[strIndy]];
-					listPtsAt = rep(listAt[intIndy], length(listPts));
-					points(
-						listPtsAt,	 		# x coordinate vector
-						listPts,			# y coordinate vector
-						type="p",			# type of plot - p: points
-						pch=intPch,			# point symbol - see example(points)
-						col=strColor		# point color
-					);
-					intIndy = intIndy + 1;
-				}
-			} 
+			# save the current list of series values for plotting
+			listBoxes[[ length(listBoxes) + 1 ]] = listBox;
 			
-			# otherwise, call the boxplot() function to build the series of boxes
-			else {
-				if( boolAdd != TRUE ){ strYaxt="s"; }
-				else				 { strYaxt="n"; }
-				boxplot(
-					listBox,				# box data as a list of vectors 
-					at=listAt,				# vector of box positions
-					notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
-					boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
-					col=strColor,			# box color(s)
-					outline=#<box_outline>#,# draw outliers - TRUE: draw, FALSE: no draw
-					xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
-					ylim=listY1limUsr,		# y1-axis limits
-					yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
-					log=strLogParm,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
-					add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
-					tck=.01 				# length of tick marks as a fraction of plot window		
-				);
+			# update the y-axis limits to fit the data, depending on user-specification
+			if( 2 != length(listY1limUsr) ){
+				dblMin = min(unlist(listBox));
+				dblMax = max(unlist(listBox));
+				if( 2 != length(listYlim) ){
+					listYlim = c(dblMin, dblMax);
+				} else {
+					if( dblMin < listYlim[1] ){ listYlim = c(dblMin, listYlim[2]); }
+					if( dblMax > listYlim[2] ){ listYlim = c(listYlim[1], dblMax); }
+				}
+#				par(usr=c(par()$usr[1:2], listYlim));
+			} else {
+				listYlim = listY1limUsr;
 			}
+			
+			# if only points are displayed, call the points() function 		
+#			if( boolBoxPts ){
+#				intPch = listPch[intPermIndex];
+#				intIndy = 1;
+#				for(strIndy in names(listBox)){
+#					listPts = listBox[[strIndy]];
+#					listPtsAt = rep(listAt[intIndy], length(listPts));
+#					points(
+#						listPtsAt,	 		# x coordinate vector
+#						listPts,			# y coordinate vector
+#						type="p",			# type of plot - p: points
+#						pch=intPch,			# point symbol - see example(points)
+#						col=strColor		# point color
+#					);
+#					intIndy = intIndy + 1;
+#				}
+#			} 
+#			
+#			# otherwise, call the boxplot() function to build the series of boxes
+#			else {
+#				if( boolAdd != TRUE ){ strYaxt="s"; }
+#				else				 { strYaxt="n"; }
+#				boxplot(
+#					listBox,				# box data as a list of vectors 
+#					at=listAt,				# vector of box positions
+#					notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
+#					boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
+#					col=strColor,			# box color(s)
+#					outline=#<box_outline>#,# draw outliers - TRUE: draw, FALSE: no draw
+#					xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+#					ylim=listY1limUsr,		# y1-axis limits
+#					yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
+#					log=strLogParm,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
+#					add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
+#					tck=.01 				# length of tick marks as a fraction of plot window		
+#				);
+#			}
 			
 			# if the box mean is activated, add them to the plot
 			if( boolBoxAvg ){
@@ -250,13 +274,71 @@ for(strFcstVar in names(listDep1Plot)){
 					listMeanVal[is.na(listMeanVal)] = 0;
 					listMean[length(listMean) + 1] = mean(listMeanVal);
 				}
-				points(listAt, listMean, type="p", pch=8);
+#				points(listAt, listMean, type="p", pch=8);
+				listMeans[[ length(listMean) + 1 ]] = listMean;
 			}
 			
-			boolAdd = TRUE;
-			intPermIndex = intPermIndex + 1;
+#			boolAdd = TRUE;
+#			intPermIndex = intPermIndex + 1;
 		}
 	}
+}
+
+#par(usr=c(par()$usr[1:2], listYlim), yaxp=c(listYlim, 4));
+
+# plot the series data 
+boolAdd = FALSE;
+for(intPermIndex in 1:length(listBoxes)){
+	
+	listAt = listX - (dblIndySpan/2) + (intPermIndex - 1) * dblInc;	
+	strColor = listColors[intPermIndex];
+	listBox = listBoxes[[intPermIndex]];
+		
+	# if only points are displayed, call the points() function 		
+	if( boolBoxPts ){
+		intPch = listPch[intPermIndex];
+		intIndy = 1;
+		for(strIndy in names(listBox)){
+			listPts = listBox[[strIndy]];
+			listPtsAt = rep(listAt[intIndy], length(listPts));
+			points(
+					listPtsAt,	 		# x coordinate vector
+					listPts,			# y coordinate vector
+					type="p",			# type of plot - p: points
+					pch=intPch,			# point symbol - see example(points)
+					col=strColor		# point color
+			);
+			intIndy = intIndy + 1;
+		}
+	} 
+	
+	# otherwise, call the boxplot() function to build the series of boxes
+	else {
+		if( boolAdd != TRUE ){ strYaxt="s"; }
+		else				 { strYaxt="n"; }
+		boxplot(
+				listBox,				# box data as a list of vectors 
+				at=listAt,				# vector of box positions
+				notch=FALSE,	# draw box notces - TRUE: notches on, FALSE: notches off
+				boxwex=.2,	# scale factor to apply to all box widths
+				col=strColor,			# box color(s)
+				outline=TRUE,# draw outliers - TRUE: draw, FALSE: no draw
+				xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+#				ylim=listY1limUsr,		# y1-axis limits
+				ylim=listYlim,		# y1-axis limits
+				yaxt=strYaxt,			# y1-axis type - n: no axis, s: compatibility with l and t
+				log=strLogParm,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
+				add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
+				tck=.01 				# length of tick marks as a fraction of plot window		
+		);
+	}
+	
+	# add the average starts to the plot, if requested
+	if( boolBoxAvg ){
+		points(listAt, listMeans[[intPermIndex]], type="p", pch=8);
+	}
+
+	boolAdd = TRUE;
 }
 
 # add grid lines to the plot, if requested

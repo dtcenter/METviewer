@@ -82,8 +82,13 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff){
 eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 	
 	# convert the dates from strings to POSIXct, and create a unique member to use for equalization
-	dfStats$fcst_valid_beg = as.POSIXct(dfStats$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
-	dfStats$equalize = paste(dfStats$fcst_valid_beg, dfStats[[strIndyVar]]);
+	if( "fcst_valid_beg" %in% names(dfStats) ){
+		dfStats$fcst_valid_beg = as.POSIXct(dfStats$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
+		dfStats$equalize = paste(dfStats$fcst_valid_beg, dfStats[[strIndyVar]]);
+	} else {
+		dfStats$fcst_valid = as.POSIXct(dfStats$fcst_valid, format="%Y-%m-%d %H:%M:%S", tz="GMT");
+		dfStats$equalize = paste(dfStats$fcst_valid, dfStats[[strIndyVar]]);
+	}
 
 	# create a list of permutations representing the plot series
 	dfSeriesPerm = data.frame( permute(listSeriesVal) );

@@ -3,6 +3,9 @@ setwd("#<r_work>#");
 source("include/Compute_STDerr.R");
 source("include/util_plot.R");
 
+strDataFile = "#<data_file>#";
+strPlotFile = "#<plot_file>#";
+
 #
 #  Plot Control Variables
 #
@@ -18,7 +21,7 @@ listY1limUsr	= #<y1_lim>#;
 
 listPlotCI			= #<plot_ci>#;
 
-dfPlot = read.delim("#<data_file>#");
+dfPlot = read.delim(strDataFile);
 
 strIndyVar = "#<indy_var>#";
 
@@ -64,7 +67,7 @@ for( strDep1Name in names(listDep1Plot) ){
 strPlotType = "#<plot_type>#";
 if( "jpeg" == strPlotType ){
 	jpeg(
-		"#<plot_file>#",		# output file name, with appropriate extension 
+		strPlotFile,			# output file name, with appropriate extension 
 		width=#<plot_width>#,	# width of the display region, in specified units
 		height=#<plot_height>#,	# height of the display region, in specified units
 		res=#<plot_res>#,		# resolution, in dots per inch
@@ -77,7 +80,7 @@ if( "jpeg" == strPlotType ){
 	);
 } else {
 	bitmap(
-		"#<plot_file>#",		# output file name, with appropriate extension 
+		strPlotFile,			# output file name, with appropriate extension 
 		type="#<plot_type>#",	# type of bitmap
 		width=#<plot_width>#,	# width of the display region, in specified units
 		height=#<plot_height>#,	# height of the display region, in specified units
