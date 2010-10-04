@@ -444,6 +444,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	<table border="1" cellspacing="0">
 	    <tr><th align="left">Single Object Stat</th>	<th align="left">METViewer Stat Name</th></tr>
 		<tr><td>COUNT(object_id)</td>					<td><span class="term">CNT</span></td></tr>
+		<tr><td>COUNT(object_id)</td>					<td><span class="term">CNT_SUM</span></td></tr>
 		<tr><td>centroid_x</td>							<td><span class="term">CENTX</span></td></tr>
 		<tr><td>centroid_y</td>							<td><span class="term">CENTY</span></td></tr>
 		<tr><td>centroid_lat</td>						<td><span class="term">CENTLAT</span></td></tr>
@@ -523,8 +524,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	Pair Statistics in the table below, and <span class="term">CC</span> follows the following system:
 	
 	<ul>
-		<li><span class="term">[A|F|O]</span> - indicating All, Forecast or Observed objects, where F and O should only be used with the MAXINT statistic</li>
 		<li><span class="term">[A|S|C]</span> - indicating All, Simple or Cluster pairs</li>
+		<li><span class="term">[A|M|U]</span> - indicating All, Matched or Unmatched objects</li>
 	</ul>	
 	</p>
 	
@@ -544,6 +545,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 		<tr><td>percentile_intensity_ratio</td>		<td><span class="term">PERCINTRATIO</span></td></tr>
 		<tr><td>interest</td>						<td><span class="term">INT</span></td></tr>
 		<tr><td>MAX(interest)</td>					<td><span class="term">MAXINT</span></td></tr>
+		<tr><td>MAX(interest) for fcst objects</td> <td><span class="term">MAXINTF</span></td></tr>
+		<tr><td>MAX(interest) for obs objects</td>	<td><span class="term">MAXINTO</span></td></tr>
 	</table>
 	</p>
 	

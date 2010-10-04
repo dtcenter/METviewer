@@ -729,7 +729,8 @@ public class MVBatch extends MVUtil {
 							"  mop.percentile_intensity_ratio,\n" +
 							"  mop.interest,\n" +
 							"  IF(mop.object_id REGEXP '^F[[:digit:]]{3}_O[[:digit:]]{3}$', 1, 0) simple_flag,\n" +
-							"  IF(mop.interest >= 0.7, 1, 0) matched_flag\n" +
+							//"  IF(mop.interest >= 0.7, 1, 0) matched_flag\n" +
+							"  IF(mop.interest >= 0, 1, 0) matched_flag\n" +
 							"FROM\n" +
 							"  mode_header h,\n" +
 							"  mode_obj_pair mop\n" +
@@ -1596,7 +1597,7 @@ public class MVBatch extends MVUtil {
 		//  build the object flag where clause
 		String strWhere = "";		
 		if( strStatFlag.charAt(0) != 'A' ){ strWhere +=                                            "  simple_flag = " +  ('S' == strStatFlag.charAt(0)? "1" : "0"); }
-		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "  matched_flag = " +  ('M' == strStatFlag.charAt(0)? "1" : "0"); }
+		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "  matched_flag = " +  ('M' == strStatFlag.charAt(1)? "1" : "0"); }
 		strWhere = (strWhere.equals("")? "" : "\nWHERE\n" + strWhere);
 		
 		//  build the list of fields involved in the computations
@@ -1698,9 +1699,10 @@ public class MVBatch extends MVUtil {
 		
 		//  build the group by clause
 		String strGroupBy = "";
-		if( strStatName.equals("CNT") ){ 
-			strGroupBy = "\nGROUP BY\n";
-			for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }			
+		if( strStatName.startsWith("CNT") ){ 
+			strGroupBy = "\nGROUP BY\n";			
+			for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
+			if( !strStatName.equals("CNT_SUM") ){ strGroupBy += ",\n  fcst_valid"; }
 		}
 		
 		//  build the query
@@ -1815,41 +1817,42 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("MMIO",		"10");
 		
 		_tableModeStatIndex.put("CNT",		"100");
-		_tableModeStatIndex.put("CENTX",	"101");
-		_tableModeStatIndex.put("CENTY",	"102");
-		_tableModeStatIndex.put("CENTLAT",	"103");
-		_tableModeStatIndex.put("CENTLON",	"104");
-		_tableModeStatIndex.put("AXAVG",	"105");
-		_tableModeStatIndex.put("LEN",		"106");
-		_tableModeStatIndex.put("WID",		"107");
-		_tableModeStatIndex.put("AREA",		"108");
-		_tableModeStatIndex.put("AREAFIL",	"109");
-		_tableModeStatIndex.put("AREATHR",	"110");
-		_tableModeStatIndex.put("CURV",		"111");
-		_tableModeStatIndex.put("CURVX",	"112");
-		_tableModeStatIndex.put("CURVY",	"113");
-		_tableModeStatIndex.put("CPLX",		"114");
-		_tableModeStatIndex.put("INT10",	"115");
-		_tableModeStatIndex.put("INT25",	"116");
-		_tableModeStatIndex.put("INT50",	"117");
-		_tableModeStatIndex.put("INT75",	"118");
-		_tableModeStatIndex.put("INT90",	"119");
-		_tableModeStatIndex.put("INTN",		"120");
-		_tableModeStatIndex.put("INTSUM",	"121");
-		_tableModeStatIndex.put("RATIO",	"122");
-		_tableModeStatIndex.put("AREARAT",	"123");
-		_tableModeStatIndex.put("OBJHITS",	"124");
-		_tableModeStatIndex.put("OBJMISSES","125");
-		_tableModeStatIndex.put("OBJFAS",	"126");
-		_tableModeStatIndex.put("OBJCSI",	"127");
-		_tableModeStatIndex.put("OBJPODY",	"128");
-		_tableModeStatIndex.put("OBJFAR",	"129");
-		_tableModeStatIndex.put("OBJAHITS",	"130");
-		_tableModeStatIndex.put("OBJAMISSES","131");
-		_tableModeStatIndex.put("OBJAFAS",	"132");
-		_tableModeStatIndex.put("OBJACSI",	"133");
-		_tableModeStatIndex.put("OBJAPODY",	"134");
-		_tableModeStatIndex.put("OBJAFAR",	"135");
+		_tableModeStatIndex.put("CNT_SUM",	"101");
+		_tableModeStatIndex.put("CENTX",	"102");
+		_tableModeStatIndex.put("CENTY",	"103");
+		_tableModeStatIndex.put("CENTLAT",	"104");
+		_tableModeStatIndex.put("CENTLON",	"105");
+		_tableModeStatIndex.put("AXAVG",	"106");
+		_tableModeStatIndex.put("LEN",		"107");
+		_tableModeStatIndex.put("WID",		"108");
+		_tableModeStatIndex.put("AREA",		"109");
+		_tableModeStatIndex.put("AREAFIL",	"110");
+		_tableModeStatIndex.put("AREATHR",	"111");
+		_tableModeStatIndex.put("CURV",		"112");
+		_tableModeStatIndex.put("CURVX",	"113");
+		_tableModeStatIndex.put("CURVY",	"114");
+		_tableModeStatIndex.put("CPLX",		"115");
+		_tableModeStatIndex.put("INT10",	"116");
+		_tableModeStatIndex.put("INT25",	"117");
+		_tableModeStatIndex.put("INT50",	"118");
+		_tableModeStatIndex.put("INT75",	"119");
+		_tableModeStatIndex.put("INT90",	"120");
+		_tableModeStatIndex.put("INTN",		"121");
+		_tableModeStatIndex.put("INTSUM",	"122");
+		_tableModeStatIndex.put("RATIO",	"123");
+		_tableModeStatIndex.put("AREARAT",	"124");
+		_tableModeStatIndex.put("OBJHITS",	"125");
+		_tableModeStatIndex.put("OBJMISSES","126");
+		_tableModeStatIndex.put("OBJFAS",	"127");
+		_tableModeStatIndex.put("OBJCSI",	"128");
+		_tableModeStatIndex.put("OBJPODY",	"129");
+		_tableModeStatIndex.put("OBJFAR",	"130");
+		_tableModeStatIndex.put("OBJAHITS",	"131");
+		_tableModeStatIndex.put("OBJAMISSES","132");
+		_tableModeStatIndex.put("OBJAFAS",	"133");
+		_tableModeStatIndex.put("OBJACSI",	"134");
+		_tableModeStatIndex.put("OBJAPODY",	"135");
+		_tableModeStatIndex.put("OBJAFAR",	"136");
 				
 		_tableModeStatIndex.put("CENTDIST",		"150");
 		_tableModeStatIndex.put("BOUNDDIST",	"151");
@@ -2024,6 +2027,7 @@ public class MVBatch extends MVUtil {
 	public static final Hashtable _tableModeSingleStatField = new Hashtable();
 	static{
 		_tableModeSingleStatField.put("CNT",			"COUNT(object_id)");
+		_tableModeSingleStatField.put("CNT_SUM",		"COUNT(object_id)");
 		_tableModeSingleStatField.put("CENTX",			"centroid_x");
 		_tableModeSingleStatField.put("CENTY",			"centroid_y");
 		_tableModeSingleStatField.put("CENTLAT",		"centroid_lat");

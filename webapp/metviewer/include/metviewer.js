@@ -19,9 +19,9 @@ var _divFieldVal;
 var _intFieldValIdNext = 0;
 
 var _listStatModeSingle = [
-						"ACOV", "CNT", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "AREA", "AREAFIL", 
-						"AREATHR", "CURV", "CURVX", "CURVY", "CPLX", "INT10", "INT25", "INT50", "INT75", "INT90", 
-						"INTN", "INTSUM", 
+						"ACOV", "CNT", "CNT_SUM", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "AREA", 
+						"AREAFIL", "AREATHR", "CURV", "CURVX", "CURVY", "CPLX", "INT10", "INT25", "INT50", "INT75", 
+						"INT90", "INTN", "INTSUM", 
 					 
 						"RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA", 
 						"RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM", 
