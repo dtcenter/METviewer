@@ -19,7 +19,7 @@ var _divFieldVal;
 var _intFieldValIdNext = 0;
 
 var _listStatModeSingle = [
-						"ACOV", "CNT", "CNT_SUM", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "AREA", 
+						"ACOV", "CNT", "CNTSUM", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "AREA", 
 						"AREAFIL", "AREATHR", "CURV", "CURVX", "CURVY", "CPLX", "INT10", "INT25", "INT50", "INT75", 
 						"INT90", "INTN", "INTSUM", 
 					 

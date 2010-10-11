@@ -791,6 +791,11 @@ public class MVBatch extends MVUtil {
 									} else if( listStatComp[0].equals("RATIO") || listStatComp[0].equals("AREARAT") || listModeStats[intStatMode].startsWith("OBJ") ){
 										listQuery.add( buildModeSingleStatRatioTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
 									} else if( listStatComp[0].equals("ACOV") ){
+										//listQuery.add( buildModeSingleAcovTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
+										String strAcovQuery = buildModeSingleAcovTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy);
+										
+										/*
+										*/
 										String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
 										strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
 										strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
@@ -1702,7 +1707,7 @@ public class MVBatch extends MVUtil {
 		if( strStatName.startsWith("CNT") ){ 
 			strGroupBy = "\nGROUP BY\n";			
 			for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
-			if( !strStatName.equals("CNT_SUM") ){ strGroupBy += ",\n  fcst_valid"; }
+			if( !strStatName.equals("CNTSUM") ){ strGroupBy += ",\n  fcst_valid"; }
 		}
 		
 		//  build the query
@@ -1730,6 +1735,49 @@ public class MVBatch extends MVUtil {
 		String strGroupBy = "";
 		for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
 		
+		//  build the query
+		String strQuery =
+			"INSERT INTO mode_stat\n" +
+			"SELECT\n" + strSelectListStat +
+			"  object_id,\n" +
+			"  object_cat,\n" +
+			"  '" + stat + "' stat_name,\n" +
+			"  " + strTableStat + " stat_value\n" +  
+			"FROM mode_single\n" + 
+			"GROUP BY\n" + strGroupBy + ";";
+		
+		return strQuery;
+	}
+
+	public static String buildModeSingleAcovTable(String selectList, String stat, String[] groups){
+
+		//  parse the stat into the stat name and the object flags
+		String[] listStatParse = parseModeStat(stat);
+		if( 2 != listStatParse.length ){ return ""; }
+		String strStatName = listStatParse[0];
+		String strStatFlag = listStatParse[1];
+		
+		//  build the list of fields involved in the computations
+		String strSelectListStat = selectList.replaceAll("h\\.", "");
+		
+		//  set the table stat field
+		String strTableStat = _tableModeSingleStatField.get(strStatName).toString();
+		
+		//  build the object flag where clause		
+		String strWhere = "";
+		if( strStatFlag.charAt(0) != 'A' ){ strWhere +=                                          "  fcst_flag = " +    ('F' == strStatFlag.charAt(0)? "1" : "0"); }
+		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "simple_flag = " +  ('S' == strStatFlag.charAt(1)? "1" : "0"); }
+		if( strStatFlag.charAt(2) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "matched_flag = " + ('M' == strStatFlag.charAt(2)? "1" : "0"); }
+		strWhere = (strWhere.equals("")? "" : "\nWHERE\n" + strWhere);
+		
+		//  build the group by clause
+		String strGroupBy = "";
+		if( strStatName.startsWith("CNT") ){ 
+			strGroupBy = "\nGROUP BY\n";			
+			for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
+			if( !strStatName.equals("CNTSUM") ){ strGroupBy += ",\n  fcst_valid"; }
+		}
+
 		//  build the query
 		String strQuery =
 			"INSERT INTO mode_stat\n" +
@@ -1817,7 +1865,7 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("MMIO",		"10");
 		
 		_tableModeStatIndex.put("CNT",		"100");
-		_tableModeStatIndex.put("CNT_SUM",	"101");
+		_tableModeStatIndex.put("CNTSUM",	"101");
 		_tableModeStatIndex.put("CENTX",	"102");
 		_tableModeStatIndex.put("CENTY",	"103");
 		_tableModeStatIndex.put("CENTLAT",	"104");
@@ -1869,21 +1917,6 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("MAXINT",		"162");
 		_tableModeStatIndex.put("MAXINTF",		"163");
 		_tableModeStatIndex.put("MAXINTO",		"164");
-	}
-	
-	public static final Hashtable _tableModeStatRename = new Hashtable();
-	static{
-		_tableModeStatIndex.put("ACOV",		"0");
-		_tableModeStatIndex.put("PERC", 	"1");
-		_tableModeStatIndex.put("MIA", 		"MIA_ACM");
-		_tableModeStatIndex.put("MAR", 		"MAR_ACM");
-		_tableModeStatIndex.put("MCD", 		"MCD_ACM");
-		_tableModeStatIndex.put("MAD", 		"MAD_ACM");
-		_tableModeStatIndex.put("P50", 		"P50_DCM");
-		_tableModeStatIndex.put("P90", 		"P90_DCM`");
-		_tableModeStatIndex.put("MMI", 		"MMI_ASM");
-		_tableModeStatIndex.put("MMIF",		"MMI_FSM");
-		_tableModeStatIndex.put("MMIO",		"MMI_OSM");
 	}
 	
 	public static final Hashtable _tableStatLine = new Hashtable();
@@ -2027,7 +2060,7 @@ public class MVBatch extends MVUtil {
 	public static final Hashtable _tableModeSingleStatField = new Hashtable();
 	static{
 		_tableModeSingleStatField.put("CNT",			"COUNT(object_id)");
-		_tableModeSingleStatField.put("CNT_SUM",		"COUNT(object_id)");
+		_tableModeSingleStatField.put("CNTSUM",			"COUNT(object_id)");
 		_tableModeSingleStatField.put("CENTX",			"centroid_x");
 		_tableModeSingleStatField.put("CENTY",			"centroid_y");
 		_tableModeSingleStatField.put("CENTLAT",		"centroid_lat");
