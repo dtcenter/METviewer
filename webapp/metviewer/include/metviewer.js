@@ -867,6 +867,34 @@ function updateDepStat(id){
 	var divDep = getDepDiv(id);
 
 	//  determine the visibility of the mode checkboxes
+	var listStatSel = getSelected( divDep.getElementsByTagName("select")[1] );
+	var boolVisMode = "mode" == _strPlotData && 0 < listStatSel.length &&
+					  null == listStatSel[0].match( /^RATIO_.+/ ) && 
+					  null == listStatSel[0].match( /^AREARAT_.+/ ) && 
+					  null == listStatSel[0].match( /^OBJ.+/ );
+	var boolSingle = (-1 < listSearch(listStatSel[0], _listStatModeSingle));
+	var boolAcov = null != listStatSel[0].match( /^ACOV$/ )
+	var boolVisFO = boolVisMode && boolSingle;
+	var boolVisFODif = boolVisFO && !boolAcov;
+	var boolVisSC = boolVisMode && !boolAcov;
+	var boolVisMU = boolVisMode && !boolAcov;
+
+	//  toggle the visibility of the checkbox table cells
+	divDep.getElementsByTagName("span")[0].style.display = boolVisMode?		"inline" : "none";	
+	divDep.getElementsByTagName("td")[3].style.display = boolVisFO?			"table-cell" : "none";
+	divDep.getElementsByTagName("td")[4].style.display = boolVisSC?			"table-cell" : "none";
+	divDep.getElementsByTagName("td")[5].style.display = boolVisMU?			"table-cell" : "none";
+	
+	//  change the state of the Difference checkbox, if appropriate
+	divDep.getElementsByTagName("input")[2].disabled = !boolVisFODif;
+	if( !boolVisFODif ){
+		divDep.getElementsByTagName("input")[2].checked = false;
+		divDep.getElementsByTagName("input")[3].disabled = false;
+		divDep.getElementsByTagName("input")[4].disabled = false;
+	}
+
+	
+/*	
 	var boolVisSingle = false;
 	var boolVisPair = false;
 	var listStatSel = getSelected( divDep.getElementsByTagName("select")[1] );
@@ -882,6 +910,8 @@ function updateDepStat(id){
 	divDep.getElementsByTagName("td")[4].style.display = boolVisPair?      "table-cell" : "none";
 	divDep.getElementsByTagName("td")[5].style.display = boolVisPair?      "table-cell" : "none";
 	divDep.getElementsByTagName("span")[0].style.display = boolVisSingle?  "inline" : "none";
+*/
+	
 
 	buildSeriesDiv();
 }
@@ -1819,7 +1849,6 @@ function buildModeStatCode(stat, divDep){
 	
 	//  if the input stat does not need a code suffix, return it
 	if( "mode" != _strPlotData || 
-		null != stat.match( /^ACOV$/ ) ||
 		null != stat.match( /^RATIO_.+/ ) || 
 		null != stat.match( /^AREARAT_.+/ ) || 
 		null != stat.match( /^OBJ.+/ ) ){
@@ -1838,6 +1867,9 @@ function buildModeStatCode(stat, divDep){
 		else if( boolObs )            { strCode += "O"; }
 		else                          { strCode += "A"; }
 	}
+	
+	//  if the stat is ACOV, return the code
+	if( null != stat.match( /^ACOV$/ ) ){ return stat + strCode + "AA"; } 
 
 	//  determine the second letter of the code [A|S|C]
 	var boolSimp = divDep.getElementsByTagName("input")[5].checked;

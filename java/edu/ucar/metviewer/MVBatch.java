@@ -118,7 +118,7 @@ public class MVBatch extends MVUtil {
 
 			//  parse the input file
 			String strXMLInput = argv[intArg++];
-			bat._out.println("input file: " + strXMLInput + "\n");				
+			if( !bat._boolSQLOnly ){ bat._out.println("input file: " + strXMLInput + "\n"); }				
 			MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
 			MVOrderedMap mapJobs = parser.getJobsMap();
 
@@ -128,9 +128,11 @@ public class MVBatch extends MVUtil {
 			String[] listJobNames = mapJobs.keyList();
 			if( 0 < listJobNamesInput.size() ){
 				listJobNames = toArray(listJobNamesInput);
-			}							
-			bat._out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
-			for(int i=0; i < listJobNames.length; i++){ bat._out.println("  " + listJobNames[i]); }
+			}
+			if( !bat._boolSQLOnly ){ 
+				bat._out.println( (boolList? "" : "processing ") + listJobNames.length + " jobs:");
+				for(int i=0; i < listJobNames.length; i++){ bat._out.println("  " + listJobNames[i]); }
+			}
 			
 			//  if only a list of plot jobs is requested, return
 			if( boolList ){
@@ -195,7 +197,9 @@ public class MVBatch extends MVUtil {
 				bat._intNumPlots += intNumJobPlots;
 			}
 			java.util.Date dateStart = new java.util.Date();
-			bat._out.println("Running " + bat._intNumPlots + " plots\n" + "Begin time: " + _formatDB.format(dateStart) + "\n");
+			if( !bat._boolSQLOnly ){
+				bat._out.println("Running " + bat._intNumPlots + " plots\n" + "Begin time: " + _formatDB.format(dateStart) + "\n");
+			}
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				bat.runJob(jobs[intJob]);
@@ -204,11 +208,13 @@ public class MVBatch extends MVUtil {
 			java.util.Date dateEnd = new java.util.Date();
 			long intPlotTime = dateEnd.getTime() - dateStart.getTime();
 			long intPlotAvg = (0 < bat._intNumPlots? intPlotTime / (long)bat._intNumPlots : 0);
-			bat._out.println("\n" + 
-							   padBegin("End time: ") + _formatDB.format(dateEnd) + "\n" +
-							   padBegin("Plots run: ") + bat._intNumPlotsRun + " of " + bat._intNumPlots + "\n" +
-							   padBegin("Total time: ") + formatTimeSpan(intPlotTime) + "\n" +
-							   padBegin("Avg plot time: ") + formatTimeSpan(intPlotAvg) + "\n");
+			if( !bat._boolSQLOnly ){ 
+				bat._out.println("\n" + 
+								   padBegin("End time: ") + _formatDB.format(dateEnd) + "\n" +
+								   padBegin("Plots run: ") + bat._intNumPlotsRun + " of " + bat._intNumPlots + "\n" +
+								   padBegin("Total time: ") + formatTimeSpan(intPlotTime) + "\n" +
+								   padBegin("Avg plot time: ") + formatTimeSpan(intPlotAvg) + "\n");
+			}
 
 
 		} catch (Exception e) {
@@ -641,6 +647,7 @@ public class MVBatch extends MVUtil {
 							"    intensity_90        DOUBLE,\n" +
 							"    intensity_nn        DOUBLE,\n" +
 							"    intensity_sum       DOUBLE,\n" +
+							"    total               INT UNSIGNED,\n" +
 						    "    fcst_flag           BOOLEAN,\n" +
 						    "    simple_flag         BOOLEAN,\n" +
 						    "    matched_flag        BOOLEAN,\n" +
@@ -677,14 +684,18 @@ public class MVBatch extends MVUtil {
 						"  mos.intensity_90,\n" +
 						"  mos.intensity_nn,\n" +
 						"  mos.intensity_sum,\n" +
+						"  mc.total,\n" +
 						"  IF(mos.object_id REGEXP '^C?F[[:digit:]]{3}$', 1, 0) fcst_flag,\n" +
 						"  IF(mos.object_id REGEXP '^[FO][[:digit:]]{3}$', 1, 0) simple_flag,\n" +
 						"  IF(mos.object_cat REGEXP '^C[FO]000$', 0, 1) matched_flag\n" +
 						"FROM\n" +
 						"  mode_header h,\n" +
-						"  mode_obj_single mos\n" +
+						"  mode_obj_single mos,\n" +
+						"  mode_cts mc\n" +
 						"WHERE\n" + strWhereModeTemp + "\n" +
-						"  AND mos.mode_header_id = h.mode_header_id;");
+						"  AND mos.mode_header_id = h.mode_header_id\n" +
+						"  AND mc.mode_header_id = mos.mode_header_id\n" +
+						"  AND mc.field = 'OBJECT';");
 					listQuery.add("INSERT INTO mode_single2 SELECT * FROM mode_single;");
 							
 					listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_pair;");
@@ -791,11 +802,9 @@ public class MVBatch extends MVUtil {
 									} else if( listStatComp[0].equals("RATIO") || listStatComp[0].equals("AREARAT") || listModeStats[intStatMode].startsWith("OBJ") ){
 										listQuery.add( buildModeSingleStatRatioTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
 									} else if( listStatComp[0].equals("ACOV") ){
-										//listQuery.add( buildModeSingleAcovTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
-										String strAcovQuery = buildModeSingleAcovTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy);
+										listQuery.add( buildModeSingleAcovTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
 										
 										/*
-										*/
 										String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
 										strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
 										strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
@@ -816,6 +825,7 @@ public class MVBatch extends MVUtil {
 											"  AND mc.mode_header_id = mos.mode_header_id\n" +
 											"GROUP BY\n" + strACOVGroup + ";"
 										);
+										*/
 									}
 								}
 							}					
@@ -882,7 +892,9 @@ public class MVBatch extends MVUtil {
 				int intNumJobDataRows = -1;
 				if( res.next() ){ intNumJobDataRows = res.getInt(1); }
 				stmt.close();
-				_out.println("query returned " + intNumJobDataRows + " job_data rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ) + "\n");
+				if( !_boolSQLOnly ){ 
+					_out.println("query returned " + intNumJobDataRows + " job_data rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ) + "\n");
+				}
 				
 				//  if there is no data, do not try to plot it
 				if( 1 > intNumJobDataRows ){
@@ -912,7 +924,7 @@ public class MVBatch extends MVUtil {
 				stmt.close();
 				
 				//  update the fcst_var values with the new values
-				if( _boolVerbose ){ _out.println("Updating fcst_var values..."); }
+				if( _boolVerbose && !_boolSQLOnly ){ _out.println("Updating fcst_var values..."); }
 				Map.Entry[] listFcstVarProc = mapFcstVar.getOrderedEntries();
 				for(int i=0; i < listFcstVarProc.length; i++){
 					String strFcstVarOld = listFcstVarProc[i].getKey().toString();
@@ -923,12 +935,12 @@ public class MVBatch extends MVUtil {
 					stmt.execute(strFcstVarUpdate);
 					stmt.close();
 				}
-				if( _boolVerbose ){ _out.println("Done\n"); }
+				if( _boolVerbose && !_boolSQLOnly ){ _out.println("Done\n"); }
 
 				//  add the stat_names, if appropriate
 				if( !boolModePlot ){
 					
-					if( _boolVerbose ){ _out.println("Updating stat_name values..."); }
+					if( _boolVerbose && !_boolSQLOnly ){ _out.println("Updating stat_name values..."); }
 					for(int i=0; i < listDepPlot.length; i++){
 						String[] listStatName = (String[])listDepPlot[i].getValue();						
 						String strFcstVar = (String)listDepPlot[i].getKey();
@@ -946,7 +958,7 @@ public class MVBatch extends MVUtil {
 							stmt.close();
 						}				
 					}
-					if( _boolVerbose ){ _out.println("Done\n"); }
+					if( _boolVerbose && !_boolSQLOnly ){ _out.println("Done\n"); }
 				}				
 
 				//  add set fields to the table to handle aggregating over sets of values
@@ -957,7 +969,7 @@ public class MVBatch extends MVUtil {
 					Object objAggVal = listAggVal[i].getValue();
 					if( objAggVal instanceof String[] ){ continue; }
 					
-					if( 0 == intAggUpdates++ && _boolVerbose ){ _out.println("Updating set values..."); }
+					if( 0 == intAggUpdates++ && _boolVerbose && !_boolSQLOnly ){ _out.println("Updating set values..."); }
 				
 					//  if the aggregate values are sets, add a set field to the table
 					final String strAggVar = listAggVal[i].getKey().toString();
@@ -983,17 +995,8 @@ public class MVBatch extends MVUtil {
 						stmt.close();
 					}
 				}
-				if( 0 < intAggUpdates && _boolVerbose ){ _out.println("Done\n"); }
-				
-				//  determine if the indy values require tick marks				
-				boolean boolIndyValTick = true;
-				/*
-				boolean boolIndyValTick = false;
-				String[] listIndyVal = job.getIndyVal();
-				for(int i=0; i < listIndyVal.length; i++){
-					try{ Double.parseDouble(listIndyVal[i]); }catch(Exception e){ boolIndyValTick = true; }
-				}
-				*/
+				if( 0 < intAggUpdates && _boolVerbose && !_boolSQLOnly ){ _out.println("Done\n"); }
+
 				
 				/*
 				 *  Run a plot for each mode group
@@ -1139,23 +1142,22 @@ public class MVBatch extends MVUtil {
 		
 						//  add the aggregate values to the template values map
 						mapPlotTmplVals.putAll(listAggPerm[intPerm]);
-						_out.println(mapPlotTmplVals.getRDecl() + "\n");
+						if( !_boolSQLOnly ){ _out.println(mapPlotTmplVals.getRDecl() + "\n"); }
 		
-						//  TEMP_TABLE
+						//  gather the data for the current plot
 						stmt = job.getConnection().createStatement();
 						stmt.execute("SELECT COUNT(*) FROM plot_data;");
 						res = stmt.getResultSet();
 						int intNumPlotDataRows = -1;
 						if( res.next() ){ intNumPlotDataRows = res.getInt(1); }
 						stmt.close();
-						//  END TEMP_TABLE
 
 						if( 1 > intNumPlotDataRows ){
-							_out.println("no plot data found\n");
+							if( !_boolSQLOnly ){ _out.println("no plot data found\n"); }
 							continue;
 						}
 
-						_out.println("Plotting " + intNumPlotDataRows + " rows");
+						 if( !_boolSQLOnly ){ _out.println("Plotting " + intNumPlotDataRows + " rows"); }
 		
 						
 						/*
@@ -1197,7 +1199,7 @@ public class MVBatch extends MVUtil {
 							tableBootInfo.put("boot_ci",		job.getBootCI());
 							tableBootInfo.put("ci_alpha",		job.getCIAlpha());
 							tableBootInfo.put("indy_var",		job.getIndyVar());
-							tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
+							tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
 							tableBootInfo.put("series1_list",	job.getSeries1Val().getRDecl());
 							tableBootInfo.put("series2_list",	job.getSeries2Val().getRDecl());
 							tableBootInfo.put("boot_stat1",		printRCol(toArray(listBootStats1), true));
@@ -1261,7 +1263,7 @@ public class MVBatch extends MVUtil {
 		
 						tableRTags.put("r_work",		_strRworkFolder);
 						tableRTags.put("indy_var",		job.getIndyVar());
-						tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), boolIndyValTick) : "c()"));
+						tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
 						tableRTags.put("indy_label",	(0 < job.getIndyLabel().length? printRCol(job.getIndyLabel(), true) : "c()"));
 						tableRTags.put("indy_plot_val",	(0 < job.getIndyPlotVal().length? printRCol(job.getIndyPlotVal(), false) : "c()"));
 						tableRTags.put("dep1_plot",		mapDep1Plot.getRDecl());				
@@ -1461,7 +1463,7 @@ public class MVBatch extends MVUtil {
 		String strArgList = "";
 		for(int i=0; null != args && i < args.length; i++){ strArgList += " " + args[i]; }
 		
-		_out.println("\nRunning '" + Rscript + " " + script + "'");
+		if( !_boolSQLOnly ){ _out.println("\nRunning '" + Rscript + " " + script + "'"); }
 		Process proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
 		if( _boolProcWait ){
 			proc.waitFor();
@@ -1477,7 +1479,7 @@ public class MVBatch extends MVUtil {
 			strRscriptOut += readerProcIn.readLine() + "\n";
 		}
 		readerProcIn.close();			
-		if( !"".equals(strRscriptOut) ){
+		if( !"".equals(strRscriptOut) && !_boolSQLOnly ){
 			_out.println("\n==== Start Rscript output  ====\n" + strRscriptOut + "====   End Rscript output  ====");
 		}
 		
@@ -1487,10 +1489,10 @@ public class MVBatch extends MVUtil {
 			strRscriptErr += readerProcError.readLine() + "\n";
 		}
 		readerProcError.close();
-		if( !"".equals(strRscriptErr) ){
+		if( !"".equals(strRscriptErr)  && !_boolSQLOnly ){
 			_out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
 		}
-		_out.println();
+		if( !_boolSQLOnly ){ _out.println(); }
 	}
 	public void runRscript(String Rscript, String script) throws Exception{ runRscript(Rscript, script, new String[]{}); }
 	
@@ -1570,7 +1572,6 @@ public class MVBatch extends MVUtil {
 	public void printFormattedTable(ResultSet res){ printFormattedTable(res, _out, " ", 40); }
 	public void printFormattedTable(ResultSet res, int maxRows){ printFormattedTable(res, _out, " ", maxRows); }
 	public void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
-	
 
 	public static String formatField(String field, boolean mode){
 		if( field.equals("init_hour") )          { return (mode? "HOUR(h.fcst_init)"  : "HOUR(h.fcst_init_beg)");  }
@@ -1664,7 +1665,7 @@ public class MVBatch extends MVUtil {
 		String strTableStat = _tableModeSingleStatField.get(strStatName).toString();
 		
 		//  build the query
-		String strQuery =
+		return
 			"INSERT INTO mode_stat\n" +
 			"SELECT\n" + strSelectListStat +
 			"  s.object_id,\n" +
@@ -1677,8 +1678,6 @@ public class MVBatch extends MVUtil {
 			"  AND s2.fcst_flag = 0\n" +
 			"  AND RIGHT(s.object_id, 3) = RIGHT(s2.object_id, 3)" +
 			strWhere + ";";
-		
-		return strQuery;
 	}
 	
 	public static String buildModeSingleStatTable(String selectList, String stat, String[] groups){
@@ -1711,7 +1710,7 @@ public class MVBatch extends MVUtil {
 		}
 		
 		//  build the query
-		String strQuery =
+		return
 			"INSERT INTO mode_stat\n" +
 			"SELECT\n" + strSelectListStat +
 			"  object_id,\n" +
@@ -1719,8 +1718,6 @@ public class MVBatch extends MVUtil {
 			"  '" + stat + "' stat_name,\n" +
 			"  " + strTableStat + " stat_value\n" +  
 			"FROM mode_single" + strWhere + strGroupBy + ";";
-		
-		return strQuery;
 	}
 
 	public static String buildModeSingleStatRatioTable(String selectList, String stat, String[] groups){
@@ -1736,7 +1733,7 @@ public class MVBatch extends MVUtil {
 		for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
 		
 		//  build the query
-		String strQuery =
+		return
 			"INSERT INTO mode_stat\n" +
 			"SELECT\n" + strSelectListStat +
 			"  object_id,\n" +
@@ -1745,8 +1742,6 @@ public class MVBatch extends MVUtil {
 			"  " + strTableStat + " stat_value\n" +  
 			"FROM mode_single\n" + 
 			"GROUP BY\n" + strGroupBy + ";";
-		
-		return strQuery;
 	}
 
 	public static String buildModeSingleAcovTable(String selectList, String stat, String[] groups){
@@ -1754,42 +1749,30 @@ public class MVBatch extends MVUtil {
 		//  parse the stat into the stat name and the object flags
 		String[] listStatParse = parseModeStat(stat);
 		if( 2 != listStatParse.length ){ return ""; }
-		String strStatName = listStatParse[0];
 		String strStatFlag = listStatParse[1];
 		
-		//  build the list of fields involved in the computations
-		String strSelectListStat = selectList.replaceAll("h\\.", "");
-		
-		//  set the table stat field
-		String strTableStat = _tableModeSingleStatField.get(strStatName).toString();
-		
-		//  build the object flag where clause		
+		//  build the query components
+		String strSelectListStat = selectList.replaceAll("h\\.", "").replaceAll(",\\s+$", "");
+		String strStat = "SUM(area) / (2*total)";
+		String strGroupBy = strSelectListStat;
 		String strWhere = "";
-		if( strStatFlag.charAt(0) != 'A' ){ strWhere +=                                          "  fcst_flag = " +    ('F' == strStatFlag.charAt(0)? "1" : "0"); }
-		if( strStatFlag.charAt(1) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "simple_flag = " +  ('S' == strStatFlag.charAt(1)? "1" : "0"); }
-		if( strStatFlag.charAt(2) != 'A' ){ strWhere += (strWhere.equals("")? "  " : "\n  AND ") + "matched_flag = " + ('M' == strStatFlag.charAt(2)? "1" : "0"); }
-		strWhere = (strWhere.equals("")? "" : "\nWHERE\n" + strWhere);
-		
-		//  build the group by clause
-		String strGroupBy = "";
-		if( strStatName.startsWith("CNT") ){ 
-			strGroupBy = "\nGROUP BY\n";			
-			for(int i=0; i < groups.length; i++){ strGroupBy += (0 < i? ",\n" : "") + "  " + groups[i]; }
-			if( !strStatName.equals("CNTSUM") ){ strGroupBy += ",\n  fcst_valid"; }
+		if( strStatFlag.charAt(0) != 'A' ){
+			strStat = "SUM(area) / total";
+			strGroupBy += ",\n  fcst_flag";
+			strWhere = "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0)? "1" : "0");
 		}
 
 		//  build the query
-		String strQuery =
+		return
 			"INSERT INTO mode_stat\n" +
-			"SELECT\n" + strSelectListStat +
-			"  object_id,\n" +
-			"  object_cat,\n" +
+			"SELECT\n" + strSelectListStat + ",\n" +
+			"  '' object_id,\n" +
+			"  '' object_cat,\n" +
 			"  '" + stat + "' stat_name,\n" +
-			"  " + strTableStat + " stat_value\n" +  
+			"  " + strStat + " stat_value\n" +  
 			"FROM mode_single\n" + 
+			"WHERE simple_flag = 1\n" + strWhere +
 			"GROUP BY\n" + strGroupBy + ";";
-		
-		return strQuery;
 	}
 
 	/**
