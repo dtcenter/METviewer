@@ -14,6 +14,8 @@ console("  strPlotURL: " + strPlotURL + "\n");
 	
 	//  set the links to the xml, R script and data
 	document.getElementById("lnkPlotXML").href = strURLBase + "/xml/" + strPlotBase + ".xml";
+	document.getElementById("lnkPlotSQL").href = strURLBase + "/xml/" + strPlotBase + ".sql";
+	document.getElementById("lnkPlotLog").href = strURLBase + "/xml/" + strPlotBase + ".log";
 	document.getElementById("lnkRScript").href = strURLBase + "/R_work/scripts/" + strPlotBase + ".R";
 	document.getElementById("lnkRData").href = strURLBase + "/R_work/data/" + strPlotBase + ".data";
 	
