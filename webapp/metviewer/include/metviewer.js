@@ -334,9 +334,9 @@ function serializeNode(node){
 /**
  * Button handlers that call the server to clear the <list_val>  and <list_stat> caches
  */
-function dbClearCacheReq()      { sendRequest("POST", "<db_clear_cache/>", nullResp); }
-function listValClearCacheReq() { sendRequest("POST", "<list_val_clear_cache/>", nullResp); }
-function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>", nullResp); }
+function dbClearCacheReq()      { sendRequest("POST", "<db_clear_cache/>"       , nullResp); clearControls(); }
+function listValClearCacheReq() { sendRequest("POST", "<list_val_clear_cache/>" , nullResp); clearControls(); }
+function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>", nullResp); clearControls(); }
 
 /**
  * Clear and populate a select list with the specified id with the items in the specified list
@@ -1869,7 +1869,7 @@ function buildModeStatCode(stat, divDep){
 	}
 	
 	//  if the stat is ACOV, return the code
-	if( null != stat.match( /^ACOV$/ ) ){ return stat + strCode + "AA"; } 
+	if( null != stat.match( /^ACOV$/ ) ){ return stat + strCode + "SA"; } 
 
 	//  determine the second letter of the code [A|S|C]
 	var boolSimp = divDep.getElementsByTagName("input")[5].checked;

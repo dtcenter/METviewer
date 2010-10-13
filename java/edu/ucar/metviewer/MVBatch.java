@@ -803,29 +803,6 @@ public class MVBatch extends MVUtil {
 										listQuery.add( buildModeSingleStatRatioTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
 									} else if( listStatComp[0].equals("ACOV") ){
 										listQuery.add( buildModeSingleAcovTable(strSelectListModeTemp, listModeStats[intStatMode], listGroupBy) );
-										
-										/*
-										String strACOVGroup = strSelectListModeTemp.replaceAll("h\\.", "");
-										strACOVGroup = strACOVGroup.substring(0, strACOVGroup.lastIndexOf(","));
-										strACOVGroup = strACOVGroup.replaceAll("HOUR\\([^\\)]+\\) ", "");
-										listQuery.add(
-											"INSERT INTO mode_stat\n" +
-											"SELECT\n" + strSelectListModeTemp +
-											"  '' object_id,\n" +
-											"  '' object_cat,\n" +
-											"  'ACOV' stat_name,\n" +
-											"  sum(mos.area) / mc.total stat_value\n" +
-											"FROM\n" +
-											"  mode_header h,\n" +
-											"  mode_obj_single mos,\n" +
-											"  mode_cts mc\n" +
-											"WHERE\n" + strWhereModeTemp + "\n" +
-											"  AND mc.field = 'OBJECT'\n" +
-											"  AND mos.mode_header_id = h.mode_header_id\n" +
-											"  AND mc.mode_header_id = mos.mode_header_id\n" +
-											"GROUP BY\n" + strACOVGroup + ";"
-										);
-										*/
 									}
 								}
 							}					
@@ -1759,7 +1736,7 @@ public class MVBatch extends MVUtil {
 		if( strStatFlag.charAt(0) != 'A' ){
 			strStat = "SUM(area) / total";
 			strGroupBy += ",\n  fcst_flag";
-			strWhere = "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0)? "1" : "0");
+			strWhere = "  AND fcst_flag = " + ('F' == strStatFlag.charAt(0)? "1" : "0") + "\n";
 		}
 
 		//  build the query

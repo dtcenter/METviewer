@@ -565,9 +565,28 @@ public class MVServlet extends HttpServlet {
 			bat._strRtmplFolder = parser.getRtmplFolder();
 			bat._strRworkFolder = parser.getRworkFolder();
 			bat._strPlotsFolder = parser.getPlotsFolder();    		
+    		
+    		//  build the job SQL using the batch engine
+    		bat._boolSQLOnly = true;
+    		bat._boolVerbose = true;
+    		bat.runJob( job );
+    		bat._boolSQLOnly = false;
+    		bat._boolVerbose = false;
+    		String strPlotSQL = log.toString();
+    		
+    		//  write the plot SQL to a file
+    		FileWriter writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".sql");
+    		writer.write(strPlotSQL);
+    		writer.close();
+    		log.reset();
+    		
+			//  run the job to generate the plot
     		//bat._boolVerbose = true;
     		bat.runJob( job );
     		String strPlotterOutput = log.toString();
+    		writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".log");
+    		writer.write(strPlotterOutput);
+    		writer.close();
 
     		//  parse out R error messages, if present, throwing an exception if the error was fatal
     		Matcher matOutput = Pattern.compile("(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)").matcher(strPlotterOutput);
