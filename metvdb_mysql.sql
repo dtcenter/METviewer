@@ -843,6 +843,7 @@ CREATE TABLE metvdb_rev
 );
 
 INSERT INTO metvdb_rev VALUES (0, '2010-07-29 12:00:00', '0.1', 'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
+INSERT INTO metvdb_rev VALUES (0, '2010-10-14 12:00:00', '0.1', 'Increased web_plot.plot_xml field width to 65536');
 
 
 -- instance_info contains information about the paricular instance of metvdb, including 
@@ -867,7 +868,7 @@ CREATE TABLE web_plot
 (
     web_plot_id         INT UNSIGNED NOT NULL,
     creation_date       DATETIME,
-    plot_xml            VARCHAR(20480),
+    plot_xml            VARCHAR(65536),
     PRIMARY KEY (web_plot_id)    
 );
 

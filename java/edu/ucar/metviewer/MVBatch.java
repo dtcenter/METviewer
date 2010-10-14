@@ -80,28 +80,6 @@ public class MVBatch extends MVUtil {
 				return;
 			}
 
-			/*
-			//  parse the input file
-			String strXMLInput = argv[0];
-			bat._out.println("input file: " + strXMLInput + "\n");				
-			MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
-			MVOrderedMap mapJobs = parser.getJobsMap();
-			
-			//  parse the remaining input arguments
-			ArrayList listJobNamesInput = new ArrayList();
-			boolean boolList = false;
-			if( 1 < argv.length ){
-				for(int i=1; i < argv.length; i++){
-					if     ( argv[i].equals("-list") ){ boolList = true; }
-					else if( argv[i].equals("-sql")  ){ bat._boolSQLOnly = true; }
-					else if( argv[i].equals("-v")    ){ bat._boolVerbose = true; }
-					else {
-						listJobNamesInput.add(argv[i]);
-					}
-				}
-			}
-			*/
-
 			//  parse the command line options
 			boolean boolList = false;
 			int intArg = 0;
@@ -1231,6 +1209,12 @@ public class MVBatch extends MVUtil {
 						//  create the plot and R script output folders, if necessary
 						(new File(strPlotFile)).getParentFile().mkdirs();
 						(new File(strRFile)).getParentFile().mkdirs();
+						
+						//  trim the number of indy_lables, if necessary
+						String[] listIndyLabel = job.getIndyLabel();
+						if( "3".equals(job.getXtlabOrient()) && 16 < listIndyLabel.length ){
+							listIndyLabel = decimate(listIndyLabel, (int)(listIndyLabel.length / 16));
+						}
 										
 						/*
 						 *  Generate the map of R template tags for the plot
@@ -1241,7 +1225,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("r_work",		_strRworkFolder);
 						tableRTags.put("indy_var",		job.getIndyVar());
 						tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
-						tableRTags.put("indy_label",	(0 < job.getIndyLabel().length? printRCol(job.getIndyLabel(), true) : "c()"));
+						tableRTags.put("indy_label",	(0 < listIndyLabel.length? printRCol(listIndyLabel, true) : "c()"));
 						tableRTags.put("indy_plot_val",	(0 < job.getIndyPlotVal().length? printRCol(job.getIndyPlotVal(), false) : "c()"));
 						tableRTags.put("dep1_plot",		mapDep1Plot.getRDecl());				
 						tableRTags.put("dep2_plot",		(null != mapDep2Plot? mapDep2Plot.getRDecl() : "c()"));
