@@ -74,7 +74,7 @@ listX = 1:length(listIndy);
 # if log scale prepare the data and boxplot parameters
 strLogParm = "";
 if( boolLogY1 ){
-	dfPlot[dfPlot$stat_value == 0,]$stat_value = NA;
+	if( 0 < nrow(dfPlot[dfPlot$stat_value == 0,]) ){ dfPlot[dfPlot$stat_value == 0,]$stat_value = NA; }
 	strLogParm = "y";
 }
 
@@ -231,7 +231,7 @@ for(strFcstVar in names(listDep1Plot)){
 					listMeanVal[is.na(listMeanVal)] = 0;
 					listMean[length(listMean) + 1] = mean(listMeanVal);
 				}
-				listMeans[[ length(listMean) + 1 ]] = listMean;
+				listMeans[[ length(listMeans) + 1 ]] = listMean;
 			}
 			
 		}
