@@ -195,24 +195,31 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 
 		</td></tr><tr><td class="grey">
 
-		<div id="divBoot">
-			<span class="header">Bootstrapping</span>
-			<span class="stdTiny">(<a href="doc/plot.html#boot" target="_blank">help</a>)</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divBoot')" id="lnkSerBoot">Serialize</a><br/><br/>
+		<div id="divAggStat">
+			<span class="header">Aggregation Statistics</span>
+			<span class="stdTiny">(<a href="doc/plot.html#agg_stat" target="_blank">help</a>)</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divAggStat')" id="lnkSerAggStat">Serialize</a><br/><br/>
 
-			<span id="spanBootNA" class="header" style="padding-left:40px; display:none">N/A</span>
-			<input id="chkBoot" type="checkbox" onclick="javascript:updateBoot()"/><span id="spanBoot" class="bold">Bootstrapping Enabled</span><br/><br/>
-			<table id="tabBootParm" cellpadding="0" cellspacing="0" style="display:none">
+			<span id="spanAggStatNA" class="header" style="padding-left:40px; display:none">N/A</span>
+			<input id="chkAggStat" type="checkbox" onclick="javascript:updateAggStat()"/><span id="spanAggStat" class="bold">Aggregation Statistics Enabled</span><br/><br/>
+			<table id="tabAggStatParm" border="0" cellpadding="0" cellspacing="0" style="display:none">
+				<tr>
+					<td align="left" style="padding-left:30px" colspan="4">
+						<input type="radio" name="agg_stat" value="ctc"/><span class="bold">CTC</span>&nbsp;&nbsp;&nbsp;
+						<input type="radio" name="agg_stat" value="sl1l2"/><span class="bold">SL1L2</span>
+						<br/><br/>
+					</td>
+				</tr>
 				<tr>
 					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1000"/></td>
 					<td align="right" style="padding-left:30px">
-						boot_diff1:</td><td>&nbsp;<input id="txtBootDiff1" type="text" size="12" value="FALSE" disabled="disabled"/>
+						agg_diff1:</td><td>&nbsp;<input id="txtAggDiff1" type="text" size="12" value="FALSE" disabled="disabled"/>
 					</td>
 				</tr>
 				<tr>
 					<td align="right" style="padding-left:30px">boot_ci:</td><td>&nbsp;<input type="text" size="12" value="bca"/></td>
 					<td align="right" style="padding-left:30px">
-						boot_diff2:</td><td>&nbsp;<input id="txtBootDiff2" type="text" size="12" value="FALSE" disabled="disabled"/>
+						agg_diff2:</td><td>&nbsp;<input id="txtAggDiff2" type="text" size="12" value="FALSE" disabled="disabled"/>
 					</td>
 				</tr>
 			</table>

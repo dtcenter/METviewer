@@ -8,6 +8,7 @@ import java.text.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.xml.parsers.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.apache.log4j.*;
@@ -528,7 +529,21 @@ public class MVServlet extends HttpServlet {
     			"<data_file>" + strPlotPrefix + ".data" + "</data_file>" +
     			"<plot_file>" + strPlotPrefix + ".png" + "</plot_file>" +
     			"<r_file>" + strPlotPrefix + ".R" + "</r_file>");    			
-
+		
+		//  parse the input document and build the MVNode data structure
+		Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream( strPlotXML.getBytes() ));
+		try{	
+			FileOutputStream stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
+			XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
+			ser.setOutputByteStream(stream);
+			ser.serialize(doc);
+			stream.flush();
+			stream.close();
+		} catch(Exception e) {
+			_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
+			return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
+		}    	
+    	
     	//  parse the input plot job
     	MVPlotJobParser parser;
     	MVPlotJob job;
@@ -542,20 +557,6 @@ public class MVServlet extends HttpServlet {
     		return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
     	}
    	
-        //  write the formatted plot XML to a file
-		Document doc = parser.getDocument();
-		try{	
-			FileOutputStream stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
-			XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
-			ser.setOutputByteStream(stream);
-			ser.serialize(doc);
-			stream.flush();
-			stream.close();
-		} catch(Exception e) {
-			_logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
-			return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
-		}    	
-    	
     	//  run the plot job and write the batch output to the log file
     	ByteArrayOutputStream log = new ByteArrayOutputStream();
     	MVBatch bat = new MVBatch( new PrintStream(log) );
