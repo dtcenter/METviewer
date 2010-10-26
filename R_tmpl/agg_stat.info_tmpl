@@ -1,0 +1,29 @@
+
+# script configuration
+
+boolAggCtc = #<agg_ctc>#;
+boolAggSl1l2 = #<agg_sl1l2>#;
+boolDiff1 = #<agg_diff1>#;
+boolDiff2 = #<agg_diff2>#;
+intNumReplicates = #<boot_repl>#;
+strCIType = "#<boot_ci>#";
+dblAlpha = #<ci_alpha>#;
+
+# data set information
+strIndyVar = "#<indy_var>#";
+listIndyVal = #<indy_list>#;
+
+listSeries1Val = #<series1_list>#;
+
+listSeries2Val = #<series2_list>#;
+		
+listStat1 = #<boot_stat1>#;
+
+listStat2 = #<boot_stat2>#;
+
+listStaticVal = #<boot_static>#;
+
+# I/O files
+strInputDataFile = "#<boot_input>#";
+strOutputFile = "#<boot_output>#";
+strWorkingDir = "#<working_dir>#";

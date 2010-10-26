@@ -19,9 +19,9 @@ var _divFieldVal;
 var _intFieldValIdNext = 0;
 
 var _listStatModeSingle = [
-						"ACOV", "CNT", "CNTSUM", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "AREA", 
-						"AREAFIL", "AREATHR", "CURV", "CURVX", "CURVY", "CPLX", "INT10", "INT25", "INT50", "INT75", 
-						"INT90", "INTN", "INTSUM", 
+						"ACOV", "CNT", "CNTSUM", "CENTX", "CENTY", "CENTLAT", "CENTLON", "AXAVG", "LEN", "WID", "ASPECT",
+						"AREA", "AREAFIL", "AREATHR", "CURV", "CURVX", "CURVY", "CPLX", "INT10", "INT25", "INT50", 
+						"INT75", "INT90", "INTN", "INTSUM", 
 					 
 						"RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA", 
 						"RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM", 
@@ -557,8 +557,8 @@ function interpolateColor(rel){
 		case 1:	rel -= .2;		return hex(min + max*(1-min)*(1 - rel/.2)) + hex(max) + hex(min);
 		case 2:	rel -= .4;		return hex(min) + hex(max) + hex(max*(min + (1-min)*(rel/.2)));
 		case 3:	rel -= .6;		return hex(min) + hex(max*(1-min)*(1 - rel/.2)) + hex(max);
-		case 4:	rel -= .8;		return hex(max*(min + (1-min)*(rel/.2))) + hex(min) + hex(max);
-		default:				return hex(max) + hex(min) + hex(max);
+		case 4:	rel -= .8;		return hex(max*(min + (1-min)*(rel/.2))*.5) + hex(min) + hex(max);
+		default:				return hex(max*.5) + hex(min) + hex(max);
 	}
 }
 

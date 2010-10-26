@@ -131,9 +131,16 @@ public class MVPlotJob extends MVUtil{
 	
 	protected boolean _boolBootstrapping	= false;
 	protected String _strBootRepl			= "1000";
-	protected String _strBootCI				= "c()";
+	protected String _strBootCI				= "bca";
 	protected boolean _strBootDiff1			= false;
 	protected boolean _strBootDiff2			= false;
+	
+	protected boolean _boolAggCtc			= false;
+	protected boolean _boolAggSl1l2			= false;
+	protected String _strAggBootRepl		= "1";
+	protected String _strAggBootCI			= "bca";
+	protected boolean _strAggDiff1			= false;
+	protected boolean _strAggDiff2			= false;
 	
 	protected String _strPlotCI				= "";
 	protected String _strColors				= "";
@@ -273,6 +280,13 @@ public class MVPlotJob extends MVUtil{
 		job._strBootCI			= _strBootCI;
 		job._strBootDiff1		= _strBootDiff1;
 		job._strBootDiff2		= _strBootDiff2;
+		
+		job._boolAggCtc			= _boolAggCtc;
+		job._boolAggSl1l2		= _boolAggSl1l2;
+		job._strAggBootRepl		= _strAggBootRepl;
+		job._strAggBootCI		= _strAggBootCI;
+		job._strAggDiff1		= _strAggDiff1;
+		job._strAggDiff2		= _strAggDiff2;
 		
 		job._strPlotCI			= _strPlotCI;
 		job._strColors			= _strColors;
@@ -558,6 +572,19 @@ public class MVPlotJob extends MVUtil{
 	public void		setBootDiff1(boolean bootDiff1)						{ _strBootDiff1 = bootDiff1;							}
 	public boolean	getBootDiff2()										{ return _strBootDiff2;									}
 	public void		setBootDiff2(boolean bootDiff2)						{ _strBootDiff2 = bootDiff2;							}
+	
+	public boolean	getAggCtc()											{ return _boolAggCtc;									}
+	public void		setAggCtc(boolean aggCtc)							{ _boolAggCtc = aggCtc; 								}
+	public boolean	getAggSl1l2()										{ return _boolAggSl1l2;									}
+	public void		setAggSl1l2(boolean aggSl1l2)						{ _boolAggSl1l2 = aggSl1l2; 							}
+	public String	getAggBootRepl()									{ return _strAggBootRepl;								}
+	public void		setAggBootRepl(String aggBootRepl)					{ _strAggBootRepl = aggBootRepl;						}
+	public String	getAggBootCI()										{ return _strAggBootCI;									}
+	public void		setAggBootCI(String aggBootCI)						{ _strAggBootCI = aggBootCI;							}
+	public boolean	getAggDiff1()										{ return _strAggDiff1;									}
+	public void		setAggDiff1(boolean aggDiff1)						{ _strAggDiff1 = aggDiff1;								}
+	public boolean	getAggDiff2()										{ return _strAggDiff2;									}
+	public void		setAggDiff2(boolean aggDiff2)						{ _strAggDiff2 = aggDiff2;								}
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}

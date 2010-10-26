@@ -393,6 +393,9 @@ public class MVPlotJobParser extends MVUtil{
 
 				//  <dep>
 				MVOrderedMap mapDep = new MVOrderedMap();
+				boolean boolDep1Present = false;
+				boolean boolDep2Present = false;
+				boolean boolFixPresent = false;
 				for(int j=0; j < node._children.length; j++){
 					MVNode nodeDepN = node._children[j];
 					
@@ -411,6 +414,10 @@ public class MVPlotJobParser extends MVUtil{
 							if( nodeDepNMode._tag.startsWith("dep") ){
 								MVOrderedMap mapDepNMode = new MVOrderedMap();
 								strDepN = nodeDepNMode._tag;
+								
+								//  presence accounting
+								if     ( strDepN.equals("dep1") ){ boolDep1Present = true; }
+								else if( strDepN.equals("dep2") ){ boolDep2Present = true; }
 								
 								//  <fcst_var>
 								for(int l=0; l < nodeDepNMode._children.length; l++){
@@ -432,6 +439,10 @@ public class MVPlotJobParser extends MVUtil{
 					//  <dep1> or <dep2>
 					else if( nodeDepN._tag.startsWith("dep") ){
 						MVOrderedMap mapDepN = new MVOrderedMap();
+						
+						//  presence accounting
+						if     ( nodeDepN._tag.equals("dep1") ){ boolDep1Present = true; }
+						else if( nodeDepN._tag.equals("dep2") ){ boolDep2Present = true; }
 						
 						//  <fcst_var>
 						for(int k=0; k < nodeDepN._children.length; k++){
@@ -455,6 +466,7 @@ public class MVPlotJobParser extends MVUtil{
 					//  <fix>
 					else if( nodeDepN._tag.startsWith("fix") ){
 						MVOrderedMap mapFix = new MVOrderedMap();
+						boolFixPresent = true;
 						
 						//  <fcst_var>
 						for(int k=0; k < nodeDepN._children.length; k++){
@@ -494,6 +506,13 @@ public class MVPlotJobParser extends MVUtil{
 						mapDep.put(nodeDepN._tag, mapFix);
 					}
 				}
+				
+				//  complain if a dep component is missing
+				if( !boolDep1Present ){ throw new Exception("plot job dep lacks dep1"); }
+				if( !boolDep2Present ){ throw new Exception("plot job dep lacks dep2"); }
+				if( !boolFixPresent ) { throw new Exception("plot job dep lacks fix"); }
+				
+				//  add the dep group to the job
 				job.addDepGroup( mapDep );
 			}
 			
@@ -604,6 +623,22 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeBoot._tag.equals("boot_diff1") )	{ job.setBootDiff1(nodeBoot._value.equalsIgnoreCase("true")); }
 					else if( nodeBoot._tag.equals("boot_diff2") )	{ job.setBootDiff2(nodeBoot._value.equalsIgnoreCase("true")); }
 				}				
+			}
+			
+			//  <agg_stat>
+			else if( node._tag.equals("agg_stat") ){
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeAggStat = node._children[j];					
+					if     ( nodeAggStat._tag.equals("agg_ctc")   )	{ job.setAggCtc(nodeAggStat._value.equalsIgnoreCase("true"));   }
+					else if( nodeAggStat._tag.equals("agg_sl1l2") )	{ job.setAggSl1l2(nodeAggStat._value.equalsIgnoreCase("true")); }
+					else if( nodeAggStat._tag.equals("boot_repl") )	{ job.setAggBootRepl(nodeAggStat._value);                       }
+					else if( nodeAggStat._tag.equals("boot_ci") )	{ job.setAggBootCI(nodeAggStat._value);                         }
+					else if( nodeAggStat._tag.equals("agg_diff1") )	{ job.setAggDiff1(nodeAggStat._value.equalsIgnoreCase("true")); }
+					else if( nodeAggStat._tag.equals("agg_diff2") )	{ job.setAggDiff2(nodeAggStat._value.equalsIgnoreCase("true")); }
+				}
+				
+				if( !job.getAggCtc() && !job.getAggSl1l2() ){ throw new Exception("invalid agg_stat setting - neither agg_ctc and agg_sl1l2 are true"); }
+				if( job.getAggCtc() && job.getAggSl1l2() )  { throw new Exception("invalid agg_stat setting - both agg_ctc and agg_sl1l2 are true"); }
 			}
 			
 			else if( _tableFormatBoolean.containsKey(node._tag) ){

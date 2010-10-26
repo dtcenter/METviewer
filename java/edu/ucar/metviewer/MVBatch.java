@@ -385,15 +385,26 @@ public class MVBatch extends MVUtil {
 				}
 				String strSelectListModeTemp = strSelectList;
 				
-				//  add contingency table stats for bootstrap calculations, if necessary 
-				if( job.getBootstrapping() ){
+				//  add contingency table stats for bootstrap calculations, if necessary
+boolean boolAggCtc = job.getAggCtc();
+boolean boolAggSl1l2 = job.getAggSl1l2();
+boolean boolAggStat = boolAggCtc || boolAggSl1l2;
+				if( boolAggCtc ){
 					strSelectList += ",\n  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
 					strTempList += "    total               INT UNSIGNED,\n" +
 								   "    fy_oy               DOUBLE,\n" +
 								   "    fy_on               DOUBLE,\n" +
 								   "    fn_oy               DOUBLE,\n" +
 								   "    fn_on               DOUBLE,\n";
-				} 
+				} else if( boolAggSl1l2 ){
+					strSelectList += ",\n  ldsl1l2.total,\n  ldsl1l2.fbar,\n  ldsl1l2.obar,\n  ldsl1l2.fobar,\n  ldsl1l2.ffbar,\n  ldsl1l2.oobar";
+					strTempList += "    total               INT UNSIGNED,\n" +
+								   "    fbar                DOUBLE,\n" +
+								   "    obar                DOUBLE,\n" +
+								   "    fobar               DOUBLE,\n" +
+								   "    ffbar               DOUBLE,\n" +
+								   "    oobar               DOUBLE,\n";
+				}
 				
 				//  add confidence interval stats, if necessary				
 				else {
@@ -434,15 +445,16 @@ public class MVBatch extends MVUtil {
 					if( boolModePlot ){ strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid") + " fcst_valid"; }
 					else              { strSelectList += ",\n  " + getSQLDateFormat("h.fcst_valid_beg") + " fcst_valid_beg"; }
 				}
-				if( job.getBootstrapping() ){ strSelectList += ",\n  0 stat_group_lu_id,\n  '' stat_name,\n  0 stat_value"; }
-				else                        { strSelectList += ",\n  sg.stat_group_lu_id,\n  '' stat_name,\n  sg.stat_value"; }
+				if( boolAggStat ){ strSelectList += ",\n  0 stat_group_lu_id,\n  '' stat_name,\n  0 stat_value"; }
+				else             { strSelectList += ",\n  sg.stat_group_lu_id,\n  '' stat_name,\n  sg.stat_value"; }
 				
 				//  build the list of tables for the FROM clause, not used by mode plots
 				String strFromList = "";			
 				if( !boolModePlot ){
 					strFromList = "  stat_header h";
-					if( job.getBootstrapping() ){ strFromList += ",\n  line_data_ctc ldctc"; }
-					else                        { strFromList += ",\n  stat_group sg";       }
+					if     ( boolAggCtc )  { strFromList += ",\n  line_data_ctc ldctc";     }
+					else if( boolAggSl1l2 ){ strFromList += ",\n  line_data_sl1l2 ldsl1l2"; }
+					else                   { strFromList += ",\n  stat_group sg";           }
 									
 					//  if nobs is requested, add baserate and total
 					if( 0 < listSeriesNobs.length ){ strFromList += ",\n  stat_group sgb,\n  line_data_cts ldcts"; }
@@ -486,7 +498,7 @@ public class MVBatch extends MVUtil {
 					String[] listStatGroupName = (String[])listDepPlot[i].getValue();
 					String[] listStatGroupLuId = new String[listStatGroupName.length];
 					String strDepStatClause = "";
-					if( !boolModePlot && !job.getBootstrapping() ){
+					if( !boolModePlot && !boolAggStat ){
 						for(int j=0; j < listStatGroupName.length; j++){ listStatGroupLuId[j] = (String)_tableStatIndex.get(listStatGroupName[j]); }
 						strDepStatClause = "      AND sg.stat_group_lu_id IN (" +	buildValueList(listStatGroupLuId) + ")\n";
 					}
@@ -527,8 +539,10 @@ public class MVBatch extends MVUtil {
 								
 				//  add the table joining clauses, not used by mode plots
 				if( !boolModePlot ){
-					if( job.getBootstrapping() ){
+					if( boolAggCtc ){
 						strWhere += "  )\n  AND h.stat_header_id = ldctc.stat_header_id";
+					} else if( boolAggSl1l2 ){
+						strWhere += "  )\n  AND h.stat_header_id = ldsl1l2.stat_header_id";
 					} else {
 						strWhere += "  )\n  AND h.stat_header_id = sg.stat_header_id\n  AND sg.stat_value != -9999";
 	
@@ -902,7 +916,7 @@ public class MVBatch extends MVUtil {
 						String strFcstVarComp = buildValueList(mapFcstVar.getStrPattern(strFcstVar));
 						
 						for(int j=0; j < listStatName.length; j++){
-							String strStatGroupLuId = job.getBootstrapping()? "0" : (String)_tableStatIndex.get(listStatName[j]);				
+							String strStatGroupLuId = boolAggStat ? "0" : (String)_tableStatIndex.get(listStatName[j]);				
 							stmt = job.getConnection().createStatement();
 							String strStatNameUpdate = 
 								"UPDATE job_data " +
@@ -1077,8 +1091,8 @@ public class MVBatch extends MVUtil {
 								String[] listStats = (String[])listDepCur[i].getValue();						
 								for(int j=0; j < listStats.length; j++){
 									mapPlotTmplVals.put(strDepName + "_" + (i+1) + "_stat" + (j+1), listStats[j]);
-									if( job.getBootstrapping() && 0 == intDepPlot ){ listBootStats1.add(listStats[j]); }
-									if( job.getBootstrapping() && 1 == intDepPlot ){ listBootStats2.add(listStats[j]); }
+									if( boolAggStat && 0 == intDepPlot ){ listBootStats1.add(listStats[j]); }
+									if( boolAggStat && 1 == intDepPlot ){ listBootStats2.add(listStats[j]); }
 								}
 								
 								//  add the fixed fields and values
@@ -1089,7 +1103,7 @@ public class MVBatch extends MVUtil {
 										String strFixVar = (String)listFixCurVal[j].getKey();
 										String strFixVal = (String)listFixCurVal[j].getValue();
 										mapPlotTmplVals.put(strFixVar, strFixVal);
-										if( job.getBootstrapping() && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
+										if( boolAggStat && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
 									}
 								}
 							}
@@ -1124,7 +1138,7 @@ public class MVBatch extends MVUtil {
 						_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
 						_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
 						String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
-						if( job.getBootstrapping() ){ strDataFile = strDataFile + ".boot"; }
+						if( boolAggStat ){ strDataFile = strDataFile + ".agg_stat"; }
 						(new File(strDataFile)).getParentFile().mkdirs();
 
 						//  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -1139,19 +1153,21 @@ public class MVBatch extends MVUtil {
 						 *  If bootstrapping is requested, generate the bootstrapped data 
 						 */
 										
-						if( job.getBootstrapping() ){
+						if( boolAggStat ){
 		
 							//  construct and create the path for the bootstrap data output file
-							String strBootInfo = strDataFile.replaceFirst("\\.data.boot$", ".boot.info");
-							String strBootOutput = strDataFile.replaceFirst("\\.boot$", "");
+							String strBootInfo = strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
+							String strBootOutput = strDataFile.replaceFirst("\\.agg_stat$", "");
 							File fileBootOutput = new File(strBootOutput); 
 		
 							//  build the map containing tag values for the boot info template
 							Hashtable tableBootInfo = new Hashtable();
-							tableBootInfo.put("boot_diff1",		job.getBootDiff1()? "TRUE" : "FALSE");
-							tableBootInfo.put("boot_diff2",		job.getBootDiff2()? "TRUE" : "FALSE");
-							tableBootInfo.put("boot_repl",		job.getBootRepl());
-							tableBootInfo.put("boot_ci",		job.getBootCI());
+							tableBootInfo.put("agg_ctc",		job.getAggCtc()?   "TRUE" : "FALSE");
+							tableBootInfo.put("agg_sl1l2",		job.getAggSl1l2()? "TRUE" : "FALSE");
+							tableBootInfo.put("agg_diff1",		job.getAggDiff1()? "TRUE" : "FALSE");
+							tableBootInfo.put("agg_diff2",		job.getAggDiff2()? "TRUE" : "FALSE");
+							tableBootInfo.put("boot_repl",		job.getAggBootRepl());
+							tableBootInfo.put("boot_ci",		job.getAggBootCI());
 							tableBootInfo.put("ci_alpha",		job.getCIAlpha());
 							tableBootInfo.put("indy_var",		job.getIndyVar());
 							tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
@@ -1165,23 +1181,23 @@ public class MVBatch extends MVUtil {
 							tableBootInfo.put("working_dir",	_strRworkFolder + "include");
 						
 							//  populate the boot info file
-							populateTemplateFile(_strRtmplFolder + "boot.info_tmpl", strBootInfo, tableBootInfo);
+							populateTemplateFile(_strRtmplFolder + "agg_stat.info_tmpl", strBootInfo, tableBootInfo);
 															
 							//  run boot.R to generate the data file for plotting
 							if( !fileBootOutput.exists() || !_boolCacheBoot ){
 								fileBootOutput.getParentFile().mkdirs();
-								runRscript(job.getRscript(), _strRworkFolder + "include/boot.R", new String[]{strBootInfo});
+								runRscript(job.getRscript(), _strRworkFolder + "include/agg_stat.R", new String[]{strBootInfo});
 								
-								if( !fileBootOutput.exists() ){ throw new Exception("boot.R failed"); }
+								if( !fileBootOutput.exists() ){ throw new Exception("agg_stat.R failed"); }
 							}
 		
-							//  if boot_diffN is turned on, add __BOOT_DIFFN__ to the plot series
+							//  if agg_diffN is turned on, add __AGG_DIFFN__ to the plot series
 							for(int i=0; i < 2; i++){
 								MVOrderedMap mapSeriesVal = null;
 								String strDiffSeries = "";
-								if     ( i == 0 && job.getBootDiff1() ){ mapSeriesVal = mapSeries1Val; strDiffSeries = "__BOOT_DIFF1__"; }
-								else if( i == 1 && job.getBootDiff2() ){ mapSeriesVal = mapSeries2Val; strDiffSeries = "__BOOT_DIFF2__"; }
-								else                                   { continue; }						
+								if     ( i == 0 && job.getAggDiff1() ){ mapSeriesVal = mapSeries1Val; strDiffSeries = "__AGG_DIFF1__"; }
+								else if( i == 1 && job.getAggDiff2() ){ mapSeriesVal = mapSeries2Val; strDiffSeries = "__AGG_DIFF2__"; }
+								else                                  { continue; }						
 								String[] listSeriesVar = mapSeriesVal.keyList();
 								ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
 								listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
@@ -1190,6 +1206,7 @@ public class MVBatch extends MVUtil {
 							
 							//  remove the .boot suffix from the data file
 							strDataFile = strBootOutput;
+							
 						} //  end: if( job.getBootstrapping() )
 		
 						
@@ -1817,34 +1834,35 @@ public class MVBatch extends MVUtil {
 		_tableModeStatIndex.put("AXAVG",	"106");
 		_tableModeStatIndex.put("LEN",		"107");
 		_tableModeStatIndex.put("WID",		"108");
-		_tableModeStatIndex.put("AREA",		"109");
-		_tableModeStatIndex.put("AREAFIL",	"110");
-		_tableModeStatIndex.put("AREATHR",	"111");
-		_tableModeStatIndex.put("CURV",		"112");
-		_tableModeStatIndex.put("CURVX",	"113");
-		_tableModeStatIndex.put("CURVY",	"114");
-		_tableModeStatIndex.put("CPLX",		"115");
-		_tableModeStatIndex.put("INT10",	"116");
-		_tableModeStatIndex.put("INT25",	"117");
-		_tableModeStatIndex.put("INT50",	"118");
-		_tableModeStatIndex.put("INT75",	"119");
-		_tableModeStatIndex.put("INT90",	"120");
-		_tableModeStatIndex.put("INTN",		"121");
-		_tableModeStatIndex.put("INTSUM",	"122");
-		_tableModeStatIndex.put("RATIO",	"123");
-		_tableModeStatIndex.put("AREARAT",	"124");
-		_tableModeStatIndex.put("OBJHITS",	"125");
-		_tableModeStatIndex.put("OBJMISSES","126");
-		_tableModeStatIndex.put("OBJFAS",	"127");
-		_tableModeStatIndex.put("OBJCSI",	"128");
-		_tableModeStatIndex.put("OBJPODY",	"129");
-		_tableModeStatIndex.put("OBJFAR",	"130");
-		_tableModeStatIndex.put("OBJAHITS",	"131");
-		_tableModeStatIndex.put("OBJAMISSES","132");
-		_tableModeStatIndex.put("OBJAFAS",	"133");
-		_tableModeStatIndex.put("OBJACSI",	"134");
-		_tableModeStatIndex.put("OBJAPODY",	"135");
-		_tableModeStatIndex.put("OBJAFAR",	"136");
+		_tableModeStatIndex.put("ASPECT",	"109");
+		_tableModeStatIndex.put("AREA",		"110");
+		_tableModeStatIndex.put("AREAFIL",	"111");
+		_tableModeStatIndex.put("AREATHR",	"112");
+		_tableModeStatIndex.put("CURV",		"113");
+		_tableModeStatIndex.put("CURVX",	"114");
+		_tableModeStatIndex.put("CURVY",	"115");
+		_tableModeStatIndex.put("CPLX",		"116");
+		_tableModeStatIndex.put("INT10",	"117");
+		_tableModeStatIndex.put("INT25",	"118");
+		_tableModeStatIndex.put("INT50",	"119");
+		_tableModeStatIndex.put("INT75",	"120");
+		_tableModeStatIndex.put("INT90",	"121");
+		_tableModeStatIndex.put("INTN",		"122");
+		_tableModeStatIndex.put("INTSUM",	"123");
+		_tableModeStatIndex.put("RATIO",	"124");
+		_tableModeStatIndex.put("AREARAT",	"125");
+		_tableModeStatIndex.put("OBJHITS",	"126");
+		_tableModeStatIndex.put("OBJMISSES","127");
+		_tableModeStatIndex.put("OBJFAS",	"128");
+		_tableModeStatIndex.put("OBJCSI",	"129");
+		_tableModeStatIndex.put("OBJPODY",	"130");
+		_tableModeStatIndex.put("OBJFAR",	"131");
+		_tableModeStatIndex.put("OBJAHITS",	"132");
+		_tableModeStatIndex.put("OBJAMISSES","133");
+		_tableModeStatIndex.put("OBJAFAS",	"134");
+		_tableModeStatIndex.put("OBJACSI",	"135");
+		_tableModeStatIndex.put("OBJAPODY",	"136");
+		_tableModeStatIndex.put("OBJAFAR",	"137");
 				
 		_tableModeStatIndex.put("CENTDIST",		"150");
 		_tableModeStatIndex.put("BOUNDDIST",	"151");
@@ -2012,6 +2030,7 @@ public class MVBatch extends MVUtil {
 		_tableModeSingleStatField.put("AXAVG",			"axis_avg");
 		_tableModeSingleStatField.put("LEN",			"length");
 		_tableModeSingleStatField.put("WID",			"width");
+		_tableModeSingleStatField.put("ASPECT",			"IF((length/width) < (width/length), length/width, width/length)");
 		_tableModeSingleStatField.put("AREA",			"area");
 		_tableModeSingleStatField.put("AREAFIL",		"area_filter");
 		_tableModeSingleStatField.put("AREATHR",		"area_threshold");
