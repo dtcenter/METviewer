@@ -17,13 +17,13 @@ listSeries1Val = #<series1_list>#;
 
 listSeries2Val = #<series2_list>#;
 		
-listStat1 = #<boot_stat1>#;
+listStat1 = #<agg_stat1>#;
 
-listStat2 = #<boot_stat2>#;
+listStat2 = #<agg_stat2>#;
 
-listStaticVal = #<boot_static>#;
+listStaticVal = #<agg_stat_static>#;
 
 # I/O files
-strInputDataFile = "#<boot_input>#";
-strOutputFile = "#<boot_output>#";
+strInputDataFile = "#<agg_stat_input>#";
+strOutputFile = "#<agg_stat_output>#";
 strWorkingDir = "#<working_dir>#";

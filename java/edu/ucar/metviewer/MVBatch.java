@@ -25,7 +25,7 @@ public class MVBatch extends MVUtil {
 	
 	public final boolean _boolPlot		= true;
 	public boolean _boolSQLSort			= true;
-	public boolean _boolCacheBoot		= true;
+	public boolean _boolCacheAggStat	= true;
 	
 	public int _intNumPlots				= 0;
 	public int _intPlotIndex			= 0;
@@ -385,10 +385,10 @@ public class MVBatch extends MVUtil {
 				}
 				String strSelectListModeTemp = strSelectList;
 				
-				//  add contingency table stats for bootstrap calculations, if necessary
-boolean boolAggCtc = job.getAggCtc();
-boolean boolAggSl1l2 = job.getAggSl1l2();
-boolean boolAggStat = boolAggCtc || boolAggSl1l2;
+				//  add contingency table stats or partial sums for agg_stat calculations, if necessary
+				boolean boolAggCtc = job.getAggCtc();
+				boolean boolAggSl1l2 = job.getAggSl1l2();
+				boolean boolAggStat = boolAggCtc || boolAggSl1l2;
 				if( boolAggCtc ){
 					strSelectList += ",\n  ldctc.total,\n  ldctc.fy_oy,\n  ldctc.fy_on,\n  ldctc.fn_oy,\n  ldctc.fn_on";
 					strTempList += "    total               INT UNSIGNED,\n" +
@@ -1067,15 +1067,15 @@ boolean boolAggStat = boolAggCtc || boolAggSl1l2;
 						MVOrderedMap mapPlotTmplVals = new MVOrderedMap( mapTmplVals );
 		
 						//  bootstrap data
-						MVOrderedMap mapBootStatic = new MVOrderedMap( listAggPerm[intPerm] );
+						MVOrderedMap mapAggStatStatic = new MVOrderedMap( listAggPerm[intPerm] );
 						MVOrderedMap mapSeries1Val = new MVOrderedMap( job.getSeries1Val() );
 						MVOrderedMap mapSeries2Val = new MVOrderedMap( job.getSeries2Val() );
 						
 						//  add the independent and dependent variables to the template value map
 						mapPlotTmplVals.put("indy_var", job.getIndyVar());
 						Map.Entry[][] listDepPlotList = {listDep1Plot, listDep2Plot};
-						ArrayList listBootStats1 = new ArrayList();
-						ArrayList listBootStats2 = new ArrayList();
+						ArrayList listAggStats1 = new ArrayList();
+						ArrayList listAggStats2 = new ArrayList();
 						for(int intDepPlot = 0; intDepPlot < 2; intDepPlot++){
 							Map.Entry[] listDepCur = listDepPlotList[intDepPlot];
 							String strDepName = "dep" + (intDepPlot+1);
@@ -1087,12 +1087,12 @@ boolean boolAggStat = boolAggCtc || boolAggSl1l2;
 								String strFcstVar = (String)listDepCur[i].getKey();
 								String strFcstVarProc = formatR(strFcstVar);
 								mapPlotTmplVals.put(strDepName + "_" + (i+1), strFcstVarProc);
-								mapBootStatic.put("fcst_var", strFcstVarProc);
+								mapAggStatStatic.put("fcst_var", strFcstVarProc);
 								String[] listStats = (String[])listDepCur[i].getValue();						
 								for(int j=0; j < listStats.length; j++){
 									mapPlotTmplVals.put(strDepName + "_" + (i+1) + "_stat" + (j+1), listStats[j]);
-									if( boolAggStat && 0 == intDepPlot ){ listBootStats1.add(listStats[j]); }
-									if( boolAggStat && 1 == intDepPlot ){ listBootStats2.add(listStats[j]); }
+									if( boolAggStat && 0 == intDepPlot ){ listAggStats1.add(listStats[j]); }
+									if( boolAggStat && 1 == intDepPlot ){ listAggStats2.add(listStats[j]); }
 								}
 								
 								//  add the fixed fields and values
@@ -1103,7 +1103,7 @@ boolean boolAggStat = boolAggCtc || boolAggSl1l2;
 										String strFixVar = (String)listFixCurVal[j].getKey();
 										String strFixVal = (String)listFixCurVal[j].getValue();
 										mapPlotTmplVals.put(strFixVar, strFixVal);
-										if( boolAggStat && !strFixVal.contains(" ") ){ mapBootStatic.put(strFixVar, strFixVal); }
+										if( boolAggStat && !strFixVal.contains(" ") ){ mapAggStatStatic.put(strFixVar, strFixVal); }
 									}
 								}
 							}
@@ -1150,45 +1150,45 @@ boolean boolAggStat = boolAggCtc || boolAggSl1l2;
 						stmt.close();
 										
 						/*
-						 *  If bootstrapping is requested, generate the bootstrapped data 
+						 *  If agg_stat is requested, generate the agg_stat data files and run agg_stat.R 
 						 */
 										
 						if( boolAggStat ){
 		
-							//  construct and create the path for the bootstrap data output file
-							String strBootInfo = strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
-							String strBootOutput = strDataFile.replaceFirst("\\.agg_stat$", "");
-							File fileBootOutput = new File(strBootOutput); 
+							//  construct and create the path for the agg_stat data output file
+							String strAggStatInfo = strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
+							String strAggStatOutput = strDataFile.replaceFirst("\\.agg_stat$", "");
+							File fileAggStatOutput = new File(strAggStatOutput); 
 		
-							//  build the map containing tag values for the boot info template
-							Hashtable tableBootInfo = new Hashtable();
-							tableBootInfo.put("agg_ctc",		job.getAggCtc()?   "TRUE" : "FALSE");
-							tableBootInfo.put("agg_sl1l2",		job.getAggSl1l2()? "TRUE" : "FALSE");
-							tableBootInfo.put("agg_diff1",		job.getAggDiff1()? "TRUE" : "FALSE");
-							tableBootInfo.put("agg_diff2",		job.getAggDiff2()? "TRUE" : "FALSE");
-							tableBootInfo.put("boot_repl",		job.getAggBootRepl());
-							tableBootInfo.put("boot_ci",		job.getAggBootCI());
-							tableBootInfo.put("ci_alpha",		job.getCIAlpha());
-							tableBootInfo.put("indy_var",		job.getIndyVar());
-							tableBootInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
-							tableBootInfo.put("series1_list",	job.getSeries1Val().getRDecl());
-							tableBootInfo.put("series2_list",	job.getSeries2Val().getRDecl());
-							tableBootInfo.put("boot_stat1",		printRCol(toArray(listBootStats1), true));
-							tableBootInfo.put("boot_stat2",		printRCol(toArray(listBootStats2), true));
-							tableBootInfo.put("boot_static",	mapBootStatic.getRDecl());
-							tableBootInfo.put("boot_input",		strDataFile);
-							tableBootInfo.put("boot_output",	strBootOutput);
-							tableBootInfo.put("working_dir",	_strRworkFolder + "include");
+							//  build the map containing tag values for the agg_stat info template
+							Hashtable tableAggStatInfo = new Hashtable();
+							tableAggStatInfo.put("agg_ctc",			job.getAggCtc()?   "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_sl1l2",		job.getAggSl1l2()? "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_diff1",		job.getAggDiff1()? "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_diff2",		job.getAggDiff2()? "TRUE" : "FALSE");
+							tableAggStatInfo.put("boot_repl",		job.getAggBootRepl());
+							tableAggStatInfo.put("boot_ci",			job.getAggBootCI());
+							tableAggStatInfo.put("ci_alpha",		job.getCIAlpha());
+							tableAggStatInfo.put("indy_var",		job.getIndyVar());
+							tableAggStatInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
+							tableAggStatInfo.put("series1_list",	job.getSeries1Val().getRDecl());
+							tableAggStatInfo.put("series2_list",	job.getSeries2Val().getRDecl());
+							tableAggStatInfo.put("agg_stat1",		printRCol(toArray(listAggStats1), true));
+							tableAggStatInfo.put("agg_stat2",		printRCol(toArray(listAggStats2), true));
+							tableAggStatInfo.put("agg_stat_static",	mapAggStatStatic.getRDecl());
+							tableAggStatInfo.put("agg_stat_input",	strDataFile);
+							tableAggStatInfo.put("agg_stat_output",	strAggStatOutput);
+							tableAggStatInfo.put("working_dir",		_strRworkFolder + "include");
 						
-							//  populate the boot info file
-							populateTemplateFile(_strRtmplFolder + "agg_stat.info_tmpl", strBootInfo, tableBootInfo);
+							//  populate the agg_stat info file
+							populateTemplateFile(_strRtmplFolder + "agg_stat.info_tmpl", strAggStatInfo, tableAggStatInfo);
 															
-							//  run boot.R to generate the data file for plotting
-							if( !fileBootOutput.exists() || !_boolCacheBoot ){
-								fileBootOutput.getParentFile().mkdirs();
-								runRscript(job.getRscript(), _strRworkFolder + "include/agg_stat.R", new String[]{strBootInfo});
+							//  run agg_stat.R to generate the data file for plotting
+							if( !fileAggStatOutput.exists() || !_boolCacheAggStat ){
+								fileAggStatOutput.getParentFile().mkdirs();
+								runRscript(job.getRscript(), _strRworkFolder + "include/agg_stat.R", new String[]{strAggStatInfo});
 								
-								if( !fileBootOutput.exists() ){ throw new Exception("agg_stat.R failed"); }
+								if( !fileAggStatOutput.exists() ){ throw new Exception("agg_stat.R failed"); }
 							}
 		
 							//  if agg_diffN is turned on, add __AGG_DIFFN__ to the plot series
@@ -1204,10 +1204,10 @@ boolean boolAggStat = boolAggCtc || boolAggSl1l2;
 								mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], toArray(listDiffVal));
 							}					
 							
-							//  remove the .boot suffix from the data file
-							strDataFile = strBootOutput;
+							//  remove the .agg_stat suffix from the data file
+							strDataFile = strAggStatOutput;
 							
-						} //  end: if( job.getBootstrapping() )
+						} //  end: if( boolAggStat )
 		
 						
 						/*
