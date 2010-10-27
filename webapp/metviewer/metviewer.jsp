@@ -211,13 +211,13 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 					</td>
 				</tr>
 				<tr>
-					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1000"/></td>
+					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1"/></td>
 					<td align="right" style="padding-left:30px">
 						agg_diff1:</td><td>&nbsp;<input id="txtAggDiff1" type="text" size="12" value="FALSE" disabled="disabled"/>
 					</td>
 				</tr>
 				<tr>
-					<td align="right" style="padding-left:30px">boot_ci:</td><td>&nbsp;<input type="text" size="12" value="bca"/></td>
+					<td align="right" style="padding-left:30px">boot_ci:</td><td>&nbsp;<input type="text" size="12" value="perc"/></td>
 					<td align="right" style="padding-left:30px">
 						agg_diff2:</td><td>&nbsp;<input id="txtAggDiff2" type="text" size="12" value="FALSE" disabled="disabled"/>
 					</td>

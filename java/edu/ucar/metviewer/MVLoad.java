@@ -49,14 +49,15 @@ public class MVLoad extends MVUtil {
 	public static int _intModeObjSingleRecords		= 0;
 	public static int _intModeObjPairRecords		= 0;
 	
-	public static final Hashtable _tableDataFileLU	= new Hashtable();
+	public static final Hashtable _tableDataFileLU_v2 = new Hashtable();
 	static {
-		_tableDataFileLU.put("point_stat", "0");
-		_tableDataFileLU.put("grid_stat", "1");
-		_tableDataFileLU.put("mode_cts", "2");
-		_tableDataFileLU.put("mode_obj", "3");
-		_tableDataFileLU.put("wavelet_stat", "4");
+		_tableDataFileLU_v2.put("point_stat",	"0");
+		_tableDataFileLU_v2.put("grid_stat",	"1");
+		_tableDataFileLU_v2.put("mode_cts",		"2");
+		_tableDataFileLU_v2.put("mode_obj",		"3");
+		_tableDataFileLU_v2.put("wavelet_stat",	"4");
 	}
+	public static final Hashtable _tableDataFileLU = _tableDataFileLU_v2;
 	
 	/*
 	 * line type format: 
@@ -68,26 +69,27 @@ public class MVLoad extends MVUtil {
 	 *     - only normal confidence interval
 	 *     - no confidence intervals
 	 */
-	public static final Hashtable _tableLineType	= new Hashtable();
+	public static final Hashtable _tableLineType_v2 = new Hashtable();
 	static {
-		_tableLineType.put("FHO",		new int[][]{ new int[]{0},	new int[]{3},	new int[]{} });
-		_tableLineType.put("CTC",		new int[][]{ new int[]{1},	new int[]{4},	new int[]{} });
-		_tableLineType.put("CTS",		new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{},	new int[]{} });
-		_tableLineType.put("CNT",		new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{},	new int[]{} });
-		_tableLineType.put("PCT",		new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
-		_tableLineType.put("PSTD",		new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{30},	new int[]{31, 32, 33, 34} });
-		_tableLineType.put("PJC",		new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
-		_tableLineType.put("PRC",		new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
-		_tableLineType.put("SL1L2",		new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
-		_tableLineType.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5},	new int[]{} });
-		_tableLineType.put("VL1L2",		new int[][]{ new int[]{10},	new int[]{7},	new int[]{} });
-		_tableLineType.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7},	new int[]{} });
-		_tableLineType.put("MPR",		new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
-		_tableLineType.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
-		_tableLineType.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{},	new int[]{} });
-		_tableLineType.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{},	new int[]{} });
-		_tableLineType.put("ISC",		new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
+		_tableLineType_v2.put("FHO",	new int[][]{ new int[]{0},	new int[]{3},	new int[]{} });
+		_tableLineType_v2.put("CTC",	new int[][]{ new int[]{1},	new int[]{4},	new int[]{} });
+		_tableLineType_v2.put("CTS",	new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{},	new int[]{} });
+		_tableLineType_v2.put("CNT",	new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{},	new int[]{} });
+		_tableLineType_v2.put("PCT",	new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
+		_tableLineType_v2.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{30},	new int[]{31, 32, 33, 34} });
+		_tableLineType_v2.put("PJC",	new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
+		_tableLineType_v2.put("PRC",	new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
+		_tableLineType_v2.put("SL1L2",	new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
+		_tableLineType_v2.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5},	new int[]{} });
+		_tableLineType_v2.put("VL1L2",	new int[][]{ new int[]{10},	new int[]{7},	new int[]{} });
+		_tableLineType_v2.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7},	new int[]{} });
+		_tableLineType_v2.put("MPR",	new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
+		_tableLineType_v2.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
+		_tableLineType_v2.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{},	new int[]{} });
+		_tableLineType_v2.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{},	new int[]{} });
+		_tableLineType_v2.put("ISC",	new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
 	}
+	public static final Hashtable _tableLineType = _tableLineType_v2;
 	
 
 	/*
@@ -98,28 +100,32 @@ public class MVLoad extends MVUtil {
 	 *   - stat group indices with normal CI only (3 members)
 	 *   - stat group indices with no CIs (1 member)
 	 */
-	public static final Hashtable _tableStatGroupIndices = new Hashtable(); 
+	public static final Hashtable _tableStatGroupIndices_v2 = new Hashtable(); 
 	static {			
-		_tableStatGroupIndices.put("CTS",		new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
-		_tableStatGroupIndices.put("CNT",		new int[][]{ new int[]{47, 48, 49, 50, 51}, new int[]{22, 27, 32, 37, 42, 52, 57}, new int[]{62, 65, 68, 71, 74, 77, 80, 83, 86, 89}, new int[]{}, new int[]{} });
-		_tableStatGroupIndices.put("PSTD",		new int[][]{ new int[]{22}, new int[]{}, new int[]{}, new int[]{27}, new int[]{23, 24, 25, 26} });
-		_tableStatGroupIndices.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
-		_tableStatGroupIndices.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v2.put("CTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v2.put("CNT",	new int[][]{ new int[]{47, 48, 49, 50, 51}, new int[]{22, 27, 32, 37, 42, 52, 57}, new int[]{62, 65, 68, 71, 74, 77, 80, 83, 86, 89}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v2.put("PSTD",	new int[][]{ new int[]{22}, new int[]{}, new int[]{}, new int[]{27}, new int[]{23, 24, 25, 26} });
+		_tableStatGroupIndices_v2.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v2.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
 	}
+	public static final Hashtable _tableStatGroupIndices = _tableStatGroupIndices_v2; 
 
 	/*
 	 * thresh group data indices for probabilistic line data
 	 *   - index of first repeating probabilistic fields
 	 *   - number of fields in each repeating set
 	 */
-	public static final String[] _listThreshType = {"PCT", "PSTD", "PJC", "PRC"};
-	public static final Hashtable _tableThreshGroupIndices = new Hashtable();
+	public static final String[] _listThreshType_v2 = {"PCT", "PSTD", "PJC", "PRC"};
+	public static final String[] _listThreshType = _listThreshType_v2;
+	
+	public static final Hashtable _tableThreshGroupIndices_v2 = new Hashtable();
 	static {			
-		_tableThreshGroupIndices.put("PCT",  new int[]{23, 3});
-		_tableThreshGroupIndices.put("PSTD", new int[]{30, 1});
-		_tableThreshGroupIndices.put("PJC",	 new int[]{23, 7});
-		_tableThreshGroupIndices.put("PRC",  new int[]{23, 3});
+		_tableThreshGroupIndices_v2.put("PCT",  new int[]{23, 3});
+		_tableThreshGroupIndices_v2.put("PSTD", new int[]{30, 1});
+		_tableThreshGroupIndices_v2.put("PJC",	new int[]{23, 7});
+		_tableThreshGroupIndices_v2.put("PRC",  new int[]{23, 3});
 	}
+	public static final Hashtable _tableThreshGroupIndices = _tableThreshGroupIndices_v2;
 	
 	public static void main(String[] argv) {
 		System.out.println("----  MVLoad  ----\n");

@@ -581,6 +581,82 @@ CREATE TABLE line_data_isc
 );
 
 
+-- line_data_rhist contains stat data for a particular stat_header record, which it points 
+--   at via the stat_header_id field.
+
+CREATE TABLE line_data_rhist
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    stat_header_id      INT UNSIGNED NOT NULL,    
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    total               INT UNSIGNED,
+    crps                DOUBLE,
+    ign                 DOUBLE,
+    n_rank              INT UNSIGNED,
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_rhist_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_rhist_rank contains rank data for a particular line_data_rhist record.  The 
+--   number of ranks stored is given by the line_data_rhist field n_rank.
+
+CREATE TABLE line_data_rhist_rank
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    rank_i              INT UNSIGNED,
+    CONSTRAINT line_data_rhist_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_rhist(line_data_id)
+);
+
+
+-- line_data_orank contains stat data for a particular stat_header record, which it points 
+--   at via the stat_header_id field.
+
+CREATE TABLE line_data_orank
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    stat_header_id      INT UNSIGNED NOT NULL,    
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    total               INT UNSIGNED,
+    orank_index         INT UNSIGNED,
+    obs_sid             VARCHAR(64),
+    obs_lat             VARCHAR(64),
+    obs_lon             VARCHAR(64),
+    obs_lvl             VARCHAR(64),
+    obs_elv             VARCHAR(64),
+    obs                 DOUBLE,
+    pit                 DOUBLE,
+    rank                INT UNSIGNED,
+    n_ens_vld           INT UNSIGNED,
+    n_ens               INT UNSIGNED,
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_orank_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_orank_ens contains ensemble data for a particular line_data_orank record.  The 
+--   number of ens values stored is given by the line_data_orank field n_ens.
+
+CREATE TABLE line_data_orank_ens
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    ens_i               DOUBLE,
+    CONSTRAINT line_data_orank_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_orank(line_data_id)
+);
+
+
 -- mode_header represents a line in a mode file and contains the header information for
 --   that line.  The line-dependent information is stored in specific tables for each line 
 --   type, each of which point at the line they are associated with, via the mode_header_id 
@@ -858,7 +934,7 @@ CREATE TABLE instance_info
     PRIMARY KEY (instance_info_id)    
 );
 
-INSERT INTO instance_info VALUES (0, 'pgoldenb', '2010-07-29 12:00:00', 'Initial load of fall data for testing new functionality');
+INSERT INTO instance_info VALUES (0, 'pgoldenb', '2010-07-29 12:00:00', 'Initial load of data for testing new functionality');
 
 
 -- web_plot contains information about plots made by the web application, including the
