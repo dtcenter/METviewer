@@ -76,7 +76,7 @@ public class MVLoad extends MVUtil {
 		_tableLineType_v2.put("CTS",	new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{},	new int[]{} });
 		_tableLineType_v2.put("CNT",	new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{},	new int[]{} });
 		_tableLineType_v2.put("PCT",	new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
-		_tableLineType_v2.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{30},	new int[]{31, 32, 33, 34} });
+		_tableLineType_v2.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{50, 30}, new int[]{31, 32, 33, 34} });
 		_tableLineType_v2.put("PJC",	new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
 		_tableLineType_v2.put("PRC",	new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
 		_tableLineType_v2.put("SL1L2",	new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
@@ -121,7 +121,7 @@ public class MVLoad extends MVUtil {
 	public static final Hashtable _tableThreshGroupIndices_v2 = new Hashtable();
 	static {			
 		_tableThreshGroupIndices_v2.put("PCT",  new int[]{23, 3});
-		_tableThreshGroupIndices_v2.put("PSTD", new int[]{30, 1});
+		_tableThreshGroupIndices_v2.put("PSTD", new int[]{34, 1});
 		_tableThreshGroupIndices_v2.put("PJC",	new int[]{23, 7});
 		_tableThreshGroupIndices_v2.put("PRC",  new int[]{23, 3});
 	}

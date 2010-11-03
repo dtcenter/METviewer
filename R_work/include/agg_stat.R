@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00266_20101021_120815.agg_stat.info";
+strInputInfoFile = "data/plot_00008_20101028_105321.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -170,6 +170,7 @@ booter.iid = function(d, i){
 for(strIndyVal in listIndyVal){
 	
 	dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
+	if( 1 > nrow(dfStatsIndy) ){ next; }
 	
 	# for each series group, bootstrap the statistics
 	for(intSeries in 1:intNumSeries){

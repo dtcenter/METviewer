@@ -380,12 +380,9 @@ public class MVServlet extends HttpServlet {
 			listVal = MVUtil.sortThresh(listVal);
 		} else if( strField.equals("fcst_lev") || strField.equals("obs_lev") ){
 			listVal = MVUtil.sortLev(listVal);
-		} 
-		/*
-		else if( strField.equals("fcst_lead") || strField.equals("obs_lead") ){
-			listVal = MVUtil.sortFormatLead(listVal, true, true);
+		} else if( strField.equals("fcst_lead") || strField.equals("obs_lead") ){
+			listVal = MVUtil.sortFormatLead(listVal, true, false);
 		}
-		*/
 		
 		//  add the list of field values to the response
 		Hashtable tabProb = new Hashtable();

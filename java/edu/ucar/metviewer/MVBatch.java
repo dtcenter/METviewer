@@ -19,6 +19,7 @@ public class MVBatch extends MVUtil {
 	public String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
 
 	public boolean _boolProcWait		= true;
+	public long _intProcSleep			= 500;
 
 	public static final Pattern _patRTmpl		= Pattern.compile("#<(\\w+)>#");
 	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
@@ -1447,7 +1448,7 @@ public class MVBatch extends MVUtil {
 			proc.waitFor();
 		} else {
 			try{
-				Thread.sleep(10000);
+				Thread.sleep(_intProcSleep);
 			}catch(InterruptedException ie){}
 		}
 

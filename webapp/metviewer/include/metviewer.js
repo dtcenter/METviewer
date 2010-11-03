@@ -224,7 +224,7 @@ function onLoad(){
 	addFmtPlot("Caption Text Color",			"caption_col",		"#333333FF",	"txt");
 	addFmtPlot("Caption Text Size",				"caption_size",		".8",			"txt");
 	addFmtPlot("Caption Perp Offset",			"caption_offset",	"3",			"txt");
-	addFmtPlot("Captoin Horiz Align",			"caption_align",	"0",			"txt");
+	addFmtPlot("Caption Horiz Align",			"caption_align",	"0",			"txt");
 	addFmtPlot("Box Plot Points",				"box_pts",			["FALSE", "TRUE"], "txt");
 	addFmtPlot("Box Plot Show Outliers",		"box_outline",		["TRUE", "FALSE"], "txt");
 	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");

@@ -112,6 +112,11 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 				dfComp = dfIndy[dfIndy[[strSeriesVar]] == valSeries,];
 			}
 
+			# if the list contains repetetive values, throw an error
+			if( length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
+				stop("ERROR: eventEqualize() detected non-unique events for indy val ", strIndyVal);
+			}
+			
 			# if empty, initialize the equalization list
 			if( 0 < sum(is.na(listEqualize)) ){
 				listEqualize = dfComp$equalize;
@@ -134,7 +139,8 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 		# create an equalized set of data for the minimal list of dates
 		dfIndyEq = dfIndy[dfIndy$equalize %in% listEqualize,];
 		intEqRow = nrow(dfStatsEq);
-		dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfIndyEq)),] = dfIndyEq;
+		if( 0 < nrow(dfIndyEq) ){ dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfIndyEq)),] = dfIndyEq; }
+		else                    { cat("\n    WARNING: discarding all members for indy val", strIndyVal); }
 	}
 	
 	if( nrow(dfStatsEq) != nrow(dfStats) ){
@@ -419,4 +425,31 @@ formatTimeSpan = function(s){
 logLim = function(x){
 	listData = x[x > 0 & !is.na(x)];
 	return( list(min=floor( log10(min(listData)) ), max=ceiling( log10(max(listData)) )) );
+}
+
+# escapeStr() and unescapeStr() swap all non-alpha-numeric characters in the input string
+#   with escape codes, with the direction of the swap differing depending on the function
+escapeStr = function(s){	
+	if( "character" != class(s) ){ return(s); }
+	s = gsub(" ",  "x20x", s); s = gsub("!",  "x21x", s); s = gsub("\"", "x22x", s); s = gsub("#",  "x23x", s);
+	s = gsub("$",  "x24x", s); s = gsub("%",  "x25x", s); s = gsub("&",  "x26x", s); s = gsub("'",  "x27x", s);
+	s = gsub("(",  "x28x", s); s = gsub(")",  "x29x", s); s = gsub("*",  "x2Ax", s); s = gsub("+",  "x2Bx", s);
+	s = gsub(",",  "x2Cx", s); s = gsub("-",  "x2Dx", s); s = gsub(".",  "x2Ex", s); s = gsub("/",  "x2Fx", s);	
+	s = gsub(":",  "x3Ax", s); s = gsub(";",  "x3Bx", s); s = gsub("<",  "x3Cx", s); s = gsub("=",  "x3Dx", s);
+	s = gsub(">",  "x3Ex", s); s = gsub("?",  "x3Fx", s); s = gsub("@",  "x40x", s); s = gsub("[",  "x5Bx", s);
+	s = gsub("\\", "x5Cx", s); s = gsub("]",  "x5Dx", s); s = gsub("^",  "x5Ex", s); s = gsub("`",  "x60x", s);
+	s = gsub("{",  "x7Bx", s); s = gsub("|",  "x7Cx", s); s = gsub("}",  "x7Dx", s); s = gsub("~",  "x7Ex", s);
+	return(s);
+}
+unescapeStr = function(s){
+	if( "character" != class(s) ){ return(s); }
+	s = gsub("x20x", " ",  s); s = gsub("x21x", "!",  s); s = gsub("x22x", "\"", s); s = gsub("x23x", "#",  s);
+	s = gsub("x24x", "$",  s); s = gsub("x25x", "%",  s); s = gsub("x26x", "&",  s); s = gsub("x27x", "'",  s);
+	s = gsub("x28x", "(",  s); s = gsub("x29x", ")",  s); s = gsub("x2Ax", "*",  s); s = gsub("x2Bx", "+",  s);
+	s = gsub("x2Cx", ",",  s); s = gsub("x2Dx", "-",  s); s = gsub("x2Ex", ".",  s); s = gsub("x2Fx", "/",  s);	
+	s = gsub("x3Ax", ":",  s); s = gsub("x3Bx", ";",  s); s = gsub("x3Cx", "<",  s); s = gsub("x3Dx", "=",  s);
+	s = gsub("x3Ex", ">",  s); s = gsub("x3Fx", "?",  s); s = gsub("x40x", "@",  s); s = gsub("x5Bx", "[",  s);
+	s = gsub("x5Cx", "\\", s); s = gsub("x5Dx", "]",  s); s = gsub("x5Ex", "^",  s); s = gsub("x60x", "`",  s);
+	s = gsub("x7Bx", "{",  s); s = gsub("x7Cx", "|",  s); s = gsub("x7Dx", "}",  s); s = gsub("x7Ex", "~",  s);
+	return(s);
 }
