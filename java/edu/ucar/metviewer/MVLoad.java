@@ -73,10 +73,10 @@ public class MVLoad extends MVUtil {
 	static {
 		_tableLineType_v2.put("FHO",	new int[][]{ new int[]{0},	new int[]{3},	new int[]{} });
 		_tableLineType_v2.put("CTC",	new int[][]{ new int[]{1},	new int[]{4},	new int[]{} });
-		_tableLineType_v2.put("CTS",	new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{},	new int[]{} });
-		_tableLineType_v2.put("CNT",	new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{},	new int[]{} });
+		_tableLineType_v2.put("CTS",	new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{}, new int[]{} });
+		_tableLineType_v2.put("CNT",	new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{}, new int[]{} });
 		_tableLineType_v2.put("PCT",	new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
-		_tableLineType_v2.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{50, 30}, new int[]{31, 32, 33, 34} });
+		_tableLineType_v2.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{30}, new int[]{31, 32, 33, 34} });
 		_tableLineType_v2.put("PJC",	new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
 		_tableLineType_v2.put("PRC",	new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
 		_tableLineType_v2.put("SL1L2",	new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
@@ -86,8 +86,32 @@ public class MVLoad extends MVUtil {
 		_tableLineType_v2.put("MPR",	new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
 		_tableLineType_v2.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
 		_tableLineType_v2.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{},	new int[]{} });
-		_tableLineType_v2.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{},	new int[]{} });
+		_tableLineType_v2.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{}, new int[]{} });
 		_tableLineType_v2.put("ISC",	new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
+	}
+	public static final Hashtable _tableLineType_v3 = new Hashtable();
+	static {
+		_tableLineType_v3.put("FHO",	new int[][]{ new int[]{0},	new int[]{3},	new int[]{} });
+		_tableLineType_v3.put("CTC",	new int[][]{ new int[]{1},	new int[]{4},	new int[]{} });
+		_tableLineType_v3.put("CTS",	new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{}, new int[]{} });
+		_tableLineType_v3.put("CNT",	new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{}, new int[]{} });
+		_tableLineType_v3.put("PCT",	new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
+		_tableLineType_v3.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{50, 30}, new int[]{31, 32, 33, 34} });
+		_tableLineType_v3.put("PJC",	new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
+		_tableLineType_v3.put("PRC",	new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
+		_tableLineType_v3.put("SL1L2",	new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
+		_tableLineType_v3.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5},	new int[]{} });
+		_tableLineType_v3.put("VL1L2",	new int[][]{ new int[]{10},	new int[]{7},	new int[]{} });
+		_tableLineType_v3.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7},	new int[]{} });
+		_tableLineType_v3.put("MPR",	new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
+		_tableLineType_v3.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
+		_tableLineType_v3.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{}, new int[]{} });
+		_tableLineType_v3.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{}, new int[]{} });
+		_tableLineType_v3.put("ISC",	new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
+		_tableLineType_v3.put("MCTC",	new int[][]{ new int[]{20},	new int[]{1},	new int[]{} });
+		_tableLineType_v3.put("MCTS",	new int[][]{ new int[]{21},	new int[]{1},	new int[]{51}, new int[]{52, 53, 54}, new int[]{}, new int[]{} });
+		_tableLineType_v3.put("RHIST",	new int[][]{ new int[]{22},	new int[]{3},	new int[]{} });
+		_tableLineType_v3.put("ORANK",	new int[][]{ new int[]{23},	new int[]{11},	new int[]{} });
 	}
 	public static final Hashtable _tableLineType = _tableLineType_v2;
 	
@@ -108,6 +132,15 @@ public class MVLoad extends MVUtil {
 		_tableStatGroupIndices_v2.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
 		_tableStatGroupIndices_v2.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
 	}
+	public static final Hashtable _tableStatGroupIndices_v3 = new Hashtable(); 
+	static {			
+		_tableStatGroupIndices_v3.put("CTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v3.put("CNT",	new int[][]{ new int[]{47, 48, 49, 50, 51}, new int[]{22, 27, 32, 37, 42, 52, 57}, new int[]{62, 65, 68, 71, 74, 77, 80, 83, 86, 89}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v3.put("PSTD",	new int[][]{ new int[]{22}, new int[]{}, new int[]{}, new int[]{23, 30}, new int[]{26, 27, 28, 29} });
+		_tableStatGroupIndices_v3.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v3.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v3.put("MCTS",	new int[][]{ new int[]{22}, new int[]{23}, new int[]{28, 31, 34}, new int[]{}, new int[]{} });
+	}
 	public static final Hashtable _tableStatGroupIndices = _tableStatGroupIndices_v2; 
 
 	/*
@@ -121,9 +154,19 @@ public class MVLoad extends MVUtil {
 	public static final Hashtable _tableThreshGroupIndices_v2 = new Hashtable();
 	static {			
 		_tableThreshGroupIndices_v2.put("PCT",  new int[]{23, 3});
-		_tableThreshGroupIndices_v2.put("PSTD", new int[]{34, 1});
+		_tableThreshGroupIndices_v2.put("PSTD", new int[]{31, 1});
 		_tableThreshGroupIndices_v2.put("PJC",	new int[]{23, 7});
 		_tableThreshGroupIndices_v2.put("PRC",  new int[]{23, 3});
+	}
+	public static final Hashtable _tableThreshGroupIndices_v3 = new Hashtable();
+	static {			
+		_tableThreshGroupIndices_v3.put("PCT",  new int[]{23, 3});
+		_tableThreshGroupIndices_v3.put("PSTD", new int[]{34, 1});
+		_tableThreshGroupIndices_v3.put("PJC",	new int[]{23, 7});
+		_tableThreshGroupIndices_v3.put("PRC",  new int[]{23, 3});
+		_tableThreshGroupIndices_v3.put("MCTC", new int[]{22, 1});
+		_tableThreshGroupIndices_v3.put("RHIST", new int[]{25, 1});
+		_tableThreshGroupIndices_v3.put("ORANK", new int[]{33, 1});
 	}
 	public static final Hashtable _tableThreshGroupIndices = _tableThreshGroupIndices_v2;
 	
