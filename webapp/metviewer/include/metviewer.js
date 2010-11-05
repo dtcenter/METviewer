@@ -74,12 +74,11 @@ var _intNumSeries = 0;
 var _listFmtSeriesDefaults = ["false", "none", "", "20", "b", "1", "1", "1", ""];
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Administration/Utility Functions
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * When the page loads, perform the initialization duties including setting
@@ -479,6 +478,11 @@ function clearControls(){
 	
 	// reset the fixed values
 	while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
+	
+	// reset the agg_stat controls
+	var divAggStat = document.getElementById("divAggStat");
+	divAggStat.getElementsByTagName("input")[0].checked = false;
+	updateAggStat();	
 
 	// reset the indep controls
 	var selIndyVar = document.getElementById("selIndyVar");
@@ -584,12 +588,11 @@ function hex(val){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * AJAX Functions
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Create a request object in a browser-dependent manner
@@ -658,12 +661,11 @@ function sendRequest(reqType, reqData, fnResp){
 function nullResp(strResp){}
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Database Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * When the plot template is switched, toggle the visibility of the Y2 controls
@@ -673,11 +675,12 @@ function updateTmpl(){
 	var boolShowY2 = (null != strTmpl.match( /^series_plot$/ ));
 	document.getElementById("spanY2NA").style.display    	= boolShowY2? "none" : "inline";
 	document.getElementById("divDep2").style.display     	= boolShowY2? "inline" : "none";
-	document.getElementById("divSeries2").style.display  	= boolShowY2? "inline" : "none";
-	document.getElementById("spanAggStatNA").style.display  = boolShowY2? "none" : "inline";
+	document.getElementById("divSeries2").style.display  	= boolShowY2? "inline" : "none";	
+	document.getElementById("divAggStat").getElementsByTagName("input")[0].checked = false;
+	updateAggStat();	
 	document.getElementById("chkAggStat").style.display     = boolShowY2? "inline" : "none";
+	document.getElementById("spanAggStatNA").style.display  = boolShowY2? "none" : "inline";
 	document.getElementById("spanAggStat").style.display    = boolShowY2? "inline" : "none";
-	document.getElementById("tabAggStatParm").style.display = boolShowY2? "inline" : "none";
 	var listFmtAxis = document.getElementById("divFmtAxis").getElementsByTagName("td");
 	listFmtAxis[4].style.display = boolShowY2? "inline" : "none";
 	listFmtAxis[5].style.display = boolShowY2? "inline" : "none";
@@ -717,12 +720,11 @@ function updateDBCon(){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Dependent Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function addDep1(){ addDep(1); }
 function removeDep1Var(intDepId){ removeDepVar(1, intDepId); }
@@ -959,12 +961,11 @@ function getDepDiv(id){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Field Value Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Create a field val div of the specified category and add it to the from and
@@ -1154,12 +1155,11 @@ function moveFieldDown(listDiv, intId){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Series Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add and remove a series1 div and process select requests and
@@ -1214,12 +1214,11 @@ function removeSeriesDiv(intSeries, intId){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Fixed Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add, remove and populate the fixed variable controls
@@ -1255,12 +1254,11 @@ function buildFixCrit(endIndex){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Independent Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Build and run a request for values for the currently selected independent
@@ -1340,12 +1338,11 @@ function indyCheck(boolCheck){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Plot Formatting Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Construct plot formatting controls with the specified label, value and type.
@@ -1684,12 +1681,11 @@ function getPlotDiff(y){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Agg Stat Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Update the agg_stat controls according to the enabled checkbox setting
@@ -1701,12 +1697,11 @@ function updateAggStat(){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Plot Spec Functions
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Contruct the plot spec xml from information selected in the plot controls
@@ -1858,6 +1853,7 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 		
 		// get the selected stats/values and format them
 		var listVal = getSelected( listSel[1] );
+		if( 1 > listVal.length ){ continue; }
 		if( boolDep ){
 			for(j in listVal){ listVal[j] = buildModeStatCode(listVal[j], listDiv[i]); }
 		}
