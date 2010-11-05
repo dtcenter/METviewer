@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00008_20101028_105321.agg_stat.info";
+strInputInfoFile = "data/plot_00005_20101105_150831.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -125,7 +125,7 @@ booter.iid = function(d, i){
 		if( intPerm == nrow(matPerm) & TRUE == boolDiff ){ boolPermDiff = TRUE; }
 
 		# build a dataframe containing the combined sample elements
-		strPerm = paste(matPerm[intPerm,], sep="_", collapse="_");
+		strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
 		if( boolAggCtc ){
 			dfSeriesSums = data.frame(
 				total	= sum( d[i,][[ paste(strPerm, "total", sep="_") ]] ),
@@ -193,7 +193,7 @@ for(strIndyVal in listIndyVal){
 			}
 			
 			# add the contingency table constituents for this series permutation to the boot list
-			strPerm = paste(listPerm, sep="_");
+			strPerm = escapeStr(paste(listPerm, sep="_"));
 			if     ( boolAggCtc )  { listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on"); }
 			else if( boolAggSl1l2 ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar"); }
 			for(strCount in listFields){
