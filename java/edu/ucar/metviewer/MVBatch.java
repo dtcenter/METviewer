@@ -1189,7 +1189,8 @@ public class MVBatch extends MVUtil {
 								fileAggStatOutput.getParentFile().mkdirs();
 								runRscript(job.getRscript(), _strRworkFolder + "include/agg_stat.R", new String[]{strAggStatInfo});
 								
-								if( !fileAggStatOutput.exists() ){ throw new Exception("agg_stat.R failed"); }
+								//if( !fileAggStatOutput.exists() ){ throw new Exception("agg_stat.R failed"); }
+								if( !fileAggStatOutput.exists() ){ return; }
 							}
 		
 							//  if agg_diffN is turned on, add __AGG_DIFFN__ to the plot series

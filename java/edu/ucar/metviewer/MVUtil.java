@@ -421,7 +421,7 @@ public class MVUtil{
 		return sortVals(thresh, true, _patThresh);
 	}
 	
-	public static final Pattern _patThresh = Pattern.compile("([<>=!]{1,2})(\\d+\\.\\d+)");
+	public static final Pattern _patThresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
 	
 	/**
 	 * Sort the list of input levels, according to the first numeric level value. 
