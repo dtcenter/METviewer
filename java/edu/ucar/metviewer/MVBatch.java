@@ -1210,6 +1210,9 @@ public class MVBatch extends MVUtil {
 							//  remove the .agg_stat suffix from the data file
 							strDataFile = strAggStatOutput;
 							
+							//  turn off the event equalizer
+							job.setEventEqual(false);
+							
 						} //  end: if( boolAggStat )
 		
 						

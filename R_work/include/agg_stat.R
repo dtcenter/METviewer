@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00042_20101108_161225.agg_stat.info";
+strInputInfoFile = "data/plot_00059_20101109_102218.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -149,24 +149,24 @@ booter.iid = function(d, i){
 		strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
 		if( boolAggCtc ){
 			dfSeriesSums = data.frame(
-				total	= sum( d[i,][[ paste(strPerm, "total", sep="_") ]] ),
-				fy_oy	= sum( d[i,][[ paste(strPerm, "fy_oy", sep="_") ]] ),
-				fy_on	= sum( d[i,][[ paste(strPerm, "fy_on", sep="_") ]] ),
-				fn_oy	= sum( d[i,][[ paste(strPerm, "fn_oy", sep="_") ]] ),
-				fn_on	= sum( d[i,][[ paste(strPerm, "fn_on", sep="_") ]] )
+				total	= sum( d[i,][[ paste(strPerm, "total", sep="_") ]], na.rm=TRUE ),
+				fy_oy	= sum( d[i,][[ paste(strPerm, "fy_oy", sep="_") ]], na.rm=TRUE ),
+				fy_on	= sum( d[i,][[ paste(strPerm, "fy_on", sep="_") ]], na.rm=TRUE ),
+				fn_oy	= sum( d[i,][[ paste(strPerm, "fn_oy", sep="_") ]], na.rm=TRUE ),
+				fn_on	= sum( d[i,][[ paste(strPerm, "fn_on", sep="_") ]], na.rm=TRUE )
 			);
 		} 
 		
 		else if( boolAggSl1l2 ){
 			listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
-			total		= sum(listTotal);
+			total		= sum(listTotal, na.rm=TRUE);
 			dfSeriesSums = data.frame(
 				total	= total,
-				fbar	= sum( d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal ) / total,
-				obar	= sum( d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal ) / total,
-				fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal ) / total,
-				ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal ) / total,
-				oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal ) / total
+				fbar	= sum( d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
+				obar	= sum( d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
+				fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+				ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+				oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total
 			);
 		}
 		
@@ -225,6 +225,17 @@ for(strIndyVal in listIndyVal){
 			}		
 		}
 
+		# ensure that all count lists have the same length, appending with NAs where necessary
+		intCountLength = -1;
+		for(strCountName in names(listBoot)){
+			if( intCountLength < length(listBoot[[strCountName]]) ){ intCountLength = length(listBoot[[strCountName]]); }
+		}
+		for(strCountName in names(listBoot)){
+			if( intCountLength > length(listBoot[[strCountName]]) ){ 
+				listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(NA, intCountLength - length(listBoot[[strCountName]])) );
+			}
+		}
+		
 		# bootstrap the series data
 		dfBoot = data.frame(listBoot);
 		stBoot = Sys.time();
