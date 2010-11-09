@@ -80,14 +80,17 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff){
 #   and the independent variable values.  It builds a new dataframe which contains the same 
 #   data except for records that don't have corresponding fcst_valid_beg values in each for a each 
 eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
-	
+
 	# convert the dates from strings to POSIXct, and create a unique member to use for equalization
 	if( "fcst_valid_beg" %in% names(dfStats) ){
 		dfStats$fcst_valid_beg = as.POSIXct(dfStats$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
 		dfStats$equalize = paste(dfStats$fcst_valid_beg, dfStats[[strIndyVar]]);
-	} else {
+	} else if( "fcst_valid" %in% names(dfStats) ) {
 		dfStats$fcst_valid = as.POSIXct(dfStats$fcst_valid, format="%Y-%m-%d %H:%M:%S", tz="GMT");
 		dfStats$equalize = paste(dfStats$fcst_valid, dfStats[[strIndyVar]]);
+	} else {
+		cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
+		return( dfStats );
 	}
 
 	# create a list of permutations representing the plot series
@@ -98,7 +101,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 	cat("  event equalization...");
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 	for(strIndyVal in listIndyVal){
-		
+
 		# examine the stats for the current lead time
 		dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
 		if( 1 > nrow(dfIndy) ){ next; }
@@ -107,9 +110,10 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 		listDates = array();
 		listEqualize = array();
 		for(intSeries in 1:nrow(dfSeriesPerm)){
+			dfComp = dfIndy;
 			for(strSeriesVar in names(listSeriesVal)){
 				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
-				dfComp = dfIndy[dfIndy[[strSeriesVar]] == valSeries,];
+				dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
 			}
 
 			# if the list contains repetetive values, throw an error

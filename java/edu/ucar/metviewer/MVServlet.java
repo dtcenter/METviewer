@@ -594,7 +594,7 @@ public class MVServlet extends HttpServlet {
     	} catch(Exception e){
         	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
         	return "<error>" +
-        				"failed to run plot - reason: " + e.getMessage() + 
+        				"failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage() + 
         				(!strRErrorMsg.equals("")? ":\n" + strRErrorMsg : "") + 
         			"</error>";        	
     	}

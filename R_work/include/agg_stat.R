@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00005_20101105_150831.agg_stat.info";
+strInputInfoFile = "data/plot_00042_20101108_161225.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -48,8 +48,12 @@ for(intSeries in 1:intNumSeries){
 	matOut = rbind(matOut, matOutSeries);
 }
 
-# run event equalizer
-dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val);
+# run event equalizer either if requested or automatically if bootstrapping is enabled
+browser();
+if( boolEventEqual || 1 < intNumReplicates ){
+	dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val);
+	if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }	
+}
 
 # build a dataframe (dfOut) to store the bootstrapped statistics
 listOutPerm = list();
@@ -89,22 +93,39 @@ calcPR_CORR		= function(d){
 }
 calcME			= function(d){ return( d$fbar - d$obar ); }
 calcMSE			= function(d){ return( d$ffbar + d$oobar - 2 * d$fobar ); }
+calcRMSE		= function(d){ return( sqrt(calcMSE(d)) ); }
 calcESTDEV		= function(d){ return( calcStdDev( calcME(d) * d$total, calcMSE(d) * d$total, d$total) ); }
 calcBCMSE		= function(d){ return( calcMSE(d) - (d$fbar - d$obar)^2 ); }
-calcRMSE		= function(d){ return( sqrt(calcMSE(d)) ); }
+calcBCRMSE		= function(d){ return( sqrt(calcBCMSE(d)) ); }
 
 
 # CTC stat calculations
+calcBASER		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
+calcACC			= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_on) / d$total ); }             }
+calcFBIAS		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); } }
+calcPODY		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fn_oy) ); }             }
+calcPOFD		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fy_on / (d$fy_on + d$fn_on) ); }             }
+calcPODN		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fn_on / (d$fy_on + d$fn_on) ); }             }
+calcFAR			= function(d){ if( 0 == (d$fy_oy + d$fy_on) )          { return (NA); } else { return( d$fy_on / (d$fy_oy + d$fy_on) ); }             }
+calcCSI			= function(d){ if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){ return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ); }   }
 calcGSS = function(d){
 	if( 0 == d$total ){ return (NA); }
 	dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
 	return( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) );
 }
-calcFBIAS		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); } }
-calcPODY		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fn_oy) ); }             }
-calcFAR			= function(d){ if( 0 == (d$fy_oy + d$fy_on) )          { return (NA); } else { return( d$fy_on / (d$fy_oy + d$fy_on) ); }             }
-calcCSI			= function(d){ if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){ return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ); }   }
-calcBASER		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
+calcCSI = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
+calcHSS = function(d){
+	if( 0 == d$total ){ return (NA); }
+	dblC = ( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) + (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) / d$total;
+	return( (d$fy_oy + d$fy_on - dblC) / (d$total - dblC) );
+}
+calcODDS = function(d){
+	if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
+	dblPOD = calcPODY(d);
+	dblPOFD = caclPOFD(d);	
+	return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
+}
+
 
 # booter function
 booter.iid = function(d, i){
@@ -191,6 +212,7 @@ for(strIndyVal in listIndyVal){
 				strSeriesVal = listPerm[intSeriesVal];
 				dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] == strSeriesVal,];
 			}
+			if( 1 > nrow(dfStatsPerm) ){ next; }
 			
 			# add the contingency table constituents for this series permutation to the boot list
 			strPerm = escapeStr(paste(listPerm, sep="_"));
@@ -198,7 +220,7 @@ for(strIndyVal in listIndyVal){
 			else if( boolAggSl1l2 ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar"); }
 			for(strCount in listFields){
 				listCounts = dfStatsPerm[[strCount]];
-				strCountName = paste(strPerm, strCount, sep="_");
+				strCountName = paste(paste(strPerm, sep = "_", collapse = "_"), strCount, sep = "_", collapse = "_");
 				listBoot[[strCountName]] = listCounts;
 			}		
 		}

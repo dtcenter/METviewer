@@ -1163,10 +1163,11 @@ public class MVBatch extends MVUtil {
 		
 							//  build the map containing tag values for the agg_stat info template
 							Hashtable tableAggStatInfo = new Hashtable();
-							tableAggStatInfo.put("agg_ctc",			job.getAggCtc()?   "TRUE" : "FALSE");
-							tableAggStatInfo.put("agg_sl1l2",		job.getAggSl1l2()? "TRUE" : "FALSE");
-							tableAggStatInfo.put("agg_diff1",		job.getAggDiff1()? "TRUE" : "FALSE");
-							tableAggStatInfo.put("agg_diff2",		job.getAggDiff2()? "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_ctc",			job.getAggCtc()?     "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_sl1l2",		job.getAggSl1l2()?   "TRUE" : "FALSE");
+							tableAggStatInfo.put("event_equal",		job.getEventEqual()? "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_diff1",		job.getAggDiff1()?   "TRUE" : "FALSE");
+							tableAggStatInfo.put("agg_diff2",		job.getAggDiff2()?   "TRUE" : "FALSE");
 							tableAggStatInfo.put("boot_repl",		job.getAggBootRepl());
 							tableAggStatInfo.put("boot_ci",			job.getAggBootCI());
 							tableAggStatInfo.put("ci_alpha",		job.getCIAlpha());
