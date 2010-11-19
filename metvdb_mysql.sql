@@ -1,9 +1,9 @@
 -- This file is intended for MySQL
 
 use mysql;
-DROP DATABASE IF EXISTS metvdb_met_ncep;
-CREATE DATABASE metvdb_met_ncep;
-use metvdb_met_ncep;
+DROP DATABASE IF EXISTS metvdb_v3_test;
+CREATE DATABASE metvdb_v3_test;
+use metvdb_v3_test;
 
 
 -- data_file_type_lu is a look-up table containing information about the different types
@@ -85,8 +85,8 @@ CREATE TABLE stat_header
     vx_mask             VARCHAR(32),
     interp_mthd         VARCHAR(16),
     interp_pnts         INT UNSIGNED,
-    fcst_thresh         VARCHAR(16),
-    obs_thresh          VARCHAR(16),
+    fcst_thresh         VARCHAR(128),
+    obs_thresh          VARCHAR(128),
     PRIMARY KEY (stat_header_id),
     CONSTRAINT stat_header_unique_pk
         UNIQUE INDEX (
@@ -285,7 +285,7 @@ CREATE TABLE line_data_pstd
     total               INT UNSIGNED,
     alpha               DOUBLE,
     n_thresh            INT UNSIGNED,
-   PRIMARY KEY (line_data_id),
+    PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_pstd_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
             REFERENCES stat_header(stat_header_id)
@@ -480,7 +480,8 @@ CREATE TABLE line_data_mpr
     data_file_id        INT UNSIGNED NOT NULL,
     line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-    mp_index            DOUBLE,
+    mp_index            INT UNSIGNED,
+    obs_sid             VARCHAR(32),
     obs_lat             DOUBLE,
     obs_lon             DOUBLE,
     obs_lvl             DOUBLE,
@@ -581,6 +582,59 @@ CREATE TABLE line_data_isc
 );
 
 
+-- line_data_mctc contains stat data for a particular stat_header record, which it points 
+--   at via the stat_header_id field.
+
+CREATE TABLE line_data_mctc
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    stat_header_id      INT UNSIGNED NOT NULL,    
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    total               INT UNSIGNED,
+    n_cat               INT UNSIGNED,
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_mctc_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_mctc_cnt contains count data for a particular line_data_mctc record.  The 
+--   number of counts is determined by assuming a square contingency table and stored in
+--   the line_data_mctc field n_cat.
+
+CREATE TABLE line_data_mctc_cnt
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    j_value             INT UNSIGNED NOT NULL,
+    fi_oj               INT UNSIGNED NOT NULL,
+    CONSTRAINT line_data_mctc_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_mctc(line_data_id)
+);
+
+
+-- line_data_mcts contains stat data for a particular stat_header record, which it points 
+--   at via the stat_header_id field.
+
+CREATE TABLE line_data_mcts
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    stat_header_id      INT UNSIGNED NOT NULL,    
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    total               INT UNSIGNED,
+    alpha               DOUBLE,
+    n_cat               INT UNSIGNED,
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_mcts_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
 -- line_data_rhist contains stat data for a particular stat_header record, which it points 
 --   at via the stat_header_id field.
 
@@ -591,8 +645,6 @@ CREATE TABLE line_data_rhist
     data_file_id        INT UNSIGNED NOT NULL,
     line_num            INT UNSIGNED,
     total               INT UNSIGNED,
-    crps                DOUBLE,
-    ign                 DOUBLE,
     n_rank              INT UNSIGNED,
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_rhist_stat_header_id_pk
@@ -832,6 +884,7 @@ INSERT INTO data_file_lu VALUES (1, 'grid_stat', 'Verification statistics for a 
 INSERT INTO data_file_lu VALUES (2, 'mode_cts', 'Contingency table counts and statistics comparing forecast and observations');
 INSERT INTO data_file_lu VALUES (3, 'mode_obj', 'Attributes for simple objects, merged cluster objects and pairs of objects');
 INSERT INTO data_file_lu VALUES (4, 'wavelet_stat', 'Verification statistics for intensity-scale comparison of forecast and observations');
+INSERT INTO data_file_lu VALUES (5, 'ensemble_stat', 'Ensemble verification statistics');
 
 INSERT INTO line_type_lu VALUES (0, 'FHO', 'Forecast, Hit, Observation line type');
 INSERT INTO line_type_lu VALUES (1, 'CTC', 'Contingency Table Counts line type');
@@ -853,6 +906,10 @@ INSERT INTO line_type_lu VALUES (16, 'ISC', 'Intensity Scale line type for the w
 INSERT INTO line_type_lu VALUES (17, 'MODE_OBJ_SINGLE', 'Mode object line containing data for a single object');
 INSERT INTO line_type_lu VALUES (18, 'MODE_OBJ_PAIR', 'Mode object line containing data for a pair of objects');
 INSERT INTO line_type_lu VALUES (19, 'MODE_CTS', 'Mode CTS line containing contingency table data');
+INSERT INTO line_type_lu VALUES (20, 'MCTC', 'Multi-category Contingency Table Counts line type');
+INSERT INTO line_type_lu VALUES (21, 'MCTS', 'Multi-category Contingency Table Statistics line type');
+INSERT INTO line_type_lu VALUES (22, 'RHIST', 'Ensemble Rank Histogram line type');
+INSERT INTO line_type_lu VALUES (23, 'ORANK', 'Ensemble Observation Rank line type');
 
 INSERT INTO stat_group_lu VALUES(0, 'BASER', 'Base rate including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 2);
 INSERT INTO stat_group_lu VALUES(1, 'FMEAN', 'Forecast mean including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 2);
@@ -904,6 +961,13 @@ INSERT INTO stat_group_lu VALUES(46, 'NBR_HSS', 'Heidke Skill Score including bo
 INSERT INTO stat_group_lu VALUES(47, 'NBR_ODDS', 'Odds Ratio including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 14);
 INSERT INTO stat_group_lu VALUES(48, 'NBR_FBS', 'Fractions Brier Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
 INSERT INTO stat_group_lu VALUES(49, 'NBR_FSS', 'Fractions Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 15);
+INSERT INTO stat_group_lu VALUES(50, 'PSTD_BASER', 'The Base Rate, including normal upper and lower confidence limits', TRUE, FALSE, 5);
+INSERT INTO stat_group_lu VALUES(51, 'MCTS_ACC', 'Accuracy including normal and bootstrap upper and lower confidence limits', TRUE, TRUE, 21);
+INSERT INTO stat_group_lu VALUES(52, 'MCTS_HK', 'Hanssen-Kuipers Discriminant including normal and bootstrap upper and lower confidence limits', FALSE, TRUE, 21);
+INSERT INTO stat_group_lu VALUES(53, 'MCTS_HSS', 'Heidke Skill Score including bootstrap upper and lower confidence limits', FALSE, TRUE, 21);
+INSERT INTO stat_group_lu VALUES(54, 'MCTS_GER', 'Gerrity Score and bootstrap confidence limits', FALSE, TRUE, 21);
+INSERT INTO stat_group_lu VALUES(55, 'CRPS', 'Continuous Ranked Probability Score', FALSE, FALSE, 22);
+INSERT INTO stat_group_lu VALUES(56, 'IGN', 'Ignorance score', FALSE, FALSE, 22);
 
 
 -- metvdb_rev contains information about metvdb revisions, and provides an indicator of
@@ -920,6 +984,7 @@ CREATE TABLE metvdb_rev
 
 INSERT INTO metvdb_rev VALUES (0, '2010-07-29 12:00:00', '0.1', 'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
 INSERT INTO metvdb_rev VALUES (1, '2010-10-14 12:00:00', '0.1', 'Increased web_plot.plot_xml field width to 65536');
+INSERT INTO metvdb_rev VALUES (2, '2010-11-15 12:00:00', '0.3', 'METViewer changes to support out from METv3.0');
 
 
 -- instance_info contains information about the paricular instance of metvdb, including 
