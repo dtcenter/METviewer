@@ -95,6 +95,7 @@ public class MVLoadJobParser extends MVUtil{
 			}
 			
 			//  simple string fields
+			else if( node._tag.equals("met_version") )             { job.setMetVersion           ( node._value );                          }
 			else if( node._tag.equals("insert_size") )             { job.setInsertSize           ( Integer.parseInt(node._value) );        }
 			else if( node._tag.equals("verbose") )                 { job.setVerbose              ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("stat_header_table_check") ) { job.setStatHeaderTableCheck ( node._value.equalsIgnoreCase("true") ); }

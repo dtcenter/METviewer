@@ -8,6 +8,8 @@ import java.text.*;
 
 public class MVLoad extends MVUtil {
 
+	public static String _strMetVersion				= "V2.0";
+
 	public static boolean _boolVerbose				= false;
 	public static int _intInsertSize				= 1;
 	public static boolean _boolStatHeaderTableCheck	= true;
@@ -20,10 +22,10 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolLineTypeLoad			= false;
 	public static Hashtable _tableLineTypeLoad		= new Hashtable();
 
-	public static DecimalFormat _formatPerf		= new DecimalFormat("0.000");
+	public static DecimalFormat _formatPerf			= new DecimalFormat("0.000");
 
-	public static final Pattern _patModeSingle	= Pattern.compile("^(C?[FO]\\d{3})$");
-	public static final Pattern _patModePair	= Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
+	public static final Pattern _patModeSingle		= Pattern.compile("^(C?[FO]\\d{3})$");
+	public static final Pattern _patModePair		= Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
 	
 	public static Hashtable _tableStatHeaders		= new Hashtable(1024);
 	public static Hashtable _tableModeHeaders		= new Hashtable(1024);
@@ -57,13 +59,22 @@ public class MVLoad extends MVUtil {
 		_tableDataFileLU_v2.put("mode_obj",		"3");
 		_tableDataFileLU_v2.put("wavelet_stat",	"4");
 	}
-	public static final Hashtable _tableDataFileLU = _tableDataFileLU_v2;
+	public static final Hashtable _tableDataFileLU_v3 = new Hashtable();
+	static {
+		_tableDataFileLU_v3.put("point_stat",	"0");
+		_tableDataFileLU_v3.put("grid_stat",	"1");
+		_tableDataFileLU_v3.put("mode_cts",		"2");
+		_tableDataFileLU_v3.put("mode_obj",		"3");
+		_tableDataFileLU_v3.put("wavelet_stat",	"4");
+		_tableDataFileLU_v3.put("ensemble_stat","5");
+	}
+	public static Hashtable _tableDataFileLU = _tableDataFileLU_v2;
 	
 	/*
 	 * line type format: 
 	 *   - line_type_lu_id
 	 *   - # line data fields (redundant for lines with stat groups)
-	 *   - (optional) list of stat group field lookup ids
+	 *   - (optional) list of stat group field lookup ids (WARNING: indexes must be listed in increasing order)
 	 *     - with both normal & bootstrap confidence interval
 	 *     - only bootstrap confidence interval
 	 *     - only normal confidence interval
@@ -83,7 +94,7 @@ public class MVLoad extends MVUtil {
 		_tableLineType_v2.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5},	new int[]{} });
 		_tableLineType_v2.put("VL1L2",	new int[][]{ new int[]{10},	new int[]{7},	new int[]{} });
 		_tableLineType_v2.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7},	new int[]{} });
-		_tableLineType_v2.put("MPR",	new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
+		_tableLineType_v2.put("MPR",	new int[][]{ new int[]{12},	new int[]{9},	new int[]{} });
 		_tableLineType_v2.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
 		_tableLineType_v2.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{},	new int[]{} });
 		_tableLineType_v2.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{}, new int[]{} });
@@ -96,24 +107,24 @@ public class MVLoad extends MVUtil {
 		_tableLineType_v3.put("CTS",	new int[][]{ new int[]{2},	new int[]{0},	new int[]{0, 1, 2, 4, 5, 6, 7, 8, 10, 12}, new int[]{3, 9, 11}, new int[]{}, new int[]{} });
 		_tableLineType_v3.put("CNT",	new int[][]{ new int[]{3},	new int[]{5},	new int[]{13, 14, 15, 16, 17, 18, 19}, new int[]{20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, new int[]{}, new int[]{} });
 		_tableLineType_v3.put("PCT",	new int[][]{ new int[]{4},	new int[]{1},	new int[]{} });
-		_tableLineType_v3.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{50, 30}, new int[]{31, 32, 33, 34} });
+		_tableLineType_v3.put("PSTD",	new int[][]{ new int[]{5},	new int[]{1},	new int[]{}, new int[]{}, new int[]{30, 50}, new int[]{31, 32, 33, 34} });
 		_tableLineType_v3.put("PJC",	new int[][]{ new int[]{6},	new int[]{1},	new int[]{} });
 		_tableLineType_v3.put("PRC",	new int[][]{ new int[]{7},	new int[]{1},	new int[]{} });
 		_tableLineType_v3.put("SL1L2",	new int[][]{ new int[]{8},	new int[]{5},	new int[]{} });
 		_tableLineType_v3.put("SAL1L2",	new int[][]{ new int[]{9},	new int[]{5},	new int[]{} });
 		_tableLineType_v3.put("VL1L2",	new int[][]{ new int[]{10},	new int[]{7},	new int[]{} });
 		_tableLineType_v3.put("VAL1L2",	new int[][]{ new int[]{11},	new int[]{7},	new int[]{} });
-		_tableLineType_v3.put("MPR",	new int[][]{ new int[]{12},	new int[]{8},	new int[]{} });
+		_tableLineType_v3.put("MPR",	new int[][]{ new int[]{12},	new int[]{9},	new int[]{} });
 		_tableLineType_v3.put("NBRCTC",	new int[][]{ new int[]{13},	new int[]{4},	new int[]{} });
 		_tableLineType_v3.put("NBRCTS",	new int[][]{ new int[]{14},	new int[]{0},	new int[]{35, 36, 37, 39, 40, 41, 42, 43, 45, 47}, new int[]{38, 44, 46}, new int[]{}, new int[]{} });
 		_tableLineType_v3.put("NBRCNT",	new int[][]{ new int[]{15},	new int[]{0},	new int[]{}, new int[]{48, 49}, new int[]{}, new int[]{} });
 		_tableLineType_v3.put("ISC",	new int[][]{ new int[]{16},	new int[]{10},	new int[]{} });
 		_tableLineType_v3.put("MCTC",	new int[][]{ new int[]{20},	new int[]{1},	new int[]{} });
 		_tableLineType_v3.put("MCTS",	new int[][]{ new int[]{21},	new int[]{1},	new int[]{51}, new int[]{52, 53, 54}, new int[]{}, new int[]{} });
-		_tableLineType_v3.put("RHIST",	new int[][]{ new int[]{22},	new int[]{3},	new int[]{} });
+		_tableLineType_v3.put("RHIST",	new int[][]{ new int[]{22},	new int[]{1},	new int[]{}, new int[]{}, new int[]{}, new int[]{55, 56} });
 		_tableLineType_v3.put("ORANK",	new int[][]{ new int[]{23},	new int[]{11},	new int[]{} });
 	}
-	public static final Hashtable _tableLineType = _tableLineType_v2;
+	public static Hashtable _tableLineType = _tableLineType_v2;
 	
 
 	/*
@@ -140,36 +151,54 @@ public class MVLoad extends MVUtil {
 		_tableStatGroupIndices_v3.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
 		_tableStatGroupIndices_v3.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
 		_tableStatGroupIndices_v3.put("MCTS",	new int[][]{ new int[]{22}, new int[]{23}, new int[]{28, 31, 34}, new int[]{}, new int[]{} });
+		_tableStatGroupIndices_v3.put("RHIST",	new int[][]{ new int[]{25}, new int[]{}, new int[]{}, new int[]{}, new int[]{22, 23} });
 	}
-	public static final Hashtable _tableStatGroupIndices = _tableStatGroupIndices_v2; 
+	public static Hashtable _tableStatGroupIndices = _tableStatGroupIndices_v2; 
 
 	/*
-	 * thresh group data indices for probabilistic line data
-	 *   - index of first repeating probabilistic fields
+	 * variable length group data indices for lines with an arbitrary number of fields
+	 *   - index of field containing number of sets
+	 *   - index of first repeating field(s)
 	 *   - number of fields in each repeating set
 	 */
-	public static final String[] _listThreshType_v2 = {"PCT", "PSTD", "PJC", "PRC"};
-	public static final String[] _listThreshType = _listThreshType_v2;
-	
-	public static final Hashtable _tableThreshGroupIndices_v2 = new Hashtable();
+	public static final Hashtable _tableVarLengthTable_v2 = new Hashtable();
 	static {			
-		_tableThreshGroupIndices_v2.put("PCT",  new int[]{23, 3});
-		_tableThreshGroupIndices_v2.put("PSTD", new int[]{31, 1});
-		_tableThreshGroupIndices_v2.put("PJC",	new int[]{23, 7});
-		_tableThreshGroupIndices_v2.put("PRC",  new int[]{23, 3});
+		_tableVarLengthTable_v2.put("PCT",   "line_data_pct_thresh");
+		_tableVarLengthTable_v2.put("PSTD",  "line_data_pstd_thresh");
+		_tableVarLengthTable_v2.put("PJC",   "line_data_pjc_thresh");
+		_tableVarLengthTable_v2.put("PRC",   "line_data_prc_thresh");
 	}
-	public static final Hashtable _tableThreshGroupIndices_v3 = new Hashtable();
+	public static final Hashtable _tableVarLengthTable_v3 = new Hashtable();
 	static {			
-		_tableThreshGroupIndices_v3.put("PCT",  new int[]{23, 3});
-		_tableThreshGroupIndices_v3.put("PSTD", new int[]{34, 1});
-		_tableThreshGroupIndices_v3.put("PJC",	new int[]{23, 7});
-		_tableThreshGroupIndices_v3.put("PRC",  new int[]{23, 3});
-		_tableThreshGroupIndices_v3.put("MCTC", new int[]{22, 1});
-		_tableThreshGroupIndices_v3.put("RHIST", new int[]{25, 1});
-		_tableThreshGroupIndices_v3.put("ORANK", new int[]{33, 1});
+		_tableVarLengthTable_v3.put("PCT",   "line_data_pct_thresh");
+		_tableVarLengthTable_v3.put("PSTD",  "line_data_pstd_thresh");
+		_tableVarLengthTable_v3.put("PJC",   "line_data_pjc_thresh");
+		_tableVarLengthTable_v3.put("PRC",   "line_data_prc_thresh");
+		_tableVarLengthTable_v3.put("MCTC",  "line_data_mctc_cnt");
+		_tableVarLengthTable_v3.put("RHIST", "line_data_rhist_rank");
+		_tableVarLengthTable_v3.put("ORANK", "line_data_orank_ens");
 	}
-	public static final Hashtable _tableThreshGroupIndices = _tableThreshGroupIndices_v2;
+	public static Hashtable _tableVarLengthTable = _tableVarLengthTable_v3;
 	
+	public static final Hashtable _tableVarLengthGroupIndices_v2 = new Hashtable();
+	static {			
+		_tableVarLengthGroupIndices_v2.put("PCT",  new int[]{22, 23, 3});
+		_tableVarLengthGroupIndices_v2.put("PSTD", new int[]{22, 30, 1});
+		_tableVarLengthGroupIndices_v2.put("PJC",	new int[]{22, 23, 7});
+		_tableVarLengthGroupIndices_v2.put("PRC",  new int[]{22, 23, 3});
+	}
+	public static final Hashtable _tableVarLengthGroupIndices_v3 = new Hashtable();
+	static {			
+		_tableVarLengthGroupIndices_v3.put("PCT",  new int[]{22, 23, 3});
+		_tableVarLengthGroupIndices_v3.put("PSTD", new int[]{22, 33, 1});
+		_tableVarLengthGroupIndices_v3.put("PJC",	new int[]{22, 23, 7});
+		_tableVarLengthGroupIndices_v3.put("PRC",  new int[]{22, 23, 3});
+		_tableVarLengthGroupIndices_v3.put("MCTC", new int[]{22, 23, 1});
+		_tableVarLengthGroupIndices_v3.put("RHIST", new int[]{24, 25, 1});
+		_tableVarLengthGroupIndices_v3.put("ORANK", new int[]{32, 33, 1});
+	}
+	public static Hashtable _tableVarLengthGroupIndices = _tableVarLengthGroupIndices_v2;
+		
 	public static void main(String[] argv) {
 		System.out.println("----  MVLoad  ----\n");
 		Connection con = null;
@@ -203,7 +232,9 @@ public class MVLoad extends MVUtil {
 					   		   "      host: " + job.getDBHost() + "\n" +
 					   		   "  database: " + job.getDBName() + "\n" +
 					   		   "      user: " + job.getDBUser() + "\n" +
-					   		   "  password: " + job.getDBPassword() + "\n");							   
+					   		   "  password: " + job.getDBPassword() + "\n");
+			
+			_strMetVersion				= job.getMetVersion();
 			
 			_boolVerbose				= job.getVerbose();
 			_intInsertSize				= job.getInsertSize();
@@ -215,8 +246,26 @@ public class MVLoad extends MVUtil {
 			
 			_boolLineTypeLoad			= job.getLineTypeLoad();
 			_tableLineTypeLoad			= job.getLineTypeLoadMap();
+			
+			//  set the database schema structure information according to the MET version
+			if( _strMetVersion.equals("V2.0") ){
+				_tableDataFileLU            = _tableDataFileLU_v2;
+				_tableLineType              = _tableLineType_v2;
+				_tableStatGroupIndices      = _tableStatGroupIndices_v2; 
+				_tableVarLengthTable        = _tableVarLengthTable_v2;
+				_tableVarLengthGroupIndices = _tableVarLengthGroupIndices_v2;
+			} else if( _strMetVersion.equals("V3.0") ){
+				_tableDataFileLU            = _tableDataFileLU_v3;
+				_tableLineType              = _tableLineType_v3;
+				_tableStatGroupIndices      = _tableStatGroupIndices_v3; 
+				_tableVarLengthTable        = _tableVarLengthTable_v3;
+				_tableVarLengthGroupIndices = _tableVarLengthGroupIndices_v3;
+			} else {
+				throw new Exception("ERROR: MET output version " + _strMetVersion + " not supported");
+			}
+
 						
-			// if the insert size is greater than 1, ensure that the db header check is off
+			//  if the insert size is greater than 1, ensure that the db header check is off
 			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){
 				throw new Exception("METViewer load error: insert size (" + _intInsertSize + ") > 1 and database header check turned on");
 			}
@@ -348,7 +397,8 @@ public class MVLoad extends MVUtil {
 		System.out.println("  " + info._dataFilePath + "/" + info._dataFileFilename + 
 							(_boolVerbose? "\n" + padBegin("data file time: ", 36) + formatTimeSpan(intProcessDataFileTime) : ""));
 		
-		if( info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ){
+		if( info._dataFileLuTypeName.equals("point_stat")   || info._dataFileLuTypeName.equals("grid_stat") ||
+			info._dataFileLuTypeName.equals("wavelet_stat") || info._dataFileLuTypeName.equals("ensemble_stat") ){
 			loadStatFile(info, con);
 			_intNumStatFiles++;
 		} else if( info._dataFileLuTypeName.equals("mode_obj") || info._dataFileLuTypeName.equals("mode_cts") ){
@@ -371,12 +421,12 @@ public class MVLoad extends MVUtil {
 
 		//  data structures for storing value strings
 		MVLoadStatInsertData d = new MVLoadStatInsertData();
-		d._con = con;
-		d._tableThreshValues.put("PCT", new ArrayList());
-		d._tableThreshValues.put("PSTD", new ArrayList());
-		d._tableThreshValues.put("PJC", new ArrayList());
-		d._tableThreshValues.put("PRC", new ArrayList());
-		
+		d._con = con;		
+		String[] listVarLengthKeys = (String[])_tableVarLengthGroupIndices.keySet().toArray(new String[]{});
+		for(int i=0; i < listVarLengthKeys.length; i++){
+			d._tableVarLengthValues.put(listVarLengthKeys[i], new ArrayList());
+		}
+
 		//  performance counters
 		long intStatHeaderLoadStart = (new java.util.Date()).getTime();
 		long intStatHeaderSearchTime = 0;
@@ -406,6 +456,12 @@ public class MVLoad extends MVUtil {
 			if( 1 > listToken.length || listToken[0].equals("VERSION") ){
 				intLine++;
 				continue;
+			}
+			
+			//  error if the version number does not match the configured value
+			String strMetVersion = listToken[0];
+			if( !strMetVersion.equals(_strMetVersion) ){
+				throw new Exception("ERROR: file MET version " + strMetVersion + " does not match configured value " + _strMetVersion);
 			}
 			
 			//  if the line type load selector is activated, check that the current line type is on the list
@@ -442,11 +498,16 @@ public class MVLoad extends MVUtil {
 			java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
 			String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
 			
+			//  ensure that the interp_pnts field value is a reasonable integer 
+			String strInterpPnts = listToken[15];
+			if( strInterpPnts.equals("NA") ){ strInterpPnts = "0"; }
+			
+			
 			/*
 			 * * * *  stat_header insert  * * * *
 			 */
 			
-			//  build the stat_header value list for this line
+			//  build the stat_header value list for this line			
 			String strStatHeaderValueList =
 					"'" + listToken[0] + "', " +		//  version
 					"'" + listToken[1] + "', " +		//  model
@@ -464,7 +525,7 @@ public class MVLoad extends MVUtil {
 					"'" + listToken[12] + "', " +		//  obtype
 					"'" + listToken[13] + "', " +		//  vx_mask
 					"'" + listToken[14] + "', " +		//  interp_mthd
-					listToken[15] + ", " +				//  interp_pnts
+					strInterpPnts + ", " +				//  interp_pnts
 					"'" + listToken[16] + "', " +		//  fcst_thresh
 					"'" + listToken[17] + "'";			//  obs_thresh
 
@@ -486,7 +547,7 @@ public class MVLoad extends MVUtil {
 					"  AND obtype = '" +			listToken[12] + "'\n" +
 					"  AND vx_mask = '" +			listToken[13] + "'\n" +
 					"  AND interp_mthd = '" +		listToken[14] + "'\n" +
-					"  AND interp_pnts = " +		listToken[15] + "\n" +
+					"  AND interp_pnts = " +		strInterpPnts + "\n" +
 					"  AND fcst_thresh = '" +		listToken[16] + "'\n" +
 					"  AND obs_thresh = '" +		listToken[17] + "'";
 			
@@ -540,9 +601,9 @@ public class MVLoad extends MVUtil {
 			int[][] listLineTypeInfo = (int[][])_tableLineType.get(d._strLineType);
 			int intNumLineDataFields = listLineTypeInfo[1][0];
 			boolean boolHasStatGroups = _tableStatGroupIndices.containsKey(d._strLineType);
-			boolean boolHasThreshGroups = _tableThreshGroupIndices.containsKey(d._strLineType);
+			boolean boolHasVarLengthGroups = _tableVarLengthGroupIndices.containsKey(d._strLineType);
 			int[][] listStatGroupIndices = null;
-			int[] listThreshGroupIndices = null;
+			int[] listVarLengthGroupIndices = null;
 			int[] listLineDataIndices = null;
 			
 			String strLineDataValueList = "" +
@@ -582,7 +643,7 @@ public class MVLoad extends MVUtil {
 			
 			//  add the appropriate fields for the line data insert
 			for(int i=0; i < listLineDataIndices.length; i++){
-				strLineDataValueList += (0 == i? "" : ", ") + replaceInvalidValues(listToken[ listLineDataIndices[i] ]);
+				strLineDataValueList += (0 == i? "" : ", ") + "'" + replaceInvalidValues(listToken[ listLineDataIndices[i] ]) + "'";
 			}
 			
 			//  add the values list to the line type values map
@@ -661,9 +722,9 @@ public class MVLoad extends MVUtil {
 					//  if the stat value is legit, add it to the insert
 					if( !strStatValue.equalsIgnoreCase("NA") && !strStatValue.equalsIgnoreCase("nan") ){
 						d._listStatGroupInsertValues.add("(" + strStatGroupInsertValues + ")");
+						intStatGroupRecords++;
 					}
 				}
-				intStatGroupRecords++;
 			}
 			
 			
@@ -671,26 +732,40 @@ public class MVLoad extends MVUtil {
 			 * * * *  thresh_group insert  * * * *
 			 */
 			
-			if( boolHasThreshGroups ){
+			if( boolHasVarLengthGroups ){
 				
 				//  get the index information about the current line type
-				listThreshGroupIndices = (int[])_tableThreshGroupIndices.get(d._strLineType);
-				int intGroupIndex = listThreshGroupIndices[0];
-				int intGroupSize = listThreshGroupIndices[1];
-				int intNumGroups = Integer.parseInt(listToken[22]) - 1;
-				ArrayList listThreshValues = (ArrayList)d._tableThreshValues.get(d._strLineType);
+				listVarLengthGroupIndices = (int[])_tableVarLengthGroupIndices.get(d._strLineType);
+				int intGroupCntIndex = listVarLengthGroupIndices[0];
+				int intGroupIndex = listVarLengthGroupIndices[1];
+				int intGroupSize = listVarLengthGroupIndices[2];
+				int intNumGroups = Integer.parseInt(listToken[intGroupCntIndex]);
+				if( d._strLineType.equals("PCT") || d._strLineType.equals("PJC") || d._strLineType.equals("PRC") ){
+					intNumGroups -= 1;
+				}
+				ArrayList listThreshValues = (ArrayList)d._tableVarLengthValues.get(d._strLineType);
 			
 				//  build a insert value statement for each threshold group
-				for(int i=0; i < intNumGroups; i++){
-					String strThreshValues = "(" + intLineDataId + ", " + (i+1);
-					for(int j=0; j < intGroupSize; j++){
-						strThreshValues += ", " + replaceInvalidValues( listToken[intGroupIndex++] );
+				if( d._strLineType.equals("MCTC") ){
+					for(int i=0; i < intNumGroups; i++){
+						for(int j=0; j < intNumGroups; j++){
+							listThreshValues.add("(" + intLineDataId + ", " + (i+1) + ", " + (j+1) + ", " + 
+												 replaceInvalidValues( listToken[intGroupIndex++] ) + ")");
+							intThreshRecords++;
+						}
 					}
-					strThreshValues += ")";
-					listThreshValues.add(strThreshValues);
-					intThreshRecords++;
+				} else {
+					for(int i=0; i < intNumGroups; i++){
+						String strThreshValues = "(" + intLineDataId + ", " + (i+1);
+						for(int j=0; j < intGroupSize; j++){
+							strThreshValues += ", " + replaceInvalidValues( listToken[intGroupIndex++] );
+						}
+						strThreshValues += ")";
+						listThreshValues.add(strThreshValues);
+						intThreshRecords++;
+					}
 				}
-				d._tableThreshValues.put(d._strLineType, listThreshValues);				
+				d._tableVarLengthValues.put(d._strLineType, listThreshValues);				
 			}
 						
 			//  if the insert threshhold has been reached, commit the stored data to the database 
@@ -757,7 +832,7 @@ public class MVLoad extends MVUtil {
 		public ArrayList	_listInsertValues			= new ArrayList(); 
 		public Hashtable	_tableLineDataValues		= new Hashtable();
 		public ArrayList	_listStatGroupInsertValues	= new ArrayList();
-		public Hashtable	_tableThreshValues			= new Hashtable();
+		public Hashtable	_tableVarLengthValues		= new Hashtable();
 		public String		_strLineType				= "";
 		public String		_strFileLine				= "";
 	}
@@ -823,7 +898,7 @@ public class MVLoad extends MVUtil {
 		
 			//  build and execute the line data insert statement
 			String strLineDataTable = "line_data_" + d._strLineType.toLowerCase();
-			String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + strValueList + ";";	
+			String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + strValueList + ";";
 			int intResLineDataInsert = executeUpdate(d._con, strLineDataInsert);
 			if( listValues.size() != intResLineDataInsert ){ System.out.println("  **  WARNING: unexpected result from line_data INSERT: " + 
 																				intResLineDataInsert + "\n        " + d._strFileLine); }
@@ -853,26 +928,27 @@ public class MVLoad extends MVUtil {
 		d._listStatGroupInsertValues.clear();
 		
 		/*
-		 * * * *  thresh_group commit  * * * * 
+		 * * * *  variable length data commit  * * * * 
 		 */
 		
 		//  insert probabilistic data into the thresh tables
-		String[] listThreshTypes = (String[])d._tableThreshValues.keySet().toArray(new String[]{});
-		for(int i=0; i < listThreshTypes.length; i++){
-			String[] listThreshValues = toArray( (ArrayList)d._tableThreshValues.get(listThreshTypes[i]) );
-			if( 1 > listThreshValues.length ){ continue; }
-			String strThreshInsert = "INSERT INTO line_data_" + listThreshTypes[i].toLowerCase() + "_thresh VALUES ";
-			for(int j=0; j < listThreshValues.length; j++){
-				strThreshInsert += (0 < j? ", " : "") + listThreshValues[j];
+		String[] listVarLengthTypes = (String[])d._tableVarLengthValues.keySet().toArray(new String[]{});
+		for(int i=0; i < listVarLengthTypes.length; i++){
+			String[] listVarLengthValues = toArray( (ArrayList)d._tableVarLengthValues.get(listVarLengthTypes[i]) );
+			if( 1 > listVarLengthValues.length ){ continue; }
+			String strVarLengthTable = _tableVarLengthTable.get(listVarLengthTypes[i]).toString();
+			String strThreshInsert = "INSERT INTO " + strVarLengthTable + " VALUES ";
+			for(int j=0; j < listVarLengthValues.length; j++){
+				strThreshInsert += (0 < j? ", " : "") + listVarLengthValues[j];
 				listInserts[INDEX_THRESH]++; //  intThreshInserts++;
 			}
 			int intThreshInsert = executeUpdate(d._con, strThreshInsert);
-			if( listThreshValues.length != intThreshInsert ){
+			if( listVarLengthValues.length != intThreshInsert ){
 				System.out.println("  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " + 
-								   listThreshValues.length + "\n        " + d._strFileLine);
+								   listVarLengthValues.length + "\n        " + d._strFileLine);
 			}
 			// listInserts[INDEX_THRESH]++; //  intThreshInserts++;
-			d._tableThreshValues.put(listThreshTypes[i], new ArrayList());
+			d._tableVarLengthValues.put(listVarLengthTypes[i], new ArrayList());
 		}
 		
 		return listInserts;
@@ -1162,7 +1238,9 @@ public class MVLoad extends MVUtil {
 		return intRes;
 	}
 	
-    public static String replaceInvalidValues(String strData){ return strData.replace("NA", "-9999").replace("nan", "-9999"); }
+    public static String replaceInvalidValues(String strData){
+    	return strData.replace("NA", "-9999").replace("nan", "-9999");
+    }
 	
     /**
      * Build and execute a query that retrieves the next table record id, whose name is specified by the input field,
@@ -1229,11 +1307,12 @@ public class MVLoad extends MVUtil {
 		String strModDate = _formatDB.format(cal.getTime());
 
 		// determine the type of the input data file by parsing the filename
-		if( strFile.matches("^point_stat.*") )				{ strDataFileLuTypeName = "point_stat";   }
-		else if( strFile.matches("^grid_stat.*") )			{ strDataFileLuTypeName = "grid_stat";    }
-		else if( strFile.matches("^wavelet_stat.*") )		{ strDataFileLuTypeName = "wavelet_stat"; }
-		else if( strFile.matches("^mode_\\S+_obj\\.txt$") )	{ strDataFileLuTypeName = "mode_obj";     }
-		else if( strFile.matches("^mode_\\S+_cts\\.txt$") )	{ strDataFileLuTypeName = "mode_cts";     }
+		if     ( strFile.matches("^point_stat.*") )			{ strDataFileLuTypeName = "point_stat";    }
+		else if( strFile.matches("^grid_stat.*") )			{ strDataFileLuTypeName = "grid_stat";     }
+		else if( strFile.matches("^wavelet_stat.*") )		{ strDataFileLuTypeName = "wavelet_stat";  }
+		else if( strFile.matches("^mode_\\S+_obj\\.txt$") )	{ strDataFileLuTypeName = "mode_obj";      }
+		else if( strFile.matches("^mode_\\S+_cts\\.txt$") )	{ strDataFileLuTypeName = "mode_cts";      }
+		else if( strFile.matches("^ensemble_stat.*") )		{ strDataFileLuTypeName = "ensemble_stat"; }
 		//else{ throw new Exception("processDataFile() - could not determine file type of " + strFile); }
 		else{
 			//System.out.println("  **  WARNING: could not determine file type of "	+ strFile);
@@ -1311,6 +1390,7 @@ public class MVLoad extends MVUtil {
 		_tableAlphaLineTypes.put("PSTD", new Boolean(true));
 		_tableAlphaLineTypes.put("NBRCTS", new Boolean(true));
 		_tableAlphaLineTypes.put("NBRCNT", new Boolean(true));
+		_tableAlphaLineTypes.put("MCTS", new Boolean(true));
 	}
 
 	public static Hashtable _tableCovThreshLineTypes = new Hashtable();

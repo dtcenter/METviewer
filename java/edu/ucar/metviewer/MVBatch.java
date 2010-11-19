@@ -1404,6 +1404,130 @@ public class MVBatch extends MVUtil {
 		} // end: for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++)
 
 	}
+	
+	public void runRhistJob(MVPlotJob job) throws Exception {
+		
+		//  build a list of fixed value permutations for all plots
+		MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
+		MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
+		if( 0 < mapPlotFixVal.size() ){
+			MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
+			listPlotFixPerm = tabPlotFixPerm.getRows();
+		}
+
+		//  run the plot jobs once for each permutation of plot fixed values
+		MVOrderedMap mapTmplVals = job.getTmplVal();
+		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
+			Map.Entry[] listPlotFixVal = listPlotFixPerm[intPlotFix].getOrderedEntries();
+			
+			//  add the fixed values to the template value map, and insert set values for this permutation
+			for(int i=0; i < listPlotFixVal.length; i++){
+				String strFixVar = listPlotFixVal[i].getKey().toString();
+				String strFixVal = listPlotFixVal[i].getValue().toString();
+				MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
+				if( null != mapTmpl && mapTmpl.containsKey(strFixVal) ){
+					strFixVal = mapTmpl.getStr(strFixVal);
+				} else { 
+					Matcher matDateRange = _patDateRange.matcher(strFixVal);
+					if( matDateRange.matches() ){
+						strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
+					}
+				}
+				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
+				
+			}
+			
+			//  replace fixed value set names with their value maps
+			ArrayList listPlotFixValAdj = new ArrayList();
+			for(int i=0; i < listPlotFixVal.length; i++){
+				String strFixVar = listPlotFixVal[i].getKey().toString();
+				if( !strFixVar.endsWith("_set") ){
+					listPlotFixValAdj.add(listPlotFixVal[i]);
+					continue;
+				}
+				
+				String strFixVarAdj = strFixVar.replaceAll("_set$", "");
+				MVOrderedMap mapFixSet = (MVOrderedMap)mapPlotFixVal.get( strFixVarAdj );
+				listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet) );
+			}
+			listPlotFixVal = (Map.Entry[])listPlotFixValAdj.toArray(new Map.Entry[]{});
+			
+			
+			//  ...
+			
+			//  START NEW
+			String strWhere = "";
+
+			Map.Entry[] listAggVal = new Map.Entry[]{};
+			boolean boolModePlot = false;
+			//  END NEW			
+			
+			//  build the aggregate fields where clause
+			Map.Entry[] listFixAggFields = append(listAggVal, listPlotFixVal);
+			for(int i=0; i < listFixAggFields.length; i++){
+				String strField = (String)listFixAggFields[i].getKey();
+				String strCondition = "";
+				Object objValue = listFixAggFields[i].getValue();
+				if( objValue instanceof String[] ){
+					strCondition = "IN (" + buildValueList( (String[])objValue ) + ")";
+				} else if( objValue instanceof MVOrderedMap ){
+					Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();
+					for(int j=0; j < listSets.length; j++){
+						strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
+					}
+					strCondition = "IN (" + strCondition + ")";
+				} else if( objValue instanceof String ){
+					if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
+					else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
+				}
+				strWhere += "  " + (0 < i? "AND " : "") + formatField(strField, boolModePlot) + " " + strCondition + "\n";
+			}
+			
+			//  START NEW
+			String strPlotDataSelect = 
+				"SELECT\n" +
+				"  ldrr.i_value,\n" +
+				"  SUM(ldrr.rank_i)\n" +
+				"FROM\n" +
+				"  stat_header h,\n" +
+				"  line_data_rhist ldr,\n" +
+				"  line_data_rhist_rank ldrr\n" +
+				"WHERE\n" +
+				strWhere +
+				"  h.stat_header_id = ldr.stat_header_id\n" +
+				"  AND ldr.line_data_id = ldrr.line_data_id\n" +
+				"GROUP BY i_value;";
+
+			if( _boolVerbose ){ _out.println(strPlotDataSelect); }
+			if( _boolSQLOnly ){ return; }
+
+			Statement stmt = null;
+						
+			MVOrderedMap mapPlotTmplVals = new MVOrderedMap( mapTmplVals );
+
+
+			/*
+			 *  Print the data file in the R_work subfolder and file specified by the data file template
+			 */
+			
+			//  construct the file system paths for the files used to build the plot 
+			_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
+			_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
+			_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
+			String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			//NEW if( boolAggStat ){ strDataFile = strDataFile + ".agg_stat"; }
+			(new File(strDataFile)).getParentFile().mkdirs();
+
+			//  get the data for the current plot from the plot_data temp table and write it to a data file
+			stmt = job.getConnection().createStatement();
+			//NEW String strPlotDataSelect = "SELECT\n" + strSelectList + "\nFROM plot_data;";
+			//NEW if( _boolVerbose ){ _out.println(strPlotDataSelect); }
+			stmt.execute(strPlotDataSelect);
+			printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
+			stmt.close();
+			
+		}		
+	}
 		
 	/**
 	 * Populate the template tags in the input template file named tmpl with values from the input
