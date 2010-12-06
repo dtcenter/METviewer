@@ -136,7 +136,7 @@ public class MVOrderedMap extends Hashtable {
 	 * Accessor for the ordered keys contained in the table
 	 * @return The ordered keys
 	 */
-	public String[] keyList(){
+	public String[] getKeyList(){
 		return (String[])_listKeys.toArray(new String[]{});
 	}
 	

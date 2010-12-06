@@ -31,7 +31,7 @@ public class MVServlet extends HttpServlet {
 	
 	public static Hashtable _tableDBConnection = new Hashtable();
 	
-	public static boolean _boolListValCache = true;
+	public static boolean _boolListValCache = false;
 	public static Hashtable _tableListValCache = new Hashtable();
 	public static boolean _boolListStatCache = true;
 	public static Hashtable _tableListStatCache = new Hashtable();
@@ -331,7 +331,6 @@ public class MVServlet extends HttpServlet {
     	strResp += "<id>" + strId + "</id>";
     	
     	//  check the list val cache for the request data
-    	//String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody;
     	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
     	if( _boolListValCache && _tableListValCache.containsKey(strCacheKey) ){
     		String strListVal = _tableListValCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
@@ -339,11 +338,18 @@ public class MVServlet extends HttpServlet {
     		return strListVal;
     	}
     	
+    	//  determine if the requested field is n_rank and format accordingly
+    	String strField = strHeaderField.toLowerCase();
+    	boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
+    	
     	//  parse the list of constraints into a SQL where clause
     	String strWhere = "";
     	for(int i=2; i < nodeCall._children.length; i++){
+    		if( 2 == i ){ strWhere = "WHERE "; } 
     		MVNode nodeField = nodeCall._children[i];
-    		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode).replaceAll("h\\.", "");
+    		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode);
+    		if( !boolNRank ){ strFieldDBCrit = strFieldDBCrit.replaceAll("h\\.", ""); }
+    		if( -1 != strFieldDBCrit.indexOf("n_rank") ){ continue; }
     		String strSQLOp = "IN";
     		String strValList = "";
     		for(int j=0; j < nodeField._children.length; j++){
@@ -351,14 +357,22 @@ public class MVServlet extends HttpServlet {
     			if( strVal.contains("*") ){ strSQLOp = "LIKE"; }
     			strValList += (0 < j? ", " : "") + "'" + strVal.replace("*", "%") + "'";
     		}
-    		strWhere += (2 < i? "AND " : "WHERE ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ") ";
+    		strWhere += (2 < i? "AND " : "") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ") ";
     	}
 		
 		//  build a query for the values and execute it
-    	String strField = strHeaderField.toLowerCase();
-		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
+    	String strSQL = "";
+    	if( boolNRank ){
+    		strSQL = "SELECT DISTINCT ldr.n_rank " +
+    				 "FROM stat_header h, line_data_rhist ldr " + 
+    				 strWhere + (strWhere.equals("")? "WHERE" : " AND") + " ldr.stat_header_id = h.stat_header_id " + 
+    				 "ORDER BY ldr.n_rank;";
+    	} else {
+    		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
+    		strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + "ORDER BY " + strFieldDB;
+    	}
+
 		Statement stmt = con.createStatement();
-		String strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + "ORDER BY " + strFieldDB;
 		_logger.debug("handleListVal() - sql: " + strSQL);
 		long intStart = (new java.util.Date()).getTime();
 		stmt.executeQuery(strSQL);
@@ -557,6 +571,7 @@ public class MVServlet extends HttpServlet {
     	//  run the plot job and write the batch output to the log file
     	ByteArrayOutputStream log = new ByteArrayOutputStream();
     	MVBatch bat = new MVBatch( new PrintStream(log) );
+    	String strJobTmpl = job.getPlotTmpl();
 		String strRErrorMsg = "";
     	try{
     		//  configure the batch engine and run the job
@@ -567,7 +582,8 @@ public class MVServlet extends HttpServlet {
     		//  build the job SQL using the batch engine
     		bat._boolSQLOnly = true;
     		bat._boolVerbose = true;
-    		bat.runJob( job );
+			if( strJobTmpl.equals("rhist.R_tmpl") ){ bat.runRhistJob(job); }
+			else                                   { bat.runJob(job);      }
     		bat._boolSQLOnly = false;
     		bat._boolVerbose = false;
     		String strPlotSQL = log.toString();
@@ -580,7 +596,8 @@ public class MVServlet extends HttpServlet {
     		
 			//  run the job to generate the plot
     		//bat._boolVerbose = true;
-    		bat.runJob( job );
+			if( strJobTmpl.equals("rhist.R_tmpl") ){ bat.runRhistJob(job); }
+			else                                   { bat.runJob(job);      }
     		String strPlotterOutput = log.toString();
     		writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".log");
     		writer.write(strPlotterOutput);

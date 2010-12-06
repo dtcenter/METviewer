@@ -7,8 +7,14 @@ var _url;
 var _strDBCon = "";
 var _boolDBStatus = false;
 
+var TMPL_SERIES_PLOT	= 1;
+var TMPL_BAR_PLOT		= 2;
+var TMPL_BOX_PLOT		= 3;
+var TMPL_RHIST			= 4;
+var _intTmpl = TMPL_SERIES_PLOT;
+
 var _intDebugState = 0;
-var _boolDebugDisp = false;
+var _boolDebugDisp = true;
 var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "Indy", "FmtPlot", "FmtSeries", "AggStat"];
 
 var _intDepIdNext = 1;
@@ -49,6 +55,8 @@ var _listStatMode = _listStatModeSingle.concat(_listStatModePair);
 
 var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", 
                     "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
+var _listVarRhist = ["FCST_VAR", "MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", 
+                     "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "N_RANK"];
 var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", 
                     "FCST_RAD", "FCST_THR", "FCST_LEV"];
 var _listVar = _listVarStat;
@@ -56,6 +64,7 @@ var _listVar = _listVarStat;
 var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
+var _listRhistDiv = new Array();
 
 var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "OBS_THRESH", "FCST_VALID_BEG", "VALID_HOUR", 
                         "FCST_INIT_BEG", "INIT_HOUR", "INTERP_PNTS"];
@@ -88,28 +97,28 @@ var _listFmtSeriesDefaults = ["false", "none", "", "20", "b", "1", "1", "1", ""]
 
 function onLoad(){
 	_url = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "servlet";
-	// _url = window.location + "servlet";
 	console("_url: " + _url + "\n\n");
 
 	_boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
 
 	/*
-	 * console("browser codeName: " + navigator.appCodeName + "\n" + "browser
-	 * name: " + navigator.appName + "\n" + "browser version: " +
-	 * navigator.appVersion + "\n" + "cookies enabled: " +
-	 * navigator.cookieEnabled + "\n" + "platform: " + navigator.platform + "\n" +
-	 * "user-agent header: " + navigator.userAgent + "\n" + "IE: " + (_boolIE?
-	 * "true" : "false") + "\n\n");
+	console("browser codeName: " + navigator.appCodeName + "\n" + 
+	        "browser name: " + navigator.appName + "\n" + 
+	        "browser version: " + navigator.appVersion + "\n" + 
+	        "cookies enabled: " + navigator.cookieEnabled + "\n" + 
+	        "platform: " + navigator.platform + "\n" +
+			"user-agent header: " + navigator.userAgent + "\n" + 
+			"IE: " + (_boolIE? "true" : "false") + "\n\n");
 	 */
 	console("load() - IE: " + (_boolIE? "true" : "false") + "\n\n");
 
-	// add a handler to ensure that the Loading... screen tracks with scrolling
+	//  add a handler to ensure that the Loading... screen tracks with scrolling
 	window.onscroll = function(e){ if( _boolDim ){ dimScreen(true); } }
 	
-	// initialize the debug controls
+	//  initialize the debug controls
 	setDebugDisp(_boolDebugDisp);
 
-	// initialize the database list and controls
+	//  initialize the database list and controls
 	var strDBLoad = document.getElementById("spanDBLoad").innerHTML;
 	if( "" == strDBLoad ){
 		listDBReq();
@@ -120,20 +129,20 @@ function onLoad(){
 		listFcstVar1Req(0);
 	}
 
-	// initialize the dep list
+	//  initialize the dep list
 	var divDep0 = document.getElementById("divDep1").getElementsByTagName("div")[0];
 	_listDep1Div.push( divDep0 );
 
-	// initialize the series lists
+	//  initialize the series lists
 	_divFieldVal = document.getElementById("divFieldVal");
 	fillSelect(document.getElementById("selField"), _listVar);
 	addSeries1Div();
 	document.getElementById("lnkRemoveFieldVal0").style.display = "none";
 
-	// initialize the independent variable controls
+	//  initialize the independent variable controls
 	fillSelect(document.getElementById("selIndyVar"), _listIndyVar);
 
-	// initialize the plot format controls
+	//  initialize the plot format controls
 	for(var i=1; i < _intNumFmtPlotCol; i++){
 		var tdFmtPlotBool = document.getElementById("trFmtPlotBool").insertCell(i);
 		tdFmtPlotBool.align = "right";
@@ -145,7 +154,7 @@ function onLoad(){
 		tdFmtPlotTxt.style.width = _strFmtPlotWidth;
 	}
 
-	// add the boolean formatting option controls
+	//  add the boolean formatting option controls
 	addFmtPlot("Event Equalizer",				"event_equal",		"false",		"bool");
 	addFmtPlot("Vertical Levels Plot",			"vert_plot",		"false",		"bool");
 	addFmtPlot("Reverse X Values",				"x_reverse",		"false",		"bool");
@@ -153,15 +162,15 @@ function onLoad(){
 	addFmtPlot("Y2 Series Difference Curve",	"plot2_diff",		"false",		"bool");
 	addFmtPlot("Display Number of Stats",		"num_stats",		"false",		"bool");
 	addFmtPlot("Y1 Stagger Points",				"indy1_stag",		"false",		"bool");
-	// addFmtPlot("Y2 Stagger Points", "indy2_stag", "false", "bool");
+	//  addFmtPlot("Y2 Stagger Points", "indy2_stag", "false", "bool");
 	addFmtPlot("Plot Grid",						"grid_on",			"true",			"bool");
 	addFmtPlot("Synch Y1 and Y2 Ranges",		"sync_axes",		"false",		"bool");
 	addFmtPlot("Print Y1 Series Values",		"dump_points1",		"false",		"bool");
-	// addFmtPlot("Print Y2 Series Values", "dump_points2", "false", "bool");
+	//  addFmtPlot("Print Y2 Series Values", "dump_points2", "false", "bool");
 	addFmtPlot("Y1 Axis Log Scale",				"log_y1",			"false",		"bool");
-	// addFmtPlot("Y2 Axis Log Scale", "log_y2", "false", "bool");
+	//  addFmtPlot("Y2 Axis Log Scale", "log_y2", "false", "bool");
 
-	// add onchange listeners to the plot_diff controls
+	//  add onchange listeners to the plot_diff controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
 	var selBool1 = tabFmtPlot.rows[0].cells[3].getElementsByTagName("select")[0];
 	selBool1.setAttribute("onchange", "javascript:buildSeriesDiv()");
@@ -170,7 +179,7 @@ function onLoad(){
 	selBool2.setAttribute("onchange", "javascript:buildSeriesDiv()");
  	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 
-	// add the text formatting options
+	//  add the text formatting options
 	addFmtPlot("Plot Image Type",				"plot_type",		"png16m",		"txt");
 	addFmtPlot("Plot Height",					"plot_height",		"8.5",			"txt");
 	addFmtPlot("Plot Width",					"plot_width",		"11",			"txt");
@@ -231,11 +240,11 @@ function onLoad(){
 	addFmtPlot("Box Plot Show Avg",				"box_avg",			["FALSE", "TRUE"], "txt");
 	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");
 	
-	// build the series formatting controls
+	//  build the series formatting controls
 	buildSeriesDiv();
 	setFmtSeriesMod(0, "false");
 
-	// update the agg_stat controls
+	//  update the agg_stat controls
 	updateAggStat();
 }
 
@@ -269,7 +278,7 @@ function consoleClear(){ document.getElementById("txtConsole").value = ""; }
  */
 function dimScreen(boolDim){
 
-	// adjust the size and location of the dim screen elements
+	//  adjust the size and location of the dim screen elements
 	var divLoading = document.getElementById("divLoading");
 	var divDimScreen = document.getElementById("divDimScreen");
 	if( !_boolIE ){
@@ -288,7 +297,7 @@ function dimScreen(boolDim){
 	    divDimScreen.style.heigth = document.body.clientHeight;
 	}
 
-	// display the dim screen controls
+	//  display the dim screen controls
 	_boolDim = boolDim;
 	document.title = "METViewer" + (boolDim? " - Loading..." : "");
 	document.getElementById("divDimScreen").style.display = (boolDim? "block" : "none");
@@ -304,15 +313,15 @@ function debugClick(ctrl){
 
 function setDebugDisp(show){
 	
-	// update the visibility of the debug console and test buttons
+	//  update the visibility of the debug console and test buttons
 	document.getElementById("trDebug").style.display = (show? "table-row" : "none");
 	
-	// update the handler for the loading screen
+	//  update the handler for the loading screen
 	var divLoading = document.getElementById("divLoading");
 	divLoading.setAttribute("onclick", (show? "javascript:dimScreen(false)" : ""));
  	if( _boolIE ){ divLoading.attachEvent("onclick", new Function(show? "dimScreen(false)" : "")); }
 	
-	// update the visibility of the Serialize links
+	//  update the visibility of the Serialize links
 	for(var i=0; i < _listLnkSer.length; i++){
 		document.getElementById("lnkSer" + _listLnkSer[i]).style.display = (show? "inline" : "none");
 	}
@@ -434,7 +443,7 @@ function listSearch(val, list){
  */
 function updatePlotData(){
 
-	// update the data members and lists accordingly
+	//  update the data members and lists accordingly
 	var strPlotData = getSelected( document.getElementById("selPlotData") )[0];
 	if( strPlotData == "Stat" ){
 		_strPlotData = "stat";
@@ -455,40 +464,51 @@ function updatePlotData(){
  */
 function clearControls(){
 
-	// reset the dep stat controls
-	var intDepId = _listDep1Div[0].getElementsByTagName("input")[1].value;
-	clearDepStat(intDepId);
-	while( 1 < _listDep1Div.length ){ removeDep1Var(_listDep1Div[1].getElementsByTagName("input")[1].value); }
-	while( 0 < _listDep2Div.length ){ removeDep2Var(_listDep2Div[0].getElementsByTagName("input")[1].value); }
-	listFcstVar1Req(intDepId);
-	_listDep1Div[0].getElementsByTagName("td")[3].style.display = "none";
-	_listDep1Div[0].getElementsByTagName("td")[4].style.display = "none";
-	_listDep1Div[0].getElementsByTagName("td")[5].style.display = "none";
-
-	// reset the series controls
-	while( 0 < _listSeries1Div.length ){ removeSeries1Div( _listSeries1Div[0].getElementsByTagName("input")[1].value); }
-	while( 0 < _listSeries2Div.length ){ removeSeries2Div( _listSeries2Div[0].getElementsByTagName("input")[1].value); }
-
-	// reset the select field variable list
-	var selField = document.getElementById("selField");
-	clearSelect(selField);
-	fillSelect(document.getElementById("selField"), _listVar);
-	addSeries1Div();
-	document.getElementById("lnkRemoveFieldVal0").style.display = "none";
+	//  determine the selected template
+	var strTemplate = getSelected( document.getElementById("selTemplate") )[0];
 	
-	// reset the fixed values
-	while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
-	
-	// reset the agg_stat controls
-	var divAggStat = document.getElementById("divAggStat");
-	divAggStat.getElementsByTagName("input")[0].checked = false;
-	updateAggStat();	
+	if( TMPL_RHIST == _intTmpl ){
 
-	// reset the indep controls
-	var selIndyVar = document.getElementById("selIndyVar");
-	clearSelect(selIndyVar);
-	fillSelect(selIndyVar, _listIndyVar);
-	clearIndyVal();
+		//  reset the fixed values
+		while( 0 < _listRhistDiv.length ){ removeRhistDiv( _listRhistDiv[0].getElementsByTagName("input")[1].value); }
+		
+	} else {
+		
+		//  reset the dep stat controls
+		var intDepId = _listDep1Div[0].getElementsByTagName("input")[1].value;
+		clearDepStat(intDepId);
+		while( 1 < _listDep1Div.length ){ removeDep1Var(_listDep1Div[1].getElementsByTagName("input")[1].value); }
+		while( 0 < _listDep2Div.length ){ removeDep2Var(_listDep2Div[0].getElementsByTagName("input")[1].value); }
+		listFcstVar1Req(intDepId);
+		_listDep1Div[0].getElementsByTagName("td")[3].style.display = "none";
+		_listDep1Div[0].getElementsByTagName("td")[4].style.display = "none";
+		_listDep1Div[0].getElementsByTagName("td")[5].style.display = "none";
+	
+		//  reset the series controls
+		while( 0 < _listSeries1Div.length ){ removeSeries1Div( _listSeries1Div[0].getElementsByTagName("input")[1].value); }
+		while( 0 < _listSeries2Div.length ){ removeSeries2Div( _listSeries2Div[0].getElementsByTagName("input")[1].value); }
+	
+		//  reset the select field variable list
+		var selField = document.getElementById("selField");
+		clearSelect(selField);
+		fillSelect(selField, _listVar);
+		addSeries1Div();
+		document.getElementById("lnkRemoveFieldVal0").style.display = "none";
+		
+		//  reset the fixed values
+		while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
+		
+		//  reset the agg_stat controls
+		var divAggStat = document.getElementById("divAggStat");
+		divAggStat.getElementsByTagName("input")[0].checked = false;
+		updateAggStat();	
+	
+		//  reset the indep controls
+		var selIndyVar = document.getElementById("selIndyVar");
+		clearSelect(selIndyVar);
+		fillSelect(selIndyVar, _listIndyVar);
+		clearIndyVal();
+	}
 }
 
 /**
@@ -615,22 +635,22 @@ function sendRequest(reqType, reqData, fnResp){
 
 	dimScreen(true);
 
-	// add the database connection to the request, if appropriate
+	//  add the database connection to the request, if appropriate
 	if( null == reqData.match( /<list_db\/>/ ) ){ reqData = "<db_con>" + _strDBCon + "</db_con>" + reqData; }
 	console("sendRequest() - request: " + reqData + "\n");
 
-	// set the request to wait until the data is ready
+	//  set the request to wait until the data is ready
 	var strResp = "";
 	var req = getRequest();
 	req.onreadystatechange =
     function() {
 		if (req.readyState == 4) {
 
-			// classify the response type
+			//  classify the response type
 			if (req.status == 200) { strResp = req.responseText; }
 			else                   { strResp = "<error>req.status " + req.status + "</error>"; }
 
-			// dispatch the response
+			//  dispatch the response
 			console("sendRequest() - response: " + strResp + "\n\n");
 			var listParse = strResp.match( /<error>([\s\S]*)<\/error>/ );
 			if( null != listParse ){ alert("METViewer error: " + listParse[1]); }
@@ -641,7 +661,7 @@ function sendRequest(reqType, reqData, fnResp){
 
 	var reqURL = _url + "?date=" + (new Date()).getMilliseconds();
 
-	// send the request in the manner specified
+	//  send the request in the manner specified
     if( reqType == "GET" ){
 		req.open(reqType, reqURL + "&data=" + encodeURI(reqData), true);
 		req.send(null);
@@ -668,25 +688,68 @@ function nullResp(strResp){}
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- * When the plot template is switched, toggle the visibility of the Y2 controls
+ * When the plot template is switched, configure the visibility of the controls
  */
 function updateTmpl(){
+
+	//  update the template type data member 
 	var strTmpl = getSelected( document.getElementById("selTemplate") )[0];
-	var boolShowY2 = (null != strTmpl.match( /^series_plot$/ ));
-	document.getElementById("spanY2NA").style.display    	= boolShowY2? "none" : "inline";
-	document.getElementById("divDep2").style.display     	= boolShowY2? "inline" : "none";
-	document.getElementById("divSeries2").style.display  	= boolShowY2? "inline" : "none";	
+	if     ( null != strTmpl.match( /^series_plot$/ ) ){ _intTmpl = TMPL_SERIES_PLOT; } 
+	else if( null != strTmpl.match( /^bar_plot$/    ) ){ _intTmpl = TMPL_BAR_PLOT;    } 
+	else if( null != strTmpl.match( /^box_plot$/    ) ){ _intTmpl = TMPL_BOX_PLOT;    } 
+	else if( null != strTmpl.match( /^rhist$/       ) ){ _intTmpl = TMPL_RHIST;       } 
+	
+	//  default visibility settings for the series_plot template
+	var boolY1 = true;
+	var boolY2 = true;
+	var boolY2NA = false;
+	var boolFix = true;
+	var boolRhist = false;
+	var boolIndy = true;
+	var boolAggStat = true;
+	var boolAggStatNA = false;
+	
+	//  for box_plot and bar_plot templates, hide the Y2 controls and agg_stat 
+	if( TMPL_BOX_PLOT == _intTmpl || TMPL_BAR_PLOT == _intTmpl ){
+		boolY2NA = true;
+		boolAggStatNA = true;		
+	} else if( TMPL_RHIST == _intTmpl ){
+		boolY1 = false;
+		boolY2 = false;
+		boolFix = false;
+		boolRhist = true;
+		boolIndy = false;
+		boolAggStat = false;
+	}
+	
+	//  configure the visibility of the Y1, Y2, fix and indy controls
+	document.getElementById("tdY1").style.display    		= boolY1?		"table-cell" : "none";
+	document.getElementById("tdY2").style.display    		= boolY2?		"table-cell" : "none";
+	document.getElementById("spanY2NA").style.display    	= boolY2NA?		"inline" : "none";
+	document.getElementById("divDep2").style.display     	= boolY2NA?		"none" : "inline";
+	document.getElementById("divSeries2").style.display  	= boolY2NA?		"none" : "inline";
+	document.getElementById("divFix").style.display    		= boolFix?		"inline" : "none";
+	document.getElementById("divRhist").style.display   	= boolRhist?	"inline" : "none";
+	document.getElementById("tdIndy").style.display    		= boolIndy?		"table-cell" : "none";
+	
+	//  configure the visibility of the agg_stat controls
+	document.getElementById("tdAggStat").style.display		= boolAggStat?	"table-cell" : "none";
 	document.getElementById("divAggStat").getElementsByTagName("input")[0].checked = false;
 	updateAggStat();	
-	document.getElementById("chkAggStat").style.display     = boolShowY2? "inline" : "none";
-	document.getElementById("spanAggStatNA").style.display  = boolShowY2? "none" : "inline";
-	document.getElementById("spanAggStat").style.display    = boolShowY2? "inline" : "none";
+	document.getElementById("spanAggStatNA").style.display  = boolAggStatNA?"inline" : "none";
+	document.getElementById("chkAggStat").style.display     = boolAggStatNA?"none" : "inline";
+	document.getElementById("spanAggStat").style.display    = boolAggStatNA?"none" : "inline";
+	
+	//  configure the visibility of the plot formatting controls
 	var listFmtAxis = document.getElementById("divFmtAxis").getElementsByTagName("td");
-	listFmtAxis[4].style.display = boolShowY2? "inline" : "none";
-	listFmtAxis[5].style.display = boolShowY2? "inline" : "none";
-	listFmtAxis[6].style.display = boolShowY2? "inline" : "none";
-	listFmtAxis[7].style.display = boolShowY2? "inline" : "none";
-	updateAggStat();
+	listFmtAxis[4].style.display							= boolY2NA?		"none" : "inline";
+	listFmtAxis[5].style.display							= boolY2NA?		"none" : "inline";
+	listFmtAxis[6].style.display							= boolY2NA?		"none" : "inline";
+	listFmtAxis[7].style.display							= boolY2NA?		"none" : "inline";
+	
+	if( TMPL_RHIST == _intTmpl ){ buildSeriesDivRhist(); }
+	else                        { buildSeriesDiv(); }
+
 }
 
 /**
@@ -714,7 +777,7 @@ function updateDBCon(){
 	_strDBCon = selDB.options[selDB.selectedIndex].text;
 	console("updateDBCon() - _strDBCon: " + _strDBCon + "\n\n");
 
-	// reset the controls
+	//  reset the controls
 	clearControls();
 	listFcstVar1Req(0);
 }
@@ -744,11 +807,11 @@ function addDep(intY){
 
 	var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
 	
- 	// clone the dependent variable controls
+ 	//  clone the dependent variable controls
  	var intDepId = _intDepIdNext++;
  	var divDep = _listDep1Div[0].cloneNode(true);
 
- 	// update the components of the cloned fixed value controls
+ 	//  update the components of the cloned fixed value controls
  	divDep.id = "divDep" + intDepId;
  	var selFcstVar = divDep.getElementsByTagName("select")[0];
  	selFcstVar.id = "selFcstVar" + intDepId;
@@ -775,14 +838,14 @@ function addDep(intY){
  	divDep.getElementsByTagName("span")[1].style.display = "inline";
  	divDep.getElementsByTagName("input")[1].value = "" + intDepId;
 
- 	// add the new fixed variable value section to the page
+ 	//  add the new fixed variable value section to the page
  	listDepDiv.push(divDep);
 	var divDepParent = document.getElementById("divDep" + intY);
 	var divImgParent = document.getElementById("imgDep" + intY);
 	console("addDep(" + intY + ")\n  divDepParent: " + divDepParent + "\n  divImgParent: " + divImgParent + "\n\n");
  	divDepParent.insertBefore(divDep, divImgParent);
 
- 	// ensure the first remove link is visible
+ 	//  ensure the first remove link is visible
  	listDepDiv[0].getElementsByTagName("span")[1].style.display = "inline";
 }
 
@@ -815,7 +878,7 @@ function listFcstVarReq(intDepId, fnListFcstVarResp){
  */
 function selectFcstVarReq(intId){
 	
-	// query the database for stat_header stats, if appropriate
+	//  query the database for stat_header stats, if appropriate
 	if( _strPlotData == "stat" ){
 		var selFcstVar = document.getElementById("selFcstVar" + intId);
 		sendRequest("POST",
@@ -828,7 +891,7 @@ function selectFcstVarReq(intId){
 					selectFcstVarResp);
 	}
 	
-	// otherwise, use the static list of mode stats
+	//  otherwise, use the static list of mode stats
 	else {
 		var selFcstVar = document.getElementById("selStat" + intId);
 		fillSelect(selFcstVar, _listStatMode);
@@ -837,11 +900,11 @@ function selectFcstVarReq(intId){
 }
 function selectFcstVarResp(strResp){
 
-	// parse the response
+	//  parse the response
 	var resp = parseListValResp(strResp, "stat");
 	if( null == resp ){ return; }
 
-	// populate and display the stats select control
+	//  populate and display the stats select control
 	var selFcstVar = document.getElementById("selStat" + resp.id);
 	fillSelect(selFcstVar, resp.vals);
 	selFcstVar.style.display = "inline";
@@ -853,13 +916,13 @@ function selectFcstVarResp(strResp){
  */
 function buildFcstVarCrit(intY){
 	
-	// determine the list of dep divs to consider
+	//  determine the list of dep divs to consider
 	var listDepDiv;
 	if     ( 1 == intY ){ listDepDiv = _listDep1Div; }
 	else if( 2 == intY ){ listDepDiv = _listDep2Div; }
 	else                { listDepDiv = _listDep1Div.concat(_listDep2Div); }
 	
-	// add the fcst_var from each dep div to the list
+	//  add the fcst_var from each dep div to the list
 	var strFixCrit = "<field name=\"FCST_VAR\">";
 	for(i in listDepDiv){
 		var selFcstVar = listDepDiv[i].getElementsByTagName("select")[0];
@@ -887,7 +950,7 @@ function clearDepStat(intIndex){
 function updateDepStat(id){
 	var divDep = getDepDiv(id);
 
-	// determine the visibility of the mode checkboxes
+	//  determine the visibility of the mode checkboxes
 	var listStatSel = getSelected( divDep.getElementsByTagName("select")[1] );
 	var boolVisMode = "mode" == _strPlotData && 0 < listStatSel.length &&
 					  null == listStatSel[0].match( /^RATIO_.+/ ) && 
@@ -900,38 +963,19 @@ function updateDepStat(id){
 	var boolVisSC = boolVisMode && !boolAcov;
 	var boolVisMU = boolVisMode && !boolAcov;
 
-	// toggle the visibility of the checkbox table cells
+	//  toggle the visibility of the checkbox table cells
 	divDep.getElementsByTagName("span")[0].style.display = boolVisMode?		"inline" : "none";	
 	divDep.getElementsByTagName("td")[3].style.display = boolVisFO?			"table-cell" : "none";
 	divDep.getElementsByTagName("td")[4].style.display = boolVisSC?			"table-cell" : "none";
 	divDep.getElementsByTagName("td")[5].style.display = boolVisMU?			"table-cell" : "none";
 	
-	// change the state of the Difference checkbox, if appropriate
+	//  change the state of the Difference checkbox, if appropriate
 	divDep.getElementsByTagName("input")[2].disabled = !boolVisFODif;
 	if( !boolVisFODif ){
 		divDep.getElementsByTagName("input")[2].checked = false;
 		divDep.getElementsByTagName("input")[3].disabled = false;
 		divDep.getElementsByTagName("input")[4].disabled = false;
 	}
-
-	
-/*
- * var boolVisSingle = false; var boolVisPair = false; var listStatSel =
- * getSelected( divDep.getElementsByTagName("select")[1] ); if( "mode" ==
- * _strPlotData && 0 < listStatSel.length && null == listStatSel[0].match(
- * /^ACOV$/ ) ){ boolVisPair = null == listStatSel[0].match( /^RATIO_.+/ ) &&
- * null == listStatSel[0].match( /^AREARAT_.+/ ) && null ==
- * listStatSel[0].match( /^OBJ.+/ ); boolVisSingle = boolVisPair && (-1 <
- * listSearch(listStatSel[0], _listStatModeSingle)); }
- *  // toggle the visibility of the checkbox table cells
- * divDep.getElementsByTagName("td")[3].style.display = boolVisSingle?
- * "table-cell" : "none"; divDep.getElementsByTagName("td")[4].style.display =
- * boolVisPair? "table-cell" : "none";
- * divDep.getElementsByTagName("td")[5].style.display = boolVisPair?
- * "table-cell" : "none"; divDep.getElementsByTagName("span")[0].style.display =
- * boolVisSingle? "inline" : "none";
- */
-	
 
 	buildSeriesDiv();
 }
@@ -973,10 +1017,10 @@ function getDepDiv(id){
  */
 function addFieldValDiv(category, listDiv){
 
-	// use the next field val id
+	//  use the next field val id
 	var intId = _intFieldValIdNext++;
 
-	// clone the field value div and update the controls
+	//  clone the field value div and update the controls
 	var divFieldVal = _divFieldVal.cloneNode(true);
 	divFieldVal.id = "divFieldVal" + intId;
 	var selVar = divFieldVal.getElementsByTagName("select")[0];
@@ -1006,7 +1050,7 @@ function addFieldValDiv(category, listDiv){
 	divFieldVal.getElementsByTagName("input")[1].value = "" + intId;
 	divFieldVal.style.display = "inline";
 
-	// add the new div to the input controls list and add it to the form
+	//  add the new div to the input controls list and add it to the form
 	listDiv.push( divFieldVal );
 	document.getElementById("div" + category).insertBefore(divFieldVal, document.getElementById("img" + category));
 }
@@ -1017,14 +1061,14 @@ function addFieldValDiv(category, listDiv){
  */
 function removeFieldValDiv(intId, listDiv, intInputId){
 
-	// attempt to find the specified div, and if not found, bail
+	//  attempt to find the specified div, and if not found, bail
 	var intIndex = findDivId(listDiv, intId, intInputId);
 	if( 0 > intIndex ){
 		console("removeFieldValDiv() - WARNING: div " + intId + " not found\n\n");
 		return;
 	}
 
- 	// remove the specified div from the list and hide it
+ 	//  remove the specified div from the list and hide it
  	var divFieldVal =  listDiv[intIndex];
  	listDiv.splice(intIndex, 1);
  	divFieldVal.style.display = "none";
@@ -1035,25 +1079,31 @@ function removeFieldValDiv(intId, listDiv, intInputId){
  * Build a list_val server request for the field val with the specified id in
  * the specified controls list. The request includes the fixed value criteria up
  * to the specified index. The response xml is passed to the specified response
- * function. If the specified y-axis is 1 or 2, the fcst_var criteria for the
- * specified axis is added.
+ * function. If the input control flag is set to -1, the criteria for rhist is
+ * used.  Otherwise, if the control flag is 1 or 2, the criteria for only the
+ * corresponding axis only is used.
  */
 function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
 
-	// attempt to find the specified div, and if not found, bail
+	//  attempt to find the specified div, and if not found, bail
 	var intIndex = findDivId(listDiv, intId, 1);
 	if( 0 > intIndex ){
 		console("selectFieldReq() - ERROR: div " + intId + " not found\n\n");
 		return;
 	}
 
-	// gather the criteria
+	//  gather the criteria
 	var strFcstVarCrit = "";
-	if( 1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarCrit(intY); }
-	else                        { strFcstVarCrit += buildFcstVarCrit();    }
-	var strFixCrit = buildFixCrit(intFixEnd);
+	var strFixCrit = "";
+	if( -1 == intY ){
+		strFixCrit = buildRhistCrit(intFixEnd);
+	} else {
+		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarCrit(intY); }
+		else                         { strFcstVarCrit = buildFcstVarCrit(); }
+		strFixCrit = buildFixCrit(intFixEnd);
+	}
 
-	// build a list_val request for the selected field
+	//  build a list_val request for the selected field
 	var selField = listDiv[intIndex].getElementsByTagName("select")[0];
 	var strField = selField.options[selField.selectedIndex].text;
 	sendRequest("POST",
@@ -1075,18 +1125,18 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
  */
 function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex, showArrows){
 
-	// parse the response
+	//  parse the response
 	var resp = parseListValResp(strResp, "val");
 	if( null == resp ){ return; }
 
-	// retrieve and validate the div from the input div list
+	//  retrieve and validate the div from the input div list
 	var intIndex = findDivId(listDiv, resp.id, intIdIndex);
 	if( 0 > intIndex ){
 		console("selectFieldResp() - ERROR: index for div id " + resp.id + " not found\n\n");
 		return;
 	}
 
-	// add the field values to the value select list
+	//  add the field values to the value select list
 	var selVal = listDiv[intIndex].getElementsByTagName("select")[intSelIndex];
 	selVal.style.display = "inline";
 	if( showArrows ){
@@ -1115,14 +1165,14 @@ function clearFieldVal(intId){
  */
 function moveFieldUp(listDiv, intId){
 	
-	// find the selected element, and bail if there is not exactly one
+	//  find the selected element, and bail if there is not exactly one
 	var selVal = document.getElementById("selVal" + intId);
 	var listSel = getSelected(selVal);
 	var intSel = selVal.selectedIndex;
 	if( 2 > selVal.options.length || 1 != listSel.length || intSel == 0 ){ return; }
 	
-	// move the selected option
-	// var optMove = selVal.options[intSel].cloneNode(true);
+	//  move the selected option
+	//  var optMove = selVal.options[intSel].cloneNode(true);
 	var optMove = document.createElement("option");
 	optMove.text = selVal.options[intSel].text;
 	selVal.remove(intSel);
@@ -1139,13 +1189,13 @@ function moveFieldUp(listDiv, intId){
  */
 function moveFieldDown(listDiv, intId){
 
-	// find the selected element, and bail if there is not exactly one
+	//  find the selected element, and bail if there is not exactly one
 	var selVal = document.getElementById("selVal" + intId);
 	var listSel = getSelected(selVal);
 	var intSel = selVal.selectedIndex;
 	if( 2 > selVal.options.length || 1 != listSel.length || intSel == selVal.options.length - 1 ){ return; }
 	
-	// move the selected option
+	//  move the selected option
 	var optMove = document.createElement("option");
 	optMove.text = selVal.options[intSel].text;
 	selVal.remove(intSel);
@@ -1187,10 +1237,10 @@ function moveSeries2FieldDown(intId)   { moveFieldDown(_listSeries2Div, intId); 
  * Build and add a series div for the specified series with configured controls
  */
 function addSeriesDiv(intSeries){
-	// determine the appropriate div list
+	//  determine the appropriate div list
 	var listSeriesDiv = (1 == intSeries? _listSeries1Div : _listSeries2Div);
 	
-	// add a field val div and modify its components for duty as a series div
+	//  add a field val div and modify its components for duty as a series div
 	addFieldValDiv("Series" + intSeries, listSeriesDiv);
 	var intSeriesIndex = listSeriesDiv.length - 1;
 	var selVal = listSeriesDiv[ intSeriesIndex ].getElementsByTagName("select")[1];
@@ -1204,10 +1254,10 @@ function addSeriesDiv(intSeries){
  * id
  */
 function removeSeriesDiv(intSeries, intId){
-	// determine the appropriate div list
+	//  determine the appropriate div list
 	var listSeriesDiv = (1 == intSeries? _listSeries1Div : _listSeries2Div);
 	
-	// dispose of and hide the series div
+	//  dispose of and hide the series div
 	removeFieldValDiv(intId, listSeriesDiv, 1);
  	if( 1 == listSeriesDiv.length ){ listSeriesDiv[0].getElementsByTagName("span")[1].style.display = "none"; }
  	buildSeriesDiv();
@@ -1238,7 +1288,7 @@ function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1, 
 /**
  * Construct a string of database field and value criteria that reflects the
  * selected fields and values in the fixed values controls
- */
+ * /
 function buildFixCrit(endIndex){
 	var strFixCrit = "";
 	for(i=0; i <= endIndex; i++){
@@ -1252,6 +1302,58 @@ function buildFixCrit(endIndex){
 	}
 	return strFixCrit;
 }
+*/
+
+/**
+ * Construct a string of database field and value criteria that reflects the
+ * selected fields and values in the values controls of the input div list
+ */
+function buildFieldValCrit(listDiv, endIndex){
+	var strCrit = "";
+	for(i=0; i <= endIndex; i++){
+		var divCrit = listDiv[i];
+		var selCrit = divCrit.getElementsByTagName("select")[0];
+		var strCritCur = "<field name=\"" + selCrit.options[ selCrit.selectedIndex ].text + "\">";
+		var listCritVal = getSelected( divCrit.getElementsByTagName("select")[1] );
+		for(var j=0; j < listCritVal.length; j++){ strCritCur += "<val>" + listCritVal[j] + "</val>"; }
+		strCritCur += "</field>";
+		if( 0 < listCritVal.length ){ strCrit += strCritCur; }
+	}
+	return strCrit;
+}
+function buildFixCrit(endIndex){ return buildFieldValCrit(_listFixDiv, endIndex); }
+function buildRhistCrit(endIndex){ return buildFieldValCrit(_listRhistDiv, endIndex); }
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
+ * Rhist Fixed Variable Controls
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/**
+ * Handlers to add, remove and populate the rhist fixed variable controls
+ */
+function addRhistVar(){
+	//  add the control group for the field value selection
+	addFieldValDiv("Rhist", _listRhistDiv);
+	
+	//  add rank size to the list of fields
+	var selField = _listRhistDiv[_listRhistDiv.length-1].getElementsByTagName("select")[0];
+	clearSelect(selField);
+	fillSelect(selField, _listVarRhist);
+}
+function removeRhistDiv(intId) { removeFieldValDiv(intId, _listRhistDiv, 1); }
+function selectRhistVarReq(intId){
+	var intIndexCrit = findDivId(_listRhistDiv, intId, 1);
+	if( 0 > intIndexCrit ){
+		console("selectRhistVarReq() - ERROR: index for id " + intId + " not found\n");
+		return;
+	}
+	selectFieldReq(intId, _listRhistDiv, intIndexCrit - 1, selectRhistVarResp, -1);
+}
+function selectRhistVarResp(strResp){ selectFieldResp(strResp, _listRhistDiv, 1, 1, false); }
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1266,7 +1368,7 @@ function buildFixCrit(endIndex){
  */
 function selectIndyVarReq(){
 
-	// build a list_val request for the selected independent field
+	//  build a list_val request for the selected independent field
 	var strFcstVarCrit = buildFcstVarCrit();
 	var strFixCrit = buildFixCrit(_listFixDiv.length - 1);
 	var strField = getSelected( document.getElementById("selIndyVar") )[0];
@@ -1281,20 +1383,20 @@ function selectIndyVarReq(){
 }
 function selectIndyVarResp(strResp){
 
-	// parse the response
+	//  parse the response
 	var resp = parseListValResp(strResp, "val");
 	if( null == resp ){ return; }
 
-	// hide all currently display indy val controls
+	//  hide all currently display indy val controls
 	clearIndyVal();
 	
-	// add a indy val control group for each indy value
+	//  add a indy val control group for each indy value
 	var divIndy = document.getElementById("divIndy");
 	var strField = getSelected( document.getElementById("selIndyVar") )[0];
 	for( i in resp.vals ){
 		var trIndyVal = tabIndyVal.insertRow(tabIndyVal.rows.length);
 
-		// build a control set for the independent variable value
+		//  build a control set for the independent variable value
 		var tdIndyChk = trIndyVal.insertCell(0);
 		tdIndyChk.appendChild( document.getElementById("spanIndyValChk").cloneNode(true) );
 		var tdIndyLab = trIndyVal.insertCell(1);
@@ -1302,7 +1404,7 @@ function selectIndyVarResp(strResp){
 		trIndyVal.getElementsByTagName("span")[1].innerHTML = resp.vals[i];
 		trIndyVal.style.display = "table-row";
 		
-		// set the default label
+		//  set the default label
 		var strLabel = resp.vals[i];
 		if( "FCST_LEAD" == strField ){
 			var listParse = strLabel.match( /(\d+)0000$/ );
@@ -1317,7 +1419,7 @@ function selectIndyVarResp(strResp){
  * Remove all rows of the indy table that contain values
  */
 function clearIndyVal(){
-	// hide all currently display indy val controls
+	//  hide all currently display indy val controls
 	var tabIndyVal = document.getElementById("tabIndyVal");
 	while( 1 < tabIndyVal.rows.length ){ tabIndyVal.deleteRow(tabIndyVal.rows.length - 1); }
 	document.getElementById("spanIndyCheck").style.display = "none";
@@ -1357,12 +1459,12 @@ function addFmtPlot(label, tag, value, type){
 	var tabFmt = document.getElementById( boolTypeTxt? "tabFmtPlotTxt" : "tabFmtPlotBool" );
 	var tdFmt;
 
-	// if the index is zero, populate the existing cell
+	//  if the index is zero, populate the existing cell
 	if( 0 == intFmtIndex ){
 		tdFmt = tabFmt.rows[0].cells[0];
 	}
 
-	// if the table requires a new row, create one
+	//  if the table requires a new row, create one
 	else if( 0 == intCol ){
 		var trFmt = tabFmt.insertRow( tabFmt.rows.length );
 		for(var i=0; i < _intNumFmtPlotCol; i++){
@@ -1373,21 +1475,20 @@ function addFmtPlot(label, tag, value, type){
 		tdFmt = trFmt.cells[0];
 	}
 
-	// if a new row is not required, get the next available cell on the current
-	// row
+	//  if a new row is not required, get the next available cell on the current row
 	else {
 		tdFmt = tabFmt.rows[ tabFmt.rows.length - 1 ].cells[intCol];
 	}
 
-	// populate the controls with the specified input information
+	//  populate the controls with the specified input information
 	if( 0 != intFmtIndex ){
 		tdFmt.appendChild( document.getElementById( boolTypeTxt? "spanFmtPlotTxt" : "spanFmtPlotBool" ).cloneNode(true) );
 	}
 	
-	// update the label and tag
+	//  update the label and tag
 	setFmtLabelTag(tdFmt, label, tag);
 
-	// configure and populate the selection control for text settings
+	//  configure and populate the selection control for text settings
 	var listFmtTd = tdFmt.getElementsByTagName("td");
 	if( boolTypeTxt ){
 		var boolSel = (value instanceof Array);
@@ -1400,7 +1501,7 @@ function addFmtPlot(label, tag, value, type){
 		_intFmtPlotTxtIndex++;
 	} 
 	
-	// configure and populate the select control for bool settings
+	//  configure and populate the select control for bool settings
 	else {
 		tdFmt.getElementsByTagName("select")[0].selectedIndex = ( "true" == value? 0 : 1 );
 		_intFmtPlotBoolIndex++;
@@ -1436,11 +1537,22 @@ function handleFmtDisp(type){
  * Build the list of plot series reflected by the current state of the controls
  */
 function buildSeriesDiv(){
+	
+	if( TMPL_RHIST == _intTmpl ){ return; }
+	
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
 	var spanFmtSeriesDisp = document.getElementById("spanFmtSeriesDisp");
 	_intNumSeries = 0;
-
-	// build a table containing all current series settings
+	
+	//  update the visibility of the series formatting controls
+	spanFmtSeriesDisp.style.display = "inline";
+	var spanMsg = spanFmtSeriesDisp.getElementsByTagName("span")[0];
+	if( null != spanMsg.innerHTML.match("Hide.*") ){
+		document.getElementById("tabFmtSeries").style.display = "inline";
+	}
+	document.getElementById("tabFmtSeriesRhist").style.display = "none";
+	
+	//  build a table containing all current series settings
 	var table = new Hashtable();
 	for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
 		var listSpan = tabFmtSeries.rows[intRow].getElementsByTagName("span");
@@ -1448,7 +1560,7 @@ function buildSeriesDiv(){
 		if( listInput[0].value == "false" ){ continue; }
 		var listFmtTd = getFmtSeriesVal(intRow);
 		
-		// get the series name and values and put them in the table
+		//  get the series name and values and put them in the table
 		var strSeriesName = listSpan[2].innerHTML + " - " + listSpan[3].innerHTML;
 		var strFmt = "";
 		strFmt = listInput[0].value;
@@ -1457,48 +1569,46 @@ function buildSeriesDiv(){
 		table.put(strSeriesName, strFmt);
 	}
 
-	// clear all existing series, except the first two
+	//  clear all existing series, except the first two
 	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }
 
-	// build permutation of the series values
+	//  build permutation of the series values
 	var listSeries1Perm = permuteSeries(_listSeries1Div, 0, getPlotDiff(1));
 	var listSeries2Perm = permuteSeries(_listSeries2Div, 0, getPlotDiff(2));
 	
-	// build all y1 and y2 series
+	//  build all y1 and y2 series
 	for(var intY=1; intY <= 2; intY++){
 
 		var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
 		var listSeriesPerm = (1 == intY? listSeries1Perm : listSeries2Perm);
 			
-		// for each dep div, consider the fcst_var and selected stats
+		//  for each dep div, consider the fcst_var and selected stats
 		for(var intDep=0; intDep < listDepDiv.length; intDep++){
 	
-			// get the dep var information
+			//  get the dep var information
 			var strFcstVar = getSelected( listDepDiv[intDep].getElementsByTagName("select")[0] )[0];
 			var listStat = getSelected( listDepDiv[intDep].getElementsByTagName("select")[1] );
 	
-			// build a series for each combination of fcst_var, stat and series
-			// permutation
+			//  build a series for each combination of fcst_var, stat and series permutation
 			for(var intStat=0; intStat < listStat.length; intStat++){
 				for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++){
 	
-					// build the series name
+					//  build the series name
 					var strSeriesName =  listSeriesPerm[intSeries] + " " + strFcstVar + " " + listStat[intStat];
 	
 					var trFmtSeries;
 					var tdName;
 	
-					// if the series is the first to be built, use the existing
-					// controls
+					//  if the series is the first to be built, use the existing controls
 					if( 0 == _intNumSeries ){
 						trFmtSeries = tabFmtSeries.rows[0];
 						tdName = trFmtSeries.cells[0];
 					}
 	
-					// otherwise, build a new set of series formatting controls
+					//  otherwise, build a new set of series formatting controls
 					else {
 						
-						// insert the <hr/> between series format controls
+						//  insert the <hr/> between series format controls
 						if( 1 == _intNumSeries ){ tabFmtSeries.rows[1].style.display = "table-row"; }
 						else {
 							var trHR = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
@@ -1507,7 +1617,7 @@ function buildSeriesDiv(){
 							tdHR.appendChild( document.getElementById("spanFmtSeriesHR").cloneNode(true) );
 						}
 	
-						// insert a copy of the series format controls
+						//  insert a copy of the series format controls
 						trFmtSeries = tabFmtSeries.insertRow( tabFmtSeries.rows.length );
 	
 						var tdName = trFmtSeries.insertCell(0);
@@ -1530,12 +1640,12 @@ function buildSeriesDiv(){
 						tdFmt2.appendChild( document.getElementById("tabFmtSeriesVal2").cloneNode(true) );
 					}
 	
-					// populate the controls with the series name
+					//  populate the controls with the series name
 					var strYSeries = (1 == intY? "Y1" : "Y2") + " Series";
 					tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
 					tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
 					
-					// add change handlers to the formatting inputs
+					//  add change handlers to the formatting inputs
 					var listInput = trFmtSeries.getElementsByTagName("input");
 					for(var i=1; i < listInput.length; i++){
 					 	listInput[i].setAttribute("onkeydown", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
@@ -1547,13 +1657,12 @@ function buildSeriesDiv(){
 					 	if( _boolIE ){ listSel[i].attachEvent("onchange", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
 					}					
 
-					// get format settings for the current field, if available,
-					// otherwise use defaults
+					//  get format settings for the current field, if available, otherwise use defaults
 					var strVal = table.get(strSeriesName + " - " + strYSeries);
 					var listVal = _listFmtSeriesDefaults;
 					if( undefined != strVal ){ var listVal = strVal.split("|"); }
 					
-					// apply the settings to the formatting controls
+					//  apply the settings to the formatting controls
 					listInput[0].value = listVal[0];
 					var listFmtTd = getFmtSeriesVal( _intNumSeries * 2 );
 					for(var i=0; i < listFmtTd.length; i++){
@@ -1562,16 +1671,15 @@ function buildSeriesDiv(){
 
 					_intNumSeries++;
 					
-				}  // end: for(var intSeries=0; intSeries <
-					// listSeriesPerm.length; intSeries++)
+				}  //  end: for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++)
 				
-			}  // end: for(var intStat=0; intStat < listStat.length; intStat++)
+			}  //  end: for(var intStat=0; intStat < listStat.length; intStat++)
 			
-		}  // end: for(var intDep=0; intDep < listDepDiv.length; intDep++)
+		}  //  end: for(var intDep=0; intDep < listDepDiv.length; intDep++)
 		
-	}  // end: for(var intY=1; intY <= 2; intY++)
+	}  //  end: for(var intY=1; intY <= 2; intY++)
 	
-	// set the default color for each series to the appropriate shade of rainbow
+	//  set the default color for each series to the appropriate shade of rainbow
 	var listColors = rainbow(_intNumSeries);
 	for(var i=0; i < _intNumSeries; i++){
 		var listFmtTd = getFmtSeriesVal( i * 2 );
@@ -1579,12 +1687,12 @@ function buildSeriesDiv(){
 		if( "" == strColor ){ setFmtVal(listFmtTd[1], listColors[i]); }
 	}
 	
-	// show or hide the controls, depending on the number of series
+	//  show or hide the controls, depending on the number of series
 	tabFmtSeries.style.display		= (1 > _intNumSeries ? "none" : tabFmtSeries.style.display);
 	spanFmtSeriesDisp.style.display	= (1 > _intNumSeries ? "none" : "inline");
 	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
 	
-	// update the agg_stat diff fields
+	//  update the agg_stat diff fields
 	document.getElementById("txtAggDiff1").value = (getPlotDiff(1)? "TRUE" : "FALSE");
 	document.getElementById("txtAggDiff2").value = (getPlotDiff(2)? "TRUE" : "FALSE");
 }
@@ -1595,13 +1703,13 @@ function buildSeriesDiv(){
  */
 function getFmtSeriesVal(row){
 	
-	// get and validate the requested row
+	//  get and validate the requested row
 	var listTdFmt = new Array();
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
 	var trFmtSeries = tabFmtSeries.rows[row];
 	if( 3 != trFmtSeries.cells.length ){ return listTdFmt; }
 	
-	// build a list of formatting td elements
+	//  build a list of formatting td elements
 	var tabVal1 = trFmtSeries.cells[1].getElementsByTagName("table")[0];
 	for(var i=0; i < tabVal1.rows.length; i++){ 
 		for(var j=0; j < tabVal1.rows[i].cells.length; j++){ listTdFmt.push(tabVal1.rows[i].cells[j]); }
@@ -1643,14 +1751,14 @@ function permuteSeries(listSeriesDiv, intIndex, boolDiff){
 	if( 1 > listSeriesDiv.length ){ return new Array(); }
 	var listVal = getSelected( listSeriesDiv[intIndex].getElementsByTagName("select")[1] );
 
-	// if the index has reached the end of the list, return the selected values
-	// from the last control
+	//  if the index has reached the end of the list, return the selected values
+	//  from the last control
 	if( listSeriesDiv.length == intIndex + 1 ){
 		if( boolDiff ){ listVal.splice(listVal.length - 1, 0, "__DIFF__"); }
 		return listVal;
 	}
 
-	// otherwise, get the list for the next fcst_var and build upon it
+	//  otherwise, get the list for the next fcst_var and build upon it
 	var listValNext = permuteSeries(listSeriesDiv, intIndex + 1, boolDiff);
 	if( 1 > listVal.length ){ return listValNext; }
 	var listRet = new Array();
@@ -1678,6 +1786,24 @@ function getPlotDiff(y){
 		}
 	}
 	return false;
+}
+
+/**
+ * Set up the format series controls for the rhist template
+ */
+function buildSeriesDivRhist(){
+	document.getElementById("tabFmtSeries").style.display = "none";
+	document.getElementById("spanFmtSeriesDisp").style.display = "none";
+	var tabFmtSeries = document.getElementById("tabFmtSeriesRhist");
+	tabFmtSeries.style.display = "inline";
+
+	//  clear all existing series, except the first two
+	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }
+		
+	//  show or hide the controls, depending on the number of series
+	_intNumSeries = 1;
+	tabFmtSeries.style.display = tabFmtSeries.style.display;
+	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
 }
 
 
@@ -1711,57 +1837,68 @@ function buildPlotXML(){
 	var listInput;
 	
 	var strDepXML = "";
+	var strTemplate = getSelected( document.getElementById("selTemplate") )[0];
 	
-	// <template>
-	strDepXML += "<template>" + getSelected( document.getElementById("selTemplate") )[0] + ".R_tmpl</template>";
+	//  <template>
+	strDepXML += "<template>" + strTemplate + ".R_tmpl</template>";
 	
-	// <dep>
-	strDepXML += "<dep>";
-	strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true, false) + "</dep1>";
-	strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true, false) + "</dep2>";
-	strDepXML += "<fix></fix></dep>";
-	
-	// <series1> and <series2>
-	var strSeriesXML = "";
-	strDepXML += "<series1>" + buildFieldValXML("field", "val", _listSeries1Div, false, false) + "</series1>";
-	strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false, false) + "</series2>";
-	
-	// <plot_fix>
-	strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) + "</plot_fix>";
-	strDepXML += "<agg></agg>";
-	
-	// <indep>
-	var divIndy = document.getElementById("divIndy");
-	var tabIndyVal = document.getElementById("tabIndyVal");
-	var strIndepField = getSelected( divIndy.getElementsByTagName("select")[0] )[0].toLowerCase();
-	strDepXML += "<indep name=\"" + strIndepField + "\">";
-	for(var i=1; i < tabIndyVal.rows.length; i++){
-		listInput = tabIndyVal.rows[i].getElementsByTagName("input");
-		var boolIndyValChk = listInput[0].checked;
-		var strVal = tabIndyVal.rows[i].getElementsByTagName("span")[1].innerHTML;
-		var strLab = listInput[1].value;
-		var strPlotVal = listInput[2].value;
-		if( boolIndyValChk ){
-			strDepXML += "<val label=\"" + strLab + "\" plot_val=\"" + strPlotVal + "\">" + strVal + "</val>";
+	if( TMPL_RHIST == _intTmpl ){
+
+		//  <plot_fix>
+		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listRhistDiv, false, true) + "</plot_fix>";
+		strDepXML += "<agg></agg>";
+		
+	} else {
+		
+		//  <dep>
+		strDepXML += "<dep>";
+		strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true, false) + "</dep1>";
+		strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true, false) + "</dep2>";
+		strDepXML += "<fix></fix></dep>";
+		
+		//  <series1> and <series2>
+		var strSeriesXML = "";
+		strDepXML += "<series1>" + buildFieldValXML("field", "val", _listSeries1Div, false, false) + "</series1>";
+		strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false, false) + "</series2>";
+		
+		//  <plot_fix>
+		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) + "</plot_fix>";
+		strDepXML += "<agg></agg>";
+		
+		//  <indep>
+		var divIndy = document.getElementById("divIndy");
+		var tabIndyVal = document.getElementById("tabIndyVal");
+		var strIndepField = getSelected( divIndy.getElementsByTagName("select")[0] )[0].toLowerCase();
+		strDepXML += "<indep name=\"" + strIndepField + "\">";
+		for(var i=1; i < tabIndyVal.rows.length; i++){
+			listInput = tabIndyVal.rows[i].getElementsByTagName("input");
+			var boolIndyValChk = listInput[0].checked;
+			var strVal = tabIndyVal.rows[i].getElementsByTagName("span")[1].innerHTML;
+			var strLab = listInput[1].value;
+			var strPlotVal = listInput[2].value;
+			if( boolIndyValChk ){
+				strDepXML += "<val label=\"" + strLab + "\" plot_val=\"" + strPlotVal + "\">" + strVal + "</val>";
+			}
 		}
+		strDepXML += "</indep>";
+		
+		//  agg_stat
+		var chkAggStat = document.getElementById("chkAggStat");
+		if( chkAggStat.checked ){
+			var listAggStatParm = document.getElementById("tabAggStatParm").getElementsByTagName("input");
+			strDepXML += "<agg_stat>";
+			strDepXML += 	   "<agg_ctc>" + listAggStatParm[0].checked + "</agg_ctc>";
+			strDepXML += 	 "<agg_sl1l2>" + listAggStatParm[1].checked + "</agg_sl1l2>";
+			strDepXML += 	 "<boot_repl>" + listAggStatParm[2].value + "</boot_repl>";
+			strDepXML += 	   "<boot_ci>" + listAggStatParm[4].value + "</boot_ci>";
+			strDepXML += 	 "<agg_diff1>" + listAggStatParm[3].value + "</agg_diff1>";
+			strDepXML +=	 "<agg_diff2>" + listAggStatParm[5].value + "</agg_diff2>";
+			strDepXML += "</agg_stat>";		
+		}
+		
 	}
-	strDepXML += "</indep>";
 	
-	// agg_stat
-	var chkAggStat = document.getElementById("chkAggStat");
-	if( chkAggStat.checked ){
-		var listAggStatParm = document.getElementById("tabAggStatParm").getElementsByTagName("input");
-		strDepXML += "<agg_stat>";
-		strDepXML += 	   "<agg_ctc>" + listAggStatParm[0].checked + "</agg_ctc>";
-		strDepXML += 	 "<agg_sl1l2>" + listAggStatParm[1].checked + "</agg_sl1l2>";
-		strDepXML += 	 "<boot_repl>" + listAggStatParm[2].value + "</boot_repl>";
-		strDepXML += 	   "<boot_ci>" + listAggStatParm[4].value + "</boot_ci>";
-		strDepXML += 	 "<agg_diff1>" + listAggStatParm[3].value + "</agg_diff1>";
-		strDepXML +=	 "<agg_diff2>" + listAggStatParm[5].value + "</agg_diff2>";
-		strDepXML += "</agg_stat>";		
-	}	
-	
-	// <tmpl>
+	//  <tmpl>
 	var divTitleLab = document.getElementById("divTitleLab");
 	listInput = divTitleLab.getElementsByTagName("input");
 	strDepXML += "<tmpl>";
@@ -1772,7 +1909,7 @@ function buildPlotXML(){
 	strDepXML +=     "<caption>" + listInput[4].value + "</caption>";
 	strDepXML += "</tmpl>";
 	
-	// bool formatting
+	//  bool formatting
 	var tabFmtPlotBool = document.getElementById("tabFmtPlotBool");
 	for(var i=0; i < tabFmtPlotBool.rows.length; i++){
 		for(var j=0; j < tabFmtPlotBool.rows[i].cells.length; j++){
@@ -1780,12 +1917,12 @@ function buildPlotXML(){
 			if( 1 > listTdBool.length ){ continue; }
 			var strTag = getFmtTag(tabFmtPlotBool.rows[i].cells[j]);
 			var strVal = getFmtVal(tabFmtPlotBool.rows[i].cells[j]);
-			if( chkAggStat.checked && strTag.match( /_diff$/ ) ){ strVal = "false"; }
+			if( chkAggStat != undefined && chkAggStat.checked && strTag.match( /_diff$/ ) ){ strVal = "false"; }
 			strDepXML += "<" + strTag + ">" + strVal + "</" + strTag + ">";
 		}
 	}
 	
-	// txt formatting
+	//  txt formatting
 	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
 	for(var i=0; i < tabFmtPlotTxt.rows.length; i++){
 		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){			
@@ -1797,17 +1934,30 @@ function buildPlotXML(){
 		}
 	}
 	
-	// series formatting
-	var tabFmtSeries = document.getElementById("tabFmtSeries");
+	//  series formatting
 	var listFmtSeries = new Array("", "", "", "", "", "", "", "");
-	var boolLegend = false;
-	for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
-		var listFmtTd = getFmtSeriesVal(intRow);
-		for(var i=0; i < listFmtSeries.length; i++){
-			var strVal = getFmtVal(listFmtTd[i]);
-			if( 7 == i && strVal != "" ){ boolLegend = true; }
-			if( 0 == i || 1 == i || 3 == i || 7 == i){ strVal = "\"" + strVal + "\""; }
-			listFmtSeries[i] += (0 < intRow? ", " : "") + strVal;			
+	var boolLegend = false;	
+	if( TMPL_RHIST == _intTmpl ){
+		var tabFmtSeries = document.getElementById("tabFmtSeriesRhistVal");
+		listFmtSeries[0] = "\"none\"";
+		listFmtSeries[1] = "\"" + getFmtVal(tabFmtSeries.rows[0].cells[0]) + "\"";
+		listFmtSeries[2] = "20";
+		listFmtSeries[3] = "\"b\"";
+		listFmtSeries[4] = "1";
+		listFmtSeries[5] = getFmtVal(tabFmtSeries.rows[1].cells[0]);
+		listFmtSeries[6] = "1";
+		listFmtSeries[7] = "\"" + getFmtVal(tabFmtSeries.rows[2].cells[0]) + "\"";
+		boolLegend = ("" != listFmtSeries[7]);
+	} else {
+		var tabFmtSeries = document.getElementById("tabFmtSeries");
+		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
+			var listFmtTd = getFmtSeriesVal(intRow);
+			for(var i=0; i < listFmtSeries.length; i++){
+				var strVal = getFmtVal(listFmtTd[i]);
+				if( 7 == i && strVal != "" ){ boolLegend = true; }
+				if( 0 == i || 1 == i || 3 == i || 7 == i){ strVal = "\"" + strVal + "\""; }
+				listFmtSeries[i] += (0 < intRow? ", " : "") + strVal;			
+			}
 		}
 	}
 	strDepXML +=    "<plot_ci>c(" + listFmtSeries[0] + ")</plot_ci>";
@@ -1824,7 +1974,7 @@ function buildPlotXML(){
 	var strPlotCmd = document.getElementById("txtPlotCmd").value;
 	if( "" != strPlotCmd ){ strDepXML += "<plot_cmd>" + strPlotCmd + "</plot_cmd>"; }
 	
-	// axis formatting
+	//  axis formatting
 	var divFmtAxis = document.getElementById("divFmtAxis");
 	listInput = divFmtAxis.getElementsByTagName("input");
 	strDepXML +=  "<y1_lim>" + listInput[0].value + "</y1_lim>";
@@ -1845,20 +1995,20 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 	var listField = new Array();
 	for(i in listDiv){
 		
-		// get the field value and format it
+		//  get the field value and format it
 		var listSel = listDiv[i].getElementsByTagName("select");
 		var strVar = getSelected( listSel[0] )[0];
 		if( boolDep ){ strVar = strVar.toUpperCase(); }
 		else         { strVar = strVar.toLowerCase(); }
 		
-		// get the selected stats/values and format them
+		//  get the selected stats/values and format them
 		var listVal = getSelected( listSel[1] );
 		if( 1 > listVal.length ){ continue; }
 		if( boolDep ){
 			for(j in listVal){ listVal[j] = buildModeStatCode(listVal[j], listDiv[i]); }
 		}
 		
-		// build the XML for the list of values
+		//  build the XML for the list of values
 		var strValXML = "";
 		for(j in listVal){ strValXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
 		var strValXMLCur = tabField.get(strVar);
@@ -1866,8 +2016,8 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 		tabField.put( strVar, (undefined == strValXMLCur? strValXML : strValXMLCur + strValXML) );		
 	}
 	
-	// build the XML for each field stored in the table
-	// var listField = tabField.listKeys();
+	//  build the XML for each field stored in the table
+	//  var listField = tabField.listKeys();
 	for(i in listField){
 		var strVar = listField[i];
 		strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
@@ -1887,7 +2037,7 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
  */
 function buildModeStatCode(stat, divDep){
 	
-	// if the input stat does not need a code suffix, return it
+	//  if the input stat does not need a code suffix, return it
 	if( "mode" != _strPlotData || 
 		null != stat.match( /^RATIO_.+/ ) || 
 		null != stat.match( /^AREARAT_.+/ ) || 
@@ -1895,7 +2045,7 @@ function buildModeStatCode(stat, divDep){
 		return stat;
 	}
 			
-	// determine the first letter of the code [A|F|O|D]
+	//  determine the first letter of the code [A|F|O|D]
 	var boolDiff = divDep.getElementsByTagName("input")[2].checked;
 	var boolFcst = divDep.getElementsByTagName("input")[3].checked;
 	var boolObs  = divDep.getElementsByTagName("input")[4].checked;	
@@ -1908,10 +2058,10 @@ function buildModeStatCode(stat, divDep){
 		else                          { strCode += "A"; }
 	}
 	
-	// if the stat is ACOV, return the code
+	//  if the stat is ACOV, return the code
 	if( null != stat.match( /^ACOV$/ ) ){ return stat + strCode + "SA"; } 
 
-	// determine the second letter of the code [A|S|C]
+	//  determine the second letter of the code [A|S|C]
 	var boolSimp = divDep.getElementsByTagName("input")[5].checked;
 	var boolClus = divDep.getElementsByTagName("input")[6].checked;
 	if( boolSimp && boolClus )    { strCode += "A"; }
@@ -1919,7 +2069,7 @@ function buildModeStatCode(stat, divDep){
 	else if( boolClus )           { strCode += "C"; }
 	else                          { strCode += "A"; }
 	
-	// determine the third letter of the code [A|M|U]
+	//  determine the third letter of the code [A|M|U]
 	var boolMat  = divDep.getElementsByTagName("input")[7].checked;
 	var boolUnm  = divDep.getElementsByTagName("input")[8].checked;
 	if( boolMat && boolUnm )      { strCode += "A"; }

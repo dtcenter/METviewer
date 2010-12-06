@@ -156,5 +156,6 @@ INSERT INTO stat_group_lu VALUES(54, 'MCTS_GER', 'Gerrity Score and bootstrap co
 INSERT INTO stat_group_lu VALUES(55, 'CRPS', 'Continuous Ranked Probability Score', FALSE, FALSE, 22);
 INSERT INTO stat_group_lu VALUES(56, 'IGN', 'Ignorance score', FALSE, FALSE, 22);
 
---INSERT INTO metvdb_rev VALUES (1, '2010-10-14 12:00:00', '0.1', 'Increased web_plot.plot_xml field to MEDIUMTEXT');
+-- ALTER TABLE metvdb_rev ADD COLUMN rev_date DATETIME AFTER rev_id;
+INSERT INTO metvdb_rev VALUES (1, '2010-10-14 12:00:00', '0.1', 'Increased web_plot.plot_xml field to MEDIUMTEXT');
 INSERT INTO metvdb_rev VALUES (2, '2010-11-15 12:00:00', '0.3', 'METViewer changes to support out from METv3.0');

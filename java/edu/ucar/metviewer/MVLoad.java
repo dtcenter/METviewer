@@ -151,7 +151,7 @@ public class MVLoad extends MVUtil {
 		_tableStatGroupIndices_v3.put("NBRCTS",	new int[][]{ new int[]{}, new int[]{22, 27, 32, 40, 45, 50, 55, 60, 68, 76}, new int[]{37, 65, 73}, new int[]{}, new int[]{} });
 		_tableStatGroupIndices_v3.put("NBRCNT",	new int[][]{ new int[]{}, new int[]{}, new int[]{22, 25}, new int[]{}, new int[]{} });
 		_tableStatGroupIndices_v3.put("MCTS",	new int[][]{ new int[]{22}, new int[]{23}, new int[]{28, 31, 34}, new int[]{}, new int[]{} });
-		_tableStatGroupIndices_v3.put("RHIST",	new int[][]{ new int[]{25}, new int[]{}, new int[]{}, new int[]{}, new int[]{22, 23} });
+		_tableStatGroupIndices_v3.put("RHIST",	new int[][]{ new int[]{24}, new int[]{}, new int[]{}, new int[]{}, new int[]{22, 23} });
 	}
 	public static Hashtable _tableStatGroupIndices = _tableStatGroupIndices_v2; 
 
@@ -1401,40 +1401,46 @@ public class MVLoad extends MVUtil {
 	
 	public static final MVOrderedMap _mapIndexes = new MVOrderedMap();
 	static{
-		_mapIndexes.put("stat_header_model_idx",			"model");
-		_mapIndexes.put("stat_header_fcst_lead_idx",		"fcst_lead");
-		_mapIndexes.put("stat_header_fcst_valid_beg_idx",	"fcst_valid_beg");
-		_mapIndexes.put("stat_header_fcst_init_beg_idx",	"fcst_init_beg");
-		_mapIndexes.put("stat_header_fcst_var_idx",			"fcst_var");
-		_mapIndexes.put("stat_header_fcst_lev_idx",			"fcst_lev");
-		_mapIndexes.put("stat_header_obtype_idx",			"obtype");
-		_mapIndexes.put("stat_header_vx_mask_idx",			"vx_mask");
-		_mapIndexes.put("stat_header_interp_mthd_idx",		"interp_mthd");
-		_mapIndexes.put("stat_header_interp_pnts_idx",		"interp_pnts");
-		_mapIndexes.put("stat_header_fcst_thresh_idx",		"fcst_thresh");
-		_mapIndexes.put("mode_header_model_idx",			"model");
-		_mapIndexes.put("mode_header_fcst_lead_idx",		"fcst_lead");
-		_mapIndexes.put("mode_header_fcst_valid_idx",		"fcst_valid");
-		_mapIndexes.put("mode_header_fcst_init_idx",		"fcst_init");
-		_mapIndexes.put("mode_header_fcst_rad_idx",			"fcst_rad");
-		_mapIndexes.put("mode_header_fcst_thr_idx",			"fcst_thr");
-		_mapIndexes.put("mode_header_fcst_var_idx",			"fcst_var");
-		_mapIndexes.put("mode_header_fcst_lev_idx",			"fcst_lev");
+		_mapIndexes.put("#stat_header#_model_idx",				"model");
+		_mapIndexes.put("#stat_header#_fcst_lead_idx",			"fcst_lead");
+		_mapIndexes.put("#stat_header#_fcst_valid_beg_idx",		"fcst_valid_beg");
+		_mapIndexes.put("#stat_header#_fcst_init_beg_idx",		"fcst_init_beg");
+		_mapIndexes.put("#stat_header#_fcst_var_idx",			"fcst_var");
+		_mapIndexes.put("#stat_header#_fcst_lev_idx",			"fcst_lev");
+		_mapIndexes.put("#stat_header#_obtype_idx",				"obtype");
+		_mapIndexes.put("#stat_header#_vx_mask_idx",			"vx_mask");
+		_mapIndexes.put("#stat_header#_interp_mthd_idx",		"interp_mthd");
+		_mapIndexes.put("#stat_header#_interp_pnts_idx",		"interp_pnts");
+		_mapIndexes.put("#stat_header#_fcst_thresh_idx",		"fcst_thresh");
+
+		_mapIndexes.put("#mode_header#_model_idx",				"model");
+		_mapIndexes.put("#mode_header#_fcst_lead_idx",			"fcst_lead");
+		_mapIndexes.put("#mode_header#_fcst_valid_idx",			"fcst_valid");
+		_mapIndexes.put("#mode_header#_fcst_init_idx",			"fcst_init");
+		_mapIndexes.put("#mode_header#_fcst_rad_idx",			"fcst_rad");
+		_mapIndexes.put("#mode_header#_fcst_thr_idx",			"fcst_thr");
+		_mapIndexes.put("#mode_header#_fcst_var_idx",			"fcst_var");
+		_mapIndexes.put("#mode_header#_fcst_lev_idx",			"fcst_lev");
+		
+		//_mapIndexes.put("#line_data_rhist_rank#_i_value_idx",	"i_value");
 	}
+	
+	public static final Pattern _patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
 	
 	public static void applyIndexes(Connection con, boolean drop) throws Exception{
 		
 		System.out.println("    ==== indexes ====\n" + (drop? "  dropping..." : ""));
 		Map.Entry[] listIndexes = _mapIndexes.getOrderedEntries();
 		for(int i=0; i < listIndexes.length; i++){
-			String strIndexName = listIndexes[i].getKey().toString();
+			String strIndexKey = listIndexes[i].getKey().toString();
 			String strField = listIndexes[i].getValue().toString();
 			long intIndexStart = (new java.util.Date()).getTime();
 			
 			//  build a create index statment and run it
-			String strTable = "";
-			if( strIndexName.startsWith("stat") ) { strTable = "stat_header"; }
-			else                                  { strTable = "mode_header"; }
+			Matcher matIndex = _patIndexName.matcher(strIndexKey);
+			if( !matIndex.matches() ){ throw new Exception("  **  ERROR: failed to parse index key " + strIndexKey); }
+			String strTable = matIndex.group(1);
+			String strIndexName = strTable + matIndex.group(2);
 			String strIndex = "";
 			if( drop ){ strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";                     }
 			else      { strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");"; }

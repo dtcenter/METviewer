@@ -7,7 +7,7 @@
 	<property name="webapp_lib" location="webapp/metviewer/WEB-INF/lib"/>
 	<property name="build" location="bin"/>
 	<property name="dist"  location="dist"/>
-	<property name="tomcat_home" location="/d1/pgoldenb/usr/local/apache-tomcat-5.5.28"/>
+	<property name="tomcat_home" location="/d1/pgoldenb/usr/local/apache-tomcat-6.0.29"/>
 
 	<target name="init">
 		<!-- Create the time stamp -->

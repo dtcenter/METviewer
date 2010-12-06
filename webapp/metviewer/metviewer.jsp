@@ -44,12 +44,14 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate" onchange="javascript:updateTmpl()">
-			<option>series_plot</option><option>box_plot</option><option>bar_plot</option>
+			<option>series_plot</option><option>box_plot</option><option>bar_plot</option><option>rhist</option>
 		</select><br/><br/><br/>
 	</td></tr>
 
 	<tr><td height="100%" style="vertical-align: top"><span id="spanPlotControls" style="display:inline">
-		<table><tr><td class="grey">
+		<table>
+		
+		<tr><td class="grey" id="tdY1">
 
 		<span class="header" style="font-size:18px">Y1 Axis</span><br/><br/>
 
@@ -103,7 +105,8 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			<a class="link" onclick="javascript:addSeries1Div()">Add a Series y1 Value</a><br/><br/><br/>
 		</div><br/><br/>
 
-		</td></tr><tr><td>
+		</td></tr>
+		<tr><td id="tdY2">
 		
 		<span class="header" style="font-size:18px">Y2 Axis</span><br/><br/>
 
@@ -126,7 +129,8 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			<a class="link" onclick="javascript:addSeries2Div()">Add a Series y2 Value</a><br/><br/><br/>
 		</div><br/><br/>
 		
-		</td></tr><tr><td class="grey">
+		</td></tr>
+		<tr><td class="grey" id="tdFix">
 
 		<div id="divFieldVal" style="display:none">
 			<table><tr>
@@ -159,8 +163,17 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
 		</div><br/><br/>
 
+		<div id="divRhist" style="display:none">
+			<span class="header">Rank Histogram Fixed Values</span>
+			<span class="stdTiny">(<a href="doc/plot.html#plot_fix" target="_blank">help</a>)</span>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divRhist')" id="lnkSerFix">Serialize</a><br/><br/>
 
-		</td></tr><tr><td>
+			<img id="imgRhist" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addRhistVar()">Add a Rank Histogram Fixed Value</a><br/><br/><br/>
+		</div><br/><br/>
+
+		</td></tr>
+		<tr><td id="tdIndy">
 				
 		<div id="divIndy">
 			<span class="header">Independent Variables</span>
@@ -193,7 +206,8 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			</span>
 		</div><br/><br/>
 
-		</td></tr><tr><td class="grey">
+		</td></tr>
+		<tr><td class="grey" id="tdAggStat">
 
 		<div id="divAggStat">
 			<span class="header">Aggregation Statistics</span>
@@ -352,7 +366,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 					<tr><td align="right">
 						<table border="0" cellpadding="0" cellspacing="0">
 							<tr>
-								<td class="fmtLabel" align="right">Line Type</td>
+								<td class="fmtLabel" align="right">Series Line Type</td>
 								<td rowspan="2">
 									<select style="min-width:100px">
 										<option>p</option>
@@ -424,6 +438,49 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 				<span id="spanFmtSeriesHR" style="padding-left:30px; padding-top:20px"><hr align="right" style="width:90%"/></span>
 			</td></tr>
 			</table>
+			
+			<table id="tabFmtSeriesRhist" cellspacing="0" cellpadding="0" border="0" style="display:none; padding-bottom:20px">
+			<tr>
+				<td align="right" style="width:350px">
+					<span id="spanFmtSeriesName">
+						<span class="bold" style="font-size:10pt; padding-right:20px">Rank Histogram</span>
+					</span>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRhistVal" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Color</td>
+								<td rowspan="2"><input type="text" size="12" value="gray"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">color</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Width</td>
+								<td rowspan="2"><input type="text" size="12" value="1"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lwd</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Legend Text</td>
+								<td rowspan="2"><input type="text" size="12"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">legend</td></tr>
+						</table>
+					</td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr><td><br/><br/></td></tr>
+			</table>
+			
 		</div>
 		
 		</td></tr><tr><td class="grey">

@@ -228,7 +228,7 @@ public class MVDataTable{
 		if( 1 > _listFields.size() ){
 			String[] listKeys = {};
 			if( row instanceof MVOrderedMap ){
-				listKeys = ((MVOrderedMap)row).keyList();
+				listKeys = ((MVOrderedMap)row).getKeyList();
 			} else {
 				listKeys = (String[])row.keySet().toArray(new String[]{});
 			}

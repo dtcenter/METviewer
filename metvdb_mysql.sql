@@ -267,6 +267,7 @@ CREATE TABLE line_data_pct_thresh
     thresh_i            DOUBLE,
     oy_i                INT UNSIGNED,
     on_i                INT UNSIGNED,
+    PRIMARY KEY (line_data_id, i_value),
     CONSTRAINT line_data_pct_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_pct(line_data_id)
@@ -300,6 +301,7 @@ CREATE TABLE line_data_pstd_thresh
     line_data_id        INT UNSIGNED NOT NULL,
     i_value             INT UNSIGNED NOT NULL,
     thresh_i            DOUBLE,
+    PRIMARY KEY (line_data_id, i_value),
     CONSTRAINT line_data_pstd_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_pstd(line_data_id)
@@ -338,6 +340,7 @@ CREATE TABLE line_data_pjc_thresh
     refinement_i        DOUBLE,
     likelihood_i        DOUBLE,
     baser_i             DOUBLE,
+    PRIMARY KEY (line_data_id, i_value),
     CONSTRAINT line_data_pjc_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_pjc(line_data_id)
@@ -372,6 +375,7 @@ CREATE TABLE line_data_prc_thresh
     thresh_i            DOUBLE,
     pody_i              DOUBLE,
     pofd_i              DOUBLE,
+    PRIMARY KEY (line_data_id, i_value),
     CONSTRAINT line_data_prc_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_prc(line_data_id)
@@ -610,6 +614,7 @@ CREATE TABLE line_data_mctc_cnt
     i_value             INT UNSIGNED NOT NULL,
     j_value             INT UNSIGNED NOT NULL,
     fi_oj               INT UNSIGNED NOT NULL,
+    PRIMARY KEY (line_data_id, i_value, j_value),
     CONSTRAINT line_data_mctc_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_mctc(line_data_id)
@@ -661,6 +666,7 @@ CREATE TABLE line_data_rhist_rank
     line_data_id        INT UNSIGNED NOT NULL,
     i_value             INT UNSIGNED NOT NULL,
     rank_i              INT UNSIGNED,
+    PRIMARY KEY (line_data_id, i_value),
     CONSTRAINT line_data_rhist_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_rhist(line_data_id)
@@ -703,6 +709,7 @@ CREATE TABLE line_data_orank_ens
     line_data_id        INT UNSIGNED NOT NULL,
     i_value             INT UNSIGNED NOT NULL,
     ens_i               DOUBLE,
+    PRIMARY KEY (line_data_id, i_value),
     CONSTRAINT line_data_orank_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_orank(line_data_id)

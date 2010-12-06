@@ -243,7 +243,10 @@ public class MVPlotJobParser extends MVUtil{
 				
 				//  add the job to the jobs table and to the runnable jobs, if appropriate
 				_tablePlotDecl.put(node._name, job);
-				String strCompleteness = checkJobCompleteness(job);
+				String strCompleteness = "";
+				if( !job.getPlotTmpl().equals("rhist.R_tmpl") ){
+					strCompleteness = checkJobCompleteness(job);
+				}
 				boolean boolComplete = strCompleteness.equals("");
 				boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
 				if( boolComplete )	{

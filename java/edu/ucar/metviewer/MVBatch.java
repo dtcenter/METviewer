@@ -104,7 +104,7 @@ public class MVBatch extends MVUtil {
 			//  build a list of jobs to run
 			ArrayList listJobNamesInput = new ArrayList();
 			for(; intArg < argv.length; intArg++){ listJobNamesInput.add(argv[intArg]); }
-			String[] listJobNames = mapJobs.keyList();
+			String[] listJobNames = mapJobs.getKeyList();
 			if( 0 < listJobNamesInput.size() ){
 				listJobNames = toArray(listJobNamesInput);
 			}
@@ -181,7 +181,11 @@ public class MVBatch extends MVUtil {
 			}
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
-				bat.runJob(jobs[intJob]);
+				if( jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl") ){
+					bat.runRhistJob(jobs[intJob]);
+				} else {
+					bat.runJob(jobs[intJob]);
+				}
 			}
 
 			java.util.Date dateEnd = new java.util.Date();
@@ -208,51 +212,18 @@ public class MVBatch extends MVUtil {
 	
 	public void runJob(MVPlotJob job) throws Exception {
 		
-		//  build a list of fixed value permutations for all plots
-		MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
 		MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
-		if( 0 < mapPlotFixVal.size() ){
-			MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
-			listPlotFixPerm = tabPlotFixPerm.getRows();
-		}
+		MVOrderedMap mapTmplVals = job.getTmplVal();
+
+		//  build a list of fixed value permutations for all plots
+		MVOrderedMap[] listPlotFixPerm = buildFixValList(mapPlotFixVal);
 
 		//  run the plot jobs once for each permutation of plot fixed values
-		MVOrderedMap mapTmplVals = job.getTmplVal();
 		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
-			Map.Entry[] listPlotFixVal = listPlotFixPerm[intPlotFix].getOrderedEntries();
-			
-			//  add the fixed values to the template value map, and insert set values for this permutation
-			for(int i=0; i < listPlotFixVal.length; i++){
-				String strFixVar = listPlotFixVal[i].getKey().toString();
-				String strFixVal = listPlotFixVal[i].getValue().toString();
-				MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
-				if( null != mapTmpl && mapTmpl.containsKey(strFixVal) ){
-					strFixVal = mapTmpl.getStr(strFixVal);
-				} else { 
-					Matcher matDateRange = _patDateRange.matcher(strFixVal);
-					if( matDateRange.matches() ){
-						strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
-					}
-				}
-				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
-				
-			}
-			
-			//  replace fixed value set names with their value maps
-			ArrayList listPlotFixValAdj = new ArrayList();
-			for(int i=0; i < listPlotFixVal.length; i++){
-				String strFixVar = listPlotFixVal[i].getKey().toString();
-				if( !strFixVar.endsWith("_set") ){
-					listPlotFixValAdj.add(listPlotFixVal[i]);
-					continue;
-				}
-				
-				String strFixVarAdj = strFixVar.replaceAll("_set$", "");
-				MVOrderedMap mapFixSet = (MVOrderedMap)mapPlotFixVal.get( strFixVarAdj );
-				listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet) );
-			}
-			listPlotFixVal = (Map.Entry[])listPlotFixValAdj.toArray(new Map.Entry[]{});
 
+			//  populate the plot template values with fixed values
+			Map.Entry[] listPlotFixVal = buildFixValTmplMap(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
+			
 			//  if the independent variable uses a dependency, populate the values
 			MVPlotDep depIndy = job.getIndyDep();
 			if( null != depIndy ){
@@ -462,32 +433,11 @@ public class MVBatch extends MVUtil {
 				}
 				
 				//  build the where clause from the tables of field names and values
-				String strWhere = "";
-				
-				//  build the aggregate fields where clause
-				Map.Entry[] listFixAggFields = append(listAggVal, listPlotFixVal);
-				for(int i=0; i < listFixAggFields.length; i++){
-					String strField = (String)listFixAggFields[i].getKey();
-					String strCondition = "";
-					Object objValue = listFixAggFields[i].getValue();
-					if( objValue instanceof String[] ){
-						strCondition = "IN (" + buildValueList( (String[])objValue ) + ")";
-					} else if( objValue instanceof MVOrderedMap ){
-						Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();
-						for(int j=0; j < listSets.length; j++){
-							strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
-						}
-						strCondition = "IN (" + strCondition + ")";
-					} else if( objValue instanceof String ){
-						if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
-						else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
-					}
-					strWhere += "  " + (0 < i? "AND " : "") + formatField(strField, boolModePlot) + " " + strCondition + "\n";
-				}
-				
+				String strWhere = buildAggWhere(new Map.Entry[]{}, listPlotFixVal, boolModePlot);
+
 				//  add the independent variable values, if necessary
 				if( 0 < job.getIndyVal().length ){
-					strWhere += (!strWhere.equals("")? "  AND " : "") + formatField(job.getIndyVar(), boolModePlot) + 
+					strWhere += (!strWhere.equals("")? "  AND " : "") + formatField(job.getIndyVar(), boolModePlot, false) + 
 								" IN (" + buildValueList(job.getIndyVal()) + ")\n";
 				}
 	
@@ -520,7 +470,7 @@ public class MVBatch extends MVUtil {
 						for(int j=0; j < listFixed.length; j++){
 							String strField = (String)listFixed[j].getKey();
 							String strValue = (String)listFixed[j].getValue();
-							strFixed += "      AND " + formatField(strField, boolModePlot) + formatSQLConstraint(strValue) + "\n";
+							strFixed += "      AND " + formatField(strField, boolModePlot, false) + formatSQLConstraint(strValue) + "\n";
 						}
 					}
 					
@@ -530,7 +480,7 @@ public class MVBatch extends MVUtil {
 					for(int j=0; j < listSeriesVal.length; j++){
 						String strField = (String)listSeriesVal[j].getKey();
 						String[] listValues = (String[])listSeriesVal[j].getValue();
-						strSeries += "      AND " + formatField(strField, boolModePlot) + " IN (" + buildValueList(listValues) + ")\n";
+						strSeries += "      AND " + formatField(strField, boolModePlot, false) + " IN (" + buildValueList(listValues) + ")\n";
 					}
 					
 					strWhere += (0 < i? "    OR\n" : "") + "    (\n      h.fcst_var" + strFcstVarClause + "\n" +
@@ -1023,7 +973,7 @@ public class MVBatch extends MVUtil {
 						
 						//  create a where clause for selecting plot data
 						String strPlotWhere = "";
-						String[] listKeysAgg = listAggPerm[intPerm].keyList();
+						String[] listKeysAgg = listAggPerm[intPerm].getKeyList();
 						for(int i=0; i < listKeysAgg.length; i++){
 							String strKey = listKeysAgg[i];
 							String strVal = (String)listAggPerm[intPerm].get(strKey);
@@ -1201,7 +1151,7 @@ public class MVBatch extends MVUtil {
 								if     ( i == 0 && job.getAggDiff1() ){ mapSeriesVal = mapSeries1Val; strDiffSeries = "__AGG_DIFF1__"; }
 								else if( i == 1 && job.getAggDiff2() ){ mapSeriesVal = mapSeries2Val; strDiffSeries = "__AGG_DIFF2__"; }
 								else                                  { continue; }						
-								String[] listSeriesVar = mapSeriesVal.keyList();
+								String[] listSeriesVar = mapSeriesVal.getKeyList();
 								ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
 								listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
 								mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], toArray(listDiffVal));
@@ -1244,7 +1194,8 @@ public class MVBatch extends MVUtil {
 						 */
 						
 						Hashtable tableRTags = new Hashtable();
-		
+						
+						//  populate the plot settings in the R script template
 						tableRTags.put("r_work",		_strRworkFolder);
 						tableRTags.put("indy_var",		job.getIndyVar());
 						tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
@@ -1300,69 +1251,12 @@ public class MVBatch extends MVUtil {
 							intNumSeries2Perm *= ((String[])listSeries2Val[i].getValue()).length;
 						}
 						
-						tableRTags.put("plot_type",		job.getPlotType());
-						tableRTags.put("plot_width",	job.getPlotWidth());
-						tableRTags.put("plot_height",	job.getPlotHeight());
-						tableRTags.put("plot_res",		job.getPlotRes());
-						tableRTags.put("plot_units",	job.getPlotUnits());
-						tableRTags.put("mar",			job.getMar());
-						tableRTags.put("mgp",			job.getMgp());
-						tableRTags.put("cex",			job.getCex());
-						tableRTags.put("title_weight",	job.getTitleWeight());
-						tableRTags.put("title_size",	job.getTitleSize());
-						tableRTags.put("title_offset",	job.getTitleOffset());
-						tableRTags.put("title_align",	job.getTitleAlign());
-						tableRTags.put("xtlab_orient",	job.getXtlabOrient());
-						tableRTags.put("xtlab_perp",	job.getXtlabPerp());
-						tableRTags.put("xtlab_horiz",	job.getXtlabHoriz());
-						tableRTags.put("xlab_weight",	job.getXlabWeight());
-						tableRTags.put("xlab_size",		job.getXlabSize());
-						tableRTags.put("xlab_offset",	job.getXlabOffset());
-						tableRTags.put("xlab_align",	job.getXlabAlign());
-						tableRTags.put("ytlab_orient",	job.getYtlabOrient());
-						tableRTags.put("ytlab_perp",	job.getYtlabPerp());
-						tableRTags.put("ytlab_horiz",	job.getYtlabHoriz());
-						tableRTags.put("ylab_weight",	job.getYlabWeight());
-						tableRTags.put("ylab_size",		job.getYlabSize());
-						tableRTags.put("ylab_offset",	job.getYlabOffset());
-						tableRTags.put("ylab_align",	job.getYlabAlign());
-						tableRTags.put("grid_lty",		job.getGridLty());
-						tableRTags.put("grid_col",		job.getGridCol());
-						tableRTags.put("grid_lwd",		job.getGridLwd());
-						tableRTags.put("grid_x",		job.getGridX());
-						tableRTags.put("x2tlab_orient",	job.getX2tlabOrient());
-						tableRTags.put("x2tlab_perp",	job.getX2tlabPerp());
-						tableRTags.put("x2tlab_horiz",	job.getX2tlabHoriz());
-						tableRTags.put("x2lab_weight",	job.getX2labWeight());
-						tableRTags.put("x2lab_size",	job.getX2labSize());
-						tableRTags.put("x2lab_offset",	job.getX2labOffset());
-						tableRTags.put("x2lab_align",	job.getX2labAlign());
-						tableRTags.put("y2tlab_orient",	job.getY2tlabOrient());
-						tableRTags.put("y2tlab_perp",	job.getY2tlabPerp());
-						tableRTags.put("y2tlab_horiz",	job.getY2tlabHoriz());
-						tableRTags.put("y2lab_weight",	job.getY2labWeight());
-						tableRTags.put("y2lab_size",	job.getY2labSize());
-						tableRTags.put("y2lab_offset",	job.getY2labOffset());
-						tableRTags.put("y2lab_align",	job.getY2labAlign());
-						tableRTags.put("legend_size",	job.getLegendSize());
-						tableRTags.put("legend_box",	job.getLegendBox());
-						tableRTags.put("legend_inset",	job.getLegendInset());
-						tableRTags.put("legend_ncol",	job.getLegendNcol());
-						tableRTags.put("caption_weight",job.getCaptionWeight());
-						tableRTags.put("caption_col",	job.getCaptionCol());
-						tableRTags.put("caption_size",	job.getCaptionSize());
-						tableRTags.put("caption_offset",job.getCaptionOffset());
-						tableRTags.put("caption_align",	job.getCaptionAlign());
-						tableRTags.put("box_pts",		job.getBoxPts());
-						tableRTags.put("box_outline",	job.getBoxOutline());
-						tableRTags.put("box_boxwex",	job.getBoxBoxwex());
-						tableRTags.put("box_notch",		job.getBoxNotch());
-						tableRTags.put("box_avg",		job.getBoxAvg());
-						tableRTags.put("ci_alpha",		job.getCIAlpha());
-						
 						int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));
 						int intNumDep2Series = intNumDep2 * (intNumSeries2Perm + (job.getPlot2Diff()? 1 : 0));
 						int intNumDepSeries = intNumDep1Series + intNumDep2Series;
+
+						//  populate the formatting information in the R script template
+						populatePlotFmtTmpl(tableRTags, job);
 						
 						tableRTags.put("plot_ci",	job.getPlotCI().equals("")? printRCol( rep("none", intNumDepSeries) )	: job.getPlotCI());
 						tableRTags.put("colors",	job.getColors().equals("")?	"rainbow(" + intNumDepSeries + ")"		: job.getColors());
@@ -1408,82 +1302,52 @@ public class MVBatch extends MVUtil {
 	public void runRhistJob(MVPlotJob job) throws Exception {
 		
 		//  build a list of fixed value permutations for all plots
-		MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
 		MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
-		if( 0 < mapPlotFixVal.size() ){
-			MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
-			listPlotFixPerm = tabPlotFixPerm.getRows();
-		}
+		MVOrderedMap[] listPlotFixPerm = buildFixValList(mapPlotFixVal);
 
 		//  run the plot jobs once for each permutation of plot fixed values
-		MVOrderedMap mapTmplVals = job.getTmplVal();
 		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
-			Map.Entry[] listPlotFixVal = listPlotFixPerm[intPlotFix].getOrderedEntries();
-			
-			//  add the fixed values to the template value map, and insert set values for this permutation
-			for(int i=0; i < listPlotFixVal.length; i++){
-				String strFixVar = listPlotFixVal[i].getKey().toString();
-				String strFixVal = listPlotFixVal[i].getValue().toString();
-				MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
-				if( null != mapTmpl && mapTmpl.containsKey(strFixVal) ){
-					strFixVal = mapTmpl.getStr(strFixVal);
-				} else { 
-					Matcher matDateRange = _patDateRange.matcher(strFixVal);
-					if( matDateRange.matches() ){
-						strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
-					}
-				}
-				mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
-				
-			}
-			
-			//  replace fixed value set names with their value maps
-			ArrayList listPlotFixValAdj = new ArrayList();
-			for(int i=0; i < listPlotFixVal.length; i++){
-				String strFixVar = listPlotFixVal[i].getKey().toString();
-				if( !strFixVar.endsWith("_set") ){
-					listPlotFixValAdj.add(listPlotFixVal[i]);
-					continue;
-				}
-				
-				String strFixVarAdj = strFixVar.replaceAll("_set$", "");
-				MVOrderedMap mapFixSet = (MVOrderedMap)mapPlotFixVal.get( strFixVarAdj );
-				listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet) );
-			}
-			listPlotFixVal = (Map.Entry[])listPlotFixValAdj.toArray(new Map.Entry[]{});
-			
-			
-			//  ...
-			
-			//  START NEW
-			String strWhere = "";
 
-			Map.Entry[] listAggVal = new Map.Entry[]{};
+			//  populate the template map with fixed values 
+			Map.Entry[] listPlotFixVal = buildFixValTmplMap(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
+			
 			boolean boolModePlot = false;
-			//  END NEW			
+			Statement stmt = null;
 			
-			//  build the aggregate fields where clause
-			Map.Entry[] listFixAggFields = append(listAggVal, listPlotFixVal);
-			for(int i=0; i < listFixAggFields.length; i++){
-				String strField = (String)listFixAggFields[i].getKey();
-				String strCondition = "";
-				Object objValue = listFixAggFields[i].getValue();
-				if( objValue instanceof String[] ){
-					strCondition = "IN (" + buildValueList( (String[])objValue ) + ")";
-				} else if( objValue instanceof MVOrderedMap ){
-					Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();
-					for(int j=0; j < listSets.length; j++){
-						strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
-					}
-					strCondition = "IN (" + strCondition + ")";
-				} else if( objValue instanceof String ){
-					if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
-					else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
-				}
-				strWhere += "  " + (0 < i? "AND " : "") + formatField(strField, boolModePlot) + " " + strCondition + "\n";
+			//  build the stat_header where clauses of the sql  
+			String strWhere = buildAggWhere(new Map.Entry[]{}, listPlotFixVal, boolModePlot);
+			
+			//  if the n_rank is present, replace the table
+			strWhere = strWhere.replaceAll("h\\.n_rank", "ldr.n_rank");
+			
+			//  build a query for the number of ranks among selected rhist records
+			String strRankNumSelect = 
+				"SELECT DISTINCT\n" +
+				"  ldr.n_rank\n" +
+				"FROM\n" +
+				"  stat_header h,\n" +
+				"  line_data_rhist ldr\n" +
+				"WHERE\n" +
+				strWhere +
+				"  AND h.stat_header_id = ldr.stat_header_id;";
+			if( _boolVerbose ){ _out.println(strRankNumSelect); }
+			
+			//  run the rank number query and warn, if necessary
+			stmt = job.getConnection().createStatement();
+			stmt.execute(strRankNumSelect);
+			ResultSet res = stmt.getResultSet();
+			ArrayList listRankNum = new ArrayList();
+			while(res.next()){ listRankNum.add(res.getString(1)); }
+			String strMsg = "";
+			if     ( 0 == listRankNum.size() ){ throw new Exception("no rank data found"); }
+			else if( 1 <  listRankNum.size() ){
+				strMsg = "  **  WARNING: multiple n_rank values found for search criteria: ";
+				for(int i=0; i < listRankNum.size(); i++){ strMsg += (0 < i? ", " : "") + listRankNum.get(i).toString(); }
+				_out.println(strMsg);
 			}
+			stmt.close();
 			
-			//  START NEW
+			//  build a query for the rank data
 			String strPlotDataSelect = 
 				"SELECT\n" +
 				"  ldrr.i_value,\n" +
@@ -1494,39 +1358,241 @@ public class MVBatch extends MVUtil {
 				"  line_data_rhist_rank ldrr\n" +
 				"WHERE\n" +
 				strWhere +
-				"  h.stat_header_id = ldr.stat_header_id\n" +
+				"  AND h.stat_header_id = ldr.stat_header_id\n" +
 				"  AND ldr.line_data_id = ldrr.line_data_id\n" +
 				"GROUP BY i_value;";
 
 			if( _boolVerbose ){ _out.println(strPlotDataSelect); }
 			if( _boolSQLOnly ){ return; }
-
-			Statement stmt = null;
 						
-			MVOrderedMap mapPlotTmplVals = new MVOrderedMap( mapTmplVals );
-
 
 			/*
 			 *  Print the data file in the R_work subfolder and file specified by the data file template
 			 */
 			
-			//  construct the file system paths for the files used to build the plot 
+			//  construct the file system paths for the files used to build the plot
+			MVOrderedMap mapPlotTmplVals = new MVOrderedMap( job.getTmplVal() );
 			_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
 			_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
 			_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
 			String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
-			//NEW if( boolAggStat ){ strDataFile = strDataFile + ".agg_stat"; }
 			(new File(strDataFile)).getParentFile().mkdirs();
 
 			//  get the data for the current plot from the plot_data temp table and write it to a data file
 			stmt = job.getConnection().createStatement();
-			//NEW String strPlotDataSelect = "SELECT\n" + strSelectList + "\nFROM plot_data;";
-			//NEW if( _boolVerbose ){ _out.println(strPlotDataSelect); }
 			stmt.execute(strPlotDataSelect);
 			printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
 			stmt.close();
 			
+			//  build the template strings using the current template values
+			String strPlotFile	= _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strRFile		= _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strTitle		= buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strCaption	= buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			
+			//  create a table containing all template values for populating the R_tmpl
+			Hashtable tableRTags = new Hashtable();
+			
+			tableRTags.put("r_work",		_strRworkFolder);
+			tableRTags.put("plot_file",		strPlotFile);
+			tableRTags.put("data_file",		strDataFile);
+			tableRTags.put("plot_title",	strTitle);
+			tableRTags.put("x_label",		strXLabel);
+			tableRTags.put("y1_label",		strY1Label);
+			tableRTags.put("plot_caption",	strCaption);
+			tableRTags.put("plot_cmd", 		job.getPlotCmd());
+			tableRTags.put("grid_on",		(job.getGridOn()? "TRUE" : "FALSE"));
+			tableRTags.put("colors",		job.getColors().equals("")?	"\"gray\"" : job.getColors());
+			tableRTags.put("y1_lim",		job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
+			populatePlotFmtTmpl(tableRTags, job);
+
+			//  populate the R_tmpl with the template values
+			populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
+
+			
+			/*
+			 *  Attempt to run the generated R script
+			 */			
+
+			if( _boolPlot ){
+				runRscript(job.getRscript(), strRFile);
+				if( !strMsg.equals("") ){
+					_out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
+				}
+				_intNumPlotsRun++;
+				_out.println();
+			}
+
 		}		
+	}
+	
+	/**
+	 * Build where clauses for each of the input aggregation field/value entries and return the clauses as
+	 * a String
+	 * @param listAggVal list of &lt;agg&gt; field/value pairs
+	 * @param listPlotFixVal list of &lt;plot_fix&gt; field/value pairs
+	 * @param boolModePlot specifies MODE plot
+	 * @return generated SQL where clauses
+	 */
+	public static String buildAggWhere(Map.Entry[] listAggVal, Map.Entry[] listPlotFixVal, boolean boolModePlot){
+		String strWhere = "";
+		
+		//  build the aggregate fields where clause
+		Map.Entry[] listFixAggFields = append(listAggVal, listPlotFixVal);
+		for(int i=0; i < listFixAggFields.length; i++){
+			String strField = (String)listFixAggFields[i].getKey();
+			String strCondition = "";
+			Object objValue = listFixAggFields[i].getValue();
+			if( objValue instanceof String[] ){
+				strCondition = "IN (" + buildValueList( (String[])objValue ) + ")";
+			} else if( objValue instanceof MVOrderedMap ){
+				Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();
+				for(int j=0; j < listSets.length; j++){
+					strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
+				}
+				strCondition = "IN (" + strCondition + ")";
+			} else if( objValue instanceof String ){
+				if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
+				else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
+			}
+			strWhere += "  " + (0 < i? "AND " : "") + formatField(strField, boolModePlot, false) + " " + strCondition + "\n";
+		}
+		
+		return strWhere;
+	}
+	
+	/**
+	 * Build the list of fixed field/value permutations for all jobs
+	 * @param mapPlotFixVal map of field/value pairs to permute
+	 * @return list of permutations
+	 */
+	public static MVOrderedMap[] buildFixValList(MVOrderedMap mapPlotFixVal){
+		
+		//  build a list of fixed value permutations for all plots
+		MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
+		if( 0 < mapPlotFixVal.size() ){
+			MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
+			listPlotFixPerm = tabPlotFixPerm.getRows();
+		}
+
+		return listPlotFixPerm;
+	}
+	
+	/**
+	 * Construct the template map for the specified permutation of fixed values, using the specified 
+	 * set values.   
+	 * @param job job whose template values are used
+	 * @param mapPlotFix fixed field/value pairs to use in populating the template values
+	 * @param mapPlotFixVal values used for sets
+	 * @throws Exception
+	 */
+	public Map.Entry[] buildFixValTmplMap(MVPlotJob job, MVOrderedMap mapPlotFix, MVOrderedMap mapPlotFixVal)
+	throws Exception {
+		MVOrderedMap mapTmplVals = job.getTmplVal();
+		Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
+			
+		//  add the fixed values to the template value map, and insert set values for this permutation
+		for(int i=0; i < listPlotFixVal.length; i++){
+			String strFixVar = listPlotFixVal[i].getKey().toString();
+			String strFixVal = listPlotFixVal[i].getValue().toString();
+			MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
+			if( null != mapTmpl && mapTmpl.containsKey(strFixVal) ){
+				strFixVal = mapTmpl.getStr(strFixVal);
+			} else { 
+				Matcher matDateRange = _patDateRange.matcher(strFixVal);
+				if( matDateRange.matches() ){
+					strFixVal = _formatPlot.format( _formatDB.parse(matDateRange.group(2)) );					
+				}
+			}
+			mapTmplVals.putStr(listPlotFixVal[i].getKey().toString(), strFixVal);
+			
+		}
+		
+		//  replace fixed value set names with their value maps
+		ArrayList listPlotFixValAdj = new ArrayList();
+		for(int i=0; i < listPlotFixVal.length; i++){
+			String strFixVar = listPlotFixVal[i].getKey().toString();
+			if( !strFixVar.endsWith("_set") ){
+				listPlotFixValAdj.add(listPlotFixVal[i]);
+				continue;
+			}
+			
+			String strFixVarAdj = strFixVar.replaceAll("_set$", "");
+			MVOrderedMap mapFixSet = (MVOrderedMap)mapPlotFixVal.get( strFixVarAdj );
+			listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet) );
+		}
+		listPlotFixVal = (Map.Entry[])listPlotFixValAdj.toArray(new Map.Entry[]{});
+		
+		return listPlotFixVal;
+	}
+	
+	/**
+	 * Populate the input table with the plot formatting tag values stored in the input job.
+	 * @param tableRTags template value table to receive plot formatting values
+	 * @param job source for plot formatting values
+	 */
+	public static void populatePlotFmtTmpl(Hashtable tableRTags, MVPlotJob job){
+		tableRTags.put("plot_type",		job.getPlotType());
+		tableRTags.put("plot_width",	job.getPlotWidth());
+		tableRTags.put("plot_height",	job.getPlotHeight());
+		tableRTags.put("plot_res",		job.getPlotRes());
+		tableRTags.put("plot_units",	job.getPlotUnits());
+		tableRTags.put("mar",			job.getMar());
+		tableRTags.put("mgp",			job.getMgp());
+		tableRTags.put("cex",			job.getCex());
+		tableRTags.put("title_weight",	job.getTitleWeight());
+		tableRTags.put("title_size",	job.getTitleSize());
+		tableRTags.put("title_offset",	job.getTitleOffset());
+		tableRTags.put("title_align",	job.getTitleAlign());
+		tableRTags.put("xtlab_orient",	job.getXtlabOrient());
+		tableRTags.put("xtlab_perp",	job.getXtlabPerp());
+		tableRTags.put("xtlab_horiz",	job.getXtlabHoriz());
+		tableRTags.put("xlab_weight",	job.getXlabWeight());
+		tableRTags.put("xlab_size",		job.getXlabSize());
+		tableRTags.put("xlab_offset",	job.getXlabOffset());
+		tableRTags.put("xlab_align",	job.getXlabAlign());
+		tableRTags.put("ytlab_orient",	job.getYtlabOrient());
+		tableRTags.put("ytlab_perp",	job.getYtlabPerp());
+		tableRTags.put("ytlab_horiz",	job.getYtlabHoriz());
+		tableRTags.put("ylab_weight",	job.getYlabWeight());
+		tableRTags.put("ylab_size",		job.getYlabSize());
+		tableRTags.put("ylab_offset",	job.getYlabOffset());
+		tableRTags.put("ylab_align",	job.getYlabAlign());
+		tableRTags.put("grid_lty",		job.getGridLty());
+		tableRTags.put("grid_col",		job.getGridCol());
+		tableRTags.put("grid_lwd",		job.getGridLwd());
+		tableRTags.put("grid_x",		job.getGridX());
+		tableRTags.put("x2tlab_orient",	job.getX2tlabOrient());
+		tableRTags.put("x2tlab_perp",	job.getX2tlabPerp());
+		tableRTags.put("x2tlab_horiz",	job.getX2tlabHoriz());
+		tableRTags.put("x2lab_weight",	job.getX2labWeight());
+		tableRTags.put("x2lab_size",	job.getX2labSize());
+		tableRTags.put("x2lab_offset",	job.getX2labOffset());
+		tableRTags.put("x2lab_align",	job.getX2labAlign());
+		tableRTags.put("y2tlab_orient",	job.getY2tlabOrient());
+		tableRTags.put("y2tlab_perp",	job.getY2tlabPerp());
+		tableRTags.put("y2tlab_horiz",	job.getY2tlabHoriz());
+		tableRTags.put("y2lab_weight",	job.getY2labWeight());
+		tableRTags.put("y2lab_size",	job.getY2labSize());
+		tableRTags.put("y2lab_offset",	job.getY2labOffset());
+		tableRTags.put("y2lab_align",	job.getY2labAlign());
+		tableRTags.put("legend_size",	job.getLegendSize());
+		tableRTags.put("legend_box",	job.getLegendBox());
+		tableRTags.put("legend_inset",	job.getLegendInset());
+		tableRTags.put("legend_ncol",	job.getLegendNcol());
+		tableRTags.put("caption_weight",job.getCaptionWeight());
+		tableRTags.put("caption_col",	job.getCaptionCol());
+		tableRTags.put("caption_size",	job.getCaptionSize());
+		tableRTags.put("caption_offset",job.getCaptionOffset());
+		tableRTags.put("caption_align",	job.getCaptionAlign());
+		tableRTags.put("box_pts",		job.getBoxPts());
+		tableRTags.put("box_outline",	job.getBoxOutline());
+		tableRTags.put("box_boxwex",	job.getBoxBoxwex());
+		tableRTags.put("box_notch",		job.getBoxNotch());
+		tableRTags.put("box_avg",		job.getBoxAvg());
+		tableRTags.put("ci_alpha",		job.getCIAlpha());
 	}
 		
 	/**
@@ -1681,15 +1747,16 @@ public class MVBatch extends MVUtil {
 	public void printFormattedTable(ResultSet res, int maxRows){ printFormattedTable(res, _out, " ", maxRows); }
 	public void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
 
-	public static String formatField(String field, boolean mode){
-		if( field.equals("init_hour") )          { return (mode? "HOUR(h.fcst_init)"  : "HOUR(h.fcst_init_beg)");  }
-		else if( field.equals("valid_hour") )    { return (mode? "HOUR(h.fcst_valid)" : "HOUR(h.fcst_valid_beg)"); }
-		else if( field.equals("fcst_init_beg") ) { return getSQLDateFormat("h.fcst_init_beg");  }
-		else if( field.equals("fcst_init") )     { return getSQLDateFormat("h.fcst_init");      }
-		else if( field.equals("fcst_valid_beg") ){ return getSQLDateFormat("h.fcst_valid_beg"); }
-		else if( field.equals("fcst_valid") )    { return getSQLDateFormat("h.fcst_valid");     }
-		else                                     { return "h." + field;                         }
+	public static String formatField(String field, boolean mode, boolean fmtDate){
+		if( field.equals("init_hour") )                     { return (mode? "HOUR(h.fcst_init)"  : "HOUR(h.fcst_init_beg)");  }
+		else if( field.equals("valid_hour") )               { return (mode? "HOUR(h.fcst_valid)" : "HOUR(h.fcst_valid_beg)"); }
+		else if( field.equals("fcst_init_beg")  && fmtDate ){ return getSQLDateFormat("h.fcst_init_beg");  }
+		else if( field.equals("fcst_init")      && fmtDate ){ return getSQLDateFormat("h.fcst_init");      }
+		else if( field.equals("fcst_valid_beg") && fmtDate ){ return getSQLDateFormat("h.fcst_valid_beg"); }
+		else if( field.equals("fcst_valid")     && fmtDate ){ return getSQLDateFormat("h.fcst_valid");     }
+		else                                                { return "h." + field;                         }
 	}
+	public static String formatField(String field, boolean mode){ return formatField(field, mode, true); }
 	
 	public static String formatSQLConstraint(String value){
 		String strRet = " = '" + value + "'";
