@@ -5,7 +5,6 @@ var _boolDim = false;
 var _url;
 
 var _strDBCon = "";
-var _boolDBStatus = false;
 
 var TMPL_SERIES_PLOT	= 1;
 var TMPL_BAR_PLOT		= 2;
@@ -14,7 +13,7 @@ var TMPL_RHIST			= 4;
 var _intTmpl = TMPL_SERIES_PLOT;
 
 var _intDebugState = 0;
-var _boolDebugDisp = true;
+var _boolDebugDisp = false;
 var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "Indy", "FmtPlot", "FmtSeries", "AggStat"];
 
 var _intDepIdNext = 1;
