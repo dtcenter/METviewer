@@ -31,6 +31,8 @@ public class MVServlet extends HttpServlet {
 	
 	public static Hashtable _tableDBConnection = new Hashtable();
 	
+	public static Hashtable _tableStatGroupName = new Hashtable();
+	
 	public static boolean _boolListValCache = false;
 	public static Hashtable _tableListValCache = new Hashtable();
 	public static boolean _boolListStatCache = true;
@@ -202,8 +204,7 @@ public class MVServlet extends HttpServlet {
 					} catch(Exception ex){
 				    	_logger.error("doPost() - db_con: " + ex.getClass() + " connecting to database: " + ex.getMessage());
 				    	throw ex;
-					}
-
+					}					
 				}
 				
 				//  <list_val>
@@ -455,23 +456,35 @@ public class MVServlet extends HttpServlet {
     		return strListStat;
     	}
     	
+    	//  if the stat name table is empty, initialize it
+    	if( 1 > _tableStatGroupName.size() ){ loadStatGroupNames(con); }
+    	
 		//  build a query for the statistics and execute it
-		String strSQL = "SELECT DISTINCT sgl.stat_group_name FROM stat_header sh, stat_group sg, stat_group_lu sgl " +
-						"WHERE sh.fcst_var LIKE '" + strFcstVar.replace("*", "%") + "' AND sg.stat_header_id = sh.stat_header_id AND " +
-							"sg.stat_group_lu_id = sgl.stat_group_lu_id ORDER BY sgl.stat_group_name";
+		String strSQL = "SELECT DISTINCT sg.stat_group_lu_id FROM stat_header h, stat_group sg " +
+						"WHERE h.fcst_var LIKE '" + strFcstVar.replace("*", "%") + "' AND sg.stat_header_id = h.stat_header_id;";
     	_logger.debug("handleListStat() - listing stats for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
 		Statement stmt = con.createStatement();
 		long intStart = (new java.util.Date()).getTime();
 		stmt.executeQuery(strSQL);
 
-		//  add the list of field values from the query to the response
+		//  build a list of stat names using the stat ids returned by the query
 		String strResp = "<list_stat><id>" + strId + "</id>";
-		int intNumStat = 0;
 		ResultSet res = stmt.getResultSet();
+		ArrayList listStatName = new ArrayList();
 		while( res.next() ){
-			String strStat = res.getString(1);			
-			strResp += "<val>" + strStat + "</val>";
-			if( "BCMSE".equals(strStat) ){ strResp += "<val>BCRMSE</val>"; }
+			String strStatId = res.getString(1);
+			listStatName.add( _tableStatGroupName.get(strStatId).toString() );
+		}
+
+		//  sort and build the response string using the list of stat names
+		String[] listStat = MVUtil.toArray(listStatName);
+		Arrays.sort(listStat, new Comparator(){
+			public int compare(Object o1, Object o2){ return ((String)o1).compareTo( (String)o2 ); }
+		});
+		int intNumStat = 0;
+		for(int i=0; i < listStat.length; i++){
+			strResp += "<val>" + listStat[i] + "</val>";
+			if( "BCMSE".equals(listStat[i]) ){ strResp += "<val>BCRMSE</val>"; }
 			intNumStat++;
 		}
 		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
@@ -482,6 +495,32 @@ public class MVServlet extends HttpServlet {
 		_tableListStatCache.put(strCacheKey, strResp);
 		return strResp;
     }
+    
+	/**
+	 * Query the database using the specified connection for a list of the stat_group_lu_ids and associated
+	 * stat names.  Store the pairs in the _tableStatGroupName table for use by handleStatList() method.
+	 * @param con database connection to search against
+	 * @throws Exception
+	 */
+	public static synchronized void loadStatGroupNames(Connection con) throws Exception{
+		_tableStatGroupName.clear();
+
+		//  build the stat_group_lu select query and execute it
+		String strSQL = "SELECT stat_group_lu_id, stat_group_name FROM stat_group_lu ORDER BY stat_group_lu_id;";
+		Statement stmt = con.createStatement();
+		_logger.debug("loadStatGroupNames() - sql: " + strSQL);
+		long intStart = (new java.util.Date()).getTime();
+		ResultSet rs = stmt.executeQuery(strSQL);
+		
+		//  build the table with the query results
+		while( rs.next() ){
+			_tableStatGroupName.put(rs.getString(1), rs.getString(2));
+		}
+		_logger.debug("loadStatGroupNames() - returned " + _tableStatGroupName.size() + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
+		
+		//  clean up
+		stmt.close();
+	}
     
     public static final SimpleDateFormat _formatPlot = new SimpleDateFormat("yyyyMMdd_HHmmss");
     
