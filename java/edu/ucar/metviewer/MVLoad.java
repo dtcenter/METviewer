@@ -1307,12 +1307,12 @@ public class MVLoad extends MVUtil {
 		String strModDate = _formatDB.format(cal.getTime());
 
 		// determine the type of the input data file by parsing the filename
-		if     ( strFile.matches("^point_stat.*") )			{ strDataFileLuTypeName = "point_stat";    }
-		else if( strFile.matches("^grid_stat.*") )			{ strDataFileLuTypeName = "grid_stat";     }
-		else if( strFile.matches("^wavelet_stat.*") )		{ strDataFileLuTypeName = "wavelet_stat";  }
-		else if( strFile.matches("^mode_\\S+_obj\\.txt$") )	{ strDataFileLuTypeName = "mode_obj";      }
-		else if( strFile.matches("^mode_\\S+_cts\\.txt$") )	{ strDataFileLuTypeName = "mode_cts";      }
-		else if( strFile.matches("^ensemble_stat.*") )		{ strDataFileLuTypeName = "ensemble_stat"; }
+		if     ( strFile.matches("^point_stat\\S+\\.stat$") )		{ strDataFileLuTypeName = "point_stat";    }
+		else if( strFile.matches("^grid_stat\\S+\\.stat$") )		{ strDataFileLuTypeName = "grid_stat";     }
+		else if( strFile.matches("^wavelet_stat\\S+\\.stat$") )		{ strDataFileLuTypeName = "wavelet_stat";  }
+		else if( strFile.matches("^mode_\\S+_obj\\.txt$") )			{ strDataFileLuTypeName = "mode_obj";      }
+		else if( strFile.matches("^mode_\\S+_cts\\.txt$") )			{ strDataFileLuTypeName = "mode_cts";      }
+		else if( strFile.matches("^ensemble_stat.*\\S+\\.stat$") )	{ strDataFileLuTypeName = "ensemble_stat"; }
 		//else{ throw new Exception("processDataFile() - could not determine file type of " + strFile); }
 		else{
 			//System.out.println("  **  WARNING: could not determine file type of "	+ strFile);
