@@ -1267,9 +1267,9 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("con_series",job.getConSeries().equals("")? printRCol( rep(0, intNumDepSeries) )	: job.getConSeries());
 						tableRTags.put("legend",	job.getLegend().equals("")? "c()" : job.getLegend());
 						tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
-						tableRTags.put("y1_bufr",	job.getY1Bufr());
+						tableRTags.put("y1_bufr",	job.getY1Bufr().equals("")? "0" : job.getY1Bufr());
 						tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()" : job.getY2Lim());
-						tableRTags.put("y2_bufr",	job.getY2Bufr());
+						tableRTags.put("y2_bufr",	job.getY2Bufr().equals("")? "0" : job.getY2Bufr());
 						
 						
 						/*
