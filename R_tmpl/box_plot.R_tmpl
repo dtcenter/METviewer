@@ -401,13 +401,18 @@ if( 0 < length(listSeriesNobs) ){
 	);
 }
 
-# build the legend
+# build the legend, if it is not supplied by the user
 listLegend = c();
-for(strFcstVar in names(listDep1Plot)){
-	listStat = listDep1Plot[[strFcstVar]];
-	for(strStat in listStat){
-		for(intPerm in 1:nrow(matPermVal)){
-			listLegend = append( listLegend, paste(paste(matPermVal[intPerm,], collapse=" "), strStat) );
+listLegendUsr = #<legend>#;
+if( 0 < length(listLegendUsr) ){
+	listLegend = listLegendUsr;
+} else {
+	for(strFcstVar in names(listDep1Plot)){
+		listStat = listDep1Plot[[strFcstVar]];
+		for(strStat in listStat){
+			for(intPerm in 1:nrow(matPermVal)){
+				listLegend = append( listLegend, paste(paste(matPermVal[intPerm,], collapse=" "), strStat) );
+			}
 		}
 	}
 }
