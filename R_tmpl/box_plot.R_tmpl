@@ -431,7 +431,7 @@ legend(
 	#horiz=FALSE,			# horizontal configuration
 	adj=.05,				# string adjustment for text
 	xpd=TRUE,				# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
-	ncol=3,					# number of columns in legend
+	ncol=#<legend_ncol>#,	# number of columns in legend
 	#agginset=c(0, -.25),	# inset distance from margin
 	inset=#<legend_inset>#,	# inset distance from margin
 	x.intersp=1,			# horizontal character spacing factor
