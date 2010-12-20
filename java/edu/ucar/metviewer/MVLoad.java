@@ -287,7 +287,13 @@ public class MVLoad extends MVUtil {
 			//  if there are <load_file> files specified, load them
 			String[] listLoadFiles = job.getLoadFiles();
 			if( !_boolIndexOnly && 0 < listLoadFiles.length ){				
-				for(int i=0; i < listLoadFiles.length; i++){ processFile(new File(listLoadFiles[i]), con); }
+				for(int i=0; i < listLoadFiles.length; i++){
+					try{
+						processFile(new File(listLoadFiles[i]), con);
+					}catch(Exception e){
+						System.out.println("  **  WARNING: error(s) encountered loading file " + listLoadFiles[i] + " - skipping file");
+					}
+				}
 			}
 			
 			//  if there is a file template specified, load it
@@ -313,7 +319,13 @@ public class MVLoad extends MVUtil {
 					
 					//  process each fine in the folder
 					File[] listDataFiles = fileBaseFolder.listFiles();
-					for (int j = 0; j < listDataFiles.length; j++) { processFile(listDataFiles[j], con); }					
+					for (int j = 0; j < listDataFiles.length; j++) {
+						try{
+							processFile(listDataFiles[j], con);
+						}catch(Exception e){
+							System.out.println("  **  WARNING: error(s) encountered loading file " + listLoadFiles[j] + " - skipping file");
+						}
+					}					
 					_tableModeHeaders.clear();
 									
 					//  bookkeeping
