@@ -393,6 +393,8 @@ if( 0 < length(listDep2Plot) ){
 		dblY2BufrPct = #<y2_bufr>#;				
 		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
 		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
+	} else {
+		listY2Usr = listY1Usr;
 	}
 	par(new=TRUE, usr=listY2Usr, xaxs="r");
 	
