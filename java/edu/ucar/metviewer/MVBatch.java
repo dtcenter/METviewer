@@ -862,10 +862,15 @@ public class MVBatch extends MVUtil {
 					
 					if( _boolVerbose && !_boolSQLOnly ){ _out.println("Updating stat_name values..."); }
 					for(int i=0; i < listDepPlot.length; i++){
+						
+						//  resolve the components of the stat name update
 						String[] listStatName = (String[])listDepPlot[i].getValue();						
 						String strFcstVar = (String)listDepPlot[i].getKey();
-						String strFcstVarComp = buildValueList(mapFcstVar.getStrPattern(strFcstVar));
+						String[] listFcstVarComp = mapFcstVar.getStrPattern(strFcstVar);
+						if( 1 > listFcstVarComp.length ){ continue; }
+						String strFcstVarComp = buildValueList(listFcstVarComp);						
 						
+						//  for each stat name, build a job_data update
 						for(int j=0; j < listStatName.length; j++){
 							String strStatGroupLuId = boolAggStat ? "0" : (String)_tableStatIndex.get(listStatName[j]);				
 							stmt = job.getConnection().createStatement();
