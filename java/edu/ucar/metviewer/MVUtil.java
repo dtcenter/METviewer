@@ -525,7 +525,7 @@ public class MVUtil{
 		MVOrderedMap mapRet = new MVOrderedMap();
 		Matcher mat = _patTag.matcher(tag);
 		if( mat.matches() && null != mat.group(2) ){
-			String[] listPairs = mat.group(2).split("\\s*;\\s*");
+			String[] listPairs = mat.group(2).split("\\s*&\\s*");
 			for(int i=0; i < listPairs.length; i++){
 				String[] listPair = listPairs[i].split("\\s*=\\s*");
 				mapRet.put(listPair[0], listPair[1]);
