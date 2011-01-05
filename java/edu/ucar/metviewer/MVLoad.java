@@ -323,7 +323,9 @@ public class MVLoad extends MVUtil {
 						try{
 							processFile(listDataFiles[j], con);
 						}catch(Exception e){
-							System.out.println("  **  WARNING: error(s) encountered loading file " + listLoadFiles[j] + " - skipping file");
+							System.out.println("  **  ERROR: caught " + e.getClass() + " in processFile(): " + e.getMessage() + "\n" + 
+											   "  **  WARNING: error(s) encountered loading file " + listDataFiles[j] + " - skipping file");
+							e.printStackTrace();
 						}
 					}					
 					_tableModeHeaders.clear();
@@ -473,7 +475,7 @@ public class MVLoad extends MVUtil {
 			//  error if the version number does not match the configured value
 			String strMetVersion = listToken[0];
 			if( !strMetVersion.equals(_strMetVersion) ){
-				throw new Exception("ERROR: file MET version " + strMetVersion + " does not match configured value " + _strMetVersion);
+				throw new Exception("file MET version " + strMetVersion + " does not match configured value " + _strMetVersion);
 			}
 			
 			//  if the line type load selector is activated, check that the current line type is on the list
@@ -1293,7 +1295,10 @@ public class MVLoad extends MVUtil {
 		"line_data_nbrctc",
 		"line_data_nbrcts",
 		"line_data_nbrcnt",
-		"line_data_isc"
+		"line_data_isc",
+		"line_data_mctc",
+		"line_data_rhist",
+		"line_data_orank"
 	};
 
 	public static int getNextLineDataId(Connection con) throws Exception{
