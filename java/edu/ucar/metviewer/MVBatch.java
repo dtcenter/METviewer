@@ -1289,9 +1289,9 @@ public class MVBatch extends MVUtil {
 						 */			
 		
 						if( _boolPlot ){
-							runRscript(job.getRscript(), strRFile);
+							boolean boolSuccess = runRscript(job.getRscript(), strRFile);
 							_intNumPlotsRun++;
-							_out.println();
+							_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile);
 						}
 						
 					} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
@@ -1422,12 +1422,12 @@ public class MVBatch extends MVUtil {
 			 */			
 
 			if( _boolPlot ){
-				runRscript(job.getRscript(), strRFile);
+				boolean boolSuccess = runRscript(job.getRscript(), strRFile);
 				if( !strMsg.equals("") ){
 					_out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
-				}
+				}				
 				_intNumPlotsRun++;
-				_out.println();
+				_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile);
 			}
 
 		}		
@@ -1637,7 +1637,7 @@ public class MVBatch extends MVUtil {
 	 * @param args (optional) Arguments to pass to the R script
 	 * @throws Exception
 	 */
-	public void runRscript(String Rscript, String script, String[] args) throws Exception{
+	public boolean runRscript(String Rscript, String script, String[] args) throws Exception{
 		
 		String strArgList = "";
 		for(int i=0; null != args && i < args.length; i++){ strArgList += " " + args[i]; }
@@ -1672,8 +1672,9 @@ public class MVBatch extends MVUtil {
 			_out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
 		}
 		if( !_boolSQLOnly ){ _out.println(); }
+		return !strRscriptErr.contains("Execution halted");
 	}
-	public void runRscript(String Rscript, String script) throws Exception{ runRscript(Rscript, script, new String[]{}); }
+	public boolean runRscript(String Rscript, String script) throws Exception{ return runRscript(Rscript, script, new String[]{}); }
 	
 	/**
 	 * Prints a textual representation of the input {@link MVDataTable} with the field names in the 

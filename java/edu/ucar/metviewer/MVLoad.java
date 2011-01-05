@@ -198,6 +198,51 @@ public class MVLoad extends MVUtil {
 		_tableVarLengthGroupIndices_v3.put("ORANK", new int[]{32, 33, 1});
 	}
 	public static Hashtable _tableVarLengthGroupIndices = _tableVarLengthGroupIndices_v2;
+	
+
+
+	public static final String[] _listLineDataTables_v2 = {
+		"line_data_fho",
+		"line_data_ctc",
+		"line_data_cts",
+		"line_data_cnt",
+		"line_data_pct",
+		"line_data_pstd",
+		"line_data_pjc",
+		"line_data_prc",
+		"line_data_sl1l2",
+		"line_data_sal1l2",
+		"line_data_vl1l2",
+		"line_data_val1l2",
+		"line_data_mpr",
+		"line_data_nbrctc",
+		"line_data_nbrcts",
+		"line_data_nbrcnt",
+		"line_data_isc"
+	};
+	public static final String[] _listLineDataTables_v3 = {
+		"line_data_fho",
+		"line_data_ctc",
+		"line_data_cts",
+		"line_data_cnt",
+		"line_data_pct",
+		"line_data_pstd",
+		"line_data_pjc",
+		"line_data_prc",
+		"line_data_sl1l2",
+		"line_data_sal1l2",
+		"line_data_vl1l2",
+		"line_data_val1l2",
+		"line_data_mpr",
+		"line_data_nbrctc",
+		"line_data_nbrcts",
+		"line_data_nbrcnt",
+		"line_data_isc",
+		"line_data_mctc",
+		"line_data_rhist",
+		"line_data_orank"
+	};
+	public static String[] _listLineDataTables = _listLineDataTables_v2;
 		
 	public static void main(String[] argv) {
 		System.out.println("----  MVLoad  ----\n");
@@ -254,12 +299,14 @@ public class MVLoad extends MVUtil {
 				_tableStatGroupIndices      = _tableStatGroupIndices_v2; 
 				_tableVarLengthTable        = _tableVarLengthTable_v2;
 				_tableVarLengthGroupIndices = _tableVarLengthGroupIndices_v2;
+				_listLineDataTables			= _listLineDataTables_v2;
 			} else if( _strMetVersion.equals("V3.0") ){
 				_tableDataFileLU            = _tableDataFileLU_v3;
 				_tableLineType              = _tableLineType_v3;
 				_tableStatGroupIndices      = _tableStatGroupIndices_v3; 
 				_tableVarLengthTable        = _tableVarLengthTable_v3;
 				_tableVarLengthGroupIndices = _tableVarLengthGroupIndices_v3;
+				_listLineDataTables			= _listLineDataTables_v3;
 			} else {
 				throw new Exception("ERROR: MET output version " + _strMetVersion + " not supported");
 			}
@@ -1277,29 +1324,6 @@ public class MVLoad extends MVUtil {
 		stmt.close();
 		return intId;
 	}
-
-	public static final String[] _listLineDataTables = {
-		"line_data_fho",
-		"line_data_ctc",
-		"line_data_cts",
-		"line_data_cnt",
-		"line_data_pct",
-		"line_data_pstd",
-		"line_data_pjc",
-		"line_data_prc",
-		"line_data_sl1l2",
-		"line_data_sal1l2",
-		"line_data_vl1l2",
-		"line_data_val1l2",
-		"line_data_mpr",
-		"line_data_nbrctc",
-		"line_data_nbrcts",
-		"line_data_nbrcnt",
-		"line_data_isc",
-		"line_data_mctc",
-		"line_data_rhist",
-		"line_data_orank"
-	};
 
 	public static int getNextLineDataId(Connection con) throws Exception{
 		int intMaxId = 0;
