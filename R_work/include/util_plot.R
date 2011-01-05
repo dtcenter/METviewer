@@ -92,7 +92,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 		cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
 		return( dfStats );
 	}
-
+	
 	# create a list of permutations representing the plot series
 	dfSeriesPerm = data.frame( permute(listSeriesVal) );
 	names(dfSeriesPerm) = names(listSeriesVal);
@@ -101,7 +101,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 	cat("  event equalization...");
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 	for(strIndyVal in listIndyVal){
-
+		
 		# examine the stats for the current lead time
 		dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
 		if( 1 > nrow(dfIndy) ){ next; }
@@ -115,7 +115,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
 				dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
 			}
-
+			
 			# if the list contains repetetive values, throw an error
 			if( length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
 				stop("ERROR: eventEqualize() detected non-unique events for indy val ", strIndyVal);
@@ -152,7 +152,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 	}
 	cat("\n  event equalization done\n");
 	dfStats = dfStatsEq;
-	
+
 	return( dfStats );
 }
 

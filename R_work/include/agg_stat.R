@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00059_20101109_102218.agg_stat.info";
+strInputInfoFile = "data/plot_APCP_06_GSS_LAND_ge2.540.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -20,13 +20,13 @@ intNumBoots		= 0;
 
 # read the input data file into a data frame
 dfStatsRec = read.delim(strInputDataFile);
-intNumSeries = 1;
-if( 0 < length(listSeries2Val) ){ intNumSeries = 2; }
+intYMax = 1;
+if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 
 # build a list for output permutations
-for(intSeries in 1:intNumSeries){
-	if( 1 == intSeries ){ listSeriesVal = listSeries1Val; boolDiff = boolDiff1; strDiffSeries = "__AGG_DIFF1__"; listStat = listStat1; } 
-	if( 2 == intSeries ){ listSeriesVal = listSeries2Val; boolDiff = boolDiff2; strDiffSeries = "__AGG_DIFF2__"; listStat = listStat2; } 
+for(intY in 1:intYMax){
+	if( 1 == intY ){ listSeriesVal = listSeries1Val; boolDiff = boolDiff1; strDiffSeries = "__AGG_DIFF1__"; listStat = listStat1; } 
+	if( 2 == intY ){ listSeriesVal = listSeries2Val; boolDiff = boolDiff2; strDiffSeries = "__AGG_DIFF2__"; listStat = listStat2; } 
 
 	# add the series variables and values, including a difference series if appropriate
 	listOut = listSeriesVal;
@@ -37,8 +37,8 @@ for(intSeries in 1:intNumSeries){
 	}
 
 	# store the CI permutations for each series group
-	if( 1 == intSeries ){ matCIPerm1 = permute(listOut); }
-	if( 2 == intSeries ){ matCIPerm2 = permute(listOut); }
+	if( 1 == intY ){ matCIPerm1 = permute(listOut); }
+	if( 2 == intY ){ matCIPerm2 = permute(listOut); }
 
 	# add the independent variable and statistics to create the list for the output data frame
 	listOut[[strIndyVar]] = listIndyVal;
@@ -49,7 +49,6 @@ for(intSeries in 1:intNumSeries){
 }
 
 # run event equalizer either if requested or automatically if bootstrapping is enabled
-browser();
 if( boolEventEqual || 1 < intNumReplicates ){
 	dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val);
 	if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }	
@@ -194,11 +193,11 @@ for(strIndyVal in listIndyVal){
 	if( 1 > nrow(dfStatsIndy) ){ next; }
 	
 	# for each series group, bootstrap the statistics
-	for(intSeries in 1:intNumSeries){
+	for(intY in 1:intYMax){
 
 		# build permutations for each plot series
-		if( 1 == intSeries ){ matPerm = permute(listSeries1Val); listStat = listStat1; matCIPerm = matCIPerm1; boolDiff = boolDiff1; }
-		if( 2 == intSeries ){ matPerm = permute(listSeries2Val); listStat = listStat2; matCIPerm = matCIPerm2; boolDiff = boolDiff2; }
+		if( 1 == intY ){ matPerm = permute(listSeries1Val); listStat = listStat1; matCIPerm = matCIPerm1; boolDiff = boolDiff1; }
+		if( 2 == intY ){ matPerm = permute(listSeries2Val); listStat = listStat2; matCIPerm = matCIPerm2; boolDiff = boolDiff2; }
 		listBoot = list();
 
 		# run the bootstrap flow for each series permutation
@@ -280,7 +279,7 @@ for(strIndyVal in listIndyVal){
 			}
 		}
 	
-	} # end for(intSeries in 1:intNumSeries)
+	} # end for(intY in 1:intYMax)
 } # end for(strIndy in listIndy)
 
 write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t");

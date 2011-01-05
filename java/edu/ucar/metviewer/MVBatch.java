@@ -1639,40 +1639,41 @@ public class MVBatch extends MVUtil {
 	 */
 	public boolean runRscript(String Rscript, String script, String[] args) throws Exception{
 		
+		//  build a list of arguments
 		String strArgList = "";
 		for(int i=0; null != args && i < args.length; i++){ strArgList += " " + args[i]; }
 		
+		//  run the R script and wait for it to complete
 		if( !_boolSQLOnly ){ _out.println("\nRunning '" + Rscript + " " + script + "'"); }
 		Process proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
-		if( _boolProcWait ){
-			proc.waitFor();
-		} else {
+		
+		boolean boolExit = false;
+		int intExitStatus = 0;
+		String strProcStd = "", strProcErr = "";
+		BufferedReader readerProcStd = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
+		BufferedReader readerProcErr = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
+		while( !boolExit ){
 			try{
-				Thread.sleep(_intProcSleep);
-			}catch(InterruptedException ie){}
+				intExitStatus = proc.exitValue();
+				boolExit = true;
+			} catch(Exception e){}
+			
+			while( readerProcStd.ready() ){ strProcStd += readerProcStd.readLine() + "\n"; }
+			while( readerProcErr.ready() ){ strProcErr += readerProcErr.readLine() + "\n"; }			
+		}
+		readerProcStd.close();			
+		readerProcErr.close();
+		
+		if( !"".equals(strProcStd) && !_boolSQLOnly ){
+			_out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
 		}
 
-		String strRscriptOut = "";
-		BufferedReader readerProcIn = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
-		while( readerProcIn.ready() ){
-			strRscriptOut += readerProcIn.readLine() + "\n";
+		if( !"".equals(strProcErr) && !_boolSQLOnly ){
+			_out.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
 		}
-		readerProcIn.close();			
-		if( !"".equals(strRscriptOut) && !_boolSQLOnly ){
-			_out.println("\n==== Start Rscript output  ====\n" + strRscriptOut + "====   End Rscript output  ====");
-		}
-		
-		String strRscriptErr = "";
-		BufferedReader readerProcError = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
-		while( readerProcError.ready() ){
-			strRscriptErr += readerProcError.readLine() + "\n";
-		}
-		readerProcError.close();
-		if( !"".equals(strRscriptErr)  && !_boolSQLOnly ){
-			_out.println("\n==== Start Rscript error  ====\n" + strRscriptErr + "====   End Rscript error  ====");
-		}
-		if( !_boolSQLOnly ){ _out.println(); }
-		return !strRscriptErr.contains("Execution halted");
+
+		//  return the success flag  
+		return 0 == intExitStatus;
 	}
 	public boolean runRscript(String Rscript, String script) throws Exception{ return runRscript(Rscript, script, new String[]{}); }
 	
