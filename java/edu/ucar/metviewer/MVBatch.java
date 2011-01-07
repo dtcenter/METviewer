@@ -1272,7 +1272,7 @@ public class MVBatch extends MVUtil {
 						if( _boolPlot ){
 							boolean boolSuccess = runRscript(job.getRscript(), strRFile);
 							_intNumPlotsRun++;
-							_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile);
+							_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
 						}
 						
 					} // end: for(int intPerm=0; intPerm < listAggPerm.length; intPerm++)
@@ -1408,7 +1408,7 @@ public class MVBatch extends MVUtil {
 					_out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
 				}				
 				_intNumPlotsRun++;
-				_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile);
+				_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
 			}
 
 		}		

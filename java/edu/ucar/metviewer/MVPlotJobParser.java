@@ -22,6 +22,7 @@ public class MVPlotJobParser extends MVUtil{
 	protected Hashtable _tableDateRangeDecl = new Hashtable();
 	protected Hashtable _tableDateRangeListDecl = new Hashtable();
 	protected Hashtable _tablePlotDecl = new Hashtable();
+	protected Hashtable _tablePlotNode = new Hashtable();
 	protected Hashtable _tableTmplVal = new Hashtable();
 	protected MVNode _nodePlotSpec = null;
 	
@@ -229,9 +230,26 @@ public class MVPlotJobParser extends MVUtil{
 				}
 				
 				//  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs 
+				_tablePlotNode.put(node._name, node);
 				String strInherits = node._inherits;
+				/*
 				MVPlotJob jobBase = ( !strInherits.equals("") ? (MVPlotJob)_tablePlotDecl.get(strInherits) : null);
 				MVPlotJob job = parsePlotJob(node, jobBase);
+				*/
+				MVPlotJob job = null;
+				if( "".equals(strInherits) ){
+					job = parsePlotJob(node, null);
+				} else {
+					String[] listInherits = strInherits.split(",");
+					if( !_tablePlotDecl.containsKey(listInherits[0]) ){ throw new Exception("inherited plot job " + listInherits[0] + " not found"); }
+					MVPlotJob jobBase = (MVPlotJob)_tablePlotDecl.get(listInherits[0]); 
+					for(int j=1; j < listInherits.length; j++){
+						if( !_tablePlotNode.containsKey(listInherits[j]) ){ throw new Exception("multiple inherited plot job " + listInherits[j] + " not found"); }
+						MVNode nodeInherit = (MVNode)_tablePlotNode.get(listInherits[j]);
+						jobBase = parsePlotJob(nodeInherit, jobBase);
+					}
+					job = parsePlotJob(node, jobBase);
+				}
 				
 				//  set the job database information  
 				job.setConnection(_con);
