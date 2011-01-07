@@ -131,8 +131,8 @@
 			</field>
 			
 			<field name="fcst_init_beg">
-<!--				<val>2010-05-28 00:00:00</val>-->
-				<date_list name="fcst_init_beg"/>
+				<val>2010-05-28 00:00:00</val>
+<!--				<date_list name="fcst_init_beg"/>-->
 			</field>			
 		</agg>
 		
