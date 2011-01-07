@@ -18,9 +18,6 @@ public class MVBatch extends MVUtil {
 	public String _strRworkFolder		= "/d1/pgoldenb/var/hmt/R_work/";
 	public String _strPlotsFolder		= "/d1/pgoldenb/var/hmt/plots/";
 
-	public boolean _boolProcWait		= true;
-	public long _intProcSleep			= 500;
-
 	public static final Pattern _patRTmpl		= Pattern.compile("#<(\\w+)>#");
 	public static final Pattern _patDateRange	= Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
 	
@@ -32,19 +29,8 @@ public class MVBatch extends MVUtil {
 	public int _intPlotIndex			= 0;
 	public int _intNumPlotsRun			= 0;
 
-	public static boolean _boolWindows	= false;
-	
 	public MVBatch(PrintStream log, boolean boolWindows){
 		_out = log;
-		_boolWindows = boolWindows;
-		
-		//  windows settings
-		if( _boolWindows ){
-			_strRtmplFolder = "c:/src/apps/verif/metviewer/R_tmpl/";
-			_strRworkFolder = "c:/src/metv/R_work/";
-			_strPlotsFolder = "c:/src/metv/plots/";
-			_boolProcWait = false;
-		}
 	}
 	public MVBatch(PrintStream log){ this(log, false); }
 	public MVBatch(){ this(System.out, false); }
@@ -140,11 +126,6 @@ public class MVBatch extends MVUtil {
 			if( !parser.getRworkFolder().equals("") ){ bat._strRworkFolder = parser.getRworkFolder(); }
 			if( !parser.getPlotsFolder().equals("") ){ bat._strPlotsFolder = parser.getPlotsFolder(); }
 
-			//  if on windows, change all plot image types to jpeg
-			if( _boolWindows ){
-				for(int i=0; i < jobs.length; i++){ jobs[i].setPlotType("jpeg"); }
-			}
-			
 			//  calculate the number of plots
 			bat._intNumPlots = 0;
 			for(int intJob=0; intJob < jobs.length; intJob++){
