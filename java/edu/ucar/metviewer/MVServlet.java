@@ -614,6 +614,7 @@ public class MVServlet extends HttpServlet {
 		String strRErrorMsg = "";
     	try{
     		//  configure the batch engine and run the job
+    		bat._intNumPlots = 1;
 			bat._strRtmplFolder = parser.getRtmplFolder();
 			bat._strRworkFolder = parser.getRworkFolder();
 			bat._strPlotsFolder = parser.getPlotsFolder();    		

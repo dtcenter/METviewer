@@ -275,7 +275,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			</tr></table><br/><br/>
 
 			<span id="spanFmtPlotTxtDisp" onclick="javascript:handleFmtPlotTxtDisp()" style="padding-left:40px">
-				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Plot Formatting</span>			
+				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Formatting Controls</span>			
 			</span><br/><br/>
 			<table id="tabFmtPlotTxt" cellspacing="0" cellpadding="0" border="0" style="display:none"><tr id="trFmtPlotTxt">
 				<td align="right">
@@ -314,7 +314,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 			<br/><br/>
 			
 			<span id="spanFmtSeriesDisp" onclick="javascript:handleFmtSeriesDisp()" style="padding-left:40px">
-				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Series Formatting</span>			
+				<img src="include/arrow_right.gif" style="vertical-align:-10%"/>&nbsp; <span>Show Formatting Controls</span>			
 			</span><br/><br/>
 			
 			<table id="tabFmtSeries" cellspacing="0" cellpadding="0" border="0" style="display:none; padding-bottom:20px">
