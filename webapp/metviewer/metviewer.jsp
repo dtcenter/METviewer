@@ -339,10 +339,10 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 										<option>norm</option>
 										<option>boot</option>
 										<option>std</option>
-										<option>q98</option>
-										<option>q90</option>
-										<option>q80</option>
-										<option>q50</option>
+										<!--<option>q98</option>-->
+										<!--<option>q90</option>-->
+										<!--<option>q80</option>-->
+										<!--<option>q50</option>-->
 									</select>
 								</td>
 							</tr>
