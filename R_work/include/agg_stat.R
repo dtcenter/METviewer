@@ -112,7 +112,7 @@ calcGSS = function(d){
 	dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
 	return( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) );
 }
-calcCSI = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
+calcHK = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
 calcHSS = function(d){
 	if( 0 == d$total ){ return (NA); }
 	dblC = ( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) + (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) / d$total;
