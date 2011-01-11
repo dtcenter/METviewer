@@ -155,6 +155,7 @@ function onLoad(){
 
 	//  add the boolean formatting option controls
 	addFmtPlot("Event Equalizer",				"event_equal",		"false",		"bool");
+	addFmtPlot("Event Equalizer Multi",			"event_equal_m",	"false",		"bool");
 	addFmtPlot("Vertical Levels Plot",			"vert_plot",		"false",		"bool");
 	addFmtPlot("Reverse X Values",				"x_reverse",		"false",		"bool");
 	addFmtPlot("Y1 Series Difference Curve",	"plot1_diff",		"false",		"bool");

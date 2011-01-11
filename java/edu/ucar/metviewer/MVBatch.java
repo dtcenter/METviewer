@@ -1102,6 +1102,7 @@ public class MVBatch extends MVUtil {
 							tableAggStatInfo.put("agg_ctc",			job.getAggCtc()?     "TRUE" : "FALSE");
 							tableAggStatInfo.put("agg_sl1l2",		job.getAggSl1l2()?   "TRUE" : "FALSE");
 							tableAggStatInfo.put("event_equal",		job.getEventEqual()? "TRUE" : "FALSE");
+							tableAggStatInfo.put("event_equal_m",	job.getEventEqualM()?"TRUE" : "FALSE");
 							tableAggStatInfo.put("agg_diff1",		job.getAggDiff1()?   "TRUE" : "FALSE");
 							tableAggStatInfo.put("agg_diff2",		job.getAggDiff2()?   "TRUE" : "FALSE");
 							tableAggStatInfo.put("boot_repl",		job.getAggBootRepl());
@@ -1204,6 +1205,7 @@ public class MVBatch extends MVUtil {
 						tableRTags.put("plot_caption",	strCaption);
 						tableRTags.put("plot_cmd", 		job.getPlotCmd());
 						tableRTags.put("event_equal",	(job.getEventEqual()?	"TRUE" : "FALSE"));
+						tableRTags.put("event_equal_m",	(job.getEventEqualM()?	"TRUE" : "FALSE"));
 						tableRTags.put("vert_plot",		(job.getVertPlot()?		"TRUE" : "FALSE"));
 						tableRTags.put("x_reverse",		(job.getXReverse()?		"TRUE" : "FALSE"));
 						tableRTags.put("plot1_diff",	(job.getPlot1Diff()?	"TRUE" : "FALSE"));

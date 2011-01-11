@@ -79,7 +79,7 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff){
 # eventEqualize() assumes that the input dfStats contains data indexed by fcst_valid_beg 
 #   and the independent variable values.  It builds a new dataframe which contains the same 
 #   data except for records that don't have corresponding fcst_valid_beg values in each for a each 
-eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
+eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMulti){
 
 	# convert the dates from strings to POSIXct, and create a unique member to use for equalization
 	if( "fcst_valid_beg" %in% names(dfStats) ){
@@ -117,18 +117,18 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal){
 			}
 			
 			# if the list contains repetetive values, throw an error
-			if( length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
+			if( FALSE == boolMulti & length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
 				stop("ERROR: eventEqualize() detected non-unique events for indy val ", strIndyVal);
 			}
 			
 			# if empty, initialize the equalization list
 			if( 0 < sum(is.na(listEqualize)) ){
-				listEqualize = dfComp$equalize;
+				listEqualize = unique(dfComp$equalize);
 			}
 			
 			# if there is an equalization list, equalize the current series data
 			else {
-				listInd = listEqualize %in% dfComp$equalize;
+				listInd = listEqualize %in% unique(dfComp$equalize);
 
 				# report the discarded records
 				listDiscard = listEqualize[ !listInd ];

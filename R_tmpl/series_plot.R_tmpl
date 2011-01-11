@@ -11,6 +11,7 @@ strPlotFile = "#<plot_file>#";
 #
 
 boolEventEqual	= #<event_equal>#;
+boolEventEqualM	= #<event_equal_m>#;
 boolVertPlot	= #<vert_plot>#;
 boolXReverse	= #<x_reverse>#;
 boolPlot1Diff	= #<plot1_diff>#;
@@ -70,8 +71,8 @@ if( FALSE == boolXReverse ){
 }
 
 # run event equalizer, if requested
-if( TRUE == boolEventEqual ){
-	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val);
+if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
+	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
 }
 
 # build the y1 plot series using information in the plot dataframe

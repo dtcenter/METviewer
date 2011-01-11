@@ -12,6 +12,7 @@ strPlotFile = "#<plot_file>#";
 boolGridOn		= #<grid_on>#;
 boolLogY1		= #<log_y1>#;
 boolEventEqual	= #<event_equal>#;
+boolEventEqualM	= #<event_equal_m>#;
 boolPlotDiff	= #<plot1_diff>#;
 boolBoxAvg		= #<box_avg>#;
 boolBoxPts		= #<box_pts>#;
@@ -47,8 +48,8 @@ for(strFcstVar in names(listDep1Plot)){
 }
 
 # run event equalizer, if requested
-if( TRUE == boolEventEqual || TRUE == boolPlotDiff ){
-	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val);
+if( TRUE == boolEventEqual | TRUE == boolEventEqualM | TRUE == boolPlotDiff ){
+	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
 }
 
 # add a diff series, if requested

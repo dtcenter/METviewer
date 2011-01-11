@@ -50,7 +50,7 @@ for(intY in 1:intYMax){
 
 # run event equalizer either if requested or automatically if bootstrapping is enabled
 if( boolEventEqual || 1 < intNumReplicates ){
-	dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val);
+	dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val, FALSE);
 	if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }	
 }
 

@@ -55,6 +55,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strPlotCmd			= "";
 	
 	protected boolean _boolEventEqual		= false;
+	protected boolean _boolEventEqualM		= false;
 	protected boolean _boolVertPlot			= false;
 	protected boolean _boolXReverse			= false;
 	protected boolean _boolPlot1Diff		= false;
@@ -201,6 +202,7 @@ public class MVPlotJob extends MVUtil{
 		job._strPlotCmd			= _strPlotCmd;
 		
 		job._boolEventEqual		= _boolEventEqual;
+		job._boolEventEqualM	= _boolEventEqualM;
 		job._boolVertPlot		= _boolVertPlot;
 		job._boolXReverse		= _boolXReverse;
 		job._boolPlot1Diff		= _boolPlot1Diff;
@@ -416,6 +418,8 @@ public class MVPlotJob extends MVUtil{
 	
 	public boolean	getEventEqual()										{ return _boolEventEqual;								}
 	public void		setEventEqual(boolean eventEqual)					{ _boolEventEqual = eventEqual; 						}
+	public boolean	getEventEqualM()									{ return _boolEventEqualM;								}
+	public void		setEventEqualM(boolean eventEqualM)					{ _boolEventEqualM = eventEqualM; 						}
 	public boolean	getVertPlot()										{ return _boolVertPlot;									}
 	public void		setVertPlot(boolean vertPlot)						{ _boolVertPlot = vertPlot; 							}
 	public boolean	getXReverse()										{ return _boolXReverse;									}

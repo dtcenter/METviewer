@@ -711,6 +711,7 @@ public class MVPlotJobParser extends MVUtil{
 	static{
 		try{
 			_tableFormatBoolean.put("event_equal",	MVPlotJob.class.getDeclaredMethod("setEventEqual",	new Class[]{boolean.class}));
+			_tableFormatBoolean.put("event_equal_m",MVPlotJob.class.getDeclaredMethod("setEventEqualM",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("vert_plot",	MVPlotJob.class.getDeclaredMethod("setVertPlot",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("x_reverse",	MVPlotJob.class.getDeclaredMethod("setXReverse",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("plot1_diff",	MVPlotJob.class.getDeclaredMethod("setPlot1Diff",	new Class[]{boolean.class}));
