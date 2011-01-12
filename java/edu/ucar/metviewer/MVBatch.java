@@ -1996,6 +1996,13 @@ public class MVBatch extends MVUtil {
 		_tableStatIndex.put("NBR_ODDS",		"47");
 		_tableStatIndex.put("NBR_FBS", 		"48");
 		_tableStatIndex.put("NBR_FSS", 		"49");
+		_tableStatIndex.put("PSTD_BASER", 	"50");
+		_tableStatIndex.put("MCTS_ACC", 	"51");
+		_tableStatIndex.put("MCTS_HK", 		"52");
+		_tableStatIndex.put("MCTS_HSS", 	"53");
+		_tableStatIndex.put("MCTS_GER", 	"54");
+		_tableStatIndex.put("CRPS", 		"55");
+		_tableStatIndex.put("IGN", 			"56");
 	}
 
 	public static final Hashtable _tableModeStatIndex = new Hashtable();
