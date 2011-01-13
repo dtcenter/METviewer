@@ -735,8 +735,12 @@ public class MVBatch extends MVUtil {
 										
 					//  build a select that will pull the data table for the plots
 					strSelectListModeTemp = strSelectListModeTemp.replaceAll("h\\.", "");
-					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_init,",  getSQLDateFormat("fcst_init")  + " fcst_init,");
-					strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_valid,", getSQLDateFormat("fcst_valid") + " fcst_valid,");
+					if( !strSelectListModeTemp.contains("DATE_FORMAT(fcst_init") ){
+						strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_init,",  getSQLDateFormat("fcst_init")  + " fcst_init,");
+					}
+					if( !strSelectListModeTemp.contains("DATE_FORMAT(fcst_valid") ){
+						strSelectListModeTemp = strSelectListModeTemp.replaceAll("fcst_valid,", getSQLDateFormat("fcst_valid") + " fcst_valid,");
+					}
 					listQuery.add(
 						"INSERT INTO job_data\n" +
 						"SELECT\n" +
