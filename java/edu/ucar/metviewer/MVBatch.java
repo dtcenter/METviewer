@@ -2336,7 +2336,7 @@ public class MVBatch extends MVUtil {
 		_tableModeRatioField.put("OBJAHITS",		"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2");
 		_tableModeRatioField.put("OBJAMISSES",		"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) )");
 		_tableModeRatioField.put("OBJAFAS",			"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) )");
-		_tableModeRatioField.put("OBJACSI",			"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / (2 * SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");
+		_tableModeRatioField.put("OBJACSI",			"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / (2 * SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) )");
 		_tableModeRatioField.put("OBJAPODY",		"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
 													"( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) )");
 		_tableModeRatioField.put("OBJAFAR",			"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / " +
