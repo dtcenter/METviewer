@@ -445,8 +445,9 @@ function updatePlotData(){
 
 	//  update the data members and lists accordingly
 	var strPlotData = getSelected( document.getElementById("selPlotData") )[0];
+	var strTmpl = getSelected( document.getElementById("selTemplate") )[0];
 	if( strPlotData == "Stat" ){
-		_strPlotData = "stat";
+		_strPlotData = (strTmpl == "rhist"? "rhist" : "stat");
 		_listVar = _listVarStat;
 		_listIndyVar = _listIndyVarStat;
 	} else if( strPlotData == "MODE" ){
@@ -454,7 +455,7 @@ function updatePlotData(){
 		_listVar = _listVarMode;
 		_listIndyVar = _listIndyVarMode;
 	}
-	
+console("updatePlotData():  strTmpl = " + strTmpl + "  _strPlotData = " + _strPlotData + "\n\n");	
 	clearControls();
 }
 
@@ -750,6 +751,7 @@ function updateTmpl(){
 	if( TMPL_RHIST == _intTmpl ){ buildSeriesDivRhist(); }
 	else                        { buildSeriesDiv(); }
 
+	updatePlotData();
 }
 
 /**
@@ -842,7 +844,7 @@ function addDep(intY){
  	listDepDiv.push(divDep);
 	var divDepParent = document.getElementById("divDep" + intY);
 	var divImgParent = document.getElementById("imgDep" + intY);
-	console("addDep(" + intY + ")\n  divDepParent: " + divDepParent + "\n  divImgParent: " + divImgParent + "\n\n");
+	//console("addDep(" + intY + ")\n  divDepParent: " + divDepParent + "\n  divImgParent: " + divImgParent + "\n\n");
  	divDepParent.insertBefore(divDep, divImgParent);
 
  	//  ensure the first remove link is visible
@@ -929,6 +931,27 @@ function buildFcstVarCrit(intY){
 		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].text + "</val>";
 	}
 	strFixCrit += "</field>";
+	return strFixCrit;
+}
+
+function buildFcstVarStatCrit(intY){
+	
+	//  determine the list of dep divs to consider
+	var listDepDiv;
+	if     ( 1 == intY ){ listDepDiv = _listDep1Div; }
+	else if( 2 == intY ){ listDepDiv = _listDep2Div; }
+	else                { listDepDiv = _listDep1Div.concat(_listDep2Div); }
+	
+	//  for each fcst_var in the dep div list, build a list of stats
+	var strFixCrit = "<stat>";
+	for(i in listDepDiv){
+		var selFcstVar = listDepDiv[i].getElementsByTagName("select")[0];
+		var listStat = getSelected( listDepDiv[i].getElementsByTagName("select")[1] );
+		strFixCrit += "<fcst_var name=\"" + selFcstVar.options[selFcstVar.selectedIndex].text + "\">";
+		for(intStat in listStat){ strFixCrit += "<val>" + listStat[intStat] + "</val>"; }		
+		strFixCrit += "</fcst_var>";
+	}
+	strFixCrit += "</stat>";
 	return strFixCrit;
 }
 
@@ -1098,9 +1121,15 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
 	if( -1 == intY ){
 		strFixCrit = buildRhistCrit(intFixEnd);
 	} else {
+//  STAT_CRIT
+		/*
 		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarCrit(intY); }
 		else                         { strFcstVarCrit = buildFcstVarCrit(); }
+		*/
+		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarStatCrit(intY); }
+		else                         { strFcstVarCrit = buildFcstVarStatCrit(); }		
 		strFixCrit = buildFixCrit(intFixEnd);
+		
 	}
 
 	//  build a list_val request for the selected field
@@ -1369,7 +1398,9 @@ function selectRhistVarResp(strResp){ selectFieldResp(strResp, _listRhistDiv, 1,
 function selectIndyVarReq(){
 
 	//  build a list_val request for the selected independent field
-	var strFcstVarCrit = buildFcstVarCrit();
+//  STAT_CRIT
+	//var strFcstVarCrit = buildFcstVarCrit();
+	var strFcstVarCrit = buildFcstVarStatCrit();
 	var strFixCrit = buildFixCrit(_listFixDiv.length - 1);
 	var strField = getSelected( document.getElementById("selIndyVar") )[0];
 	sendRequest("POST",
@@ -1846,7 +1877,6 @@ function buildPlotXML(){
 
 		//  <plot_fix>
 		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listRhistDiv, false, true) + "</plot_fix>";
-		strDepXML += "<agg></agg>";
 		
 	} else {
 		
@@ -1854,7 +1884,8 @@ function buildPlotXML(){
 		strDepXML += "<dep>";
 		strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true, false) + "</dep1>";
 		strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true, false) + "</dep2>";
-		strDepXML += "<fix></fix></dep>";
+		//strDepXML += "<fix></fix></dep>";
+		strDepXML += "</dep>";
 		
 		//  <series1> and <series2>
 		var strSeriesXML = "";
@@ -1863,7 +1894,6 @@ function buildPlotXML(){
 		
 		//  <plot_fix>
 		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) + "</plot_fix>";
-		strDepXML += "<agg></agg>";
 		
 		//  <indep>
 		var divIndy = document.getElementById("divIndy");

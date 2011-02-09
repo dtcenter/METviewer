@@ -110,6 +110,7 @@ if( $verbose ){ print "Total time: " . formatTimeInc(time() - $intStartLoad) . "
 #   web server is returned 
 sub getRequest {
 	$userAgent = LWP::UserAgent->new(agent => "perl post");
+	$userAgent->timeout(12000);
 	$response = $userAgent->request(POST $url,
 									Content_Type => "text/xml",
 	  								Content => $_[0]);

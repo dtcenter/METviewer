@@ -176,7 +176,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 		<tr><td id="tdIndy">
 				
 		<div id="divIndy">
-			<span class="header">Independent Variables</span>
+			<span class="header">Independent Variable</span>
 			<span class="stdTiny">(<a href="doc/plot.html#indep" target="_blank">help</a>)</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')" id="lnkSerIndy">Serialize</a><br/><br/>
 

@@ -340,6 +340,7 @@ public class MVPlotJobParser extends MVUtil{
 						
 						//  <date_range>
 						else if( nodeFixVal._tag.equals("date_range") ){
+							if( !_tableDateRangeDecl.containsKey(nodeFixVal._name) ){ throw new Exception("date_range " + nodeFixVal._name + " not found in plot_fix"); }
 							String strDateRangeVal = _tableDateRangeDecl.get(nodeFixVal._name).toString(); 
 							listFixVal.add(strDateRangeVal);
 							mapTmplVal.put(strDateRangeVal, nodeFixVal._name);
@@ -419,6 +420,7 @@ public class MVPlotJobParser extends MVUtil{
 					//  <clear>
 					if( nodeDepN._tag.equals("clear") ){ job.clearDepGroups(); }
 
+					/*
 					//  <mode_group>
 					else if( nodeDepN._tag.equals("mode_group") ){
 						ArrayList listModeGroup = new ArrayList();
@@ -452,6 +454,7 @@ public class MVPlotJobParser extends MVUtil{
 						}
 						mapDep.put(strDepN, (MVOrderedMap[])listModeGroup.toArray(new MVOrderedMap[]{}));						
 					}
+					*/
 					
 					//  <dep1> or <dep2>
 					else if( nodeDepN._tag.startsWith("dep") ){
@@ -469,10 +472,7 @@ public class MVPlotJobParser extends MVUtil{
 							//  <stat>s
 							for(int l=0; l < nodeFcstVar._children.length; l++){
 								String strStat = nodeFcstVar._children[l]._value;
-								String[] listStatComp = parseModeStat(strStat);
-								if( !MVBatch._tableStatIndex.containsKey(strStat) && !MVBatch._tableModeStatIndex.containsKey(listStatComp[0]) ){
-									throw new Exception("unknown stat name " + strStat);
-								}
+								if( !isStatValid( strStat ) ){ throw new Exception("unknown stat name " + strStat); }								
 								listStats.add(strStat);
 							}
 							mapDepN.put(nodeFcstVar._name, listStats.toArray(new String[]{}));
@@ -482,91 +482,21 @@ public class MVPlotJobParser extends MVUtil{
 					
 					//  <fix>
 					else if( nodeDepN._tag.startsWith("fix") ){
-						MVOrderedMap mapFix = new MVOrderedMap();
-						boolFixPresent = true;
-						
-						//  <fcst_var>
-						for(int k=0; k < nodeDepN._children.length; k++){
-							MVNode nodeFcstVar = nodeDepN._children[k];					
-							MVOrderedMap mapFcstVar = new MVOrderedMap();
-							
-							//  <var>s
-							for(int l=0; l < nodeFcstVar._children.length; l++){
-								MVNode nodeChild = nodeFcstVar._children[l];
-								String strValue = "";
-								//mapFcstVar.put(nodeChild._name, nodeChild._value);
-								
-								//  atomic values
-								if( 1 > nodeChild._children.length ){ strValue = nodeChild._value; }
-								
-								//  <set>
-								else if( nodeChild._children[0]._tag.equals("set") ){
-
-								}
-								
-								//  <date_range>
-								else if( nodeChild._children[0]._tag.equals("date_range") ){
-									MVNode nodeDateRange = nodeChild._children[0];
-									strValue = _tableDateRangeDecl.get(nodeDateRange._name).toString();
-									if( !nodeDateRange._id.equals("") ){ job.addTmplVal(nodeDateRange._id, nodeDateRange._name); }
-								}
-
-								//  <date_list>
-								else if( nodeChild._children[0]._tag.equals("date_list") ){
-
-								}
-								
-								mapFcstVar.put(nodeChild._name, strValue); 
-							}
-							mapFix.put(nodeFcstVar._name, mapFcstVar);
-						}
-						mapDep.put(nodeDepN._tag, mapFix);
+						throw new Exception("<dep> child <fix> no longer supported, use <plot_fix> instead");
 					}
 				}
 				
 				//  complain if a dep component is missing
 				if( !boolDep1Present ){ throw new Exception("plot job dep lacks dep1"); }
 				if( !boolDep2Present ){ throw new Exception("plot job dep lacks dep2"); }
-				if( !boolFixPresent ) { throw new Exception("plot job dep lacks fix"); }
 				
 				//  add the dep group to the job
 				job.addDepGroup( mapDep );
 			}
 			
 			//  <agg>
-			else if( node._tag.equals("agg") ){
-				
-				for(int j=0; j < node._children.length; j++){
-					MVNode nodeAgg = node._children[j];	
-
-					//  <remove> and <clear>
-					if     ( nodeAgg._tag.equals("remove") ){		job.removeAggVal(nodeAgg._name);		continue;	}
-					else if( nodeAgg._tag.equals("clear") ) {		job.clearAggVal();						continue;	}
-					
-					//  <field>
-					ArrayList listAggVal = new ArrayList();
-					MVOrderedMap mapAggVal = new MVOrderedMap();
-					for(int k=0; k < nodeAgg._children.length; k++){
-						MVNode nodeChild = nodeAgg._children[k];
-						
-						//  <val>
-						if( nodeChild._tag.equals("val") ){ listAggVal.add(nodeChild._value); }
-						
-						//  <set>
-						else if( nodeChild._tag.equals("set") ){
-							String[] listAggSet = new String[nodeChild._children.length];
-							for(int l=0; l < nodeChild._children.length; l++){ listAggSet[l] = nodeChild._children[l]._value; }
-							mapAggVal.put(nodeChild._name, listAggSet);
-						}
-						
-						//  <date_list>
-						else if( nodeChild._tag.equals("date_list") ){
-							listAggVal.addAll(Arrays.asList( (String[])_tableDateListDecl.get(nodeChild._name) ));							
-						}
-					}
-					if     ( 0 < listAggVal.size() ){ job.addAggVal(nodeAgg._name, (String[])listAggVal.toArray(new String[]{})); }
-					else if( 0 < mapAggVal.size() ) { job.addAggVal(nodeAgg._name, mapAggVal); }
-				}
+			else if( node._tag.equals("agg") ){				
+				throw new Exception("<agg> no longer supported, please change to <plot_fix>");
 			}
 			
 			//  <tmpl>
@@ -687,6 +617,12 @@ public class MVPlotJobParser extends MVUtil{
 		return job;
 	}
 	
+	/**
+	 * Determine if the input plot job has many necessary components to build a plot.  If not,
+	 * return the structure name that has been found to be missing. 
+	 * @param job plot job to inspect
+	 * @return name of missing structure, or an empty string if the job is ok
+	 */
 	public static String checkJobCompleteness(MVPlotJob job){
 		if     ( job.getPlotTmpl().equals("")     )	{ return "template";	}
 		else if( job.getIndyVar().equals("")      )	{ return "indep";		}
@@ -805,15 +741,6 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("y2_bufr",		MVPlotJob.class.getDeclaredMethod("setY2Bufr",		new Class[]{String.class}));
 			_tableFormatString.put("plot_cmd",		MVPlotJob.class.getDeclaredMethod("setPlotCmd",		new Class[]{String.class}));
 		}catch(NoSuchMethodException e){}
-	}
-	
-	public static MVOrderedMap buildDepMap(String strDepXML) throws Exception{
-		DOMParser parser = new DOMParser();
-		parser.parse( new InputSource(new ByteArrayInputStream(strDepXML.getBytes())) );
-		Document doc = parser.getDocument();
-					
-		MVNode nodeDep = new MVNode( doc.getElementsByTagName("dep").item(0) );
-		return buildDepMap(nodeDep);
 	}
 	
 	/**
@@ -965,4 +892,11 @@ public class MVPlotJobParser extends MVUtil{
 
 		return new String[][]{ toArray(listIndyVal), toArray(listIndyLabel), toArray(listIndyPlotVal) };
 	}
+
+	/**
+	 * Determine if the input statistic name is valid by searching the tables of supported statistics.  
+	 * @param strStat name of statistic to test for validity
+	 * @return true if valid, false otherwise
+	 */
+	public boolean isStatValid(String strStat){ return !getStatTable(strStat).equals(""); }
 }

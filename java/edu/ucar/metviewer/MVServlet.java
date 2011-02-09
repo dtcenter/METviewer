@@ -35,7 +35,7 @@ public class MVServlet extends HttpServlet {
 	
 	public static boolean _boolListValCache = false;
 	public static Hashtable _tableListValCache = new Hashtable();
-	public static boolean _boolListStatCache = true;
+	public static boolean _boolListStatCache = false;
 	public static Hashtable _tableListStatCache = new Hashtable();
 	
 	/**
@@ -327,6 +327,7 @@ public class MVServlet extends HttpServlet {
 		String strId = nodeCall._children[0]._value;
 		String strHeaderField = nodeCall._children[1]._value;
 		boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
+		boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
 		String strHeaderTable = boolMode? "mode_header" : "stat_header";
     	_logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
     	strResp += "<id>" + strId + "</id>";
@@ -343,13 +344,56 @@ public class MVServlet extends HttpServlet {
     	String strField = strHeaderField.toLowerCase();
     	boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
     	
+    	//  parse the fcst_var/stat constraint to build a list of line_data tables and fcst_var values
+    	Hashtable tableFcstVarStat = new Hashtable();    	
+    	Hashtable tableLineDataTables = new Hashtable();
+    	boolean boolFcstVar = false;
+    	if( !boolRhist && 2 < nodeCall._children.length ){
+    		boolFcstVar = true;
+			MVNode nodeFcstVarStat = nodeCall._children[2];
+			for(int i=0; i < nodeFcstVarStat._children.length; i++){
+				MVNode nodeFcstVar = nodeFcstVarStat._children[i];
+				tableFcstVarStat.put(nodeFcstVar._name, "true");
+				for(int j=0; j < nodeFcstVar._children.length; j++){
+					String strStat = nodeFcstVar._children[j]._value;
+					String strLineDataTable = MVUtil.getStatTable(strStat);
+					tableLineDataTables.put(strLineDataTable, "true");
+				}
+			}
+    	} else if( boolRhist ){
+    		tableLineDataTables.put("line_data_rhist", "true");
+    	}
+		
+		//  build a list of the line_data tables for all the stats
+		String[] listTables = (String[])tableLineDataTables.keySet().toArray(new String[]{});
+		
+		//  build the where clause for the fcst_var values, if present
+		String strWhere = "";
+		if( boolFcstVar ){
+	    	strWhere = "WHERE h.fcst_var LIKE (";
+			String[] listFcstVar = (String[])tableFcstVarStat.keySet().toArray(new String[]{});
+			for(int i=0; i < listFcstVar.length; i++){
+				strWhere += (0 < i? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
+			}
+			strWhere += ")";
+		}
+    	
     	//  parse the list of constraints into a SQL where clause
-    	String strWhere = "";
+		boolean boolTimeCrit = (strField.contains("init") || strField.contains("valid") || strField.contains("lead"));
     	for(int i=2; i < nodeCall._children.length; i++){
-    		if( 2 == i ){ strWhere = "WHERE "; } 
+    		
+    		if( nodeCall._children[i]._tag.equals("stat") ){ continue; }
+    		
+    		//  determine if the field should be used as criteria
     		MVNode nodeField = nodeCall._children[i];
-    		String strFieldDBCrit = MVUtil.formatField(nodeField._name.toLowerCase(), boolMode);
-    		if( !boolNRank ){ strFieldDBCrit = strFieldDBCrit.replaceAll("h\\.", ""); }
+    		String strFieldCrit = nodeField._name.toLowerCase();
+    		if( strFieldCrit.contains("valid") || strFieldCrit.contains("init") || strFieldCrit.contains("lead") ){
+    			boolTimeCrit = true;
+    		}
+
+    		//  if so, build a where clause for the criteria
+    		String strFieldDBCrit = MVUtil.formatFieldMod(strFieldCrit, boolMode, false);
+    		//if( !boolNRank ){ strFieldDBCrit = strFieldDBCrit.replaceAll("h\\.", ""); }
     		if( -1 != strFieldDBCrit.indexOf("n_rank") ){ continue; }
     		String strSQLOp = "IN";
     		String strValList = "";
@@ -358,19 +402,33 @@ public class MVServlet extends HttpServlet {
     			if( strVal.contains("*") ){ strSQLOp = "LIKE"; }
     			strValList += (0 < j? ", " : "") + "'" + strVal.replace("*", "%") + "'";
     		}
-    		strWhere += (2 < i? "AND " : "") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ") ";
+    		strWhere += (strWhere.equals("")? "WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
     	}
 		
 		//  build a query for the values and execute it
     	String strSQL = "";
     	if( boolNRank ){
-    		strSQL = "SELECT DISTINCT ldr.n_rank " +
-    				 "FROM stat_header h, line_data_rhist ldr " + 
-    				 strWhere + (strWhere.equals("")? "WHERE" : " AND") + " ldr.stat_header_id = h.stat_header_id " + 
-    				 "ORDER BY ldr.n_rank;";
+    		strSQL = "SELECT DISTINCT ld.n_rank " +
+    				 "FROM stat_header h, line_data_rhist ld " + 
+    				 strWhere + (strWhere.equals("")? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " + 
+    				 "ORDER BY n_rank;";
+    	} else if( !boolMode && boolTimeCrit ){
+    		String strSelectField = MVUtil.formatFieldMod(strField, boolMode);
+    		
+    		strSQL = "SELECT DISTINCT " + strField + " FROM (";
+    		for(int i=0; i < listTables.length; i++){
+    			strSQL += (i < 0? " UNION " : "") + "SELECT DISTINCT " + strSelectField + " ";
+    			if( !strWhere.equals("") ){
+    				strSQL += "FROM stat_header h, " + listTables[i] + " ld " + strWhere + " AND h.stat_header_id = ld.stat_header_id";
+    			} else {
+    				strSQL += "FROM " + listTables[i] + " ld";
+    			}
+    		}
+    		 strSQL += ") AS ldj ORDER BY " + strField + ";";
     	} else {
-    		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
-    		strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + "ORDER BY " + strFieldDB;
+    		String strFieldDB = MVUtil.formatFieldMod(strField, boolMode).replaceAll("h\\.", "");
+    		strWhere = strWhere.replaceAll("h\\.", "");
+    		strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
     	}
 
 		Statement stmt = con.createStatement();
@@ -448,7 +506,6 @@ public class MVServlet extends HttpServlet {
 		}
 		
     	//  check the list val cache for the request data
-    	//String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody;
     	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
     	if( _boolListStatCache && _tableListStatCache.containsKey(strCacheKey) ){
     		String strListStat = _tableListStatCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
@@ -456,6 +513,41 @@ public class MVServlet extends HttpServlet {
     		return strListStat;
     	}
     	
+    	//  build a query for the fcst_var stat counts
+    	String strSQL = "(SELECT COUNT(*), 'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
+    	_logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
+		Statement stmt = con.createStatement();
+		long intStart = (new java.util.Date()).getTime();
+		stmt.executeQuery(strSQL);
+
+		//  build a list of stat names using the stat ids returned by the query
+		String strResp = "<list_stat><id>" + strId + "</id>";
+		ResultSet res = stmt.getResultSet();
+		ArrayList listStatName = new ArrayList();
+		int intStatIndex = 0;
+		while( res.next() ){
+			int intStatCount = res.getInt(1);
+			if( 0 != intStatCount ){
+				switch(intStatIndex){
+				case 0:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsCnt.getKeyList()) );		break;
+				case 1:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsCts.getKeyList()) );		break;
+				case 2:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsNbrcnt.getKeyList()) );	break;
+				case 3:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsNbrcts.getKeyList()) );	break;
+				case 4:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsPstd.getKeyList()) );		break;
+				case 5:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsMcts.getKeyList()) );		break;
+				case 6:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsRhist.getKeyList()) );		break;
+				}
+			}
+			intStatIndex++;
+		}
+    	
+    	/*
     	//  if the stat name table is empty, initialize it
     	if( 1 > _tableStatGroupName.size() ){ loadStatGroupNames(con); }
     	
@@ -475,6 +567,7 @@ public class MVServlet extends HttpServlet {
 			String strStatId = res.getString(1);
 			listStatName.add( _tableStatGroupName.get(strStatId).toString() );
 		}
+		*/
 
 		//  sort and build the response string using the list of stat names
 		String[] listStat = MVUtil.toArray(listStatName);
@@ -484,7 +577,6 @@ public class MVServlet extends HttpServlet {
 		int intNumStat = 0;
 		for(int i=0; i < listStat.length; i++){
 			strResp += "<val>" + listStat[i] + "</val>";
-			if( "BCMSE".equals(listStat[i]) ){ strResp += "<val>BCRMSE</val>"; }
 			intNumStat++;
 		}
 		_logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
@@ -610,6 +702,7 @@ public class MVServlet extends HttpServlet {
     	//  run the plot job and write the batch output to the log file
     	ByteArrayOutputStream log = new ByteArrayOutputStream();
     	MVBatch bat = new MVBatch( new PrintStream(log) );
+    	bat._intNumPlots = 1;
     	String strJobTmpl = job.getPlotTmpl();
 		String strRErrorMsg = "";
     	try{

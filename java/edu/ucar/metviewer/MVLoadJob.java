@@ -13,8 +13,15 @@ public class MVLoadJob{
 	protected String _strDBUser					= "";
 	protected String _strDBPassword				= "";
 	
+	protected boolean _boolModSchema			= false;
+	
 	protected boolean _boolLineTypeLoad			= false;
 	protected MVOrderedMap _mapLineTypeLoad		= new MVOrderedMap();
+	
+	protected boolean _boolLoadStat				= true;
+	protected boolean _boolLoadMode				= true;
+	
+	protected boolean _boolLoadMpr				= false;
 	
 	protected boolean _boolVerbose				= false;
 	protected int _intInsertSize				= 1;
@@ -43,6 +50,9 @@ public class MVLoadJob{
 	public void		setDBUser(String dbUser)							{ _strDBUser = dbUser;									}
 	public String	getDBPassword()										{ return _strDBPassword;								}															
 	public void		setDBPassword(String dbPassword)					{ _strDBPassword = dbPassword;							}
+
+	public boolean	getModSchema()										{ return _boolModSchema;								}
+	public void		setModSchema(boolean modSchema)						{ _boolModSchema = modSchema;							}
 	
 	public boolean	getLineTypeLoad()									{ return _boolLineTypeLoad;								}
 	public void		setLineTypeLoad(boolean lineTypeLoad)				{ _boolLineTypeLoad = lineTypeLoad;						}
@@ -51,6 +61,14 @@ public class MVLoadJob{
 	public void removeLineTypeLoad(String type)							{ _mapLineTypeLoad.remove(type);						}
 	public void clearLineTypeLoad()										{ _mapLineTypeLoad = new MVOrderedMap();				}
 
+	public boolean	getLoadStat()										{ return _boolLoadStat;									}
+	public void		setLoadStat(boolean loadStat)						{ _boolLoadStat = loadStat;								}
+	public boolean	getLoadMode()										{ return _boolLoadMode;									}
+	public void		setLoadMode(boolean loadMode)						{ _boolLoadMode = loadMode;								}
+	
+	public boolean	getLoadMpr()										{ return _boolLoadMpr;									}
+	public void		setLoadMpr(boolean loadMpr)							{ _boolLoadMpr = loadMpr;								}
+	
 	public boolean	getVerbose()										{ return _boolVerbose;									}
 	public void		setVerbose(boolean verbose)							{ _boolVerbose = verbose;								}
 	public int		getInsertSize()										{ return _intInsertSize;								}

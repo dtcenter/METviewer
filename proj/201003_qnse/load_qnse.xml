@@ -1,26 +1,27 @@
 <load_spec>
 	<connection>
-		<host>dakota:3306</host>
-		<database>metvdb_qnse</database>
+		<host>orval.rap.ucar.edu:3306</host>
+		<database>mv_test</database>
 		<user>pgoldenb</user>
 		<password>pgoldenb</password>
 	</connection>
 
-	<load_files>
-		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_ADPUPA_000000L_20080614_120000V.stat</file>
-		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_ONLYSF_000000L_20080614_120000V.stat</file>
-		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_WINDS_000000L_20080614_120000V.stat</file>
-	</load_files>
+<!--	<load_files>-->
+<!--		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_ADPUPA_000000L_20080614_120000V.stat</file>-->
+<!--		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_ONLYSF_000000L_20080614_120000V.stat</file>-->
+<!--		<file>/dakota_d3/projects/AFWA_RC/MET/2008061412/QNSE/metprd/point_stat_WINDS_000000L_20080614_120000V.stat</file>-->
+<!--	</load_files>-->
 
 <!--	<folder_tmpl>/dakota_d3/projects/AFWA_RC/MET/{fcst_init}/{model}/metprd</folder_tmpl>-->
+	<folder_tmpl>/d1/pgoldenb/var/qnse/met_output/data/{fcst_init}/{model}/metprd</folder_tmpl>
 	<date_list name="folder_dates">
 		<start>2008060212</start>
-		<end>2009053112</end>
+		<end>2008083112</end>
 		<inc>129600</inc>
 		<format>yyyyMMddHH</format>
 	</date_list>
 
-	<verbose>true</verbose>
+	<verbose>false</verbose>
 	<insert_size>1</insert_size>
 	<stat_header_table_check>true</stat_header_table_check>
 	<stat_header_db_check>false</stat_header_db_check>
@@ -35,35 +36,7 @@
 		</field>
 		
 		<field name="fcst_init">
-<!--			<date_list name="folder_dates"/>-->
-			<val>2008070400</val>
-			<val>2008070512</val>
-			<val>2008070700</val>
-			<val>2008070812</val>
-			<val>2008071000</val>
-			<val>2008071112</val>
-			<val>2008071300</val>
-			<val>2008071412</val>
-			<val>2008071600</val>
-			<val>2008071712</val>
-			<val>2008071900</val>
-			<val>2008072012</val>
-			<val>2008072200</val>
-			<val>2008072312</val>
-			<val>2008072500</val>
-			<val>2008072612</val>
-			<val>2008072800</val>
-			<val>2008091512</val>
-			<val>2008101512</val>
-			<val>2008101700</val>
-			<val>2008101812</val>
-			<val>2008102112</val>
-			<val>2008121112</val>
-			<val>2009030100</val>
-			<val>2009040112</val>
-			<val>2009042212</val>
-			<val>2009052400</val>
-			<val>2009052512</val>
+			<date_list name="folder_dates"/>
 		</field>
 	</load_val>
 	

@@ -284,8 +284,9 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 				
 				# calculate the difference
-				if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value) - sqrt(dfStatsComp$stat_value); }
-				else                          { listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;             }
+				#if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value) - sqrt(dfStatsComp$stat_value); }
+				#else                          { listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;             }				
+				listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;
 				
 			} else {
 				
@@ -311,8 +312,9 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 			
 				# add the median value to the current series point
-				if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value); }
-				else                          { listStats = dfStatsVal$stat_value;       }
+				#if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value); }
+				#else                          { listStats = dfStatsVal$stat_value;       }
+				listStats = dfStatsVal$stat_value;
 			}
 			dblMed = median(listStats);
 
