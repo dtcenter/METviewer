@@ -27,7 +27,7 @@ if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
 <img src="include/loading_white.gif" style="padding-top:10px"/></div>
 
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
-	<tr><td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.4</span></td></tr>
+	<tr><td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5</span></td></tr>
 	<tr><td><hr/></td></tr>
 
 	<tr><td>
