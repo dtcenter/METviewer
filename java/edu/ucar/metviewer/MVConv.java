@@ -71,7 +71,7 @@ public class MVConv extends MVUtil {
 			
 			//  bookkeeping for performance information
 			long intStartTime = (new java.util.Date()).getTime();
-			System.out.println("  start time: " + _formatDB.format(new java.util.Date()));
+			System.out.println("  start time: " + _formatDB.format(new java.util.Date()) + "\n");
 			
 			//  gather the list of stat_header_ids from the source database
 			Statement stmtId = _conSrc.createStatement();
@@ -93,15 +93,23 @@ public class MVConv extends MVUtil {
 				intIdNum++;
 			}
 			stmtId.close();
-			System.out.println();
+			
+			//  copy the mode tables
+			System.out.print("\r  Progress: all stat_header_id values copied              \n\n  copying mode tables...  ");
+			Statement stmtMode = _conSrc.createStatement();
+			int intModeCopy = stmtMode.executeUpdate("INSERT INTO " + _strDest + ".mode_header     SELECT * FROM " + _strSrc + ".mode_header;");
+			intModeCopy    += stmtMode.executeUpdate("INSERT INTO " + _strDest + ".mode_cts        SELECT * FROM " + _strSrc + ".mode_cts;");
+			intModeCopy    += stmtMode.executeUpdate("INSERT INTO " + _strDest + ".mode_obj_single SELECT * FROM " + _strSrc + ".mode_obj_single;");
+			intModeCopy    += stmtMode.executeUpdate("INSERT INTO " + _strDest + ".mode_obj_pair   SELECT * FROM " + _strSrc + ".mode_obj_pair;");
+			System.out.println("done: copied " + intModeCopy + " mode records\n");			
 
 			//  determine the number of stat_headers in the new database
 			int intNumSrc = intNumStatId;
 			int intNumDest = getTableSize(_conDest, "stat_header");
 			
 			//  print out a report line for the stat_header table
-			System.out.println(padEnd("table", 32) +       padEnd("  source", 16) +                       "  dest\n" +
-							   padEnd("stat_header", 32) + padEnd(padBegin("" + intNumSrc, 9), 16) + padBegin("" + intNumDest, 9));
+			System.out.println("  " + padEnd("table", 18) +       padEnd("source", 12) +                       "dest\n  " +
+							   padEnd("stat_header", 18) + padEnd(padBegin("" + intNumSrc, 10), 12) + padBegin("" + intNumDest, 10));
 	
 			//  print out a report of the number of lines moved for all line_data tables
 			String[] listLineDataTables = _tableLineCounts.getKeyList();
@@ -112,8 +120,23 @@ public class MVConv extends MVUtil {
 				intNumDest = getTableSize(_conDest, _listLineDataTables[i]);
 				
 				//  print the report line for the table
-				System.out.println(padEnd(_listLineDataTables[i], 32) + padEnd(padBegin("" + intNumSrc, 9), 16) + padBegin("" + intNumDest, 9));
+				System.out.println("  " + padEnd(_listLineDataTables[i], 18) + padEnd(padBegin("" + intNumSrc, 10), 12) + padBegin("" + intNumDest, 10));
 			}
+
+			//  report the mode table sizes
+			System.out.println("  " + padEnd("mode_header", 18) + 
+							   padEnd(padBegin("" + getTableSize(_conSrc, "mode_header"), 10), 12) + 
+							   padBegin("" + getTableSize(_conDest, "mode_header"), 10));
+			System.out.println("  " + padEnd("mode_cts", 18) + 
+					   		   padEnd(padBegin("" + getTableSize(_conSrc, "mode_cts"), 10), 12) +
+					   		   padBegin("" + getTableSize(_conDest, "mode_cts"), 10));
+			System.out.println("  " + padEnd("mode_obj_single", 18) + 
+					   		   padEnd(padBegin("" + getTableSize(_conSrc, "mode_obj_single"), 10), 12) +
+					   		   padBegin("" + getTableSize(_conDest, "mode_obj_single"), 10));
+			System.out.println("  " + padEnd("mode_obj_pair", 18) + 
+					   		   padEnd(padBegin("" + getTableSize(_conSrc, "mode_obj_pair"), 10), 12) +
+					   		   padBegin("" + getTableSize(_conDest, "mode_obj_pair"), 10));
+			
 			System.out.println("\n\n" +
 							   "      end time: " + _formatDB.format(new java.util.Date()) + "\n" +
 							   "  time elapsed: " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ) + "\n");
