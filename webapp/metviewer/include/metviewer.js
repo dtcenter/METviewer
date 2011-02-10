@@ -170,14 +170,17 @@ function onLoad(){
 	addFmtPlot("Y1 Axis Log Scale",				"log_y1",			"false",		"bool");
 	//  addFmtPlot("Y2 Axis Log Scale", "log_y2", "false", "bool");
 
-	//  add onchange listeners to the plot_diff controls
+	//  add onchange listeners to some controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
-	var selBool1 = tabFmtPlot.rows[0].cells[3].getElementsByTagName("select")[0];
-	selBool1.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ selBool1.attachEvent("onchange", new Function("buildSeriesDiv()")); }
-	var selBool2 = tabFmtPlot.rows[1].cells[0].getElementsByTagName("select")[0];
-	selBool2.setAttribute("onchange", "javascript:buildSeriesDiv()");
- 	if( _boolIE ){ selBool2.attachEvent("onchange", new Function("buildSeriesDiv()")); }
+	var selVertPlot = tabFmtPlot.rows[0].cells[2].getElementsByTagName("select")[0];
+	selVertPlot.setAttribute("onchange", "javascript:updateFmtPlot()");
+ 	if( _boolIE ){ selVertPlot.attachEvent("onchange", new Function("updateFmtPlot()")); }
+	var selPlot1Diff = tabFmtPlot.rows[1].cells[0].getElementsByTagName("select")[0];
+	selPlot1Diff.setAttribute("onchange", "javascript:buildSeriesDiv()");
+ 	if( _boolIE ){ selPlot1Diff.attachEvent("onchange", new Function("buildSeriesDiv()")); }
+	var selPlot2Diff = tabFmtPlot.rows[1].cells[1].getElementsByTagName("select")[0];
+	selPlot2Diff.setAttribute("onchange", "javascript:buildSeriesDiv()");
+ 	if( _boolIE ){ selPlot2Diff.attachEvent("onchange", new Function("buildSeriesDiv()")); }
 
 	//  add the text formatting options
 	addFmtPlot("Plot Image Type",				"plot_type",		"png16m",		"txt");
@@ -1121,15 +1124,9 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
 	if( -1 == intY ){
 		strFixCrit = buildRhistCrit(intFixEnd);
 	} else {
-//  STAT_CRIT
-		/*
-		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarCrit(intY); }
-		else                         { strFcstVarCrit = buildFcstVarCrit(); }
-		*/
 		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarStatCrit(intY); }
 		else                         { strFcstVarCrit = buildFcstVarStatCrit(); }		
 		strFixCrit = buildFixCrit(intFixEnd);
-		
 	}
 
 	//  build a list_val request for the selected field
@@ -1398,8 +1395,6 @@ function selectRhistVarResp(strResp){ selectFieldResp(strResp, _listRhistDiv, 1,
 function selectIndyVarReq(){
 
 	//  build a list_val request for the selected independent field
-//  STAT_CRIT
-	//var strFcstVarCrit = buildFcstVarCrit();
 	var strFcstVarCrit = buildFcstVarStatCrit();
 	var strFixCrit = buildFixCrit(_listFixDiv.length - 1);
 	var strField = getSelected( document.getElementById("selIndyVar") )[0];
@@ -1444,6 +1439,9 @@ function selectIndyVarResp(strResp){
 		trIndyVal.getElementsByTagName("input")[1].value = strLabel;
 	}
 	document.getElementById("spanIndyCheck").style.display = "inline";
+	
+	//  update the plot formatting to accommodate date series
+	updateFmtPlot();
 }
 
 /**
@@ -1562,6 +1560,48 @@ function handleFmtDisp(type){
 		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "none"; }
 		else                  { document.getElementById("spanFmtPlotCmd").style.display = "none"; }
 	}
+}
+
+/**
+ * Update the plot formatting default values, depending on the type of plot
+ */
+function updateFmtPlot(){
+
+	//  determine if vert_plot is true or false
+	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
+	var selVertPlot = tabFmtPlot.rows[0].cells[2].getElementsByTagName("select")[0];
+	var boolVert = (getSelected(selVertPlot)[0] == "true");
+	
+	//  determine if the independent variable is a date type
+	var selIndyVar = document.getElementById("selIndyVar");
+	var strIndyVar = getSelected(selIndyVar)[0];
+	var boolIndyDate = ( strIndyVar == "FCST_VALID_BEG" || strIndyVar == "FCST_INIT_BEG" ||
+						 strIndyVar == "FCST_VALID"     || strIndyVar == "FCST_INIT"     );
+
+	console("updateFmtPlot()\n  boolVert: " + boolVert + "\n  boolIndyDate: " + boolIndyDate + "\n\n");
+	
+	//  set the default values for each format setting
+	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
+	tabFmtPlotTxt.rows[1].cells[1].getElementsByTagName("input")[0].value = 
+		(boolVert? "c(6, 4, 4, 4)" : (boolIndyDate? "c(13, 4, 3, 4)" : "c(8, 4, 5, 4)"));	//  mar
+	tabFmtPlotTxt.rows[2].cells[2].getElementsByTagName("input")[0].value = 
+		(boolVert? "-.4"           : (boolIndyDate? "-.5"            : "-2"           ));	//  title_offset
+	setSelected(tabFmtPlotTxt.rows[3].cells[0].getElementsByTagName("select")[0], 
+		(boolVert? "1"             : (boolIndyDate? "3"              : "1"            )));	//  xtlab_orient
+	tabFmtPlotTxt.rows[3].cells[1].getElementsByTagName("input")[0].value = 
+		(boolVert? ".5"            : (boolIndyDate? ".5"             : "-.75"         ));	//  xtlab_perp
+	tabFmtPlotTxt.rows[3].cells[2].getElementsByTagName("input")[0].value = 
+		(boolVert? ".6"            : (boolIndyDate? ".9"             : ".5"           ));	//  xtlab_horiz
+	tabFmtPlotTxt.rows[4].cells[1].getElementsByTagName("input")[0].value = 
+		(boolVert? "-2"            : (boolIndyDate? "14"             : "2"            ));	//  xlab_offset
+	tabFmtPlotTxt.rows[5].cells[0].getElementsByTagName("input")[0].value = 
+		(boolVert? "-1"            : (boolIndyDate? ".5"             : ".5"           ));	//  ytlab_perp
+	tabFmtPlotTxt.rows[6].cells[0].getElementsByTagName("input")[0].value = 
+		(boolVert? "2"             : (boolIndyDate? "-2"             : "-2"           ));	//  ylab_offset
+	tabFmtPlotTxt.rows[8].cells[3].getElementsByTagName("input")[0].value = 
+		(boolVert? "1"             : (boolIndyDate? "-.5"            : "-.5"          ));	//  x2lab_offset
+	tabFmtPlotTxt.rows[11].cells[2].getElementsByTagName("input")[0].value = 
+		(boolVert? "c(0, -.17)"    : (boolIndyDate? "c(0, -.48)"     : "c(0, -.25)"   ));	//  legend_inset
 }
 
 /**
