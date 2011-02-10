@@ -25,8 +25,6 @@ public class MVLoadJob{
 	
 	protected boolean _boolVerbose				= false;
 	protected int _intInsertSize				= 1;
-	protected boolean _boolStatHeaderTableCheck	= true;
-	protected boolean _boolStatHeaderDBCheck	= false;
 	protected boolean _boolModeHeaderDBCheck	= true;
 	protected boolean _boolDropIndexes			= false;
 	protected boolean _boolApplyIndexes			= true;
@@ -73,10 +71,6 @@ public class MVLoadJob{
 	public void		setVerbose(boolean verbose)							{ _boolVerbose = verbose;								}
 	public int		getInsertSize()										{ return _intInsertSize;								}
 	public void		setInsertSize(int insertSize)						{ _intInsertSize = insertSize;							}
-	public boolean	getStatHeaderTableCheck()							{ return _boolStatHeaderTableCheck;						}
-	public void		setStatHeaderTableCheck(boolean statHeaderTableCheck){ _boolStatHeaderTableCheck = statHeaderTableCheck;	}
-	public boolean	getStatHeaderDBCheck()								{ return _boolStatHeaderDBCheck;						}
-	public void		setStatHeaderDBCheck(boolean statHeaderDBCheck)		{ _boolStatHeaderDBCheck = statHeaderDBCheck;			}
 	public boolean	getModeHeaderDBCheck()								{ return _boolModeHeaderDBCheck;						}
 	public void		setModeHeaderDBCheck(boolean modeHeaderDBCheck)		{ _boolModeHeaderDBCheck = modeHeaderDBCheck;			}
 	public boolean	getDropIndexes()									{ return _boolDropIndexes;								}

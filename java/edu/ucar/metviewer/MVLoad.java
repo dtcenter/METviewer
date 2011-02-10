@@ -8,12 +8,10 @@ import java.text.*;
 
 public class MVLoad extends MVUtil {
 
-	public static String _strMetVersion				= "V2.0";
+	public static String _strMetVersion				= "V3.0";
 
 	public static boolean _boolVerbose				= false;
 	public static int _intInsertSize				= 1;
-	public static boolean _boolStatHeaderTableCheck	= true;
-	public static boolean _boolStatHeaderDBCheck	= false;
 	public static boolean _boolModeHeaderDBCheck	= false;
 	public static boolean _boolDropIndexes			= false;
 	public static boolean _boolApplyIndexes			= false;
@@ -144,8 +142,6 @@ public class MVLoad extends MVUtil {
 			
 			_boolVerbose				= job.getVerbose();
 			_intInsertSize				= job.getInsertSize();
-			_boolStatHeaderTableCheck	= job.getStatHeaderTableCheck();
-			_boolStatHeaderDBCheck		= job.getStatHeaderDBCheck();
 			_boolModeHeaderDBCheck		= job.getModeHeaderDBCheck();
 			_boolDropIndexes			= job.getDropIndexes();
 			_boolApplyIndexes			= job.getApplyIndexes();
@@ -159,7 +155,7 @@ public class MVLoad extends MVUtil {
 			_boolLoadMpr				= job.getLoadMpr();
 			
 			//  if the insert size is greater than 1, ensure that the db header check is off
-			if( 1 < _intInsertSize && _boolStatHeaderDBCheck ){
+			if( 1 < _intInsertSize ){
 				throw new Exception("METViewer load error: insert size (" + _intInsertSize + ") > 1 and database header check turned on");
 			}
 			
@@ -244,8 +240,8 @@ public class MVLoad extends MVUtil {
 			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);			
 			if( !_boolIndexOnly ){
 				System.out.println("\n    ==== grid_stat ====\n\n" +
-								   (_boolStatHeaderDBCheck? padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" : "") +
-								   (_boolStatHeaderTableCheck? padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" : "") +
+								   padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" +
+								   padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" +
 								   padBegin("stat header records: ", 36) + _intStatHeaderRecords + "\n" +
 								   padBegin("stat header inserts: ", 36) + _intStatHeaderInserts + "\n" +
 								   padBegin("line data records: ", 36) + _intLineDataRecords + "\n" +
@@ -463,9 +459,7 @@ public class MVLoad extends MVUtil {
 			//  look for the header key in the table, and record the time taken
 			boolean boolStatHeaderPresent = false; 
 			long intStatHeaderTableBegin = (new java.util.Date()).getTime();
-			if( _boolStatHeaderTableCheck ){
-				boolStatHeaderPresent = _tableStatHeaders.containsKey(strStatHeaderValueList);
-			}
+			boolStatHeaderPresent = _tableStatHeaders.containsKey(strStatHeaderValueList);
 			
 			//  check the table to see if a stat_header already exists
 			int intStatHeaderId = -1;
@@ -479,16 +473,13 @@ public class MVLoad extends MVUtil {
 				
 				//  look for an existing stat_header record with the same information
 				long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
-				if( _boolStatHeaderDBCheck ){
-					String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-					Statement stmt = con.createStatement();
-					ResultSet res = stmt.executeQuery(strStatHeaderSelect);
-					if( res.next() ){
-						intStatHeaderId = res.getInt(1);
-						//System.out.println("  **  WARNING: found duplicate stat_header record with id " + intStatHeaderId + "\n        " + d._strFileLine);
-					}
-					stmt.close();
+				String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
+				Statement stmt = con.createStatement();
+				ResultSet res = stmt.executeQuery(strStatHeaderSelect);
+				if( res.next() ){
+					intStatHeaderId = res.getInt(1);
 				}
+				stmt.close();
 				intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
 				_intStatHeaderSearchTime += intStatHeaderSearchTime;
 				
@@ -648,7 +639,7 @@ public class MVLoad extends MVUtil {
 							   padBegin("var length records: ", 36) + intVarLengthRecords + "\n" +
 							   padBegin("var length inserts: ", 36) + intVarLengthInserts + "\n" +
 							   padBegin("total load time: ", 36) + formatTimeSpan(intStatHeaderLoadTime) + "\n" +
-							   (_boolStatHeaderDBCheck? padBegin("stat_header search time: ", 36) + formatTimeSpan(intStatHeaderSearchTime) + "\n": "") +
+							   padBegin("stat_header search time: ", 36) + formatTimeSpan(intStatHeaderSearchTime) + "\n" +
 							   padBegin("lines / msec: ", 36) + _formatPerf.format(dblLinesPerMSec) + "\n\n");
 		}
 

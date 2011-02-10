@@ -102,8 +102,6 @@ public class MVLoadJobParser extends MVUtil{
 			else if( node._tag.equals("met_version") )             { job.setMetVersion           ( node._value );                          }
 			else if( node._tag.equals("insert_size") )             { job.setInsertSize           ( Integer.parseInt(node._value) );        }
 			else if( node._tag.equals("verbose") )                 { job.setVerbose              ( node._value.equalsIgnoreCase("true") ); }
-			else if( node._tag.equals("stat_header_table_check") ) { job.setStatHeaderTableCheck ( node._value.equalsIgnoreCase("true") ); }
-			else if( node._tag.equals("stat_header_db_check") )    { job.setStatHeaderDBCheck    ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("mode_header_db_check") )    { job.setModeHeaderDBCheck    ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("drop_indexes") )            { job.setDropIndexes          ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("apply_indexes") )           { job.setApplyIndexes         ( node._value.equalsIgnoreCase("true") ); }
