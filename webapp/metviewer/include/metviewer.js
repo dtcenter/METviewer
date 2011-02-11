@@ -1578,8 +1578,6 @@ function updateFmtPlot(){
 	var boolIndyDate = ( strIndyVar == "FCST_VALID_BEG" || strIndyVar == "FCST_INIT_BEG" ||
 						 strIndyVar == "FCST_VALID"     || strIndyVar == "FCST_INIT"     );
 
-	console("updateFmtPlot()\n  boolVert: " + boolVert + "\n  boolIndyDate: " + boolIndyDate + "\n\n");
-	
 	//  set the default values for each format setting
 	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
 	tabFmtPlotTxt.rows[1].cells[1].getElementsByTagName("input")[0].value = 

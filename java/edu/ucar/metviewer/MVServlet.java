@@ -358,6 +358,8 @@ public class MVServlet extends HttpServlet {
 					String strStat = nodeFcstVar._children[j]._value;
 					String strLineDataTable = MVUtil.getStatTable(strStat);
 					tableLineDataTables.put(strLineDataTable, "true");
+					if     ( strLineDataTable.equals("line_data_cnt") ){ tableLineDataTables.put("line_data_sl1l2", "true"); }
+					else if( strLineDataTable.equals("line_data_cts") ){ tableLineDataTables.put("line_data_ctc", "true");   }
 				}
 			}
     	} else if( boolRhist ){
@@ -392,7 +394,7 @@ public class MVServlet extends HttpServlet {
     		}
 
     		//  if so, build a where clause for the criteria
-    		String strFieldDBCrit = MVUtil.formatFieldMod(strFieldCrit, boolMode, false);
+    		String strFieldDBCrit = MVUtil.formatField(strFieldCrit, boolMode, false);
     		//if( !boolNRank ){ strFieldDBCrit = strFieldDBCrit.replaceAll("h\\.", ""); }
     		if( -1 != strFieldDBCrit.indexOf("n_rank") ){ continue; }
     		String strSQLOp = "IN";
@@ -413,11 +415,11 @@ public class MVServlet extends HttpServlet {
     				 strWhere + (strWhere.equals("")? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " + 
     				 "ORDER BY n_rank;";
     	} else if( !boolMode && boolTimeCrit ){
-    		String strSelectField = MVUtil.formatFieldMod(strField, boolMode);
+    		String strSelectField = MVUtil.formatField(strField, boolMode);
     		
     		strSQL = "SELECT DISTINCT " + strField + " FROM (";
     		for(int i=0; i < listTables.length; i++){
-    			strSQL += (i < 0? " UNION " : "") + "SELECT DISTINCT " + strSelectField + " ";
+    			strSQL += (i > 0? " UNION " : "") + "SELECT DISTINCT " + strSelectField + " ";
     			if( !strWhere.equals("") ){
     				strSQL += "FROM stat_header h, " + listTables[i] + " ld " + strWhere + " AND h.stat_header_id = ld.stat_header_id";
     			} else {
@@ -426,7 +428,7 @@ public class MVServlet extends HttpServlet {
     		}
     		 strSQL += ") AS ldj ORDER BY " + strField + ";";
     	} else {
-    		String strFieldDB = MVUtil.formatFieldMod(strField, boolMode).replaceAll("h\\.", "");
+    		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
     		strWhere = strWhere.replaceAll("h\\.", "");
     		strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
     	}
@@ -515,7 +517,9 @@ public class MVServlet extends HttpServlet {
     	
     	//  build a query for the fcst_var stat counts
     	String strSQL = "(SELECT COUNT(*), 'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+						"(SELECT COUNT(*), 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
     					"(SELECT COUNT(*), 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+    					"(SELECT COUNT(*), 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
     					"(SELECT COUNT(*), 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
     					"(SELECT COUNT(*), 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
     					"(SELECT COUNT(*), 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
@@ -531,17 +535,25 @@ public class MVServlet extends HttpServlet {
 		ResultSet res = stmt.getResultSet();
 		ArrayList listStatName = new ArrayList();
 		int intStatIndex = 0;
+		boolean boolCnt = false;
+		boolean boolCts = false;
 		while( res.next() ){
 			int intStatCount = res.getInt(1);
 			if( 0 != intStatCount ){
 				switch(intStatIndex){
-				case 0:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsCnt.getKeyList()) );		break;
-				case 1:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsCts.getKeyList()) );		break;
-				case 2:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsNbrcnt.getKeyList()) );	break;
-				case 3:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsNbrcts.getKeyList()) );	break;
-				case 4:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsPstd.getKeyList()) );		break;
-				case 5:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsMcts.getKeyList()) );		break;
-				case 6:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsRhist.getKeyList()) );		break;
+				case 0: case 1:
+					if( !boolCnt ){ listStatName.addAll( Arrays.asList(MVUtil._tableStatsCnt.getKeyList()) ); }
+					boolCnt = true;
+					break;
+				case 2: case 3:
+					if( !boolCts ){ listStatName.addAll( Arrays.asList(MVUtil._tableStatsCts.getKeyList()) ); }
+					boolCts = true;
+					break;
+				case 4:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsNbrcnt.getKeyList()) );	break;
+				case 5:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsNbrcts.getKeyList()) );	break;
+				case 6:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsPstd.getKeyList()) );		break;
+				case 7:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsMcts.getKeyList()) );		break;
+				case 8:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsRhist.getKeyList()) );		break;
 				}
 			}
 			intStatIndex++;

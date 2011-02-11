@@ -16,27 +16,7 @@ public class MVUtil{
 	public static final Pattern _patProb		= Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
 
 	public static String getSQLDateFormat(String field){ return "DATE_FORMAT(" + field + ", '%Y-%m-%d %H:%i:%s')"; }
-	
-
-	
-	/**
-	 * Return the SQL expression that corresponds to the specified field name.  In most cases, this will simply be
-	 * the input field with an 'h.' prepended. 
-	 * @param field User specified field name
-	 * @param mode true if the output field should belong to the mode_header table, otherwise it will belong to
-	 *   the stat_header table 
-	 * @return Formatted field
-	public static String formatField(String field, boolean mode){
-		if( field.equals("init_hour") )          { return (mode? "HOUR(h.fcst_init)"  : "HOUR(h.fcst_init_beg)");  }
-		else if( field.equals("valid_hour") )    { return (mode? "HOUR(h.fcst_valid)" : "HOUR(h.fcst_valid_beg)"); }
-		else if( field.equals("fcst_init_beg") ) { return getSQLDateFormat("h.fcst_init_beg");  }
-		else if( field.equals("fcst_init") )     { return getSQLDateFormat("h.fcst_init");      }
-		else if( field.equals("fcst_valid_beg") ){ return getSQLDateFormat("h.fcst_valid_beg"); }
-		else if( field.equals("fcst_valid") )    { return getSQLDateFormat("h.fcst_valid");     }
-		else									 { return "h." + field;                         }
-	}
-	 */
-	
+		
 	/**
 	 * Format the input field according to the table that it is stored in, and whether or not it needs
 	 * to be derived or formatted as a date.  Stat fields must be differentiated from MODE fields.  Also,
@@ -47,7 +27,7 @@ public class MVUtil{
 	 * a where clause (false)
 	 * @return the formatted field
 	 */
-	public static String formatFieldMod(String field, boolean mode, boolean fmtSel){
+	public static String formatField(String field, boolean mode, boolean fmtSel){
 		if     ( field.equals("init_hour") )                { return (mode? "HOUR(h.fcst_init)"  : "HOUR(ld.fcst_init_beg)")  + (fmtSel? " init_hour" : "");  }
 		else if( field.equals("valid_hour") )               { return (mode? "HOUR(h.fcst_valid)" : "HOUR(ld.fcst_valid_beg)") + (fmtSel? " valid_hour" : ""); }
 		else if( field.equals("fcst_init")      &&  fmtSel ){ return getSQLDateFormat("h.fcst_init") + " fcst_init";            }
@@ -59,7 +39,7 @@ public class MVUtil{
 		else if( field.equals("fcst_lead") )                { return (mode? "h.fcst_lead" : "ld.fcst_lead");                    }
 		else                                                { return "h." + field;                                              }
 	}
-	public static String formatFieldMod(String field, boolean mode){ return formatFieldMod(field, mode, true); }
+	public static String formatField(String field, boolean mode){ return formatField(field, mode, true); }
 
 	/**
 	 * Query the database for a list of all ordered distinct fcst_init_begs and return them for use as 

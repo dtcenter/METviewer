@@ -241,7 +241,7 @@ public class MVBatch extends MVUtil {
 			//  make sure the database connection is functional (because Connection.isValid() throws an AbstractMethodError)
 			try{
 				Statement stmt = job.getConnection().createStatement();
-				stmt.executeQuery("SELECT COUNT(*) FROM data_file_lu;");
+				stmt.executeQuery("SELECT COUNT(*) FROM stat_header;");
 				stmt.close();				
 			}catch(Exception e){
 				Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -634,8 +634,8 @@ public class MVBatch extends MVUtil {
 				strTempType = tableHeaderSQLType.get(strSeriesField).toString();
 				
 				//  build the select list element, where clause and temp table list element  
-				strSelectList	+= (strSelectList.equals("")? "" : ",\n") + "  " + formatFieldMod(strSeriesField, boolModePlot, true);
-				strWhere		+= (strWhere.equals("")? "  " : "  AND ") + formatFieldMod(strSeriesField, boolModePlot, false) + 
+				strSelectList	+= (strSelectList.equals("")? "" : ",\n") + "  " + formatField(strSeriesField, boolModePlot, true);
+				strWhere		+= (strWhere.equals("")? "  " : "  AND ") + formatField(strSeriesField, boolModePlot, false) + 
 								   " IN (" + buildValueList(listSeriesVal) + ")\n";
 				strTempList 	+= (strTempList.equals("")? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
 			}				
@@ -688,10 +688,10 @@ public class MVBatch extends MVUtil {
 			
 			//  construct the select list item, where clause and temp table entry for the independent variable
 			if( !strSelectList.contains(strIndyVar) ){
-				strSelectList	+= ",\n  " + formatFieldMod(strIndyVar, boolModePlot, true);
+				strSelectList	+= ",\n  " + formatField(strIndyVar, boolModePlot, true);
 				strTempList		+= ",\n    " + padEnd(strIndyVar, 20) + strIndyVarType;
 			}
-			strWhere		+= (!strWhere.equals("")? "  AND " : "") + formatFieldMod(strIndyVar, boolModePlot, false) + 
+			strWhere		+= (!strWhere.equals("")? "  AND " : "") + formatField(strIndyVar, boolModePlot, false) + 
 							   " IN (" + buildValueList(job.getIndyVal()) + ")\n";
 							
 			//  add fcst_var to the select list and temp table entries
@@ -1360,7 +1360,7 @@ public class MVBatch extends MVUtil {
 				if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
 				else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
 			}
-			strWhere += (0 < i? "  AND " : "  ") + formatFieldMod(strField, boolModePlot, false) + " " + strCondition + "\n";
+			strWhere += (0 < i? "  AND " : "  ") + formatField(strField, boolModePlot, false) + " " + strCondition + "\n";
 		}
 		
 		return strWhere;
