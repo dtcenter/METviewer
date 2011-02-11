@@ -1,4 +1,4 @@
-<project name="metviewer" default="dist" basedir=".">
+<project name="metviewer" default="webapp" basedir=".">
 
 	<description>METViewer build file</description>
 
@@ -8,6 +8,7 @@
 	<property name="build" location="bin"/>
 	<property name="dist"  location="dist"/>
 
+	<!-- Initialize the build tree -->
 	<target name="init">
 		
 		<!-- Create the time stamp -->
