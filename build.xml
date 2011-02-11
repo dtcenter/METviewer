@@ -5,7 +5,7 @@
 	<!-- set global properties for this build -->
 	<property name="src" location="java"/>
 	<property name="lib" location="lib"/>
-	<property name="build" location="bin"/>
+	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
 
 	<!-- Initialize the build tree -->
