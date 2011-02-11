@@ -26,4 +26,8 @@ SELECT COUNT(*), 'line_data_rhist_rank' FROM line_data_rhist_rank UNION
 SELECT COUNT(*), 'line_data_sal1l2' FROM line_data_sal1l2 UNION
 SELECT COUNT(*), 'line_data_sl1l2' FROM line_data_sl1l2 UNION
 SELECT COUNT(*), 'line_data_val1l2' FROM line_data_val1l2 UNION
-SELECT COUNT(*), 'line_data_vl1l2' FROM line_data_vl1l2
+SELECT COUNT(*), 'line_data_vl1l2' FROM line_data_vl1l2 UNION
+SELECT COUNT(*), 'mode_header' FROM mode_header UNION
+SELECT COUNT(*), 'mode_cts' FROM mode_cts UNION
+SELECT COUNT(*), 'mode_obj_single' FROM mode_obj_single UNION
+SELECT COUNT(*), 'mode_obj_pair' FROM mode_obj_pair 
