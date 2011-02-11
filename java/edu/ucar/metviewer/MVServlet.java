@@ -82,7 +82,7 @@ public class MVServlet extends HttpServlet {
 			//  ensure that the requested database exists
 			String[] listDBSort = (String[])_listDB.clone();
 			Arrays.sort(listDBSort);
-			if( 0 > Arrays.binarySearch(listDBSort, "metvdb_" + strDB) ){
+			if( 0 > Arrays.binarySearch(listDBSort, "mv_" + strDB) ){
 				printErrorPage(response);
 				return;
 			}
@@ -718,6 +718,7 @@ public class MVServlet extends HttpServlet {
     	String strJobTmpl = job.getPlotTmpl();
 		String strRErrorMsg = "";
     	try{
+    		
     		//  configure the batch engine and run the job
     		bat._intNumPlots = 1;
 			bat._strRtmplFolder = parser.getRtmplFolder();
@@ -753,6 +754,7 @@ public class MVServlet extends HttpServlet {
     		if( matOutput.find() ){ strRErrorMsg = matOutput.group(1); }
     		if( strPlotterOutput.contains("Execution halted") ){ throw new Exception("R error"); }
     		if( strPlotterOutput.contains("query returned no data") ){ throw new Exception("query returned no data"); }
+    		
     	} catch(Exception e){
         	_logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
         	return "<error>" +
