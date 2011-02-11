@@ -18,7 +18,7 @@
 //  if there is a database input parameter, put its value into the db load control
 String strDB = "";
 String strDBVal = request.getParameter("db");
-if( null != strDBVal ){ strDB = "metvdb_" + strDBVal; }
+if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 
 %>
 
