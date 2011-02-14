@@ -154,6 +154,11 @@ public class MVLoad extends MVUtil {
 			
 			_boolLoadMpr				= job.getLoadMpr();
 			
+			//  update the var length tree with information for METv2.0, if necessary
+			if( "V2.0".equals(_strMetVersion) ){
+				_tableVarLengthGroupIndices.put("PSTD", new int[]{22, 30, 1});
+			}
+			
 			//  if the insert size is greater than 1, ensure that the db header check is off
 			if( 1 < _intInsertSize ){
 				throw new Exception("METViewer load error: insert size (" + _intInsertSize + ") > 1 and database header check turned on");
@@ -546,7 +551,21 @@ public class MVLoad extends MVUtil {
 			}
 			
 			//  add total and all of the stats on the rest of the line to the value list
-			for(int i=21; i < intLineDataMax; i++){ strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'"; }
+			for(int i=21; i < intLineDataMax; i++){
+				
+				//  for the METv2.0 PSTD line type, add the baser and CIs
+				if( 23 == i && "PSTD".equals(d._strLineType) && "V2.0".equals(_strMetVersion) ){
+					strLineDataValueList += ", '-9999', '-9999', '-9999'";
+				}
+				
+				//  for the METv2.0 MPR line type, add the obs_sid
+				if( 23 == i && "MPR".equals(d._strLineType) && "V2.0".equals(_strMetVersion) ){
+					strLineDataValueList += ", 'NA'";
+				}
+				
+				//  add the stats in order
+				strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
+			}
 			
 			//  add the values list to the line type values map
 			ArrayList listLineTypeValues = new ArrayList();

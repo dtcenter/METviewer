@@ -1,9 +1,7 @@
 package edu.ucar.metviewer;
 
 import java.util.*;
-import java.util.regex.*;
 import java.sql.*;
-import java.io.*;
 import java.text.*;
 
 public class MVConv extends MVUtil {
