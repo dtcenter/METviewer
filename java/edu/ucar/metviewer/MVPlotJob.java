@@ -39,8 +39,6 @@ public class MVPlotJob extends MVUtil{
 	protected MVOrderedMap _mapDep1Scale	= new MVOrderedMap();
 	protected MVOrderedMap _mapDep2Scale	= new MVOrderedMap();
 
-	protected MVOrderedMap _mapAggVal		= new MVOrderedMap();
-	
 	protected MVOrderedMap _mapTmplMaps		= new MVOrderedMap();
 	protected MVOrderedMap _mapTmplVal		= new MVOrderedMap();
 	
@@ -130,12 +128,6 @@ public class MVPlotJob extends MVUtil{
 	protected String _strBoxAvg				= "FALSE";
 	protected String _strCIAlpha			= ".05";
 	
-	protected boolean _boolBootstrapping	= false;
-	protected String _strBootRepl			= "1000";
-	protected String _strBootCI				= "bca";
-	protected boolean _strBootDiff1			= false;
-	protected boolean _strBootDiff2			= false;
-	
 	protected boolean _boolAggCtc			= false;
 	protected boolean _boolAggSl1l2			= false;
 	protected String _strAggBootRepl		= "1";
@@ -143,6 +135,9 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _strAggDiff1			= false;
 	protected boolean _strAggDiff2			= false;
 	
+	protected boolean _boolCalcCtc			= false;
+	protected boolean _boolCalcSl1l2		= false;
+
 	protected String _strPlotCI				= "";
 	protected String _strColors				= "";
 	protected String _strPch				= "";
@@ -187,7 +182,6 @@ public class MVPlotJob extends MVUtil{
 		job._mapSeriesNobs		= new MVOrderedMap(_mapSeriesNobs);
 		job._mapDep1Scale		= new MVOrderedMap(_mapDep1Scale);
 		job._mapDep2Scale		= new MVOrderedMap(_mapDep2Scale);
-		job._mapAggVal			= new MVOrderedMap(_mapAggVal);
 		job._mapTmplMaps		= new MVOrderedMap(_mapTmplMaps);
 		job._mapTmplVal			= new MVOrderedMap(_mapTmplVal);
 		
@@ -277,12 +271,6 @@ public class MVPlotJob extends MVUtil{
 		job._strBoxAvg			= _strBoxAvg;
 		job._strCIAlpha			= _strCIAlpha;
 
-		job._boolBootstrapping	= _boolBootstrapping;
-		job._strBootRepl		= _strBootRepl;
-		job._strBootCI			= _strBootCI;
-		job._strBootDiff1		= _strBootDiff1;
-		job._strBootDiff2		= _strBootDiff2;
-		
 		job._boolAggCtc			= _boolAggCtc;
 		job._boolAggSl1l2		= _boolAggSl1l2;
 		job._strAggBootRepl		= _strAggBootRepl;
@@ -290,6 +278,9 @@ public class MVPlotJob extends MVUtil{
 		job._strAggDiff1		= _strAggDiff1;
 		job._strAggDiff2		= _strAggDiff2;
 		
+		job._boolCalcCtc		= _boolCalcCtc;
+		job._boolCalcSl1l2		= _boolCalcSl1l2;
+
 		job._strPlotCI			= _strPlotCI;
 		job._strColors			= _strColors;
 		job._strPch				= _strPch;
@@ -377,14 +368,6 @@ public class MVPlotJob extends MVUtil{
 	public void removeDep2Scale(String field)							{ _mapDep2Scale.remove(field);							}
 	public void clearDep2Scale()										{ _mapDep2Scale = new MVOrderedMap();					}
 	
-	public MVOrderedMap getAggVal()										{ return _mapAggVal;									}
-	public void addAggVal(String field, String[] vals, int index)		{ _mapAggVal.put(field, vals, index);					}
-	public void addAggVal(String field, String[] vals)					{ addAggVal(field, vals, _mapAggVal.size());			}
-	public void addAggVal(String field, MVOrderedMap sets, int index)	{ _mapAggVal.put(field, sets, index);					}
-	public void addAggVal(String field, MVOrderedMap sets)				{ addAggVal(field, sets, _mapAggVal.size());			}
-	public void removeAggVal(String field)								{ _mapAggVal.remove(field);								}
-	public void clearAggVal()											{ _mapAggVal = new MVOrderedMap();						}
-
 	public MVOrderedMap getTmplMaps()									{ return _mapTmplMaps;									}
 	public MVOrderedMap getTmplMap(String field){
 		return ( _mapTmplMaps.containsKey(field)? (MVOrderedMap)_mapTmplMaps.get(field) : null);
@@ -566,17 +549,6 @@ public class MVPlotJob extends MVUtil{
 	public String	getCIAlpha()										{ return _strCIAlpha;									}
 	public void		setCIAlpha(String ciAlpha)							{ _strCIAlpha = ciAlpha;								}
 
-	public boolean	getBootstrapping()									{ return _boolBootstrapping;							}
-	public void		setBootstrapping(boolean bootstrapping)				{ _boolBootstrapping = bootstrapping; 					}
-	public String	getBootRepl()										{ return _strBootRepl;									}
-	public void		setBootRepl(String bootRepl)						{ _strBootRepl = bootRepl;								}
-	public String	getBootCI()											{ return _strBootCI;									}
-	public void		setBootCI(String bootCI)							{ _strBootCI = bootCI;									}
-	public boolean	getBootDiff1()										{ return _strBootDiff1;									}
-	public void		setBootDiff1(boolean bootDiff1)						{ _strBootDiff1 = bootDiff1;							}
-	public boolean	getBootDiff2()										{ return _strBootDiff2;									}
-	public void		setBootDiff2(boolean bootDiff2)						{ _strBootDiff2 = bootDiff2;							}
-	
 	public boolean	getAggCtc()											{ return _boolAggCtc;									}
 	public void		setAggCtc(boolean aggCtc)							{ _boolAggCtc = aggCtc; 								}
 	public boolean	getAggSl1l2()										{ return _boolAggSl1l2;									}
@@ -589,6 +561,11 @@ public class MVPlotJob extends MVUtil{
 	public void		setAggDiff1(boolean aggDiff1)						{ _strAggDiff1 = aggDiff1;								}
 	public boolean	getAggDiff2()										{ return _strAggDiff2;									}
 	public void		setAggDiff2(boolean aggDiff2)						{ _strAggDiff2 = aggDiff2;								}
+	
+	public boolean	getCalcCtc()										{ return _boolCalcCtc;									}
+	public void		setCalcCtc(boolean calcCtc)							{ _boolCalcCtc = calcCtc; 								}
+	public boolean	getCalcSl1l2()										{ return _boolCalcSl1l2;								}
+	public void		setCalcSl1l2(boolean calcSl1l2)						{ _boolCalcSl1l2 = calcSl1l2; 							}	
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}

@@ -1335,4 +1335,83 @@ public class MVUtil{
 		_tableModeRatioField.put("OBJAFAR",			"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / " +
 													"( SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) + SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2 )");
 	}
+	
+	public static final MVOrderedMap _tableCalcStatCTC = new MVOrderedMap();
+	static{
+		_tableCalcStatCTC.put("BASER", "(d$fy_oy + d$fn_oy) / d$total");
+		
+		_tableCalcStatCTC.put("BASER",	"IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_oy) / d$total ))");
+		_tableCalcStatCTC.put("ACC",	"IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_on) / d$total ))");
+		_tableCalcStatCTC.put("FBIAS",	"IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ))");
+		_tableCalcStatCTC.put("PODY",	"IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( d$fy_oy / (d$fy_oy + d$fn_oy) ))");
+		_tableCalcStatCTC.put("POFD",	"IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fy_on / (d$fy_on + d$fn_on) ))");
+		_tableCalcStatCTC.put("PODN",	"IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fn_on / (d$fy_on + d$fn_on) ))");
+		_tableCalcStatCTC.put("FAR",	"IF(0 == (d$fy_oy + d$fy_on),			'NA', ( d$fy_on / (d$fy_oy + d$fy_on) ))");
+		_tableCalcStatCTC.put("CSI",	"IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
+		_tableCalcStatCTC.put("GSS",	"IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
+		
+		
+	}
+	
+/*
+# SL1L2 stat calculations
+calcStdDev		= function(sum, sum_sq, n){
+	if( 1 > n ){ return(NA); }
+	v = (sum_sq - sum*sum/n)/(n - 1);	
+	if( 0 > v ){ return(NA);        }
+	else       { return( sqrt(v) ); }
+}
+calcFBAR		= function(d){ return( d$fbar ); }
+calcOBAR		= function(d){ return( d$obar ); }
+calcFSTDEV		= function(d){ return( calcStdDev(d$fbar * d$total, d$ffbar & d$total, d$total) ); }
+calcOSTDEV		= function(d){ return( calcStdDev(d$obar * d$total, d$oobar & d$total, d$total) ); }
+calcFOBAR		= function(d){ return( d$fobar ); }
+calcFFBAR		= function(d){ return( d$ffbar ); }
+calcOOBAR		= function(d){ return( d$oobar ); }
+calcMBIAS		= function(d){ if( 0 == d$obar ){ return (NA); } else { return( d$fbar / d$obar ); } }
+calcPR_CORR		= function(d){
+	v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
+    pr_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
+	if( 0 >= v || 1 < pr_corr ){ return(NA);        }
+	else                       { return( pr_corr ); } 
+}
+calcME			= function(d){ return( d$fbar - d$obar ); }
+calcMSE			= function(d){ return( d$ffbar + d$oobar - 2 * d$fobar ); }
+calcRMSE		= function(d){ return( sqrt(calcMSE(d)) ); }
+calcESTDEV		= function(d){ return( calcStdDev( calcME(d) * d$total, calcMSE(d) * d$total, d$total) ); }
+calcBCMSE		= function(d){ return( calcMSE(d) - (d$fbar - d$obar)^2 ); }
+calcBCRMSE		= function(d){ return( sqrt(calcBCMSE(d)) ); }
+
+
+# CTC stat calculations
+calcBASER		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
+calcACC			= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_on) / d$total ); }             }
+calcFBIAS		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); } }
+calcPODY		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fn_oy) ); }             }
+calcPOFD		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fy_on / (d$fy_on + d$fn_on) ); }             }
+calcPODN		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fn_on / (d$fy_on + d$fn_on) ); }             }
+calcFAR			= function(d){ if( 0 == (d$fy_oy + d$fy_on) )          { return (NA); } else { return( d$fy_on / (d$fy_oy + d$fy_on) ); }             }
+calcCSI			= function(d){ if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){ return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ); }   }
+calcGSS = function(d){
+	if( 0 == d$total ){ return (NA); }
+	dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
+	return( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) );
+}
+calcHK = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
+calcHSS = function(d){
+	if( 0 == d$total ){ return (NA); }
+	dblC = ( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) + (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) / d$total;
+	return( (d$fy_oy + d$fy_on - dblC) / (d$total - dblC) );
+}
+calcODDS = function(d){
+	if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
+	dblPOD = calcPODY(d);
+	dblPOFD = caclPOFD(d);	
+	return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
+}
+
+ */
+	
+	
+	
 }

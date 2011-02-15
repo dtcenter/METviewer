@@ -238,9 +238,29 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 				</tr>
 			</table>
 		</div><br/><br/>
-		
+
 		</td></tr><tr><td>
 
+		<div id="divCalcStat">
+			<span class="header">Statistics Calculations</span>
+			<span class="stdTiny">(<a href="doc/plot.html#calc_stat" target="_blank">help</a>)</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divCalcStat')" id="lnkSerCalcStat">Serialize</a><br/><br/>
+
+			<span id="spanCalcStatNA" class="header" style="padding-left:40px; display:none">N/A</span>
+			<input id="chkCalcStat" type="checkbox" onclick="javascript:updateCalcStat()"/><span id="spanCalcStat" class="bold">Statistics Calculation Enabled</span><br/><br/>
+			<table id="tabCalcStatParm" border="0" cellpadding="0" cellspacing="0" style="display:none">
+				<tr>
+					<td align="left" style="padding-left:30px" colspan="4">
+						<input type="radio" name="calc_stat" value="ctc"/><span class="bold">CTC</span>&nbsp;&nbsp;&nbsp;
+						<input type="radio" name="calc_stat" value="sl1l2"/><span class="bold">SL1L2</span>
+						<br/><br/>
+					</td>
+				</tr>
+			</table>
+		</div><br/><br/>
+		
+		</td></tr><tr><td class="grey">
+		
 		<div id="divTitleLab">
 			<span class="header">Plot Titles &amp; Labels</span><br/><br/>
 
@@ -253,8 +273,8 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 			</table><br/><br/>
 		</div>
 		
-		</td></tr><tr><td class="grey">
-
+		</td></tr><tr><td>
+		
 		<div id="divFmtPlot">
 			<span class="header">Plot Formatting</span>
 			<span class="stdTiny">(<a href="doc/plot.html#fmt_bool" target="_blank">help</a>)</span>
@@ -302,7 +322,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 			</span>
 		</div><br/><br/>
 
-		</td></tr><tr><td>
+		</td></tr><tr><td class="grey">
 		
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>
@@ -487,7 +507,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 			
 		</div>
 		
-		</td></tr><tr><td class="grey">
+		</td></tr><tr><td>
 		
 		<div id="divFmtAxis">
 			<span class="header">Axis Bounds</span>
@@ -503,7 +523,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 			</table><br/><br/>
 		</div>
 				
-		</td></tr></table><br/><br/>
+		</td></tr></table><br/><br/><hr/><br/>
 		
 		<input type="button" class="header" onclick="javascript:runPlotReq()" value="&#187; Generate Plot &#171;"/><br/><br/>
 		

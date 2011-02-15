@@ -139,21 +139,6 @@ public class MVBatch extends MVUtil {
 					else if( objFixVal instanceof MVOrderedMap ){ intNumJobPlots *= ((MVOrderedMap)objFixVal).size(); }
 				}
 				
-				//  add a job for each permutation of aggregation values
-				Map.Entry[] listAgg = jobs[intJob].getAggVal().getOrderedEntries();
-				for(int j=0; j < listAgg.length; j++){
-					Object objAggVal = listAgg[j].getValue();
-					if     ( objAggVal instanceof String[] )    { intNumJobPlots *= ((String[])objAggVal).length;     }
-					else if( objAggVal instanceof MVOrderedMap ){ intNumJobPlots *= ((MVOrderedMap)objAggVal).size(); }
-				}
-								
-				//  add a job for each member of mode group
-				MVOrderedMap[] listDep = jobs[intJob].getDepGroups();
-				for(int j=0; j < listDep.length; j++){
-					Object objDep1 = listDep[j].get("dep1");
-					if( objDep1 instanceof MVOrderedMap[] ){ intNumJobPlots *= ((MVOrderedMap[])objDep1).length; }
-				}
-
 				bat._intNumPlots += intNumJobPlots;
 			}
 			java.util.Date dateStart = new java.util.Date();
@@ -310,6 +295,7 @@ public class MVBatch extends MVUtil {
 			//  get the plot data from the plot_data temp table and write it to a data file
 			stmt = job.getConnection().createStatement();
 			String strPlotDataSelect = "SELECT * FROM plot_data;";
+			if( job.getCalcCtc() || job.getCalcSl1l2() ){ strPlotDataSelect = "SELECT * FROM plot_data WHERE stat_value != 'NA';"; } 
 			if( _boolVerbose ){ _out.println(strPlotDataSelect); }
 			stmt.execute(strPlotDataSelect);
 			printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
@@ -578,12 +564,15 @@ public class MVBatch extends MVUtil {
 		//  build the sql where clauses for the current permutation of fixed variables and values
 		String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, boolModePlot);
 		
-		//  determine if the plot requires data aggregation
+		//  determine if the plot requires data aggregation or calculations
 		boolean boolAggCtc = job.getAggCtc();
 		boolean boolAggSl1l2 = job.getAggSl1l2();
 		boolean boolAggStat = boolAggCtc || boolAggSl1l2;
+		boolean boolCalcCtc = job.getCalcCtc();
+		boolean boolCalcSl1l2 = job.getCalcSl1l2();
+		boolean boolCalcStat = boolCalcCtc || boolCalcSl1l2;
 
-		//  TODO: remove multiple dep group capability
+		//  remove multiple dep group capability
 		MVOrderedMap[] listDep = job.getDepGroups();
 		if( 1 != listDep.length ){ throw new Exception("unexpected number of <dep> groups: " + listDep.length); }
 		MVOrderedMap mapDepGroup = listDep[0];
@@ -806,18 +795,39 @@ public class MVBatch extends MVUtil {
 					else if( _tableModeRatioField.containsKey(strStat) )          { tableStats = _tableModeSingleStatField; }
 					else { throw new Exception("unrecognized mode stat: " + strStatMode); }
 				} else {
-					if     ( _tableStatsCnt.containsKey(strStat) )    { tableStats = _tableStatsCnt;    strStatTable = (boolAggStat? "line_data_sl1l2" : "line_data_cnt");    }
-					else if( _tableStatsCts.containsKey(strStat) )    { tableStats = _tableStatsCts;    strStatTable = (boolAggStat? "line_data_ctc"   : "line_data_cts");    }
-					else if( _tableStatsNbrcnt.containsKey(strStat) ) { tableStats = _tableStatsNbrcnt; strStatTable = "line_data_nbrcnt";  strStat = strStat.replace("NBRCNT_", ""); }
-					else if( _tableStatsNbrcts.containsKey(strStat) ) { tableStats = _tableStatsNbrcts; strStatTable = "line_data_nbrcts";  strStat = strStat.replace("NBRCTS_", ""); }
-					else if( _tableStatsPstd.containsKey(strStat) )   { tableStats = _tableStatsPstd;   strStatTable = "line_data_pstd";    strStat = strStat.replace("PSTD_", "");   }
-					else if( _tableStatsMcts.containsKey(strStat) )   { tableStats = _tableStatsMcts;   strStatTable = "line_data_mcts";    strStat = strStat.replace("MCTS_", "");   }
-					else if( _tableStatsRhist.containsKey(strStat) )  { tableStats = _tableStatsRhist;  strStatTable = "line_data_rhist";   strStat = strStat.replace("RHIST_", "");  }
-					else { throw new Exception("unrecognized stat: " + strStat); }
+					if( _tableStatsCnt.containsKey(strStat) ){
+						tableStats = _tableStatsCnt;
+						strStatTable = (boolAggStat || boolCalcStat? "line_data_sl1l2" : "line_data_cnt");
+					} else if( _tableStatsCts.containsKey(strStat) ){ 
+						tableStats = _tableStatsCts;
+						strStatTable = (boolAggStat || boolCalcStat? "line_data_ctc"   : "line_data_cts");
+					} else if( _tableStatsNbrcnt.containsKey(strStat) ){
+						tableStats = _tableStatsNbrcnt;
+						strStatTable = "line_data_nbrcnt";
+						strStat = strStat.replace("NBRCNT_", "");
+					} else if( _tableStatsNbrcts.containsKey(strStat) ){
+						tableStats = _tableStatsNbrcts;
+						strStatTable = "line_data_nbrcts";
+						strStat = strStat.replace("NBRCTS_", "");
+					} else if( _tableStatsPstd.containsKey(strStat) ){
+						tableStats = _tableStatsPstd;
+						strStatTable = "line_data_pstd";
+						strStat = strStat.replace("PSTD_", "");
+					} else if( _tableStatsMcts.containsKey(strStat) ){
+						tableStats = _tableStatsMcts;
+						strStatTable = "line_data_mcts";
+						strStat = strStat.replace("MCTS_", "");
+					} else if( _tableStatsRhist.containsKey(strStat) ){
+						tableStats = _tableStatsRhist;
+						strStatTable = "line_data_rhist";
+						strStat = strStat.replace("RHIST_", "");
+					} else { throw new Exception("unrecognized stat: " + strStat); }
 				}					
 				
+				//  build the SQL for the current fcst_var and stat
 				if( boolModePlot ){
 					
+					//  build the mode SQL
 					String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
 					listSQL.addAll( buildModeStatSQL(strTempList, strSelectList, strWhereFcstVar, strStat, listGroupBy) );
 					
@@ -830,9 +840,17 @@ public class MVBatch extends MVUtil {
 					if( strStat.equals("BCRMSE") ){ boolBCRMSE = true;  strStatField = "bcmse"; }
 					strSelectStat += ",\n  '" + strStat + "' stat_name";
 					
-					//  add the appropriate stat table members, depending on the use of aggregation
-					if     ( boolAggCtc   ){ strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on"; }
-					else if( boolAggSl1l2 ){ strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar"; }					
+					//  add the appropriate stat table members, depending on the use of aggregation and stat calculation
+					if     ( boolAggCtc )  { strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on"; }
+					else if( boolAggSl1l2 ){ strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar"; }
+					else if( boolCalcCtc ) {
+						strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
+										 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+					}
+					else if( boolCalcSl1l2 ){
+						strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
+										 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+					}
 					else {
 						if( boolBCRMSE ){ strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',FORMAT(sqrt(ld." + strStatField + "),5)) stat_value"; }						
 						else            { strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',FORMAT(ld." + strStatField + ",5)) stat_value"; }
@@ -872,7 +890,7 @@ public class MVBatch extends MVUtil {
 					}
 					
 					String strStatNaClause = "";
-					if( !boolAggStat ){ strStatNaClause = "\n  AND ld." + strStatField + " != -9999"; }
+					if( !boolAggStat && !boolCalcStat ){ strStatNaClause = "\n  AND ld." + strStatField + " != -9999"; }
 					
 					//  build the query
 					strSelectSQL += (strSelectSQL.equals("")? "INSERT INTO plot_data\n" : "\nUNION\n") +

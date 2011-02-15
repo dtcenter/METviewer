@@ -78,8 +78,8 @@ calcStdDev		= function(sum, sum_sq, n){
 }
 calcFBAR		= function(d){ return( d$fbar ); }
 calcOBAR		= function(d){ return( d$obar ); }
-calcFSTDEV		= function(d){ return( calcStdDev(d$fbar * d$total, d$ffbar & d$total, d$total) ); }
-calcOSTDEV		= function(d){ return( calcStdDev(d$obar * d$total, d$oobar & d$total, d$total) ); }
+calcFSTDEV		= function(d){ return( calcStdDev(d$fbar * d$total, d$ffbar * d$total, d$total) ); }
+calcOSTDEV		= function(d){ return( calcStdDev(d$obar * d$total, d$oobar * d$total, d$total) ); }
 calcFOBAR		= function(d){ return( d$fobar ); }
 calcFFBAR		= function(d){ return( d$ffbar ); }
 calcOOBAR		= function(d){ return( d$oobar ); }

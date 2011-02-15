@@ -1894,6 +1894,22 @@ function updateAggStat(){
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
+ * Calc Stat Controls
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/**
+ * Update the calc_stat controls according to the enabled checkbox setting
+ */
+function updateCalcStat(){
+	var divCalcStat = document.getElementById("divCalcStat");
+	var chkCalcStat = divCalcStat.getElementsByTagName("input")[0];
+	document.getElementById("tabCalcStatParm").style.display = (chkCalcStat.checked? "table" : "none");
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
  * Plot Spec Functions
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -1962,6 +1978,16 @@ function buildPlotXML(){
 			strDepXML += 	 "<agg_diff1>" + listAggStatParm[3].value + "</agg_diff1>";
 			strDepXML +=	 "<agg_diff2>" + listAggStatParm[5].value + "</agg_diff2>";
 			strDepXML += "</agg_stat>";		
+		}
+		
+		//  calc_stat
+		var chkCalcStat = document.getElementById("chkCalcStat");
+		if( chkCalcStat.checked ){
+			var listCalcStatParm = document.getElementById("tabCalcStatParm").getElementsByTagName("input");
+			strDepXML += "<calc_stat>";
+			strDepXML += 	   "<calc_ctc>" + listCalcStatParm[0].checked + "</calc_ctc>";
+			strDepXML += 	 "<calc_sl1l2>" + listCalcStatParm[1].checked + "</calc_sl1l2>";
+			strDepXML += "</calc_stat>";		
 		}
 		
 	}
@@ -2085,7 +2111,6 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 	}
 	
 	//  build the XML for each field stored in the table
-	//  var listField = tabField.listKeys();
 	for(i in listField){
 		var strVar = listField[i];
 		strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";

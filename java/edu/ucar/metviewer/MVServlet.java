@@ -771,7 +771,7 @@ public class MVServlet extends HttpServlet {
     							"R_work/data/" + strPlotPrefix + ".data " +
     							"R_work/include/Compute_STDerr.R " +
     							"R_work/include/util_plot.R";
-    	if( job.getBootstrapping() ){
+    	if( job.getAggCtc() || job.getAggSl1l2() ){
     		strTarCmd += " " + 
     							"R_work/include/boot.R " +
     							"R_work/data/" + strPlotPrefix + ".boot.info " +

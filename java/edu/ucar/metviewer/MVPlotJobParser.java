@@ -420,41 +420,10 @@ public class MVPlotJobParser extends MVUtil{
 					//  <clear>
 					if( nodeDepN._tag.equals("clear") ){ job.clearDepGroups(); }
 
-					/*
 					//  <mode_group>
 					else if( nodeDepN._tag.equals("mode_group") ){
-						ArrayList listModeGroup = new ArrayList();
-
-						String strDepN = "";
-						for(int k=0; k < nodeDepN._children.length; k++){
-							MVNode nodeDepNMode = nodeDepN._children[k];
-
-							//  <dep1> or <dep2>
-							if( nodeDepNMode._tag.startsWith("dep") ){
-								MVOrderedMap mapDepNMode = new MVOrderedMap();
-								strDepN = nodeDepNMode._tag;
-								
-								//  presence accounting
-								if     ( strDepN.equals("dep1") ){ boolDep1Present = true; }
-								else if( strDepN.equals("dep2") ){ boolDep2Present = true; }
-								
-								//  <fcst_var>
-								for(int l=0; l < nodeDepNMode._children.length; l++){
-									MVNode nodeFcstVar = nodeDepNMode._children[l];					
-									ArrayList listStats = new ArrayList();
-									
-									//  <stat>s
-									for(int m=0; m < nodeFcstVar._children.length; m++){
-										listStats.add(nodeFcstVar._children[m]._value);
-									}
-									mapDepNMode.put(nodeFcstVar._name, listStats.toArray(new String[]{}));
-								}
-								listModeGroup.add(mapDepNMode);
-							}
-						}
-						mapDep.put(strDepN, (MVOrderedMap[])listModeGroup.toArray(new MVOrderedMap[]{}));						
+						throw new Exception("<mode_group> tag no longer supported, use multiple inheritance instead");
 					}
-					*/
 					
 					//  <dep1> or <dep2>
 					else if( nodeDepN._tag.startsWith("dep") ){
@@ -561,15 +530,7 @@ public class MVPlotJobParser extends MVUtil{
 			
 			//  <bootstrapping>
 			else if( node._tag.equals("bootstrapping") ){
-				job.setBootstrapping(true);
-				
-				for(int j=0; j < node._children.length; j++){
-					MVNode nodeBoot = node._children[j];					
-					if( nodeBoot._tag.equals("boot_repl") )			{ job.setBootRepl(nodeBoot._value);                           }
-					else if( nodeBoot._tag.equals("boot_ci") )		{ job.setBootCI(nodeBoot._value);                             }
-					else if( nodeBoot._tag.equals("boot_diff1") )	{ job.setBootDiff1(nodeBoot._value.equalsIgnoreCase("true")); }
-					else if( nodeBoot._tag.equals("boot_diff2") )	{ job.setBootDiff2(nodeBoot._value.equalsIgnoreCase("true")); }
-				}				
+				throw new Exception("<bootstrapping> tag no longer supported, use <agg_stat> instead");
 			}
 			
 			//  <agg_stat>
@@ -588,6 +549,19 @@ public class MVPlotJobParser extends MVUtil{
 				if( job.getAggCtc() && job.getAggSl1l2() )  { throw new Exception("invalid agg_stat setting - both agg_ctc and agg_sl1l2 are true"); }
 			}
 			
+			//  <calc_stat>
+			else if( node._tag.equals("calc_stat") ){
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeAggStat = node._children[j];					
+					if     ( nodeAggStat._tag.equals("calc_ctc")   )	{ job.setCalcCtc(nodeAggStat._value.equalsIgnoreCase("true"));   }
+					else if( nodeAggStat._tag.equals("calc_sl1l2") )	{ job.setCalcSl1l2(nodeAggStat._value.equalsIgnoreCase("true")); }
+				}
+				
+				if( !job.getCalcCtc() && !job.getCalcSl1l2() ){ throw new Exception("invalid calc_stat setting - neither calc_ctc and calc_sl1l2 are true"); }
+				if( job.getCalcCtc() && job.getCalcSl1l2() )  { throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 are true"); }
+			}
+			
+			//  boolean format settings
 			else if( _tableFormatBoolean.containsKey(node._tag) ){
 				Method m = (Method)_tableFormatBoolean.get(node._tag);
 				try{
@@ -597,6 +571,7 @@ public class MVPlotJobParser extends MVUtil{
 				}
 			}
 			
+			//  R string format settings
 			else if( _tableFormatString.containsKey(node._tag) ){
 				Method m = (Method)_tableFormatString.get(node._tag);
 				try{
@@ -606,13 +581,11 @@ public class MVPlotJobParser extends MVUtil{
 				}
 			}
 			
+			//  report unused tags
 			else{
 				System.out.println("  **  WARNING: unused plot tag '" + node._tag + "'");
 			}
 		}
-		
-		//  if there are no bootstrapping CIs specified, turn off bootstrapping
-		if( job.getBootstrapping() && !job.getPlotCI().contains("boot") ){ job.setBootstrapping(false); }
 		
 		return job;
 	}
@@ -630,10 +603,6 @@ public class MVPlotJobParser extends MVUtil{
 				 null == job.getIndyDep()         )	{ return "indep";		}
 		else if( 1 > job.getDepGroups().length    )	{ return "dep";			}
 		else if( 1 > job.getSeries1Val().size()   )	{ return "series1";		}
-		/*
-		else if( 1 > job.getAggVal().size() &&
-				 1 > job.getPlotFixVal().size() )	{ return "agg/plot_fix";}
-		*/
 		else if( job.getRFileTmpl().equals("")    )	{ return "r_file";		}
 		else if( job.getPlotFileTmpl().equals("") )	{ return "plot_file";	}
 		else if( job.getDataFileTmpl().equals("") )	{ return "data_file";	}

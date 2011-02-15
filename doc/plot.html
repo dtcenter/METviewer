@@ -184,10 +184,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			</li><br/>
 			
 			<a name="agg"></a>		
-			<li><span class="code">&lt;agg&gt;</span>: the same structure and function as <span class="term">plot_fix</span>, but all permutations of <span class="code">&lt;agg&gt;</span>
-			field values are queried for in a single database operation, increasing performance.  This feature should be used if the amount of data per transaction is reasonable (which
-			is platform dependent) and if the data in the resulting dataset is non-ambiguous.  In particular, dates and date ranges must be carefully considered so they do not overlap
-			among the various <span class="code">&lt;agg&gt;</span> field value permutations.
+			<li><span class="code">&lt;agg&gt;</span>: this tag has been replaced by <span class="code">&lt;plot_fix&gt;</span>.  Do not use <span class="code">&lt;agg&gt;</span>.
 			</li><br/>
 			
 			<a name="tmpl"></a>		
@@ -269,7 +266,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 							</li>
 						</ul>
 					</li><br/>
-					<li><span class="code">&lt;dep2&gt;</span>: the fcst_var/stat pairs for the second dependent axis (y2), whose structure is identical to that of 
+					<li><span class="code">&lt;dep2&gt;</span>: the fcst_var/stat pairs for the second dependent axis (y2), whose structure is identical to that of <span class="code">&lt;dep1&gt;</span>
 					<li><span class="code">&lt;fix&gt;</span>: a list of database field/value pairs to hold constant for each fcst_var included in <span class="term">dep1</span> and 
 					<span class="term">dep2</span>
 						<ul>
@@ -293,26 +290,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			</li><br/>
 
 			<a name="boot"></a>		
-			<li><span class="code">&lt;bootstrapping&gt;</span>: <b class="code">Obsolete: replace by agg_stat</b> contains information about how to calculate and display 
-			bootstrapping information; if present, bootstrapping is turned on</br>
-				<ul>
-					<li><span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications</li>
-					<li><span class="code">&lt;bca&gt;</span>: type of confidence interval to calculate, passed to boot.ci() R function</li>
-					<li><span class="code">&lt;boot_diff1&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, turns on a difference calculation
-					for the y1-axis series</li>
-					<li><span class="code">&lt;boot_diff2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, turns on a difference calculation
-					for the y2-axis series</li>
-				</ul><br/>
-				<span style="padding-left:30px">When using bootstrapping, the following constraints apply:</span>
-				<ul>
-					<li>bootstrapping is only supported on the x1-axis</li>
-					<li>bootstrapping is performed once for each plot that is created</li>
-					<li>a plot cannot have both bootstrapped and non-bootstrapped data on the x1-axis</li>
-					<li>if the bootstrapping difference curve is turned on, the plot1 difference curve must be turned off</li>
-					<li>to display the calculated bootstrap CIs, set the plot_cis to "boot"</li>
-					<li>the plot must contain statistics for only one fcst_var</li>
-					<li>if bootstrapping is turned on, event equalization must be turned off (it is done automatically)</li>
-				</ul>
+			<li><span class="code">&lt;bootstrapping&gt;</span>: replaced by <span class="code">&lt;agg_stat&gt;</span>, do not use <span class="code">&lt;bootstrapping&gt;</span>
 			</li><br/>
 			
 			<a name="agg_stat"></a>		
@@ -334,11 +312,27 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 					<li>agg_ctc and agg_sl1l2 must only be used with appropriate statistics for each, and only one can be used on a single plot</li>
 					<li>agg_stat is only supported on the x1-axis</li>
 					<li>agg_stat is performed once for each plot that is created</li>
-					<li>a plot cannot have both agg_stat and non-agg_stat data on the x1-axis</li>
+					<li>a plot cannot have both agg_stat and non-agg_stat data on the same plot</li>
 					<li>if the agg_stat difference curve is turned on, the plot1 difference curve must be turned off</li>
 					<li>to display the calculated bootstrap CIs, set the plot_cis to "boot"</li>
 					<li>the plot must contain statistics for only one fcst_var</li>
 					<li>if agg_stat is turned on, event equalization must be turned off (it is done automatically)</li>
+					<li>agg_stat cannot be used on the same plot with calc_stat</li>
+				</ul>
+			</li><br/>
+			
+			<a name="calc_stat"></a>		
+			<li><span class="code">&lt;calc_stat&gt;</span>: contains flags telling METViewer to calculate the plot statistics from CTCs or partial sums.  If present, calc_stat is
+			turned on.  Depending on the selected <span class="code">&lt;dep&gt;</span> statistics, only certain settings are appropriate.</br>
+				<ul>
+					<li><span class="code">&lt;calc_ctc&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to calculate CTC stats</li>
+					<li><span class="code">&lt;calc_sl1l2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to calculate SL1L2 stats</li>
+				</ul><br/>
+				<span style="padding-left:30px">When using <span class="code">&lt;calc_stat&gt;</span>, the following constraints apply:</span>
+				<ul>
+					<li>calc_ctc and calc_sl1l2 must only be used with appropriate statistics for each, and only one can be used on a single plot</li>
+					<li>a plot cannot have both calc_stat and non-calc_stat data on the same plot</li>
+					<li>calc_stat cannot be used on the same plot with agg_stat</li>
 				</ul>
 			</li><br/>
 			
