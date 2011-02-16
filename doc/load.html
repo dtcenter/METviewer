@@ -99,13 +99,15 @@ Here is a simple example:
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;inc&gt;<span class="term">3600</span>&lt;/inc&gt;<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;format&gt;<span class="term">yyyyMMddHH'V'</span>&lt;/format&gt;<br/>
 &nbsp;&nbsp;&lt;/date_list&gt;<br/><br/>
+&nbsp;&nbsp;&lt;met_version&gt;<span class="term">V3.0</span>&lt;/met_version&gt;<br/><br/>
 &nbsp;&nbsp;&lt;verbose&gt;<span class="term">false</span>&lt;/verbose&gt;<br/>
 &nbsp;&nbsp;&lt;insert_size&gt;<span class="term">1</span>&lt;/insert_size&gt;<br/>
-&nbsp;&nbsp;&lt;stat_header_table_check&gt;<span class="term">true</span>&lt;/stat_header_table_check&gt;<br/>
-&nbsp;&nbsp;&lt;stat_header_db_check&gt;<span class="term">false</span>&lt;/stat_header_db_check&gt;<br/>
 &nbsp;&nbsp;&lt;mode_header_db_check&gt;<span class="term">true</span>&lt;/mode_header_db_check&gt;<br/>
 &nbsp;&nbsp;&lt;drop_indexes&gt;<span class="term">false</span>&lt;/drop_indexes&gt;<br/>
-&nbsp;&nbsp;&lt;apply_indexes&gt;<span class="term">false</span>&lt;/apply_indexes&gt;<br/><br/>	
+&nbsp;&nbsp;&lt;apply_indexes&gt;<span class="term">true</span>&lt;/apply_indexes&gt;<br/>	
+&nbsp;&nbsp;&lt;load_stat&gt;<span class="term">true</span>&lt;/load_stat&gt;<br/>
+&nbsp;&nbsp;&lt;load_mode&gt;<span class="term">true</span>&lt;/load_mode&gt;<br/>	
+&nbsp;&nbsp;&lt;load_mpr&gt;<span class="term">false</span>&lt;/load_mpr&gt;<br/><br/>	
 &nbsp;&nbsp;&lt;folder_tmpl&gt;<span class="term">/d1/data/{model}/{vx_mask}/{valid_time}</span>&lt;/folder_tmpl&gt;<br/>
 &nbsp;&nbsp;&lt;load_val&gt;<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;field name="<span class="term">model</span>"&gt;<br/>

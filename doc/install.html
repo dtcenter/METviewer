@@ -12,44 +12,97 @@
 
 <h2>Installing METViewer</h2>
 
+<p>
+METViewer relies on the following tools.  These must be installed and tested prior to installing METViewer:<br/>
+<ul>
+	<li>
+		<b class="inst">Java JDK</b> - 
+			<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.6
+	</li>
+	<li>
+		<b class="inst">ant</b> - <a href="http://ant.apache.org/bindownload.cgi" target="_blank">download</a> and install the latest version
+	</li>
+	<li>
+		<b class="inst">MySQL</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
+	</li>
+	<li>
+		<b class="inst">Apache Tomcat</b> - 
+			<a href="http://tomcat.apache.org/download-55.cgi" target="_blank">download</a> and install version 5.5; test the sample JSP web apps 		
+	</li>
+	<li>
+		<b class="inst">R</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
+	</li>
+</ul>
+</p>
+
+<p>
+Download and build the METViewer source code (link needed).  For the following instructions, the placeholder [install] should be
+replaced with the absolute folder name where the METViewer source bundle will be built.<br/>
 <ol>
-	<li class="inst">METViewer relies on the following tools.  These must be installed and tested prior to installing METViewer:<br/><br/>
-		<ul>
-			<li>
-				<b class="inst">Java JDK</b> - 
-					<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.6
-			</li>
-			<li>
-				<b class="inst">ant</b> - <a href="http://ant.apache.org/bindownload.cgi" target="_blank">download</a> and install the latest version
-			</li>
-			<li>
-				<b class="inst">MySQL</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
-			</li>
-			<li>
-				<b class="inst">Apache Tomcat</b> - 
-					<a href="http://tomcat.apache.org/download-55.cgi" target="_blank">download</a> and install version 5.5; test the sample JSP web apps 		
-			</li>
-			<li>
-				<b class="inst">R</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
-			</li>
-		</ul><br/><br/>
+	<li class="inst">Unpack the METViewer source bundle:<br/>
+		<span class="term" style="padding-left:40px">$ cd [intall]</span><br/>	 
+		<span class="term" style="padding-left:40px">$ tar xzf metviewer.tar.gz</span><br/><br/>			 
 	</li>
-	<li class="inst">Download and build the METViewer source code (link needed).<br/><br/>
+	<li class="inst">Configure the batch tool, database loader tool and web application:<br/>
 		<ul>
-			<li class="inst">Unpack the METViewer source bundle:<br/>
-				<span class="term" style="padding-left:40px">$ tar xzf metviewer.tar.gz</span><br/><br/>			 
-			</li>
-			<li class="inst">Build the application:<br/>
-				<span class="term" style="padding-left:40px">$ cd metviewer</span><br/>		 
-				<span class="term" style="padding-left:40px">$ ant dist</span><br/><br/>
-			</li>
-			<li class="inst">Set the <span class="term">$METV_BASE</span> environment variable:<br/>
-				<span class="term" style="padding-left:40px">$ export METV_BASE=`pwd`</span><br/><br/>
-			</li>
-		</ul><br/><br/>
+			<li style="list-style-type:disc">edit [install]/metviewer/bin/mv_batch.sh:<br/>
+				<ul>
+					<li>set the variable JAVA to point at the jvm instance you would like to run</li>
+					<li>set the variable METVIEWER to point at [install]/metviewer</li>
+				</ul>
+			</li><br/>
+			<li style="list-style-type:disc">edit [install]/metviewer/bin/mv_load.sh:<br/>
+				<ul>
+					<li>set the variable JAVA to point at the jvm instance you would like to run</li>
+					<li>set the variable METVIEWER to point at [install]/metviewer</li>
+				</ul>
+			</li><br/>
+			<li style="list-style-type:disc">edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties:<br/>
+				<ul>
+					<li>set log4j.appender.logfile.File setting to the absolute path of [install]/metviewer/log folder</li>
+				</ul>
+			</li><br/>
+			<li style="list-style-type:disc">edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties:<br/>
+				<ul>
+					<li>set db.host to the MySQL database server host and port, e.g. db.ncep.gov:3306</li>
+					<li>set db.user and db.password to the database username and password</li>
+					<li>set db.list to the name of the database with the compatible schema and data</li>
+					<li>set folders.plot_xml to the absolute path of [install]/metviewer/dist/metviewer/xml</li>
+					<li>set folders.r_tmpl to the absolute path of [install]/metviewer/R_tmpl</li>
+					<li>set folders.r_tmpl to the absolute path of [install]/metviewer/R_tmpl</li>
+					<li>set folders.plots to the absolute path of [install]/metviewer/dist/metviewer/plots</li>
+				</ul>
+			</li><br/><br/>
+		</ul>
 	</li>
-	
-</ol>
+	<li class="inst">Build and deploy the application:<br/>
+		<ul>
+			<li style="list-style-type:disc">Build METViewer and the web application:<br/>
+				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
+				<span class="term" style="padding-left:40px">$ ant</span><br/>
+			</li><br/>
+			<li style="list-style-type:disc">Deploy the web app to tomcat:<br/>
+				<span class="term" style="padding-left:40px">$ cd [tomcat_base]/webapps</span><br/>		 
+				<span class="term" style="padding-left:40px">$ ln -s [install]/metviewer/dist/metviewer metviewer</span><br/>
+			</li><br/><br/>
+		</ul>
+	</li>
+	<li class="inst">Create a METViewer database:<br/>
+		<ul>
+			<li style="list-style-type:disc">create a database to store MET data, which has the prefix 'mv_', e.g. mv_met_data:<br/>
+				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
+				<span class="term" style="padding-left:40px">$ mysql -u[db_username] -p[db_password] -e'create database [db_name];'</span><br/>		 
+				<span class="term" style="padding-left:40px">$ mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql</span><br/><br/>		 
+			</li>
+			<li style="list-style-type:disc">create an <a href="load.html">XML load specification</a> document which contains information about your MET data</li>
+			<li style="list-style-type:disc">run the METViewer load tool using the XML load specification as input (called [load_xml] here) and monitor progress:<br/>
+				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
+				<span class="term" style="padding-left:40px">$ bin/mv_load.sh [load_xml] [optional redirection of output, e.g. &> log/load_[date].log &]'</span><br/>		 
+			</li>
+		</ul>
+	</li>
+</ol><br/><br/>
+</p>
 
 </body>
 </html>
