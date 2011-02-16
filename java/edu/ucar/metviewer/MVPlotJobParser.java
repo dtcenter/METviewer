@@ -267,7 +267,7 @@ public class MVPlotJobParser extends MVUtil{
 					if( boolPlotRun ){ _mapJobs.put(node._name, job); }
 					listJobs.add( job );
 				} else if( boolPlotRun ){
-					throw new Exception("plot " + node._name + " set to run lacks " + strCompleteness);
+					throw new Exception("plot " + node._name + ": " + strCompleteness);
 				}
 			}
 		}
@@ -597,17 +597,21 @@ public class MVPlotJobParser extends MVUtil{
 	 * @return name of missing structure, or an empty string if the job is ok
 	 */
 	public static String checkJobCompleteness(MVPlotJob job){
-		if     ( job.getPlotTmpl().equals("")     )	{ return "template";	}
-		else if( job.getIndyVar().equals("")      )	{ return "indep";		}
+		if     ( job.getPlotTmpl().equals("")     )	{ return "lacks template";						}
+		else if( job.getIndyVar().equals("")      )	{ return "lacks indep";							}
 		else if( 1 > job.getIndyVal().length && 
-				 null == job.getIndyDep()         )	{ return "indep";		}
-		else if( 1 > job.getDepGroups().length    )	{ return "dep";			}
-		else if( 1 > job.getSeries1Val().size()   )	{ return "series1";		}
-		else if( job.getRFileTmpl().equals("")    )	{ return "r_file";		}
-		else if( job.getPlotFileTmpl().equals("") )	{ return "plot_file";	}
-		else if( job.getDataFileTmpl().equals("") )	{ return "data_file";	}
-		else if( job.getXLabelTmpl().equals("")   )	{ return "x_label";		}
-		else if( job.getY1LabelTmpl().equals("")  )	{ return "y1_label";	}
+				 null == job.getIndyDep()         )	{ return "lacks indep";							}
+		else if( 1 > job.getDepGroups().length    )	{ return "lacks dep";							}
+		else if( 1 > job.getSeries1Val().size()   )	{ return "lacks series1";						}
+		else if( job.getRFileTmpl().equals("")    )	{ return "lacks r_file";						}
+		else if( job.getPlotFileTmpl().equals("") )	{ return "lacks plot_file";						}
+		else if( job.getDataFileTmpl().equals("") )	{ return "lacks data_file";						}
+		else if( job.getXLabelTmpl().equals("")   )	{ return "lacks x_label";						}
+		else if( job.getY1LabelTmpl().equals("")  )	{ return "lacks y1_label";						}
+		else if( (job.getAggCtc() || 
+				  job.getAggSl1l2()) &&
+				 (job.getCalcCtc() ||
+				  job.getCalcSl1l2())             )	{ return "has both agg_stat and calc_stat";		}
 		
 		return "";
 	}
