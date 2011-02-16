@@ -1330,11 +1330,11 @@ DELIMITER |
 DROP FUNCTION IF EXISTS calcStdDev |
 CREATE FUNCTION calcStdDev (vsum REAL, vsum_sq REAL, n INT) RETURNS REAL DETERMINISTIC
 BEGIN
-	DECLARE v REAL;
-	IF 1 > n THEN RETURN -1; END IF;
-	SET v = (vsum_sq - vsum*vsum/n)/(n - 1);
-	IF 0 > v THEN RETURN -1; END IF;
-	RETURN SQRT(v);
+    DECLARE v REAL;
+    IF 1 > n THEN RETURN -1; END IF;
+    SET v = (vsum_sq - vsum*vsum/n)/(n - 1);
+    IF 0 > v THEN RETURN -1; END IF;
+    RETURN SQRT(v);
 END |
 
 DROP FUNCTION IF EXISTS calcFBAR |
@@ -1372,13 +1372,13 @@ BEGIN IF 0 = obar THEN RETURN 'NA'; END IF; RETURN FORMAT( (fbar / obar), 4 ); E
 DROP FUNCTION IF EXISTS calcPR_CORR |
 CREATE FUNCTION calcPR_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-	DECLARE v REAL;
-	DECLARE pr_corr REAL;
-	SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
-	IF 0 >= v THEN RETURN 'NA'; END IF;
-	SET pr_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
-	IF 1 < pr_corr THEN RETURN 'NA'; END IF;
-	RETURN FORMAT( pr_corr, 4 );
+    DECLARE v REAL;
+    DECLARE pr_corr REAL;
+    SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
+    IF 0 >= v THEN RETURN 'NA'; END IF;
+    SET pr_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
+    IF 1 < pr_corr THEN RETURN 'NA'; END IF;
+    RETURN FORMAT( pr_corr, 4 );
 END |
 
 DROP FUNCTION IF EXISTS calcME |
@@ -1445,38 +1445,38 @@ BEGIN IF (fy_oy + fy_on + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT(fy_
 DROP FUNCTION IF EXISTS calcGSS |
 CREATE FUNCTION calcGSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-	DECLARE c REAL;
-	IF total = 0 THEN RETURN 'NA'; END IF;
-	SET c = ( (fy_oy + fy_on) / total ) * (fy_oy + fn_oy);
-	RETURN FORMAT( (fy_oy - c) / (fy_oy + fy_on + fn_oy - c), 4);
+    DECLARE c REAL;
+    IF total = 0 THEN RETURN 'NA'; END IF;
+    SET c = ( (fy_oy + fy_on) / total ) * (fy_oy + fn_oy);
+    RETURN FORMAT( (fy_oy - c) / (fy_oy + fy_on + fn_oy - c), 4);
 END |
 
 DROP FUNCTION IF EXISTS calcHK |
 CREATE FUNCTION calcHK (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN	
-	IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
-	RETURN FORMAT( (fy_oy / (fy_oy + fn_oy)) - (fy_on / (fy_on + fn_on)), 4);
+    IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
+    RETURN FORMAT( (fy_oy / (fy_oy + fn_oy)) - (fy_on / (fy_on + fn_on)), 4);
 END |
 
 DROP FUNCTION IF EXISTS calcHSS |
 CREATE FUNCTION calcHSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-	DECLARE c REAL;
-	IF total = 0 THEN RETURN 'NA'; END IF;
-	SET c = ( (fy_oy + fy_on)*(fy_oy + fn_oy) + (fn_oy + fn_on)*(fy_on + fn_on) ) / total;
-	RETURN FORMAT( (fy_oy + fy_on - c) / (total - c), 4);
+    DECLARE c REAL;
+    IF total = 0 THEN RETURN 'NA'; END IF;
+    SET c = ( (fy_oy + fy_on)*(fy_oy + fn_oy) + (fn_oy + fn_on)*(fy_on + fn_on) ) / total;
+    RETURN FORMAT( (fy_oy + fy_on - c) / (total - c), 4);
 END |
 
 DROP FUNCTION IF EXISTS calcODDS |
 CREATE FUNCTION calcODDS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-	DECLARE pody REAL;
-	DECLARE pofd REAL;
-	IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
-	SET pody = fy_oy / (fy_oy + fn_oy);
-	SET pofd = fy_on / (fy_on + fn_on);
-	IF ( pody = 0 OR pofd = 0 ) THEN RETURN 'NA'; END IF;
-	RETURN FORMAT( (pody * (1-pofd)) / (pofd * (1-pody)), 4);
+    DECLARE pody REAL;
+    DECLARE pofd REAL;
+    IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
+    SET pody = fy_oy / (fy_oy + fn_oy);
+    SET pofd = fy_on / (fy_on + fn_on);
+    IF ( pody = 0 OR pofd = 0 ) THEN RETURN 'NA'; END IF;
+    RETURN FORMAT( (pody * (1-pofd)) / (pofd * (1-pody)), 4);
 END |
 
 DELIMITER ;
