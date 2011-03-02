@@ -1093,6 +1093,7 @@ public class MVUtil{
 		else if( _tableStatsPstd.containsKey(strStat)               ){ return "line_data_pstd";   }
 		else if( _tableStatsMcts.containsKey(strStat)               ){ return "line_data_mcts";   }
 		else if( _tableStatsRhist.containsKey(strStat)              ){ return "line_data_rhist";  }
+		else if( _tableStatsVl1l2.containsKey(strStat)              ){ return "line_data_vl1l2";  }
 		else if( _tableModeSingleStatField.containsKey(strStatMode) ){ return "mode_obj_single";  }
 		else if( _tableModePairStatField.containsKey(strStatMode)   ){ return "mode_obj_pair";    }
 		else if( _tableModeRatioField.containsKey(strStat)          ){ return "mode_obj_single";  }
@@ -1186,6 +1187,14 @@ public class MVUtil{
 	static{
 		_tableStatsRhist.put("RHIST_CRPS",	new String[]{});
 		_tableStatsRhist.put("RHIST_IGN",	new String[]{});
+	}
+	
+	public static final MVOrderedMap _tableStatsVl1l2 = new MVOrderedMap();
+	static{
+		_tableStatsVl1l2.put("VL1L2_UFBAR",	new String[]{});
+		_tableStatsVl1l2.put("VL1L2_VFBAR",	new String[]{});
+		_tableStatsVl1l2.put("VL1L2_UOBAR",	new String[]{});
+		_tableStatsVl1l2.put("VL1L2_VOBAR",	new String[]{});
 	}
 	
 	public static final MVOrderedMap _tableStatHeaderSQLType = new MVOrderedMap();

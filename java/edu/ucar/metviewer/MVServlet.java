@@ -566,7 +566,8 @@ public class MVServlet extends HttpServlet {
     					"(SELECT COUNT(*), 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
     					"(SELECT COUNT(*), 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
     					"(SELECT COUNT(*), 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-    					"(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
+    					"(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+						"(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
     	_logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
 		Statement stmt = con.createStatement();
 		long intStart = (new java.util.Date()).getTime();
@@ -596,32 +597,11 @@ public class MVServlet extends HttpServlet {
 				case 6:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsPstd.getKeyList()) );		break;
 				case 7:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsMcts.getKeyList()) );		break;
 				case 8:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsRhist.getKeyList()) );		break;
+				case 9:		listStatName.addAll( Arrays.asList(MVUtil._tableStatsVl1l2.getKeyList()) );		break;
 				}
 			}
 			intStatIndex++;
 		}
-    	
-    	/*
-    	//  if the stat name table is empty, initialize it
-    	if( 1 > _tableStatGroupName.size() ){ loadStatGroupNames(con); }
-    	
-		//  build a query for the statistics and execute it
-		String strSQL = "SELECT DISTINCT sg.stat_group_lu_id FROM stat_header h, stat_group sg " +
-						"WHERE h.fcst_var LIKE '" + strFcstVar.replace("*", "%") + "' AND sg.stat_header_id = h.stat_header_id;";
-    	_logger.debug("handleListStat() - listing stats for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
-		Statement stmt = con.createStatement();
-		long intStart = (new java.util.Date()).getTime();
-		stmt.executeQuery(strSQL);
-
-		//  build a list of stat names using the stat ids returned by the query
-		String strResp = "<list_stat><id>" + strId + "</id>";
-		ResultSet res = stmt.getResultSet();
-		ArrayList listStatName = new ArrayList();
-		while( res.next() ){
-			String strStatId = res.getString(1);
-			listStatName.add( _tableStatGroupName.get(strStatId).toString() );
-		}
-		*/
 
 		//  sort and build the response string using the list of stat names
 		String[] listStat = MVUtil.toArray(listStatName);
