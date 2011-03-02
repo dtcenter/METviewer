@@ -458,7 +458,6 @@ function updatePlotData(){
 		_listVar = _listVarMode;
 		_listIndyVar = _listIndyVarMode;
 	}
-console("updatePlotData():  strTmpl = " + strTmpl + "  _strPlotData = " + _strPlotData + "\n\n");	
 	clearControls();
 }
 
@@ -670,7 +669,7 @@ function sendRequest(reqType, reqData, fnResp){
 		req.open(reqType, reqURL + "&data=" + encodeURI(reqData), true);
 		req.send(null);
 	} else {
-		var reqPostData = "<request>" + reqData + "</request>";
+		var reqPostData = "<request>" + reqData + "<date>" + (new Date()).getMilliseconds() + "</date></request>";
 		req.open(reqType, reqURL, true);
 		req.setRequestHeader("Content-Type", "text/xml");
 		req.setRequestHeader("Content-length", reqPostData.length);
@@ -751,8 +750,10 @@ function updateTmpl(){
 	listFmtAxis[6].style.display							= boolY2NA?		"none" : "inline";
 	listFmtAxis[7].style.display							= boolY2NA?		"none" : "inline";
 	
-	if( TMPL_RHIST == _intTmpl ){ buildSeriesDivRhist(); }
-	else                        { buildSeriesDiv(); }
+	if( TMPL_RHIST == _intTmpl ){
+		buildSeriesDivRhist();
+		updateFmtPlot();
+	} else { buildSeriesDiv(); }
 
 	updatePlotData();
 }
@@ -1575,7 +1576,8 @@ function updateFmtPlot(){
 	//  determine if the independent variable is a date type
 	var selIndyVar = document.getElementById("selIndyVar");
 	var strIndyVar = getSelected(selIndyVar)[0];
-	var boolIndyDate = ( strIndyVar == "FCST_VALID_BEG" || strIndyVar == "FCST_INIT_BEG" ||
+	var boolIndyDate = TMPL_RHIST != _intTmpl && 
+					   ( strIndyVar == "FCST_VALID_BEG" || strIndyVar == "FCST_INIT_BEG" ||
 						 strIndyVar == "FCST_VALID"     || strIndyVar == "FCST_INIT"     );
 
 	//  set the default values for each format setting

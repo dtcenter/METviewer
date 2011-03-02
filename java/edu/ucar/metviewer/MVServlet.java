@@ -169,6 +169,11 @@ public class MVServlet extends HttpServlet {
 					for(int j=0; j < _listDB.length; j++){ strResp += "<val>" + _listDB[j] + "</val>"; }
 					strResp += "</list_db>";
 				}
+				
+				//  <date> tag, which is used to prevent caching
+				else if( nodeCall._tag.equalsIgnoreCase("date") )    {
+					continue;
+				}
 
 				//  <db_con> node containing the database connection name
 				else if( nodeCall._tag.equalsIgnoreCase("db_con") )    {
@@ -372,16 +377,22 @@ public class MVServlet extends HttpServlet {
 		//  build the where clause for the fcst_var values, if present
 		String strWhere = "";
 		if( boolFcstVar ){
-	    	strWhere = "WHERE h.fcst_var LIKE (";
+	    	String strFcstVarList = "";
 			String[] listFcstVar = (String[])tableFcstVarStat.keySet().toArray(new String[]{});
+			boolean boolRegEx = false;
 			for(int i=0; i < listFcstVar.length; i++){
-				strWhere += (0 < i? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
+				if( listFcstVar[i].contains("*") ){ boolRegEx = true; }
+				strFcstVarList += (0 < i? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
 			}
-			strWhere += ")";
+			//strWhere += "WHERE h.fcst_var " + (boolRegEx? "LIKE" : "IN") + " (" + strFcstVarList + ")";
+			strWhere += "WHERE h.fcst_var LIKE (" + strFcstVarList + ")";
 		}
-    	
+		String strWhereFcstVar = strWhere;
+		
     	//  parse the list of constraints into a SQL where clause
 		boolean boolTimeCrit = (strField.contains("init") || strField.contains("valid") || strField.contains("lead"));
+		String strWhereTime = "";
+		long intStart = 0;
     	for(int i=2; i < nodeCall._children.length; i++){
     		
     		if( nodeCall._children[i]._tag.equals("stat") ){ continue; }
@@ -389,13 +400,18 @@ public class MVServlet extends HttpServlet {
     		//  determine if the field should be used as criteria
     		MVNode nodeField = nodeCall._children[i];
     		String strFieldCrit = nodeField._name.toLowerCase();
+    		boolean boolTimeCritField = false;
+    		boolean boolTimeCritCur = false;
     		if( strFieldCrit.contains("valid") || strFieldCrit.contains("init") || strFieldCrit.contains("lead") ){
+    			boolTimeCritField = strField.equals(strFieldCrit) || 
+    								(strField.contains("fcst_init") && strFieldCrit.equals("init_hour")) ||
+    								(strField.contains("fcst_valid") && strFieldCrit.equals("valid_hour"));
+    			boolTimeCritCur = true;
     			boolTimeCrit = true;
     		}
 
     		//  if so, build a where clause for the criteria
     		String strFieldDBCrit = MVUtil.formatField(strFieldCrit, boolMode, false);
-    		//if( !boolNRank ){ strFieldDBCrit = strFieldDBCrit.replaceAll("h\\.", ""); }
     		if( -1 != strFieldDBCrit.indexOf("n_rank") ){ continue; }
     		String strSQLOp = "IN";
     		String strValList = "";
@@ -404,38 +420,59 @@ public class MVServlet extends HttpServlet {
     			if( strVal.contains("*") ){ strSQLOp = "LIKE"; }
     			strValList += (0 < j? ", " : "") + "'" + strVal.replace("*", "%") + "'";
     		}
-    		strWhere += (strWhere.equals("")? "WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
+    		
+    		//  add the where clause to the criteria, if appropriate
+    		if( boolTimeCritField ){
+    			strWhereTime += (strWhereTime.equals("")? " WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
+    		} else if( !boolTimeCritCur ){
+        		strWhere += (strWhere.equals("")? "WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
+    		}
     	}
 		
-		//  build a query for the values and execute it
+		//  build a query for the values
     	String strSQL = "";
+    	String strTmpTable = "";
     	if( boolNRank ){
     		strSQL = "SELECT DISTINCT ld.n_rank " +
     				 "FROM stat_header h, line_data_rhist ld " + 
     				 strWhere + (strWhere.equals("")? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " + 
     				 "ORDER BY n_rank;";
-    	} else if( !boolMode && boolTimeCrit ){
+
+    	} else if( !boolMode && (strField.equals("fcst_lead") || strField.contains("valid") || strField.contains("init")) ){
+
     		String strSelectField = MVUtil.formatField(strField, boolMode);
-    		
-    		strSQL = "SELECT DISTINCT " + strField + " FROM (";
+
+    		//  create a temp table for the list values from the different line_data tables
+    		strTmpTable = "tmp_" + (new java.util.Date()).getTime();
+    		Statement stmtTmp = con.createStatement();
+    		String strTmpSQL = "CREATE TEMPORARY TABLE " + strTmpTable + " (" + strField + " TEXT);";
+    		_logger.debug("handleListVal() - sql: " + strTmpSQL);
+    		long intStartTmp = (new java.util.Date()).getTime();
+    		stmtTmp.executeUpdate(strTmpSQL);
+    		_logger.debug("handleListVal() - temp table " + strTmpTable + " query returned in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStartTmp));		
+
+    		//  add all distinct list field values to the temp table from each line_data table
     		for(int i=0; i < listTables.length; i++){
-    			strSQL += (i > 0? " UNION " : "") + "SELECT DISTINCT " + strSelectField + " ";
-    			if( !strWhere.equals("") ){
-    				strSQL += "FROM stat_header h, " + listTables[i] + " ld " + strWhere + " AND h.stat_header_id = ld.stat_header_id";
-    			} else {
-    				strSQL += "FROM " + listTables[i] + " ld";
-    			}
+    			strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTables[i] + " ld" + strWhereTime;    				
+        		_logger.debug("handleListVal() - sql: " + strTmpSQL);
+        		if( 0 == i ){ intStart = (new java.util.Date()).getTime(); }
+    			stmtTmp.executeUpdate(strTmpSQL);
     		}
-    		 strSQL += ") AS ldj ORDER BY " + strField + ";";
+    		stmtTmp.close();
+    		
+    		//  build a query to list all distinct, ordered values of the list field from the temp table
+    		strSQL = "SELECT DISTINCT " + strField + " FROM " + strTmpTable + " ORDER BY " + strField + ";";
+    		   		
     	} else {
     		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
     		strWhere = strWhere.replaceAll("h\\.", "");
     		strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
     	}
 
+    	//  execute the query
 		Statement stmt = con.createStatement();
 		_logger.debug("handleListVal() - sql: " + strSQL);
-		long intStart = (new java.util.Date()).getTime();
+		if( 0 == intStart ){ intStart = (new java.util.Date()).getTime(); }
 		stmt.executeQuery(strSQL);
 		
 		//  build a list of values from the query
@@ -448,6 +485,11 @@ public class MVServlet extends HttpServlet {
 		}
 		_logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));		
 		String[] listVal = (String[])listRes.toArray(new String[]{});
+		
+		//  drop the temp table, if present
+		if( !"".equals(strTmpTable) ){
+			stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
+		}
 		
 		//  sort and format the results, depending on the field
 		if( strField.equals("fcst_thresh") || strField.equals("fcst_thr") || 

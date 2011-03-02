@@ -788,6 +788,7 @@ public class MVBatch extends MVUtil {
 				//  determine the table containing the current stat
 				Hashtable tableStats = null;
 				String strStatTable = "";
+				String strStatField = strStat.toLowerCase();
 				if( boolModePlot ){
 					String strStatMode = parseModeStat(strStat)[0];
 					if     ( _tableModeSingleStatField.containsKey(strStatMode) ) { tableStats = _tableModeSingleStatField; } 
@@ -804,23 +805,23 @@ public class MVBatch extends MVUtil {
 					} else if( _tableStatsNbrcnt.containsKey(strStat) ){
 						tableStats = _tableStatsNbrcnt;
 						strStatTable = "line_data_nbrcnt";
-						strStat = strStat.replace("NBRCNT_", "");
+						strStatField = strStat.replace("NBR_", "").toLowerCase();
 					} else if( _tableStatsNbrcts.containsKey(strStat) ){
 						tableStats = _tableStatsNbrcts;
 						strStatTable = "line_data_nbrcts";
-						strStat = strStat.replace("NBRCTS_", "");
+						strStatField = strStat.replace("NBR_", "").toLowerCase();
 					} else if( _tableStatsPstd.containsKey(strStat) ){
 						tableStats = _tableStatsPstd;
 						strStatTable = "line_data_pstd";
-						strStat = strStat.replace("PSTD_", "");
+						strStatField = strStat.replace("PSTD_", "").toLowerCase();
 					} else if( _tableStatsMcts.containsKey(strStat) ){
 						tableStats = _tableStatsMcts;
 						strStatTable = "line_data_mcts";
-						strStat = strStat.replace("MCTS_", "");
+						strStatField = strStat.replace("MCTS_", "").toLowerCase();
 					} else if( _tableStatsRhist.containsKey(strStat) ){
 						tableStats = _tableStatsRhist;
 						strStatTable = "line_data_rhist";
-						strStat = strStat.replace("RHIST_", "");
+						strStatField = strStat.replace("RHIST_", "").toLowerCase();
 					} else { throw new Exception("unrecognized stat: " + strStat); }
 				}					
 				
@@ -836,7 +837,6 @@ public class MVBatch extends MVUtil {
 					String strSelectStat = strSelectList;
 					
 					//  build the select list and temp table elements for the stat and CIs
-					String strStatField = strStat.toLowerCase();
 					if( strStat.equals("BCRMSE") ){ boolBCRMSE = true;  strStatField = "bcmse"; }
 					strSelectStat += ",\n  '" + strStat + "' stat_name";
 					

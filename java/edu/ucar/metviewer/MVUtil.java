@@ -151,6 +151,71 @@ public class MVUtil{
 	public static String parseDateOffset(MVNode node, String format){ return parseDateOffset(node, format, null); }
 	public static String parseDateOffset(MVNode node){ return parseDateOffset(node, "yyyy-MM-dd", null); }
 	
+	public static void main(String[] argv){
+		try{
+			
+			java.sql.Date date = new java.sql.Date( _formatDB.parse("2010-06-12 12:00:00").getTime() );
+			java.sql.Date start = new java.sql.Date( _formatDB.parse("2009-06-01 00:00:00").getTime() );			
+			buildDateKey(date, start, 1, "361015", 999999, 1, 1, 1);
+			
+		} catch(Exception e){}
+	}
+	
+	public static String buildDateKey(java.sql.Date date, java.sql.Date start, int dateWidth, String lead, int hdrId, int hdrIdWidth, int alpha, int covThresh){
+
+		/*
+		//  with seconds
+		long intTime = date.getTime();
+		long intStart = start.getTime();
+		long intDiff = (date.getTime() - start.getTime()) / 1000;
+		String strDate = padBegin("" + intDiff, "0", dateWidth);
+		String strLead = "" + lead;
+		int intLeadSec = Integer.parseInt( strLead.substring(strLead.length() - 2) );
+		int intLeadMin = Integer.parseInt( strLead.substring(strLead.length() - 4, strLead.length() - 2) );
+		int intLeadHr  = Integer.parseInt( strLead.substring(0, strLead.length() - 4) );
+		int intLead = (intLeadHr * 3600 + intLeadMin * 60 + intLeadSec);
+		strLead = padBegin("" + intLead, "0", 6);
+		String strId = padBegin("" + hdrId, "0", hdrIdWidth);
+		*/
+		
+		//  with minutes
+		long intTime = date.getTime();
+		long intStart = start.getTime();
+		long intDiff = (date.getTime() - start.getTime()) / 60000;
+		String strDate = padBegin("" + intDiff, "0", dateWidth);
+		String strLead = "" + lead;
+		int intLeadSec = Integer.parseInt( strLead.substring(strLead.length() - 2) );
+		int intLeadMin = Integer.parseInt( strLead.substring(strLead.length() - 4, strLead.length() - 2) );
+		int intLeadHr  = Integer.parseInt( strLead.substring(0, strLead.length() - 4) );
+		int intLead = (intLeadHr * 60 + intLeadMin);
+		strLead = padBegin("" + intLead, "0", 4);
+		String strId = padBegin("" + hdrId, "0", hdrIdWidth);
+		
+		String strRet = "" + intDiff + strLead + strId + alpha + covThresh;
+		int intRetLen = strRet.length();
+		return strRet;
+	}
+	
+	/**
+	 * Returns the difference between the two dates in the specified units.  The acceptible units values
+	 * are 0 (milliseconds), 1 (seconds), 2 (minutes), 3 (hours) or 4 (days).  The returned result is 
+	 * the truncated value (floor).
+	 * @param date1 the date that will be subtracted from
+	 * @param date2 the date that will be subtracted
+	 * @param units specifies the units of the returned value (0-4), 0 is default
+	 * @return difference between input dates in the specified units
+	 */
+	public static long dateDiff(java.sql.Date date1, java.sql.Date date2, int units){
+		int intDiv = 1;
+		switch(units){
+		case 1:		intDiv = 1000;		break;
+		case 2:		intDiv = 60000;		break;
+		case 3:		intDiv = 3600000;	break;
+		case 4:		intDiv = 86400000;	break;
+		}
+		return (date1.getTime() - date2.getTime()) / intDiv;
+	}
+	
 	/**
 	 * Concatenate the elements of the input list with surrounding ticks and separated by commas for
 	 * use in the where clause of a SQL query.  For example, the function call  
@@ -578,11 +643,12 @@ public class MVUtil{
 	 * @param width The minimum number of characters in the returned String 
 	 * @return the padded version of the input str
 	 */
-	public static String padEnd(String str, int width){
-		while( width > str.length() ) str += " ";
+	public static String padEnd(String str, String pad, int width){
+		while( width > str.length() ) str += pad;
 		return str;
 	}
-	public static String padEnd(String str){ return padEnd(str, 16); }
+	public static String padEnd(String str, int width){ return padEnd(str, " ", width); }
+	public static String padEnd(String str)           { return padEnd(str, 16); }
 	
 	/**
 	 * Pads input str with spaces appended to the beginning so that the length of the returned String 
@@ -591,11 +657,12 @@ public class MVUtil{
 	 * @param width The minimum number of characters in the returned String 
 	 * @return the padded version of the input str
 	 */
-	public static String padBegin(String str, int width){
-		while( width > str.length() ) str = " " + str;
+	public static String padBegin(String str, String pad, int width){
+		while( width > str.length() ) str = pad + str;
 		return str;
 	}
-	public static String padBegin(String str){ return padBegin(str, 16); }
+	public static String padBegin(String str, int width){ return padBegin(str, " ", width); }
+	public static String padBegin(String str)           { return padBegin(str, 16); }
 	
 	/**
 	 * Create a string representation for the input time span, which should represent milliseconds
@@ -1099,12 +1166,12 @@ public class MVUtil{
 	
 	public static final MVOrderedMap _tableStatsPstd = new MVOrderedMap();
 	static{
-		_tableStatsCts.put("PSTD_BASER",	new String[]{"nc"});
-		_tableStatsCts.put("PSTD_RELIABILITY",	new String[]{});
-		_tableStatsCts.put("PSTD_RESOLUTION",	new String[]{});
-		_tableStatsCts.put("PSTD_UNCERTAINTY",	new String[]{});
-		_tableStatsCts.put("PSTD_ROC_AUC",		new String[]{});
-		_tableStatsCts.put("PSTD_BRIER",			new String[]{"nc"});
+		_tableStatsPstd.put("PSTD_BASER",	new String[]{"nc"});
+		_tableStatsPstd.put("PSTD_RELIABILITY",	new String[]{});
+		_tableStatsPstd.put("PSTD_RESOLUTION",	new String[]{});
+		_tableStatsPstd.put("PSTD_UNCERTAINTY",	new String[]{});
+		_tableStatsPstd.put("PSTD_ROC_AUC",		new String[]{});
+		_tableStatsPstd.put("PSTD_BRIER",			new String[]{"nc"});
 	}
 	
 	public static final MVOrderedMap _tableStatsMcts = new MVOrderedMap();
