@@ -210,6 +210,7 @@ permute = function(listVals){
 #       listIndyVal: independent variable values
 #      strStatGroup: field name of dependent variable, e.g. TMP or BCRMSE
 #     listSeriesVal: series variable values, one series per permutation
+#      listPlotDisp: list of TRUE/FALSE values indicating series visibility
 #      boolPlotDiff: indicates whether to construct a difference plot series
 #        listPlotCI: list of confidence interval types to use for each series
 #          dblAlpha: alpha value to use when calculating confidence intervals 
@@ -220,8 +221,8 @@ permute = function(listVals){
 #            nstats: contains the number of stats used to compute std error at each point
 #            legend: list of plot series descriptions
 #
-buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSeriesVal, boolDiff,
-					   listPlotCI, dblAlpha=.05){
+buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSeriesVal, listPlotDisp, 
+					   boolDiff, listPlotCI, dblAlpha=.05){
 
 	# calculate the number of series and add the __DIFF__ marker, if necessary
 	intNumSeries = 1;
@@ -258,6 +259,7 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 	for(indy in listIndyVal){
 		dfStatsIndy = dfStats[dfStats[[strIndyVar]] == indy,];
 		intSeriesIndex = 1;
+		intNStatsIndy = 0;
 		for(intPermVal in 1:nrow(matPermVal)){
 			listPermVal = matPermVal[intPermVal,];
 
@@ -284,8 +286,6 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 				
 				# calculate the difference
-				#if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value) - sqrt(dfStatsComp$stat_value); }
-				#else                          { listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;             }				
 				listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;
 				
 			} else {
@@ -312,11 +312,10 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 			
 				# add the median value to the current series point
-				#if( "BCRMSE" == strStatGroup ){ listStats = sqrt(dfStatsVal$stat_value); }
-				#else                          { listStats = dfStatsVal$stat_value;       }
 				listStats = dfStatsVal$stat_value;
 			}
 			dblMed = median(listStats);
+			if( TRUE == listPlotDisp[intSeriesIndex] ){ intNStatsIndy = intNStatsIndy + length(listStats); }
 
 			#  apply the requested type of confidence interval to the current series point
 			strPlotCI = listPlotCI[intSeriesIndex];
@@ -363,16 +362,20 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			listSeries[[intUpIndex]][intIndyIndex] = dblUpCI;
 				
 			intSeriesIndex = intSeriesIndex + 1;
-		}
-		listNStats = append(listNStats, nrow(dfStatsIndy));
+			
+		}	# end: for(intPermVal in 1:nrow(matPermVal))
+		
+		#DISP listNStats = append(listNStats, nrow(dfStatsIndy));
+		listNStats = append(listNStats, intNStatsIndy);
 		
 		intIndyIndex = intIndyIndex + 1;
-	}
+		
+	}	# end: for(indy in listIndyVal)
 	
 	# build the legend for the list of curves
 	listLegend = c();
 	for(intPermVal in 1:nrow(matPermVal)){
-		listPermVal = matPermVal[intPermVal,];		
+		listPermVal = matPermVal[intPermVal,];
 		strLegend = "";
 		for(strVal in listPermVal){ strLegend = paste(strLegend, " ", strVal, sep=""); }
 		if( "__DIFF__" == listPermVal[length(listPermVal)] ){

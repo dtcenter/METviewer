@@ -1,13 +1,25 @@
 
-MV_SRC=/home/pgoldenb/ncep_mv/src/apps/verif/metviewer
-MV_DEST=/home/pgoldenb/ncep_mv
+MV_SRC=src/metviewer
+MV_DEST=.
+
+#  checkout a clean copy of the source
+echo "Getting source from CVS..."
+if [[ -d $MV_SRC ]]; then
+	rm -rf $MV_SRC
+fi
+mkdir $MV_SRC
+echo "cvs checkout -d $MV_SRC apps/verif/metviewer"
+cvs checkout -d $MV_SRC apps/verif/metviewer
 
 #  make a copy of the source tree
+echo "Copying source tree"
 cp -R $MV_SRC $MV_DEST
+
+echo "Scrubbing source dist bundle"
 
 #  remove all CVS folders
 #find $MV_DEST -name 'CVS' -exec rm -rf {} \;
-rm -rf $(find $MV_DEST -name 'CVS')
+rm -rf $(find $MV_DEST/metviewer -name 'CVS')
 
 #  scrub system info from the log4j.properties file 
 more $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties | \
@@ -23,5 +35,5 @@ rm $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties
 mv $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties_new \
    $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties
 
-
+echo "Done"
 

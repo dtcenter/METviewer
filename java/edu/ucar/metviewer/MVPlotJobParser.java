@@ -701,6 +701,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));
 			
 			_tableFormatString.put("plot_ci",		MVPlotJob.class.getDeclaredMethod("setPlotCI",		new Class[]{String.class}));
+			_tableFormatString.put("plot_disp",		MVPlotJob.class.getDeclaredMethod("setPlotDisp",	new Class[]{String.class}));
 			_tableFormatString.put("colors",		MVPlotJob.class.getDeclaredMethod("setColors",		new Class[]{String.class}));
 			_tableFormatString.put("pch",			MVPlotJob.class.getDeclaredMethod("setPch",			new Class[]{String.class}));
 			_tableFormatString.put("type",			MVPlotJob.class.getDeclaredMethod("setType",		new Class[]{String.class}));

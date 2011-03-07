@@ -31,6 +31,8 @@ listY2limUsr	= #<y2_lim>#;
 
 listPlotCI		= #<plot_ci>#;
 
+listPlotDisp	= #<plot_disp>#;
+
 dblAlpha		= #<ci_alpha>#;
 
 strIndyVar		= "#<indy_var>#";
@@ -77,17 +79,31 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
 
 # build the y1 plot series using information in the plot dataframe
 intNumSeries1 = numSeries(listSeries1Val, listDep1Plot, boolPlot1Diff);
+intNumSeries1Dep = nrow( permute(listSeries1Val) );
+if( TRUE == boolPlot1Diff ){ intNumSeries1Dep = intNumSeries1Dep + 1; }
+
+# build the display lists for y1 and y2
+listPlotDisp1 = listPlotDisp[1:intNumSeries1];
+listPlotDisp2 = listPlotDisp[(intNumSeries1+1):length(listPlotDisp)];
+
+# build the y1 plot series using information in the plot dataframe
 listSeries1 = list();
 listLegend = c();
+intDepIndex = 1;
 for( strDep1Name in names(listDep1Plot) ){
 	for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
 		
+		# gather the stats that pertain to the current fcst_var and stat
 		dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
 		dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
 		
+		# determine the visibility of the series for the current stat
+		listPlotDispDep = listPlotDisp1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
+		intDepIndex = intDepIndex + intNumSeries1Dep;
+		
 		# build the y1 plot series using information in the plot dataframe
-		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, boolPlot1Diff, 
-									listPlotCI[1:intNumSeries1], dblAlpha);
+		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDispDep, 
+				boolPlot1Diff, listPlotCI[1:intNumSeries1], dblAlpha);
 		listSeries1 = append(listSeries1, listPlotData1$series);
 		if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
 		else                              { listNStats = listPlotData1$nstats; }
@@ -104,18 +120,28 @@ if( TRUE == boolDumpPoints1 ){
 # build the y2 plot series using information in the plot dataframe, if available
 listSeries2 = list();
 intNumSeries2 = 0;
+intDepIndex = 1;
 if( 0 < length(listDep2Plot) ){
+
+	# calculate the number of y2 series per dep stat
+	intNumSeries2Dep = nrow( permute(listSeries2Val) );
+	if( TRUE == boolPlot2Diff ){ intNumSeries2Dep = intNumSeries2Dep + 1; }
 	
 	listSeries2 = list();
 	for( strDep2Name in names(listDep2Plot) ){
 		for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
 			
+			# gather the stats that pertain to the current fcst_var and stat
 			dfPlotStat = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$stat_name == strDep2Stat,];
 			dfPlotStat = scaleStats(dfPlotStat, listDep2Scale, paste(strDep2Name, "_", strDep2Stat, sep=""));
 			
+			# determine the visibility of the series for the current stat
+			listPlotDispDep = listPlotDisp2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
+			intDepIndex = intDepIndex + intNumSeries2Dep;
+			
 			# build the y2 plot series using information in the plot dataframe
-			listPlotData2 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep2Stat, listSeries2Val, boolPlot2Diff, 
-										listPlotCI[intNumSeries2+1:length(listPlotCI)], dblAlpha);
+			listPlotData2 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDispDep,
+										boolPlot2Diff, listPlotCI[(intNumSeries2+1):length(listPlotCI)], dblAlpha);
 			listSeries2 = append(listSeries2, listPlotData2$series);
 			#listNStats  = listPlotData2$nstats
 			listLegend2 = paste(listPlotData2$legend, strDep2Stat);
@@ -371,9 +397,13 @@ listConSeries = #<con_series>#;
 
 # build the x-adjustment increments, if requested
 dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
-listXStag = rep(0, intNumSeries2 + 1);
+intNumStag2 = 0;
+if( 0 < intNumSeries2 ){
+	intNumStag2 = intNumSeries2 - sum(!listPlotDisp[(intNumSeries1+1):length(listPlotDisp)]);
+}
+listXStag = rep(0, intNumStag2 + 1);
 if( TRUE == boolIndy2Stagger ){
-	listXStag = seq( -(intNumSeries2/2)*dblAdjScale, (intNumSeries2/2)*dblAdjScale, length=intNumSeries2 + 1 ) + ( dblAdjScale/2 );
+	listXStag = seq( -(intNumStag2/2)*dblAdjScale, (intNumStag2/2)*dblAdjScale, length=intNumStag2 + 1 ) + ( dblAdjScale/2 );
 }
 
 # plot the y2-axis series first, so that they lie underneath the y1-axis series
@@ -414,13 +444,14 @@ if( 0 < length(listDep2Plot) ){
 	);
 	
 	# plot each series on the second dependent axis with the specified formatting	
-	for(i in 1:intNumSeries2){		
+	intStagIndex = 1;
+	for(i in 1:intNumSeries2){
 		
-		# slice the series constituents from the series list
-		listData	= listSeries2[[3*(i-1) + 1]];
-		listDataLo	= listSeries2[[3*(i-1) + 2]];
-		listDataUp	= listSeries2[[3*(i-1) + 3]];
-		listXAdj	= listX + listXStag[i];
+		# if the current series is not displayed, continue to the next
+		if( !listPlotDisp[intFormatIndex] ){
+			intFormatIndex = intFormatIndex + 1;
+			next;
+		}
 		
 		# get the formatting information for this series
 		strCol		= listColors[intFormatIndex];
@@ -430,6 +461,13 @@ if( 0 < length(listDep2Plot) ){
 		intLwd		= listLwd[intFormatIndex];
 		strPlotCI	= listPlotCI[intFormatIndex];
 		
+		# slice the series constituents from the series list
+		listData	= listSeries2[[3*(i-1) + 1]];
+		listDataLo	= listSeries2[[3*(i-1) + 2]];
+		listDataUp	= listSeries2[[3*(i-1) + 3]];
+		listXAdj	= listX + listXStag[intStagIndex];
+		intStagIndex = intStagIndex + 1;
+	
 		# remove the NAs from the x and y lists
 		listDataInd	= !( is.na(listData) );
 		if( listConSeries[intFormatIndex] != 0 ){
@@ -518,26 +556,21 @@ if( TRUE == boolLogY1 ){
 }
 
 # build the x-adjustment increments, if requested
-listXStag = rep(0, intNumSeries1 + 1);
+intNumStag1 = intNumSeries1 - sum(!listPlotDisp[1:intNumSeries1]);
+listXStag = rep(0, intNumStag1 + 1);
 if( TRUE == boolIndy1Stagger ){
-	listXStag = seq( -(intNumSeries1/2)*dblAdjScale, (intNumSeries1/2)*dblAdjScale, length=intNumSeries1 + 1 ) + ( dblAdjScale/2 );
+	listXStag = seq( -(intNumStag1/2)*dblAdjScale, (intNumStag1/2)*dblAdjScale, length=intNumStag1 + 1 ) + ( dblAdjScale/2 );
 }
 
 # plot the y1-axis series
-intFormatIndex = 1
+intStagIndex = 1;
+intFormatIndex = 1;
 for(i in 1:intNumSeries1){
 	
-	# slice the series constituents from the series list
-	listData	= listSeries1[[3*(i-1) + 1]];
-	listDataLo	= listSeries1[[3*(i-1) + 2]];
-	listDataUp	= listSeries1[[3*(i-1) + 3]];
-	listXAdj	= listX + listXStag[i];
-	
-	# remove the NAs from the x and y lists
-	listDataInd	= !( is.na(listData) );
-	if( listConSeries[intFormatIndex] != 0 ){
-		listXAdj	= listXAdj[listDataInd];
-		listData	= listData[listDataInd];
+	# if the current series is not displayed, continue to the next
+	if( !listPlotDisp[intFormatIndex] ){
+		intFormatIndex = intFormatIndex + 1;
+		next;
 	}
 	
 	# get the formatting information for this series
@@ -547,6 +580,20 @@ for(i in 1:intNumSeries1){
 	intLty		= listLty[intFormatIndex];
 	intLwd		= listLwd[intFormatIndex];
 	strPlotCI	= listPlotCI[intFormatIndex];
+	
+	# slice the series constituents from the series list
+	listData	= listSeries1[[3*(i-1) + 1]];
+	listDataLo	= listSeries1[[3*(i-1) + 2]];
+	listDataUp	= listSeries1[[3*(i-1) + 3]];
+	listXAdj	= listX + listXStag[intStagIndex];
+	intStagIndex = intStagIndex + 1;
+	
+	# remove the NAs from the x and y lists
+	listDataInd	= !( is.na(listData) );
+	if( listConSeries[intFormatIndex] != 0 ){
+		listXAdj	= listXAdj[listDataInd];
+		listData	= listData[listDataInd];
+	}
 	
 	# if the plot is a vertical profile, swap the series coordinates
 	if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
@@ -608,11 +655,15 @@ for(i in 1:intNumSeries1){
 listLwdLeg = listLwd;
 listLwdLeg[listLwdLeg > 3] = 3;
 
+# mask the hidden elements from the legend and color list
+listLegendDisp = listLegend[listPlotDisp];
+listColorsDisp = listColors[listPlotDisp];
+
 # add the legend
 legend(
 	x="bottom",						# x coordinate of legend
-	listLegend,						# vector of legend labels
-	col=listColors,					# vector of point and line colors 
+	listLegendDisp,					# vector of legend labels
+	col=listColorsDisp,				# vector of point and line colors 
 	lty=listLty,					# vector of line types
 	lwd=listLwdLeg,					# vector of line widths
 	pch=listPch,					# vector of point symbols

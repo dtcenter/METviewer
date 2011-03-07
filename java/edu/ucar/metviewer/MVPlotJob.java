@@ -139,6 +139,7 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolCalcSl1l2		= false;
 
 	protected String _strPlotCI				= "";
+	protected String _strPlotDisp			= "";
 	protected String _strColors				= "";
 	protected String _strPch				= "";
 	protected String _strType				= "";
@@ -282,6 +283,7 @@ public class MVPlotJob extends MVUtil{
 		job._boolCalcSl1l2		= _boolCalcSl1l2;
 
 		job._strPlotCI			= _strPlotCI;
+		job._strPlotDisp		= _strPlotDisp;
 		job._strColors			= _strColors;
 		job._strPch				= _strPch;
 		job._strType			= _strType;
@@ -569,6 +571,8 @@ public class MVPlotJob extends MVUtil{
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}
+	public String	getPlotDisp()										{ return _strPlotDisp;									}
+	public void		setPlotDisp(String plotDisp)						{ _strPlotDisp = plotDisp;								}
 	public String	getColors()											{ return _strColors;									}
 	public void		setColors(String colors)							{ _strColors = colors;									}
 	public String	getPch()											{ return _strPch;										}

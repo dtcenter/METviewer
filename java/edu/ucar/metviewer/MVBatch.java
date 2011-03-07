@@ -497,6 +497,7 @@ public class MVBatch extends MVUtil {
 			
 			//  validate the number of formatting elements
 			if( intNumDepSeries != parseRCol(job.getPlotCI()).length )   { throw new Exception("length of plot_ci differs from number of series (" + intNumDepSeries + ")"); }
+			if( intNumDepSeries != parseRCol(job.getPlotDisp()).length ) { throw new Exception("length of plot_disp differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getColors()).length )   { throw new Exception("length of colors differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getPch()).length )      { throw new Exception("length of pch differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getType()).length )     { throw new Exception("length of type differs from number of series (" + intNumDepSeries + ")"); }
@@ -507,18 +508,19 @@ public class MVBatch extends MVUtil {
 				intNumDepSeries != parseRCol(job.getLegend()).length )   { throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")"); }
 			
 			//  replace the template tags with the template values for the current plot
-			tableRTags.put("plot_ci",	job.getPlotCI().equals("")? printRCol( rep("none", intNumDepSeries) )	: job.getPlotCI());
+			tableRTags.put("plot_ci",	job.getPlotCI().equals("")? printRCol(rep("none", intNumDepSeries), false)	: job.getPlotCI());
+			tableRTags.put("plot_disp",	job.getPlotDisp().equals("")? printRCol(rep("TRUE", intNumDepSeries))		: job.getPlotDisp());
 			tableRTags.put("colors",	job.getColors().equals("")?	"rainbow(" + intNumDepSeries + ")"		: job.getColors());
 			tableRTags.put("pch",		job.getPch().equals("")?	printRCol( rep(20, intNumDepSeries) )	: job.getPch());
 			tableRTags.put("type",		job.getType().equals("")?	printRCol( rep("b",	intNumDepSeries) )	: job.getType());
 			tableRTags.put("lty",		job.getLty().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLty());
 			tableRTags.put("lwd",		job.getLwd().equals("")?	printRCol( rep(1, intNumDepSeries) )	: job.getLwd());
 			tableRTags.put("con_series",job.getConSeries().equals("")? printRCol( rep(0, intNumDepSeries) )	: job.getConSeries());
-			tableRTags.put("legend",	job.getLegend().equals("")? "c()" : job.getLegend());
-			tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()" : job.getY1Lim());
-			tableRTags.put("y1_bufr",	job.getY1Bufr().equals("")? "0" : job.getY1Bufr());
-			tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()" : job.getY2Lim());
-			tableRTags.put("y2_bufr",	job.getY2Bufr().equals("")? "0" : job.getY2Bufr());
+			tableRTags.put("legend",	job.getLegend().equals("")? "c()"	: job.getLegend());
+			tableRTags.put("y1_lim",	job.getY1Lim().equals("")?	"c()"	: job.getY1Lim());
+			tableRTags.put("y1_bufr",	job.getY1Bufr().equals("")? "0"		: job.getY1Bufr());
+			tableRTags.put("y2_lim",	job.getY2Lim().equals("")?	"c()"	: job.getY2Lim());
+			tableRTags.put("y2_bufr",	job.getY2Bufr().equals("")? "0"		: job.getY2Bufr());
 			
 			
 			/*

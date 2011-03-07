@@ -344,7 +344,8 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 						<span class="tiny">&nbsp;</span><br/>
 						<span class="bold" style="font-size:10pt; padding-right:20px">Series Name</span>
 						<input type="hidden"/><br/>
-						<span class="tiny" style="padding-right:20px">(series1 or 2)</span>
+						<span class="tiny" style="padding-right:20px">(series1 or 2)</span><br/><br/>
+						<span style="padding-right:20px"><input id="chkHide" type="checkbox"/>Hide</span>
 					</span>
 				</td>
 				<td align="right">
