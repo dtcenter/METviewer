@@ -22,6 +22,7 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolLoadStat				= true;
 	public static boolean _boolLoadMode				= true;
 	public static boolean _boolLoadMpr				= false;
+	public static boolean _boolLoadOrank			= false;
 
 	public static DecimalFormat _formatPerf			= new DecimalFormat("0.000");
 
@@ -153,6 +154,7 @@ public class MVLoad extends MVUtil {
 			_boolLoadMode				= job.getLoadMode();
 			
 			_boolLoadMpr				= job.getLoadMpr();
+			_boolLoadOrank				= job.getLoadOrank();
 			
 			//  update the var length tree with information for METv2.0, if necessary
 			if( "V2.0".equals(_strMetVersion) ){
@@ -415,8 +417,8 @@ public class MVLoad extends MVUtil {
 		
 			String strLineType = d._strLineType;
 			
-			//  do not load matched pair lines
-			if( !_boolLoadMpr && strLineType.equals("MPR") ){ continue; }
+			//  do not load matched pair lines or orank lines
+			if( (!_boolLoadMpr && strLineType.equals("MPR")) || (!_boolLoadOrank && strLineType.equals("ORANK")) ){ continue; }
 									
 			
 			/*
