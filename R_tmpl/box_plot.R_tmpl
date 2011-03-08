@@ -35,6 +35,8 @@ listDep1Scale = #<dep1_scale>#;
 
 listIndy = #<indy_list>#;
 
+listPlotDisp = #<plot_disp>#;
+
 listColors = #<colors>#;
 
 listPch = #<pch>#;
@@ -60,7 +62,7 @@ if( TRUE == boolPlotDiff ){
 
 # build the series value permutations
 matPermVal = permute(listSeries1Val);
-intNumPerm = nrow(matPermVal) * intNumStats;
+intNumPerm = nrow(matPermVal) * intNumStats - sum(!listPlotDisp);
 
 # calculate the horizonal location increment
 dblIndySpan = .75 * intNumPerm * #<box_boxwex>#;
@@ -239,11 +241,16 @@ for(strFcstVar in names(listDep1Plot)){
 	}
 }
 
-# plot the series data 
+# plot the series data
+intSeriesDisp = 1;
 boolAdd = FALSE;
 for(intPermIndex in 1:length(listBoxes)){
 	
-	listAt = listX - (dblIndySpan/2) + (intPermIndex - 1) * dblInc;	
+	# skip the current box, if requested
+	if( FALSE == listPlotDisp[intPermIndex] ){ next; }
+	
+	# gather the information for the current box
+	listAt = listX - (dblIndySpan/2) + (intSeriesDisp - 1) * dblInc;
 	strColor = listColors[intPermIndex];
 	listBox = listBoxes[[intPermIndex]];
 		
@@ -291,6 +298,7 @@ for(intPermIndex in 1:length(listBoxes)){
 	}
 
 	boolAdd = TRUE;
+	intSeriesDisp = intSeriesDisp + 1;
 }
 
 # add grid lines to the plot, if requested
@@ -418,10 +426,14 @@ if( 0 < length(listLegendUsr) ){
 	}
 }
 
+# display on the labels and colors for visible series
+listLegendDisp = listLegend[listPlotDisp];
+listColorsDisp = listColors[listPlotDisp];
+
 legend(
 	x="bottom",				# x coordinate of legend
-	listLegend,				# vector of legend labels
-	col=listColors,			# vector of point and line colors 
+	listLegendDisp,			# vector of legend labels
+	col=listColorsDisp,		# vector of point and line colors 
 	lty=1,					# vector of line types
 	lwd=5,					# line width
 	cex=#<legend_size>#,	# relative magnification
