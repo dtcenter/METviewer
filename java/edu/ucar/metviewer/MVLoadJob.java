@@ -24,6 +24,8 @@ public class MVLoadJob{
 	protected boolean _boolLoadMpr				= false;
 	protected boolean _boolLoadOrank			= false;
 	
+	protected boolean _boolForceDupFile			= false;
+
 	protected boolean _boolVerbose				= false;
 	protected int _intInsertSize				= 1;
 	protected boolean _boolModeHeaderDBCheck	= true;
@@ -69,6 +71,9 @@ public class MVLoadJob{
 	public void		setLoadMpr(boolean loadMpr)							{ _boolLoadMpr = loadMpr;								}
 	public boolean	getLoadOrank()										{ return _boolLoadOrank;								}
 	public void		setLoadOrank(boolean loadOrank)						{ _boolLoadOrank = loadOrank;							}
+	
+	public boolean	getForceDupFile()									{ return _boolForceDupFile;								}
+	public void		setForceDupFile(boolean forceDupFile)				{ _boolForceDupFile = forceDupFile;						}
 	
 	public boolean	getVerbose()										{ return _boolVerbose;									}
 	public void		setVerbose(boolean verbose)							{ _boolVerbose = verbose;								}

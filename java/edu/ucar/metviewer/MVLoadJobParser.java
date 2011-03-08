@@ -100,6 +100,7 @@ public class MVLoadJobParser extends MVUtil{
 			else if( node._tag.equals("load_mode") )               { job.setLoadMode             ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("load_mpr") )                { job.setLoadMpr              ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("load_orank") )              { job.setLoadOrank            ( node._value.equalsIgnoreCase("true") ); }
+			else if( node._tag.equals("force_dup_file") )          { job.setForceDupFile         ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("met_version") )             { job.setMetVersion           ( node._value );                          }
 			else if( node._tag.equals("insert_size") )             { job.setInsertSize           ( Integer.parseInt(node._value) );        }
 			else if( node._tag.equals("verbose") )                 { job.setVerbose              ( node._value.equalsIgnoreCase("true") ); }

@@ -24,6 +24,8 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolLoadMpr				= false;
 	public static boolean _boolLoadOrank			= false;
 
+	public static boolean _boolForceDupFile			= false;
+	
 	public static DecimalFormat _formatPerf			= new DecimalFormat("0.000");
 
 	public static final Pattern _patModeSingle		= Pattern.compile("^(C?[FO]\\d{3})$");
@@ -155,6 +157,8 @@ public class MVLoad extends MVUtil {
 			
 			_boolLoadMpr				= job.getLoadMpr();
 			_boolLoadOrank				= job.getLoadOrank();
+			
+			_boolForceDupFile			= job.getForceDupFile();
 			
 			//  update the var length tree with information for METv2.0, if necessary
 			if( "V2.0".equals(_strMetVersion) ){
@@ -1187,10 +1191,14 @@ public class MVLoad extends MVUtil {
 			strDataFileId = res.getString(2);
 			strLoadDate = res.getString(3);
 			strModDate = res.getString(4);
-
-			DataFileInfo info = new DataFileInfo(strDataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
-			System.out.println("  **  WARNING: file already present in table data_file"); // :\n" + printDataFileInfo(info) + "\n");
-			return info;
+			
+			if( _boolForceDupFile ){
+				DataFileInfo info = new DataFileInfo(strDataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
+				System.out.println("  **  WARNING: file already present in table data_file"); // :\n" + printDataFileInfo(info) + "\n");
+				return info;
+			} else {
+				throw new Exception("file already present in table data_file, use force_dup_file setting to override");
+			}
 		}
 
 		// if the file is not present in the data_file table, query for the largest data_file_id
