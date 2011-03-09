@@ -82,12 +82,11 @@ var _intNumSeries = 0;
 var _listFmtSeriesDefaults = ["false", "false", "none", "", "20", "b", "1", "1", "1", ""];
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Administration/Utility Functions
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * When the page loads, perform the initialization duties including setting
@@ -162,13 +161,13 @@ function onLoad(){
 	addFmtPlot("Y2 Series Difference Curve",	"plot2_diff",		"false",		"bool");
 	addFmtPlot("Display Number of Stats",		"num_stats",		"false",		"bool");
 	addFmtPlot("Y1 Stagger Points",				"indy1_stag",		"false",		"bool");
-	// addFmtPlot("Y2 Stagger Points", "indy2_stag", "false", "bool");
+	addFmtPlot("Y2 Stagger Points",				"indy2_stag",		"false",		"bool");
 	addFmtPlot("Plot Grid",						"grid_on",			"true",			"bool");
 	addFmtPlot("Synch Y1 and Y2 Ranges",		"sync_axes",		"false",		"bool");
 	addFmtPlot("Print Y1 Series Values",		"dump_points1",		"false",		"bool");
-	// addFmtPlot("Print Y2 Series Values", "dump_points2", "false", "bool");
+	addFmtPlot("Print Y2 Series Values",		"dump_points2",		"false",		"bool");
 	addFmtPlot("Y1 Axis Log Scale",				"log_y1",			"false",		"bool");
-	// addFmtPlot("Y2 Axis Log Scale", "log_y2", "false", "bool");
+	addFmtPlot("Y2 Axis Log Scale",				"log_y2",			"false",		"bool");
 
 	// add onchange listeners to some controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
@@ -611,12 +610,11 @@ function hex(val){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * AJAX Functions
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Create a request object in a browser-dependent manner
@@ -685,12 +683,11 @@ function sendRequest(reqType, reqData, fnResp){
 function nullResp(strResp){}
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Database Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * When the plot template is switched, configure the visibility of the controls
@@ -791,12 +788,11 @@ function updateDBCon(){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Dependent Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function addDep1(){ addDep(1); }
 function removeDep1Var(intDepId){ removeDepVar(1, intDepId); }
@@ -1036,12 +1032,11 @@ function getDepDiv(id){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Field Value Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Create a field val div of the specified category and add it to the from and
@@ -1237,12 +1232,11 @@ function moveFieldDown(listDiv, intId){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Series Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add and remove a series1 div and process select requests and
@@ -1297,12 +1291,11 @@ function removeSeriesDiv(intSeries, intId){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Fixed Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add, remove and populate the fixed variable controls
@@ -1321,15 +1314,21 @@ function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1, 
 
 /**
  * Construct a string of database field and value criteria that reflects the
- * selected fields and values in the fixed values controls / function
- * buildFixCrit(endIndex){ var strFixCrit = ""; for(i=0; i <= endIndex; i++){
- * var divFixCrit = _listFixDiv[i]; var selFixCrit =
- * divFixCrit.getElementsByTagName("select")[0]; var strFixCritCur = "<field
- * name=\"" + selFixCrit.options[ selFixCrit.selectedIndex ].text + "\">"; var
- * listFixCritVal = getSelected( divFixCrit.getElementsByTagName("select")[1] );
- * for(var j=0; j < listFixCritVal.length; j++){ strFixCritCur += "<val>" +
- * listFixCritVal[j] + "</val>"; } strFixCritCur += "</field>"; if( 0 <
- * listFixCritVal.length ){ strFixCrit += strFixCritCur; } } return strFixCrit; }
+ * selected fields and values in the fixed values controls 
+ *
+function buildFixCrit(endIndex){
+	var strFixCrit = "";
+	for(i=0; i <= endIndex; i++){
+		var divFixCrit = _listFixDiv[i]; 
+		var selFixCrit = divFixCrit.getElementsByTagName("select")[0]; 
+		var strFixCritCur = "<field name=\"" + selFixCrit.options[ selFixCrit.selectedIndex ].text + "\">";
+		var listFixCritVal = getSelected( divFixCrit.getElementsByTagName("select")[1] );
+		for(var j=0; j < listFixCritVal.length; j++){ strFixCritCur += "<val>" + listFixCritVal[j] + "</val>"; }
+		strFixCritCur += "</field>";
+		if( 0 < listFixCritVal.length ){ strFixCrit += strFixCritCur; }
+	}
+	return strFixCrit; 
+}
  */
 
 /**
@@ -1354,12 +1353,11 @@ function buildRhistCrit(endIndex){ return buildFieldValCrit(_listRhistDiv, endIn
 
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Rhist Fixed Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add, remove and populate the rhist fixed variable controls
@@ -1385,12 +1383,11 @@ function selectRhistVarReq(intId){
 function selectRhistVarResp(strResp){ selectFieldResp(strResp, _listRhistDiv, 1, 1, false); }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Independent Variable Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Build and run a request for values for the currently selected independent
@@ -1460,9 +1457,6 @@ function clearIndyVal(){
 
 /**
  * Checks or unchecks all indy values, as specified
- * 
- * @param boolCheck
- *            true to check, false to uncheck
  */
 function indyCheck(boolCheck){
 	var tabIndyVal = document.getElementById("tabIndyVal");
@@ -1473,12 +1467,11 @@ function indyCheck(boolCheck){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Plot Formatting Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Construct plot formatting controls with the specified label, value and type.
@@ -1509,8 +1502,7 @@ function addFmtPlot(label, tag, value, type){
 		tdFmt = trFmt.cells[0];
 	}
 
-	// if a new row is not required, get the next available cell on the current
-	// row
+	// if a new row is not required, get the next available cell on the current row
 	else {
 		tdFmt = tabFmt.rows[ tabFmt.rows.length - 1 ].cells[intCol];
 	}
@@ -1903,12 +1895,11 @@ function buildSeriesDivRhist(){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Agg Stat Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Update the agg_stat controls according to the enabled checkbox setting
@@ -1920,12 +1911,11 @@ function updateAggStat(){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Calc Stat Controls
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Update the calc_stat controls according to the enabled checkbox setting
@@ -1937,12 +1927,11 @@ function updateCalcStat(){
 }
 
 
-/*******************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Plot Spec Functions
- *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Contruct the plot spec xml from information selected in the plot controls

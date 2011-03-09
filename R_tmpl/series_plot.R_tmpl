@@ -112,6 +112,7 @@ for( strDep1Name in names(listDep1Plot) ){
 	}
 }
 
+# dump the y1 axis series data points into a file suffixed .points1
 if( TRUE == boolDumpPoints1 ){
 	strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
 	write.table(listSeries1, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
@@ -149,6 +150,12 @@ if( 0 < length(listDep2Plot) ){
 		}
 	}
 	intNumSeries2 = length(listSeries2) / 3;
+	
+	# dump the y2 axis series data points into a file suffixed .points2
+	if( TRUE == boolDumpPoints2 ){
+		strPointsFile = sub("\\.data$", ".points2", strDataFile, perl=TRUE);
+		write.table(listSeries2, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
+	}
 }
 
 if( 0 < length(listLegendUsr) ){ listLegend = listLegendUsr; }
@@ -406,6 +413,9 @@ if( TRUE == boolIndy2Stagger ){
 	listXStag = seq( -(intNumStag2/2)*dblAdjScale, (intNumStag2/2)*dblAdjScale, length=intNumStag2 + 1 ) + ( dblAdjScale/2 );
 }
 
+# if log scale is on for either axis, disable sync_axes
+if( TRUE == boolLogY1 | TRUE == boolLogY2 ){ boolSyncAxes = FALSE; }
+
 # plot the y2-axis series first, so that they lie underneath the y1-axis series
 listY1Usr = par()$usr;
 par(ylog=FALSE);
@@ -414,20 +424,58 @@ if( 0 < length(listDep2Plot) ){
 	
 	# adjust the y2 bounds, if requested
 	if( FALSE == boolSyncAxes ){
-		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2);
-		dblY2Min = listY2Bounds$min;
-		dblY2Max = listY2Bounds$max;
-		if( 0 < length(listY2limUsr) ){
-			dblY2Min = listY2limUsr[1];
-			dblY2Max = listY2limUsr[2];
+		
+		#Y2LOG
+		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2, boolLogY2);
+		if( TRUE == boolLogY2 ){
+			dblY2Min = 10^listY2Bounds$min;	
+			dblY2Max = 10^listY2Bounds$max;	
+			listY2axp = c(dblY2Min, dblY2Max, 3);
+		} else {
+			if( 0 < length(listY2limUsr) ){
+				dblY2Min = listY2limUsr[1];
+				dblY2Max = listY2limUsr[2];
+			} else {
+				dblY2Min = listY2Bounds$min;
+				dblY2Max = listY2Bounds$max;
+			}
+			listY2axp = c(dblY2Min, dblY2Max, 5);
 		}
-		dblY2BufrPct = #<y2_bufr>#;				
+		#Y2LOG END
+		
+#		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2);
+#		dblY2Min = listY2Bounds$min;
+#		dblY2Max = listY2Bounds$max;
+#		if( 0 < length(listY2limUsr) ){
+#			dblY2Min = listY2limUsr[1];
+#			dblY2Max = listY2limUsr[2];
+#		}
+#		dblY2BufrPct = 0;				
+#		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
+#		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
+	} else {
+		listY2axp = listY1axp;
+		boolLogY2 = boolLogY1;
+		listY2Bounds = listY1Bounds;
+		#listY2Usr = listY1Usr;
+		dblY2Min = dblY1Min;
+		dblY2Max = dblY1Max;
+	}
+	
+	#Y2LOG
+	# set the plot window limits
+	if( TRUE == boolLogY2 ){
+		par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY2Bounds$min, listY2Bounds$max), yaxp=listY2axp, xaxs="r");
+	} else {
+		dblY2BufrPct = #<y2_bufr>#;
 		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
 		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
-	} else {
-		listY2Usr = listY1Usr;
+		par(new=TRUE, usr=listY2Usr, xaxs="r");
+		#par(new=TRUE, usr=c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr));
 	}
-	par(new=TRUE, usr=listY2Usr, xaxs="r");
+	#Y2LOG END
+	
+#	par(new=TRUE, usr=listY2Usr, xaxs="r");
 	
 	# add the y2 axis
 	axis(
@@ -552,7 +600,7 @@ if( 0 < length(listDep2Plot) ){
 if( TRUE == boolLogY1 ){
 	par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max));
 } else {
-	par(new=TRUE, usr=listY1Usr, xaxs="r");
+	par(new=TRUE, ylog=FALSE, usr=listY1Usr, xaxs="r");
 }
 
 # build the x-adjustment increments, if requested
