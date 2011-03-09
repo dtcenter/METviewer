@@ -117,6 +117,7 @@ intNumGroups = nrow(matSeriesBar);
 intXMin = floor(nrow(matSeriesBar) / 2) + 1;
 intXStep = intNumGroups + 1;
 intXMax = intXMin + ( (ncol(matSeriesBar) - 1) * intXStep );
+if( 1 == intNumGroups %% 2 ){ intXMin = intXMin + .5; intXMax = intXMax + .5; }
 listX = seq(intXMin, intXMax, intXStep);
 
 barplot(
