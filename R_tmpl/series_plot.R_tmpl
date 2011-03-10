@@ -425,7 +425,7 @@ if( 0 < length(listDep2Plot) ){
 	# adjust the y2 bounds, if requested
 	if( FALSE == boolSyncAxes ){
 		
-		#Y2LOG
+		# determine the axis bounds, depending on the y2_log setting
 		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2, boolLogY2);
 		if( TRUE == boolLogY2 ){
 			dblY2Min = 10^listY2Bounds$min;	
@@ -441,28 +441,15 @@ if( 0 < length(listDep2Plot) ){
 			}
 			listY2axp = c(dblY2Min, dblY2Max, 5);
 		}
-		#Y2LOG END
 		
-#		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2);
-#		dblY2Min = listY2Bounds$min;
-#		dblY2Max = listY2Bounds$max;
-#		if( 0 < length(listY2limUsr) ){
-#			dblY2Min = listY2limUsr[1];
-#			dblY2Max = listY2limUsr[2];
-#		}
-#		dblY2BufrPct = 0;				
-#		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
-#		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
 	} else {
 		listY2axp = listY1axp;
 		boolLogY2 = boolLogY1;
 		listY2Bounds = listY1Bounds;
-		#listY2Usr = listY1Usr;
 		dblY2Min = dblY1Min;
 		dblY2Max = dblY1Max;
 	}
 	
-	#Y2LOG
 	# set the plot window limits
 	if( TRUE == boolLogY2 ){
 		par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY2Bounds$min, listY2Bounds$max), yaxp=listY2axp, xaxs="r");
@@ -471,11 +458,7 @@ if( 0 < length(listDep2Plot) ){
 		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
 		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
 		par(new=TRUE, usr=listY2Usr, xaxs="r");
-		#par(new=TRUE, usr=c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr));
 	}
-	#Y2LOG END
-	
-#	par(new=TRUE, usr=listY2Usr, xaxs="r");
 	
 	# add the y2 axis
 	axis(

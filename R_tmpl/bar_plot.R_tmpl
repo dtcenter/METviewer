@@ -13,9 +13,8 @@ strPlotFile = "#<plot_file>#";
 boolEventEqual	= #<event_equal>#;
 boolPlot1Diff	= #<plot1_diff>#;
 boolShowNStats	= #<show_nstats>#;
-boolInd1yStagger= #<indy1_stagger>#;
 boolGridOn		= #<grid_on>#;
-boolSyncAxes	= #<sync_axes>#;
+boolLogY1		= #<log_y1>#;
 
 listY1limUsr	= #<y1_lim>#;
 
@@ -120,6 +119,14 @@ intXMax = intXMin + ( (ncol(matSeriesBar) - 1) * intXStep );
 if( 1 == intNumGroups %% 2 ){ intXMin = intXMin + .5; intXMax = intXMax + .5; }
 listX = seq(intXMin, intXMax, intXStep);
 
+# determine the log axis setting
+strLog = "";
+if( TRUE == boolLogY1 ){
+	strLog = "y";
+	listY1limUsr = c();
+}
+
+# create the bar plot
 barplot(
 	matSeriesBar,			# bar data 
 	width = 1,				# vector of bar widths, recycled if necessary
@@ -130,7 +137,8 @@ barplot(
 	col = listColorsDisp,	# vector of box colors
 	border = par("fg"),		# box border
 	tcl=.1,					# tick mark length
-	ylim=#<y1_lim>#			# y axis limits
+	log=strLog,				# log scale - 'x': x axis, 'y': y axis, 'xy': both axes
+	ylim=listY1limUsr		# y axis limits
 );
 box();
 
