@@ -83,6 +83,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strXtlabOrient		= "1";
 	protected String _strXtlabPerp			= "-.75";
 	protected String _strXtlabHoriz			= ".5";
+	protected String _strXtlabFreq			= "0";
 	protected String _strXlabWeight			= "1";
 	protected String _strXlabSize			= "1";
 	protected String _strXlabOffset			= "2";
@@ -227,6 +228,7 @@ public class MVPlotJob extends MVUtil{
 		job._strXtlabOrient		= _strXtlabOrient;
 		job._strXtlabPerp		= _strXtlabPerp;
 		job._strXtlabHoriz		= _strXtlabHoriz;
+		job._strXtlabFreq		= _strXtlabFreq;
 		job._strXlabWeight		= _strXlabWeight;
 		job._strXlabSize		= _strXlabSize;
 		job._strXlabOffset		= _strXlabOffset;
@@ -462,6 +464,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setXtlabPerp(String xtlabPerp)						{ _strXtlabPerp = xtlabPerp;							}
 	public String	getXtlabHoriz()										{ return _strXtlabHoriz;								}
 	public void		setXtlabHoriz(String xtlabHoriz)					{ _strXtlabHoriz = xtlabHoriz;							}
+	public String	getXtlabFreq()										{ return _strXtlabFreq;									}
+	public void		setXtlabFreq(String xtlabFreq)						{ _strXtlabFreq = xtlabFreq;							}
 	public String	getXlabWeight()										{ return _strXlabWeight;								}
 	public void		setXlabWeight(String xlabWeight)					{ _strXlabWeight = xlabWeight;							}
 	public String	getXlabSize()										{ return _strXlabSize;									}

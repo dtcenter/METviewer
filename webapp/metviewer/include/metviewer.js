@@ -197,6 +197,7 @@ function onLoad(){
 	addFmtPlot("X1 Values Orientation",			"xtlab_orient",		["1", "3"],		"txt");
 	addFmtPlot("X1 Values Perp Offset ",		"xtlab_perp",		"-.75",			"txt");
 	addFmtPlot("X1 Values Horiz Align",			"xtlab_horiz",		".5",			"txt");
+	addFmtPlot("X1 Values Frequency",			"xtlab_freq",		"0",			"txt");
 	addFmtPlot("X1 Label Text Weight",			"xlab_weight",		["1", "2", "3", "4", "5"], "txt");
 	addFmtPlot("X1 Label Text Size",			"xlab_size",		"1",			"txt");
 	addFmtPlot("X1 Label Perp Offset",			"xlab_offset",		"2",			"txt");
@@ -1589,15 +1590,15 @@ function updateFmtPlot(){
 		(boolVert? ".5"            : (boolIndyDate? ".5"             : "-.75"         ));	// xtlab_perp
 	tabFmtPlotTxt.rows[3].cells[2].getElementsByTagName("input")[0].value = 
 		(boolVert? ".6"            : (boolIndyDate? ".9"             : ".5"           ));	// xtlab_horiz
-	tabFmtPlotTxt.rows[4].cells[1].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[4].cells[2].getElementsByTagName("input")[0].value = 
 		(boolVert? "-2"            : (boolIndyDate? "14"             : "2"            ));	// xlab_offset
-	tabFmtPlotTxt.rows[5].cells[0].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[5].cells[1].getElementsByTagName("input")[0].value = 
 		(boolVert? "-1"            : (boolIndyDate? ".5"             : ".5"           ));	// ytlab_perp
-	tabFmtPlotTxt.rows[6].cells[0].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[6].cells[1].getElementsByTagName("input")[0].value = 
 		(boolVert? "2"             : (boolIndyDate? "-2"             : "-2"           ));	// ylab_offset
-	tabFmtPlotTxt.rows[8].cells[3].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[9].cells[0].getElementsByTagName("input")[0].value = 
 		(boolVert? "1"             : (boolIndyDate? "-.5"            : "-.5"          ));	// x2lab_offset
-	tabFmtPlotTxt.rows[11].cells[2].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[11].cells[3].getElementsByTagName("input")[0].value = 
 		(boolVert? "c(0, -.17)"    : (boolIndyDate? "c(0, -.48)"     : "c(0, -.25)"   ));	// legend_inset
 }
 

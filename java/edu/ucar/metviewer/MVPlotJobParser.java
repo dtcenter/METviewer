@@ -655,6 +655,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("xtlab_orient",	MVPlotJob.class.getDeclaredMethod("setXtlabOrient",	new Class[]{String.class}));
 			_tableFormatString.put("xtlab_perp",	MVPlotJob.class.getDeclaredMethod("setXtlabPerp",	new Class[]{String.class}));
 			_tableFormatString.put("xtlab_horiz",	MVPlotJob.class.getDeclaredMethod("setXtlabHoriz",	new Class[]{String.class}));
+			_tableFormatString.put("xtlab_freq",	MVPlotJob.class.getDeclaredMethod("setXtlabFreq",	new Class[]{String.class}));
 			_tableFormatString.put("xlab_weight",	MVPlotJob.class.getDeclaredMethod("setXlabWeight",	new Class[]{String.class}));
 			_tableFormatString.put("xlab_size",		MVPlotJob.class.getDeclaredMethod("setXlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("xlab_offset",	MVPlotJob.class.getDeclaredMethod("setXlabOffset",	new Class[]{String.class}));

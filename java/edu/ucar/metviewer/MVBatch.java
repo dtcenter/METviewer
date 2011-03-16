@@ -409,8 +409,13 @@ public class MVBatch extends MVUtil {
 			
 			//  trim the number of indy_lables, if necessary
 			String[] listIndyLabel = job.getIndyLabel();
-			if( "3".equals(job.getXtlabOrient()) && 16 < listIndyLabel.length ){
-				listIndyLabel = decimate(listIndyLabel, (int)(listIndyLabel.length / 16));
+			if( !"0".equals(job.getXtlabFreq()) ){
+				int intDecim = 0;
+				try {
+					intDecim = Integer.parseInt(job.getXtlabFreq());
+					if( 1 > intDecim ){ throw new Exception(); }
+				}catch(Exception e){ throw new Exception("unable to parse xtlab_decim value " + job.getXtlabFreq()); }
+				listIndyLabel = decimate(listIndyLabel, intDecim);				
 			}
 
 			
@@ -1476,6 +1481,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("xtlab_orient",	job.getXtlabOrient());
 		tableRTags.put("xtlab_perp",	job.getXtlabPerp());
 		tableRTags.put("xtlab_horiz",	job.getXtlabHoriz());
+		tableRTags.put("xtlab_decim",	job.getXtlabFreq());
 		tableRTags.put("xlab_weight",	job.getXlabWeight());
 		tableRTags.put("xlab_size",		job.getXlabSize());
 		tableRTags.put("xlab_offset",	job.getXlabOffset());

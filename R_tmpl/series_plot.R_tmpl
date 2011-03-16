@@ -347,9 +347,16 @@ if( TRUE == boolGridOn ){
 		ny=intGridNy			# number of cells in y direction, NULL for default
 	);
 	
+	# calculate the grid line locations
+	listXGrid = #<grid_x>#;
+	intXtlabDecim = #<xtlab_decim>#;
+	if( 0 < intXtlabDecim ){		
+		listXGrid = listXGrid[seq(from=1, to=length(listX), by=intXtlabDecim)]; 		
+	}
+	
 	if( FALSE == boolVertPlot ){
 		abline( 
-			v=#<grid_x>#,			# list of positions for the gridlines
+			v=listXGrid,			# list of positions for the gridlines
 			lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
 			col="#<grid_col>#",		# line color
 			lwd=#<grid_lwd>#,		# line width
@@ -357,7 +364,7 @@ if( TRUE == boolGridOn ){
 		);
 	} else {
 		abline( 
-			h=#<grid_x>#,			# list of positions for the gridlines
+			h=listXGrid,			# list of positions for the gridlines
 			lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
 			col="#<grid_col>#",		# line color
 			lwd=#<grid_lwd>#,		# line width
