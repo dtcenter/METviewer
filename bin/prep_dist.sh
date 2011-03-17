@@ -35,5 +35,19 @@ rm $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties
 mv $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties_new \
    $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties
 
+#  scrub system info from the mv_load.sh file 
+more $MV_DEST/metviewer/bin/mv_load.sh | sed -r 's/JAVA=.*/JAVA=$(which java)/' | sed -r 's/MV_HOME=.*/MV_HOME=/' \
+    > $MV_DEST/metviewer/bin/mv_load.sh_new
+rm $MV_DEST/metviewer/bin/mv_load.sh
+mv $MV_DEST/metviewer/bin/mv_load.sh_new $MV_DEST/metviewer/bin/mv_load.sh
+chmod +x $MV_DEST/metviewer/bin/mv_load.sh
+
+#  scrub system info from the mv_batch.sh file 
+more $MV_DEST/metviewer/bin/mv_batch.sh | sed -r 's/JAVA=.*/JAVA=$(which java)/' | sed -r 's/MV_HOME=.*/MV_HOME=/' \
+    > $MV_DEST/metviewer/bin/mv_batch.sh_new
+rm $MV_DEST/metviewer/bin/mv_batch.sh
+mv $MV_DEST/metviewer/bin/mv_batch.sh_new $MV_DEST/metviewer/bin/mv_batch.sh
+chmod +x $MV_DEST/metviewer/bin/mv_batch.sh
+
 echo "Done"
 
