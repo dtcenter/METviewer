@@ -1306,6 +1306,21 @@ INSERT INTO mv_rev VALUES (0, '2010-07-29 12:00:00', '0.1', 'Initial revision, i
 INSERT INTO mv_rev VALUES (1, '2010-10-14 12:00:00', '0.1', 'Increased web_plot.plot_xml field width to 65536');
 INSERT INTO mv_rev VALUES (2, '2010-11-15 12:00:00', '0.3', 'METViewer changes to support out from METv3.0');
 INSERT INTO mv_rev VALUES (3, '2011-01-13 12:00:00', '0.5', 'Major refactoring of schema, compatible with METv3.0');
+INSERT INTO mv_rev VALUES (4, '2011-03-18 12:00:00', '0.5', 'Added instance_info table');
+
+
+-- instance_info contains information about the particular instance of metvdb, including 
+--   dates of data updates and information about data table contents
+
+CREATE TABLE IF NOT EXISTS instance_info
+(
+    instance_info_id    INT UNSIGNED NOT NULL,
+    updater             VARCHAR(64),
+    update_date         DATETIME,
+    update_detail       VARCHAR(2048),
+    load_xml            TEXT,
+    PRIMARY KEY (instance_info_id)    
+);
 
 
 -- web_plot contains information about plots made by the web application, including the
@@ -1320,6 +1335,8 @@ CREATE TABLE web_plot
     PRIMARY KEY (web_plot_id)    
 );
 
+
+-- change the delimiter for the process of declaring functions
 
 DELIMITER |
 

@@ -994,7 +994,7 @@ INSERT INTO metvdb_rev VALUES (1, '2010-10-14 12:00:00', '0.1', 'Increased web_p
 INSERT INTO metvdb_rev VALUES (2, '2010-11-15 12:00:00', '0.3', 'METViewer changes to support out from METv3.0');
 
 
--- instance_info contains information about the paricular instance of metvdb, including 
+-- instance_info contains information about the particular instance of metvdb, including 
 --   dates of data updates and information about data table contents
 
 CREATE TABLE instance_info
