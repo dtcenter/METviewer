@@ -16,7 +16,22 @@ public class MVUtil{
 	public static final Pattern _patProb		= Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
 
 	public static String getSQLDateFormat(String field){ return "DATE_FORMAT(" + field + ", '%Y-%m-%d %H:%i:%s')"; }
-		
+	
+	/**
+	 * Parse the database URL stored in the input Connection meta data and return the name of the database,
+	 * which should occur as the last alpha numeric string in the URL after the final slash (/).
+	 * @param con Connection whose database name to parse and return
+	 * @return database name
+	 * @throws Exception
+	 */
+	public static String getDBName(Connection con) throws Exception{
+		String strURL = con.getMetaData().getURL();		
+		Matcher mat = Pattern.compile("/(\\w+)$").matcher(strURL);
+		String strDB = "";
+		if( mat.find() ){ strDB = mat.group(1); }
+		return strDB;
+	}
+	
 	/**
 	 * Format the input field according to the table that it is stored in, and whether or not it needs
 	 * to be derived or formatted as a date.  Stat fields must be differentiated from MODE fields.  Also,
@@ -1077,6 +1092,31 @@ public class MVUtil{
 	public void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
 	
 	/**
+	 * Run the system command and return the output
+	 */
+	public static String sysCmd(String cmd) throws Exception {
+		Process proc = Runtime.getRuntime().exec("whoami");
+		
+		boolean boolExit = false;
+		String strOut = "";
+		BufferedReader readerProcStd = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
+		BufferedReader readerProcErr = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
+		while( !boolExit ){
+			try{
+				proc.exitValue();
+				boolExit = true;
+			} catch(Exception e){}
+			
+			while( readerProcStd.ready() ){ strOut += readerProcStd.readLine() + "\n"; }
+			while( readerProcErr.ready() ){ strOut += readerProcErr.readLine() + "\n"; }			
+		}
+		readerProcStd.close();			
+		readerProcErr.close();
+		
+		return strOut;
+	}
+	
+	/**
 	 * Determine the database line_data table in which the input statistic is stored.  For mode stats,
 	 * consider only the first portion of the stat name.  If the stat is not found in any table, return
 	 * an empty string. 
@@ -1425,69 +1465,6 @@ public class MVUtil{
 		_tableCalcStatCTC.put("FAR",	"IF(0 == (d$fy_oy + d$fy_on),			'NA', ( d$fy_on / (d$fy_oy + d$fy_on) ))");
 		_tableCalcStatCTC.put("CSI",	"IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
 		_tableCalcStatCTC.put("GSS",	"IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
-		
-		
 	}
-	
-/*
-# SL1L2 stat calculations
-calcStdDev		= function(sum, sum_sq, n){
-	if( 1 > n ){ return(NA); }
-	v = (sum_sq - sum*sum/n)/(n - 1);	
-	if( 0 > v ){ return(NA);        }
-	else       { return( sqrt(v) ); }
-}
-calcFBAR		= function(d){ return( d$fbar ); }
-calcOBAR		= function(d){ return( d$obar ); }
-calcFSTDEV		= function(d){ return( calcStdDev(d$fbar * d$total, d$ffbar & d$total, d$total) ); }
-calcOSTDEV		= function(d){ return( calcStdDev(d$obar * d$total, d$oobar & d$total, d$total) ); }
-calcFOBAR		= function(d){ return( d$fobar ); }
-calcFFBAR		= function(d){ return( d$ffbar ); }
-calcOOBAR		= function(d){ return( d$oobar ); }
-calcMBIAS		= function(d){ if( 0 == d$obar ){ return (NA); } else { return( d$fbar / d$obar ); } }
-calcPR_CORR		= function(d){
-	v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
-    pr_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
-	if( 0 >= v || 1 < pr_corr ){ return(NA);        }
-	else                       { return( pr_corr ); } 
-}
-calcME			= function(d){ return( d$fbar - d$obar ); }
-calcMSE			= function(d){ return( d$ffbar + d$oobar - 2 * d$fobar ); }
-calcRMSE		= function(d){ return( sqrt(calcMSE(d)) ); }
-calcESTDEV		= function(d){ return( calcStdDev( calcME(d) * d$total, calcMSE(d) * d$total, d$total) ); }
-calcBCMSE		= function(d){ return( calcMSE(d) - (d$fbar - d$obar)^2 ); }
-calcBCRMSE		= function(d){ return( sqrt(calcBCMSE(d)) ); }
-
-
-# CTC stat calculations
-calcBASER		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
-calcACC			= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_on) / d$total ); }             }
-calcFBIAS		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); } }
-calcPODY		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fn_oy) ); }             }
-calcPOFD		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fy_on / (d$fy_on + d$fn_on) ); }             }
-calcPODN		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fn_on / (d$fy_on + d$fn_on) ); }             }
-calcFAR			= function(d){ if( 0 == (d$fy_oy + d$fy_on) )          { return (NA); } else { return( d$fy_on / (d$fy_oy + d$fy_on) ); }             }
-calcCSI			= function(d){ if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){ return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ); }   }
-calcGSS = function(d){
-	if( 0 == d$total ){ return (NA); }
-	dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
-	return( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) );
-}
-calcHK = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
-calcHSS = function(d){
-	if( 0 == d$total ){ return (NA); }
-	dblC = ( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) + (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) / d$total;
-	return( (d$fy_oy + d$fy_on - dblC) / (d$total - dblC) );
-}
-calcODDS = function(d){
-	if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
-	dblPOD = calcPODY(d);
-	dblPOFD = caclPOFD(d);	
-	return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
-}
-
- */
-	
-	
 	
 }

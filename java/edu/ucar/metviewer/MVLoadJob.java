@@ -37,6 +37,9 @@ public class MVLoadJob{
 	
 	protected String[] _listLoadFiles			= {};
 	
+	protected String _strLoadNote				= "";
+	protected boolean _boolLoadXML				= true;
+	
 	public Connection getConnection()									{ return _con;											}
 	public void		setConnection(Connection con)						{ _con = con;											}
 
@@ -97,4 +100,9 @@ public class MVLoadJob{
 	
 	public String[]	getLoadFiles()										{ return _listLoadFiles;								}
 	public void		setLoadFiles(String[] loadFiles)					{ _listLoadFiles = loadFiles;							}
+	
+	public String	getLoadNote()										{ return _strLoadNote;									}															
+	public void		setLoadNote(String loadNote)						{ _strLoadNote = loadNote;								}	
+	public boolean	getLoadXML()										{ return _boolLoadXML;									}
+	public void		setLoadXML(boolean loadXML)							{ _boolLoadXML = loadXML;								}
 }

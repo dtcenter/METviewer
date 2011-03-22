@@ -11,6 +11,7 @@
 <body onLoad="onLoad()" style="padding-left: 20px">
 
 <script type="text/javascript" src="include/Hashtable.js"></script>
+<script type="text/javascript" src="include/util.js"></script>
 <script type="text/javascript" src="include/metviewer.js"></script>
 
 <%
@@ -51,7 +52,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 	<tr><td height="100%" style="vertical-align: top"><span id="spanPlotControls" style="display:inline">
 		<table>
 		
-		<tr><td class="grey" id="tdY1">
+		<tr><td class="gray" id="tdY1">
 
 		<span class="header" style="font-size:18px">Y1 Axis</span><br/><br/>
 
@@ -130,7 +131,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 		</div><br/><br/>
 		
 		</td></tr>
-		<tr><td class="grey" id="tdFix">
+		<tr><td class="gray" id="tdFix">
 
 		<div id="divFieldVal" style="display:none">
 			<table><tr>
@@ -207,7 +208,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 		</div><br/><br/>
 
 		</td></tr>
-		<tr><td class="grey" id="tdAggStat">
+		<tr><td class="gray" id="tdAggStat">
 
 		<div id="divAggStat">
 			<span class="header">Aggregation Statistics</span>
@@ -259,7 +260,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 			</table>
 		</div><br/><br/>
 		
-		</td></tr><tr><td class="grey">
+		</td></tr><tr><td class="gray">
 		
 		<div id="divTitleLab">
 			<span class="header">Plot Titles &amp; Labels</span><br/><br/>
@@ -322,7 +323,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 			</span>
 		</div><br/><br/>
 
-		</td></tr><tr><td class="grey">
+		</td></tr><tr><td class="gray">
 		
 		<div id="divFmtSeries">
 			<span class="header">Series Formatting</span>

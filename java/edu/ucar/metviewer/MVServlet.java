@@ -230,6 +230,21 @@ public class MVServlet extends HttpServlet {
 				//  <plot>
 				else if( nodeCall._tag.equalsIgnoreCase("plot") ) { strResp += handlePlot(strRequestBody, con); }
 
+				//  <list_mv_rev>
+				else if( nodeCall._tag.equalsIgnoreCase("list_mv_rev") ){ strResp += handleListMVRev(con); }
+				
+				//  <list_inst_info>
+				else if( nodeCall._tag.equalsIgnoreCase("list_inst_info") ){ strResp += handleListInstInfo(con); }
+				
+				//  <add_inst_info>
+				else if( nodeCall._tag.equalsIgnoreCase("add_inst_info") ){ strResp += handleAddInstInfo(nodeCall, con); }
+				
+				//  <update_inst_info>
+				else if( nodeCall._tag.equalsIgnoreCase("update_inst_info") ){ strResp += handleUpdateInstInfo(nodeCall, con); }
+				
+				//  <view_load_xml>
+				else if( nodeCall._tag.equalsIgnoreCase("view_load_xml") ){ strResp += handleViewLoadXML(nodeCall, con); }
+				
 				//  not handled
 				else {
 					strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
@@ -857,31 +872,189 @@ public class MVServlet extends HttpServlet {
 			"<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
 			"</body></html>\n\n");
     }
-
     
-	public static void runCmd(String cmd) throws Exception{
-
-		//  run the command and wait for completion
-		String strMsg = "runCmd()\n$ " + cmd + "\n";
-		Process proc = Runtime.getRuntime().exec(cmd);
-		proc.waitFor();
-
-		//  read and print the standard error
-		String strStdErr = "";
-		BufferedReader readerProcError = new BufferedReader( new InputStreamReader(proc.getErrorStream()) );		
-		while( readerProcError.ready() ){ strStdErr += readerProcError.readLine() + "\n"; }
-		readerProcError.close();
-		if( !"".equals(strStdErr) ){ strMsg += strStdErr; }
-
-		//  read and print the standard out
-		String strStdOut = "";
-		BufferedReader readerProcIn = new BufferedReader( new InputStreamReader(proc.getInputStream()) );		
-		while( readerProcIn.ready() ){ strStdOut += readerProcIn.readLine() + "\n"; }
-		readerProcIn.close();
-		if( !"".equals(strStdOut) ){ strMsg += strStdOut; }
+	/**
+	 * Search the mv_rev table of the database under the input connection and serialize its
+	 * contents into an XML string which is returned.
+	 * @param con database connection to use
+	 * @return serialized XML version of the mv_rev table
+	 * @throws Exception
+	 */
+	public static String handleListMVRev(Connection con) throws Exception{
+		String strResp = "<list_mv_rev>";
 		
-		_logger.debug(strMsg);
-	}
+    	//  query the database for the contents of the mv_rev table
+    	Statement stmt = con.createStatement();
+    	ResultSet res = stmt.executeQuery("SELECT * FROM mv_rev;");
+    	while( res.next() ){
+    		strResp += "<val>";
+    		strResp += "<rev_id>" + res.getString(1) + "</rev_id>";
+    		strResp += "<rev_date>" + res.getString(2) + "</rev_date>";
+    		strResp += "<rev_name>" + res.getString(3) + "</rev_name>";
+    		strResp += "<rev_detail>" + res.getString(4) + "</rev_detail>";
+    		strResp += "</val>";
+    	}    	
+    	stmt.close();
 
+    	strResp += "</list_mv_rev>";
+		return strResp;
+	}
     
+	/**
+	 * Search the instance_info table of the database under the input connection and serialize its
+	 * contents into an XML string which is returned.
+	 * @param con database connection to use
+	 * @return serialized XML version of the instance_info table
+	 * @throws Exception
+	 */
+	public static String handleListInstInfo(Connection con) throws Exception{
+		String strResp = "<list_inst_info>";
+		
+    	//  query the database for the contents of the instance_info table
+    	Statement stmt = con.createStatement();
+    	ResultSet res = stmt.executeQuery("SELECT * FROM instance_info;");
+    	while( res.next() ){
+    		strResp += "<val>";
+    		strResp += "<info_id>" + res.getString(1) + "</info_id>";
+    		strResp += "<info_updater>" + res.getString(2) + "</info_updater>";
+    		strResp += "<info_date>" + res.getString(3) + "</info_date>";
+    		strResp += "<info_detail>" + res.getString(4) + "</info_detail>";
+    		strResp += "<info_xml>" + ( !"".equals(res.getString(5)) ) + "</info_xml>";
+    		strResp += "</val>";
+    	}    	
+    	stmt.close();
+
+    	strResp += "</list_inst_info>";
+		return strResp;
+	}
+    
+	/**
+	 * Parse the input request XML and construct an insert statement for the instance_info table 
+	 * record with the input info_id.  Issue the insert and return a status, depending on success.
+	 * @param con database connection to use
+	 * @return status message indicating success or failure
+	 * @throws Exception
+	 */
+	public static String handleAddInstInfo(MVNode nodeCall, Connection con) throws Exception{
+		
+		//  parse the components of the insert statment from the input XML
+		String strInfoId		= nodeCall._children[0]._value;
+		String strInfoUpdater	= nodeCall._children[1]._value;
+		String strInfoDate		= nodeCall._children[2]._value;
+		String strInfoDetail	= nodeCall._children[3]._value;
+
+		//  validate the input
+		if( "".equals(strInfoUpdater) ){ return "<error>updater must not be blank</error>"; }
+		if( "".equals(strInfoDetail) ) { return "<error>update_detail must not be blank</error>"; }
+		try{
+			MVUtil._formatDB.parse(strInfoDate); 
+		} catch(Exception e){
+			return "<error>could not parse update_date: '" + strInfoDate + "'</error>";
+		}
+		
+		//  construct the insert statement for the instance_info table
+    	Statement stmt = con.createStatement();
+    	int intRes = stmt.executeUpdate("INSERT INTO instance_info VALUES (" +
+    										strInfoId + ", " + 
+    										"'" + strInfoUpdater + "', " +
+    										"'" + strInfoDate + "', " +
+    										"'" + strInfoDetail + "', '');");
+    	
+    	//  validate the returned number of updated records
+    	if( 1 != intRes ){
+    		return "<error>unexpected number of records updated (" + intRes + ") for instance_info_id = " + strInfoId + "</error>";
+    	}
+
+    	return "<add_inst_info>success: updated 1 record</add_inst_info>";
+	}
+    
+	/**
+	 * Parse the input request XML and construct an update statement for the instance_info table 
+	 * record with the input info_id.  Issue the update and return a status, depending on success.
+	 * @param con database connection to use
+	 * @return status message indicating success or failure
+	 * @throws Exception
+	 */
+	public static String handleUpdateInstInfo(MVNode nodeCall, Connection con) throws Exception{
+		
+		//  parse the components of the update statment from the input XML
+		String strInfoId		= nodeCall._children[0]._value;
+		String strInfoUpdater	= nodeCall._children[1]._value;
+		String strInfoDate		= nodeCall._children[2]._value;
+		String strInfoDetail	= nodeCall._children[3]._value;
+		
+		//  validate the input
+		if( "".equals(strInfoUpdater) ){ return "<error>updater must not be blank</error>"; }
+		if( "".equals(strInfoDetail) ) { return "<error>update_detail must not be blank</error>"; }
+		try{
+			MVUtil._formatDB.parse(strInfoDate); 
+		} catch(Exception e){
+			return "<error>could not parse update_date: '" + strInfoDate + "'</error>";
+		}
+		
+		//  construct the update statement for the instance_info table
+    	Statement stmt = con.createStatement();
+    	int intRes = stmt.executeUpdate("UPDATE instance_info SET " +
+    										"updater = '" + strInfoUpdater + "', " +
+    										"update_date = '" + strInfoDate + "', " +
+    										"update_detail = '" + strInfoDetail + "' " +
+    									"WHERE instance_info_id = " + strInfoId + ";");
+    	
+    	//  validate the returned number of updated records
+    	if( 1 != intRes ){
+    		return "<error>unexpected number of records updated (" + intRes + ") for instance_info_id = " + strInfoId + "</error>";
+    	}
+
+    	return "<update_inst_info>success: updated 1 record</update_inst_info>";
+	}
+    
+	/**
+	 * Parse the instance_info_id from the input request XML and determine the name of the load XML file
+	 * on the web server.  If the file already exists, return it's name.  If not, build it and return
+	 * its name.
+	 * @param nodeCall parsed request XML
+	 * @param con database connection that load xml will be queried against
+	 * @return XML message containing the name of the load XML file
+	 * @throws Exception
+	 */
+	public static String handleViewLoadXML(MVNode nodeCall, Connection con) throws Exception{
+		
+		//  parse the instance_info_id value from the input XML
+		String strInfoId = nodeCall._children[0]._value;
+		
+    	//  build the load XML file name
+		String strLoadPrefix = "load_" + MVUtil.getDBName(con) + "_id" + strInfoId;
+    	String strLoadXMLFile = _strPlotXML + "/" + strLoadPrefix + ".xml";
+    	
+    	//  if the file exists, return it's name
+    	File fileLoadXML = new File(strLoadXMLFile);
+    	if( fileLoadXML.exists() ){
+    		return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
+    	}
+		
+		//  get the load XML for the specified instance_info_id
+    	Statement stmt = con.createStatement();
+    	ResultSet res = stmt.executeQuery("SELECT load_xml FROM instance_info WHERE instance_info_id = " + strInfoId + ";");
+    	String strLoadXML = "";
+    	while( res.next() ){
+    		strLoadXML = res.getString(1);
+    	}    	
+    	stmt.close();
+    	
+		//  put the load XML from the database into a file
+		Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream( strLoadXML.getBytes() ));
+		try{	
+			FileOutputStream stream = new FileOutputStream(strLoadXMLFile);
+			XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
+			ser.setOutputByteStream(stream);
+			ser.serialize(doc);
+			stream.flush();
+			stream.close();
+		} catch(Exception e) {
+			_logger.error("handleViewLoadXML() - ERROR: caught " + e.getClass() + " serializing load xml: " + e.getMessage());
+			return "<error>failed to serialize load xml - reason: " + e.getMessage() + "</error>";
+		}    	
+    	
+		return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
+	}
 }

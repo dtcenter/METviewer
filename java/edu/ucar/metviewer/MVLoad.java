@@ -5,6 +5,12 @@ import java.util.regex.*;
 import java.sql.*;
 import java.io.*;
 import java.text.*;
+import javax.xml.parsers.*;
+
+import org.w3c.dom.*;
+import org.xml.sax.*;
+import org.apache.log4j.*;
+import org.apache.xml.serialize.*;
 
 public class MVLoad extends MVUtil {
 
@@ -132,7 +138,7 @@ public class MVLoad extends MVUtil {
 							   (_boolIndexOnly? "Applying Index Settings Only\n" : ""));
 			MVLoadJobParser parser = new MVLoadJobParser(strXML);
 			MVLoadJob job = parser.getLoadJob();
-
+			
 			//  process the elements of the job
 			con = job.getConnection();
 			System.out.println("Database Connection:\n" +
@@ -159,6 +165,9 @@ public class MVLoad extends MVUtil {
 			_boolLoadOrank				= job.getLoadOrank();
 			
 			_boolForceDupFile			= job.getForceDupFile();
+			
+			//  process the instance_info load information
+			boolean boolLoadNote = !job.getLoadNote().equals("");
 			
 			//  update the var length tree with information for METv2.0, if necessary
 			if( "V2.0".equals(_strMetVersion) ){
@@ -278,6 +287,44 @@ public class MVLoad extends MVUtil {
 			//  apply the indexes, if requested
 			if( _boolApplyIndexes ){
 				applyIndexes(con);
+			}
+			
+			//  update the instance_info table, if requested
+			if( boolLoadNote ){
+				
+				//  get the instance_info information to insert 
+				int intInstInfoIdNext = getNextId(con, "instance_info", "instance_info_id");
+				String strUpdater = "";
+				try{ strUpdater = sysCmd("whoami");	} catch(Exception e){
+					try{ strUpdater = sysCmd("echo %USERNAME%"); } catch(Exception e2){}
+				}
+				strUpdater = strUpdater.trim();
+				String strUpdateDate = _formatDB.format(new java.util.Date());
+				String strUpdateDetail = job.getLoadNote();
+
+				//  read the load xml into a string, if requested
+				String strLoadXML = "";
+				if( job.getLoadXML() ){ 
+					BufferedReader reader = new BufferedReader( new FileReader(strXML) );
+					while( reader.ready() ){ strLoadXML += reader.readLine().trim(); }
+					reader.close();
+				}					
+				
+				//  construct an update statement for instance_info
+				String strInstInfoSQL = 
+					"INSERT INTO instance_info VALUES (" +
+						"'" + intInstInfoIdNext + "', " +
+						"'" + strUpdater + "', " + 
+						"'" + strUpdateDate + "', " + 
+						"'" + strUpdateDetail + "', " + 
+						"'" + strLoadXML + "'" +
+					");";
+				
+				//  execute the insert SQL
+				System.out.print("Inserting instance_info record...  ");
+				int intInsert = executeUpdate(con, strInstInfoSQL);
+				if( 1 != intInsert ){ throw new Exception("unexpected number of instance_info rows inserted: " + intInsert); }
+				System.out.println("Done\n");
 			}
 
 			System.out.println("End time: " + format.format(new java.util.Date()) + "\n" +

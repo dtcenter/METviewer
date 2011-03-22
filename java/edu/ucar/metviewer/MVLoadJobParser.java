@@ -108,6 +108,8 @@ public class MVLoadJobParser extends MVUtil{
 			else if( node._tag.equals("drop_indexes") )            { job.setDropIndexes          ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("apply_indexes") )           { job.setApplyIndexes         ( node._value.equalsIgnoreCase("true") ); }
 			else if( node._tag.equals("folder_tmpl") )             { job.setFolderTmpl           ( node._value );                          }
+			else if( node._tag.equals("load_note") )               { job.setLoadNote             ( node._value );                          }
+			else if( node._tag.equals("load_xml") )                { job.setLoadXML              ( node._value.equalsIgnoreCase("true") ); }
 
 			//  <load_files>
 			else if( node._tag.equals("load_files") ){
