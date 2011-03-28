@@ -1222,7 +1222,7 @@ public class MVBatch extends MVUtil {
 				String strDepFcstVar = strDep + "_" + (i+1);
 				mapTmplVals.put(strDepFcstVar, strFcstVar);
 				for(int j=0; j < listStat.length; j++){
-					mapTmplVals.put(strDepFcstVar + "_" + (j+1), listStat[j]);
+					mapTmplVals.put(strDepFcstVar + "_stat" + (j+1), listStat[j]);
 				}
 			}
 		}
