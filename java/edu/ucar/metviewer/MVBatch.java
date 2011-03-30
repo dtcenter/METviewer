@@ -300,12 +300,18 @@ public class MVBatch extends MVUtil {
 			stmt.execute(strPlotDataSelect);
 			printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
 			stmt.close();
-
+			
+			/*
+			 *  Make a copy of the series variables to use for the plot
+			 */
+			MVOrderedMap mapSeries1ValPlot = new MVOrderedMap( job.getSeries1Val() );
+			MVOrderedMap mapSeries2ValPlot = new MVOrderedMap( job.getSeries2Val() );
+			
 			
 			/*
 			 *  If agg_stat is requested, generate the agg_stat data files and run agg_stat.R 
 			 */
-							
+			
 			if( boolAggStat ){
 
 				//  construct and create the path for the agg_stat data output file
@@ -372,8 +378,8 @@ public class MVBatch extends MVUtil {
 				for(int i=0; i < 2; i++){
 					MVOrderedMap mapSeriesVal = null;
 					String strDiffSeries = "";
-					if     ( i == 0 && job.getAggDiff1() ){ mapSeriesVal = job.getSeries1Val(); strDiffSeries = "__AGG_DIFF1__"; }
-					else if( i == 1 && job.getAggDiff2() ){ mapSeriesVal = job.getSeries2Val(); strDiffSeries = "__AGG_DIFF2__"; }
+					if     ( i == 0 && job.getAggDiff1() ){ mapSeriesVal = mapSeries1ValPlot; strDiffSeries = "__AGG_DIFF1__"; }
+					else if( i == 1 && job.getAggDiff2() ){ mapSeriesVal = mapSeries2ValPlot; strDiffSeries = "__AGG_DIFF2__"; }
 					else                                  { continue; }						
 					String[] listSeriesVar = mapSeriesVal.getKeyList();
 					ArrayList listDiffVal = new ArrayList( Arrays.asList( ((String[])mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1])) ) );
@@ -428,8 +434,8 @@ public class MVBatch extends MVUtil {
 			MVOrderedMap mapDep1Plot = (MVOrderedMap)mapDep.get("dep1");
 			MVOrderedMap mapDep2Plot = (MVOrderedMap)mapDep.get("dep2");
 			
-			Map.Entry[] listSeries1Val	= job.getSeries1Val().getOrderedEntries();
-			Map.Entry[] listSeries2Val	= (null != job.getSeries2Val()? job.getSeries2Val().getOrderedEntries() : new Map.Entry[]{});
+			Map.Entry[] listSeries1Val	= mapSeries1ValPlot.getOrderedEntries();
+			Map.Entry[] listSeries2Val	= (null != job.getSeries2Val()? mapSeries2ValPlot.getOrderedEntries() : new Map.Entry[]{});
 			Map.Entry[] listDep1Plot	= mapDep1Plot.getOrderedEntries();
 			Map.Entry[] listDep2Plot	= (null != mapDep2Plot ? mapDep2Plot.getOrderedEntries() : new Map.Entry[]{});
 
@@ -445,8 +451,8 @@ public class MVBatch extends MVUtil {
 			tableRTags.put("dep1_plot",		mapDep1Plot.getRDecl());				
 			tableRTags.put("dep2_plot",		(null != mapDep2Plot? mapDep2Plot.getRDecl() : "c()"));
 			tableRTags.put("agg_list",		(new MVOrderedMap()).getRDecl());
-			tableRTags.put("series1_list",	job.getSeries1Val().getRDecl());
-			tableRTags.put("series2_list",	job.getSeries2Val().getRDecl());
+			tableRTags.put("series1_list",	mapSeries1ValPlot.getRDecl());
+			tableRTags.put("series2_list",	mapSeries2ValPlot.getRDecl());
 			tableRTags.put("series_nobs",	job.getSeriesNobs().getRDecl());
 			tableRTags.put("dep1_scale",	job.getDep1Scale().getRDecl());
 			tableRTags.put("dep2_scale",	job.getDep2Scale().getRDecl());
