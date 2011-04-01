@@ -1488,6 +1488,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("xtlab_perp",	job.getXtlabPerp());
 		tableRTags.put("xtlab_horiz",	job.getXtlabHoriz());
 		tableRTags.put("xtlab_decim",	job.getXtlabFreq());
+		tableRTags.put("xtlab_size",	job.getXtlabSize());
 		tableRTags.put("xlab_weight",	job.getXlabWeight());
 		tableRTags.put("xlab_size",		job.getXlabSize());
 		tableRTags.put("xlab_offset",	job.getXlabOffset());
@@ -1495,6 +1496,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("ytlab_orient",	job.getYtlabOrient());
 		tableRTags.put("ytlab_perp",	job.getYtlabPerp());
 		tableRTags.put("ytlab_horiz",	job.getYtlabHoriz());
+		tableRTags.put("ytlab_size",	job.getYtlabSize());
 		tableRTags.put("ylab_weight",	job.getYlabWeight());
 		tableRTags.put("ylab_size",		job.getYlabSize());
 		tableRTags.put("ylab_offset",	job.getYlabOffset());
@@ -1506,6 +1508,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("x2tlab_orient",	job.getX2tlabOrient());
 		tableRTags.put("x2tlab_perp",	job.getX2tlabPerp());
 		tableRTags.put("x2tlab_horiz",	job.getX2tlabHoriz());
+		tableRTags.put("x2tlab_size",	job.getX2tlabSize());
 		tableRTags.put("x2lab_weight",	job.getX2labWeight());
 		tableRTags.put("x2lab_size",	job.getX2labSize());
 		tableRTags.put("x2lab_offset",	job.getX2labOffset());
@@ -1513,6 +1516,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("y2tlab_orient",	job.getY2tlabOrient());
 		tableRTags.put("y2tlab_perp",	job.getY2tlabPerp());
 		tableRTags.put("y2tlab_horiz",	job.getY2tlabHoriz());
+		tableRTags.put("y2tlab_size",	job.getY2tlabSize());
 		tableRTags.put("y2lab_weight",	job.getY2labWeight());
 		tableRTags.put("y2lab_size",	job.getY2labSize());
 		tableRTags.put("y2lab_offset",	job.getY2labOffset());

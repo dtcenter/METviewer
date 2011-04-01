@@ -66,21 +66,6 @@ mtext(
 	line=1					# margin line, starting at 0 counting outwards
 );
 
-# specify the x-axis
-#listX = 1:length(listHistData);
-#axis(
-#	1,						# axis of interest, 1: below, 2: left, 3: above and 4: right 
-#	at=listX,				# locations of tick marks
-#	labels=#<indy_label>#,	# axis labels
-#	tick=TRUE,				# tick marks on/off
-#	tck=.01, 				# length of tick marks as a fraction of plot window
-#	las=#<xtlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-#	padj=#<xtlab_perp>#,	# axis label perpendicular location adjustment 
-#	hadj=#<xtlab_horiz>#,	# axis label parallel location adjustment 
-#	cex.axis=1,				# relative axis label magnification 
-#	col="black"				# axis color
-#);
-
 # x-axis label
 mtext(
 	"#<x_label>#",			# label

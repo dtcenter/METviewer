@@ -84,6 +84,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strXtlabPerp			= "-.75";
 	protected String _strXtlabHoriz			= ".5";
 	protected String _strXtlabFreq			= "0";
+	protected String _strXtlabSize			= "1";
 	protected String _strXlabWeight			= "1";
 	protected String _strXlabSize			= "1";
 	protected String _strXlabOffset			= "2";
@@ -91,6 +92,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strYtlabOrient		= "1";
 	protected String _strYtlabPerp			= ".5";
 	protected String _strYtlabHoriz			= ".5";
+	protected String _strYtlabSize			= "1";
 	protected String _strYlabWeight			= "1";
 	protected String _strYlabSize			= "1";
 	protected String _strYlabOffset			= "-2";
@@ -102,6 +104,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strX2tlabOrient		= "1";
 	protected String _strX2tlabPerp			= "1";
 	protected String _strX2tlabHoriz		= ".5";
+	protected String _strX2tlabSize			= ".8";
 	protected String _strX2labWeight		= "1";
 	protected String _strX2labSize			= ".8";
 	protected String _strX2labOffset		= "-.5";
@@ -109,6 +112,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strY2tlabOrient		= "1";
 	protected String _strY2tlabPerp			= ".5";
 	protected String _strY2tlabHoriz		= ".5";
+	protected String _strY2tlabSize			= "1";
 	protected String _strY2labWeight		= "1";
 	protected String _strY2labSize			= "1";
 	protected String _strY2labOffset		= "1";
@@ -229,6 +233,7 @@ public class MVPlotJob extends MVUtil{
 		job._strXtlabPerp		= _strXtlabPerp;
 		job._strXtlabHoriz		= _strXtlabHoriz;
 		job._strXtlabFreq		= _strXtlabFreq;
+		job._strXtlabSize		= _strXtlabSize;
 		job._strXlabWeight		= _strXlabWeight;
 		job._strXlabSize		= _strXlabSize;
 		job._strXlabOffset		= _strXlabOffset;
@@ -236,6 +241,7 @@ public class MVPlotJob extends MVUtil{
 		job._strYtlabOrient		= _strYtlabOrient;
 		job._strYtlabPerp		= _strYtlabPerp;
 		job._strYtlabHoriz		= _strYtlabHoriz;
+		job._strYtlabSize		= _strYtlabSize;
 		job._strYlabWeight		= _strYlabWeight;
 		job._strYlabSize		= _strYlabSize;
 		job._strYlabOffset		= _strYlabOffset;
@@ -247,6 +253,7 @@ public class MVPlotJob extends MVUtil{
 		job._strX2tlabOrient	= _strX2tlabOrient;
 		job._strX2tlabPerp		= _strX2tlabPerp;
 		job._strX2tlabHoriz		= _strX2tlabHoriz;
+		job._strX2tlabSize		= _strX2tlabSize;
 		job._strX2labWeight		= _strX2labWeight;
 		job._strX2labSize		= _strX2labSize;
 		job._strX2labOffset		= _strX2labOffset;
@@ -254,6 +261,7 @@ public class MVPlotJob extends MVUtil{
 		job._strY2tlabOrient	= _strY2tlabOrient;
 		job._strY2tlabPerp		= _strY2tlabPerp;
 		job._strY2tlabHoriz		= _strY2tlabHoriz;
+		job._strY2tlabSize		= _strY2tlabSize;
 		job._strY2labWeight		= _strY2labWeight;
 		job._strY2labSize		= _strY2labSize;
 		job._strY2labOffset		= _strY2labOffset;
@@ -466,6 +474,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setXtlabHoriz(String xtlabHoriz)					{ _strXtlabHoriz = xtlabHoriz;							}
 	public String	getXtlabFreq()										{ return _strXtlabFreq;									}
 	public void		setXtlabFreq(String xtlabFreq)						{ _strXtlabFreq = xtlabFreq;							}
+	public String	getXtlabSize()										{ return _strXtlabSize;									}
+	public void		setXtlabSize(String xtlabSize)						{ _strXtlabSize = xtlabSize;							}
 	public String	getXlabWeight()										{ return _strXlabWeight;								}
 	public void		setXlabWeight(String xlabWeight)					{ _strXlabWeight = xlabWeight;							}
 	public String	getXlabSize()										{ return _strXlabSize;									}
@@ -480,6 +490,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setYtlabPerp(String ytlabPerp)						{ _strYtlabPerp = ytlabPerp;							}
 	public String	getYtlabHoriz()										{ return _strYtlabHoriz;								}
 	public void		setYtlabHoriz(String ytlabHoriz)					{ _strYtlabHoriz = ytlabHoriz;							}
+	public String	getYtlabSize()										{ return _strYtlabSize;									}
+	public void		setYtlabSize(String ytlabSize)						{ _strYtlabSize = ytlabSize;							}
 	public String	getYlabWeight()										{ return _strYlabWeight;								}
 	public void		setYlabWeight(String ylabWeight)					{ _strYlabWeight = ylabWeight;							}
 	public String	getYlabSize()										{ return _strYlabSize;									}
@@ -502,6 +514,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setX2tlabPerp(String x2tlabPerp)					{ _strX2tlabPerp = x2tlabPerp;							}
 	public String	getX2tlabHoriz()									{ return _strX2tlabHoriz;								}
 	public void		setX2tlabHoriz(String x2tlabHoriz)					{ _strX2tlabHoriz = x2tlabHoriz;						}
+	public String	getX2tlabSize()										{ return _strX2tlabSize;								}
+	public void		setX2tlabSize(String x2tlabSize)					{ _strX2tlabSize = x2tlabSize;							}
 	public String	getX2labWeight()									{ return _strX2labWeight;								}
 	public void		setX2labWeight(String x2labWeight)					{ _strX2labWeight = x2labWeight;						}
 	public String	getX2labSize()										{ return _strX2labSize;									}
@@ -516,6 +530,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setY2tlabPerp(String y2tlabPerp)					{ _strY2tlabPerp = y2tlabPerp;							}
 	public String	getY2tlabHoriz()									{ return _strY2tlabHoriz;								}
 	public void		setY2tlabHoriz(String y2tlabHoriz)					{ _strY2tlabHoriz = y2tlabHoriz;						}
+	public String	getY2tlabSize()										{ return _strY2tlabSize;								}
+	public void		setY2tlabSize(String y2tlabSize)					{ _strY2tlabSize = y2tlabSize;							}
 	public String	getY2labWeight()									{ return _strY2labWeight;								}
 	public void		setY2labWeight(String y2labWeight)					{ _strY2labWeight = y2labWeight;						}
 	public String	getY2labSize()										{ return _strY2labSize;									}

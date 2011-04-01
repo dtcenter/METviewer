@@ -656,6 +656,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("xtlab_perp",	MVPlotJob.class.getDeclaredMethod("setXtlabPerp",	new Class[]{String.class}));
 			_tableFormatString.put("xtlab_horiz",	MVPlotJob.class.getDeclaredMethod("setXtlabHoriz",	new Class[]{String.class}));
 			_tableFormatString.put("xtlab_freq",	MVPlotJob.class.getDeclaredMethod("setXtlabFreq",	new Class[]{String.class}));
+			_tableFormatString.put("xtlab_size",	MVPlotJob.class.getDeclaredMethod("setXtlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("xlab_weight",	MVPlotJob.class.getDeclaredMethod("setXlabWeight",	new Class[]{String.class}));
 			_tableFormatString.put("xlab_size",		MVPlotJob.class.getDeclaredMethod("setXlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("xlab_offset",	MVPlotJob.class.getDeclaredMethod("setXlabOffset",	new Class[]{String.class}));
@@ -663,6 +664,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("ytlab_orient",	MVPlotJob.class.getDeclaredMethod("setYtlabOrient",	new Class[]{String.class}));
 			_tableFormatString.put("ytlab_perp",	MVPlotJob.class.getDeclaredMethod("setYtlabPerp",	new Class[]{String.class}));
 			_tableFormatString.put("ytlab_horiz",	MVPlotJob.class.getDeclaredMethod("setYtlabHoriz",	new Class[]{String.class}));
+			_tableFormatString.put("ytlab_size",	MVPlotJob.class.getDeclaredMethod("setYtlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("ylab_weight",	MVPlotJob.class.getDeclaredMethod("setYlabWeight",	new Class[]{String.class}));
 			_tableFormatString.put("ylab_size",		MVPlotJob.class.getDeclaredMethod("setYlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("ylab_offset",	MVPlotJob.class.getDeclaredMethod("setYlabOffset",	new Class[]{String.class}));
@@ -674,6 +676,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("x2tlab_orient",	MVPlotJob.class.getDeclaredMethod("setX2tlabOrient",new Class[]{String.class}));
 			_tableFormatString.put("x2tlab_perp",	MVPlotJob.class.getDeclaredMethod("setX2tlabPerp",	new Class[]{String.class}));
 			_tableFormatString.put("x2tlab_horiz",	MVPlotJob.class.getDeclaredMethod("setX2tlabHoriz",	new Class[]{String.class}));
+			_tableFormatString.put("x2tlab_size",	MVPlotJob.class.getDeclaredMethod("setX2tlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("x2lab_weight",	MVPlotJob.class.getDeclaredMethod("setX2labWeight",	new Class[]{String.class}));
 			_tableFormatString.put("x2lab_size",	MVPlotJob.class.getDeclaredMethod("setX2labSize",	new Class[]{String.class}));
 			_tableFormatString.put("x2lab_offset",	MVPlotJob.class.getDeclaredMethod("setX2labOffset",	new Class[]{String.class}));
@@ -681,6 +684,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("y2tlab_orient",	MVPlotJob.class.getDeclaredMethod("setY2tlabOrient",new Class[]{String.class}));
 			_tableFormatString.put("y2tlab_perp",	MVPlotJob.class.getDeclaredMethod("setY2tlabPerp",	new Class[]{String.class}));
 			_tableFormatString.put("y2tlab_horiz",	MVPlotJob.class.getDeclaredMethod("setY2tlabHoriz",	new Class[]{String.class}));
+			_tableFormatString.put("y2tlab_size",	MVPlotJob.class.getDeclaredMethod("setY2tlabSize",	new Class[]{String.class}));
 			_tableFormatString.put("y2lab_weight",	MVPlotJob.class.getDeclaredMethod("setY2labWeight",	new Class[]{String.class}));
 			_tableFormatString.put("y2lab_size",	MVPlotJob.class.getDeclaredMethod("setY2labSize",	new Class[]{String.class}));
 			_tableFormatString.put("y2lab_offset",	MVPlotJob.class.getDeclaredMethod("setY2labOffset",	new Class[]{String.class}));

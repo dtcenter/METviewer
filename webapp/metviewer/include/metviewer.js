@@ -194,6 +194,7 @@ function onLoad(){
 	addFmtPlot("X1 Values Perp Offset ",		"xtlab_perp",		"-.75",			"txt");
 	addFmtPlot("X1 Values Horiz Align",			"xtlab_horiz",		".5",			"txt");
 	addFmtPlot("X1 Values Frequency",			"xtlab_freq",		"0",			"txt");
+	addFmtPlot("X1 Values Size",				"xtlab_size",		"1",			"txt");
 	addFmtPlot("X1 Label Text Weight",			"xlab_weight",		["1", "2", "3", "4", "5"], "txt");
 	addFmtPlot("X1 Label Text Size",			"xlab_size",		"1",			"txt");
 	addFmtPlot("X1 Label Perp Offset",			"xlab_offset",		"2",			"txt");
@@ -201,6 +202,7 @@ function onLoad(){
 	addFmtPlot("Y1 Values Orientation",			"ytlab_orient",		["1", "3"],		"txt");
 	addFmtPlot("Y1 Values Perp Offset",			"ytlab_perp",		".5",			"txt");
 	addFmtPlot("Y1 Values Horiz Align",			"ytlab_horiz",		".5",			"txt");
+	addFmtPlot("Y1 Values Size",				"ytlab_size",		"1",			"txt");
 	addFmtPlot("Y1 Label Text Weight",			"ylab_weight",		["1", "2", "3", "4", "5"], "txt");
 	addFmtPlot("Y1 Label Text Size",			"ylab_size",		"1",			"txt");
 	addFmtPlot("Y1 Label Perp Offset",			"ylab_offset",		"-2",			"txt");
@@ -211,7 +213,8 @@ function onLoad(){
 	addFmtPlot("Grid X positions",				"grid_x",			"listX",		"txt");
 	addFmtPlot("X2 Stats Orientation",			"x2tlab_orient",	["1", "3"],		"txt");
 	addFmtPlot("X2 Stats Perp Offset",			"x2tlab_perp",		"1",			"txt");
-	addFmtPlot("X2 Stast Horiz Align",			"x2tlab_horiz",		".5",			"txt");
+	addFmtPlot("X2 Stats Horiz Align",			"x2tlab_horiz",		".5",			"txt");
+	addFmtPlot("X2 Stats Size",					"x2tlab_size",		".8",			"txt");
 	addFmtPlot("X2 Label Text Weight",			"x2lab_weight",		["1", "2", "3", "4", "5"], "txt");
 	addFmtPlot("X2 Label Text Size",			"x2lab_size",		".8",			"txt");
 	addFmtPlot("X2 Label Perp Offset",			"x2lab_offset",		"-.5",			"txt");
@@ -219,6 +222,7 @@ function onLoad(){
 	addFmtPlot("Y2 Values Orientation",			"y2tlab_orient",	["1", "3"],		"txt");
 	addFmtPlot("Y2 Values Perp Offset",			"y2tlab_perp",		".5",			"txt");
 	addFmtPlot("Y2 Values Horiz Align",			"y2tlab_horiz",		".5",			"txt");
+	addFmtPlot("Y2 Values Size",				"y2tlab_size",		"1",			"txt");
 	addFmtPlot("Y2 Label Text Weight",			"y2lab_weight",		["1", "2", "3", "4", "5"], "txt");
 	addFmtPlot("Y2 Label Text Size",			"y2lab_size",		"1",			"txt");
 	addFmtPlot("Y2 Label Perp Offset",			"y2lab_offset",		"1",			"txt");
@@ -996,25 +1000,6 @@ function selectFixVarResp(strResp){ selectFieldResp(strResp, _listFixDiv, 1, 1, 
 
 /**
  * Construct a string of database field and value criteria that reflects the
- * selected fields and values in the fixed values controls 
- *
-function buildFixCrit(endIndex){
-	var strFixCrit = "";
-	for(i=0; i <= endIndex; i++){
-		var divFixCrit = _listFixDiv[i]; 
-		var selFixCrit = divFixCrit.getElementsByTagName("select")[0]; 
-		var strFixCritCur = "<field name=\"" + selFixCrit.options[ selFixCrit.selectedIndex ].text + "\">";
-		var listFixCritVal = getSelected( divFixCrit.getElementsByTagName("select")[1] );
-		for(var j=0; j < listFixCritVal.length; j++){ strFixCritCur += "<val>" + listFixCritVal[j] + "</val>"; }
-		strFixCritCur += "</field>";
-		if( 0 < listFixCritVal.length ){ strFixCrit += strFixCritCur; }
-	}
-	return strFixCrit; 
-}
- */
-
-/**
- * Construct a string of database field and value criteria that reflects the
  * selected fields and values in the values controls of the input div list
  */
 function buildFieldValCrit(listDiv, endIndex){
@@ -1271,15 +1256,15 @@ function updateFmtPlot(){
 		(boolVert? ".5"            : (boolIndyDate? ".5"             : "-.75"         ));	// xtlab_perp
 	tabFmtPlotTxt.rows[3].cells[2].getElementsByTagName("input")[0].value = 
 		(boolVert? ".6"            : (boolIndyDate? ".9"             : ".5"           ));	// xtlab_horiz
-	tabFmtPlotTxt.rows[4].cells[2].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[4].cells[3].getElementsByTagName("input")[0].value = 
 		(boolVert? "-2"            : (boolIndyDate? "14"             : "2"            ));	// xlab_offset
-	tabFmtPlotTxt.rows[5].cells[1].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[5].cells[2].getElementsByTagName("input")[0].value = 
 		(boolVert? "-1"            : (boolIndyDate? ".5"             : ".5"           ));	// ytlab_perp
-	tabFmtPlotTxt.rows[6].cells[1].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[6].cells[3].getElementsByTagName("input")[0].value = 
 		(boolVert? "2"             : (boolIndyDate? "-2"             : "-2"           ));	// ylab_offset
-	tabFmtPlotTxt.rows[9].cells[0].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[9].cells[3].getElementsByTagName("input")[0].value = 
 		(boolVert? "1"             : (boolIndyDate? "-.5"            : "-.5"          ));	// x2lab_offset
-	tabFmtPlotTxt.rows[11].cells[3].getElementsByTagName("input")[0].value = 
+	tabFmtPlotTxt.rows[12].cells[3].getElementsByTagName("input")[0].value = 
 		(boolVert? "c(0, -.17)"    : (boolIndyDate? "c(0, -.48)"     : "c(0, -.25)"   ));	// legend_inset
 }
 

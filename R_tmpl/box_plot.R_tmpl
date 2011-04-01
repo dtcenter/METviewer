@@ -157,7 +157,7 @@ if( boolBoxPts ){
 		las=#<ytlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 		padj=#<ytlab_perp>#,	# axis label perpendicular location adjustment
 		hadj=#<ytlab_horiz>#,	# axis label parallel location adjustment
-		cex.axis=1,				# relative axis label magnification 
+		cex.axis=#<ytlab_size>#,# relative axis label magnification 
 		col="gray"				# axis color
 	);	
 }
@@ -334,7 +334,7 @@ axis(
 	las=#<xtlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 	padj=#<xtlab_perp>#,	# axis label perpendicular location adjustment 
 	hadj=#<xtlab_horiz>#,	# axis label parallel location adjustment 
-	cex.axis=1,				# relative axis label magnification 
+	cex.axis=#<xtlab_size>#,# relative axis label magnification 
 	col="gray"				# axis color
 );
 
@@ -394,7 +394,7 @@ if( 0 < length(listSeriesNobs) ){
 		las=#<x2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 		padj=#<x2tlab_perp>#,	# axis label perpendicular location adjustment
 		hadj=#<x2tlab_horiz>#,	# axis label parallel location adjustment
-		cex.axis=.8,			# relative axis label magnification
+		cex.axis=#<x2tlab_size>#,# relative axis label magnification
 		col="black"				# axis color
 	);
 	
