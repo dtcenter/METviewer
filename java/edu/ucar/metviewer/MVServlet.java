@@ -399,8 +399,7 @@ public class MVServlet extends HttpServlet {
 				if( listFcstVar[i].contains("*") ){ boolRegEx = true; }
 				strFcstVarList += (0 < i? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
 			}
-			//strWhere += "WHERE h.fcst_var " + (boolRegEx? "LIKE" : "IN") + " (" + strFcstVarList + ")";
-			strWhere += "WHERE h.fcst_var LIKE (" + strFcstVarList + ")";
+			strWhere += "WHERE h.fcst_var " + (boolRegEx? "LIKE" : "IN") + " (" + strFcstVarList + ")";
 		}
 		String strWhereFcstVar = strWhere;
 		
