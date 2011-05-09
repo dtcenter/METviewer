@@ -15,6 +15,7 @@ import org.apache.xml.serialize.*;
 public class MVLoad extends MVUtil {
 
 	public static String _strMetVersion				= "V3.0";
+	public static final Pattern _patVersion			= Pattern.compile("(V\\d+\\.\\d+).*");
 
 	public static boolean _boolVerbose				= false;
 	public static int _intInsertSize				= 1;
@@ -424,8 +425,14 @@ public class MVLoad extends MVUtil {
 			
 			//  error if the version number does not match the configured value
 			String strMetVersion = listToken[0];
+			/*
 			if( !strMetVersion.equals(_strMetVersion) ){
 				throw new Exception("ERROR: file MET version " + strMetVersion + " does not match configured value " + _strMetVersion);
+			}
+			*/
+			Matcher matVersion = _patVersion.matcher(strMetVersion);
+			if( !matVersion.matches() || !matVersion.group(1).equals(_strMetVersion) ){
+				throw new Exception("ERROR: file MET version " + strMetVersion + " is not compatible with configured value " + _strMetVersion);
 			}
 			
 			//  if the line type load selector is activated, check that the current line type is on the list
