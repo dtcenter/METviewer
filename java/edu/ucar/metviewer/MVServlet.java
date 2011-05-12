@@ -401,10 +401,8 @@ public class MVServlet extends HttpServlet {
 			}
 			strWhere += "WHERE h.fcst_var " + (boolRegEx? "LIKE" : "IN") + " (" + strFcstVarList + ")";
 		}
-		String strWhereFcstVar = strWhere;
 		
     	//  parse the list of constraints into a SQL where clause
-		boolean boolTimeCrit = (strField.contains("init") || strField.contains("valid") || strField.contains("lead"));
 		String strWhereTime = "";
 		long intStart = 0;
     	for(int i=2; i < nodeCall._children.length; i++){
@@ -421,7 +419,6 @@ public class MVServlet extends HttpServlet {
     								(strField.contains("fcst_init") && strFieldCrit.equals("init_hour")) ||
     								(strField.contains("fcst_valid") && strFieldCrit.equals("valid_hour"));
     			boolTimeCritCur = true;
-    			boolTimeCrit = true;
     		}
 
     		//  if so, build a where clause for the criteria
@@ -513,6 +510,8 @@ public class MVServlet extends HttpServlet {
 			listVal = MVUtil.sortLev(listVal);
 		} else if( strField.equals("fcst_lead") || strField.equals("obs_lead") ){
 			listVal = MVUtil.sortFormatLead(listVal, true, false);
+		} else if( strField.equals("init_hour") || strField.equals("valid_hour") ){
+			listVal = MVUtil.sortHour(listVal, true);
 		}
 		
 		//  add the list of field values to the response

@@ -629,6 +629,28 @@ public class MVUtil{
 		return listRet;
 	}
 	
+	public static final String[] sortHour(String[] hour, boolean asc){
+		
+		//  parse and format the hours and store the numerical values in a sortable array
+		double[] listVal = new double[hour.length];		
+		Hashtable tableVal = new Hashtable();
+		for(int i=0; i < hour.length; i++){
+			listVal[i] = Double.parseDouble(hour[i]);
+			String strHour = hour[i];
+			while( strHour.length() < 2 ){ strHour = "0" + strHour; }
+			tableVal.put(new Double(listVal[i]), strHour);
+		}
+		
+		//  sort the lead numerical values and build a sorted list of leads
+		Arrays.sort(listVal);		
+		String[] listRet = new String[hour.length];
+		for(int i=0; i < listVal.length; i++){
+			listRet[asc? i : listVal.length - 1 - i] = tableVal.get( new Double(listVal[i]) ).toString();			
+		}
+		
+		return listRet;
+	}
+	
 	/**
 	 * Parse template tag parameter pairs and return them in an ordered map.  For example,
 	 * <i>parseTagParams("tag_name?param1=val1;param2=val2")</i> returns a map with two 
