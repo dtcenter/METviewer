@@ -929,7 +929,14 @@ public class MVUtil{
 			Matcher matRColStr = Pattern.compile("c\\(\\s*\"(.*)\"\\s*\\)").matcher(strRCol);
 			if( !matRColStr.matches() ){ return new String[]{}; }		
 			String strList = matRColStr.group(1);
-			return strList.split("\"\\s*,\\s*\"");
+			//return strList.split("\"\\s*,\\s*\"");
+			ArrayList list = new ArrayList();
+			while( strList.matches( ".*\"\\s*,\\s*\".*" ) ){
+				list.add( strList.replaceFirst("\"\\s*,\\s*\".*", "") );
+				strList = strList.replaceFirst(".*?\"\\s*,\\s*\"", "");
+			}
+			list.add( strList.replaceFirst("\"\\s*,\\s*\".*", "") );
+			return toArray(list);
 		} else {
 			Matcher matRColNum = Pattern.compile("c\\(\\s*(.*)\\s*\\)").matcher(strRCol);
 			if( !matRColNum.matches() ){ return new String[]{}; }		

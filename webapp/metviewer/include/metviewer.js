@@ -1738,7 +1738,7 @@ function buildPlotXML(){
 				if( i == 0 ){ strVal = (getFmtSeriesHide(intRow)? "FALSE" : "TRUE"); }
 				else        { strVal = getFmtVal(listFmtTd[i-1]); }
 				if( 8 == i && strVal != "" ){ boolLegend = true; }
-				if( 1 == i || 2 == i || 4 == i || 8 == i){ strVal = "\"" + strVal + "\""; }
+				if( 1 == i || 2 == i || 4 == i || 8 == i ){ strVal = "\"" + strVal + "\""; }
 				listFmtSeries[i] += (0 < intRow? ", " : "") + strVal;			
 			}
 		}
