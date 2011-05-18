@@ -1782,7 +1782,7 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 		// get the field value and format it
 		var listSel = listDiv[i].getElementsByTagName("select");
 		var strVar = getSelected( listSel[0] )[0];
-		if( boolDep ){ strVar = strVar.toUpperCase(); }
+		if( boolDep ){ /* strVar = strVar.toUpperCase(); */ }
 		else         { strVar = strVar.toLowerCase(); }
 		
 		// get the selected stats/values and format them
