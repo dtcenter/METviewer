@@ -423,6 +423,14 @@ public class MVBatch extends MVUtil {
 				}catch(Exception e){ throw new Exception("unable to parse xtlab_decim value " + job.getXtlabFreq()); }
 				listIndyLabel = decimate(listIndyLabel, intDecim);				
 			}
+			
+			// format the indy values, if fcst_hour or valid_hour is being used
+			String[] listIndyValFmt = job.getIndyVal();
+			if( job.getIndyVar().matches(".*_hour") ){
+				for(int i=0; i < listIndyValFmt.length; i++){
+					try{ listIndyValFmt[i] = "" + Integer.parseInt( listIndyValFmt[i] ); }catch(Exception e){}
+				}
+			}
 
 			
 			/*
@@ -445,7 +453,7 @@ public class MVBatch extends MVUtil {
 			//  populate the plot settings in the R script template
 			tableRTags.put("r_work",		_strRworkFolder);
 			tableRTags.put("indy_var",		job.getIndyVar());
-			tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
+			tableRTags.put("indy_list",		(0 < job.getIndyVal().length? printRCol(listIndyValFmt, true) : "c()"));
 			tableRTags.put("indy_label",	(0 < listIndyLabel.length? printRCol(listIndyLabel, true) : "c()"));
 			tableRTags.put("indy_plot_val",	(0 < job.getIndyPlotVal().length? printRCol(job.getIndyPlotVal(), false) : "c()"));
 			tableRTags.put("dep1_plot",		mapDep1Plot.getRDecl());				
