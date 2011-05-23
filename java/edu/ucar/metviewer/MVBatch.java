@@ -300,6 +300,15 @@ public class MVBatch extends MVUtil {
 			stmt.execute(strPlotDataSelect);
 			printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
 			stmt.close();
+						
+			// format the indy values, if fcst_hour or valid_hour is being used
+			String[] listIndyValFmt = job.getIndyVal();
+			if( job.getIndyVar().matches(".*_hour") ){
+				for(int i=0; i < listIndyValFmt.length; i++){
+					try{ listIndyValFmt[i] = "" + Integer.parseInt( listIndyValFmt[i] ); }catch(Exception e){}
+				}
+			}
+
 			
 			/*
 			 *  Make a copy of the series variables to use for the plot
@@ -352,7 +361,7 @@ public class MVBatch extends MVUtil {
 				tableAggStatInfo.put("boot_ci",			job.getAggBootCI());
 				tableAggStatInfo.put("ci_alpha",		job.getCIAlpha());
 				tableAggStatInfo.put("indy_var",		job.getIndyVar());
-				tableAggStatInfo.put("indy_list",		(0 < job.getIndyVal().length? printRCol(job.getIndyVal(), true) : "c()"));
+				tableAggStatInfo.put("indy_list",		(0 < listIndyValFmt.length? printRCol(listIndyValFmt, true) : "c()"));
 				tableAggStatInfo.put("series1_list",	job.getSeries1Val().getRDecl());
 				tableAggStatInfo.put("series2_list",	job.getSeries2Val().getRDecl());
 				tableAggStatInfo.put("agg_stat1",		printRCol(toArray(listAggStats1), true));
@@ -422,14 +431,6 @@ public class MVBatch extends MVUtil {
 					if( 1 > intDecim ){ throw new Exception(); }
 				}catch(Exception e){ throw new Exception("unable to parse xtlab_decim value " + job.getXtlabFreq()); }
 				listIndyLabel = decimate(listIndyLabel, intDecim);				
-			}
-			
-			// format the indy values, if fcst_hour or valid_hour is being used
-			String[] listIndyValFmt = job.getIndyVal();
-			if( job.getIndyVar().matches(".*_hour") ){
-				for(int i=0; i < listIndyValFmt.length; i++){
-					try{ listIndyValFmt[i] = "" + Integer.parseInt( listIndyValFmt[i] ); }catch(Exception e){}
-				}
 			}
 
 			
