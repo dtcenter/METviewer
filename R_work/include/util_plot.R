@@ -365,7 +365,6 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			
 		}	# end: for(intPermVal in 1:nrow(matPermVal))
 		
-		#DISP listNStats = append(listNStats, nrow(dfStatsIndy));
 		listNStats = append(listNStats, intNStatsIndy);
 		
 		intIndyIndex = intIndyIndex + 1;

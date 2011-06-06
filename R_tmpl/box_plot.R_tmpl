@@ -209,8 +209,14 @@ for(strFcstVar in names(listDep1Plot)){
 				}
 			}
 			
-			# save the current list of series values for plotting
-			listBoxes[[ length(listBoxes) + 1 ]] = listBox;
+			# save the current list of series values for plotting, swapping the last two if __DIFF__
+			intBoxesLen = length(listBoxes);
+			if( "__DIFF__" == listPermVal[length(listPermVal)] ){
+				listBoxes[[ intBoxesLen + 1 ]] = listBoxes[[ intBoxesLen ]];
+				listBoxes[[ intBoxesLen ]] = listBox;
+			} else {
+				listBoxes[[ intBoxesLen + 1 ]] = listBox;
+			}
 			
 			# update the y-axis limits to fit the data, depending on user-specification
 			if( 2 != length(listY1limUsr) ){
