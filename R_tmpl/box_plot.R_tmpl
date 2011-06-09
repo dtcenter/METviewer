@@ -5,6 +5,8 @@ source("include/util_plot.R");
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
+options(scipen=10);
+
 #
 #  Plot Control Variables
 #
@@ -147,6 +149,16 @@ if( boolBoxPts ){
 		cex.sub=1,				# relative subtitle magnification
 		fg="gray"
 	);
+	
+	# if y-axis log scale is enabled, set up the axis formatting
+	if( boolLogY1 ){
+		#par( ylog=TRUE, usr=c(par()$usr[1:2], floor(log10(listYlim[1])), ceiling(log10(listYlim[2]))), 
+		#	 yaxp=c(listYlim[1:2], 3) );
+		
+		listYlim = c( 10^floor(log10(listYlim[1])), 10^ceiling(log10(listYlim[2])) );
+		par( ylog=TRUE, usr=c(par()$usr[1:2], log10(listYlim[1]), log10(listYlim[2])), 
+			 yaxp=c(listYlim[1:2], 2) );
+	}
 	
 	# specify the y-axis
 	axis(
