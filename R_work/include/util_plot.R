@@ -297,7 +297,7 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 					dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
 				}
 				
-				# sort the dataset by valid time and lead time
+				# sort the dataset by init time and valid time
 				listFields = names(dfStatsVal);
 				if( "fcst_valid_beg" %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),]; }				
 				if( "fcst_valid"     %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid),];     }				

@@ -23,6 +23,12 @@ dfStatsRec = read.delim(strInputDataFile);
 intYMax = 1;
 if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 
+# sort the dataset by init time, lead time and independent variable
+listFields = names(dfStatsRec);
+dfStatsRec = dfStatsRec[order(dfStatsRec$fcst_valid_beg),];
+dfStatsRec = dfStatsRec[order(dfStatsRec$fcst_init_beg),];
+dfStatsRec = dfStatsRec[order(dfStatsRec[[strIndyVar]]),];
+
 # build a list for output permutations
 for(intY in 1:intYMax){
 	if( 1 == intY ){ listSeriesVal = listSeries1Val; boolDiff = boolDiff1; strDiffSeries = "__AGG_DIFF1__"; listStat = listStat1; } 
