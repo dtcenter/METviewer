@@ -728,7 +728,7 @@ public class MVBatch extends MVUtil {
 								"    object_id           VARCHAR(16),\n" +
 								"    object_cat          VARCHAR(16),\n" +
 							    "    stat_name           VARCHAR(32),\n" +
-							    "    stat_value          VARCHAR(16)\n" +
+							    "    stat_value          VARCHAR(32)\n" +
 							    ");\n";
 				
 			} else if( boolAggCtc ){
