@@ -220,7 +220,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 				
 				<h4 style="padding-left:40px; text-decoration:underline; font-weight:normal">Template Formatting</h4>
 				<p style="padding-left:40px">
-				Template values have the syntax <span class="term">{var_name[?param1=val1[&param2=val2[...]]]}</span>.  For example, <span class="term">{fcst_lead?format=HH}</span> 
+				Template values have the syntax <span class="term">{var_name[?param1=val1[&amp;amp;param2=val2[...]]]}</span>.  For example, <span class="term">{fcst_lead?format=HH}</span> 
 				or <span class="term">{vx_mask?map=masks}</span> or <span class="term">{fcst_thresh?units=in&symbol=letters}</span>.  The var_name must be one of the database fields 
 				that is used in the plot fixed variables or agg variables.  When the template is applied, the current plot values for each variable replaces the tag in the template.  
 				The parameters can be used to format, convert or map the values.  The dependent variables forecast variables are represented using the syntax 
