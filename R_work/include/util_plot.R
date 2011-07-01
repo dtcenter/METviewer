@@ -76,9 +76,22 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff){
 	return( intNumSeries * intNumStats );
 }
 
-# eventEqualize() assumes that the input dfStats contains data indexed by fcst_valid_beg 
-#   and the independent variable values.  It builds a new dataframe which contains the same 
-#   data except for records that don't have corresponding fcst_valid_beg values in each for a each 
+# eventEqualize() assumes that the input dfStats contains data indexed by fcst_valid_beg, series
+#   values and the independent variable values.  It builds a new dataframe which contains the same 
+#   data except for records that don't have corresponding fcst_valid_beg values in each other
+#   series record with the same independent variable value.  For example, if the series_a has data
+#   valid at 20111010_000000 for F12 and series_b does not, the series_a record is removed.
+#
+# INPUTS:
+#         dfStats: data frame containing the records to equalize, including fcst_valid_beg, series
+#                  values and independent variable values
+#      strIndyVar: name of the independent variable
+#     listIndyVal: independent variable values to equalize over
+#   listSeriesVal: series variable names and values
+#       boolMulti: FALSE for normal event equalization, TRUE for equalization of mulitple events 
+#                  at each combination of fcst_valid_beg, series values and independent value - 
+#                  for example with MODE objects
+#
 eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMulti){
 
 	# convert the dates from strings to POSIXct, and create a unique member to use for equalization
