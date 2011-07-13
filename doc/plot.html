@@ -267,24 +267,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 						</ul>
 					</li><br/>
 					<li><span class="code">&lt;dep2&gt;</span>: the fcst_var/stat pairs for the second dependent axis (y2), whose structure is identical to that of <span class="code">&lt;dep1&gt;</span>
-					<li><span class="code">&lt;fix&gt;</span>: a list of database field/value pairs to hold constant for each fcst_var included in <span class="term">dep1</span> and 
-					<span class="term">dep2</span>
-						<ul>
-							<li><span class="code">&lt;fcst_var&gt;</span>: the fcst_var for which the enclosed list of stats will be plotted
-								<br/><b>Attributes:</b>
-								<ul style="list-style-image:url('att_bullet.gif')">
-									<li><span class="code">name</span>: the fcst_var whose statistics will be plotted
-								</ul><br/>
-								<ul>
-									<li><span class="code">&lt;var&gt;</span>: the database field/value pair to hold constant
-										<br/><b>Attributes:</b>
-										<ul style="list-style-image:url('att_bullet.gif')">
-											<li><span class="code">name</span>: the database field whose value to hold constant
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
+					<li><span class="code">&lt;fix&gt;</span>: do not use <span class="code">&lt;fix&gt;</span>, use <span class="code">&lt;plot_fix&gt;</span> instead
 					</li>
 				</ul>
 			</li><br/>
