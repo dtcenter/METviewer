@@ -14,6 +14,10 @@ import org.xml.sax.*;
 import org.apache.log4j.*;
 import org.apache.xml.serialize.*;
 
+import org.apache.commons.fileupload.*;
+import org.apache.commons.fileupload.servlet.*;
+import org.apache.commons.fileupload.disk.*;
+
 public class MVServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -123,20 +127,51 @@ public class MVServlet extends HttpServlet {
 	 */
     public void doPost(HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException
-    {
-        //  read the body of the request
-    	BufferedReader reader = new BufferedReader( new InputStreamReader(request.getInputStream()) );
-    	String strLine = "";
-    	String strRequestBody = "";
-    	while( (strLine = reader.readLine()) != null ){ strRequestBody = strRequestBody + strLine; }
-    	_logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + strRequestBody);
-       
+    {       
     	//  initialize the response writer and session
     	PrintWriter out = response.getWriter();
         response.setContentType("text/plain");        
-        
-        //  attempt to parse the body of the request
+
         try{
+        	
+        	//  initialize the request information
+            String strRequestBody = "";
+            request.getSession().setAttribute("init_xml", "");
+            
+        	//  if the request is a file upload, build the request from the file XML
+        	if( ServletFileUpload.isMultipartContent(request) ){
+        		
+        		//  set up the upload handler and parse the request
+        		ServletFileUpload uploadHandler = new ServletFileUpload(new DiskFileItemFactory ());
+    			List items = uploadHandler.parseRequest(request);
+
+    			//  find the upload file in the request and read its contents
+    			String strUploadXML = "";
+    			Iterator itr = items.iterator();
+    			while(itr.hasNext()) {
+    				FileItem item = (FileItem)itr.next();
+    				if( !item.isFormField() ){
+    					BufferedReader reader = new BufferedReader( new InputStreamReader(item.getInputStream()) );
+    					while(reader.ready()){ strUploadXML += reader.readLine() + "\n"; }
+    					reader.close();
+    					strUploadXML = strUploadXML.replaceAll("<\\?.*\\?>", "");
+    				}
+    			}
+    			
+    			//  scrub non-xml from the file contents
+    			strRequestBody = "<request><xml_upload>" + strUploadXML + "</xml_upload></request>";
+        	}
+
+        	//  if the request is not a file upload, read it directly
+        	else {
+        	
+	        	BufferedReader reader = new BufferedReader( new InputStreamReader(request.getInputStream()) );
+	        	String strLine = "";
+	        	while( (strLine = reader.readLine()) != null ){ strRequestBody = strRequestBody + strLine; }
+
+        	}
+        	_logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + strRequestBody);
+        	
 			//  instantiate and configure the xml parser
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		    dbf.setValidating(false);
@@ -245,6 +280,13 @@ public class MVServlet extends HttpServlet {
 				//  <view_load_xml>
 				else if( nodeCall._tag.equalsIgnoreCase("view_load_xml") ){ strResp += handleViewLoadXML(nodeCall, con); }
 				
+				//  <xml_upload>
+				else if( nodeCall._tag.equalsIgnoreCase("xml_upload") ){
+					strResp += handleXMLUpload(nodeCall);
+					request.getSession().setAttribute("init_xml", strResp);
+					response.sendRedirect("/metviewer");
+				}
+				
 				//  not handled
 				else {
 					strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
@@ -262,6 +304,8 @@ public class MVServlet extends HttpServlet {
         	e.printStackTrace( new PrintStream(s) );
         	_logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString());
         	out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
+        } finally {
+        	out.close();
         }
     }
     
@@ -434,7 +478,8 @@ public class MVServlet extends HttpServlet {
     		
     		//  add the where clause to the criteria, if appropriate
     		if( boolTimeCritField ){
-    			strWhereTime += (strWhereTime.equals("")? " WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
+    			if( boolMode ){ strWhere     += (strWhere.equals("")?     " WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")"; }
+    			else          { strWhereTime += (strWhereTime.equals("")? " WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";	}
     		} else if( !boolTimeCritCur ){
         		strWhere += (strWhere.equals("")? "WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
     		}
@@ -464,7 +509,7 @@ public class MVServlet extends HttpServlet {
 
     		//  add all distinct list field values to the temp table from each line_data table
     		for(int i=0; i < listTables.length; i++){
-    			strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTables[i] + " ld" + strWhereTime;    				
+    			strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTables[i] + " ld" + strWhereTime;
         		_logger.debug("handleListVal() - sql: " + strTmpSQL);
         		if( 0 == i ){ intStart = (new java.util.Date()).getTime(); }
     			stmtTmp.executeUpdate(strTmpSQL);
@@ -473,7 +518,7 @@ public class MVServlet extends HttpServlet {
     		
     		//  build a query to list all distinct, ordered values of the list field from the temp table
     		strSQL = "SELECT DISTINCT " + strField + " FROM " + strTmpTable + " ORDER BY " + strField + ";";
-    		   		
+
     	} else {
     		String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
     		strWhere = strWhere.replaceAll("h\\.", "");
@@ -697,14 +742,12 @@ public class MVServlet extends HttpServlet {
     	strDBName = strDBName.substring(strDBName.lastIndexOf("/") + 1);
     	strPlotXML =
     		"<plot_spec>" +
-		 		"<!--" +
 		 		"<connection>" +
 					"<host>" + _strDBHost + "</host>" +
 					"<database>" + strDBName + "</database>" +
 					"<user>" + _strDBUser + "</user>" +
 					"<password>" + _strDBPassword + "</password>" +
 		 		"</connection>" +
-		 		"-->" +
 		 		"<folders>" +
     		 		"<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
     		 		"<r_work>" + _strRWork + "</r_work>" +
@@ -1055,4 +1098,12 @@ public class MVServlet extends HttpServlet {
     	
 		return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
 	}
+	
+	public static String handleXMLUpload(MVNode nodeCall) throws Exception{
+		MVPlotJobParser par = new MVPlotJobParser(nodeCall._children[0]);
+		MVPlotJob[] listJobs = par.getJobsList();
+		if( 1 > listJobs.length ){ throw new Exception("parsed XML contained no plot jobs"); }		
+		return MVPlotJobParser.serializeJob(listJobs[0]);
+	}
+
 }

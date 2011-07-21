@@ -29,6 +29,8 @@
 				<pathelement location="${lib}/mysql-connector-java-5.1.6.jar"/>
 				<pathelement location="${lib}/xercesImpl.jar"/>
 				<pathelement location="${lib}/servlet-api.jar"/>
+				<pathelement location="${lib}/commons-fileupload-1.2.2.jar"/>
+				<pathelement location="${lib}/commons-io-2.0.1.jar"/>
 			</classpath>
 		</javac>
 		

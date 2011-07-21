@@ -1,11 +1,14 @@
 
 var _boolIE = false;
 var _boolDim = false;
+var _boolDimOverride = false;
+var _boolLoad = false;
+var _intLoadSleep = 200;
 
 var _url;
 
 var _intDebugState = 0;
-var _boolDebugDisp = false;
+var _boolDebugDisp = true;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -267,8 +270,9 @@ function getRequest(){
  * when the response arrives
  */
 function sendRequest(reqType, reqData, fnResp){
-
-	dimScreen(true);
+	
+	if( !_boolDimOverride ){ dimScreen(true); }
+	_boolLoad = true;
 
 	// add the database connection to the request, if appropriate
 	if( null == reqData.match( /<list_db\/>/ ) ){ reqData = "<db_con>" + _strDBCon + "</db_con>" + reqData; }
@@ -290,7 +294,8 @@ function sendRequest(reqType, reqData, fnResp){
 			var listParse = strResp.match( /<error>([\s\S]*)<\/error>/ );
 			if( null != listParse ){ alert("METViewer error: " + listParse[1]); }
 			else                   { fnResp(strResp);                           }
-			dimScreen(false);
+			if( !_boolDimOverride ){ dimScreen(false); }
+			_boolLoad = false;
         }
 	};
 
@@ -314,6 +319,10 @@ function sendRequest(reqType, reqData, fnResp){
  * A response handler that does nothing
  */
 function nullResp(strResp){}
+
+function loadSleep(fn){
+	setTimeout( (_boolLoad? "loadSleep('" + fn + "')" : fn), _intLoadSleep );
+}
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

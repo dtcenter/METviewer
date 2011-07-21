@@ -1,5 +1,6 @@
 
 var _strDBCon = "";
+var _strInitXML = "";
 
 var TMPL_SERIES_PLOT	= 1;
 var TMPL_BAR_PLOT		= 2;
@@ -75,11 +76,11 @@ var _intNumSeries = 0;
 var _listFmtSeriesDefaults = ["false", "false", "none", "", "20", "b", "1", "1", "1", ""];
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Administration/Utility Functions
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * When the page loads, perform the initialization duties including setting
@@ -94,15 +95,15 @@ function onLoad(){
 	_boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
 
 	/*
-	 console(
-	 	"browser codeName: " + navigator.appCodeName + "\n" + 
-	 	"browser name: " + navigator.appName + "\n" + 
-	 	"browser version: " + navigator.appVersion + "\n" + 
-	 	"cookies enabled: " + navigator.cookieEnabled + "\n" + 
-	 	"platform: " + navigator.platform + "\n" + 
-	 	"user-agent header: " + navigator.userAgent + "\n" + 
-	 	"IE: " + (_boolIE? "true" : "false") + "\n\n"
-	 );
+	console(
+		"browser codeName: " + 	navigator.appCodeName + "\n" + 
+		"browser name: " + 		navigator.appName + "\n" + 
+		"browser version: " +	navigator.appVersion + "\n" + 
+		"cookies enabled: " +	navigator.cookieEnabled + "\n" + 
+		"platform: " + navigator.platform + "\n" +
+		"user-agent header: " + navigator.userAgent + "\n" +
+		"IE: " + (_boolIE? "true" : "false") + "\n\n"
+	);
 	*/
 	console("load() - IE: " + (_boolIE? "true" : "false") + "\n\n");
 
@@ -111,31 +112,7 @@ function onLoad(){
 	
 	// initialize the debug controls
 	setDebugDisp(_boolDebugDisp);
-
-	// initialize the database list and controls
-	var strDBLoad = document.getElementById("spanDBLoad").innerHTML;
-	if( "" == strDBLoad ){
-		listDBReq();
-	} else {		
-		_strDBCon = strDBLoad;
-		document.getElementById("selDB").style.display = "none";
-		console("onLoad() - loading single database: " + _strDBCon + "\n\n");
-		listFcstVar1Req(0);
-	}
-
-	// initialize the dep list
-	var divDep0 = document.getElementById("divDep1").getElementsByTagName("div")[0];
-	_listDep1Div.push( divDep0 );
-
-	// initialize the series lists
-	_divFieldVal = document.getElementById("divFieldVal");
-	fillSelect(document.getElementById("selField"), _listVar);
-	addSeries1Div();
-	document.getElementById("lnkRemoveFieldVal0").style.display = "none";
-
-	// initialize the independent variable controls
-	fillSelect(document.getElementById("selIndyVar"), _listIndyVar);
-
+	
 	// initialize the plot format controls
 	for(var i=1; i < _intNumFmtPlotCol; i++){
 		var tdFmtPlotBool = document.getElementById("trFmtPlotBool").insertCell(i);
@@ -241,7 +218,20 @@ function onLoad(){
 	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");
 	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
 	addFmtPlot("Box Plot Show Avg",				"box_avg",			["FALSE", "TRUE"], "txt");
-	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");
+	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");	
+
+	// initialize the dep list
+	var divDep0 = document.getElementById("divDep1").getElementsByTagName("div")[0];
+	_listDep1Div.push( divDep0 );
+
+	// initialize the series lists
+	_divFieldVal = document.getElementById("divFieldVal");
+	fillSelect(document.getElementById("selField"), _listVar);
+	addSeries1Div();
+	document.getElementById("lnkRemoveFieldVal0").style.display = "none";
+
+	// initialize the independent variable controls
+	fillSelect(document.getElementById("selIndyVar"), _listIndyVar);
 	
 	// build the series formatting controls
 	buildSeriesDiv();
@@ -249,6 +239,20 @@ function onLoad(){
 
 	// update the agg_stat controls
 	updateAggStat();
+
+	// initialize the database list and controls
+	var strDBLoad = document.getElementById("spanDBLoad").innerHTML;
+	if( "" != strDBLoad ){
+		_strDBCon = strDBLoad;
+		document.getElementById("selDB").style.display = "none";
+		console("onLoad() - loading single database: " + _strDBCon + "\n\n");
+		listFcstVar1Req(0);
+	} else {		
+		listDBReq();
+		var txtInitXML = document.getElementById("txtInitXML");
+		if( "" != txtInitXML.value ){ loadInitXML(txtInitXML.value); }
+	}
+	
 }
 
 
@@ -296,6 +300,19 @@ function updatePlotData(){
 }
 
 /**
+ * Determine if the input statistic is a MODE statistic and return true if so,
+ * false otherwise.
+ */
+function isModeStat(stat){
+	return (
+			(null != stat.match( /^\w+_[FODA]?[SCA][MUA]$/ )) ||
+			(null != stat.match( /^RATIO_.+/ ))               || 
+			(null != stat.match( /^AREARAT_.+/ ))             || 
+			(null != stat.match( /^OBJ.+/ ))
+		   );
+}
+
+/**
  * Clear all variable/value controls and reset the select lists to the currently
  * selected lists of fcst_var and variables.
  */
@@ -330,7 +347,7 @@ function clearControls(){
 		clearSelect(selField);
 		fillSelect(selField, _listVar);
 		addSeries1Div();
-		document.getElementById("lnkRemoveFieldVal0").style.display = "none";
+		_listSeries1Div[0].getElementsByTagName("span")[1].style.display = "none";
 		
 		// reset the fixed values
 		while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
@@ -399,11 +416,11 @@ function setFmtVal(tdFmt, val){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Template Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * When the plot template is switched, configure the visibility of the controls
@@ -474,11 +491,11 @@ function updateTmpl(){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Dependent Variable Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function addDep1(){ addDep(1); }
 function removeDep1Var(intDepId){ removeDepVar(1, intDepId); }
@@ -717,12 +734,22 @@ function getDepDiv(id){
 	return listDepDiv[intIndex];
 }
 
+/**
+ * Parse the id of the specified div and return its id number
+ */
+function getDivDepId(div){
+	return ( null != (listId = div.id.match( /divDep(\d+)/ )) ? listId[1] : 0 );
+}
+function getDivFieldValId(div){
+	return ( null != (listId = div.id.match( /divFieldVal(\d+)/ )) ? listId[1] : 0 );
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Field Value Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Create a field val div of the specified category and add it to the from and
@@ -918,11 +945,11 @@ function moveFieldDown(listDiv, intId){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Series Variable Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add and remove a series1 div and process select requests and
@@ -977,11 +1004,11 @@ function removeSeriesDiv(intSeries, intId){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Fixed Variable Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add, remove and populate the fixed variable controls
@@ -1020,11 +1047,11 @@ function buildRhistCrit(endIndex){ return buildFieldValCrit(_listRhistDiv, endIn
 
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Rhist Fixed Variable Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Handlers to add, remove and populate the rhist fixed variable controls
@@ -1050,11 +1077,11 @@ function selectRhistVarReq(intId){
 function selectRhistVarResp(strResp){ selectFieldResp(strResp, _listRhistDiv, 1, 1, false); }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Independent Variable Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Build and run a request for values for the currently selected independent
@@ -1133,12 +1160,25 @@ function indyCheck(boolCheck){
 	}
 }
 
+/**
+ * Find the table row with the corresponding indy val
+ */
+function findIndyTr(val){
+	var strVal = val.replace("<", "&lt;").replace(">", "&gt;");
+	var tabIndyVal = document.getElementById("tabIndyVal");
+	for(var i=0; i < tabIndyVal.rows.length; i++){
+		var strValCur = tabIndyVal.rows[i].getElementsByTagName("span")[1].innerHTML;		
+		if( strVal == strValCur ){ return tabIndyVal.rows[i]; }
+	}
+	return null;
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Plot Formatting Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Construct plot formatting controls with the specified label, value and type.
@@ -1149,7 +1189,7 @@ function addFmtPlot(label, tag, value, type){
 
 	var boolTypeTxt = (type == "txt");
 	var intFmtIndex = (boolTypeTxt? _intFmtPlotTxtIndex : _intFmtPlotBoolIndex);
-	var intCol = intFmtIndex % _intNumFmtPlotCol
+	var intCol = intFmtIndex % _intNumFmtPlotCol;
 	var tabFmt = document.getElementById( boolTypeTxt? "tabFmtPlotTxt" : "tabFmtPlotBool" );
 	var tdFmt;
 
@@ -1169,7 +1209,8 @@ function addFmtPlot(label, tag, value, type){
 		tdFmt = trFmt.cells[0];
 	}
 
-	// if a new row is not required, get the next available cell on the current row
+	// if a new row is not required, get the next available cell on the current
+	// row
 	else {
 		tdFmt = tabFmt.rows[ tabFmt.rows.length - 1 ].cells[intCol];
 	}
@@ -1411,7 +1452,8 @@ function buildSeriesDiv(){
 
 					_intNumSeries++;
 					
-				}  // end: for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++)
+				}  // end: for(var intSeries=0; intSeries <
+					// listSeriesPerm.length; intSeries++)
 				
 			}  // end: for(var intStat=0; intStat < listStat.length; intStat++)
 			
@@ -1462,19 +1504,26 @@ function getFmtSeriesVal(row){
 }
 
 /**
+ * Validate that the specified row in the series formatting controls contains a
+ * Hide checkbox. If so, return the checkbox control, otherwise, null.
+ */
+function getFmtSeriesHideChk(row){
+	var tabFmtSeries = document.getElementById("tabFmtSeries");
+	var trFmtSeries = tabFmtSeries.rows[row];
+	if( 3 != trFmtSeries.cells.length ){ return null; }
+	return trFmtSeries.cells[0].getElementsByTagName("input")[1];
+}
+
+/**
  * Determine the state of the Hide checkbox for the input row and return the
  * state of the control
  */
-function getFmtSeriesHide(row){
-	
-	// get and validate the requested row
-	var tabFmtSeries = document.getElementById("tabFmtSeries");
-	var trFmtSeries = tabFmtSeries.rows[row];
-	if( 3 != trFmtSeries.cells.length ){ return listTdFmt; }
-	
-	var chkHide = trFmtSeries.cells[0].getElementsByTagName("input")[1];
-	return chkHide.checked;
-}
+function getFmtSeriesHide(row){	return getFmtSeriesHideChk(row).checked; }
+
+/**
+ * Set the state of the Hide checkbox for the input row to the specified value
+ */
+function setFmtSeriesHide(row, val){ getFmtSeriesHideChk(row).checked = val; }
 
 /**
  * Sets the value of the specified series modification indicator control to the
@@ -1562,11 +1611,11 @@ function buildSeriesDivRhist(){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Agg Stat Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Update the agg_stat controls according to the enabled checkbox setting
@@ -1578,11 +1627,11 @@ function updateAggStat(){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Calc Stat Controls
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Update the calc_stat controls according to the enabled checkbox setting
@@ -1594,11 +1643,11 @@ function updateCalcStat(){
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Plot Spec Functions
  * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
  * Contruct the plot spec xml from information selected in the plot controls
@@ -1875,3 +1924,667 @@ function runPlotResp(strResp){
 }
 
 function testPlotResp(){ runPlotResp("<plot>plot_00021_20100810_084037</plot>"); }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
+ * Init XML Controls
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/**
+ * Each loadInitXML function performs a step of the XML upload initialization
+ * process, then calls the loadSleep() function, passing it the next function in
+ * the chain. When the callback for the current initiazation step is complete,
+ * the next function in the chain will be called. Each function parses the
+ * appropriate section of the init XML stored in the _strInitXML data member.
+ */
+function loadInitXML(strInitXML){
+	console("loadInitXML() - initializing with xml:\n" + strInitXML + "\n\n");
+	_strInitXML = strInitXML;
+	_boolDimOverride = true;
+	dimScreen(true);
+	_boolInitXML = true;
+	setTimeout("loadInitXML_checkProg()", _intInitXMLCheckWait);
+	loadSleep("loadInitXML_phaseDB()");
+}
+
+var _boolInitXML = false;
+var _intInitXMLChecks = 0;
+var _intInitXMLChecksMax = 0;
+var _intInitXMLCheckMax = 5;
+var _intInitXMLCheckWait = 2000;
+
+/**
+ * Periodically check the progress of the XML load, making sure that it is not
+ * stuck.  If the load does get stuck, print an error message indicating that
+ * there has been an error.  Otherwise, do nothing.
+ */
+function loadInitXML_checkProg(){
+	
+	// if the load is complete, stop checking
+	if( !_boolInitXML ){ return; }
+	
+	// if there is an ongoing server request, set the next check
+	if( !_boolLoad ){
+		_intInitXMLChecks = 0;
+		setTimeout("loadInitXML_checkProg()", _intInitXMLCheckWait);
+		return;
+	}
+	
+	// if the number of checks has not been exceeded, increment
+	if( _intInitXMLChecks < _intInitXMLCheckMax ){
+		_intInitXMLChecks++;
+		if( _intInitXMLChecks > _intInitXMLChecksMax ){ _intInitXMLChecksMax = _intInitXMLChecks; }
+		setTimeout("loadInitXML_checkProg()", _intInitXMLCheckWait);
+	} 
+	
+	// if the number of checks has been exceeded, report an error
+	else {
+		alert("ERROR: javascript error loading XML");
+		_boolDimOverride = false;
+		dimScreen(false);
+		_boolInitXML = false;
+	}
+}
+
+/**
+ * Parse the name of the plot database from _strInitXML, set the database select
+ * box and then call the plot_type handler.
+ */
+function loadInitXML_phaseDB(){
+	console("loadInitXML_phaseDB()\n\n");
+	_strDBCon = _strInitXML.match( /<database>(.*)<\/database>/ )[1];
+	setSelected(document.getElementById("selDB"), _strDBCon);
+	loadSleep("loadInitXML_phasePlotType()");
+}
+
+/**
+ * Parse the plot_type from _strInitXML using assumptions about the first stat
+ * name, set the plot_data select box and then call the plot_tmpl handler.
+ */
+function loadInitXML_phasePlotType(){
+	console("loadInitXML_phasePlotType()\n\n");
+	var listStat = _strInitXML.match( /<stat>(\w+)<\/stat>/ );
+	var strStat = (null != listStat? listStat[1] : "");
+	setSelected(document.getElementById("selPlotData"), isModeStat(strStat)? "MODE" :  "Stat");
+	updatePlotData();
+	loadSleep("loadInitXML_phaseTmpl()");
+}
+
+/**
+ * Parse the plot_tmpl from _strInitXML, set the plot_tmpl select box and then
+ * call the dep handler.
+ */
+function loadInitXML_phaseTmpl(){
+	console("loadInitXML_phaseTmpl()\n\n");
+	_strInitXMLPlotTmpl = _strInitXML.match( /<template>(.*)\.R_tmpl<\/template>/ )[1];
+	setSelected(document.getElementById("selTemplate"), _strInitXMLPlotTmpl);
+	updateTmpl();
+	if( _intTmpl == TMPL_RHIST ){ loadSleep("loadInitXML_phasePlotFix()"); } 
+	else                        { loadSleep("loadInitXML_phaseDep()");     }
+}
+
+// data structures for managing dep fcst_var/stat pairs
+var _tableInitXMLDep1 = new Hashtable();
+var _listInitXMLDep1 = new Array();
+var _tableInitXMLDep2 = new Hashtable();
+var _listInitXMLDep2 = new Array();
+var _divInitXMLDep;
+
+/**
+ * Parse the _strInitXML dep information and build hashtables and lists
+ * containing the fcst_vars and fcst_var/stat pairs. Then, start the chain of
+ * calls to load dep controls with those pairs.
+ */
+function loadInitXML_phaseDep(){
+	console("loadInitXML_phaseDep()\n\n");
+	
+	// parse the dep 1 structures, creating a hashtable entry for each fcst_var
+	var strDep1 = _strInitXML.match( /<dep1>(.*)<\/dep1>/ )[1];
+	loadInitXML_buildMap(strDep1, "fcst_var", _tableInitXMLDep1, _listInitXMLDep1);
+	
+	// parse the dep 2 structures, creating a hashtable entry for each fcst_var
+	if( null == _strInitXML.match( /<dep2\/>/ ) ){
+		var strDep2 = _strInitXML.match( /<dep2>(.*)<\/dep2>/ )[1];
+		loadInitXML_buildMap(strDep2, "fcst_var", _tableInitXMLDep2, _listInitXMLDep2);
+	}
+	
+	// start the dep load cycle
+	loadInitXML_phaseDepLoad();
+}
+
+/**
+ * Parse the specified xml, which is assumed to contain fcst_var blocks with
+ * value lists, into fcst_var/value (stat or val) pairs and enter each into the
+ * specified Hashtable.
+ */
+function loadInitXML_buildMap(xml, field, map, list){
+	var strFcstVar = xml;
+	var reg = new RegExp("<" + field + " name=\"(\\w+)\">(.*?)<\/" + field + ">(.*)");
+	while( null != (listFcstVar = strFcstVar.match( reg )) ){
+		
+		// remove the enclosing <set>, if necessary
+		var strVal = listFcstVar[2];
+		strVal = strVal.replace( /<set name=\"\w*\">/, "" );
+		strVal = strVal.replace( /<\/set>/, "" );
+		
+		// add the list of values to the map with the field name as key
+		map.put(listFcstVar[1], strVal);
+		list.push(listFcstVar[1]);
+		strFcstVar = listFcstVar[3];
+	}	
+}
+
+/**
+ * Recursively loop through the constructed lists of dep fcst_vars, listing the
+ * available stats and then selecting them according to the stat information for
+ * each fcst_var in the tables. The current fcst_var/stat dep div is set and
+ * passed among the functions to update the controls. When the lists are empty,
+ * the series loading function is called.
+ */
+function loadInitXML_phaseDepLoad(){
+	console("loadInitXML_phaseDepLoad()\n");
+	
+	// if there is a currently loaded stat list, select the stats
+	if( _divInitXMLDep != undefined ){
+		loadInitXML_phaseDepStats();		
+	}
+	
+	// if there are no more dep fcst_vars to load, continue to series
+	if( 1 > _listInitXMLDep1.length && 1 > _listInitXMLDep2.length ){
+		console("loadInitXML_phaseDepLoad() complete\n\n");
+		loadSleep("loadInitXML_phaseSeries()");
+		return;
+	}
+
+	// determine the current div dep to set controls for, adding one if necessary
+	var intDep = 1;
+	var listDep = _listDep1Div;
+	if( _divInitXMLDep == undefined ){
+		console("  dep1 first\n");
+		_divInitXMLDep = _listDep1Div[0];
+	} else {
+		console("  dep" + intDep + " new\n");
+		if( 1 > _listInitXMLDep1.length ){ intDep = 2; listDep = _listDep2Div; }
+		addDep(intDep);
+		_divInitXMLDep = listDep[ listDep.length - 1 ];
+	}
+
+	// load the stats for the next fcst_var
+	console("  divDep = " + _divInitXMLDep + "  id = " + getDivDepId(_divInitXMLDep) + "\n");
+	var strFcstVar = ( 1 == intDep? _listInitXMLDep1[0] : _listInitXMLDep2[0] );
+	console("  fsct_var = " + strFcstVar + "  select = " + _divInitXMLDep.getElementsByTagName("select")[0] + "\n");
+	setSelected( _divInitXMLDep.getElementsByTagName("select")[0], strFcstVar );
+	selectFcstVarReq( getDivDepId(_divInitXMLDep) );
+	
+	// wait for the current fcst_var load to finish, then repeat
+	console("\n");
+	loadSleep("loadInitXML_phaseDepLoad()");
+}
+
+/**
+ * Examine the fcst_var lists to determine the next one whose stats must be
+ * parsed and selected, removing the fcst_var from the list. The list of stats
+ * is parsed and selected in the stats list control. The MODE checkboxes are
+ * updated, if appropriate.
+ */
+function loadInitXML_phaseDepStats(){
+	
+	// determine the list of stats to parse and select
+	var strStats = "";
+	if     ( 0 < _listInitXMLDep1.length ){ strStats = _tableInitXMLDep1.get(_listInitXMLDep1.shift()); }
+	else if( 0 < _listInitXMLDep2.length ){ strStats = _tableInitXMLDep2.get(_listInitXMLDep2.shift()); } 
+	console("  stats: " + strStats + "\n");
+	
+	// parse the stats and select them in the dep stat list
+	strStats = strStats.match( /<stat>(.*)<\/stat>/ )[1];
+	listStats = strStats.split( /<\/stat><stat>/ );
+	listStatsSel = new Array();
+	var listMode;
+	for(i in listStats){
+		
+		// parse the stat name, including the MODE suffix, if appropriate
+		var strStat = listStats[i];
+		if( null == listStats[i].match( /^RATIO_.+/ ) &&
+			null == listStats[i].match( /^AREARAT_.+/ ) &&
+			null == listStats[i].match( /^OBJ.+/ ) &&
+			null != (listMode = listStats[i].match( /^(\w+)_([FODA])?([SCA])([MUA])$/ )) ){
+			strStat = listMode[1];
+		}
+		
+		for(j in listMode){ console("      listMode[" + j + "] = " + listMode[j] + "\n"); }
+		
+		// select the stat in the stat list
+		listStatsSel.push(strStat);
+		console("    stat: " + listStats[i] + " - parsed stat: " + strStat + "\n");		
+	}
+	setSelected( _divInitXMLDep.getElementsByTagName("select")[1], listStatsSel );
+	
+	// if there is a stat MODE suffix, check the appropriate boxes
+	if( null != listMode ){
+		console("    checking MODE boxes - listMode.length = " + listMode.length + "\n");	
+		
+		// determine the MODE checkbox configuration
+		var strChkFODA = (undefined == listMode[2]? "" : listMode[2]);
+		console("      strChkFODA = " + strChkFODA + "\n");
+		
+		// set up the checkboxes for first letter of the code [A|F|O|D]
+		_divInitXMLDep.getElementsByTagName("input")[2].checked = (null != strChkFODA.match( /D/ ));
+		_divInitXMLDep.getElementsByTagName("input")[3].checked = (null != strChkFODA.match( /[AF]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[4].checked = (null != strChkFODA.match( /[AO]/ ));
+		
+		// set up the checkboxes for the second letter of the code [A|S|C]
+		_divInitXMLDep.getElementsByTagName("input")[5].checked = (null != listMode[3].match( /[AS]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[6].checked = (null != listMode[3].match( /[AC]/ ));
+		
+		// set up the checkboxes for the third letter of the code [A|M|U]
+		_divInitXMLDep.getElementsByTagName("input")[7].checked = (null != listMode[4].match( /[AM]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[8].checked = (null != listMode[4].match( /[AU]/ ));		
+	}
+	updateDepStat( getDivDepId(_divInitXMLDep) );
+	console("  stats done\n");
+}
+
+// data structures for managing series field/val pairs
+var _tableInitXMLSeries1 = new Hashtable();
+var _listInitXMLSeries1 = new Array();
+var _tableInitXMLSeries2 = new Hashtable();
+var _listInitXMLSeries2 = new Array();
+var _divInitXMLSeries;
+
+/**
+ * Parse the _strInitXML series information and build hashtables and lists
+ * containing the field and field/val pairs. Then, start the chain of calls to
+ * load series controls with the pairs.
+ */
+function loadInitXML_phaseSeries(){	
+	console("loadInitXML_phaseSeries()\n\n");
+	
+	// parse the series 1 structures, creating a hashtable entry for each field
+	var strSeries1 = _strInitXML.match( /<series1>(.*)<\/series1>/ )[1];
+	loadInitXML_buildMap(strSeries1, "field", _tableInitXMLSeries1, _listInitXMLSeries1);
+	
+	// parse the series 2 structures, creating a hashtable entry for each field
+	if( null == _strInitXML.match( /<series2\/>/ ) ){
+		var strSeries2 = _strInitXML.match( /<series2>(.*)<\/series2>/ )[1];
+		loadInitXML_buildMap(strSeries2, "field", _tableInitXMLSeries2, _listInitXMLSeries2);
+	}	
+		
+	// start the series load cycle
+	loadInitXML_phaseSeriesLoad();
+}
+
+/**
+ * Recursively loop through the constructed lists of series fields, listing the
+ * available values and then selecting them according to the val information for
+ * each field in the tables. The current field/val series div is set and passed
+ * among the functions to update the controls. When the lists are empty, the
+ * plot_fix loading function is called.
+ */
+function loadInitXML_phaseSeriesLoad(){
+	console("loadInitXML_phaseSeriesLoad()\n");
+	
+	// if there is a currently loaded val list, select the values
+	if( _divInitXMLSeries != undefined ){
+		loadInitXML_updateFieldVals( 
+			(0 < _listInitXMLSeries1.length? _listInitXMLSeries1  : _listInitXMLSeries2  ),
+			(0 < _listInitXMLSeries1.length? _tableInitXMLSeries1 : _tableInitXMLSeries2 ),
+			_divInitXMLSeries
+		);
+	}
+	
+	// if there are no more series fcst_vars to load, continue to plot_fix
+	// values
+	if( 1 > _listInitXMLSeries1.length && 1 > _listInitXMLSeries2.length ){
+		console("loadInitXML_phaseSeriesLoad() complete\n\n");
+		loadSleep("loadInitXML_phasePlotFix()");
+		return;
+	}
+
+	// determine the current div series to set controls for, adding one if
+	// necessary
+	var intSeries = 1;
+	var listSeries = _listSeries1Div;
+	if( _divInitXMLSeries == undefined ){
+		console("  series1 first - _listSeries1Div.length = " + _listSeries1Div.length + "\n");
+		_divInitXMLSeries = _listSeries1Div[0];
+	} else {
+		if( 1 > _listInitXMLSeries1.length ){ intSeries = 2; listSeries = _listSeries2Div; }
+		console("  series" + intSeries + " new\n");
+		addSeriesDiv(intSeries);
+		_divInitXMLSeries = listSeries[ listSeries.length - 1 ];
+	}
+
+	// load the stats for the next fcst_var
+	console("  divSeries = " + _divInitXMLSeries + "  id = " + _divInitXMLSeries.id + "\n");
+	var strFcstVar = ( 1 == intSeries? _listInitXMLSeries1[0] : _listInitXMLSeries2[0] );
+	console("  field = " + strFcstVar + "  select = " + _divInitXMLSeries.getElementsByTagName("select")[0] + "\n" +
+			"  div id = " + _divInitXMLSeries.id + "\n");
+	setSelected( _divInitXMLSeries.getElementsByTagName("select")[0], strFcstVar.toUpperCase() );
+	if( 1 == intSeries ){ selectSeries1VarReq( getDivFieldValId(_divInitXMLSeries) ); }
+	else                { selectSeries2VarReq( getDivFieldValId(_divInitXMLSeries) ); }
+	
+	// wait for the current fcst_var load to finish, then repeat
+	console("\n");
+	loadSleep("loadInitXML_phaseSeriesLoad()");
+}
+
+/**
+ * After removing the first field on the input list, extract the corresponding
+ * list of vals from the specified table. Parse the list of vals and then select
+ * them in the val select control contained in the specified fieldVal div.
+ */
+function loadInitXML_updateFieldVals(list, table, div){
+	
+	// determine the list of vals to parse and select
+	var strVals = "";
+	strVals = table.get(list.shift());
+	console("  vals = " + strVals + "\n  select = " + div.getElementsByTagName("select")[1] + "\n");
+	
+	// parse the vals and select them in the series val list
+	strVals = strVals.match( /<val>(.*)<\/val>/ )[1];
+	listVals = strVals.split( /<\/val><val>/ );
+	listValsSel = new Array();
+	for(i in listVals){
+		console("    val = " + listVals[i] + "\n");
+		listValsSel.push(listVals[i]);
+	}
+	setSelected(div.getElementsByTagName("select")[1], listValsSel);
+}
+
+// data structures for managing plot_fix field/val pairs
+var _tableInitXMLPlotFix = new Hashtable();
+var _listInitXMLPlotFix = new Array();
+var _divInitXMLPlotFix;
+
+/**
+ * Parse the _strInitXML plot_fix information and build hashtables and lists
+ * containing the field and field/val pairs. Then, start the chain of calls to
+ * load plot_fix controls with the pairs.
+ */
+function loadInitXML_phasePlotFix(){
+	console("loadInitXML_phasePlotFix()\n");
+	
+	// parse the plot_fix structures, creating a hashtable entry for each field
+	var strPlotFix = _strInitXML.match( /<plot_fix>(.*)<\/plot_fix>/ )[1];
+	loadInitXML_buildMap(strPlotFix, "field", _tableInitXMLPlotFix, _listInitXMLPlotFix);
+	
+	// start the series load cycle
+	loadInitXML_phasePlotFixLoad();
+}
+
+/**
+ * Recursively loop through the constructed lists of plot_fix fields, listing
+ * the available values and then selecting them according to the val information
+ * for each field in the tables. The current field/val plot_fix div is set and
+ * passed among the functions to update the controls. When the lists are empty,
+ * the indy loading function is called.
+ */
+function loadInitXML_phasePlotFixLoad(){
+	
+	// if there is a currently loaded val list, select the values
+	if( _divInitXMLPlotFix != undefined ){
+		loadInitXML_updateFieldVals( _listInitXMLPlotFix, _tableInitXMLPlotFix, _divInitXMLPlotFix );
+	}
+	
+	// if there are no more series fcst_vars to load, continue to plot_fix values
+	if( 1 > _listInitXMLPlotFix.length ){
+		console("loadInitXML_phasePlotFixLoad() complete\n\n");
+
+		// go to the next step, which depends on the plot template
+		var strTmpl = _strInitXML.match( /<template>(.*)\.R_tmpl<\/template>/ )[1];
+		if( _intTmpl == TMPL_RHIST ){ loadSleep("loadInitXML_phaseFormat()"); }
+		else                        { loadSleep("loadInitXML_phaseIndy()");   }
+		return;
+	}
+
+	// add and set the plot_fix div to set controls for
+	if( _intTmpl == TMPL_RHIST ){ 
+		addRhistVar();
+		_divInitXMLPlotFix = _listRhistDiv[_listRhistDiv.length - 1];
+	} else {
+		addFixVar();
+		_divInitXMLPlotFix = _listFixDiv[_listFixDiv.length - 1];
+	}
+	
+	
+	// load the stats for the next fcst_var
+	console("  divPlotFix = " +	_divInitXMLPlotFix + "\n" +
+			"  id = " +			_divInitXMLPlotFix.id + "\n" +
+			"  field = " +		_listInitXMLPlotFix[0] + "\n" + 
+			"  select = " +		_divInitXMLPlotFix.getElementsByTagName("select")[0] + "\n");
+	setSelected( _divInitXMLPlotFix.getElementsByTagName("select")[0], _listInitXMLPlotFix[0].toUpperCase() );
+	if( _intTmpl == TMPL_RHIST ){ selectRhistVarReq( getDivFieldValId(_divInitXMLPlotFix) ); }
+	else                        { selectFixVarReq(   getDivFieldValId(_divInitXMLPlotFix) ); }
+	
+	// wait for the current fcst_var load to finish, then repeat
+	console("\n");
+	loadSleep("loadInitXML_phasePlotFixLoad()");
+}
+
+/**
+ * Parse the indy var and set the indy var select control to the appropriate
+ * value. Then, list the indy var values and call the indy val handler.
+ */
+function loadInitXML_phaseIndy(){
+	console("loadInitXML_phaseIndy()\n");
+
+	// parse and set the indy var
+	var strIndyVar = _strInitXML.match( /<indep name=\"(\w+)\">/ )[1];
+	console("  var = " + strIndyVar + "\n");
+	setSelected( document.getElementById("selIndyVar"), strIndyVar.toUpperCase() );
+	
+	// get the indy vals and call the indy val handler
+	console("\n");
+	selectIndyVarReq();
+	loadSleep("loadInitXML_phaseIndyLoad()");
+}
+
+/**
+ * When the indy val list is loaded, parse the list of indy vals from the XML
+ * and update the indy val list controls. Then, call the formatting handler.
+ */
+function loadInitXML_phaseIndyLoad(){
+	console("loadInitXML_phaseIndyLoad()\n");
+	
+	// parse the list of indy values
+	var strIndyVals = _strInitXML.match( /<indep[^>]+>(.*)<\/indep>/ )[1];
+	console("  strIndyVals = " + strIndyVals + "\n  setting controls\n");
+	indyCheck(false);
+	
+	// for each indy val on the list, configure the indy val control
+	while( 0 < strIndyVals.length ){
+		
+		// parse the components of the next indy val
+		var listIndyVal = strIndyVals.match( /<val label="([\w\.\-: <>=]*)" plot_val="(\w*)">([\w\.\-: <>=]+)<\/val>(.*)/ );
+		//PGO var listIndyVal = strIndyVals.match( /<val label="([\w\.\-:<>=]*)" plot_val="(\w*)">([\w\.\-:<>=]+)<\/val>(.*)/ );
+		strIndyVals = listIndyVal[4];
+		
+		// find the corresponding indy val table row and set its controls
+		console("    val = " + listIndyVal[3] + "\n");
+		var trVal = findIndyTr(listIndyVal[3]);
+		trVal.getElementsByTagName("input")[0].checked = true;
+		trVal.getElementsByTagName("input")[1].value = listIndyVal[1];
+		trVal.getElementsByTagName("input")[2].value = listIndyVal[2];
+	}
+	
+	console("  controls complete\nloadInitXML_phaseIndyLoad() complete\n\n");
+	loadInitXML_phaseFormat();
+}
+
+/**
+ * The remaining web app functionality does not require AJAX calls, so it can be
+ * performed in a single function. Parse and set the controls in the following
+ * areas: - agg_stat - calc_stat - title_lab - plot_fmt - series_fmt - fmt_axis
+ */
+function loadInitXML_phaseFormat(){
+	console("loadInitXML_phaseFormat()\n");
+	
+	// parse and set the agg_stat controls
+	var listAggInput = document.getElementById("divAggStat").getElementsByTagName("input");
+	var boolAggDiff1 = false;
+	var boolAggDiff2 = false;
+	if( null != _strInitXML.match( /<agg_stat>/ ) ){
+		console("  agg_stat\n");
+		listAggInput[0].checked = true;
+		var strAggCtc = _strInitXML.match( /<agg_ctc>(\w+)<\/agg_ctc>/ )[1];
+		listAggInput[1].checked = (strAggCtc == "TRUE");
+		console("    agg_ctc = " + strAggCtc + " -> " + (strAggCtc == "TRUE") + " - checked = " + listAggInput[1].checked + "\n");
+		var strAggSl1l2 = _strInitXML.match( /<agg_sl1l2>(\w+)<\/agg_sl1l2>/ )[1];
+		listAggInput[2].checked = (strAggSl1l2 == "TRUE");
+		console("    agg_sl1l2 = " + strAggSl1l2 + " -> " +  + (strAggSl1l2 == "TRUE") + " - checked = " + listAggInput[2].checked + "\n");
+		listAggInput[3].value = _strInitXML.match( /<boot_repl>(\w+)<\/boot_repl>/ )[1];
+		listAggInput[4].value = _strInitXML.match( /<agg_diff1>(\w+)<\/agg_diff1>/ )[1];
+		boolAggDiff1 = ("TRUE" == listAggInput[4].value);
+		//console(" parsed value = " + _strInitXML.match( /<agg_diff1>(\w+)<\/agg_diff1>/ )[1] + " boolAggDiff1 = " + boolAggDiff1 + "\n");
+		listAggInput[5].value = _strInitXML.match( /<boot_ci>(\w+)<\/boot_ci>/ )[1];
+		listAggInput[6].value = _strInitXML.match( /<agg_diff2>(\w+)<\/agg_diff2>/ )[1];
+		boolAggDiff2 = ("TRUE" == listAggInput[6].value);
+	} else {
+		listAggInput[0].checked = false;
+	}
+	updateAggStat();
+	
+	// parse and set the calc_stat controls
+	var listCalcInput = document.getElementById("divCalcStat").getElementsByTagName("input");
+	if( null != _strInitXML.match( /<calc_stat>/ ) ){
+		console("  calc_stat\n");
+		listCalcInput[0].checked = true;
+		var strCalcCtc = _strInitXML.match( /<calc_ctc>(\w+)<\/calc_ctc>/ )[1];
+		listCalcInput[1].checked = (strCalcCtc == "TRUE");
+		var strCalcSl1l2 = _strInitXML.match( /<calc_sl1l2>(\w+)<\/calc_sl1l2>/ )[1];
+		listCalcInput[2].checked = (strCalcSl1l2 == "TRUE");
+	} else {
+		listCalcInput[0].checked = false;
+	}
+	updateCalcStat();
+
+	// parse and set the tmpl information
+	var listTmplInput = document.getElementById("divTitleLab").getElementsByTagName("input");
+	var listLab;
+	console("  title and labels\n");
+	listTmplInput[0].value = ( null != (listLab = _strInitXML.match( /<title>(.+)<\/title>/       )) ? listLab[1] : "" );
+	listTmplInput[1].value = ( null != (listLab = _strInitXML.match( /<x_label>(.+)<\/x_label>/   )) ? listLab[1] : "" );
+	listTmplInput[2].value = ( null != (listLab = _strInitXML.match( /<y1_label>(.+)<\/y1_label>/ )) ? listLab[1] : "" );
+	listTmplInput[3].value = ( null != (listLab = _strInitXML.match( /<y2_label>(.+)<\/y2_label>/ )) ? listLab[1] : "" );
+	listTmplInput[4].value = ( null != (listLab = _strInitXML.match( /<caption>(.+)<\/caption>/   )) ? listLab[1] : "" );
+	
+	// plot formatting bool flags
+	var tabFmtPlotBool = document.getElementById("tabFmtPlotBool");
+	console("  fmt_plot bool\n");
+	for(var i=0; i < tabFmtPlotBool.rows.length; i++){
+		for(var j=0; j < tabFmtPlotBool.rows[i].cells.length; j++){
+
+			// determine the name of the flag
+			var listTdBool = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTdBool.length ){ continue; }
+			var strBoolName = listTdBool[2].innerHTML;
+			
+			// parse the flag value from the xml and set the control
+			// appropriately
+			var regBool = new RegExp( "<" + strBoolName + ">(\\w+)<\/" + strBoolName + ">" );
+			var selBool = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select")[0];
+			if     ( strBoolName == "plot1_diff" && boolAggDiff1          ){ setSelected( selBool, "TRUE" );         } 
+			else if( strBoolName == "plot2_diff" && boolAggDiff2          ){ setSelected( selBool, "TRUE" );         }
+			else if( null != (listBoolVal = _strInitXML.match( regBool )) ){ setSelected( selBool, listBoolVal[1] ); }
+			else { console("    WARNING: fmt_plot bool property " + strBoolName + " not found\n"); }
+		}
+	}
+	buildSeriesDiv();
+
+	// plot formatting text values
+	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
+	console("  fmt_plot txt\n");
+	for(var i=0; i < tabFmtPlotTxt.rows.length; i++){
+		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){
+
+			// determine the name of the property
+			var listTdTxt = tabFmtPlotTxt.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTdTxt.length ){ continue; }
+			var strTxtName = listTdTxt[2].innerHTML;
+			console("    txt property = " + strTxtName + " - ");
+			
+			// parse the flag value from the xml and set the control
+			// appropriately
+			var regTxt = new RegExp( "<" + strTxtName + ">(.+)<\/" + strTxtName + ">" );
+			if( null != (listTxtVal = _strInitXML.match( regTxt )) ){
+				var inputTxtTxt = listTdTxt[1].getElementsByTagName("input")[0];
+				var inputTxtSel = listTdTxt[1].getElementsByTagName("select")[0];
+				if( inputTxtTxt.style.display != "none" ){
+					console("text box = " + inputTxtTxt + " value = " + listTxtVal[1] + "\n");
+					inputTxtTxt.value = listTxtVal[1];
+				} else {
+					console("select = " + inputTxtSel + " value = " + listTxtVal[1] + "\n");
+					setSelected( inputTxtSel, listTxtVal[1] );
+				}
+			} else { console("WARNING: fmt_plot txt property " + strTxtName + " not found\n"); }
+		}
+	}
+	
+	// series formatting
+	var listParm = ["plot_ci", "colors", "pch", "type", "lty", "lwd", "con_series", "legend", "plot_disp"];
+	console("  fmt_series txt\n");
+	for(var i in listParm){
+		console("    " + listParm[i]);
+		
+		// parse the values for the current format setting
+		var regFmt = new RegExp("<" + listParm[i] + ">c\\((.*)\\)<\/" + listParm[i] + ">");
+		var listFmtVal;
+		if( null == (listFmtVal = _strInitXML.match( regFmt )) ){
+			console(" not found\n");
+			continue;
+		}
+		
+		// loop through the list of formatting values and controls
+		console(" found - " + listFmtVal[1] + "\n");
+		listFmtVal = listFmtVal[1].split(",");
+		intFmtRow = 0;
+		for(var j in listFmtVal){
+			var listFmtTd = getFmtSeriesVal(intFmtRow);
+			
+			// strip leading spaces and quotes from the format value
+			var strFmtVal = listFmtVal[j].replace(/^\s*\"?/, "").replace(/\"?\s*$/, "");
+			console("      " + strFmtVal + " - ");
+			
+			// if the parameter is plot_disp, set the hide checkbox
+			if( listParm[i] == "plot_disp" ){
+				console("hide chk\n");
+				setFmtSeriesHide(intFmtRow, (strFmtVal == "FALSE"));
+				intFmtRow += 2;
+				continue;
+			}
+			
+			// locate the format control in the series format list and set it
+			var listFmtTdParm = listFmtTd[i].getElementsByTagName("td");
+			var listFmtTxt = listFmtTdParm[1].getElementsByTagName("input");			
+			var listFmtSel = listFmtTdParm[1].getElementsByTagName("select");
+			if( null != listFmtTxt && 0 < listFmtTxt.length ){				
+				console("text\n");
+				listFmtTxt[0].value = strFmtVal;
+			} else if( null != listFmtSel && 0 < listFmtSel.length ){
+				console("select\n");
+				setSelected(listFmtSel[0], strFmtVal);
+			} else {
+				console("WARNING: series format control not found\n");
+			}
+			intFmtRow += 2;
+		}
+	}
+	
+	// axis formatting
+	var listFmtAxisInput = document.getElementById("divFmtAxis").getElementsByTagName("input");
+	var listFmtAxis;
+	console("  axis formatting\n");
+	listFmtAxisInput[0].value = ( null != (listFmtAxis = _strInitXML.match( /<y1_lim>(.+)<\/y1_lim>/   )) ? listFmtAxis[1] : "" );
+	listFmtAxisInput[1].value = ( null != (listFmtAxis = _strInitXML.match( /<y1_bufr>(.+)<\/y1_bufr>/ )) ? listFmtAxis[1] : "" );
+	listFmtAxisInput[2].value = ( null != (listFmtAxis = _strInitXML.match( /<y2_lim>(.+)<\/y2_lim>/   )) ? listFmtAxis[1] : "" );
+	listFmtAxisInput[3].value = ( null != (listFmtAxis = _strInitXML.match( /<y2_bufr>(.+)<\/y2_bufr>/ )) ? listFmtAxis[1] : "" );
+		
+	// turn off the dimmer
+	console("  max checks: " + _intInitXMLChecksMax + "\nloadInitXML_phaseFormat() complete\n\n");
+	_boolDimOverride = false;
+	dimScreen(false);
+	_boolInitXML = false;
+}
+

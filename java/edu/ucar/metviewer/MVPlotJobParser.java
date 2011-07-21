@@ -94,6 +94,16 @@ public class MVPlotJobParser extends MVUtil{
 	}
 	
 	/**
+	 * Build a parser whose input source is the plot_spec MVNode
+	 * @param node plot_spec MVNode to parse 
+	 * @param con Database connection for the plot data
+	 */
+	public MVPlotJobParser(MVNode node) throws Exception{		
+		_nodePlotSpec = node;
+		parsePlotJobSpec();
+	}
+	
+	/**
 	 * Create a parser-specific instance of the DocumentBuilder and return it 
 	 */
 	public static DocumentBuilder getDocumentBuilder() throws Exception{
@@ -137,6 +147,7 @@ public class MVPlotJobParser extends MVUtil{
 		
 		for(int i=0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++){
 			MVNode node = _nodePlotSpec._children[i];
+			
 			//  <connection>
 			if( node._tag.equals("connection") ){
 				for(int j=0; j < node._children.length; j++){
@@ -224,10 +235,7 @@ public class MVPlotJobParser extends MVUtil{
 			else if( node._tag.equals("plot") ){
 
 				//  make sure the database connection has been established
-				if( _con == null ){
-					System.out.println("  **  ERROR: database connection missing for plot " + node._name);
-					return;
-				}
+				if( _con == null ){ throw new Exception("database connection missing for plot " + node._name); }
 				
 				//  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs 
 				_tablePlotNode.put(node._name, node);
@@ -878,4 +886,234 @@ public class MVPlotJobParser extends MVUtil{
 	 * @return true if valid, false otherwise
 	 */
 	public boolean isStatValid(String strStat){ return !getStatTable(strStat).equals(""); }
+	
+	public static String serializeJob(MVPlotJob job) throws Exception{
+		
+    	//  database information
+    	String strXML = 
+    		"<plot_spec>" +
+		 		"<connection>" +
+					"<host>" +		job.getDBHost()		+ "</host>" +
+					"<database>" +	job.getDBName()		+ "</database>" +
+					"<user>" +		job.getDBUser()		+ "</user>" +
+					"<password>" +	job.getDBPassword()	+ "</password>" +
+		 		"</connection>" +
+		 		"<plot>";
+    	
+    	//  plot template
+    	strXML += "<template>" + job.getPlotTmpl() + "</template>";
+
+    	//  if there are dep, series and indep elements present, handle them
+    	if( !job.getPlotTmpl().startsWith("rhist") ){
+    	
+	    	// dep
+	    	strXML += "<dep>";
+	    	MVOrderedMap[] listDepGroup = job.getDepGroups();    	
+			for(int intY=1; intY <= 2; intY++){
+				
+				//  get the list of fcst_var for the current dep
+				MVOrderedMap mapDep = (MVOrderedMap)listDepGroup[0].get("dep" + intY);
+				Map.Entry[] listDep = mapDep.getOrderedEntries();
+				
+				//  serialize the dep and it's fcst_var stats
+				String strDep = "dep" + intY;
+				strXML += "<" + strDep + ">";
+				for(int i=0; i < listDep.length; i++){
+					String[] listStat = (String[])listDep[i].getValue();
+					strXML += "<fcst_var name=\"" + listDep[i].getKey().toString() + "\">";
+					for(int j=0; j < listStat.length; j++){ strXML += "<stat>" + listStat[j] + "</stat>"; }
+					strXML += "</fcst_var>";
+				}
+				strXML += "</" + strDep + ">";
+			}
+	    	strXML += "</dep>";
+	    	
+	    	//  series
+	    	for(int intY=1; intY <= 2; intY++){
+	    		
+	    		//  get the series for the current y-axis
+	    		MVOrderedMap mapSeries = (1 == intY? job.getSeries1Val() : job.getSeries2Val());
+	    		strXML += "<series" + intY + ">";
+	    		
+	    		//  serialize each fcst_var and it's vals
+	    		String[] listSeriesField = mapSeries.getKeyList();
+	    		for(int i=0; i < listSeriesField.length; i++){
+	    			strXML += "<field name=\"" + listSeriesField[i] + "\">";
+	    			String[] listSeriesVal = (String[])mapSeries.get(listSeriesField[i]);
+	    			for(int j=0; j < listSeriesVal.length; j++){ strXML += "<val>" + listSeriesVal[j] + "</val>"; }    			
+	    			strXML += "</field>";
+	    		}
+	    		strXML += "</series" + intY + ">";    		
+	    	}
+	    	
+	    	//  indep
+	    	strXML += "<indep name=\"" + job.getIndyVar() + "\">";
+	    	String[] listIndyVal = job.getIndyVal();
+	    	String[] listIndyPlotVal = job.getIndyPlotVal();
+	    	String[] listIndyLabel = job.getIndyLabel();
+	    	for(int i=0; i < listIndyVal.length; i++){
+	    		String strIndyPlotVal = (0 < listIndyPlotVal.length? listIndyPlotVal[i] : "");
+	    		strXML +=
+	    			"<val label=\"" + listIndyLabel[i] + "\" plot_val=\"" + strIndyPlotVal + "\">" +
+	    				listIndyVal[i] + 
+	    			"</val>";
+	    	}
+	    	strXML += "</indep>";
+    	}
+    	
+    	//  plot_fix
+		MVOrderedMap mapPlotFix = job.getPlotFixVal();
+		strXML += "<plot_fix>";
+		String[] listFixField = mapPlotFix.getKeyList();
+		for(int i=0; i < listFixField.length; i++){
+			strXML += "<field name=\"" + listFixField[i] + "\">";
+			Object objFixVal = mapPlotFix.get(listFixField[i]);
+			if( objFixVal instanceof String[] ){
+				String[] listFixVal = (String[])objFixVal;
+				for(int j=0; j < listFixVal.length; j++){ strXML += "<val>" + listFixVal[j] + "</val>"; }    			
+			} else if( objFixVal instanceof MVOrderedMap ){
+				MVOrderedMap mapFixSet = (MVOrderedMap)objFixVal;
+				String[] listFixSetKey = mapFixSet.getKeyList();
+				for(int j=0; j < listFixSetKey.length; j++){
+					String[] listFixSetVal = (String[])mapFixSet.get( listFixSetKey[j] );
+					strXML += "<set name=\"" + listFixSetKey[j] + "\">";
+					for(int k=0; k < listFixSetVal.length; k++){ strXML += "<val>" + listFixSetVal[k] + "</val>"; }
+					strXML += "</set>";
+				}
+			}
+			strXML += "</field>";
+		}
+		strXML += "</plot_fix>";
+		
+		//  agg_stat
+		if( job.getAggCtc() || job.getAggSl1l2() ){
+			strXML +=
+				"<agg_stat>" +
+					"<agg_ctc>" +	(job.getAggCtc()?   "TRUE" : "FALSE") + "</agg_ctc>" +
+					"<agg_sl1l2>" +	(job.getAggSl1l2()? "TRUE" : "FALSE") + "</agg_sl1l2>" +
+					"<boot_repl>" +	job.getAggBootRepl() +	"</boot_repl>" +
+					"<boot_ci>" +	job.getAggBootCI() +	"</boot_ci>" +
+					"<agg_diff1>" +	(job.getAggDiff1()? "TRUE" : "FALSE") + "</agg_diff1>" +
+					"<agg_diff2>" +	(job.getAggDiff2()? "TRUE" : "FALSE") + "</agg_diff2>" +
+				"</agg_stat>";			
+		}
+    	
+		//  calc_stat
+		if( job.getCalcCtc() || job.getCalcSl1l2() ){
+			strXML +=
+				"<calc_stat>" +
+					"<calc_ctc>" +	(job.getCalcCtc()?    "TRUE" : "FALSE") + "</calc_ctc>" +
+					"<calc_sl1l2>"+ (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>" +
+				"</calc_stat>";			
+		}
+		
+		//  tmpl
+		strXML +=
+			"<tmpl>" +
+	            "<title>" +		job.getTitleTmpl() +	"</title>" +
+	            "<x_label>" +	job.getXLabelTmpl() +	"</x_label>" +
+	            "<y1_label>" +	job.getY1LabelTmpl() +	"</y1_label>" +
+	            "<y2_label>" +	job.getY2LabelTmpl() +	"</y2_label>" +
+	            "<caption>" +	job.getCaptionTmpl() +	"<caption>" +
+	        "</tmpl>";
+		
+		//  plot_cmd
+		strXML += "<plot_cmd>" + job.getPlotCmd() + "</plot_cmd>";
+		
+		//  plot fmt
+		strXML += 
+	        "<event_equal>" +	job.getEventEqual()		+ "</event_equal>" +
+	        "<event_equal_m>" +	job.getEventEqualM()	+ "</event_equal_m>" +
+	        "<vert_plot>" +		job.getVertPlot()		+ "</vert_plot>" +
+	        "<x_reverse>" +		job.getXReverse()		+ "</x_reverse>" +
+	        "<plot1_diff>" +	job.getPlot1Diff()		+ "</plot1_diff>" +
+	        "<plot2_diff>" +	job.getPlot2Diff()		+ "</plot2_diff>" +
+	        "<num_stats>" +		job.getShowNStats()		+ "</num_stats>" +
+	        "<indy1_stag>" +	job.getIndy1Stagger()	+ "</indy1_stag>" +
+	        "<indy2_stag>" +	job.getIndy2Stagger()	+ "</indy2_stag>" +
+	        "<grid_on>" +		job.getGridOn()			+ "</grid_on>" +
+	        "<sync_axes>" +		job.getSyncAxes()		+ "</sync_axes>" +
+	        "<dump_points1>" +	job.getDumpPoints1()	+ "</dump_points1>" +
+	        "<dump_points2>" +	job.getDumpPoints2()	+ "</dump_points2>" +
+	        "<log_y1>" +		job.getLogY1()			+ "</log_y1>" +
+	        "<log_y2>" +		job.getLogY2()			+ "</log_y2>" +
+	        "<plot_type>" +		job.getPlotType()		+ "</plot_type>" +
+	        "<plot_height>" +	job.getPlotHeight()		+ "</plot_height>" +
+	        "<plot_width>" +	job.getPlotWidth()		+ "</plot_width>" +
+	        "<plot_res>" +		job.getPlotRes()		+ "</plot_res>" +
+	        "<plot_units>" +	job.getPlotUnits()		+ "</plot_units>" +
+	        "<mar>" +			job.getMar()			+ "</mar>" +
+	        "<mgp>" +			job.getMgp()			+ "</mgp>" +
+	        "<cex>" +			job.getCex()			+ "</cex>" +
+	        "<title_weight>" +	job.getTitleWeight()	+ "</title_weight>" +
+	        "<title_size>" +	job.getTitleSize()		+ "</title_size>" +
+	        "<title_offset>" +	job.getTitleOffset()	+ "</title_offset>" +
+	        "<title_align>" +	job.getTitleAlign()		+ "</title_align>" +
+	        "<xtlab_orient>" +	job.getXtlabOrient()	+ "</xtlab_orient>" +
+	        "<xtlab_perp>" +	job.getXtlabPerp()		+ "</xtlab_perp>" +
+	        "<xtlab_horiz>" +	job.getXtlabHoriz()		+ "</xtlab_horiz>" +
+	        "<xlab_weight>" +	job.getXlabWeight()		+ "</xlab_weight>" +
+	        "<xlab_size>" +		job.getXlabSize()		+ "</xlab_size>" +
+	        "<xlab_offset>" +	job.getXlabOffset()		+ "</xlab_offset>" +
+	        "<xlab_align>" +	job.getYlabAlign()		+ "</xlab_align>" +
+	        "<ytlab_orient>" +	job.getYtlabOrient()	+ "</ytlab_orient>" +
+	        "<ytlab_perp>" +	job.getYtlabPerp()		+ "</ytlab_perp>" +
+	        "<ytlab_horiz>" +	job.getYtlabHoriz()		+ "</ytlab_horiz>" +
+	        "<ylab_weight>" +	job.getYlabWeight()		+ "</ylab_weight>" +
+	        "<ylab_size>" +		job.getYlabSize()		+ "</ylab_size>" +
+	        "<ylab_offset>" +	job.getYlabOffset()		+ "</ylab_offset>" +
+	        "<ylab_align>" +	job.getYlabAlign()		+ "</ylab_align>" +
+	        "<grid_lty>" +		job.getGridLty()		+ "</grid_lty>" +
+	        "<grid_col>" +		job.getGridCol()		+ "</grid_col>" +
+	        "<grid_lwd>" +		job.getGridLwd()		+ "</grid_lwd>" +
+	        "<grid_x>" +		job.getGridX()			+ "</grid_x>" +
+	        "<x2tlab_orient>" +	job.getX2tlabOrient()	+ "</x2tlab_orient>" +
+	        "<x2tlab_perp>" +	job.getX2tlabPerp()		+ "</x2tlab_perp>" +
+	        "<x2tlab_horiz>" +	job.getX2tlabHoriz()	+ "</x2tlab_horiz>" +
+	        "<x2lab_weight>" +	job.getX2labWeight()	+ "</x2lab_weight>" +
+	        "<x2lab_size>" +	job.getX2labSize()		+ "</x2lab_size>" +
+	        "<x2lab_offset>" +	job.getX2labOffset()	+ "</x2lab_offset>" +
+	        "<x2lab_align>" +	job.getX2labAlign()		+ "</x2lab_align>" +
+	        "<y2tlab_orient>" +	job.getY2tlabOrient()	+ "</y2tlab_orient>" +
+	        "<y2tlab_perp>" +	job.getY2tlabPerp()		+ "</y2tlab_perp>" +
+	        "<y2tlab_horiz>" +	job.getY2tlabHoriz()	+ "</y2tlab_horiz>" +
+	        "<y2lab_weight>" +	job.getY2labWeight()	+ "</y2lab_weight>" +
+	        "<y2lab_size>" +	job.getY2labSize()		+ "</y2lab_size>" +
+	        "<y2lab_offset>" +	job.getY2labOffset()	+ "</y2lab_offset>" +
+	        "<y2lab_align>" +	job.getY2labAlign()		+ "</y2lab_align>" +
+	        "<legend_size>" +	job.getLegendSize()		+ "</legend_size>" +
+	        "<legend_box>" +	job.getLegendBox()		+ "</legend_box>" +
+	        "<legend_inset>" +	job.getLegendInset()	+ "</legend_inset>" +
+	        "<legend_ncol>" +	job.getLegendNcol()		+ "</legend_ncol>" +
+	        "<caption_weight>"+	job.getCaptionWeight()	+ "</caption_weight>" +
+	        "<caption_col>" +	job.getCaptionCol()		+ "</caption_col>" +
+	        "<caption_size>" +	job.getCaptionSize()	+ "</caption_size>" +
+	        "<caption_offset>"+	job.getCaptionOffset()	+ "</caption_offset>" +
+	        "<caption_align>" +	job.getCaptionAlign()	+ "</caption_align>" +
+	        "<box_pts>" +		job.getBoxPts()			+ "</box_pts>" +
+	        "<box_outline>" +	job.getBoxOutline()		+ "</box_outline>" +
+	        "<box_boxwex>" +	job.getBoxBoxwex()		+ "</box_boxwex>" +
+	        "<box_notch>" +		job.getBoxNotch()		+ "</box_notch>" +
+	        "<box_avg>" +		job.getBoxAvg()			+ "</box_avg>" +
+	        "<ci_alpha>" +		job.getCIAlpha()		+ "</ci_alpha>" +
+	        
+	        "<plot_ci>" +		job.getPlotCI() +		"</plot_ci>" +
+	        "<plot_disp>" +		job.getPlotDisp() +		"</plot_disp>" +
+	        "<colors>" +		job.getColors() +		"</colors>" +
+	        "<pch>" +			job.getPch() +			"</pch>" +
+	        "<type>" +			job.getType() +			"</type>" +
+	        "<lty>" +			job.getLty() +			"</lty>" +
+	        "<lwd>" +			job.getLwd() +			"</lwd>" +
+	        "<con_series>" +	job.getConSeries() +	"</con_series>" +
+			"<legend>" +		job.getLegend() +		"</legend>" +
+			
+			"<y1_lim>" +		job.getY1Lim() +		"</y1_lim>" +
+			"<y1_bufr>" +		job.getY1Bufr() +		"</y1_bufr>" +
+			"<y2_lim>" +		job.getY2Lim() +		"</y2_lim>" +
+			"<y2_bufr>" +		job.getY2Bufr() +		"</y2_bufr>";
+		
+    	//  close the plot job
+    	strXML += "</plot></plot_spec>";
+		return strXML;
+	}
 }

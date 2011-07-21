@@ -21,6 +21,10 @@ String strDB = "";
 String strDBVal = request.getParameter("db");
 if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 
+//  read the init XML from the session
+Object objInitXML = session.getAttribute("init_xml");
+String strInitXML = (null == objInitXML? "" : objInitXML.toString());
+
 %>
 
 <div id="divDimScreen" class="dimScreen">&nbsp;</div>
@@ -28,7 +32,20 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 <img src="include/loading_white.gif" style="padding-top:10px"/></div>
 
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
-	<tr><td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5</span></td></tr>
+	<tr><td>
+		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.1</span></td>
+			<td align="right">&nbsp;
+				<form action="/metviewer/servlet" enctype="multipart/form-data" method="post">
+					<span class="header" style="font-size:14px">Plot XML Upload:</span>
+					<input type="file" accept="text/xml" name="fileUpload"/>
+					<input type="submit" value="Upload"/>
+				</form>
+			</td>
+		</tr></table>
+		
+		
+	</td></tr>
 	<tr><td><hr/></td></tr>
 
 	<tr><td>
@@ -528,7 +545,7 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 		</td></tr></table><br/><br/><hr/><br/>
 		
 		<input type="button" class="header" onclick="javascript:runPlotReq()" value="&#187; Generate Plot &#171;"/><br/><br/>
-		
+				
 	</span>&nbsp;</td></tr>
 
 	<tr id="trDebug" style="display:none">
@@ -554,7 +571,10 @@ if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:testPlotResp()" value="plot.html"/><br/><br/>
-		<textarea rows="20" cols="160" id="txtConsole"></textarea></td>
+		<textarea rows="20" cols="160" id="txtConsole"></textarea><br/><br/>
+		
+		<textarea rows="20" cols="160" id="txtInitXML"><%= strInitXML %></textarea>		
+		</td>
 	</tr>
 
 </table>
