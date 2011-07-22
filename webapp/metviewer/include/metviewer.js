@@ -1966,7 +1966,7 @@ function loadInitXML_checkProg(){
 	if( !_boolInitXML ){ return; }
 	
 	// if there is an ongoing server request, set the next check
-	if( !_boolLoad ){
+	if( _boolLoad ){
 		_intInitXMLChecks = 0;
 		setTimeout("loadInitXML_checkProg()", _intInitXMLCheckWait);
 		return;
