@@ -1945,6 +1945,7 @@ function loadInitXML(strInitXML){
 	_boolDimOverride = true;
 	dimScreen(true);
 	_boolInitXML = true;
+	_intInitXMLChecks = 0;
 	setTimeout("loadInitXML_checkProg()", _intInitXMLCheckWait);
 	loadSleep("loadInitXML_phaseDB()");
 }

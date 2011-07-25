@@ -1100,10 +1100,35 @@ public class MVServlet extends HttpServlet {
 	}
 	
 	public static String handleXMLUpload(MVNode nodeCall) throws Exception{
+		
+		//  run the parser to generate plot jobs 
 		MVPlotJobParser par = new MVPlotJobParser(nodeCall._children[0]);
 		MVPlotJob[] listJobs = par.getJobsList();
-		if( 1 > listJobs.length ){ throw new Exception("parsed XML contained no plot jobs"); }		
-		return MVPlotJobParser.serializeJob(listJobs[0]);
+		if( 1 > listJobs.length ){ throw new Exception("parsed XML contained no plot jobs"); }
+		
+		//  process the plot job to serialize
+		MVPlotJob job = listJobs[0];
+		
+    	//  pare down each plot_fix field to a single value or set
+		MVOrderedMap mapPlotFix = job.getPlotFixVal();
+		job.clearPlotFixVal();
+		String[] listFixField = mapPlotFix.getKeyList();
+		for(int i=0; i < listFixField.length; i++){
+			Object objFixVal = mapPlotFix.get(listFixField[i]);
+			if( objFixVal instanceof String[] ){
+				String[] listFixVal = (String[])objFixVal;
+				job.addPlotFixVal(listFixField[i], new String[]{listFixVal[0]});
+			} else if( objFixVal instanceof MVOrderedMap ){
+				MVOrderedMap mapFixSet = (MVOrderedMap)objFixVal;
+				String[] listFixSetKey = mapFixSet.getKeyList();
+				MVOrderedMap mapFixSetSingle = new MVOrderedMap();
+				mapFixSetSingle.put( listFixSetKey[0], (String[])mapFixSet.get(listFixSetKey[0]) );
+				job.addPlotFixVal(listFixField[i], mapFixSetSingle);
+			}
+		}
+		
+		//  return the serialized plot XML
+		return MVPlotJobParser.serializeJob(job);
 	}
 
 }
