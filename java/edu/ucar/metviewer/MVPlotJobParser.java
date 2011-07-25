@@ -266,7 +266,7 @@ public class MVPlotJobParser extends MVUtil{
 				//  add the job to the jobs table and to the runnable jobs, if appropriate
 				_tablePlotDecl.put(node._name, job);
 				String strCompleteness = "";
-				if( !job.getPlotTmpl().equals("rhist.R_tmpl") ){
+				if( !job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("roc.R_tmpl") ){
 					strCompleteness = checkJobCompleteness(job);
 				}
 				boolean boolComplete = strCompleteness.equals("");
@@ -1014,7 +1014,7 @@ public class MVPlotJobParser extends MVUtil{
 	            "<x_label>" +	job.getXLabelTmpl() +	"</x_label>" +
 	            "<y1_label>" +	job.getY1LabelTmpl() +	"</y1_label>" +
 	            "<y2_label>" +	job.getY2LabelTmpl() +	"</y2_label>" +
-	            "<caption>" +	job.getCaptionTmpl() +	"<caption>" +
+	            "<caption>" +	job.getCaptionTmpl() +	"</caption>" +
 	        "</tmpl>";
 		
 		//  plot_cmd
