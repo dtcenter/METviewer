@@ -36,7 +36,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
 			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.1</span></td>
 			<td align="right">&nbsp;
-				<form action="/metviewer/servlet" enctype="multipart/form-data" method="post" id="formUpload" style="display:inline">
+				<form action="/metviewer/servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
 					<input type="file" accept="text/xml" name="fileUpload"/>
 					<input type="submit" value="Upload"/>

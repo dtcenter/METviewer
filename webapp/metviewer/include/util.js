@@ -99,15 +99,6 @@ function setDebugDisp(show){
 		document.getElementById("lnkSer" + _listLnkSer[i]).style.display = (show? "inline" : "none");
 	}
 	
-	// update the visibility of the XML upload controls, is appropriate
-	var formUpload = document.getElementById("formUpload");	
-	if( null != formUpload ){
-		console("setDebugDisp(" + show + ") - formUpload = " + formUpload + "\n\n");
-		formUpload.style.display = (show? "inline" : "none");
-	} else {
-		console("setDebugDisp(" + show + ") - formUpload not found\n\n");
-	}		
-	
 	_boolDebugDisp = show;
 }
 
