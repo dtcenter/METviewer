@@ -349,6 +349,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<input id="btnFmtSeriesDefaults" type="button" class="gButton" onclick="javascript:setFmtSeriesDefaults()" value="Defaults" style="display:none"/>
 			<!-- <span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>  -->
 			<span id="spanFmtSeriesNum" class="bold" style="padding-left: 30px"># Series: 0</span>
+			<span style="padding-left: 100px"><input id="chkFmtSeriesLock" type="checkbox" style="vertical-align:-10%"/>Lock Formatting</span>
 			<br/><br/>
 			
 			<span id="spanFmtSeriesDisp" onclick="javascript:handleFmtSeriesDisp()" style="padding-left:40px">
@@ -551,29 +552,28 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 	<tr id="trDebug" style="display:none">
 		<td>
 		<hr/>
-		<span class="header">Regex Test</span>
-		<table>
-			<tr>
-				<td>Data:</td>
-				<td><input type="text" id="txtData" size="50"/></td>
-			</tr>
-			<tr>
-				<td>Pattern:</td>
-				<td><input type="text" id="txtPattern" size="50"/></td>
-			</tr>
-			<tr><td colspan="2"><input type="button" class="gButton"onclick="javascript:parse()" value="Parse"/></td></tr>
-		</table><br/><br/>
-
-		<b>Console:</b>
-		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
-		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
+		<br/><br/>
+		<span class="header" style="font-size:18px">Debug Panel</span><br/><br/><br/>
+		
+		<b>Servlet Controls:</b>
 		<input type="button" class="gButton" onclick="javascript:dbClearCacheReq()" value="Clear Database Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
-		<input type="button" class="gButton" onclick="javascript:testPlotResp()" value="plot.html"/><br/><br/>
-		<textarea rows="20" cols="160" id="txtConsole"></textarea><br/><br/>
 		
-		<textarea rows="20" cols="160" id="txtInitXML"><%= strInitXML %></textarea>		
+		<b>Console:</b>
+		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
+		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
+		<textarea rows="20" cols="160" id="txtConsole"></textarea><br/><br/>
+
+		<b>Init XML:</b>
+		<textarea rows="20" cols="160" id="txtInitXML"><%= strInitXML %></textarea><br/><br/>
+		
+		<b>Regex Test</b>
+		<table>
+			<tr><td>Data:</td>		<td><input type="text" id="txtData" size="50"/></td></tr>
+			<tr><td>Pattern:</td>	<td><input type="text" id="txtPattern" size="50"/></td></tr>
+			<tr><td colspan="2"><input type="button" class="gButton"onclick="javascript:parse()" value="Parse"/></td></tr>
+		</table><br/><br/>						
 		</td>
 	</tr>
 
