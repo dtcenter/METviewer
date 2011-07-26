@@ -5,12 +5,6 @@ import java.util.regex.*;
 import java.sql.*;
 import java.io.*;
 import java.text.*;
-import javax.xml.parsers.*;
-
-import org.w3c.dom.*;
-import org.xml.sax.*;
-import org.apache.log4j.*;
-import org.apache.xml.serialize.*;
 
 public class MVLoad extends MVUtil {
 
