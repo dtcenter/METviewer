@@ -50,15 +50,18 @@ public class MVServlet extends HttpServlet {
 		_logger.debug("init() - loading properties...");
 		try{
 			ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
-			_strDBHost		= bundle.getString("db.host");
-			_strDBUser		= bundle.getString("db.user");
-			_strDBPassword	= bundle.getString("db.password");
-			_listDB			= bundle.getString("db.list").split("\\s*,\\s*");
+			_strDBHost			= bundle.getString("db.host");
+			_strDBUser			= bundle.getString("db.user");
+			_strDBPassword		= bundle.getString("db.password");
+			_listDB				= bundle.getString("db.list").split("\\s*,\\s*");
 			
-			_strPlotXML		= bundle.getString("folders.plot_xml");
-			_strRTmpl		= bundle.getString("folders.r_tmpl");
-			_strRWork		= bundle.getString("folders.r_work");
-			_strPlots		= bundle.getString("folders.plots");
+			_boolListValCache	= bundle.getString("cache.val").equals("true");
+			_boolListStatCache	= bundle.getString("cache.stat").equals("true");
+			
+			_strPlotXML			= bundle.getString("folders.plot_xml");
+			_strRTmpl			= bundle.getString("folders.r_tmpl");
+			_strRWork			= bundle.getString("folders.r_work");
+			_strPlots			= bundle.getString("folders.plots");
 			
 		}catch(Exception e){
 			_logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
