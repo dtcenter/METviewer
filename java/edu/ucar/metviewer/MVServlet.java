@@ -1129,6 +1129,9 @@ public class MVServlet extends HttpServlet {
 				job.addPlotFixVal(listFixField[i], mapFixSetSingle);
 			}
 		}
+
+		//  note the upload
+		_logger.debug("handleXMLUpload() - plot XML upload for database plot " + job.getDBName());
 		
 		//  return the serialized plot XML
 		return MVPlotJobParser.serializeJob(job);
