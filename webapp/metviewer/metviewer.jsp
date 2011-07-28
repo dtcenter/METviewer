@@ -49,20 +49,13 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 	<tr><td><hr/></td></tr>
 
 	<tr><td>
-		<!--
-		<input type="text" id="txtPost"/>
-		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/><br/><br/>
-		<input type="text" id="txtGet"/>
-		<input type="button" class="gButton" onclick="javascript:testGetReq()" value="Get"/><br/><br/>
-		 -->
 		<span class="header" onclick="javascript:debugClick('db')">Database:</span>&nbsp;&nbsp;
 		<select id="selDB" onChange="javascript:updateDBCon()"></select><span class="bold" id="spanDBLoad"><%= strDB %></span>
-		<!-- <input type="button" class="gButton" onclick="javascript:listDBReq()" value="List"/> -->
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
 		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate" onchange="javascript:updateTmpl()">
-			<option>series_plot</option><option>box_plot</option><option>bar_plot</option><option>rhist</option>
+			<option>series_plot</option><option>box_plot</option><option>bar_plot</option><option>rhist</option><option>roc</option>
 		</select><br/><br/><br/>
 	</td></tr>
 
@@ -179,17 +172,18 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 
 			<img id="imgFix" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addFixVar()">Add a Fixed Value</a><br/><br/><br/>
-		</div><br/><br/>
+		</div>
 
-		<div id="divRhist" style="display:none">
-			<span class="header">Rank Histogram Fixed Values</span>
+		<div id="divFixSpc" style="display:none">
+			<span class="header" id="spanFixSpcHdr">Specialized Plot Fixed Values</span>
 			<span class="stdTiny">(<a href="doc/plot.html#plot_fix" target="_blank">help</a>)</span>
-			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divRhist')" id="lnkSerFix">Serialize</a><br/><br/>
+			<a class="stdTiny" style="padding-left: 20px" onclick="javascript:serialize('divFixSpc')" id="lnkSerFixSpc">Serialize</a><br/><br/>
 
-			<img id="imgRhist" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
-			<a class="link" onclick="javascript:addRhistVar()">Add a Rank Histogram Fixed Value</a><br/><br/><br/>
-		</div><br/><br/>
-
+			<img id="imgFixSpc" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
+			<a class="link" onclick="javascript:addFixSpcVar()" id="lnkFixSpcHdr">Add a Specialized Plot Fixed Value</a><br/><br/><br/>
+		</div>
+		
+		<br/><br/>
 		</td></tr>
 		<tr><td id="tdIndy">
 				
@@ -257,7 +251,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			</table>
 		</div><br/><br/>
 
-		</td></tr><tr><td>
+		</td></tr><tr><td id="tdCalcStat">
 
 		<div id="divCalcStat">
 			<span class="header">Statistics Calculations</span>
@@ -271,6 +265,24 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 					<td align="left" style="padding-left:30px" colspan="4">
 						<input type="radio" name="calc_stat" value="ctc"/><span class="bold">CTC</span>&nbsp;&nbsp;&nbsp;
 						<input type="radio" name="calc_stat" value="sl1l2"/><span class="bold">SL1L2</span>
+						<br/><br/>
+					</td>
+				</tr>
+			</table>
+		</div><br/><br/>
+		
+		</td></tr><tr><td id="tdRocCalc" style="display:none">
+		
+		<div id="divRocCalc">
+			<span class="header">ROC Calculations</span>
+			<span class="stdTiny">(<a href="doc/plot.html#roc_calc" target="_blank">help</a>)</span>
+			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divRocCalc')" id="lnkSerRocCalc">Serialize</a><br/><br/>
+
+			<table id="tabRocCalcParm" border="0" cellpadding="0" cellspacing="0">
+				<tr>
+					<td align="left" style="padding-left:30px" colspan="4">
+						<input type="radio" name="roc_pct" value="pct"/><span class="bold">PCT</span>&nbsp;&nbsp;&nbsp;
+						<input type="radio" name="roc_ctc" value="ctc"/><span class="bold">CTC</span>
 						<br/><br/>
 					</td>
 				</tr>
@@ -525,6 +537,91 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<tr><td><br/><br/></td></tr>
 			</table>
 			
+			<table id="tabFmtSeriesRoc" cellspacing="0" cellpadding="0" border="0" style="display:none; padding-bottom:20px">
+			<tr>
+				<td align="right" style="width:350px">
+					<span id="spanFmtSeriesName">
+						<span class="bold" style="font-size:10pt; padding-right:20px">ROC Curve</span>
+					</span>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRoc1" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Color</td>
+								<td rowspan="2"><input type="text" size="12" value="#AAAAAAFF"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">color</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Point Symbol</td>
+								<td rowspan="2"><input type="text" size="12" value="20"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">pch</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Series Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>b</option>
+										<option>p</option>
+										<option>l</option>
+										<option>o</option>
+										<option>s</option>
+										<option>h</option>
+										<option>n</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">type</td></tr>
+						</table>								
+					</td></tr>
+					</table>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRoc2" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lty</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Width</td>
+								<td rowspan="2"><input type="text" size="12" value="1"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lwd</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">&nbsp;</td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr><td><br/><br/></td></tr>
+			</table>
+			
+			
 		</div>
 		
 		</td></tr><tr><td>
@@ -559,6 +656,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<input type="button" class="gButton" onclick="javascript:dbClearCacheReq()" value="Clear Database Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
+		<br/><br/>
 		
 		<b>Console:</b>
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
@@ -573,7 +671,16 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<tr><td>Data:</td>		<td><input type="text" id="txtData" size="50"/></td></tr>
 			<tr><td>Pattern:</td>	<td><input type="text" id="txtPattern" size="50"/></td></tr>
 			<tr><td colspan="2"><input type="button" class="gButton"onclick="javascript:parse()" value="Parse"/></td></tr>
-		</table><br/><br/>						
+		</table><br/><br/>
+		
+		<!-- 
+		<b>HTTP Get/Post</b><br/>
+		<input type="text" id="txtPost"/>
+		<input type="button" class="gButton" onclick="javascript:testPostReq()" value="Post"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" id="txtGet"/>
+		<input type="button" class="gButton" onclick="javascript:testGetReq()" value="Get"/><br/><br/>
+		-->
+							
 		</td>
 	</tr>
 

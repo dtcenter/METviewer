@@ -149,6 +149,8 @@ public class MVBatch extends MVUtil {
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				if( jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl") ){
 					bat.runRhistJob(jobs[intJob]);
+				} else if( jobs[intJob].getPlotTmpl().equals("roc.R_tmpl") ){
+					bat.runRocJob(jobs[intJob]);
 				} else {
 					bat.runJob(jobs[intJob]);
 				}
@@ -1376,6 +1378,203 @@ public class MVBatch extends MVUtil {
 			}
 		}		
 	}	
+	
+
+	/**
+	 * Build SQL for and gather data from the line_data_prc and line_data_prc_thresh tables and use
+	 * it to build a ROC plot plot.
+	 * @param job ROC plot job
+	 * @throws Exception
+	 */
+	public void runRocJob(MVPlotJob job) throws Exception {
+		
+		//  build a list of fixed value permutations for all plots
+		MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
+		MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(mapPlotFixVal);
+
+		//  run the plot jobs once for each permutation of plot fixed values
+		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
+
+			//  populate the template map with fixed values 
+			Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
+			
+			boolean boolModePlot = false;
+			Statement stmt = null;
+			
+			//  build the stat_header where clauses of the sql  
+			String strWhere = buildPlotFixWhere(listPlotFixVal, boolModePlot);
+			
+			//  store distinct fcst_thresh and obs_thresh values to verify the plot spec
+			ArrayList listFcstThresh = new ArrayList();
+			ArrayList listObsThresh = new ArrayList();
+			
+			//  check to ensure only a single obs_thresh is used
+			String strObsThreshSelect = 
+				"SELECT\n" +
+				"  DISTINCT(h.obs_thresh)\n" +
+				"FROM\n" +
+				"  stat_header h,\n" +
+				"  " + (job.getRocPct()? "line_data_pct" : "line_data_ctc") + " ld\n" +
+				"WHERE\n" +
+				strWhere +
+				"  AND h.stat_header_id = ld.stat_header_id\n" +
+				"ORDER BY h.obs_thresh;";
+
+			//  run the obs_thresh query and throw an error, if necessary
+			stmt = job.getConnection().createStatement();
+			stmt.execute(strObsThreshSelect);
+			ResultSet res = stmt.getResultSet();
+			while(res.next()){ listObsThresh.add(res.getString(1)); }
+			stmt.close();
+
+			//  build the query depending on the type of data requested
+			String strPlotDataSelect = ""; 
+			if( job.getRocPct() ){
+				
+				//  check to ensure only a single fcst_thresh is used
+				String strFcstThreshSelect = 
+					"SELECT\n" +
+					"  DISTINCT(h.fcst_thresh)\n" +
+					"FROM\n" +
+					"  stat_header h,\n" +
+					"  line_data_pct ld\n" +
+					"WHERE\n" +
+					strWhere +
+					"  AND h.stat_header_id = ld.stat_header_id\n" +
+					"ORDER BY h.fcst_thresh;";
+
+				//  run the fcst_thresh query and throw an error, if necessary
+				stmt = job.getConnection().createStatement();
+				stmt.execute(strFcstThreshSelect);
+				res = stmt.getResultSet();
+				while(res.next()){ listFcstThresh.add(res.getString(1)); }
+				stmt.close();
+
+				//  build the plot data sql
+				strPlotDataSelect = 
+					"SELECT\n" +
+					"  ld.total,\n" +
+					"  ldt.i_value,\n" +
+					"  ldt.thresh_i,\n" +
+					"  SUM(ldt.oy_i) oy_i,\n" +
+					"  SUM(ldt.on_i) on_i\n" +
+					"FROM\n" +
+					"  stat_header h,\n" +
+					"  line_data_pct ld,\n" +
+					"  line_data_pct_thresh ldt\n" +
+					"WHERE\n" +
+					strWhere +
+					"  AND h.stat_header_id = ld.stat_header_id\n" +
+					"  AND ld.line_data_id = ldt.line_data_id\n" +
+					"GROUP BY\n" +
+					"  ldt.thresh_i;";
+				
+			} else if( job.getRocCtc() ){
+				
+				strPlotDataSelect =
+					"SELECT\n" +
+					"  h.fcst_thresh thresh,\n" +
+					"  ld.total,\n" +
+					"  SUM(ld.fy_oy) fy_oy,\n" +
+					"  SUM(ld.fy_on) fy_on,\n" +
+					"  SUM(ld.fn_oy) fn_oy,\n" +
+					"  SUM(ld.fn_on) fn_on\n" +
+					"FROM\n" +
+					"  stat_header h,\n" +
+					"  line_data_ctc ld\n" +
+					"WHERE\n" +
+					strWhere +
+					"  AND h.stat_header_id = ld.stat_header_id\n" +
+					"GROUP BY\n" +
+					"  h.fcst_thresh;";
+				
+			}
+
+			//  print the SQL and continue if no plot is requested
+			if( _boolVerbose ){ _out.println(strPlotDataSelect + "\n"); }
+			if( _boolSQLOnly ){ continue; }
+
+			//  if the query does not return data from a single obs_thresh, throw an error
+			if( 1 != listObsThresh.size() ){
+				String strObsThreshMsg = "ROC plots must contain data from only a single obs_thresh, " +
+										 "instead found " + listObsThresh.size();
+				for(int i=0; i < listObsThresh.size(); i++){
+					strObsThreshMsg += (0 == i? ": " : ", ") + listObsThresh.toString();
+				}
+				throw new Exception(strObsThreshMsg);
+			}
+			
+			//  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
+			if( job.getRocPct() && 1 != listFcstThresh.size() ){
+				String strFcstThreshMsg = "ROC plots using PCTs must contain data from only a single fcst_thresh, " +
+										 "instead found " + listFcstThresh.size();
+				for(int i=0; i < listFcstThresh.size(); i++){
+					strFcstThreshMsg += (0 == i? ":" : "") + "\n  " + listFcstThresh.toString();
+				}
+				throw new Exception(strFcstThreshMsg);
+			}
+			
+
+			/*
+			 *  Print the data file in the R_work subfolder and file specified by the data file template
+			 */
+			
+			//  construct the file system paths for the files used to build the plot
+			MVOrderedMap mapPlotTmplVals = new MVOrderedMap( job.getTmplVal() );
+			_strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/")? "" : "/");
+			_strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/")? "" : "/");
+			_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
+			String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			(new File(strDataFile)).getParentFile().mkdirs();
+
+			//  get the data for the current plot from the plot_data temp table and write it to a data file
+			stmt = job.getConnection().createStatement();
+			stmt.execute(strPlotDataSelect);
+			printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
+			stmt.close();
+			
+			//  build the template strings using the current template values
+			String strPlotFile	= _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strRFile		= _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strTitle		= buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strCaption	= buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			
+			//  create a table containing all template values for populating the R_tmpl
+			Hashtable tableRTags = new Hashtable();
+			
+			tableRTags.put("r_work",		_strRworkFolder);
+			tableRTags.put("plot_file",		strPlotFile);
+			tableRTags.put("data_file",		strDataFile);
+			tableRTags.put("roc_pct",		job.getRocPct()?			"TRUE"			: "FALSE");
+			tableRTags.put("roc_ctc",		job.getRocCtc()?			"TRUE"			: "FALSE");
+			tableRTags.put("plot_title",	strTitle);
+			tableRTags.put("x_label",		strXLabel);
+			tableRTags.put("y1_label",		strY1Label);
+			tableRTags.put("plot_caption",	strCaption);
+			tableRTags.put("plot_cmd", 		job.getPlotCmd());
+			tableRTags.put("colors",		job.getColors().equals("")?	"c(\"gray\")"	: job.getColors());
+			tableRTags.put("pch",			job.getPch().equals("")?	"c(20)"			: job.getPch());
+			tableRTags.put("type",			job.getType().equals("")?	"c(b)"			: job.getType());
+			tableRTags.put("lty",			job.getLty().equals("")?	"c(1)"			: job.getLty());
+			tableRTags.put("lwd",			job.getLwd().equals("")?	"c(1)"			: job.getLwd());
+			populatePlotFmtTmpl(tableRTags, job);
+
+			//  populate the R_tmpl with the template values
+			populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
+			
+			/*
+			 *  Attempt to run the generated R script
+			 */
+			if( _boolPlot ){
+				boolean boolSuccess = runRscript(job.getRscript(), strRFile);
+				_intNumPlotsRun++;
+				_out.println( (boolSuccess? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
+			}
+		}		
+	}	
+	
 	
 	/**
 	 * Build where clauses for each of the input aggregation field/value entries and return the clauses as

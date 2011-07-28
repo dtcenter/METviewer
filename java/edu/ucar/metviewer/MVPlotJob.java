@@ -143,6 +143,9 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolCalcCtc			= false;
 	protected boolean _boolCalcSl1l2		= false;
 
+	protected boolean _boolRocPct			= false;
+	protected boolean _boolRocCtc			= false;
+	
 	protected String _strPlotCI				= "";
 	protected String _strPlotDisp			= "";
 	protected String _strColors				= "";
@@ -291,6 +294,9 @@ public class MVPlotJob extends MVUtil{
 		
 		job._boolCalcCtc		= _boolCalcCtc;
 		job._boolCalcSl1l2		= _boolCalcSl1l2;
+
+		job._boolRocPct			= _boolRocPct;
+		job._boolRocCtc			= _boolRocCtc;
 
 		job._strPlotCI			= _strPlotCI;
 		job._strPlotDisp		= _strPlotDisp;
@@ -588,6 +594,11 @@ public class MVPlotJob extends MVUtil{
 	public void		setCalcCtc(boolean calcCtc)							{ _boolCalcCtc = calcCtc; 								}
 	public boolean	getCalcSl1l2()										{ return _boolCalcSl1l2;								}
 	public void		setCalcSl1l2(boolean calcSl1l2)						{ _boolCalcSl1l2 = calcSl1l2; 							}	
+	
+	public boolean	getRocPct()											{ return _boolRocPct;									}
+	public void		setRocPct(boolean rocPct)							{ _boolRocPct = rocPct; 								}
+	public boolean	getRocCtc()											{ return _boolRocCtc;									}
+	public void		setRocCtc(boolean rocCtc)							{ _boolRocCtc = rocCtc; 								}	
 	
 	public String	getPlotCI()											{ return _strPlotCI;									}
 	public void		setPlotCI(String plotCI)							{ _strPlotCI = plotCI;									}

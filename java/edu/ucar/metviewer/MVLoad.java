@@ -425,7 +425,7 @@ public class MVLoad extends MVUtil {
 			}
 			*/
 			Matcher matVersion = _patVersion.matcher(strMetVersion);
-			if( !matVersion.matches() || !matVersion.group(1).equals(_strMetVersion) ){
+			if( !matVersion.matches() || !_strMetVersion.startsWith(matVersion.group(1)) ){
 				throw new Exception("ERROR: file MET version " + strMetVersion + " is not compatible with configured value " + _strMetVersion);
 			}
 			

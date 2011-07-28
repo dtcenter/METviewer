@@ -115,6 +115,18 @@ function serializeNode(node){
 }
 
 /**
+ * Replace all escapable characters in the specified string with their XML escape 
+ * sequences and return the result 
+ */
+function escapeXml(str){
+	return str.replace("&", "&amp;")
+		      .replace("\"", "&quot;")
+		      .replace("'", "&apos;")
+		      .replace("<", "&lt;")
+		      .replace(">", "&gt;");
+}
+
+/**
  * Clear and populate a select list with the specified id with the items in the
  * specified list
  */

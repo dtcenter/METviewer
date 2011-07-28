@@ -395,6 +395,7 @@ public class MVServlet extends HttpServlet {
 		String strHeaderField = nodeCall._children[1]._value;
 		boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
 		boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
+		boolean boolROC = nodeCall._children[1]._tag.equals("roc_field");
 		String strHeaderTable = boolMode? "mode_header" : "stat_header";
     	_logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
     	strResp += "<id>" + strId + "</id>";
@@ -415,7 +416,12 @@ public class MVServlet extends HttpServlet {
     	Hashtable tableFcstVarStat = new Hashtable();    	
     	Hashtable tableLineDataTables = new Hashtable();
     	boolean boolFcstVar = false;
-    	if( !boolRhist && 2 < nodeCall._children.length ){
+		if( boolRhist ){
+			tableLineDataTables.put("line_data_rhist", "true");
+		} else if( boolROC ){
+			tableLineDataTables.put("line_data_pct", "true");
+			tableLineDataTables.put("line_data_ctc", "true");
+		} else if( 2 < nodeCall._children.length ){
     		boolFcstVar = true;
 			MVNode nodeFcstVarStat = nodeCall._children[2];
 			for(int i=0; i < nodeFcstVarStat._children.length; i++){
@@ -429,8 +435,6 @@ public class MVServlet extends HttpServlet {
 					else if( strLineDataTable.equals("line_data_cts") ){ tableLineDataTables.put("line_data_ctc", "true");   }
 				}
 			}
-    	} else if( boolRhist ){
-    		tableLineDataTables.put("line_data_rhist", "true");
     	}
 		
 		//  build a list of the line_data tables for all the stats
@@ -809,8 +813,9 @@ public class MVServlet extends HttpServlet {
     		//  build the job SQL using the batch engine
     		bat._boolSQLOnly = true;
     		bat._boolVerbose = true;
-			if( strJobTmpl.equals("rhist.R_tmpl") ){ bat.runRhistJob(job); }
-			else                                   { bat.runJob(job);      }
+			if( strJobTmpl.equals("rhist.R_tmpl")    ){ bat.runRhistJob(job); }
+			else if( strJobTmpl.equals("roc.R_tmpl") ){ bat.runRocJob(job); }
+			else                                      { bat.runJob(job);      }
     		bat._boolSQLOnly = false;
     		bat._boolVerbose = false;
     		String strPlotSQL = log.toString();
@@ -823,8 +828,9 @@ public class MVServlet extends HttpServlet {
     		
 			//  run the job to generate the plot
     		//bat._boolVerbose = true;
-			if( strJobTmpl.equals("rhist.R_tmpl") ){ bat.runRhistJob(job); }
-			else                                   { bat.runJob(job);      }
+			if( strJobTmpl.equals("rhist.R_tmpl")    ){ bat.runRhistJob(job); }
+			else if( strJobTmpl.equals("roc.R_tmpl") ){ bat.runRocJob(job); }
+			else                                      { bat.runJob(job);      }
     		String strPlotterOutput = log.toString();
     		writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".log");
     		writer.write(strPlotterOutput);
@@ -1102,6 +1108,14 @@ public class MVServlet extends HttpServlet {
 		return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
 	}
 	
+	/**
+	 * Parse the input node as a plot spec node and select the first of the returned jobs.  Strip
+	 * the plot_fix field values to create a single plot specification and return the serialized
+	 * version. 
+	 * @param nodeCall plot spec node to parse
+	 * @return serialized plot spec of a single plot from the input spec
+	 * @throws Exception
+	 */
 	public static String handleXMLUpload(MVNode nodeCall) throws Exception{
 		
 		//  run the parser to generate plot jobs 

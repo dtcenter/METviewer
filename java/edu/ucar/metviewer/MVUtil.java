@@ -166,51 +166,6 @@ public class MVUtil{
 	public static String parseDateOffset(MVNode node, String format){ return parseDateOffset(node, format, null); }
 	public static String parseDateOffset(MVNode node){ return parseDateOffset(node, "yyyy-MM-dd", null); }
 	
-	public static void main(String[] argv){
-		try{
-			
-			java.sql.Date date = new java.sql.Date( _formatDB.parse("2010-06-12 12:00:00").getTime() );
-			java.sql.Date start = new java.sql.Date( _formatDB.parse("2009-06-01 00:00:00").getTime() );			
-			buildDateKey(date, start, 1, "361015", 999999, 1, 1, 1);
-			
-		} catch(Exception e){}
-	}
-	
-	public static String buildDateKey(java.sql.Date date, java.sql.Date start, int dateWidth, String lead, int hdrId, int hdrIdWidth, int alpha, int covThresh){
-
-		/*
-		//  with seconds
-		long intTime = date.getTime();
-		long intStart = start.getTime();
-		long intDiff = (date.getTime() - start.getTime()) / 1000;
-		String strDate = padBegin("" + intDiff, "0", dateWidth);
-		String strLead = "" + lead;
-		int intLeadSec = Integer.parseInt( strLead.substring(strLead.length() - 2) );
-		int intLeadMin = Integer.parseInt( strLead.substring(strLead.length() - 4, strLead.length() - 2) );
-		int intLeadHr  = Integer.parseInt( strLead.substring(0, strLead.length() - 4) );
-		int intLead = (intLeadHr * 3600 + intLeadMin * 60 + intLeadSec);
-		strLead = padBegin("" + intLead, "0", 6);
-		String strId = padBegin("" + hdrId, "0", hdrIdWidth);
-		*/
-		
-		//  with minutes
-		long intTime = date.getTime();
-		long intStart = start.getTime();
-		long intDiff = (date.getTime() - start.getTime()) / 60000;
-		String strDate = padBegin("" + intDiff, "0", dateWidth);
-		String strLead = "" + lead;
-		int intLeadSec = Integer.parseInt( strLead.substring(strLead.length() - 2) );
-		int intLeadMin = Integer.parseInt( strLead.substring(strLead.length() - 4, strLead.length() - 2) );
-		int intLeadHr  = Integer.parseInt( strLead.substring(0, strLead.length() - 4) );
-		int intLead = (intLeadHr * 60 + intLeadMin);
-		strLead = padBegin("" + intLead, "0", 4);
-		String strId = padBegin("" + hdrId, "0", hdrIdWidth);
-		
-		String strRet = "" + intDiff + strLead + strId + alpha + covThresh;
-		int intRetLen = strRet.length();
-		return strRet;
-	}
-	
 	/**
 	 * Returns the difference between the two dates in the specified units.  The acceptible units values
 	 * are 0 (milliseconds), 1 (seconds), 2 (minutes), 3 (hours) or 4 (days).  The returned result is 
@@ -1069,7 +1024,7 @@ public class MVUtil{
 				str.print( delim.equals(" ")? padEnd(strVal, intFieldWidths[j]) : (0 < j? delim : "") + strVal );
 			}
 			str.println();
-			if( 0 == 100 % intLine++ ){ str.flush(); }
+			if( 0 == intLine++ % 100 ){ str.flush(); }
 		}
 		if( 0 < maxRows && maxRows < rows.length ){ str.println("(" + (rows.length - maxRows) + " more rows...)"); }
 	}
@@ -1100,7 +1055,7 @@ public class MVUtil{
 			str.println();
 
 			//  print out the table of values
-			int intLine = 1;
+			int intLine = 0;
 			while( res.next() ){
 				for(int i=1; i <= met.getColumnCount(); i++){
 					String strVal = res.getString(i); 
@@ -1109,11 +1064,14 @@ public class MVUtil{
 					str.print( delim.equals(" ")? padEnd(strVal, intFieldWidths[i-1]) : (1 < i? delim : "") + strVal );
 				}
 				str.println();
-				if( 0 == 100 % intLine++ ){ str.flush(); }
+				if( 0 == (intLine++ % 100) ){ str.flush(); }
 			}
+			
+			if( 0 == intLine ){ throw new Exception("result set contained no data"); }
 			
 		}catch(Exception e){
 			_out.println("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	public void printFormattedTable(ResultSet res){ printFormattedTable(res, _out, " ", 40); }

@@ -9,7 +9,6 @@ import java.sql.*;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
-import org.apache.xerces.parsers.*;
 
 public class MVPlotJobParser extends MVUtil{
 
@@ -266,7 +265,11 @@ public class MVPlotJobParser extends MVUtil{
 				//  add the job to the jobs table and to the runnable jobs, if appropriate
 				_tablePlotDecl.put(node._name, job);
 				String strCompleteness = "";
-				if( !job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("roc.R_tmpl") ){
+				if( job.getPlotTmpl().equals("roc.R_tmpl") ){
+					if( !job.getRocPct() && ! job.getRocCtc() ){
+						strCompleteness = "if ROC template is selected, one of roc_pct or roc_ctc must be true";
+					}
+				} else if( !job.getPlotTmpl().equals("rhist.R_tmpl") ){
 					strCompleteness = checkJobCompleteness(job);
 				}
 				boolean boolComplete = strCompleteness.equals("");
@@ -421,7 +424,6 @@ public class MVPlotJobParser extends MVUtil{
 				MVOrderedMap mapDep = new MVOrderedMap();
 				boolean boolDep1Present = false;
 				boolean boolDep2Present = false;
-				boolean boolFixPresent = false;
 				for(int j=0; j < node._children.length; j++){
 					MVNode nodeDepN = node._children[j];
 					
@@ -560,13 +562,25 @@ public class MVPlotJobParser extends MVUtil{
 			//  <calc_stat>
 			else if( node._tag.equals("calc_stat") ){
 				for(int j=0; j < node._children.length; j++){
-					MVNode nodeAggStat = node._children[j];					
-					if     ( nodeAggStat._tag.equals("calc_ctc")   )	{ job.setCalcCtc(nodeAggStat._value.equalsIgnoreCase("true"));   }
-					else if( nodeAggStat._tag.equals("calc_sl1l2") )	{ job.setCalcSl1l2(nodeAggStat._value.equalsIgnoreCase("true")); }
+					MVNode nodeCalcStat = node._children[j];					
+					if     ( nodeCalcStat._tag.equals("calc_ctc")   )	{ job.setCalcCtc(nodeCalcStat._value.equalsIgnoreCase("true"));   }
+					else if( nodeCalcStat._tag.equals("calc_sl1l2") )	{ job.setCalcSl1l2(nodeCalcStat._value.equalsIgnoreCase("true")); }
 				}
 				
-				if( !job.getCalcCtc() && !job.getCalcSl1l2() ){ throw new Exception("invalid calc_stat setting - neither calc_ctc and calc_sl1l2 are true"); }
+				if( !job.getCalcCtc() && !job.getCalcSl1l2() ){ throw new Exception("invalid calc_stat setting - neither calc_ctc nor calc_sl1l2 are true"); }
 				if( job.getCalcCtc() && job.getCalcSl1l2() )  { throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 are true"); }
+			}
+			
+			//  <roc_calc>
+			else if( node._tag.equals("roc_calc") ){
+				for(int j=0; j < node._children.length; j++){
+					MVNode nodeRocStat = node._children[j];					
+					if     ( nodeRocStat._tag.equals("roc_pct")   )	{ job.setRocPct(nodeRocStat._value.equalsIgnoreCase("true"));   }
+					else if( nodeRocStat._tag.equals("roc_ctc") )	{ job.setRocCtc(nodeRocStat._value.equalsIgnoreCase("true")); }
+				}
+				
+				if( !job.getRocPct() && !job.getRocCtc() ){ throw new Exception("invalid roc_calc setting - neither roc_pct nor roc_ctc are true"); }
+				if( job.getRocPct()  && job.getRocCtc() ) { throw new Exception("invalid roc_calc setting - both roc_pct and roc_ctc are true"); }
 			}
 			
 			//  boolean format settings
@@ -904,7 +918,7 @@ public class MVPlotJobParser extends MVUtil{
     	strXML += "<template>" + job.getPlotTmpl() + "</template>";
 
     	//  if there are dep, series and indep elements present, handle them
-    	if( !job.getPlotTmpl().startsWith("rhist") ){
+    	if( !job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("roc") ){
     	
 	    	// dep
 	    	strXML += "<dep>";
@@ -1005,6 +1019,15 @@ public class MVPlotJobParser extends MVUtil{
 					"<calc_ctc>" +	(job.getCalcCtc()?    "TRUE" : "FALSE") + "</calc_ctc>" +
 					"<calc_sl1l2>"+ (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>" +
 				"</calc_stat>";			
+		}
+		
+		//  roc_calc
+		if( job.getPlotTmpl().equals("roc.R_tmpl") ){
+			strXML +=
+				"<roc_calc>" +
+					"<roc_pct>" + (job.getRocPct()?    "TRUE" : "FALSE") + "</roc_pct>" +
+					"<roc_ctc>" + (job.getRocCtc() ?   "TRUE" : "FALSE") + "</roc_ctc>" +
+				"</roc_calc>";			
 		}
 		
 		//  tmpl

@@ -6,9 +6,10 @@ var TMPL_SERIES_PLOT	= 1;
 var TMPL_BAR_PLOT		= 2;
 var TMPL_BOX_PLOT		= 3;
 var TMPL_RHIST			= 4;
+var TMPL_ROC			= 5;
 var _intTmpl = TMPL_SERIES_PLOT;
 
-var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "Indy", "FmtPlot", "FmtSeries", "AggStat"];
+var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "FixSpc", "Indy", "AggStat", "CalcStat", "FmtPlot", "FmtSeries"];
 
 var _intDepIdNext = 1;
 var _listDep1Div = new Array();
@@ -48,6 +49,8 @@ var _listStatMode = _listStatModeSingle.concat(_listStatModePair);
 
 var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV", 
                     "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
+var _listVarSpc = ["FCST_VAR", "MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", 
+                     "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH"];
 var _listVarRhist = ["FCST_VAR", "MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", 
                      "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "N_RANK"];
 var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM", 
@@ -57,7 +60,7 @@ var _listVar = _listVarStat;
 var _listSeries1Div = new Array();
 var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
-var _listRhistDiv = new Array();
+var _listFixSpcDiv = new Array();
 
 var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "OBS_THRESH", "FCST_VALID_BEG", "VALID_HOUR", 
                         "FCST_INIT_BEG", "INIT_HOUR", "INTERP_PNTS"];
@@ -288,7 +291,9 @@ function updatePlotData(){
 	var strPlotData = getSelected( document.getElementById("selPlotData") )[0];
 	var strTmpl = getSelected( document.getElementById("selTemplate") )[0];
 	if( strPlotData == "Stat" ){
-		_strPlotData = (strTmpl == "rhist"? "rhist" : "stat");
+		if     ( strTmpl == "rhist" ){ _strPlotData = "rhist"; }
+		else if( strTmpl == "roc"   ){ _strPlotData = "roc";   }
+		else                         { _strPlotData = "stat";  }
 		_listVar = _listVarStat;
 		_listIndyVar = _listIndyVarStat;
 	} else if( strPlotData == "MODE" ){
@@ -321,49 +326,51 @@ function clearControls(){
 	//  determine the selected template
 	var strTemplate = getSelected( document.getElementById("selTemplate") )[0];
 	
-	if( TMPL_RHIST == _intTmpl ){
+	//  for specialized plot templates, clear the <plot_fix> controls and return
+	if( isTmplSpc() ){
 
 		//  reset the fixed values
-		while( 0 < _listRhistDiv.length ){ removeRhistDiv( _listRhistDiv[0].getElementsByTagName("input")[1].value); }
-		
-	} else {
-		
-		//  reset the dep stat controls
-		var intDepId = _listDep1Div[0].getElementsByTagName("input")[1].value;
-		clearDepStat(intDepId);
-		while( 1 < _listDep1Div.length ){ removeDep1Var(_listDep1Div[1].getElementsByTagName("input")[1].value); }
-		while( 0 < _listDep2Div.length ){ removeDep2Var(_listDep2Div[0].getElementsByTagName("input")[1].value); }
-		listFcstVar1Req(intDepId);
-		_listDep1Div[0].getElementsByTagName("td")[3].style.display = "none";
-		_listDep1Div[0].getElementsByTagName("td")[4].style.display = "none";
-		_listDep1Div[0].getElementsByTagName("td")[5].style.display = "none";
-	
-		//  reset the series controls
-		while( 0 < _listSeries1Div.length ){ removeSeries1Div( _listSeries1Div[0].getElementsByTagName("input")[1].value); }
-		while( 0 < _listSeries2Div.length ){ removeSeries2Div( _listSeries2Div[0].getElementsByTagName("input")[1].value); }
-	
-		//  reset the select field variable list
-		var selField = document.getElementById("selField");
-		clearSelect(selField);
-		fillSelect(selField, _listVar);
-		addSeries1Div();
-		_listSeries1Div[0].getElementsByTagName("span")[1].style.display = "none";
-		
-		//  reset the fixed values
-		while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
-		
-		//  reset the agg_stat controls
-		var divAggStat = document.getElementById("divAggStat");
-		divAggStat.getElementsByTagName("input")[0].checked = false;
-		updateAggStat();	
-	
-		//  reset the indep controls
-		var selIndyVar = document.getElementById("selIndyVar");
-		clearSelect(selIndyVar);
-		fillSelect(selIndyVar, _listIndyVar);
-		clearIndyVal();
+		while( 0 < _listFixSpcDiv.length ){ removeFixSpcDiv( _listFixSpcDiv[0].getElementsByTagName("input")[1].value); }
+		//listFcstVar1Req(0);
+		return;		
 	}
+		
+	//  reset the dep stat controls
+	var intDepId = _listDep1Div[0].getElementsByTagName("input")[1].value;
+	clearDepStat(intDepId);
+	while( 1 < _listDep1Div.length ){ removeDep1Var(_listDep1Div[1].getElementsByTagName("input")[1].value); }
+	while( 0 < _listDep2Div.length ){ removeDep2Var(_listDep2Div[0].getElementsByTagName("input")[1].value); }
+	listFcstVar1Req(intDepId);
+	_listDep1Div[0].getElementsByTagName("td")[3].style.display = "none";
+	_listDep1Div[0].getElementsByTagName("td")[4].style.display = "none";
+	_listDep1Div[0].getElementsByTagName("td")[5].style.display = "none";
+
+	//  reset the series controls
+	while( 0 < _listSeries1Div.length ){ removeSeries1Div( _listSeries1Div[0].getElementsByTagName("input")[1].value); }
+	while( 0 < _listSeries2Div.length ){ removeSeries2Div( _listSeries2Div[0].getElementsByTagName("input")[1].value); }
+
+	//  reset the select field variable list
+	var selField = document.getElementById("selField");
+	clearSelect(selField);
+	fillSelect(selField, _listVar);
+	addSeries1Div();
+	_listSeries1Div[0].getElementsByTagName("span")[1].style.display = "none";
 	
+	//  reset the fixed values
+	while( 0 < _listFixDiv.length ){ removeFixDiv( _listFixDiv[0].getElementsByTagName("input")[1].value); }
+	
+	//  reset the agg_stat controls
+	var divAggStat = document.getElementById("divAggStat");
+	divAggStat.getElementsByTagName("input")[0].checked = false;
+	updateAggStat();	
+
+	//  reset the indep controls
+	var selIndyVar = document.getElementById("selIndyVar");
+	clearSelect(selIndyVar);
+	fillSelect(selIndyVar, _listIndyVar);
+	clearIndyVal();
+
+	//  populate the fcst_var list
 	listFcstVar1Req(0);
 }
 
@@ -423,6 +430,13 @@ function setFmtVal(tdFmt, val){
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
+ * Determine if the specified template type is one of the specialized plot
+ * templates and return true if so, false otherwise.  Default input is the
+ * current _intTmpl setting.
+ */
+function isTmplSpc(){ return (TMPL_RHIST == _intTmpl || TMPL_ROC == _intTmpl); }
+
+/**
  * When the plot template is switched, configure the visibility of the controls
  */
 function updateTmpl(){
@@ -433,28 +447,34 @@ function updateTmpl(){
 	else if( null != strTmpl.match( /^bar_plot$/    ) ){ _intTmpl = TMPL_BAR_PLOT;    } 
 	else if( null != strTmpl.match( /^box_plot$/    ) ){ _intTmpl = TMPL_BOX_PLOT;    } 
 	else if( null != strTmpl.match( /^rhist$/       ) ){ _intTmpl = TMPL_RHIST;       } 
+	else if( null != strTmpl.match( /^roc$/         ) ){ _intTmpl = TMPL_ROC;         } 
 	
 	//  default visibility settings for the series_plot template
 	var boolY1 = true;
 	var boolY2 = true;
 	var boolY2NA = false;
 	var boolFix = true;
-	var boolRhist = false;
+	var boolFixSpc = false;
 	var boolIndy = true;
 	var boolAggStat = true;
 	var boolAggStatNA = false;
+	var boolCalcStat = true;
+	var boolCalcStatNA = false;
+	var boolRocCalc = false;
 	
 	//  for box_plot and bar_plot templates, hide the Y2 controls and agg_stat
 	if( TMPL_BOX_PLOT == _intTmpl || TMPL_BAR_PLOT == _intTmpl ){
 		boolY2NA = true;
-		boolAggStatNA = true;		
-	} else if( TMPL_RHIST == _intTmpl ){
+		boolAggStatNA = true;	
+	} else if( isTmplSpc() ){
 		boolY1 = false;
 		boolY2 = false;
 		boolFix = false;
-		boolRhist = true;
+		boolFixSpc = true;
 		boolIndy = false;
 		boolAggStat = false;
+		boolCalcStat = false;
+		boolRocCalc = (TMPL_ROC == _intTmpl);
 	}
 	
 	//  configure the visibility of the Y1, Y2, fix and indy controls
@@ -464,7 +484,7 @@ function updateTmpl(){
 	document.getElementById("divDep2").style.display     	= boolY2NA?		"none" : "inline";
 	document.getElementById("divSeries2").style.display  	= boolY2NA?		"none" : "inline";
 	document.getElementById("divFix").style.display    		= boolFix?		"inline" : "none";
-	document.getElementById("divRhist").style.display   	= boolRhist?	"inline" : "none";
+	document.getElementById("divFixSpc").style.display   	= boolFixSpc?	"inline" : "none";
 	document.getElementById("tdIndy").style.display    		= boolIndy?		"table-cell" : "none";
 	
 	//  configure the visibility of the agg_stat controls
@@ -475,6 +495,17 @@ function updateTmpl(){
 	document.getElementById("chkAggStat").style.display     = boolAggStatNA?"none" : "inline";
 	document.getElementById("spanAggStat").style.display    = boolAggStatNA?"none" : "inline";
 	
+	//  configure the visibility of the calc_stat controls
+	document.getElementById("tdCalcStat").style.display		= boolCalcStat?	"table-cell" : "none";
+	document.getElementById("divCalcStat").getElementsByTagName("input")[0].checked = false;
+	updateCalcStat();	
+	document.getElementById("spanCalcStatNA").style.display = boolCalcStatNA?"inline" : "none";
+	document.getElementById("chkCalcStat").style.display    = boolCalcStatNA?"none" : "inline";
+	document.getElementById("spanCalcStat").style.display   = boolCalcStatNA?"none" : "inline";
+
+	//  configure the visibility of the calc_stat controls
+	document.getElementById("tdRocCalc").style.display		= boolRocCalc?   "table-cell" : "none";
+
 	//  configure the visibility of the plot formatting controls
 	var listFmtAxis = document.getElementById("divFmtAxis").getElementsByTagName("td");
 	listFmtAxis[4].style.display							= boolY2NA?		"none" : "inline";
@@ -482,8 +513,8 @@ function updateTmpl(){
 	listFmtAxis[6].style.display							= boolY2NA?		"none" : "inline";
 	listFmtAxis[7].style.display							= boolY2NA?		"none" : "inline";
 	
-	if( TMPL_RHIST == _intTmpl ){
-		buildSeriesDivRhist();
+	if( isTmplSpc() ){
+		buildSeriesDivSpc();
 		updateFmtPlot();
 	} else { buildSeriesDiv(); }
 
@@ -635,7 +666,7 @@ function buildFcstVarCrit(intY){
 	var strFixCrit = "<field name=\"FCST_VAR\">";
 	for(i in listDepDiv){
 		var selFcstVar = listDepDiv[i].getElementsByTagName("select")[0];
-		strFixCrit += "<val>" + selFcstVar.options[selFcstVar.selectedIndex].text + "</val>";
+		strFixCrit += "<val>" + escapeXml(selFcstVar.options[selFcstVar.selectedIndex].text) + "</val>";
 	}
 	strFixCrit += "</field>";
 	return strFixCrit;
@@ -836,7 +867,7 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
 	var strFcstVarCrit = "";
 	var strFixCrit = "";
 	if( -1 == intY ){
-		strFixCrit = buildRhistCrit(intFixEnd);
+		strFixCrit = buildFixSpcCrit(intFixEnd);
 	} else {
 		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarStatCrit(intY); }
 		else                         { strFcstVarCrit = buildFcstVarStatCrit(); }		
@@ -1034,46 +1065,49 @@ function buildFieldValCrit(listDiv, endIndex){
 		var divCrit = listDiv[i];
 		var selCrit = divCrit.getElementsByTagName("select")[0];
 		var strCritCur = "<field name=\"" + selCrit.options[ selCrit.selectedIndex ].text + "\">";
-		var listCritVal = getSelected( divCrit.getElementsByTagName("select")[1] );
-		for(var j=0; j < listCritVal.length; j++){ strCritCur += "<val>" + listCritVal[j] + "</val>"; }
+		var listCritVal = getSelected( divCrit.getElementsByTagName("select")[1] );		
+		for(var j=0; j < listCritVal.length; j++){
+			strCritCur += "<val>" + escapeXml(listCritVal[j]) + "</val>"; 
+		}
 		strCritCur += "</field>";
 		if( 0 < listCritVal.length ){ strCrit += strCritCur; }
 	}
 	return strCrit;
 }
 function buildFixCrit(endIndex){ return buildFieldValCrit(_listFixDiv, endIndex); }
-function buildRhistCrit(endIndex){ return buildFieldValCrit(_listRhistDiv, endIndex); }
+function buildFixSpcCrit(endIndex){ return buildFieldValCrit(_listFixSpcDiv, endIndex); }
 
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
- * Rhist Fixed Variable Controls
+ * Specialized Plot Fixed Variable Controls
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- * Handlers to add, remove and populate the rhist fixed variable controls
+ * Handlers to add, remove and populate the specialized plot fixed variable controls
  */
-function addRhistVar(){
+function addFixSpcVar(){
 	//  add the control group for the field value selection
-	addFieldValDiv("Rhist", _listRhistDiv);
+	addFieldValDiv("FixSpc", _listFixSpcDiv);
 	
 	//  add rank size to the list of fields
-	var selField = _listRhistDiv[_listRhistDiv.length-1].getElementsByTagName("select")[0];
+	var selField = _listFixSpcDiv[_listFixSpcDiv.length-1].getElementsByTagName("select")[0];
 	clearSelect(selField);
-	fillSelect(selField, _listVarRhist);
+	if( TMPL_RHIST == _intTmpl ){ fillSelect(selField, _listVarRhist); }
+	else                        { fillSelect(selField, _listVarSpc);   }
 }
-function removeRhistDiv(intId) { removeFieldValDiv(intId, _listRhistDiv, 1); }
-function selectRhistVarReq(intId){
-	var intIndexCrit = findDivId(_listRhistDiv, intId, 1);
+function removeFixSpcDiv(intId) { removeFieldValDiv(intId, _listFixSpcDiv, 1); }
+function selectFixSpcVarReq(intId){
+	var intIndexCrit = findDivId(_listFixSpcDiv, intId, 1);
 	if( 0 > intIndexCrit ){
-		console("selectRhistVarReq() - ERROR: index for id " + intId + " not found\n");
+		console("selectFixSpcVarReq() - ERROR: index for id " + intId + " not found\n");
 		return;
 	}
-	selectFieldReq(intId, _listRhistDiv, intIndexCrit - 1, selectRhistVarResp, -1);
+	selectFieldReq(intId, _listFixSpcDiv, intIndexCrit - 1, selectFixSpcVarResp, -1);
 }
-function selectRhistVarResp(strResp){ selectFieldResp(strResp, _listRhistDiv, 1, 1, false); }
+function selectFixSpcVarResp(strResp){ selectFieldResp(strResp, _listFixSpcDiv, 1, 1, false); }
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1278,7 +1312,7 @@ function updateFmtPlot(){
 	//  determine if the independent variable is a date type
 	var selIndyVar = document.getElementById("selIndyVar");
 	var strIndyVar = getSelected(selIndyVar)[0];
-	var boolIndyDate = TMPL_RHIST != _intTmpl && 
+	var boolIndyDate = !isTmplSpc() && 
 					   ( strIndyVar == "FCST_VALID_BEG" || strIndyVar == "FCST_INIT_BEG" ||
 						 strIndyVar == "FCST_VALID"     || strIndyVar == "FCST_INIT"     );
 
@@ -1311,7 +1345,7 @@ function updateFmtPlot(){
  */
 function buildSeriesDiv(){
 	
-	if( TMPL_RHIST == _intTmpl ){ return; }
+	if( isTmplSpc() ){ return; }
 
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
 	var spanFmtSeriesDisp = document.getElementById("spanFmtSeriesDisp");
@@ -1484,9 +1518,16 @@ function buildSeriesDiv(){
  */
 function getFmtSeriesVal(row){
 	
+	//  determine the id of the series formatting controls table
+	var strTabFmtSeriesId = "tabFmtSeries";
+	switch(_intTmpl){
+		case TMPL_RHIST: strTabFmtSeriesId = "tabFmtSeriesRhist"; break;
+		case TMPL_ROC  : strTabFmtSeriesId = "tabFmtSeriesRoc";   break;
+	}
+	
 	//  get and validate the requested row
 	var listTdFmt = new Array();
-	var tabFmtSeries = document.getElementById("tabFmtSeries");
+	var tabFmtSeries = document.getElementById(strTabFmtSeriesId);
 	var trFmtSeries = tabFmtSeries.rows[row];
 	if( 3 != trFmtSeries.cells.length ){ return listTdFmt; }
 	
@@ -1495,10 +1536,13 @@ function getFmtSeriesVal(row){
 	for(var i=0; i < tabVal1.rows.length; i++){ 
 		for(var j=0; j < tabVal1.rows[i].cells.length; j++){ listTdFmt.push(tabVal1.rows[i].cells[j]); }
 	}
-	var tabVal2 = trFmtSeries.cells[2].getElementsByTagName("table")[0];
-	for(var i=0; i < tabVal2.rows.length; i++){ 
-		for(var j=0; j < tabVal2.rows[i].cells.length; j++){ listTdFmt.push(tabVal2.rows[i].cells[j]); }
+	if( TMPL_RHIST != _intTmpl ){
+		var tabVal2 = trFmtSeries.cells[2].getElementsByTagName("table")[0];
+		for(var i=0; i < tabVal2.rows.length; i++){ 
+			for(var j=0; j < tabVal2.rows[i].cells.length; j++){ listTdFmt.push(tabVal2.rows[i].cells[j]); }
+		}
 	}
+	
 	return listTdFmt;
 }
 
@@ -1594,10 +1638,19 @@ function getPlotDiff(y){
 /**
  * Set up the format series controls for the rhist template
  */
-function buildSeriesDivRhist(){
+function buildSeriesDivSpc(){
+	
+	//  hide all the series formatting controls
 	document.getElementById("tabFmtSeries").style.display = "none";
 	document.getElementById("spanFmtSeriesDisp").style.display = "none";
-	var tabFmtSeries = document.getElementById("tabFmtSeriesRhist");
+	document.getElementById("tabFmtSeriesRhist").style.display = "none";
+	document.getElementById("tabFmtSeriesRoc").style.display = "none";
+	
+	//  determine the formatting controls to configure
+	var strFmtSeriesTab = "tabFmtSeriesRhist";
+	if     ( TMPL_RHIST == _intTmpl ){ strFmtSeriesTab = "tabFmtSeriesRhist"; }
+	else if( TMPL_ROC   == _intTmpl ){ strFmtSeriesTab = "tabFmtSeriesRoc";   }
+	var tabFmtSeries = document.getElementById(strFmtSeriesTab);
 	tabFmtSeries.style.display = "inline";
 
 	//  clear all existing series, except the first two
@@ -1661,10 +1714,19 @@ function buildPlotXML(){
 	//  <template>
 	strDepXML += "<template>" + strTemplate + ".R_tmpl</template>";
 	
-	if( TMPL_RHIST == _intTmpl ){
+	if( isTmplSpc() ){
 
 		//  <plot_fix>
-		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listRhistDiv, false, true) + "</plot_fix>";
+		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixSpcDiv, false, true) + "</plot_fix>";
+		
+		//  <roc_calc>
+		if( TMPL_ROC == _intTmpl ){
+			var listRocCalcParm = document.getElementById("tabRocCalcParm").getElementsByTagName("input");
+			strDepXML += "<roc_calc>";
+			strDepXML += 	   "<roc_pct>" + listRocCalcParm[0].checked + "</roc_pct>";
+			strDepXML += 	   "<roc_ctc>" + listRocCalcParm[1].checked + "</roc_ctc>";
+			strDepXML += "</roc_calc>";		
+		}		
 		
 	} else {
 		
@@ -1777,6 +1839,19 @@ function buildPlotXML(){
 		listFmtSeries[7] = "1";
 		listFmtSeries[8] = "\"" + getFmtVal(tabFmtSeries.rows[2].cells[0]) + "\"";
 		boolLegend = ("" != listFmtSeries[8]);
+	} else if( TMPL_ROC == _intTmpl ){
+		var tabFmtSeries1 = document.getElementById("tabFmtSeriesRoc1");
+		var tabFmtSeries2 = document.getElementById("tabFmtSeriesRoc2");
+		listFmtSeries[0] = "TRUE";
+		listFmtSeries[1] = "\"none\"";
+		listFmtSeries[2] = "\"" + getFmtVal(tabFmtSeries1.rows[0].cells[0]) + "\"";
+		listFmtSeries[3] = getFmtVal(tabFmtSeries1.rows[1].cells[0]);
+		listFmtSeries[4] = "\"" + getFmtVal(tabFmtSeries1.rows[2].cells[0]) + "\"";
+		listFmtSeries[5] = getFmtVal(tabFmtSeries2.rows[0].cells[0]);
+		listFmtSeries[6] = getFmtVal(tabFmtSeries2.rows[1].cells[0]);
+		listFmtSeries[7] = "1";
+		listFmtSeries[8] = "";
+		boolLegend = false;
 	} else {
 		var tabFmtSeries = document.getElementById("tabFmtSeries");		
 		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
@@ -1842,7 +1917,7 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet){
 		
 		//  build the XML for the list of values
 		var strValXML = "";
-		for(j in listVal){ strValXML += "<" + strValTag + ">" + listVal[j] + "</" + strValTag + ">"; }
+		for(j in listVal){ strValXML += "<" + strValTag + ">" + escapeXml(listVal[j]) + "</" + strValTag + ">"; }
 		var strValXMLCur = tabField.get(strVar);
 		listField.push(strVar);
 		tabField.put( strVar, (undefined == strValXMLCur? strValXML : strValXMLCur + strValXML) );		
@@ -2021,8 +2096,8 @@ function loadInitXML_phaseTmpl(){
 	_strInitXMLPlotTmpl = _strInitXML.match( /<template>(.*)\.R_tmpl<\/template>/ )[1];
 	setSelected(document.getElementById("selTemplate"), _strInitXMLPlotTmpl);
 	updateTmpl();
-	if( _intTmpl == TMPL_RHIST ){ loadSleep("loadInitXML_phasePlotFix()"); } 
-	else                        { loadSleep("loadInitXML_phaseDep()");     }
+	if( isTmplSpc() ){ loadSleep("loadInitXML_phasePlotFix()"); } 
+	else             { loadSleep("loadInitXML_phaseDep()");     }
 }
 
 //  data structures for managing dep fcst_var/stat pairs
@@ -2331,16 +2406,15 @@ function loadInitXML_phasePlotFixLoad(){
 		console("loadInitXML_phasePlotFixLoad() complete\n\n");
 
 		//  go to the next step, which depends on the plot template
-		var strTmpl = _strInitXML.match( /<template>(.*)\.R_tmpl<\/template>/ )[1];
-		if( _intTmpl == TMPL_RHIST ){ loadSleep("loadInitXML_phaseFormat()"); }
-		else                        { loadSleep("loadInitXML_phaseIndy()");   }
+		if( isTmplSpc() ){ loadSleep("loadInitXML_phaseFormat()"); }
+		else             { loadSleep("loadInitXML_phaseIndy()");   }
 		return;
 	}
 
 	//  add and set the plot_fix div to set controls for
-	if( _intTmpl == TMPL_RHIST ){ 
-		addRhistVar();
-		_divInitXMLPlotFix = _listRhistDiv[_listRhistDiv.length - 1];
+	if( isTmplSpc() ){ 
+		addFixSpcVar();
+		_divInitXMLPlotFix = _listFixSpcDiv[_listFixSpcDiv.length - 1];
 	} else {
 		addFixVar();
 		_divInitXMLPlotFix = _listFixDiv[_listFixDiv.length - 1];
@@ -2353,8 +2427,8 @@ function loadInitXML_phasePlotFixLoad(){
 			"  field = " +		_listInitXMLPlotFix[0] + "\n" + 
 			"  select = " +		_divInitXMLPlotFix.getElementsByTagName("select")[0] + "\n");
 	setSelected( _divInitXMLPlotFix.getElementsByTagName("select")[0], _listInitXMLPlotFix[0].toUpperCase() );
-	if( _intTmpl == TMPL_RHIST ){ selectRhistVarReq( getDivFieldValId(_divInitXMLPlotFix) ); }
-	else                        { selectFixVarReq(   getDivFieldValId(_divInitXMLPlotFix) ); }
+	if( isTmplSpc() ){ selectFixSpcVarReq( getDivFieldValId(_divInitXMLPlotFix) ); }
+	else             { selectFixVarReq(   getDivFieldValId(_divInitXMLPlotFix) ); }
 	
 	//  wait for the current fcst_var load to finish, then repeat
 	console("\n");
@@ -2458,6 +2532,16 @@ function loadInitXML_phaseFormat(){
 	}
 	updateCalcStat();
 
+	//  parse and set the roc_calc controls
+	if( TMPL_ROC == _intTmpl ){
+		console("  roc_calc\n");
+		var listRocCalcInput = document.getElementById("divRocCalc").getElementsByTagName("input");
+		var strRocPct = _strInitXML.match( /<roc_pct>(\w+)<\/roc_pct>/ )[1];
+		listRocCalcInput[0].checked = (strRocPct == "TRUE");
+		var strRocCtc = _strInitXML.match( /<roc_ctc>(\w+)<\/roc_ctc>/ )[1];
+		listRocCalcInput[1].checked = (strRocCtc == "TRUE");
+	}
+		
 	//  parse and set the tmpl information
 	var listTmplInput = document.getElementById("divTitleLab").getElementsByTagName("input");
 	var listLab;
@@ -2517,9 +2601,15 @@ function loadInitXML_phaseFormat(){
 			} else { console("WARNING: fmt_plot txt property " + strTxtName + " not found\n"); }
 		}
 	}
-	
-	//  series formatting
+
+	//  initialize the list of formatting values, depending on template
 	var listParm = ["plot_ci", "colors", "pch", "type", "lty", "lwd", "con_series", "legend", "plot_disp"];
+	switch(_intTmpl){
+	case TMPL_RHIST: listParm = ["colors", "lwd", "legend"];             break;
+	case TMPL_ROC:   listParm = ["colors", "pch", "type", "lty", "lwd"]; break;
+	}
+
+	//  series formatting
 	console("  fmt_series txt\n");
 	for(var i in listParm){
 		console("    " + listParm[i]);

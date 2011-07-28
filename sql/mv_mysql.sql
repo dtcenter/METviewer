@@ -71,7 +71,8 @@ CREATE TABLE stat_header
             vx_mask,
             interp_mthd,
             interp_pnts,
-            fcst_thresh
+            fcst_thresh,
+            obs_thresh
         )
 );
 

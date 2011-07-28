@@ -110,7 +110,6 @@ public class MVConv extends MVUtil {
 							   padEnd("stat_header", 18) + padEnd(padBegin("" + intNumSrc, 10), 12) + padBegin("" + intNumDest, 10));
 	
 			//  print out a report of the number of lines moved for all line_data tables
-			String[] listLineDataTables = _tableLineCounts.getKeyList();
 			for(int i=0; i < _listLineDataTables.length; i++){
 				
 				//  determine the number of source and destination records
