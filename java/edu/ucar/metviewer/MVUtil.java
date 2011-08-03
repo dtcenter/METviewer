@@ -313,8 +313,8 @@ public class MVUtil{
 	 * @param tmplMaps Map of value maps for each template field, used with map template parm (optional) 
 	 * @return String built using the template and values
 	 */
-	public static String buildTemplateString(String tmpl, MVOrderedMap vals, MVOrderedMap tmplMaps){
-		
+	public static String buildTemplateString(String tmpl, MVOrderedMap vals, MVOrderedMap tmplMaps)
+		throws Exception {
 		
 		String strRet = new String(tmpl);
 		Matcher matTmpl = _patPlotTmpl.matcher(tmpl);
@@ -342,6 +342,9 @@ public class MVUtil{
 					strMapName = strTmplTagName;
 				}
 				MVOrderedMap mapTmplVal = (MVOrderedMap)tmplMaps.get(strMapName);
+				if( null == mapTmplVal ){
+					throw new Exception("template tag " + strTmplTagName + " does not have a val_map defined");
+				}
 				strVal = (mapTmplVal.containsKey(strVal)? mapTmplVal.getStr(strVal) : strVal);
 			}
 				
@@ -382,7 +385,7 @@ public class MVUtil{
 		}
 		return strRet;
 	}
-	public static String buildTemplateString(String tmpl, MVOrderedMap vals){ return buildTemplateString(tmpl, vals, null); }
+	public static String buildTemplateString(String tmpl, MVOrderedMap vals) throws Exception{ return buildTemplateString(tmpl, vals, null); }
 	
 	public static final Pattern _patPlotTmpl	= Pattern.compile("\\{((\\w+)(?:\\?[^}]*)?)\\}");
 	
