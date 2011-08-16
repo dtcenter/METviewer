@@ -30,7 +30,7 @@ mv $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/log4j.properties_new \
 
 #  scrub system info from the mvservlet.properties file
 more $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties | \
-    sed -r 's/=.*/=/' > $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties_new
+    sed -r 's/=.*/=/' | sed -r 's/^[^=]+$//' > $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties_new
 rm $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties
 mv $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties_new \
    $MV_DEST/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties
