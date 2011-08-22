@@ -2136,7 +2136,7 @@ function loadInitXML_phaseDep(){
  */
 function loadInitXML_buildMap(xml, field, map, list){
 	var strFcstVar = xml;
-	var reg = new RegExp("<" + field + " name=\"(\\w+)\">(.*?)<\/" + field + ">(.*)");
+	var reg = new RegExp("<" + field + " name=\"([^\"]+)\">(.*?)<\/" + field + ">(.*)");
 	while( null != (listFcstVar = strFcstVar.match( reg )) ){
 		
 		//  remove the enclosing <set>, if necessary
