@@ -1075,6 +1075,7 @@ public class MVPlotJobParser extends MVUtil{
 	        "<xtlab_orient>" +	job.getXtlabOrient()	+ "</xtlab_orient>" +
 	        "<xtlab_perp>" +	job.getXtlabPerp()		+ "</xtlab_perp>" +
 	        "<xtlab_horiz>" +	job.getXtlabHoriz()		+ "</xtlab_horiz>" +
+	        "<xtlab_freq>" +	job.getXtlabFreq()		+ "</xtlab_freq>" +
 	        "<xlab_weight>" +	job.getXlabWeight()		+ "</xlab_weight>" +
 	        "<xlab_size>" +		job.getXlabSize()		+ "</xlab_size>" +
 	        "<xlab_offset>" +	job.getXlabOffset()		+ "</xlab_offset>" +
