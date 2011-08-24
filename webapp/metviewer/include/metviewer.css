@@ -57,6 +57,8 @@ a.plotInfo {
 
 .gray {
 	background-color: #c0c0c0;
+	border:2px solid #a1a1a1;
+	border-radius:5px;
 }
 
 .link {
