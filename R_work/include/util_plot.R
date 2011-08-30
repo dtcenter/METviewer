@@ -307,7 +307,12 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				if( TRUE == exists("dfStatsVal") ){ dfStatsComp = dfStatsVal; }
 				dfStatsVal = dfStatsIndy;
 				for(intVar in 1:length(listSeriesVar)){
-					dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
+					#dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
+		
+					# parse the perm value as an integer, if possible
+					valPerm = listPermVal[intVar];
+					if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+					dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == valPerm,];
 				}
 				
 				# sort the dataset by init time and valid time
