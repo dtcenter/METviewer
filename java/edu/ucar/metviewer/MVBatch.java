@@ -586,7 +586,7 @@ public class MVBatch extends MVUtil {
 		Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
 		
 		//  build the sql where clauses for the current permutation of fixed variables and values
-		String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, boolModePlot);
+		String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
 		
 		//  determine if the plot requires data aggregation or calculations
 		boolean boolAggCtc = job.getAggCtc();
@@ -1267,7 +1267,7 @@ public class MVBatch extends MVUtil {
 			Statement stmt = null;
 			
 			//  build the stat_header where clauses of the sql  
-			String strWhere = buildPlotFixWhere(listPlotFixVal, boolModePlot);
+			String strWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
 			
 			//  if the n_rank is present, replace the table
 			strWhere = strWhere.replaceAll("h\\.n_rank", "ld.n_rank");
@@ -1402,7 +1402,7 @@ public class MVBatch extends MVUtil {
 			Statement stmt = null;
 			
 			//  build the stat_header where clauses of the sql  
-			String strWhere = buildPlotFixWhere(listPlotFixVal, boolModePlot);
+			String strWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
 			
 			//  store distinct fcst_thresh and obs_thresh values to verify the plot spec
 			ArrayList listFcstThresh = new ArrayList();
@@ -1583,7 +1583,7 @@ public class MVBatch extends MVUtil {
 	 * @param boolModePlot specifies MODE plot
 	 * @return generated SQL where clauses
 	 */
-	public static String buildPlotFixWhere(Map.Entry[] listPlotFixFields, boolean boolModePlot){
+	public static String buildPlotFixWhere(Map.Entry[] listPlotFixFields, MVPlotJob job, boolean boolModePlot){
 		String strWhere = "";
 		
 		//  build the aggregate fields where clause
@@ -1594,11 +1594,17 @@ public class MVBatch extends MVUtil {
 			if( objValue instanceof String[] ){
 				strCondition = "IN (" + buildValueList( (String[])objValue ) + ")";
 			} else if( objValue instanceof MVOrderedMap ){
+				MVOrderedMap mapTmpl = job.getTmplVal();
+				String strSetName = mapTmpl.get(strField + "_set").toString();
+				String[] listValues = (String[])((MVOrderedMap)objValue).get(strSetName);
+				strCondition = "IN (" + buildValueList(listValues) + ")";
+				/*
 				Map.Entry[] listSets = ((MVOrderedMap)objValue).getOrderedEntries();
 				for(int j=0; j < listSets.length; j++){
 					strCondition += (0 == j? "" : ", ") + buildValueList( (String[])listSets[j].getValue() );
 				}
 				strCondition = "IN (" + strCondition + ")";
+				*/
 			} else if( objValue instanceof String ){
 				if( objValue.toString().startsWith("BETWEEN") ){ strCondition = objValue.toString(); }
 				else                                           { strCondition = "IN ('" + objValue.toString() + "')"; }
