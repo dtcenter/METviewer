@@ -327,17 +327,12 @@ public class MVPlotJobParser extends MVUtil{
 								
 								//  <date_range>
 								else if( nodeFixSet._tag.equals("date_range") ){
-									if( !_tableDateRangeDecl.containsKey(nodeFixSet._name) ){ throw new Exception("date_range " + nodeFixSet._name + " not found in plot_fix"); }
-									String strDateRangeVal = _tableDateRangeDecl.get(nodeFixSet._name).toString(); 
-									listFixSet.add(strDateRangeVal);
-									mapTmplVal.put(strDateRangeVal, nodeFixSet._name);
-									if( !nodeFixSet._id.equals("") ){ job.addTmplVal(nodeFixSet._id, nodeFixSet._name); }
+									throw new Exception("sets of date_range structures not supported");
 								}
 	
 								//  <date_range_list>
 								else if( nodeFixSet._tag.equals("date_range_list") ){
-									String[] listDateRange = (String[])_tableDateRangeListDecl.get(nodeFixSet._name); 
-									listFixSet.addAll(Arrays.asList(listDateRange));
+									throw new Exception("sets of date_range_list structures not supported");
 								}
 							}
 							mapFixVal.put(nodeFixVal._name, toArray(listFixSet));							
