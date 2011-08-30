@@ -242,7 +242,7 @@ for(strIndyVal in listIndyVal){
 		}
 		
 		# bootstrap the series data
-		dfBoot = data.frame(listBoot);
+		dfBoot = data.frame(listBoot, check.names=FALSE);
 		stBoot = Sys.time();
 		bootStat = try(boot(dfBoot, booter.iid, intNumReplicates));
 		dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
