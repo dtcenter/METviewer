@@ -73,25 +73,7 @@ public class MVLoadJobParser extends MVUtil{
 			
 			//  <date_list>
 			else if( node._tag.equals("date_list") ){
-				String strName = node._name;
-				String strStart = "";
-				String strEnd = "";
-				int intInc = 0;
-				String strFormat = "";
-				
-				for(int j=0; j < node._children.length; j++){
-					MVNode nodeChild = node._children[j];
-					if     ( nodeChild._tag.equals("inc") )    { intInc = Integer.parseInt(nodeChild._value); }
-					else if( nodeChild._tag.equals("format") ) { strFormat = nodeChild._value;                }
-				}
-				for(int j=0; j < node._children.length; j++){
-					MVNode nodeChild = node._children[j];
-					if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
-					else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
-				}
-				
-				String[] listDates = buildDateList(strStart, strEnd, intInc, strFormat);
-				_tableDateListDecl.put(strName, listDates);
+				_tableDateListDecl.put(node._name, buildDateList(node));
 			}
 			
 			//  simple string fields

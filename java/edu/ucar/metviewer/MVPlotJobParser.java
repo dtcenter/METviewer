@@ -31,36 +31,6 @@ public class MVPlotJobParser extends MVUtil{
 	protected String _strRworkFolder = "";
 	protected String _strPlotsFolder = "";
 
-	/*
-	public static void main(String[] args) {
-		System.out.println("----  MVPlotJobParser  ----\n");
-
-		Connection con = null;
-		try {
-
-			//  connect to the database
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			con = DriverManager.getConnection("jdbc:mysql://kemosabe:3306/metvdb_hmt", "pgoldenb", "pgoldenb");
-			if( con.isClosed() )	throw new Exception("database connection failed");			
-			System.out.println("connected to kemosabe");
-			
-			//  parse the data structure
-			MVPlotJobParser parser = new MVPlotJobParser("plot.xml", con);
-			MVPlotJob[] jobs = parser.parsePlotJobSpec();
-			int intNumJobs = jobs.length;
-			
-		} catch(SAXParseException se){
-			System.out.println("  **  ERROR: caught " + se.getClass() + ": " + se.getMessage());
-		} catch(Exception ex){
-			System.out.println("  **  ERROR: caught " + ex.getClass() + ": " + ex.getMessage());
-			ex.printStackTrace();
-		} finally {
-			try{ if( con != null )	con.close(); }catch(SQLException e){}
-		}
-		System.out.println("----  MVPlotJobParser Done  ----");
-	}
-	*/
-	
 	/**
 	 * Build a parser whose input source is the specified URI
 	 * @param spec URI of the XML plot specification source
@@ -183,9 +153,12 @@ public class MVPlotJobParser extends MVUtil{
 
 			//  <date_list>
 			else if( node._tag.equals("date_list") ){
+				/*
 				String strName = node._name;				
 				String[] listDates = parseDateList(node, _con);
 				_tableDateListDecl.put(strName, listDates);
+				*/
+				_tableDateListDecl.put(node._name, buildDateList(node));
 			}
 
 			//  <date_range>
@@ -339,9 +312,35 @@ public class MVPlotJobParser extends MVUtil{
 						
 						//  <set>
 						else if( nodeFixVal._tag.equals("set") ){
-							String[] listAggSet = new String[nodeFixVal._children.length];
-							for(int l=0; l < nodeFixVal._children.length; l++){ listAggSet[l] = nodeFixVal._children[l]._value; }
-							mapFixVal.put(nodeFixVal._name, listAggSet);
+							ArrayList listFixSet = new ArrayList();
+							for(int l=0; l < nodeFixVal._children.length; l++){
+								MVNode nodeFixSet = nodeFixVal._children[l];
+								
+								//  <val>
+								if( nodeFixSet._tag.equals("val") ){ listFixSet.add(nodeFixSet._value); }
+								
+								//  <date_list>
+								else if( nodeFixSet._tag.equals("date_list") ){
+									listFixSet.addAll( Arrays.asList((String[])_tableDateListDecl.get(nodeFixSet._name)) );
+									mapTmplVal.put(nodeFix._name, nodeFixSet._name);
+								}
+								
+								//  <date_range>
+								else if( nodeFixSet._tag.equals("date_range") ){
+									if( !_tableDateRangeDecl.containsKey(nodeFixSet._name) ){ throw new Exception("date_range " + nodeFixSet._name + " not found in plot_fix"); }
+									String strDateRangeVal = _tableDateRangeDecl.get(nodeFixSet._name).toString(); 
+									listFixSet.add(strDateRangeVal);
+									mapTmplVal.put(strDateRangeVal, nodeFixSet._name);
+									if( !nodeFixSet._id.equals("") ){ job.addTmplVal(nodeFixSet._id, nodeFixSet._name); }
+								}
+	
+								//  <date_range_list>
+								else if( nodeFixSet._tag.equals("date_range_list") ){
+									String[] listDateRange = (String[])_tableDateRangeListDecl.get(nodeFixSet._name); 
+									listFixSet.addAll(Arrays.asList(listDateRange));
+								}
+							}
+							mapFixVal.put(nodeFixVal._name, toArray(listFixSet));							
 						}
 						
 						//  <date_list>

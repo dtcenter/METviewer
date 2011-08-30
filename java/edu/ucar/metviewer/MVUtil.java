@@ -128,9 +128,37 @@ public class MVUtil{
 		
 		}catch(Exception e){
 			_out.println("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+			e.printStackTrace(_out);
 		}
 		return (String[])listDates.toArray(new String[]{});
 	}
+
+	/**
+	 * Wrap the buildDateList implementation above, by parsing the specified node for start, end,
+	 * incr and format and then returning the list of dates.
+	 * @param node MVNode to parse for the date list parameters 
+	 * @return List of date strings
+	 */
+	public static String[] buildDateList(MVNode node){
+		String strStart = "";
+		String strEnd = "";
+		int intInc = 0;
+		String strFormat = "";
+		
+		for(int j=0; j < node._children.length; j++){
+			MVNode nodeChild = node._children[j];
+			if     ( nodeChild._tag.equals("inc") )    { intInc = Integer.parseInt(nodeChild._value); }
+			else if( nodeChild._tag.equals("format") ) { strFormat = nodeChild._value;                }
+		}
+		for(int j=0; j < node._children.length; j++){
+			MVNode nodeChild = node._children[j];
+			if     ( nodeChild._tag.equals("start") ) { strStart = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+			else if( nodeChild._tag.equals("end") )   { strEnd   = (0 < nodeChild._children.length? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value); }
+		}
+		
+		return buildDateList(strStart, strEnd, intInc, strFormat);
+	}
+
 	
 	/**
 	 * Build a String representation of the date specified by the input <date_offset> {@link MVNode}.  The offset
