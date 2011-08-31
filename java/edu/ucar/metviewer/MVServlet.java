@@ -32,6 +32,7 @@ public class MVServlet extends HttpServlet {
 	public static String _strRTmpl = "";
 	public static String _strRWork = "";
 	public static String _strPlots = "";
+	public static String _strRscript = "";
 	
 	public static Hashtable _tableDBConnection = new Hashtable();
 	
@@ -57,6 +58,8 @@ public class MVServlet extends HttpServlet {
 			
 			_boolListValCache	= bundle.getString("cache.val").equals("true");
 			_boolListStatCache	= bundle.getString("cache.stat").equals("true");
+			
+			_strRscript			= bundle.getString("rscript.bin");
 			
 			_strPlotXML			= bundle.getString("folders.plot_xml");
 			_strRTmpl			= bundle.getString("folders.r_tmpl");
@@ -755,6 +758,7 @@ public class MVServlet extends HttpServlet {
 					"<user>" + _strDBUser + "</user>" +
 					"<password>" + _strDBPassword + "</password>" +
 		 		"</connection>" +
+		 		(_strRscript.equals("")? "" : "<rscript>" + _strRscript + "</rscript>") +
 		 		"<folders>" +
     		 		"<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
     		 		"<r_work>" + _strRWork + "</r_work>" +
