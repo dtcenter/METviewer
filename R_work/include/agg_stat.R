@@ -215,6 +215,7 @@ for(strIndyVal in listIndyVal){
 			for(intSeriesVal in 1:length(listSeriesVar)){
 				strSeriesVar = listSeriesVar[intSeriesVal];
 				strSeriesVal = listPerm[intSeriesVal];
+				if( grepl("^[0-9]+$", strSeriesVal) ){ strSeriesVal = as.numeric(strSeriesVal); }
 				dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] == strSeriesVal,];
 			}
 			if( 1 > nrow(dfStatsPerm) ){ next; }
