@@ -260,12 +260,14 @@ function onLoad(){
 
 
 /**
- * Button handlers that call the server to clear the <list_val> and <list_stat>
+ * Button handlers that call the server to clear/list the <list_val> and <list_stat>
  * caches
  */
 function dbClearCacheReq()      { sendRequest("POST", "<db_clear_cache/>"       , nullResp); clearControls(); }
 function listValClearCacheReq() { sendRequest("POST", "<list_val_clear_cache/>" , nullResp); clearControls(); }
+function listValCacheKeysReq()  { sendRequest("POST", "<list_val_cache_keys/>" ,  nullResp); clearControls(); }
 function listStatClearCacheReq(){ sendRequest("POST", "<list_stat_clear_cache/>", nullResp); clearControls(); }
+function listStatCacheKeysReq() { sendRequest("POST", "<list_stat_cache_keys/>" , nullResp); clearControls(); }
 
 /**
  * Search the specified div list for the member with the specified id and return

@@ -228,7 +228,7 @@ public class MVServlet extends HttpServlet {
 						if( !con.isClosed() ){
 							try{
 								Statement stmt = con.createStatement();
-								stmt.executeQuery("SELECT COUNT(*) FROM stat_group_lu;");
+								stmt.executeQuery("SELECT COUNT(*) FROM stat_header;");
 								stmt.close();
 								_logger.debug("doPost() - db_con: using cached connection " + strDBCon);
 								continue;
@@ -262,8 +262,14 @@ public class MVServlet extends HttpServlet {
 				//  <list_val_clear_cache>
 				else if( nodeCall._tag.equalsIgnoreCase("list_val_clear_cache") ){ strResp += handleClearListValCache(con); }
 				
+				//  <list_val_cache_keys>
+				else if( nodeCall._tag.equalsIgnoreCase("list_val_cache_keys") ){ strResp += handleListValCacheKeys(con); }
+				
 				//  <list_stat_clear_cache>
 				else if( nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache") ){ strResp += handleClearListStatCache(con); }
+				
+				//  <list_stat_cache_keys>
+				else if( nodeCall._tag.equalsIgnoreCase("list_stat_cache_keys") ){ strResp += handleListStatCacheKeys(con); }
 				
 				//  <db_clear_cache>
 				else if( nodeCall._tag.equalsIgnoreCase("db_clear_cache") ){ strResp += handleClearDBCache(); }
@@ -322,10 +328,26 @@ public class MVServlet extends HttpServlet {
      * @throws Exception
      */
     public static String handleClearListValCache(Connection con) throws Exception{
-    	if( !_boolListValCache ){ return "<error>caching list_val caching not activated</error>"; }    	
+    	if( !_boolListValCache ){ return "<error>list_val caching not activated</error>"; }    	
     	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
     	int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
     	return "<list_val_clear_cache>success: removed " + intNumRemoved + " entries</list_val_clear_cache>";
+    }
+    
+    /**
+     * Dump out all the keys of the list_val cache to the log file. 
+     * @param con
+     * @return reponse XML indicating progress
+     * @throws Exception
+     */
+    public static String handleListValCacheKeys(Connection con) throws Exception{
+    	if( !_boolListValCache ){ return "<error>list_val caching not activated</error>"; }    	
+    	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
+    	String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
+    	String strXML = "", strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
+    	for(int i=0; i < listKeys.length; i++){ strMsg += "  " + listKeys[i] + "\n"; strXML += "<key>" + listKeys[i] + "</key>"; }
+    	_logger.debug("handleListValCacheKeys() - " + strMsg);
+    	return "<list_val_cache_keys>" + strXML + "</list_val_cache_keys>";
     }
     
     /**
@@ -339,6 +361,22 @@ public class MVServlet extends HttpServlet {
     	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
     	int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
     	return "<list_stat_clear_cache>success: removed " + intNumRemoved + " entries</list_stat_clear_cache>";
+    }
+
+    /**
+     * Dump out all the keys of the list_stat cache to the log file. 
+     * @param con
+     * @return reponse XML indicating progress
+     * @throws Exception
+     */
+    public static String handleListStatCacheKeys(Connection con) throws Exception{
+    	if( !_boolListStatCache ){ return "<error>list_stat caching not activated</error>"; }    	
+    	String strKeyPrefix = "<db>" + con.getMetaData().getURL() +"</db>";
+    	String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
+    	String strXML = "", strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
+    	for(int i=0; i < listKeys.length; i++){ strMsg += "  " + listKeys[i] + "\n"; strXML += "<key>" + listKeys[i] + "</key>"; }
+    	_logger.debug("handleListStatCacheKeys() - " + strMsg);
+    	return "<list_stat_cache_keys>" + strXML + "</list_stat_cache_keys>";
     }
     
     /**
@@ -382,6 +420,23 @@ public class MVServlet extends HttpServlet {
     }
     
     /**
+     * Searches all key values of the input table, which are assumed to be Strings, and removes any entry
+     * whose key matches the specified prefix
+     * @param prefix String key prefix to match
+     * @param table Table from which matching entries will be removed
+     * @return number of removed entries
+     */
+    public static String[] listTableEntriesByKeyPrefix(String prefix, Hashtable table){
+    	ArrayList listKeys = new ArrayList(); 
+    	Map.Entry[] listEntries = (Map.Entry[])table.entrySet().toArray(new Map.Entry[]{});
+    	for(int i=0; i < listEntries.length; i++){
+    		String strKey = listEntries[i].getKey().toString(); 
+    		if( strKey.startsWith( prefix ) ){ listKeys.add(strKey); }     		
+    	}
+    	return MVUtil.toArray(listKeys);
+    }
+    
+    /**
      * List database values for the specified field with the specified constraints, using cached data if appropriate, and
      * return it in serialized XML
      * @param nodeCall MVNode containing request information
@@ -404,7 +459,8 @@ public class MVServlet extends HttpServlet {
     	strResp += "<id>" + strId + "</id>";
     	
     	//  check the list val cache for the request data
-    	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
+    	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + 
+    						 requestBody.replaceAll("<id>\\d+</id>", "").replaceAll("<date>\\d+</date>", "");
     	if( _boolListValCache && _tableListValCache.containsKey(strCacheKey) ){
     		String strListVal = _tableListValCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
         	_logger.debug("handleListVal() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListVal);
@@ -618,11 +674,15 @@ public class MVServlet extends HttpServlet {
 		}
 		
     	//  check the list val cache for the request data
-    	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + requestBody.replaceAll("<id>\\d+</id>", "");
-    	if( _boolListStatCache && _tableListStatCache.containsKey(strCacheKey) ){
-    		String strListStat = _tableListStatCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
-        	_logger.debug("handleListStat() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListStat);
-    		return strListStat;
+    	String strCacheKey = "<db>" + con.getMetaData().getURL() +"</db>" + 
+    						 requestBody.replaceAll("<id>\\d+</id>", "").replaceAll("<date>\\d+</date>", "");
+    	if( _boolListStatCache ){
+    		_logger.debug("handleListStat() - checking cache for key " + strCacheKey + ": " + _tableListStatCache.containsKey(strCacheKey));
+    		if( _tableListStatCache.containsKey(strCacheKey) ){
+	    		String strListStat = _tableListStatCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>"); 
+	        	_logger.debug("handleListStat() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListStat);
+	    		return strListStat;
+        	}
     	}
     	
     	//  build a query for the fcst_var stat counts
@@ -689,32 +749,6 @@ public class MVServlet extends HttpServlet {
 		_tableListStatCache.put(strCacheKey, strResp);
 		return strResp;
     }
-    
-	/**
-	 * Query the database using the specified connection for a list of the stat_group_lu_ids and associated
-	 * stat names.  Store the pairs in the _tableStatGroupName table for use by handleStatList() method.
-	 * @param con database connection to search against
-	 * @throws Exception
-	 */
-	public static synchronized void loadStatGroupNames(Connection con) throws Exception{
-		_tableStatGroupName.clear();
-
-		//  build the stat_group_lu select query and execute it
-		String strSQL = "SELECT stat_group_lu_id, stat_group_name FROM stat_group_lu ORDER BY stat_group_lu_id;";
-		Statement stmt = con.createStatement();
-		_logger.debug("loadStatGroupNames() - sql: " + strSQL);
-		long intStart = (new java.util.Date()).getTime();
-		ResultSet rs = stmt.executeQuery(strSQL);
-		
-		//  build the table with the query results
-		while( rs.next() ){
-			_tableStatGroupName.put(rs.getString(1), rs.getString(2));
-		}
-		_logger.debug("loadStatGroupNames() - returned " + _tableStatGroupName.size() + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
-		
-		//  clean up
-		stmt.close();
-	}
     
     public static final SimpleDateFormat _formatPlot = new SimpleDateFormat("yyyyMMdd_HHmmss");
     

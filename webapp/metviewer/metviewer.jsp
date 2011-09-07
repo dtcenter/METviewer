@@ -655,16 +655,18 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<b>Servlet Controls:</b>
 		<input type="button" class="gButton" onclick="javascript:dbClearCacheReq()" value="Clear Database Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
+		<input type="button" class="gButton" onclick="javascript:listValCacheKeysReq()" value="Val List Cache Keys"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
+		<input type="button" class="gButton" onclick="javascript:listStatCacheKeysReq()" value="Stat List Cache Keys"/>
 		<br/><br/>
 		
 		<b>Console:</b>
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
-		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/>&nbsp;&nbsp;
-		<textarea rows="20" cols="160" id="txtConsole"></textarea><br/><br/>
+		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/><br/>
+		<textarea rows="20" cols="120" id="txtConsole"></textarea><br/><br/>
 
-		<b>Init XML:</b>
-		<textarea rows="20" cols="160" id="txtInitXML"><%= strInitXML %></textarea><br/><br/>
+		<b>Init XML:</b><br/>
+		<textarea rows="20" cols="120" id="txtInitXML"><%= strInitXML %></textarea><br/><br/>
 		
 		<b>Regex Test</b>
 		<table>
