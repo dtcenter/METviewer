@@ -1,5 +1,7 @@
 setwd("#<r_work>#");
 
+source("include/util_plot.R");
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -11,23 +13,8 @@ dfData = read.delim(strDataFile);
 # create the ROC points using PCT data 
 if( TRUE == boolRocPct ){
 
-	# create a data frame to hold the aggregated contingency table and ROC data
-	listThresh = unique( sort( dfData$thresh_i ) );
-	dfROC = data.frame(thresh = listThresh, n11 = NA, n10 = NA, n01 = NA, n00 = NA);
+	dfROC = calcPctROC(dfData);
 	
-	# build the ROC contingency data table
-	for( thresh in listThresh ){
-		dfROC[dfROC$thresh == thresh,]$n11  = sum( dfData[dfData$thresh_i >  thresh,]$oy_i );
-		dfROC[dfROC$thresh == thresh,]$n10  = sum( dfData[dfData$thresh_i >  thresh,]$on_i );
-		dfROC[dfROC$thresh == thresh,]$n01  = sum( dfData[dfData$thresh_i <= thresh,]$oy_i );
-		dfROC[dfROC$thresh == thresh,]$n00  = sum( dfData[dfData$thresh_i <= thresh,]$on_i );
-	}
-	
-	# generate the pody and pofd scores from the contingency tables
-	dfROC$pody = dfROC$n11 / (dfROC$n11 + dfROC$n01); 
-	dfROC$pofd = dfROC$n10 / (dfROC$n10 + dfROC$n00);
-
-
 # create the ROC points using the CTC data
 } else if( TRUE == boolRocCtc ){
 	

@@ -543,14 +543,16 @@ public class MVPlotJobParser extends MVUtil{
 					MVNode nodeAggStat = node._children[j];					
 					if     ( nodeAggStat._tag.equals("agg_ctc")   )	{ job.setAggCtc(nodeAggStat._value.equalsIgnoreCase("true"));   }
 					else if( nodeAggStat._tag.equals("agg_sl1l2") )	{ job.setAggSl1l2(nodeAggStat._value.equalsIgnoreCase("true")); }
+					else if( nodeAggStat._tag.equals("agg_pct") )	{ job.setAggPct(nodeAggStat._value.equalsIgnoreCase("true"));   }
 					else if( nodeAggStat._tag.equals("boot_repl") )	{ job.setAggBootRepl(nodeAggStat._value);                       }
 					else if( nodeAggStat._tag.equals("boot_ci") )	{ job.setAggBootCI(nodeAggStat._value);                         }
 					else if( nodeAggStat._tag.equals("agg_diff1") )	{ job.setAggDiff1(nodeAggStat._value.equalsIgnoreCase("true")); }
 					else if( nodeAggStat._tag.equals("agg_diff2") )	{ job.setAggDiff2(nodeAggStat._value.equalsIgnoreCase("true")); }
 				}
 				
-				if( !job.getAggCtc() && !job.getAggSl1l2() ){ throw new Exception("invalid agg_stat setting - neither agg_ctc and agg_sl1l2 are true"); }
-				if( job.getAggCtc() && job.getAggSl1l2() )  { throw new Exception("invalid agg_stat setting - both agg_ctc and agg_sl1l2 are true"); }
+				if( !job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() ){ 
+					throw new Exception("invalid agg_stat setting - one of the aggregation line types must be selected"); 
+				}
 			}
 			
 			//  <calc_stat>

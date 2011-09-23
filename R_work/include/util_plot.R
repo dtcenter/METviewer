@@ -351,7 +351,7 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 					dblLoCI = dfStatsVal$stat_ncl;
 					dblUpCI = dfStatsVal$stat_ncu;
 				}
-			} else if( "boot" == strPlotCI ){
+			} else if( "boot" == strPlotCI | "brier" == strPlotCI ){
 				if( !is.na(dfStatsVal$stat_bcl) & !is.na(dfStatsVal$stat_bcu) &
 					-9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
 					dblLoCI = dfStatsVal$stat_bcl;
@@ -405,6 +405,29 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 	}
 	
 	return( list(series=listSeries[], nstats=listNStats, legend=listLegend) );
+}
+
+# calcPctROC() assumes that the specified dataframe contains PCT table data with columns
+#   named thresh_i, oy_i and on_i.  The ROC points pody and pofd are calculated for each
+#   threshold and returned in a dataframe.
+calcPctROC = function(dfData){
+	# create a data frame to hold the aggregated contingency table and ROC data
+	listThresh = unique( sort( dfData$thresh_i ) );
+	dfROC = data.frame(thresh = listThresh, n11 = NA, n10 = NA, n01 = NA, n00 = NA);
+	
+	# build the ROC contingency data table
+	for( thresh in listThresh ){
+		dfROC[dfROC$thresh == thresh,]$n11  = sum( dfData[dfData$thresh_i >  thresh,]$oy_i );
+		dfROC[dfROC$thresh == thresh,]$n10  = sum( dfData[dfData$thresh_i >  thresh,]$on_i );
+		dfROC[dfROC$thresh == thresh,]$n01  = sum( dfData[dfData$thresh_i <= thresh,]$oy_i );
+		dfROC[dfROC$thresh == thresh,]$n00  = sum( dfData[dfData$thresh_i <= thresh,]$on_i );
+	}
+	
+	# generate the pody and pofd scores from the contingency tables
+	dfROC$pody = dfROC$n11 / (dfROC$n11 + dfROC$n01); 
+	dfROC$pofd = dfROC$n10 / (dfROC$n10 + dfROC$n00);
+	
+	return(dfROC);
 }
 
 # padLeft() adds spaces to the left of the input string, str, for formatting purposes.
@@ -494,4 +517,54 @@ unescapeStr = function(s){
 	s = gsub("x5Cx", "\\", s); s = gsub("x5Dx", "]",  s); s = gsub("x5Ex", "^",  s); s = gsub("x60x", "`",  s);
 	s = gsub("x7Bx", "{",  s); s = gsub("x7Cx", "|",  s); s = gsub("x7Dx", "}",  s); s = gsub("x7Ex", "~",  s);
 	return(s);
+}
+
+# formatR() mimics the identically named java function which formats string that
+#   are used as R dataframe/list column names.  The formatted version of the
+#   specified unformatted string is returned.
+formatR = function(s){
+	if( "character" != class(s) ){ return(s); }
+	s = gsub("\\(", "",    s);
+	s = gsub("\\)", "",    s);
+	s = gsub("\\.", "_d_", s);
+	s = gsub("<=",  "le",  s);
+	s = gsub(">=",  "ge",  s);
+	s = gsub("=",   "eq",  s);
+	s = gsub("<",   "lt",  s);
+	s = gsub(">",   "gt",  s);
+	return(s);	
+}
+
+# calcBrierCI() computes a confidence interval for the Brier Score.  The specified
+#   pct data should contain the columns n_i, oy_i and on_i.  See Tressa Fowler email
+#   on 09/20/2011 Re: Brier CI calculation. 
+#
+# Reference:
+#   Bradley, A.A, S.S. Schwartz, and T. Hashino, 2008:
+#   Sampling Uncertainty and Confidence Intervals for the Brier Score
+#     and Brier Skill Score.  Weather and Forecasting, 23, 992-1006.
+calcBrierCI = function(dfPct, brier, alpha){ 
+	
+	# calculate PCT table attributes
+	T = sum(dfPct$n_i);
+	o_bar = sum(dfPct$oy_i) / T;
+	
+	# build the terms of the CI formula for each row
+	dfPct$ee  = dfPct$oy_i / T;
+	dfPct$ne  = dfPct$on_i / T;	
+	
+	# sum the terms
+	af1 = sum( dfPct$ee );
+	sf2 = sum( dfPct$ee^2 );
+	sf3 = sum( dfPct$ee^3 );
+	af4 = sum( (dfPct$ee + dfPct$ne)^4 );
+	
+	# determine the quantile for the specified alpha and total
+	t = qt(1 - (0.5*alpha), T - 1);
+	
+	# calculate the halfwidth CI using the summed terms
+	var = ( (af4/T) + o_bar*(1 - (4*sf3) + (6*sf2) + (4*af1/T)) - brier^2 ) / T;	
+	halfwidth = t * sqrt(var);
+	
+	return ( halfwidth );
 }

@@ -306,6 +306,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 				<ul>
 					<li><span class="code">&lt;agg_ctc&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate CTCs</li>
 					<li><span class="code">&lt;agg_sl1l2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate SL1L2s</li>
+					<li><span class="code">&lt;agg_pct&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate PCTs</li>
 					<li><span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for no bootstrapping</li>
 					<li><span class="code">&lt;boot_ci&gt;</span>: type of confidence interval to calculate, passed to boot.ci() R function (e.g. bca)</li>
 					<li><span class="code">&lt;agg_diff1&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, turns on a difference calculation
@@ -313,15 +314,15 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 					<li><span class="code">&lt;agg_diff2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, turns on a difference calculation
 					for the y2-axis series</li>
 				</ul><br/>
-				<span style="padding-left:30px">When using <span class="code">&lt;agg_stat&gt;</span>, the following constraints apply:</span>
+				<span style="padding-left:30px">When using <span class="code">&lt;agg_stat&gt;</span>, the following constraints and conditions apply:</span>
 				<ul>
 					<li>to turn off bootstrapping, set <span class="code">&lt;boot_repl&gt;</span> to 1</li>
-					<li>agg_ctc and agg_sl1l2 must only be used with appropriate statistics for each, and only one can be used on a single plot</li>
-					<li>agg_stat is only supported on the x1-axis</li>
+					<li>agg_ctc, agg_sl1l2 and agg_pct must only be used with appropriate statistics for each, and only one can be used on a single plot</li>
 					<li>agg_stat is performed once for each plot that is created</li>
 					<li>a plot cannot have both agg_stat and non-agg_stat data on the same plot</li>
 					<li>if the agg_stat difference curve is turned on, the plot1 difference curve must be turned off</li>
 					<li>to display the calculated bootstrap CIs, set the plot_cis to "boot"</li>
+					<li>bootstrapping CIs cannot be calculated for PSTD stats, instead use the "brier" CI type for Brier score</li>
 					<li>the plot must contain statistics for only one fcst_var</li>
 					<li>if agg_stat is turned on, event equalization must be turned off (it is done automatically)</li>
 					<li>agg_stat cannot be used on the same plot with calc_stat</li>
@@ -459,7 +460,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			the number of series and furthermore, the order of the series, can be done by considering the series1, series2 and dep values.  For each dep1 statistic, enumerate each
 			series1 permutation.  Then, do the same for each dep2 statistic.<br/><br/>
 
-			<li><span class="code">&lt;plot_ci&gt;</span>: confidence interval type for each series - options: none, norm, boot, std - example: <span class="term">c("norm", "none")</span></li>
+			<li><span class="code">&lt;plot_ci&gt;</span>: confidence interval type for each series - options: none, norm, boot, brier, std - example: <span class="term">c("norm", "none")</span></li>
 			<li><span class="code">&lt;plot_disp&gt;</span>: indicates which series are visible or not using TRUE/FALSE - example: <span class="term">c(TRUE, FALSE)</span></li>
 			<li><span class="code">&lt;colors&gt;</span>: <span class="term">lines(col)</span> - line color for each series - example: <span class="term">c("#33FF00FF", "#00FF19FF")</span></li>
 			<li><span class="code">&lt;pch&gt;</span>: <span class="term">lines(pch)</span> - point symbol - see example:(points) - example: <span class="term">c(19, 19)</span></li>

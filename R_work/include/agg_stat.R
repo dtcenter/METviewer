@@ -8,9 +8,11 @@ if( 0 <  length(listArgs) ) {
 }
 cat("agg_stat.R\ninput file: ", strInputInfoFile, "\n", sep="");
 
+browser();
+
 source(strInputInfoFile);
 setwd(strWorkingDir);
-source("util_plot.R");
+source("include/util_plot.R");
 
 # variables for performance bookkeeping
 stStart			= Sys.time();
@@ -130,6 +132,8 @@ calcODDS = function(d){
 	dblPOFD = caclPOFD(d);	
 	return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
 }
+
+# Prob stat calculations
 
 
 # booter function

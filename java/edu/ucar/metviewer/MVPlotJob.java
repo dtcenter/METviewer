@@ -135,6 +135,7 @@ public class MVPlotJob extends MVUtil{
 	
 	protected boolean _boolAggCtc			= false;
 	protected boolean _boolAggSl1l2			= false;
+	protected boolean _boolAggPct			= false;
 	protected String _strAggBootRepl		= "1";
 	protected String _strAggBootCI			= "bca";
 	protected boolean _strAggDiff1			= false;
@@ -287,6 +288,7 @@ public class MVPlotJob extends MVUtil{
 
 		job._boolAggCtc			= _boolAggCtc;
 		job._boolAggSl1l2		= _boolAggSl1l2;
+		job._boolAggPct			= _boolAggPct;
 		job._strAggBootRepl		= _strAggBootRepl;
 		job._strAggBootCI		= _strAggBootCI;
 		job._strAggDiff1		= _strAggDiff1;
@@ -581,6 +583,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setAggCtc(boolean aggCtc)							{ _boolAggCtc = aggCtc; 								}
 	public boolean	getAggSl1l2()										{ return _boolAggSl1l2;									}
 	public void		setAggSl1l2(boolean aggSl1l2)						{ _boolAggSl1l2 = aggSl1l2; 							}
+	public boolean	getAggPct()											{ return _boolAggPct;									}
+	public void		setAggPct(boolean aggPct)							{ _boolAggPct = aggPct; 								}
 	public String	getAggBootRepl()									{ return _strAggBootRepl;								}
 	public void		setAggBootRepl(String aggBootRepl)					{ _strAggBootRepl = aggBootRepl;						}
 	public String	getAggBootCI()										{ return _strAggBootCI;									}

@@ -193,9 +193,10 @@ public class MVBatch extends MVUtil {
 		MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(mapPlotFixVal);
 		
 		//  determine if the plots require data aggregation
-		boolean boolAggCtc = job.getAggCtc();
-		boolean boolAggSl1l2 = job.getAggSl1l2();
-		boolean boolAggStat = boolAggCtc || boolAggSl1l2;
+		boolean boolAggCtc		= job.getAggCtc();
+		boolean boolAggSl1l2	= job.getAggSl1l2();
+		boolean boolAggPct		= job.getAggPct();
+		boolean boolAggStat		= boolAggCtc || boolAggSl1l2;
 
 
 		/*
@@ -292,6 +293,7 @@ public class MVBatch extends MVUtil {
 			_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
 			String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
 			if( boolAggStat ){ strDataFile = strDataFile + ".agg_stat"; }
+			if( boolAggPct  ){ strDataFile = strDataFile + ".agg_pct"; }
 			(new File(strDataFile)).getParentFile().mkdirs();
 
 			//  get the plot data from the plot_data temp table and write it to a data file
@@ -323,12 +325,16 @@ public class MVBatch extends MVUtil {
 			 *  If agg_stat is requested, generate the agg_stat data files and run agg_stat.R 
 			 */
 			
-			if( boolAggStat ){
+			if( boolAggStat || boolAggPct ){
 
 				//  construct and create the path for the agg_stat data output file
-				String strAggStatInfo = strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
-				String strAggStatOutput = strDataFile.replaceFirst("\\.agg_stat$", "");
-				File fileAggStatOutput = new File(strAggStatOutput);
+				String strAggInfo = boolAggStat?
+										strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info") :
+										strDataFile.replaceFirst("\\.data.agg_pct$",  ".agg_pct.info");
+				String strAggOutput = boolAggStat?
+										strDataFile.replaceFirst("\\.agg_stat$", "") :
+										strDataFile.replaceFirst("\\.agg_pct$", "");
+				File fileAggOutput = new File(strAggOutput);
 				
 				//  build a list of the plot dep stats for the two y-axes, verifying that the fcst_var remains constant
 				ArrayList listAggStats1 = new ArrayList();
@@ -342,7 +348,7 @@ public class MVBatch extends MVUtil {
 					for(int i=0; i < listFcstVarStat.length; i++){
 						String strFcstVarCur = listFcstVarStat[i][0];
 						if     (  strFcstVar.equals("") )           { strFcstVar = strFcstVarCur; }
-						else if( !strFcstVar.equals(strFcstVarCur) ){ throw new Exception("fcst_var must remain constant when agg_stat is activated"); }
+						else if( !strFcstVar.equals(strFcstVarCur) ){ throw new Exception("fcst_var must remain constant when agg_stat/agg_pct is activated"); }
 						mapStat.put(listFcstVarStat[i][1], listFcstVarStat[i][0]);
 					}
 					if     ( 1 == intY ){ listAggStats1.addAll( Arrays.asList(mapStat.getKeyList()) ); }
@@ -370,19 +376,19 @@ public class MVBatch extends MVUtil {
 				tableAggStatInfo.put("agg_stat2",		printRCol(toArray(listAggStats2), true));
 				tableAggStatInfo.put("agg_stat_static",	mapAggStatStatic.getRDecl());
 				tableAggStatInfo.put("agg_stat_input",	strDataFile);
-				tableAggStatInfo.put("agg_stat_output",	strAggStatOutput);
+				tableAggStatInfo.put("agg_stat_output",	strAggOutput);
 				tableAggStatInfo.put("working_dir",		_strRworkFolder + "include");
 			
 				//  populate the agg_stat info file
-				populateTemplateFile(_strRtmplFolder + "agg_stat.info_tmpl", strAggStatInfo, tableAggStatInfo);
+				populateTemplateFile(_strRtmplFolder + (boolAggStat? "agg_stat.info_tmpl" : "agg_pct.info_tmpl"), strAggInfo, tableAggStatInfo);
 												
 				//  run agg_stat.R to generate the data file for plotting
-				if( !fileAggStatOutput.exists() || !_boolCacheAggStat ){
-					fileAggStatOutput.getParentFile().mkdirs();
-					runRscript(job.getRscript(), _strRworkFolder + "include/agg_stat.R", new String[]{strAggStatInfo});
+				if( !fileAggOutput.exists() || !_boolCacheAggStat ){
+					fileAggOutput.getParentFile().mkdirs();
+					runRscript(job.getRscript(), _strRworkFolder + (boolAggStat? "include/agg_stat.R" : "include/agg_pct.R"), new String[]{strAggInfo});
 					
 					//if( !fileAggStatOutput.exists() ){ throw new Exception("agg_stat.R failed"); }
-					if( !fileAggStatOutput.exists() ){ return; }
+					if( !fileAggOutput.exists() ){ return; }
 				}
 
 				//  if agg_diffN is turned on, add __AGG_DIFFN__ to the plot series
@@ -399,7 +405,7 @@ public class MVBatch extends MVUtil {
 				}					
 				
 				//  remove the .agg_stat suffix from the data file
-				strDataFile = strAggStatOutput;
+				strDataFile = strAggOutput;
 				
 				//  turn off the event equalizer
 				job.setEventEqual(false);
@@ -591,7 +597,8 @@ public class MVBatch extends MVUtil {
 		//  determine if the plot requires data aggregation or calculations
 		boolean boolAggCtc = job.getAggCtc();
 		boolean boolAggSl1l2 = job.getAggSl1l2();
-		boolean boolAggStat = boolAggCtc || boolAggSl1l2;
+		boolean boolAggPct = job.getAggPct();
+		boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggPct;
 		boolean boolCalcCtc = job.getCalcCtc();
 		boolean boolCalcSl1l2 = job.getCalcSl1l2();
 		boolean boolCalcStat = boolCalcCtc || boolCalcSl1l2;
@@ -711,6 +718,34 @@ public class MVBatch extends MVUtil {
 			strSelectList	+= ",\n  h.fcst_var";
 			strTempList		+= ",\n    fcst_var            VARCHAR(64)";
 			
+			/*
+			 *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists
+			 */
+			int intPctThresh = -1;
+			if( boolAggPct ){
+				String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" +
+										 "WHERE\n" + strWhere + "  AND ld.stat_header_id = h.stat_header_id;";
+				if( _boolVerbose || _boolSQLOnly ){ System.out.println(strSelPctThresh + "\n"); }
+				
+				//  run the PCT thresh query
+				Statement stmt = job.getConnection().createStatement();
+				stmt.executeQuery(strSelPctThresh);
+				
+				//  validate and save the number of thresholds
+				int intNumPctThresh = 0;
+				ResultSet r = stmt.getResultSet();
+				while( r.next() ){
+					intPctThresh = r.getInt(1);
+					intNumPctThresh++;
+				}
+				if( 1 != intNumPctThresh ){
+					throw new Exception("number of PCT thresholds (" + intNumPctThresh + ") not distinct for plot data");
+				} else if( 1 > intNumPctThresh ){
+					throw new Exception("invalid number of PCT thresholds (" + intNumPctThresh + ") found");
+				}
+				stmt.close();
+			}
+			
 			
 			/*
 			 *  Build the temp tables to hold plot data
@@ -759,6 +794,24 @@ public class MVBatch extends MVUtil {
 								"    ffbar               DOUBLE,\n" +
 								"    oobar               DOUBLE\n" +
 								");\n";
+				
+			} else if( boolAggPct ){
+				
+				strTempSQLCur = "CREATE TEMPORARY TABLE plot_data\n(\n" +
+								strTempList + ",\n" +
+								"    stat_name           VARCHAR(32),\n" +
+								"    stat_value          VARCHAR(16),\n" +
+								"    total               INT UNSIGNED,\n" +
+								"    n_thresh            INT UNSIGNED";
+				
+				for(int i=1; i < intPctThresh; i++){
+					strTempSQLCur += ",\n" +
+								"    thresh_" + i + "            DOUBLE,\n" +
+								"    oy_" + i + "                INT UNSIGNED,\n" +
+								"    on_" + i + "                INT UNSIGNED";
+				}
+				strTempSQLCur +=
+								"\n);\n";
 				
 			} else {
 				
@@ -822,33 +875,38 @@ public class MVBatch extends MVUtil {
 				} else {
 					if( _tableStatsCnt.containsKey(strStat) ){
 						tableStats = _tableStatsCnt;
-						strStatTable = (boolAggStat || boolCalcStat? "line_data_sl1l2" : "line_data_cnt");
+						strStatTable = (boolAggStat || boolCalcStat? "line_data_sl1l2" : "line_data_cnt") + " ld\n";
 					} else if( _tableStatsCts.containsKey(strStat) ){ 
 						tableStats = _tableStatsCts;
-						strStatTable = (boolAggStat || boolCalcStat? "line_data_ctc"   : "line_data_cts");
+						strStatTable = (boolAggStat || boolCalcStat? "line_data_ctc"   : "line_data_cts") + " ld\n";
 					} else if( _tableStatsNbrcnt.containsKey(strStat) ){
 						tableStats = _tableStatsNbrcnt;
-						strStatTable = "line_data_nbrcnt";
+						strStatTable = "line_data_nbrcnt ld\n";
 						strStatField = strStat.replace("NBR_", "").toLowerCase();
 					} else if( _tableStatsNbrcts.containsKey(strStat) ){
 						tableStats = _tableStatsNbrcts;
-						strStatTable = "line_data_nbrcts";
+						strStatTable = "line_data_nbrcts ld\n";
 						strStatField = strStat.replace("NBR_", "").toLowerCase();
 					} else if( _tableStatsPstd.containsKey(strStat) ){
 						tableStats = _tableStatsPstd;
-						strStatTable = "line_data_pstd";
+						strStatTable = "line_data_pstd ld\n";
+						if( boolAggStat ){
+							strStatTable = "line_data_pct ld";
+							for(int i=1; i < intPctThresh; i++){ strStatTable += ",\n  line_data_pct_thresh ldt" + i; }
+							strStatTable += "\n";
+						}
 						strStatField = strStat.replace("PSTD_", "").toLowerCase();
 					} else if( _tableStatsMcts.containsKey(strStat) ){
 						tableStats = _tableStatsMcts;
-						strStatTable = "line_data_mcts";
+						strStatTable = "line_data_mcts ld\n";
 						strStatField = strStat.replace("MCTS_", "").toLowerCase();
 					} else if( _tableStatsRhist.containsKey(strStat) ){
 						tableStats = _tableStatsRhist;
-						strStatTable = "line_data_rhist";
+						strStatTable = "line_data_rhist ld\n";
 						strStatField = strStat.replace("RHIST_", "").toLowerCase();
 					} else if( _tableStatsVl1l2.containsKey(strStat) ){
 						tableStats = _tableStatsVl1l2;
-						strStatTable = "line_data_vl1l2";
+						strStatTable = "line_data_vl1l2 ld\n";
 						strStatField = strStat.replace("VL1L2_", "").toLowerCase();
 					} else { throw new Exception("unrecognized stat: " + strStat); }
 				}					
@@ -871,6 +929,16 @@ public class MVBatch extends MVUtil {
 					//  add the appropriate stat table members, depending on the use of aggregation and stat calculation
 					if     ( boolAggCtc )  { strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on"; }
 					else if( boolAggSl1l2 ){ strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar"; }
+					else if( boolAggPct )  {
+						strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
+						for(int i=1; i < intPctThresh; i++){
+							strSelectStat += ",\n";
+							if( i < intPctThresh - 1 ){ strSelectStat += "  FORMAT((ldt" + i + ".thresh_i + ldt" + (i+1) + ".thresh_i)/2, 3),\n"; }
+							else                      { strSelectStat += "  FORMAT((ldt" + i + ".thresh_i + 1)/2, 3),\n";                           }
+							strSelectStat += "  ldt" + i + ".oy_i,\n" +
+											 "  ldt" + i + ".on_i";
+						}
+					}
 					else if( boolCalcCtc ) {
 						strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
 										 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
@@ -919,11 +987,17 @@ public class MVBatch extends MVUtil {
 					
 					String strStatNaClause = "";
 					if( !boolAggStat && !boolCalcStat ){ strStatNaClause = "\n  AND ld." + strStatField + " != -9999"; }
+					if( boolAggPct ){
+						for(int i=1; i < intPctThresh; i++){ 
+							strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n" +
+											     "  AND ldt" + i + ".i_value = " + i;
+						}
+					}
 					
 					//  build the query
 					strSelectSQL += (strSelectSQL.equals("")? "INSERT INTO plot_data\n" : "\nUNION\n") +
 									"SELECT\n" + strSelectStat + "\n" +
-									"FROM\n  stat_header h,\n  " + strStatTable + " ld\n" +
+									"FROM\n  stat_header h,\n  " + strStatTable +
 									"WHERE\n" + strWhere +
 									"  AND h.fcst_var " + strFcstVarClause + "\n" +
 									"  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;

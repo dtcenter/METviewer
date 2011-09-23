@@ -233,6 +233,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 					<td align="left" style="padding-left:30px" colspan="4">
 						<input type="radio" name="agg_stat" value="ctc"/><span class="bold">CTC</span>&nbsp;&nbsp;&nbsp;
 						<input type="radio" name="agg_stat" value="sl1l2"/><span class="bold">SL1L2</span>
+						<input type="radio" name="agg_stat" value="pct"/><span class="bold">PCT</span>
 						<br/><br/>
 					</td>
 				</tr>
@@ -390,6 +391,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 										<option>none</option>
 										<option>norm</option>
 										<option>boot</option>
+										<option>brier</option>
 										<option>std</option>
 										<!--<option>q98</option>-->
 										<!--<option>q90</option>-->

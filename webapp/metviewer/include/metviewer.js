@@ -1771,10 +1771,11 @@ function buildPlotXML(){
 			strDepXML += "<agg_stat>";
 			strDepXML += 	   "<agg_ctc>" + listAggStatParm[0].checked + "</agg_ctc>";
 			strDepXML += 	 "<agg_sl1l2>" + listAggStatParm[1].checked + "</agg_sl1l2>";
-			strDepXML += 	 "<boot_repl>" + listAggStatParm[2].value + "</boot_repl>";
-			strDepXML += 	   "<boot_ci>" + listAggStatParm[4].value + "</boot_ci>";
-			strDepXML += 	 "<agg_diff1>" + listAggStatParm[3].value + "</agg_diff1>";
-			strDepXML +=	 "<agg_diff2>" + listAggStatParm[5].value + "</agg_diff2>";
+			strDepXML += 	 "<agg_pct>"   + listAggStatParm[2].checked + "</agg_pct>";
+			strDepXML += 	 "<boot_repl>" + listAggStatParm[3].value + "</boot_repl>";
+			strDepXML += 	   "<boot_ci>" + listAggStatParm[5].value + "</boot_ci>";
+			strDepXML += 	 "<agg_diff1>" + listAggStatParm[4].value + "</agg_diff1>";
+			strDepXML +=	 "<agg_diff2>" + listAggStatParm[6].value + "</agg_diff2>";
 			strDepXML += "</agg_stat>";		
 		}
 		
@@ -2508,6 +2509,9 @@ function loadInitXML_phaseFormat(){
 		var strAggSl1l2 = _strInitXML.match( /<agg_sl1l2>(\w+)<\/agg_sl1l2>/ )[1];
 		listAggInput[2].checked = (strAggSl1l2 == "TRUE");
 		console("    agg_sl1l2 = " + strAggSl1l2 + " -> " +  + (strAggSl1l2 == "TRUE") + " - checked = " + listAggInput[2].checked + "\n");
+		var strAggPct = _strInitXML.match( /<agg_pct>(\w+)<\/agg_pct>/ )[1];
+		listAggInput[3].checked = (strAggPct == "TRUE");
+		console("    agg_pct = " + strAggPct + " -> " + (strAggPct == "TRUE") + " - checked = " + listAggInput[3].checked + "\n");
 		listAggInput[3].value = _strInitXML.match( /<boot_repl>(\w+)<\/boot_repl>/ )[1];
 		listAggInput[4].value = _strInitXML.match( /<agg_diff1>(\w+)<\/agg_diff1>/ )[1];
 		boolAggDiff1 = ("TRUE" == listAggInput[4].value);
