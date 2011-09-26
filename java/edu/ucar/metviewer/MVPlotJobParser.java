@@ -996,11 +996,12 @@ public class MVPlotJobParser extends MVUtil{
 		strXML += "</plot_fix>";
 		
 		//  agg_stat
-		if( job.getAggCtc() || job.getAggSl1l2() ){
+		if( job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() ){
 			strXML +=
 				"<agg_stat>" +
 					"<agg_ctc>" +	(job.getAggCtc()?   "TRUE" : "FALSE") + "</agg_ctc>" +
 					"<agg_sl1l2>" +	(job.getAggSl1l2()? "TRUE" : "FALSE") + "</agg_sl1l2>" +
+					"<agg_pct>" +	(job.getAggPct()? 	"TRUE" : "FALSE") + "</agg_pct>" +
 					"<boot_repl>" +	job.getAggBootRepl() +	"</boot_repl>" +
 					"<boot_ci>" +	job.getAggBootCI() +	"</boot_ci>" +
 					"<agg_diff1>" +	(job.getAggDiff1()? "TRUE" : "FALSE") + "</agg_diff1>" +
