@@ -1,6 +1,6 @@
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00124_20110923_144819.agg_pct.info";
+strInputInfoFile = "data/plot_00473_20110926_131630.agg_pct.info";
 listArgs = commandArgs(TRUE);
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -39,22 +39,12 @@ for(intY in 1:intYMax){
 		listOut[[strDiffVar]] = append(listOut[[strDiffVar]], strDiffSeries);
 	}
 	
-	# store the CI permutations for each series group
-	if( 1 == intY ){ matCIPerm1 = permute(listOut); }
-	if( 2 == intY ){ matCIPerm2 = permute(listOut); }
-	
 	# add the independent variable and statistics to create the list for the output data frame
 	listOut[[strIndyVar]] = listIndyVal;
 	listOut$stat_name = listStat;
 	matOutSeries = permute(listOut);
 	if( !exists("matOut") ){ matOut = matrix(nrow=0, ncol=length(names(listOut))); }
 	matOut = rbind(matOut, matOutSeries);
-}
-
-# run event equalizer either if requested
-if( boolEventEqual ){
-	dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val, FALSE);
-	if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }	
 }
 
 # build a dataframe (dfOut) to store the aggregated statistics
@@ -74,6 +64,13 @@ listOutPerm$stat_bcl = rep(NA, intNumOut);
 listOutPerm$stat_bcu = rep(NA, intNumOut);
 dfOut = data.frame(listOutPerm);
 
+# run event equalizer either if requested
+if( boolEventEqual ){
+	dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val, FALSE);
+	dfStatsRec = dfStatsRec[,1:(ncol(dfStatsRec)-1)];
+	if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }	
+}
+
 # run the aggregation flow for each independent variable value
 for(strIndyVal in listIndyVal){
 	
@@ -84,8 +81,8 @@ for(strIndyVal in listIndyVal){
 	for(intY in 1:intYMax){
 		
 		# build permutations for each plot series
-		if( 1 == intY ){ matPerm = permute(listSeries1Val); listStat = listStat1; matCIPerm = matCIPerm1; boolDiff = boolDiff1; }
-		if( 2 == intY ){ matPerm = permute(listSeries2Val); listStat = listStat2; matCIPerm = matCIPerm2; boolDiff = boolDiff2; }
+		if( 1 == intY ){ matPerm = permute(listSeries1Val); listStat = listStat1; boolDiff = boolDiff1; }
+		if( 2 == intY ){ matPerm = permute(listSeries2Val); listStat = listStat2; boolDiff = boolDiff2; }
 
 		# run the aggregation flow for each series permutation
 		for(intPerm in 1:nrow(matPerm)){
