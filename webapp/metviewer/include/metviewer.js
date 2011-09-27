@@ -1474,7 +1474,7 @@ function buildSeriesDiv(){
 
 					//  get format settings for the current field, if available, otherwise use defaults
 					var listVal = _listFmtSeriesDefaults;
-					var strVal = tableFmt.get(strSeriesName + " - " + strYSeries);
+					var strVal = tableFmt.get(escapeXml(strSeriesName) + " - " + strYSeries);
 					if     ( boolLockFmt         ){ listVal = listFmt[ _intNumSeries % listFmt.length ].split("|"); }
 					else if( undefined != strVal ){ listVal = strVal.split("|");                                    }
 					
@@ -2632,7 +2632,7 @@ function loadInitXML_phaseFormat(){
 		console(" found - " + listFmtVal[1] + "\n");
 		listFmtVal = listFmtVal[1].split(",");
 		intFmtRow = 0;
-		for(var j in listFmtVal){
+		for(var j in listFmtVal){			
 			var listFmtTd = getFmtSeriesVal(intFmtRow);
 			
 			//  strip leading spaces and quotes from the format value
@@ -2660,8 +2660,13 @@ function loadInitXML_phaseFormat(){
 			} else {
 				console("WARNING: series format control not found\n");
 			}
+			
+			//  if setting the first parameter (plot_ci), set the series formatting section to modified
+			if( 0 == i ){ setFmtSeriesMod(j, true); }
+
 			intFmtRow += 2;
 		}
+		
 	}
 	
 	//  axis formatting
