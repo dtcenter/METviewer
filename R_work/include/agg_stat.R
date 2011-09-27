@@ -12,7 +12,7 @@ browser();
 
 source(strInputInfoFile);
 setwd(strWorkingDir);
-source("include/util_plot.R");
+source("util_plot.R");
 
 # variables for performance bookkeeping
 stStart			= Sys.time();
