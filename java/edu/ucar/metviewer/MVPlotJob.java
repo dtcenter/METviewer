@@ -131,6 +131,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strBoxOutline			= "TRUE";
 	protected String _strBoxNotch			= "FALSE";
 	protected String _strBoxAvg				= "FALSE";
+	protected String _strRelyEventHist		= "TRUE";
 	protected String _strCIAlpha			= ".05";
 	
 	protected boolean _boolAggCtc			= false;
@@ -284,6 +285,7 @@ public class MVPlotJob extends MVUtil{
 		job._strBoxBoxwex		= _strBoxBoxwex;
 		job._strBoxNotch		= _strBoxNotch;
 		job._strBoxAvg			= _strBoxAvg;
+		job._strRelyEventHist	= _strRelyEventHist;
 		job._strCIAlpha			= _strCIAlpha;
 
 		job._boolAggCtc			= _boolAggCtc;
@@ -576,6 +578,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setBoxNotch(String boxNotch)						{ _strBoxNotch = boxNotch;								}
 	public String	getBoxAvg()											{ return _strBoxAvg;									}
 	public void		setBoxAvg(String boxAvg)							{ _strBoxAvg = boxAvg;									}
+	public String	getRelyEventHist()									{ return _strRelyEventHist;								}
+	public void		setRelyEventHist(String relyEventHist)				{ _strRelyEventHist = relyEventHist;					}
 	public String	getCIAlpha()										{ return _strCIAlpha;									}
 	public void		setCIAlpha(String ciAlpha)							{ _strCIAlpha = ciAlpha;								}
 

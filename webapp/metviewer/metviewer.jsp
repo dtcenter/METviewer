@@ -34,7 +34,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.3</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.4</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -55,7 +55,12 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate" onchange="javascript:updateTmpl()">
-			<option>series_plot</option><option>box_plot</option><option>bar_plot</option><option>rhist</option><option>roc</option>
+			<option>series_plot</option>
+			<option>box_plot</option>
+			<option>bar_plot</option>
+			<option>rhist</option>
+			<option>roc</option>
+			<option>rely</option>
 		</select><br/><br/><br/>
 	</td></tr>
 
@@ -623,6 +628,169 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<tr><td><br/><br/></td></tr>
 			</table>
 			
+			<table id="tabFmtSeriesRely" cellspacing="0" cellpadding="0" border="0" style="display:none; padding-bottom:20px">
+			<tr>
+				<td align="right" style="width:350px">
+					<span id="spanFmtSeriesName">
+						<span class="bold" style="font-size:10pt; padding-right:20px">Reliability Curve</span>
+					</span>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRely1" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Color</td>
+								<td rowspan="2"><input type="text" size="12" value="#333333FF"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">color</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Point Symbol</td>
+								<td rowspan="2"><input type="text" size="12" value="20"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">pch</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Series Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>b</option>
+										<option>p</option>
+										<option>l</option>
+										<option>o</option>
+										<option>s</option>
+										<option>h</option>
+										<option>n</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">type</td></tr>
+						</table>								
+					</td></tr>
+					</table>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRely2" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lty</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Width</td>
+								<td rowspan="2"><input type="text" size="12" value="1"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lwd</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">&nbsp;</td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr><td colspan="3"><br/><hr/><br/></td></tr>
+			<tr>
+				<td align="right" style="width:350px">
+					<span id="spanFmtSeriesName">
+						<span class="bold" style="font-size:10pt; padding-right:20px">Event Histogram</span>
+					</span>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRely3" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Color</td>
+								<td rowspan="2"><input type="text" size="12" value="#AAAAAAFF"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">color</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Point Symbol</td>
+								<td rowspan="2"><input type="text" size="12" value="20"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">pch</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Series Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>b</option>
+										<option>p</option>
+										<option>l</option>
+										<option>o</option>
+										<option>s</option>
+										<option selected="selected">h</option>
+										<option>n</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">type</td></tr>
+						</table>								
+					</td></tr>
+					</table>
+				</td>
+				<td align="right">
+					<table id="tabFmtSeriesRely4" border="0" cellpadding="0" cellspacing="0" style="width:300px">
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Type</td>
+								<td rowspan="2">
+									<select style="min-width:100px">
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+									</select>
+								</td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lty</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="fmtLabel" align="right">Line Width</td>
+								<td rowspan="2"><input type="text" size="12" value="50"/></td>
+							</tr>
+							<tr><td class="fmtTag" align="right">lwd</td></tr>
+						</table>
+					</td></tr>
+					<tr><td align="right">&nbsp;</td></tr>
+					</table><br/><br/>
+				</td>
+			</tr>
+			</table>
 			
 		</div>
 		

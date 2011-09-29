@@ -242,7 +242,7 @@ public class MVPlotJobParser extends MVUtil{
 					if( !job.getRocPct() && ! job.getRocCtc() ){
 						strCompleteness = "if ROC template is selected, one of roc_pct or roc_ctc must be true";
 					}
-				} else if( !job.getPlotTmpl().equals("rhist.R_tmpl") ){
+				} else if( !job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") ){
 					strCompleteness = checkJobCompleteness(job);
 				}
 				boolean boolComplete = strCompleteness.equals("");
@@ -721,6 +721,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("box_boxwex",	MVPlotJob.class.getDeclaredMethod("setBoxBoxwex",	new Class[]{String.class}));
 			_tableFormatString.put("box_notch",		MVPlotJob.class.getDeclaredMethod("setBoxNotch",	new Class[]{String.class}));
 			_tableFormatString.put("box_avg",		MVPlotJob.class.getDeclaredMethod("setBoxAvg",		new Class[]{String.class}));
+			_tableFormatString.put("rely_event_hist",MVPlotJob.class.getDeclaredMethod("setRelyEventHist",new Class[]{String.class}));
 			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));
 			
 			_tableFormatString.put("plot_ci",		MVPlotJob.class.getDeclaredMethod("setPlotCI",		new Class[]{String.class}));
@@ -914,7 +915,8 @@ public class MVPlotJobParser extends MVUtil{
     	strXML += "<template>" + job.getPlotTmpl() + "</template>";
 
     	//  if there are dep, series and indep elements present, handle them
-    	if( !job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("roc") ){
+    	if( !job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("roc")  && 
+    		!job.getPlotTmpl().startsWith("rely") ){
     	
 	    	// dep
 	    	strXML += "<dep>";
@@ -1116,6 +1118,7 @@ public class MVPlotJobParser extends MVUtil{
 	        "<box_boxwex>" +	job.getBoxBoxwex()		+ "</box_boxwex>" +
 	        "<box_notch>" +		job.getBoxNotch()		+ "</box_notch>" +
 	        "<box_avg>" +		job.getBoxAvg()			+ "</box_avg>" +
+	        "<rely_event_hist>"+job.getRelyEventHist()	+ "</rely_event_hist>" +
 	        "<ci_alpha>" +		job.getCIAlpha()		+ "</ci_alpha>" +
 	        
 	        "<plot_ci>" +		job.getPlotCI() +		"</plot_ci>" +

@@ -454,6 +454,7 @@ public class MVServlet extends HttpServlet {
 		boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
 		boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
 		boolean boolROC = nodeCall._children[1]._tag.equals("roc_field");
+		boolean boolRely = nodeCall._children[1]._tag.equals("rely_field");
 		String strHeaderTable = boolMode? "mode_header" : "stat_header";
     	_logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
     	strResp += "<id>" + strId + "</id>";
@@ -480,6 +481,8 @@ public class MVServlet extends HttpServlet {
 		} else if( boolROC ){
 			tableLineDataTables.put("line_data_pct", "true");
 			tableLineDataTables.put("line_data_ctc", "true");
+		} else if( boolRely ){
+			tableLineDataTables.put("line_data_pct", "true");
 		} else if( 2 < nodeCall._children.length ){
     		boolFcstVar = true;
 			MVNode nodeFcstVarStat = nodeCall._children[2];
@@ -851,9 +854,10 @@ public class MVServlet extends HttpServlet {
     		//  build the job SQL using the batch engine
     		bat._boolSQLOnly = true;
     		bat._boolVerbose = true;
-			if( strJobTmpl.equals("rhist.R_tmpl")    ){ bat.runRhistJob(job); }
-			else if( strJobTmpl.equals("roc.R_tmpl") ){ bat.runRocJob(job); }
-			else                                      { bat.runJob(job);      }
+			if     ( strJobTmpl.equals("rhist.R_tmpl")  ){ bat.runRhistJob(job);   }
+			else if( strJobTmpl.equals("roc.R_tmpl") || 
+					 strJobTmpl.equals("rely.R_tmpl")   ){ bat.runRocRelyJob(job); }
+			else                                         { bat.runJob(job);        }
     		bat._boolSQLOnly = false;
     		bat._boolVerbose = false;
     		String strPlotSQL = log.toString();
@@ -866,9 +870,10 @@ public class MVServlet extends HttpServlet {
     		
 			//  run the job to generate the plot
     		//bat._boolVerbose = true;
-			if( strJobTmpl.equals("rhist.R_tmpl")    ){ bat.runRhistJob(job); }
-			else if( strJobTmpl.equals("roc.R_tmpl") ){ bat.runRocJob(job); }
-			else                                      { bat.runJob(job);      }
+			if( strJobTmpl.equals("rhist.R_tmpl")       ){ bat.runRhistJob(job);   }
+			else if( strJobTmpl.equals("roc.R_tmpl") || 
+					 strJobTmpl.equals("rely.R_tmpl")   ){ bat.runRocRelyJob(job); }
+			else                                         { bat.runJob(job);        }
     		String strPlotterOutput = log.toString();
     		writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".log");
     		writer.write(strPlotterOutput);

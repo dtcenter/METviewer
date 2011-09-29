@@ -149,8 +149,9 @@ public class MVBatch extends MVUtil {
 			for(int intJob=0; intJob < jobs.length; intJob++){
 				if( jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl") ){
 					bat.runRhistJob(jobs[intJob]);
-				} else if( jobs[intJob].getPlotTmpl().equals("roc.R_tmpl") ){
-					bat.runRocJob(jobs[intJob]);
+				} else if( jobs[intJob].getPlotTmpl().equals("roc.R_tmpl") || 
+						   jobs[intJob].getPlotTmpl().equals("rely.R_tmpl") ){
+					bat.runRocRelyJob(jobs[intJob]);
 				} else {
 					bat.runJob(jobs[intJob]);
 				}
@@ -1456,11 +1457,11 @@ public class MVBatch extends MVUtil {
 
 	/**
 	 * Build SQL for and gather data from the line_data_prc and line_data_prc_thresh tables and use
-	 * it to build a ROC plot plot.
-	 * @param job ROC plot job
+	 * it to build a ROC plot or a reliability plot.
+	 * @param job ROC/reliability plot job
 	 * @throws Exception
 	 */
-	public void runRocJob(MVPlotJob job) throws Exception {
+	public void runRocRelyJob(MVPlotJob job) throws Exception {
 		
 		//  build a list of fixed value permutations for all plots
 		MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
@@ -1472,6 +1473,7 @@ public class MVBatch extends MVUtil {
 			//  populate the template map with fixed values 
 			Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
 			
+			boolean boolRelyPlot = job.getPlotTmpl().startsWith("rely");
 			boolean boolModePlot = false;
 			Statement stmt = null;
 			
@@ -1488,13 +1490,14 @@ public class MVBatch extends MVUtil {
 				"  DISTINCT(h.obs_thresh)\n" +
 				"FROM\n" +
 				"  stat_header h,\n" +
-				"  " + (job.getRocPct()? "line_data_pct" : "line_data_ctc") + " ld\n" +
+				"  " + (boolRelyPlot || job.getRocPct()? "line_data_pct" : "line_data_ctc") + " ld\n" +
 				"WHERE\n" +
 				strWhere +
 				"  AND h.stat_header_id = ld.stat_header_id\n" +
 				"ORDER BY h.obs_thresh;";
 
 			//  run the obs_thresh query and throw an error, if necessary
+			if( _boolVerbose || _boolSQLOnly ){ _out.println(strObsThreshSelect + "\n"); }
 			stmt = job.getConnection().createStatement();
 			stmt.execute(strObsThreshSelect);
 			ResultSet res = stmt.getResultSet();
@@ -1503,7 +1506,7 @@ public class MVBatch extends MVUtil {
 
 			//  build the query depending on the type of data requested
 			String strPlotDataSelect = ""; 
-			if( job.getRocPct() ){
+			if( boolRelyPlot || job.getRocPct() ){
 				
 				//  check to ensure only a single fcst_thresh is used
 				String strFcstThreshSelect = 
@@ -1518,6 +1521,7 @@ public class MVBatch extends MVUtil {
 					"ORDER BY h.fcst_thresh;";
 
 				//  run the fcst_thresh query and throw an error, if necessary
+				if( _boolVerbose || _boolSQLOnly ){ _out.println(strFcstThreshSelect + "\n"); }
 				stmt = job.getConnection().createStatement();
 				stmt.execute(strFcstThreshSelect);
 				res = stmt.getResultSet();
@@ -1580,7 +1584,7 @@ public class MVBatch extends MVUtil {
 			
 			//  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
 			if( job.getRocPct() && 1 != listFcstThresh.size() ){
-				String strFcstThreshMsg = "ROC plots using PCTs must contain data from only a single fcst_thresh, " +
+				String strFcstThreshMsg = "ROC/Reliability plots using PCTs must contain data from only a single fcst_thresh, " +
 										 "instead found " + listFcstThresh.size();
 				for(int i=0; i < listFcstThresh.size(); i++){
 					strFcstThreshMsg += (0 == i? ":" : "") + "\n  " + listFcstThresh.toString();
@@ -1613,6 +1617,7 @@ public class MVBatch extends MVUtil {
 			String strTitle		= buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+			String strY2Label	= buildTemplateString(job.getY2LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strCaption	= buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			
 			//  create a table containing all template values for populating the R_tmpl
@@ -1626,6 +1631,15 @@ public class MVBatch extends MVUtil {
 			tableRTags.put("plot_title",	strTitle);
 			tableRTags.put("x_label",		strXLabel);
 			tableRTags.put("y1_label",		strY1Label);
+			tableRTags.put("y2_label",		strY2Label);
+			tableRTags.put("y2tlab_orient",	job.getY2tlabOrient());
+			tableRTags.put("y2tlab_perp",	job.getY2tlabPerp());
+			tableRTags.put("y2tlab_horiz",	job.getY2tlabHoriz());
+			tableRTags.put("y2tlab_size",	job.getY2tlabSize());			
+			tableRTags.put("y2lab_weight",	job.getY2labWeight());
+			tableRTags.put("y2lab_size",	job.getY2labSize());
+			tableRTags.put("y2lab_offset",	job.getY2labOffset());
+			tableRTags.put("y2lab_align",	job.getY2labAlign());
 			tableRTags.put("plot_caption",	strCaption);
 			tableRTags.put("plot_cmd", 		job.getPlotCmd());
 			tableRTags.put("colors",		job.getColors().equals("")?	"c(\"gray\")"	: job.getColors());
@@ -1823,6 +1837,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("box_boxwex",	job.getBoxBoxwex());
 		tableRTags.put("box_notch",		job.getBoxNotch());
 		tableRTags.put("box_avg",		job.getBoxAvg());
+		tableRTags.put("rely_event_hist",job.getRelyEventHist());
 		tableRTags.put("ci_alpha",		job.getCIAlpha());
 	}
 		

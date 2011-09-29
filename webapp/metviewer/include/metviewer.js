@@ -7,6 +7,7 @@ var TMPL_BAR_PLOT		= 2;
 var TMPL_BOX_PLOT		= 3;
 var TMPL_RHIST			= 4;
 var TMPL_ROC			= 5;
+var TMPL_RELY			= 6;
 var _intTmpl = TMPL_SERIES_PLOT;
 
 var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "FixSpc", "Indy", "AggStat", "CalcStat", "FmtPlot", "FmtSeries"];
@@ -221,6 +222,7 @@ function onLoad(){
 	addFmtPlot("Box Plot Box Width",			"box_boxwex",		".2",			"txt");
 	addFmtPlot("Box Plot Show Notches",			"box_notch",		["FALSE", "TRUE"], "txt");
 	addFmtPlot("Box Plot Show Avg",				"box_avg",			["FALSE", "TRUE"], "txt");
+	addFmtPlot("Reliability Event Histogram",	"rely_event_hist",	["TRUE", "FALSE"], "txt");
 	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");	
 
 	//  initialize the dep list
@@ -295,6 +297,7 @@ function updatePlotData(){
 	if( strPlotData == "Stat" ){
 		if     ( strTmpl == "rhist" ){ _strPlotData = "rhist"; }
 		else if( strTmpl == "roc"   ){ _strPlotData = "roc";   }
+		else if( strTmpl == "rely"  ){ _strPlotData = "rely";  }
 		else                         { _strPlotData = "stat";  }
 		_listVar = _listVarStat;
 		_listIndyVar = _listIndyVarStat;
@@ -436,7 +439,11 @@ function setFmtVal(tdFmt, val){
  * templates and return true if so, false otherwise.  Default input is the
  * current _intTmpl setting.
  */
-function isTmplSpc(){ return (TMPL_RHIST == _intTmpl || TMPL_ROC == _intTmpl); }
+function isTmplSpc(){ 
+	return (TMPL_RHIST	== _intTmpl || 
+			TMPL_ROC	== _intTmpl || 
+			TMPL_RELY	== _intTmpl); 
+}
 
 /**
  * When the plot template is switched, configure the visibility of the controls
@@ -450,6 +457,7 @@ function updateTmpl(){
 	else if( null != strTmpl.match( /^box_plot$/    ) ){ _intTmpl = TMPL_BOX_PLOT;    } 
 	else if( null != strTmpl.match( /^rhist$/       ) ){ _intTmpl = TMPL_RHIST;       } 
 	else if( null != strTmpl.match( /^roc$/         ) ){ _intTmpl = TMPL_ROC;         } 
+	else if( null != strTmpl.match( /^rely$/        ) ){ _intTmpl = TMPL_RELY;         } 
 	
 	//  default visibility settings for the series_plot template
 	var boolY1 = true;
@@ -1367,7 +1375,6 @@ function buildSeriesDiv(){
 	for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
 		var listSpan = tabFmtSeries.rows[intRow].getElementsByTagName("span");
 		var listInput = tabFmtSeries.rows[intRow].getElementsByTagName("input");
-		//if( listInput[0].value == "false" ){ continue; }
 		var listFmtTd = getFmtSeriesVal(intRow);
 		
 		//  get the series name and values and put them in the table
@@ -1525,6 +1532,7 @@ function getFmtSeriesVal(row){
 	switch(_intTmpl){
 		case TMPL_RHIST: strTabFmtSeriesId = "tabFmtSeriesRhist"; break;
 		case TMPL_ROC  : strTabFmtSeriesId = "tabFmtSeriesRoc";   break;
+		case TMPL_RELY : strTabFmtSeriesId = "tabFmtSeriesRely";  break;
 	}
 	
 	//  get and validate the requested row
@@ -1647,19 +1655,23 @@ function buildSeriesDivSpc(){
 	document.getElementById("spanFmtSeriesDisp").style.display = "none";
 	document.getElementById("tabFmtSeriesRhist").style.display = "none";
 	document.getElementById("tabFmtSeriesRoc").style.display = "none";
+	document.getElementById("tabFmtSeriesRely").style.display = "none";
 	
 	//  determine the formatting controls to configure
 	var strFmtSeriesTab = "tabFmtSeriesRhist";
 	if     ( TMPL_RHIST == _intTmpl ){ strFmtSeriesTab = "tabFmtSeriesRhist"; }
 	else if( TMPL_ROC   == _intTmpl ){ strFmtSeriesTab = "tabFmtSeriesRoc";   }
+	else if( TMPL_RELY  == _intTmpl ){ strFmtSeriesTab = "tabFmtSeriesRely";   }
 	var tabFmtSeries = document.getElementById(strFmtSeriesTab);
 	tabFmtSeries.style.display = "inline";
 
 	//  clear all existing series, except the first two
-	while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }
+	if( !isTmplSpc() ){
+		while( 2 < tabFmtSeries.rows.length ){ tabFmtSeries.deleteRow( tabFmtSeries.rows.length - 1 ); }
+	}
 		
 	//  show or hide the controls, depending on the number of series
-	_intNumSeries = 1;
+	_intNumSeries = ( _intTmpl == TMPL_RELY? 2 : 1);
 	tabFmtSeries.style.display = tabFmtSeries.style.display;
 	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
 }
@@ -1853,6 +1865,26 @@ function buildPlotXML(){
 		listFmtSeries[5] = getFmtVal(tabFmtSeries2.rows[0].cells[0]);
 		listFmtSeries[6] = getFmtVal(tabFmtSeries2.rows[1].cells[0]);
 		listFmtSeries[7] = "1";
+		listFmtSeries[8] = "";
+		boolLegend = false;
+	} else if( TMPL_RELY == _intTmpl ){
+		var tabFmtSeries1 = document.getElementById("tabFmtSeriesRely1");
+		var tabFmtSeries2 = document.getElementById("tabFmtSeriesRely2");
+		var tabFmtSeries3 = document.getElementById("tabFmtSeriesRely3");
+		var tabFmtSeries4 = document.getElementById("tabFmtSeriesRely4");
+		listFmtSeries[0] = "TRUE, TRUE";
+		listFmtSeries[1] = "\"none\", \"none\"";
+		listFmtSeries[2] = "\"" + getFmtVal(tabFmtSeries1.rows[0].cells[0]) + "\", " +
+						   "\"" + getFmtVal(tabFmtSeries3.rows[0].cells[0]) + "\"";
+		listFmtSeries[3] = getFmtVal(tabFmtSeries1.rows[1].cells[0]) + ", " +
+						   getFmtVal(tabFmtSeries3.rows[1].cells[0]);
+		listFmtSeries[4] = "\"" + getFmtVal(tabFmtSeries1.rows[2].cells[0]) + "\", " +
+						   "\"" + getFmtVal(tabFmtSeries3.rows[2].cells[0]) + "\"";
+		listFmtSeries[5] = getFmtVal(tabFmtSeries2.rows[0].cells[0]) + ", " +
+						   getFmtVal(tabFmtSeries4.rows[0].cells[0]);
+		listFmtSeries[6] = getFmtVal(tabFmtSeries2.rows[1].cells[0]) + ", " +
+						   getFmtVal(tabFmtSeries4.rows[1].cells[0]);
+		listFmtSeries[7] = "1, 1";
 		listFmtSeries[8] = "";
 		boolLegend = false;
 	} else {
@@ -2613,6 +2645,7 @@ function loadInitXML_phaseFormat(){
 	switch(_intTmpl){
 	case TMPL_RHIST: listParm = ["colors", "lwd", "legend"];             break;
 	case TMPL_ROC:   listParm = ["colors", "pch", "type", "lty", "lwd"]; break;
+	case TMPL_RELY:  listParm = ["colors", "pch", "type", "lty", "lwd"]; break;
 	}
 
 	//  series formatting
@@ -2662,7 +2695,7 @@ function loadInitXML_phaseFormat(){
 			}
 			
 			//  if setting the first parameter (plot_ci), set the series formatting section to modified
-			if( 0 == i ){ setFmtSeriesMod(j, true); }
+			if( 0 == i && !isTmplSpc() ){ setFmtSeriesMod(j, true); }
 
 			intFmtRow += 2;
 		}

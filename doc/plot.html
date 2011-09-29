@@ -96,6 +96,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 					<li><span class="term">bar_plot.R_tmpl</span>: use for bar plots of fcst_var/statistic vs. stat_header quantities</li>
 					<li><span class="term">box_plot.R_tmpl</span>: use for box plots of fcst_var/statistic vs. stat_header quantities</li>
 					<li><span class="term">rhist.R_tmpl</span>: use for ensemble rank histograms, only fixed data must be specified</li>
+					<li><span class="term">roc.R_tmpl</span>: use for ROC plots, only fixed data and PCT/CTC data must be specified</li>
+					<li><span class="term">rely.R_tmpl</span>: use for reliability diagrams, only fixed data must be specified</li>
 				</ul>
 			
 			
@@ -453,7 +455,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;box_boxwex&gt;</span>:  <span class="term">boxplot(boxwex)</span> - scale factor to apply to all box widths - default value: <span class="term">1</span></li>
 			<li><span class="code">&lt;box_notch&gt;</span>:  <span class="term">boxplot(notch)</span> - draw box notces - TRUE: notches on, FALSE: notches off - default value: <span class="term">FALSE</span></li>
 			<li><span class="code">&lt;box_avg&gt;</span>:  <span class="term">points()</span> - draw box averages as asterisks - TRUE: on, FALSE: off - default value: <span class="term">FALSE</span></li>
-			<li><span class="code">&lt;ci_alpha&gt;</span>:  alpha value used to calculate the standard median error confidence intervals - default value: <span class="term">.05</span></li><br/>
+			<li><span class="code">&lt;rely_event_hist&gt;</span>:  - draw histogram of events by threshold on reliability diagram - TRUE: draw, FALSE: no draw - default value: <span class="term">TRUE</span></li>
+			<li><span class="code">&lt;ci_alpha&gt;</span>: alpha value used to calculate the standard median error confidence intervals - default value: <span class="term">.05</span></li><br/>
 
 			<a name="fmt_series"></a>
 			The following group of settings should be set to lists of values where the length of each list is equal to the number of series that are specified for the plot.  Calculating
