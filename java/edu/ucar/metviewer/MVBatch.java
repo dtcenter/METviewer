@@ -207,6 +207,8 @@ public class MVBatch extends MVUtil {
 		//  run the plot jobs once for each permutation of plot fixed values
 		for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++){
 
+			if( 0 < intPlotFix ){ _out.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n"); }
+			
 			//  if the independent variable uses a dependency, populate the values
 			MVPlotDep depIndy = job.getIndyDep();
 			if( null != depIndy ){
