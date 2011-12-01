@@ -1,14 +1,12 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_APCP_06_GSS_LAND_ge2.540.agg_stat.info";
+strInputInfoFile = "data/plot_00151_20111010_144808.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
 }
 cat("agg_stat.R\ninput file: ", strInputInfoFile, "\n", sep="");
-
-browser();
 
 source(strInputInfoFile);
 setwd(strWorkingDir);
@@ -110,6 +108,7 @@ calcBCRMSE		= function(d){ return( sqrt(calcBCMSE(d)) ); }
 calcBASER		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
 calcACC			= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_on) / d$total ); }             }
 calcFBIAS		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ); } }
+calcFMEAN		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fy_on) / d$total ); }             }
 calcPODY		= function(d){ if( 0 == (d$fy_oy + d$fn_oy) )          { return (NA); } else { return( d$fy_oy / (d$fy_oy + d$fn_oy) ); }             }
 calcPOFD		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fy_on / (d$fy_on + d$fn_on) ); }             }
 calcPODN		= function(d){ if( 0 == (d$fy_on + d$fn_on) )          { return (NA); } else { return( d$fn_on / (d$fy_on + d$fn_on) ); }             }
@@ -123,13 +122,16 @@ calcGSS = function(d){
 calcHK = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
 calcHSS = function(d){
 	if( 0 == d$total ){ return (NA); }
-	dblC = ( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) + (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) / d$total;
+	dblC = (
+			 as.numeric( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) ) + 
+			 as.numeric( (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) 
+		   ) / d$total;
 	return( (d$fy_oy + d$fy_on - dblC) / (d$total - dblC) );
 }
 calcODDS = function(d){
 	if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
 	dblPOD = calcPODY(d);
-	dblPOFD = caclPOFD(d);	
+	dblPOFD = calcPOFD(d);	
 	return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
 }
 

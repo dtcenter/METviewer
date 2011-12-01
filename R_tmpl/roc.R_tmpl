@@ -19,7 +19,7 @@ if( TRUE == boolRocPct ){
 } else if( TRUE == boolRocCtc ){
 	
 	# create the ROC point data from the components of the contingency tables
-	dfROC = dfData[rev(order(dfData$thresh)),];
+	dfROC = dfData[rev(order(dfData$thresh)),];	
 	dfROC$pody = dfROC$fy_oy / (dfROC$fy_oy + dfROC$fn_oy);
 	dfROC$pofd = dfROC$fy_on / (dfROC$fy_on + dfROC$fn_on);
 	
