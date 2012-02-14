@@ -1783,11 +1783,12 @@ function buildPlotXML(){
 			strDepXML += "<agg_stat>";
 			strDepXML += 	   "<agg_ctc>" + listAggStatParm[0].checked + "</agg_ctc>";
 			strDepXML += 	 "<agg_sl1l2>" + listAggStatParm[1].checked + "</agg_sl1l2>";
-			strDepXML += 	 "<agg_pct>"   + listAggStatParm[2].checked + "</agg_pct>";
-			strDepXML += 	 "<boot_repl>" + listAggStatParm[3].value + "</boot_repl>";
-			strDepXML += 	   "<boot_ci>" + listAggStatParm[5].value + "</boot_ci>";
-			strDepXML += 	 "<agg_diff1>" + listAggStatParm[4].value + "</agg_diff1>";
-			strDepXML +=	 "<agg_diff2>" + listAggStatParm[6].value + "</agg_diff2>";
+			strDepXML += 	   "<agg_pct>" + listAggStatParm[2].checked + "</agg_pct>";
+			strDepXML += 	"<agg_nbrcnt>" + listAggStatParm[3].checked + "</agg_nbrcnt>";
+			strDepXML += 	 "<boot_repl>" + listAggStatParm[4].value + "</boot_repl>";
+			strDepXML += 	   "<boot_ci>" + listAggStatParm[6].value + "</boot_ci>";
+			strDepXML += 	 "<agg_diff1>" + listAggStatParm[5].value + "</agg_diff1>";
+			strDepXML +=	 "<agg_diff2>" + listAggStatParm[7].value + "</agg_diff2>";
 			strDepXML += "</agg_stat>";		
 		}
 		
@@ -2544,12 +2545,15 @@ function loadInitXML_phaseFormat(){
 		var strAggPct = _strInitXML.match( /<agg_pct>(\w+)<\/agg_pct>/ )[1];
 		listAggInput[3].checked = (strAggPct == "TRUE");
 		console("    agg_pct = " + strAggPct + " -> " + (strAggPct == "TRUE") + " - checked = " + listAggInput[3].checked + "\n");
-		listAggInput[4].value = _strInitXML.match( /<boot_repl>(\w+)<\/boot_repl>/ )[1];
-		listAggInput[5].value = _strInitXML.match( /<agg_diff1>(\w+)<\/agg_diff1>/ )[1];
+		var strAggNbrCnt = _strInitXML.match( /<agg_nbrcnt>(\w+)<\/agg_nbrcnt>/ )[1];
+		listAggInput[4].checked = (strAggNbrCnt == "TRUE");
+		console("    agg_nbrcnt = " + strAggNbrCnt + " -> " + (strAggNbrCnt == "TRUE") + " - checked = " + listAggInput[4].checked + "\n");
+		listAggInput[5].value = _strInitXML.match( /<boot_repl>(\w+)<\/boot_repl>/ )[1];
+		listAggInput[6].value = _strInitXML.match( /<agg_diff1>(\w+)<\/agg_diff1>/ )[1];
 		boolAggDiff1 = ("TRUE" == listAggInput[5].value);
 		//console(" parsed value = " + _strInitXML.match( /<agg_diff1>(\w+)<\/agg_diff1>/ )[1] + " boolAggDiff1 = " + boolAggDiff1 + "\n");
-		listAggInput[6].value = _strInitXML.match( /<boot_ci>(\w+)<\/boot_ci>/ )[1];
-		listAggInput[7].value = _strInitXML.match( /<agg_diff2>(\w+)<\/agg_diff2>/ )[1];
+		listAggInput[7].value = _strInitXML.match( /<boot_ci>(\w+)<\/boot_ci>/ )[1];
+		listAggInput[8].value = _strInitXML.match( /<agg_diff2>(\w+)<\/agg_diff2>/ )[1];
 		boolAggDiff2 = ("TRUE" == listAggInput[7].value);
 	} else {
 		listAggInput[0].checked = false;

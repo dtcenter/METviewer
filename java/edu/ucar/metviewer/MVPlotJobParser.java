@@ -544,13 +544,14 @@ public class MVPlotJobParser extends MVUtil{
 					if     ( nodeAggStat._tag.equals("agg_ctc")   )	{ job.setAggCtc(nodeAggStat._value.equalsIgnoreCase("true"));   }
 					else if( nodeAggStat._tag.equals("agg_sl1l2") )	{ job.setAggSl1l2(nodeAggStat._value.equalsIgnoreCase("true")); }
 					else if( nodeAggStat._tag.equals("agg_pct") )	{ job.setAggPct(nodeAggStat._value.equalsIgnoreCase("true"));   }
+					else if( nodeAggStat._tag.equals("agg_nbrcnt") ){ job.setAggNbrCnt(nodeAggStat._value.equalsIgnoreCase("true"));}
 					else if( nodeAggStat._tag.equals("boot_repl") )	{ job.setAggBootRepl(nodeAggStat._value);                       }
 					else if( nodeAggStat._tag.equals("boot_ci") )	{ job.setAggBootCI(nodeAggStat._value);                         }
 					else if( nodeAggStat._tag.equals("agg_diff1") )	{ job.setAggDiff1(nodeAggStat._value.equalsIgnoreCase("true")); }
 					else if( nodeAggStat._tag.equals("agg_diff2") )	{ job.setAggDiff2(nodeAggStat._value.equalsIgnoreCase("true")); }
 				}
 				
-				if( !job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() ){ 
+				if( !job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() && !job.getAggNbrCnt() ){ 
 					throw new Exception("invalid agg_stat setting - one of the aggregation line types must be selected"); 
 				}
 			}
@@ -998,12 +999,13 @@ public class MVPlotJobParser extends MVUtil{
 		strXML += "</plot_fix>";
 		
 		//  agg_stat
-		if( job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() ){
+		if( job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() || job.getAggNbrCnt() ){
 			strXML +=
 				"<agg_stat>" +
 					"<agg_ctc>" +	(job.getAggCtc()?   "TRUE" : "FALSE") + "</agg_ctc>" +
 					"<agg_sl1l2>" +	(job.getAggSl1l2()? "TRUE" : "FALSE") + "</agg_sl1l2>" +
 					"<agg_pct>" +	(job.getAggPct()? 	"TRUE" : "FALSE") + "</agg_pct>" +
+					"<agg_nbrcnt>" +(job.getAggNbrCnt()?"TRUE" : "FALSE") + "</agg_nbrcnt>" +
 					"<boot_repl>" +	job.getAggBootRepl() +	"</boot_repl>" +
 					"<boot_ci>" +	job.getAggBootCI() +	"</boot_ci>" +
 					"<agg_diff1>" +	(job.getAggDiff1()? "TRUE" : "FALSE") + "</agg_diff1>" +

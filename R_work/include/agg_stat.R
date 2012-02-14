@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "data/plot_00151_20111010_144808.agg_stat.info";
+strInputInfoFile = "/d1/pgoldenb/var/gfs_nam/R_work/data/plot_fss_ci_NAM_15km.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -74,6 +74,8 @@ listOutPerm$stat_bcl = rep(NA, intNumOut);
 listOutPerm$stat_bcu = rep(NA, intNumOut);
 dfOut = data.frame(listOutPerm);
 
+# initialize the histogram array
+listHist = c();
 
 # SL1L2 stat calculations
 calcStdDev		= function(sum, sum_sq, n){
@@ -135,7 +137,10 @@ calcODDS = function(d){
 	return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
 }
 
-# Prob stat calculations
+
+# NBR_CNT "calculations"
+calcNBR_FBS = function(d){ return ( d$fbs ); }
+calcNBR_FSS = function(d){ return ( d$fss ); }
 
 
 # booter function
@@ -156,8 +161,10 @@ booter.iid = function(d, i){
 		# if the difference stat is requested, calculate it during the last permutation
 		if( intPerm == nrow(matPerm) & TRUE == boolDiff ){ boolPermDiff = TRUE; }
 
-		# build a dataframe containing the combined sample elements
+		# create the permutation column name string
 		strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
+
+		# perform the aggregation of the sampled CTC lines
 		if( boolAggCtc ){
 			dfSeriesSums = data.frame(
 				total	= sum( d[i,][[ paste(strPerm, "total", sep="_") ]], na.rm=TRUE ),
@@ -168,17 +175,40 @@ booter.iid = function(d, i){
 			);
 		} 
 		
+		# perform the aggregation of the sampled SL1L2 lines
 		else if( boolAggSl1l2 ){
 			listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
 			total		= sum(listTotal, na.rm=TRUE);
 			dfSeriesSums = data.frame(
-				total	= total,
-				fbar	= sum( d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
-				obar	= sum( d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
-				fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-				ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-				oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total
+					total	= total,
+					fbar	= sum( d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
+					obar	= sum( d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
+					fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+					ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+					oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total
 			);
+		}
+		
+		# perform the aggregation of the sampled NBR_CNT lines
+		else if( boolAggNbrCnt ){
+
+			listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
+
+			listFbs		= d[i,][[ paste(strPerm, "fbs", sep="_") ]];
+			listFbsVld	= (-9999 != listFbs);
+			listFbsTot	= listTotal[listFbsVld];
+			listFbs		= listFbs[listFbsVld];
+			dblFbs		= NA;
+			if( 0 < length(listFbs) ){ dblFbs = sum(listFbsTot * listFbs) / sum(listFbsTot); }
+			
+			listFss		= d[i,][[ paste(strPerm, "fss", sep="_") ]];
+			listFssVld	= (-9999 != listFss);
+			listFssTot	= listTotal[listFssVld];
+			listFss		= listFss[listFssVld];
+			dblFss		= NA;
+			if( 0 < length(listFss) ){ dblFss = sum(listFssTot * listFss) / sum(listFssTot); }
+			
+			dfSeriesSums = data.frame(fbs = dblFbs, fss = dblFss);
 		}
 		
 		# return a value for each statistic
@@ -191,10 +221,11 @@ booter.iid = function(d, i){
 			# either calculate the stat difference, or store it for the next loop 
 			if( TRUE == boolPermDiff )	{ listRet[[strStat]] = append(listRet[[strStat]], dblStat - listPrev[[strStat]]); }
 			else						{ listPrev[[strStat]] = dblStat; }
-			
+						
 		}
-	
+		
 	}
+
 	return( unlist(listRet) );
 }
 
@@ -203,7 +234,7 @@ for(strIndyVal in listIndyVal){
 	
 	dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
 	if( 1 > nrow(dfStatsIndy) ){ next; }
-	
+
 	# for each series group, bootstrap the statistics
 	for(intY in 1:intYMax){
 
@@ -228,8 +259,9 @@ for(strIndyVal in listIndyVal){
 			
 			# add the contingency table constituents for this series permutation to the boot list
 			strPerm = escapeStr(paste(listPerm, sep="_"));
-			if     ( boolAggCtc )  { listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on"); }
-			else if( boolAggSl1l2 ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar"); }
+			if     ( boolAggCtc    ){ listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");        }
+			else if( boolAggSl1l2  ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar"); }
+			else if( boolAggNbrCnt ){ listFields = c("total", "fbs", "fss");                              }
 			for(strCount in listFields){
 				listCounts = dfStatsPerm[[strCount]];
 				strCountName = paste(paste(strPerm, sep = "_", collapse = "_"), strCount, sep = "_", collapse = "_");
@@ -247,14 +279,18 @@ for(strIndyVal in listIndyVal){
 				listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(NA, intCountLength - length(listBoot[[strCountName]])) );
 			}
 		}
-		
+
 		# bootstrap the series data
 		dfBoot = data.frame(listBoot, check.names=FALSE);
 		stBoot = Sys.time();
 		bootStat = try(boot(dfBoot, booter.iid, intNumReplicates));
 		dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
 		intNumBoots = intNumBoots + 1;
-
+		
+		# to verify the statistics for "smoothness", use code like the following
+		#browser();
+		#par( mfrow=c(1,3) ); hist(bootStat$t[,1]); hist(bootStat$t[,2]); hist(bootStat$t[,3]);
+		
 		# for each series permutation and statistic, generate confidence intervals and store the output
 		intBootIndex = 1;
 		for(strStat in listStat){
@@ -275,6 +311,7 @@ for(strIndyVal in listIndyVal){
 					stBootCI = Sys.time();
 					bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
 					dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+
 				}
 
 				# store the bootstrapped stat value and CI values in the output dataframe

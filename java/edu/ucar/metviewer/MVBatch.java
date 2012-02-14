@@ -197,7 +197,8 @@ public class MVBatch extends MVUtil {
 		boolean boolAggCtc		= job.getAggCtc();
 		boolean boolAggSl1l2	= job.getAggSl1l2();
 		boolean boolAggPct		= job.getAggPct();
-		boolean boolAggStat		= boolAggCtc || boolAggSl1l2;
+		boolean boolAggNbrCnt	= job.getAggNbrCnt();
+		boolean boolAggStat		= boolAggCtc || boolAggSl1l2 || boolAggNbrCnt;
 
 
 		/*
@@ -296,7 +297,7 @@ public class MVBatch extends MVUtil {
 			_strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/")? "" : "/");		
 			String strDataFile	= _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
 			if( boolAggStat ){ strDataFile = strDataFile + ".agg_stat"; }
-			if( boolAggPct  ){ strDataFile = strDataFile + ".agg_pct"; }
+			if( boolAggPct  ){ strDataFile = strDataFile + ".agg_pct";  }
 			(new File(strDataFile)).getParentFile().mkdirs();
 
 			//  get the plot data from the plot_data temp table and write it to a data file
@@ -364,6 +365,7 @@ public class MVBatch extends MVUtil {
 				Hashtable tableAggStatInfo = new Hashtable();
 				tableAggStatInfo.put("agg_ctc",			job.getAggCtc()?     "TRUE" : "FALSE");
 				tableAggStatInfo.put("agg_sl1l2",		job.getAggSl1l2()?   "TRUE" : "FALSE");
+				tableAggStatInfo.put("agg_nbrcnt",		job.getAggNbrCnt()?  "TRUE" : "FALSE");
 				tableAggStatInfo.put("event_equal",		job.getEventEqual()? "TRUE" : "FALSE");
 				tableAggStatInfo.put("event_equal_m",	job.getEventEqualM()?"TRUE" : "FALSE");
 				tableAggStatInfo.put("agg_diff1",		job.getAggDiff1()?   "TRUE" : "FALSE");
@@ -601,7 +603,8 @@ public class MVBatch extends MVUtil {
 		boolean boolAggCtc = job.getAggCtc();
 		boolean boolAggSl1l2 = job.getAggSl1l2();
 		boolean boolAggPct = job.getAggPct();
-		boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggPct;
+		boolean boolAggNbrCnt = job.getAggNbrCnt();
+		boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggPct || boolAggNbrCnt;
 		boolean boolCalcCtc = job.getCalcCtc();
 		boolean boolCalcSl1l2 = job.getCalcSl1l2();
 		boolean boolCalcStat = boolCalcCtc || boolCalcSl1l2;
@@ -815,6 +818,17 @@ public class MVBatch extends MVUtil {
 				}
 				strTempSQLCur +=
 								"\n);\n";
+
+			} else if( boolAggNbrCnt ){
+				
+				strTempSQLCur = "CREATE TEMPORARY TABLE plot_data\n(\n" +
+								strTempList + ",\n" +
+								"    stat_name           VARCHAR(32),\n" +
+								"    stat_value          VARCHAR(16),\n" +
+								"    total               INT UNSIGNED,\n" +
+								"    fbs                 DOUBLE,\n" +
+								"    fss                 DOUBLE\n" +
+								");\n";
 				
 			} else {
 				
@@ -941,6 +955,9 @@ public class MVBatch extends MVUtil {
 							strSelectStat += "  ldt" + i + ".oy_i,\n" +
 											 "  ldt" + i + ".on_i";
 						}
+					}
+					else if( boolAggNbrCnt ){
+						strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss"; 
 					}
 					else if( boolCalcCtc ) {
 						strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +

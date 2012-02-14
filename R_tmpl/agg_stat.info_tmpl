@@ -3,6 +3,7 @@
 
 boolAggCtc = #<agg_ctc>#;
 boolAggSl1l2 = #<agg_sl1l2>#;
+boolAggNbrCnt = #<agg_nbrcnt>#;
 boolEventEqual = #<event_equal>#;
 boolDiff1 = #<agg_diff1>#;
 boolDiff2 = #<agg_diff2>#;
