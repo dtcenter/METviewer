@@ -2241,11 +2241,25 @@ function loadInitXML_phaseDepLoad(){
  * updated, if appropriate.
  */
 function loadInitXML_phaseDepStats(){
-	
-	//  determine the list of stats to parse and select
+		
+	//  for a MODE plot, take only the first stat and replace the rest
 	var strStats = "";
-	if     ( 0 < _listInitXMLDep1.length ){ strStats = _tableInitXMLDep1.get(_listInitXMLDep1.shift()); }
-	else if( 0 < _listInitXMLDep2.length ){ strStats = _tableInitXMLDep2.get(_listInitXMLDep2.shift()); } 
+	if( _strPlotData == "mode" ){
+		var listInitXMLDep = 0 < _listInitXMLDep1.length ? _listInitXMLDep1  : _listInitXMLDep2;
+		var tabInitXMLDep  = 0 < _listInitXMLDep1.length ? _tableInitXMLDep1 : _tableInitXMLDep2;
+		
+		strStats = tabInitXMLDep.get( listInitXMLDep[0] );
+		var listStats = strStats.match( /(<stat>[^<]*<\/stat>)(.*)/ );
+		strStats = listStats[1];
+		if( "" == listStats[2] ){ listInitXMLDep.shift(); }
+		else                    { tabInitXMLDep.put(listInitXMLDep[0], listStats[2]); }		
+	}
+	
+	//  otherwise, use all stats for the next fcst_var
+	else {
+		if     ( 0 < _listInitXMLDep1.length ){ strStats = _tableInitXMLDep1.get(_listInitXMLDep1.shift()); }
+		else if( 0 < _listInitXMLDep2.length ){ strStats = _tableInitXMLDep2.get(_listInitXMLDep2.shift()); } 
+	}
 	console("  stats: " + strStats + "\n");
 	
 	//  parse the stats and select them in the dep stat list
