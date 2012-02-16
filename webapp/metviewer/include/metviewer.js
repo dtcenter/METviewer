@@ -942,7 +942,7 @@ function clearFieldVal(intId){
  * Move the currently selected item in the select value control in the specified
  * list with the specified id up one place. This function will not attempt to do
  * anything if there are fewer than two items in the select list, or if the
- * first item is selected.
+ * first item is selected.  The number of spots moved is returned.
  */
 function moveFieldUp(listDiv, intId){
 	
@@ -950,7 +950,7 @@ function moveFieldUp(listDiv, intId){
 	var selVal = document.getElementById("selVal" + intId);
 	var listSel = getSelected(selVal);
 	var intSel = selVal.selectedIndex;
-	if( 2 > selVal.options.length || 1 != listSel.length || intSel == 0 ){ return; }
+	if( 2 > selVal.options.length || 1 != listSel.length || intSel == 0 ){ return 0; }
 	
 	//  move the selected option
 	var optMove = document.createElement("option");
@@ -959,6 +959,7 @@ function moveFieldUp(listDiv, intId){
 	if( _boolIE ){ selVal.add(optMove, intSel - 1); }
 	else         { selVal.add(optMove, selVal.options[intSel - 1]); }
 	selVal.selectedIndex = intSel - 1;
+	return 1;
 }
 
 /**
@@ -2355,7 +2356,8 @@ function loadInitXML_phaseSeriesLoad(){
 		loadInitXML_updateFieldVals( 
 			(0 < _listInitXMLSeries1.length? _listInitXMLSeries1  : _listInitXMLSeries2  ),
 			(0 < _listInitXMLSeries1.length? _tableInitXMLSeries1 : _tableInitXMLSeries2 ),
-			_divInitXMLSeries
+			_divInitXMLSeries,
+			true
 		);
 	}
 	
@@ -2396,22 +2398,32 @@ function loadInitXML_phaseSeriesLoad(){
 /**
  * After removing the first field on the input list, extract the corresponding
  * list of vals from the specified table. Parse the list of vals and then select
- * them in the val select control contained in the specified fieldVal div.
+ * them in the val select control contained in the specified fieldVal div.  If
+ * the order input is true, the fields will be set to the order in which they
+ * appear in the val list.
  */
-function loadInitXML_updateFieldVals(list, table, div){
+function loadInitXML_updateFieldVals(list, table, div, order){
 	
 	//  determine the list of vals to parse and select
 	var strVals = "";
 	strVals = table.get(list.shift());
 	console("  vals = " + strVals + "\n  select = " + div.getElementsByTagName("select")[1] + "\n");
 	
+	//  resolve the select control and parse the div id
+	var selVal = div.getElementsByTagName("select")[1];
+	intId = div.id.match( /divFieldVal(\d+)/ )[1];
+	
 	//  parse the vals and select them in the series val list
 	strVals = strVals.match( /<val>(.*)<\/val>/ )[1];
 	listVals = strVals.split( /<\/val><val>/ );
 	listValsSel = new Array();
-	for(i in listVals){
+	for(var i=listVals.length-1; i >= 0; i--){
 		console("    val = " + listVals[i] + "\n");
-		listValsSel.push(listVals[i]);
+		listValsSel.unshift(listVals[i]);
+		if( order ){
+			setSelected(selVal, listVals[i]);
+			while( 0 != moveFieldUp(div, intId) ){}
+		}
 	}
 	setSelected(div.getElementsByTagName("select")[1], listValsSel);
 }
@@ -2448,7 +2460,10 @@ function loadInitXML_phasePlotFixLoad(){
 	
 	//  if there is a currently loaded val list, select the values
 	if( _divInitXMLPlotFix != undefined ){
-		loadInitXML_updateFieldVals( _listInitXMLPlotFix, _tableInitXMLPlotFix, _divInitXMLPlotFix );
+		loadInitXML_updateFieldVals( _listInitXMLPlotFix, 
+									 _tableInitXMLPlotFix, 
+									 _divInitXMLPlotFix, 
+									 false );
 	}
 	
 	//  if there are no more series fcst_vars to load, continue to plot_fix values
