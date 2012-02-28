@@ -968,8 +968,8 @@ public class MVBatch extends MVUtil {
 										 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
 					}
 					else {
-						if( boolBCRMSE ){ strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',FORMAT(sqrt(ld." + strStatField + "),5)) stat_value"; }						
-						else            { strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',FORMAT(ld." + strStatField + ",5)) stat_value"; }
+						if( boolBCRMSE ){ strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "),5),',','')) stat_value"; }						
+						else            { strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + ",5),',','')) stat_value"; }
 						
 						//  determine if the current stat has normal or bootstrap CIs
 						String[] listStatCI = (String[])tableStats.get(strStat);
@@ -982,23 +982,19 @@ public class MVBatch extends MVUtil {
 						
 						//  add the CIs to the select list, if present, otherwise, invalid data
 						if( boolHasNorm ){
-							/*
-							strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',FORMAT(ld." + strStatField + "_ncl,5)) stat_ncl" +
-											 ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',FORMAT(ld." + strStatField + "_ncu,5)) stat_ncu";
-							*/
-							strSelectStat += ",\n  FORMAT(ld." + strStatField + "_ncl,5) stat_ncl" +
-							 				 ",\n  FORMAT(ld." + strStatField + "_ncu,5) stat_ncu";
+							strSelectStat += ",\n  REPLACE(FORMAT(ld." + strStatField + "_ncl,5),',','') stat_ncl" +
+							 				 ",\n  REPLACE(FORMAT(ld." + strStatField + "_ncu,5),',','') stat_ncu";
 						} else {
 							strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
 						}
 						
 						if( boolHasBoot && !boolAggStat ){ 
 							if( boolBCRMSE ){
-							   strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',FORMAT(sqrt(ld." + strStatField + "_bcl),5)) stat_bcl" +
-												",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',FORMAT(sqrt(ld." + strStatField + "_bcu),5)) stat_bcu";
+							   strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcl),5),',','')) stat_bcl" +
+												",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcu),5),',','')) stat_bcu";
 							} else {
-							   strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',FORMAT(ld." + strStatField + "_bcl,5)) stat_bcl" +
-							   					",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',FORMAT(ld." + strStatField + "_bcu,5)) stat_bcu";
+							   strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_bcl,5),',','')) stat_bcl" +
+							   					",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_bcu,5),',','')) stat_bcu";
 							}
 						} else {
 							strSelectStat += ",\n  'NA' stat_bcl,\n  'NA' stat_bcu";
