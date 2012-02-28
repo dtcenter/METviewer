@@ -696,15 +696,17 @@ listLwdLeg[listLwdLeg > 3] = 3;
 # mask the hidden elements from the legend and color list
 listLegendDisp = listLegend[listPlotDisp];
 listColorsDisp = listColors[listPlotDisp];
+listLtyDisp    = listLty[listPlotDisp];
+listPchDisp    = listPch[listPlotDisp];
 
 # add the legend
 legend(
 	x="bottom",						# x coordinate of legend
 	listLegendDisp,					# vector of legend labels
 	col=listColorsDisp,				# vector of point and line colors 
-	lty=listLty,					# vector of line types
+	lty=listLtyDisp,				# vector of line types
 	lwd=listLwdLeg,					# vector of line widths
-	pch=listPch,					# vector of point symbols
+	pch=listPchDisp,				# vector of point symbols
 	merge=FALSE,					# merge points and lines
 	cex=#<legend_size>#,			# relative magnification
 	bty="#<legend_box>#",			# legend box type - o: box, n: none
