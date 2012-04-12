@@ -7,6 +7,7 @@ boolAggNbrCnt = #<agg_nbrcnt>#;
 boolEventEqual = #<event_equal>#;
 boolDiff1 = #<agg_diff1>#;
 boolDiff2 = #<agg_diff2>#;
+boolEveqDis = #<eveq_dis>#;
 intNumReplicates = #<boot_repl>#;
 strCIType = "#<boot_ci>#";
 dblAlpha = #<ci_alpha>#;

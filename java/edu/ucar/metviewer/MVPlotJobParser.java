@@ -549,6 +549,7 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeAggStat._tag.equals("boot_ci") )	{ job.setAggBootCI(nodeAggStat._value);                         }
 					else if( nodeAggStat._tag.equals("agg_diff1") )	{ job.setAggDiff1(nodeAggStat._value.equalsIgnoreCase("true")); }
 					else if( nodeAggStat._tag.equals("agg_diff2") )	{ job.setAggDiff2(nodeAggStat._value.equalsIgnoreCase("true")); }
+					else if( nodeAggStat._tag.equals("eveq_dis") )	{ job.setEveqDis(nodeAggStat._value.equalsIgnoreCase("true"));  }
 				}
 				
 				if( !job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() && !job.getAggNbrCnt() ){ 
@@ -1010,6 +1011,7 @@ public class MVPlotJobParser extends MVUtil{
 					"<boot_ci>" +	job.getAggBootCI() +	"</boot_ci>" +
 					"<agg_diff1>" +	(job.getAggDiff1()? "TRUE" : "FALSE") + "</agg_diff1>" +
 					"<agg_diff2>" +	(job.getAggDiff2()? "TRUE" : "FALSE") + "</agg_diff2>" +
+					"<eveq_dis>" +	(job.getEveqDis()?  "TRUE" : "FALSE") + "</eveq_dis>" +
 				"</agg_stat>";			
 		}
     	

@@ -140,8 +140,9 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolAggNbrCnt		= false;
 	protected String _strAggBootRepl		= "1";
 	protected String _strAggBootCI			= "bca";
-	protected boolean _strAggDiff1			= false;
-	protected boolean _strAggDiff2			= false;
+	protected boolean _boolAggDiff1			= false;
+	protected boolean _boolAggDiff2			= false;
+	protected boolean _boolEveqDis			= false;
 	
 	protected boolean _boolCalcCtc			= false;
 	protected boolean _boolCalcSl1l2		= false;
@@ -295,8 +296,9 @@ public class MVPlotJob extends MVUtil{
 		job._boolAggNbrCnt		= _boolAggNbrCnt;
 		job._strAggBootRepl		= _strAggBootRepl;
 		job._strAggBootCI		= _strAggBootCI;
-		job._strAggDiff1		= _strAggDiff1;
-		job._strAggDiff2		= _strAggDiff2;
+		job._boolAggDiff1		= _boolAggDiff1;
+		job._boolAggDiff2		= _boolAggDiff2;
+		job._boolEveqDis		= _boolEveqDis;
 		
 		job._boolCalcCtc		= _boolCalcCtc;
 		job._boolCalcSl1l2		= _boolCalcSl1l2;
@@ -597,10 +599,12 @@ public class MVPlotJob extends MVUtil{
 	public void		setAggBootRepl(String aggBootRepl)					{ _strAggBootRepl = aggBootRepl;						}
 	public String	getAggBootCI()										{ return _strAggBootCI;									}
 	public void		setAggBootCI(String aggBootCI)						{ _strAggBootCI = aggBootCI;							}
-	public boolean	getAggDiff1()										{ return _strAggDiff1;									}
-	public void		setAggDiff1(boolean aggDiff1)						{ _strAggDiff1 = aggDiff1;								}
-	public boolean	getAggDiff2()										{ return _strAggDiff2;									}
-	public void		setAggDiff2(boolean aggDiff2)						{ _strAggDiff2 = aggDiff2;								}
+	public boolean	getAggDiff1()										{ return _boolAggDiff1;									}
+	public void		setAggDiff1(boolean aggDiff1)						{ _boolAggDiff1 = aggDiff1;								}
+	public boolean	getAggDiff2()										{ return _boolAggDiff2;									}
+	public void		setAggDiff2(boolean aggDiff2)						{ _boolAggDiff2 = aggDiff2;								}
+	public boolean	getEveqDis()										{ return _boolEveqDis;									}
+	public void		setEveqDis(boolean eveqDis)							{ _boolEveqDis = eveqDis;								}
 	
 	public boolean	getCalcCtc()										{ return _boolCalcCtc;									}
 	public void		setCalcCtc(boolean calcCtc)							{ _boolCalcCtc = calcCtc; 								}

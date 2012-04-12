@@ -370,6 +370,7 @@ public class MVBatch extends MVUtil {
 				tableAggStatInfo.put("event_equal_m",	job.getEventEqualM()?"TRUE" : "FALSE");
 				tableAggStatInfo.put("agg_diff1",		job.getAggDiff1()?   "TRUE" : "FALSE");
 				tableAggStatInfo.put("agg_diff2",		job.getAggDiff2()?   "TRUE" : "FALSE");
+				tableAggStatInfo.put("eveq_dis",		job.getEveqDis()?    "TRUE" : "FALSE");
 				tableAggStatInfo.put("boot_repl",		job.getAggBootRepl());
 				tableAggStatInfo.put("boot_ci",			job.getAggBootCI());
 				tableAggStatInfo.put("ci_alpha",		job.getCIAlpha());
