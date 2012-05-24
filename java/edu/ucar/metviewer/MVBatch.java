@@ -1920,6 +1920,7 @@ public class MVBatch extends MVUtil {
 		}
 		readerProcStd.close();			
 		readerProcErr.close();
+		proc.destroy();
 		
 		if( !"".equals(strProcStd) && !_boolSQLOnly ){
 			_out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
