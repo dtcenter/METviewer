@@ -147,6 +147,7 @@ public class MVBatch extends MVUtil {
 			}
 			
 			for(int intJob=0; intJob < jobs.length; intJob++){
+				if( 0 < intJob ) bat._out.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
 				if( jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl") ){
 					bat.runRhistJob(jobs[intJob]);
 				} else if( jobs[intJob].getPlotTmpl().equals("roc.R_tmpl") || 
@@ -264,7 +265,8 @@ public class MVBatch extends MVUtil {
 			int intNumJobDataRows = -1;
 			if( res.next() ){ intNumJobDataRows = res.getInt(1); }
 			stmt.close();
-			_out.println("query returned " + intNumJobDataRows + " plot_data rows in " + formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ) + "\n");
+			_out.println("Query returned " + intNumJobDataRows + " plot_data rows in " + 
+					     formatTimeSpan( (new java.util.Date()).getTime() - intStartTime ));
 			
 			//  if there is no data, do not try to plot it
 			if( 1 > intNumJobDataRows ){

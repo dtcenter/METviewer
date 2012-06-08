@@ -863,6 +863,11 @@ public class MVUtil{
 	 * @return Converted list
 	 */
 	public static String[]		toArray(ArrayList list)					{ return (String[])list.toArray(new String[]{});			}
+	public static ArrayList     toArrayList(String[] list){
+		ArrayList ret = new ArrayList();
+		ret.addAll(Arrays.asList(list));
+		return ret;
+	}
 	
 	/**
 	 * Create a deep copy of the input list

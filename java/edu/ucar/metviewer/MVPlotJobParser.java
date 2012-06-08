@@ -301,7 +301,9 @@ public class MVPlotJobParser extends MVUtil{
 					else if( nodeFix._tag.equals("clear") ) {		job.clearPlotFixVal();					continue;	}
 					
 					//  <field>
-					ArrayList listFixVal = new ArrayList();
+					ArrayList listFixVal = job.getPlotFixVal().containsKey(nodeFix._name) &&
+										   job.getPlotFixVal().get(nodeFix._name) instanceof String[] ? 
+											toArrayList( (String[])job.getPlotFixVal().get(nodeFix._name) ) : new ArrayList();
 					MVOrderedMap mapFixVal = new MVOrderedMap();
 					MVOrderedMap mapTmplVal = new MVOrderedMap();
 					for(int k=0; k < nodeFix._children.length; k++){
