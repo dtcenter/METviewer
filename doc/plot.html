@@ -574,7 +574,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	    <tr><td>Misses = OSU</td>																		<td><span class="term">OBJMISSES</span></td></tr>
 	    <tr><td>False Alarms = FSU</td>																	<td><span class="term">OBJFAS</span></td></tr>
 	    <tr><td>Correct Negatives (areas only) = [(TOT - FSA) + (TOT - OSA)] / 2</td>					<td>(not implemented)</td></tr>
-	    <tr><td>CSI = hits / (misses + false alarms) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU + FSU]</td><td><span class="term">OBJCSI</span></td></tr>
+	    <tr><td>CSI = hits / (hits + misses + false alarms) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU + FSU]</td><td><span class="term">OBJCSI</span></td></tr>
 	    <tr><td>PODY = hits / (hits + misses) = [(FSM + OSM)/2] / [(FSM + OSM)/2 + OSU]</td>			<td><span class="term">OBJPODY</span></td></tr>
 	    <tr><td>FAR = false alarms / (hits + false alarms) = FSU / [(FSM + OSM)/2 + FSU]</td>			<td><span class="term">OBJFAR</span></td></tr>
 	    <tr><td>FBIAS = RATIO_FSA_OSA = FSA / OSA (a.k.a. RATIO_FSA_OSA above)</td>						<td><span class="term">OBJFBIAS</span></td></tr>
