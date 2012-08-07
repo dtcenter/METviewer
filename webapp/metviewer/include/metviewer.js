@@ -1781,6 +1781,7 @@ function buildPlotXML(){
 		var chkAggStat = document.getElementById("chkAggStat");
 		if( chkAggStat.checked ){
 			var listAggStatParm = document.getElementById("tabAggStatParm").getElementsByTagName("input");
+			var listEveqDis     = document.getElementById("tabAggStatParm").getElementsByTagName("select");
 			strDepXML += "<agg_stat>";
 			strDepXML += 	   "<agg_ctc>" + listAggStatParm[0].checked + "</agg_ctc>";
 			strDepXML += 	 "<agg_sl1l2>" + listAggStatParm[1].checked + "</agg_sl1l2>";
@@ -1790,6 +1791,7 @@ function buildPlotXML(){
 			strDepXML += 	   "<boot_ci>" + listAggStatParm[6].value + "</boot_ci>";
 			strDepXML += 	 "<agg_diff1>" + listAggStatParm[5].value + "</agg_diff1>";
 			strDepXML +=	 "<agg_diff2>" + listAggStatParm[7].value + "</agg_diff2>";
+			strDepXML +=	  "<eveq_dis>" + listEveqDis[0].options[ listEveqDis[0].selectedIndex ].text + "</eveq_dis>";
 			strDepXML += "</agg_stat>";		
 		}
 		
@@ -2584,6 +2586,8 @@ function loadInitXML_phaseFormat(){
 		listAggInput[7].value = _strInitXML.match( /<boot_ci>(\w+)<\/boot_ci>/ )[1];
 		listAggInput[8].value = _strInitXML.match( /<agg_diff2>(\w+)<\/agg_diff2>/ )[1];
 		boolAggDiff2 = ("TRUE" == listAggInput[7].value);
+		var strEveqDis = _strInitXML.match( /<eveq_dis>(\w+)<\/eveq_dis>/ )[1];
+		setSelected(document.getElementById("selEveqDis"), strEveqDis);
 	} else {
 		listAggInput[0].checked = false;
 	}

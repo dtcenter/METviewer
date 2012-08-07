@@ -235,7 +235,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<input id="chkAggStat" type="checkbox" onclick="javascript:updateAggStat()"/><span id="spanAggStat" class="bold">Aggregation Statistics Enabled</span><br/><br/>
 			<table id="tabAggStatParm" border="0" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
-					<td align="left" style="padding-left:30px" colspan="4">
+					<td align="left" style="padding-left:30px" colspan="6">
 						<input type="radio" name="agg_stat" value="ctc"/><span class="bold">CTC</span>&nbsp;&nbsp;&nbsp;
 						<input type="radio" name="agg_stat" value="sl1l2"/><span class="bold">SL1L2</span>
 						<input type="radio" name="agg_stat" value="pct"/><span class="bold">PCT</span>
@@ -248,13 +248,18 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 					<td align="right" style="padding-left:30px">
 						agg_diff1:</td><td>&nbsp;<input id="txtAggDiff1" type="text" size="12" value="FALSE" disabled="disabled"/>
 					</td>
+               <td align="right" style="padding-left:30px">eveq_dis:</td>
+               <td>&nbsp;
+                  <select id="selEveqDis" value="FALSE"><option>FALSE</option><option>TRUE</option></select>
+               </td>
 				</tr>
-				<tr>
-					<td align="right" style="padding-left:30px">boot_ci:</td><td>&nbsp;<input type="text" size="12" value="perc"/></td>
-					<td align="right" style="padding-left:30px">
-						agg_diff2:</td><td>&nbsp;<input id="txtAggDiff2" type="text" size="12" value="FALSE" disabled="disabled"/>
-					</td>
-				</tr>
+            <tr>
+               <td align="right" style="padding-left:30px">boot_ci:</td><td>&nbsp;<input type="text" size="12" value="perc"/></td>
+               <td align="right" style="padding-left:30px">
+                  agg_diff2:</td><td>&nbsp;<input id="txtAggDiff2" type="text" size="12" value="FALSE" disabled="disabled"/>
+               </td>
+               <td colspan="2">&nbsp;</td>
+            </tr>
 			</table>
 		</div><br/><br/>
 
