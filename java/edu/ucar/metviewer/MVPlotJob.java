@@ -51,6 +51,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strY2LabelTmpl		= "";
 	protected String _strCaptionTmpl		= "";
 	protected String _strPlotCmd			= "";
+	protected String _strPlotCond			= "";	
 	
 	protected boolean _boolEventEqual		= false;
 	protected boolean _boolEventEqualM		= false;
@@ -207,6 +208,7 @@ public class MVPlotJob extends MVUtil{
 		job._strY2LabelTmpl		= _strY2LabelTmpl;
 		job._strCaptionTmpl		= _strCaptionTmpl;
 		job._strPlotCmd			= _strPlotCmd;
+		job._strPlotCond		= _strPlotCond;
 		
 		job._boolEventEqual		= _boolEventEqual;
 		job._boolEventEqualM	= _boolEventEqualM;
@@ -424,6 +426,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setCaptionTmpl(String captionTmpl)					{ _strCaptionTmpl = captionTmpl;						}
 	public String	getPlotCmd()										{ return _strPlotCmd;									}
 	public void		setPlotCmd(String plotCmd)							{ _strPlotCmd = plotCmd;								}
+	public String	getPlotCond()										{ return _strPlotCond;									}
+	public void		setPlotCond(String plotCond)						{ _strPlotCond = plotCond;								}
 	
 	public boolean	getEventEqual()										{ return _boolEventEqual;								}
 	public void		setEventEqual(boolean eventEqual)					{ _boolEventEqual = eventEqual; 						}

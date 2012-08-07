@@ -742,6 +742,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("y2_lim",		MVPlotJob.class.getDeclaredMethod("setY2Lim",		new Class[]{String.class}));
 			_tableFormatString.put("y2_bufr",		MVPlotJob.class.getDeclaredMethod("setY2Bufr",		new Class[]{String.class}));
 			_tableFormatString.put("plot_cmd",		MVPlotJob.class.getDeclaredMethod("setPlotCmd",		new Class[]{String.class}));
+			_tableFormatString.put("plot_cond",		MVPlotJob.class.getDeclaredMethod("setPlotCond",	new Class[]{String.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	
@@ -1045,8 +1046,10 @@ public class MVPlotJobParser extends MVUtil{
 	            "<caption>" +	job.getCaptionTmpl() +	"</caption>" +
 	        "</tmpl>";
 		
-		//  plot_cmd
-		strXML += "<plot_cmd>" + job.getPlotCmd() + "</plot_cmd>";
+		//  plot_cmd / plot_cond
+		strXML += 
+			"<plot_cmd>" + 		job.getPlotCmd() 		+ "</plot_cmd>" +
+			"<plot_cond>" + 	job.getPlotCond() 		+ "</plot_cond>";
 		
 		//  plot fmt
 		strXML += 

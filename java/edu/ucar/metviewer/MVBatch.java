@@ -602,6 +602,11 @@ public class MVBatch extends MVUtil {
 		//  build the sql where clauses for the current permutation of fixed variables and values
 		String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
 		
+		//  add the user-specified condition clause, if present
+		if( null != job.getPlotCond() && !job.getPlotCond().equals("") ){
+			strPlotFixWhere += "  AND " + job.getPlotCond() + "\n";
+		}
+		
 		//  determine if the plot requires data aggregation or calculations
 		boolean boolAggCtc = job.getAggCtc();
 		boolean boolAggSl1l2 = job.getAggSl1l2();
