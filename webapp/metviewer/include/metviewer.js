@@ -1760,6 +1760,9 @@ function buildPlotXML(){
 		//  <plot_fix>
 		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) + "</plot_fix>";
 		
+		//  <plot_cond>
+		strDepXML += "<plot_cond>" + document.getElementById("txtPlotCond").value + "</plot_cond>";
+		
 		//  <indep>
 		var divIndy = document.getElementById("divIndy");
 		var tabIndyVal = document.getElementById("tabIndyVal");
@@ -2442,6 +2445,10 @@ var _divInitXMLPlotFix;
  */
 function loadInitXML_phasePlotFix(){
 	console("loadInitXML_phasePlotFix()\n");
+	
+	//  parse the plot_cond value
+	var strPlotCond = _strInitXML.match( /<plot_cond>(.*)<\/plot_cond>/ )[1];
+	document.getElementById("txtPlotCond").value = strPlotCond;
 	
 	//  parse the plot_fix structures, creating a hashtable entry for each field
 	var strPlotFix = _strInitXML.match( /<plot_fix>(.*)<\/plot_fix>/ )[1];
