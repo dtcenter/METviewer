@@ -1459,6 +1459,8 @@ public class MVBatch extends MVUtil {
 			populatePlotFmtTmpl(tableRTags, job);
 
 			//  populate the R_tmpl with the template values
+			(new File(strRFile)).getParentFile().mkdirs();
+			(new File(strPlotFile)).getParentFile().mkdirs();
 			populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
 
 			
