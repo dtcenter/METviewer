@@ -1540,7 +1540,7 @@ function getFmtSeriesVal(row){
 	var listTdFmt = new Array();
 	var tabFmtSeries = document.getElementById(strTabFmtSeriesId);
 	var trFmtSeries = tabFmtSeries.rows[row];
-	if( 3 != trFmtSeries.cells.length ){ return listTdFmt; }
+	if( 2 > trFmtSeries.cells.length ){ return listTdFmt; }
 	
 	//  build a list of formatting td elements
 	var tabVal1 = trFmtSeries.cells[1].getElementsByTagName("table")[0];
@@ -2708,7 +2708,7 @@ function loadInitXML_phaseFormat(){
 		//  loop through the list of formatting values and controls
 		console(" found - " + listFmtVal[1] + "\n");
 		listFmtVal = listFmtVal[1].split(",");
-		intFmtRow = 0;
+		var intFmtRow = 0;
 		for(var j in listFmtVal){			
 			var listFmtTd = getFmtSeriesVal(intFmtRow);
 			
