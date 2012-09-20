@@ -188,6 +188,8 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 
 			<img id="imgFixSpc" src="include/add_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
 			<a class="link" onclick="javascript:addFixSpcVar()" id="lnkFixSpcHdr">Add a Specialized Plot Fixed Value</a><br/><br/><br/>
+			         
+         <span style="padding-left:30px">plot_cond:&nbsp;<input type="text" id="txtPlotCondSpc" size="80" value=""/></span><br/>			
 		</div>
 		
 		<br/><br/>
