@@ -1166,21 +1166,6 @@ public class MVLoad extends MVUtil {
 	}
 
 	/**
-	 * Search all line_data tables to determine the maximum line_data_id used among them and return it
-	 * @param con database connection to search against
-	 * @return the maximum line_data_id value found among the line_data tables
-	 * @throws Exception
-	public static int getNextLineDataId(Connection con) throws Exception{
-		int intMaxId = 0;
-		for(int i=0; i < _listLineDataTables.length; i++){
-			int intMaxIdCur = getNextId(con, _listLineDataTables[i], "line_data_id");
-			if( intMaxIdCur > intMaxId ){ intMaxId = intMaxIdCur; }			
-		}
-		return intMaxId;
-	}
-	 */
-
-	/**
 	 * Analyze the input file object to determine what type of MET output file it is.  Create an entry in
 	 * the data_file table for the file and build a DataFileInfo data structure with information about
 	 * the file and return it.
@@ -1302,7 +1287,8 @@ public class MVLoad extends MVUtil {
 		"line_data_fho",		"line_data_ctc",		"line_data_cts",		"line_data_cnt",		"line_data_pct",
 		"line_data_pstd",		"line_data_pjc",		"line_data_prc",		"line_data_sl1l2",		"line_data_sal1l2",
 		"line_data_vl1l2",		"line_data_val1l2",		"line_data_mpr",		"line_data_nbrctc",		"line_data_nbrcts",
-		"line_data_nbrcnt",		"line_data_isc",		"line_data_mctc",		"line_data_rhist",		"line_data_orank"
+		"line_data_nbrcnt",		"line_data_isc",		"line_data_mctc",		"line_data_rhist",		"line_data_orank",
+		"line_data_ssvar"
 	};
 	
 	public static final MVOrderedMap _mapIndexes = new MVOrderedMap();

@@ -235,18 +235,37 @@ public class MVPlotJobParser extends MVUtil{
 				job.setDBUser(strDBUser);
 				job.setDBPassword(strDBPassword);
 				
-				//  add the job to the jobs table and to the runnable jobs, if appropriate
+				//  check the job and add it to the jobs table and to the runnable jobs, if appropriate
 				_tablePlotDecl.put(node._name, job);
 				String strCompleteness = "";
+				boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
 				if( job.getPlotTmpl().equals("roc.R_tmpl") ){
+					
+					//  ROC jobs must have an aggregation method selected
 					if( !job.getRocPct() && ! job.getRocCtc() ){
 						strCompleteness = "if ROC template is selected, one of roc_pct or roc_ctc must be true";
 					}
+					
+				} else if( job.getPlotTmpl().equals("ens_ss.R_tmpl") ){
+					
+					//  ensemble spread/skill must have a fcst_var selected
+					if( job.getPlotFixVal().containsKey("fcst_var") ){
+						MVOrderedMap mapDep = new MVOrderedMap(), mapMse = new MVOrderedMap();
+						String[] listFcstVar = (String[])job.getPlotFixVal().get("fcst_var");
+						mapMse.put(listFcstVar[0], new String[]{"MSE"});
+						mapDep.put("dep1", mapMse);
+						mapDep.put("dep2", new MVOrderedMap());
+						job.addDepGroup(mapDep);
+					} else if( boolPlotRun ) {
+						strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
+					}
+					
 				} else if( !job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") ){
 					strCompleteness = checkJobCompleteness(job);
 				}
+				
+				//  add runnable jobs to the run table if complete, complain otherwise
 				boolean boolComplete = strCompleteness.equals("");
-				boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
 				if( boolComplete )	{
 					if( boolPlotRun ){ _mapJobs.put(node._name, job); }
 					listJobs.add( job );
@@ -634,7 +653,6 @@ public class MVPlotJobParser extends MVUtil{
 				  job.getAggSl1l2()) &&
 				 (job.getCalcCtc() ||
 				  job.getCalcSl1l2())             )	{ return "has both agg_stat and calc_stat";		}
-		
 		return "";
 	}
 	
@@ -656,6 +674,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatBoolean.put("dump_points2",	MVPlotJob.class.getDeclaredMethod("setDumpPoints2",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("log_y1",		MVPlotJob.class.getDeclaredMethod("setLogY1",		new Class[]{boolean.class}));
 			_tableFormatBoolean.put("log_y2",		MVPlotJob.class.getDeclaredMethod("setLogY2",		new Class[]{boolean.class}));
+			_tableFormatBoolean.put("ensss_pts_disp",MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp",new Class[]{boolean.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	
@@ -727,6 +746,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("box_avg",		MVPlotJob.class.getDeclaredMethod("setBoxAvg",		new Class[]{String.class}));
 			_tableFormatString.put("rely_event_hist",MVPlotJob.class.getDeclaredMethod("setRelyEventHist",new Class[]{String.class}));
 			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));
+			_tableFormatString.put("ensss_pts",		MVPlotJob.class.getDeclaredMethod("setEnsSsPts",	new Class[]{String.class}));
 			
 			_tableFormatString.put("plot_ci",		MVPlotJob.class.getDeclaredMethod("setPlotCI",		new Class[]{String.class}));
 			_tableFormatString.put("plot_disp",		MVPlotJob.class.getDeclaredMethod("setPlotDisp",	new Class[]{String.class}));

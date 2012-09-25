@@ -200,6 +200,8 @@ public class MVBatch extends MVUtil {
 		boolean boolAggPct		= job.getAggPct();
 		boolean boolAggNbrCnt	= job.getAggNbrCnt();
 		boolean boolAggStat		= boolAggCtc || boolAggSl1l2 || boolAggNbrCnt;
+		
+		boolean boolEnsSs		= job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
 
 		/*
@@ -504,6 +506,7 @@ public class MVBatch extends MVUtil {
 			tableRTags.put("dump_points2",	(job.getDumpPoints2()?	"TRUE" : "FALSE"));
 			tableRTags.put("log_y1",		(job.getLogY1()?		"TRUE" : "FALSE"));
 			tableRTags.put("log_y2",		(job.getLogY2()?		"TRUE" : "FALSE"));
+			tableRTags.put("ensss_pts_disp",(job.getEnsSsPtsDisp()?	"TRUE" : "FALSE"));
 			
 			// calculate the number of plot curves
 			int intNumDep1 = 0;
@@ -527,21 +530,24 @@ public class MVBatch extends MVUtil {
 			int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));
 			int intNumDep2Series = intNumDep2 * (intNumSeries2Perm + (job.getPlot2Diff()? 1 : 0));
 			int intNumDepSeries = intNumDep1Series + intNumDep2Series;
+			if( boolEnsSs && job.getEnsSsPtsDisp() ) intNumDepSeries *= 2;
 
 			//  populate the formatting information in the R script template
 			populatePlotFmtTmpl(tableRTags, job);
 			
 			//  validate the number of formatting elements
-			if( intNumDepSeries != parseRCol(job.getPlotCI()).length )   { throw new Exception("length of plot_ci differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getPlotDisp()).length ) { throw new Exception("length of plot_disp differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getColors()).length )   { throw new Exception("length of colors differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getPch()).length )      { throw new Exception("length of pch differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getType()).length )     { throw new Exception("length of type differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getLty()).length )      { throw new Exception("length of lty differs from number of series (" + intNumDepSeries + ")"); }
 			if( intNumDepSeries != parseRCol(job.getLwd()).length )      { throw new Exception("length of lwd differs from number of series (" + intNumDepSeries + ")"); }
-			if( intNumDepSeries != parseRCol(job.getConSeries()).length ){ throw new Exception("length of con_series differs from number of series (" + intNumDepSeries + ")"); }
 			if( !job.getLegend().equals("") && 
 				intNumDepSeries != parseRCol(job.getLegend()).length )   { throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")"); }
+			if( !boolEnsSs ){
+				if( intNumDepSeries != parseRCol(job.getPlotCI()).length )   { throw new Exception("length of plot_ci differs from number of series (" + intNumDepSeries + ")"); }
+				if( intNumDepSeries != parseRCol(job.getConSeries()).length ){ throw new Exception("length of con_series differs from number of series (" + intNumDepSeries + ")"); }
+			}
 			
 			//  replace the template tags with the template values for the current plot
 			tableRTags.put("plot_ci",	job.getPlotCI().equals("")? printRCol(rep("none", intNumDepSeries), false)	: job.getPlotCI());
@@ -616,6 +622,7 @@ public class MVBatch extends MVUtil {
 		boolean boolCalcCtc = job.getCalcCtc();
 		boolean boolCalcSl1l2 = job.getCalcSl1l2();
 		boolean boolCalcStat = boolCalcCtc || boolCalcSl1l2;
+		boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
 		//  remove multiple dep group capability
 		MVOrderedMap[] listDep = job.getDepGroups();
@@ -705,6 +712,38 @@ public class MVBatch extends MVUtil {
 					listGroupFields.add( listSeries[i].getKey().toString() );
 				}
 				listGroupBy = (String[])listGroupFields.toArray(new String[]{});
+			}
+			
+			//  for ensemble spread/skill, add the ssvar line data and bail
+			if( boolEnsSs ){
+				
+				listSQL.add( "DROP TEMPORARY TABLE IF EXISTS plot_data;" );				
+				listSQL.add( "CREATE TEMPORARY TABLE plot_data\n(\n" +
+					    		strTempList + ",\n" +
+					    		"    fcst_var            VARCHAR(32),\n" +
+					    		"    total               INT UNSIGNED,\n" +
+					    		"    bin_n               INT UNSIGNED,\n" +
+					    		"    var_min             DOUBLE,\n" +
+					    		"    var_max             DOUBLE,\n" +
+					    		"    var_mean            DOUBLE,\n" +
+					    		"    fbar                DOUBLE,\n" +
+					    		"    obar                DOUBLE,\n" +
+					    		"    fobar               DOUBLE,\n" +
+					    		"    ffbar               DOUBLE,\n" +
+					    		"    oobar               DOUBLE\n" +
+					    		");\n" );
+
+				listSQL.add( "INSERT INTO plot_data\nSELECT\n" +
+					    		strSelectList + ",\n  h.fcst_var,\n" +
+					    		"  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
+					    		"  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar\n" +
+					    		"FROM\n" +
+					    		"  stat_header h,\n" +
+					    		"  line_data_ssvar ld\n" +
+					    		"WHERE\n" + strWhere +
+					    		"  AND h.stat_header_id = ld.stat_header_id;\n" );
+
+				return listSQL;
 			}
 
 			
@@ -1441,6 +1480,10 @@ public class MVBatch extends MVUtil {
 			String strXLabel	= buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strCaption	= buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
+
+			//  create the plot and R script output folders, if necessary
+			(new File(strPlotFile)).getParentFile().mkdirs();
+			(new File(strRFile)).getParentFile().mkdirs();
 			
 			//  create a table containing all template values for populating the R_tmpl
 			Hashtable tableRTags = new Hashtable();
@@ -1644,6 +1687,10 @@ public class MVBatch extends MVUtil {
 			String strY1Label	= buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strY2Label	= buildTemplateString(job.getY2LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
 			String strCaption	= buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
+
+			//  create the plot and R script output folders, if necessary
+			(new File(strPlotFile)).getParentFile().mkdirs();
+			(new File(strRFile)).getParentFile().mkdirs();
 			
 			//  create a table containing all template values for populating the R_tmpl
 			Hashtable tableRTags = new Hashtable();
@@ -1864,6 +1911,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("box_avg",		job.getBoxAvg());
 		tableRTags.put("rely_event_hist",job.getRelyEventHist());
 		tableRTags.put("ci_alpha",		job.getCIAlpha());
+		tableRTags.put("ensss_pts",		job.getEnsSsPts());
 	}
 		
 	/**

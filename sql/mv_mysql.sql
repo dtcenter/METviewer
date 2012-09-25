@@ -1109,6 +1109,47 @@ CREATE TABLE line_data_orank_ens
 );
 
 
+-- line_data_nbrcnt contains stat data for a particular stat_header record, which it points 
+--   at via the stat_header_id field.
+
+DROP TABLE IF EXISTS line_data_ssvar;
+CREATE TABLE line_data_ssvar
+(
+    stat_header_id      INT UNSIGNED NOT NULL,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    fcst_lead           INT UNSIGNED,
+    fcst_valid_beg      DATETIME,
+    fcst_valid_end      DATETIME,
+    fcst_init_beg       DATETIME,
+    obs_lead            INT UNSIGNED,
+    obs_valid_beg       DATETIME,
+    obs_valid_end       DATETIME,
+    total               INT UNSIGNED,
+
+    n_bin               INT UNSIGNED,
+    bin_i               INT UNSIGNED,
+    bin_n               INT UNSIGNED,
+    var_min             DOUBLE,
+    var_max             DOUBLE,
+    var_mean            DOUBLE,
+    fbar                DOUBLE,
+    obar                DOUBLE,
+    fobar               DOUBLE,
+    ffbar               DOUBLE,
+    oobar               DOUBLE,
+           
+    CONSTRAINT line_data_ssvar_data_file_id_pk
+            FOREIGN KEY(data_file_id)
+            REFERENCES data_file(data_file_id),
+    CONSTRAINT line_data_ssvar_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
+
+
 -- mode_header represents a line in a mode file and contains the header information for
 --   that line.  The line-dependent information is stored in specific tables for each line 
 --   type, each of which point at the line they are associated with, via the mode_header_id 
@@ -1303,11 +1344,12 @@ CREATE TABLE mv_rev
     PRIMARY KEY (rev_id)    
 );
 
-INSERT INTO mv_rev VALUES (0, '2010-07-29 12:00:00', '0.1', 'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
-INSERT INTO mv_rev VALUES (1, '2010-10-14 12:00:00', '0.1', 'Increased web_plot.plot_xml field width to 65536');
-INSERT INTO mv_rev VALUES (2, '2010-11-15 12:00:00', '0.3', 'METViewer changes to support out from METv3.0');
-INSERT INTO mv_rev VALUES (3, '2011-01-13 12:00:00', '0.5', 'Major refactoring of schema, compatible with METv3.0');
-INSERT INTO mv_rev VALUES (4, '2011-03-18 12:00:00', '0.5', 'Added instance_info table');
+INSERT INTO mv_rev VALUES (0, '2010-07-29 12:00:00', '0.1',   'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
+INSERT INTO mv_rev VALUES (1, '2010-10-14 12:00:00', '0.1',   'Increased web_plot.plot_xml field width to 65536');
+INSERT INTO mv_rev VALUES (2, '2010-11-15 12:00:00', '0.3',   'METViewer changes to support out from METv3.0');
+INSERT INTO mv_rev VALUES (3, '2011-01-13 12:00:00', '0.5',   'Major refactoring of schema, compatible with METv3.0');
+INSERT INTO mv_rev VALUES (4, '2011-03-18 12:00:00', '0.5',   'Added instance_info table');
+INSERT INTO mv_rev VALUES (5, '2012-09-25 12:00:00', '0.5.6', 'Added line_data_ssvar table');
 
 
 -- instance_info contains information about the particular instance of metvdb, including 
