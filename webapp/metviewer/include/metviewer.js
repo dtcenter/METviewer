@@ -1762,8 +1762,8 @@ function buildPlotXML(){
 		
 		//  <plot_cond>
 		var strPlotCond = isTmplSpc() ? 
-							document.getElementById("txtPlotCond").value :
-							document.getElementById("txtPlotCondSpc").value;
+							document.getElementById("txtPlotCondSpc").value :
+							document.getElementById("txtPlotCond").value;
 		strDepXML += "<plot_cond>" + strPlotCond + "</plot_cond>";
 		
 		//  <indep>
