@@ -2218,7 +2218,8 @@ function loadInitXML_phaseDep(){
 	}
 	
 	//  start the dep load cycle
-	loadInitXML_phaseDepLoad();
+	if( TMPL_ENS_SS != _intTmpl ) loadInitXML_phaseDepLoad();
+	else                          loadInitXML_phaseSeries();
 }
 
 /**
