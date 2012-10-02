@@ -506,7 +506,6 @@ public class MVBatch extends MVUtil {
 			tableRTags.put("dump_points2",	(job.getDumpPoints2()?	"TRUE" : "FALSE"));
 			tableRTags.put("log_y1",		(job.getLogY1()?		"TRUE" : "FALSE"));
 			tableRTags.put("log_y2",		(job.getLogY2()?		"TRUE" : "FALSE"));
-			tableRTags.put("ensss_pts_disp",(job.getEnsSsPtsDisp()?	"TRUE" : "FALSE"));
 			
 			// calculate the number of plot curves
 			int intNumDep1 = 0;
@@ -530,7 +529,7 @@ public class MVBatch extends MVUtil {
 			int intNumDep1Series = intNumDep1 * (intNumSeries1Perm + (job.getPlot1Diff()? 1 : 0));
 			int intNumDep2Series = intNumDep2 * (intNumSeries2Perm + (job.getPlot2Diff()? 1 : 0));
 			int intNumDepSeries = intNumDep1Series + intNumDep2Series;
-			if( boolEnsSs && job.getEnsSsPtsDisp() ) intNumDepSeries *= 2;
+			if( boolEnsSs && job.getEnsSsPtsDisp().equalsIgnoreCase("TRUE") ) intNumDepSeries *= 2;
 
 			//  populate the formatting information in the R script template
 			populatePlotFmtTmpl(tableRTags, job);
@@ -1912,6 +1911,7 @@ public class MVBatch extends MVUtil {
 		tableRTags.put("rely_event_hist",job.getRelyEventHist());
 		tableRTags.put("ci_alpha",		job.getCIAlpha());
 		tableRTags.put("ensss_pts",		job.getEnsSsPts());
+		tableRTags.put("ensss_pts_disp",job.getEnsSsPtsDisp());
 	}
 		
 	/**

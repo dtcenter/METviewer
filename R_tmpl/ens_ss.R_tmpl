@@ -25,17 +25,14 @@ listSeries1Val = #<series1_list>#;
 
 listLegendUsr = #<legend>#
 		
+
+dfData = read.delim(strDataFile);
+
 #
 #  Build the series data for the plot 
 #
 		
-dfData = read.delim(strDataFile);
-
-listSeries1Val = list(
-	model = c("ens1", "ens2")
-);
 listSeriesVar = names(listSeries1Val);
-
 matPermVal = permute(listSeries1Val);
 
 # storage for series information

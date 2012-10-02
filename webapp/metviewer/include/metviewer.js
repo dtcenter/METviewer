@@ -8,6 +8,7 @@ var TMPL_BOX_PLOT		= 3;
 var TMPL_RHIST			= 4;
 var TMPL_ROC			= 5;
 var TMPL_RELY			= 6;
+var TMPL_ENS_SS			= 7;
 var _intTmpl = TMPL_SERIES_PLOT;
 
 var _listLnkSer = ["Dep1", "Series1", "Dep2", "Series2", "Fix", "FixSpc", "Indy", "AggStat", "CalcStat", "FmtPlot", "FmtSeries"];
@@ -224,6 +225,8 @@ function onLoad(){
 	addFmtPlot("Box Plot Show Avg",				"box_avg",			["FALSE", "TRUE"], "txt");
 	addFmtPlot("Reliability Event Histogram",	"rely_event_hist",	["TRUE", "FALSE"], "txt");
 	addFmtPlot("Conf Interval Alpha",			"ci_alpha",			".05", 			"txt");	
+	addFmtPlot("Ens Sprd/Skill Pts",			"ensss_pts",		"-1", 			"txt");	
+	addFmtPlot("Ens Sprd/Skill Pts Disp",		"ensss_pts_disp",	["TRUE", "FALSE"], "txt");
 
 	//  initialize the dep list
 	var divDep0 = document.getElementById("divDep1").getElementsByTagName("div")[0];
@@ -295,11 +298,12 @@ function updatePlotData(){
 	var strPlotData = getSelected( document.getElementById("selPlotData") )[0];
 	var strTmpl = getSelected( document.getElementById("selTemplate") )[0];
 	if( strPlotData == "Stat" ){
-		if     ( strTmpl == "rhist" ){ _strPlotData = "rhist"; }
-		else if( strTmpl == "roc"   ){ _strPlotData = "roc";   }
-		else if( strTmpl == "rely"  ){ _strPlotData = "rely";  }
-		else                         { _strPlotData = "stat";  }
-		_listVar = _listVarStat;
+		if     ( strTmpl == "rhist"  ){ _strPlotData = "rhist"; }
+		else if( strTmpl == "roc"    ){ _strPlotData = "roc";   }
+		else if( strTmpl == "rely"   ){ _strPlotData = "rely";  }
+		else if( strTmpl == "ens_ss" ){ _strPlotData = "ensss"; }
+		else                          { _strPlotData = "stat";  }
+		_listVar = ( _intTmpl != TMPL_ENS_SS ? _listVarStat : _listVarSpc );
 		_listIndyVar = _listIndyVarStat;
 	} else if( strPlotData == "MODE" ){
 		_strPlotData = "mode";
@@ -457,12 +461,15 @@ function updateTmpl(){
 	else if( null != strTmpl.match( /^box_plot$/    ) ){ _intTmpl = TMPL_BOX_PLOT;    } 
 	else if( null != strTmpl.match( /^rhist$/       ) ){ _intTmpl = TMPL_RHIST;       } 
 	else if( null != strTmpl.match( /^roc$/         ) ){ _intTmpl = TMPL_ROC;         } 
-	else if( null != strTmpl.match( /^rely$/        ) ){ _intTmpl = TMPL_RELY;         } 
+	else if( null != strTmpl.match( /^rely$/        ) ){ _intTmpl = TMPL_RELY;        } 
+	else if( null != strTmpl.match( /^ens_ss$/      ) ){ _intTmpl = TMPL_ENS_SS;      } 
 	
 	//  default visibility settings for the series_plot template
 	var boolY1 = true;
+	var boolDep1 = true;
 	var boolY2 = true;
 	var boolY2NA = false;
+	var boolY2Fmt = true;
 	var boolFix = true;
 	var boolFixSpc = false;
 	var boolIndy = true;
@@ -476,19 +483,30 @@ function updateTmpl(){
 	if( TMPL_BOX_PLOT == _intTmpl || TMPL_BAR_PLOT == _intTmpl ){
 		boolY2NA = true;
 		boolAggStatNA = true;	
+		boolY2Fmt = false;
 	} else if( isTmplSpc() ){
 		boolY1 = false;
 		boolY2 = false;
+		boolY2Fmt = false;
 		boolFix = false;
 		boolFixSpc = true;
 		boolIndy = false;
 		boolAggStat = false;
 		boolCalcStat = false;
 		boolRocCalc = (TMPL_ROC == _intTmpl);
+	} else if( TMPL_ENS_SS == _intTmpl ){
+		boolDep1 = false;
+		boolY2 = false;
+		boolY2NA = true;
+		boolIndy = false;
+		boolAggStat = false;
+		boolAggStatNA = true;	
+		boolCalcStat = false;
 	}
 	
 	//  configure the visibility of the Y1, Y2, fix and indy controls
 	document.getElementById("tdY1").style.display    		= boolY1?		"table-cell" : "none";
+	document.getElementById("divDep1").style.display    	= boolDep1?		"block" : "none";
 	document.getElementById("tdY2").style.display    		= boolY2?		"table-cell" : "none";
 	document.getElementById("spanY2NA").style.display    	= boolY2NA?		"inline" : "none";
 	document.getElementById("divDep2").style.display     	= boolY2NA?		"none" : "inline";
@@ -518,10 +536,10 @@ function updateTmpl(){
 
 	//  configure the visibility of the plot formatting controls
 	var listFmtAxis = document.getElementById("divFmtAxis").getElementsByTagName("td");
-	listFmtAxis[4].style.display							= boolY2NA?		"none" : "inline";
-	listFmtAxis[5].style.display							= boolY2NA?		"none" : "inline";
-	listFmtAxis[6].style.display							= boolY2NA?		"none" : "inline";
-	listFmtAxis[7].style.display							= boolY2NA?		"none" : "inline";
+	listFmtAxis[4].style.display							= boolY2Fmt?	 "inline" : "none";
+	listFmtAxis[5].style.display							= boolY2Fmt?	 "inline" : "none";
+	listFmtAxis[6].style.display							= boolY2Fmt?	 "inline" : "none";
+	listFmtAxis[7].style.display							= boolY2Fmt?	 "inline" : "none";
 	
 	if( isTmplSpc() ){
 		buildSeriesDivSpc();
@@ -879,8 +897,8 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY){
 	if( -1 == intY ){
 		strFixCrit = buildFixSpcCrit(intFixEnd);
 	} else {
-		if(  1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarStatCrit(intY); }
-		else                         { strFcstVarCrit = buildFcstVarStatCrit(); }		
+		if( 1 == intY || 2 == intY ){ strFcstVarCrit = buildFcstVarStatCrit(intY); }
+		else                        { strFcstVarCrit = buildFcstVarStatCrit();     }		
 		strFixCrit = buildFixCrit(intFixEnd);
 	}
 
@@ -1352,15 +1370,38 @@ function updateFmtPlot(){
 }
 
 /**
+ * Search for the plot formatting control <td> of the specified type with the
+ * specified tag. 
+ */
+function getFmtPlotTd(type, tag){
+	var tab = document.getElementById( type == "bool" ? "tabFmtPlotBool" : "tabFmtPlotTxt" );
+	for(var i=0; i < tab.rows.length; i++){
+		for(var j=0; j < tab.rows[i].cells.length; j++){
+			var listTd = tab.rows[i].cells[j].getElementsByTagName("td");
+			if( 1 > listTd.length ){ continue; }
+			if( tag == getFmtTag(tab.rows[i].cells[j]) ){
+				return tab.rows[i].cells[j];
+			}
+		}
+	}
+	return null;
+}
+
+
+/**
  * Build the list of plot series reflected by the current state of the controls
  */
 function buildSeriesDiv(){
 	
 	if( isTmplSpc() ){ return; }
-
+	
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
 	var spanFmtSeriesDisp = document.getElementById("spanFmtSeriesDisp");
 	_intNumSeries = 0;
+
+	//  determine if the plot is an ensemble spread/skill
+	var boolEnsSS 		 = ( _intTmpl == TMPL_ENS_SS );
+	var boolEnsSSPtsDisp = ( "TRUE" == getFmtVal(getFmtPlotTd("txt", "ensss_pts_disp")) );
 	
 	//  update the visibility of the series formatting controls
 	spanFmtSeriesDisp.style.display = "inline";
@@ -1399,23 +1440,27 @@ function buildSeriesDiv(){
 	
 	//  build all y1 and y2 series
 	for(var intY=1; intY <= 2; intY++){
-
-		var listDepDiv = (1 == intY? _listDep1Div : _listDep2Div);
-		var listSeriesPerm = (1 == intY? listSeries1Perm : listSeries2Perm);
-			
+		
+		//  set the dep controls
+		var listDepDiv = (1 == intY || boolEnsSS ? _listDep1Div : _listDep2Div);
+		var listSeriesPerm = (1 == intY || boolEnsSS ? listSeries1Perm : listSeries2Perm);
+		var intNumDep = !boolEnsSS ? listDepDiv.length : 1;
+		
 		//  for each dep div, consider the fcst_var and selected stats
-		for(var intDep=0; intDep < listDepDiv.length; intDep++){
+		for(var intDep=0; intDep < intNumDep; intDep++){
 	
 			//  get the dep var information
 			var strFcstVar = getSelected( listDepDiv[intDep].getElementsByTagName("select")[0] )[0];
 			var listStat = getSelected( listDepDiv[intDep].getElementsByTagName("select")[1] );
+			var intNumStat = !boolEnsSS ? listStat.length : 1;
 	
 			//  build a series for each combination of fcst_var, stat and series permutation
-			for(var intStat=0; intStat < listStat.length; intStat++){
+			for(var intStat=0; intStat < intNumStat; intStat++){
 				for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++){
 	
 					//  build the series name
-					var strSeriesName =  listSeriesPerm[intSeries] + " " + strFcstVar + " " + listStat[intStat];
+					var strStatName = !boolEnsSS ? listStat[intStat] : (1 == intY ? "MSE" : "#PTS");
+					var strSeriesName =  listSeriesPerm[intSeries] + (!boolEnsSS ? " " + strFcstVar : "") + " " + strStatName;
 	
 					var trFmtSeries;
 					var tdName;
@@ -1614,7 +1659,7 @@ function permuteSeries(listSeriesDiv, intIndex, boolDiff){
 	if( listSeriesDiv.length == intIndex + 1 ){
 		if( boolDiff ){ listVal.splice(listVal.length - 1, 0, "__DIFF__"); }
 		return listVal;
-	}
+	}	
 
 	//  otherwise, get the list for the next fcst_var and build upon it
 	var listValNext = permuteSeries(listSeriesDiv, intIndex + 1, boolDiff);
@@ -1746,11 +1791,13 @@ function buildPlotXML(){
 	} else {
 		
 		//  <dep>
-		strDepXML += "<dep>";
-		strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true, false) + "</dep1>";
-		strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true, false) + "</dep2>";
-		//  strDepXML += "<fix></fix></dep>";
-		strDepXML += "</dep>";
+		if( TMPL_ENS_SS != _intTmpl ){
+			strDepXML += "<dep>";
+			strDepXML += "<dep1>" + buildFieldValXML("fcst_var", "stat", _listDep1Div, true, false) + "</dep1>";
+			strDepXML += "<dep2>" + buildFieldValXML("fcst_var", "stat", _listDep2Div, true, false) + "</dep2>";
+			//  strDepXML += "<fix></fix></dep>";
+			strDepXML += "</dep>";
+		}
 		
 		//  <series1> and <series2>
 		var strSeriesXML = "";

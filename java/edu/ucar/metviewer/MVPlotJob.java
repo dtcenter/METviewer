@@ -68,7 +68,6 @@ public class MVPlotJob extends MVUtil{
 	protected boolean _boolDumpPoints2		= false;
 	protected boolean _boolLogY1			= false;
 	protected boolean _boolLogY2			= false;
-	protected boolean _boolEnsSsPtsDisp		= false;
 	
 	protected String _strPlotType			= "png256";
 	protected String _strPlotHeight			= "8.5";
@@ -136,6 +135,7 @@ public class MVPlotJob extends MVUtil{
 	protected String _strRelyEventHist		= "TRUE";
 	protected String _strCIAlpha			= ".05";
 	protected String _strEnsSsPts			= "-1";
+	protected String _strEnsSsPtsDisp		= "TRUE";
 	
 	protected boolean _boolAggCtc			= false;
 	protected boolean _boolAggSl1l2			= false;
@@ -227,7 +227,6 @@ public class MVPlotJob extends MVUtil{
 		job._boolDumpPoints2	= _boolDumpPoints2;
 		job._boolLogY1			= _boolLogY1;
 		job._boolLogY2			= _boolLogY2;
-		job._boolEnsSsPtsDisp	= _boolEnsSsPtsDisp;
 		
 		job._strPlotType		= _strPlotType;
 		job._strPlotHeight		= _strPlotHeight;
@@ -295,6 +294,7 @@ public class MVPlotJob extends MVUtil{
 		job._strRelyEventHist	= _strRelyEventHist;
 		job._strCIAlpha			= _strCIAlpha;
 		job._strEnsSsPts		= _strEnsSsPts;
+		job._strEnsSsPtsDisp	= _strEnsSsPtsDisp;
 
 		job._boolAggCtc			= _boolAggCtc;
 		job._boolAggSl1l2		= _boolAggSl1l2;
@@ -463,8 +463,6 @@ public class MVPlotJob extends MVUtil{
 	public void		setLogY1(boolean logY1)								{ _boolLogY1 = logY1; 									}
 	public boolean	getLogY2()											{ return _boolLogY2;									}
 	public void		setLogY2(boolean logY2)								{ _boolLogY2 = logY2; 									}
-	public boolean	getEnsSsPtsDisp()									{ return _boolEnsSsPtsDisp;								}
-	public void		setEnsSsPtsDisp(boolean ensSsPtsDisp)				{ _boolEnsSsPtsDisp = ensSsPtsDisp; 					}
 	
 	public String	getPlotType()										{ return _strPlotType;									}
 	public void		setPlotType(String plotType)						{ _strPlotType = plotType;								}
@@ -598,6 +596,8 @@ public class MVPlotJob extends MVUtil{
 	public void		setCIAlpha(String ciAlpha)							{ _strCIAlpha = ciAlpha;								}
 	public String	getEnsSsPts()										{ return _strEnsSsPts;									}
 	public void		setEnsSsPts(String ensSsPts)						{ _strEnsSsPts = ensSsPts;								}
+	public String	getEnsSsPtsDisp()									{ return _strEnsSsPtsDisp;								}
+	public void		setEnsSsPtsDisp(String ensSsPtsDisp)				{ _strEnsSsPtsDisp = ensSsPtsDisp; 						}
 
 	public boolean	getAggCtc()											{ return _boolAggCtc;									}
 	public void		setAggCtc(boolean aggCtc)							{ _boolAggCtc = aggCtc; 								}

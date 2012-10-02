@@ -451,10 +451,11 @@ public class MVServlet extends HttpServlet {
 		String strResp = "<list_val>";
 		String strId = nodeCall._children[0]._value;
 		String strHeaderField = nodeCall._children[1]._value;
-		boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
-		boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
-		boolean boolROC = nodeCall._children[1]._tag.equals("roc_field");
-		boolean boolRely = nodeCall._children[1]._tag.equals("rely_field");
+		boolean boolMode	= nodeCall._children[1]._tag.equals("mode_field");
+		boolean boolRhist	= nodeCall._children[1]._tag.equals("rhist_field");
+		boolean boolROC		= nodeCall._children[1]._tag.equals("roc_field");
+		boolean boolRely	= nodeCall._children[1]._tag.equals("rely_field");
+		boolean boolEnsSS	= nodeCall._children[1]._tag.equals("ensss_field");
 		String strHeaderTable = boolMode? "mode_header" : "stat_header";
     	_logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
     	strResp += "<id>" + strId + "</id>";
@@ -483,6 +484,8 @@ public class MVServlet extends HttpServlet {
 			tableLineDataTables.put("line_data_ctc", "true");
 		} else if( boolRely ){
 			tableLineDataTables.put("line_data_pct", "true");
+		} else if( boolEnsSS ){
+			tableLineDataTables.put("line_data_ssvar", "true");
 		} else if( 2 < nodeCall._children.length ){
     		boolFcstVar = true;
 			MVNode nodeFcstVarStat = nodeCall._children[2];

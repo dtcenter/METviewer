@@ -251,7 +251,14 @@ public class MVPlotJobParser extends MVUtil{
 					//  ensemble spread/skill must have a fcst_var selected
 					if( job.getPlotFixVal().containsKey("fcst_var") ){
 						MVOrderedMap mapDep = new MVOrderedMap(), mapMse = new MVOrderedMap();
-						String[] listFcstVar = (String[])job.getPlotFixVal().get("fcst_var");
+						Object objFcstVar = job.getPlotFixVal().get("fcst_var");
+						String[] listFcstVar;
+						if( objFcstVar instanceof String[] )
+							listFcstVar = (String[])job.getPlotFixVal().get("fcst_var");
+						else {
+							MVOrderedMap mapFcstVar = (MVOrderedMap)job.getPlotFixVal().get("fcst_var");
+							listFcstVar = (String[])mapFcstVar.get( mapFcstVar.getKeyList()[0] );
+						}
 						mapMse.put(listFcstVar[0], new String[]{"MSE"});
 						mapDep.put("dep1", mapMse);
 						mapDep.put("dep2", new MVOrderedMap());
@@ -674,7 +681,6 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatBoolean.put("dump_points2",	MVPlotJob.class.getDeclaredMethod("setDumpPoints2",	new Class[]{boolean.class}));
 			_tableFormatBoolean.put("log_y1",		MVPlotJob.class.getDeclaredMethod("setLogY1",		new Class[]{boolean.class}));
 			_tableFormatBoolean.put("log_y2",		MVPlotJob.class.getDeclaredMethod("setLogY2",		new Class[]{boolean.class}));
-			_tableFormatBoolean.put("ensss_pts_disp",MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp",new Class[]{boolean.class}));
 		}catch(NoSuchMethodException e){}
 	}
 	
@@ -747,6 +753,7 @@ public class MVPlotJobParser extends MVUtil{
 			_tableFormatString.put("rely_event_hist",MVPlotJob.class.getDeclaredMethod("setRelyEventHist",new Class[]{String.class}));
 			_tableFormatString.put("ci_alpha",		MVPlotJob.class.getDeclaredMethod("setCIAlpha",		new Class[]{String.class}));
 			_tableFormatString.put("ensss_pts",		MVPlotJob.class.getDeclaredMethod("setEnsSsPts",	new Class[]{String.class}));
+			_tableFormatString.put("ensss_pts_disp",MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp",new Class[]{String.class}));
 			
 			_tableFormatString.put("plot_ci",		MVPlotJob.class.getDeclaredMethod("setPlotCI",		new Class[]{String.class}));
 			_tableFormatString.put("plot_disp",		MVPlotJob.class.getDeclaredMethod("setPlotDisp",	new Class[]{String.class}));

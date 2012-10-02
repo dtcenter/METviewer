@@ -34,7 +34,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.6</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.7</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -60,7 +60,8 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<option>bar_plot</option>
 			<option>rhist</option>
 			<option>roc</option>
-			<option>rely</option>
+         <option>rely</option>
+         <option>ens_ss</option>
 		</select><br/><br/><br/>
 	</td></tr>
 
@@ -201,29 +202,32 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<span class="stdTiny">(<a href="doc/plot.html#indep" target="_blank">help</a>)</span>
 			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divIndy')" id="lnkSerIndy">Serialize</a><br/><br/>
 
-			<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
-			<select id="selIndyVar" onchange="javascript:clearIndyVal()"></select>&nbsp;
-			<input type="button" class="gButton" onclick="javascript:selectIndyVarReq()" value="Values &#187;"/><br/><br/>
-
-			<table id="tabIndyVal" style="padding-left:60px"><tr id="trIndyVal" style="display:none">
-				<td style="width: 100px">
-					<span id="spanIndyValChk">
-						<input type="checkbox" value="test value" style="vertical-align:middle" checked="checked"/>
-						<span id="spanIndyVal" style="font-weight: bold">(indy val)</span>&nbsp;&nbsp;
-					</span>
-				</td>
-				<td id="tdIndyValLab">
-					<span id="spanIndyValLab">
-						label: <input type="text" size="8"/>&nbsp;&nbsp;
-						plot val: <input type="text" size="8"/><br/>
-					</span>
-				</td>
-			</tr></table><br/>
-			<span id="spanIndyCheck" style="display:none">
-				<img src="include/add_symbol.gif" style="padding-left:80px"/>&nbsp;&nbsp;
-				<a class="link" onclick="javascript:indyCheck(true)">Check all</a>
-				<img src="include/sub_symbol.gif" style="padding-left:40px"/>&nbsp;&nbsp;
-				<a class="link" onclick="javascript:indyCheck(false)">Uncheck all</a>
+         <span id="spanIndyNA" class="header" style="padding-left:40px; display:none">N/A</span>
+         <span id="spanIndy">
+				<span class="bold" style="padding-left:20px; padding-right: 10px">Database Field:</span>
+				<select id="selIndyVar" onchange="javascript:clearIndyVal()"></select>&nbsp;
+				<input type="button" class="gButton" onclick="javascript:selectIndyVarReq()" value="Values &#187;"/><br/><br/>
+	
+				<table id="tabIndyVal" style="padding-left:60px"><tr id="trIndyVal" style="display:none">
+					<td style="width: 100px">
+						<span id="spanIndyValChk">
+							<input type="checkbox" value="test value" style="vertical-align:middle" checked="checked"/>
+							<span id="spanIndyVal" style="font-weight: bold">(indy val)</span>&nbsp;&nbsp;
+						</span>
+					</td>
+					<td id="tdIndyValLab">
+						<span id="spanIndyValLab">
+							label: <input type="text" size="8"/>&nbsp;&nbsp;
+							plot val: <input type="text" size="8"/><br/>
+						</span>
+					</td>
+				</tr></table><br/>
+				<span id="spanIndyCheck" style="display:none">
+					<img src="include/add_symbol.gif" style="padding-left:80px"/>&nbsp;&nbsp;
+					<a class="link" onclick="javascript:indyCheck(true)">Check all</a>
+					<img src="include/sub_symbol.gif" style="padding-left:40px"/>&nbsp;&nbsp;
+					<a class="link" onclick="javascript:indyCheck(false)">Uncheck all</a>
+				</span>
 			</span>
 		</div><br/><br/>
 
