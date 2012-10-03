@@ -80,10 +80,13 @@ for(intPermVal in 1:nrow(matPermVal)){
 		else                { intEnsSsPts = 1;              }
 	}
 	
-	# build bins with roughly equals amounts of points
+	# initialize storage
 	listVar = c();
 	listMse = c();
 	listPts = c();
+	if( TRUE == exists("dfBin") ) rm("dfBin");
+	
+	# build bins with roughly equals amounts of points
 	for(i in 1:nrow(dfPermAgg)){
 		
 		# if the bin is large enough, calculate a spread/skill point
