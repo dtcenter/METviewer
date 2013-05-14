@@ -486,7 +486,6 @@ public class MVUtil{
 	/**
 	 * Sort the list of input thresholds, according to the numeric threshold value. 
 	 * @param thresh List of thresholds
-	 * @param asc true for ascending order
 	 * @return Sorted threshold list, by value
 	 */
 	public static final String[] sortThresh(String[] thresh){
@@ -497,8 +496,7 @@ public class MVUtil{
 	
 	/**
 	 * Sort the list of input levels, according to the first numeric level value. 
-	 * @param thresh List of thresholds
-	 * @param asc true for ascending order
+	 * @param lev List of thresholds
 	 * @return Sorted threshold list, by value
 	 */
 	public static final String[] sortLev(String[] lev){
@@ -542,7 +540,7 @@ public class MVUtil{
 			
 			//  verify and store the numerical value and the value pair
 			listVal[i] = dblVal;
-			Double dblKey = new Double(listVal[i]);
+			Double dblKey = listVal[i];
 			Object objVal = vals[i];
 			if( tableVal.containsKey(dblKey) ){
 				Object objValCur = tableVal.get(dblKey);
@@ -780,7 +778,7 @@ public class MVUtil{
 	public static Integer[] rep(int val, int rep){
 		if(1 > rep){ return new Integer[]{}; }
 		Integer[] listRet = new Integer[rep];
-		for(int i=0; i < rep; i++){ listRet[i] = new Integer(val); }
+		for(int i=0; i < rep; i++){ listRet[i] = val; }
 		return listRet;
 	}
 	
@@ -1036,7 +1034,7 @@ public class MVUtil{
 	/**
 	 * Prints a textual representation of the input {@link MVDataTable} with the field names in the 
 	 * first row to the specified {@link PrintStream} destination.  
-	 * @param res The MVDataTable to print
+	 * @param tab The MVDataTable to print
 	 * @param str The stream to write the formatted results to (defaults to _out)
 	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
 	 * @param maxRows The max number of rows to print, -1 to print all rows
