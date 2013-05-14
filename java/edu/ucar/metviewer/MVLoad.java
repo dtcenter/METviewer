@@ -618,10 +618,15 @@ public class MVLoad extends MVUtil {
 				}
 				
 				//  add the stats in order
-				strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
-			}
-			
-			//  add the values list to the line type values map
+        strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
+
+        //  for the METv < 4.1 SSVAR line type, add other 23 stats
+        if (32 == i && "SSVAR".equals(d._strLineType) && ("V4.1".compareTo(_strMetVersion) > 0 || intLineDataMax == 33)) {
+          strLineDataValueList += ", '-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999'";
+        }
+      }
+
+      //  add the values list to the line type values map
 			ArrayList listLineTypeValues = new ArrayList();
 			if( d._tableLineDataValues.containsKey(d._strLineType) ){ listLineTypeValues = (ArrayList)d._tableLineDataValues.get(d._strLineType); }
 			listLineTypeValues.add("(" + strLineDataValueList + ")");
@@ -1275,6 +1280,7 @@ public class MVLoad extends MVUtil {
 		_tableAlphaLineTypes.put("NBRCTS", new Boolean(true));
 		_tableAlphaLineTypes.put("NBRCNT", new Boolean(true));
 		_tableAlphaLineTypes.put("MCTS", new Boolean(true));
+		_tableAlphaLineTypes.put("SSVAR", new Boolean(true));
 	}
 
 	public static Hashtable _tableCovThreshLineTypes = new Hashtable();
