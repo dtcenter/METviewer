@@ -18,7 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,6 +43,7 @@ public class MVServlet extends HttpServlet {
   public static String _strRWork = "";
   public static String _strPlots = "";
   public static String _strRscript = "";
+  public static String _strRedirect = "";
 
   public static Hashtable _tableDBConnection = new Hashtable();
 
@@ -49,7 +53,6 @@ public class MVServlet extends HttpServlet {
   public static Hashtable _tableListValCache = new Hashtable();
   public static boolean _boolListStatCache = false;
   public static Hashtable _tableListStatCache = new Hashtable();
-  //public static final Datasources datasources  = Datasources.getInstance();
 
   /**
    * Read the resource bundle containing database configuration information and
@@ -73,6 +76,7 @@ public class MVServlet extends HttpServlet {
       _strRTmpl = bundle.getString("folders.r_tmpl");
       _strRWork = bundle.getString("folders.r_work");
       _strPlots = bundle.getString("folders.plots");
+      _strRedirect = bundle.getString("redirect");
 
     } catch (Exception e) {
       _logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
@@ -92,49 +96,49 @@ public class MVServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
     PrintWriter out = null;
-    try{
-    //  if the request specifies a database to load, redirect with the appropriate parameter
-    String strPath = request.getRequestURL().toString();
-    Matcher matDBLoad = _patDBLoad.matcher(strPath);
-    if (matDBLoad.matches()) {
-      String strDB = matDBLoad.group(1);
+    try {
+      //  if the request specifies a database to load, redirect with the appropriate parameter
+      String strPath = request.getRequestURL().toString();
+      Matcher matDBLoad = _patDBLoad.matcher(strPath);
+      if (matDBLoad.matches()) {
+        String strDB = matDBLoad.group(1);
 
-      //  ensure that the requested database exists
-      String[] listDBSort = (String[]) _listDB.clone();
-      Arrays.sort(listDBSort);
-      if (0 > Arrays.binarySearch(listDBSort, "mv_" + strDB)) {
-        printErrorPage(response);
+        //  ensure that the requested database exists
+        String[] listDBSort = (String[]) _listDB.clone();
+        Arrays.sort(listDBSort);
+        if (0 > Arrays.binarySearch(listDBSort, "mv_" + strDB)) {
+          printErrorPage(response);
+          return;
+        }
+        //  redirect the user to the web app
+        response.sendRedirect("/" + _strRedirect + "/metviewer.jsp?db=" + matDBLoad.group(1));
         return;
       }
-      //  redirect the user to the web app
-      response.sendRedirect("/metviewer/metviewer.jsp?db=" + matDBLoad.group(1));
-      return;
-    }
 
-    //  if there is no specified database, print out the list of parameters for debugging
-     out = response.getWriter();
-    //response.setContentType("text/html");
-    response.setContentType("text/plain");
+      //  if there is no specified database, print out the list of parameters for debugging
+      out = response.getWriter();
+      //response.setContentType("text/html");
+      response.setContentType("text/plain");
 
-    //  print out the HTTP GET params
-    Map params = request.getParameterMap();
-    ArrayList listParamsArr = new ArrayList();
-    listParamsArr.addAll(params.entrySet());
-    Map.Entry[] listParams = (Map.Entry[]) listParamsArr.toArray(new Map.Entry[]{});
-    out.println("params:");
-    for (int i = 0; i < listParams.length; i++) {
-      Object objKey = listParams[i].getKey();
-      Object objVal = listParams[i].getValue();
-      String strVal = "(unknown)";
-      if (objVal instanceof String[]) {
-        strVal = ((String[]) objVal)[0];
+      //  print out the HTTP GET params
+      Map params = request.getParameterMap();
+      ArrayList listParamsArr = new ArrayList();
+      listParamsArr.addAll(params.entrySet());
+      Map.Entry[] listParams = (Map.Entry[]) listParamsArr.toArray(new Map.Entry[]{});
+      out.println("params:");
+      for (int i = 0; i < listParams.length; i++) {
+        Object objKey = listParams[i].getKey();
+        Object objVal = listParams[i].getValue();
+        String strVal = "(unknown)";
+        if (objVal instanceof String[]) {
+          strVal = ((String[]) objVal)[0];
+        }
+        out.println("  " + objKey.toString() + ": " + strVal);
       }
-      out.println("  " + objKey.toString() + ": " + strVal);
-    }
 
-    out.println("howdy from MVServlet");
-    }finally {
-      if(out != null){
+      out.println("howdy from MVServlet");
+    } finally {
+      if (out != null) {
         out.close();
       }
     }
@@ -251,11 +255,12 @@ public class MVServlet extends HttpServlet {
         else if (nodeCall._tag.equalsIgnoreCase("db_con")) {
 
           //  check the connection pool
-       String strDBCon = nodeCall._value;
-             if (_tableDBConnection.containsKey(strDBCon)) {
-            con = (Connection) _tableDBConnection.get(strDBCon);
+          String strDBCon = nodeCall._value;
+          //if (_tableDBConnection.containsKey(strDBCon)) {
+            //con = (Connection) _tableDBConnection.get(strDBCon);
+            con = Datasource.getInstance().getConnection(strDBCon);
             //  if the connection is present, test it
-            if (!con.isClosed()) {
+            /*if (!con.isClosed()) {
               try {
                 Statement stmt = con.createStatement();
                 stmt.executeQuery("SELECT COUNT(*) FROM stat_header;");
@@ -267,22 +272,22 @@ public class MVServlet extends HttpServlet {
               }
             } else {
               _logger.debug("doPost() - db_con: cached connection " + strDBCon + " is closed");
-            }
-          }
+            }*/
+         // }
 
           //  attempt to open a new connection and store it in the session
-          try {
+          /*try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             con = DriverManager.getConnection("jdbc:mysql://" + _strDBHost + "/" + strDBCon, _strDBUser, _strDBPassword);
             if (con.isClosed())
               throw new Exception("METViewer error: database connection failed");
-           _tableDBConnection.put(strDBCon, con);
+            _tableDBConnection.put(strDBCon, con);
             //con =Datasources.getInstance().getConnection(strDBCon);
             _logger.debug("doPost() - db_con: created new connection " + strDBCon);
           } catch (Exception ex) {
             _logger.error("doPost() - db_con: " + ex.getClass() + " connecting to database: " + ex.getMessage());
             throw ex;
-          }
+          }*/
         }
 
         //  <list_val>
@@ -352,7 +357,7 @@ public class MVServlet extends HttpServlet {
         else if (nodeCall._tag.equalsIgnoreCase("xml_upload")) {
           strResp += handleXMLUpload(nodeCall);
           request.getSession().setAttribute("init_xml", strResp);
-          response.sendRedirect("/metviewer");
+          response.sendRedirect("/" + _strRedirect);
         }
 
         //  not handled
@@ -387,13 +392,13 @@ public class MVServlet extends HttpServlet {
       if (inputStreamReader != null) {
         inputStreamReader.close();
       }
-      //if(con != null){
-      //  try {
-      //    con.close();
-      //  } catch (SQLException e) {
-      //    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-      //  }
-     // }
+      if(con != null){
+        try {
+          con.close();
+        } catch (SQLException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+       }
     }
   }
 
@@ -483,7 +488,7 @@ public class MVServlet extends HttpServlet {
   public static synchronized String handleClearDBCache() throws Exception {
 
     //  remove each database connection from the connection table, commit its transactions and close it
-    Map.Entry[] listDB = (Map.Entry[]) _tableDBConnection.entrySet().toArray(new Map.Entry[]{});
+    /*Map.Entry[] listDB = (Map.Entry[]) _tableDBConnection.entrySet().toArray(new Map.Entry[]{});
     for (int i = 0; i < listDB.length; i++) {
       String strDB = listDB[i].getKey().toString();
       Connection con = (Connection) _tableDBConnection.remove(strDB);
@@ -494,7 +499,8 @@ public class MVServlet extends HttpServlet {
       }
     }
 
-    return "<db_clear_cache>success: removed " + listDB.length + " database connections</db_clear_cache>";
+    return "<db_clear_cache>success: removed " + listDB.length + " database connections</db_clear_cache>";*/
+    return "<db_clear_cache>success</db_clear_cache>";
   }
 
   /**
@@ -958,7 +964,7 @@ public class MVServlet extends HttpServlet {
     Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strPlotXML.getBytes()));
     FileOutputStream stream = null;
     try {
-       stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
+      stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
       XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
       ser.setOutputByteStream(stream);
       ser.serialize(doc);
@@ -967,8 +973,8 @@ public class MVServlet extends HttpServlet {
     } catch (Exception e) {
       _logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
       return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
-    }finally {
-      if(stream != null){
+    } finally {
+      if (stream != null) {
         stream.close();
       }
     }
@@ -989,7 +995,7 @@ public class MVServlet extends HttpServlet {
     }
 
     //  run the plot job and write the batch output to the log file
-    ByteArrayOutputStream log =null;
+    ByteArrayOutputStream log = null;
     PrintStream printStream = null;
 
 
@@ -1060,21 +1066,21 @@ public class MVServlet extends HttpServlet {
         "failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage() +
         (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "") +
         "</error>";
-    }finally {
-      if(log!= null){
+    } finally {
+      if (log != null) {
         log.close();
       }
-      if(printStream != null){
+      if (printStream != null) {
         printStream.close();
       }
-      if(writer != null){
+      if (writer != null) {
         writer.close();
       }
     }
     _logger.debug("handlePlot() - batch output:\n" + log.toString());
 
     //  build an archive with the R scripts and data
-    String strTarCmd = "tar cvfC/home/pgoldenb/apps/verif/metviewer/dist/metviewer " +
+    /*String strTarCmd = "tar cvfC/home/pgoldenb/apps/verif/metviewer/dist/metviewer " +
       "plots/" + strPlotPrefix + ".tar.gz " +
       "R_work/scripts/" + strPlotPrefix + ".R " +
       "R_work/data/" + strPlotPrefix + ".data " +
@@ -1090,7 +1096,7 @@ public class MVServlet extends HttpServlet {
       //runCmd(strTarCmd);
     } catch (Exception e) {
       _logger.error("handlePlot() - caught " + e.getClass() + " creating plot code archive: " + e.getMessage());
-    }
+    }*/
     return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg + "</r_error>" : "");
   }
 
@@ -1144,8 +1150,8 @@ public class MVServlet extends HttpServlet {
         "<html>\n" +
         "<head>\n" +
         "<title>METViewer Error</title>\n" +
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"/metviewer/include/metviewer.css\"/>\n" +
-        "<link rel=\"shortcut icon\" href=\"/metviewer/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"/" + _strRedirect+ "/include/metviewer.css\"/>\n" +
+        "<link rel=\"shortcut icon\" href=\"/" +_strRedirect+ "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
         "</head>\n" +
         "<body style=\"padding-left:20px; padding-top:20px\">\n" +
         "<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
