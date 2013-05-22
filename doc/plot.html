@@ -397,7 +397,10 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;dump_points1&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on a report for the y1 series points</li>
 			<li><span class="code">&lt;dump_points2&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on a report for the y2 series points</li> 
 			<li><span class="code">&lt;log_y1&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on log-scale on the y1 axis</li>
-			<li><span class="code">&lt;log_y2&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on log-scale on the y2 axis</li><br/>
+			<li><span class="code">&lt;log_y2&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on log-scale on the y2 axis</li>
+            <li><span class="code">&lt;varianceInflationFactor&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, include/exclude the variance inflation factor when computing standard errors for means and medians - TRUE: include, FALSE: exclude - default value: <span class="term">TRUE</span></li>
+
+            <br/>
 		
 			<a name="fmt_txt"></a>		
 			The following group of settings are each optional and act as placeholders for R plotting function arguments.  Specified values should follow the format of the default 
@@ -491,7 +494,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;y2_lim&gt;</span>: right y axis (y2-axis) limits - example: <span class="term">c(0,1)</span></li>
 			<li><span class="code">&lt;y2_bufr&gt;</span>: right y axis (y2-axis) top and bottom buffer - example: <span class="term">.04</span></li>
 			<li><span class="code">&lt;plot_cmd&gt;</span>: extra R commands to execute at the end of the plot script - example: <span class="term">par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</span></li>
-			
+
+
 		</ul>
 	</li><br/>
 	</ul>

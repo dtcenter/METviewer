@@ -25,6 +25,7 @@ boolDumpPoints1	= #<dump_points1>#;
 boolDumpPoints2	= #<dump_points2>#;
 boolLogY1		= #<log_y1>#;
 boolLogY2		= #<log_y2>#;
+boolVarianceInflationFactor = #<variance_inflation_factor>#;
 
 listY1limUsr	= #<y1_lim>#;
 listY2limUsr	= #<y2_lim>#;
@@ -55,7 +56,9 @@ listDep1Scale = #<dep1_scale>#;
 
 listDep2Scale = #<dep2_scale>#;
 
-listLegendUsr = #<legend>#
+listLegendUsr = #<legend>#;
+
+
 
 #
 #  Build the series data for the plot 
@@ -103,7 +106,7 @@ for( strDep1Name in names(listDep1Plot) ){
 		
 		# build the y1 plot series using information in the plot dataframe
 		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDispDep, 
-				boolPlot1Diff, listPlotCI[1:intNumSeries1], dblAlpha);
+				boolPlot1Diff, listPlotCI[1:intNumSeries1], dblAlpha,boolVarianceInflationFactor);
 		listSeries1 = append(listSeries1, listPlotData1$series);
 		if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
 		else                              { listNStats = listPlotData1$nstats; }
@@ -142,7 +145,7 @@ if( 0 < length(listDep2Plot) ){
 			
 			# build the y2 plot series using information in the plot dataframe
 			listPlotData2 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDispDep,
-										boolPlot2Diff, listPlotCI[(intNumSeries2+1):length(listPlotCI)], dblAlpha);
+										boolPlot2Diff, listPlotCI[(intNumSeries2+1):length(listPlotCI)], dblAlpha,boolVarianceInflationFactor);
 			listSeries2 = append(listSeries2, listPlotData2$series);
 			#listNStats  = listPlotData2$nstats
 			listLegend2 = paste(listPlotData2$legend, strDep2Stat);

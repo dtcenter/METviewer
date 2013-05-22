@@ -70,6 +70,7 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolDumpPoints2 = false;
   protected boolean _boolLogY1 = false;
   protected boolean _boolLogY2 = false;
+  protected boolean _boolVarianceInflationFactor=true;
 
   protected String _strPlotType = "png256";
   protected String _strPlotHeight = "8.5";
@@ -169,6 +170,7 @@ public class MVPlotJob extends MVUtil {
   protected String _strY2Lim = "";
   protected String _strY2Bufr = ".04";
 
+
   public static MVPlotJob getBaseJob(Connection con) throws Exception {
     return new MVPlotJob();
   }
@@ -238,6 +240,7 @@ public class MVPlotJob extends MVUtil {
     job._boolDumpPoints2 = _boolDumpPoints2;
     job._boolLogY1 = _boolLogY1;
     job._boolLogY2 = _boolLogY2;
+    job._boolVarianceInflationFactor = _boolVarianceInflationFactor;
 
     job._strPlotType = _strPlotType;
     job._strPlotHeight = _strPlotHeight;
@@ -1554,4 +1557,11 @@ public class MVPlotJob extends MVUtil {
     _strY2Bufr = y2Bufr;
   }
 
+  public boolean getVarianceInflationFactor() {
+    return _boolVarianceInflationFactor;
+  }
+
+  public void setVarianceInflationFactor(boolean varianceInflationFactor) {
+    this._boolVarianceInflationFactor = varianceInflationFactor;
+  }
 }

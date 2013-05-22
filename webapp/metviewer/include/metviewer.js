@@ -146,6 +146,7 @@ function onLoad(){
 	addFmtPlot("Print Y2 Series Values",		"dump_points2",		"false",		"bool");
 	addFmtPlot("Y1 Axis Log Scale",				"log_y1",			"false",		"bool");
 	addFmtPlot("Y2 Axis Log Scale",				"log_y2",			"false",		"bool");
+    addFmtPlot("Variance Inflation Factor",		"varianceInflationFactor",			"true",		"bool");
 
 	//  add onchange listeners to some controls
 	var tabFmtPlot = document.getElementById("tabFmtPlotBool");
@@ -380,7 +381,9 @@ function clearControls(){
 	clearIndyVal();
 
 	//  populate the fcst_var list
-	listFcstVar1Req(0);
+    listFcstVar1Req(0);
+
+
 }
 
 /**
@@ -1980,6 +1983,7 @@ function buildPlotXML(){
 	strDepXML += "<y1_bufr>" + listInput[1].value + "</y1_bufr>";
 	strDepXML +=  "<y2_lim>" + listInput[2].value + "</y2_lim>";
 	strDepXML += "<y2_bufr>" + listInput[3].value + "</y2_bufr>";
+
 	
 	return strDepXML;
 }

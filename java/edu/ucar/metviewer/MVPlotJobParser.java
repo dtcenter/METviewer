@@ -842,6 +842,7 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("dump_points2", MVPlotJob.class.getDeclaredMethod("setDumpPoints2", new Class[]{boolean.class}));
       _tableFormatBoolean.put("log_y1", MVPlotJob.class.getDeclaredMethod("setLogY1", new Class[]{boolean.class}));
       _tableFormatBoolean.put("log_y2", MVPlotJob.class.getDeclaredMethod("setLogY2", new Class[]{boolean.class}));
+      _tableFormatBoolean.put("varianceInflationFactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
     } catch (NoSuchMethodException e) {
     }
   }
@@ -1376,7 +1377,8 @@ public class MVPlotJobParser extends MVUtil {
         "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
         "<y1_bufr>" + job.getY1Bufr() + "</y1_bufr>" +
         "<y2_lim>" + job.getY2Lim() + "</y2_lim>" +
-        "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>";
+        "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>"+
+        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>" ;
 
     //  close the plot job
     strXML += "</plot></plot_spec>";

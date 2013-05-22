@@ -34,7 +34,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.8</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.9</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -824,7 +824,10 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			</table><br/><br/>
 		</div>
 				
-		</td></tr></table><br/><br/><hr/><br/>
+		</td></tr>
+
+
+        </table><br/><br/><hr/><br/>
 		
 		<input type="button" class="header" onclick="javascript:runPlotReq()" value="&#187; Generate Plot &#171;"/><br/><br/>
 				

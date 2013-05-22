@@ -226,7 +226,8 @@ permute = function(listVals){
 #      listPlotDisp: list of TRUE/FALSE values indicating series visibility
 #      boolPlotDiff: indicates whether to construct a difference plot series
 #        listPlotCI: list of confidence interval types to use for each series
-#          dblAlpha: alpha value to use when calculating confidence intervals 
+#          dblAlpha: alpha value to use when calculating confidence intervals
+#    boolVarianceInflationFactor: include or not Variance Inflation Factor to Compute_STDerr_from_median
 #
 #    RETURNS:
 #            series: contains series data, in sets of three vectors: median, upper and
@@ -235,7 +236,7 @@ permute = function(listVals){
 #            legend: list of plot series descriptions
 #
 buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSeriesVal, listPlotDisp, 
-					   boolDiff, listPlotCI, dblAlpha=.05){
+					   boolDiff, listPlotCI, dblAlpha=.05, boolVarianceInflationFactor=TRUE){
 
 	# calculate the number of series and add the __DIFF__ marker, if necessary
 	intNumSeries = 1;
@@ -341,7 +342,11 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			dblUpCI = dblMed;
 			if( "std" == strPlotCI & 0 < sum(listStats != 0) ){
 				dblStdErr = 0;
-				seModel = try(Compute_STDerr_from_median( listStats, method = 'ML' ));
+				if(TRUE == boolVarianceInflationFactor){
+				  seModel = try(Compute_STDerr_from_median_variance_inflation_factor( listStats, method = 'ML' ));
+				} else {
+				  seModel = try(Compute_STDerr_from_median_no_variance_inflation_factor( listStats, method = 'ML' ));
+				}
 				if( 1 < length(seModel) && 0 == seModel[2] ){ dblStdErr = dblZVal * seModel[1]; }
 				dblLoCI = dblMed - dblStdErr;
 				dblUpCI  = dblMed + dblStdErr;
