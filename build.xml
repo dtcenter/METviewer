@@ -23,7 +23,7 @@
 	<target name="compile" depends="init" description="compile the source">
 		
 		<!-- Compile the project java files -->
-		<javac srcdir="${src}" destdir="${build}" source="1.4">
+		<javac srcdir="${src}" destdir="${build}" >
 			<classpath>				
 				<pathelement location="${lib}/log4j-1.2.15.jar"/>
 				<pathelement location="${lib}/mysql-connector-java-5.1.6.jar"/>
@@ -31,6 +31,7 @@
 				<pathelement location="${lib}/servlet-api.jar"/>
 				<pathelement location="${lib}/commons-fileupload-1.2.2.jar"/>
 				<pathelement location="${lib}/commons-io-2.0.1.jar"/>
+                <pathelement location="${lib}/bonecp-0.7.1.RELEASE.jar"/>
 			</classpath>
 		</javac>
 		
