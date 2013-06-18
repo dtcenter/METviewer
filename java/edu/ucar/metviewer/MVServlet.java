@@ -233,7 +233,6 @@ public class MVServlet extends HttpServlet {
       Document doc = builder.parse(new ByteArrayInputStream(strRequestBody.getBytes()));
       MVNode nodeReq = new MVNode(doc.getFirstChild());
       String strResp = "";
-      String currentDBName="";
 
 
       //  examine the children of the request node
@@ -256,10 +255,10 @@ public class MVServlet extends HttpServlet {
         else if (nodeCall._tag.equalsIgnoreCase("db_con")) {
 
           //  check the connection pool
-          currentDBName = nodeCall._value;
+          String strDBCon = nodeCall._value;
           //if (_tableDBConnection.containsKey(strDBCon)) {
             //con = (Connection) _tableDBConnection.get(strDBCon);
-            con = Datasource.getInstance().getConnection(currentDBName);
+            con = Datasource.getInstance().getConnection(strDBCon);
             //  if the connection is present, test it
             /*if (!con.isClosed()) {
               try {
@@ -327,7 +326,7 @@ public class MVServlet extends HttpServlet {
 
         //  <plot>
         else if (nodeCall._tag.equalsIgnoreCase("plot")) {
-          strResp += handlePlot(strRequestBody, con, currentDBName);
+          strResp += handlePlot(strRequestBody, con);
         }
         //  <list_mv_rev>
         else if (nodeCall._tag.equalsIgnoreCase("list_mv_rev")) {
@@ -912,7 +911,7 @@ public class MVServlet extends HttpServlet {
    * @param con        database connection
    * @return status message
    */
-  public static String handlePlot(String strRequest, Connection con, String currentDBName) throws Exception {
+  public static String handlePlot(String strRequest, Connection con) throws Exception {
 
     //  extract the plot xml from the request
     String strPlotXML = strRequest;
@@ -936,13 +935,13 @@ public class MVServlet extends HttpServlet {
     }
     String strPlotPrefix = "plot_" + strPlotPrefixId + "_" + _formatPlot.format(datePlot);
     //  add plot file information to the plot spec
-   // String strDBName = con.getMetaData().getURL();
-    //strDBName = strDBName.substring(strDBName.lastIndexOf("/") + 1);
+    String strDBName = con.getMetaData().getURL();
+    strDBName = strDBName.substring(strDBName.lastIndexOf("/") + 1);
     strPlotXML =
       "<plot_spec>" +
         "<connection>" +
         "<host>" + _strDBHost + "</host>" +
-        "<database>" + currentDBName + "</database>" +
+        "<database>" + strDBName + "</database>" +
         "<user>" + _strDBUser + "</user>" +
         "<password>" + _strDBPassword + "</password>" +
         "</connection>" +
