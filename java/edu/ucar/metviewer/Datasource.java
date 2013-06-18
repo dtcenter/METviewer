@@ -15,8 +15,12 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -26,9 +30,9 @@ import java.util.ResourceBundle;
 public class Datasource {
 
   private static Datasource datasource = null;
-  private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
-  private static String[] listDB;
+  private static final Logger logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
   private BoneCP connectionPool;
+  private static List<String> listDB;
 
   private Datasource() throws IOException, SQLException {
     // load datasource properties
@@ -36,12 +40,11 @@ public class Datasource {
     String strDBHost = bundle.getString("db.host");
     String strDBUser = bundle.getString("db.user");
     String strDBPassword = bundle.getString("db.password");
-    listDB = bundle.getString("db.list").split("\\s*,\\s*");
 
     try {
       Class.forName("com.mysql.jdbc.Driver");
     } catch (ClassNotFoundException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      logger.error(e.getMessage());
     }
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
@@ -60,19 +63,33 @@ public class Datasource {
 
     Connection testConnection = null;
     Statement testStatement = null;
+    listDB = new ArrayList<>();
 
     // test connectivity and initialize pool
     try {
       testConnection = connectionPool.getConnection();
       testStatement = testConnection.createStatement();
-      testStatement.executeQuery("select 1");
-    } catch (SQLException e) {
+      //testStatement.executeQuery("select 1");
+      ResultSet resultSet = testStatement.executeQuery("show databases");
+      String database;
+      while (resultSet.next()) {
+        database = resultSet.getString("Database");
+        if (!database.equals("information_schema") && !database.equals("mysql")) {
+          listDB.add(database);
+        }
+      }
+      Collections.sort(listDB);
 
-      _logger.error(e.getMessage());
+    } catch (SQLException e) {
+      logger.error(e.getMessage());
 
     } finally {
-      testStatement.close();
-      testConnection.close();
+      if (testStatement != null) {
+        testStatement.close();
+      }
+      if (testConnection != null) {
+        testConnection.close();
+      }
 
     }
 
@@ -82,10 +99,8 @@ public class Datasource {
     if (datasource == null) {
       try {
         datasource = new Datasource();
-      } catch (IOException e) {
-        _logger.error(e.getMessage());
-      } catch (SQLException e) {
-        _logger.error(e.getMessage());
+      } catch (IOException | SQLException e) {
+        logger.error(e.getMessage());
       }
     }
     return datasource;
@@ -95,7 +110,7 @@ public class Datasource {
   public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
-    Statement statement=null/**/;
+    Statement statement = null/**/;
     if (validDB) {
       try {
         con = connectionPool.getConnection();
@@ -104,7 +119,7 @@ public class Datasource {
         statement.executeQuery("use " + db);
 
       } catch (SQLException e) {
-        _logger.error(e.getMessage());
+        logger.error(e.getMessage());
       } finally {
         if (statement != null) {
           statement.close();
@@ -112,10 +127,10 @@ public class Datasource {
 
       }
     }
-      return con;
-    }
+    return con;
+  }
 
-  private boolean validate(String db) {
+  public boolean validate(String db) {
     boolean result = false;
     for (String availableDB : listDB) {
       if (availableDB.equals(db)) {
@@ -126,4 +141,7 @@ public class Datasource {
     return result;
   }
 
+  public List<String> getAllDatabases() {
+    return Collections.unmodifiableList(listDB);
+  }
 }
