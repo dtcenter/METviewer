@@ -69,7 +69,14 @@ public class MVServlet extends HttpServlet {
       _strRTmpl = bundle.getString("folders.r_tmpl");
       _strRWork = bundle.getString("folders.r_work");
       _strPlots = bundle.getString("folders.plots");
-      _strRedirect = bundle.getString("redirect");
+      try{
+        _strRedirect = bundle.getString("redirect");
+      } catch (MissingResourceException e){
+        _strRedirect = "metviewer";
+      }
+      if(_strRedirect.length() == 0){
+        _strRedirect = "metviewer";
+      }
 
     } catch (Exception e) {
       _logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
