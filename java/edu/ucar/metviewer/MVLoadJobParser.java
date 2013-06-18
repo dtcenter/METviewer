@@ -1,10 +1,7 @@
 package edu.ucar.metviewer;
 
 import org.w3c.dom.Document;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,34 +20,11 @@ public class MVLoadJobParser extends MVUtil {
 
   public MVLoadJobParser(String spec) throws Exception {
 
-    //  instantiate and configure the xml parser
+
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    //dbf.setSchema(schema);
-    dbf.setValidating(false);
-    dbf.setNamespaceAware(false);
+    dbf.setNamespaceAware(true);
+    Document doc = dbf.newDocumentBuilder().parse(spec);
 
-    DocumentBuilder builder = dbf.newDocumentBuilder();
-    builder.setErrorHandler(new ErrorHandler() {
-      public void error(SAXParseException exception) {
-        printException("error", exception);
-      }
-
-      public void fatalError(SAXParseException exception) {
-        printException("fatalError", exception);
-      }
-
-      public void warning(SAXParseException exception) {
-        printException("warning", exception);
-      }
-
-      public void printException(String type, SAXParseException e) {
-        System.out.println("  **  ERROR: " + e.getMessage() + "\n" +
-          "      line: " + e.getLineNumber() + "  column: " + e.getColumnNumber());
-      }
-    });
-
-    //  parse the input document and build the MVNode data structure
-    Document doc = builder.parse(spec);
     _nodeLoadSpec = new MVNode(doc.getFirstChild());
 
     parseLoadJobSpec();
@@ -119,6 +93,8 @@ public class MVLoadJobParser extends MVUtil {
         job.setVerbose(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("mode_header_db_check")) {
         job.setModeHeaderDBCheck(node._value.equalsIgnoreCase("true"));
+      } else if (node._tag.equals("stat_header_db_check")) {
+        job.setStatHeaderDBCheck(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("drop_indexes")) {
         job.setDropIndexes(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("apply_indexes")) {

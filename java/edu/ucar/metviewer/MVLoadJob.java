@@ -29,6 +29,7 @@ public class MVLoadJob {
   protected boolean _boolVerbose = false;
   protected int _intInsertSize = 1;
   protected boolean _boolModeHeaderDBCheck = true;
+  protected boolean _boolStatHeaderDBCheck = true;
   protected boolean _boolDropIndexes = false;
   protected boolean _boolApplyIndexes = true;
 
@@ -182,6 +183,14 @@ public class MVLoadJob {
 
   public void setModeHeaderDBCheck(boolean modeHeaderDBCheck) {
     _boolModeHeaderDBCheck = modeHeaderDBCheck;
+  }
+
+  public boolean getStatHeaderDBCheck() {
+    return _boolStatHeaderDBCheck;
+  }
+
+  public void setStatHeaderDBCheck(boolean statHeaderDBCheck) {
+    _boolStatHeaderDBCheck = statHeaderDBCheck;
   }
 
   public boolean getDropIndexes() {

@@ -14,6 +14,7 @@ public class MVLoad extends MVUtil {
 	public static boolean _boolVerbose				= false;
 	public static int _intInsertSize				= 1;
 	public static boolean _boolModeHeaderDBCheck	= false;
+	public static boolean _boolStatHeaderDBCheck	= false;
 	public static boolean _boolDropIndexes			= false;
 	public static boolean _boolApplyIndexes			= false;
 	public static boolean _boolIndexOnly			= false;
@@ -147,6 +148,7 @@ public class MVLoad extends MVUtil {
 			_boolVerbose				= job.getVerbose();
 			_intInsertSize				= job.getInsertSize();
 			_boolModeHeaderDBCheck		= job.getModeHeaderDBCheck();
+			_boolStatHeaderDBCheck		= job.getStatHeaderDBCheck();
 			_boolDropIndexes			= job.getDropIndexes();
 			_boolApplyIndexes			= job.getApplyIndexes();
 			
@@ -255,7 +257,7 @@ public class MVLoad extends MVUtil {
 			double dblLinesPerMSec =  (double)_intStatLinesTotal / (double)(intLoadTime);			
 			if( !_boolIndexOnly ){
 				System.out.println("\n    ==== grid_stat ====\n\n" +
-								   padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" +
+
 								   padBegin("stat_header table time total: ", 36) + formatTimeSpan(_intStatHeaderTableTime) + "\n" +
 								   padBegin("stat header records: ", 36) + _intStatHeaderRecords + "\n" +
 								   padBegin("stat header inserts: ", 36) + _intStatHeaderInserts + "\n" +
@@ -271,6 +273,7 @@ public class MVLoad extends MVUtil {
 								   padBegin("num files: ", 36) + _intNumStatFiles + "\n\n" +
 								   "    ==== mode ====\n\n" +
 								   (_boolModeHeaderDBCheck? padBegin("mode_header search time total: ", 36) + formatTimeSpan(_intModeHeaderSearchTime) + "\n" : "") +
+                   (_boolStatHeaderDBCheck? padBegin("stat_header search time total: ", 36) + formatTimeSpan(_intStatHeaderSearchTime) + "\n" : "") +
 								   padBegin("mode_header inserts: ", 36) + _intModeHeaderRecords + "\n" +
 								   padBegin("mode_cts inserts: ", 36) + _intModeCtsRecords + "\n" +
 								   padBegin("mode_obj_single inserts: ", 36) + _intModeObjSingleRecords + "\n" +
@@ -496,12 +499,12 @@ public class MVLoad extends MVUtil {
 			
 			//  build a where clause for searching for duplicate stat_header records
 			String strStatHeaderWhereClause =
-					"  version = '" +				listToken[0] + "'\n" +
-					"  AND model = '" +				listToken[1] + "'\n" +
+					"  model = '" +				listToken[1] + "'\n" +
+             //"  AND version = '" +				listToken[0] + "'\n" +
 					"  AND fcst_var = '" +			listToken[8] + "'\n" +
 					"  AND fcst_lev = '" +			listToken[9] + "'\n" +
-					"  AND obs_var = '" +			listToken[10] + "'\n" +
-					"  AND obs_lev = '" +			listToken[11] + "'\n" +
+					//"  AND obs_var = '" +			listToken[10] + "'\n" +
+					//"  AND obs_lev = '" +			listToken[11] + "'\n" +
 					"  AND obtype = '" +			listToken[12] + "'\n" +
 					"  AND vx_mask = '" +			listToken[13] + "'\n" +
 					"  AND interp_mthd = '" +		listToken[14] + "'\n" +
@@ -514,41 +517,59 @@ public class MVLoad extends MVUtil {
 			for(int i=0; i < listStatHeaderValue.length; i++){
 				strStatHeaderValueList += (0 < i? ", " : "") + "'" + listStatHeaderValue[i] + "'";
 			}
-			
-			//  look for the header key in the table, and record the time taken
-			boolean boolStatHeaderPresent = false; 
-			long intStatHeaderTableBegin = (new java.util.Date()).getTime();
-			boolStatHeaderPresent = _tableStatHeaders.containsKey(strStatHeaderValueList);
-			
-			//  check the table to see if a stat_header already exists
-			int intStatHeaderId = -1;
-			if( boolStatHeaderPresent ){
-				intStatHeaderId = ((Integer)_tableStatHeaders.get(strStatHeaderValueList)).intValue();
-				_intStatHeaderTableTime += (new java.util.Date()).getTime() - intStatHeaderTableBegin;
-				
-			//  if the stat_header does not yet exist, create one
-			} else {
-				_intStatHeaderTableTime += (new java.util.Date()).getTime() - intStatHeaderTableBegin;				
-				
-				//  look for an existing stat_header record with the same information
-				long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
-				String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-				Statement stmt = con.createStatement();
-				ResultSet res = stmt.executeQuery(strStatHeaderSelect);
-				if( res.next() ){
-					intStatHeaderId = res.getInt(1);
-				}
-				stmt.close();
-				intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
-				_intStatHeaderSearchTime += intStatHeaderSearchTime;
-				
-				//  if not present in the table or database, add a stat_header record with a new stat_header_id
-				if( -1 == intStatHeaderId ){
-					intStatHeaderId = intStatHeaderIdNext++;
-					d._listInsertValues.add("(" + intStatHeaderId + ", " + strStatHeaderValueList + ")");
-				}
-				_tableStatHeaders.put(strStatHeaderValueList, new Integer(intStatHeaderId));
-			}	
+
+
+      String strFileLine = strFilename + ":" + intLine;
+
+      //  look for the header key in the table
+      			int intStatHeaderId = -1;
+      			if( _tableStatHeaders.containsKey(strStatHeaderValueList) ){
+              intStatHeaderId = ((Integer)_tableStatHeaders.get(strStatHeaderValueList)).intValue();
+      			}
+
+      			//  if the stat_header does not yet exist, create one
+      			else {
+
+      				//  look for an existing stat_header record with the same information
+      				boolean boolFoundStatHeader = false;
+      				long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
+      				if( _boolStatHeaderDBCheck ){
+                String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
+      					Statement stmt = con.createStatement();
+      					ResultSet res = stmt.executeQuery(strStatHeaderSelect);
+      					if( res.next() ){
+      						String strStatHeaderIdDup = res.getString(1);
+      						intStatHeaderId = Integer.parseInt(strStatHeaderIdDup);
+      						boolFoundStatHeader = true;
+      						System.out.println("  **  WARNING: found duplicate mode_header record with id " + strStatHeaderIdDup + "\n        " + strFileLine);
+      					}
+      					stmt.close();
+      				}
+      				intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
+      				_intStatHeaderSearchTime += intStatHeaderSearchTime;
+
+      				//  if the stat_header was not found, add it to the table
+      				if( !boolFoundStatHeader ){
+
+      					intStatHeaderId = intStatHeaderIdNext++;
+      					_tableStatHeaders.put(strStatHeaderValueList, new Integer(intStatHeaderId));
+
+      					//  build an insert statement for the mode header
+      					strStatHeaderValueList = "" +
+      							intStatHeaderId + ", " +				//  stat_header_id
+      							strStatHeaderValueList;
+
+      					//  insert the record into the stat_header database table
+      					String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
+      					int intStatHeaderInsert = executeUpdate(con, strStatHeaderInsert);
+      					if( 1 != intStatHeaderInsert ){
+      						System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
+      					}
+      					intStatHeaderInserts++;
+      				}else {
+                _tableStatHeaders.put(strStatHeaderValueList, new Integer(intStatHeaderId));
+              }
+      			}
 
 			
 			/*
@@ -678,7 +699,7 @@ public class MVLoad extends MVUtil {
 			//  if the insert threshhold has been reached, commit the stored data to the database 
 			if( _intInsertSize <= d._listInsertValues.size() ){				
 				int[] listInserts		= commitStatData(d);
-				intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
+				//intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
 				intLineDataInserts		+= listInserts[INDEX_LINE_DATA];
 				intVarLengthInserts		+= listInserts[INDEX_VAR_LENGTH];				
 			}
@@ -687,7 +708,7 @@ public class MVLoad extends MVUtil {
 		
 		//  commit all the remaining stored data
 		int[] listInserts		= commitStatData(d);
-		intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
+		//intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
 		intLineDataInserts		+= listInserts[INDEX_LINE_DATA];
 		intVarLengthInserts		+= listInserts[INDEX_VAR_LENGTH];
 
@@ -758,26 +779,10 @@ public class MVLoad extends MVUtil {
 		String strValueList = "";
 		
 		/*
-		 * * * *  stat_header commit  * * * * 
+		 * * * *  stat_header was committed commit  * * * *
 		 */			
 
-		//  build and execute the stat header insert statement, if the list length has reached the insert size or the end of the file
-		if( 0 < d._listInsertValues.size() ){			
-			for(int i=0; i < d._listInsertValues.size(); i++){
-				strValueList += (0 < i? ", " : "") + d._listInsertValues.get(i).toString(); 
-			}
-			String strStatHeaderInsert = "INSERT INTO stat_header VALUES " + strValueList + ";";
-			try{
-				int intResStatHeaderInsert = executeUpdate(d._con, strStatHeaderInsert);
-				if( d._listInsertValues.size() != intResStatHeaderInsert ){
-					System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intResStatHeaderInsert + "\n        " + d._strFileLine);
-				}
-			}catch(Exception e){
-				throw e;
-			}
-			d._listInsertValues.clear();
-			listInserts[INDEX_STAT_HEADERS]++; //  intStatHeaderInserts++;
-		}
+    d._listInsertValues.clear();
 
 		
 		/*
