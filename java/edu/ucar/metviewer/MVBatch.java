@@ -507,6 +507,7 @@ public class MVBatch extends MVUtil {
 			tableRTags.put("log_y1",		(job.getLogY1()?		"TRUE" : "FALSE"));
 			tableRTags.put("log_y2",		(job.getLogY2()?		"TRUE" : "FALSE"));
       tableRTags.put("variance_inflation_factor",		(job.getVarianceInflationFactor()?		"TRUE" : "FALSE"));
+      tableRTags.put("plot_stat",	job.getPlotStat());
 			
 			// calculate the number of plot curves
 			int intNumDep1 = 0;
