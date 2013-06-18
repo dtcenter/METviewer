@@ -4,18 +4,16 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
-import org.apache.xml.serialize.Method;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.sql.Connection;
@@ -36,7 +34,6 @@ public class MVServlet extends HttpServlet {
   public static String _strDBHost = "";
   public static String _strDBUser = "";
   public static String _strDBPassword = "";
-  public static String[] _listDB = {};
 
   public static String _strPlotXML = "";
   public static String _strRTmpl = "";
@@ -45,9 +42,6 @@ public class MVServlet extends HttpServlet {
   public static String _strRscript = "";
   public static String _strRedirect = "";
 
-  public static Hashtable _tableDBConnection = new Hashtable();
-
-  public static Hashtable _tableStatGroupName = new Hashtable();
 
   public static boolean _boolListValCache = false;
   public static Hashtable _tableListValCache = new Hashtable();
@@ -65,7 +59,6 @@ public class MVServlet extends HttpServlet {
       _strDBHost = bundle.getString("db.host");
       _strDBUser = bundle.getString("db.user");
       _strDBPassword = bundle.getString("db.password");
-      _listDB = bundle.getString("db.list").split("\\s*,\\s*");
 
       _boolListValCache = bundle.getString("cache.val").equals("true");
       _boolListStatCache = bundle.getString("cache.stat").equals("true");
@@ -103,10 +96,9 @@ public class MVServlet extends HttpServlet {
       if (matDBLoad.matches()) {
         String strDB = matDBLoad.group(1);
 
-        //  ensure that the requested database exists
-        String[] listDBSort = (String[]) _listDB.clone();
-        Arrays.sort(listDBSort);
-        if (0 > Arrays.binarySearch(listDBSort, "mv_" + strDB)) {
+
+
+        if (!Datasource.getInstance().validate(strDB)) {
           printErrorPage(response);
           return;
         }
@@ -174,12 +166,10 @@ public class MVServlet extends HttpServlet {
 
         //  set up the upload handler and parse the request
         ServletFileUpload uploadHandler = new ServletFileUpload(new DiskFileItemFactory());
-        List items = uploadHandler.parseRequest(request);
+        List<FileItem> items = uploadHandler.parseRequest(request);
         //  find the upload file in the request and read its contents
         String strUploadXML = "";
-        Iterator itr = items.iterator();
-        while (itr.hasNext()) {
-          FileItem item = (FileItem) itr.next();
+        for (FileItem item : items) {
           if (!item.isFormField()) {
             inputStreamReader = new InputStreamReader(item.getInputStream());
             reader = new BufferedReader(inputStreamReader);
@@ -207,33 +197,13 @@ public class MVServlet extends HttpServlet {
 
       //  instantiate and configure the xml parser
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setValidating(false);
-      dbf.setNamespaceAware(false);
+      dbf.setNamespaceAware(true);
+      Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(strRequestBody.getBytes()));
 
-      DocumentBuilder builder = dbf.newDocumentBuilder();
-      builder.setErrorHandler(new ErrorHandler() {
-        public void error(SAXParseException exception) {
-          printException("error", exception);
-        }
-
-        public void fatalError(SAXParseException exception) {
-          printException("fatalError", exception);
-        }
-
-        public void warning(SAXParseException exception) {
-          printException("warning", exception);
-        }
-
-        public void printException(String type, SAXParseException e) {
-          _logger.error("doPost() - xml parser error: " + e.getMessage() + "\n      line: " + e.getLineNumber() + "  column: " + e.getColumnNumber());
-        }
-      });
-
-      //  parse the input document and build the MVNode data structure
-      Document doc = builder.parse(new ByteArrayInputStream(strRequestBody.getBytes()));
       MVNode nodeReq = new MVNode(doc.getFirstChild());
       String strResp = "";
-      String currentDBName="";
+      String currentDBName = "";
+      List<String> databases = Datasource.getInstance().getAllDatabases();
 
 
       //  examine the children of the request node
@@ -242,8 +212,8 @@ public class MVServlet extends HttpServlet {
         //  <list_db> request
         if (nodeCall._tag.equalsIgnoreCase("list_db")) {
           strResp = "<list_db>";
-          for (int j = 0; j < _listDB.length; j++) {
-            strResp += "<val>" + _listDB[j] + "</val>";
+          for (int j = 0; j < databases.size(); j++) {
+            strResp += "<val>" + databases.get(j) + "</val>";
           }
           strResp += "</list_db>";
         }
@@ -257,38 +227,8 @@ public class MVServlet extends HttpServlet {
 
           //  check the connection pool
           currentDBName = nodeCall._value;
-          //if (_tableDBConnection.containsKey(strDBCon)) {
-            //con = (Connection) _tableDBConnection.get(strDBCon);
-            con = Datasource.getInstance().getConnection(currentDBName);
-            //  if the connection is present, test it
-            /*if (!con.isClosed()) {
-              try {
-                Statement stmt = con.createStatement();
-                stmt.executeQuery("SELECT COUNT(*) FROM stat_header;");
-                stmt.close();
-                _logger.debug("doPost() - db_con: using cached connection " + strDBCon);
-                continue;
-              } catch (Exception e) {
-                _logger.debug("doPost() - db_con: cached connection " + strDBCon + " is inoperable");
-              }
-            } else {
-              _logger.debug("doPost() - db_con: cached connection " + strDBCon + " is closed");
-            }*/
-         // }
+          con = Datasource.getInstance().getConnection(currentDBName);
 
-          //  attempt to open a new connection and store it in the session
-          /*try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con = DriverManager.getConnection("jdbc:mysql://" + _strDBHost + "/" + strDBCon, _strDBUser, _strDBPassword);
-            if (con.isClosed())
-              throw new Exception("METViewer error: database connection failed");
-            _tableDBConnection.put(strDBCon, con);
-            //con =Datasources.getInstance().getConnection(strDBCon);
-            _logger.debug("doPost() - db_con: created new connection " + strDBCon);
-          } catch (Exception ex) {
-            _logger.error("doPost() - db_con: " + ex.getClass() + " connecting to database: " + ex.getMessage());
-            throw ex;
-          }*/
         }
 
         //  <list_val>
@@ -393,13 +333,13 @@ public class MVServlet extends HttpServlet {
       if (inputStreamReader != null) {
         inputStreamReader.close();
       }
-      if(con != null){
+      if (con != null) {
         try {
           con.close();
         } catch (SQLException e) {
           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-       }
+      }
     }
   }
 
@@ -936,7 +876,7 @@ public class MVServlet extends HttpServlet {
     }
     String strPlotPrefix = "plot_" + strPlotPrefixId + "_" + _formatPlot.format(datePlot);
     //  add plot file information to the plot spec
-   // String strDBName = con.getMetaData().getURL();
+    // String strDBName = con.getMetaData().getURL();
     //strDBName = strDBName.substring(strDBName.lastIndexOf("/") + 1);
     strPlotXML =
       "<plot_spec>" +
@@ -965,10 +905,22 @@ public class MVServlet extends HttpServlet {
     Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strPlotXML.getBytes()));
     FileOutputStream stream = null;
     try {
-      stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
+     /* stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
       XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
       ser.setOutputByteStream(stream);
       ser.serialize(doc);
+      stream.flush();*/
+
+
+      //Begin write DOM to file
+      File f = new File(_strPlotXML + "/" + strPlotPrefix + ".xml");
+      stream = new FileOutputStream(f);
+      DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+      DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+      LSSerializer serializer = impl.createLSSerializer();
+      LSOutput lso = impl.createLSOutput();
+      lso.setByteStream(stream);
+      serializer.write(doc, lso);
       stream.flush();
 
     } catch (Exception e) {
@@ -1151,8 +1103,8 @@ public class MVServlet extends HttpServlet {
         "<html>\n" +
         "<head>\n" +
         "<title>METViewer Error</title>\n" +
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"/" + _strRedirect+ "/include/metviewer.css\"/>\n" +
-        "<link rel=\"shortcut icon\" href=\"/" +_strRedirect+ "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"/" + _strRedirect + "/include/metviewer.css\"/>\n" +
+        "<link rel=\"shortcut icon\" href=\"/" + _strRedirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
         "</head>\n" +
         "<body style=\"padding-left:20px; padding-top:20px\">\n" +
         "<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
@@ -1339,16 +1291,32 @@ public class MVServlet extends HttpServlet {
 
     //  put the load XML from the database into a file
     Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strLoadXML.getBytes()));
+    FileOutputStream stream=null;
     try {
-      FileOutputStream stream = new FileOutputStream(strLoadXMLFile);
+      /*FileOutputStream stream = new FileOutputStream(strLoadXMLFile);
       XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
       ser.setOutputByteStream(stream);
       ser.serialize(doc);
       stream.flush();
-      stream.close();
+      stream.close();*/
+
+       //Begin write DOM to file
+      File f = new File(strLoadXMLFile);
+      stream = new FileOutputStream(f);
+      DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+      DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+      LSSerializer serializer = impl.createLSSerializer();
+      LSOutput lso = impl.createLSOutput();
+      lso.setByteStream(stream);
+      serializer.write(doc, lso);
+      stream.flush();
     } catch (Exception e) {
       _logger.error("handleViewLoadXML() - ERROR: caught " + e.getClass() + " serializing load xml: " + e.getMessage());
       return "<error>failed to serialize load xml - reason: " + e.getMessage() + "</error>";
+    }finally {
+      if(stream != null){
+        stream.close();
+      }
     }
 
     return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
