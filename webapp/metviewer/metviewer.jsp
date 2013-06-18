@@ -275,11 +275,21 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 
 		<div id="divCalcStat">
 			<span class="header">Statistics Calculations</span>
-			<span class="stdTiny">(<a href="doc/plot.html#calc_stat" target="_blank">help</a>)</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divCalcStat')" id="lnkSerCalcStat">Serialize</a><br/><br/>
+            <span class="stdTiny">(<a href="doc/plot.html#calc_stat"
+                                      target="_blank">help</a>)</span><br/><br/>
+            <span class="bold" style="padding-left:20px; padding-right: 10px">Plot statistic:</span>
+            <select name="plot_stat" id="plot_stat">
+                <option value="median">Median</option>
+                <option value="mean">Mean</option>
+            </select>
 
-			<span id="spanCalcStatNA" class="header" style="padding-left:40px; display:none">N/A</span>
-			<input id="chkCalcStat" type="checkbox" onclick="javascript:updateCalcStat()"/><span id="spanCalcStat" class="bold">Statistics Calculation Enabled</span><br/><br/>
+            <a class="stdTiny" style="padding-left:20px"
+               onclick="javascript:serialize('divCalcStat')"
+               id="lnkSerCalcStat">Serialize</a><br/><br/>
+
+            <span id="spanCalcStatNA" class="header"
+                  style="padding-left:40px; display:none">N/A</span>
+            <input id="chkCalcStat" type="checkbox" onclick="javascript:updateCalcStat()"/><span id="spanCalcStat" class="bold">Statistics Calculation Enabled</span><br/><br/>
 			<table id="tabCalcStatParm" border="0" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
 					<td align="left" style="padding-left:30px" colspan="4">

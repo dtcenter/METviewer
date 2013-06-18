@@ -1,4 +1,3 @@
-
 var _strDBCon = "";
 var _strInitXML = "";
 
@@ -261,7 +260,7 @@ function onLoad(){
 		var txtInitXML = document.getElementById("txtInitXML");
 		if( "" != txtInitXML.value ){ loadInitXML(txtInitXML.value); }
 	}
-	
+
 }
 
 
@@ -1755,6 +1754,8 @@ function updateCalcStat(){
 	var divCalcStat = document.getElementById("divCalcStat");
 	var chkCalcStat = divCalcStat.getElementsByTagName("input")[0];
 	document.getElementById("tabCalcStatParm").style.display = (chkCalcStat.checked? "table" : "none");
+  var plot_stat = _strInitXML.match( /<plot_stat>(\w+)<\/plot_stat>/ )[1];
+  document.getElementById("plot_stat").value = plot_stat;
 }
 
 
@@ -1850,6 +1851,11 @@ function buildPlotXML(){
 			strDepXML +=	  "<eveq_dis>" + listEveqDis[0].options[ listEveqDis[0].selectedIndex ].text + "</eveq_dis>";
 			strDepXML += "</agg_stat>";		
 		}
+
+    //Plot statistic
+    var plot_stat = document.getElementById("plot_stat");
+    var plot_stat_value = plot_stat.options[plot_stat.selectedIndex].value;
+    strDepXML += "<plot_stat>" + plot_stat_value + "</plot_stat>";
 		
 		//  calc_stat
 		var chkCalcStat = document.getElementById("chkCalcStat");
