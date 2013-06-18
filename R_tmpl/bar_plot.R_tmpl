@@ -36,7 +36,7 @@ listSeries1Val = #<series1_list>#;
 
 listDep1Scale = #<dep1_scale>#;
 
-boolVarianceInflationFactor = #<variance_inflation_factor>#;
+strPlotStat = "#<plot_stat>#";
 
 
 #
@@ -61,7 +61,7 @@ for( strDep1Name in names(listDep1Plot) ){
 		
 		# build the y1 plot series using information in the plot dataframe
 		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp, 
-									boolPlot1Diff, listPlotCI[1:intNumSeries1],boolVarianceInflationFactor);
+									boolPlot1Diff, listPlotCI[1:intNumSeries1],boolVarianceInflationFactor, strPlotStat);
 		listSeries1 = append(listSeries1, listPlotData1$series);
 		listNStats  = listPlotData1$nstats;
 		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
