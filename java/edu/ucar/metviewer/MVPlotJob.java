@@ -169,6 +169,7 @@ public class MVPlotJob extends MVUtil {
   protected String _strY1Bufr = ".04";
   protected String _strY2Lim = "";
   protected String _strY2Bufr = ".04";
+  protected String _plotStat = "median";
 
 
   public static MVPlotJob getBaseJob(Connection con) throws Exception {
@@ -339,6 +340,7 @@ public class MVPlotJob extends MVUtil {
     job._strY1Bufr = _strY1Bufr;
     job._strY2Lim = _strY2Lim;
     job._strY2Bufr = _strY2Bufr;
+    job._plotStat=_plotStat;
 
     return job;
   }
@@ -1564,4 +1566,13 @@ public class MVPlotJob extends MVUtil {
   public void setVarianceInflationFactor(boolean varianceInflationFactor) {
     this._boolVarianceInflationFactor = varianceInflationFactor;
   }
+
+  public String getPlotStat() {
+    return _plotStat;
+  }
+
+  public void setPlotStat(String _plotStat) {
+    this._plotStat = _plotStat;
+  }
 }
+

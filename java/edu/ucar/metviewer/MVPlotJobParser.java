@@ -1,8 +1,6 @@
 package edu.ucar.metviewer;
 
 import org.w3c.dom.Document;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -87,32 +85,10 @@ public class MVPlotJobParser extends MVUtil {
   public static DocumentBuilder getDocumentBuilder() throws Exception {
 
     //  instantiate and configure the xml parser
+
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    //dbf.setSchema(schema);
-    dbf.setValidating(false);
-    dbf.setNamespaceAware(false);
-
-    DocumentBuilder builder = dbf.newDocumentBuilder();
-    builder.setErrorHandler(new ErrorHandler() {
-      public void error(SAXParseException exception) {
-        printException("error", exception);
-      }
-
-      public void fatalError(SAXParseException exception) {
-        printException("fatalError", exception);
-      }
-
-      public void warning(SAXParseException exception) {
-        printException("warning", exception);
-      }
-
-      public void printException(String type, SAXParseException e) {
-        System.out.println("  **  ERROR: " + e.getMessage() + "\n" +
-          "      line: " + e.getLineNumber() + "  column: " + e.getColumnNumber());
-      }
-    });
-
-    return builder;
+    dbf.setNamespaceAware(true);
+    return dbf.newDocumentBuilder();
   }
 
   public Document getDocument() {
@@ -934,6 +910,7 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatString.put("y2_bufr", MVPlotJob.class.getDeclaredMethod("setY2Bufr", new Class[]{String.class}));
       _tableFormatString.put("plot_cmd", MVPlotJob.class.getDeclaredMethod("setPlotCmd", new Class[]{String.class}));
       _tableFormatString.put("plot_cond", MVPlotJob.class.getDeclaredMethod("setPlotCond", new Class[]{String.class}));
+      _tableFormatString.put("plot_stat", MVPlotJob.class.getDeclaredMethod("setPlotStat", new Class[]{String.class}));
     } catch (NoSuchMethodException e) {
     }
   }
@@ -1378,7 +1355,8 @@ public class MVPlotJobParser extends MVUtil {
         "<y1_bufr>" + job.getY1Bufr() + "</y1_bufr>" +
         "<y2_lim>" + job.getY2Lim() + "</y2_lim>" +
         "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>"+
-        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>" ;
+        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>"  +
+        "<plot_stat>" + job.getPlotStat() + "</plot_stat>" ;;
 
     //  close the plot job
     strXML += "</plot></plot_spec>";
