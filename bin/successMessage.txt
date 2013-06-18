@@ -1,0 +1,3 @@
+Database was backed up.
+For more information look in:
+/d3/projects/METViewer/src/apps/verif/metviewer/sql/db_backup.log

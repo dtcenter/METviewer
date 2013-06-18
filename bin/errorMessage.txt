@@ -1,0 +1,3 @@
+ERROR was detected during METViewer databases backup on mandan.
+For more information look in:
+/d3/projects/METViewer/src/apps/verif/metviewer/sql/db_backup.log
