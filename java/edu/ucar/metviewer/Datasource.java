@@ -63,7 +63,7 @@ public class Datasource {
 
     Connection testConnection = null;
     Statement testStatement = null;
-    listDB = new ArrayList<>();
+    listDB = new ArrayList<String>();
 
     // test connectivity and initialize pool
     try {
@@ -99,7 +99,7 @@ public class Datasource {
     if (datasource == null) {
       try {
         datasource = new Datasource();
-      } catch (IOException | SQLException e) {
+      } catch (Exception e) {
         logger.error(e.getMessage());
       }
     }
