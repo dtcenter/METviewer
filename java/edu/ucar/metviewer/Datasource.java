@@ -74,7 +74,7 @@ public class Datasource {
       String database;
       while (resultSet.next()) {
         database = resultSet.getString("Database");
-        if (!database.equals("information_schema") && !database.equals("mysql")) {
+        if (database.startsWith("mv_")) {
           listDB.add(database);
         }
       }
