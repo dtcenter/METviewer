@@ -8,7 +8,7 @@ import java.text.*;
 
 public class MVLoad extends MVUtil {
 
-	public static String _strMetVersion				= "V3.0";
+	//public static String _strMetVersion				= "V3.0";
 	public static final Pattern _patVersion			= Pattern.compile("(V\\d+\\.\\d+).*");
 
 	public static boolean _boolVerbose				= false;
@@ -143,7 +143,7 @@ public class MVLoad extends MVUtil {
 					   		   "      user: " + job.getDBUser() + "\n" +
 					   		   "  password: " + job.getDBPassword() + "\n");
 			
-			_strMetVersion				= job.getMetVersion();
+			//_strMetVersion				= job.getMetVersion();
 			
 			_boolVerbose				= job.getVerbose();
 			_intInsertSize				= job.getInsertSize();
@@ -167,9 +167,9 @@ public class MVLoad extends MVUtil {
 			boolean boolLoadNote = !job.getLoadNote().equals("");
 			
 			//  update the var length tree with information for METv2.0, if necessary
-			if( "V2.0".equals(_strMetVersion) ){
-				_tableVarLengthGroupIndices.put("PSTD", new int[]{22, 30, 1});
-			}
+			//if( "V2.0".equals(_strMetVersion) ){
+		//		_tableVarLengthGroupIndices.put("PSTD", new int[]{22, 30, 1});
+			//}
 			
 			//  if the insert size is greater than 1, ensure that the db header check is off
 			if( 1 < _intInsertSize ){
@@ -419,18 +419,23 @@ public class MVLoad extends MVUtil {
 			if( 1 > listToken.length || listToken[0].equals("VERSION") ){
 				continue;
 			}
-			
-			//  error if the version number does not match the configured value
-			String strMetVersion = listToken[0];
-			/*
+
+      //  error if the version number does not match the configured value
+      String strMetVersion = listToken[0];
+
+      //  update the var length tree with information for METv2.0, if necessary
+      if ("V2.0".equals(strMetVersion)) {
+        _tableVarLengthGroupIndices.put("PSTD", new int[]{22, 30, 1});
+      }
+      /*
 			if( !strMetVersion.equals(_strMetVersion) ){
 				throw new Exception("ERROR: file MET version " + strMetVersion + " does not match configured value " + _strMetVersion);
 			}
 			*/
-			Matcher matVersion = _patVersion.matcher(strMetVersion);
-			if( !matVersion.matches() || !_strMetVersion.startsWith(matVersion.group(1)) ){
-				throw new Exception("ERROR: file MET version " + strMetVersion + " is not compatible with configured value " + _strMetVersion);
-			}
+			//Matcher matVersion = _patVersion.matcher(strMetVersion);
+			//if( !matVersion.matches() || !strMetVersion.startsWith(matVersion.group(1)) ){
+			//	throw new Exception("ERROR: file MET version " + strMetVersion + " is not compatible with configured value " + strMetVersion);
+			//}
 			
 			//  if the line type load selector is activated, check that the current line type is on the list
 			d._strLineType = listToken[20];
@@ -541,7 +546,6 @@ public class MVLoad extends MVUtil {
       						String strStatHeaderIdDup = res.getString(1);
       						intStatHeaderId = Integer.parseInt(strStatHeaderIdDup);
       						boolFoundStatHeader = true;
-      						System.out.println("  **  WARNING: found duplicate mode_header record with id " + strStatHeaderIdDup + "\n        " + strFileLine);
       					}
       					stmt.close();
       				}
@@ -629,12 +633,12 @@ public class MVLoad extends MVUtil {
 			for(int i=21; i < intLineDataMax; i++){
 				
 				//  for the METv2.0 PSTD line type, add the baser and CIs
-				if( 23 == i && "PSTD".equals(d._strLineType) && "V2.0".equals(_strMetVersion) ){
+				if( 23 == i && "PSTD".equals(d._strLineType) && "V2.0".equals(strMetVersion) ){
 					strLineDataValueList += ", '-9999', '-9999', '-9999'";
 				}
 				
 				//  for the METv2.0 MPR line type, add the obs_sid
-				if( 23 == i && "MPR".equals(d._strLineType) && "V2.0".equals(_strMetVersion) ){
+				if( 23 == i && "MPR".equals(d._strLineType) && "V2.0".equals(strMetVersion) ){
 					strLineDataValueList += ", 'NA'";
 				}
 				
@@ -642,7 +646,7 @@ public class MVLoad extends MVUtil {
         strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
 
         //  for the METv < 4.1 SSVAR line type, add other 23 stats
-        if (32 == i && "SSVAR".equals(d._strLineType) && ("V4.1".compareTo(_strMetVersion) > 0 || intLineDataMax == 33)) {
+        if (32 == i && "SSVAR".equals(d._strLineType) && ("V4.1".compareTo(strMetVersion) > 0 || intLineDataMax == 33)) {
           strLineDataValueList += ", '-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999'";
         }
       }

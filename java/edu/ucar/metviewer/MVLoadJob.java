@@ -6,7 +6,6 @@ public class MVLoadJob {
 
   protected Connection _con = null;
 
-  protected String _strMetVersion = "V2.0";
 
   protected String _strDBHost = "";
   protected String _strDBName = "";
@@ -49,13 +48,7 @@ public class MVLoadJob {
     _con = con;
   }
 
-  public String getMetVersion() {
-    return _strMetVersion;
-  }
 
-  public void setMetVersion(String metVersion) {
-    _strMetVersion = metVersion;
-  }
 
   public String getDBHost() {
     return _strDBHost;
