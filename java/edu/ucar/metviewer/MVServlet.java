@@ -102,9 +102,6 @@ public class MVServlet extends HttpServlet {
       Matcher matDBLoad = _patDBLoad.matcher(strPath);
       if (matDBLoad.matches()) {
         String strDB = matDBLoad.group(1);
-
-
-
         if (!Datasource.getInstance().validate(strDB)) {
           printErrorPage(response);
           return;
@@ -210,7 +207,7 @@ public class MVServlet extends HttpServlet {
       MVNode nodeReq = new MVNode(doc.getFirstChild());
       String strResp = "";
       String currentDBName = "";
-      List<String> databases = Datasource.getInstance().getAllDatabases();
+      List<String> databases ;
 
 
       //  examine the children of the request node
@@ -219,6 +216,15 @@ public class MVServlet extends HttpServlet {
         //  <list_db> request
         if (nodeCall._tag.equalsIgnoreCase("list_db")) {
           strResp = "<list_db>";
+          databases = Datasource.getInstance().getAllDatabases();
+          for (int j = 0; j < databases.size(); j++) {
+            strResp += "<val>" + databases.get(j) + "</val>";
+          }
+          strResp += "</list_db>";
+        } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
+          strResp = "<list_db>";
+          Datasource.getInstance().initDBList();
+          databases = Datasource.getInstance().getAllDatabases();
           for (int j = 0; j < databases.size(); j++) {
             strResp += "<val>" + databases.get(j) + "</val>";
           }

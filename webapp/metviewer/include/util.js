@@ -287,7 +287,9 @@ function sendRequest(reqType, reqData, fnResp){
 	_boolLoad = true;
 
 	// add the database connection to the request, if appropriate
-	if( null == reqData.match( /<list_db\/>/ ) ){ reqData = "<db_con>" + _strDBCon + "</db_con>" + reqData; }
+	if(reqData != "<list_db/>" && reqData != "<list_db_update/>"){
+        reqData = "<db_con>" + _strDBCon + "</db_con>" + reqData;
+    }
 	console("sendRequest() - request: " + reqData + "\n");
 
 	// set the request to wait until the data is ready
@@ -353,6 +355,14 @@ function listDBResp(strResp){
 	fillSelect(document.getElementById("selDB"), resp.vals);
 	updateDBCon();
 }
+
+/**
+ * Request, update and process the list of databases, populating the database list
+ * select control
+ */
+function listDBUpdateReq(){ sendRequest("POST", "<list_db_update/>", listDBResp); }
+
+
 
 /**
  * When the selected database is changed, update the data members and controls

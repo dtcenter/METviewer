@@ -34,7 +34,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.10</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.11</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -42,7 +42,9 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 					<input type="submit" value="Upload"/>
 				</form>
 			</td>
-		</tr></table>
+		</tr>
+            <tr><td colspan="2" style="text-align: right;padding-right: 151px;"><span class="header" style="font-size:14px;">Reload list of databases: </span><button value="reloadDB" onclick="javascript:listDBUpdateReq()">Reload</button> </td></tr>
+        </table>
 		
 		
 	</td></tr>
@@ -55,7 +57,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate" onchange="javascript:updateTmpl()">
-			<option>series_plot</option>
+			<option selected>series_plot</option>
 			<option>box_plot</option>
 			<option>bar_plot</option>
 			<option>rhist</option>
