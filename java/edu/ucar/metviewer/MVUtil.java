@@ -42,19 +42,31 @@ public class MVUtil{
 	 * a where clause (false)
 	 * @return the formatted field
 	 */
-	public static String formatField(String field, boolean mode, boolean fmtSel){
-		if     ( field.equals("init_hour") )                { return (mode? "HOUR(h.fcst_init)"  : "HOUR(ld.fcst_init_beg)")  + (fmtSel? " init_hour" : "");  }
-		else if( field.equals("valid_hour") )               { return (mode? "HOUR(h.fcst_valid)" : "HOUR(ld.fcst_valid_beg)") + (fmtSel? " valid_hour" : ""); }
-		else if( field.equals("fcst_init")      &&  fmtSel ){ return getSQLDateFormat("h.fcst_init") + " fcst_init";            }
-		else if( field.equals("fcst_init_beg")  &&  fmtSel ){ return getSQLDateFormat("ld.fcst_init_beg") + " fcst_init_beg";   }
-		else if( field.equals("fcst_init_beg")  && !fmtSel ){ return "ld.fcst_init_beg";                                        }
-		else if( field.equals("fcst_valid")     &&  fmtSel ){ return getSQLDateFormat("h.fcst_valid") + " fcst_valid";          }
-		else if( field.equals("fcst_valid_beg") &&  fmtSel ){ return getSQLDateFormat("ld.fcst_valid_beg") + " fcst_valid_beg"; }
-		else if( field.equals("fcst_valid_beg") && !fmtSel ){ return "ld.fcst_valid_beg";                                       }
-		else if( field.equals("fcst_lead") )                { return (mode? "h.fcst_lead" : "ld.fcst_lead");                    }
-		else                                                { return "h." + field;                                              }
-	}
-	public static String formatField(String field, boolean mode){ return formatField(field, mode, true); }
+  public static String formatField(String field, boolean mode, boolean fmtSel) {
+    if (field.equals("init_hour")) {
+      return (mode ? "HOUR(h.fcst_init)" : "HOUR(ld.fcst_init_beg)") + (fmtSel ? " init_hour" : "");
+    } else if (field.equals("valid_hour")) {
+      return (mode ? "HOUR(h.fcst_valid)" : "HOUR(ld.fcst_valid_beg)") + (fmtSel ? " valid_hour" : "");
+    } else if (field.equals("fcst_init") && fmtSel) {
+      return " fcst_init";
+    } else if (field.equals("fcst_init_beg") && fmtSel) {
+      return " fcst_init_beg";
+    } else if (field.equals("fcst_init_beg") && !fmtSel) {
+      return "ld.fcst_init_beg";
+    } else if (field.equals("fcst_valid") && fmtSel) {
+      return " fcst_valid";
+    } else if (field.equals("fcst_valid_beg") && fmtSel) {
+      return " fcst_valid_beg";
+    } else if (field.equals("fcst_valid_beg") && !fmtSel) {
+      return "ld.fcst_valid_beg";
+    } else if (field.equals("fcst_lead")) {
+      return (mode ? "h.fcst_lead" : "ld.fcst_lead");
+    } else {
+      return "h." + field;
+    }
+  }
+
+  public static String formatField(String field, boolean mode){ return formatField(field, mode, true); }
 
 	/**
 	 * Query the database for a list of all ordered distinct fcst_init_begs and return them for use as 
@@ -85,7 +97,7 @@ public class MVUtil{
 			
 			Statement stmt = con.createStatement();
 			String strTable = (field.equalsIgnoreCase("fcst_valid") || field.equalsIgnoreCase("fcst_init")? "mode_header" : "stat_header");
-			ResultSet res = stmt.executeQuery("SELECT DISTINCT " + getSQLDateFormat(field) + "FROM " + strTable + " " + strWhere + "ORDER BY " + field);
+			ResultSet res = stmt.executeQuery("SELECT DISTINCT " + field + " FROM " + strTable + " " + strWhere + "ORDER BY " + field);
 			for(int i=0; res.next(); i++){ listDates.add( res.getString(1) ); }
 			stmt.close();
 		} catch (Exception e) {
@@ -1108,6 +1120,12 @@ public class MVUtil{
 			e.printStackTrace();
 		}
 	}
+
+
+
+
+
+
 	public void printFormattedTable(ResultSet res){ printFormattedTable(res, _out, " ", 40); }
 	public void printFormattedTable(ResultSet res, int maxRows){ printFormattedTable(res, _out, " ", maxRows); }
 	public void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
