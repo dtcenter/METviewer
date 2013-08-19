@@ -258,7 +258,8 @@ function onLoad(){
 	} else {		
 		listDBReq();
 		var txtInitXML = document.getElementById("txtInitXML");
-		if( "" != txtInitXML.value ){ loadInitXML(txtInitXML.value); }
+        document.getElementById("selTemplate").options[0].selected = true;
+        if( "" != txtInitXML.value ){ loadInitXML(txtInitXML.value); }
 	}
 
 }
@@ -332,8 +333,9 @@ function isModeStat(stat){
  */
 function clearControls(){
 
-	//  determine the selected template
-	var strTemplate = getSelected( document.getElementById("selTemplate") )[0];
+	//  reset the selected template
+	//var strTemplate = getSelected( document.getElementById("selTemplate") )[0];
+
 	
 	//  for specialized plot templates, clear the <plot_fix> controls and return
 	if( isTmplSpc() ){
@@ -447,7 +449,7 @@ function setFmtVal(tdFmt, val){
  */
 function isTmplSpc(){ 
 	return (TMPL_RHIST	== _intTmpl || 
-			TMPL_ROC	== _intTmpl || 
+			TMPL_ROC	== _intTmpl ||
 			TMPL_RELY	== _intTmpl); 
 }
 
@@ -504,6 +506,8 @@ function updateTmpl(){
 		boolAggStat = false;
 		boolAggStatNA = true;	
 		boolCalcStat = false;
+        boolFix = false;
+        boolFixSpc = true;
 	}
 	
 	//  configure the visibility of the Y1, Y2, fix and indy controls
@@ -1809,7 +1813,12 @@ function buildPlotXML(){
 		strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false, false) + "</series2>";
 		
 		//  <plot_fix>
-		strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) + "</plot_fix>";
+        if(TMPL_ENS_SS != _intTmpl){
+		    strDepXML += "<plot_fix>" + buildFieldValXML("field", "val", _listFixDiv, false, true) +"</plot_fix>";
+        }else{
+            strDepXML += "<plot_fix>" +buildFieldValXML("field", "val", _listFixSpcDiv, false, true) +"</plot_fix>";
+
+        }
 		
 		//  <plot_cond>
 		var strPlotCond = isTmplSpc() ? 
@@ -2542,19 +2551,27 @@ function loadInitXML_phasePlotFixLoad(){
 		console("loadInitXML_phasePlotFixLoad() complete\n\n");
 
 		//  go to the next step, which depends on the plot template
-		if( isTmplSpc() ){ loadSleep("loadInitXML_phaseFormat()"); }
-		else             { loadSleep("loadInitXML_phaseIndy()");   }
+		if( isTmplSpc() ){
+            loadSleep("loadInitXML_phaseFormat()");
+        }else{
+            loadSleep("loadInitXML_phaseIndy()");
+        }
 		return;
 	}
 
 	//  add and set the plot_fix div to set controls for
-	if( isTmplSpc() ){ 
-		addFixSpcVar();
-		_divInitXMLPlotFix = _listFixSpcDiv[_listFixSpcDiv.length - 1];
-	} else {
-		addFixVar();
-		_divInitXMLPlotFix = _listFixDiv[_listFixDiv.length - 1];
-	}
+    if (isTmplSpc()) {
+        addFixSpcVar();
+        _divInitXMLPlotFix = _listFixSpcDiv[_listFixSpcDiv.length - 1];
+    } else {
+        if (TMPL_ENS_SS != _intTmpl) {
+            addFixVar();
+            divInitXMLPlotFix = _listFixDiv[_listFixDiv.length - 1];
+        } else {
+            addFixSpcVar();
+            _divInitXMLPlotFix = _listFixSpcDiv[_listFixSpcDiv.length - 1];
+        }
+    }
 	
 	
 	//  load the stats for the next fcst_var
@@ -2563,8 +2580,15 @@ function loadInitXML_phasePlotFixLoad(){
 			"  field = " +		_listInitXMLPlotFix[0] + "\n" + 
 			"  select = " +		_divInitXMLPlotFix.getElementsByTagName("select")[0] + "\n");
 	setSelected( _divInitXMLPlotFix.getElementsByTagName("select")[0], _listInitXMLPlotFix[0].toUpperCase() );
-	if( isTmplSpc() ){ selectFixSpcVarReq( getDivFieldValId(_divInitXMLPlotFix) ); }
-	else             { selectFixVarReq(   getDivFieldValId(_divInitXMLPlotFix) ); }
+	if( isTmplSpc() ){
+        selectFixSpcVarReq( getDivFieldValId(_divInitXMLPlotFix) );
+    }else{
+        if (TMPL_ENS_SS != _intTmpl) {
+            selectFixVarReq(   getDivFieldValId(_divInitXMLPlotFix) );
+        }else{
+            selectFixSpcVarReq( getDivFieldValId(_divInitXMLPlotFix) );
+        }
+    }
 	
 	//  wait for the current fcst_var load to finish, then repeat
 	console("\n");
