@@ -1045,7 +1045,7 @@ public class MVBatch extends MVUtil {
 							   //strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcl),5),',','')) stat_bcl" +
 							   strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
 								//				",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcu),5),',','')) stat_bcu";
-												",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcu),5))) stat_bcu";
+												",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
 							} else {
 							   //strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_bcl,5),',','')) stat_bcl" +
 							   strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(ld." + strStatField + "_bcl as DECIMAL(30, 5))) stat_bcl" +
