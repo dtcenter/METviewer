@@ -110,19 +110,8 @@ For the following instructions, the placeholder [install] should be replaced wit
 <a name="db_new"></a>
 <h3>Making a Database Accessible in the METViewer Web Application</h3>
 <p>
-To change the list of databases accessible through the METViewer web application, the web app properties file must be modified and the web application must be
-rebuilt and re-deployed.  For the following instructions, the placeholder [install] should be replaced with the absolute folder name where the METViewer source 
-tree resides.<br/>
+To make a new database accessible in the METViewer Web Application click on "Reload list of databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it<br/>
 </p>
-<ol>
-	<li>edit [install]/metviewer/webapp/metviewer/WEB-INF/classes/mvservlet.properties and change db.list to include/remove database(s) with the compatible 
-		schema and data.  The properties list can be extended to muliple lines using a backslash at the end of continued lines.</li>
-	<li>rebuild and deploy the METViewer web app:<br/>
-		<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
-		<span class="term" style="padding-left:40px">$ ant</span><br/>
-	</li>
-</ol>
-
 
 </body>
 </html>
