@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JAVA=/usr/local/jdk7/bin/java
+JAVA=/usr/local/jdk/bin/java
 MV_HOME=/d3/projects/METViewer/src/apps/verif/metviewer
 
 # construct the classpath for MVLoad
