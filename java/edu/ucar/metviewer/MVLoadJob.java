@@ -1,11 +1,6 @@
 package edu.ucar.metviewer;
 
-import java.sql.Connection;
-
 public class MVLoadJob {
-
-  protected Connection _con = null;
-
 
   protected String _strDBHost = "";
   protected String _strDBName = "";
@@ -39,15 +34,6 @@ public class MVLoadJob {
 
   protected String _strLoadNote = "";
   protected boolean _boolLoadXML = true;
-
-  public Connection getConnection() {
-    return _con;
-  }
-
-  public void setConnection(Connection con) {
-    _con = con;
-  }
-
 
 
   public String getDBHost() {

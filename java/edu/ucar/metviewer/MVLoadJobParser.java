@@ -3,8 +3,6 @@ package edu.ucar.metviewer;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -16,7 +14,6 @@ public class MVLoadJobParser extends MVUtil {
   protected MVNode _nodeLoadSpec = null;
   protected MVLoadJob _job = null;
 
-  protected Connection _con = null;
 
   public MVLoadJobParser(String spec) throws Exception {
 
@@ -52,19 +49,6 @@ public class MVLoadJobParser extends MVUtil {
             job.setDBPassword(node._children[j]._value);
           }
         }
-
-        try {
-          //  connect to the database
-          Class.forName("com.mysql.jdbc.Driver").newInstance();
-          Connection con = DriverManager.getConnection("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName(), job.getDBUser(), job.getDBPassword());
-          if (con.isClosed())
-            throw new Exception("METViewer load error: database connection failed");
-          _con = con;
-          job.setConnection(con);
-        } catch (Exception ex) {
-          System.out.println("  **  ERROR: parseLoadJobSpec() caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
-          throw ex;
-        }
       }
 
       //  <date_list>
@@ -85,8 +69,6 @@ public class MVLoadJobParser extends MVUtil {
         job.setLoadOrank(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("force_dup_file")) {
         job.setForceDupFile(node._value.equalsIgnoreCase("true"));
-      //} else if (node._tag.equals("met_version")) {
-       // job.setMetVersion(node._value);
       } else if (node._tag.equals("insert_size")) {
         job.setInsertSize(Integer.parseInt(node._value));
       } else if (node._tag.equals("verbose")) {
@@ -153,16 +135,6 @@ public class MVLoadJobParser extends MVUtil {
     _job = job;
   }
 
-  public static boolean checkJobCompleteness(MVLoadJob job) {
-    if (null == job._con) {
-      return false;
-    } else if (job.getFolderTmpl().equals("")) {
-      return false;
-    } else if (1 > job.getLoadVal().size()) {
-      return false;
-    }
 
-    return true;
-  }
 
 }
