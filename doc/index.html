@@ -104,6 +104,16 @@ The <a href="https://sdg/jira/browse/METVIEWER">JIRA site</a> for METViewer cont
    <li>20130618 - Added switch the variance inflation factor when computing standard errors for means and medians </li>
    <li>20130618 - Added "stat_header_db_check" that will indicate whether a database query check for stat header information should be performed.  </li>
    <li>20130618 - <b class="tag">mv_0_5_10</b></li>
+   <li>20130819 - Include only databases with the name that starts with "mv_" to be displayed with web app.</li>
+   <li>20130819 - "met_version" tag in the load spec file is not needed any more. The version number will be extracted from the data file. </li>
+   <li>20130819 - warning messages for 'stat_header'  during grid_stat data loading are removed.</li>
+   <li>20130819 - Added FCST_VAR as a option to select for Y1 Axis in  ens_ss template</li>
+   <li>20130819 - use the connection pool instead of the single connection during data loading process(allows simultaneous loads)</li>
+   <li>20130819 - process "-nan" values as missing values during data loading process</li>
+   <li>20130819 - Added a button to the main JSP page that updates the list of available databases (do not need to restart Tomcat after adding a new database)</li>
+   <li>20130819 - removed unnecessary  DATE_FORMAT function from sql queries</li>
+   <li>20130819 - replace ld.obar_ncl and ld.obar_ncu -9999 values with 'NA' during creating data file for R script</li>
+   <li>20130819 - <b class="tag">mv_0_5_11</b></li>
 </ul>
 
 <br/><hr/>
