@@ -33,7 +33,7 @@ top-level tag is <span class="code">&lt;load_spec&gt;</load_spec></span> which c
 	
 	<li><span class="code">&lt;date_list&gt;</span> see <a href="common_xml.html">common xml</a></li><br/>
 	
-	<li><span class="code">&lt;met_version&gt;</span>: the version number of MET as it appears in the MET output files to be read</li>
+    <li><b style="color:#666666">NOTE:</b> <span class="code">&lt;met_version&gt;</span> is obsolete and has been removed; remove it from your XML load specification document</li>
 	<li><span class="code">&lt;load_stat&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether or not to load stat data</li>
 	<li><span class="code">&lt;load_mode&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether or not to load mode data</li>
 	<li><span class="code">&lt;load_mpr&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether or not to load matched pair data</li>
@@ -42,7 +42,8 @@ top-level tag is <span class="code">&lt;load_spec&gt;</load_spec></span> which c
 		that are already present</li>
 	<li><span class="code">&lt;verbose&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, depending on the desired volume of output from the load module</li>
 	<li><span class="code">&lt;insert_size&gt;</span>: integer indicating the number of MET output file rows that are inserted with each INSERT statement</li>
-	<li><b style="color:#666666">NOTE:</b> <span class="code">&lt;stat_header_db_check&gt;</span> is obsolete and has been removed; remove it from your XML load specification document</li>
+    <li><span class="code">&lt;stat_header_db_check&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether a database query check for stat header
+    		information should be performed - WARNING: enabling this feature could significantly increase load time</li>
 	<li><b style="color:#666666">NOTE:</b> <span class="code">&lt;stat_header_table_check&gt;</span> and has been removed; remove it from your XML load specification document</li>
 	<li><span class="code">&lt;mode_header_db_check&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether a database query check for header
 		information should be performed - WARNING: enabling this feature could significantly increase load time</li>
