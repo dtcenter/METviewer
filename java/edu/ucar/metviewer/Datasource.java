@@ -61,11 +61,16 @@ public class Datasource {
     connectionPool = new BoneCP(config); // setup the connection pool
 
 
+
+    listDB = new ArrayList<String>();
+    initDBList();
+
+  }
+
+  public void initDBList() throws SQLException {
     Connection testConnection = null;
     Statement testStatement = null;
-    listDB = new ArrayList<String>();
-
-    // test connectivity and initialize pool
+    listDB.clear();
     try {
       testConnection = connectionPool.getConnection();
       testStatement = testConnection.createStatement();
@@ -92,7 +97,6 @@ public class Datasource {
       }
 
     }
-
   }
 
   public static Datasource getInstance() {
