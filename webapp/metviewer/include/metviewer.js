@@ -2566,7 +2566,7 @@ function loadInitXML_phasePlotFixLoad(){
     } else {
         if (TMPL_ENS_SS != _intTmpl) {
             addFixVar();
-            divInitXMLPlotFix = _listFixDiv[_listFixDiv.length - 1];
+            _divInitXMLPlotFix = _listFixDiv[_listFixDiv.length - 1];
         } else {
             addFixSpcVar();
             _divInitXMLPlotFix = _listFixSpcDiv[_listFixSpcDiv.length - 1];
