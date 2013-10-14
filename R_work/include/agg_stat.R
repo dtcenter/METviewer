@@ -1,7 +1,7 @@
 library(boot);
 
 # parse the command line arguments
-strInputInfoFile = "/d1/pgoldenb/var/gfs_nam/R_work/data/plot_fss_ci_NAM_15km.agg_stat.info";
+strInputInfoFile = "~/plot_00124_20130923_082001.agg_stat.info";
 listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
@@ -119,16 +119,20 @@ calcCSI			= function(d){ if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){ return (NA); 
 calcGSS = function(d){
 	if( 0 == d$total ){ return (NA); }
 	dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
-	return( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) );
+	gss = ( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) )
+	return( round(gss, digits=5) );
 }
 calcHK = function(d){ if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); } else { return( calcPODY(d) - calcPOFD(d) ); } }
 calcHSS = function(d){
 	if( 0 == d$total ){ return (NA); }
-	dblC = (
-			 as.numeric( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) ) + 
-			 as.numeric( (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) ) 
-		   ) / d$total;
-	return( (d$fy_oy + d$fy_on - dblC) / (d$total - dblC) );
+	#dblC = (
+	#		 as.numeric( (d$fy_oy + d$fy_on)*(d$fy_oy + d$fn_oy) ) +
+	#		 as.numeric( (d$fn_oy + d$fn_on)*(d$fy_on + d$fn_on) )
+	#	   ) / d$total;
+	dblC = ( ((d$fy_oy + d$fy_on) / d$total) *(d$fy_oy + d$fn_oy)  +  ((d$fn_oy + d$fn_on) / d$total) * (d$fy_on + d$fn_on)  ) ;
+  hss = ( (d$fy_oy + d$fn_on - dblC) / (d$total - dblC) );
+	return( round(hss, digits=5) );
+	
 }
 calcODDS = function(d){
 	if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
@@ -157,7 +161,6 @@ booter.iid = function(d, i){
 
 	# for each series permutation, build a combined table and calculate statistics
 	for(intPerm in 1:nrow(matPerm)){
-		
 		# if the difference stat is requested, calculate it during the last permutation
 		if( intPerm == nrow(matPerm) & TRUE == boolDiff ){ boolPermDiff = TRUE; }
 
@@ -225,7 +228,6 @@ booter.iid = function(d, i){
 		}
 		
 	}
-
 	return( unlist(listRet) );
 }
 
@@ -284,6 +286,7 @@ for(strIndyVal in listIndyVal){
 		dfBoot = data.frame(listBoot, check.names=FALSE);
 		stBoot = Sys.time();
 		bootStat = try(boot(dfBoot, booter.iid, intNumReplicates));
+    
 		dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
 		intNumBoots = intNumBoots + 1;
 		
@@ -331,6 +334,9 @@ for(strIndyVal in listIndyVal){
 	
 	} # end for(intY in 1:intYMax)
 } # end for(strIndy in listIndy)
+
+#remove rows with stat_value=NA
+dfOut = dfOut[complete.cases(dfOut$stat_value),];
 
 write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t");
 
