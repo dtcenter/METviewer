@@ -1,5 +1,3 @@
-
-
 -- data_file_type_lu is a look-up table containing information about the different types
 --   of MET output data files.  Each data file that is loaded into the database is
 --   represented by a record in the data_file table, which points at one of the data file
@@ -1548,7 +1546,7 @@ BEGIN
     DECLARE c REAL;
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on)*(fy_oy + fn_oy) + (fn_oy + fn_on)*(fy_on + fn_on) ) / total;
-    RETURN FORMAT( (fy_oy + fy_on - c) / (total - c), 4);
+    RETURN FORMAT( (fy_oy + fn_on - c) / (total - c), 4);
 END |
 
 DROP FUNCTION IF EXISTS calcODDS |
