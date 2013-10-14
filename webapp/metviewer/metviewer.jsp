@@ -19,7 +19,7 @@
 //  if there is a database input parameter, put its value into the db load control
 String strDB = "";
 String strDBVal = request.getParameter("db");
-if( null != strDBVal ){ strDB = "mv_" + strDBVal; }
+if( null != strDBVal ){ strDB = strDBVal; }
 
 //  read the init XML from the session
 Object objInitXML = session.getAttribute("init_xml");
@@ -34,7 +34,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.11</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.12</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -54,7 +54,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<span class="header" onclick="javascript:debugClick('db')">Database:</span>&nbsp;&nbsp;
 		<select id="selDB" onChange="javascript:updateDBCon()"></select><span class="bold" id="spanDBLoad"><%= strDB %></span>
 		<span style="padding-left: 100px" class="bold">Plot Data:</span>
-		<select id="selPlotData" onchange="javascript:updatePlotData()"><option>Stat</option><option>MODE</option></select>
+		<select id="selPlotData" onchange="javascript:updatePlotData()"><option value="stat" selected="selected">Stat</option><option value="mode">MODE</option></select>
 		<span style="padding-left: 100px" class="bold">Template:</span>
 		<select id="selTemplate" onchange="javascript:updateTmpl()">
 			<option selected>series_plot</option>
@@ -82,26 +82,34 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<div><table><tr>
 				<td class="bold" style="padding-left: 20px; padding-right: 10px; height: 70px">Forecast Variable:</td>
 				<td>
-					<select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
+                    <table>
+                        <tr><td rowspan="2"><select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select></td>
+                            <td><input type="button" style="display: none;width:110px;" id="ratio_stats" class="gButton" onclick="javascript:selectFcstVarReq(0, this)" value="Ratio Stats &#187;" /><input type="hidden" value="0"/></td>
+                        </tr>
+                        <tr><td><input type="button"  id="other_stats" class="gButton" onclick="javascript:selectFcstVarReq(0, this)" value="Attribute Stats &#187;" style="width:110px;"/></td></tr>
+                    </table>
+
+
+					<!--select id="selFcstVar0" onchange="javascript:clearDepStat(0)"></select>&nbsp;
 					<input type="button" class="gButton" onclick="javascript:selectFcstVarReq(0)" value="Stats &#187;"/><br/>
-					<input type="hidden" value="0"/>					
+					<input type="hidden" value="0"/-->
 				</td>
 				<td style="padding-left:10px">
 					<select id="selStat0" multiple="multiple" style="vertical-align:middle; min-width:100px; display:none" size="5" 
 						onchange="javascript:updateDepStat(0)"></select>&nbsp;&nbsp;
 				</td>
-				<td style="display:none; padding-right:20px">
-					<span><input type="checkbox" onchange="javascript:modeStatDiffChk(0)"/> Difference<br/></span>				
-					<input type="checkbox" checked="checked"/> Fcst<br/>				
-					<input type="checkbox" checked="checked"/> Obs
+				<td style="display:none; padding-right:20px" >
+					<span><input type="checkbox" onchange="javascript:modeStatDiffChk(0)" id="difference"/> Difference<br/></span>
+					<input type="checkbox" checked="checked" /> Fcst<br/>
+					<input type="checkbox" checked="checked" /> Obs
 				</td>
-				<td style="display:none; padding-right:20px">
-					<input type="checkbox" checked="checked"/> Simple<br/>				
-					<input type="checkbox" checked="checked"/> Cluster
+				<td style="display:none; padding-right:20px" >
+					<input type="checkbox" checked="checked" /> Simple<br/>
+					<input type="checkbox" checked="checked" /> Cluster
 				</td>
-				<td style="display:none; padding-right:20px">
-					<input type="checkbox" checked="checked"/> Matched<br/>				
-					<input type="checkbox" checked="checked"/> Unmatched
+				<td style="display:none; padding-right:20px" >
+					<input type="checkbox" checked="checked" /> Matched<br/>
+					<input type="checkbox" checked="checked" /> Unmatched
 				</td>
 				<td>
 					<span style="display:none">
@@ -245,7 +253,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<input id="chkAggStat" type="checkbox" onclick="javascript:updateAggStat()"/><span id="spanAggStat" class="bold">Aggregation Statistics Enabled</span><br/><br/>
 			<table id="tabAggStatParm" border="0" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
-					<td align="left" style="padding-left:30px" colspan="6">
+					<td align="left" style="padding-left:30px" colspan="6" id="aggStats">
 						<input type="radio" name="agg_stat" value="ctc"/><span class="bold">CTC</span>&nbsp;&nbsp;&nbsp;
 						<input type="radio" name="agg_stat" value="sl1l2"/><span class="bold">SL1L2</span>
 						<input type="radio" name="agg_stat" value="pct"/><span class="bold">PCT</span>
@@ -291,7 +299,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 
             <span id="spanCalcStatNA" class="header"
                   style="padding-left:40px; display:none">N/A</span>
-            <input id="chkCalcStat" type="checkbox" onclick="javascript:updateCalcStat()"/><span id="spanCalcStat" class="bold">Statistics Calculation Enabled</span><br/><br/>
+            <input id="chkCalcStat" type="checkbox" onclick="javascript:updateCalcStat()"/><label for="chkCalcStat" id="spanCalcStat" class="bold">Statistics Calculation Enabled</label><br/><br/>
 			<table id="tabCalcStatParm" border="0" cellpadding="0" cellspacing="0" style="display:none">
 				<tr>
 					<td align="left" style="padding-left:30px" colspan="4">
@@ -852,7 +860,6 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<span class="header" style="font-size:18px">Debug Panel</span><br/><br/><br/>
 		
 		<b>Servlet Controls:</b>
-		<input type="button" class="gButton" onclick="javascript:dbClearCacheReq()" value="Clear Database Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listValClearCacheReq()" value="Clear Val List Cache"/>
 		<input type="button" class="gButton" onclick="javascript:listValCacheKeysReq()" value="Val List Cache Keys"/>
 		<input type="button" class="gButton" onclick="javascript:listStatClearCacheReq()" value="Clear Stat List Cache"/>
@@ -860,6 +867,8 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 		<br/><br/>
 		
 		<b>Console:</b>
+        <input type="button" class="gButton" onclick="javascript:startDebugOutput()" value="Start Debug Output"/>&nbsp;&nbsp;
+        <input type="button" class="gButton" onclick="javascript:stopDebugOutput()" value="Stop Debug Output"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:consoleClear()" value="Clear"/>&nbsp;&nbsp;
 		<input type="button" class="gButton" onclick="javascript:dimScreen(true)" value="Dim"/><br/>
 		<textarea rows="20" cols="120" id="txtConsole"></textarea><br/><br/>
