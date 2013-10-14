@@ -39,10 +39,13 @@ mysql -umvuser -pmvuser -e 'show databases;' | {
         LAST_DATE_PROD=$(date -d "$LAST_DATE_PROD_STR" +%s)
 
         #compate dates of uploading
-        if [ $LAST_DATE_DEV -ne $LAST_DATE_PROD ];
+        if  [[ $LAST_DATE_DEV = "NULL" ||  $LAST_DATE_DEV -ne $LAST_DATE_PROD ]]  ;
         then
           #dates are different - changes were made - backup database
-          mysqldump -umvuser -pmvuser $db_name | mysql -h dakota -umvuser -pmvuser $db_name
+
+          mysqldump -umvuser -pmvuser $db_name > $db_name.sql
+          mysql -umvuser -pmvuser -hdakota  $db_name <  $db_name.sql
+          rm $db_name.sql
           if [ $? -gt 0 ];
           then
             #error detected during the backup - send email
