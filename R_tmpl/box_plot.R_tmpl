@@ -18,6 +18,7 @@ boolEventEqualM	= #<event_equal_m>#;
 boolPlotDiff	= #<plot1_diff>#;
 boolBoxAvg		= #<box_avg>#;
 boolBoxPts		= #<box_pts>#;
+boolShowNStats	= #<show_nstats>#;
 
 listY1limUsr	= #<y1_lim>#;
 		
@@ -174,6 +175,7 @@ if( boolBoxPts ){
 	);	
 }
 
+listNStats=rep(0, length(listIndy))
 
 # build a box series for each plot series permutation
 listBoxes = list();
@@ -190,11 +192,14 @@ for(strFcstVar in names(listDep1Plot)){
 		if( "fcst_valid_beg" %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid_beg),]; }				
 		if( "fcst_valid"     %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid),];     }				
 		if( "fcst_init_beg"  %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init_beg),];  }				
-		if( "fcst_init"      %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init),];      }						
-		
+		if( "fcst_init"      %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init),];      }
+
+
 		# build a data series for each permutation of series values 
 		for(intPermVal in 1:nrow(matPermVal)){
-			
+
+			listNStatsFcstVar = c();
+
 			# initialize the storage for this series
 			listPermVal = matPermVal[intPermVal,];
 			listBox = list();
@@ -206,6 +211,7 @@ for(strFcstVar in names(listDep1Plot)){
 				for(strIndy in listIndy){
 					listBox[[strIndy]] = dfBox    [ dfBox    [[ strIndyVar ]] == strIndy, ]$stat_value -
 										 dfBoxComp[ dfBoxComp[[ strIndyVar ]] == strIndy, ]$stat_value;
+					listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
 				}
 			}
 			
@@ -218,6 +224,7 @@ for(strFcstVar in names(listDep1Plot)){
 				}			
 				for(strIndy in listIndy){
 					listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
+					listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
 				}
 			}
 			
@@ -254,7 +261,8 @@ for(strFcstVar in names(listDep1Plot)){
 				}
 				listMeans[[ length(listMeans) + 1 ]] = listMean;
 			}
-			
+
+			listNStats = listNStats + listNStatsFcstVar;
 		}
 	}
 }
@@ -379,6 +387,34 @@ mtext(
 	adj=#<ylab_align>#,		# axis label parallel location adjustment
 	line=1					# margin line, starting at 0 counting outwards
 );
+
+intX2Axis = 3;
+# add the number of stats at each independent axis tick, if requested
+if( TRUE == boolShowNStats ){
+  axis(
+    intX2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
+    at=listX,				# locations of tick marks
+    labels=listNStats,		# axis labels
+    tick=TRUE,				# tick marks on/off
+    tck=.01, 				# length of tick marks as a fraction of plot window
+    las=1,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+    padj=1,	# axis label perpendicular location adjustment
+    hadj=.5,	# axis label parallel location adjustment
+    cex.axis=.8,# relative axis label magnification
+    col="gray"				# axis color
+  );
+
+  mtext(
+    "NStats",				# label
+    las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+    side=intX2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
+    font=1,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+    cex=.8,		# relative axis label magnification
+    padj=-.5,	# axis label perpendicular location adjustment
+    adj=.5,	# axis label parallel location adjustment
+    line=1					# margin line, starting at 0 counting outwards
+  );
+}
 
 # add the number of stats at each independent axis tick, if requested
 if( 0 < length(listSeriesNobs) ){
