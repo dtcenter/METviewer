@@ -69,12 +69,12 @@ public class MVServlet extends HttpServlet {
       _strRTmpl = bundle.getString("folders.r_tmpl");
       _strRWork = bundle.getString("folders.r_work");
       _strPlots = bundle.getString("folders.plots");
-      try{
+      try {
         _strRedirect = bundle.getString("redirect");
-      } catch (MissingResourceException e){
+      } catch (MissingResourceException e) {
         _strRedirect = "metviewer";
       }
-      if(_strRedirect.length() == 0){
+      if (_strRedirect.length() == 0) {
         _strRedirect = "metviewer";
       }
 
@@ -207,7 +207,7 @@ public class MVServlet extends HttpServlet {
       MVNode nodeReq = new MVNode(doc.getFirstChild());
       String strResp = "";
       String currentDBName = "";
-      List<String> databases ;
+      List<String> databases;
 
 
       //  examine the children of the request node
@@ -229,6 +229,11 @@ public class MVServlet extends HttpServlet {
             strResp += "<val>" + databases.get(j) + "</val>";
           }
           strResp += "</list_db>";
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
+          handleClearListValCache(con);
+
         }
 
         //  <date> tag, which is used to prevent caching
@@ -255,27 +260,34 @@ public class MVServlet extends HttpServlet {
         }
         //  <list_val_clear_cache>
         else if (nodeCall._tag.equalsIgnoreCase("list_val_clear_cache")) {
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
           strResp += handleClearListValCache(con);
         }
 
         //  <list_val_cache_keys>
         else if (nodeCall._tag.equalsIgnoreCase("list_val_cache_keys")) {
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
           strResp += handleListValCacheKeys(con);
         }
 
         //  <list_stat_clear_cache>
         else if (nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache")) {
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
           strResp += handleClearListStatCache(con);
         }
 
         //  <list_stat_cache_keys>
         else if (nodeCall._tag.equalsIgnoreCase("list_stat_cache_keys")) {
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
           strResp += handleListStatCacheKeys(con);
-        }
-
-        //  <db_clear_cache>
-        else if (nodeCall._tag.equalsIgnoreCase("db_clear_cache")) {
-          strResp += handleClearDBCache();
         }
 
         //  <plot>
@@ -284,6 +296,9 @@ public class MVServlet extends HttpServlet {
         }
         //  <list_mv_rev>
         else if (nodeCall._tag.equalsIgnoreCase("list_mv_rev")) {
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
           strResp += handleListMVRev(con);
         }
 
@@ -432,30 +447,6 @@ public class MVServlet extends HttpServlet {
     return "<list_stat_cache_keys>" + strXML + "</list_stat_cache_keys>";
   }
 
-  /**
-   * Clear the database connection table of all connections, closing them in
-   * the process
-   *
-   * @return response XML indicating progress
-   * @throws Exception
-   */
-  public static synchronized String handleClearDBCache() throws Exception {
-
-    //  remove each database connection from the connection table, commit its transactions and close it
-    /*Map.Entry[] listDB = (Map.Entry[]) _tableDBConnection.entrySet().toArray(new Map.Entry[]{});
-    for (int i = 0; i < listDB.length; i++) {
-      String strDB = listDB[i].getKey().toString();
-      Connection con = (Connection) _tableDBConnection.remove(strDB);
-      try {
-        con.commit();
-        con.close();
-      } catch (Exception e) {
-      }
-    }
-
-    return "<db_clear_cache>success: removed " + listDB.length + " database connections</db_clear_cache>";*/
-    return "<db_clear_cache>success</db_clear_cache>";
-  }
 
   /**
    * Searches all key values of the input table, which are assumed to be
@@ -583,9 +574,13 @@ public class MVServlet extends HttpServlet {
         if (listFcstVar[i].contains("*")) {
           boolRegEx = true;
         }
-        strFcstVarList += (0 < i ? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
+        if (listFcstVar[i].length() > 0) {
+          strFcstVarList += (0 < i ? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
+        }
       }
-      strWhere += "WHERE h.fcst_var " + (boolRegEx ? "LIKE" : "IN") + " (" + strFcstVarList + ")";
+      if (strFcstVarList.length() > 0) {
+        strWhere += "WHERE h.fcst_var " + (boolRegEx ? "LIKE" : "IN") + " (" + strFcstVarList + ")";
+      }
     }
 
     //  parse the list of constraints into a SQL where clause
@@ -1304,7 +1299,7 @@ public class MVServlet extends HttpServlet {
 
     //  put the load XML from the database into a file
     Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strLoadXML.getBytes()));
-    FileOutputStream stream=null;
+    FileOutputStream stream = null;
     try {
       /*FileOutputStream stream = new FileOutputStream(strLoadXMLFile);
       XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
@@ -1313,7 +1308,7 @@ public class MVServlet extends HttpServlet {
       stream.flush();
       stream.close();*/
 
-       //Begin write DOM to file
+      //Begin write DOM to file
       File f = new File(strLoadXMLFile);
       stream = new FileOutputStream(f);
       DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
@@ -1326,8 +1321,8 @@ public class MVServlet extends HttpServlet {
     } catch (Exception e) {
       _logger.error("handleViewLoadXML() - ERROR: caught " + e.getClass() + " serializing load xml: " + e.getMessage());
       return "<error>failed to serialize load xml - reason: " + e.getMessage() + "</error>";
-    }finally {
-      if(stream != null){
+    } finally {
+      if (stream != null) {
         stream.close();
       }
     }
