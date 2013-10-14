@@ -79,8 +79,45 @@ if( FALSE == boolXReverse ){
 
 # run event equalizer, if requested
 if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
-	dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+  if(length(listSeries2Val) > 0){
+      dfPlot1 = data.frame();
+      for( strDep1Name in names(listDep1Plot) ){
+        for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$model %in% listSeries1Val$model & dfPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+          dfPlot1 = rbind(dfPlot1, fPlot);
+        }
+      }
+
+      dfPlot2 = data.frame();
+      for( strDep2Name in names(listDep2Plot) ){
+        for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
+          fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$model %in% listSeries2Val$model & dfPlot$stat_name %in% strDep2Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
+          dfPlot2 = rbind(dfPlot2, fPlot);
+        }
+      }
+      dfPlot = rbind(dfPlot1, dfPlot2);
+      listSeriesVal=list();
+          for( seriesVal in names(listSeries1Val) ){
+            listSeriesVal[[seriesVal]] = append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]);
+          }
+          listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
+          dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, TRUE);
+
+    }else{
+      dfPlot1 = data.frame();
+      for( strDep1Name in names(listDep1Plot) ){
+        for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$model %in% listSeries1Val$model & dfPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+          dfPlot1 = rbind(dfPlot1, fPlot);
+        }
+      }
+      dfPlot = dfPlot1;
+    }
 }
+
 
 # build the y1 plot series using information in the plot dataframe
 intNumSeries1 = numSeries(listSeries1Val, listDep1Plot, boolPlot1Diff);
@@ -468,8 +505,13 @@ if( 0 < length(listDep2Plot) ){
 	} else {
 		dblY2BufrPct = #<y2_bufr>#;
 		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
-		listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
-		par(new=TRUE, usr=listY2Usr, xaxs="r");
+
+		if( FALSE == boolVertPlot){
+      listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
+    }else{
+      listY2Usr = c( dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr,par()$usr[3:4]);
+    }
+    par(new=TRUE, usr=listY2Usr, xaxs="r");
 	}
 	
 	# add the y2 axis
