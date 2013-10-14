@@ -688,7 +688,7 @@ public class MVPlotJobParser extends MVUtil {
           }
         }
 
-        if (!job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() && !job.getAggNbrCnt()) {
+        if (!MVBatch.isModeRatioJob(job) && !job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() && !job.getAggNbrCnt()) {
           throw new Exception("invalid agg_stat setting - one of the aggregation line types must be selected");
         }
       }
@@ -1214,7 +1214,7 @@ public class MVPlotJobParser extends MVUtil {
     strXML += "</plot_fix>";
 
     //  agg_stat
-    if (job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() || job.getAggNbrCnt()) {
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() || job.getAggNbrCnt()) || MVBatch.isModeRatioJob(job)) {
       strXML +=
         "<agg_stat>" +
           "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>" +
