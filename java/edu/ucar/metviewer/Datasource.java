@@ -61,7 +61,6 @@ public class Datasource {
     connectionPool = new BoneCP(config); // setup the connection pool
 
 
-
     listDB = new ArrayList<String>();
     initDBList();
 
@@ -130,6 +129,16 @@ public class Datasource {
         }
 
       }
+    }
+    return con;
+  }
+
+  public Connection getConnection() throws SQLException {
+    Connection con = null;
+    try {
+      con = connectionPool.getConnection();
+    } catch (SQLException e) {
+      logger.error(e.getMessage());
     }
     return con;
   }
