@@ -20,18 +20,18 @@ function parse(){
 	var strData = document.getElementById("txtData").value;
 	var strPattern = document.getElementById("txtPattern").value;
 
-	console("parse()\n  data: " + strData + "\n  pattern: " + strPattern + "\n");
+	debug("parse()\n  data: " + strData + "\n  pattern: " + strPattern + "\n");
 
 	var pat = new RegExp(strPattern);
 	var listParse = strData.match( pat );
 	if( null != listParse ){
-		console("  match:\n");
-		for(i in listParse){ console("    listParse[" + i + "]: " + listParse[i] + "\n"); }
+		debug("  match:\n");
+		for(i in listParse){ debug("    listParse[" + i + "]: " + listParse[i] + "\n"); }
 	} else {
-		console("  no match\n");
+		debug("  no match\n");
 	}
 
-	console("parse() complete\n\n");
+	debug("parse() complete\n\n");
 }
 
 /**
@@ -43,7 +43,7 @@ function testGetReq()     { sendRequest("GET", document.getElementById("txtGet")
 /**
  * Wrapper for appending information to the console text box
  */
-function console(str){ document.getElementById("txtConsole").value += str; }
+//function console(str){ document.getElementById("txtConsole").value += str; }
 function consoleClear(){ document.getElementById("txtConsole").value = ""; }
 
 /**
@@ -86,7 +86,7 @@ function debugClick(ctrl){
 
 function setDebugDisp(show){
 	
-	// update the visibility of the debug console and test buttons
+	// update the visibility of the debug debug and test buttons
 	document.getElementById("trDebug").style.display = (show? "table-row" : "none");
 	
 	// update the handler for the loading screen
@@ -111,7 +111,7 @@ function serializeNode(node){
 	var strXML = "";
 	try     { strXML = XML( (new XMLSerializer()).serializeToString(node) ).toXMLString(); }
 	catch(e){ strXML = node.outerHTML; }
-	console("\n" + strXML + "\n\n");
+	debug("\n" + strXML + "\n\n");
 }
 
 /**
@@ -193,7 +193,7 @@ function parseListValResp(strResp, strType){
 	//var listProc = strResp.match( new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>(.*)<\/val><\/list_" + strType + ">") );
 	var listProc = strResp.match( new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>([\\s\\S]*)<\/val><\/list_" + strType + ">") );
 	if( null == listProc ){
-		console("parseListValResp() - ERROR: could not parse response: " + strResp + "\n\n");
+		debug("parseListValResp() - ERROR: could not parse response: " + strResp + "\n\n");
 		return null;
 	}
 	return new ListValResp(listProc[1], listProc[2].split( /<\/val><val>/ ));
@@ -290,7 +290,7 @@ function sendRequest(reqType, reqData, fnResp){
 	if(reqData != "<list_db/>" && reqData != "<list_db_update/>"){
         reqData = "<db_con>" + _strDBCon + "</db_con>" + reqData;
     }
-	console("sendRequest() - request: " + reqData + "\n");
+	debug("sendRequest() - request: " + reqData + "\n");
 
 	// set the request to wait until the data is ready
 	var strResp = "";
@@ -304,7 +304,7 @@ function sendRequest(reqType, reqData, fnResp){
 			else                   { strResp = "<error>req.status " + req.status + "</error>"; }
 
 			// dispatch the response
-			console("sendRequest() - response: " + strResp + "\n\n");
+			debug("sendRequest() - response: " + strResp + "\n\n");
 			var listParse = strResp.match( /<error>([\s\S]*)<\/error>/ );
 			if( null != listParse ){ alert("METViewer error: " + listParse[1]); }
 			else                   { fnResp(strResp);                           }
@@ -370,9 +370,39 @@ function listDBUpdateReq(){ sendRequest("POST", "<list_db_update/>", listDBResp)
 function updateDBCon(){
 	var selDB = document.getElementById("selDB");
 	_strDBCon = selDB.options[selDB.selectedIndex].text;
-	console("updateDBCon() - _strDBCon: " + _strDBCon + "\n\n");
+    debug("updateDBCon() - _strDBCon: " + _strDBCon + "\n\n");
 
 	// reset the controls
 	clearControls();
 }
+
+var indexOf = function(needle) {
+    if(typeof Array.prototype.indexOf === 'function') {
+        indexOf = Array.prototype.indexOf;
+    } else {
+        indexOf = function(needle) {
+            var i = -1, index = -1;
+
+            for(i = 0; i < this.length; i++) {
+                if(this[i] === needle) {
+                    index = i;
+                    break;
+                }
+            }
+
+            return index;
+        };
+    }
+
+    return indexOf.call(this, needle);
+};
+var isDebug=false;
+debug = function (log_txt) {
+
+    if (isDebug && typeof window.console != 'undefined') {
+        console.log(log_txt);
+        document.getElementById("txtConsole").value += log_txt;
+    }
+
+};
 
