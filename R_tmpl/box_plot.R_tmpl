@@ -46,10 +46,18 @@ listPch = #<pch>#;
 
 listSeriesVar = names(listSeries1Val);
 
+listPlotOrderSeries	= #<order_series>#;
+
+
 # calculate the number of statistics
 intNumStats = 0;
 for(strFcstVar in names(listDep1Plot)){
 	intNumStats = intNumStats + length( listDep1Plot[[strFcstVar]] );
+}
+#order listPlotDisp
+listPlotDispOrdered=c();
+for(index in 1:length(listPlotOrderSeries)){
+  listPlotDispOrdered[listPlotOrderSeries[index]]=listPlotDisp[index];
 }
 
 # run event equalizer, if requested
@@ -267,22 +275,37 @@ for(strFcstVar in names(listDep1Plot)){
 	}
 }
 
+#order listBoxes
+listBoxesOrdered = list();
+for(index in 1:length(listPlotOrderSeries)){
+  listBoxesOrdered[listPlotOrderSeries[index]]=listBoxes[index];
+}
+listBoxes = listBoxesOrdered;
+
+listColorsOrdered = c();
+listPchOrdered = c();
+for(index in 1:length(listPlotOrderSeries)){
+  listColorsOrdered[listPlotOrderSeries[index]]=listColors[index];
+  listPchOrdered[listPlotOrderSeries[index]]=listPch[index];
+}
+
+
 # plot the series data
 intSeriesDisp = 1;
 boolAdd = FALSE;
 for(intPermIndex in 1:length(listBoxes)){
 	
 	# skip the current box, if requested
-	if( FALSE == listPlotDisp[intPermIndex] ){ next; }
+	if( FALSE == listPlotDispOrdered[intPermIndex] ){ next; }
 	
 	# gather the information for the current box
 	listAt = listX - (dblIndySpan/2) + (intSeriesDisp - 1) * dblInc;
-	strColor = listColors[intPermIndex];
+	strColor = listColorsOrdered[intPermIndex];
 	listBox = listBoxes[[intPermIndex]];
 		
 	# if only points are displayed, call the points() function 		
 	if( boolBoxPts ){
-		intPch = listPch[intPermIndex];
+		intPch = listPchOrdered[intPermIndex];
 		intIndy = 1;
 		for(strIndy in names(listBox)){
 			listPts = listBox[[strIndy]];
@@ -479,10 +502,15 @@ if( 0 < length(listLegendUsr) ){
 		}
 	}
 }
+#orded the legend
+listLegendOrdered = c();
+for(index in 1:length(listPlotOrderSeries)){
+  listLegendOrdered[listPlotOrderSeries[index]]=listLegend[index];
+}
 
 # display on the labels and colors for visible series
-listLegendDisp = listLegend[listPlotDisp];
-listColorsDisp = listColors[listPlotDisp];
+listLegendDisp = listLegendOrdered[listPlotDispOrdered];
+listColorsDisp = listColorsOrdered[listPlotDispOrdered];
 
 legend(
 	x="bottom",				# x coordinate of legend

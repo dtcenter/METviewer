@@ -34,6 +34,8 @@ listPlotCI		= #<plot_ci>#;
 
 listPlotDisp	= #<plot_disp>#;
 
+listPlotOrderSeries	= #<order_series>#;
+
 dblAlpha		= #<ci_alpha>#;
 
 strIndyVar		= "#<indy_var>#";
@@ -128,6 +130,14 @@ if( TRUE == boolPlot1Diff ){ intNumSeries1Dep = intNumSeries1Dep + 1; }
 listPlotDisp1 = listPlotDisp[1:intNumSeries1];
 listPlotDisp2 = listPlotDisp[(intNumSeries1+1):length(listPlotDisp)];
 
+#order listPlotDisp
+listPlotDispOrdered=c();
+for(index in 1:length(listPlotOrderSeries)){
+  listPlotDispOrdered[listPlotOrderSeries[index]]=listPlotDisp[index];
+}
+listPlotOrderSeries1 = listPlotOrderSeries[1:intNumSeries1];
+listPlotOrderSeries2 = listPlotOrderSeries[(intNumSeries1+1):length(listPlotDisp)];
+
 # build the y1 plot series using information in the plot dataframe
 listSeries1 = list();
 listLegend = c();
@@ -141,6 +151,7 @@ for( strDep1Name in names(listDep1Plot) ){
 		
 		# determine the visibility of the series for the current stat
 		listPlotDispDep = listPlotDisp1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
+		listPlotOrderSeriesDep = listPlotOrderSeries1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
 		intDepIndex = intDepIndex + intNumSeries1Dep;
 		
 		# build the y1 plot series using information in the plot dataframe
@@ -150,7 +161,9 @@ for( strDep1Name in names(listDep1Plot) ){
 		if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
 		else                              { listNStats = listPlotData1$nstats; }
 		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
-		listLegend = append(listLegend, listLegend1);		
+		for(index in 1:length(listPlotOrderSeriesDep)){
+      listLegend[listPlotOrderSeriesDep[index]]=listLegend1[index];
+    }
 	}
 }
 
@@ -180,6 +193,7 @@ if( 0 < length(listDep2Plot) ){
 			
 			# determine the visibility of the series for the current stat
 			listPlotDispDep = listPlotDisp2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
+			listPlotOrderSeriesDep = listPlotOrderSeries2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
 			intDepIndex = intDepIndex + intNumSeries2Dep;
 			
 			# build the y2 plot series using information in the plot dataframe
@@ -188,7 +202,9 @@ if( 0 < length(listDep2Plot) ){
 			listSeries2 = append(listSeries2, listPlotData2$series);
 			#listNStats  = listPlotData2$nstats
 			listLegend2 = paste(listPlotData2$legend, strDep2Stat);
-			listLegend = append(listLegend, listLegend2);
+			for(index in 1:length(listPlotOrderSeriesDep)){
+        listLegend[listPlotOrderSeriesDep[index]]=listLegend2[index];
+      }
 		}
 	}
 	intNumSeries2 = length(listSeries2) / 3;
@@ -200,7 +216,11 @@ if( 0 < length(listDep2Plot) ){
 	}
 }
 
-if( 0 < length(listLegendUsr) ){ listLegend = listLegendUsr; }
+if( 0 < length(listLegendUsr) ){
+  for(index in 1:length(listPlotOrderSeries)){
+    listLegend[listPlotOrderSeries[index]]=listLegendUsr[index];
+  }
+}
 
 # specify the output file
 strPlotType = "#<plot_type>#";
@@ -450,6 +470,17 @@ listType = #<type>#;
 listLty = #<lty>#;
 listLwd = #<lwd>#;
 listConSeries = #<con_series>#;
+
+listColorsOrdered=c();
+listLtyOrdered=c();
+listLwdOrdered=c();
+listPchOrdered=c();
+for(index in 1:length(listPlotOrderSeries)){
+  listLwdOrdered[listPlotOrderSeries[index]]=listLwd[index];
+  listColorsOrdered[listPlotOrderSeries[index]]=listColors[index];
+  listLtyOrdered[listPlotOrderSeries[index]]=listLty[index];
+  listPchOrdered[listPlotOrderSeries[index]]=listPch[index];
+}
 
 # build the x-adjustment increments, if requested
 dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
@@ -737,14 +768,14 @@ for(i in 1:intNumSeries1){
 	intFormatIndex = intFormatIndex + 1;
 } # end: for(i in 1:intNumSeries1)
 
-listLwdLeg = listLwd;
+listLwdLeg = listLwdOrdered;
 listLwdLeg[listLwdLeg > 3] = 3;
 
 # mask the hidden elements from the legend and color list
-listLegendDisp = listLegend[listPlotDisp];
-listColorsDisp = listColors[listPlotDisp];
-listLtyDisp    = listLty[listPlotDisp];
-listPchDisp    = listPch[listPlotDisp];
+listLegendDisp = listLegend[listPlotDispOrdered];
+listColorsDisp = listColorsOrdered[listPlotDispOrdered];
+listLtyDisp    = listLtyOrdered[listPlotDispOrdered];
+listPchDisp    = listPchOrdered[listPlotDispOrdered];
 
 # add the legend
 legend(
