@@ -85,18 +85,23 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
       dfPlot1 = data.frame();
       for( strDep1Name in names(listDep1Plot) ){
         for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$model %in% listSeries1Val$model & dfPlot$stat_name %in% strDep1Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
-          dfPlot1 = rbind(dfPlot1, fPlot);
+          for(strSeriesVal in names(listSeries1Val)){
+            fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+            fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+            dfPlot1 = rbind(dfPlot1, fPlot);
+          }
         }
       }
+
 
       dfPlot2 = data.frame();
       for( strDep2Name in names(listDep2Plot) ){
         for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$model %in% listSeries2Val$model & dfPlot$stat_name %in% strDep2Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
-          dfPlot2 = rbind(dfPlot2, fPlot);
+          for(strSeriesVal in names(listSeries2Val)){
+            fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% listSeries2Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep2Stat,  ];
+            fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
+            dfPlot2 = rbind(dfPlot2, fPlot);
+          }
         }
       }
       dfPlot = rbind(dfPlot1, dfPlot2);
@@ -109,13 +114,16 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
 
     }else{
       dfPlot1 = data.frame();
-      for( strDep1Name in names(listDep1Plot) ){
-        for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$model %in% listSeries1Val$model & dfPlot$stat_name %in% strDep1Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
-          dfPlot1 = rbind(dfPlot1, fPlot);
-        }
-      }
+        for( strDep1Name in names(listDep1Plot) ){
+            for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+              for(strSeriesVal in names(listSeries1Val)){
+                fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+                fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+                dfPlot1 = rbind(dfPlot1, fPlot);
+              }
+            }
+          }
+
       dfPlot = dfPlot1;
     }
 }
