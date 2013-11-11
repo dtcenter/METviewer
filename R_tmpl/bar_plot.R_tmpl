@@ -38,6 +38,9 @@ listDep1Scale = #<dep1_scale>#;
 
 strPlotStat = "#<plot_stat>#";
 
+listPlotOrderSeries	= #<order_series>#;
+
+
 
 #
 #  Build the series data for the plot 
@@ -49,7 +52,13 @@ listLegend = c();
 
 # determine the number of curves in the first series
 intNumSeries1 = 1;
-for(strSeriesVar in names(listSeries1Val)){ intNumSeries1 = intNumSeries1 * length( listSeries1Val[[ strSeriesVar ]] ); }		
+for(strSeriesVar in names(listSeries1Val)){ intNumSeries1 = intNumSeries1 * length( listSeries1Val[[ strSeriesVar ]] ); }
+
+#order listPlotDisp
+listPlotDispOrdered=c();
+for(index in 1:length(listPlotOrderSeries)){
+  listPlotDispOrdered[listPlotOrderSeries[index]]=listPlotDisp[index];
+}
 
 # build the y1 plot series using information in the plot dataframe
 listSeries1 = list();
@@ -67,6 +76,19 @@ for( strDep1Name in names(listDep1Plot) ){
 		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
 		listLegend = append(listLegend, listLegend1);
 	}
+}
+
+#order series
+listSeries1Ordered=list();
+listLegendOrdered=c();
+newInd=1;
+for(index in 1:length(listPlotOrderSeries)){
+  oldInd = length(listSeries1)/3 * listPlotOrderSeries[index];
+  for(i in 0:2){
+    listSeries1Ordered[newInd+i]=listSeries1[oldInd+i];
+  }
+  newInd = newInd +3;
+  listLegendOrdered[listPlotOrderSeries[index]]=listLegend[index];
 }
 
 # specify the output file
@@ -108,11 +130,15 @@ par(
 
 # specify the series formatting
 listColors = #<colors>#;
-listColorsDisp = listColors[listPlotDisp];
+listColorsOrdered=c();
+for(index in 1:length(listPlotOrderSeries)){
+  listColorsOrdered[listPlotOrderSeries[index]]=listColors[index];
+}
+listColorsDisp = listColorsOrdered[listPlotDispOrdered];
 
 # arrange the series data into a matrix for the barplot() function
-listSeriesBar = listSeries1[ seq(1, length(listSeries1), 3) ];
-listSeriesBar = listSeriesBar[ listPlotDisp ];
+listSeriesBar = listSeries1Ordered[ seq(1, length(listSeries1Ordered), 3) ];
+listSeriesBar = listSeriesBar[ listPlotDispOrdered ];
 matSeriesBar = matrix(ncol=length(listSeriesBar[[1]]), nrow=length(listSeriesBar));
 for(intSeries in 1:length(listSeriesBar)){ matSeriesBar[intSeries,] = listSeriesBar[[intSeries]]; }
 
@@ -236,7 +262,7 @@ if( TRUE == boolShowNStats ){
 }
 
 # display the legend
-listLegendDisp = listLegend[listPlotDisp];
+listLegendDisp = listLegendOrdered[listPlotDispOrdered];
 legend(
 	x="bottom",					# x coordinate of legend
 	listLegendDisp,				# vector of legend labels
