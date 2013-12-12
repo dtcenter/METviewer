@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -324,7 +329,10 @@ public class MVServlet extends HttpServlet {
 
         //  <xml_upload>
         else if (nodeCall._tag.equalsIgnoreCase("xml_upload")) {
-          strResp += handleXMLUpload(nodeCall);
+          if (con == null) {
+            con = Datasource.getInstance().getConnection();
+          }
+          strResp += handleXMLUpload(nodeCall, con);
           request.getSession().setAttribute("init_xml", strResp);
           response.sendRedirect("/" + _strRedirect);
         }
@@ -912,25 +920,23 @@ public class MVServlet extends HttpServlet {
     //  parse the input document and build the MVNode data structure
     Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strPlotXML.getBytes()));
     FileOutputStream stream = null;
+    OutputStreamWriter outputStreamWriter = null;
+    StreamResult streamResult = null;
     try {
-     /* stream = new FileOutputStream(_strPlotXML + "/" + strPlotPrefix + ".xml");
-      XMLSerializer ser = new XMLSerializer(new OutputFormat(Method.XML, "UTF-8", true));
-      ser.setOutputByteStream(stream);
-      ser.serialize(doc);
-      stream.flush();*/
-
-
       //Begin write DOM to file
       File f = new File(_strPlotXML + "/" + strPlotPrefix + ".xml");
       stream = new FileOutputStream(f);
-      DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-      DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-      LSSerializer serializer = impl.createLSSerializer();
-      LSOutput lso = impl.createLSOutput();
-      lso.setByteStream(stream);
-      serializer.write(doc, lso);
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer transformer = tf.newTransformer();
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+      transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+      outputStreamWriter = new OutputStreamWriter(stream, "UTF-8");
+      streamResult = new StreamResult(outputStreamWriter);
+      transformer.transform(new DOMSource(doc), streamResult);
       stream.flush();
-
     } catch (Exception e) {
       _logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
       return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
@@ -938,13 +944,19 @@ public class MVServlet extends HttpServlet {
       if (stream != null) {
         stream.close();
       }
+      if (outputStreamWriter != null) {
+        outputStreamWriter.close();
+      }
+
     }
 
     //  parse the input plot job
     MVPlotJobParser parser;
     MVPlotJob job;
+    ByteArrayInputStream byteArrayInputStream = null;
     try {
-      parser = new MVPlotJobParser(new ByteArrayInputStream(strPlotXML.getBytes()), con);
+      byteArrayInputStream = new ByteArrayInputStream(strPlotXML.getBytes());
+      parser = new MVPlotJobParser(byteArrayInputStream, con);
       MVPlotJob[] jobs = parser.getJobsList();
       if (1 != jobs.length) {
         throw new Exception("unexpected number of plot jobs generated: " + jobs.length);
@@ -953,6 +965,10 @@ public class MVServlet extends HttpServlet {
     } catch (Exception e) {
       _logger.error("handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
       return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
+    } finally {
+      if (byteArrayInputStream != null) {
+        byteArrayInputStream.close();
+      }
     }
 
     //  run the plot job and write the batch output to the log file
@@ -1339,10 +1355,10 @@ public class MVServlet extends HttpServlet {
    * @return serialized plot spec of a single plot from the input spec
    * @throws Exception
    */
-  public static String handleXMLUpload(MVNode nodeCall) throws Exception {
+  public static String handleXMLUpload(MVNode nodeCall, Connection con) throws Exception {
 
     //  run the parser to generate plot jobs
-    MVPlotJobParser par = new MVPlotJobParser(nodeCall._children[0]);
+    MVPlotJobParser par = new MVPlotJobParser(nodeCall._children[0], con);
     MVPlotJob[] listJobs = par.getJobsList();
     if (1 > listJobs.length) {
       throw new Exception("parsed XML contained no plot jobs");
