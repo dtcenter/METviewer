@@ -43,6 +43,9 @@ mysql -umvuser -pmvuser -e 'show databases;' | {
         then
           #dates are different - changes were made - backup database
 
+          #analyze it first
+          mysqlcheck -a -umvuser -pmvuser $db_name
+
           mysqldump -umvuser -pmvuser $db_name > $db_name.sql
           mysql -umvuser -pmvuser -hdakota  $db_name <  $db_name.sql
           rm $db_name.sql
