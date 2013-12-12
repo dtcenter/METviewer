@@ -4,15 +4,19 @@
 <html>
 <head>
 <title>METViewer</title>
-<link rel="stylesheet" type="text/css" href="include/metviewer.css"/>
+<link rel="stylesheet" type="text/css" href="css/metviewer.css"/>
 <link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
+ <link rel="stylesheet" href="css/smoothness/jquery-ui-1.10.3.custom.min.css" />
+   <script src="js/jquery-1.9.1.js" type="text/javascript"></script>
+   <script src="js/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="include/Hashtable.js"></script>
+    <script type="text/javascript" src="include/util.js"></script>
+    <script type="text/javascript" src="include/metviewer.js"></script>
 </head>
 
 <body onLoad="onLoad()" style="padding-left: 20px">
 
-<script type="text/javascript" src="include/Hashtable.js"></script>
-<script type="text/javascript" src="include/util.js"></script>
-<script type="text/javascript" src="include/metviewer.js"></script>
+
 
 <%
 
@@ -34,7 +38,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.12</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.13</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -100,16 +104,16 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 				</td>
 				<td style="display:none; padding-right:20px" >
 					<span><input type="checkbox" onchange="javascript:modeStatDiffChk(0)" id="difference"/> Difference<br/></span>
-					<input type="checkbox" checked="checked" /> Fcst<br/>
-					<input type="checkbox" checked="checked" /> Obs
+					<input type="checkbox" onchange="javascript:updateDepStat(0)" checked="checked" /> Fcst<br/>
+					<input type="checkbox" onchange="javascript:updateDepStat(0)" checked="checked" /> Obs
 				</td>
 				<td style="display:none; padding-right:20px" >
-					<input type="checkbox" checked="checked" /> Simple<br/>
-					<input type="checkbox" checked="checked" /> Cluster
+					<input type="checkbox" onchange="javascript:updateDepStat(0)" checked="checked" /> Simple<br/>
+					<input type="checkbox" onchange="javascript:updateDepStat(0)" checked="checked" /> Cluster
 				</td>
 				<td style="display:none; padding-right:20px" >
-					<input type="checkbox" checked="checked" /> Matched<br/>
-					<input type="checkbox" checked="checked" /> Unmatched
+					<input type="checkbox" onchange="javascript:updateDepStat(0)" checked="checked" /> Matched<br/>
+					<input type="checkbox" onchange="javascript:updateDepStat(0)" checked="checked" /> Unmatched
 				</td>
 				<td>
 					<span style="display:none">
@@ -311,25 +315,71 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			</table>
 		</div><br/><br/>
 		
-		</td></tr><tr><td id="tdRocCalc" style="display:none">
-		
-		<div id="divRocCalc">
-			<span class="header">ROC Calculations</span>
-			<span class="stdTiny">(<a href="doc/plot.html#roc_calc" target="_blank">help</a>)</span>
-			<a class="stdTiny" style="padding-left:20px" onclick="javascript:serialize('divRocCalc')" id="lnkSerRocCalc">Serialize</a><br/><br/>
+		</td></tr>
+        <tr>
+            <td id="tdRocCalc" style="display:none">
 
-			<table id="tabRocCalcParm" border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td align="left" style="padding-left:30px" colspan="4">
-						<input type="radio" name="roc_pct" value="pct"/><span class="bold">PCT</span>&nbsp;&nbsp;&nbsp;
-						<input type="radio" name="roc_ctc" value="ctc"/><span class="bold">CTC</span>
-						<br/><br/>
-					</td>
-				</tr>
-			</table>
-		</div><br/><br/>
-		
-		</td></tr><tr><td class="gray">
+                <div id="divRocCalc">
+                    <span class="header">ROC Calculations</span>
+                    <span class="stdTiny">(<a href="doc/plot.html#roc_calc"
+                                              target="_blank">help</a>)</span>
+                    <a class="stdTiny" style="padding-left:20px"
+                       onclick="javascript:serialize('divRocCalc')"
+                       id="lnkSerRocCalc">Serialize</a><br/><br/>
+
+                    <table id="tabRocCalcParm" border="0" cellpadding="0"
+                           cellspacing="0">
+                        <tr>
+                            <td align="left" style="padding-left:30px"
+                                colspan="4">
+                                <input type="radio" name="roc_pct"
+                                       value="pct"/><span
+                                    class="bold">PCT</span>&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name="roc_ctc"
+                                       value="ctc"/><span
+                                    class="bold">CTC</span>
+                                <br/><br/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br/><br/>
+
+            </td>
+        </tr>
+
+        <tr>
+                    <td id="tdHistType" style="display:none">
+
+                        <div id="divHistType">
+                            <span class="header">Histogram type</span>
+                            <span class="stdTiny">(<a href="doc/plot.html#hist_type"
+                                                      target="_blank">help</a>)</span>
+
+
+                            <table id="tabHistTypeParm" border="0" cellpadding="0"
+                                   cellspacing="0">
+                                <tr>
+                                    <td align="left" style="padding-left:30px"
+                                        colspan="4">
+                                        <input type="radio" name="normalized_histogram"
+                                               value="true" checked/><span
+                                            class="bold">Normalized</span>&nbsp;&nbsp;&nbsp;
+                                        <input type="radio" name="normalized_histogram"
+                                               value="false"/><span
+                                            class="bold">Raw counts</span>
+                                        <br/><br/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <br/><br/>
+
+                    </td>
+                </tr>
+
+
+        <tr><td class="gray">
 		
 		<div id="divTitleLab">
 			<span class="header">Plot Titles &amp; Labels</span><br/><br/>
@@ -401,7 +451,9 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<input id="btnFmtSeriesDefaults" type="button" class="gButton" onclick="javascript:setFmtSeriesDefaults()" value="Defaults" style="display:none"/>
 			<!-- <span style="padding-left:20px"><input type="button" class="gButton" onclick="javascript:buildSeriesDiv()" value="Build"/></span>  -->
 			<span id="spanFmtSeriesNum" class="bold" style="padding-left: 30px"># Series: 0</span>
+            <input style=" margin-left: 50px;" id="btnFmtAddDifferenceCurve" type="button" class="gButton" onclick="javascript:openAddDiffCurveDialog()" value="Add Difference Curve" style="display:none"/>
 			<span style="padding-left: 100px"><input id="chkFmtSeriesLock" type="checkbox" style="vertical-align:-10%"/>Lock Formatting</span>
+
 			<br/><br/>
 			
 			<span id="spanFmtSeriesDisp" onclick="javascript:handleFmtSeriesDisp()" style="padding-left:40px">
@@ -413,10 +465,12 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 				<td align="right" style="width:350px">
 					<span id="spanFmtSeriesName">
 						<span class="tiny">&nbsp;</span><br/>
-						<span class="bold" style="font-size:10pt; padding-right:20px">Series Name</span>
+						<span class="bold" style="font-size:10pt; padding-right:20px" name="seriesName">Series Name</span>
 						<input type="hidden"/><br/>
 						<span class="tiny" style="padding-right:20px">(series1 or 2)</span><br/><br/>
-						<span style="padding-right:20px"><input id="chkHide" type="checkbox"/>Hide</span>
+						<span style="padding-right:20px">Hide<input id="chkHide" type="checkbox"/></span><br/>
+                        <span style="padding-right:20px">Order # <input id="seriesOrder" type="text" size="1" value=""/></span>
+
 					</span>
 				</td>
 				<td align="right">
@@ -825,7 +879,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 				</td>
 			</tr>
 			</table>
-			
+
 		</div>
 		
 		</td></tr><tr><td>
@@ -895,6 +949,56 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 	</tr>
 
 </table>
+<div id="addDiffCurveDialogForm" title="Add Series Difference Curve">
+    <form>
+        <div style="text-align:center; padding-right: 10px; padding-left: 10px;">
+        <table align="center" >
+            <tr>
+                <td><input type="radio" id="y1AxisDiff" name="yAxisDiff"
+                           value="1" onchange="changeYAxis(1)"
+                           checked><label for="y1AxisDiff" class="header" style="font-size:14px">Y1 axis</label></td>
+                <td><input type="radio" id="y2AxisDiff" name="yAxisDiff"
+                           value="2" onchange="changeYAxis(2)"
+                        ><label for="y2AxisDiff" class="header" style="font-size:14px">Y2 axis</label></td>
+            </tr>
+            <tr>
+                <td>
+                    <fieldset>
+                        <div class="diffSelect">
 
+                        <select name="series1Y1" id="series1Y1"
+                                     onchange="createNewDiffSeriesName(1)"></select>
+                        </div>
+                        <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
+                        <div class="diffSelect">
+                        <select name="series2Y1" id="series2Y1"
+                                     onchange="createNewDiffSeriesName(1)"></select>
+                        </div>
+
+                    </fieldset>
+                </td>
+                <td>
+                    <fieldset>
+                        <div class="diffSelect">
+
+                        <select name="series1Y2" id="series1Y2" disabled
+                                     onchange="createNewDiffSeriesName(2)">
+                        </select></div>
+                        <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
+                        <div class="diffSelect">
+
+                        <select name="series2Y2" id="series2Y2" disabled
+                                     onchange="createNewDiffSeriesName(2)">
+                        </select></div>
+
+                    </fieldset>
+                </td>
+            </tr>
+        </table>
+        <div id="newDiffSeriesName" class="diffSelect" style="font-weight:bold;"></div>
+        </div>
+    </form>
+    <div style="font-size:9px;"> * Event Equalizer selection will be changed to "TRUE" if at least one DIFF series is selected.</div>
+</div>
 </body>
 </html>
