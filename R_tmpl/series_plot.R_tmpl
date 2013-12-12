@@ -14,8 +14,6 @@ boolEventEqual	= #<event_equal>#;
 boolEventEqualM	= #<event_equal_m>#;
 boolVertPlot	= #<vert_plot>#;
 boolXReverse	= #<x_reverse>#;
-boolPlot1Diff	= #<plot1_diff>#;
-boolPlot2Diff	= #<plot2_diff>#;
 boolShowNStats	= #<show_nstats>#;
 boolIndy1Stagger= #<indy1_stagger>#;
 boolIndy2Stagger= #<indy2_stagger>#;
@@ -62,217 +60,388 @@ listLegendUsr = #<legend>#;
 
 strPlotStat = "#<plot_stat>#";
 
+listDiffSeries1=#<series1_diff_list>#;
 
+listDiffSeries2=#<series2_diff_list>#;
 
 #
 #  Build the series data for the plot 
 #
 
 dfPlot = read.delim(strDataFile);
-		
+
 # build the list of independent values
 listX = 1:length(listIndy);
 if( length(listIndyPlotVal) == length(listIndy) ){ listX = listIndyPlotVal; }
 if( FALSE == boolXReverse ){
-	listXlim = c(min(listX), max(listX));
+  listXlim = c(min(listX), max(listX));
 } else {
-	listXlim = c(max(listX), min(listX));
+  listXlim = c(max(listX), min(listX));
 }
 
 # run event equalizer, if requested
 if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
   if(length(listSeries2Val) > 0){
-      dfPlot1 = data.frame();
-      for( strDep1Name in names(listDep1Plot) ){
-        for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-          for(strSeriesVal in names(listSeries1Val)){
-            fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
-            fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
-            dfPlot1 = rbind(dfPlot1, fPlot);
-          }
+    dfPlot1 = data.frame();
+    for( strDep1Name in names(listDep1Plot) ){
+      for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+        for(strSeriesVal in names(listSeries1Val)){
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+          dfPlot1 = rbind(dfPlot1, fPlot);
         }
       }
-
-
-      dfPlot2 = data.frame();
-      for( strDep2Name in names(listDep2Plot) ){
-        for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
-          for(strSeriesVal in names(listSeries2Val)){
-            fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% listSeries2Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep2Stat,  ];
-            fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
-            dfPlot2 = rbind(dfPlot2, fPlot);
-          }
-        }
-      }
-      dfPlot = rbind(dfPlot1, dfPlot2);
-      listSeriesVal=list();
-          for( seriesVal in names(listSeries1Val) ){
-            listSeriesVal[[seriesVal]] = append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]);
-          }
-          listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
-          dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, TRUE);
-
-    }else{
-      dfPlot1 = data.frame();
-        for( strDep1Name in names(listDep1Plot) ){
-            for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-              for(strSeriesVal in names(listSeries1Val)){
-                fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
-                fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
-                dfPlot1 = rbind(dfPlot1, fPlot);
-              }
-            }
-          }
-
-      dfPlot = dfPlot1;
     }
+    
+    
+    dfPlot2 = data.frame();
+    for( strDep2Name in names(listDep2Plot) ){
+      for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
+        for(strSeriesVal in names(listSeries2Val)){
+          fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% listSeries2Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep2Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
+          dfPlot2 = rbind(dfPlot2, fPlot);
+        }
+      }
+    }
+    dfPlot = rbind(dfPlot1, dfPlot2);
+    listSeriesVal=list();
+    for( seriesVal in names(listSeries1Val) ){
+      listSeriesVal[[seriesVal]] = append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]);
+    }
+    listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
+    dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, TRUE);
+    
+  }else{
+    dfPlot1 = data.frame();
+    for( strDep1Name in names(listDep1Plot) ){
+      for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+        for(strSeriesVal in names(listSeries1Val)){
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
+          dfPlot1 = rbind(dfPlot1, fPlot);
+        }
+      }
+    }
+    dfPlot = dfPlot1;
+  }
 }
 
 
 # build the y1 plot series using information in the plot dataframe
-intNumSeries1 = numSeries(listSeries1Val, listDep1Plot, boolPlot1Diff);
+intNumSeries1 = numSeries(listSeries1Val, listDep1Plot);
+intNumSeries1Diff = length(listDiffSeries1);
 intNumSeries1Dep = nrow( permute(listSeries1Val) );
-if( TRUE == boolPlot1Diff ){ intNumSeries1Dep = intNumSeries1Dep + 1; }
+intNumSeries1DiffDep = length(listDiffSeries1);
+
+listPlotOrderSeries1Orig=listPlotOrderSeries[1 : (intNumSeries1 + length(listDiffSeries1))];
+listPlotOrderSeries1Part=c();
+maxx = max(listPlotOrderSeries1Orig)+1;
+for(index in 1:length(listPlotOrderSeries1Orig)){
+  indOfMin=which.min(listPlotOrderSeries1Orig);
+  listPlotOrderSeries1Part[[indOfMin]] = index;
+  listPlotOrderSeries1Orig[[indOfMin]] = maxx;
+}
+
+
+intNumSeries2=0;
+intNumSeries2Dep=0;
+intNumSeries2Diff=0;
+intNumSeries2DiffDep=0;
+if( 0 < length(listDep2Plot) ){
+  # calculate the number of y2 series per dep stat
+  intNumSeries2 = numSeries(listSeries2Val, listDep2Plot);
+  intNumSeries2Diff = length(listDiffSeries2);
+  intNumSeries2Dep = nrow( permute(listSeries2Val) );
+  intNumSeries2DiffDep = length(listDiffSeries2);
+  listPlotOrderSeries2Orig=listPlotOrderSeries[(intNumSeries1+1) : length(listPlotOrderSeries)];
+  listPlotOrderSeries2Part=c();
+  maxx = max(listPlotOrderSeries2Orig)+1;
+  for(index in 1:length(listPlotOrderSeries2Orig)){
+    indOfMin=which.min(listPlotOrderSeries2Orig);
+    listPlotOrderSeries2Part[[indOfMin]] = index;
+    listPlotOrderSeries2Orig[[indOfMin]] = maxx;
+  }
+}
+
+
+
 
 # build the display lists for y1 and y2
 listPlotDisp1 = listPlotDisp[1:intNumSeries1];
-listPlotDisp2 = listPlotDisp[(intNumSeries1+1):length(listPlotDisp)];
+listPlotOrderSeries1 = listPlotOrderSeries[1:intNumSeries1];
+if(intNumSeries2 > 0){
+  listPlotDisp2 = listPlotDisp[(intNumSeries1+1):(intNumSeries1+intNumSeries2)];
+  listPlotOrderSeries2 = listPlotOrderSeries[(intNumSeries1+1):(intNumSeries1+intNumSeries2)];
+}else{
+  listPlotDisp2=list();
+  listPlotOrderSeries2=list();
+}
+if(intNumSeries1Diff > 0){
+  listPlotDispDiff1=listPlotDisp[(intNumSeries1+intNumSeries2 +1):(intNumSeries1+intNumSeries2 + intNumSeries1Diff)];
+  listPlotOrderSeriesDiff1=listPlotOrderSeries[(intNumSeries1+intNumSeries2 +1):(intNumSeries1+intNumSeries2 + intNumSeries1Diff)];
+  }else{
+  listPlotDispDiff1=list();
+  listPlotOrderSeriesDiff1=list();
+}
+if(intNumSeries2DiffDep > 0 ){
+  listPlotDispDiff2=listPlotDisp[(intNumSeries1+intNumSeries2 + intNumSeries1Diff +1):length(listPlotDisp)];
+  listPlotOrderSeriesDiff2 = listPlotOrderSeries[(intNumSeries1+intNumSeries2 + intNumSeries1Diff +1):length(listPlotDisp)];
+}else{
+  listPlotDispDiff2=list();
+  listPlotOrderSeriesDiff2=list();
+}
 
 #order listPlotDisp
 listPlotDispOrdered=c();
 for(index in 1:length(listPlotOrderSeries)){
   listPlotDispOrdered[listPlotOrderSeries[index]]=listPlotDisp[index];
 }
-listPlotOrderSeries1 = listPlotOrderSeries[1:intNumSeries1];
-listPlotOrderSeries2 = listPlotOrderSeries[(intNumSeries1+1):length(listPlotDisp)];
+
 
 # build the y1 plot series using information in the plot dataframe
 listSeries1 = list();
 listLegend = c();
+listLegendNotOrdered = c();
 intDepIndex = 1;
+listAllStats=list();
 for( strDep1Name in names(listDep1Plot) ){
-	for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-		
-		# gather the stats that pertain to the current fcst_var and stat
-		dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
-		dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
-		
-		# determine the visibility of the series for the current stat
-		listPlotDispDep = listPlotDisp1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
-		listPlotOrderSeriesDep = listPlotOrderSeries1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
-		intDepIndex = intDepIndex + intNumSeries1Dep;
-		
-		# build the y1 plot series using information in the plot dataframe
-		listPlotData1 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDispDep, 
-				boolPlot1Diff, listPlotCI[1:intNumSeries1], dblAlpha, boolVarianceInflationFactor, strPlotStat);
-		listSeries1 = append(listSeries1, listPlotData1$series);
-		if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
-		else                              { listNStats = listPlotData1$nstats; }
-		listLegend1 = paste(listPlotData1$legend, strDep1Stat);
-		for(index in 1:length(listPlotOrderSeriesDep)){
-      listLegend[listPlotOrderSeriesDep[index]]=listLegend1[index];
-    }
-	}
+  for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+    
+    # gather the stats that pertain to the current fcst_var and stat
+    dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
+    dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
+    
+    # determine the visibility of the series for the current stat
+    listPlotDispDep = listPlotDisp1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
+    #listPlotOrderSeriesDep = listPlotOrderSeries1[intDepIndex:(intDepIndex+intNumSeries1Dep-1)];
+    intDepIndex = intDepIndex + intNumSeries1Dep;
+    
+    # build the y1 plot series using information in the plot dataframe
+    listAllStats1 = buildAllStats(dfPlotStat, listSeries1Val,strDep1Stat,strDep1Name);
+    listAllStats = append(listAllStats, listAllStats1);
+  }
+}
+depIndex=1;
+for( listAllStatsName in names(listAllStats) ){
+  
+  listPlotData1 = buildSeriesData(listAllStats[[listAllStatsName]], strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDispDep,
+                                  listPlotCI[1:intNumSeries1], dblAlpha, boolVarianceInflationFactor, strPlotStat);
+  listSeries1 = append(listSeries1, listPlotData1$series);
+  if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
+  else                              { listNStats = listPlotData1$nstats; }
+  listLegendNotOrdered[depIndex] = listAllStatsName;
+  depIndex = depIndex + 1;
 }
 
-# dump the y1 axis series data points into a file suffixed .points1
-if( TRUE == boolDumpPoints1 ){
-	strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
-	write.table(listSeries1, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
-}
+
+
+
+
 
 # build the y2 plot series using information in the plot dataframe, if available
 listSeries2 = list();
-intNumSeries2 = 0;
+
 intDepIndex = 1;
 if( 0 < length(listDep2Plot) ){
-
-	# calculate the number of y2 series per dep stat
-	intNumSeries2Dep = nrow( permute(listSeries2Val) );
-	if( TRUE == boolPlot2Diff ){ intNumSeries2Dep = intNumSeries2Dep + 1; }
-	
-	listSeries2 = list();
-	for( strDep2Name in names(listDep2Plot) ){
-		for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
-			
-			# gather the stats that pertain to the current fcst_var and stat
-			dfPlotStat = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$stat_name == strDep2Stat,];
-			dfPlotStat = scaleStats(dfPlotStat, listDep2Scale, paste(strDep2Name, "_", strDep2Stat, sep=""));
-			
-			# determine the visibility of the series for the current stat
-			listPlotDispDep = listPlotDisp2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
-			listPlotOrderSeriesDep = listPlotOrderSeries2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
-			intDepIndex = intDepIndex + intNumSeries2Dep;
-			
-			# build the y2 plot series using information in the plot dataframe
-			listPlotData2 = buildSeries(dfPlotStat, strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDispDep,
-										boolPlot2Diff, listPlotCI[(intNumSeries2+1):length(listPlotCI)], dblAlpha, boolVarianceInflationFactor, strPlotStat);
-			listSeries2 = append(listSeries2, listPlotData2$series);
-			#listNStats  = listPlotData2$nstats
-			listLegend2 = paste(listPlotData2$legend, strDep2Stat);
-			for(index in 1:length(listPlotOrderSeriesDep)){
-        listLegend[listPlotOrderSeriesDep[index]]=listLegend2[index];
+  listAllStatsY2=list();
+ 
+  
+  for( strDep2Name in names(listDep2Plot) ){
+    for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
+      
+      # gather the stats that pertain to the current fcst_var and stat
+      dfPlotStat = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot$stat_name == strDep2Stat,];
+      dfPlotStat = scaleStats(dfPlotStat, listDep2Scale, paste(strDep2Name, "_", strDep2Stat, sep=""));
+      
+      # determine the visibility of the series for the current stat
+      listPlotDispDep = listPlotDisp2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
+      listPlotOrderSeriesDep2 = listPlotOrderSeries2[intDepIndex:(intDepIndex+intNumSeries2Dep-1)];
+      intDepIndex = intDepIndex + intNumSeries2Dep;
+      
+      # build the y2 plot series using information in the plot dataframe
+      
+      listAllStats2 = buildAllStats(dfPlotStat, listSeries2Val,strDep2Stat,strDep2Name);
+      listAllStatsY2 = append(listAllStatsY2, listAllStats2);
+      
+      
+    }
+  }
+  
+  for( listAllStatsName in names(listAllStatsY2) ){
+    
+    listPlotData2 = buildSeriesData(listAllStatsY2[[listAllStatsName]], strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDispDep,
+                                    listPlotCI[1:intNumSeries2], dblAlpha, boolVarianceInflationFactor, strPlotStat);
+    listSeries2 = append(listSeries2, listPlotData2$series);
+    if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData2$nstats; }
+    else                              { listNStats = listPlotData2$nstats; }
+    listLegendNotOrdered[depIndex] = listAllStatsName;
+    depIndex = depIndex + 1;
+  }
+}
+  
+  if(length(listDiffSeries1) > 0){
+    for( diffSeries1Name in 1: length(listDiffSeries1) ){ #1,2....
+      diffSeriesVec = listDiffSeries1[[diffSeries1Name]];
+      plotData1 = listAllStats[[diffSeriesVec[1]]];
+      plotData2 = listAllStats[[diffSeriesVec[2]]];
+      plotDataDiff=list();
+      listFields = names(plotData1);
+      for(indy in listIndy){
+        dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
+        dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+        if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
+        if( "fcst_valid"     %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid),];   }
+        if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
+        if( "fcst_init"      %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
+        dfStatsIndy1$stat_value = dfStatsIndy1$stat_value - dfStatsIndy2$stat_value;
+        if(length(names(plotDataDiff)) == 0){
+          plotDataDiff = dfStatsIndy1;
+        }else{
+          plotDataDiff = merge(plotDataDiff,dfStatsIndy1,all=TRUE);
+        }
       }
-		}
+      listPlotData1 = buildSeriesData(plotDataDiff, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDispDep,
+                                      listPlotCI[(intNumSeries1+intNumSeries2 +1):(intNumSeries1+intNumSeries2 + intNumSeries1Diff)], dblAlpha, boolVarianceInflationFactor, strPlotStat);
+      listSeries1 = append(listSeries1, listPlotData1$series);
+      if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
+      else                              { listNStats = listPlotData1$nstats; }
+      listLegend1 = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
+      listLegendNotOrdered[depIndex] = listLegend1;
+      depIndex = depIndex + 1;
+    }
+  }
+  
+  if(length(listDiffSeries2) > 0){
+    for( diffSeries2Name in 1: length(listDiffSeries2) ){ #1,2....
+      diffSeriesVec = listDiffSeries2[[diffSeries2Name]];
+      plotData1 = listAllStatsY2[[diffSeriesVec[1]]];
+      plotData2 = listAllStatsY2[[diffSeriesVec[2]]];
+      plotDataDiff=list();
+      listFields = names(plotData1);
+      for(indy in listIndy){
+        dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
+        dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+        if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
+        if( "fcst_valid"     %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid),];   }
+        if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
+        if( "fcst_init"      %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
+        dfStatsIndy1$stat_value = dfStatsIndy1$stat_value - dfStatsIndy2$stat_value;
+        if(length(names(plotDataDiff)) == 0){
+          plotDataDiff = dfStatsIndy1;
+        }else{
+          plotDataDiff = merge(plotDataDiff,dfStatsIndy1,all=TRUE);
+        }
+      }
+      listPlotData2 = buildSeriesData(plotDataDiff, strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDispDep,
+                                      listPlotCI[(intNumSeries1+intNumSeries2 + intNumSeries1Diff):length(listPlotDisp)], dblAlpha, boolVarianceInflationFactor, strPlotStat);
+      listSeries2 = append(listSeries2, listPlotData2$series);
+      if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData2$nstats; }
+      else                              { listNStats = listPlotData2$nstats; }
+      listLegend2 = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
+      listLegendNotOrdered[depIndex] = listLegend2;
+      depIndex = depIndex + 1;
+    }
+  }
+  
+  
+ #order Series 1
+listSeries1Ordered=list();
+oldInd=1;
+for(index in 1:length(listPlotOrderSeries1Part)){
+  newInd = (3 * listPlotOrderSeries1Part[index]) -2;
+  for(i in 0:2){
+    listSeries1Ordered[newInd+i]=listSeries1[oldInd+i];
+  }
+  oldInd = oldInd +3;
+}
+listSeries1 = listSeries1Ordered;
+
+#order Series 2
+if(length(listSeries2) > 0){
+	listSeries2Ordered=list();
+	oldInd=1;
+	for(index in 1:length(listPlotOrderSeries2Part)){
+  		newInd = (3 * listPlotOrderSeries2Part[index]) -2;
+  		for(i in 0:2){
+    		listSeries2Ordered[newInd+i]=listSeries2[oldInd+i];
+  		}
+  	oldInd = oldInd +3;
 	}
-	intNumSeries2 = length(listSeries2) / 3;
-	
-	# dump the y2 axis series data points into a file suffixed .points2
-	if( TRUE == boolDumpPoints2 ){
-		strPointsFile = sub("\\.data$", ".points2", strDataFile, perl=TRUE);
-		write.table(listSeries2, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
-	}
+listSeries2 = listSeries2Ordered;
 }
 
+  
+
+# dump the y1 axis series data points into a file suffixed .points1
+if( TRUE == boolDumpPoints1 ){
+  strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
+  write.table(listSeries1, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
+}
+
+# dump the y2 axis series data points into a file suffixed .points2
+if( TRUE == boolDumpPoints2 ){
+  strPointsFile = sub("\\.data$", ".points2", strDataFile, perl=TRUE);
+  write.table(listSeries2, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
+}
+
+
+#replace with user's legends
 if( 0 < length(listLegendUsr) ){
-  for(index in 1:length(listPlotOrderSeries)){
-    listLegend[listPlotOrderSeries[index]]=listLegendUsr[index];
+  for(index in 1:length(listLegendUsr)){
+    if(nchar(listLegendUsr[index]) > 0){
+      listLegendNotOrdered[index]=listLegendUsr[index];
+    }
   }
+}
+#order legends
+for(index in 1:length(listPlotOrderSeries)){
+  listLegend[listPlotOrderSeries[index]]=listLegendNotOrdered[index];
 }
 
 # specify the output file
 strPlotType = "#<plot_type>#";
 if( "jpeg" == strPlotType ){
-	jpeg(
-		strPlotFile,			# output file name, with appropriate extension
-		width=#<plot_width>#,	# width of the display region, in specified units
-		height=#<plot_height>#,	# height of the display region, in specified units
-		res=#<plot_res>#,		# resolution, in dots per inch
-		units="#<plot_units>#",	# units for height and width
-		pointsize = 12,
-		quality = 100,
-		#bg = "white",
-		#type = c("cairo", "Xlib", "quartz"),
-		#antialias
-	);
+  jpeg(
+  		strPlotFile,			# output file name, with appropriate extension
+  		width=#<plot_width>#,	# width of the display region, in specified units
+  		height=#<plot_height>#,	# height of the display region, in specified units
+  		res=#<plot_res>#,		# resolution, in dots per inch
+  		units="#<plot_units>#",	# units for height and width
+  		pointsize = 12,
+  		quality = 100,
+  		#bg = "white",
+  		#type = c("cairo", "Xlib", "quartz"),
+  		#antialias
+  	);
 } else {
-	bitmap(
-		strPlotFile,			# output file name, with appropriate extension
-		type="#<plot_type>#",	# type of bitmap
-		width=#<plot_width>#,	# width of the display region, in specified units
-		height=#<plot_height>#,	# height of the display region, in specified units
-		res=#<plot_res>#,		# resolution, in dots per inch
-		units="#<plot_units>#",	# units for height and width
-		taa=4,					# bits of anti-aliasing for graphics
-		gaa=4					# bits of anti-aliasing for text
-	);
+  bitmap(
+  		strPlotFile,			# output file name, with appropriate extension
+  		type="#<plot_type>#",	# type of bitmap
+  		width=#<plot_width>#,	# width of the display region, in specified units
+  		height=#<plot_height>#,	# height of the display region, in specified units
+  		res=#<plot_res>#,		# resolution, in dots per inch
+  		units="#<plot_units>#",	# units for height and width
+  		taa=4,					# bits of anti-aliasing for graphics
+  		gaa=4					# bits of anti-aliasing for text
+  	);
 }
 
 # specify the y-axis limits and labels
-listY1Bounds = seriesMinMax(listSeries1, intNumSeries1, boolLogY1);
+listY1Bounds = seriesMinMax(listSeries1, intNumSeries1+intNumSeries1Diff, boolLogY1);
 if( TRUE == boolLogY1 ){
-	dblY1Min = 10^listY1Bounds$min;	
-	dblY1Max = 10^listY1Bounds$max;	
-	listY1axp = c(dblY1Min, dblY1Max, 3);
+  dblY1Min = 10^listY1Bounds$min;	
+  dblY1Max = 10^listY1Bounds$max;	
+  listY1axp = c(dblY1Min, dblY1Max, 3);
 } else {
-	if( 0 < length(listY1limUsr) ){
-		dblY1Min = listY1limUsr[1];
-		dblY1Max = listY1limUsr[2];
-	} else {
-		dblY1Min = listY1Bounds$min;
-		dblY1Max = listY1Bounds$max;
-	}
-	listY1axp = c(dblY1Min, dblY1Max, 5);
+  if( 0 < length(listY1limUsr) ){
+    dblY1Min = listY1limUsr[1];
+    dblY1Max = listY1limUsr[2];
+  } else {
+    dblY1Min = listY1Bounds$min;
+    dblY1Max = listY1Bounds$max;
+  }
+  listY1axp = c(dblY1Min, dblY1Max, 5);
 }
 listY1lim = c(dblY1Min, dblY1Max);
 
@@ -281,65 +450,65 @@ par(
 	mar=#<mar>#,			# lines of margin in form c(bottom, left, top, right)
 	mgp=#<mgp>#,			# margin line for axis title, axis labels and axis line in form c(title, labels, line)
 	cex=#<cex>#,			# magnification for plot text
-	las=2 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  las=2 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
 
 
 # configuration variables for a horizontal series plot
 if( FALSE == boolVertPlot ){
-	listXSeries = listX;
-	listY1Series = listSeries1[[1]];
-	intXAxis = 1;
-	intY1Axis = 2;
-	intX2Axis = 3;
-	intY2Axis = 4;
-	intGridNx = 0;
-	intGridNy = NULL;	
-
-# configuration variables for a vertical plot
+  listXSeries = listX;
+  listY1Series = listSeries1[[1]];
+  intXAxis = 1;
+  intY1Axis = 2;
+  intX2Axis = 3;
+  intY2Axis = 4;
+  intGridNx = 0;
+  intGridNy = NULL;	
+  
+  # configuration variables for a vertical plot
 } else {
-	listXSeries = listSeries1[[1]];
-	listY1Series = listX;
-	listTmp = listXlim;
-	listXlim = listY1lim;
-	listY1lim = listTmp;
-	intXAxis = 2;
-	intY1Axis = 1;
-	intX2Axis = 4;
-	intY2Axis = 3;
-	intGridNx = NULL;
-	intGridNy = 0;
+  listXSeries = listSeries1[[1]];
+  listY1Series = listX;
+  listTmp = listXlim;
+  listXlim = listY1lim;
+  listY1lim = listTmp;
+  intXAxis = 2;
+  intY1Axis = 1;
+  intX2Axis = 4;
+  intY2Axis = 3;
+  intGridNx = NULL;
+  intGridNy = 0;
 }
 
 # specify the plot formatting
 plot(
-	listXSeries,			# series x data
-	listY1Series,			# series y1 data
-	type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
-							#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
-	xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
-	xaxs="r",				# x-axis style - r: regular, i: internal
-	yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
-	yaxs="r",				# x-axis style - r: regular, i: internal
-	xlim=listXlim,			# x-axis limits in form c(x1,x2); x1 > x2 reverses axis
-	ylim=listY1lim,			# y1-axis limits
-	xlab="",				# x-axis label
-	ylab="",				# y1-axis label
-	lwd=1,					# line width
-	cex.lab=1,				# relative axis label magnification
-	cex.main=1,				# relative title magnification
-	cex.sub=1,				# relative subtitle magnification
-	fg="gray"
+  listXSeries,			# series x data
+  listY1Series,			# series y1 data
+  type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
+  #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
+  xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+  xaxs="r",				# x-axis style - r: regular, i: internal
+  yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
+  yaxs="r",				# x-axis style - r: regular, i: internal
+  xlim=listXlim,			# x-axis limits in form c(x1,x2); x1 > x2 reverses axis
+  ylim=listY1lim,			# y1-axis limits
+  xlab="",				# x-axis label
+  ylab="",				# y1-axis label
+  lwd=1,					# line width
+  cex.lab=1,				# relative axis label magnification
+  cex.main=1,				# relative title magnification
+  cex.sub=1,				# relative subtitle magnification
+  fg="gray"
 );
 
 # set the plot window limits
 if( TRUE == boolLogY1 ){
-	par(ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max), yaxp=listY1axp);
+  par(ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max), yaxp=listY1axp);
 } else {
 	dblY1BufrPct = #<y1_bufr>#;
-	dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;	
-	if( FALSE == boolVertPlot ){ par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr)); }
-	else                       { par(usr=c(dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr, par()$usr[3:4])); }
+  dblY1Bufr = (dblY1Max - dblY1Min) * dblY1BufrPct;	
+  if( FALSE == boolVertPlot ){ par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr)); }
+  else                       { par(usr=c(dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr, par()$usr[3:4])); }
 }
 
 
@@ -347,128 +516,128 @@ if( TRUE == boolLogY1 ){
 mtext(
 	"#<plot_title>#",		# label
 	font=#<title_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-	las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	side=3,					# axis of interest, 1: below, 2: left, 3: above and 4: right
+  las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=3,					# axis of interest, 1: below, 2: left, 3: above and 4: right
 	cex=#<title_size>#,		# relative magnification
 	padj=#<title_offset>#,	# axis label perpendicular location adjustment
 	adj=#<title_align>#,	# axis label parallel location adjustment
-	line=1					# margin line, starting at 0 counting outwards
+  line=1					# margin line, starting at 0 counting outwards
 );
 
 # specify the x-axis
 axis(
-	intXAxis,				# axis of interest, 1: below, 2: left, 3: above and 4: right 
-	at=listX,				# locations of tick marks
+  intXAxis,				# axis of interest, 1: below, 2: left, 3: above and 4: right 
+  at=listX,				# locations of tick marks
 	labels=#<indy_label>#,	# axis labels
-	tick=TRUE,				# tick marks on/off
-	tck=.01, 				# length of tick marks as a fraction of plot window
+  tick=TRUE,				# tick marks on/off
+  tck=.01, 				# length of tick marks as a fraction of plot window
 	las=#<xtlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	padj=#<xtlab_perp>#,	# axis label perpendicular location adjustment 
-	hadj=#<xtlab_horiz>#,	# axis label parallel location adjustment 
-	cex.axis=#<xtlab_size>#,# relative axis label magnification 
-	col="gray"				# axis color
+	padj=#<xtlab_perp>#,	# axis label perpendicular location adjustment
+	hadj=#<xtlab_horiz>#,	# axis label parallel location adjustment
+	cex.axis=#<xtlab_size>#,# relative axis label magnification
+  col="gray"				# axis color
 );
 
 # x-axis label
 mtext(
 	"#<x_label>#",			# label
 	font=#<xlab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-	las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	side=intXAxis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
+  las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=intXAxis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 	cex=#<xlab_size>#,		# relative axis label magnification
 	padj=#<xlab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<xlab_align>#,		# axis label parallel location adjustment
-	line=1					# margin line, starting at 0 counting outwards
+  line=1					# margin line, starting at 0 counting outwards
 );
 
 # specify the y-axis
 axis(
-	intY1Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
-	#at=NA,					# locations of tick marks
-	labels=TRUE,			# tick labels on/off
-	tick=TRUE,				# tick marks on/off
-	tck=.01, 				# length of tick marks as a fraction of plot window
+  intY1Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
+  #at=NA,					# locations of tick marks
+  labels=TRUE,			# tick labels on/off
+  tick=TRUE,				# tick marks on/off
+  tck=.01, 				# length of tick marks as a fraction of plot window
 	las=#<ytlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 	padj=#<ytlab_perp>#,	# axis label perpendicular location adjustment
 	hadj=#<ytlab_horiz>#,	# axis label parallel location adjustment
-	cex.axis=#<ytlab_size>#,# relative axis label magnification 
-	col="gray"				# axis color
+	cex.axis=#<ytlab_size>#,# relative axis label magnification
+  col="gray"				# axis color
 );
 
 # y-axis label
 mtext(
 	"#<y1_label>#",			# label
 	font=#<ylab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-	las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	side=intY1Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
+  las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=intY1Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 	cex=#<ylab_size>#,		# relative axis label magnification
 	padj=#<ylab_offset>#,	# axis label perpendicular location adjustment
 	adj=#<ylab_align>#,		# axis label parallel location adjustment
-	line=1					# margin line, starting at 0 counting outwards
+  line=1					# margin line, starting at 0 counting outwards
 );
 
 # add grid lines to the plot, if requested
 if( TRUE == boolGridOn ){
-	grid(
+  grid(
 		lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
 		col="#<grid_col>#",		# line color
 		lwd=#<grid_lwd>#,		# line width
-		nx=intGridNx,			# number of cells in x direction, NULL for default
-		ny=intGridNy			# number of cells in y direction, NULL for default
-	);
-	
-	# calculate the grid line locations
+    nx=intGridNx,			# number of cells in x direction, NULL for default
+    ny=intGridNy			# number of cells in y direction, NULL for default
+  );
+  
+  # calculate the grid line locations
 	listXGrid = #<grid_x>#;
 	intXtlabDecim = #<xtlab_decim>#;
-	if( 0 < intXtlabDecim ){		
-		listXGrid = listXGrid[seq(from=1, to=length(listX), by=intXtlabDecim)]; 		
-	}
-	
-	if( FALSE == boolVertPlot ){
-		abline( 
-			v=listXGrid,			# list of positions for the gridlines
+  if( 0 < intXtlabDecim ){		
+    listXGrid = listXGrid[seq(from=1, to=length(listX), by=intXtlabDecim)]; 		
+  }
+  
+  if( FALSE == boolVertPlot ){
+    abline( 
+      v=listXGrid,			# list of positions for the gridlines
 			lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
 			col="#<grid_col>#",		# line color
 			lwd=#<grid_lwd>#,		# line width
-			cex=1					# line magnification
-		);
-	} else {
-		abline( 
-			h=listXGrid,			# list of positions for the gridlines
+      cex=1					# line magnification
+    );
+  } else {
+    abline( 
+      h=listXGrid,			# list of positions for the gridlines
 			lty=#<grid_lty>#,		# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
 			col="#<grid_col>#",		# line color
 			lwd=#<grid_lwd>#,		# line width
-			cex=1					# line magnification
-		);
-	}
-	
+      cex=1					# line magnification
+    );
+  }
+  
 }
 
 # add the number of stats at each independent axis tick, if requested
 if( TRUE == boolShowNStats ){
-	axis(
-		intX2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
-		at=listX,				# locations of tick marks
-		labels=listNStats,		# axis labels
-		tick=TRUE,				# tick marks on/off
-		tck=.01, 				# length of tick marks as a fraction of plot window
+  axis(
+    intX2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
+    at=listX,				# locations of tick marks
+    labels=listNStats,		# axis labels
+    tick=TRUE,				# tick marks on/off
+    tck=.01, 				# length of tick marks as a fraction of plot window
 		las=#<x2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 		padj=#<x2tlab_perp>#,	# axis label perpendicular location adjustment
 		hadj=#<x2tlab_horiz>#,	# axis label parallel location adjustment
 		cex.axis=#<x2tlab_size>#,# relative axis label magnification
-		col="gray"				# axis color
-	);
-	
-	mtext(
-		"NStats",				# label
-		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-		side=intX2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
+    col="gray"				# axis color
+  );
+  
+  mtext(
+    "NStats",				# label
+    las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+    side=intX2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 		font=#<x2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
 		cex=#<x2lab_size>#,		# relative axis label magnification
 		padj=#<x2lab_offset>#,	# axis label perpendicular location adjustment
 		adj=#<x2lab_align>#,	# axis label parallel location adjustment
-		line=1					# margin line, starting at 0 counting outwards
-	);
+    line=1					# margin line, starting at 0 counting outwards
+  );
 }
 
 # specify the series formatting
@@ -483,22 +652,27 @@ listColorsOrdered=c();
 listLtyOrdered=c();
 listLwdOrdered=c();
 listPchOrdered=c();
+listTypeOrdered=c();
+listPlotCIOrdered = c();
 for(index in 1:length(listPlotOrderSeries)){
   listLwdOrdered[listPlotOrderSeries[index]]=listLwd[index];
   listColorsOrdered[listPlotOrderSeries[index]]=listColors[index];
   listLtyOrdered[listPlotOrderSeries[index]]=listLty[index];
   listPchOrdered[listPlotOrderSeries[index]]=listPch[index];
+  listTypeOrdered[listPlotOrderSeries[index]]=listType[index];
+  listPlotCIOrdered[listPlotOrderSeries[index]]=listPlotCI[index];
 }
+
 
 # build the x-adjustment increments, if requested
 dblAdjScale = (listX[length(listX)] - listX[1]) / 150;
 intNumStag2 = 0;
 if( 0 < intNumSeries2 ){
-	intNumStag2 = intNumSeries2 - sum(!listPlotDisp[(intNumSeries1+1):length(listPlotDisp)]);
+  intNumStag2 = intNumSeries2 - sum(!listPlotDisp[(intNumSeries1+1):length(listPlotDisp)]);
 }
 listXStag = rep(0, intNumStag2 + 1);
 if( TRUE == boolIndy2Stagger ){
-	listXStag = seq( -(intNumStag2/2)*dblAdjScale, (intNumStag2/2)*dblAdjScale, length=intNumStag2 + 1 ) + ( dblAdjScale/2 );
+  listXStag = seq( -(intNumStag2/2)*dblAdjScale, (intNumStag2/2)*dblAdjScale, length=intNumStag2 + 1 ) + ( dblAdjScale/2 );
 }
 
 # if log scale is on for either axis, disable sync_axes
@@ -509,271 +683,279 @@ listY1Usr = par()$usr;
 par(ylog=FALSE);
 intFormatIndex=intNumSeries1+1;
 if( 0 < length(listDep2Plot) ){
-	
-	# adjust the y2 bounds, if requested
-	if( FALSE == boolSyncAxes ){
-		
-		# determine the axis bounds, depending on the y2_log setting
-		listY2Bounds = seriesMinMax(listSeries2, intNumSeries2, boolLogY2);
-		if( TRUE == boolLogY2 ){
-			dblY2Min = 10^listY2Bounds$min;	
-			dblY2Max = 10^listY2Bounds$max;	
-			listY2axp = c(dblY2Min, dblY2Max, 3);
-		} else {
-			if( 0 < length(listY2limUsr) ){
-				dblY2Min = listY2limUsr[1];
-				dblY2Max = listY2limUsr[2];
-			} else {
-				dblY2Min = listY2Bounds$min;
-				dblY2Max = listY2Bounds$max;
-			}
-			listY2axp = c(dblY2Min, dblY2Max, 5);
-		}
-		
-	} else {
-		listY2axp = listY1axp;
-		boolLogY2 = boolLogY1;
-		listY2Bounds = listY1Bounds;
-		dblY2Min = dblY1Min;
-		dblY2Max = dblY1Max;
-	}
-	
-	# set the plot window limits
-	if( TRUE == boolLogY2 ){
-		par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY2Bounds$min, listY2Bounds$max), yaxp=listY2axp, xaxs="r");
-	} else {
+  
+  # adjust the y2 bounds, if requested
+  if( FALSE == boolSyncAxes ){
+    
+    # determine the axis bounds, depending on the y2_log setting
+    listY2Bounds = seriesMinMax(listSeries2, intNumSeries2 +intNumSeries2Diff , boolLogY2);
+    if( TRUE == boolLogY2 ){
+      dblY2Min = 10^listY2Bounds$min;	
+      dblY2Max = 10^listY2Bounds$max;	
+      listY2axp = c(dblY2Min, dblY2Max, 3);
+    } else {
+      if( 0 < length(listY2limUsr) ){
+        dblY2Min = listY2limUsr[1];
+        dblY2Max = listY2limUsr[2];
+      } else {
+        dblY2Min = listY2Bounds$min;
+        dblY2Max = listY2Bounds$max;
+      }
+      listY2axp = c(dblY2Min, dblY2Max, 5);
+    }
+    
+  } else {
+    listY2axp = listY1axp;
+    boolLogY2 = boolLogY1;
+    listY2Bounds = listY1Bounds;
+    dblY2Min = dblY1Min;
+    dblY2Max = dblY1Max;
+  }
+  
+  # set the plot window limits
+  if( TRUE == boolLogY2 ){
+    par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY2Bounds$min, listY2Bounds$max), yaxp=listY2axp, xaxs="r");
+  } else {
 		dblY2BufrPct = #<y2_bufr>#;
-		dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
-
-		if( FALSE == boolVertPlot){
+    dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
+    
+    if( FALSE == boolVertPlot){
       listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
     }else{
       listY2Usr = c( dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr,par()$usr[3:4]);
     }
     par(new=TRUE, usr=listY2Usr, xaxs="r");
-	}
-	
-	# add the y2 axis
-	axis(
-		intY2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
-		#at=NA,					# locations of tick marks
-		labels=TRUE,			# tick labels on/off
-		tick=TRUE,				# tick marks on/off
-		tck=.01, 				# length of tick marks as a fraction of plot window
+  }
+  
+  # add the y2 axis
+  axis(
+    intY2Axis,				# axis of interest, 1: below, 2: left, 3: above and 4: right
+    #at=NA,					# locations of tick marks
+    labels=TRUE,			# tick labels on/off
+    tick=TRUE,				# tick marks on/off
+    tck=.01, 				# length of tick marks as a fraction of plot window
 		las=#<y2tlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 		padj=#<y2tlab_perp>#,	# axis label perpendicular location adjustment
 		hadj=#<y2tlab_horiz>#,	# axis label parallel location adjustment
-		cex.axis=#<y2tlab_size>#,# relative axis label magnification 
-		col="gray"				# axis color
-	);
-	
-	# plot each series on the second dependent axis with the specified formatting	
-	intStagIndex = 1;
-	for(i in 1:intNumSeries2){
-		
-		# if the current series is not displayed, continue to the next
-		if( !listPlotDisp[intFormatIndex] ){
-			intFormatIndex = intFormatIndex + 1;
-			next;
-		}
-		
-		# get the formatting information for this series
-		strCol		= listColors[intFormatIndex];
-		intPch		= listPch[intFormatIndex];
-		strType		= listType[intFormatIndex];
-		intLty		= listLty[intFormatIndex];
-		intLwd		= listLwd[intFormatIndex];
-		strPlotCI	= listPlotCI[intFormatIndex];
-		
-		# slice the series constituents from the series list
-		listData	= listSeries2[[3*(i-1) + 1]];
-		listDataLo	= listSeries2[[3*(i-1) + 2]];
-		listDataUp	= listSeries2[[3*(i-1) + 3]];
-		listXAdj	= listX + listXStag[intStagIndex];
-		intStagIndex = intStagIndex + 1;
-	
-		# remove the NAs from the x and y lists
-		listDataInd	= !( is.na(listData) );
-		if( listConSeries[intFormatIndex] != 0 ){
-			listXAdj	= listXAdj[listDataInd];
-			listData	= listData[listDataInd];
-		}
-		
-		# if the plot is a vertical profile, swap the series coordinates
-		if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
-		
-		# plot the series line
-		lines(
-			listXAdj,			# x coordinates
-			listData,			# y coordinates
-			type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
-								#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
-			pch=intPch,			# point symbol - see example(points)
-			font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-			lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-			col=strCol,			# line color
-			lend=1,
-			cex=1,				# line magnification
-			lwd=intLwd			# line width
-		);
-		
-		# add arrows to the line, if requested
-		if( "none" != strPlotCI ) {
-			listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);		
-			if( 0 < sum(listDataInd) ){
-				listXAdj	= listX + listXStag[i];
-				listXAdj	= listXAdj[listDataInd];
-				listDataLo	= listDataLo[listDataInd];
-				listDataUp	= listDataUp[listDataInd];
-				
-				listXFr		= listXAdj;
-				listXTo 	= listXAdj;
-				listYFr 	= listDataLo;
-				listYTo 	= listDataUp;
-				
-				# if the plot is a vertical profile, swap the series coordinates
-				if( TRUE == boolVertPlot ){
-					listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
-					listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
-				}
-				
-				# draw the arrows
-				arrows( 
-					listXFr, 			# x coordinate from which to draw
-					listYFr, 			# y coordinate from which to draw
-					listXTo, 			# x coordinate to which to draw
-					listYTo, 			# y coordinate to which to draw
-					length=.02,			# length of the edges of the arrow head (in inches)
-					angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
-					code=3,				# arrow type - 1: up, 2: down and 3: both
-					lwd=intLwd,			# line width
-					col=strCol,			# line color
-					ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
-					lmitre=1,			# line mitre limit, range 1-10
-					lend=2				# line end style - 0: round, 1: butt and 2: square
-				);
-			}
-		}
-		
-		intFormatIndex = intFormatIndex + 1;
-	} # end: for(i in 1:intNumSeries2)
-	
-	# y2 axis label
-	mtext(
+		cex.axis=#<y2tlab_size>#,# relative axis label magnification
+    col="gray"				# axis color
+  );
+  
+  # plot each series on the second dependent axis with the specified formatting	
+  intStagIndex = 1;
+  for(i in 1:(intNumSeries2 + intNumSeries2Diff)){
+    
+    if( i == intNumSeries2+1){
+      #use index for series2diff
+      intFormatIndex= intNumSeries1+intNumSeries2 + intNumSeries1Diff +1;
+    }
+    # if the current series is not displayed, continue to the next
+    if( !listPlotDisp[intFormatIndex] ){
+      intFormatIndex = intFormatIndex + 1;
+      next;
+    }
+    
+    # get the formatting information for this series
+    strCol		= listColorsOrdered[intFormatIndex];
+    intPch		= listPchOrdered[intFormatIndex];
+    strType		= listTypeOrdered[intFormatIndex];
+    intLty		= listLtyOrdered[intFormatIndex];
+    intLwd		= listLwdOrdered[intFormatIndex];
+    strPlotCI	= listPlotCIOrdered[intFormatIndex];
+    
+    # slice the series constituents from the series list
+    listData	= listSeries2[[3*(i-1) + 1]];
+    listDataLo	= listSeries2[[3*(i-1) + 2]];
+    listDataUp	= listSeries2[[3*(i-1) + 3]];
+    listXAdj	= listX + listXStag[intStagIndex];
+    intStagIndex = intStagIndex + 1;
+    
+    # remove the NAs from the x and y lists
+    listDataInd	= !( is.na(listData) );
+    if( listConSeries[intFormatIndex] != 0 ){
+      listXAdj	= listXAdj[listDataInd];
+      listData	= listData[listDataInd];
+    }
+    
+    # if the plot is a vertical profile, swap the series coordinates
+    if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
+    
+    # plot the series line
+    lines(
+      listXAdj,			# x coordinates
+      listData,			# y coordinates
+      type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
+      #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
+      pch=intPch,			# point symbol - see example(points)
+      font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+      lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+      col=strCol,			# line color
+      lend=1,
+      cex=1,				# line magnification
+      lwd=intLwd			# line width
+    );
+    
+    # add arrows to the line, if requested
+    if( "none" != strPlotCI ) {
+      listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);		
+      if( 0 < sum(listDataInd) ){
+        listXAdj	= listX + listXStag[i];
+        listXAdj	= listXAdj[listDataInd];
+        listDataLo	= listDataLo[listDataInd];
+        listDataUp	= listDataUp[listDataInd];
+        
+        listXFr		= listXAdj;
+        listXTo 	= listXAdj;
+        listYFr 	= listDataLo;
+        listYTo 	= listDataUp;
+        
+        # if the plot is a vertical profile, swap the series coordinates
+        if( TRUE == boolVertPlot ){
+          listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
+          listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
+        }
+        
+        # draw the arrows
+        arrows( 
+          listXFr, 			# x coordinate from which to draw
+          listYFr, 			# y coordinate from which to draw
+          listXTo, 			# x coordinate to which to draw
+          listYTo, 			# y coordinate to which to draw
+          length=.02,			# length of the edges of the arrow head (in inches)
+          angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
+          code=3,				# arrow type - 1: up, 2: down and 3: both
+          lwd=intLwd,			# line width
+          col=strCol,			# line color
+          ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
+          lmitre=1,			# line mitre limit, range 1-10
+          lend=2				# line end style - 0: round, 1: butt and 2: square
+        );
+      }
+    }
+    
+    intFormatIndex = intFormatIndex + 1;
+  } # end: for(i in 1:intNumSeries2)
+  
+  # y2 axis label
+  mtext(
 		"#<y2_label>#",			# label
 		font=#<y2lab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-		las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-		side=intY2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
+    las=0, 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+    side=intY2Axis,			# axis of interest, 1: below, 2: left, 3: above and 4: right
 		cex=#<y2lab_size>#,		# relative axis label magnification
 		padj=#<y2lab_offset>#,	# axis label perpendicular location adjustment
 		adj=#<y2lab_align>#,	# axis label parallel location adjustment
-		line=1					# margin line, starting at 0 counting outwards
-	);
-	
+    line=1					# margin line, starting at 0 counting outwards
+  );
+  
 } # end: if( 0 < length(listDep2Plot) )
 
 # restore the plot window limits for y1
 if( TRUE == boolLogY1 ){
-	par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max));
+  par(new=TRUE, ylog=TRUE, usr=c(par()$usr[1:2], listY1Bounds$min, listY1Bounds$max));
 } else {
-	par(new=TRUE, ylog=FALSE, usr=listY1Usr, xaxs="r");
+  par(new=TRUE, ylog=FALSE, usr=listY1Usr, xaxs="r");
 }
 
 # build the x-adjustment increments, if requested
-intNumStag1 = intNumSeries1 - sum(!listPlotDisp[1:intNumSeries1]);
+intNumStag1 = (intNumSeries1 + intNumSeries1Diff) - sum(!listPlotDisp[1:(intNumSeries1 + intNumSeries1Diff)]);
 listXStag = rep(0, intNumStag1 + 1);
 if( TRUE == boolIndy1Stagger ){
-	listXStag = seq( -(intNumStag1/2)*dblAdjScale, (intNumStag1/2)*dblAdjScale, length=intNumStag1 + 1 ) + ( dblAdjScale/2 );
+  listXStag = seq( -(intNumStag1/2)*dblAdjScale, (intNumStag1/2)*dblAdjScale, length=intNumStag1 + 1 ) + ( dblAdjScale/2 );
 }
 
 # plot the y1-axis series
 intStagIndex = 1;
 intFormatIndex = 1;
-for(i in 1:intNumSeries1){
-	
-	# if the current series is not displayed, continue to the next
-	if( !listPlotDisp[intFormatIndex] ){
-		intFormatIndex = intFormatIndex + 1;
-		next;
-	}
-	
-	# get the formatting information for this series
-	strCol		= listColors[intFormatIndex];
-	intPch		= listPch[intFormatIndex];
-	strType		= listType[intFormatIndex];
-	intLty		= listLty[intFormatIndex];
-	intLwd		= listLwd[intFormatIndex];
-	strPlotCI	= listPlotCI[intFormatIndex];
-	
-	# slice the series constituents from the series list
-	listData	= listSeries1[[3*(i-1) + 1]];
-	listDataLo	= listSeries1[[3*(i-1) + 2]];
-	listDataUp	= listSeries1[[3*(i-1) + 3]];
-	listXAdj	= listX + listXStag[intStagIndex];
-	intStagIndex = intStagIndex + 1;
-	
-	# remove the NAs from the x and y lists
-	listDataInd	= !( is.na(listData) );
-	if( listConSeries[intFormatIndex] != 0 ){
-		listXAdj	= listXAdj[listDataInd];
-		listData	= listData[listDataInd];
-	}
-	
-	# if the plot is a vertical profile, swap the series coordinates
-	if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
-	
-	# plot the series line
-	lines(
-		listXAdj,			# x coordinates
-		listData,			# y coordinates
-		type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
-							#   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
-		pch=intPch,			# point symbol - see example(points)
-		font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-		lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-		col=strCol,			# line color
-		cex=1,				# line magnification
-		lwd=intLwd			# line width
-	);
-		
-	# add arrows to the line, if requested
-	if( "none" != strPlotCI ) {		
-		listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);		
-		if( 0 < sum(listDataInd) ){
-			listXAdj	= listX + listXStag[i];
-			listXAdj	= listXAdj[listDataInd];
-			listDataLo	= listDataLo[listDataInd];
-			listDataUp	= listDataUp[listDataInd];
-			
-			listXFr		= listXAdj;
-			listXTo 	= listXAdj;
-			listYFr 	= listDataLo;
-			listYTo 	= listDataUp;
-			
-			# if the plot is a vertical profile, swap the series coordinates
-			if( TRUE == boolVertPlot ){
-				listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
-				listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
-			}
-			
-			arrows( 
-				listXFr, 			# x coordinate from which to draw
-				listYFr, 			# y coordinate from which to draw
-				listXTo, 			# x coordinate to which to draw
-				listYTo, 			# y coordinate to which to draw
-				length=.02,			# length of the edges of the arrow head (in inches)
-				angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
-				code=3,				# arrow type - 1: up, 2: down and 3: both
-				lwd=intLwd,			# line width
-				col=strCol,			# line color
-				ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
-				lmitre=1,			# line mitre limit, range 1-10
-				lend=2				# line end style - 0: round, 1: butt and 2: square
-			);
-		}
-	}
-	
-	intFormatIndex = intFormatIndex + 1;
+for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
+  
+  if( i == intNumSeries1+1){
+    #use index for series1diff
+    intFormatIndex= intNumSeries1+intNumSeries2 + 1;
+  }
+  # if the current series is not displayed, continue to the next
+    if( !listPlotDisp[intFormatIndex] ){
+      intFormatIndex = intFormatIndex + 1;
+      next;
+    }
+  
+  # get the formatting information for this series
+  strCol		= listColorsOrdered[intFormatIndex];
+  intPch		= listPchOrdered[intFormatIndex];
+  strType		= listTypeOrdered[intFormatIndex];
+  intLty		= listLtyOrdered[intFormatIndex];
+  intLwd		= listLwdOrdered[intFormatIndex];
+  strPlotCI	    = listPlotCIOrdered[intFormatIndex];
+  
+  # slice the series constituents from the series list
+  listData	= listSeries1[[3*(i-1) + 1]];  
+  listDataLo	= listSeries1[[3*(i-1) + 2]];
+  listDataUp	= listSeries1[[3*(i-1) + 3]];
+  listXAdj	= listX + listXStag[intStagIndex];
+  intStagIndex = intStagIndex + 1;
+  
+  # remove the NAs from the x and y lists
+  listDataInd	= !( is.na(listData) );
+  if( listConSeries[intFormatIndex] != 0 ){
+    listXAdj	= listXAdj[listDataInd];
+    listData	= listData[listDataInd];
+  }
+  
+  # if the plot is a vertical profile, swap the series coordinates
+  if( TRUE == boolVertPlot ){ listTmp = listXAdj; listXAdj = listData; listData = listTmp; }
+  
+  # plot the series line
+  lines(
+    listXAdj,			# x coordinates
+    listData,			# y coordinates
+    type=strType,		# series line type - p: points, l: lines, o: overplotted points and lines,  
+    #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 		
+    pch=intPch,			# point symbol - see example(points)
+    font=5,				# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+    lty=intLty,			# line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+    col=strCol,			# line color
+    cex=1,				# line magnification
+    lwd=intLwd			# line width
+  );
+  
+  # add arrows to the line, if requested
+  if( "none" != strPlotCI ) {		
+    listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);		
+    if( 0 < sum(listDataInd) ){
+      listXAdj	= listX + listXStag[i];
+      listXAdj	= listXAdj[listDataInd];
+      listDataLo	= listDataLo[listDataInd];
+      listDataUp	= listDataUp[listDataInd];
+      
+      listXFr		= listXAdj;
+      listXTo 	= listXAdj;
+      listYFr 	= listDataLo;
+      listYTo 	= listDataUp;
+      
+      # if the plot is a vertical profile, swap the series coordinates
+      if( TRUE == boolVertPlot ){
+        listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
+        listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
+      }
+      
+      arrows( 
+        listXFr, 			# x coordinate from which to draw
+        listYFr, 			# y coordinate from which to draw
+        listXTo, 			# x coordinate to which to draw
+        listYTo, 			# y coordinate to which to draw
+        length=.02,			# length of the edges of the arrow head (in inches)
+        angle=90,			# angle from the shaft of the arrow to the edge of the arrow head
+        code=3,				# arrow type - 1: up, 2: down and 3: both
+        lwd=intLwd,			# line width
+        col=strCol,			# line color
+        ljoin=1,			# line join style - 0: round, 1: mitre and 2: bevel
+        lmitre=1,			# line mitre limit, range 1-10
+        lend=2				# line end style - 0: round, 1: butt and 2: square
+      );
+    }
+  }
+  
+  intFormatIndex = intFormatIndex + 1;
 } # end: for(i in 1:intNumSeries1)
 
 listLwdLeg = listLwdOrdered;
@@ -787,26 +969,26 @@ listPchDisp    = listPchOrdered[listPlotDispOrdered];
 
 # add the legend
 legend(
-	x="bottom",						# x coordinate of legend
-	listLegendDisp,					# vector of legend labels
-	col=listColorsDisp,				# vector of point and line colors 
-	lty=listLtyDisp,				# vector of line types
-	lwd=listLwdLeg,					# vector of line widths
-	pch=listPchDisp,				# vector of point symbols
-	merge=FALSE,					# merge points and lines
+  x="bottom",						# x coordinate of legend
+  listLegendDisp,					# vector of legend labels
+  col=listColorsDisp,				# vector of point and line colors 
+  lty=listLtyDisp,				# vector of line types
+  lwd=listLwdLeg,					# vector of line widths
+  pch=listPchDisp,				# vector of point symbols
+  merge=FALSE,					# merge points and lines
 	cex=#<legend_size>#,			# relative magnification
 	bty="#<legend_box>#",			# legend box type - o: box, n: none
-	#bg="#EEEEEEFF",				# background color
-	#box.lty=,						# legend box line type
-	#box.lwd=,						# legend box line width	
-	#horiz=FALSE,					# horizontal configuration
-	adj=0,							# string adjustment for text
-	xpd=TRUE,						# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
+  #bg="#EEEEEEFF",				# background color
+  #box.lty=,						# legend box line type
+  #box.lwd=,						# legend box line width	
+  #horiz=FALSE,					# horizontal configuration
+  adj=0,							# string adjustment for text
+  xpd=TRUE,						# clipping - FALSE: plot region, TRUE: figure region, NA: device region 
 	ncol=#<legend_ncol>#,			# number of columns in legend
-	#agginset=c(0, -.25),			# inset distance from margin
+  #agginset=c(0, -.25),			# inset distance from margin
 	inset=#<legend_inset>#,			# inset distance from margin
-	x.intersp=1,					# horizontal character spacing factor
-	y.intersp=.8					# vertical character spacing factor
+  x.intersp=1,					# horizontal character spacing factor
+  y.intersp=.8					# vertical character spacing factor
 );
 
 # plot caption
@@ -814,12 +996,12 @@ mtext(
 	"#<plot_caption>#",				# caption
 	font=#<caption_weight>#,		# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
 	col="#<caption_col>#",			# font color
-	las=0, 							# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-	side=1,							# axis of interest, 1: below, 2: left, 3: above and 4: right
+  las=0, 							# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=1,							# axis of interest, 1: below, 2: left, 3: above and 4: right
 	cex=#<caption_size>#,			# relative magnification
 	padj=#<caption_offset>#,		# axis perpendicular location adjustment
 	adj=#<caption_align>#,			# axis parallel location adjustment
-	line=1							# margin line, starting at 0 counting outwards
+  line=1							# margin line, starting at 0 counting outwards
 );
 
 #<plot_cmd>#

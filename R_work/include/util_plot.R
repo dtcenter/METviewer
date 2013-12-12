@@ -1,4 +1,3 @@
-
 # parseLev() assumes that the input is a list of pressure level strings of one of the
 #   following formats: Z0, P250 or P200-350 and attempts to parse the value.  If 
 #   successful, an integer is returned representing the input pressure level.  For Z0, 
@@ -54,7 +53,7 @@ seriesMinMax = function(series, numModels, log=FALSE){
 # numSeries() calculates the number of series based on the information in the listSeriesVal
 #   and listDepVal input.  Each permutation of series values yields a series, plus an extra 
 #   series for the difference associated with the last series.
-numSeries = function(listSeriesVal, listDepVal, boolDiff){
+numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
 	intNumStats = 0;
 	for( strDep1Name in names(listDep1Plot) ){
 		for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
@@ -302,7 +301,9 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 				
 				# calculate the difference
+				cat("___________dfStatsVal$stat_value", length(dfStatsVal$stat_value), " dfStatsComp$stat_value ", length(dfStatsComp$stat_value), "\n")
 				listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;
+				cat("listStats ", length(listStats), "\n")
 				
 			} else {
 				
@@ -591,3 +592,217 @@ calcBrierCI = function(dfPct, brier, alpha){
 	
 	return ( halfwidth );
 }
+
+# buildAllStats() assumes that the input dfStats contains stat data for one or more series
+#   for ploting.   listSeriesVal specifies field names and
+#   values which correspond to the plot series, e.g. vx_mask and model.  dfStats must
+#   contain the values in listSeriesVal.  Each permutation of values in listSeriesVar will
+#   be plotted.    buildAllStats() will return one structures:
+#   hhe series list contains series data to pass to the plot function, in the format of
+#   median, upper std error and lower std error for each series.
+#
+#     INPUTS:
+#           dfStats: contains independent, series and stat data for one or more plot series
+#     listSeriesVal: series variable values, one series per permutation
+#        listPlotCI: list of confidence interval types to use for each series
+#          dblAlpha: alpha value to use when calculating confidence intervals
+#    boolVarianceInflationFactor: include or not Variance Inflation Factor to Compute_STDerr_from_median
+#       strPlotStat: use mean or median value
+#
+#    RETURNS:
+#            series: contains series data, in sets of three vectors: median, upper and
+#                    lower std error values; intended to be passed to plot function
+#
+buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
+  listAllStats=list();
+  # get the list of value permutations
+  matPermVal = permute(listSeriesVal);
+  listSeriesVar = names(listSeriesVal);
+  for(intPermVal in 1:nrow(matPermVal)){
+    listPermVal = matPermVal[intPermVal,];
+    # build a dataset that pertains to the permutation values
+    dfStatsVal = dfStats;
+    for(intVar in 1:length(listSeriesVar)){ # length of names in the list - number of columns in matPermVal
+      #dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
+
+      # parse the perm value as an integer, if possible
+      valPerm = listPermVal[intVar];
+      if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+      dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == valPerm,];
+    }
+
+    # sort the dataset by init time and valid time
+    listFields = names(dfStatsVal);
+    if( "fcst_valid_beg" %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid_beg),]; }
+    if( "fcst_valid"     %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_valid),];     }
+    if( "fcst_init_beg"  %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_init_beg),];  }
+    if( "fcst_init"      %in% listFields ){ dfStatsVal = dfStatsVal[order(dfStatsVal$fcst_init),];      }
+
+    # if there is no data for this case, skip to the next permutation
+    #if( 1 > nrow(dfStatsVal) ){
+    #  rm(dfStatsVal);
+    #  next;
+    #}
+    name=paste(listPermVal,collapse = " ");
+
+    name = paste(name,strDepName,strDepStat)
+    listAllStats[[name]] = dfStatsVal;
+  }
+  return( listAllStats );
+}
+# buildSeriesData() assumes that the input dfStats contains stat data for one or more series
+#   for ploting.  The independent variables and values are specified in strIndyVar and
+#   listIndyVal.  strIndyVar must be a valid field name and the listIndyVal values must
+#   be present in dfStats.  strStatGroup contains the name of the dependent variable,
+#   which indicates how to handle the stat data.  listSeriesVal specifies field names and
+#   values which correspond to the plot series, e.g. vx_mask and model.  dfStats must
+#   contain the values in listSeriesVal.  Each permutation of values in listSeriesVar will
+#   be plotted.
+# buildSeriesData() will return the list of data for each series. The nstats list
+#   contains the number of stats  to compute the std error at each point.
+#
+#     INPUTS:
+#           dfStats: contains independent, series and stat data for one or more plot series
+#        strIndyVar: field name of independent variable, e.g. fcst_lev or fcst_lead
+#       listIndyVal: independent variable values
+#      strStatGroup: field name of dependent variable, e.g. TMP or BCRMSE
+#     listSeriesVal: series variable values, one series per permutation
+#      listPlotDisp: list of TRUE/FALSE values indicating series visibility
+#        listPlotCI: list of confidence interval types to use for each series
+#          dblAlpha: alpha value to use when calculating confidence intervals
+#    boolVarianceInflationFactor: include or not Variance Inflation Factor to Compute_STDerr_from_median
+#       strPlotStat: use mean or median value
+#
+#    RETURNS:
+#            series: contains series data
+#            nstats: contains the number of stats  to compute std error at each point
+#
+
+buildSeriesData=function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSeriesVal, listPlotDisp,
+                         listPlotCI, dblAlpha=.05, boolVarianceInflationFactor=TRUE, strPlotStat="median"){
+  intNumSeries = 1;
+  listNStats = c();
+  # storage for the levels and statistics of each plot series
+  intNumIndy = length(listIndyVal);
+  listSeries = list();
+
+  listSeries[[1]] = rep(NA, intNumIndy);
+  listSeries[[2]] = rep(NA, intNumIndy);
+  listSeries[[3]] = rep(NA, intNumIndy);
+
+# get the list of value permutations
+matPermVal = permute(listSeriesVal);
+
+# build the amplification for the selected value of alpha for standard error
+dblZ = qnorm(1 - (dblAlpha/2));
+dblZVal = (dblZ + dblZ/sqrt(2)) / 2;
+
+# build a series for each stat curve
+intIndyIndex = 1;
+for(indy in listIndyVal){
+  dfStatsIndy = dfStats[dfStats[[strIndyVar]] == indy,];
+  intSeriesIndex = 1;
+  intNStatsIndy = 0;
+
+
+  # calculate the indexes for this series
+  intMedIndex	= (3*(intSeriesIndex-1)) + 1;
+  intLoIndex	= (3*(intSeriesIndex-1)) + 2;
+  intUpIndex	= (3*(intSeriesIndex-1)) + 3;
+
+  # build a dataset that pertains to the permutation values
+
+  dfStatsVal = dfStatsIndy;
+  # if there is no data for this case, skip to the next permutation
+  if( 1 > nrow(dfStatsVal) ){
+    rm(dfStatsVal);
+    intSeriesIndex = intSeriesIndex + 1;
+    intIndyIndex = intIndyIndex + 1;
+    listNStats = append(listNStats, intNStatsIndy);
+    next;
+  }
+
+  # add the median value to the current series point
+  listStats = dfStatsVal$stat_value;
+
+  if("mean" == strPlotStat){
+    cat("\nCreating the list of mean values \n\n")
+    dblMed = mean(listStats);
+  } else {
+    # use median if strPlotStat = 'median' or anything else since 'median' is the default
+    cat("\nCreating the list of median values \n\n")
+    dblMed = median(listStats);
+  }
+  if( TRUE == listPlotDisp[intSeriesIndex] ){ intNStatsIndy = intNStatsIndy + length(listStats); }
+
+  #  apply the requested type of confidence interval to the current series point
+  strPlotCI = listPlotCI[intSeriesIndex];
+  dblLoCI = dblMed;
+  dblUpCI = dblMed;
+  if( "std" == strPlotCI & 0 < sum(listStats != 0) ){
+    dblStdErr = 0;
+    if("mean" == strPlotStat){
+      cat("\nFor mean values to compute STDerr\n\n")
+      seModel = try(Compute_STDerr_from_mean( listStats, method = 'ML' ));
+    } else {
+      if(TRUE == boolVarianceInflationFactor){
+        cat("\nUsing  boolVarianceInflation for median values to compute STDerr\n\n")
+        seModel = try(Compute_STDerr_from_median_variance_inflation_factor( listStats, method = 'ML' ));
+      } else {
+        cat("\n NOT Using  boolVarianceInflation for median values to compute STDerr\n\n")
+        seModel = try(Compute_STDerr_from_median_no_variance_inflation_factor( listStats, method = 'ML' ));
+      }
+    }
+
+    if( 1 < length(seModel) && 0 == seModel[2] ){ dblStdErr = dblZVal * seModel[1]; }
+    dblLoCI = dblMed - dblStdErr;
+    dblUpCI  = dblMed + dblStdErr;
+  } else if( "norm" == strPlotCI ){
+    if( !is.na(dfStatsVal$stat_ncl) & !is.na(dfStatsVal$stat_ncu) &
+          -9999 != dfStatsVal$stat_ncl & -9999 != dfStatsVal$stat_ncu ){
+      dblLoCI = dfStatsVal$stat_ncl;
+      dblUpCI = dfStatsVal$stat_ncu;
+    }
+  } else if( "boot" == strPlotCI | "brier" == strPlotCI ){
+    if( !is.na(dfStatsVal$stat_bcl) & !is.na(dfStatsVal$stat_bcu) &
+          -9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
+      dblLoCI = dfStatsVal$stat_bcl;
+      dblUpCI = dfStatsVal$stat_bcu;
+    }
+  } else if( "q98" == strPlotCI & 0 < sum(listStats != 0) ){
+    q = quantile(listStats, probs=c(0.01, 0.99));
+    dblLoCI = q[["1%"]];
+    dblUpCI = q[["99%"]];
+  } else if( "q90" == strPlotCI & 0 < sum(listStats != 0) ){
+    q = quantile(listStats, probs=c(0.05, 0.95));
+    dblLoCI = q[["5%"]];
+    dblUpCI = q[["95%"]];
+  } else if( "q80" == strPlotCI & 0 < sum(listStats != 0) ){
+    q = quantile(listStats, probs=c(0.10, 0.90));
+    dblLoCI = q[["10%"]];
+    dblUpCI = q[["90%"]];
+  } else if( "q50" == strPlotCI & 0 < sum(listStats != 0) ){
+    q = quantile(listStats, probs=c(0.25, 0.75));
+    dblLoCI = q[["25%"]];
+    dblUpCI = q[["75%"]];
+  }
+
+  listSeries[[intMedIndex]][intIndyIndex] = dblMed;
+  listSeries[[intLoIndex]][intIndyIndex] = dblLoCI;
+  listSeries[[intUpIndex]][intIndyIndex] = dblUpCI;
+
+  intSeriesIndex = intSeriesIndex + 1;
+
+
+
+  listNStats = append(listNStats, intNStatsIndy);
+
+  intIndyIndex = intIndyIndex + 1;
+
+}	# end: for(indy in listIndyVal)
+
+# build the legend for the list of curves
+  
+return( list(series=listSeries[], nstats=listNStats) );
+}
+
