@@ -793,6 +793,22 @@ public class MVUtil{
 		for(int i=0; i < rep; i++){ listRet[i] = val; }
 		return listRet;
 	}
+
+  /**
+ 	 * Creates a list of integers where the first element is min, the second is min+1 ....
+   * the last is max
+ 	 * name
+ 	 * @param min The first value
+ 	 * @param max The last number
+ 	 * @return List of  values
+ 	 */
+ 	public static Integer[] repPlusOne(int min, int max){
+
+ 		Integer[] listRet = new Integer[max- min +1];
+    int start=min;
+ 		for(int i=0; i < (max- min +1); i++){ listRet[i] = start; start++;}
+ 		return listRet;
+ 	}
 	
 	/**
 	 * Creates a list of the same length as the input list with the elements in reverse order
@@ -1179,24 +1195,30 @@ public class MVUtil{
 		else                                                         { return "";                 }
 	}
 
-	
+  public static final String CTC = "ctc"; //Contingency Table Statistics
+  public static final String SL1L2 = "sl1l2"; //Scalar partial sums
+  public static final String PCT = "pct";
+  public static final String NBR_CNT  = "nbr_cnt";
+
 	public static final MVOrderedMap _tableStatsCnt = new MVOrderedMap();
-	static{
-		_tableStatsCnt.put("FBAR",			new String[]{"nc", "bc"});
-		_tableStatsCnt.put("FSTDEV",		new String[]{"nc", "bc"});
-		_tableStatsCnt.put("OBAR", 			new String[]{"nc", "bc"});
-		_tableStatsCnt.put("OSTDEV", 		new String[]{"nc", "bc"});
-		_tableStatsCnt.put("PR_CORR",		new String[]{"nc", "bc"});
+
+
+  static{
+		_tableStatsCnt.put("FBAR",			new String[]{"nc", "bc", SL1L2});
+		_tableStatsCnt.put("FSTDEV",		new String[]{"nc", "bc", SL1L2});
+		_tableStatsCnt.put("OBAR", 			new String[]{"nc", "bc", SL1L2});
+		_tableStatsCnt.put("OSTDEV", 		new String[]{"nc", "bc", SL1L2});
+		_tableStatsCnt.put("PR_CORR",		new String[]{"nc", "bc", SL1L2});
 		_tableStatsCnt.put("SP_CORR",		new String[]{});
 		_tableStatsCnt.put("KT_CORR",		new String[]{});
-		_tableStatsCnt.put("ME", 			new String[]{"nc", "bc"});
-		_tableStatsCnt.put("ESTDEV",		new String[]{"nc", "bc"});
-		_tableStatsCnt.put("MBIAS",			new String[]{"bc"});
+		_tableStatsCnt.put("ME", 			new String[]{"nc", "bc", SL1L2});
+		_tableStatsCnt.put("ESTDEV",		new String[]{"nc", "bc", SL1L2});
+		_tableStatsCnt.put("MBIAS",			new String[]{"bc", SL1L2});
 		_tableStatsCnt.put("MAE", 			new String[]{"bc"});
-		_tableStatsCnt.put("MSE", 			new String[]{"bc"});
-		_tableStatsCnt.put("BCMSE", 		new String[]{"bc"});
-		_tableStatsCnt.put("BCRMSE", 		new String[]{"bc"});
-		_tableStatsCnt.put("RMSE", 			new String[]{"bc"});
+		_tableStatsCnt.put("MSE", 			new String[]{"bc", SL1L2});
+		_tableStatsCnt.put("BCMSE", 		new String[]{"bc", SL1L2});
+		_tableStatsCnt.put("BCRMSE", 		new String[]{"bc", SL1L2});
+		_tableStatsCnt.put("RMSE", 			new String[]{"bc", SL1L2});
 		_tableStatsCnt.put("E10", 			new String[]{"bc"});
 		_tableStatsCnt.put("E25", 			new String[]{"bc"});
 		_tableStatsCnt.put("E50", 			new String[]{"bc"});
@@ -1205,20 +1227,23 @@ public class MVUtil{
 	}
 	
 	public static final MVOrderedMap _tableStatsCts = new MVOrderedMap();
-	static{
-		_tableStatsCts.put("BASER",			new String[]{"nc", "bc"});
-		_tableStatsCts.put("FMEAN",			new String[]{"nc", "bc"});
-		_tableStatsCts.put("ACC", 			new String[]{"nc", "bc"});
-		_tableStatsCts.put("FBIAS", 		new String[]{"bc"});
-		_tableStatsCts.put("PODY",			new String[]{"nc", "bc"});
-		_tableStatsCts.put("PODN",			new String[]{"nc", "bc"});
-		_tableStatsCts.put("POFD",			new String[]{"nc", "bc"});
-		_tableStatsCts.put("FAR", 			new String[]{"nc", "bc"});
-		_tableStatsCts.put("CSI",			new String[]{"nc", "bc"});
-		_tableStatsCts.put("GSS",			new String[]{"bc"});
-		_tableStatsCts.put("HK", 			new String[]{"nc", "bc"});
-		_tableStatsCts.put("HSS", 			new String[]{"bc"});
-		_tableStatsCts.put("ODDS", 			new String[]{"nc", "bc"});
+
+
+
+  static{
+		_tableStatsCts.put("BASER",			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("FMEAN",			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("ACC", 			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("FBIAS", 		new String[]{"bc", CTC});
+		_tableStatsCts.put("PODY",			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("PODN",			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("POFD",			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("FAR", 			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("CSI",			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("GSS",			new String[]{"bc", CTC});
+		_tableStatsCts.put("HK", 			new String[]{"nc", "bc", CTC});
+		_tableStatsCts.put("HSS", 			new String[]{"bc", CTC});
+		_tableStatsCts.put("ODDS", 			new String[]{"nc", "bc", CTC});
 	}
 	
 	public static final MVOrderedMap _tableStatsNbrcts = new MVOrderedMap();
