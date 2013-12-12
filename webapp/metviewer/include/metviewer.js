@@ -84,6 +84,9 @@ var _intFmtPlotBoolIndex = 0;
 var _intNumSeries = 0;
 var _listFmtSeriesDefaults = ["false", "false", "none", "", "20", "b", "1", "1", "1", ""];
 
+var seriesDiffY1=new Array();
+var seriesDiffY2=new Array();
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -97,7 +100,125 @@ var _listFmtSeriesDefaults = ["false", "false", "none", "", "20", "b", "1", "1",
  * various database field lists.
  */
 
+function createNewDiffSeriesName(yAxis){
+    $('#newDiffSeriesName').text("DIFF ( " + $('#series1Y'+yAxis).val() + "-" + $('#series2Y'+yAxis).val() + " )");
+}
+function changeYAxis(yAxis) {
+    if (yAxis == 2) {
+        $('#series1Y2').removeAttr('disabled');
+        $('#series2Y2').removeAttr('disabled');
+        $('#series1Y1').attr("disabled", "disabled");
+        $('#series2Y1').attr("disabled", "disabled");
+        createNewDiffSeriesName(2);
+    } else {
+        $('#series1Y2').attr("disabled", "disabled");
+        $('#series2Y2').attr("disabled", "disabled");
+        $('#series1Y1').removeAttr('disabled');
+        $('#series2Y1').removeAttr('disabled');
+        createNewDiffSeriesName(1);
+    }
+}
+
 function onLoad(){
+    $("#addDiffCurveDialogForm").dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        position:{
+        my: "center center",
+        at: "center center",
+        of: "#btnFmtAddDifferenceCurve"
+        },
+        buttons: {
+            "Create a Difference Curve": function () {
+                var yAxisValue = $('input:radio[name=yAxisDiff]:checked').val();
+                if(yAxisValue .indexOf("1") !== -1){
+                    seriesDiffY1.push($('#series1Y1').val() + "," + $('#series2Y1').val());
+                }else{
+                    seriesDiffY2.push($('#series1Y2').val() + "," + $('#series2Y2').val());
+                }
+
+                $(this).dialog("close");
+                buildSeriesDiv();
+                //force Event Equalizer
+                $('#spanFmtPlotBool select:first').val("true");
+
+            },
+            Cancel: function () {
+                $(this).dialog("close");
+            }
+        },
+        open: function () {
+            var seriesNames = document.getElementsByName("seriesName");
+            $('#series1Y2').empty();
+            $('#series1Y1').empty();
+            $('#series2Y2').empty();
+            $('#series2Y1').empty();
+
+            $("#y1AxisDiff").prop("checked", true);
+            $("#y2AxisDiff").removeAttr("checked");
+
+            $('#series1Y2').attr("disabled", true);
+            $('#series2Y2').attr("disabled", true);
+            $('#series1Y1').removeAttr('disabled');
+            $('#series2Y1').removeAttr('disabled');
+            $('#y2AxisDiff').removeAttr("disabled");
+            $('#y1AxisDiff').removeAttr("disabled");
+            for (var i = 0; i < seriesNames.length; i++) {
+                if (seriesNames[i].innerHTML.indexOf('DIFF') != 0) {
+                    var yAxisText = seriesNames[i].parentNode.getElementsByTagName("span")[2].innerHTML;
+                    if (yAxisText.indexOf("2") !== -1) {
+                        $('#series1Y2')
+                                .append($("<option></option>")
+                                        .attr("value", seriesNames[i].innerHTML)
+                                        .text(seriesNames[i].innerHTML));
+                        $('#series2Y2')
+                                .append($("<option></option>")
+                                        .attr("value", seriesNames[i].innerHTML)
+                                        .text(seriesNames[i].innerHTML));
+                    } else {
+                        $('#series1Y1')
+                                .append($("<option></option>")
+                                        .attr("value", seriesNames[i].innerHTML)
+                                        .text(seriesNames[i].innerHTML));
+                        $('#series2Y1')
+                                .append($("<option></option>")
+                                        .attr("value", seriesNames[i].innerHTML)
+                                        .text(seriesNames[i].innerHTML));
+                    }
+                }
+
+            }
+
+            if ($("#series1Y2 option").length > 0 && $("#series1Y1 option").length > 0) {
+                createNewDiffSeriesName(1);
+            } else {
+                if ($("#series1Y2 option").length == 0) {
+                    $('#y2AxisDiff').attr("disabled", true);
+                    createNewDiffSeriesName(1);
+                }
+                if ($("#series1Y1 option").length == 0) {
+                    $('#y1AxisDiff').attr("disabled", true);
+                    $("#y1AxisDiff").removeAttr("checked");
+                    $("#y2AxisDiff").prop("checked", true);
+                    $('#series1Y2').removeAttr('disabled');
+                    $('#series2Y2').removeAttr('disabled');
+                    $('#series1Y1').attr("disabled", true);
+                    $('#series2Y1').attr("disabled", true);
+                    createNewDiffSeriesName(2);
+                }
+            }
+
+
+        },
+        close: function () {
+            //allFields.val("").removeClass("ui-state-error");
+        }
+    });
+
+
+
 
     document.getElementById('selPlotData').value = 'stat';
 	_url = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "servlet";
@@ -141,8 +262,6 @@ function onLoad(){
 	addFmtPlot("Event Equalizer Multi",			"event_equal_m",	"false",		"bool");
 	addFmtPlot("Vertical Levels Plot",			"vert_plot",		"false",		"bool");
 	addFmtPlot("Reverse X Values",				"x_reverse",		"false",		"bool");
-	addFmtPlot("Y1 Series Difference Curve",	"plot1_diff",		"false",		"bool");
-	addFmtPlot("Y2 Series Difference Curve",	"plot2_diff",		"false",		"bool");
 	addFmtPlot("Display Number of Stats",		"num_stats",		"false",		"bool");
 	addFmtPlot("Y1 Stagger Points",				"indy1_stag",		"false",		"bool");
 	addFmtPlot("Y2 Stagger Points",				"indy2_stag",		"false",		"bool");
@@ -269,6 +388,10 @@ function onLoad(){
         if( "" != txtInitXML.value ){ loadInitXML(txtInitXML.value); }
 	}
 
+}
+
+function openAddDiffCurveDialog(){
+    $( "#addDiffCurveDialogForm" ).dialog( "open" );
 }
 
 
@@ -422,6 +545,9 @@ function getFmtTag(tdFmt){
  * control structure, and the setting control value is extracted and returned.
  */
 function getFmtVal(tdFmt){
+    if(!tdFmt ){
+        alert("nit")
+    }
 	var strVal = "";
 	var txtVal = tdFmt.getElementsByTagName("input")[0];
 	var boolTxt = ( undefined != txtVal && "none" != txtVal.style.display );
@@ -485,9 +611,12 @@ function updateTmpl(){
 	else if( null != strTmpl.match( /^rhist$/       ) ){ _intTmpl = TMPL_RHIST;       } 
 	else if( null != strTmpl.match( /^roc$/         ) ){ _intTmpl = TMPL_ROC;         } 
 	else if( null != strTmpl.match( /^rely$/        ) ){ _intTmpl = TMPL_RELY;        } 
-	else if( null != strTmpl.match( /^ens_ss$/      ) ){ _intTmpl = TMPL_ENS_SS;      } 
-	
-	//  default visibility settings for the series_plot template
+	else if( null != strTmpl.match( /^ens_ss$/      ) ){ _intTmpl = TMPL_ENS_SS;      }
+
+
+
+
+    //  default visibility settings for the series_plot template
 	var boolY1 = true;
 	var boolDep1 = true;
 	var boolY2 = true;
@@ -501,6 +630,7 @@ function updateTmpl(){
 	var boolCalcStat = true;
 	var boolCalcStatNA = false;
 	var boolRocCalc = false;
+  var boolHistType = false;
 	
 	//  for box_plot and bar_plot templates, hide the Y2 controls and agg_stat
 	if( TMPL_BOX_PLOT == _intTmpl || TMPL_BAR_PLOT == _intTmpl ){
@@ -517,6 +647,7 @@ function updateTmpl(){
 		boolAggStat = false;
 		boolCalcStat = false;
 		boolRocCalc = (TMPL_ROC == _intTmpl);
+    boolHistType =(TMPL_RHIST == _intTmpl);
 	} else if( TMPL_ENS_SS == _intTmpl ){
 		boolDep1 = false;
 		boolY2 = false;
@@ -559,13 +690,22 @@ function updateTmpl(){
 	//  configure the visibility of the calc_stat controls
 	document.getElementById("tdRocCalc").style.display		= boolRocCalc?   "table-cell" : "none";
 
+    //  configure the visibility of the histogram type
+    document.getElementById("tdHistType").style.display		= boolHistType?   "table-cell" : "none";
+
 	//  configure the visibility of the plot formatting controls
 	var listFmtAxis = document.getElementById("divFmtAxis").getElementsByTagName("td");
 	listFmtAxis[4].style.display							= boolY2Fmt?	 "inline" : "none";
 	listFmtAxis[5].style.display							= boolY2Fmt?	 "inline" : "none";
 	listFmtAxis[6].style.display							= boolY2Fmt?	 "inline" : "none";
 	listFmtAxis[7].style.display							= boolY2Fmt?	 "inline" : "none";
-	
+
+    if(_intTmpl == TMPL_SERIES_PLOT || _intTmpl == TMPL_BAR_PLOT || _intTmpl == TMPL_BOX_PLOT ){
+               document.getElementById("btnFmtAddDifferenceCurve").style.display = "inline";
+           }else{
+               document.getElementById("btnFmtAddDifferenceCurve").style.display = "none";
+           }
+
 	if( isTmplSpc() ){
 		buildSeriesDivSpc();
 		updateFmtPlot();
@@ -629,7 +769,38 @@ function addDep(intY){
  	var chkDiff = divDep.getElementsByTagName("input")[3];
  	chkDiff.setAttribute("onclick", "javascript:modeStatDiffChk(" + intDepId + ")");
  	if( _boolIE ){ chkDiff.attachEvent("onclick", new Function("modeStatDiffChk(" + intDepId + ")")); }
- 	var lnkDep = divDep.getElementsByTagName("a")[0];
+
+    divDep.getElementsByTagName("input")[4].setAttribute("onclick", "javascript:updateDepStat(" + intDepId + ")");
+    if (_boolIE) {
+        divDep.getElementsByTagName("input")[4].attachEvent("onclick", new Function("updateDepStat(" + intDepId + ")"));
+    }
+
+    divDep.getElementsByTagName("input")[5].setAttribute("onclick", "javascript:updateDepStat(" + intDepId + ")");
+    if (_boolIE) {
+        divDep.getElementsByTagName("input")[5].attachEvent("onclick", new Function("updateDepStat(" + intDepId + ")"));
+    }
+
+    divDep.getElementsByTagName("input")[6].setAttribute("onclick", "javascript:updateDepStat(" + intDepId + ")");
+    if (_boolIE) {
+        divDep.getElementsByTagName("input")[6].attachEvent("onclick", new Function("updateDepStat(" + intDepId + ")"));
+    }
+
+    divDep.getElementsByTagName("input")[7].setAttribute("onclick", "javascript:updateDepStat(" + intDepId + ")");
+    if (_boolIE) {
+        divDep.getElementsByTagName("input")[7].attachEvent("onclick", new Function("updateDepStat(" + intDepId + ")"));
+    }
+
+    divDep.getElementsByTagName("input")[8].setAttribute("onclick", "javascript:updateDepStat(" + intDepId + ")");
+    if (_boolIE) {
+        divDep.getElementsByTagName("input")[8].attachEvent("onclick", new Function("updateDepStat(" + intDepId + ")"));
+    }
+
+    divDep.getElementsByTagName("input")[9].setAttribute("onclick", "javascript:updateDepStat(" + intDepId + ")");
+    if (_boolIE) {
+        divDep.getElementsByTagName("input")[9].attachEvent("onclick", new Function("updateDepStat(" + intDepId + ")"));
+    }
+
+    var lnkDep = divDep.getElementsByTagName("a")[0];
  	lnkDep.setAttribute("onclick", "javascript:removeDep" + intY + "Var(" + intDepId + ")");
  	if( _boolIE ){ lnkDep.attachEvent("onclick", new Function("removeDep" + intY + "Var(" + intDepId + ")")); }
  	divDep.getElementsByTagName("span")[1].style.display = "inline";
@@ -639,8 +810,7 @@ function addDep(intY){
  	listDepDiv.push(divDep);
 	var divDepParent = document.getElementById("divDep" + intY);
 	var divImgParent = document.getElementById("imgDep" + intY);
-	//  debug("addDep(" + intY + ")\n divDepParent: " + divDepParent + "\n
-	//  divImgParent: " + divImgParent + "\n\n");
+	  console.log("addDep(" + intY + ")\n divDepParent: " + divDepParent + " divImgParent: " + divImgParent );
  	divDepParent.insertBefore(divDep, divImgParent);
 
  	//  ensure the first remove link is visible
@@ -829,7 +999,7 @@ function updateDepStat(id){
 		divDep.getElementsByTagName("input")[4].disabled = false;
 		divDep.getElementsByTagName("input")[5].disabled = false;
 	}
-    divDep.getElementsByTagName("input")[6].checked = false;
+    //divDep.getElementsByTagName("input")[6].checked = false;
 
 	buildSeriesDiv();
 }
@@ -842,6 +1012,7 @@ function modeStatDiffChk(id){
 	divDep.getElementsByTagName("input")[4].disabled = boolDiff;
 	divDep.getElementsByTagName("input")[5].checked = true;
 	divDep.getElementsByTagName("input")[5].disabled = boolDiff;
+    updateDepStat(id);
 }
 
 /**
@@ -1382,13 +1553,13 @@ function handleFmtDisp(type){
 		spanMsg.innerHTML = "Hide Formatting Controls";
 		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_down.gif";
 		tab.style.display = "table";
-		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "inline"; }
+		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "inline";}
 		else                  { document.getElementById("spanFmtPlotCmd").style.display = "inline"; }
 	} else {
 		spanMsg.innerHTML = "Show Formatting Controls";
 		imgArrow.src = imgArrow.src.substring(0, imgArrow.src.lastIndexOf("/") + 1) + "arrow_right.gif";
 		tab.style.display = "none";
-		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "none"; }
+		if( "Series" == type ){ document.getElementById("btnFmtSeriesDefaults").style.display = "none";}
 		else                  { document.getElementById("spanFmtPlotCmd").style.display = "none"; }
 	}
 }
@@ -1457,7 +1628,9 @@ function getFmtPlotTd(type, tag){
  * Build the list of plot series reflected by the current state of the controls
  */
 function buildSeriesDiv(){
-	
+
+  var strSeriesNameArray = new Array();
+
 	if( isTmplSpc() ){ return; }
 	
 	var tabFmtSeries = document.getElementById("tabFmtSeries");
@@ -1520,12 +1693,77 @@ function buildSeriesDiv(){
 			var intNumStat = !boolEnsSS ? listStat.length : 1;
 	
 			//  build a series for each combination of fcst_var, stat and series permutation
+
 			for(var intStat=0; intStat < intNumStat; intStat++){
 				for(var intSeries=0; intSeries < listSeriesPerm.length; intSeries++){
 	
 					//  build the series name
 					var strStatName = !boolEnsSS ? listStat[intStat] : (1 == intY ? "MSE" : "#PTS");
-					var strSeriesName =  listSeriesPerm[intSeries] + (!boolEnsSS ? " " + strFcstVar : "") + " " + strStatName;
+
+                    if (_strPlotData == "mode" && -1 == listSearch(strStatName, _listStatModelRatio)) {
+                        //  determine the first letter of the code [A|F|O|D]
+                        var boolDiff = listDepDiv[intDep].getElementsByTagName("input")[3].checked;
+                        var boolFcst = listDepDiv[intDep].getElementsByTagName("input")[4].checked;
+                        var boolObs = listDepDiv[intDep].getElementsByTagName("input")[5].checked;
+                        var strCode = "_";
+                        if (-1 < listSearch(strStatName, _listStatModeSingle)) {
+                            if (boolDiff) {
+                                strCode += "D";
+                            }
+                            else if (boolFcst && boolObs) {
+                                strCode += "A";
+                            }
+                            else if (boolFcst) {
+                                strCode += "F";
+                            }
+                            else if (boolObs) {
+                                strCode += "O";
+                            }
+                            else {
+                                strCode += "A";
+                            }
+                        }
+                        //  if the stat is ACOV, return the code
+                        if (null != strStatName.match(/^ACOV$/)) {
+                            strCode = strStatName + strCode + "SA";
+                        }
+
+                        //  determine the second letter of the code [A|S|C]
+                        var boolSimp = listDepDiv[intDep].getElementsByTagName("input")[6].checked;
+                        var boolClus = listDepDiv[intDep].getElementsByTagName("input")[7].checked;
+                        if (boolSimp && boolClus) {
+                            strCode += "A";
+                        }
+                        else if (boolSimp) {
+                            strCode += "S";
+                        }
+                        else if (boolClus) {
+                            strCode += "C";
+                        }
+                        else {
+                            strCode += "A";
+                        }
+
+                        //  determine the third letter of the code [A|M|U]
+                        var boolMat = listDepDiv[intDep].getElementsByTagName("input")[8].checked;
+                        var boolUnm = listDepDiv[intDep].getElementsByTagName("input")[9].checked;
+                        if (boolMat && boolUnm) {
+                            strCode += "A";
+                        }
+                        else if (boolMat) {
+                            strCode += "M";
+                        }
+                        else if (boolUnm) {
+                            strCode += "U";
+                        }
+                        else {
+                            strCode += "A";
+                        }
+                        strStatName = strStatName + strCode
+
+                    }
+                    var strSeriesName =  listSeriesPerm[intSeries] + (!boolEnsSS ? " " + strFcstVar : "") + " " + strStatName;
+                    strSeriesNameArray.push(strSeriesName);
 	
 					var trFmtSeries;
 					var tdName;
@@ -1575,12 +1813,16 @@ function buildSeriesDiv(){
 					var strYSeries = (1 == intY? "Y1" : "Y2") + " Series";
 					tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
 					tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
-					
+
 					//  add change handlers to the formatting inputs
 					var listInput = trFmtSeries.getElementsByTagName("input");
 				 	listInput[1].setAttribute("onclick", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
 				 	if( _boolIE ){ listInput[1].attachEvent("onclick", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
-					for(var i=2; i < listInput.length; i++){
+
+                    listInput[2].setAttribute("onclick", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+                    if( _boolIE ){ listInput[2].attachEvent("onclick", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
+                    listInput[2].value = _intNumSeries+1;
+					for(var i=3; i < listInput.length; i++){
 					 	listInput[i].setAttribute("onkeydown", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
 					 	if( _boolIE ){ listInput[i].attachEvent("onkeydown", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')")); }
 					}		
@@ -1613,8 +1855,47 @@ function buildSeriesDiv(){
 		}  //  end: for(var intDep=0; intDep < listDepDiv.length; intDep++)
 		
 	}  //  end: for(var intY=1; intY <= 2; intY++)
-	
-	//  set the default color for each series to the appropriate shade of rainbow
+    //check if some series were deleted and remove them from diff series
+    var seriesDiff = new Array();
+    for (var i = 0; i < seriesDiffY1.length; i++) {
+        var diffSeries1 = seriesDiffY1[i].split(",")[0];
+        var diffSeries2 = seriesDiffY1[i].split(",")[1];
+        var isDiffSeries1 = false, isDiffSeries2 = false;
+        for (var j = 0; j < strSeriesNameArray.length; j++) {
+            if (diffSeries1 == strSeriesNameArray[j]) {
+                isDiffSeries1 = true;
+            }
+            if (diffSeries2 == strSeriesNameArray[j]) {
+                isDiffSeries2 = true;
+            }
+        }
+        if(isDiffSeries1 && isDiffSeries2){
+            seriesDiff.push(seriesDiffY1[i]);
+        }
+    }
+    seriesDiffY1 = seriesDiff;
+    seriesDiff = new Array();
+    for (var i = 0; i < seriesDiffY2.length; i++) {
+        var diffSeries1 = seriesDiffY2[i].split(",")[0];
+        var diffSeries2 = seriesDiffY2[i].split(",")[1];
+        var isDiffSeries1 = false, isDiffSeries2 = false;
+        for (var j = 0; j < strSeriesNameArray.length; j++) {
+            if (diffSeries1 == strSeriesNameArray[j]) {
+                isDiffSeries1 = true;
+            }
+            if (diffSeries2 == strSeriesNameArray[j]) {
+                isDiffSeries2 = true;
+            }
+        }
+        if (isDiffSeries1 && isDiffSeries2) {
+            seriesDiff.push(seriesDiffY2[i]);
+        }
+    }
+    seriesDiffY2 = seriesDiff;
+    createDiffSeries(seriesDiffY1,1,tabFmtSeries,tableFmt,boolLockFmt,listFmt);
+    createDiffSeries(seriesDiffY2,2,tabFmtSeries,tableFmt,boolLockFmt,listFmt);
+
+    //  set the default color for each series to the appropriate shade of rainbow
 	var listColors = rainbow(_intNumSeries);
 	for(var i=0; i < _intNumSeries; i++){
 		var listFmtTd = getFmtSeriesVal( i * 2 );
@@ -1626,10 +1907,115 @@ function buildSeriesDiv(){
 	tabFmtSeries.style.display		= (1 > _intNumSeries ? "none" : tabFmtSeries.style.display);
 	spanFmtSeriesDisp.style.display	= (1 > _intNumSeries ? "none" : "inline");
 	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+    if(_intNumSeries >= 1 && (_intTmpl == TMPL_SERIES_PLOT || _intTmpl == TMPL_BAR_PLOT || _intTmpl == TMPL_BOX_PLOT) ){
+        document.getElementById("btnFmtAddDifferenceCurve").style.display = "inline";
+    }else{
+        document.getElementById("btnFmtAddDifferenceCurve").style.display = "none";
+    }
 	
 	//  update the agg_stat diff fields
 	document.getElementById("txtAggDiff1").value = (getPlotDiff(1)? "TRUE" : "FALSE");
 	document.getElementById("txtAggDiff2").value = (getPlotDiff(2)? "TRUE" : "FALSE");
+}
+
+function createDiffSeries(seriesDiffY,ySeries,tabFmtSeries,tableFmt,boolLockFmt,listFmt){
+
+    for (var intseriesDiffY1 = 0; intseriesDiffY1 < seriesDiffY.length; intseriesDiffY1++) {
+    var diffSeries1 = seriesDiffY[intseriesDiffY1].split(",")[0];
+            var diffSeries2 = seriesDiffY[intseriesDiffY1].split(",")[1];
+
+            //  build the series name
+            var strSeriesName = "DIFF (" + diffSeries1 + "-" + diffSeries2 + ")";
+
+            var trFmtSeries;
+            var tdName;
+            //  insert the <hr/> between series format controls
+            if (1 == _intNumSeries) {
+                tabFmtSeries.rows[1].style.display = "table-row";
+            }
+            else {
+                var trHR = tabFmtSeries.insertRow(tabFmtSeries.rows.length);
+                var tdHR = trHR.insertCell(0);
+                tdHR.colSpan = "3";
+                tdHR.appendChild(document.getElementById("spanFmtSeriesHR").cloneNode(true));
+            }
+
+            //  insert a copy of the series format controls
+            trFmtSeries = tabFmtSeries.insertRow(tabFmtSeries.rows.length);
+
+            var tdName = trFmtSeries.insertCell(0);
+            tdName.align = "right";
+            tdName.style.width = "350px";
+            tdName.style.paddingTop = "20px";
+            tdName.appendChild(document.getElementById("spanFmtSeriesName").cloneNode(true));
+
+            var tdFmt1 = trFmtSeries.insertCell(1);
+            tdFmt1.align = "right";
+            tdFmt1.style.width = "200px";
+            tdFmt1.style.paddingTop = "20px";
+            tdFmt1.appendChild(document.getElementById("tabFmtSeriesVal1").cloneNode(true));
+            tdFmt1.getElementsByTagName("input")[1].value = "";
+
+            var tdFmt2 = trFmtSeries.insertCell(2);
+            tdFmt2.align = "right";
+            tdFmt2.style.width = "275px";
+            tdFmt2.style.paddingTop = "20px";
+            tdFmt2.appendChild(document.getElementById("tabFmtSeriesVal2").cloneNode(true));
+
+
+            //  populate the controls with the series name
+            var strYSeries = "Y" + ySeries+ " Series";
+            tdName.getElementsByTagName("span")[1].innerHTML="<button onclick='deleteDiffSeries(this, \"" + seriesDiffY[intseriesDiffY1] + "\", " + ySeries + ");'>Delete</button>";
+            tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
+            tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
+
+            //  add change handlers to the formatting inputs
+            var listInput = trFmtSeries.getElementsByTagName("input");
+            listInput[1].setAttribute("onclick", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+            if (_boolIE) {
+                listInput[1].attachEvent("onclick", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+            }
+
+            listInput[2].setAttribute("onclick", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+            if (_boolIE) {
+                listInput[2].attachEvent("onclick", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+            }
+            listInput[2].value = _intNumSeries + 1;
+            for (var i = 3; i < listInput.length; i++) {
+                listInput[i].setAttribute("onkeydown", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+                if (_boolIE) {
+                    listInput[i].attachEvent("onkeydown", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+                }
+            }
+            var listSel = trFmtSeries.getElementsByTagName("select");
+            for (var i = 0; i < listSel.length; i++) {
+                listSel[i].setAttribute("onchange", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+                if (_boolIE) {
+                    listSel[i].attachEvent("onchange", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+                }
+            }
+
+            //  get format settings for the current field, if available, otherwise use defaults
+            var listVal = _listFmtSeriesDefaults;
+            var strVal = tableFmt.get(escapeXml(strSeriesName) + " - " + strYSeries);
+            if (boolLockFmt) {
+                listVal = listFmt[ _intNumSeries % listFmt.length ].split("|");
+            }
+            else if (undefined != strVal) {
+                listVal = strVal.split("|");
+            }
+
+            //  apply the settings to the formatting controls
+            listInput[0].value = listVal[0];
+            tdName.getElementsByTagName("input")[1].checked = (listVal[1] == "true" ? true : false);
+            var listFmtTd = getFmtSeriesVal(_intNumSeries * 2);
+            for (var i = 0; i < listFmtTd.length; i++) {
+                setFmtVal(listFmtTd[i], listVal[i + 2]);
+            }
+
+            _intNumSeries++;
+    }
+
 }
 
 /**
@@ -1649,8 +2035,10 @@ function getFmtSeriesVal(row){
 	//  get and validate the requested row
 	var listTdFmt = new Array();
 	var tabFmtSeries = document.getElementById(strTabFmtSeriesId);
+
 	var trFmtSeries = tabFmtSeries.rows[row];
-	if( 2 > trFmtSeries.cells.length ){ return listTdFmt; }
+
+	if( !trFmtSeries || 2 > trFmtSeries.cells.length ){ return listTdFmt; }
 	
 	//  build a list of formatting td elements
 	var tabVal1 = trFmtSeries.cells[1].getElementsByTagName("table")[0];
@@ -1739,6 +2127,37 @@ function permuteSeries(listSeriesDiv, intIndex, boolDiff){
 }
 
 /**
+ * Build a list of all series fields and variable combinations for the specified list of
+ * series field divs, starting with the div at the specified index (0 for all
+ * permutations). If a difference curve is specified, add it to the series.
+ */
+function permuteSeriesWithField(listSeriesDiv, intIndex){
+
+	if( 1 > listSeriesDiv.length ){ return new Array(); }
+	var listVal = getSelected( listSeriesDiv[intIndex].getElementsByTagName("select")[1] );
+    var listFields = getSelected( listSeriesDiv[intIndex].getElementsByTagName("select")[0] );
+    var listFieldsVal = new Array();
+    var index=0;
+    for(var i=0; i<listFields.length; i++){
+        for(var j=0; j<listVal.length; i++){
+            listFieldsVal[index] = listFields[i] + " " + listVal[j];
+            index++;
+        }
+    }
+
+	//  otherwise, get the list for the next fcst_var and build upon it
+	var listFieldsValNext = permuteSeriesWithField(listSeriesDiv, intIndex + 1);
+	if( 1 > listFieldsVal.length ){ return listFieldsValNext; }
+	var listRet = new Array();
+	for(var i=0; i < listFieldsVal.length; i++){
+		for(var j=0; j < listFieldsValNext.length; j++){
+			listRet.push(listFieldsVal[i] + " " + listFieldsValNext[j]);
+		}
+	}
+	return listRet;
+}
+
+/**
  * Return the boolean value of the format setting for plotN_diff, where N is
  * specified as either 1 or 2
  */
@@ -1783,8 +2202,9 @@ function buildSeriesDivSpc(){
 		
 	//  show or hide the controls, depending on the number of series
 	_intNumSeries = ( _intTmpl == TMPL_RELY? 2 : 1);
-	tabFmtSeries.style.display = tabFmtSeries.style.display;
-	document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+    tabFmtSeries.style.display = tabFmtSeries.style.display;
+    document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+
 }
 
 
@@ -1813,12 +2233,14 @@ function updateAggStat(){
 /**
  * Update the calc_stat controls according to the enabled checkbox setting
  */
-function updateCalcStat(){
-	var divCalcStat = document.getElementById("divCalcStat");
-	var chkCalcStat = divCalcStat.getElementsByTagName("input")[0];
-	document.getElementById("tabCalcStatParm").style.display = (chkCalcStat.checked? "table" : "none");
-  var plot_stat = _strInitXML.match( /<plot_stat>(\w+)<\/plot_stat>/ )[1];
-  document.getElementById("plot_stat").value = plot_stat;
+function updateCalcStat() {
+    var divCalcStat = document.getElementById("divCalcStat");
+    var chkCalcStat = divCalcStat.getElementsByTagName("input")[0];
+    document.getElementById("tabCalcStatParm").style.display = (chkCalcStat.checked ? "table" : "none");
+    if (_strInitXML && _strInitXML.length > 0) {
+        var plot_stat = _strInitXML.match(/<plot_stat>(\w+)<\/plot_stat>/)[1];
+        document.getElementById("plot_stat").value = plot_stat;
+    }
 }
 
 
@@ -1853,7 +2275,11 @@ function buildPlotXML(){
 			strDepXML += 	   "<roc_pct>" + listRocCalcParm[0].checked + "</roc_pct>";
 			strDepXML += 	   "<roc_ctc>" + listRocCalcParm[1].checked + "</roc_ctc>";
 			strDepXML += "</roc_calc>";		
-		}		
+		}
+        if(TMPL_RHIST == _intTmpl){
+            var isNormalized_histogram = $('input[name=normalized_histogram]:checked').val();
+            strDepXML += 	   "<normalized_histogram>" + isNormalized_histogram + "</normalized_histogram>";
+        }
 		
 	} else {
 		
@@ -1974,7 +2400,7 @@ function buildPlotXML(){
 	}
 	
 	//  series formatting
-	var listFmtSeries = new Array("", "", "", "", "", "", "", "", "");
+	var listFmtSeries = new Array("", "", "", "", "", "", "", "", "", "");
 	var boolLegend = false;	
 	if( TMPL_RHIST == _intTmpl ){
 		var tabFmtSeries = document.getElementById("tabFmtSeriesRhistVal");
@@ -2025,14 +2451,22 @@ function buildPlotXML(){
 		var tabFmtSeries = document.getElementById("tabFmtSeries");		
 		for(var intRow=0; intRow < tabFmtSeries.rows.length; intRow += 2){
 			var listFmtTd = getFmtSeriesVal(intRow);
-			for(var i=0; i < listFmtSeries.length; i++){
-				var strVal = "";
-				if( i == 0 ){ strVal = (getFmtSeriesHide(intRow)? "FALSE" : "TRUE"); }
-				else        { strVal = getFmtVal(listFmtTd[i-1]); }
-				if( 8 == i && strVal != "" ){ boolLegend = true; }
-				if( 1 == i || 2 == i || 4 == i || 8 == i ){ strVal = "\"" + strVal + "\""; }
-				listFmtSeries[i] += (0 < intRow? ", " : "") + strVal;			
-			}
+            for (var i = 0; i < listFmtSeries.length; i++) {
+                var strVal = "";
+                if (i == 0) {
+                    strVal = (getFmtSeriesHide(intRow) ? "FALSE" : "TRUE");
+                }else if(i != 9 ){
+                    strVal = getFmtVal(listFmtTd[i - 1]);
+                }
+                if (8 == i && strVal != "") {
+                    boolLegend = true;
+                }
+                if (1 == i || 2 == i || 4 == i || 8 == i) {
+                    strVal = "\"" + strVal + "\"";
+                }
+                if( i == 9 ){ strVal = tabFmtSeries.rows[intRow].cells[0].getElementsByTagName("input")[2].value; }
+                listFmtSeries[i] += (0 < intRow ? ", " : "") + strVal;
+            }
 		}
 	}
 	strDepXML +=    "<plot_ci>c(" + listFmtSeries[1] + ")</plot_ci>";
@@ -2046,6 +2480,23 @@ function buildPlotXML(){
 	if( boolLegend ){
 		strDepXML += "<legend>c(" + listFmtSeries[8] + ")</legend>";
 	}
+    strDepXML += "<order_series>c(" + listFmtSeries[9] + ")</order_series>";
+
+    var seriesDiffY1List = new Array();
+    if (seriesDiffY1.length > 0) {
+        for (var i = 0; i < seriesDiffY1.length; i++) {
+            seriesDiffY1List.push('c("' + seriesDiffY1[i].split(",")[0] + '","' + seriesDiffY1[i].split(",")[1] + '")');
+        }
+    }
+    var seriesDiffY2List = new Array();
+    if (seriesDiffY2.length > 0) {
+        for (var i = 0; i < seriesDiffY2.length; i++) {
+            seriesDiffY2List.push('c("' + seriesDiffY2[i].split(",")[0] + '","' + seriesDiffY2[i].split(",")[1] + '")');
+        }
+    }
+    strDepXML += "<listDiffSeries1>list(" + seriesDiffY1List.join() + ")</listDiffSeries1>";
+    strDepXML += "<listDiffSeries2>list(" + seriesDiffY2List.join() + ")</listDiffSeries2>";
+
 	
 	var strPlotCmd = document.getElementById("txtPlotCmd").value;
 	if( "" != strPlotCmd ){ strDepXML += "<plot_cmd>" + strPlotCmd + "</plot_cmd>"; }
@@ -2138,16 +2589,16 @@ function buildModeStatCode(stat, divDep){
 	if( null != stat.match( /^ACOV$/ ) ){ return stat + strCode + "SA"; } 
 
 	//  determine the second letter of the code [A|S|C]
-	var boolSimp = divDep.getElementsByTagName("input")[5].checked;
-	var boolClus = divDep.getElementsByTagName("input")[6].checked;
+	var boolSimp = divDep.getElementsByTagName("input")[6].checked;
+	var boolClus = divDep.getElementsByTagName("input")[7].checked;
 	if( boolSimp && boolClus )    { strCode += "A"; }
 	else if( boolSimp )           { strCode += "S"; }
 	else if( boolClus )           { strCode += "C"; }
 	else                          { strCode += "A"; }
 	
 	//  determine the third letter of the code [A|M|U]
-	var boolMat  = divDep.getElementsByTagName("input")[7].checked;
-	var boolUnm  = divDep.getElementsByTagName("input")[8].checked;
+	var boolMat  = divDep.getElementsByTagName("input")[8].checked;
+	var boolUnm  = divDep.getElementsByTagName("input")[9].checked;
 	if( boolMat && boolUnm )      { strCode += "A"; }
 	else if( boolMat )            { strCode += "M"; }
 	else if( boolUnm )            { strCode += "U"; }
@@ -2341,6 +2792,7 @@ function loadInitXML_phaseDepLoad(){
 	if( 1 > _listInitXMLDep1.length && 1 > _listInitXMLDep2.length ){
 		debug("loadInitXML_phaseDepLoad() complete\n\n");
 		loadSleep("loadInitXML_phaseSeries()");
+
 		return;
 	}
 
@@ -2367,6 +2819,9 @@ function loadInitXML_phaseDepLoad(){
 	//  wait for the current fcst_var load to finish, then repeat
 	debug("\n");
 	loadSleep("loadInitXML_phaseDepLoad()");
+
+
+
 }
 
 /**
@@ -2435,12 +2890,12 @@ function loadInitXML_phaseDepStats(){
 		_divInitXMLDep.getElementsByTagName("input")[5].checked = (null != strChkFODA.match( /[AO]/ ));
 
 		//  set up the checkboxes for the second letter of the code [A|S|C]
-		_divInitXMLDep.getElementsByTagName("input")[5].checked = (null != listMode[3].match( /[AS]/ ));
-		_divInitXMLDep.getElementsByTagName("input")[6].checked = (null != listMode[3].match( /[AC]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[6].checked = (null != listMode[3].match( /[AS]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[7].checked = (null != listMode[3].match( /[AC]/ ));
 		
 		//  set up the checkboxes for the third letter of the code [A|M|U]
-		_divInitXMLDep.getElementsByTagName("input")[7].checked = (null != listMode[4].match( /[AM]/ ));
-		_divInitXMLDep.getElementsByTagName("input")[8].checked = (null != listMode[4].match( /[AU]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[8].checked = (null != listMode[4].match( /[AM]/ ));
+		_divInitXMLDep.getElementsByTagName("input")[9].checked = (null != listMode[4].match( /[AU]/ ));
 	}
 	updateDepStat( getDivDepId(_divInitXMLDep) );
 	debug("  stats done\n");
@@ -2759,15 +3214,28 @@ function loadInitXML_phaseFormat(){
 	}
 	updateCalcStat();
 
-	//  parse and set the roc_calc controls
-	if( TMPL_ROC == _intTmpl ){
-		debug("  roc_calc\n");
-		var listRocCalcInput = document.getElementById("divRocCalc").getElementsByTagName("input");
-		var strRocPct = _strInitXML.match( /<roc_pct>(\w+)<\/roc_pct>/ )[1];
-		listRocCalcInput[0].checked = (strRocPct == "TRUE");
-		var strRocCtc = _strInitXML.match( /<roc_ctc>(\w+)<\/roc_ctc>/ )[1];
-		listRocCalcInput[1].checked = (strRocCtc == "TRUE");
+	//  parse and set the normalized_histogram controls
+	if( TMPL_RHIST == _intTmpl ){
+		debug("  normalized_histogram\n");
+		var strNormalizedHistogram = _strInitXML.match( /<normalized_histogram>(\w+)<\/normalized_histogram>/ );
+        if(strNormalizedHistogram){
+            strNormalizedHistogram = strNormalizedHistogram[1];
+        }else{
+            strNormalizedHistogram="true";
+        }
+        $("input[name=normalized_histogram][value=" + strNormalizedHistogram + "]").prop('checked', true);
+
 	}
+
+    //  parse and set the roc_calc controls
+    	if( TMPL_ROC == _intTmpl ){
+    		debug("  roc_calc\n");
+    		var listRocCalcInput = document.getElementById("divRocCalc").getElementsByTagName("input");
+    		var strRocPct = _strInitXML.match( /<roc_pct>(\w+)<\/roc_pct>/ )[1];
+    		listRocCalcInput[0].checked = (strRocPct == "TRUE");
+    		var strRocCtc = _strInitXML.match( /<roc_ctc>(\w+)<\/roc_ctc>/ )[1];
+    		listRocCalcInput[1].checked = (strRocCtc == "TRUE");
+    	}
 		
 	//  parse and set the tmpl information
 	var listTmplInput = document.getElementById("divTitleLab").getElementsByTagName("input");
@@ -2793,17 +3261,23 @@ function loadInitXML_phaseFormat(){
 			//  parse the flag value from the xml and set the control appropriately
 			var regBool = new RegExp( "<" + strBoolName + ">(\\w+)<\/" + strBoolName + ">" );
 			var selBool = tabFmtPlotBool.rows[i].cells[j].getElementsByTagName("select")[0];
-			if     ( strBoolName == "plot1_diff" && boolAggDiff1          ){ setSelected( selBool, "TRUE" );         } 
-			else if( strBoolName == "plot2_diff" && boolAggDiff2          ){ setSelected( selBool, "TRUE" );         }
-			else if( null != (listBoolVal = _strInitXML.match( regBool )) ){ setSelected( selBool, listBoolVal[1] ); }
+
+			if( null != (listBoolVal = _strInitXML.match( regBool )) ){ setSelected( selBool, listBoolVal[1] ); }
 			else { debug("    WARNING: fmt_plot bool property " + strBoolName + " not found\n"); }
 		}
 	}
-	buildSeriesDiv();
+    buildSeriesDiv();
 
-	//  plot formatting text values
-	var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
-	debug("  fmt_plot txt\n");
+    //add diff plots if exist
+    var strListDiffSeries1 = _strInitXML.match(/<listDiffSeries1>(.*)<\/listDiffSeries1>/)[1];
+    var strListDiffSeries2 = _strInitXML.match(/<listDiffSeries2>(.*)<\/listDiffSeries2>/)[1];
+    loadInitXML_phaseDiffSeries(strListDiffSeries1, "1");
+    loadInitXML_phaseDiffSeries(strListDiffSeries2, "2");
+    document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+
+    //  plot formatting text values
+    var tabFmtPlotTxt = document.getElementById("tabFmtPlotTxt");
+    debug("  fmt_plot txt\n");
 	for(var i=0; i < tabFmtPlotTxt.rows.length; i++){
 		for(var j=0; j < tabFmtPlotTxt.rows[i].cells.length; j++){
 
@@ -2830,7 +3304,7 @@ function loadInitXML_phaseFormat(){
 	}
 
 	//  initialize the list of formatting values, depending on template
-	var listParm = ["plot_ci", "colors", "pch", "type", "lty", "lwd", "con_series", "legend", "plot_disp"];
+	var listParm = ["plot_ci", "colors", "pch", "type", "lty", "lwd", "con_series", "legend", "plot_disp", "order_series"];
 	switch(_intTmpl){
 	case TMPL_RHIST: listParm = ["colors", "lwd", "legend"];             break;
 	case TMPL_ROC:   listParm = ["colors", "pch", "type", "lty", "lwd"]; break;
@@ -2854,42 +3328,54 @@ function loadInitXML_phaseFormat(){
 		debug(" found - " + listFmtVal[1] + "\n");
 		listFmtVal = listFmtVal[1].split(",");
 		var intFmtRow = 0;
-		for(var j in listFmtVal){			
-			var listFmtTd = getFmtSeriesVal(intFmtRow);
-			
-			//  strip leading spaces and quotes from the format value
-			var strFmtVal = listFmtVal[j].replace(/^\s*\"?/, "").replace(/\"?\s*$/, "");
-			debug("      " + strFmtVal + " - ");
-			
-			//  if the parameter is plot_disp, set the hide checkbox
-			if( listParm[i] == "plot_disp" ){
-				debug("hide chk\n");
-				setFmtSeriesHide(intFmtRow, (strFmtVal == "FALSE"));
-				intFmtRow += 2;
-				continue;
-			}
-			
-			//  locate the format control in the series format list and set it
-			var listFmtTdParm = listFmtTd[i].getElementsByTagName("td");
-			var listFmtTxt = listFmtTdParm[1].getElementsByTagName("input");			
-			var listFmtSel = listFmtTdParm[1].getElementsByTagName("select");
-			if( null != listFmtTxt && 0 < listFmtTxt.length ){				
-				debug("text\n");
-				listFmtTxt[0].value = strFmtVal;
-			} else if( null != listFmtSel && 0 < listFmtSel.length ){
-				debug("select\n");
-				setSelected(listFmtSel[0], strFmtVal);
-			} else {
-				debug("WARNING: series format control not found\n");
-			}
-			
-			//  if setting the first parameter (plot_ci), set the series formatting section to modified
-			if( 0 == i && !isTmplSpc() ){ setFmtSeriesMod(j, true); }
+        for (var j in listFmtVal) {
+            var listFmtTd = getFmtSeriesVal(intFmtRow);
+            if (listFmtTd.length > 0) {
 
-			intFmtRow += 2;
-		}
-		
-	}
+                //  strip leading spaces and quotes from the format value
+                var strFmtVal = listFmtVal[j].replace(/^\s*\"?/, "").replace(/\"?\s*$/, "");
+                debug("      " + strFmtVal + " - ");
+
+                //  if the parameter is plot_disp, set the hide checkbox
+                if (listParm[i] == "plot_disp") {
+                    debug("hide chk\n");
+                    setFmtSeriesHide(intFmtRow, (strFmtVal == "FALSE"));
+                    intFmtRow += 2;
+                    continue;
+                }
+                if (listParm[i] == "order_series") {
+                    var tabFmtSeries = document.getElementById("tabFmtSeries");
+                    var trFmtSeries = tabFmtSeries.rows[intFmtRow];
+
+                    trFmtSeries.cells[0].getElementsByTagName("input")[2].value = strFmtVal;
+                    intFmtRow += 2;
+                    continue;
+                }
+
+                //  locate the format control in the series format list and set it
+                var listFmtTdParm = listFmtTd[i].getElementsByTagName("td");
+                var listFmtTxt = listFmtTdParm[1].getElementsByTagName("input");
+                var listFmtSel = listFmtTdParm[1].getElementsByTagName("select");
+                if (null != listFmtTxt && 0 < listFmtTxt.length) {
+                    debug("text\n");
+                    listFmtTxt[0].value = strFmtVal;
+                } else if (null != listFmtSel && 0 < listFmtSel.length) {
+                    debug("select\n");
+                    setSelected(listFmtSel[0], strFmtVal);
+                } else {
+                    debug("WARNING: series format control not found\n");
+                }
+
+                //  if setting the first parameter (plot_ci), set the series formatting section to modified
+                if (0 == i && !isTmplSpc()) {
+                    setFmtSeriesMod(j, true);
+                }
+                intFmtRow += 2;
+            }
+        }
+
+
+    }
 	
 	//  axis formatting
 	var listFmtAxisInput = document.getElementById("divFmtAxis").getElementsByTagName("input");
@@ -2899,11 +3385,131 @@ function loadInitXML_phaseFormat(){
 	listFmtAxisInput[1].value = ( null != (listFmtAxis = _strInitXML.match( /<y1_bufr>(.+)<\/y1_bufr>/ )) ? listFmtAxis[1] : "" );
 	listFmtAxisInput[2].value = ( null != (listFmtAxis = _strInitXML.match( /<y2_lim>(.+)<\/y2_lim>/   )) ? listFmtAxis[1] : "" );
 	listFmtAxisInput[3].value = ( null != (listFmtAxis = _strInitXML.match( /<y2_bufr>(.+)<\/y2_bufr>/ )) ? listFmtAxis[1] : "" );
-		
+
+
+
+
 	//  turn off the dimmer
 	debug("  max checks: " + _intInitXMLChecksMax + "\nloadInitXML_phaseFormat() complete\n\n");
 	_boolDimOverride = false;
 	dimScreen(false);
 	_boolInitXML = false;
 }
+
+function loadInitXML_phaseDiffSeries(strListDiffSeries, ySeries) {
+    var tabFmtSeries = document.getElementById("tabFmtSeries");
+    if (strListDiffSeries != "list()") {
+        strListDiffSeries = strListDiffSeries.substring(5, strListDiffSeries.length - 1);
+        var diffSeries = strListDiffSeries.split("c(");
+        for (var i = 1; i < diffSeries.length; i++) {
+            //c("ARWref_d01 TMP ME","JIMENEZ_d01 TMP ME")
+            diffSeries[i] = diffSeries[i].replace(/"/g, '');
+            var strSeriesName = "DIFF (" + diffSeries[i].replace(/,/g, '-');
+            if(ySeries == 1){
+                seriesDiffY1.push(diffSeries[i].substring(0, diffSeries[i].length-1));
+            }else{
+                seriesDiffY2.push(diffSeries[i].substring(0, diffSeries[i].length-1));
+            }
+            var trFmtSeries;
+            var tdName;
+            //  insert the <hr/> between series format controls
+            if (1 == _intNumSeries) {
+                tabFmtSeries.rows[1].style.display = "table-row";
+            }
+            else {
+                var trHR = tabFmtSeries.insertRow(tabFmtSeries.rows.length);
+                var tdHR = trHR.insertCell(0);
+                tdHR.colSpan = "3";
+                tdHR.appendChild(document.getElementById("spanFmtSeriesHR").cloneNode(true));
+            }
+
+            //  insert a copy of the series format controls
+            trFmtSeries = tabFmtSeries.insertRow(tabFmtSeries.rows.length);
+
+            var tdName = trFmtSeries.insertCell(0);
+            tdName.align = "right";
+            tdName.style.width = "350px";
+            tdName.style.paddingTop = "20px";
+            tdName.appendChild(document.getElementById("spanFmtSeriesName").cloneNode(true));
+
+            var tdFmt1 = trFmtSeries.insertCell(1);
+            tdFmt1.align = "right";
+            tdFmt1.style.width = "200px";
+            tdFmt1.style.paddingTop = "20px";
+            tdFmt1.appendChild(document.getElementById("tabFmtSeriesVal1").cloneNode(true));
+            tdFmt1.getElementsByTagName("input")[1].value = "";
+
+            var tdFmt2 = trFmtSeries.insertCell(2);
+            tdFmt2.align = "right";
+            tdFmt2.style.width = "275px";
+            tdFmt2.style.paddingTop = "20px";
+            tdFmt2.appendChild(document.getElementById("tabFmtSeriesVal2").cloneNode(true));
+
+
+            //  populate the controls with the series name
+            var strYSeries = "Y" + ySeries + "Series";
+            tdName.getElementsByTagName("span")[1].innerHTML="<button onclick='deleteDiffSeries(this, \"" + diffSeries[i].substring(0, diffSeries[i].length-1) + "\", " + ySeries + ");'>Delete</button>";
+            tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
+            tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
+
+            //  add change handlers to the formatting inputs
+            var listInput = trFmtSeries.getElementsByTagName("input");
+            listInput[1].setAttribute("onclick", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+            if (_boolIE) {
+                listInput[1].attachEvent("onclick", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+            }
+
+            listInput[2].setAttribute("onclick", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+            if (_boolIE) {
+                listInput[2].attachEvent("onclick", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+            }
+            listInput[2].value = _intNumSeries + 1;
+            for (var i = 3; i < listInput.length; i++) {
+                listInput[i].setAttribute("onkeydown", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+                if (_boolIE) {
+                    listInput[i].attachEvent("onkeydown", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+                }
+            }
+            var listSel = trFmtSeries.getElementsByTagName("select");
+            for (var i = 0; i < listSel.length; i++) {
+                listSel[i].setAttribute("onchange", "javascript:setFmtSeriesMod(" + _intNumSeries + ", 'true')");
+                if (_boolIE) {
+                    listSel[i].attachEvent("onchange", new Function("setFmtSeriesMod(" + _intNumSeries + ", 'true')"));
+                }
+            }
+            _intNumSeries++;
+
+        }
+    }
+}
+
+function deleteDiffSeries(el, seriesDiffName, ySeries) {
+    if (ySeries == 1) {
+        var index = seriesDiffY1.indexOf(seriesDiffName);
+        if (index > -1) {
+            seriesDiffY1.splice(index, 1);
+        }
+    } else {
+        var index = seriesDiffY2.indexOf(seriesDiffName);
+        if (index > -1) {
+            seriesDiffY2.splice(index, 1);
+        }
+    }
+    var parentTR = findUpTag(el, "tr");
+    var siblingParentTR=parentTR.previousSibling;
+    parentTR.parentNode.removeChild(parentTR);
+    siblingParentTR.parentNode.removeChild(siblingParentTR);
+    _intNumSeries--;
+    document.getElementById("spanFmtSeriesNum").innerHTML = "# Series: " + _intNumSeries;
+}
+function findUpTag(el, tag) {
+    while (el.parentNode) {
+        el = el.parentNode;
+        if (el.tagName === tag || el.tagName == tag.toUpperCase())
+            return el;
+    }
+    return null;
+}
+
+
 
