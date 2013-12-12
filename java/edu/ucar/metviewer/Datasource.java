@@ -24,16 +24,23 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
+ * This singleton creates and manages the connection pool
  * @author tatiana: tatiana $
  * @version : 1.0 : 20/May/13 09:17 $
  */
 public class Datasource {
 
+  private static final String DB_PREFIX_MV = "mv_";
   private static Datasource datasource = null;
   private static final Logger logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
-  private BoneCP connectionPool;
+  private static BoneCP connectionPool;
   private static List<String> listDB;
 
+  /**
+   * Creates the connection pool and the list of all available databases using database credentials from the properties file
+   * @throws IOException
+   * @throws SQLException
+   */
   private Datasource() throws IOException, SQLException {
     // load datasource properties
     ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
@@ -66,6 +73,47 @@ public class Datasource {
 
   }
 
+  /**
+   * Creates the connection pool and the list of all available databases using database credentials from the parameters list
+   * @param strDBHost - DB host
+   * @param strDBUser - DB user name
+   * @param strDBPassword - DB password
+   * @throws IOException
+   * @throws SQLException
+   */
+  private Datasource(String strDBHost, String strDBUser, String strDBPassword) throws IOException, SQLException {
+    // load datasource properties
+
+    try {
+      Class.forName("com.mysql.jdbc.Driver");
+    } catch (ClassNotFoundException e) {
+      logger.error(e.getMessage());
+    }
+    // setup the connection pool
+    BoneCPConfig config = new BoneCPConfig();
+    config.setJdbcUrl("jdbc:mysql://" + strDBHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+    config.setUsername(strDBUser);
+    config.setPassword(strDBPassword);
+    config.setMinConnectionsPerPartition(2);
+    config.setMaxConnectionsPerPartition(3);
+    config.setPartitionCount(1);
+    config.setIdleConnectionTestPeriodInSeconds(1);
+    config.setIdleMaxAgeInSeconds(240);
+    config.setStatementsCacheSize(100);
+    config.setReleaseHelperThreads(3);
+    connectionPool = new BoneCP(config); // setup the connection pool
+
+
+    listDB = new ArrayList<String>();
+    initDBList();
+
+  }
+
+  /**
+   * creates a list of all available database names that starts form the valid prefix
+   * @throws SQLException
+   */
+
   public void initDBList() throws SQLException {
     Connection testConnection = null;
     Statement testStatement = null;
@@ -78,7 +126,7 @@ public class Datasource {
       String database;
       while (resultSet.next()) {
         database = resultSet.getString("Database");
-        if (database.startsWith("mv_")) {
+        if (database.startsWith(DB_PREFIX_MV)) {
           listDB.add(database);
         }
       }
@@ -98,6 +146,7 @@ public class Datasource {
     }
   }
 
+
   public static Datasource getInstance() {
     if (datasource == null) {
       try {
@@ -110,7 +159,13 @@ public class Datasource {
 
   }
 
-  public Connection getConnection(String db) throws SQLException {
+  /**
+   * Returns a connection to the database with the specified name
+   * @param db - a name of database to get a connection for
+   * @return - db connection
+   * @throws SQLException
+   */
+  public static Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
     Statement statement = null/**/;
@@ -133,6 +188,11 @@ public class Datasource {
     return con;
   }
 
+  /**
+   * Returns a connection to MySQL
+   * @return - connection
+   * @throws SQLException
+   */
   public Connection getConnection() throws SQLException {
     Connection con = null;
     try {
@@ -143,7 +203,40 @@ public class Datasource {
     return con;
   }
 
-  public boolean validate(String db) {
+  /**
+   * Returns a connection to the database with the specified name and credentials
+   * @param strDBHost - DB host
+   * @param strDBName - DB name
+    * @param strDBUser - DB user name
+    * @param strDBPassword - DB password
+   * @return - db connection
+   */
+  public static Connection getConnection(String strDBHost, String strDBName, String strDBUser, String strDBPassword) {
+    Connection con = null;
+
+    if (datasource == null) {
+      try {
+        datasource = new Datasource(strDBHost, strDBUser, strDBPassword);
+      } catch (IOException e) {
+        logger.error(e.getMessage());
+      } catch (SQLException e) {
+        logger.error(e.getMessage());
+      }
+    }
+    try {
+      con = getConnection(strDBName);
+    } catch (SQLException e) {
+      logger.error(e.getMessage());
+    }
+    return con;
+  }
+
+  /**
+   * checks if a database with specified name exists
+   * @param db - name of the database to check
+   * @return
+   */
+  public static boolean validate(String db) {
     boolean result = false;
     for (String availableDB : listDB) {
       if (availableDB.equals(db)) {
@@ -154,6 +247,10 @@ public class Datasource {
     return result;
   }
 
+  /**
+   * Returns a list of all available database names
+   * @return list of database names
+   */
   public List<String> getAllDatabases() {
     return Collections.unmodifiableList(listDB);
   }
