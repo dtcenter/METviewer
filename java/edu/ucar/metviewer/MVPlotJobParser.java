@@ -7,7 +7,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -74,7 +73,8 @@ public class MVPlotJobParser extends MVUtil {
    *
    * @param node plot_spec MVNode to parse
    */
-  public MVPlotJobParser(MVNode node) throws Exception {
+  public MVPlotJobParser(MVNode node, Connection con) throws Exception {
+    _con = con;
     _nodePlotSpec = node;
     parsePlotJobSpec();
   }
@@ -138,17 +138,11 @@ public class MVPlotJobParser extends MVUtil {
             strDBPassword = node._children[j]._value;
           }
         }
-
-        try {
-          //  connect to the database
-          Class.forName("com.mysql.jdbc.Driver").newInstance();
-          Connection con = DriverManager.getConnection("jdbc:mysql://" + strDBHost + "/" + strDBName, strDBUser, strDBPassword);
-          if (con.isClosed())
-            throw new Exception("METViewer error: database connection failed");
-          _con = con;
-        } catch (Exception ex) {
-          System.out.println("  **  ERROR: parsePlotJob() caught " + ex.getClass() + " connecting to database: " + ex.getMessage());
+        if (_con == null) {
+          //batch mode
+          _con = Datasource.getConnection(strDBHost, strDBName, strDBUser, strDBPassword);
         }
+
       }
 
       //  <rscript>
@@ -172,7 +166,7 @@ public class MVPlotJobParser extends MVUtil {
       //  <date_list>
       else if (node._tag.equals("date_list")) {
         /*
-				String strName = node._name;				
+        String strName = node._name;
 				String[] listDates = parseDateList(node, _con);
 				_tableDateListDecl.put(strName, listDates);
 				*/
@@ -543,7 +537,7 @@ public class MVPlotJobParser extends MVUtil {
               MVNode nodeFcstVar = nodeDepN._children[k];
               ArrayList listStats = new ArrayList();
 
-              //  <stat>s
+              //  <stat>
               for (int l = 0; l < nodeFcstVar._children.length; l++) {
                 String strStat = nodeFcstVar._children[l]._value;
                 if (!isStatValid(strStat)) {
@@ -730,6 +724,10 @@ public class MVPlotJobParser extends MVUtil {
           throw new Exception("invalid roc_calc setting - both roc_pct and roc_ctc are true");
         }
       }
+      //  <normalized_histogram>
+      else if (node._tag.equals("normalized_histogram")) {
+        job.setNormalizedHistogram(node._value.equalsIgnoreCase("true"));
+      }
 
       //  boolean format settings
       else if (_tableFormatBoolean.containsKey(node._tag)) {
@@ -743,6 +741,13 @@ public class MVPlotJobParser extends MVUtil {
 
       //  R string format settings
       else if (_tableFormatString.containsKey(node._tag)) {
+        if (node._tag.equals("order_series")) {
+          //validate order_series
+          String strStat = node._value;
+          if (!isOrderValid(strStat)) {
+            throw new Exception("Series order is invalid " + strStat);
+          }
+        }
         Method m = (Method) _tableFormatString.get(node._tag);
         try {
           m.invoke(job, new Object[]{node._value});
@@ -807,8 +812,6 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("event_equal_m", MVPlotJob.class.getDeclaredMethod("setEventEqualM", new Class[]{boolean.class}));
       _tableFormatBoolean.put("vert_plot", MVPlotJob.class.getDeclaredMethod("setVertPlot", new Class[]{boolean.class}));
       _tableFormatBoolean.put("x_reverse", MVPlotJob.class.getDeclaredMethod("setXReverse", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("plot1_diff", MVPlotJob.class.getDeclaredMethod("setPlot1Diff", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("plot2_diff", MVPlotJob.class.getDeclaredMethod("setPlot2Diff", new Class[]{boolean.class}));
       _tableFormatBoolean.put("num_stats", MVPlotJob.class.getDeclaredMethod("setShowNStats", new Class[]{boolean.class}));
       _tableFormatBoolean.put("indy1_stag", MVPlotJob.class.getDeclaredMethod("setIndy1Stagger", new Class[]{boolean.class}));
       _tableFormatBoolean.put("indy2_stag", MVPlotJob.class.getDeclaredMethod("setIndy2Stagger", new Class[]{boolean.class}));
@@ -819,6 +822,7 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("log_y1", MVPlotJob.class.getDeclaredMethod("setLogY1", new Class[]{boolean.class}));
       _tableFormatBoolean.put("log_y2", MVPlotJob.class.getDeclaredMethod("setLogY2", new Class[]{boolean.class}));
       _tableFormatBoolean.put("varianceInflationFactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
+      _tableFormatBoolean.put("normalizedHistogram", MVPlotJob.class.getDeclaredMethod("setNormalizedHistogram", new Class[]{boolean.class}));
     } catch (NoSuchMethodException e) {
     }
   }
@@ -897,6 +901,9 @@ public class MVPlotJobParser extends MVUtil {
 
       _tableFormatString.put("plot_ci", MVPlotJob.class.getDeclaredMethod("setPlotCI", new Class[]{String.class}));
       _tableFormatString.put("plot_disp", MVPlotJob.class.getDeclaredMethod("setPlotDisp", new Class[]{String.class}));
+      _tableFormatString.put("listDiffSeries1", MVPlotJob.class.getDeclaredMethod("setDiffSeries1", new Class[]{String.class}));
+      _tableFormatString.put("listDiffSeries2", MVPlotJob.class.getDeclaredMethod("setDiffSeries2", new Class[]{String.class}));
+      _tableFormatString.put("order_series", MVPlotJob.class.getDeclaredMethod("setOrderSeries", new Class[]{String.class}));
       _tableFormatString.put("colors", MVPlotJob.class.getDeclaredMethod("setColors", new Class[]{String.class}));
       _tableFormatString.put("pch", MVPlotJob.class.getDeclaredMethod("setPch", new Class[]{String.class}));
       _tableFormatString.put("type", MVPlotJob.class.getDeclaredMethod("setType", new Class[]{String.class}));
@@ -917,8 +924,8 @@ public class MVPlotJobParser extends MVUtil {
 
   /**
    * Populate an MVOrderedMap data structure with information specified in the
-   * input XML plot specification &lt;dep&gt; node.  The returned data structure
-   * should be added to an MVPlotJob.
+   * input XML plot specification &lt;dep&gt; node.  The returned data
+   * structure should be added to an MVPlotJob.
    *
    * @param nodeDep
    * @return
@@ -971,9 +978,9 @@ public class MVPlotJobParser extends MVUtil {
 
   /**
    * Build a list of String date representations, specified by the information
-   * in the input &lt;date_list&gt; node.  The input database connection is used
-   * to query for all dates of the specified field between the start and end
-   * date.
+   * in the input &lt;date_list&gt; node.  The input database connection is
+   * used to query for all dates of the specified field between the start and
+   * end date.
    *
    * @param nodeDateList XML plot specification node specifying the date list
    * @param con          Database connection to query against
@@ -1104,6 +1111,39 @@ public class MVPlotJobParser extends MVUtil {
    */
   public boolean isStatValid(String strStat) {
     return !getStatTable(strStat).equals("");
+  }
+
+  /**
+   * Determine if the input order name is valid by validating the order of
+   * integers
+   *
+   * @param strStat order of series
+   * @return true if valid, false otherwise
+   */
+  public boolean isOrderValid(String strStat) {
+    //c(1, 3, 2)
+    boolean result = true;
+    if (!strStat.equals("c()")) {
+      List<Integer> inInts = new ArrayList<Integer>();
+      String[] inChars = strStat.split("\\(")[1].split("\\)")[0].split(",");
+      for (String ch : inChars) {
+        Integer order;
+        try {
+          order = Integer.valueOf(ch.trim());
+          inInts.add(order);
+        } catch (NumberFormatException e) {
+
+        }
+      }
+      Collections.sort(inInts);
+      for (int i = 0; i < inInts.size(); i++) {
+        if (!inInts.get(i).equals(i + 1)) {
+          result = false;
+          break;
+        }
+      }
+    }
+    return result;
   }
 
   public static String serializeJob(MVPlotJob job) throws Exception {
@@ -1268,8 +1308,6 @@ public class MVPlotJobParser extends MVUtil {
         "<event_equal_m>" + job.getEventEqualM() + "</event_equal_m>" +
         "<vert_plot>" + job.getVertPlot() + "</vert_plot>" +
         "<x_reverse>" + job.getXReverse() + "</x_reverse>" +
-        "<plot1_diff>" + job.getPlot1Diff() + "</plot1_diff>" +
-        "<plot2_diff>" + job.getPlot2Diff() + "</plot2_diff>" +
         "<num_stats>" + job.getShowNStats() + "</num_stats>" +
         "<indy1_stag>" + job.getIndy1Stagger() + "</indy1_stag>" +
         "<indy2_stag>" + job.getIndy2Stagger() + "</indy2_stag>" +
@@ -1297,6 +1335,7 @@ public class MVPlotJobParser extends MVUtil {
         "<xtlab_freq>" + job.getXtlabFreq() + "</xtlab_freq>" +
         "<xlab_weight>" + job.getXlabWeight() + "</xlab_weight>" +
         "<xlab_size>" + job.getXlabSize() + "</xlab_size>" +
+        "<xtlab_size>" + job.getXtlabSize() + "</xtlab_size>" +
         "<xlab_offset>" + job.getXlabOffset() + "</xlab_offset>" +
         "<xlab_align>" + job.getYlabAlign() + "</xlab_align>" +
         "<ytlab_orient>" + job.getYtlabOrient() + "</ytlab_orient>" +
@@ -1304,6 +1343,7 @@ public class MVPlotJobParser extends MVUtil {
         "<ytlab_horiz>" + job.getYtlabHoriz() + "</ytlab_horiz>" +
         "<ylab_weight>" + job.getYlabWeight() + "</ylab_weight>" +
         "<ylab_size>" + job.getYlabSize() + "</ylab_size>" +
+        "<ytlab_size>" + job.getYtlabSize() + "</ytlab_size>" +
         "<ylab_offset>" + job.getYlabOffset() + "</ylab_offset>" +
         "<ylab_align>" + job.getYlabAlign() + "</ylab_align>" +
         "<grid_lty>" + job.getGridLty() + "</grid_lty>" +
@@ -1315,6 +1355,7 @@ public class MVPlotJobParser extends MVUtil {
         "<x2tlab_horiz>" + job.getX2tlabHoriz() + "</x2tlab_horiz>" +
         "<x2lab_weight>" + job.getX2labWeight() + "</x2lab_weight>" +
         "<x2lab_size>" + job.getX2labSize() + "</x2lab_size>" +
+        "<x2tlab_size>" + job.getX2tlabSize() + "</x2tlab_size>" +
         "<x2lab_offset>" + job.getX2labOffset() + "</x2lab_offset>" +
         "<x2lab_align>" + job.getX2labAlign() + "</x2lab_align>" +
         "<y2tlab_orient>" + job.getY2tlabOrient() + "</y2tlab_orient>" +
@@ -1322,6 +1363,7 @@ public class MVPlotJobParser extends MVUtil {
         "<y2tlab_horiz>" + job.getY2tlabHoriz() + "</y2tlab_horiz>" +
         "<y2lab_weight>" + job.getY2labWeight() + "</y2lab_weight>" +
         "<y2lab_size>" + job.getY2labSize() + "</y2lab_size>" +
+        "<y2tlab_size>" + job.getY2tlabSize() + "</y2tlab_size>" +
         "<y2lab_offset>" + job.getY2labOffset() + "</y2lab_offset>" +
         "<y2lab_align>" + job.getY2labAlign() + "</y2lab_align>" +
         "<legend_size>" + job.getLegendSize() + "</legend_size>" +
@@ -1343,6 +1385,7 @@ public class MVPlotJobParser extends MVUtil {
 
         "<plot_ci>" + job.getPlotCI() + "</plot_ci>" +
         "<plot_disp>" + job.getPlotDisp() + "</plot_disp>" +
+        "<order_series>" + job.getOrderSeries() + "</order_series>" +
         "<colors>" + job.getColors() + "</colors>" +
         "<pch>" + job.getPch() + "</pch>" +
         "<type>" + job.getType() + "</type>" +
@@ -1354,10 +1397,12 @@ public class MVPlotJobParser extends MVUtil {
         "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
         "<y1_bufr>" + job.getY1Bufr() + "</y1_bufr>" +
         "<y2_lim>" + job.getY2Lim() + "</y2_lim>" +
-        "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>"+
-        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>"  +
-        "<plot_stat>" + job.getPlotStat() + "</plot_stat>" ;;
-
+        "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>" +
+        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>" +
+        "<normalized_histogram>" + job.getNormalizedHistogram() + "</normalized_histogram>" +
+        "<plot_stat>" + job.getPlotStat() + "</plot_stat>" +
+        "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
+        "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>";
     //  close the plot job
     strXML += "</plot></plot_spec>";
     return strXML;
