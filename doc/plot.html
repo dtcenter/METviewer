@@ -376,16 +376,24 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 						<span class="code">&lt;plot_fix&gt;</span> value</li>
 				</ul>
 			</li><br/>
+
+            <a name="hist_type"></a>
+            			<li><span class="code">&lt;normalized_histogram&gt;</span>: contains flags telling METViewer which type of histogram to built: normalized or raw counts plot.  This setting is required
+            				if the rhist.R_tmpl is used, otherwise, it is ignored.The default value is TRUE (normalized histogram).</br>
+            				<ul>
+            					<li><span class="code">&lt;normalized_histogram&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether  to build a normalized or raw counts histogram
+            						</li>
+
+            				</ul><br/>
+
+            			</li><br/>
 			
 			<a name="fmt_bool"></a>		
 			<li><span class="code">&lt;event_equal&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on the event equalizer</li> 
 			<li><span class="code">&lt;event_equal_m&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on the event equalizer for multiple events</li> 
 			<li><span class="code">&lt;vert_plot&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on vertical levels plotting</li> 
 			<li><span class="code">&lt;x_reverse&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, reverse the direction of the x-axis</li> 
-			<li><span class="code">&lt;plot1_diff&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on a difference curve should be
-			plotted for the y1 series; calculated as the pairwise difference between the members of the second series minus the first</li> 
-			<li><span class="code">&lt;plot2_diff&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on a difference curve should be
-			plotted for the y2 series; calculated as the pairwise difference between the members of the second series minus the first</li> 
+
 			<li><span class="code">&lt;num_stats&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on the number of stats for each independent
 			variable value, shown along the x2 axis</li>
 			<li><span class="code">&lt;indy1_stag&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicates whether y1 series points should be 
@@ -399,7 +407,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;log_y1&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on log-scale on the y1 axis</li>
 			<li><span class="code">&lt;log_y2&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on log-scale on the y2 axis</li>
             <li><span class="code">&lt;varianceInflationFactor&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, include/exclude the variance inflation factor when computing standard errors for means and medians - TRUE: include, FALSE: exclude - default value: <span class="term">TRUE</span></li>
-
+            <li><span class="code">&lt;order_series&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, include/exclude the variance inflation factor when computing standard errors for means and medians - TRUE: include, FALSE: exclude - default value: <span class="term">TRUE</span></li>
             <br/>
 		
 			<a name="fmt_txt"></a>		
@@ -487,7 +495,12 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;lwd&gt;</span>: <span class="term">lines(lwd)</span> - line width - example: <span class="term">c(2, 2)</span></li>
 			<li><span class="code">&lt;con_series&gt;</span>: if a series contains NAs, specifies whether to connect the points or not - 0: do not connect, 1: connect - example: <span class="term">c(0, 1)</span></li><br/>
 			<li><span class="code">&lt;legend&gt;</span>: legend labels for each series - example: <span class="term">c("series1", "series2")</span></li>
-			
+            <li><span class="code">&lt;listDiffSeries1&gt;</span>: turns on a difference curve should be
+            plotted for the y1 series; calculated as the pairwise difference between the members of the first  series minus the second - example:<span class="term">list(c("series1","series2"), c("series3","series4"))</span></li>
+            <li><span class="code">&lt;listDiffSeries2&gt;</span>: turns on a difference curve should be
+            plotted for the y2 series; calculated as the pairwise difference between the members of the first  series minus the second - example:<span class="term">list(c("series1","series2"), c("series3","series4"))</span></li>
+            <li><span class="code">&lt;order_series&gt;</span>: the order of teh series - example: <span class="term">c(1, 2, 3)</span></li>
+
 			<a name="fmt_axis"></a>
 			<li><span class="code">&lt;y1_lim&gt;</span>: left y axis (y1-axis) limits - example: <span class="term">c(0,5)</span></li>
 			<li><span class="code">&lt;y1_bufr&gt;</span>: left y axis (y1-axis) top and bottom buffer - example: <span class="term">.04</span></li>
