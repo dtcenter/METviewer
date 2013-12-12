@@ -4,7 +4,7 @@
 <html>
 <head>
 <title>METViewer - Database Administration</title>
-<link rel="stylesheet" type="text/css" href="include/metviewer.css"/>
+<link rel="stylesheet" type="text/css" href="css/metviewer.css"/>
 <link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 </head>
 
