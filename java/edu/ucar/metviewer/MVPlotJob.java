@@ -59,8 +59,6 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolEventEqualM = false;
   protected boolean _boolVertPlot = false;
   protected boolean _boolXReverse = false;
-  protected boolean _boolPlot1Diff = false;
-  protected boolean _boolPlot2Diff = false;
   protected boolean _boolShowNStats = false;
   protected boolean _boolIndy1Stagger = false;
   protected boolean _boolIndy2Stagger = false;
@@ -70,7 +68,8 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolDumpPoints2 = false;
   protected boolean _boolLogY1 = false;
   protected boolean _boolLogY2 = false;
-  protected boolean _boolVarianceInflationFactor=true;
+  protected boolean _boolVarianceInflationFactor = true;
+  protected boolean _boolNormalizedHistogram = true;
 
   protected String _strPlotType = "png256";
   protected String _strPlotHeight = "8.5";
@@ -170,6 +169,9 @@ public class MVPlotJob extends MVUtil {
   protected String _strY2Lim = "";
   protected String _strY2Bufr = ".04";
   protected String _plotStat = "median";
+  protected String _strOrderSeries = "";
+  protected String _strDiffSeries1="list()";
+  protected String _strDiffSeries2="list()";
 
 
   public static MVPlotJob getBaseJob(Connection con) throws Exception {
@@ -209,6 +211,7 @@ public class MVPlotJob extends MVUtil {
     job._listDepGroup = copyList(_listDepGroup);
     job._mapSeries1Val = new MVOrderedMap(_mapSeries1Val);
     job._mapSeries2Val = new MVOrderedMap(_mapSeries2Val);
+
     job._mapSeriesNobs = new MVOrderedMap(_mapSeriesNobs);
     job._mapDep1Scale = new MVOrderedMap(_mapDep1Scale);
     job._mapDep2Scale = new MVOrderedMap(_mapDep2Scale);
@@ -230,8 +233,6 @@ public class MVPlotJob extends MVUtil {
     job._boolEventEqualM = _boolEventEqualM;
     job._boolVertPlot = _boolVertPlot;
     job._boolXReverse = _boolXReverse;
-    job._boolPlot1Diff = _boolPlot1Diff;
-    job._boolPlot2Diff = _boolPlot2Diff;
     job._boolShowNStats = _boolShowNStats;
     job._boolIndy1Stagger = _boolIndy1Stagger;
     job._boolIndy2Stagger = _boolIndy2Stagger;
@@ -242,6 +243,7 @@ public class MVPlotJob extends MVUtil {
     job._boolLogY1 = _boolLogY1;
     job._boolLogY2 = _boolLogY2;
     job._boolVarianceInflationFactor = _boolVarianceInflationFactor;
+    job._boolNormalizedHistogram = _boolNormalizedHistogram;
 
     job._strPlotType = _strPlotType;
     job._strPlotHeight = _strPlotHeight;
@@ -329,6 +331,9 @@ public class MVPlotJob extends MVUtil {
 
     job._strPlotCI = _strPlotCI;
     job._strPlotDisp = _strPlotDisp;
+    job._strDiffSeries1 = _strDiffSeries1;
+    job._strDiffSeries2 = _strDiffSeries2;
+    job._strOrderSeries = _strOrderSeries;
     job._strColors = _strColors;
     job._strPch = _strPch;
     job._strType = _strType;
@@ -340,7 +345,7 @@ public class MVPlotJob extends MVUtil {
     job._strY1Bufr = _strY1Bufr;
     job._strY2Lim = _strY2Lim;
     job._strY2Bufr = _strY2Bufr;
-    job._plotStat=_plotStat;
+    job._plotStat = _plotStat;
 
     return job;
   }
@@ -495,21 +500,41 @@ public class MVPlotJob extends MVUtil {
     return _mapSeries1Val;
   }
 
+
+
   public void addSeries1Val(String field, String[] vals, int index) {
     _mapSeries1Val.put(field, vals, index);
   }
 
+
+
   public void addSeries1Val(String field, String[] vals) {
+    if (field.equals("valid_hour") || field.equals("init_hour")) {
+      String[] newVals = new String[vals.length];
+      for (int i = 0; i < vals.length; i++) {
+        newVals[i] = vals[i].replaceFirst("^0+(?!$)", "");
+      }
+      vals = newVals;
+    }
     addSeries1Val(field, vals, _mapSeries1Val.size());
+
   }
+
+
+
+
 
   public void removeSeries1Val(String field) {
     _mapSeries1Val.remove(field);
   }
 
+
+
   public void clearSeries1Val() {
     _mapSeries1Val = new MVOrderedMap();
   }
+
+
 
   public MVOrderedMap getSeries2Val() {
     return _mapSeries2Val;
@@ -727,21 +752,7 @@ public class MVPlotJob extends MVUtil {
     _boolXReverse = xReverse;
   }
 
-  public boolean getPlot1Diff() {
-    return _boolPlot1Diff;
-  }
 
-  public void setPlot1Diff(boolean plot1Diff) {
-    _boolPlot1Diff = plot1Diff;
-  }
-
-  public boolean getPlot2Diff() {
-    return _boolPlot2Diff;
-  }
-
-  public void setPlot2Diff(boolean plot2Diff) {
-    _boolPlot2Diff = plot2Diff;
-  }
 
   public boolean getShowNStats() {
     return _boolShowNStats;
@@ -1567,12 +1578,61 @@ public class MVPlotJob extends MVUtil {
     this._boolVarianceInflationFactor = varianceInflationFactor;
   }
 
+  public boolean getNormalizedHistogram() {
+    return _boolNormalizedHistogram;
+  }
+
+  public void setNormalizedHistogram(boolean _boolNormalizedHistogram) {
+    this._boolNormalizedHistogram = _boolNormalizedHistogram;
+  }
+
   public String getPlotStat() {
     return _plotStat;
   }
 
   public void setPlotStat(String _plotStat) {
     this._plotStat = _plotStat;
+  }
+
+
+  public String getOrderSeries() {
+    return _strOrderSeries;
+  }
+
+  public void setOrderSeries(String orderSeries) {
+    _strOrderSeries = orderSeries;
+  }
+
+  public String getDiffSeries1() {
+    return _strDiffSeries1;
+  }
+
+  public int getDiffSeries1Count() {
+    if (_strDiffSeries1.equals("list()")) {
+      return 0;
+    }
+    String[] diffSeries = _strDiffSeries1.split("c\\(");
+    return diffSeries.length - 1;
+  }
+
+  public int getDiffSeries2Count() {
+    if (_strDiffSeries2.equals("list()")) {
+      return 0;
+    }
+    String[] diffSeries = _strDiffSeries2.split("c\\(");
+    return diffSeries.length - 1;
+  }
+
+  public void setDiffSeries1(String _strDiffSeries1) {
+    this._strDiffSeries1 = _strDiffSeries1;
+  }
+
+  public String getDiffSeries2() {
+    return _strDiffSeries2;
+  }
+
+  public void setDiffSeries2(String _strDiffSeries2) {
+    this._strDiffSeries2 = _strDiffSeries2;
   }
 }
 
