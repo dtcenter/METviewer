@@ -166,8 +166,24 @@ function onLoad(){
             $('#y2AxisDiff').removeAttr("disabled");
             $('#y1AxisDiff').removeAttr("disabled");
             for (var i = 0; i < seriesNames.length; i++) {
+                var isInclude = false;
                 if (seriesNames[i].innerHTML.indexOf('DIFF') != 0) {
+
+                    // curve can be included ONLY if it is MODE Ratio stat or any of Stat
+                    if (_strPlotData == "mode") {
+                        var desc = seriesNames[i].innerHTML.split(" ");
+                        if (_listStatModelRatio.indexOf(desc[desc.length - 1]) > -1) {
+                            isInclude = true;
+                        }
+                    } else {
+                        isInclude = true;
+                    }
+                }
+
+
+                if (isInclude) {
                     var yAxisText = seriesNames[i].parentNode.getElementsByTagName("span")[2].innerHTML;
+
                     if (yAxisText.indexOf("2") !== -1) {
                         $('#series1Y2')
                                 .append($("<option></option>")
@@ -700,13 +716,13 @@ function updateTmpl(){
 	listFmtAxis[6].style.display							= boolY2Fmt?	 "inline" : "none";
 	listFmtAxis[7].style.display							= boolY2Fmt?	 "inline" : "none";
 
-    if(_intTmpl == TMPL_SERIES_PLOT || _intTmpl == TMPL_BAR_PLOT || _intTmpl == TMPL_BOX_PLOT ){
-               document.getElementById("btnFmtAddDifferenceCurve").style.display = "inline";
-           }else{
-               document.getElementById("btnFmtAddDifferenceCurve").style.display = "none";
-           }
+    if (_intTmpl == TMPL_SERIES_PLOT || _intTmpl == TMPL_BAR_PLOT || _intTmpl == TMPL_BOX_PLOT) {
+        document.getElementById("btnFmtAddDifferenceCurve").style.display = "inline";
+    } else {
+        document.getElementById("btnFmtAddDifferenceCurve").style.display = "none";
+    }
 
-	if( isTmplSpc() ){
+    if( isTmplSpc() ){
 		buildSeriesDivSpc();
 		updateFmtPlot();
 	} else { buildSeriesDiv(); }
