@@ -2518,7 +2518,10 @@ public class MVBatch extends MVUtil {
         strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
       }
       if (!strStatName.equals("CNTSUM")) {
-        strGroupBy += ",\n  fcst_valid";
+        if(!strGroupBy.equals("\nGROUP BY\n")){
+          strGroupBy += ",";
+        }
+        strGroupBy += "  fcst_valid";
       }
     }
 
