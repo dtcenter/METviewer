@@ -747,6 +747,19 @@ public class MVPlotJobParser extends MVUtil {
           if (!isOrderValid(strStat)) {
             throw new Exception("Series order is invalid " + strStat);
           }
+        }else if(node._tag.startsWith("listDiffSeries")){
+          //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
+          for (String stat : _tableModeSingleStatField.getKeyList()) {
+            if (node._value.indexOf(stat) > 0) {
+              throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
+            }
+          }
+          for (String stat : _tableModePairStatField.getKeyList()) {
+            if (node._value.indexOf(stat) > 0) {
+              throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
+            }
+          }
+
         }
         Method m = (Method) _tableFormatString.get(node._tag);
         try {

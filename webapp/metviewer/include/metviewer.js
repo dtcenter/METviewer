@@ -1194,7 +1194,24 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex, showArrows){
 		listDiv[intIndex].getElementsByTagName("td")[1].style.display = "table-cell";
 	}
 	fillSelect(selVal, resp.vals);
-
+    if (resp.vals.length == 1 && resp.vals[0].length == 0) {
+        document.getElementById("ratio_stats").style.display = "none";
+        document.getElementById("other_stats").style.display = "none";
+    } else {
+        var strPlotData = getSelected(document.getElementById("selPlotData"))[0];
+        document.getElementById("other_stats").style.display = "block";
+        if (strPlotData == "Stat") {
+            document.getElementById("ratio_stats").style.display = "none";
+            document.getElementById("aggStats").style.display = "block";
+            document.getElementById("chkCalcStat").style.display = "inline";
+            document.getElementById("spanCalcStat").style.display = "inline";
+        } else if (strPlotData == "MODE") {
+            document.getElementById("ratio_stats").style.display = "block";
+            document.getElementById("aggStats").style.display = "none";
+            document.getElementById("chkCalcStat").style.display = "none";
+            document.getElementById("spanCalcStat").style.display = "none";
+        }
+    }
 }
 
 /**

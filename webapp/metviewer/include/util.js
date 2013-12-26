@@ -130,13 +130,25 @@ function escapeXml(str){
  * Clear and populate a select list with the specified id with the items in the
  * specified list
  */
-function fillSelect(sel, listOpt){
-	clearSelect(sel);
-	for(i in listOpt){
-		var opt = document.createElement("option");
-		opt.text = listOpt[i];
-		try{ sel.add(opt, null); }catch(ex){ sel.add(opt); }
-	}
+function fillSelect(sel, listOpt) {
+    clearSelect(sel);
+    if (listOpt.length == 1 && listOpt[0].length == 0) {
+        var opt = document.createElement("option");
+        opt.text = "N/A";
+        sel.add(opt, null);
+        sel.disabled = 'disabled';
+    } else {
+        sel.removeAttribute('disabled');
+        for (i in listOpt) {
+            var opt = document.createElement("option");
+            opt.text = listOpt[i];
+            try {
+                sel.add(opt, null);
+            } catch (ex) {
+                sel.add(opt);
+            }
+        }
+    }
 }
 
 /**
@@ -189,14 +201,27 @@ function ListValResp(id, vals){
  * Parse the specified <list_val> server response XML and return the results in
  * a listVal object
  */
-function parseListValResp(strResp, strType){
-	//var listProc = strResp.match( new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>(.*)<\/val><\/list_" + strType + ">") );
-	var listProc = strResp.match( new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>([\\s\\S]*)<\/val><\/list_" + strType + ">") );
-	if( null == listProc ){
-		debug("parseListValResp() - ERROR: could not parse response: " + strResp + "\n\n");
-		return null;
-	}
-	return new ListValResp(listProc[1], listProc[2].split( /<\/val><val>/ ));
+function parseListValResp(strResp, strType) {
+    //var listProc = strResp.match( new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>(.*)<\/val><\/list_" + strType + ">") );
+    //<list_val><id>0</id></list_val>
+    var id, vals;
+    var listProc = strResp.match(new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)?<val>([\\s\\S]*)<\/val><\/list_" + strType + ">"));
+
+    if (null == listProc) {
+        //no values
+        listProc = strResp.match(new RegExp("<list_" + strType + ">(?:<id>(\\d+)<\/id>)<\/list_" + strType + ">"));
+        if (null == listProc) {
+            debug("parseListValResp() - ERROR: could not parse response: " + strResp + "\n\n");
+            return null;
+        } else {
+            id = listProc[1];
+            vals = [""];
+        }
+    } else {
+        id = listProc[1];
+        vals = listProc[2].split(/<\/val><val>/);
+    }
+    return new ListValResp(id, vals);
 }
 
 /**
