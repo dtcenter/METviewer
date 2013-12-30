@@ -416,7 +416,7 @@ if( TRUE == boolDumpPoints1 ){
 }
 
 # sort and dump the y2 axis series data points into a file suffixed .points2
-if( TRUE == boolDumpPoints2 ){
+if( TRUE == boolDumpPoints2 && intNumSeries2){
   listSeriesOrdered=list();
   oldInd=1;
   for(index in 1:length(listPlotOrderSeries2Part)){
