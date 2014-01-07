@@ -259,9 +259,17 @@ for( listAllStatsName in names(listAllStats) ){
                                   listPlotCI[indexesNumSeries1], dblAlpha, boolVarianceInflationFactor, strPlotStat);
   listSeries1 = append(listSeries1, listPlotData1$series);
   if( TRUE == exists("listNStats") ){
-    listNStats = listNStats + listPlotData1$nstats;
+    if("nstats" %in% names(listAllStats[[listAllStatsName]])){
+      listNStats = listNStats + listAllStats[[listAllStatsName]]$nstats;
+    }else{
+      listNStats = listNStats + listPlotData1$nstats;
+    }
   }else {
-    listNStats = listPlotData1$nstats;
+    if("nstats" %in% names(listAllStats[[listAllStatsName]])){
+      listNStats = listAllStats[[listAllStatsName]]$nstats;
+    }else{
+      listNStats = listPlotData1$nstats;
+    }
   }
   listLegendNotOrdered[intLegendIndex] = listAllStatsName;
   intLegendIndex = intLegendIndex + 1;
@@ -292,9 +300,17 @@ if( 0 < length(listDep2Plot) ){
                                     listPlotCI[indexesNumSeries2], dblAlpha, boolVarianceInflationFactor, strPlotStat);
     listSeries2 = append(listSeries2, listPlotData2$series);
     if( TRUE == exists("listNStats") ){
-      listNStats = listNStats + listPlotData2$nstats;
+      if("nstats" %in% names(listAllStatsY2[[listAllStatsName]])){
+        listNStats = listNStats + listAllStatsY2[[listAllStatsName]]$nstats;
+      }else{
+        listNStats = listNStats + listPlotData2$nstats;
+      }
     } else  {
-      listNStats = listPlotData2$nstats;
+      if("nstats" %in% names(listAllStatsY2[[listAllStatsName]])){
+        listNStats = listAllStatsY2[[listAllStatsName]]$nstats;
+      }else{
+        listNStats = listPlotData2$nstats;
+      }
     }
     listLegendNotOrdered[intLegendIndex] = listAllStatsName;
     intLegendIndex = intLegendIndex + 1;
