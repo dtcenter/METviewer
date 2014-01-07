@@ -31,8 +31,18 @@ dfStatsRec = dfStatsRec[order(dfStatsRec[[strIndyVar]]),];
 
 # build a list for output permutations
 for(intY in 1:intYMax){
-	if( 1 == intY ){ listSeriesVal = listSeries1Val; boolDiff = boolDiff1; strDiffSeries = "__AGG_DIFF1__"; listStat = listStat1; } 
-	if( 2 == intY ){ listSeriesVal = listSeries2Val; boolDiff = boolDiff2; strDiffSeries = "__AGG_DIFF2__"; listStat = listStat2; } 
+	if( 1 == intY ){
+	 listSeriesVal = listSeries1Val;
+	 boolDiff = boolDiff1;
+	 strDiffSeries = "__AGG_DIFF1__";
+	 listStat = listStat1;
+	}
+	if( 2 == intY ){
+	  listSeriesVal = listSeries2Val;
+	  boolDiff = boolDiff2;
+	  strDiffSeries = "__AGG_DIFF2__";
+	  listStat = listStat2;
+	}
 
 	# add the series variables and values, including a difference series if appropriate
 	listOut = listSeriesVal;
@@ -73,6 +83,7 @@ listOutPerm$stat_value = rep(NA, intNumOut);
 listOutPerm$stat_bcl = rep(NA, intNumOut);
 listOutPerm$stat_bcu = rep(NA, intNumOut);
 dfOut = data.frame(listOutPerm);
+dfOut$nstats = rep(0, intNumOut);
 
 # initialize the histogram array
 listHist = c();
@@ -319,6 +330,7 @@ for(strIndyVal in listIndyVal){
 
 				# store the bootstrapped stat value and CI values in the output dataframe
 				dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
+				dfOut[listOutInd,]$nstats = nrow(dfStatsPerm);
 				strCIParm = strCIType;
 				if( strCIType == "perc" ){ strCIParm = "percent"; }
 				if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
@@ -336,7 +348,7 @@ for(strIndyVal in listIndyVal){
 } # end for(strIndy in listIndy)
 
 #remove rows with stat_value=NA
-dfOut = dfOut[complete.cases(dfOut$stat_value),];
+#dfOut = dfOut[complete.cases(dfOut$stat_value),];
 
 write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t");
 
