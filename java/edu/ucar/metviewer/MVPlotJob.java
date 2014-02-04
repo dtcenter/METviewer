@@ -70,6 +70,7 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolLogY2 = false;
   protected boolean _boolVarianceInflationFactor = true;
   protected boolean _boolNormalizedHistogram = true;
+  protected boolean _boolCacheAggStat = false;
 
   protected String _strPlotType = "png256";
   protected String _strPlotHeight = "8.5";
@@ -145,8 +146,6 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolAggNbrCnt = false;
   protected String _strAggBootRepl = "1";
   protected String _strAggBootCI = "bca";
-  protected boolean _boolAggDiff1 = false;
-  protected boolean _boolAggDiff2 = false;
   protected boolean _boolEveqDis = false;
 
   protected boolean _boolCalcCtc = false;
@@ -244,6 +243,7 @@ public class MVPlotJob extends MVUtil {
     job._boolLogY2 = _boolLogY2;
     job._boolVarianceInflationFactor = _boolVarianceInflationFactor;
     job._boolNormalizedHistogram = _boolNormalizedHistogram;
+    job._boolCacheAggStat = _boolCacheAggStat;
 
     job._strPlotType = _strPlotType;
     job._strPlotHeight = _strPlotHeight;
@@ -319,8 +319,6 @@ public class MVPlotJob extends MVUtil {
     job._boolAggNbrCnt = _boolAggNbrCnt;
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootCI = _strAggBootCI;
-    job._boolAggDiff1 = _boolAggDiff1;
-    job._boolAggDiff2 = _boolAggDiff2;
     job._boolEveqDis = _boolEveqDis;
 
     job._boolCalcCtc = _boolCalcCtc;
@@ -1410,22 +1408,6 @@ public class MVPlotJob extends MVUtil {
     _strAggBootCI = aggBootCI;
   }
 
-  public boolean getAggDiff1() {
-    return _boolAggDiff1;
-  }
-
-  public void setAggDiff1(boolean aggDiff1) {
-    _boolAggDiff1 = aggDiff1;
-  }
-
-  public boolean getAggDiff2() {
-    return _boolAggDiff2;
-  }
-
-  public void setAggDiff2(boolean aggDiff2) {
-    _boolAggDiff2 = aggDiff2;
-  }
-
   public boolean getEveqDis() {
     return _boolEveqDis;
   }
@@ -1584,6 +1566,14 @@ public class MVPlotJob extends MVUtil {
 
   public void setNormalizedHistogram(boolean _boolNormalizedHistogram) {
     this._boolNormalizedHistogram = _boolNormalizedHistogram;
+  }
+
+  public boolean getCacheAggStat() {
+    return _boolCacheAggStat;
+  }
+
+  public void setCacheAggStat(boolean _boolCacheAggStat) {
+    this._boolCacheAggStat = _boolCacheAggStat;
   }
 
   public String getPlotStat() {
