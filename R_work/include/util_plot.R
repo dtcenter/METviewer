@@ -733,7 +733,13 @@ for(indy in listIndyVal){
     cat("\nCreating the list of median values \n\n")
     dblMed = median(listStats);
   }
-  if( TRUE == listPlotDisp[intSeriesIndex] ){ intNStatsIndy = intNStatsIndy + length(listStats); }
+  if( TRUE == listPlotDisp[intSeriesIndex] ){ 
+    if(length(listStats) == 1 && 'nstats' %in% names(dfStatsVal)){
+      intNStatsIndy = intNStatsIndy + dfStatsVal$nstats[1];
+    }else{
+      intNStatsIndy = intNStatsIndy + length(listStats); 
+    }
+  }
 
   #  apply the requested type of confidence interval to the current series point
   strPlotCI = listPlotCI[intSeriesIndex];
