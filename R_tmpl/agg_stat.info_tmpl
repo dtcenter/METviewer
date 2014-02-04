@@ -5,8 +5,6 @@ boolAggCtc = #<agg_ctc>#;
 boolAggSl1l2 = #<agg_sl1l2>#;
 boolAggNbrCnt = #<agg_nbrcnt>#;
 boolEventEqual = #<event_equal>#;
-boolDiff1 = #<agg_diff1>#;
-boolDiff2 = #<agg_diff2>#;
 boolEveqDis = #<eveq_dis>#;
 intNumReplicates = #<boot_repl>#;
 strCIType = "#<boot_ci>#";
@@ -30,3 +28,7 @@ listStaticVal = #<agg_stat_static>#;
 strInputDataFile = "#<agg_stat_input>#";
 strOutputFile = "#<agg_stat_output>#";
 strWorkingDir = "#<working_dir>#";
+
+listDiffSeries1=#<series1_diff_list>#;
+
+listDiffSeries2=#<series2_diff_list>#;
