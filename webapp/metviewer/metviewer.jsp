@@ -38,7 +38,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 <table width="100%" height="100%" cellspacing="0" cellpadding="5" border="0">
 	<tr><td>
 		<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.13</span></td>
+			<td class="title"><span onclick="javascript:debugClick('title')">METViewer</span>&nbsp;<span class="stdTiny">v0.5.14</span></td>
 			<td align="right">&nbsp;
 				<form action="servlet" enctype="multipart/form-data" method="post" id="formUpload">
 					<span class="header" style="font-size:14px">Plot XML Upload:</span>
@@ -267,21 +267,29 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 				</tr>
 				<tr>
 					<td align="right" style="padding-left:30px">boot_repl:</td><td>&nbsp;<input type="text" size="12" value="1"/></td>
-					<td align="right" style="padding-left:30px">
-						agg_diff1:</td><td>&nbsp;<input id="txtAggDiff1" type="text" size="12" value="FALSE" disabled="disabled"/>
-					</td>
+
                <td align="right" style="padding-left:30px">eveq_dis:</td>
                <td>&nbsp;
                   <select id="selEveqDis" value="FALSE"><option>FALSE</option><option>TRUE</option></select>
                </td>
 				</tr>
-            <tr>
-               <td align="right" style="padding-left:30px">boot_ci:</td><td>&nbsp;<input type="text" size="12" value="perc"/></td>
-               <td align="right" style="padding-left:30px">
-                  agg_diff2:</td><td>&nbsp;<input id="txtAggDiff2" type="text" size="12" value="FALSE" disabled="disabled"/>
-               </td>
-               <td colspan="2">&nbsp;</td>
-            </tr>
+                <tr>
+                    <td align="right" style="padding-left:30px">boot_ci:</td>
+                    <td>&nbsp;<input type="text" size="12" value="perc"/></td>
+
+
+                    </td>
+
+                    <td align="right" style="padding-left:30px">
+                        cache_agg_stat:
+                    </td>
+                    <td>&nbsp;
+                        <select id="cacheAggStat" value="FALSE">
+                            <option>FALSE</option>
+                            <option>TRUE</option>
+                        </select>
+                    </td>
+                </tr>
 			</table>
 		</div><br/><br/>
 
@@ -967,7 +975,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
                         <div class="diffSelect">
 
                         <select name="series1Y1" id="series1Y1"
-                                     onchange="createNewDiffSeriesName(1)"></select>
+                                     onchange="populateSecondSelect(1); createNewDiffSeriesName(1);"></select>
                         </div>
                         <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
                         <div class="diffSelect">
@@ -982,7 +990,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
                         <div class="diffSelect">
 
                         <select name="series1Y2" id="series1Y2" disabled
-                                     onchange="createNewDiffSeriesName(2)">
+                                     onchange="populateSecondSelect(2); createNewDiffSeriesName(2)">
                         </select></div>
                         <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
                         <div class="diffSelect">
