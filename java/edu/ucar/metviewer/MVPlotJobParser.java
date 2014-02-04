@@ -613,6 +613,13 @@ public class MVPlotJobParser extends MVUtil {
             job.setY2LabelTmpl(nodeTmpl._value);
           } else if (nodeTmpl._tag.equals("caption")) {
             job.setCaptionTmpl(nodeTmpl._value);
+          } else if (nodeTmpl._tag.equals("listDiffSeries1")) {
+            //validate listDiffSeries - make sure that differences will be calculated for the same Forecast Variable and Statistic
+            validateListDiffSeries(node, nodeTmpl);
+            job.setDiffSeries1(nodeTmpl._value);
+          } else if (nodeTmpl._tag.equals("listDiffSeries2")) {
+            validateListDiffSeries(node, nodeTmpl);
+            job.setDiffSeries2(nodeTmpl._value);
           }
 
         }
@@ -673,12 +680,10 @@ public class MVPlotJobParser extends MVUtil {
             job.setAggBootRepl(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_ci")) {
             job.setAggBootCI(nodeAggStat._value);
-          } else if (nodeAggStat._tag.equals("agg_diff1")) {
-            job.setAggDiff1(nodeAggStat._value.equalsIgnoreCase("true"));
-          } else if (nodeAggStat._tag.equals("agg_diff2")) {
-            job.setAggDiff2(nodeAggStat._value.equalsIgnoreCase("true"));
           } else if (nodeAggStat._tag.equals("eveq_dis")) {
             job.setEveqDis(nodeAggStat._value.equalsIgnoreCase("true"));
+          } else if (nodeAggStat._tag.equals("cache_agg_stat")) {
+            job.setCacheAggStat(nodeAggStat._value.equalsIgnoreCase("true"));
           }
         }
 
@@ -727,7 +732,9 @@ public class MVPlotJobParser extends MVUtil {
       //  <normalized_histogram>
       else if (node._tag.equals("normalized_histogram")) {
         job.setNormalizedHistogram(node._value.equalsIgnoreCase("true"));
+
       }
+
 
       //  boolean format settings
       else if (_tableFormatBoolean.containsKey(node._tag)) {
@@ -747,19 +754,6 @@ public class MVPlotJobParser extends MVUtil {
           if (!isOrderValid(strStat)) {
             throw new Exception("Series order is invalid " + strStat);
           }
-        }else if(node._tag.startsWith("listDiffSeries")){
-          //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
-          for (String stat : _tableModeSingleStatField.getKeyList()) {
-            if (node._value.indexOf(stat) > 0) {
-              throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
-            }
-          }
-          for (String stat : _tableModePairStatField.getKeyList()) {
-            if (node._value.indexOf(stat) > 0) {
-              throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
-            }
-          }
-
         }
         Method m = (Method) _tableFormatString.get(node._tag);
         try {
@@ -767,6 +761,7 @@ public class MVPlotJobParser extends MVUtil {
         } catch (Exception e) {
           System.out.println("  **  ERROR: caught " + e.getClass() + " parsing format string '" + node._tag + "': " + e.getMessage());
         }
+
       }
 
       //  report unused tags
@@ -776,6 +771,32 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     return job;
+  }
+
+  private void validateListDiffSeries(MVNode node, MVNode nodeTmpl) throws Exception {
+    String[] diffSeries = nodeTmpl._value.split("c\\(");
+    for (int k=1; k< diffSeries.length; k++) {
+      String diffSeriesArray[] = diffSeries[k].replace("\"", "").replace(")","").split(",");
+      String diffSeriesParametersArray[] = diffSeriesArray[0].split(" ");
+
+      if(diffSeriesParametersArray.length > 2){
+        String variableStat = diffSeriesParametersArray[diffSeriesParametersArray.length-2] + " " + diffSeriesParametersArray[diffSeriesParametersArray.length-1];
+        if(!diffSeriesArray[1].endsWith(variableStat)){
+          throw new Exception("Difference curve " + diffSeries[k] + " wants to be calculated using different variable and/or statistic. It isn't supported by Image Viewer.");
+        }
+      }
+    }
+    //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
+    for (String stat : _tableModeSingleStatField.getKeyList()) {
+      if (node._value.indexOf(stat) > 0) {
+        throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
+      }
+    }
+    for (String stat : _tableModePairStatField.getKeyList()) {
+      if (node._value.indexOf(stat) > 0) {
+        throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
+      }
+    }
   }
 
   /**
@@ -836,6 +857,7 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("log_y2", MVPlotJob.class.getDeclaredMethod("setLogY2", new Class[]{boolean.class}));
       _tableFormatBoolean.put("varianceInflationFactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
       _tableFormatBoolean.put("normalizedHistogram", MVPlotJob.class.getDeclaredMethod("setNormalizedHistogram", new Class[]{boolean.class}));
+      _tableFormatBoolean.put("cache_agg_stat", MVPlotJob.class.getDeclaredMethod("setCacheAggStat", new Class[]{boolean.class}));
     } catch (NoSuchMethodException e) {
     }
   }
@@ -914,8 +936,8 @@ public class MVPlotJobParser extends MVUtil {
 
       _tableFormatString.put("plot_ci", MVPlotJob.class.getDeclaredMethod("setPlotCI", new Class[]{String.class}));
       _tableFormatString.put("plot_disp", MVPlotJob.class.getDeclaredMethod("setPlotDisp", new Class[]{String.class}));
-      _tableFormatString.put("listDiffSeries1", MVPlotJob.class.getDeclaredMethod("setDiffSeries1", new Class[]{String.class}));
-      _tableFormatString.put("listDiffSeries2", MVPlotJob.class.getDeclaredMethod("setDiffSeries2", new Class[]{String.class}));
+      //_tableFormatString.put("listDiffSeries1", MVPlotJob.class.getDeclaredMethod("setDiffSeries1", new Class[]{String.class}));
+      //_tableFormatString.put("listDiffSeries2", MVPlotJob.class.getDeclaredMethod("setDiffSeries2", new Class[]{String.class}));
       _tableFormatString.put("order_series", MVPlotJob.class.getDeclaredMethod("setOrderSeries", new Class[]{String.class}));
       _tableFormatString.put("colors", MVPlotJob.class.getDeclaredMethod("setColors", new Class[]{String.class}));
       _tableFormatString.put("pch", MVPlotJob.class.getDeclaredMethod("setPch", new Class[]{String.class}));
@@ -1276,9 +1298,8 @@ public class MVPlotJobParser extends MVUtil {
           "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
           "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
-          "<agg_diff1>" + (job.getAggDiff1() ? "TRUE" : "FALSE") + "</agg_diff1>" +
-          "<agg_diff2>" + (job.getAggDiff2() ? "TRUE" : "FALSE") + "</agg_diff2>" +
           "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
+          "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE") + "</cache_agg_stat>" +
           "</agg_stat>";
     }
 
@@ -1308,6 +1329,8 @@ public class MVPlotJobParser extends MVUtil {
         "<y1_label>" + job.getY1LabelTmpl() + "</y1_label>" +
         "<y2_label>" + job.getY2LabelTmpl() + "</y2_label>" +
         "<caption>" + job.getCaptionTmpl() + "</caption>" +
+        "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
+        "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>" +
         "</tmpl>";
 
     //  plot_cmd / plot_cond
@@ -1413,9 +1436,8 @@ public class MVPlotJobParser extends MVUtil {
         "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>" +
         "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>" +
         "<normalized_histogram>" + job.getNormalizedHistogram() + "</normalized_histogram>" +
-        "<plot_stat>" + job.getPlotStat() + "</plot_stat>" +
-        "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
-        "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>";
+        "<plot_stat>" + job.getPlotStat() + "</plot_stat>";
+
     //  close the plot job
     strXML += "</plot></plot_spec>";
     return strXML;
