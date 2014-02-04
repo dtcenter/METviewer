@@ -28,7 +28,6 @@ public class MVBatch extends MVUtil {
 
   public final boolean _boolPlot = true;
   public boolean _boolSQLSort = true;
-  public boolean _boolCacheAggStat = true;
 
   public int _intNumPlots = 0;
   public int _intPlotIndex = 0;
@@ -442,9 +441,8 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("event_equal", job.getEventEqual() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("event_equal_m", job.getEventEqualM() ? "TRUE" : "FALSE");
-        tableAggStatInfo.put("agg_diff1", job.getAggDiff1() ? "TRUE" : "FALSE");
-        tableAggStatInfo.put("agg_diff2", job.getAggDiff2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
+        tableAggStatInfo.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("boot_repl", job.getAggBootRepl());
         tableAggStatInfo.put("boot_ci", job.getAggBootCI());
         tableAggStatInfo.put("ci_alpha", job.getCIAlpha());
@@ -458,6 +456,8 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_stat_input", strDataFile);
         tableAggStatInfo.put("agg_stat_output", strAggOutput);
         tableAggStatInfo.put("working_dir", _strRworkFolder + "include");
+        tableAggStatInfo.put("series1_diff_list", job.getDiffSeries1());
+        tableAggStatInfo.put("series2_diff_list", job.getDiffSeries2());
 
         //  populate the  info file
         String tmplFileName;
@@ -474,7 +474,7 @@ public class MVBatch extends MVUtil {
         populateTemplateFile(_strRtmplFolder + tmplFileName, strAggInfo, tableAggStatInfo);
 
         //  run agg_stat/agg_pct/agg_stat_bootstrap to generate the data file for plotting
-        if (!fileAggOutput.exists() || !_boolCacheAggStat) {
+        if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
           fileAggOutput.getParentFile().mkdirs();
           String scriptFileName;
 
@@ -496,24 +496,7 @@ public class MVBatch extends MVUtil {
           }
         }
 
-        //  if agg_diffN is turned on, add __AGG_DIFFN__ to the plot series
-        for (int i = 0; i < 2; i++) {
-          MVOrderedMap mapSeriesVal = null;
-          String strDiffSeries = "";
-          if (i == 0 && job.getAggDiff1()) {
-            mapSeriesVal = mapSeries1ValPlot;
-            strDiffSeries = "__AGG_DIFF1__";
-          } else if (i == 1 && job.getAggDiff2()) {
-            mapSeriesVal = mapSeries2ValPlot;
-            strDiffSeries = "__AGG_DIFF2__";
-          } else {
-            continue;
-          }
-          String[] listSeriesVar = mapSeriesVal.getKeyList();
-          ArrayList listDiffVal = new ArrayList(Arrays.asList(((String[]) mapSeriesVal.get(listSeriesVar[listSeriesVar.length - 1]))));
-          listDiffVal.add(listDiffVal.size() - 1, strDiffSeries);
-          mapSeriesVal.put(listSeriesVar[listSeriesVar.length - 1], toArray(listDiffVal));
-        }
+
 
         //  remove the .agg_stat suffix from the data file
         strDataFile = strAggOutput;
@@ -536,6 +519,10 @@ public class MVBatch extends MVUtil {
       String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapTmplValsPlot, job.getTmplMaps());
       String strY2Label = buildTemplateString(job.getY2LabelTmpl(), mapTmplValsPlot, job.getTmplMaps());
       String strCaption = buildTemplateString(job.getCaptionTmpl(), mapTmplValsPlot, job.getTmplMaps());
+      String diffSeries1 = buildTemplateString(job.getDiffSeries1(), mapTmplValsPlot, job.getTmplMaps());
+      String diffSeries2 = buildTemplateString(job.getDiffSeries2(), mapTmplValsPlot, job.getTmplMaps());
+
+
 
       //  create the plot and R script output folders, if necessary
       (new File(strPlotFile)).getParentFile().mkdirs();
@@ -611,6 +598,8 @@ public class MVBatch extends MVUtil {
       tableRTags.put("log_y2", (job.getLogY2() ? "TRUE" : "FALSE"));
       tableRTags.put("variance_inflation_factor", (job.getVarianceInflationFactor() ? "TRUE" : "FALSE"));
       tableRTags.put("plot_stat", job.getPlotStat());
+      tableRTags.put("series1_diff_list", diffSeries1);
+      tableRTags.put("series2_diff_list", diffSeries2);
 
       // calculate the number of plot curves
       int intNumDep1 = 0;
@@ -680,8 +669,6 @@ public class MVBatch extends MVUtil {
       //  replace the template tags with the template values for the current plot
       tableRTags.put("plot_ci", job.getPlotCI().equals("") ? printRCol(rep("none", intNumDepSeries), false) : job.getPlotCI());
       tableRTags.put("plot_disp", job.getPlotDisp().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
-      tableRTags.put("series1_diff_list", job.getDiffSeries1());
-      tableRTags.put("series2_diff_list", job.getDiffSeries2());
       tableRTags.put("order_series", job.getOrderSeries().equals("") ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
       tableRTags.put("colors", job.getColors().equals("") ? "rainbow(" + intNumDepSeries + ")" : job.getColors());
       tableRTags.put("pch", job.getPch().equals("") ? printRCol(rep(20, intNumDepSeries)) : job.getPch());
