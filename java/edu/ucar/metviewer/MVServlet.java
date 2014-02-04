@@ -875,25 +875,10 @@ public class MVServlet extends HttpServlet {
     strPlotXML = strPlotXML.substring(strPlotXML.indexOf("</db_con>") + 9);
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
 
-    //  query the database to get the next web_plot_id
-    java.util.Date datePlot = new java.util.Date();
-    String strWebPlotId = "#";
-    try {
-      strWebPlotId = getWebPlotIdUpdate(strPlotXML, datePlot, con);
-    } catch (Exception e) {
-      _logger.error("handlePlot() - ERROR: caught " + e.getClass() + " establishing web_plot_id: " + e.getMessage());
-      return "<error>failed to establish web_plot_id - reason: " + e.getMessage() + "</error>";
-    }
 
-    //  construct the names of the plot files
-    String strPlotPrefixId = strWebPlotId;
-    while (5 > strPlotPrefixId.length()) {
-      strPlotPrefixId = "0" + strPlotPrefixId;
-    }
-    String strPlotPrefix = "plot_" + strPlotPrefixId + "_" + _formatPlot.format(datePlot);
+    String strPlotPrefix = "plot_"  + _formatPlot.format(new java.util.Date());
     //  add plot file information to the plot spec
     // String strDBName = con.getMetaData().getURL();
-    //strDBName = strDBName.substring(strDBName.lastIndexOf("/") + 1);
     strPlotXML =
       "<plot_spec>" +
         "<connection>" +
@@ -1077,42 +1062,6 @@ public class MVServlet extends HttpServlet {
     return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg + "</r_error>" : "");
   }
 
-  /**
-   * Determine what the next web_plot_id should be by querying the database and
-   * then create a new entry for the plot.  This code must be syncronized to
-   * ensure that there is no conflict among plotting processes.
-   *
-   * @param strPlotXML XML plot specification to store in the new dabase entry
-   * @param date       Plot date used in plot name
-   * @param con        Database connection that will be queried and updated
-   *                   against
-   * @return Web plot id value that was used
-   */
-  public static synchronized String getWebPlotIdUpdate(String strPlotXML, java.util.Date date, Connection con) throws Exception {
-    //  retrieve the current latest web_plot_id from the database
-    Statement stmt = con.createStatement();
-    String strWebPlotId = "0";
-    if (!stmt.execute("SELECT MAX(web_plot_id) FROM web_plot;")) {
-      throw new Exception("Statment.execute() returned false");
-    }
-    ResultSet res = stmt.getResultSet();
-    while (res.next()) {
-      int intWebPlotId = res.getInt(1);
-      if (!res.wasNull()) {
-        strWebPlotId = "" + (intWebPlotId + 1);
-      }
-    }
-    stmt.close();
-
-    //  store the web_plot information in the database
-    stmt = con.createStatement();
-    int intRes = stmt.executeUpdate("INSERT INTO web_plot VALUES (" + strWebPlotId + ", '" + MVUtil._formatDB.format(date) + "', '" + strPlotXML + "');");
-    if (1 != intRes) {
-      throw new Exception("unexpected result from web_plot INSERT statement: " + intRes);
-    }
-    stmt.close();
-    return strWebPlotId;
-  }
 
   /**
    * Print an error message into writer of the input response
