@@ -1147,7 +1147,9 @@ public class MVBatch extends MVUtil {
             }
           } else if (_tableStatsNbrcnt.containsKey(strStat)) {
             tableStats = _tableStatsNbrcnt;
-            isAggTypeValid(_tableStatsNbrcnt, strStat, aggType);
+            if (boolAggStat){
+              isAggTypeValid(_tableStatsNbrcnt, strStat, aggType);
+            }
             strStatTable = "line_data_nbrcnt ld\n";
             strStatField = strStat.replace("NBR_", "").toLowerCase();
           } else if (_tableStatsNbrcts.containsKey(strStat)) {
