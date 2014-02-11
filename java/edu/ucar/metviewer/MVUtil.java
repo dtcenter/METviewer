@@ -1265,18 +1265,18 @@ public class MVUtil{
 	
 	public static final MVOrderedMap _tableStatsNbrcnt = new MVOrderedMap();
 	static{
-		_tableStatsNbrcnt.put("NBR_FBS",	new String[]{"bc"});
-		_tableStatsNbrcnt.put("NBR_FSS",	new String[]{"bc"});
+		_tableStatsNbrcnt.put("NBR_FBS",	new String[]{"bc",NBR_CNT});
+		_tableStatsNbrcnt.put("NBR_FSS",	new String[]{"bc",NBR_CNT});
 	}
 	
 	public static final MVOrderedMap _tableStatsPstd = new MVOrderedMap();
 	static{
-		_tableStatsPstd.put("PSTD_BASER",	new String[]{"nc"});
-		_tableStatsPstd.put("PSTD_RELIABILITY",	new String[]{});
-		_tableStatsPstd.put("PSTD_RESOLUTION",	new String[]{});
-		_tableStatsPstd.put("PSTD_UNCERTAINTY",	new String[]{});
-		_tableStatsPstd.put("PSTD_ROC_AUC",		new String[]{});
-		_tableStatsPstd.put("PSTD_BRIER",			new String[]{"nc"});
+		_tableStatsPstd.put("PSTD_BASER",	new String[]{"nc",PCT});
+		_tableStatsPstd.put("PSTD_RELIABILITY",	new String[]{PCT});
+		_tableStatsPstd.put("PSTD_RESOLUTION",	new String[]{PCT});
+		_tableStatsPstd.put("PSTD_UNCERTAINTY",	new String[]{PCT});
+		_tableStatsPstd.put("PSTD_ROC_AUC",		new String[]{PCT});
+		_tableStatsPstd.put("PSTD_BRIER",			new String[]{"nc",PCT});
 	}
 	
 	public static final MVOrderedMap _tableStatsMcts = new MVOrderedMap();
