@@ -487,31 +487,46 @@ par(
   las=0 					# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
 );
 
-par( new=FALSE,ylog=TRUE);
-# create the plot window
-plot(
-  listX,  				# series x data
-  rep(0,length(listX)),	# series y1 data
-  type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
-  #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
-  xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
-  xaxs="r",				# x-axis style - r: regular, i: internal
-  yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
-  yaxs="r",				# x-axis style - r: regular, i: internal
-  ylim=listY1lim,			# y1-axis limits
-  xlim=listXMinMax,
-  xlab="",				# x-axis label
-  ylab="",				# y1-axis label
-  lwd=1,					# line width
-  cex.lab=1,				# relative axis label magnification
-  cex.main=1,				# relative title magnification
-  cex.sub=1,				# relative subtitle magnification
-  fg="gray"
-);
+par( new=FALSE);
+boolAdd=FALSE;
 
-
-
-
+if( boolBoxPts == TRUE){
+  
+  # determine the min and max data values
+  if( 2 != length(listY1limUsr) ){
+    listY1lim = c(min(dfPlot1$stat_value), max(dfPlot1$stat_value));
+  } else {
+    listY1lim = listY1limUsr;
+  }
+  
+  # create the plot window
+  plot(
+    listX,					# series x data
+    rep(0, length(listX)),	# series y1 data
+    type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
+    #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
+    xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+    xaxs="r",				# x-axis style - r: regular, i: internal
+    yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
+    yaxs="r",				# x-axis style - r: regular, i: internal
+    ylim=listY1lim,			# y1-axis limits
+    xlab="",				# x-axis label
+    ylab="",				# y1-axis label
+    lwd=1,					# line width
+    cex.lab=1,				# relative axis label magnification
+    cex.main=1,				# relative title magnification
+    cex.sub=1,				# relative subtitle magnification
+    fg="gray"
+  );
+  
+  # if y-axis log scale is enabled, set up the axis formatting
+  if( boolLogY1 == TRUE){
+    listY1lim = c( 10^floor(log10(listY1lim[1])), 10^ceiling(log10(listY1lim[2])) );
+    par( ylog=TRUE, usr=c(par()$usr[1:2], log10(listY1lim[1]), log10(listY1lim[2])), 
+         yaxp=c(listY1lim[1:2], 2) );
+        
+  }
+}
 # plot the series1 data
 
 for(intPermIndex in 1:length(listBoxes1)){
@@ -530,7 +545,7 @@ for(intPermIndex in 1:length(listBoxes1)){
   
   
   # if only points are displayed, call the points() function
-  if( boolBoxPts ){
+  if( boolBoxPts == TRUE){
     intPch = listPchSeries1[intPermIndex];
     intIndy = 1;
     for(strIndy in names(listBox)){
@@ -549,7 +564,8 @@ for(intPermIndex in 1:length(listBoxes1)){
   
   # otherwise, call the boxplot_ci() function to build the series of boxes
   else {
-    
+    if (boolAdd != TRUE){strYaxt="s";}
+    else{strYaxt="n";}
     boxplot_ci(
       listBox,				# box data as a list of vectors
       at=listAt,				# vector of box positions
@@ -561,7 +577,7 @@ for(intPermIndex in 1:length(listBoxes1)){
       yaxt="n",				# y-axis type - n: no axis, s: compatibility with l and t
       ylim=listY1lim,			# y1-axis limits
       log=strLogParm1,			# character indicating coordinate log scale - x: x-axis, y: y-axis, b: both
-      add=TRUE,			# add boxes to current plot - TRUE: add, FALSE: new plot
+      add=boolAdd,			# add boxes to current plot - TRUE: add, FALSE: new plot
       tck=.01, 				# length of tick marks as a fraction of plot window
       alpha=#<ci_alpha>#  # alpha value to use when calculating confidence intervals
     );
@@ -571,7 +587,7 @@ for(intPermIndex in 1:length(listBoxes1)){
   if( boolBoxAvg ){
     points(listAt, listMeans1[[intPermIndex]], type="p", pch=8);
   }
-  
+  boolAdd = TRUE;
 }
 
 # specify the y1-axis
@@ -605,28 +621,54 @@ mtext(
 if( 0 < length(listDep2Plot) ){
   #restore the plot window limits for y2  
 
-  par( new=TRUE,ylog=TRUE);
-  # create the plot window
-  plot(
-    listX,    			# series x data
-    rep(0,length(listX)),	# series y1 data
-    type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
-    #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
-    xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
-    xaxs="r",				# x-axis style - r: regular, i: internal
-    yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
-    yaxs="r",				# x-axis style - r: regular, i: internal
-    ylim=listY2lim,			# y1-axis limits
-    xlim=listXMinMax,
-    xlab="",				# x-axis label
-    ylab="",				# y1-axis label
-    lwd=1,					# line width
-    cex.lab=1,				# relative axis label magnification
-    cex.main=1,				# relative title magnification
-    cex.sub=1,				# relative subtitle magnification
-    fg="gray"
-  );
+  	par( new=TRUE);
+	if( boolBoxPts ==TRUE){   
+    # determine the min and max data values
+    if( 2 != length(listY2limUsr) ){
+      listY2lim = c(min(dfPlot2$stat_value), max(dfPlot2$stat_value));
+    } else {
+      list21lim = listY2limUsr;
+    }
+    
+    # create the plot window
+    plot(
+      listX,  				# series x data
+      rep(0, length(listX)),	# series y1 data
+      type="n",				# series line type - p: points, l: lines, o: overplotted points and lines,  
+      #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing 
+      xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
+      xaxs="r",				# x-axis style - r: regular, i: internal
+      yaxt="n",				# y1-axis type - n: no axis, s: compatibility with l and t
+      yaxs="r",				# x-axis style - r: regular, i: internal
+      ylim=listY2lim,			# y2-axis limits
+      xlab="",				# x-axis label
+      ylab="",				# y2-axis label
+      lwd=1,					# line width
+      cex.lab=1,				# relative axis label magnification
+      cex.main=1,				# relative title magnification
+      cex.sub=1,				# relative subtitle magnification
+      fg="gray"
+    );
+    # if y-axis log scale is enabled, set up the axis formatting
+    if( boolLogY2 == TRUE ){
+      listY2lim = c( 10^floor(log10(listY2lim[1])), 10^ceiling(log10(listY2lim[2])) );
+      par( ylog=TRUE, usr=c(par()$usr[1:2], log10(listY2lim[1]), log10(listY2lim[2])), 
+           yaxp=c(listY2lim[1:2], 2) );      
+    }    
+  }
   
+  if(boolLogY2==TRUE){      
+     if(boolLogY1 == FALSE){
+      listY2lim = c( 10^floor(log10(listY2lim[1])), 10^ceiling(log10(listY2lim[2])) );
+      par( ylog=TRUE, usr=c(par()$usr[1:2], log10(listY2lim[1]), log10(listY2lim[2])), yaxp=c(listY2lim[1:2], 1) );
+    } else{
+      par( ylog=TRUE ); 
+    }
+  }else{
+    buffer = (listY2lim[2] - listY2lim[1]) /100 *4;
+	par( ylog=FALSE,usr=c(par()$usr[1:2], listY2lim[1]-buffer , listY2lim[2] +buffer) , yaxs="r" );  
+  }
+
   for(intPermIndex in 1:length(listBoxes2)){    
     intPermIndexReal = listPlotOrderSeries2Orig[intPermIndex];
     
@@ -641,7 +683,7 @@ if( 0 < length(listDep2Plot) ){
     listBox = listBoxes2[[intPermIndex]];
   
     # if only points are displayed, call the points() function
-    if( boolBoxPts ){
+    if( boolBoxPts == TRUE ){
       intPch = listPchSeries2[intPermIndex];
       intIndy = 1;
       for(strIndy in names(listBox)){
@@ -660,7 +702,8 @@ if( 0 < length(listDep2Plot) ){
   
   # otherwise, call the boxplot_ci() function to build the series of boxes
   else {
-   
+   if (boolAdd != TRUE){strYaxt="s";}
+      else{strYaxt="n";} 
     boxplot_ci(
       listBox,				# box data as a list of vectors
       at=listAt,				# vector of box positions
@@ -682,6 +725,7 @@ if( 0 < length(listDep2Plot) ){
   if( boolBoxAvg ){
     points(listAt, listMeans2[[intPermIndex]], type="p", pch=8);
   }
+  boolAdd = TRUE;
 }
   # specify the y2-axis
   axis(
