@@ -1244,6 +1244,7 @@ public class MVUtil{
 		_tableStatsCts.put("HK", 			new String[]{"nc", "bc", CTC});
 		_tableStatsCts.put("HSS", 			new String[]{"bc", CTC});
 		_tableStatsCts.put("ODDS", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("BCGSS", 			new String[]{ "bc", CTC});
 	}
 	
 	public static final MVOrderedMap _tableStatsNbrcts = new MVOrderedMap();
