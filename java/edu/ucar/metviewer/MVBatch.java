@@ -681,7 +681,22 @@ public class MVBatch extends MVUtil {
       tableRTags.put("y1_bufr", job.getY1Bufr().equals("") ? "0" : job.getY1Bufr());
       tableRTags.put("y2_lim", job.getY2Lim().equals("") ? "c()" : job.getY2Lim());
       tableRTags.put("y2_bufr", job.getY2Bufr().equals("") ? "0" : job.getY2Bufr());
-			
+
+      if (job.getLogY1() && !job.getY1Lim().equals("c()")) {
+        //check if y1_lim has 0
+        String[] lims = job.getY1Lim().replace("c(", "").replace(")", "").split(",");
+        if (lims[0].equals("0") || lims[1].equals("0")) {
+          throw new Exception("Y1 axis limits can't start or end with 0 if Log Scale is on");
+        }
+      }
+      if (job.getLogY2() && !job.getY2Lim().equals("c()")) {
+        //check if y2_lim has 0
+        String[] lims = job.getY2Lim().replace("c(", "").replace(")", "").split(",");
+        if (lims[0].equals("0") || lims[1].equals("0")) {
+          throw new Exception("Y2 axis limits can't start or end with 0 if Log Scale is on");
+        }
+      }
+
 			
 			/*
 			 *  Read the template in, replacing the appropriate tags with generated R code
