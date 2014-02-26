@@ -1,4 +1,5 @@
 library(boot);
+library(gsl);
 
 # parse the command line arguments
 strInputInfoFile = "~/plot_00124_20130923_082001.agg_stat.info";
@@ -166,6 +167,24 @@ calcODDS = function(d){
   dblPOFD = calcPOFD(d);
   return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
 }
+# BCGSS Reference:
+# Bias Adjusted Precipitation Threat Scores
+# F. Mesinger, Adv. Geosci., 16, 137-142, 2008
+calcBCGSS = function(d){
+	if( 0 == d$total ){ return (NA); }
+	dblF  = d$fy_oy + d$fy_on;
+	dblO  = d$fy_oy + d$fn_oy;
+	dblLf = log(dblO / d$fn_oy);
+	dblHa = tryCatch({
+      dblO - (d$fy_on / dblLf) * lambert_W0(dblO / d$fy_on * dblLf);
+  }, warning = function(w) {
+      return (NA)
+  }, error = function(e) {
+      return (NA)
+  });
+	return( (dblHa - (dblO^2 / d$total)) / (2*dblO - dblHa - (dblO^2 / d$total)) );
+}
+
 
 
 # NBR_CNT "calculations"
