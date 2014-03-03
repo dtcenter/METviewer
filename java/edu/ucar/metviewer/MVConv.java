@@ -72,7 +72,8 @@ public class MVConv extends MVUtil {
 			System.out.println("  start time: " + _formatDB.format(new java.util.Date()) + "\n");
 			
 			//  gather the list of stat_header_ids from the source database
-			Statement stmtId = _conSrc.createStatement();
+			Statement stmtId = _conSrc.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      stmtId.setFetchSize(Integer.MIN_VALUE);
 			ResultSet resId = stmtId.executeQuery("SELECT stat_header_id FROM stat_header ORDER BY stat_header_id;");
 			
 			//  for each stat_header record, gather the line_data information
@@ -192,7 +193,8 @@ public class MVConv extends MVUtil {
 		    "FROM stat_header WHERE stat_header_id = " + intStatId + ";";
 
 		//  get the stat_header information
-		Statement stmtStat = _conSrc.createStatement(); 
+		Statement stmtStat = _conSrc.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    stmtStat.setFetchSize(Integer.MIN_VALUE);
 		ResultSet resStat = stmtStat.executeQuery(strStatSqlSel);
 		
 		if( !resStat.next() ){ throw new Exception("src stat_header select failed for stat_header_id " + intStatId); }
@@ -279,7 +281,8 @@ public class MVConv extends MVUtil {
 							"WHERE stat_header_id = " + intStatHeaderId + " AND stat_group_lu_id = " + intStatLuId + ";";
 		
 		//  get the stat_header information
-		Statement stmtStat = _conSrc.createStatement(); 
+		Statement stmtStat = _conSrc.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+		stmtStat.setFetchSize(Integer.MIN_VALUE);
 		ResultSet resStat = stmtStat.executeQuery(strStatSql);
 		
 		//  determine if the current stat has normal or bootstrap CIs
@@ -315,7 +318,8 @@ public class MVConv extends MVUtil {
 	public static void buildStatDescTables() throws Exception{
 
 		//  get the stat_header_lu information
-		Statement stmtStat = _conSrc.createStatement(); 
+		Statement stmtStat = _conSrc.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    stmtStat.setFetchSize(Integer.MIN_VALUE);
 		ResultSet resStat = stmtStat.executeQuery("SELECT * FROM stat_group_lu;");
 		
 		//  build the CI tables with the information
@@ -340,7 +344,8 @@ public class MVConv extends MVUtil {
 	public static void copyTableRecord(String strTable, MVConvStatHeader sh) throws Exception{
 
 		//  get the stat_header_lu information
-		Statement stmtStat = _conSrc.createStatement(); 
+		Statement stmtStat = _conSrc.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+		stmtStat.setFetchSize(Integer.MIN_VALUE);
 		ResultSet resStat = stmtStat.executeQuery("SELECT * FROM " + strTable + " WHERE stat_header_id = " + sh._intStatHeaderIdSrc + ";");
 		
 		while( resStat.next() ){

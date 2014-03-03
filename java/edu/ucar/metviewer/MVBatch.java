@@ -286,7 +286,8 @@ public class MVBatch extends MVUtil {
           continue;
         }
 
-        stmt = job.getConnection().createStatement();
+        stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        //stmt.setFetchSize(Integer.MIN_VALUE);
         stmt.execute(listSQL[i]);
         stmt.close();
       }
@@ -295,7 +296,8 @@ public class MVBatch extends MVUtil {
       }
 
       //  get the number of rows in the job data set
-      stmt = job.getConnection().createStatement();
+      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      //stmt.setFetchSize(Integer.MIN_VALUE);
       stmt.execute("SELECT COUNT(*) FROM plot_data;");
       res = stmt.getResultSet();
       int intNumJobDataRows = -1;
@@ -350,7 +352,8 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the plot data from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement();
+      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+     // stmt.setFetchSize(Integer.MIN_VALUE);
       String strPlotDataSelect = "SELECT * FROM plot_data;";
       if (job.getCalcCtc() || job.getCalcSl1l2()) {
         strPlotDataSelect = "SELECT * FROM plot_data WHERE stat_value != 'NA';";
@@ -359,8 +362,23 @@ public class MVBatch extends MVUtil {
         _out.println(strPlotDataSelect);
       }
       stmt.execute(strPlotDataSelect);
-      printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
-      stmt.close();
+      ResultSet rs = null;
+
+      PrintStream printStream = null;
+      try {
+        rs = stmt.getResultSet();
+        printStream = new PrintStream(strDataFile);
+        printFormattedTable(rs, printStream, "\t");
+      } finally {
+        if (printStream != null) {
+          printStream.close();
+        }
+        if (rs != null) {
+          rs.close();
+        }
+        stmt.close();
+      }
+
 
       // format the indy values, if fcst_hour or valid_hour is being used
       String[] listIndyValFmt = job.getIndyVal();
@@ -940,7 +958,8 @@ public class MVBatch extends MVUtil {
         }
 
         //  run the PCT thresh query
-        Statement stmt = job.getConnection().createStatement();
+        Statement  stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        //stmt.setFetchSize(Integer.MIN_VALUE);
         try {
           stmt.executeQuery(strSelPctThresh);
 
@@ -1620,7 +1639,8 @@ public class MVBatch extends MVUtil {
   public void updatePlotDataFcstVar(MVPlotJob job) throws Exception {
 
     //  get a list of the fcst_vars
-    Statement stmt = job.getConnection().createStatement();
+    Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    //stmt.setFetchSize(Integer.MIN_VALUE);
     stmt.execute("SELECT DISTINCT fcst_var FROM plot_data;");
     ResultSet res = stmt.getResultSet();
     MVOrderedMap mapFcstVar = new MVOrderedMap();
@@ -1742,7 +1762,8 @@ public class MVBatch extends MVUtil {
       }
 
       //  run the rank number query and warn, if necessary
-      stmt = job.getConnection().createStatement();
+      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      //stmt.setFetchSize(Integer.MIN_VALUE);
       stmt.execute(strRankNumSelect);
       ResultSet res = stmt.getResultSet();
       ArrayList listRankNum = new ArrayList();
@@ -1797,11 +1818,25 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement();
+      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      //stmt.setFetchSize(Integer.MIN_VALUE);
       stmt.execute(strPlotDataSelect);
-      printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
-      stmt.close();
+      ResultSet rs = null;
 
+      PrintStream printStream = null;
+      try {
+        rs = stmt.getResultSet();
+        printStream = new PrintStream(strDataFile);
+        printFormattedTable(rs, printStream, "\t");
+      } finally {
+        if (printStream != null) {
+          printStream.close();
+        }
+        if (rs != null) {
+          rs.close();
+        }
+        stmt.close();
+      }
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strRFile = _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
@@ -1901,7 +1936,8 @@ public class MVBatch extends MVUtil {
       if (_boolVerbose || _boolSQLOnly) {
         _out.println(strObsThreshSelect + "\n");
       }
-      stmt = job.getConnection().createStatement();
+      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      //stmt.setFetchSize(Integer.MIN_VALUE);
       stmt.execute(strObsThreshSelect);
       ResultSet res = stmt.getResultSet();
       while (res.next()) {
@@ -1929,7 +1965,8 @@ public class MVBatch extends MVUtil {
         if (_boolVerbose || _boolSQLOnly) {
           _out.println(strFcstThreshSelect + "\n");
         }
-        stmt = job.getConnection().createStatement();
+        stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        //stmt.setFetchSize(Integer.MIN_VALUE);
         stmt.execute(strFcstThreshSelect);
         res = stmt.getResultSet();
         while (res.next()) {
@@ -2019,10 +2056,25 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement();
+      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      //stmt.setFetchSize(Integer.MIN_VALUE);
       stmt.execute(strPlotDataSelect);
-      printFormattedTable(stmt.getResultSet(), new PrintStream(strDataFile), "\t");
-      stmt.close();
+      ResultSet rs = null;
+
+      PrintStream printStream = null;
+      try {
+        rs = stmt.getResultSet();
+        printStream = new PrintStream(strDataFile);
+        printFormattedTable(rs, printStream, "\t");
+      } finally {
+        if (printStream != null) {
+          printStream.close();
+        }
+        if(rs != null){
+          rs.close();
+        }
+        stmt.close();
+      }
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());

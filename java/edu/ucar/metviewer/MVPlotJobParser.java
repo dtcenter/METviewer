@@ -856,6 +856,7 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("log_y1", MVPlotJob.class.getDeclaredMethod("setLogY1", new Class[]{boolean.class}));
       _tableFormatBoolean.put("log_y2", MVPlotJob.class.getDeclaredMethod("setLogY2", new Class[]{boolean.class}));
       _tableFormatBoolean.put("varianceInflationFactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
+      _tableFormatBoolean.put("varianceinflationfactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
       _tableFormatBoolean.put("normalizedHistogram", MVPlotJob.class.getDeclaredMethod("setNormalizedHistogram", new Class[]{boolean.class}));
       _tableFormatBoolean.put("cache_agg_stat", MVPlotJob.class.getDeclaredMethod("setCacheAggStat", new Class[]{boolean.class}));
     } catch (NoSuchMethodException e) {

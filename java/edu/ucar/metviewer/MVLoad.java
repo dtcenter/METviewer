@@ -585,7 +585,8 @@ public class MVLoad extends MVUtil {
           ResultSet res = null;
           try {
             con = connectionPool.getConnection();
-            stmt = con.createStatement();
+            stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+            //stmt.setFetchSize(Integer.MIN_VALUE);
             res = stmt.executeQuery(strStatHeaderSelect);
             if (res.next()) {
               String strStatHeaderIdDup = res.getString(1);
@@ -1089,7 +1090,8 @@ public class MVLoad extends MVUtil {
           ResultSet res = null;
           try {
             con = connectionPool.getConnection();
-            stmt = con.createStatement();
+            stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+            //stmt.setFetchSize(Integer.MIN_VALUE);
             res = stmt.executeQuery(strModeHeaderSelect);
             if (res.next()) {
               String strModeHeaderIdDup = res.getString(1);
@@ -1385,7 +1387,8 @@ public class MVLoad extends MVUtil {
     ResultSet res = null;
     try {
       con = connectionPool.getConnection();
-      stmt = con.createStatement();
+      stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      //stmt.setFetchSize(Integer.MIN_VALUE);
       res = stmt.executeQuery(strDataFileQuery);
 
       // if the data file is already present in the database, print a warning and return the id

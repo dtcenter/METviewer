@@ -21,6 +21,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,6 +54,12 @@ public class MVServlet extends HttpServlet {
   public static Hashtable _tableListValCache = new Hashtable();
   public static boolean _boolListStatCache = false;
   public static Hashtable _tableListStatCache = new Hashtable();
+  public static String _projectDir;
+  private static FilenameFilter PNG_FILTER = new FilenameFilter() {
+    public boolean accept(File dir, String name) {
+      return name.toLowerCase().endsWith(".png");
+    }
+  };
 
   /**
    * Read the resource bundle containing database configuration information and
@@ -82,6 +90,13 @@ public class MVServlet extends HttpServlet {
       if (_strRedirect.length() == 0) {
         _strRedirect = "metviewer";
       }
+
+      Class<MVServlet> cls = MVServlet.class;
+      ProtectionDomain pDomain = cls.getProtectionDomain();
+      CodeSource cSource = pDomain.getCodeSource();
+      File file = new File(cSource.getLocation().getFile());
+      String catalinaHome = file.getParentFile().getParentFile().getParentFile().getParentFile().getParent();
+      _projectDir = catalinaHome + "/webapps/" + _strRedirect;
 
     } catch (Exception e) {
       _logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
@@ -335,6 +350,12 @@ public class MVServlet extends HttpServlet {
           strResp += handleXMLUpload(nodeCall, con);
           request.getSession().setAttribute("init_xml", strResp);
           response.sendRedirect("/" + _strRedirect);
+        }
+        //  <xml_upload>
+        else if (nodeCall._tag.equalsIgnoreCase("history")) {
+
+          strResp += "<results>" + getAvailableResults() + "</results>";
+
         }
 
         //  not handled
@@ -675,7 +696,8 @@ public class MVServlet extends HttpServlet {
       strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
     }
     //  execute the query
-    Statement stmt = con.createStatement();
+    Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    //stmt.setFetchSize(Integer.MIN_VALUE);
     _logger.debug("handleListVal() - sql: " + strSQL);
     if (0 == intStart) {
       intStart = (new java.util.Date()).getTime();
@@ -786,7 +808,8 @@ public class MVServlet extends HttpServlet {
       "(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
     _logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
-    Statement stmt = con.createStatement();
+    Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    //stmt.setFetchSize(Integer.MIN_VALUE);
     long intStart = (new java.util.Date()).getTime();
     stmt.executeQuery(strSQL);
     //  build a list of stat names using the stat ids returned by the query
@@ -1096,7 +1119,8 @@ public class MVServlet extends HttpServlet {
     String strResp = "<list_mv_rev>";
 
     //  query the database for the contents of the mv_rev table
-    Statement stmt = con.createStatement();
+    Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    //stmt.setFetchSize(Integer.MIN_VALUE);
     ResultSet res = stmt.executeQuery("SELECT * FROM mv_rev;");
     while (res.next()) {
       strResp += "<val>";
@@ -1123,7 +1147,8 @@ public class MVServlet extends HttpServlet {
     String strResp = "<list_inst_info>";
 
     //  query the database for the contents of the instance_info table
-    Statement stmt = con.createStatement();
+    Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    //stmt.setFetchSize(Integer.MIN_VALUE);
     ResultSet res = stmt.executeQuery("SELECT * FROM instance_info;");
     while (res.next()) {
       strResp += "<val>";
@@ -1254,7 +1279,8 @@ public class MVServlet extends HttpServlet {
     }
 
     //  get the load XML for the specified instance_info_id
-    Statement stmt = con.createStatement();
+    Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    //stmt.setFetchSize(Integer.MIN_VALUE);
     ResultSet res = stmt.executeQuery("SELECT load_xml FROM instance_info WHERE instance_info_id = " + strInfoId + ";");
     String strLoadXML = "";
     while (res.next()) {
@@ -1339,4 +1365,23 @@ public class MVServlet extends HttpServlet {
     //  return the serialized plot XML
     return MVPlotJobParser.serializeJob(job);
   }
+
+  public static String getAvailableResults() {
+    String result = "";
+
+    File plotDir = new File(_projectDir + "/plots");
+    if (plotDir.exists()) {
+      String[] plotNames = plotDir.list(PNG_FILTER);
+      Arrays.sort(plotNames, Collections.reverseOrder());
+      for (String name : plotNames) {
+        result = result + name.replace(".png", "").replace("plot_", "" ) + ",";
+      }
+      if (result.length() > 0) {
+        result = result.substring(0, result.length() - 1);
+      }
+
+    }
+    return result;
+  }
+
 }

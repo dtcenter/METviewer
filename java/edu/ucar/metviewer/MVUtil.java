@@ -95,7 +95,8 @@ public class MVUtil{
 				strWhere += ( strWhere.equals("") ? "WHERE" : "AND" ) + " HOUR(" + field + ") = '" + hour + "' "; 
 			}
 			
-			Statement stmt = con.createStatement();
+			Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+			//stmt.setFetchSize(Integer.MIN_VALUE);
 			String strTable = (field.equalsIgnoreCase("fcst_valid") || field.equalsIgnoreCase("fcst_init")? "mode_header" : "stat_header");
 			ResultSet res = stmt.executeQuery("SELECT DISTINCT " + field + " FROM " + strTable + " " + strWhere + "ORDER BY " + field);
 			for(int i=0; res.next(); i++){ listDates.add( res.getString(1) ); }
@@ -1102,13 +1103,15 @@ public class MVUtil{
 	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
 	 * @param maxRows The max number of rows to print, -1 to print all rows
 	 */
-	public void printFormattedTable(ResultSet res, PrintStream str, String delim, int maxRows){
+	public synchronized void printFormattedTable(ResultSet res, PrintStream str, String delim, int maxRows){
 		try{
 			ResultSetMetaData met = res.getMetaData();
-	
+      //res.getStatement().close();
 			//  get the column display widths
 			int[] intFieldWidths = new int[met.getColumnCount()];
-			for(int i=1; i <= met.getColumnCount(); i++){ intFieldWidths[i-1] = met.getColumnDisplaySize(i) + 2; }
+			for(int i=1; i <= met.getColumnCount(); i++){
+        intFieldWidths[i-1] = met.getColumnDisplaySize(i) + 2;
+      }
 			
 			//  print out the column headers
 			for(int i=1; i <= met.getColumnCount(); i++){
