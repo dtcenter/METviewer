@@ -2394,9 +2394,9 @@ public class MVBatch extends MVUtil {
     if (!_boolSQLOnly) {
       _out.println("\nRunning '" + Rscript + " " + script + "'");
     }
-    Process proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
+    Process proc = null;
 
-    boolean boolExit = false;
+
     int intExitStatus = 0;
     String strProcStd = "", strProcErr = "";
     InputStreamReader inputStreamReader = null;
@@ -2405,26 +2405,25 @@ public class MVBatch extends MVUtil {
     BufferedReader readerProcStd = null;
     BufferedReader readerProcErr = null;
     try {
+      proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
       readerProcStd = new BufferedReader(inputStreamReader);
       readerProcErr = new BufferedReader(errorInputStreamReader);
-      while (!boolExit) {
-        intExitStatus = proc.exitValue();
-        boolExit = true;
+      intExitStatus = proc.waitFor();
 
-
-        while (readerProcStd.ready()) {
-          strProcStd += readerProcStd.readLine() + "\n";
-        }
-        while (readerProcErr.ready()) {
-          strProcErr += readerProcErr.readLine() + "\n";
-        }
+      while (readerProcStd.ready()) {
+        strProcStd += readerProcStd.readLine() + "\n";
       }
+      while (readerProcErr.ready()) {
+        strProcErr += readerProcErr.readLine() + "\n";
+      }
+
     } catch (Exception e) {
       System.out.println(e.getMessage());
     } finally {
+
       if(inputStreamReader != null){
         inputStreamReader.close();
       }
@@ -2437,7 +2436,10 @@ public class MVBatch extends MVUtil {
       if(readerProcErr != null){
         readerProcErr.close();
       }
-      proc.destroy();
+      if(proc != null){
+        proc.destroy();
+      }
+
     }
 
     if (!"".equals(strProcStd) && !_boolSQLOnly) {
