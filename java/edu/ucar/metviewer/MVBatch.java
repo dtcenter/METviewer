@@ -2333,8 +2333,13 @@ public class MVBatch extends MVUtil {
    * @throws Exception
    */
   public static void populateTemplateFile(String tmpl, String output, Hashtable vals) throws Exception {
-    BufferedReader reader = new BufferedReader(new FileReader(tmpl));
-    PrintStream writer = new PrintStream(output);
+    FileReader fileReader = null;
+    BufferedReader reader = null;
+    PrintStream writer = null;
+    try{
+    fileReader = new FileReader(tmpl);
+    reader = new BufferedReader(fileReader);
+    writer = new PrintStream(output);
     while (reader.ready()) {
       String strTmplLine = reader.readLine();
       String strOutputLine = strTmplLine;
@@ -2351,8 +2356,21 @@ public class MVBatch extends MVUtil {
 
       writer.println(strOutputLine);
     }
-    reader.close();
-    writer.close();
+    } catch (Exception e){
+      System.out.println(e.getMessage());
+    }finally {
+      if(reader != null){
+        reader.close();
+      }
+      if(writer != null){
+        writer.close();
+      }
+      if(fileReader != null){
+        fileReader.close();
+      }
+
+    }
+
   }
 
   /**
@@ -2381,25 +2399,46 @@ public class MVBatch extends MVUtil {
     boolean boolExit = false;
     int intExitStatus = 0;
     String strProcStd = "", strProcErr = "";
-    BufferedReader readerProcStd = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-    BufferedReader readerProcErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-    while (!boolExit) {
-      try {
+    InputStreamReader inputStreamReader = null;
+    InputStreamReader errorInputStreamReader = null;
+
+    BufferedReader readerProcStd = null;
+    BufferedReader readerProcErr = null;
+    try {
+      inputStreamReader = new InputStreamReader(proc.getInputStream());
+      errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
+
+      readerProcStd = new BufferedReader(inputStreamReader);
+      readerProcErr = new BufferedReader(errorInputStreamReader);
+      while (!boolExit) {
         intExitStatus = proc.exitValue();
         boolExit = true;
-      } catch (Exception e) {
-      }
 
-      while (readerProcStd.ready()) {
-        strProcStd += readerProcStd.readLine() + "\n";
+
+        while (readerProcStd.ready()) {
+          strProcStd += readerProcStd.readLine() + "\n";
+        }
+        while (readerProcErr.ready()) {
+          strProcErr += readerProcErr.readLine() + "\n";
+        }
       }
-      while (readerProcErr.ready()) {
-        strProcErr += readerProcErr.readLine() + "\n";
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    } finally {
+      if(inputStreamReader != null){
+        inputStreamReader.close();
       }
+      if(errorInputStreamReader != null){
+        errorInputStreamReader.close();
+      }
+      if(readerProcStd != null){
+        readerProcStd.close();
+      }
+      if(readerProcErr != null){
+        readerProcErr.close();
+      }
+      proc.destroy();
     }
-    readerProcStd.close();
-    readerProcErr.close();
-    proc.destroy();
 
     if (!"".equals(strProcStd) && !_boolSQLOnly) {
       _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
