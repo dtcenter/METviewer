@@ -165,7 +165,7 @@ public class Datasource {
    * @return - db connection
    * @throws SQLException
    */
-  public static Connection getConnection(String db) throws SQLException {
+  public  Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
     Statement statement = null/**/;
@@ -211,7 +211,7 @@ public class Datasource {
     * @param strDBPassword - DB password
    * @return - db connection
    */
-  public static Connection getConnection(String strDBHost, String strDBName, String strDBUser, String strDBPassword) {
+  public  Connection getConnection(String strDBHost, String strDBName, String strDBUser, String strDBPassword) {
     Connection con = null;
 
     if (datasource == null) {
@@ -236,7 +236,7 @@ public class Datasource {
    * @param db - name of the database to check
    * @return
    */
-  public static boolean validate(String db) {
+  public  boolean validate(String db) {
     boolean result = false;
     for (String availableDB : listDB) {
       if (availableDB.equals(db)) {
