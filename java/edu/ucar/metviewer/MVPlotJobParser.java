@@ -140,7 +140,8 @@ public class MVPlotJobParser extends MVUtil {
         }
         if (_con == null) {
           //batch mode
-          _con = Datasource.getConnection(strDBHost, strDBName, strDBUser, strDBPassword);
+          Datasource datasource = Datasource.getInstance();
+          _con = datasource.getConnection(strDBHost, strDBName, strDBUser, strDBPassword);
         }
 
       }
@@ -613,11 +614,11 @@ public class MVPlotJobParser extends MVUtil {
             job.setY2LabelTmpl(nodeTmpl._value);
           } else if (nodeTmpl._tag.equals("caption")) {
             job.setCaptionTmpl(nodeTmpl._value);
-          } else if (nodeTmpl._tag.equals("listDiffSeries1")) {
+          } else if (nodeTmpl._tag.equalsIgnoreCase("listDiffSeries1")) {
             //validate listDiffSeries - make sure that differences will be calculated for the same Forecast Variable and Statistic
             validateListDiffSeries(node, nodeTmpl);
             job.setDiffSeries1(nodeTmpl._value);
-          } else if (nodeTmpl._tag.equals("listDiffSeries2")) {
+          } else if (nodeTmpl._tag.equalsIgnoreCase("listDiffSeries2")) {
             validateListDiffSeries(node, nodeTmpl);
             job.setDiffSeries2(nodeTmpl._value);
           }
@@ -1235,13 +1236,29 @@ public class MVPlotJobParser extends MVUtil {
 
         //  serialize each fcst_var and it's vals
         String[] listSeriesField = mapSeries.getKeyList();
+
         for (int i = 0; i < listSeriesField.length; i++) {
-          strXML += "<field name=\"" + listSeriesField[i] + "\">";
-          String[] listSeriesVal = (String[]) mapSeries.get(listSeriesField[i]);
+
+          String fieldName = listSeriesField[i];
+          String strXMLSimpleValues = "";
+          String[] listSeriesVal = (String[]) mapSeries.get(i);
           for (int j = 0; j < listSeriesVal.length; j++) {
-            strXML += "<val>" + listSeriesVal[j] + "</val>";
+            if(listSeriesVal[j].contains(",")){
+              strXML+="<field name=\"" + fieldName + "\">";
+              strXML += "<val>" + listSeriesVal[j] + "</val>";
+              strXML += "</field>";
+            }else{
+              if(strXMLSimpleValues.length()==0){
+                strXMLSimpleValues = "<field name=\"" + fieldName + "\">";
+              }
+              strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
+            }
+
           }
-          strXML += "</field>";
+          if(strXMLSimpleValues.length()>0){
+            strXMLSimpleValues += "</field>";
+          }
+          strXML +=strXMLSimpleValues;
         }
         strXML += "</series" + intY + ">";
       }

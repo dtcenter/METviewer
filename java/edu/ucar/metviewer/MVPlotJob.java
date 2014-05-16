@@ -501,7 +501,7 @@ public class MVPlotJob extends MVUtil {
 
 
   public void addSeries1Val(String field, String[] vals, int index) {
-    _mapSeries1Val.put(field, vals, index);
+    _mapSeries1Val.putSeries(field, vals, index);
   }
 
 
@@ -539,7 +539,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void addSeries2Val(String field, String[] vals, int index) {
-    _mapSeries2Val.put(field, vals, index);
+    _mapSeries2Val.putSeries(field, vals, index);
   }
 
   public void addSeries2Val(String field, String[] vals) {

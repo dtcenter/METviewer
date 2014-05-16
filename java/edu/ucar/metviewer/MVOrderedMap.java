@@ -1,6 +1,9 @@
 package edu.ucar.metviewer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +23,7 @@ public class MVOrderedMap extends Hashtable {
     String strMap =
       "map(\n" +
         "  key1=list(val1_1,val1_2, val1_3);\n" +
-			"  key2=val2_1;\n" +
+        "  key2=val2_1;\n" +
         "  key3=val3_1;\n" +
         ")\n";
     System.out.println("input:\n" + strMap + "\n");
@@ -52,9 +55,19 @@ public class MVOrderedMap extends Hashtable {
     }
   }
 
+  public MVOrderedMap(MVOrderedMap copy, String s) {
+    super();
+    _listKeys.addAll(copy._listKeys);
+    Map.Entry[] listEntries = copy.getOrderedEntriesSeries();
+    for (int i = 0; i < listEntries.length; i++) {
+      put(listEntries[i].getKey(), listEntries[i].getValue());
+    }
+  }
+
+
   /**
-   * Pseudo-override of the Hashtable get() method to cast the return value as a
-   * string.
+   * Pseudo-override of the Hashtable get() method to cast the return value as
+   * a string.
    *
    * @param key Symbol (String) used as the index for the value
    * @return The inserted value, cast as a String
@@ -108,8 +121,8 @@ public class MVOrderedMap extends Hashtable {
   }
 
   /**
-   * Inserts the key/value pair into the table, putting the key into the ordered
-   * list at the position specified by index
+   * Inserts the key/value pair into the table, putting the key into the
+   * ordered list at the position specified by index
    *
    * @param key   Symbol used as the index for value
    * @param value Data to store, indexed by key field
@@ -123,13 +136,24 @@ public class MVOrderedMap extends Hashtable {
     return super.put(key, value);
   }
 
+  public Object putSeries(Object key, Object value, int index) {
+    Object result = null;
+
+    _listKeys.add(index, key);
+
+
+    return super.put(index, value);
+  }
+
+
   /**
-   * Overrides put() in {@link Hashtable} to add the key/value pair to the table
-   * and the key at the end of the ordered list
+   * Overrides put() in {@link Hashtable} to add the key/value pair to the
+   * table and the key at the end of the ordered list
    */
   public Object put(Object key, Object value) {
     return put(key, value, _listKeys.size());
   }
+
 
   /**
    * Pseudo-override to ease the process of inserting integers into the map
@@ -159,6 +183,7 @@ public class MVOrderedMap extends Hashtable {
   public Object putStr(Object key, double value) {
     return put(key, "" + value);
   }
+
 
   /**
    * Overrides remove() in {@link Hashtable} to remove the key/value pair from
@@ -193,12 +218,74 @@ public class MVOrderedMap extends Hashtable {
     return ret;
   }
 
+  public Map.Entry[] getOrderedEntriesSeries() {
+    Map.Entry[] ret = new Map.Entry[size()];
+    for (Iterator iterEntries = entrySet().iterator(); iterEntries.hasNext(); ) {
+      Map.Entry entry = (Map.Entry) iterEntries.next();
+      ret[(Integer) entry.getKey()] = entry;
+    }
+    return ret;
+  }
+
+  private MVOrderedMap convertFromSeriesMap() {
+    MVOrderedMap simpleMap = new MVOrderedMap();
+    for (int i = 0; i < _listKeys.size(); i++) {
+      if (simpleMap.containsKey(_listKeys.get(i))) {
+        Object o = simpleMap.get(_listKeys.get(i));
+        String[] newArr;
+        String[] oldArr = new String[0];
+        if (o instanceof String[]) {
+          oldArr = (String[]) o;
+        } else if (o instanceof String) {
+          oldArr = new String[]{(String) o};
+        }
+
+        String[] curArr = new String[0];
+        int newSize = oldArr.length;
+
+        if (this.get(i) instanceof String) {
+          curArr = new String[]{(String) this.get(i)};
+        } else if (this.get(i) instanceof String[]) {
+          curArr = (String[]) this.get(i);
+        }
+        newSize = newSize + curArr.length;
+        newArr = new String[newSize];
+        System.arraycopy(oldArr, 0, newArr, 0, oldArr.length);
+        for (int k = 0; k < curArr.length; k++) {
+          newArr[oldArr.length + k] = curArr[k];
+        }
+
+
+        simpleMap.put(_listKeys.get(i), newArr);
+      } else {
+        simpleMap.put(_listKeys.get(i), this.get(i));
+      }
+    }
+    return simpleMap;
+  }
+
+  public Map.Entry[] getOrderedEntriesForSQLSeries() {
+    MVOrderedMap simpleMap = convertFromSeriesMap();
+
+    Map.Entry[] ret = new Map.Entry[simpleMap.size()];
+    for (Iterator iterEntries = simpleMap.entrySet().iterator(); iterEntries.hasNext(); ) {
+      Map.Entry entry = (Map.Entry) iterEntries.next();
+      ret[simpleMap._listKeys.indexOf(entry.getKey())] = entry;
+    }
+    return ret;
+  }
+
+
   /**
    * Returns a string representation of the MVOrderedMap in R declaration
    * syntax
    */
   public String getRDecl() {
     return MVUtil.getRDecl(this);
+  }
+
+  public String getRDeclSeries() {
+    return MVUtil.getRDecl(convertFromSeriesMap());
   }
 
   public static final Pattern _patMap = Pattern.compile("(?s)map\\((.*)\\)");
@@ -238,6 +325,7 @@ public class MVOrderedMap extends Hashtable {
 
     return ret;
   }
+
 
   public static String[] parseList(String list) {
     String[] listData = null;
