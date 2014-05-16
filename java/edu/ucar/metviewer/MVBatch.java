@@ -395,8 +395,8 @@ public class MVBatch extends MVUtil {
 			/*
 			 *  Make a copy of the series variables to use for the plot
 			 */
-      MVOrderedMap mapSeries1ValPlot = new MVOrderedMap(job.getSeries1Val());
-      MVOrderedMap mapSeries2ValPlot = new MVOrderedMap(job.getSeries2Val());
+      MVOrderedMap mapSeries1ValPlot = job.getSeries1Val();
+      MVOrderedMap mapSeries2ValPlot = job.getSeries2Val();
 			
 			
 			/*
@@ -466,8 +466,8 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("ci_alpha", job.getCIAlpha());
         tableAggStatInfo.put("indy_var", job.getIndyVar());
         tableAggStatInfo.put("indy_list", (0 < listIndyValFmt.length ? printRCol(listIndyValFmt, true) : "c()"));
-        tableAggStatInfo.put("series1_list", job.getSeries1Val().getRDecl());
-        tableAggStatInfo.put("series2_list", job.getSeries2Val().getRDecl());
+        tableAggStatInfo.put("series1_list", job.getSeries1Val().getRDeclSeries());
+        tableAggStatInfo.put("series2_list", job.getSeries2Val().getRDeclSeries());
         tableAggStatInfo.put("agg_stat1", printRCol(toArray(listAggStats1), true));
         tableAggStatInfo.put("agg_stat2", printRCol(toArray(listAggStats2), true));
         tableAggStatInfo.put("agg_stat_static", mapAggStatStatic.getRDecl());
@@ -571,8 +571,8 @@ public class MVBatch extends MVUtil {
       MVOrderedMap mapDep1Plot = (MVOrderedMap) mapDep.get("dep1");
       MVOrderedMap mapDep2Plot = (MVOrderedMap) mapDep.get("dep2");
 
-      Map.Entry[] listSeries1Val = mapSeries1ValPlot.getOrderedEntries();
-      Map.Entry[] listSeries2Val = (null != job.getSeries2Val() ? mapSeries2ValPlot.getOrderedEntries() : new Map.Entry[]{});
+      Map.Entry[] listSeries1Val = mapSeries1ValPlot.getOrderedEntriesForSQLSeries();
+      Map.Entry[] listSeries2Val = (null != job.getSeries2Val() ? mapSeries2ValPlot.getOrderedEntriesForSQLSeries() : new Map.Entry[]{});
       Map.Entry[] listDep1Plot = mapDep1Plot.getOrderedEntries();
       Map.Entry[] listDep2Plot = (null != mapDep2Plot ? mapDep2Plot.getOrderedEntries() : new Map.Entry[]{});
 
@@ -588,8 +588,8 @@ public class MVBatch extends MVUtil {
       tableRTags.put("dep1_plot", mapDep1Plot.getRDecl());
       tableRTags.put("dep2_plot", (null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()"));
       tableRTags.put("agg_list", (new MVOrderedMap()).getRDecl());
-      tableRTags.put("series1_list", mapSeries1ValPlot.getRDecl());
-      tableRTags.put("series2_list", mapSeries2ValPlot.getRDecl());
+      tableRTags.put("series1_list", mapSeries1ValPlot.getRDeclSeries());
+      tableRTags.put("series2_list", mapSeries2ValPlot.getRDeclSeries());
       tableRTags.put("series_nobs", job.getSeriesNobs().getRDecl());
       tableRTags.put("dep1_scale", job.getDep1Scale().getRDecl());
       tableRTags.put("dep2_scale", job.getDep2Scale().getRDecl());
@@ -804,7 +804,8 @@ public class MVBatch extends MVUtil {
       MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
 
       //  establish lists of entires for each group of variables and values
-      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntries();
+      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSQLSeries();
+      String[] listSeriesField = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getKeyList();
       Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
       //  if there is a mis-match between the presence of series and dep values, bail
@@ -853,7 +854,7 @@ public class MVBatch extends MVUtil {
       }
 
       //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-      if (!strSelectList.matches("(?s).*(fcst_init\\w*),.*")) {
+      if (!strSelectList.contains("fcst_init")) {
         if (boolModePlot) {
           //strSelectList	+= ",\n  " + getSQLDateFormat("h.fcst_init") + " fcst_init";
           strSelectList += ",\n  h.fcst_init";
@@ -863,7 +864,7 @@ public class MVBatch extends MVUtil {
           strTempList += ",\n    fcst_init_beg       DATETIME";
         }
       }
-      if (!strSelectList.matches("(?s).*fcst_valid\\w*,.*")) {
+      if (!strSelectList.contains("fcst_valid")) {
         if (boolModePlot) {
           //strSelectList	+= ",\n  " + getSQLDateFormat("h.fcst_valid") + " fcst_valid";
           strSelectList += ",\n  h.fcst_valid";
@@ -1106,13 +1107,13 @@ public class MVBatch extends MVUtil {
       //  determine how many queries are needed to gather that stat information
       int intNumQueries = -1;
       String[][] listFcstVarStat = buildFcstVarStatList(mapDep);
-      if (boolAggStat && 1 == intY) {
-        intNumQueries = 1;
-      } else if (boolAggStat && 2 == intY) {
-        intNumQueries = 0;
-      } else {
+      //if (boolAggStat && 1 == intY) {
+      //  intNumQueries = 1;
+     // } else if (boolAggStat && 2 == intY) {
+     //   intNumQueries = 0;
+     // } else {
         intNumQueries = listFcstVarStat.length;
-      }
+     // }
 
       //  build a query for each fcst_var/stat pair or a just single query for contingency tables or partial sums
       for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
@@ -2394,16 +2395,17 @@ public class MVBatch extends MVUtil {
     if (!_boolSQLOnly) {
       _out.println("\nRunning '" + Rscript + " " + script + "'");
     }
+
     Process proc = null;
-
-
-    int intExitStatus = 0;
-    String strProcStd = "", strProcErr = "";
     InputStreamReader inputStreamReader = null;
     InputStreamReader errorInputStreamReader = null;
 
     BufferedReader readerProcStd = null;
     BufferedReader readerProcErr = null;
+
+    boolean boolExit = false;
+    int intExitStatus = 0;
+    String strProcStd = "", strProcErr = "";
     try {
       proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
@@ -2411,36 +2413,42 @@ public class MVBatch extends MVUtil {
 
       readerProcStd = new BufferedReader(inputStreamReader);
       readerProcErr = new BufferedReader(errorInputStreamReader);
-      intExitStatus = proc.waitFor();
+      while (!boolExit) {
+        try {
+          intExitStatus = proc.exitValue();
+          boolExit = true;
+        } catch (Exception e) {
+        }
 
-      while (readerProcStd.ready()) {
-        strProcStd += readerProcStd.readLine() + "\n";
+        while (readerProcStd.ready()) {
+          strProcStd += readerProcStd.readLine() + "\n";
+        }
+        while (readerProcErr.ready()) {
+          strProcErr += readerProcErr.readLine() + "\n";
+        }
       }
-      while (readerProcErr.ready()) {
-        strProcErr += readerProcErr.readLine() + "\n";
-      }
-
     } catch (Exception e) {
       System.out.println(e.getMessage());
     } finally {
 
-      if(inputStreamReader != null){
+      if (inputStreamReader != null) {
         inputStreamReader.close();
       }
-      if(errorInputStreamReader != null){
+      if (errorInputStreamReader != null) {
         errorInputStreamReader.close();
       }
-      if(readerProcStd != null){
+      if (readerProcStd != null) {
         readerProcStd.close();
       }
-      if(readerProcErr != null){
+      if (readerProcErr != null) {
         readerProcErr.close();
       }
-      if(proc != null){
+      if (proc != null) {
         proc.destroy();
       }
 
     }
+
 
     if (!"".equals(strProcStd) && !_boolSQLOnly) {
       _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
