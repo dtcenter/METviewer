@@ -35,7 +35,9 @@ buildPermData = function(dfStats, listPerm){
 		strSeriesVar = listSeriesVar[intSeriesVal];
 		strSeriesVal = listPerm[intSeriesVal];
 		if( grepl("^[0-9]+$", strSeriesVal) ){ strSeriesVal = as.numeric(strSeriesVal); }
-		dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] == strSeriesVal,];
+		  vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+        vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+        dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
 	}
 	return (dfStatsPerm);
 }
@@ -383,8 +385,16 @@ booter.iid = function(d, i){
 
 	# for each permutation calculate the stat from the sampled data set
 	listStatVal = c();
+	# initialize storage
+    listRet = list();
+    listRetTest = list();
+    for(strStat in listStat){
+      listRet[[strStat]] = c();
+      listRetTest[[strStat]] = c();
+    }
 	for(intPerm in 1:nrow(matPerm)){
 		listPerm = matPerm[intPerm,];
+		strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
 		
 		# build the data set pertinent to this series permutation
 		dfStatsPerm = buildPermData(dfBoot, listPerm);
@@ -394,9 +404,42 @@ booter.iid = function(d, i){
 		for(strStat in listStat){
         dblStat=do.call( paste("calc", strStat, sep=""), list(d=dfStatsPerm) );	
 		  	listStatVal = append(listStatVal, dblStat);
+		  	listRet[[strStat]] = append(listRet[[strStat]], dblStat);
+        listRetTest[[strStat]] = append(listRetTest[[strStat]], dblStat);
 		}
+		listRetTest[[strStat]] = append(listRetTest[[strStat]], strPerm);
 	}
-	return (listStatVal);
+	if(length(listDiffSeries) > 0){
+      for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+        #get  names of DIFF series
+        diffSeriesVec = listDiffSeries1[[diffSeriesNameInd]];
+
+        listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+        listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+        if(listSeriesDiff1[length(listSeriesDiff1)] == strStat && listSeriesDiff2[length(listSeriesDiff2)] == strStat){
+          listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
+          listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
+
+          strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));
+          strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
+
+          for(ind in seq(from=1, to=length(listRetTest[[strStat]]), by=2) ) {
+            if(listRetTest[[strStat]][ind+1] == strSeriesDiff1Short){
+              dblStat1=listRetTest[[strStat]][ind];
+            }
+            if(listRetTest[[strStat]][ind+1] == strSeriesDiff2Short){
+              dblStat2=listRetTest[[strStat]][ind];
+            }
+            ind=ind+1;
+          }
+          if(TRUE == exists("dblStat1") && TRUE == exists("dblStat2")){
+            listRet[[strStat]] = append(listRet[[strStat]], as.numeric(dblStat1) - as.numeric(dblStat2));
+          }
+        }
+      }
+    }
+	#return (listStatVal);
+	return( unlist(listRet) );
 }
 
 dfOut = data.frame();
@@ -415,8 +458,16 @@ cat("PROCESSING:", strIndyVal, "\n");
 	for(intY in 1:intYMax){
 	
 		# build permutations for each plot series
-		if( 1 == intY ){ listSeriesVal = listSeries1Val; listStat = listStat1; }
-		if( 2 == intY ){ listSeriesVal = listSeries2Val; listStat = listStat2; }
+		if( 1 == intY ){
+		  listSeriesVal = listSeries1Val;
+		  listStat = listStat1;
+		  listDiffSeries = listDiffSeries1;
+		 }
+		if( 2 == intY ){
+		  listSeriesVal = listSeries2Val;
+		  listStat = listStat2;
+		  listDiffSeries = listDiffSeries2;
+		}
 		listSeriesVar = names(listSeriesVal);
 		matPerm = permute(listSeriesVal);
 		
@@ -479,6 +530,42 @@ cat("PROCESSING:", strIndyVal, "\n");
 			}  #  END:  for intPerm
 			
 		}  #  END:  for strStat
+		 #add diff series
+        if(length(listDiffSeries) > 0){
+          for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
+            listPerm = listDiffSeries[[diffSeriesName]];
+            # build an output entry for the current case
+            listOutPerm = data.frame(listPerm);
+            names(listOutPerm) = names(listSeriesVal);
+            for(strStaticVar in names(listStaticVal)){
+              listOutPerm[[strStaticVar]] = listStaticVal[[strStaticVar]];
+            }
+            listOutPerm[[strIndyVar]]  = strIndyVal;
+            listOutPerm$stat_name		= strStat;
+            listOutPerm$stat_value		= bootStat$t0[intBootIndex];
+
+            # calculate the bootstrap CIs, if appropriate
+            if( 1 < intNumReplicates ){
+
+              # calculate the confidence interval for the current stat and series permutation
+              bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+
+            }
+
+            # store the bootstrapped stat value and CI values in the output dataframe
+            strCIParm = strCIType;
+            if( strCIType == "perc" ){ strCIParm = "percent"; }
+            if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
+              listOutPerm$stat_bcl = bootCI[[strCIParm]][4];
+              listOutPerm$stat_bcu = bootCI[[strCIParm]][5];
+            } else {
+              listOutPerm$stat_bcl = NA;
+              listOutPerm$stat_bcu = NA;
+            }
+            dfOut = rbind(dfOut, listOutPerm);
+            intBootIndex = intBootIndex + 1;
+          }
+        }
 		
 	}  #  END:  for intY
 	
