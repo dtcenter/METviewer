@@ -1,11 +1,19 @@
 package edu.ucar.metviewer;
 
 import java.awt.*;
-import java.sql.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.*;
-import java.text.*;
-import java.io.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MVUtil{
 	
@@ -236,9 +244,26 @@ public class MVUtil{
 	 * @return The string of concatenated values for use in a SQL where clause
 	 */
 	public static String buildValueList(String[] values){
+    String[] localValues;
+    if(values != null && values.length > 0){
+      List<String> newValues = new ArrayList<String>();
+      for(String value : values){
+        if(value.contains(",")){
+          String[] valuesArr = value.split(",");
+          for(String v : valuesArr){
+            newValues.add(v);
+          }
+        } else{
+          newValues.add(value);
+        }
+      }
+      localValues = newValues.toArray(new String[newValues.size()]);
+    }else{
+      localValues = values;
+    }
 		String strValueList = "";		
-		for(int i=0; null != values && i < values.length; i++){
-			strValueList += (0 < i? ", " : "") + "'" + values[i] + "'";
+		for(int i=0; null != localValues && i < localValues.length; i++){
+			strValueList += (0 < i? ", " : "") + "'" + localValues[i] + "'";
 		}
 		return strValueList;
 	}
@@ -992,7 +1017,9 @@ public class MVUtil{
 		strRDecl += "\n)";
 		return strRDecl;
 	}
-	
+
+
+
 	
 	/**
 	 * Format the input String so that it conforms to R variable name standards  

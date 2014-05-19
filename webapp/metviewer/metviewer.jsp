@@ -175,6 +175,10 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 				<img src="include/arrow_up.gif"/><br/><br/>
 				<img src="include/arrow_down.gif"/>			
 			</td>
+                <td>
+                    <input type="checkbox"  style="vertical-align:middle;" onclick="javascript:buildSeriesDiv()"/><label  style="vertical-align:middle;">Group</label>
+                </td>
+
 			<td style="padding-left:30px">			
 				<span id="lnkRemove">
 					<img src="include/sub_symbol.gif" style="padding-left:20px"/>&nbsp;&nbsp;
@@ -182,7 +186,10 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 				</span>
 				<input type="hidden" value=""/>
 			</td>
-			</tr></table><br/><br/>
+			</tr>
+            </table>
+
+            <br/><br/>
 		</div>
 		
 		<div id="divFix">
