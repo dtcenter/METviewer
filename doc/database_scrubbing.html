@@ -1,0 +1,73 @@
+<html>
+<head>
+	<title>METViewer Documentation</title>
+	<link rel="stylesheet" type="text/css" href="mv_doc.css" />
+	<link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
+</head>
+<body>
+
+<p class="loc" style="padding-top:10px">
+<b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Database scrubbing
+</p><hr/>
+
+<h2>METViewer Documentation - Database Scrubbing Module</h2>
+
+<p>The database scrubbing utility is used to to delete data from METViewer databases that meets some user-specified selection criteria.  The usage statement:</p>
+
+<p class="term">
+----  Database Scrubbing  ----<br/><br/>
+Usage:  scrubbing.sh<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scrubbing_sql_file<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database_name<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;field_name<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min_value<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max_value<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[info]<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where   "scrubbing_sql_file" indicates the path to the SQL file that performs the scrubbing<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"database_name" specifies the name of database where the scrubbing will be performed<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"field_name" specifies the name of the field for scrubbing <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"min_value" specifies the min value of the field<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"max_value" specifies the max value of the field<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[info] optional parameter, indicates that only the scrubbing info will be printed and scrubbing itself will not be performed<br/><br/>
+----  Database Scrubbing Done  ----<br/>
+</p>
+
+
+<p><span class="code">Examples:</span> </p>
+
+<ul>
+    <li>
+        <span class="term">/d3/projects/METViewer/src/apps/verif/metviewer/bin/scrubbing.sh
+        /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql
+        mv_dart_gsi fcst_valid_beg '"2010-06-01 12:00:00"' '"2010-06-01
+        12:00:00"'</span> - <br/>
+        all records from all tables with field "fcst_valid_beg" and values
+        between "2010-06-01 12:00:00" and "2010-06-01 12:00:00" will be deleted
+        from database mv_dart_gsi. The log messages with information about how
+        many records was deleted from each table will be printed to the
+        console.
+    </li>
+    </br>
+    <li>
+        <span class="term">/d3/projects/METViewer/src/apps/verif/metviewer/bin/scrubbing.sh
+        /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql
+        mv_dart_gsi fcst_valid_beg '"2010-06-01 12:00:00"' '"2010-06-01
+        12:00:00"' info > temp.log </span> - <br/>
+        The deletion of records will not be performed. The log messages with
+        information about how many records is applicable for deletion based on
+        the field name and min/max values will be printed to the temp.log file.
+    </li>
+    <br/>
+    <li>
+        <span class="term">/d3/projects/METViewer/src/apps/verif/metviewer/bin/scrubbing.sh
+        /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql
+        mv_dart_gsi f_rate 0 0.1 </span> - <br/>
+        all records from all tables with field "f_rate" and values between 0
+        and 0.1 will be deleted from database mv_dart_gsi. The log messages
+        with information about how many records was deleted from each table
+        will be printed to the console.
+    </li>
+</ul>
+
+</body>
+</html>
