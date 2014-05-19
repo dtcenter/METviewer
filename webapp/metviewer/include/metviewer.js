@@ -67,10 +67,10 @@ var _listSeries2Div = new Array();
 var _listFixDiv = new Array();
 var _listFixSpcDiv = new Array();
 
-var _listIndyVarStat = ["FCST_LEAD", "FCST_LEV", "FCST_THRESH", "OBS_THRESH", "FCST_VALID_BEG", "VALID_HOUR",
-    "FCST_INIT_BEG", "INIT_HOUR", "INTERP_PNTS"];
-var _listIndyVarMode = ["FCST_LEAD", "FCST_LEV", "FCST_THR", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR",
-    "FCST_RAD"];
+var _listIndyVarStat = ["MODEL","FCST_LEAD", "FCST_LEV", "FCST_THRESH", "OBS_THRESH", "FCST_VALID_BEG", "VALID_HOUR",
+    "FCST_INIT_BEG", "INIT_HOUR", "INTERP_PNTS","FCST_THRESH","VX_MASK"];
+var _listIndyVarMode = ["MODEL","FCST_LEAD", "FCST_LEV", "FCST_THR", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR",
+    "FCST_RAD","VX_MASK"];
 var _listIndyVar = _listIndyVarStat;
 var _intIndyValIdNext = 0;
 
@@ -87,6 +87,7 @@ var seriesDiffY1 = [];
 var seriesDiffY2 = [];
 var series1Names = [];
 var series2Names = [];
+var group_name_to_value_map = new Object();
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -170,12 +171,12 @@ function onLoad() {
                 var yAxisValue = $('input:radio[name=yAxisDiff]:checked').val();
                 if (yAxisValue.indexOf("1") !== -1) {
                     if($('#series1Y1').val() &&  $('#series2Y1').val()){
-                        seriesDiffY1.push($('#series1Y1').val() + "," + $('#series2Y1').val());
+                        seriesDiffY1.push($('#series1Y1').val() + "--" + $('#series2Y1').val());
                         valid = true;
                     }
                 } else {
                     if($('#series1Y2').val() &&  $('#series2Y2').val()){
-                        seriesDiffY2.push($('#series1Y2').val() + "," + $('#series2Y2').val());
+                        seriesDiffY2.push($('#series1Y2').val() + "--" + $('#series2Y2').val());
                         valid = true;
                     }
                 }
@@ -869,7 +870,7 @@ function listFcstVar1Req(intDepId) {
     listFcstVarReq(intDepId, listFcstVar1Resp);
 }
 function listFcstVar1Resp(strResp) {
-    selectFieldResp(strResp, _listDep1Div, 1, 0);
+    selectFieldResp(strResp, _listDep1Div, 1, 0, false, false);
 }
 
 function addDep2() {
@@ -882,7 +883,7 @@ function listFcstVar2Req(intDepId) {
     listFcstVarReq(intDepId, listFcstVar2Resp);
 }
 function listFcstVar2Resp(strResp) {
-    selectFieldResp(strResp, _listDep2Div, 1, 0);
+    selectFieldResp(strResp, _listDep2Div, 1, 0, false, false);
 }
 
 /**
@@ -1260,7 +1261,14 @@ function addFieldValDiv(category, listDiv) {
     var tdFieldMove = divFieldVal.getElementsByTagName("td")[1];
     tdFieldMove.id = "tdFieldMove" + intId;
     tdFieldMove.style.display = "none";
+    var tdSelValGroup = divFieldVal.getElementsByTagName("td")[2];
+    tdSelValGroup.id = "tdSelValGroup" + intId;
+    tdSelValGroup.getElementsByTagName("label")[0].innerHTML= "Group_" + intId;
+    tdSelValGroup.style.display = "none";
+
+
     var imgFieldUp = divFieldVal.getElementsByTagName("img")[0];
+
     imgFieldUp.setAttribute("onclick", "javascript:move" + category + "FieldUp(" + intId + ")");
     if (_boolIE) {
         imgFieldUp.attachEvent("onclick", new Function("move" + category + "FieldUp(" + intId + ")"));
@@ -1278,6 +1286,7 @@ function addFieldValDiv(category, listDiv) {
     }
     divFieldVal.getElementsByTagName("input")[1].value = "" + intId;
     divFieldVal.style.display = "inline";
+
 
     //  add the new div to the input controls list and add it to the form
     listDiv.push(divFieldVal);
@@ -1356,7 +1365,7 @@ function selectFieldReq(intId, listDiv, intFixEnd, fnResp, intY) {
  * (intIdIndex). The select control of the specified index (intSelIndex) will be
  * populated. The field ordering arrows will be displayed as specified.
  */
-function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex, showArrows) {
+function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex, showArrows,showGroup ) {
 
     //  parse the response
     var resp = parseListValResp(strResp, "val");
@@ -1376,6 +1385,10 @@ function selectFieldResp(strResp, listDiv, intIdIndex, intSelIndex, showArrows) 
     selVal.style.display = "inline";
     if (showArrows) {
         listDiv[intIndex].getElementsByTagName("td")[1].style.display = "table-cell";
+    }
+    if(showGroup){
+        listDiv[intIndex].getElementsByTagName("td")[2].style.display = "table-cell";
+
     }
     fillSelect(selVal, resp.vals);
     if (resp.vals.length == 1 && resp.vals[0].length == 0) {
@@ -1407,6 +1420,7 @@ function clearFieldVal(intId) {
     clearSelect(selVal);
     selVal.style.display = "none";
     document.getElementById("tdFieldMove" + intId).style.display = "none";
+    document.getElementById("tdSelValGroup" + intId).style.display = "none";
 }
 
 /**
@@ -1489,7 +1503,7 @@ function selectSeries1VarReq(intId) {
     selectFieldReq(intId, _listSeries1Div, _listFixDiv.length - 1, selectSeries1VarResp, 1);
 }
 function selectSeries1VarResp(strResp) {
-    selectFieldResp(strResp, _listSeries1Div, 1, 1, true);
+    selectFieldResp(strResp, _listSeries1Div, 1, 1, true, true);
 }
 function moveSeries1FieldUp(intId) {
     moveFieldUp(_listSeries1Div, intId);
@@ -1512,7 +1526,7 @@ function selectSeries2VarReq(intId) {
     selectFieldReq(intId, _listSeries2Div, _listFixDiv.length - 1, selectSeries2VarResp, 2);
 }
 function selectSeries2VarResp(strResp) {
-    selectFieldResp(strResp, _listSeries2Div, 1, 1, true);
+    selectFieldResp(strResp, _listSeries2Div, 1, 1, true, true);
 }
 function moveSeries2FieldUp(intId) {
     moveFieldUp(_listSeries2Div, intId);
@@ -1582,7 +1596,7 @@ function selectFixVarReq(intId) {
     selectFieldReq(intId, _listFixDiv, intIndexCrit - 1, selectFixVarResp);
 }
 function selectFixVarResp(strResp) {
-    selectFieldResp(strResp, _listFixDiv, 1, 1, false);
+    selectFieldResp(strResp, _listFixDiv, 1, 1, false, false);
 }
 
 /**
@@ -1649,7 +1663,7 @@ function selectFixSpcVarReq(intId) {
     selectFieldReq(intId, _listFixSpcDiv, intIndexCrit - 1, selectFixSpcVarResp, -1);
 }
 function selectFixSpcVarResp(strResp) {
-    selectFieldResp(strResp, _listFixSpcDiv, 1, 1, false);
+    selectFieldResp(strResp, _listFixSpcDiv, 1, 1, false, false);
 }
 
 
@@ -1934,6 +1948,7 @@ function getFmtPlotTd(type, tag) {
 function buildSeriesDiv() {
 
     var strSeriesNameArray = new Array();
+    group_name_to_value_map = new Object();
 
     if (isTmplSpc()) {
         return;
@@ -1985,8 +2000,43 @@ function buildSeriesDiv() {
     }
 
     //  build permutation of the series values
-    var listSeries1Perm = permuteSeries(_listSeries1Div, 0, getPlotDiff(1));
-    var listSeries2Perm = permuteSeries(_listSeries2Div, 0, getPlotDiff(2));
+    var tabField = new Hashtable();
+        for(var i=0; i< _listSeries1Div.length; i++){
+            var listVal = getSelected(_listSeries1Div[i].getElementsByTagName("select")[1]);
+            var strVar = getSelected(_listSeries1Div[i].getElementsByTagName("select")[0])[0];
+            var isGroup= _listSeries1Div[i].getElementsByTagName("input")[1].checked;
+            var seriesName = "";
+            if(isGroup){
+                seriesName = _listSeries1Div[i].getElementsByTagName("label")[0].innerHTML;
+                group_name_to_value_map[seriesName] = listVal;
+                listVal = [seriesName];
+            }
+
+            var strValCur = tabField.get(strVar);
+            if(undefined != strValCur){
+                listVal = strValCur.concat(listVal);
+            }
+            tabField.put(strVar, listVal);
+        }
+    var listSeries1Perm = permuteSeriesNew(tabField, 0);
+    var tabField = new Hashtable();
+    for (var i = 0; i < _listSeries2Div.length; i++) {
+        var listVal = getSelected(_listSeries2Div[i].getElementsByTagName("select")[1]);
+        var strVar = getSelected(_listSeries2Div[i].getElementsByTagName("select")[0])[0];
+        var isGroup = _listSeries2Div[i].getElementsByTagName("input")[1].checked;
+        var seriesName = "";
+        if (isGroup) {
+            seriesName = _listSeries2Div[i].getElementsByTagName("label")[0].innerHTML;
+            group_name_to_value_map[seriesName] = listVal;
+            listVal = [seriesName];
+        }
+        var strValCur = tabField.get(strVar);
+        if (undefined != strValCur) {
+            listVal = strValCur.concat(listVal);
+        }
+        tabField.put(strVar, listVal);
+    }
+    var listSeries2Perm = permuteSeriesNew(tabField, 0);
 
     //  build all y1 and y2 series
     for (var intY = 1; intY <= 2; intY++) {
@@ -2125,7 +2175,18 @@ function buildSeriesDiv() {
 
                     //  populate the controls with the series name
                     var strYSeries = (1 == intY ? "Y1" : "Y2") + " Series";
+                    var strSeriesNameArr = strSeriesName.split(" ");
+                    var strSeriesNameNoGroup="";
+                    for(k=0; k< strSeriesNameArr.length; k++){
+                        if (group_name_to_value_map[strSeriesNameArr[k]] != null) {
+                            strSeriesNameNoGroup = strSeriesNameNoGroup  + group_name_to_value_map[strSeriesNameArr[k]].join() + " ";
+                        }else{
+                            strSeriesNameNoGroup = strSeriesNameNoGroup + strSeriesNameArr[k]  + " ";
+                        }
+                    }
+                    tdName.getElementsByTagName("span")[2].setAttribute("title", strSeriesNameNoGroup);
                     tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
+
                     tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
 
                     //  add change handlers to the formatting inputs
@@ -2184,8 +2245,8 @@ function buildSeriesDiv() {
     //check if some series were deleted and remove them from diff series
     var seriesDiff = new Array();
     for (var i = 0; i < seriesDiffY1.length; i++) {
-        var diffSeries1 = seriesDiffY1[i].split(",")[0];
-        var diffSeries2 = seriesDiffY1[i].split(",")[1];
+        var diffSeries1 = seriesDiffY1[i].split("--")[0].replace("&lt;","<" ).replace("&gt;",">");
+        var diffSeries2 = seriesDiffY1[i].split("--")[1].replace("&lt;","<").replace("&gt;",">");
         var isDiffSeries1 = false, isDiffSeries2 = false;
         for (var j = 0; j < strSeriesNameArray.length; j++) {
             if (diffSeries1 == strSeriesNameArray[j]) {
@@ -2202,8 +2263,8 @@ function buildSeriesDiv() {
     seriesDiffY1 = seriesDiff;
     seriesDiff = new Array();
     for (var i = 0; i < seriesDiffY2.length; i++) {
-        var diffSeries1 = seriesDiffY2[i].split(",")[0];
-        var diffSeries2 = seriesDiffY2[i].split(",")[1];
+        var diffSeries1 = seriesDiffY2[i].split("--")[0].replace("&lt;","<" ).replace("&gt;",">");
+        var diffSeries2 = seriesDiffY2[i].split("--")[1].replace("&lt;","<" ).replace("&gt;",">");
         var isDiffSeries1 = false, isDiffSeries2 = false;
         for (var j = 0; j < strSeriesNameArray.length; j++) {
             if (diffSeries1 == strSeriesNameArray[j]) {
@@ -2246,11 +2307,32 @@ function buildSeriesDiv() {
 function createDiffSeries(seriesDiffY, ySeries, tabFmtSeries, tableFmt, boolLockFmt, listFmt) {
 
     for (var intseriesDiffY1 = 0; intseriesDiffY1 < seriesDiffY.length; intseriesDiffY1++) {
-        var diffSeries1 = seriesDiffY[intseriesDiffY1].split(",")[0];
-        var diffSeries2 = seriesDiffY[intseriesDiffY1].split(",")[1];
+        var diffSeries1 = seriesDiffY[intseriesDiffY1].split("--")[0];
+        var diffSeries2 = seriesDiffY[intseriesDiffY1].split("--")[1];
 
         //  build the series name
         var strSeriesName = "DIFF (" + diffSeries1 + "-" + diffSeries2 + ")";
+
+        //  build the series title
+        var strSeriesNameArr = diffSeries1.split(" ");
+        var diffSeries1Title = "";
+        for (k = 0; k < strSeriesNameArr.length; k++) {
+            if (group_name_to_value_map[strSeriesNameArr[k]] != null) {
+                diffSeries1Title = diffSeries1Title + group_name_to_value_map[strSeriesNameArr[k]].join() + " ";
+            } else {
+                diffSeries1Title = diffSeries1Title + strSeriesNameArr[k] + " ";
+            }
+        }
+        strSeriesNameArr = diffSeries2.split(" ");
+        var diffSeries2Title = "";
+        for (k = 0; k < strSeriesNameArr.length; k++) {
+            if (group_name_to_value_map[strSeriesNameArr[k]] != null) {
+                diffSeries2Title = diffSeries2Title + group_name_to_value_map[strSeriesNameArr[k]].join() + " ";
+            } else {
+                diffSeries2Title = diffSeries2Title + strSeriesNameArr[k] + " ";
+            }
+        }
+        var strSeriesTitle = "DIFF (" + diffSeries1Title + "-" + diffSeries2Title + ")";
 
         var trFmtSeries;
         var tdName;
@@ -2292,6 +2374,7 @@ function createDiffSeries(seriesDiffY, ySeries, tabFmtSeries, tableFmt, boolLock
         var strYSeries = "Y" + ySeries + " Series";
         tdName.getElementsByTagName("span")[1].innerHTML = "<button onclick='deleteDiffSeries(this, \"" + seriesDiffY[intseriesDiffY1] + "\", " + ySeries + ");'>Delete</button>";
         tdName.getElementsByTagName("span")[2].innerHTML = strSeriesName;
+        tdName.getElementsByTagName("span")[2].setAttribute("title", strSeriesTitle);
         tdName.getElementsByTagName("span")[3].innerHTML = strYSeries;
 
         //  add change handlers to the formatting inputs
@@ -2449,16 +2532,32 @@ function setFmtSeriesDefaults() {
  */
 function permuteSeries(listSeriesDiv, intIndex, boolDiff) {
 
+    var tabField = new Hashtable();
+    for(var i=0; i< listSeriesDiv.length; i++){
+        var listVal = getSelected(listSeriesDiv[i].getElementsByTagName("select")[1]);
+        var strVar = getSelected(listSeriesDiv[i].getElementsByTagName("select")[0])[0];
+        var isGroup= listSeriesDiv[i].getElementsByTagName("input")[1].checked;
+        if(isGroup){
+            listVal = [listVal.join()];
+        }
+        var strValCur = tabField.get(strVar);
+        if(undefined != strValCur){
+            listVal = strValCur.concat(listVal);
+        }
+        tabField.put(strVar, listVal);
+    }
+
     if (1 > listSeriesDiv.length) {
-        return new Array();
+        return [];
     }
     var listVal = getSelected(listSeriesDiv[intIndex].getElementsByTagName("select")[1]);
+    var isGroup= listSeriesDiv[intIndex].getElementsByTagName("input")[1].checked;
 
     //  if the index has reached the end of the list, return the selected values
     //  from the last control
     if (listSeriesDiv.length == intIndex + 1) {
-        if (boolDiff) {
-            listVal.splice(listVal.length - 1, 0, "__DIFF__");
+        if(isGroup){
+            listVal = [listVal.join()];
         }
         return listVal;
     }
@@ -2468,7 +2567,46 @@ function permuteSeries(listSeriesDiv, intIndex, boolDiff) {
     if (1 > listVal.length) {
         return listValNext;
     }
-    var listRet = new Array();
+    if(isGroup){
+        listVal = [listVal.join()];
+    }
+    var listRet = [];
+    for (var i = 0; i < listVal.length; i++) {
+        for (var j = 0; j < listValNext.length; j++) {
+            listRet.push(listVal[i] + " " + listValNext[j]);
+        }
+    }
+    return listRet;
+}
+
+/**
+ * Build a list of all series variable combinations for the specified list of
+ * series field divs, starting with the div at the specified index (0 for all
+ * permutations). If a difference curve is specified, add it to the series.
+ */
+function permuteSeriesNew(tabField, intIndex) {
+
+    var keys = tabField.listKeys();
+    if (1 > keys.length) {
+        return [];
+    }
+    var strVar = keys[intIndex];
+    var listVal = tabField.get(strVar);
+
+    //  if the index has reached the end of the list, return the selected values
+    //  from the last control
+    if (keys.length == intIndex + 1) {
+
+        return listVal;
+    }
+
+    //  otherwise, get the list for the next fcst_var and build upon it
+    var listValNext = permuteSeriesNew(tabField, intIndex + 1);
+    if (1 > listVal.length) {
+        return listValNext;
+    }
+
+    var listRet = [];
     for (var i = 0; i < listVal.length; i++) {
         for (var j = 0; j < listValNext.length; j++) {
             listRet.push(listVal[i] + " " + listValNext[j]);
@@ -2659,8 +2797,8 @@ function buildPlotXML() {
 
         //  <series1> and <series2>
         var strSeriesXML = "";
-        strDepXML += "<series1>" + buildFieldValXML("field", "val", _listSeries1Div, false, false) + "</series1>";
-        strDepXML += "<series2>" + buildFieldValXML("field", "val", _listSeries2Div, false, false) + "</series2>";
+        strDepXML += "<series1>" + buildFieldValXMLSeries("field", "val", _listSeries1Div, false, false) + "</series1>";
+        strDepXML += "<series2>" + buildFieldValXMLSeries("field", "val", _listSeries2Div, false, false) + "</series2>";
 
         //  <plot_fix>
         if (TMPL_ENS_SS != _intTmpl) {
@@ -2730,13 +2868,53 @@ function buildPlotXML() {
     var seriesDiffY1List = new Array();
     if (seriesDiffY1.length > 0) {
         for (var i = 0; i < seriesDiffY1.length; i++) {
-            seriesDiffY1List.push('c("' + seriesDiffY1[i].split(",")[0] + '","' + seriesDiffY1[i].split(",")[1] + '")');
+            var name1Arr = seriesDiffY1[i].split("--")[0].split(" ");
+            var name1 = "";
+            for (var k = 0; k < name1Arr.length; k++) {
+                if (group_name_to_value_map[name1Arr[k]] != null) {
+                    name1 = name1 + group_name_to_value_map[name1Arr[k]].join() + " ";
+                } else {
+                    name1 = name1 + name1Arr[k] + " ";
+                }
+            }
+            name1 = name1.substring(0, name1.length-1);
+            var name2Arr = seriesDiffY1[i].split("--")[1].split(" ");
+            var name2 = "";
+            for (var k = 0; k < name2Arr.length; k++) {
+                if (group_name_to_value_map[name2Arr[k]] != null) {
+                    name2 = name2 + group_name_to_value_map[name2Arr[k]].join() + " ";
+                } else {
+                    name2 = name2 + name2Arr[k] + " ";
+                }
+            }
+            name2 = name2.substring(0, name2.length-1);
+            seriesDiffY1List.push('c("' + name1 + '","' + name2 + '")');
         }
     }
     var seriesDiffY2List = new Array();
     if (seriesDiffY2.length > 0) {
         for (var i = 0; i < seriesDiffY2.length; i++) {
-            seriesDiffY2List.push('c("' + seriesDiffY2[i].split(",")[0] + '","' + seriesDiffY2[i].split(",")[1] + '")');
+            var name1Arr = seriesDiffY2[i].split("--")[0].split(" ");
+                        var name1 = "";
+                        for (var k = 0; k < name1Arr.length; k++) {
+                            if (group_name_to_value_map[name1Arr[k]] != null) {
+                                name1 = name1 + group_name_to_value_map[name1Arr[k]].join() + " ";
+                            } else {
+                                name1 = name1 + name1Arr[k] + " ";
+                            }
+                        }
+                        name1 = name1.substring(0, name1.length-1);
+                        var name2Arr = seriesDiffY2[i].split("--")[1].split(" ");
+                        var name2 = "";
+                        for (var k = 0; k < name2Arr.length; k++) {
+                            if (group_name_to_value_map[name2Arr[k]] != null) {
+                                name2 = name2 + group_name_to_value_map[name2Arr[k]].join() + " ";
+                            } else {
+                                name2 = name2 + name2Arr[k] + " ";
+                            }
+                        }
+                        name2 = name2.substring(0, name2.length-1);
+            seriesDiffY2List.push('c("' + name1 + '","' + name2 + '")');
         }
     }
 
@@ -2892,10 +3070,11 @@ function buildPlotXML() {
  * Build an XML structure with specified field tag and value tag from the
  * information selected in the specified list of div controls
  */
-function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
+function buildFieldValSeriesXML(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
     var strXML = "";
     var tabField = new Hashtable();
-    var listField = new Array();
+    var listField = [];
+    var listFieldIndex=0;
     for (i in listDiv) {
 
         //  get the field value and format it
@@ -2909,6 +3088,80 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
 
         //  get the selected stats/values and format them
         var listVal = getSelected(listSel[1]);
+        var isGroup = listDiv[i].getElementsByTagName("input")[1].checked;
+
+        if(isGroup){
+            var groupName = listVal.join();
+            listVal = [groupName];
+        }
+
+
+        if (1 > listVal.length) {
+            continue;
+        }
+        if (boolDep) {
+            for (j in listVal) {
+                listVal[j] = buildModeStatCode(listVal[j], listDiv[i]);
+            }
+        }
+
+        //  build the XML for the list of values
+        var strValXML = "";
+        for (j in listVal) {
+            strValXML += "<" + strValTag + ">" + escapeXml(listVal[j]) + "</" + strValTag + ">";
+        }
+        listField[listFieldIndex] = strVar;
+        tabField.put(listFieldIndex.toString(), strValXML );
+        listFieldIndex++;
+    }
+
+    //  build the XML for each field stored in the table
+    for (var i=0; i<  listField.length; i++) {
+        var strVar = listField[i];
+        strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
+        if (boolSet) {
+            strXML += "<set name=\"" + strVar + "_" + i + "\">";
+        }
+        strXML += tabField.get(i.toString());
+        if (boolSet) {
+            strXML += "</set>";
+        }
+        strXML += "</" + strFieldTag + ">";
+    }
+
+    return strXML;
+}
+
+
+
+
+function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
+    var strXML = "";
+    var tabField = new Hashtable();
+    var listField = [];
+    for (i in listDiv) {
+
+        //  get the field value and format it
+        var listSel = listDiv[i].getElementsByTagName("select");
+        var strVar = getSelected(listSel[0])[0];
+        if (boolDep) { /* strVar = strVar.toUpperCase(); */
+        }
+        else {
+            strVar = strVar.toLowerCase();
+        }
+
+        //  get the selected stats/values and format them
+        var listVal = getSelected(listSel[1]);
+        var isGroup = false;
+        if(listDiv[i].id.startsWith("divFieldVal")){
+            isGroup= listDiv[i].getElementsByTagName("input")[1].checked;
+        }
+        if(isGroup){
+            var groupName = listVal.join();
+            listVal = [groupName];
+        }
+
+
         if (1 > listVal.length) {
             continue;
         }
@@ -2929,8 +3182,9 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
     }
 
     //  build the XML for each field stored in the table
-    for (i in listField) {
-        var strVar = listField[i];
+    var keys = tabField.listKeys();
+    for (var i=0; i< keys.length; i++) {
+        var strVar = keys[i];
         strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
         if (boolSet) {
             strXML += "<set name=\"" + strVar + "_" + i + "\">";
@@ -2945,6 +3199,70 @@ function buildFieldValXML(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
     return strXML;
 }
 
+function buildFieldValXMLSeries(strFieldTag, strValTag, listDiv, boolDep, boolSet) {
+    var strXML = "";
+    var tabField = new Hashtable();
+    var listField = [];
+    for (var i=0; i< listDiv.length; i++) {
+
+        //  get the field value and format it
+        var listSel = listDiv[i].getElementsByTagName("select");
+        var strVar = getSelected(listSel[0])[0];
+        if (boolDep) { /* strVar = strVar.toUpperCase(); */
+        }
+        else {
+            strVar = strVar.toLowerCase();
+        }
+
+        //  get the selected stats/values and format them
+        var listVal = getSelected(listSel[1]);
+        var isGroup = false;
+        if(listDiv[i].id.startsWith("divFieldVal")){
+            isGroup= listDiv[i].getElementsByTagName("input")[1].checked;
+        }
+        if(isGroup){
+            var groupName = listVal.join();
+            listVal = [groupName];
+        }
+
+
+        if (1 > listVal.length) {
+            continue;
+        }
+        if (boolDep) {
+            for (j in listVal) {
+                listVal[j] = buildModeStatCode(listVal[j], listDiv[i]);
+            }
+        }
+
+        //  build the XML for the list of values
+        var strValXML = "";
+        for (j in listVal) {
+            strValXML += "<" + strValTag + ">" + escapeXml(listVal[j]) + "</" + strValTag + ">";
+        }
+
+        listField[i] = strVar;
+
+        tabField.put(i, strValXML);
+    }
+
+    //  build the XML for each field stored in the table
+
+    for (var i=0; i< listField.length; i++) {
+        var strVar = listField[i];
+        strXML += "<" + strFieldTag + " name=\"" + strVar + "\">";
+        if (boolSet) {
+            strXML += "<set name=\"" + strVar + "_" + i + "\">";
+        }
+        strXML += tabField.get(i);
+        if (boolSet) {
+            strXML += "</set>";
+        }
+        strXML += "</" + strFieldTag + ">";
+    }
+
+    return strXML;
+}
 /**
  * If the specified statistic is a mode statistic that requires a code suffix,
  * determine the suffix from the controls of the specified divDep, add them to
@@ -3201,6 +3519,28 @@ function loadInitXML_buildMap(xml, field, map, list) {
     }
 }
 
+
+function loadInitXML_buildMap_Series(xml, field, map, list) {
+    var strFcstVar = xml;
+    var reg = new RegExp("<" + field + " name=\"([^\"]+)\">(.*?)<\/" + field + ">(.*)");
+    var index = 0;
+    while (null != (listFcstVar = strFcstVar.match(reg))) {
+
+        //  remove the enclosing <set>, if necessary
+        var strVal = listFcstVar[2];
+        strVal = strVal.replace(/<set name=\"\w*\">/, "");
+        strVal = strVal.replace(/<\/set>/, "");
+
+        //  add the list of values to the map with the field name as key
+        list[index]=listFcstVar[1];
+
+        map.put(index, strVal);
+
+        strFcstVar = listFcstVar[3];
+        index++;
+    }
+}
+
 /**
  * Recursively loop through the constructed lists of dep fcst_vars, listing the
  * available stats and then selecting them according to the stat information for
@@ -3353,17 +3693,18 @@ var _divInitXMLSeries;
  * containing the field and field/val pairs. Then, start the chain of calls to
  * load series controls with the pairs.
  */
+
 function loadInitXML_phaseSeries() {
     debug("loadInitXML_phaseSeries()\n\n");
 
     //  parse the series 1 structures, creating a hashtable entry for each field
     var strSeries1 = _strInitXML.match(/<series1>(.*)<\/series1>/)[1];
-    loadInitXML_buildMap(strSeries1, "field", _tableInitXMLSeries1, _listInitXMLSeries1);
+    loadInitXML_buildMap_Series(strSeries1, "field", _tableInitXMLSeries1, _listInitXMLSeries1);
 
     //  parse the series 2 structures, creating a hashtable entry for each field
     if (null == _strInitXML.match(/<series2\/>/)) {
         var strSeries2 = _strInitXML.match(/<series2>(.*)<\/series2>/)[1];
-        loadInitXML_buildMap(strSeries2, "field", _tableInitXMLSeries2, _listInitXMLSeries2);
+        loadInitXML_buildMap_Series(strSeries2, "field", _tableInitXMLSeries2, _listInitXMLSeries2);
     }
 
     //  start the series load cycle
@@ -3377,21 +3718,30 @@ function loadInitXML_phaseSeries() {
  * among the functions to update the controls. When the lists are empty, the
  * plot_fix loading function is called.
  */
+var _listInitXMLSeries1Index=0, _listInitXMLSeries2Index=0;
 function loadInitXML_phaseSeriesLoad() {
     debug("loadInitXML_phaseSeriesLoad()\n");
 
     //  if there is a currently loaded val list, select the values
+    var _listInitXMLSeries, _tableInitXMLSeries, series;
+
     if (_divInitXMLSeries != undefined) {
-        loadInitXML_updateFieldVals(
-                (0 < _listInitXMLSeries1.length ? _listInitXMLSeries1 : _listInitXMLSeries2  ),
-                (0 < _listInitXMLSeries1.length ? _tableInitXMLSeries1 : _tableInitXMLSeries2 ),
-                _divInitXMLSeries,
-                true
-        );
+        if( _listInitXMLSeries1Index < _listInitXMLSeries1.length ){
+            _listInitXMLSeries= _listInitXMLSeries1;
+            _tableInitXMLSeries = _tableInitXMLSeries1;
+            series =1;
+        }else{
+            _listInitXMLSeries= _listInitXMLSeries2;
+            _tableInitXMLSeries = _tableInitXMLSeries2;
+            series = 2;
+        }
+
+        loadInitXML_updateFieldValsSeries(_listInitXMLSeries,_tableInitXMLSeries,_divInitXMLSeries,true, series);
+
     }
 
     //  if there are no more series fcst_vars to load, continue to plot_fix values
-    if (1 > _listInitXMLSeries1.length && 1 > _listInitXMLSeries2.length) {
+    if (_listInitXMLSeries1Index == _listInitXMLSeries1.length && _listInitXMLSeries2Index == _listInitXMLSeries2.length) {
         debug("loadInitXML_phaseSeriesLoad() complete\n\n");
         loadSleep("loadInitXML_phasePlotFix()");
         return;
@@ -3404,7 +3754,7 @@ function loadInitXML_phaseSeriesLoad() {
         debug("  series1 first - _listSeries1Div.length = " + _listSeries1Div.length + "\n");
         _divInitXMLSeries = _listSeries1Div[0];
     } else {
-        if (1 > _listInitXMLSeries1.length) {
+        if (_listInitXMLSeries1Index == _listInitXMLSeries1.length) {
             intSeries = 2;
             listSeries = _listSeries2Div;
         }
@@ -3415,7 +3765,7 @@ function loadInitXML_phaseSeriesLoad() {
 
     //  load the stats for the next fcst_var
     debug("  divSeries = " + _divInitXMLSeries + "  id = " + _divInitXMLSeries.id + "\n");
-    var strFcstVar = ( 1 == intSeries ? _listInitXMLSeries1[0] : _listInitXMLSeries2[0] );
+    var strFcstVar = ( 1 == intSeries ? _listInitXMLSeries1[_listInitXMLSeries1Index] : _listInitXMLSeries2[_listInitXMLSeries2Index] );
     debug("  field = " + strFcstVar + "  select = " + _divInitXMLSeries.getElementsByTagName("select")[0] + "\n" +
             "  div id = " + _divInitXMLSeries.id + "\n");
     setSelected(_divInitXMLSeries.getElementsByTagName("select")[0], strFcstVar.toUpperCase());
@@ -3425,6 +3775,7 @@ function loadInitXML_phaseSeriesLoad() {
     else {
         selectSeries2VarReq(getDivFieldValId(_divInitXMLSeries));
     }
+
 
     //  wait for the current fcst_var load to finish, then repeat
     debug("\n");
@@ -3451,16 +3802,68 @@ function loadInitXML_updateFieldVals(list, table, div, order) {
 
     //  parse the vals and select them in the series val list
     strVals = strVals.match(/<val>(.*)<\/val>/)[1];
-    listVals = strVals.split(/<\/val><val>/);
+    listVals = strVals.split(/<\/val><val>/); /// ["EnKF,GSI3", "GSI3,WRF"]
     listValsSel = new Array();
     for (var i = listVals.length - 1; i >= 0; i--) {
         debug("    val = " + listVals[i] + "\n");
-        listValsSel.unshift(listVals[i]);
+        var val = listVals[i];
+        var valArray = val.split(",");
+        if(valArray.length > 0){
+            val = valArray;
+        }
+        listValsSel.unshift(val);
         if (order) {
-            setSelected(selVal, listVals[i]);
+            setSelected(selVal, val);
             while (0 != moveFieldUp(div, intId)) {
             }
         }
+    }
+    setSelected(div.getElementsByTagName("select")[1], listValsSel);
+}
+
+function loadInitXML_updateFieldValsSeries(list, table, div, order, series) {
+
+    //  determine the list of vals to parse and select
+    var strVals = "";
+    if(series ==1){
+        strVals = table.get(_listInitXMLSeries1Index);
+        _listInitXMLSeries1Index++;
+    }else{
+        strVals = table.get(_listInitXMLSeries2Index);
+                _listInitXMLSeries2Index++;
+    }
+
+    debug("  vals = " + strVals + "\n  select = " + div.getElementsByTagName("select")[1] + "\n");
+
+    //  resolve the select control and parse the div id
+    var selVal = div.getElementsByTagName("select")[1];
+    intId = div.id.match(/divFieldVal(\d+)/)[1];
+
+    //  parse the vals and select them in the series val list
+    strVals = strVals.match(/<val>(.*)<\/val>/)[1];
+    listVals = strVals.split(/<\/val><val>/); /// ["EnKF,GSI3", "GSI3,WRF"]
+    listValsSel = [];
+    for (var i = listVals.length - 1; i >= 0; i--) {
+        debug("    val = " + listVals[i] + "\n");
+        var val = listVals[i];
+        var valArray = val.split(",");
+        if(valArray.length > 0){
+            val = valArray;
+        }
+        //check group
+        if(valArray.length > 1){
+            div.getElementsByTagName("input")[1].checked=true;
+        }
+        for(var k=0; k< val.length; k++){
+            listValsSel.unshift(val[k]);
+        }
+
+        //setSelected(selVal, val);
+        if (order) {
+            while (0 != moveFieldUp(div, intId)) {
+            }
+        }
+
     }
     setSelected(div.getElementsByTagName("select")[1], listValsSel);
 }
@@ -3863,14 +4266,30 @@ function loadInitXML_phaseFormat() {
 function loadInitXML_phaseDiffSeries(strListDiffSeries, ySeries) {
     var tabFmtSeries = document.getElementById("tabFmtSeries");
     if (strListDiffSeries != "list()") {
+        //list(c("EnKF,GSI3 TMP BCMSE","GSI3,WRF TMP BCMSE"))
         strListDiffSeries = strListDiffSeries.substring(5, strListDiffSeries.length - 1);
+        //c("EnKF,GSI3 TMP BCMSE","GSI3,WRF TMP BCMSE")"
         var diffSeries = strListDiffSeries.split("c(");
         for (var i = 1; i < diffSeries.length; i++) {
-            //c("ARWref_d01 TMP ME","JIMENEZ_d01 TMP ME")
+            //"EnKF,GSI3 TMP BCMSE","GSI3,WRF TMP BCMSE")
             diffSeries[i] = diffSeries[i].replace(/"/g, '');
+            var listSeriesDiv;
+            if(ySeries == 1){
+                listSeriesDiv = _listSeries1Div;
+            }else{
+                listSeriesDiv = _listSeries2Div;
+            }
+
+            for(var k=0; k < listSeriesDiv.length; k++){
+                var id="Group_" +listSeriesDiv[k].id.split("divFieldVal")[1];
+                if(group_name_to_value_map[id] != null){
+                    var val = group_name_to_value_map[id].join();
+                    diffSeries[i] = diffSeries[i].replace(val, id);
+                }
+            }
             var strSeriesName = "DIFF (" + diffSeries[i].replace(/,/g, '-');
             if (ySeries == 1) {
-                seriesDiffY1.push(diffSeries[i].substring(0, diffSeries[i].length - 1));
+                seriesDiffY1.push(diffSeries[i].substring(0, diffSeries[i].length - 1).replace(",", "--"));
             } else {
                 seriesDiffY2.push(diffSeries[i].substring(0, diffSeries[i].length - 1));
             }
@@ -3974,6 +4393,8 @@ function findUpTag(el, tag) {
     }
     return null;
 }
+
+
 
 
 
