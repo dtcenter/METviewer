@@ -52,7 +52,7 @@ exit
 
 # end of script.
 
-#./scrubbing.sh /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql  mv_tatiana fcst_valid_end '"2010-06-01 12:00:00"' '"2010-06-01 12:00:00"' info
+#./scrubbing.sh /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql  mv_tatiana fcst_valid_beg '"2010-06-01 12:00:00"' '"2010-06-01 12:00:00"' info
 #./scrubbing.sh /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql  mv_tatiana fcst_valid_end '"2010-06-01 12:00:00"' '"2010-06-01 12:00:00"'
 #./scrubbing.sh /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql  mv_tatiana f_rate 0 0.1 info
 #./scrubbing.sh /d3/projects/METViewer/src/apps/verif/metviewer/sql/scrubbing.sql  mv_tatiana f_rate 0 0.1

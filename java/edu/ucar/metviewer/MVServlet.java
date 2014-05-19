@@ -10,7 +10,9 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,6 +62,11 @@ public class MVServlet extends HttpServlet {
       return name.toLowerCase().endsWith(".png");
     }
   };
+  private static FilenameFilter XML_FILTER = new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        return name.toLowerCase().endsWith(".xml");
+      }
+    };
 
   /**
    * Read the resource bundle containing database configuration information and
@@ -105,6 +112,7 @@ public class MVServlet extends HttpServlet {
   }
 
   public static final Pattern _patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
+  public static final Pattern _patDownload = Pattern.compile(".*/download");
 
   /**
    * Override the parent's doGet() method with a debugging implementation that
@@ -129,6 +137,78 @@ public class MVServlet extends HttpServlet {
         //  redirect the user to the web app
         response.sendRedirect("/" + _strRedirect + "/metviewer.jsp?db=" + matDBLoad.group(1));
         return;
+      }else{
+        Matcher matDownload = _patDownload.matcher(strPath);
+        if (matDownload.matches()) {
+
+
+
+                  String plot = "", type = "";
+                  String  filePath="";
+
+                      plot = request.getParameter("plot");
+
+                      type  = request.getParameter("type");
+
+
+                  if (type.equals("plot_xml")) {
+                    filePath = _projectDir + "/xml/" + plot + ".xml";
+                  } else if (type.equals("plot_sql")) {
+                    filePath = _projectDir + "/xml/" + plot + ".sql";
+                  } else if (type.equals("r_script")) {
+                    filePath = _projectDir + "/R_work/scripts/" + plot + ".R";
+                  } else if (type.equals("r_data")) {
+                    filePath = _projectDir + "/R_work/data/" + plot + ".data";
+                  } else if (type.equals("plot_log")) {
+                    filePath = _projectDir + "/xml/" + plot + ".log";
+                  } else if (type.equals("plot_image")) {
+                    filePath = _projectDir + "/plots/" + plot + ".png";
+                  }
+                  int length = 0;
+                  File file = new File(filePath);
+                  ServletOutputStream outStream = null;
+                  DataInputStream in = null;
+                  FileInputStream fileInputStream = null;
+                  try {
+                    outStream = response.getOutputStream();
+                    ServletContext context = getServletConfig().getServletContext();
+                    String mimetype = context.getMimeType(filePath);
+
+                    // sets response content type
+                    if (mimetype == null) {
+                      mimetype = "application/octet-stream";
+                    }
+                    response.setContentType(mimetype);
+                    response.setContentLength((int) file.length());
+                    String fileName = (new File(filePath)).getName();
+
+                    // sets HTTP header
+                    response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+
+                    byte[] byteBuffer = new byte[4096];
+                    fileInputStream = new FileInputStream(file);
+                    in = new DataInputStream(fileInputStream);
+
+                    // reads the file's bytes and writes them to the response stream
+                    while ((in != null) && ((length = in.read(byteBuffer)) != -1)) {
+                      outStream.write(byteBuffer, 0, length);
+                    }
+                  } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                  } finally {
+                    if (fileInputStream != null) {
+                      fileInputStream.close();
+                    }
+                    if (in != null) {
+                      in.close();
+                    }
+                    if (outStream != null) {
+                      outStream.close();
+                    }
+                  }
+          return;
+                }
+
       }
 
       //  if there is no specified database, print out the list of parameters for debugging
@@ -179,8 +259,9 @@ public class MVServlet extends HttpServlet {
     BufferedReader reader = null;
     InputStreamReader inputStreamReader = null;
     Connection con = null;
+    ByteArrayInputStream byteArrayInputStream = null;
     try {
-      out = response.getWriter();
+
       //  initialize the request information
       String strRequestBody = "";
       request.getSession().setAttribute("init_xml", "");
@@ -210,19 +291,32 @@ public class MVServlet extends HttpServlet {
       }
       //  if the request is not a file upload, read it directly
       else {
-        inputStreamReader = new InputStreamReader(request.getInputStream());
-        reader = new BufferedReader(inputStreamReader);
-        String strLine = "";
-        while ((strLine = reader.readLine()) != null) {
-          strRequestBody = strRequestBody + strLine;
-        }
+       // inputStreamReader = new InputStreamReader(request.getInputStream());
+       // reader = new BufferedReader(inputStreamReader);
+       // String strLine = "";
+       // while ((strLine = reader.readLine()) != null) {
+       //   strRequestBody = strRequestBody + strLine;
+      //  }
+
+         String line;
+         try {
+           reader = request.getReader();
+           while ((line = reader.readLine()) != null)
+             strRequestBody = strRequestBody + line;
+         } catch (Exception e) {
+          System.out.println(e.getMessage());
+         }
+
+
+
       }
       _logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + strRequestBody);
 
       //  instantiate and configure the xml parser
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       dbf.setNamespaceAware(true);
-      Document doc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(strRequestBody.getBytes()));
+      byteArrayInputStream = new ByteArrayInputStream(strRequestBody.getBytes());
+      Document doc = dbf.newDocumentBuilder().parse(byteArrayInputStream);
 
       MVNode nodeReq = new MVNode(doc.getFirstChild());
       String strResp = "";
@@ -351,7 +445,7 @@ public class MVServlet extends HttpServlet {
           request.getSession().setAttribute("init_xml", strResp);
           response.sendRedirect("/" + _strRedirect);
         }
-        //  <xml_upload>
+
         else if (nodeCall._tag.equalsIgnoreCase("history")) {
 
           strResp += "<results>" + getAvailableResults() + "</results>";
@@ -363,13 +457,14 @@ public class MVServlet extends HttpServlet {
           strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
         }
       }
+        if (strResp.equals("")) {
+          strResp = "<error>could not parse request</error>";
+        }
 
-      if (strResp.equals("")) {
-        strResp = "<error>could not parse request</error>";
-      }
+        _logger.debug("doPost() - response: " + strResp);
+        out = response.getWriter();
+        out.println(strResp);
 
-      _logger.debug("doPost() - response: " + strResp);
-      out.println(strResp);
     } catch (Exception e) {
       s = new ByteArrayOutputStream();
       printStream = new PrintStream(s);
@@ -377,7 +472,9 @@ public class MVServlet extends HttpServlet {
       _logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString());
       out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
     } finally {
-      out.close();
+      if(out != null){
+        out.close();
+      }
       if (s != null) {
         s.close();
       }
@@ -389,6 +486,9 @@ public class MVServlet extends HttpServlet {
       }
       if (inputStreamReader != null) {
         inputStreamReader.close();
+      }
+      if(byteArrayInputStream != null){
+        byteArrayInputStream.close();
       }
       if (con != null) {
         try {
@@ -1082,7 +1182,7 @@ public class MVServlet extends HttpServlet {
     } catch (Exception e) {
       _logger.error("handlePlot() - caught " + e.getClass() + " creating plot code archive: " + e.getMessage());
     }*/
-    return "<plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg + "</r_error>" : "");
+    return "<response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg + "</r_error></response>" : "</response>");
   }
 
 
@@ -1368,13 +1468,25 @@ public class MVServlet extends HttpServlet {
 
   public static String getAvailableResults() {
     String result = "";
+    boolean isShowSuccessfulOnly = true;
+    String dir, extension;
+    FilenameFilter filter;
+    if(isShowSuccessfulOnly){
+      dir = "/plots";
+      extension = ".png";
+      filter = PNG_FILTER;
+    }else{
+      dir = "/xml";
+      extension = ".xml";
+      filter = XML_FILTER;
+    }
 
-    File plotDir = new File(_projectDir + "/plots");
+    File plotDir = new File(_projectDir + dir);
     if (plotDir.exists()) {
-      String[] plotNames = plotDir.list(PNG_FILTER);
+      String[] plotNames = plotDir.list(filter);
       Arrays.sort(plotNames, Collections.reverseOrder());
       for (String name : plotNames) {
-        result = result + name.replace(".png", "").replace("plot_", "" ) + ",";
+        result = result + name.replace(extension, "").replace("plot_", "" ) + ",";
       }
       if (result.length() > 0) {
         result = result.substring(0, result.length() - 1);
