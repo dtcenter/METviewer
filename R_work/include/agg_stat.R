@@ -194,7 +194,6 @@ calcNBR_FSS = function(d){ return ( d$fss ); }
 
 # booter function
 booter.iid = function(d, i){
-  cat("i = ", i, "\n");
   # initialize storage
   listRet = list();
   listRetTest = list();
@@ -205,13 +204,11 @@ booter.iid = function(d, i){
 
   # for each series permutation, build a combined table and calculate statistics
   for(intPerm in 1:nrow(matPerm)){
-    # if the difference stat is requested, calculate it during the last permutation
 
     # create the permutation column name string
     strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
 
     # create the permutation column name string
-    cat("strPerm = ", strPerm, "\n");
 
     # perform the aggregation of the sampled CTC lines
     if( boolAggCtc ){
@@ -284,7 +281,6 @@ booter.iid = function(d, i){
 
         strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));
         strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
-        cat("strSeriesDiff1Short ", strSeriesDiff1Short, "\n")
 
         for(ind in seq(from=1, to=length(listRetTest[[strStat]]), by=2) ) {
           if(listRetTest[[strStat]][ind+1] == strSeriesDiff1Short){
@@ -315,8 +311,18 @@ for(strIndyVal in listIndyVal){
   for(intY in 1:intYMax){
 
     # build permutations for each plot series
-    if( 1 == intY ){ matPerm = permute(listSeries1Val); listStat = listStat1; matCIPerm = matCIPerm1;  }
-    if( 2 == intY ){ matPerm = permute(listSeries2Val); listStat = listStat2; matCIPerm = matCIPerm2;  }
+    if( 1 == intY ){
+          matPerm = permute(listSeries1Val);
+          listStat = listStat1;
+          matCIPerm = matCIPerm1;
+          listDiffSeries = listDiffSeries1;
+     }
+     if( 2 == intY ){
+          matPerm = permute(listSeries2Val);
+          listStat = listStat2;
+          matCIPerm = matCIPerm2;
+          listDiffSeries = listDiffSeries2;
+     }
     listBoot = list();
 
     # run the bootstrap flow for each series permutation
@@ -329,7 +335,9 @@ for(strIndyVal in listIndyVal){
         strSeriesVar = listSeriesVar[intSeriesVal];
         strSeriesVal = listPerm[intSeriesVal];
         if( grepl("^[0-9]+$", strSeriesVal) ){ strSeriesVal = as.numeric(strSeriesVal); }
-        dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] == strSeriesVal,];
+        vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+        vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+        dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
       }
       if( 1 > nrow(dfStatsPerm) ){ next; }
 

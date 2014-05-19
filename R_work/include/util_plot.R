@@ -104,13 +104,23 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 		cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
 		return( dfStats );
 	}
+	#remove groups from the series vars
+	listSeriesValNoGroups=list();
+	for(strSeriesVar in names(listSeriesVal)){
+	  valSeries = listSeriesVal[[strSeriesVar]];
+	  valSeriesNew = c();
+    for(strVar in valSeries){
+      vectValPerms= strsplit(strVar, ",")[[1]];
+      valSeriesNew = append(valSeriesNew, vectValPerms);
+    }
+	  listSeriesValNoGroups[[strSeriesVar]] = valSeriesNew;
+	}
 	
 	# create a list of permutations representing the plot series
-	dfSeriesPerm = data.frame( permute(listSeriesVal) );
-	names(dfSeriesPerm) = names(listSeriesVal);
+	dfSeriesPerm = data.frame( permute(listSeriesValNoGroups) );
+	names(dfSeriesPerm) = names(listSeriesValNoGroups);
 	
 	# for each fcst_lead value, equalize the plot series by fcst_valid_beg
-	cat("  event equalization...");
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 	for(strIndyVal in listIndyVal){
 		
@@ -123,9 +133,9 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 		listEqualize = array();
 		for(intSeries in 1:nrow(dfSeriesPerm)){
 			dfComp = dfIndy;
-			for(strSeriesVar in names(listSeriesVal)){
+			for(strSeriesVar in names(listSeriesValNoGroups)){
 				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
-				dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
+				  dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];				
 			}
 			
 			# if the list contains repetetive values, throw an error
@@ -162,7 +172,6 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 	if( nrow(dfStatsEq) != nrow(dfStats) ){
 		cat("\n    WARNING: event equalization removed ", (nrow(dfStats) - nrow(dfStatsEq)), " rows", sep="");
 	}
-	cat("\n  event equalization done\n");
 	dfStats = dfStatsEq;
 
 	return( dfStats );
@@ -301,10 +310,8 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 				}
 				
 				# calculate the difference
-				cat("___________dfStatsVal$stat_value", length(dfStatsVal$stat_value), " dfStatsComp$stat_value ", length(dfStatsComp$stat_value), "\n")
 				listStats = dfStatsVal$stat_value - dfStatsComp$stat_value;
-				cat("listStats ", length(listStats), "\n")
-				
+
 			} else {
 				
 				# build a dataset that pertains to the permutation values
@@ -338,11 +345,9 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			}
 
 		  if("mean" == strPlotStat){
-			  cat("\nCreating the list of mean values \n\n")
 			  dblMed = mean(listStats);
 			} else {
 			  # use median if strPlotStat = 'median' or anything else since 'median' is the default
-			  cat("\nCreating the list of median values \n\n")
         dblMed = median(listStats);
 			}
 			if( TRUE == listPlotDisp[intSeriesIndex] ){ intNStatsIndy = intNStatsIndy + length(listStats); }
@@ -354,14 +359,11 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			if( "std" == strPlotCI & 0 < sum(listStats != 0) ){
 				dblStdErr = 0;
 				if("mean" == strPlotStat){
-          cat("\nFor mean values to compute STDerr\n\n")
         	seModel = try(Compute_STDerr_from_mean( listStats, method = 'ML' ));
         } else {
 				    if(TRUE == boolVarianceInflationFactor){
-				      cat("\nUsing  boolVarianceInflation for median values to compute STDerr\n\n")
 				      seModel = try(Compute_STDerr_from_median_variance_inflation_factor( listStats, method = 'ML' ));
 				    } else {
-				      cat("\n NOT Using  boolVarianceInflation for median values to compute STDerr\n\n")
 				      seModel = try(Compute_STDerr_from_median_no_variance_inflation_factor( listStats, method = 'ML' ));
 				    }
 				}
@@ -614,21 +616,33 @@ calcBrierCI = function(dfPct, brier, alpha){
 #                    lower std error values; intended to be passed to plot function
 #
 buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
-  listAllStats=list();
+ 
   # get the list of value permutations
+  
   matPermVal = permute(listSeriesVal);
+  listAllStats=list();
   listSeriesVar = names(listSeriesVal);
   for(intPermVal in 1:nrow(matPermVal)){
     listPermVal = matPermVal[intPermVal,];
     # build a dataset that pertains to the permutation values
     dfStatsVal = dfStats;
-    for(intVar in 1:length(listSeriesVar)){ # length of names in the list - number of columns in matPermVal
-      #dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == listPermVal[intVar],];
-
+    listPermValMirror=c();
+    for(intVar in length(listSeriesVar): 1){ # length of names in the list - number of columns in matPermVal
       # parse the perm value as an integer, if possible
       valPerm = listPermVal[intVar];
+      listPermValMirror = append(listPermValMirror, valPerm);
       if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
-      dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] == valPerm,];
+      
+       #check if the input frame already has group series  ( from calculation agg stats )
+      if( is.element(valPerm, unique(dfStatsVal[[ listSeriesVar[intVar] ]]))  ){
+        #group is in
+        vectValPerms = valPerm
+      }else{
+        vectValPerms= strsplit(valPerm, ",")[[1]];
+        vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+      }
+        
+      dfStatsVal = dfStatsVal[dfStatsVal[[ listSeriesVar[intVar] ]] %in% vectValPerms,];
     }
 
     # sort the dataset by init time and valid time
@@ -643,13 +657,15 @@ buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
     #  rm(dfStatsVal);
     #  next;
     #}
-    name=paste(listPermVal,collapse = " ");
+    name=paste(listPermValMirror,collapse = " ");
 
     name = paste(name,strDepName,strDepStat)
     listAllStats[[name]] = dfStatsVal;
   }
   return( listAllStats );
 }
+
+
 # buildSeriesData() assumes that the input dfStats contains stat data for one or more series
 #   for ploting.  The independent variables and values are specified in strIndyVar and
 #   listIndyVal.  strIndyVar must be a valid field name and the listIndyVal values must
@@ -693,6 +709,7 @@ buildSeriesData=function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSer
 # get the list of value permutations
 matPermVal = permute(listSeriesVal);
 
+
 # build the amplification for the selected value of alpha for standard error
 dblZ = qnorm(1 - (dblAlpha/2));
 dblZVal = (dblZ + dblZ/sqrt(2)) / 2;
@@ -700,6 +717,7 @@ dblZVal = (dblZ + dblZ/sqrt(2)) / 2;
 # build a series for each stat curve
 intIndyIndex = 1;
 for(indy in listIndyVal){
+  
   dfStatsIndy = dfStats[dfStats[[strIndyVar]] == indy,];
   intSeriesIndex = 1;
   intNStatsIndy = 0;
@@ -726,14 +744,14 @@ for(indy in listIndyVal){
   listStats = dfStatsVal$stat_value;
 
   if("mean" == strPlotStat){
-    cat("\nCreating the list of mean values \n\n")
     dblMed = mean(listStats);
+    
   } else {
     # use median if strPlotStat = 'median' or anything else since 'median' is the default
-    cat("\nCreating the list of median values \n\n")
     dblMed = median(listStats);
+    
   }
-  if( TRUE == listPlotDisp[intSeriesIndex] ){ 
+  if( TRUE == listPlotDisp[intSeriesIndex] ){
     if(length(listStats) == 1 && 'nstats' %in% names(dfStatsVal)){
       intNStatsIndy = intNStatsIndy + dfStatsVal$nstats[1];
     }else{
@@ -748,14 +766,11 @@ for(indy in listIndyVal){
   if( "std" == strPlotCI & 0 < sum(listStats != 0) ){
     dblStdErr = 0;
     if("mean" == strPlotStat){
-      cat("\nFor mean values to compute STDerr\n\n")
       seModel = try(Compute_STDerr_from_mean( listStats, method = 'ML' ));
     } else {
       if(TRUE == boolVarianceInflationFactor){
-        cat("\nUsing  boolVarianceInflation for median values to compute STDerr\n\n")
         seModel = try(Compute_STDerr_from_median_variance_inflation_factor( listStats, method = 'ML' ));
       } else {
-        cat("\n NOT Using  boolVarianceInflation for median values to compute STDerr\n\n")
         seModel = try(Compute_STDerr_from_median_no_variance_inflation_factor( listStats, method = 'ML' ));
       }
     }

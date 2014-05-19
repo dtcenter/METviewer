@@ -95,7 +95,11 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
   for( strDep1Name in names(listDep1Plot) ){
     for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
       for(strSeriesVal in names(listSeries1Val)){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+          vectValPerms = c();
+          for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+          }
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep1Stat,  ];
           fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
           dfPlot1 = rbind(dfPlot1, fPlot);
        }
@@ -109,7 +113,11 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
     for( strDep2Name in names(listDep2Plot) ){
       for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
         for(strSeriesVal in names(listSeries2Val)){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% listSeries2Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep2Stat,  ];
+          vectValPerms = c();
+          for(index in 1:length(listSeries2Val[[strSeriesVal]])){
+            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+          }
+          fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep2Stat,  ];
           fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
           dfPlot2 = rbind(dfPlot2, fPlot);
         }

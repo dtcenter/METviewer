@@ -71,7 +71,11 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
     for( strDep1Name in names(listDep1Plot) ){
       for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
         for(strSeriesVal in names(listSeries1Val)){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+          vectValPerms = c();
+          for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+            vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+          }
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep1Stat,  ];
           fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
           dfPlot1 = rbind(dfPlot1, fPlot);
         }
@@ -83,6 +87,10 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
     for( strDep2Name in names(listDep2Plot) ){
       for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
         for(strSeriesVal in names(listSeries2Val)){
+          vectValPerms = c();
+          for(index in 1:length(listSeries2Val[[strSeriesVal]])){
+            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+          }
           fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% listSeries2Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep2Stat,  ];
           fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, boolEventEqualM);
           dfPlot2 = rbind(dfPlot2, fPlot);
@@ -102,7 +110,11 @@ if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
     for( strDep1Name in names(listDep1Plot) ){
       for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
         for(strSeriesVal in names(listSeries1Val)){
-          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
+         vectValPerms = c();
+         for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+            vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+          }
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep1Stat,  ];
           fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
           dfPlot1 = rbind(dfPlot1, fPlot);
         }
@@ -278,13 +290,13 @@ for(strFcstVar in names(listDep1Plot)){
     for(intPermVal in 1:nrow(matPermVal1)){
 
       # initialize the storage for this series
-      listPermVal = matPermVal1[intPermVal,];
       dfBox = dfPlotStat;
       listPermVal = matPermVal1[intPermVal,];
       listBox = list();
       name = paste(listPermVal[length(listPermVal)],strFcstVar,strStat)
       for(intVar in 1:length(listSeries1Var)){
-        dfBox = dfBox[ dfBox[[ listSeries1Var[intVar] ]] == listPermVal[intVar], ];
+        vectValPerms= strsplit(listPermVal[intVar], ",")[[1]];
+        dfBox = dfBox[ dfBox[[ listSeries1Var[intVar] ]] %in% vectValPerms, ];
       }
       for(strIndy in listIndy){
         listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
@@ -338,7 +350,8 @@ for(strFcstVar in names(listDep2Plot)){
       listBox = list();
       name = paste(listPermVal[length(listPermVal)],strFcstVar,strStat)
       for(intVar in 1:length(listSeries2Var)){
-        dfBox = dfBox[ dfBox[[ listSeries2Var[intVar] ]] == listPermVal[intVar], ];
+        vectValPerms= strsplit(listPermVal[intVar], ",")[[1]];
+        dfBox = dfBox[ dfBox[[ listSeries2Var[intVar] ]] %in% vectValPerms, ];
       }
       for(strIndy in listIndy){
         listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
@@ -367,10 +380,10 @@ if(length(listDiffSeries2) > 0){
 for( listAllStatsName in names(listAllStats1) ){
   listBox = listAllStats1[[listAllStatsName]]
   listNStatsFcstVar = c();
-  for(strIndy in listIndy){
-    listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
-  }
-  
+      for(strIndy in listIndy){
+        listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
+      }
+
   # save the current list of series values for plotting
   intBoxesLen = length(listBoxes1);
   listBoxes1[[ intBoxesLen + 1 ]] = listBox;
@@ -401,20 +414,17 @@ for( listAllStatsName in names(listAllStats1) ){
     listMeans1[[ length(listMeans1) + 1 ]] = listMean;
   }
   
-  listNStats = listNStats + listNStatsFcstVar;
 
 }
-
-
 
 
 for( listAllStatsName in names(listAllStats2) ){
   listBox = listAllStats2[[listAllStatsName]]
   listNStatsFcstVar = c();
-  for(strIndy in listIndy){
-    listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
-  }
-  
+        for(strIndy in listIndy){
+          listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
+        }
+
   # save the current list of series values for plotting
   intBoxesLen = length(listBoxes2);
   listBoxes2[[ intBoxesLen + 1 ]] = listBox;
@@ -445,8 +455,7 @@ for( listAllStatsName in names(listAllStats2) ){
     listMeans2[[ length(listMeans2) + 1 ]] = listMean;
   }
   
-  listNStats = listNStats + listNStatsFcstVar;
-  
+
 }
 
 
