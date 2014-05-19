@@ -1205,9 +1205,7 @@ CREATE TABLE mode_header
     obs_var             VARCHAR(64),
     obs_lev             VARCHAR(16),
     PRIMARY KEY (mode_header_id),
-    CONSTRAINT mode_header_line_type_lu_pk
-        FOREIGN KEY(line_type_lu_id)
-        REFERENCES line_type_lu(line_type_lu_id),
+
     CONSTRAINT mode_header_data_file_id_pk
         FOREIGN KEY(data_file_id)
         REFERENCES data_file(data_file_id),
@@ -1387,18 +1385,6 @@ CREATE TABLE IF NOT EXISTS instance_info
     PRIMARY KEY (instance_info_id)    
 );
 
-
--- web_plot contains information about plots made by the web application, including the
---   plot spec xml
-
-DROP TABLE IF EXISTS web_plot;
-CREATE TABLE web_plot
-(
-    web_plot_id         INT UNSIGNED NOT NULL,
-    creation_date       DATETIME,
-    plot_xml            TEXT,
-    PRIMARY KEY (web_plot_id)    
-);
 
 
 -- change the delimiter for the process of declaring functions
