@@ -159,6 +159,18 @@ public class Datasource {
 
   }
 
+  public static Datasource getInstance(String strDBHost,  String strDBUser, String strDBPassword) {
+      if (datasource == null) {
+        try {
+          datasource = new Datasource(strDBHost, strDBUser, strDBPassword);
+        } catch (Exception e) {
+          logger.error(e.getMessage());
+        }
+      }
+      return datasource;
+
+    }
+
   /**
    * Returns a connection to the database with the specified name
    * @param db - a name of database to get a connection for

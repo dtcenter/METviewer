@@ -140,7 +140,7 @@ public class MVPlotJobParser extends MVUtil {
         }
         if (_con == null) {
           //batch mode
-          Datasource datasource = Datasource.getInstance();
+          Datasource datasource = Datasource.getInstance( strDBHost,   strDBUser,  strDBPassword);
           _con = datasource.getConnection(strDBHost, strDBName, strDBUser, strDBPassword);
         }
 
