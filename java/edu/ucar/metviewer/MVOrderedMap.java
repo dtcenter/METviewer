@@ -60,7 +60,8 @@ public class MVOrderedMap extends Hashtable {
     _listKeys.addAll(copy._listKeys);
     Map.Entry[] listEntries = copy.getOrderedEntriesSeries();
     for (int i = 0; i < listEntries.length; i++) {
-      put(listEntries[i].getKey(), listEntries[i].getValue());
+      //putSeries(listEntries[i].getKey(), listEntries[i].getValue(), i);
+       super.put(i, listEntries[i].getValue());
     }
   }
 
