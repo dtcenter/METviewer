@@ -2607,8 +2607,8 @@ function permuteSeriesNew(tabField, intIndex) {
     }
 
     var listRet = [];
-    for (var i = 0; i < listVal.length; i++) {
-        for (var j = 0; j < listValNext.length; j++) {
+    for (var j = 0; j < listValNext.length; j++) {
+        for (var i = 0; i < listVal.length; i++) {
             listRet.push(listVal[i] + " " + listValNext[j]);
         }
     }
@@ -2642,8 +2642,9 @@ function permuteSeriesWithField(listSeriesDiv, intIndex) {
         return listFieldsValNext;
     }
     var listRet = new Array();
-    for (var i = 0; i < listFieldsVal.length; i++) {
-        for (var j = 0; j < listFieldsValNext.length; j++) {
+
+    for (var j = 0; j < listFieldsValNext.length; j++) {
+        for (var i = 0; i < listFieldsVal.length; i++) {
             listRet.push(listFieldsVal[i] + " " + listFieldsValNext[j]);
         }
     }
