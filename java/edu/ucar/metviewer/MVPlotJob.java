@@ -208,8 +208,8 @@ public class MVPlotJob extends MVUtil {
     job._depIndy = _depIndy;
     job._mapPlotFixVal = new MVOrderedMap(_mapPlotFixVal);
     job._listDepGroup = copyList(_listDepGroup);
-    job._mapSeries1Val = new MVOrderedMap(_mapSeries1Val);
-    job._mapSeries2Val = new MVOrderedMap(_mapSeries2Val);
+    job._mapSeries1Val = new MVOrderedMap(_mapSeries1Val, "s");
+    job._mapSeries2Val = new MVOrderedMap(_mapSeries2Val, "s");
 
     job._mapSeriesNobs = new MVOrderedMap(_mapSeriesNobs);
     job._mapDep1Scale = new MVOrderedMap(_mapDep1Scale);
@@ -303,11 +303,11 @@ public class MVPlotJob extends MVUtil {
     job._strCaptionSize = _strCaptionSize;
     job._strCaptionOffset = _strCaptionOffset;
     job._strCaptionAlign = _strCaptionAlign;
-    job._strBoxOutline = _strBoxOutline;
-    job._strBoxPts = _strBoxPts;
+    job._strBoxOutline = _strBoxOutline.toUpperCase();
+    job._strBoxPts = _strBoxPts.toUpperCase();
     job._strBoxBoxwex = _strBoxBoxwex;
-    job._strBoxNotch = _strBoxNotch;
-    job._strBoxAvg = _strBoxAvg;
+    job._strBoxNotch = _strBoxNotch.toUpperCase();
+    job._strBoxAvg = _strBoxAvg.toUpperCase();
     job._strRelyEventHist = _strRelyEventHist;
     job._strCIAlpha = _strCIAlpha;
     job._strEnsSsPts = _strEnsSsPts;
@@ -1293,7 +1293,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxOutline(String boxOutline) {
-    _strBoxOutline = boxOutline;
+    _strBoxOutline = boxOutline.toUpperCase();
   }
 
   public String getBoxPts() {
@@ -1301,7 +1301,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxPts(String boxPts) {
-    _strBoxPts = boxPts;
+    _strBoxPts = boxPts.toUpperCase();
   }
 
   public String getBoxBoxwex() {
@@ -1317,7 +1317,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxNotch(String boxNotch) {
-    _strBoxNotch = boxNotch;
+    _strBoxNotch = boxNotch.toUpperCase();
   }
 
   public String getBoxAvg() {
@@ -1325,7 +1325,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxAvg(String boxAvg) {
-    _strBoxAvg = boxAvg;
+    _strBoxAvg = boxAvg.toUpperCase();
   }
 
   public String getRelyEventHist() {
