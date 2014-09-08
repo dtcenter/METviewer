@@ -9,7 +9,7 @@ strPlotFile = "#<plot_file>#";
 #
 #  Plot Control Variables
 #
-
+boolDumpPoints1	= #<dump_points1>#;
 boolEventEqual  = #<event_equal>#;
 boolEventEqualM = #<event_equal_m>#;
 boolShowNStats	= #<show_nstats>#;
@@ -202,6 +202,12 @@ strLog = "";
 if( TRUE == boolLogY1 ){
   strLog = "y";
   listY1limUsr = c();
+}
+
+if( TRUE == boolDumpPoints1 ){
+
+  strPointsFile = sub("\\.data$", ".points1", strDataFile, perl=TRUE);
+  write.table(matSeriesBar, file=strPointsFile, quote=FALSE, row.names=FALSE, col.names=FALSE);
 }
 
 # create the bar plot
