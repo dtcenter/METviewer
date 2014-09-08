@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
     version="2.4">
-
     <display-name>METViewer</display-name>
     <description>METViewer</description>
-
     <!-- Define servlets that are included in the example application -->
     <servlet>
         <servlet-name>MVServlet</servlet-name>
@@ -18,10 +15,13 @@
         <servlet-name>MVServlet</servlet-name>
 		<url-pattern>/servlet</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>MVServlet</servlet-name>
 		<url-pattern>/db/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+           <servlet-name>MVServlet</servlet-name>
+   		<url-pattern>/download/*</url-pattern>
+       </servlet-mapping>
 
 </web-app>
