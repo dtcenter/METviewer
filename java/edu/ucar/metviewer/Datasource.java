@@ -94,8 +94,8 @@ public class Datasource {
     config.setJdbcUrl("jdbc:mysql://" + strDBHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
     config.setUsername(strDBUser);
     config.setPassword(strDBPassword);
-    config.setMinConnectionsPerPartition(2);
-    config.setMaxConnectionsPerPartition(3);
+    config.setMinConnectionsPerPartition(10);
+    config.setMaxConnectionsPerPartition(50);
     config.setPartitionCount(1);
     config.setIdleConnectionTestPeriodInSeconds(1);
     config.setIdleMaxAgeInSeconds(240);

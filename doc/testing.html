@@ -1,0 +1,86 @@
+<html>
+<head>
+    <title>METViewer Documentation</title>
+    <link rel="stylesheet" type="text/css" href="mv_doc.css"/>
+    <link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
+</head>
+<body>
+
+<p class="loc" style="padding-top:10px">
+    <b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Database
+    Loading Module
+</p>
+<hr/>
+
+<h2>METViewer Documentation - Testing Module</h2>
+
+<p>The testing modual is used to execute the regression testing of the current
+    version of METViewer. The tool is invoked by using the mv_test script. The
+    usage statement:</p>
+
+<p class="term">
+    ---- Testing ----<br/><br/>
+    Usage: mv_test&nbsp;[all]<br/>
+    &nbsp;&nbsp;"all" indicates that LoadDataTest submodual will be executed in
+    addition to the plot creation testing (takes longer)<br/><br/>
+    ---- Testing Done ----<br/>
+</p>
+
+<p>
+    Testing module produces output files (images, points, XML, data) and
+    compare them with the expected output. In order to test be passes, produced
+    and expected files should be identical.<br/>
+    <b style="color:#666666">NOTE:</b> R script makes visually identical but
+    bitwise different image files on different platforms.<br/><br/>
+
+    Testing submoduals:
+
+
+<ul>
+    <li><span class="code">LoadDataTest</span> recreates and refills mv_test
+        database with MET output data and compares number of rows in each table
+        with the expected number.<br/>
+        &nbsp;&nbsp;Test data and XML configuration file are located in <span
+                class="code">&lt;test_dir&gt;</span>/load_data directory
+    </li>
+    <br/>
+
+    <li><span class="code">CreatePlotBatchTest</span> runs MVBatch with testing
+        plot specification files and compare produces output files with the
+        expected output.<br/>
+        &nbsp;&nbsp;plot specification files and expected output are located in
+        <span class="code">&lt;test_dir&gt;</span>/plots_batch/&lt;test_type&gt;
+        directory
+    </li>
+    <br/>
+    </li>
+
+    <li><span class="code">TestMVServlet</span> simulates POST intermidiate
+        requests (ex. get list of variables), send them to MVServlet and
+        compare servlet's response with the expected output.<br/>
+        &nbsp;&nbsp;requests files and expected response are located in <span
+                class="code">&lt;test_dir&gt;</span>/servlet/ directory
+    </li>
+    <br/>
+    </li>
+
+    <li><span class="code">CreatePlotServletTest</span> simulates POST create a
+        plot requests , send them to MVServlet and compare produces output
+        files with the expected output.<br/>
+        &nbsp;&nbsp;requests files and expected output files are located in
+        <span class="code">&lt;test_dir&gt;</span>/plots_web/&lt;test_type&gt;
+        directory
+    </li>
+    <br/>
+    </li>
+
+
+</ul>
+</p>
+<p>Location of <span class="code">&lt;test_dir&gt;</span> : /d3/projects/METViewer/test_data/</p>
+
+
+<br/><br/>
+
+</body>
+</html>
