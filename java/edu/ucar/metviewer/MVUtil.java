@@ -1254,6 +1254,8 @@ public class MVUtil{
 		_tableStatsCnt.put("E50", 			new String[]{"bc"});
 		_tableStatsCnt.put("E75", 			new String[]{"bc"});
 		_tableStatsCnt.put("E90", 			new String[]{"bc"});
+    _tableStatsCnt.put("IQR", 		  new String[]{ "bc"});
+    _tableStatsCnt.put("MAD", 		  new String[]{ "bc"});
 	}
 	
 	public static final MVOrderedMap _tableStatsCts = new MVOrderedMap();
@@ -1275,6 +1277,13 @@ public class MVUtil{
 		_tableStatsCts.put("HSS", 			new String[]{"bc", CTC});
 		_tableStatsCts.put("ODDS", 			new String[]{"nc", "bc", CTC});
     _tableStatsCts.put("BCGSS", 			new String[]{ "bc", CTC});
+    _tableStatsCts.put("LODDS", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("ORSS", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("EDS", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("SEDS", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("EDI", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("SEDI", 			new String[]{"nc", "bc", CTC});
+    _tableStatsCts.put("BAGSS", 			new String[]{"bc", CTC});
 	}
 	
 	public static final MVOrderedMap _tableStatsNbrcts = new MVOrderedMap();
@@ -1298,6 +1307,10 @@ public class MVUtil{
 	static{
 		_tableStatsNbrcnt.put("NBR_FBS",	new String[]{"bc",NBR_CNT});
 		_tableStatsNbrcnt.put("NBR_FSS",	new String[]{"bc",NBR_CNT});
+		_tableStatsNbrcnt.put("NBR_AFSS",	new String[]{"bc",NBR_CNT});
+		_tableStatsNbrcnt.put("NBR_AUFSS",	new String[]{"bc",NBR_CNT});
+		_tableStatsNbrcnt.put("NBR_F_RATE",	new String[]{"bc",NBR_CNT});
+		_tableStatsNbrcnt.put("NBR_O_RATE",	new String[]{"bc",NBR_CNT});
 	}
 	
 	public static final MVOrderedMap _tableStatsPstd = new MVOrderedMap();
@@ -1318,11 +1331,14 @@ public class MVUtil{
 		_tableStatsMcts.put("MCTS_GER",		new String[]{"bc"});
 	}
 	
-	public static final MVOrderedMap _tableStatsRhist = new MVOrderedMap();
+	public static final MVOrderedMap _tableStatsPhist = new MVOrderedMap();
 	static{
-		_tableStatsRhist.put("RHIST_CRPS",	new String[]{});
-		_tableStatsRhist.put("RHIST_IGN",	new String[]{});
+		_tableStatsPhist.put("PHIST_CRPS",	new String[]{});
+		_tableStatsPhist.put("PHIST_IGN",	new String[]{});
 	}
+
+  public static final MVOrderedMap _tableStatsRhist = new MVOrderedMap();
+
 	
 	public static final MVOrderedMap _tableStatsVl1l2 = new MVOrderedMap();
 	static{
