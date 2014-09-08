@@ -5,6 +5,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
@@ -16,6 +17,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -23,8 +25,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,10 +63,10 @@ public class MVServlet extends HttpServlet {
     }
   };
   private static FilenameFilter XML_FILTER = new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return name.toLowerCase().endsWith(".xml");
-      }
-    };
+    public boolean accept(File dir, String name) {
+      return name.toLowerCase().endsWith(".xml");
+    }
+  };
 
   /**
    * Read the resource bundle containing database configuration information and
@@ -98,11 +98,8 @@ public class MVServlet extends HttpServlet {
         _strRedirect = "metviewer";
       }
 
-      Class<MVServlet> cls = MVServlet.class;
-      ProtectionDomain pDomain = cls.getProtectionDomain();
-      CodeSource cSource = pDomain.getCodeSource();
-      File file = new File(cSource.getLocation().getFile());
-      String catalinaHome = file.getParentFile().getParentFile().getParentFile().getParentFile().getParent();
+      String catalinaHome = System.getProperty("catalina.base");
+      System.out.println("catalinaHome " + catalinaHome);
       _projectDir = catalinaHome + "/webapps/" + _strRedirect;
 
     } catch (Exception e) {
@@ -130,84 +127,83 @@ public class MVServlet extends HttpServlet {
       Matcher matDBLoad = _patDBLoad.matcher(strPath);
       if (matDBLoad.matches()) {
         String strDB = matDBLoad.group(1);
-        if (!Datasource.getInstance().validate(strDB)) {
+        if (!Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).validate(strDB)) {
           printErrorPage(response);
           return;
         }
         //  redirect the user to the web app
-        response.sendRedirect("/" + _strRedirect + "/metviewer.jsp?db=" + matDBLoad.group(1));
+        response.sendRedirect("/" + _strRedirect + "/metviewer1.jsp?db=" + matDBLoad.group(1));
         return;
-      }else{
+      } else {
         Matcher matDownload = _patDownload.matcher(strPath);
         if (matDownload.matches()) {
 
 
+          String plot = "", type = "";
+          String filePath = "";
 
-                  String plot = "", type = "";
-                  String  filePath="";
+          plot = request.getParameter("plot");
 
-                      plot = request.getParameter("plot");
-
-                      type  = request.getParameter("type");
+          type = request.getParameter("type");
 
 
-                  if (type.equals("plot_xml")) {
-                    filePath = _projectDir + "/xml/" + plot + ".xml";
-                  } else if (type.equals("plot_sql")) {
-                    filePath = _projectDir + "/xml/" + plot + ".sql";
-                  } else if (type.equals("r_script")) {
-                    filePath = _projectDir + "/R_work/scripts/" + plot + ".R";
-                  } else if (type.equals("r_data")) {
-                    filePath = _projectDir + "/R_work/data/" + plot + ".data";
-                  } else if (type.equals("plot_log")) {
-                    filePath = _projectDir + "/xml/" + plot + ".log";
-                  } else if (type.equals("plot_image")) {
-                    filePath = _projectDir + "/plots/" + plot + ".png";
-                  }
-                  int length = 0;
-                  File file = new File(filePath);
-                  ServletOutputStream outStream = null;
-                  DataInputStream in = null;
-                  FileInputStream fileInputStream = null;
-                  try {
-                    outStream = response.getOutputStream();
-                    ServletContext context = getServletConfig().getServletContext();
-                    String mimetype = context.getMimeType(filePath);
+          if (type.equals("plot_xml")) {
+            filePath = _projectDir + "/xml/" + plot + ".xml";
+          } else if (type.equals("plot_sql")) {
+            filePath = _projectDir + "/xml/" + plot + ".sql";
+          } else if (type.equals("r_script")) {
+            filePath = _projectDir + "/R_work/scripts/" + plot + ".R";
+          } else if (type.equals("r_data") || type.equals("ui-tabs-1")) {
+            filePath = _projectDir + "/R_work/data/" + plot + ".data";
+          } else if (type.equals("plot_log")) {
+            filePath = _projectDir + "/xml/" + plot + ".log";
+          } else if (type.equals("plot_image")) {
+            filePath = _projectDir + "/plots/" + plot + ".png";
+          }
+          int length = 0;
+          File file = new File(filePath);
+          ServletOutputStream outStream = null;
+          DataInputStream in = null;
+          FileInputStream fileInputStream = null;
+          try {
+            outStream = response.getOutputStream();
+            ServletContext context = getServletConfig().getServletContext();
+            String mimetype = context.getMimeType(filePath);
 
-                    // sets response content type
-                    if (mimetype == null) {
-                      mimetype = "application/octet-stream";
-                    }
-                    response.setContentType(mimetype);
-                    response.setContentLength((int) file.length());
-                    String fileName = (new File(filePath)).getName();
+            // sets response content type
+            if (mimetype == null) {
+              mimetype = "application/octet-stream";
+            }
+            response.setContentType(mimetype);
+            response.setContentLength((int) file.length());
+            String fileName = (new File(filePath)).getName();
 
-                    // sets HTTP header
-                    response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+            // sets HTTP header
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
 
-                    byte[] byteBuffer = new byte[4096];
-                    fileInputStream = new FileInputStream(file);
-                    in = new DataInputStream(fileInputStream);
+            byte[] byteBuffer = new byte[4096];
+            fileInputStream = new FileInputStream(file);
+            in = new DataInputStream(fileInputStream);
 
-                    // reads the file's bytes and writes them to the response stream
-                    while ((in != null) && ((length = in.read(byteBuffer)) != -1)) {
-                      outStream.write(byteBuffer, 0, length);
-                    }
-                  } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                  } finally {
-                    if (fileInputStream != null) {
-                      fileInputStream.close();
-                    }
-                    if (in != null) {
-                      in.close();
-                    }
-                    if (outStream != null) {
-                      outStream.close();
-                    }
-                  }
+            // reads the file's bytes and writes them to the response stream
+            while ((in != null) && ((length = in.read(byteBuffer)) != -1)) {
+              outStream.write(byteBuffer, 0, length);
+            }
+          } catch (Exception e) {
+            System.out.println(e.getMessage());
+          } finally {
+            if (fileInputStream != null) {
+              fileInputStream.close();
+            }
+            if (in != null) {
+              in.close();
+            }
+            if (outStream != null) {
+              outStream.close();
+            }
+          }
           return;
-                }
+        }
 
       }
 
@@ -260,15 +256,36 @@ public class MVServlet extends HttpServlet {
     InputStreamReader inputStreamReader = null;
     Connection con = null;
     ByteArrayInputStream byteArrayInputStream = null;
+    FileInputStream fileInputStream = null;
+    String referer="";
     try {
 
       //  initialize the request information
       String strRequestBody = "";
       request.getSession().setAttribute("init_xml", "");
 
+       /*if (!ServletFileUpload.isMultipartContent(request) && request.getParameterMap().size() > 0) {
+              String runId = request.getParameter("fileUploadLocal");
+              String xmlPath = request.getServletContext().getRealPath("") + File.separator + "xml";
+         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+              DocumentBuilder db = dbf.newDocumentBuilder();
+         FileInputStream fileInputStream = new FileInputStream(new File(xmlPath + File.separator + "plot_" + runId + ".xml"));
+              Document doc = db.parse(fileInputStream);
+              Node plot_spec = doc.getDocumentElement();
+              Node xml_upload = doc.createElement("xml_upload");
+              xml_upload.appendChild(plot_spec);
+              MVNode mv_xml_upload = new MVNode(xml_upload);
+
+              if (con == null) {
+                con = Datasource.getInstance().getConnection();
+              }
+              String strResp = handleXMLUpload(mv_xml_upload, con);
+              request.getSession().setAttribute("init_xml", strResp);
+              response.sendRedirect("/" + _strRedirect);
+            } //else {*/
+
       //  if the request is a file upload, build the request from the file XML
       if (ServletFileUpload.isMultipartContent(request)) {
-
         //  set up the upload handler and parse the request
         ServletFileUpload uploadHandler = new ServletFileUpload(new DiskFileItemFactory());
         List<FileItem> items = uploadHandler.parseRequest(request);
@@ -288,182 +305,222 @@ public class MVServlet extends HttpServlet {
 
         //  scrub non-xml from the file contents
         strRequestBody = "<request><xml_upload>" + strUploadXML + "</xml_upload></request>";
+        String [] refererArr = request.getHeader("referer").split("/");
+        referer = refererArr[refererArr.length-1];
+        System.out.println("referer " + referer);
+
       }
       //  if the request is not a file upload, read it directly
       else {
-       // inputStreamReader = new InputStreamReader(request.getInputStream());
-       // reader = new BufferedReader(inputStreamReader);
-       // String strLine = "";
-       // while ((strLine = reader.readLine()) != null) {
-       //   strRequestBody = strRequestBody + strLine;
-      //  }
+        // inputStreamReader = new InputStreamReader(request.getInputStream());
+        // reader = new BufferedReader(inputStreamReader);
+        // String strLine = "";
+        // while ((strLine = reader.readLine()) != null) {
+        //   strRequestBody = strRequestBody + strLine;
+        //  }
 
-         String line;
-         try {
-           reader = request.getReader();
-           while ((line = reader.readLine()) != null)
-             strRequestBody = strRequestBody + line;
-         } catch (Exception e) {
+        String line;
+        try {
+          reader = request.getReader();
+          while ((line = reader.readLine()) != null)
+            strRequestBody = strRequestBody + line;
+        } catch (Exception e) {
           System.out.println(e.getMessage());
-         }
-
-
+        }
 
       }
       _logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + strRequestBody);
 
-      //  instantiate and configure the xml parser
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      byteArrayInputStream = new ByteArrayInputStream(strRequestBody.getBytes());
-      Document doc = dbf.newDocumentBuilder().parse(byteArrayInputStream);
-
-      MVNode nodeReq = new MVNode(doc.getFirstChild());
       String strResp = "";
-      String currentDBName = "";
-      List<String> databases;
+      if (!strRequestBody.startsWith("<")) {
+        String[] simpleRequest = strRequestBody.split("=");
+        if (simpleRequest[0].equals("fileUploadLocal") && simpleRequest.length > 1) {
+          String runId = simpleRequest[1];
+          String xmlPath = request.getServletContext().getRealPath("") + File.separator + "xml";
+          DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+          DocumentBuilder db = dbf.newDocumentBuilder();
+          File plotXML = new File(xmlPath + File.separator + "plot_" + runId + ".xml");
+          if (plotXML.exists()) {
+            fileInputStream = new FileInputStream(plotXML);
+            Document doc = db.parse(fileInputStream);
+            Node plot_spec = doc.getDocumentElement();
+            Node xml_upload = doc.createElement("xml_upload");
+            xml_upload.appendChild(plot_spec);
+            MVNode mv_xml_upload = new MVNode(xml_upload);
 
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            strResp = handleXMLUpload(mv_xml_upload, con);
+          } else {
 
-      //  examine the children of the request node
-      for (int i = 0; i < nodeReq._children.length; i++) {
-        MVNode nodeCall = nodeReq._children[i];
-        //  <list_db> request
-        if (nodeCall._tag.equalsIgnoreCase("list_db")) {
-          strResp = "<list_db>";
-          databases = Datasource.getInstance().getAllDatabases();
-          for (int j = 0; j < databases.size(); j++) {
-            strResp += "<val>" + databases.get(j) + "</val>";
           }
-          strResp += "</list_db>";
-        } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
-          strResp = "<list_db>";
-          Datasource.getInstance().initDBList();
-          databases = Datasource.getInstance().getAllDatabases();
-          for (int j = 0; j < databases.size(); j++) {
-            strResp += "<val>" + databases.get(j) + "</val>";
-          }
-          strResp += "</list_db>";
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          handleClearListValCache(con);
-
-        }
-
-        //  <date> tag, which is used to prevent caching
-        else if (nodeCall._tag.equalsIgnoreCase("date")) {
-          continue;
-        }
-        //  <db_con> node containing the database connection name
-        else if (nodeCall._tag.equalsIgnoreCase("db_con")) {
-
-          //  check the connection pool
-          currentDBName = nodeCall._value;
-          con = Datasource.getInstance().getConnection(currentDBName);
-
-        }
-
-        //  <list_val>
-        else if (nodeCall._tag.equalsIgnoreCase("list_val")) {
-          strResp += handleListVal(nodeCall, strRequestBody, con);
-        }
-
-        //  <list_stat>
-        else if (nodeCall._tag.equalsIgnoreCase("list_stat")) {
-          strResp += handleListStat(nodeCall, strRequestBody, con);
-        }
-        //  <list_val_clear_cache>
-        else if (nodeCall._tag.equalsIgnoreCase("list_val_clear_cache")) {
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          strResp += handleClearListValCache(con);
-        }
-
-        //  <list_val_cache_keys>
-        else if (nodeCall._tag.equalsIgnoreCase("list_val_cache_keys")) {
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          strResp += handleListValCacheKeys(con);
-        }
-
-        //  <list_stat_clear_cache>
-        else if (nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache")) {
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          strResp += handleClearListStatCache(con);
-        }
-
-        //  <list_stat_cache_keys>
-        else if (nodeCall._tag.equalsIgnoreCase("list_stat_cache_keys")) {
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          strResp += handleListStatCacheKeys(con);
-        }
-
-        //  <plot>
-        else if (nodeCall._tag.equalsIgnoreCase("plot")) {
-          strResp += handlePlot(strRequestBody, con, currentDBName);
-        }
-        //  <list_mv_rev>
-        else if (nodeCall._tag.equalsIgnoreCase("list_mv_rev")) {
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          strResp += handleListMVRev(con);
-        }
-
-        //  <list_inst_info>
-        else if (nodeCall._tag.equalsIgnoreCase("list_inst_info")) {
-          strResp += handleListInstInfo(con);
-        }
-
-        //  <add_inst_info>
-        else if (nodeCall._tag.equalsIgnoreCase("add_inst_info")) {
-          strResp += handleAddInstInfo(nodeCall, con);
-        }
-
-        //  <update_inst_info>
-        else if (nodeCall._tag.equalsIgnoreCase("update_inst_info")) {
-          strResp += handleUpdateInstInfo(nodeCall, con);
-        }
-
-        //  <view_load_xml>
-        else if (nodeCall._tag.equalsIgnoreCase("view_load_xml")) {
-          strResp += handleViewLoadXML(nodeCall, con);
-        }
-
-        //  <xml_upload>
-        else if (nodeCall._tag.equalsIgnoreCase("xml_upload")) {
-          if (con == null) {
-            con = Datasource.getInstance().getConnection();
-          }
-          strResp += handleXMLUpload(nodeCall, con);
           request.getSession().setAttribute("init_xml", strResp);
           response.sendRedirect("/" + _strRedirect);
+          System.out.println(" _strRedirect " + "/" + _strRedirect);
         }
+      } else {
 
-        else if (nodeCall._tag.equalsIgnoreCase("history")) {
 
-          strResp += "<results>" + getAvailableResults() + "</results>";
+        //  instantiate and configure the xml parser
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        byteArrayInputStream = new ByteArrayInputStream(strRequestBody.getBytes());
+        Document doc = dbf.newDocumentBuilder().parse(byteArrayInputStream);
 
-        }
+        MVNode nodeReq = new MVNode(doc.getFirstChild());
 
-        //  not handled
-        else {
-          strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
+        String currentDBName = "";
+        List<String> databases;
+
+
+        //  examine the children of the request node
+        for (int i = 0; i < nodeReq._children.length; i++) {
+          MVNode nodeCall = nodeReq._children[i];
+          //  <list_db> request
+          if (nodeCall._tag.equalsIgnoreCase("list_db")) {
+            strResp = "<list_db>";
+            databases = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getAllDatabases();
+            for (int j = 0; j < databases.size(); j++) {
+              strResp += "<val>" + databases.get(j) + "</val>";
+            }
+            strResp += "</list_db>";
+          } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
+            strResp = "<list_db>";
+            Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).initDBList();
+            databases = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getAllDatabases();
+            for (int j = 0; j < databases.size(); j++) {
+              strResp += "<val>" + databases.get(j) + "</val>";
+            }
+            strResp += "</list_db>";
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            handleClearListValCache(con);
+
+          }
+
+          //  <date> tag, which is used to prevent caching
+          else if (nodeCall._tag.equalsIgnoreCase("date")) {
+            continue;
+          }
+          //  <db_con> node containing the database connection name
+          else if (nodeCall._tag.equalsIgnoreCase("db_con")) {
+
+            //  check the connection pool
+            currentDBName = nodeCall._value;
+            con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection(currentDBName);
+
+
+          }
+
+          //  <list_val>
+          else if (nodeCall._tag.equalsIgnoreCase("list_val")) {
+            strResp += handleListVal(nodeCall, strRequestBody, con);
+          }
+
+          //  <list_stat>
+          else if (nodeCall._tag.equalsIgnoreCase("list_stat")) {
+            strResp += handleListStat(nodeCall, strRequestBody, con);
+          }
+          //  <list_val_clear_cache>
+          else if (nodeCall._tag.equalsIgnoreCase("list_val_clear_cache")) {
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            strResp += handleClearListValCache(con);
+          }
+
+          //  <list_val_cache_keys>
+          else if (nodeCall._tag.equalsIgnoreCase("list_val_cache_keys")) {
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            strResp += handleListValCacheKeys(con);
+          }
+
+          //  <list_stat_clear_cache>
+          else if (nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache")) {
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            strResp += handleClearListStatCache(con);
+          }
+
+          //  <list_stat_cache_keys>
+          else if (nodeCall._tag.equalsIgnoreCase("list_stat_cache_keys")) {
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            strResp += handleListStatCacheKeys(con);
+          }
+
+          //  <plot>
+          else if (nodeCall._tag.equalsIgnoreCase("plot")) {
+            strResp += handlePlot(strRequestBody, con, currentDBName);
+          }
+          //  <list_mv_rev>
+          else if (nodeCall._tag.equalsIgnoreCase("list_mv_rev")) {
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }
+            strResp += handleListMVRev(con);
+          }
+
+          //  <list_inst_info>
+          else if (nodeCall._tag.equalsIgnoreCase("list_inst_info")) {
+            strResp += handleListInstInfo(con);
+          }
+
+          //  <add_inst_info>
+          else if (nodeCall._tag.equalsIgnoreCase("add_inst_info")) {
+            strResp += handleAddInstInfo(nodeCall, con);
+          }
+
+          //  <update_inst_info>
+          else if (nodeCall._tag.equalsIgnoreCase("update_inst_info")) {
+            strResp += handleUpdateInstInfo(nodeCall, con);
+          }
+
+          //  <view_load_xml>
+          else if (nodeCall._tag.equalsIgnoreCase("view_load_xml")) {
+            strResp += handleViewLoadXML(nodeCall, con);
+          }
+
+          //  <xml_upload>
+          else if (nodeCall._tag.equalsIgnoreCase("xml_upload")) {
+            if (con == null) {
+              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+            }try{
+            strResp += handleXMLUpload(nodeCall, con);
+            request.getSession().setAttribute("init_xml", strResp);
+            response.sendRedirect("/" + _strRedirect+ "/" + referer);
+              System.out.println(" _strRedirect " + "/" + _strRedirect);
+
+            } catch (Exception e){
+              strResp="<error>could not parse request</error>";
+              response.sendRedirect("/" + _strRedirect + "/" + referer);
+            }
+
+          } else if (nodeCall._tag.equalsIgnoreCase("history")) {
+            String isShowAll = nodeCall._children[0]._value;
+            strResp += "<results>" + getAvailableResults(isShowAll) + "</results>";
+
+          }
+
+          //  not handled
+          else {
+            strResp = "<error>unexpected request type: " + nodeCall._tag + "</error>";
+          }
         }
       }
-        if (strResp.equals("")) {
-          strResp = "<error>could not parse request</error>";
-        }
+      if (strResp.equals("")) {
+        strResp = "<error>could not parse request</error>";
+      }
 
-        _logger.debug("doPost() - response: " + strResp);
-        out = response.getWriter();
-        out.println(strResp);
+      _logger.debug("doPost() - response: " + strResp);
+      out = response.getWriter();
+      out.println(strResp);
 
     } catch (Exception e) {
       s = new ByteArrayOutputStream();
@@ -472,7 +529,7 @@ public class MVServlet extends HttpServlet {
       _logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString());
       out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
     } finally {
-      if(out != null){
+      if (out != null) {
         out.close();
       }
       if (s != null) {
@@ -487,7 +544,10 @@ public class MVServlet extends HttpServlet {
       if (inputStreamReader != null) {
         inputStreamReader.close();
       }
-      if(byteArrayInputStream != null){
+      if (fileInputStream != null) {
+        fileInputStream.close();
+      }
+      if (byteArrayInputStream != null) {
         byteArrayInputStream.close();
       }
       if (con != null) {
@@ -638,6 +698,7 @@ public class MVServlet extends HttpServlet {
     String strHeaderField = nodeCall._children[1]._value;
     boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
     boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
+    boolean boolPhist = nodeCall._children[1]._tag.equals("phist_field");
     boolean boolROC = nodeCall._children[1]._tag.equals("roc_field");
     boolean boolRely = nodeCall._children[1]._tag.equals("rely_field");
     boolean boolEnsSS = nodeCall._children[1]._tag.equals("ensss_field");
@@ -657,6 +718,7 @@ public class MVServlet extends HttpServlet {
     //  determine if the requested field is n_rank and format accordingly
     String strField = strHeaderField.toLowerCase();
     boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
+    boolean boolNBin = strField.equalsIgnoreCase("N_BIN");
 
     //  parse the fcst_var/stat constraint to build a list of line_data tables and fcst_var values
     Hashtable tableFcstVarStat = new Hashtable();
@@ -664,6 +726,8 @@ public class MVServlet extends HttpServlet {
     boolean boolFcstVar = false;
     if (boolRhist) {
       tableLineDataTables.put("line_data_rhist", "true");
+    } else if (boolPhist) {
+      tableLineDataTables.put("line_data_phist", "true");
     } else if (boolROC) {
       tableLineDataTables.put("line_data_pct", "true");
       tableLineDataTables.put("line_data_ctc", "true");
@@ -734,7 +798,7 @@ public class MVServlet extends HttpServlet {
       }
       //  if so, build a where clause for the criteria
       String strFieldDBCrit = MVUtil.formatField(strFieldCrit, boolMode, false);
-      if (-1 != strFieldDBCrit.indexOf("n_rank")) {
+      if (-1 != strFieldDBCrit.indexOf("n_rank") || -1 != strFieldDBCrit.indexOf("n_bin")) {
         continue;
       }
       String strSQLOp = "IN";
@@ -767,6 +831,11 @@ public class MVServlet extends HttpServlet {
         "FROM stat_header h, line_data_rhist ld " +
         strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
         "ORDER BY n_rank;";
+    }else if (boolNBin) {
+      strSQL = "SELECT DISTINCT ld.n_bin " +
+        "FROM stat_header h, line_data_phist ld " +
+        strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
+        "ORDER BY ld.n_bin;";
     } else if (!boolMode && (strField.equals("fcst_lead") || strField.contains("valid") || strField.contains("init"))) {
       String strSelectField = MVUtil.formatField(strField, boolMode);
       //  create a temp table for the list values from the different line_data tables
@@ -837,7 +906,7 @@ public class MVServlet extends HttpServlet {
     for (int i = 0; i < listVal.length; i++) {
 
       //  add the database field value to the list
-      strResp += "<val>" + listVal[i] + "</val>";
+      strResp += "<val>" + listVal[i].replace(">", "&gt;").replace("<", "&lt;") + "</val>";
 
       //  if the database field value is probabilistic, add a wild card version
       if (!strField.equals("fcst_var")) {
@@ -906,6 +975,7 @@ public class MVServlet extends HttpServlet {
       "(SELECT COUNT(*), 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+      "(SELECT COUNT(*), 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
     _logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
     Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
@@ -955,6 +1025,9 @@ public class MVServlet extends HttpServlet {
           case 9:
             listStatName.addAll(Arrays.asList(MVUtil._tableStatsVl1l2.getKeyList()));
             break;
+          case 10:
+            listStatName.addAll(Arrays.asList(MVUtil._tableStatsPhist.getKeyList()));
+            break;
         }
       }
       intStatIndex++;
@@ -999,7 +1072,7 @@ public class MVServlet extends HttpServlet {
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
 
 
-    String strPlotPrefix = "plot_"  + _formatPlot.format(new java.util.Date());
+    String strPlotPrefix = "plot_" + _formatPlot.format(new java.util.Date());
     //  add plot file information to the plot spec
     // String strDBName = con.getMetaData().getURL();
     strPlotXML =
@@ -1103,6 +1176,8 @@ public class MVServlet extends HttpServlet {
       bat._boolVerbose = true;
       if (strJobTmpl.equals("rhist.R_tmpl")) {
         bat.runRhistJob(job);
+      } else if (strJobTmpl.equals("phist.R_tmpl")) {
+        bat.runPhistJob(job);
       } else if (strJobTmpl.equals("roc.R_tmpl") ||
         strJobTmpl.equals("rely.R_tmpl")) {
         bat.runRocRelyJob(job);
@@ -1123,6 +1198,8 @@ public class MVServlet extends HttpServlet {
       //bat._boolVerbose = true;
       if (strJobTmpl.equals("rhist.R_tmpl")) {
         bat.runRhistJob(job);
+      } else if (strJobTmpl.equals("phist.R_tmpl")) {
+        bat.runPhistJob(job);
       } else if (strJobTmpl.equals("roc.R_tmpl") ||
         strJobTmpl.equals("rely.R_tmpl")) {
         bat.runRocRelyJob(job);
@@ -1147,10 +1224,10 @@ public class MVServlet extends HttpServlet {
 
     } catch (Exception e) {
       _logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
-      return "<error>" +
+      return "<response><error>" +
         "failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage() +
         (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "") +
-        "</error>";
+        "</error><plot>" + strPlotPrefix +"</plot></response>";
     } finally {
       if (log != null) {
         log.close();
@@ -1182,7 +1259,7 @@ public class MVServlet extends HttpServlet {
     } catch (Exception e) {
       _logger.error("handlePlot() - caught " + e.getClass() + " creating plot code archive: " + e.getMessage());
     }*/
-    return "<response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg + "</r_error></response>" : "</response>");
+    return "<response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") + "</r_error></response>" : "</response>");
   }
 
 
@@ -1466,16 +1543,15 @@ public class MVServlet extends HttpServlet {
     return MVPlotJobParser.serializeJob(job);
   }
 
-  public static String getAvailableResults() {
+  public static String getAvailableResults(String showAll) {
     String result = "";
-    boolean isShowSuccessfulOnly = true;
     String dir, extension;
     FilenameFilter filter;
-    if(isShowSuccessfulOnly){
+    if (showAll.equals("false")) {
       dir = "/plots";
       extension = ".png";
       filter = PNG_FILTER;
-    }else{
+    } else {
       dir = "/xml";
       extension = ".xml";
       filter = XML_FILTER;
@@ -1483,14 +1559,24 @@ public class MVServlet extends HttpServlet {
 
     File plotDir = new File(_projectDir + dir);
     if (plotDir.exists()) {
+      String fileXML;
       String[] plotNames = plotDir.list(filter);
       Arrays.sort(plotNames, Collections.reverseOrder());
       for (String name : plotNames) {
-        result = result + name.replace(extension, "").replace("plot_", "" ) + ",";
+
+        String success="true";
+        if(dir.equals("/xml")){
+          //check if the image exists
+          File imageFile= new File(_projectDir + "/plots/" + name.replace(extension, "") + ".png");
+          if(!imageFile.exists()){
+            success = "false";
+          }
+        }
+        fileXML = "<file name=\"" +  name.replace(extension, "").replace("plot_", "") + "\" success=\"" + success +"\" />";
+        //<file name="20140617_082740" success=true />
+        result = result + fileXML;
       }
-      if (result.length() > 0) {
-        result = result.substring(0, result.length() - 1);
-      }
+
 
     }
     return result;
