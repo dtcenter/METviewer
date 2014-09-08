@@ -171,6 +171,7 @@ public class MVPlotJob extends MVUtil {
   protected String _strOrderSeries = "";
   protected String _strDiffSeries1="list()";
   protected String _strDiffSeries2="list()";
+  protected String _strShowSignif = "";
 
 
   public static MVPlotJob getBaseJob(Connection con) throws Exception {
@@ -329,6 +330,7 @@ public class MVPlotJob extends MVUtil {
 
     job._strPlotCI = _strPlotCI;
     job._strPlotDisp = _strPlotDisp;
+    job._strShowSignif = _strShowSignif;
     job._strDiffSeries1 = _strDiffSeries1;
     job._strDiffSeries2 = _strDiffSeries2;
     job._strOrderSeries = _strOrderSeries;
@@ -1329,7 +1331,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public String getRelyEventHist() {
-    return _strRelyEventHist;
+    return _strRelyEventHist.toUpperCase();
   }
 
   public void setRelyEventHist(String relyEventHist) {
@@ -1357,7 +1359,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setEnsSsPtsDisp(String ensSsPtsDisp) {
-    _strEnsSsPtsDisp = ensSsPtsDisp;
+    _strEnsSsPtsDisp = ensSsPtsDisp.toUpperCase();
   }
 
   public boolean getAggCtc() {
@@ -1462,6 +1464,17 @@ public class MVPlotJob extends MVUtil {
 
   public void setPlotDisp(String plotDisp) {
     _strPlotDisp = plotDisp;
+  }
+
+  public String getShowSignif() {
+    if(_strShowSignif.length() == 0){
+      _strShowSignif = _strPlotDisp.replace("TRUE", "FALSE");
+    }
+    return _strShowSignif;
+  }
+
+  public void setShowSignif(String showSignif) {
+    _strShowSignif = showSignif;
   }
 
   public String getColors() {
@@ -1586,7 +1599,18 @@ public class MVPlotJob extends MVUtil {
 
 
   public String getOrderSeries() {
+    if(_strOrderSeries.length() > 0){
     return _strOrderSeries;
+    }else{
+      //c(20, 20, 20)
+      String templ = getPch();
+      int size = templ.split(",").length;
+      String result = "c(";
+      for(int i=1; i<= size; i++){
+        result = result + i + ",";
+      }
+      return result.substring(0, result.length()-1) + ")";
+    }
   }
 
   public void setOrderSeries(String orderSeries) {
