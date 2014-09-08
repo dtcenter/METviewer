@@ -65,6 +65,7 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 			<option>box_plot</option>
 			<option>bar_plot</option>
 			<option>rhist</option>
+            <option>phist</option>
 			<option>roc</option>
          <option>rely</option>
          <option>ens_ss</option>
@@ -597,6 +598,19 @@ String strInitXML = (null == objInitXML? "" : objInitXML.toString());
 							<tr><td class="fmtTag" align="right">legend</td></tr>
 						</table>
 					</td></tr>
+                        <tr><td align="right">
+                        						<table border="0" cellpadding="0" cellspacing="0">
+                        							<tr>
+                        								<td class="fmtLabel" align="right">Show Significant</td>
+                        								<td rowspan="2"><select style="min-width:100px">
+                        																		<option>TRUE</option>
+                        																		<option selected>FALSE</option>
+
+                        																	</select></td>
+                        							</tr>
+                        							<tr><td class="fmtTag" align="right">show_signif</td></tr>
+                        						</table>
+                        					</td></tr>
 					</table>
 				</td>
 			</tr>
