@@ -26,12 +26,13 @@ if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 
 # sort the dataset by init time, lead time and independent variable
 listFields = names(dfStatsRec);
-dfStatsRec = dfStatsRec[order(dfStatsRec$fcst_valid_beg),];
-dfStatsRec = dfStatsRec[order(dfStatsRec$fcst_init_beg),];
-dfStatsRec = dfStatsRec[order(dfStatsRec[[strIndyVar]]),];
 
+
+dfStatsRecAxis1= data.frame();
+dfStatsRecAxis2= data.frame();
 # build a list for output permutations
 for(intY in 1:intYMax){
+  dfStatsRecAxis=data.frame();
   if( 1 == intY ){
     listSeriesVal = listSeries1Val;
     listStat = listStat1;
@@ -74,15 +75,30 @@ for(intY in 1:intYMax){
       listDiffVal$stat_name = listStat;
       matOut = rbind(matOut, permute(listDiffVal));
     }
-
+    
+  }
+  # run event equalizer either if requested or automatically if bootstrapping is enabled
+  if( boolEventEqual ){
+    dfStatsRecAxisTemp = dfStatsRec;
+    for(name in names(listOut)){
+      dfStatsRecAxisTemp=dfStatsRecAxisTemp[dfStatsRecAxisTemp[[name]] %in% listOut[[name]], ];
+      
+    }
+    dfStatsRecAxisTemp = dfStatsRecAxisTemp[order(dfStatsRecAxisTemp$fcst_valid_beg),];
+    dfStatsRecAxisTemp = dfStatsRecAxisTemp[order(dfStatsRecAxisTemp$fcst_init_beg),];
+    dfStatsRecAxisTemp = dfStatsRecAxisTemp[order(dfStatsRecAxisTemp[[strIndyVar]]),];
+    if( 1 == intY ){ dfStatsRecAxis1 = eventEqualize(dfStatsRecAxisTemp, strIndyVar, listIndyVal, listSeriesVal, FALSE); }
+    if( 2 == intY ){ dfStatsRecAxis2 = eventEqualize(dfStatsRecAxisTemp, strIndyVar, listIndyVal, listSeriesVal, FALSE); }
+    
   }
 }
 
-# run event equalizer either if requested or automatically if bootstrapping is enabled
-if( boolEventEqual | (1 < intNumReplicates & ! boolEveqDis) ){
-  dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeries1Val, FALSE);
-  if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }
+
+if( boolEventEqual ){
+  dfStatsRec = rbind(dfStatsRecAxis1, dfStatsRecAxis2);
 }
+if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }
+
 
 # build a dataframe (dfOut) to store the bootstrapped statistics
 listOutPerm = list();
@@ -190,6 +206,10 @@ calcBCGSS = function(d){
 # NBR_CNT "calculations"
 calcNBR_FBS = function(d){ return ( d$fbs ); }
 calcNBR_FSS = function(d){ return ( d$fss ); }
+calcNBR_AFSS = function(d){ return ( d$afss ); }
+calcNBR_UFSS = function(d){ return ( d$ufss ); }
+calcNBR_F_RATE = function(d){ return ( d$f_rate ); }
+calcNBR_O_RATE = function(d){ return ( d$o_rate ); }
 
 
 # booter function
@@ -235,27 +255,46 @@ booter.iid = function(d, i){
       );
     }
 
-    # perform the aggregation of the sampled NBR_CNT lines
+ # perform the aggregation of the sampled NBR_CNT lines
     else if( boolAggNbrCnt ){
+      listTotal = d[i,][[ paste(strPerm, "total", sep="_") ]];
+      total = sum(listTotal, na.rm=TRUE);
+      listFbs = d[i,][[ paste(strPerm, "fbs", sep="_") ]];
+      listFss = d[i,][[ paste(strPerm, "fss", sep="_") ]];
+      listAFss = d[i,][[ paste(strPerm, "afss", sep="_") ]];
+      listUFss = d[i,][[ paste(strPerm, "ufss", sep="_") ]];
+      listFRate = d[i,][[ paste(strPerm, "f_rate", sep="_") ]];
+      listORate = d[i,][[ paste(strPerm, "o_rate", sep="_") ]];
 
-      listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
+      listFss[listFss == -9999] = NA;
 
-      listFbs		= d[i,][[ paste(strPerm, "fbs", sep="_") ]];
-      listFbsVld	= (-9999 != listFbs);
-      listFbsTot	= listTotal[listFbsVld];
-      listFbs		= listFbs[listFbsVld];
-      dblFbs		= NA;
-      if( 0 < length(listFbs) ){ dblFbs = sum(listFbsTot * listFbs) / sum(listFbsTot); }
+      dblFbs = sum(listTotal * listFbs, na.rm=TRUE) / total;
 
-      listFss		= d[i,][[ paste(strPerm, "fss", sep="_") ]];
-      listFssVld	= (-9999 != listFss);
-      listFssTot	= listTotal[listFssVld];
-      listFss		= listFss[listFssVld];
-      dblFss		= NA;
-      if( 0 < length(listFss) ){ dblFss = sum(listFssTot * listFss) / sum(listFssTot); }
+      dblFssDen = sum( (listFbs / (1.0 - listFss)) * listTotal, na.rm=TRUE) / total;
+      dblFss = 1.0 - dblFbs / dblFssDen;
+      if( !is.finite(dblFss) ){ dblFss = NA; }
 
-      dfSeriesSums = data.frame(fbs = dblFbs, fss = dblFss);
+      dblFRate = sum(listTotal * listFRate, na.rm=TRUE) / total;
+      dblORate = sum(listTotal * listORate, na.rm=TRUE) / total;
+
+      dblAFssNum = 2.0*dblFRate*dblORate;
+      dblAFssDen = dblFRate*dblFRate + dblORate*dblORate;
+      dblAFss = dblAFssNum / dblAFssDen;
+      if( !is.finite(dblAFss) ){ dblAFss = NA; }
+
+      dblUFss = 0.5 + dblORate/2.0;
+
+      dfSeriesSums = data.frame(
+        total = total,
+        fbs = dblFbs,
+        fss = dblFss,
+        afss = dblAFss,
+        ufss = dblUFss,
+        f_rate = dblFRate,
+        o_rate = dblORate
+      );
     }
+
 
     # return a value for each statistic
     for(strStat in listStat){
@@ -271,7 +310,7 @@ booter.iid = function(d, i){
   if(length(listDiffSeries) > 0){
     for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
       #get  names of DIFF series
-      diffSeriesVec = listDiffSeries1[[diffSeriesNameInd]];
+      diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
 
       listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
       listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];

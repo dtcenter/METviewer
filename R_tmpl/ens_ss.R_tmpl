@@ -133,7 +133,9 @@ for(intPermVal in 1:nrow(matPermVal)){
 	if( FALSE == exists("listY1Series") ){ listY1Series = listMse; }
 	if( FALSE == exists("listY2Series") ){ listY2Series = listPts; }
 	listLegendY1 = append(listLegendY1, paste( paste(listPermVal,sep="_"), "MSE",  sep=" "));
-	listLegendY2 = append(listLegendY2, paste( paste(listPermVal,sep="_"), "#PTS", sep=" "));
+	if(TRUE == boolEnsSsPtsDisp){
+	  listLegendY2 = append(listLegendY2, paste( paste(listPermVal,sep="_"), "#PTS", sep=" "));
+	}
 	
 }
 

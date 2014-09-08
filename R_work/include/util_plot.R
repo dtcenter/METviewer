@@ -104,6 +104,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 		cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
 		return( dfStats );
 	}
+  
 	#remove groups from the series vars
 	listSeriesValNoGroups=list();
 	for(strSeriesVar in names(listSeriesVal)){
@@ -142,6 +143,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 			if( FALSE == boolMulti & length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
 				stop("ERROR: eventEqualize() detected non-unique events for indy val ", strIndyVal);
 			}
+		
 			
 			# if empty, initialize the equalization list
 			if( 0 < sum(is.na(listEqualize)) ){

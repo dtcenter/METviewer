@@ -119,7 +119,7 @@ function serializeNode(node){
  * sequences and return the result 
  */
 function escapeXml(str){
-	return str.replace("&", "&amp;")
+	return str
 		      .replace("\"", "&quot;")
 		      .replace("'", "&apos;")
 		      .replace("<", "&lt;")
@@ -162,7 +162,7 @@ function clearSelect(sel){ while( 0 < sel.length ){ sel.remove(sel.length - 1); 
 function getSelected(sel){
 	var listRet = new Array();
 	for(var i=0; i < sel.options.length; i++){
-		if( sel.options[i].selected ){ listRet.push( sel.options[i].text ); }
+		if( sel.options[i].selected ){ listRet.push( sel.options[i].text.replace("&gt;", ">") ); }
 	}
 	return listRet;
 }

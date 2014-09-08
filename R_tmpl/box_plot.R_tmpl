@@ -432,13 +432,17 @@ for( listAllStatsName in names(listAllStats2) ){
   
   # update the y2-axis limits to fit the data, depending on user-specification
   if( 2 != length(listY2limUsr) ){
-    dblMin = min(unlist(listBox));
-    dblMax = max(unlist(listBox));
-    if( 2 != length(listY2lim) ){
-      listY2lim = c(dblMin, dblMax);
-    } else {
-      if( dblMin < listY2lim[1] ){ listY2lim = c(dblMin, listY2lim[2]); }
-      if( dblMax > listY2lim[2] ){ listY2lim = c(listY2lim[1], dblMax); }
+    if(length(unlist(listBox)) > 0){
+      dblMin = min(unlist(listBox));
+      dblMax = max(unlist(listBox));
+      if( 2 != length(listY2lim) ){
+        listY2lim = c(dblMin, dblMax);
+      } else {
+        if( dblMin < listY2lim[1] ){ listY2lim = c(dblMin, listY2lim[2]); }
+        if( dblMax > listY2lim[2] ){ listY2lim = c(listY2lim[1], dblMax); }
+      }
+    }else{
+      listY2lim = listY1lim;
     }
   } else {
     listY2lim = listY2limUsr;

@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<HEAD>
+    <META http-equiv="content-type" content="text/html; charset=utf-8">
+    <style type="text/css">
+        .add-font-size {
+            font-size: 10px;
+        }
+
+        legend {
+            font-weight: bold;;
+        }
+
+        fieldset {
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.help-button').button({
+
+                icons: {
+                    primary: "ui-icon-help"
+                },
+                text: false
+
+            }).click(function () {
+                        $('#helpContent').empty();
+                        $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+                        $('#helpContent').dialog('open');
+                    });
+
+            $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
+                height: 400,
+                width: 600,
+                autoOpen: false,
+                open: function (event, ui) {
+                }
+            });
+        });
+
+        $(".remove_fixed_var").button({
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false,
+            disabled: true
+        }).click(function () {
+                    removeFixedVarRhist($(this).attr('id'));
+                });
+
+        $("#fixed_var_1").multiselect({
+                multiple: false,
+                selectedList: 1,
+                header: false,
+                minWidth: 'auto',
+                height: 'auto',
+                click: function () {
+                    var id_array = this.id.split("_");
+                    updateFixedVarValHist(id_array[id_array.length - 1], []);
+                }
+            });
+        $("#fixed_var_val_1").multiselect({
+                selectedList: 100, // 0-based index
+                noneSelectedText: "Select value"
+            });
+        updateFixedVarValHist(1, []);
+        fixed_var_indexes.push(1);
+
+
+        $('#add_fixed_var').button({
+                        icons: {
+                                   primary: "ui-icon-circle-plus"
+                               }
+                    }).click(function () {
+                        addFixedVariableRhist();
+                    });
+
+
+        $("#series_var_y1_1").multiselect({
+                        multiple: false,
+                        selectedList: 1,
+                        header: false,
+                        minWidth: 'auto',
+                        height: 'auto',
+                        click: function () {
+                            var id_array = this.id.split("_");
+                            updateSeriesVarValEns( id_array[id_array.length - 1],[]);
+                        }
+                    });
+        $("#series_var_val_y1_1").multiselect({
+            selectedList: 100, // 0-based index
+            noneSelectedText: "Select value",
+            click: function () {
+                updateSeriesEns();
+            }
+        });
+        $('#add_series_var_y1').button({
+            icons: {
+                primary: "ui-icon-circle-plus"
+            }
+        }).click(function () {
+                    addSeriesVariableEns();
+                });
+        $(".remove_var").button({
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false,
+            disabled: true
+        }).click(function () {
+
+                    removeSeriesVarSeriesBox($(this).attr('id'));
+
+                });
+
+
+        if (initXML != null) {
+            loadXMLEns();
+        }else{
+            updateSeriesVarValEns( 1, []);
+            $("input[name=ensss_pts_disp][value=false]").prop('checked', true);
+            $('#ensss_pts').val("-1");
+        }
+        $('#is_ensss_pts_disp').buttonset();
+        $("input:radio[name='ensss_pts_disp']").change(function() {
+            updateSeriesEns();
+        });
+
+
+    </script>
+</head>
+<body>
+
+<div class="ui-widget-content ui-widget-content-plot ui-corner-all">
+    <div class="ui-widget-header-plot">Series Variables:<button class="help-button" style="float: right;" alt="series">Help</button></div>
+               <table id='series_var_table_y1'>
+                   <tr>
+                       <td>
+                           <button id="remove_series_var_y1_1" class="remove_var">
+                               Remove
+                           </button>
+                       </td>
+
+                       <td>
+                           <select id="series_var_y1_1">
+                               <option value="model" >MODEL</option>
+                               <option value="fcst_lead">FCST_LEAD</option>
+                               <option value="fcst_valid_beg">FCST_VALID_BEG</option>
+                               <option value="valid_hour">VALID_HOUR</option>
+                               <option value="fcst_init_beg">FCST_INIT_BEG</option>
+                               <option value="init_hour">INIT_HOUR</option>
+                               <option value="fcst_lev">FCST_LEV</option>
+                               <option value="obtype">OBTYPE</option>
+                               <option value="vx_mask">VX_MASK</option>
+                               <option value="interp_mthd">INTERP_MTHD</option>
+                               <option value="interp_pnts">INTERP_PNTS</option>
+                               <option value="fcst_thresh">FCST_THRESH</option>
+                               <option value="obs_thresh">OBS_THRESH</option>
+
+                           </select>
+                       </td>
+                       <td>
+                           <select  multiple="multiple" id="series_var_val_y1_1" >
+
+                                       </select>
+
+                       </td>
+                       <!--td><input type="checkbox" id="group_series_var_y1_1" onclick="updateSeriesSeriesBox();"><label for="group_series_var_y1_1">Group_y1_1</label></td-->
+                   </tr>
+               </table>
+               <button id="add_series_var_y1" style="margin-top:5px;">Series Variable</button>
+           </div>
+    </div>
+
+
+
+
+<div class="ui-widget-content ui-widget-content-plot ui-corner-all">
+    <div class="ui-widget-header-plot">Specialized Plot Fixed Values:
+        <button class="help-button" style="float: right;" alt="plot_fix">Help
+        </button>
+    </div>
+    <table id='fixed_var_table'>
+        <tr>
+            <td>
+                <button id="remove_fixed_var_1" class="remove_fixed_var">
+                    Remove
+                </button>
+            </td>
+
+            <td>
+                <select id="fixed_var_1">
+                    <option value="fcst_var">FCST_VAR</option>
+                    <option value="model">MODEL</option>
+                    <option value="fcst_lead">FCST_LEAD</option>
+                    <option value="fcst_valid_beg">FCST_VALID_BEG</option>
+                    <option value="valid_hour">VALID_HOUR</option>
+                    <option value="fcst_init_beg">FCST_INIT_BEG</option>
+                    <option value="init_hour">INIT_HOUR</option>
+                    <option value="fcst_lev">FCST_LEV</option>
+                    <option value="obtype">OBTYPE</option>
+                    <option value="vx_mask">VX_MASK</option>
+                    <option value="interp_mthd">INTERP_MTHD</option>
+                    <option value="interp_pnts">INTERP_PNTS</option>
+                    <option value="fcst_thresh">FCST_THRESH</option>
+                    <option value="obs_thresh">OBS_THRESH</option>
+
+
+                </select>
+            </td>
+            <td>
+                <select multiple="multiple" id="fixed_var_val_1">
+
+                </select>
+
+            </td>
+        </tr>
+    </table>
+    <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
+    <br/>
+        <br/>
+        <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">
+</div>
+<div class="ui-widget-content ui-widget-content-plot ui-corner-all">
+    <div class="ui-widget-header-plot">Points <button class="help-button" style="float: right;" alt="ensss_pts">Help
+            </button>
+    </div>
+    <table>
+        <tr>
+            <td>
+                <div id="is_ensss_pts_disp">
+                    Display
+                    <input type="radio" name="ensss_pts_disp" value="true"
+                           id="true_is_ensss_pts_disp" checked/>
+                    <label for="true_is_ensss_pts_disp">Yes</label>
+
+
+                    <input type="radio" name="ensss_pts_disp" value="false"
+                           id="false_is_ensss_pts_disp"/>
+                    <label for="false_is_ensss_pts_disp">No</label>
+                </div>
+            </td>
+            <td><label for="ensss_pts" style="margin-left: 20px;">Number of binned points</label>
+                <input type="text" id="ensss_pts" name="ensss_pts" size="3"/>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+
+<div id="helpContent" title="Help">
+</div>
+</body>
+</html>

@@ -5,6 +5,7 @@ var TMPL_SERIES_PLOT = 1;
 var TMPL_BAR_PLOT = 2;
 var TMPL_BOX_PLOT = 3;
 var TMPL_RHIST = 4;
+var TMPL_PHIST = 8;
 var TMPL_ROC = 5;
 var TMPL_RELY = 6;
 var TMPL_ENS_SS = 7;
@@ -53,11 +54,13 @@ var _listStatModePair = [
 var _listStatMode = _listStatModeSingle.concat(_listStatModePair);
 
 var _listVarStat = ["MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR", "FCST_LEV",
-    "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH"];
+    "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH"];
 var _listVarSpc = ["FCST_VAR", "MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR",
     "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "OBS_THRESH"];
 var _listVarRhist = ["FCST_VAR", "MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR",
     "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "N_RANK"];
+var _listVarPhist = ["FCST_VAR", "MODEL", "FCST_LEAD", "FCST_VALID_BEG", "VALID_HOUR", "FCST_INIT_BEG", "INIT_HOUR",
+    "FCST_LEV", "OBTYPE", "VX_MASK", "INTERP_MTHD", "INTERP_PNTS", "FCST_THRESH", "N_BIN"];
 var _listVarMode = ["MODEL", "FCST_LEAD", "FCST_VALID", "VALID_HOUR", "FCST_INIT", "INIT_HOUR", "FCST_ACCUM",
     "FCST_RAD", "FCST_THR", "FCST_LEV"];
 var _listVar = _listVarStat;
@@ -81,7 +84,7 @@ var _intNumFmtPlotCol = 4;
 var _intFmtPlotTxtIndex = 0;
 var _intFmtPlotBoolIndex = 0;
 var _intNumSeries = 0;
-var _listFmtSeriesDefaults = ["false", "false", "none", "", "20", "b", "1", "1", "1", ""];
+var _listFmtSeriesDefaults = ["false", "false", "none", "", "20", "b", "1", "1", "1", "", "FALSE"];
 
 var seriesDiffY1 = [];
 var seriesDiffY2 = [];
@@ -523,6 +526,9 @@ function updatePlotData() {
         if (strTmpl == "rhist") {
             _strPlotData = "rhist";
         }
+        else if (strTmpl == "phist") {
+            _strPlotData = "phist";
+        }
         else if (strTmpl == "roc") {
             _strPlotData = "roc";
         }
@@ -714,7 +720,7 @@ function setFmtVal(tdFmt, val) {
  * current _intTmpl setting.
  */
 function isTmplSpc() {
-    return (TMPL_RHIST == _intTmpl ||
+    return (TMPL_RHIST == _intTmpl || TMPL_PHIST == _intTmpl ||
             TMPL_ROC == _intTmpl ||
             TMPL_RELY == _intTmpl);
 }
@@ -737,6 +743,8 @@ function updateTmpl() {
     }
     else if (null != strTmpl.match(/^rhist$/)) {
         _intTmpl = TMPL_RHIST;
+    }else if (null != strTmpl.match(/^phist$/)) {
+        _intTmpl = TMPL_PHIST;
     }
     else if (null != strTmpl.match(/^roc$/)) {
         _intTmpl = TMPL_ROC;
@@ -784,7 +792,7 @@ function updateTmpl() {
         boolAggStat = false;
         boolCalcStat = false;
         boolRocCalc = (TMPL_ROC == _intTmpl);
-        boolHistType = (TMPL_RHIST == _intTmpl);
+        boolHistType = (TMPL_RHIST == _intTmpl || TMPL_RHIST == _intTmpl);
     } else if (TMPL_ENS_SS == _intTmpl) {
         boolDep1 = false;
         boolY2 = false;
@@ -1646,6 +1654,8 @@ function addFixSpcVar() {
     clearSelect(selField);
     if (TMPL_RHIST == _intTmpl) {
         fillSelect(selField, _listVarRhist);
+    } else if (TMPL_PHIST == _intTmpl) {
+        fillSelect(selField, _listVarPhist);
     }
     else {
         fillSelect(selField, _listVarSpc);
@@ -2438,6 +2448,9 @@ function getFmtSeriesVal(row) {
         case TMPL_RHIST:
             strTabFmtSeriesId = "tabFmtSeriesRhist";
             break;
+        case TMPL_PHIST:
+            strTabFmtSeriesId = "tabFmtSeriesRhist";
+            break;
         case TMPL_ROC  :
             strTabFmtSeriesId = "tabFmtSeriesRoc";
             break;
@@ -2463,7 +2476,7 @@ function getFmtSeriesVal(row) {
             listTdFmt.push(tabVal1.rows[i].cells[j]);
         }
     }
-    if (TMPL_RHIST != _intTmpl) {
+    if (TMPL_RHIST != _intTmpl || TMPL_PHIST != _intTmpl) {
         var tabVal2 = trFmtSeries.cells[2].getElementsByTagName("table")[0];
         for (var i = 0; i < tabVal2.rows.length; i++) {
             for (var j = 0; j < tabVal2.rows[i].cells.length; j++) {
@@ -2687,6 +2700,8 @@ function buildSeriesDivSpc() {
     var strFmtSeriesTab = "tabFmtSeriesRhist";
     if (TMPL_RHIST == _intTmpl) {
         strFmtSeriesTab = "tabFmtSeriesRhist";
+    }else if (TMPL_PHIST == _intTmpl) {
+        strFmtSeriesTab = "tabFmtSeriesRhist";
     }
     else if (TMPL_ROC == _intTmpl) {
         strFmtSeriesTab = "tabFmtSeriesRoc";
@@ -2780,7 +2795,7 @@ function buildPlotXML() {
             strDepXML += "<roc_ctc>" + listRocCalcParm[1].checked + "</roc_ctc>";
             strDepXML += "</roc_calc>";
         }
-        if (TMPL_RHIST == _intTmpl) {
+        if (TMPL_RHIST == _intTmpl || TMPL_PHIST == _intTmpl) {
             var isNormalized_histogram = $('input[name=normalized_histogram]:checked').val();
             strDepXML += "<normalized_histogram>" + isNormalized_histogram + "</normalized_histogram>";
         }
@@ -2965,9 +2980,21 @@ function buildPlotXML() {
     }
 
     //  series formatting
-    var listFmtSeries = new Array("", "", "", "", "", "", "", "", "", "");
+    var listFmtSeries = new Array("", "", "", "", "", "", "", "", "", "","");
     var boolLegend = false;
     if (TMPL_RHIST == _intTmpl) {
+        var tabFmtSeries = document.getElementById("tabFmtSeriesRhistVal");
+        listFmtSeries[0] = "TRUE";
+        listFmtSeries[1] = "\"none\"";
+        listFmtSeries[2] = "\"" + getFmtVal(tabFmtSeries.rows[0].cells[0]) + "\"";
+        listFmtSeries[3] = "20";
+        listFmtSeries[4] = "\"b\"";
+        listFmtSeries[5] = "1";
+        listFmtSeries[6] = getFmtVal(tabFmtSeries.rows[1].cells[0]);
+        listFmtSeries[7] = "1";
+        listFmtSeries[8] = "\"" + getFmtVal(tabFmtSeries.rows[2].cells[0]) + "\"";
+        boolLegend = ("" != listFmtSeries[8]);
+    } else if (TMPL_PHIST == _intTmpl) {
         var tabFmtSeries = document.getElementById("tabFmtSeriesRhistVal");
         listFmtSeries[0] = "TRUE";
         listFmtSeries[1] = "\"none\"";
@@ -3011,6 +3038,7 @@ function buildPlotXML() {
                 getFmtVal(tabFmtSeries4.rows[1].cells[0]);
         listFmtSeries[7] = "1, 1";
         listFmtSeries[8] = "";
+
         boolLegend = false;
     } else {
         var tabFmtSeries = document.getElementById("tabFmtSeries");
@@ -3020,17 +3048,20 @@ function buildPlotXML() {
                 var strVal = "";
                 if (i == 0) {
                     strVal = (getFmtSeriesHide(intRow) ? "FALSE" : "TRUE");
-                } else if (i != 9) {
+                } else if (i != 9 && i != 10) {
                     strVal = getFmtVal(listFmtTd[i - 1]);
                 }
                 if (8 == i && strVal != "") {
                     boolLegend = true;
                 }
-                if (1 == i || 2 == i || 4 == i || 8 == i) {
+                if (1 == i || 2 == i || 4 == i || 8 == i || 10 == i) {
                     strVal = "\"" + strVal + "\"";
                 }
                 if (i == 9) {
                     strVal = tabFmtSeries.rows[intRow].cells[0].getElementsByTagName("input")[2].value;
+                }
+                if (i == 10) {
+                    strVal = getFmtVal(listFmtTd[8])
                 }
                 listFmtSeries[i] += (0 < intRow ? ", " : "") + strVal;
             }
@@ -3038,6 +3069,7 @@ function buildPlotXML() {
     }
     strDepXML += "<plot_ci>c(" + listFmtSeries[1] + ")</plot_ci>";
     strDepXML += "<plot_disp>c(" + listFmtSeries[0] + ")</plot_disp>";
+    strDepXML += "<show_signif>c(" + listFmtSeries[10] + ")</show_signif>";
     strDepXML += "<colors>c(" + listFmtSeries[2] + ")</colors>";
     strDepXML += "<pch>c(" + listFmtSeries[3] + ")</pch>";
     strDepXML += "<type>c(" + listFmtSeries[4] + ")</type>";
@@ -4069,7 +4101,7 @@ function loadInitXML_phaseFormat() {
     updateCalcStat();
 
     //  parse and set the normalized_histogram controls
-    if (TMPL_RHIST == _intTmpl) {
+    if (TMPL_RHIST == _intTmpl|| TMPL_PHIST == _intTmpl) {
         debug("  normalized_histogram\n");
         var strNormalizedHistogram = _strInitXML.match(/<normalized_histogram>(\w+)<\/normalized_histogram>/);
         if (strNormalizedHistogram) {
@@ -4168,9 +4200,12 @@ function loadInitXML_phaseFormat() {
     }
 
     //  initialize the list of formatting values, depending on template
-    var listParm = ["plot_ci", "colors", "pch", "type", "lty", "lwd", "con_series", "legend", "plot_disp", "order_series"];
+    var listParm = ["plot_ci", "colors", "pch", "type", "lty", "lwd", "con_series", "legend", "plot_disp", "order_series", "show_signif"];
     switch (_intTmpl) {
         case TMPL_RHIST:
+            listParm = ["colors", "lwd", "legend"];
+            break;
+        case TMPL_PHIST:
             listParm = ["colors", "lwd", "legend"];
             break;
         case TMPL_ROC:
@@ -4223,7 +4258,13 @@ function loadInitXML_phaseFormat() {
                 }
 
                 //  locate the format control in the series format list and set it
-                var listFmtTdParm = listFmtTd[i].getElementsByTagName("td");
+                var listFmtTdParm;
+                if (listParm[i] == "show_signif") {
+                    listFmtTdParm = listFmtTd[8].getElementsByTagName("td");
+                }else{
+                    listFmtTdParm = listFmtTd[i].getElementsByTagName("td");
+                }
+
                 var listFmtTxt = listFmtTdParm[1].getElementsByTagName("input");
                 var listFmtSel = listFmtTdParm[1].getElementsByTagName("select");
                 if (null != listFmtTxt && 0 < listFmtTxt.length) {
