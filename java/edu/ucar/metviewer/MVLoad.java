@@ -95,6 +95,7 @@ public class MVLoad extends MVUtil {
     _tableVarLengthTable.put("PRC", "line_data_prc_thresh");
     _tableVarLengthTable.put("MCTC", "line_data_mctc_cnt");
     _tableVarLengthTable.put("RHIST", "line_data_rhist_rank");
+    _tableVarLengthTable.put("PHIST", "line_data_phist_bin");
     _tableVarLengthTable.put("ORANK", "line_data_orank_ens");
   }
 
@@ -113,6 +114,7 @@ public class MVLoad extends MVUtil {
     _tableVarLengthGroupIndices.put("PRC", new int[]{22, 23, 3});
     _tableVarLengthGroupIndices.put("MCTC", new int[]{22, 23, 1});
     _tableVarLengthGroupIndices.put("RHIST", new int[]{24, 25, 1});
+    _tableVarLengthGroupIndices.put("PHIST", new int[]{23, 24, 1});
     _tableVarLengthGroupIndices.put("ORANK", new int[]{32, 33, 1});
   }
 
@@ -704,12 +706,50 @@ public class MVLoad extends MVUtil {
           strLineDataValueList += ", 'NA'";
         }
 
+
         //  add the stats in order
         strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
 
         //  for the METv < 4.1 SSVAR line type, add other 23 stats
         if (32 == i && "SSVAR".equals(d._strLineType) && ("V4.1".compareTo(strMetVersion) > 0 || intLineDataMax == 33)) {
           strLineDataValueList += ", '-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999'";
+        }
+      }
+
+
+      //for METv5.0 add obs_qc - the last column
+        if ("V4.1".compareTo(strMetVersion) < 0 && strLineType.equals("ORANK")) {
+        strLineDataValueList += ", '" + replaceInvalidValues(listToken[38]) + "'";
+      }
+
+       // if ("V4.1".compareTo(strMetVersion) < 0 && strLineType.equals("MPR")) {
+      //  strLineDataValueList += ", '" + replaceInvalidValues(listToken[31]) + "'";
+     // }
+        if ("V4.1".compareTo(strMetVersion) >= 0) {
+        if (strLineType.equals("ORANK")) {
+          strLineDataValueList += ", -9999";
+        }
+        if (strLineType.equals("MPR")) {
+          strLineDataValueList += ", -9999";
+        }
+
+        //for version < v5.0 fill in missing values with -9999
+        if (strLineType.equals("CTS")) {
+          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
+        }
+
+        if (strLineType.equals("CNT")) {
+          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999";
+        }
+
+        if (strLineType.equals("NBRCNT")) {
+          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
+        }
+        if (strLineType.equals("SAL1L2")) {
+          strLineDataValueList += ", -9999";
+        }
+        if (strLineType.equals("SL1L2")) {
+          strLineDataValueList += ", -9999";
         }
       }
 
