@@ -1,7 +1,6 @@
 <html>
 <head>
 	<title>METViewer - Loading...</title>
-	<link rel="stylesheet" type="text/css" href="css/metviewer.css"/>
 	<link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 	<!-- <meta http-equiv="Refresh" content="3; url=metviewer.jsp" /> -->
 </head>
@@ -9,37 +8,10 @@
 
 <script type="text/javascript">
 function onLoad(){
-	var boolIE = (-1 != navigator.appName.indexOf("Internet Explorer"));
 
-	//  adjust the size and location of the dim screen elements
-	var divLoading = document.getElementById("divLoading");
-	var divDimScreen = document.getElementById("divDimScreen");
-	if( !boolIE ){
-	    divLoading.style.left = (window.innerWidth / 2) - 60 + window.pageXOffset;
-	    divLoading.style.top = (window.innerHeight / 2) - 40 + window.pageYOffset;
-	    divDimScreen.style.left = window.pageXOffset;
-	    divDimScreen.style.top = window.pageYOffset;
-	    divDimScreen.style.width = window.innerWidth;
-	    divDimScreen.style.heigth = window.innerHeight;
-	} else {
-		divLoading.style.left = (document.body.clientWidth / 2) - 60 + document.body.scrollLeft;
-		divLoading.style.top = (document.body.clientHeight / 2) - 40 + document.body.scrollTop;
-	    divDimScreen.style.left = document.body.scrollLeft;
-	    divDimScreen.style.top = document.body.scrollTop;
-	    divDimScreen.style.width = document.body.clientWidth;
-	    divDimScreen.style.heigth = document.body.clientHeight;
-	}
-
-	//  display the dim screen controls
-	divDimScreen.style.display = "block";
-	divLoading.style.display = "block";
-
-	setTimeout("window.location='metviewer.jsp'", 500);	
+	window.location='metviewer1.jsp';
 }
 </script>
 
-<div id="divDimScreen" class="dimScreen">&nbsp;</div>
-<div id="divLoading" class="loading" align="center">Loading...<br/>
-<img src="include/loading_white.gif" style="padding-top:10px"/></div>
 </body>
 </html>
