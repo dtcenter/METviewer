@@ -32,6 +32,8 @@ listPlotCI		= #<plot_ci>#;
 
 listPlotDisp	= #<plot_disp>#;
 
+listShowSignif  = #<show_signif>#;
+
 listPlotOrderSeries	= #<order_series>#;
 
 dblAlpha		= #<ci_alpha>#;
@@ -144,12 +146,14 @@ listLtyOrdered=c();
 listLwdOrdered=c();
 listPchOrdered=c();
 listPlotDispOrdered=c();
+listShowSignifOrdered=c();
 for(index in 1:length(listPlotOrderSeries)){
   listLwdOrdered[listPlotOrderSeries[index]]=listLwd[index];
   listColorsOrdered[listPlotOrderSeries[index]]=listColors[index];
   listLtyOrdered[listPlotOrderSeries[index]]=listLty[index];
   listPchOrdered[listPlotOrderSeries[index]]=listPch[index];
   listPlotDispOrdered[listPlotOrderSeries[index]]=listPlotDisp[index];
+  listShowSignifOrdered[listPlotOrderSeries[index]]=listShowSignif[index];
 }
 
  # calculate the number of Y1 series per dep stat
@@ -172,6 +176,7 @@ if( 0 < length(listDep2Plot) ){
 # separate formatting for Y1
 indexesNumSeries1 = 1:intNumSeries1;
 listPlotDispSeries1 = listPlotDisp[indexesNumSeries1];
+listShowSignifSeries1 = listShowSignif[indexesNumSeries1];
 listPchSeries1 = listPch[indexesNumSeries1];
 listTypeSeries1 = listType[indexesNumSeries1];
 listLtySeries1 = listLty[indexesNumSeries1];
@@ -186,6 +191,7 @@ if(intNumSeries1Diff > 0){
   indexesNumSeries1Diff = (intNumSeries1+intNumSeries2 +1):(intNumSeries1+intNumSeries2 + intNumSeries1Diff);
   listPlotOrderSeries1Orig = append(listPlotOrderSeries1Orig,listPlotOrderSeries[indexesNumSeries1Diff]);
   listPlotDispSeries1 = append(listPlotDispSeries1,listPlotDisp[indexesNumSeries1Diff]);
+  listShowSignifSeries1 = append(listShowSignifSeries1,listShowSignif[indexesNumSeries1Diff]);
   listColorsSeries1 = append (listColorsSeries1,  listColors[indexesNumSeries1Diff]);
   listPchSeries1 = append (listPchSeries1,  listPch[indexesNumSeries1Diff]);
   listTypeSeries1 = append (listTypeSeries1,  listType[indexesNumSeries1Diff]);
@@ -207,6 +213,7 @@ for(index in 1:length(listPlotOrderSeries1Orig)){
 if(intNumSeries2 > 0){
   indexesNumSeries2 = (intNumSeries1+1):(intNumSeries1+intNumSeries2);
   listPlotDispSeries2 = listPlotDisp[indexesNumSeries2];
+  listShowSignifSeries2 = listShowSignif[indexesNumSeries2];
   listPlotOrderSeries2Orig = listPlotOrderSeries[indexesNumSeries2];
   listColorsSeries2 = listColors[indexesNumSeries2];
   listPchSeries2 = listPch[indexesNumSeries2];
@@ -221,6 +228,7 @@ if(intNumSeries2 > 0){
     indexesNumSeries2Diff = (intNumSeries1+intNumSeries2 + intNumSeries1Diff +1):length(listPlotDisp);
     listPlotOrderSeries2Orig = append(listPlotOrderSeries2Orig,listPlotOrderSeries[indexesNumSeries2Diff]);
     listPlotDispSeries2 = append(listPlotDispSeries2,listPlotDisp[indexesNumSeries2Diff]);
+    listShowSignifSeries2 = append(listShowSignifSeries2,listShowSignif[indexesNumSeries2Diff]);
     listColorsSeries2 = append (listColorsSeries2,  listColors[indexesNumSeries2Diff]);
     listPchSeries2 = append (listPchSeries2,  listPch[indexesNumSeries2Diff]);
     listTypeSeries2 = append (listTypeSeries2,  listType[indexesNumSeries2Diff]);
@@ -880,22 +888,33 @@ if( 0 < length(listDep2Plot) ){
           listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
           listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
         }
+        for(ind in 1: length(listXAdj)) {
+          if(listShowSignifSeries2[i] == FALSE){
+            lwd_current = listLwdSeries2[i];
+          }else{
+            if(  listYFr[ind] < 0  && listYTo[ind] > 0){
+              lwd_current = listLwdSeries2[i];
+             }else{
+              lwd_current = listLwdSeries2[i] + 3;
+            }
+          }
         
-        # draw the arrows
-        arrows( 
-          listXFr, 			                # x coordinate from which to draw
-          listYFr, 			                # y coordinate from which to draw
-          listXTo, 			                # x coordinate to which to draw
-          listYTo, 			                # y coordinate to which to draw
-          length=.02,			              # length of the edges of the arrow head (in inches)
-          angle=90,			                # angle from the shaft of the arrow to the edge of the arrow head
-          code=3,				                # arrow type - 1: up, 2: down and 3: both
-          lwd=listLwdSeries2[i],			  # line width
-          col=listColorsSeries2[i],			# line color
-          ljoin=1,			                # line join style - 0: round, 1: mitre and 2: bevel
-          lmitre=1,			                # line mitre limit, range 1-10
-          lend=2				                # line end style - 0: round, 1: butt and 2: square
-        );
+          # draw the arrows
+          arrows(
+            listXFr[ind], 			                # x coordinate from which to draw
+            listYFr[ind], 			                # y coordinate from which to draw
+            listXTo[ind], 			                # x coordinate to which to draw
+            listYTo[ind], 			                # y coordinate to which to draw
+            length=.02,			              # length of the edges of the arrow head (in inches)
+            angle=90,			                # angle from the shaft of the arrow to the edge of the arrow head
+            code=3,				                # arrow type - 1: up, 2: down and 3: both
+            lwd=lwd_current,			        # line width
+            col=listColorsSeries2[i],			# line color
+            ljoin=1,			                # line join style - 0: round, 1: mitre and 2: bevel
+            lmitre=1,			                # line mitre limit, range 1-10
+            lend=2				                # line end style - 0: round, 1: butt and 2: square
+          );
+        }
       }
     }
     
@@ -991,21 +1010,33 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
         listTmp = listXFr; listXFr = listYFr; listYFr = listTmp;
         listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
       }
+
+      for(ind in 1: length( listXAdj) ){
+        if(listShowSignifSeries1[i] == FALSE){
+          lwd_current = listLwdSeries1[i];
+        }else{
+          if(  listYFr[ind] < 0  && listYTo[ind] > 0){
+            lwd_current = listLwdSeries1[i];
+          }else{
+            lwd_current = listLwdSeries1[i] + 3;
+          }
+        }
       
-      arrows( 
-        listXFr, 			                # x coordinate from which to draw
-        listYFr, 			                # y coordinate from which to draw
-        listXTo, 			                # x coordinate to which to draw
-        listYTo, 			                # y coordinate to which to draw
-        length=.02,			              # length of the edges of the arrow head (in inches)
-        angle=90,			                # angle from the shaft of the arrow to the edge of the arrow head
-        code=3,				                # arrow type - 1: up, 2: down and 3: both
-        lwd=listLwdSeries1[i],			  # line width
-        col=listColorsSeries1[i],			# line color
-        ljoin=1,			                # line join style - 0: round, 1: mitre and 2: bevel
-        lmitre=1,			                # line mitre limit, range 1-10
-        lend=2				                # line end style - 0: round, 1: butt and 2: square
-      );
+        arrows(
+          listXFr[ind], 			                # x coordinate from which to draw
+          listYFr[ind], 			                # y coordinate from which to draw
+          listXTo[ind], 			                # x coordinate to which to draw
+          listYTo[ind], 			                # y coordinate to which to draw
+          length=.02,			              # length of the edges of the arrow head (in inches)
+          angle=90,			                # angle from the shaft of the arrow to the edge of the arrow head
+          code=3,				                # arrow type - 1: up, 2: down and 3: both
+          lwd=lwd_current,			        # line width
+          col=listColorsSeries1[i],			# line color
+          ljoin=1,			                # line join style - 0: round, 1: mitre and 2: bevel
+          lmitre=1,			                # line mitre limit, range 1-10
+          lend=2				                # line end style - 0: round, 1: butt and 2: square
+        );
+      }
     }
   }
   
