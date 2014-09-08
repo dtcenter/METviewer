@@ -41,10 +41,10 @@ public class MVPlotJobParser extends MVUtil {
   public MVPlotJobParser(String spec, Connection con) throws Exception {
     _con = con;
     DocumentBuilder builder = getDocumentBuilder();
-
     //  parse the input document and build the MVNode data structure
     _doc = builder.parse(spec);
     _nodePlotSpec = new MVNode(_doc.getFirstChild());
+
     parsePlotJobSpec();
   }
 
@@ -138,11 +138,13 @@ public class MVPlotJobParser extends MVUtil {
             strDBPassword = node._children[j]._value;
           }
         }
+
         if (_con == null) {
           //batch mode
           Datasource datasource = Datasource.getInstance( strDBHost,   strDBUser,  strDBPassword);
           _con = datasource.getConnection(strDBHost, strDBName, strDBUser, strDBPassword);
         }
+
 
       }
 
@@ -234,6 +236,7 @@ public class MVPlotJobParser extends MVUtil {
         _tablePlotNode.put(node._name, node);
         String strInherits = node._inherits.trim();
         MVPlotJob job = null;
+
         if ("".equals(strInherits)) {
           job = parsePlotJob(node, null);
         } else {
@@ -264,6 +267,7 @@ public class MVPlotJobParser extends MVUtil {
         _tablePlotDecl.put(node._name, job);
         String strCompleteness = "";
         boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
+
         if (job.getPlotTmpl().equals("roc.R_tmpl")) {
 
           //  ROC jobs must have an aggregation method selected
@@ -292,7 +296,7 @@ public class MVPlotJobParser extends MVUtil {
             strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
           }
 
-        } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl")) {
+        } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") && !job.getPlotTmpl().equals("phist.R_tmpl")) {
           strCompleteness = checkJobCompleteness(job);
         }
 
@@ -940,6 +944,7 @@ public class MVPlotJobParser extends MVUtil {
 
       _tableFormatString.put("plot_ci", MVPlotJob.class.getDeclaredMethod("setPlotCI", new Class[]{String.class}));
       _tableFormatString.put("plot_disp", MVPlotJob.class.getDeclaredMethod("setPlotDisp", new Class[]{String.class}));
+      _tableFormatString.put("show_signif", MVPlotJob.class.getDeclaredMethod("setShowSignif", String.class));
       //_tableFormatString.put("listDiffSeries1", MVPlotJob.class.getDeclaredMethod("setDiffSeries1", new Class[]{String.class}));
       //_tableFormatString.put("listDiffSeries2", MVPlotJob.class.getDeclaredMethod("setDiffSeries2", new Class[]{String.class}));
       _tableFormatString.put("order_series", MVPlotJob.class.getDeclaredMethod("setOrderSeries", new Class[]{String.class}));
@@ -1202,7 +1207,7 @@ public class MVPlotJobParser extends MVUtil {
     strXML += "<template>" + job.getPlotTmpl() + "</template>";
 
     //  if there are dep, series and indep elements present, handle them
-    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("roc") &&
+    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc") &&
       !job.getPlotTmpl().startsWith("rely")) {
 
       // dep
@@ -1341,6 +1346,13 @@ public class MVPlotJobParser extends MVUtil {
           "</roc_calc>";
     }
 
+    //  roc_calc
+        if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
+          strXML +=
+            "<ensss_pts>" + job.getEnsSsPts() + "</ensss_pts>" +
+              "<ensss_pts_disp>" + job.getEnsSsPtsDisp() + "</ensss_pts_disp>";
+        }
+
     //  tmpl
     strXML +=
       "<tmpl>" +
@@ -1441,6 +1453,7 @@ public class MVPlotJobParser extends MVUtil {
 
         "<plot_ci>" + job.getPlotCI() + "</plot_ci>" +
         "<plot_disp>" + job.getPlotDisp() + "</plot_disp>" +
+        "<show_signif>" + job.getShowSignif() + "</show_signif>" +
         "<order_series>" + job.getOrderSeries() + "</order_series>" +
         "<colors>" + job.getColors() + "</colors>" +
         "<pch>" + job.getPch() + "</pch>" +

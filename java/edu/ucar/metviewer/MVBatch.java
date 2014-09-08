@@ -19,9 +19,9 @@ public class MVBatch extends MVUtil {
   public boolean _boolSQLOnly = false;
   public boolean _boolVerbose = false;
 
-  public String _strRtmplFolder = "/home/pgoldenb/apps/verif/metviewer/R_tmpl/";
-  public String _strRworkFolder = "/d1/pgoldenb/var/hmt/R_work/";
-  public String _strPlotsFolder = "/d1/pgoldenb/var/hmt/plots/";
+  public String _strRtmplFolder = "";
+  public String _strRworkFolder = "";
+  public String _strPlotsFolder = "";
 
   public static final Pattern _patRTmpl = Pattern.compile("#<(\\w+)>#");
   public static final Pattern _patDateRange = Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
@@ -104,6 +104,7 @@ public class MVBatch extends MVUtil {
       MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
       MVOrderedMap mapJobs = parser.getJobsMap();
 
+
       //  build a list of jobs to run
       ArrayList listJobNamesInput = new ArrayList();
       for (; intArg < argv.length; intArg++) {
@@ -184,6 +185,8 @@ public class MVBatch extends MVUtil {
           bat._out.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
         if (jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl")) {
           bat.runRhistJob(jobs[intJob]);
+        } else if (jobs[intJob].getPlotTmpl().equals("phist.R_tmpl")) {
+          bat.runPhistJob(jobs[intJob]);
         } else if (jobs[intJob].getPlotTmpl().equals("roc.R_tmpl") ||
           jobs[intJob].getPlotTmpl().equals("rely.R_tmpl")) {
           bat.runRocRelyJob(jobs[intJob]);
@@ -474,8 +477,11 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_stat_input", strDataFile);
         tableAggStatInfo.put("agg_stat_output", strAggOutput);
         tableAggStatInfo.put("working_dir", _strRworkFolder + "include");
-        tableAggStatInfo.put("series1_diff_list", job.getDiffSeries1());
-        tableAggStatInfo.put("series2_diff_list", job.getDiffSeries2());
+
+        String diffSeries1 = buildTemplateString(job.getDiffSeries1(), mapTmplValsPlot, job.getTmplMaps());
+        String diffSeries2 = buildTemplateString(job.getDiffSeries2(), mapTmplValsPlot, job.getTmplMaps());
+        tableAggStatInfo.put("series1_diff_list", diffSeries1);
+        tableAggStatInfo.put("series2_diff_list", diffSeries2);
 
         //  populate the  info file
         String tmplFileName;
@@ -675,6 +681,10 @@ public class MVBatch extends MVUtil {
         intNumDepSeries != parseRCol(job.getLegend()).length) {
         throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")");
       }
+
+      if (intNumDepSeries != parseRCol(job.getShowSignif()).length) {
+        throw new Exception("length of show_signif differs from number of series (" + intNumDepSeries + ")");
+      }
       if (!boolEnsSs) {
         if (intNumDepSeries != parseRCol(job.getPlotCI()).length) {
           throw new Exception("length of plot_ci differs from number of series (" + intNumDepSeries + ")");
@@ -687,6 +697,7 @@ public class MVBatch extends MVUtil {
       //  replace the template tags with the template values for the current plot
       tableRTags.put("plot_ci", job.getPlotCI().equals("") ? printRCol(rep("none", intNumDepSeries), false) : job.getPlotCI());
       tableRTags.put("plot_disp", job.getPlotDisp().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
+      tableRTags.put("show_signif", job.getShowSignif().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getShowSignif());
       tableRTags.put("order_series", job.getOrderSeries().equals("") ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
       tableRTags.put("colors", job.getColors().equals("") ? "rainbow(" + intNumDepSeries + ")" : job.getColors());
       tableRTags.put("pch", job.getPch().equals("") ? printRCol(rep(20, intNumDepSeries)) : job.getPch());
@@ -1214,6 +1225,11 @@ public class MVBatch extends MVUtil {
             isAggTypeValid(_tableStatsRhist, strStat, aggType);
             strStatTable = "line_data_rhist ld\n";
             strStatField = strStat.replace("RHIST_", "").toLowerCase();
+          } else if (_tableStatsPhist.containsKey(strStat)) {
+            tableStats = _tableStatsPhist;
+            isAggTypeValid(_tableStatsPhist, strStat, aggType);
+            strStatTable = "line_data_phist ld\n";
+            strStatField = strStat.replace("PHIST_", "").toLowerCase();
           } else if (_tableStatsVl1l2.containsKey(strStat)) {
             isAggTypeValid(_tableStatsRhist, strStat, aggType);
             tableStats = _tableStatsVl1l2;
@@ -1889,7 +1905,174 @@ public class MVBatch extends MVUtil {
     }
   }
 
+  /**
+     * Build SQL for and gather data from the line_data_phist and
+     * line_data_phist_bink tables and use it to build a rank histogram plot.
+     *
+     * @param job  histogram plot job
+     * @throws Exception
+     */
+    public void runPhistJob(MVPlotJob job) throws Exception {
 
+      //  build a list of fixed value permutations for all plots
+      MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
+      MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(mapPlotFixVal);
+
+      //  run the plot jobs once for each permutation of plot fixed values
+      for (int intPlotFix = 0; intPlotFix < listPlotFixPerm.length; intPlotFix++) {
+
+        //  populate the template map with fixed values
+        Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
+
+        boolean boolModePlot = false;
+        Statement stmt = null;
+
+        //  build the stat_header where clauses of the sql
+        String strWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
+
+        //  if the n_rank is present, replace the table
+        strWhere = strWhere.replaceAll("h\\.n_bin", "ld.n_bin");
+
+        //  build a query for the number of bins among selected phist records
+        String strBinNumSelect =
+          "SELECT DISTINCT\n" +
+            "  ld.n_bin\n" +
+            "FROM\n" +
+            "  stat_header h,\n" +
+            "  line_data_phist ld\n" +
+            "WHERE\n" +
+            strWhere +
+            "  AND h.stat_header_id = ld.stat_header_id;";
+        if (_boolVerbose) {
+          _out.println(strBinNumSelect + "\n");
+        }
+
+        //  run the rank number query and warn, if necessary
+        stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        //stmt.setFetchSize(Integer.MIN_VALUE);
+        stmt.execute(strBinNumSelect);
+        ResultSet res = stmt.getResultSet();
+        ArrayList listBinNum = new ArrayList();
+        while (res.next()) {
+          listBinNum.add(res.getString(1));
+        }
+        String strMsg = "";
+        if (0 == listBinNum.size()) {
+          throw new Exception("no bin data found");
+        } else if (1 < listBinNum.size()) {
+          strMsg = "  **  WARNING: multiple n_bin values found for search criteria: ";
+          for (int i = 0; i < listBinNum.size(); i++) {
+            strMsg += (0 < i ? ", " : "") + listBinNum.get(i).toString();
+          }
+          _out.println(strMsg);
+        }
+        stmt.close();
+
+        //  build a query for the bin data
+        String strPlotDataSelect =
+          "SELECT\n" +
+            "  ldr.i_value,\n" +
+            "  SUM(ldr.bin_i)\n" +
+            "FROM\n" +
+            "  stat_header h,\n" +
+            "  line_data_phist ld,\n" +
+            "  line_data_phist_bin ldr\n" +
+            "WHERE\n" +
+            strWhere +
+            "  AND h.stat_header_id = ld.stat_header_id\n" +
+            "  AND ld.line_data_id = ldr.line_data_id\n" +
+            "GROUP BY i_value;";
+
+        if (_boolVerbose) {
+          _out.println(strPlotDataSelect + "\n");
+        }
+        if (_boolSQLOnly) {
+          return;
+        }
+
+
+  			/*
+  			 *  Print the data file in the R_work subfolder and file specified by the data file template
+  			 */
+
+        //  construct the file system paths for the files used to build the plot
+        MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
+        _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
+        _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
+        _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
+        String strDataFile = _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+        (new File(strDataFile)).getParentFile().mkdirs();
+
+        //  get the data for the current plot from the plot_data temp table and write it to a data file
+        stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        //stmt.setFetchSize(Integer.MIN_VALUE);
+        stmt.execute(strPlotDataSelect);
+        ResultSet rs = null;
+
+        PrintStream printStream = null;
+        try {
+          rs = stmt.getResultSet();
+          printStream = new PrintStream(strDataFile);
+          printFormattedTable(rs, printStream, "\t");
+        } finally {
+          if (printStream != null) {
+            printStream.close();
+          }
+          if (rs != null) {
+            rs.close();
+          }
+          stmt.close();
+        }
+        //  build the template strings using the current template values
+        String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+        String strRFile = _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+        String strTitle = buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
+        String strXLabel = buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+        String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
+        String strCaption = buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps());
+
+        //  create the plot and R script output folders, if necessary
+        (new File(strPlotFile)).getParentFile().mkdirs();
+        (new File(strRFile)).getParentFile().mkdirs();
+
+        //  create a table containing all template values for populating the R_tmpl
+        Hashtable tableRTags = new Hashtable();
+
+        tableRTags.put("r_work", _strRworkFolder);
+        tableRTags.put("plot_file", strPlotFile);
+        tableRTags.put("data_file", strDataFile);
+        tableRTags.put("plot_title", strTitle);
+        tableRTags.put("x_label", strXLabel);
+        tableRTags.put("y1_label", strY1Label);
+        tableRTags.put("plot_caption", strCaption);
+        tableRTags.put("plot_cmd", job.getPlotCmd());
+        tableRTags.put("grid_on", (job.getGridOn() ? "TRUE" : "FALSE"));
+        tableRTags.put("colors", job.getColors().equals("") ? "\"gray\"" : job.getColors());
+        tableRTags.put("y1_lim", job.getY1Lim().equals("") ? "c()" : job.getY1Lim());
+        tableRTags.put("normalized_histogram", (job.getNormalizedHistogram() ? "TRUE" : "FALSE"));
+
+        populatePlotFmtTmpl(tableRTags, job);
+
+        //  populate the R_tmpl with the template values
+        (new File(strRFile)).getParentFile().mkdirs();
+        (new File(strPlotFile)).getParentFile().mkdirs();
+        populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
+
+
+  			/*
+  			 *  Attempt to run the generated R script
+  			 */
+
+        if (_boolPlot) {
+          boolean boolSuccess = runRscript(job.getRscript(), strRFile);
+          if (!strMsg.equals("")) {
+            _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
+          }
+          _intNumPlotsRun++;
+          _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
+        }
+      }
+    }
   /**
    * Build SQL for and gather data from the line_data_prc and
    * line_data_prc_thresh tables and use it to build a ROC plot or a reliability
@@ -2406,7 +2589,25 @@ public class MVBatch extends MVUtil {
     boolean boolExit = false;
     int intExitStatus = 0;
     String strProcStd = "", strProcErr = "";
+
+
+
     try {
+     /* proc = Runtime.getRuntime().exec("gs -version");
+      inputStreamReader = new InputStreamReader(proc.getInputStream());
+      readerProcStd = new BufferedReader(inputStreamReader);
+      while (!boolExit) {
+        try {
+          intExitStatus = proc.exitValue();
+          boolExit = true;
+        } catch (Exception e) {
+        }
+
+        while (readerProcStd.ready()) {
+          strProcStd += readerProcStd.readLine() + "\n";
+        }
+System.out.println("strProcStd       " + strProcStd);
+      }*/
       proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
