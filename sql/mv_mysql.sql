@@ -209,14 +209,54 @@ CREATE TABLE line_data_cts
     hk_bcl              DOUBLE,
     hk_bcu              DOUBLE,
     hss                 DOUBLE,
-    hss_bcl             DOUBLE,
-    hss_bcu             DOUBLE,
-    odds                DOUBLE,
-    odds_ncl            DOUBLE,
-    odds_ncu            DOUBLE,
-    odds_bcl            DOUBLE,
-    odds_bcu            DOUBLE,
-    
+    hss_bcl DOUBLE,
+    hss_bcu DOUBLE,
+    odds DOUBLE,
+    odds_ncl DOUBLE,
+    odds_ncu DOUBLE,
+    odds_bcl DOUBLE,
+    odds_bcu DOUBLE,
+
+    lodds DOUBLE DEFAULT -9999,
+    lodds_ncl DOUBLE DEFAULT -9999,
+    lodds_ncu DOUBLE DEFAULT -9999,
+    lodds_bcl DOUBLE DEFAULT -9999,
+    lodds_bcu DOUBLE DEFAULT -9999,
+
+    orss DOUBLE DEFAULT -9999,
+    orss_ncl DOUBLE DEFAULT -9999,
+    orss_ncu DOUBLE DEFAULT -9999,
+    orss_bcl DOUBLE DEFAULT -9999,
+    orss_bcu DOUBLE DEFAULT -9999,
+
+    eds DOUBLE DEFAULT -9999,
+    eds_ncl DOUBLE DEFAULT -9999,
+    eds_ncu DOUBLE DEFAULT -9999,
+    eds_bcl DOUBLE DEFAULT -9999,
+    eds_bcu DOUBLE DEFAULT -9999,
+
+    seds DOUBLE DEFAULT -9999,
+    seds_ncl DOUBLE DEFAULT -9999,
+    seds_ncu DOUBLE DEFAULT -9999,
+    seds_bcl DOUBLE DEFAULT -9999,
+    seds_bcu DOUBLE DEFAULT -9999,
+
+    edi DOUBLE DEFAULT -9999,
+    edi_ncl DOUBLE DEFAULT -9999,
+    edi_ncu DOUBLE DEFAULT -9999,
+    edi_bcl DOUBLE DEFAULT -9999,
+    edi_bcu DOUBLE DEFAULT -9999,
+
+    sedi DOUBLE DEFAULT -9999,
+    sedi_ncl DOUBLE DEFAULT -9999,
+    sedi_ncu DOUBLE DEFAULT -9999,
+    sedi_bcl DOUBLE DEFAULT -9999,
+    sedi_bcu DOUBLE DEFAULT -9999,
+
+    bagss DOUBLE DEFAULT -9999,
+    bagss_bcl DOUBLE DEFAULT -9999,
+    bagss_bcu DOUBLE DEFAULT -9999,
+
     CONSTRAINT line_data_cts_data_file_id_pk
             FOREIGN KEY(data_file_id)
             REFERENCES data_file(data_file_id),
@@ -318,6 +358,12 @@ CREATE TABLE line_data_cnt
     e90                 DOUBLE,
     e90_bcl             DOUBLE,
     e90_bcu             DOUBLE,
+    iqr                 DOUBLE DEFAULT -9999,
+    iqr_bcl             DOUBLE DEFAULT -9999,
+    iqr_bcu             DOUBLE DEFAULT -9999,
+    mad                 DOUBLE DEFAULT -9999,
+    mad_bcl             DOUBLE DEFAULT -9999,
+    mad_bcu             DOUBLE DEFAULT -9999,
     
     CONSTRAINT line_data_cnt_data_file_id_pk
             FOREIGN KEY(data_file_id)
@@ -654,6 +700,7 @@ CREATE TABLE line_data_sl1l2
     fobar               DOUBLE,
     ffbar               DOUBLE,
     oobar               DOUBLE,
+    mae                 DOUBLE DEFAULT -9999,
            
     CONSTRAINT line_data_sl1l2_data_file_id_pk
             FOREIGN KEY(data_file_id)
@@ -687,6 +734,7 @@ CREATE TABLE line_data_sal1l2
     foabar              DOUBLE,
     ffabar              DOUBLE,
     ooabar              DOUBLE,
+    mae                 DOUBLE DEFAULT -9999,
     
     CONSTRAINT line_data_sal2l1_data_file_id_pk
             FOREIGN KEY(data_file_id)
@@ -794,6 +842,7 @@ CREATE TABLE line_data_mpr
     fcst                DOUBLE,
     obs                 DOUBLE,
     climo               DOUBLE,
+    obs_qc              DOUBLE DEFAULT -9999,
     
     CONSTRAINT line_data_mpr_data_file_id_pk
             FOREIGN KEY(data_file_id)
@@ -949,10 +998,23 @@ CREATE TABLE line_data_nbrcnt
     fbs_bcl             DOUBLE,
     fbs_bcu             DOUBLE,
     fss                 DOUBLE,
-    fss_bcl             DOUBLE,
-    fss_bcu             DOUBLE,
-           
-    CONSTRAINT line_data_nbrcnt_data_file_id_pk
+    fss_bcl DOUBLE,
+    fss_bcu DOUBLE,
+    afss DOUBLE DEFAULT -9999,
+    afss_bcl DOUBLE DEFAULT -9999,
+    afss_bcu DOUBLE DEFAULT -9999,
+    ufss DOUBLE DEFAULT -9999,
+    ufss_bcl DOUBLE DEFAULT -9999,
+    ufss_bcu DOUBLE DEFAULT -9999,
+    f_rate DOUBLE DEFAULT -9999,
+    f_rate_bcl DOUBLE DEFAULT -9999,
+    f_rate_bcu DOUBLE DEFAULT -9999,
+    o_rate DOUBLE DEFAULT -9999,
+    o_rate_bcl DOUBLE DEFAULT -9999,
+    o_rate_bcu DOUBLE DEFAULT -9999,
+
+
+  CONSTRAINT line_data_nbrcnt_data_file_id_pk
             FOREIGN KEY(data_file_id)
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_nbrcnt_stat_header_id_pk
@@ -1049,6 +1111,53 @@ CREATE TABLE line_data_rhist_rank
             REFERENCES line_data_rhist(line_data_id)
 );
 
+-- line_data_phist contains stat data for a particular stat_header record, which it points
+--   at via the stat_header_id field.
+
+DROP TABLE IF EXISTS line_data_phist;
+CREATE TABLE line_data_phist
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    stat_header_id      INT UNSIGNED NOT NULL,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    fcst_lead           INT UNSIGNED,
+    fcst_valid_beg      DATETIME,
+    fcst_valid_end      DATETIME,
+    fcst_init_beg       DATETIME,
+    obs_lead            INT UNSIGNED,
+    obs_valid_beg       DATETIME,
+    obs_valid_end       DATETIME,
+    total               INT UNSIGNED,
+
+    bin_size            DOUBLE,
+    n_bin              INT UNSIGNED,
+
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_phist_data_file_id_pk FOREIGN KEY(data_file_id) REFERENCES data_file(data_file_id),
+    CONSTRAINT line_data_phist_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id)
+);
+
+
+-- line_data_phist_rank contains rank data for a particular line_data_phist record.  The
+--   number of ranks stored is given by the line_data_phist field n_rank.
+
+DROP TABLE IF EXISTS line_data_phist_bin;
+CREATE TABLE line_data_phist_bin
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    bin_i              INT UNSIGNED,
+
+    PRIMARY KEY (line_data_id, i_value),
+    CONSTRAINT line_data_phist_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_phist(line_data_id)
+);
+
+
 
 -- line_data_orank contains stat data for a particular stat_header record, which it points 
 --   at via the stat_header_id field.
@@ -1080,6 +1189,7 @@ CREATE TABLE line_data_orank
     rank                INT UNSIGNED,
     n_ens_vld           INT UNSIGNED,
     n_ens               INT UNSIGNED,
+    obs_qc              DOUBLE DEFAULT -9999,
     
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_orank_data_file_id_pk
