@@ -86,7 +86,7 @@ public class CreatePlotBatchTest  {
 
   @After
   public void cleanup() {
-    //cleanWorkingDirs();
+    cleanWorkingDirs();
   }
 
 }
