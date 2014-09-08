@@ -392,7 +392,16 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
             				</ul><br/>
 
             			</li><br/>
-			
+
+            <a name="ensss_pts"></a>
+                        			<li><span class="code">&lt;ensss_pts&gt;</span>: number of binned points. </li>
+            <ul>
+                                        <li>If the number of binned points is not specified or &lt; 1, use a default</li>
+                                        <li>If the number of binned points is &gt; 10 , use 1 </li>
+                                        <li>in other cases use  the result of division of number of points on 10 </li>
+                </ul>
+
+			<br/>
 			<a name="fmt_bool"></a>		
 			<li><span class="code">&lt;event_equal&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on the event equalizer</li> 
 			<li><span class="code">&lt;event_equal_m&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on the event equalizer for multiple events</li> 
@@ -492,6 +501,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			series1 permutation.  Then, do the same for each dep2 statistic.<br/><br/>
 
 			<li><span class="code">&lt;plot_ci&gt;</span>: confidence interval type for each series - options: none, norm, boot, brier, std - example: <span class="term">c("norm", "none")</span></li>
+			<li><span class="code">&lt;show_signif&gt;</span>: if the statistically significant CI's should be highlighted <span class="term">c(FALSE, TRUE)</span></li>
 			<li><span class="code">&lt;plot_disp&gt;</span>: indicates which series are visible or not using TRUE/FALSE - example: <span class="term">c(TRUE, FALSE)</span></li>
 			<li><span class="code">&lt;colors&gt;</span>: <span class="term">lines(col)</span> - line color for each series - example: <span class="term">c("#33FF00FF", "#00FF19FF")</span></li>
 			<li><span class="code">&lt;pch&gt;</span>: <span class="term">lines(pch)</span> - point symbol - see example:(points) - example: <span class="term">c(19, 19)</span></li>
@@ -509,6 +519,9 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			<li><span class="code">&lt;y2_lim&gt;</span>: right y axis (y2-axis) limits - example: <span class="term">c(0,1)</span></li>
 			<li><span class="code">&lt;y2_bufr&gt;</span>: right y axis (y2-axis) top and bottom buffer - example: <span class="term">.04</span></li>
 			<li><span class="code">&lt;plot_cmd&gt;</span>: extra R commands to execute at the end of the plot script - example: <span class="term">par(usr=listY1Usr); abline(h=1, lty=1, col="#999999FF");</span></li>
+
+
+
 
 
 		</ul>

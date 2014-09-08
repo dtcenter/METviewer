@@ -100,9 +100,28 @@ For the following instructions, the placeholder [install] should be replaced wit
 			<li style="list-style-type:disc">run the METViewer load tool using the XML load specification as input (called [load_xml] here) and monitor progress:<br/>
 				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
 				<span class="term" style="padding-left:40px">$ bin/mv_load.sh [load_xml] [optional redirection of output, e.g. &> log/load_[date].log &]'</span><br/>		 
-			</li>
+			</li><br/><br/>
 		</ul>
 	</li>
+
+    <li class="inst">Install test directory (for development, optional):<br/>
+    		<ul>
+    			<li style="list-style-type:disc">check out test_data (.../apps/verif/metviewer_test_data/test_data/) from CVS and move test_data directory  to /d3/projects/METViewer/:<br/></li>
+    			<li style="list-style-type:disc">create links to R script and sql files<br/>
+    				<span class="term" style="padding-left:40px">$ cd /d3/projects/METViewer/test_data</span><br/>
+    				<span class="term" style="padding-left:40px">$ ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/R_tmpl R_tmpl</span><br/>
+                    <span class="term" style="padding-left:40px">$ mkdir R_work</span><br/>
+                    <span class="term" style="padding-left:40px">$ cd R_work</span><br/>
+                    <span class="term" style="padding-left:40px">$ mkdir data</span><br/>
+                    <span class="term" style="padding-left:40px">$ mkdir plots</span><br/>
+                    <span class="term" style="padding-left:40px">$ mkdir scripts</span><br/>
+                    <span class="term" style="padding-left:40px">$ ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/R_work/include/ include</span><br/>
+                    <span class="term" style="padding-left:40px">$ cd /d3/projects/METViewer/test_data/load_data/load</span><br/>
+                    <span class="term" style="padding-left:40px">$ ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/sql/mv_mysql.sql mv_mysql.sql</span><br/>
+
+    			</li>
+    		</ul>
+    	</li>
 </ol><br/><br/>
 </p>
 
