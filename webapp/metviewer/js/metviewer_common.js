@@ -790,7 +790,7 @@ function updateFixedVarValHist(index, selectedVals) {
                     value: "N/A",
                     text: "N/A"
                 });
-                opt.appendTo(select);
+                opt.appendTo(fixed_var_val);
                 try {
                     fixed_var_val.multiselect('refresh');
                 } catch (err) {
