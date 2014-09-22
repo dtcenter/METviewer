@@ -156,7 +156,7 @@
 <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="js/jquery.colorpicker.js"></script>
 <script type="text/javascript" src="js/jquery.multiselect.js"></script>
-
+<script type="text/javascript" src="js/jquery.actual.min.js"></script>
 <script type="text/javascript"
         src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
 <script type="text/javascript" src="js/metviewer_common.js"></script>

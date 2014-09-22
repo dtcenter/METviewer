@@ -245,6 +245,33 @@ fix_var_value_to_title_mode_map['fcst_rad'] = 'FCST_RAD';
 fix_var_value_to_title_mode_map['fcst_thr'] = 'FCST_THR';
 fix_var_value_to_title_mode_map['fcst_lev'] = 'FCST_LEV';
 
+var indy_var_value_to_title_stat_map = {};
+indy_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
+indy_var_value_to_title_stat_map['model'] = 'MODEL';
+indy_var_value_to_title_stat_map['fcst_lev'] = 'FCST_LEV';
+indy_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
+indy_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
+indy_var_value_to_title_stat_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
+indy_var_value_to_title_stat_map['valid_hour'] = 'VALID_HOUR';
+indy_var_value_to_title_stat_map['fcst_init_beg'] = 'FCST_INIT_BEG';
+indy_var_value_to_title_stat_map['init_hour'] = 'INIT_HOUR';
+indy_var_value_to_title_stat_map['interp_pnts'] = 'INTERP_PNTS';
+indy_var_value_to_title_stat_map['vx_mask'] = 'VX_MASK';
+
+var indy_var_value_to_title_mode_map = {};
+indy_var_value_to_title_mode_map['fcst_lead'] = 'FCST_LEAD';
+indy_var_value_to_title_mode_map['model'] = 'MODEL';
+indy_var_value_to_title_mode_map['fcst_lev'] = 'FCST_LEV';
+indy_var_value_to_title_mode_map['fcst_thr'] = 'FCST_THR';
+indy_var_value_to_title_mode_map['fcst_valid'] = 'FCST_VALID';
+indy_var_value_to_title_mode_map['valid_hour'] = 'VALID_HOUR';
+indy_var_value_to_title_mode_map['fcst_init'] = 'FCST_INIT';
+indy_var_value_to_title_mode_map['init_hour'] = 'INIT_HOUR';
+indy_var_value_to_title_mode_map['fcst_rad'] = 'FCST_RAD';
+indy_var_value_to_title_mode_map['vx_mask'] = 'VX_MASK';
+
+
+
 
 var fcst_var_y1_indexes = [1];
 var series_var_y1_indexes = [1];
@@ -3133,4 +3160,24 @@ function updateFixVarSeries(selected_mode) {
             $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
         });
     }
+    try{
+        $('#fixed_var_1').multiselect('refresh');
+    }catch (err){}
+
 }
+
+function updateIndyVarSeries(selected_mode) {
+
+    $('#indy_var').empty();
+    if (selected_mode == "stat") {
+        $.each(indy_var_value_to_title_stat_map, function (key, val) {
+            $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
+        });
+    } else {
+        $.each(indy_var_value_to_title_mode_map, function (key, val) {
+            $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
+        });
+    }
+    $('#indy_var').multiselect('refresh');
+}
+

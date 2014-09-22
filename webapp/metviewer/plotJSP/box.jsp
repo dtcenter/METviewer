@@ -84,10 +84,14 @@
                         updateStats("y1", 1, []);
                         updateStats("y2", 1, []);
                         updateFixVarSeries("stat");
+                        updateIndyVarSeries("stat");
+
                     } else {
                         updateMode("y1", 1, []);
                         updateMode("y2", 1, []);
                         updateFixVarSeries("mode");
+                        updateIndyVarSeries("mode");
+
                     }
                     updateSeriesVarValSeries("y1", 1, []);
                     updateSeriesVarValSeries("y2", 1, []);
