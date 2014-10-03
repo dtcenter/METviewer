@@ -442,31 +442,45 @@ function updateMode(y_axis, index, selectedVals) {
     var fcst_stat_mode = $("#fcst_stat_mode_" + y_axis + "_" + index);
     var selectedModeStat="";
     var selectedModeStatCode = "";
-    if(selectedVals.length == 1 && selectedVals[0].split("_").length == 2 ){
-        selectedModeStat=selectedVals[0].split("_")[0];
-        selectedModeStatCode = selectedVals[0].split("_")[1]
+    if( selectedVals.length > 0 && selectedVals.split("_").length == 2 ){
+        selectedModeStat=selectedVals.split("_")[0];
+        selectedModeStatCode = selectedVals.split("_")[1]
     }
     if(selectedModeStat == 'ACOVACOV'){
         selectedModeStat = 'ACOV';
     }
     var is_fcst_stat_mode = false;
+    var is_options_empty = ( fcst_stat_mode.find('option').length == 0);
+    if (!is_options_empty) {
+        try{
+        fcst_stat_mode.multiselect('destroy');
+        } catch(err){}
+    }
 
-    if(fcst_stat_mode.find('option').length == 0){
+    // if(fcst_stat_mode.find('option').length == 0){
         for (var i = 0; i < listStatModeSingle.length; i++) {
             var t = listStatModeSingle[i];
             selected = (t == selectedModeStat);
             if(selected){
                 is_fcst_stat_mode = true;
             }
-            opt = $('<option />', {
-                value: t,
-                text: t,
-                title: value_to_desc_map[t],
-                selected: selected
-            });
-            opt.appendTo(fcst_stat_mode);
+            if(is_options_empty){
+                opt = $('<option />', {
+                    value: t,
+                    text: t,
+                    title: value_to_desc_map[t],
+                    selected: selected
+                });
+                opt.appendTo(fcst_stat_mode);
+            }else{
+                if(selected){
+                    fcst_stat_mode.val(t);
+                }
+            }
         }
-    }
+   // }
+
+
     fcst_stat_mode.multiselect({ multiple: false,
         selectedList: 1,
         header: false,
@@ -488,6 +502,7 @@ function updateMode(y_axis, index, selectedVals) {
         }
     });
 
+
     if (is_fcst_stat_mode) {
         var config_table = $("#fcst_stat_mode_config_" + y_axis + "_" + index);
         config_table.css("display", "block");
@@ -498,53 +513,53 @@ function updateMode(y_axis, index, selectedVals) {
         }
         if (selectedModeStat == "ACOV") {
             if (selectedModeStatCode[0] == "A") {
-                config_table.find('[name="mode_stat_fcst"]').attr('checked', true);
-                config_table.find('[name="mode_stat_obs"]').attr('checked', true);
+                config_table.find('[name="mode_stat_fcst"]').prop('checked', true);
+                config_table.find('[name="mode_stat_obs"]').prop('checked', true);
             } else if (selectedModeStatCode[0] == "F") {
-                config_table.find('[name="mode_stat_fcst"]').attr('checked', true);
-                config_table.find('[name="mode_stat_obs"]').attr('checked', false);
+                config_table.find('[name="mode_stat_fcst"]').prop('checked', true);
+                config_table.find('[name="mode_stat_obs"]').prop('checked', false);
             } else if (selectedModeStatCode[0] == "O") {
-                config_table.find('[name="mode_stat_fcst"]').attr('checked', false);
-                config_table.find('[name="mode_stat_obs"]').attr('checked', true);
+                config_table.find('[name="mode_stat_fcst"]').prop('checked', false);
+                config_table.find('[name="mode_stat_obs"]').prop('checked', true);
             }
 
         } else {
             if(selectedModeStatCode[0] == "D"){
-                config_table.find('[name="mode_stat_diff"]').attr('checked', true);
+                config_table.find('[name="mode_stat_diff"]').prop('checked', true);
             }else if (selectedModeStatCode[0] == "A"){
-                config_table.find('[name="mode_stat_diff"]').attr('checked', false);
-                config_table.find('[name="mode_stat_fcst"]').attr('checked', true);
-                config_table.find('[name="mode_stat_obs"]').attr('checked', true);
+                config_table.find('[name="mode_stat_diff"]').prop('checked', false);
+                config_table.find('[name="mode_stat_fcst"]').prop('checked', true);
+                config_table.find('[name="mode_stat_obs"]').prop('checked', true);
             } else if (selectedModeStatCode[0] == "F") {
-                config_table.find('[name="mode_stat_diff"]').attr('checked', false);
-                config_table.find('[name="mode_stat_fcst"]').attr('checked', true);
-                config_table.find('[name="mode_stat_obs"]').attr('checked', false);
+                config_table.find('[name="mode_stat_diff"]').prop('checked', false);
+                config_table.find('[name="mode_stat_fcst"]').prop('checked', true);
+                config_table.find('[name="mode_stat_obs"]').prop('checked', false);
             } else if (selectedModeStatCode[0] == "O") {
-                config_table.find('[name="mode_stat_diff"]').attr('checked', false);
-                config_table.find('[name="mode_stat_fcst"]').attr('checked', false);
-                config_table.find('[name="mode_stat_obs"]').attr('checked', true);
+                config_table.find('[name="mode_stat_diff"]').prop('checked', false);
+                config_table.find('[name="mode_stat_fcst"]').prop('checked', false);
+                config_table.find('[name="mode_stat_obs"]').prop('checked', true);
             }
 
             if(selectedModeStatCode[1] == "A"){
-                config_table.find('[name="mode_stat_simple"]').attr('checked', true);
-                config_table.find('[name="mode_stat_cluster"]').attr('checked', true);
+                config_table.find('[name="mode_stat_simple"]').prop('checked', true);
+                config_table.find('[name="mode_stat_cluster"]').prop('checked', true);
             }else if(selectedModeStatCode[1] == "S"){
-                config_table.find('[name="mode_stat_simple"]').attr('checked', true);
-                config_table.find('[name="mode_stat_cluster"]').attr('checked', false);
+                config_table.find('[name="mode_stat_simple"]').prop('checked', true);
+                config_table.find('[name="mode_stat_cluster"]').prop('checked', false);
 
             }else if(selectedModeStatCode[1] == "C"){
-                config_table.find('[name="mode_stat_simple"]').attr('checked', false);
-                config_table.find('[name="mode_stat_cluster"]').attr('checked', true);
+                config_table.find('[name="mode_stat_simple"]').prop('checked', false);
+                config_table.find('[name="mode_stat_cluster"]').prop('checked', true);
             }
             if(selectedModeStatCode[2] == "A"){
-                config_table.find('[name="mode_stat_matched"]').attr('checked', true);
-                config_table.find('[name="mode_stat_unmatched"]').attr('checked', true);
+                config_table.find('[name="mode_stat_matched"]').prop('checked', true);
+                config_table.find('[name="mode_stat_unmatched"]').prop('checked', true);
             }else if(selectedModeStatCode[2] == "M"){
-                config_table.find('[name="mode_stat_matched"]').attr('checked', true);
-                config_table.find('[name="mode_stat_unmatched"]').attr('checked', false);
+                config_table.find('[name="mode_stat_matched"]').prop('checked', true);
+                config_table.find('[name="mode_stat_unmatched"]').prop('checked', false);
             }else if(selectedModeStatCode[2] == "U"){
-                config_table.find('[name="mode_stat_matched"]').attr('checked', false);
-                config_table.find('[name="mode_stat_unmatched"]').attr('checked', true);
+                config_table.find('[name="mode_stat_matched"]').prop('checked', false);
+                config_table.find('[name="mode_stat_unmatched"]').prop('checked', true);
             }
         }
     }
@@ -569,7 +584,7 @@ function updateMode(y_axis, index, selectedVals) {
         } catch (err) {
         }
     }
-    selectedVals=[];
+    selectedVals='';
 }
 
 
@@ -579,15 +594,31 @@ function updateStats(y_axis, index,selectedVals) {
     fcst_stat_select.empty();
     try{
         fcst_stat_mode.multiselect("destroy");
-        fcst_stat_mode.css("display", "none");
     }catch (err){}
     //get value of database
+    fcst_stat_mode.css("display", "none");
+
     var selectedDatabase = $("#database").multiselect("getChecked").val();
     var selectedVariable;
     try{
         selectedVariable = $("#fcst_var_" + y_axis + "_" + index).multiselect("getChecked").val();
     }catch (err){
         selectedVariable = $("#fcst_var_" + y_axis + "_" + index+ ' option:first-child').val();
+    }
+    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+    if(selected_mode == "stat"){
+        $("#fcst_stat_mode_config_" + y_axis + "_" + index).css("display", "none");
+        try{
+            fcst_stat_select.multiselect("option", "noneSelectedText", 'Select attribute stat');
+        }catch (err){
+            fcst_stat_select.prop('disabled', 'disabled');
+        }
+    }else{
+        try{
+            fcst_stat_select.multiselect("option", "noneSelectedText", 'Select ratio stat');
+        }catch (err){
+            fcst_stat_select.prop('disabled', 'disabled');
+        }
     }
     if(selectedVariable == "N/A"){
         try{
@@ -1017,6 +1048,35 @@ function createStatNameForModeArrt(stat_name, y_axis, fcst_var_index) {
     }
     return (stat_name + strCode);
 
+}
+
+function createMapForForecastVar(y_axis, fcst_var_indexes, selected_mode) {
+    var forecast_var_to_stat_map = {};
+    var stat;
+    for (var i = 0; i < fcst_var_indexes.length; i++) {
+        var fcst_var = $("#fcst_var_y" + y_axis + "_" + fcst_var_indexes[i]).val();
+        if (!forecast_var_to_stat_map.hasOwnProperty(fcst_var)) {
+            forecast_var_to_stat_map[fcst_var] = [];
+        }
+        var statsArr = $("#fcst_stat_y" + y_axis + "_" + fcst_var_indexes[i]).val();
+        if (statsArr != null) {
+            for (var j = 0; j < statsArr.length; j++) {
+                if (selected_mode == "mode" && listStatModelRatio.indexOf(statsArr[j]) == -1) {
+                    stat = createStatNameForModeArrt(statsArr[j], "y" + y_axis, fcst_var_indexes[i]);
+                } else {
+                    stat = statsArr[j];
+                }
+                forecast_var_to_stat_map[fcst_var].push(stat);
+            }
+        } else if (selected_mode == "mode") {
+            statsArr = $("#fcst_stat_mode_y" + y_axis + "_" + fcst_var_indexes[i]).val();
+            if (statsArr != null) {
+                stat = createStatNameForModeArrt(statsArr, "y" + y_axis, fcst_var_indexes[i]);
+                forecast_var_to_stat_map[fcst_var].push(stat);
+            }
+        }
+    }
+    return forecast_var_to_stat_map;
 }
 
 function createSeriesMapForPermutation(fcst_var_indexes, y_axis) {
@@ -2126,22 +2186,12 @@ function createSeriesElementForAxis(y_axis, series_var_indexes){
 
 function createDepElementForAxis(y_axis, fcst_var_indexes,selected_mode){
     var depAxis = $('<dep'+ y_axis +' />');
-    for (var i = 0; i < fcst_var_indexes.length; i++) {
-        var fcst_var = $('<fcst_var />').attr("name", $("#fcst_var_y" + y_axis + "_" + fcst_var_indexes[i]).val());
-        var statsArr = $("#fcst_stat_y" + y_axis + "_" + fcst_var_indexes[i]).val();
-        if (statsArr != null) {
-            for (var j = 0; j < statsArr.length; j++) {
-                if (selected_mode == "mode" && listStatModelRatio.indexOf(statsArr[j]) == -1) {
-                    fcst_var.append($('<stat />').text(createStatNameForModeArrt(statsArr[j], "y"+y_axis, fcst_var_indexes[i])));
-                } else {
-                    fcst_var.append($('<stat />').text(statsArr[j]));
-                }
-            }
-        }else if(selected_mode == "mode"){
-            statsArr = $("#fcst_stat_mode_y" + y_axis + "_" + fcst_var_indexes[i]).val();
-            if (statsArr != null) {
-                fcst_var.append($('<stat />').text(createStatNameForModeArrt(statsArr, "y"+y_axis, fcst_var_indexes[i])));
-            }
+
+    var forecast_var_to_stat_map = createMapForForecastVar(y_axis, fcst_var_indexes, selected_mode);
+    for (var name in forecast_var_to_stat_map) {
+        var fcst_var = $('<fcst_var />').attr("name", name);
+        for(var i=0; i< forecast_var_to_stat_map[name].length; i++){
+            fcst_var.append($('<stat />').text(forecast_var_to_stat_map[name][i]));
         }
         depAxis.append(fcst_var);
     }
@@ -2520,9 +2570,14 @@ function removeSeriesVarSeriesBox(id) {
     var y_axis = id_array[id_array.length - 2];
     var index_of_removing_el;
     //destroy selects
-    $("#series_var_" + y_axis + "_" + index).multiselect("destroy");
-    $("#series_var_val_" + y_axis + "_" + index).multiselect("destroy");
-
+    try {
+        $("#series_var_" + y_axis + "_" + index).multiselect("destroy");
+    } catch (err) {
+    }
+    try {
+        $("#series_var_val_" + y_axis + "_" + index).multiselect("destroy");
+    } catch (err) {
+    }
     if (y_axis == 'y1') {
         index_of_removing_el = jQuery.inArray(parseInt(index), series_var_y1_indexes);
         if (index_of_removing_el > -1) {
@@ -2956,7 +3011,7 @@ function updatePlotFixSeries() {
 
 function loadXMLSeries() {
     //Parse the plot_type from _strInitXML using assumptions about the first stat
-    var stat = $(initXML.find("plot").find("dep").find("dep1").find("stat")[1]).text();
+    var stat = $(initXML.find("plot").find("dep").find("dep1").find("stat")[0]).text();
     var selected_mode = isModeStat(stat) ? "mode" : "stat";
     $("#plot_data").val(selected_mode).multiselect("refresh");
     updateForecastVariables();
@@ -2973,31 +3028,45 @@ function loadXMLSeries() {
 
     for (var y_axis_index = 1; y_axis_index <= 2; y_axis_index++) {
         var y_axis = "y" + y_axis_index;
+        var index=0;
 
         if (initXML.find("plot").find("dep").find("dep" + y_axis_index).children().length > 0) {
             var dep_arr = initXML.find("plot").find("dep").find("dep" + y_axis_index).children();
             for (var i = 0; i < dep_arr.length; i++) {
                 var fcst_stat = [];
-                if (i == 0 && y_axis_index == 1) {
-                    $("#fcst_var_" + y_axis + "_" + (i + 1)).val($(dep_arr[i]).attr('name'));
+                if (index == 0 && y_axis_index == 1) {
+                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
                 } else {
                     addFcstVariableSeries(y_axis);
-                    $("#fcst_var_" + y_axis + "_" + (i + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
+                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
                 }
                 $(dep_arr[i]).find("stat").each(function () {
                     fcst_stat.push($(this).text());
                 });
                 if (selected_mode == 'stat') {
-                    updateStats(y_axis, i + 1, fcst_stat);
+                    updateStats(y_axis, index+1, fcst_stat);
+                    index++;
                 } else {
-                    updateMode(y_axis, i + 1, fcst_stat);
+                    if($.isArray(fcst_stat)){
+                        for(var fcst_stat_ind = 0; fcst_stat_ind < fcst_stat.length; fcst_stat_ind++){
+                            if(fcst_stat_ind > 0){
+                                addFcstVariableSeries(y_axis);
+                                $("#fcst_var_" + y_axis + "_" + (index + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
+                            }
+                            updateMode(y_axis, index + 1, fcst_stat[fcst_stat_ind]);
+                            index++;
+                        }
+                    }else{
+                        updateMode(y_axis, index + 1, fcst_stat);
+                        index++;
+                    }
                 }
             }
         } else {
             if (selected_mode == 'stat') {
-                updateStats(y_axis, 1, []);
+                updateStats(y_axis, 1, "");
             } else {
-                updateMode(y_axis, 1, []);
+                updateMode(y_axis, 1, "");
             }
         }
         var series_var_val, isGroup;
@@ -3035,6 +3104,10 @@ function loadXMLSeries() {
 
     updatePlotFixSeries();
     $("#txtPlotCond").val(initXML.find("plot").find("plot_cond").text());
+    //update indy var for mode
+    if (selected_mode == 'mode') {
+        updateIndyVarSeries(selected_mode);
+    }
 
     $("#indy_var").val($(initXML.find("plot").find("indep")[0]).attr('name')).multiselect("refresh");
     var indy_var_vals = [];
