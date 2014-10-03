@@ -134,6 +134,7 @@ calcOSTDEV		= function(d){ return( calcStdDev(d$obar * d$total, d$oobar * d$tota
 calcFOBAR		= function(d){ return( d$fobar ); }
 calcFFBAR		= function(d){ return( d$ffbar ); }
 calcOOBAR		= function(d){ return( d$oobar ); }
+calcMAE		= function(d){ return( d$mae ); }
 calcMBIAS		= function(d){ if( 0 == d$obar ){ return (NA); } else { return( d$fbar / d$obar ); } }
 calcPR_CORR		= function(d){
   v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
@@ -384,7 +385,7 @@ for(strIndyVal in listIndyVal){
       # add the contingency table constituents for this series permutation to the boot list
       strPerm = escapeStr(paste(listPerm, sep="_"));
       if     ( boolAggCtc    ){ listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");        }
-      else if( boolAggSl1l2  ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar"); }
+      else if( boolAggSl1l2  ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae"); }
       else if( boolAggNbrCnt ){ listFields = c("total", "fbs", "fss");                              }
       for(strCount in listFields){
         listCounts = dfStatsPerm[[strCount]];

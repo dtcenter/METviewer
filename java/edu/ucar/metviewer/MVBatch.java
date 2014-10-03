@@ -919,7 +919,7 @@ public class MVBatch extends MVUtil {
         listSQL.add("INSERT INTO plot_data\nSELECT\n" +
           strSelectList + ",\n  h.fcst_var,\n" +
           "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
-          "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar\n" +
+          "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae\n" +
           "FROM\n" +
           "  stat_header h,\n" +
           "  line_data_ssvar ld\n" +
@@ -1056,7 +1056,8 @@ public class MVBatch extends MVUtil {
           "    obar                DOUBLE,\n" +
           "    fobar               DOUBLE,\n" +
           "    ffbar               DOUBLE,\n" +
-          "    oobar               DOUBLE\n" +
+          "    oobar               DOUBLE,\n" +
+          "    mae                 DOUBLE\n" +
           ");\n";
 
       } else if (boolAggPct) {
@@ -1262,7 +1263,7 @@ public class MVBatch extends MVUtil {
           if (boolAggCtc) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
           } else if (boolAggSl1l2) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar";
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
           } else if (boolAggPct) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
             for (int i = 1; i < intPctThresh; i++) {
@@ -1281,7 +1282,7 @@ public class MVBatch extends MVUtil {
             strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
               "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else if (boolCalcSl1l2) {
-            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
+            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar, ld.mae) stat_value,\n" +
               "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else {
             //if( boolBCRMSE ){ strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "),5),',','')) stat_value"; }

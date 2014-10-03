@@ -1255,7 +1255,7 @@ public class MVUtil{
 		_tableStatsCnt.put("ME", 			new String[]{"nc", "bc", SL1L2});
 		_tableStatsCnt.put("ESTDEV",		new String[]{"nc", "bc", SL1L2});
 		_tableStatsCnt.put("MBIAS",			new String[]{"bc", SL1L2});
-		_tableStatsCnt.put("MAE", 			new String[]{"bc"});
+		_tableStatsCnt.put("MAE", 			new String[]{"bc", SL1L2});
 		_tableStatsCnt.put("MSE", 			new String[]{"bc", SL1L2});
 		_tableStatsCnt.put("BCMSE", 		new String[]{"bc", SL1L2});
 		_tableStatsCnt.put("BCRMSE", 		new String[]{"bc", SL1L2});
