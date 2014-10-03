@@ -251,7 +251,8 @@ booter.iid = function(d, i){
         obar	= sum( d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
         fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
         ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total
+        oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+        mae   = sum( d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal, na.rm=TRUE ) / total
       );
     }
 
