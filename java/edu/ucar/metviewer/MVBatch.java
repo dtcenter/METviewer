@@ -919,7 +919,7 @@ public class MVBatch extends MVUtil {
         listSQL.add("INSERT INTO plot_data\nSELECT\n" +
           strSelectList + ",\n  h.fcst_var,\n" +
           "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
-          "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar" +
+          "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar " +
           "FROM\n" +
           "  stat_header h,\n" +
           "  line_data_ssvar ld\n" +
