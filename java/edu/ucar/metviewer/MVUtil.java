@@ -650,6 +650,17 @@ public class MVUtil{
 		
 		return listRet;
 	}
+  /**
+  	 * removes the trailing .0 from dates .
+  	 * @return  list of formatted  dates
+  	 */
+  	public static final String[] formatDates(String[] dates){
+  		String[] listRet = new String[dates.length];
+      for( int i=0; i< dates.length; i++ ){
+        listRet[i] = dates[i].replace(".0", "");
+      }
+  		return listRet;
+  	}
 	
 	public static final String[] sortHour(String[] hour, boolean asc){
 		

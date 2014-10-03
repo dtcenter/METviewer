@@ -899,7 +899,9 @@ public class MVServlet extends HttpServlet {
       listVal = MVUtil.sortFormatLead(listVal, true, false);
     } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
       listVal = MVUtil.sortHour(listVal, true);
-    }
+    } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals("obs_valid")) {
+          listVal = MVUtil.formatDates(listVal);
+        }
 
     //  add the list of field values to the response
     Hashtable tabProb = new Hashtable();
