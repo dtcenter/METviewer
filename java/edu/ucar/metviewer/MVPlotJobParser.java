@@ -476,10 +476,14 @@ public class MVPlotJobParser extends MVUtil {
             listAggVal[k] = nodeSeries._children[k]._value;
           }
           if (node._tag.equals("series1")) {
-            job.clearSeries1Val();
+            if(jobBase != null){
+              job.clearSeries1Val();
+            }
             job.addSeries1Val(nodeSeries._name, listAggVal);
           } else if (node._tag.equals("series2")) {
-            job.clearSeries2Val();
+            if(jobBase != null){
+              job.clearSeries2Val();
+            }
             job.addSeries2Val(nodeSeries._name, listAggVal);
           }
         }
