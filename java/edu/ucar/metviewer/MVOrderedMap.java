@@ -160,14 +160,14 @@ public class MVOrderedMap extends Hashtable {
    * Pseudo-override to ease the process of inserting integers into the map
    */
   public Object putInt(Object key, int value) {
-    return put(key, new Integer(value));
+    return put(key, value);
   }
 
   /**
    * Pseudo-override to ease the process of inserting doubles into the map
    */
   public Object putDbl(Object key, double value) {
-    return put(key, new Double(value));
+    return put(key, value);
   }
 
   /**

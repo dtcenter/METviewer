@@ -33,7 +33,7 @@ public class MVBatch extends MVUtil {
   public int _intPlotIndex = 0;
   public int _intNumPlotsRun = 0;
 
-  public MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
+  public final MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
 
   public MVBatch(PrintStream log, boolean boolWindows) {
     _out = log;

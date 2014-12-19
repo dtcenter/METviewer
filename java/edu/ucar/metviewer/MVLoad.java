@@ -47,7 +47,7 @@ public class MVLoad extends MVUtil {
   public static final Hashtable _tableModeHeaders = new Hashtable(1024);
 
   public static long _intStatHeaderSearchTime = 0;
-  public static long _intStatHeaderTableTime = 0;
+  public static final long _intStatHeaderTableTime = 0;
   public static long _intModeHeaderSearchTime = 0;
 
   public static int _intNumStatFiles = 0;
@@ -56,8 +56,8 @@ public class MVLoad extends MVUtil {
   public static int _intStatHeaderInserts = 0;
   public static int _intLineDataRecords = 0;
   public static int _intLineDataInserts = 0;
-  public static int _intStatGroupRecords = 0;
-  public static int _intStatGroupInserts = 0;
+  public static final int _intStatGroupRecords = 0;
+  public static final int _intStatGroupInserts = 0;
   public static int _intVarLengthRecords = 0;
   public static int _intVarLengthInserts = 0;
   public static int _intNumModeFiles = 0;
@@ -119,7 +119,7 @@ public class MVLoad extends MVUtil {
     _tableVarLengthGroupIndices.put("ORANK", new int[]{32, 33, 1});
   }
 
-  public static Hashtable _tableVarLengthLineDataId = new Hashtable();
+  public static final Hashtable _tableVarLengthLineDataId = new Hashtable();
 
   public static void main(String[] argv) {
     System.out.println("----  MVLoad  ----\n");
@@ -1384,10 +1384,10 @@ public class MVLoad extends MVUtil {
   static class MVLoadStatInsertData {
 
     public Connection _con = null;
-    public ArrayList _listInsertValues = new ArrayList();
-    public Hashtable _tableLineDataValues = new Hashtable();
-    public ArrayList _listStatGroupInsertValues = new ArrayList();
-    public Hashtable _tableVarLengthValues = new Hashtable();
+    public final ArrayList _listInsertValues = new ArrayList();
+    public final Hashtable _tableLineDataValues = new Hashtable();
+    public final ArrayList _listStatGroupInsertValues = new ArrayList();
+    public final Hashtable _tableVarLengthValues = new Hashtable();
     public String _strLineType = "";
     public String _strFileLine = "";
   }
@@ -2024,7 +2024,7 @@ public class MVLoad extends MVUtil {
         padBegin("dataFileLuTypeName: ", intPad) + info._dataFileLuTypeName + "\n";
   }
 
-  public static Hashtable _tableAlphaLineTypes = new Hashtable();
+  public static final Hashtable _tableAlphaLineTypes = new Hashtable();
 
   static {
     _tableAlphaLineTypes.put("CTS", Boolean.TRUE);
@@ -2036,7 +2036,7 @@ public class MVLoad extends MVUtil {
     _tableAlphaLineTypes.put("SSVAR", Boolean.TRUE);
   }
 
-  public static Hashtable _tableCovThreshLineTypes = new Hashtable();
+  public static final Hashtable _tableCovThreshLineTypes = new Hashtable();
 
   static {
     _tableCovThreshLineTypes.put("NBRCTC", Boolean.TRUE);
@@ -2138,7 +2138,7 @@ public class MVLoad extends MVUtil {
     for (int i = 0; i < listVarLengthLines.length; i++) {
       String strVarLengthTable = "line_data_" + listVarLengthLines[i].toLowerCase();
       int intLineDataId = getNextId(strVarLengthTable, "line_data_id");
-      _tableVarLengthLineDataId.put(listVarLengthLines[i], new Integer(intLineDataId));
+      _tableVarLengthLineDataId.put(listVarLengthLines[i], intLineDataId);
     }
   }
 

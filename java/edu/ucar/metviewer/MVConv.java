@@ -217,7 +217,7 @@ public class MVConv extends MVUtil {
 		//  determine the stat_header_id for the current src stat_header info
 		boolean boolStatHeaderExists = _tableStatHeaders.containsKey(strStatValues);
 		if( boolStatHeaderExists ){
-			ret._intStatHeaderIdDest = ((Integer)_tableStatHeaders.get(strStatValues)).intValue();
+			ret._intStatHeaderIdDest = (Integer) _tableStatHeaders.get(strStatValues);
 		} else {
 			ret._intStatHeaderIdDest = _intStatHeaderIdNext++;
 			_tableStatHeaders.put(strStatValues, new Integer(ret._intStatHeaderIdDest));
@@ -429,12 +429,12 @@ public class MVConv extends MVUtil {
 				stmtVar.close();
 				
 				//  record the number of variable length records added
-				int intLineVarCount = ((Integer)_tableLineCounts.get(strTableVar)).intValue();
+				int intLineVarCount = (Integer) _tableLineCounts.get(strTableVar);
 				_tableLineCounts.put(strTableVar, new Integer(intLineVarCount + intVarRes));
 			}
 			
 			//  update the counter for the current line type
-			int intLineCount = ((Integer)_tableLineCounts.get(strTable)).intValue();
+			int intLineCount = (Integer) _tableLineCounts.get(strTable);
 			_tableLineCounts.put(strTable, new Integer(intLineCount + 1));
 
 		}	//  end: while( resStat.next() )

@@ -751,7 +751,7 @@ public class MVPlotJobParser extends MVUtil {
       else if (_tableFormatBoolean.containsKey(node._tag)) {
         Method m = (Method) _tableFormatBoolean.get(node._tag);
         try {
-          m.invoke(job, new Object[]{new Boolean(node._value.equals("true"))});
+          m.invoke(job, node._value.equals("true"));
         } catch (Exception e) {
           System.out.println("  **  ERROR: caught " + e.getClass() + " parsing format boolean '" + node._tag + "': " + e.getMessage());
         }
@@ -768,7 +768,7 @@ public class MVPlotJobParser extends MVUtil {
         }
         Method m = (Method) _tableFormatString.get(node._tag);
         try {
-          m.invoke(job, new Object[]{node._value});
+          m.invoke(job, node._value);
         } catch (Exception e) {
           System.out.println("  **  ERROR: caught " + e.getClass() + " parsing format string '" + node._tag + "': " + e.getMessage());
         }
@@ -1172,7 +1172,7 @@ public class MVPlotJobParser extends MVUtil {
     //c(1, 3, 2)
     boolean result = true;
     if (!strStat.equals("c()")) {
-      List<Integer> inInts = new ArrayList<Integer>();
+      List<Integer> inInts = new ArrayList<>();
       String[] inChars = strStat.split("\\(")[1].split("\\)")[0].split(",");
       for (String ch : inChars) {
         Integer order;
