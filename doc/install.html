@@ -17,14 +17,16 @@ METViewer relies on the following tools.  These must be installed and tested pri
 <ul>
 	<li>
 		<b class="inst">Java JDK</b> - 
-			<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.6 or greater
+			<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.7
 	</li>
 	<li>
 		<b class="inst">ant</b> - <a href="http://ant.apache.org/bindownload.cgi" target="_blank">download</a> and install the latest version
 	</li>
 	<li>
-		<b class="inst">MySQL</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
-	</li>
+		<b class="inst">MySQL</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version.
+        Use "SET GLOBAL max_allowed_packet=110000000;" by typing the command in MySQL and/or make the corresponding edit to /etc/my.cnf, so that the change persists after the next reboot.
+
+    </li>
 	<li>
 		<b class="inst">Apache Tomcat</b> - 
 			<a href="http://tomcat.apache.org/download-55.cgi" target="_blank">download</a> and install the latest version; test the sample JSP web apps 		
