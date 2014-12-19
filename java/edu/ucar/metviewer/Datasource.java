@@ -31,6 +31,7 @@ import java.util.ResourceBundle;
 public class Datasource {
 
   private static final String DB_PREFIX_MV = "mv_";
+  private static final String DB_PREFIX_VSDB = "EMC_VSDB_verif";
   private static Datasource datasource = null;
   private static final Logger logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
   private static BoneCP connectionPool;
