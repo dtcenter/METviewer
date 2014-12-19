@@ -217,6 +217,20 @@ var listStatModeSingle = [
     "INT75", "INT90", "INTN", "INTSUM"
 ];
 
+
+var series_var_value_to_title_stat_map={};
+series_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
+series_var_value_to_title_stat_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
+series_var_value_to_title_stat_map['valid_hour'] = 'VALID_HOUR';
+series_var_value_to_title_stat_map['fcst_init_beg'] = 'FCST_INIT_BEG';
+series_var_value_to_title_stat_map['init_hour'] = 'INIT_HOUR';
+series_var_value_to_title_stat_map['fcst_lev'] = 'FCST_LEV';
+series_var_value_to_title_stat_map['obtype'] = 'OBTYPE';
+series_var_value_to_title_stat_map['vx_mask'] = 'VX_MASK';
+series_var_value_to_title_stat_map['interp_mthd'] = 'INTERP_MTHD';
+series_var_value_to_title_stat_map['interp_pnts'] = 'INTERP_PNTS';
+series_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
+
 var fix_var_value_to_title_stat_map = {};
 fix_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
 fix_var_value_to_title_stat_map['model'] = 'MODEL';
@@ -587,7 +601,7 @@ function updateMode(y_axis, index, selectedVals) {
 
     //update series_var
     select = $("#series_var_" + y_axis + "_" + index);
-    select.empty()
+    select.empty();
     $.each(fix_var_value_to_title_mode_map, function (key, val) {
         select.append('<option value="' + key + '">' + val + '</option>');
     });
@@ -694,6 +708,17 @@ function updateStats(y_axis, index,selectedVals) {
                 selectedVals = [];
             }
         });
+    }
+    //update series_var
+    var select = $("#series_var_" + y_axis + "_" + index);
+    select.empty();
+    $.each(series_var_value_to_title_stat_map, function (key, val) {
+        select.append('<option value="' + key + '">' + val + '</option>');
+    });
+    try {
+        select.multiselect('refresh');
+    } catch (err) {
+
     }
 }
 
