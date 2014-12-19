@@ -147,8 +147,9 @@
                 height: 'auto',
                 click: function () {
                     var id_array = this.id.split("_");
-                    updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1],[]);
+                    updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
                 }
+
             });
             $("#indy_var").multiselect({
                 multiple: false,
@@ -166,9 +167,15 @@
 
             });
             $("#series_var_val_y1_1").multiselect({
-               selectedList: 100, // 0-based index
-               noneSelectedText: "Select value",
-                click: function(){
+                selectedList: 100, // 0-based index
+                noneSelectedText: "Select value",
+                click: function () {
+                    updateSeriesSeriesBox();
+                },
+                checkAll: function () {
+                    updateSeriesSeriesBox();
+                },
+                uncheckAll: function () {
                     updateSeriesSeriesBox();
                 }
             });
@@ -242,6 +249,7 @@
 
             if (initXML != null) {
                 loadXMLSeries();
+                initXML = null;
 
             }else{
                 updateForecastVariables();

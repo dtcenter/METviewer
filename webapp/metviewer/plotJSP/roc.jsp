@@ -82,6 +82,7 @@
         updateSeriesRoc();
         if (initXML != null) {
             loadXMLRoc();
+            initXML = null;
         }else{
             $("input[name=roc_type][value=pct]").prop('checked', true);
         }

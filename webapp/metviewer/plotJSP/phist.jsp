@@ -93,6 +93,7 @@
         updateSeriesRhist();
         if (initXML != null) {
             loadXMLRhist();
+            initXML = null;
         }
         $('#hist_type').buttonset();
 

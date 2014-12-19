@@ -97,6 +97,12 @@
             noneSelectedText: "Select value",
             click: function () {
                 updateSeriesEns();
+            },
+            checkAll: function () {
+                updateSeriesSeriesBox();
+            },
+            uncheckAll: function () {
+                updateSeriesSeriesBox();
             }
         });
         $('#add_series_var_y1').button({
@@ -113,14 +119,13 @@
             text: false,
             disabled: true
         }).click(function () {
-
                     removeSeriesVarSeriesBox($(this).attr('id'));
-
                 });
 
 
         if (initXML != null) {
             loadXMLEns();
+            initXML = null;
         }else{
             updateSeriesVarValEns( 1, []);
             $("input[name=ensss_pts_disp][value=false]").prop('checked', true);

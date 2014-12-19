@@ -82,6 +82,7 @@
 
         if (initXML != null) {
             loadXMLRely();
+            initXML = null;
         }else{
             $("input[name=rely_event_hist][value=false]").prop('checked', true);
         }

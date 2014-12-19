@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.0</TITLE>
+<TITLE>METViewer v1.0.1</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -316,7 +316,17 @@
             beforeActivate: function (event, ui) {
                             currentPlotTab= ui.newPanel.attr('id');
                             //alert(ui.newTab.index());
-                          }
+                          },
+           // beforeLoad: function( event, ui ) {
+           //     ui.jqXHR.done(function( data ) {
+           //         ui.panel.html('<pre>'+data+'</pre>' );
+          // });
+          // },
+            load: function( event, ui ) {
+                var pre = $("<pre/>").text(ui.panel.text());
+                ui.panel.empty();
+                ui.panel.append(pre);
+            }
         });
         $("#tab-south").tabs({collapsible: false});
 
@@ -325,7 +335,10 @@
             , closable: false
             , center__paneSelector: "#plot_display_inner"
             , south__spacing_closed: 0
-            , south__size: "30%", south__paneSelector: "#tab-south", south__resizable: true
+            , south__size: "30%"
+            , south__paneSelector: "#tab-south"
+            , south__resizable: true
+            , south__minSize: 30
         });
 
 
@@ -973,7 +986,6 @@
         $("#r_data_url").attr("href", "R_work/data/" + resultName + ".data");
         $('#plot_display_inner').tabs({ active: 0 });
 
-       // $('#plot_display_inner').tabs('enable', 1).tabs('enable', 2).tabs('enable', 3).tabs('enable', 4).tabs('enable', 5).tabs('refresh');
     }
 
     function querySt(Key) {
@@ -1000,9 +1012,9 @@
         boxID = boxID + 1;
         center = center + 20;
         top = top + 20;
-        $('<div>').dialog({
-            height: 'auto',
-            width: 'auto',
+        var d = $('<div>').dialog({
+            height: '655',
+            width: '815',
             autoOpen:false,
             resizable: true,
             closeOnEscape: true,
@@ -1015,9 +1027,13 @@
                 $(this).dialog('destroy');
                 center = center - 20;
                 top = top - 20;
+            },
+            open:function(e){
+                $(this).html('<img src="plots/plot_' + id + '.png" onError="this.src=\'images/no_image.png\';"/>');
             }
 
-        }).html('<img src="plots/plot_' + id + '.png" onError="this.src=\'images/no_image.png\';"/>').dialog("open");
+        });
+        d.dialog("open");
 
     }
 

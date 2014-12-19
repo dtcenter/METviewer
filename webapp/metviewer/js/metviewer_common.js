@@ -41,7 +41,6 @@ value_to_desc_map['ACC'] = 'Accuracy';
 value_to_desc_map['BASER'] = 'Base rate, aka Observed relative frequency';
 value_to_desc_map['BCMSE'] = 'Bias-corrected mean squared error';
 value_to_desc_map['BCRMSE'] = 'Bias-corrected root mean square error';
-value_to_desc_map['BCGSS'] = 'Bias-adjusted precipitation threat scores';
 value_to_desc_map['CSI'] = 'Critical success index, aka Threat score';
 value_to_desc_map['E10'] = '10th percentile of the error';
 value_to_desc_map['E25'] = '25th percentile of the error';
@@ -585,18 +584,29 @@ function updateMode(y_axis, index, selectedVals) {
         }
     }
     selectedVals='';
+
+    //update series_var
+    select = $("#series_var_" + y_axis + "_" + index);
+    select.empty()
+    $.each(fix_var_value_to_title_mode_map, function (key, val) {
+        select.append('<option value="' + key + '">' + val + '</option>');
+    });
+    try {
+        select.multiselect('refresh');
+    } catch (err) {
+
+    }
 }
 
 
 function updateStats(y_axis, index,selectedVals) {
     var fcst_stat_select = $("#fcst_stat_" + y_axis + "_" + index);
     var fcst_stat_mode = $("#fcst_stat_mode_" + y_axis + "_" + index);
-    fcst_stat_select.empty();
-    try{
-        fcst_stat_mode.multiselect("destroy");
-    }catch (err){}
+    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+
+
     //get value of database
-    fcst_stat_mode.css("display", "none");
+
 
     var selectedDatabase = $("#database").multiselect("getChecked").val();
     var selectedVariable;
@@ -605,18 +615,30 @@ function updateStats(y_axis, index,selectedVals) {
     }catch (err){
         selectedVariable = $("#fcst_var_" + y_axis + "_" + index+ ' option:first-child').val();
     }
-    var selected_mode = $("#plot_data").multiselect("getChecked").val();
-    if(selected_mode == "stat"){
+
+    if (selected_mode == "stat") {
+        fcst_stat_select.empty();
+
+        try {
+            fcst_stat_mode.multiselect("destroy");
+        } catch (err) {
+        }
+        fcst_stat_mode.css("display", "none");
         $("#fcst_stat_mode_config_" + y_axis + "_" + index).css("display", "none");
-        try{
+        try {
             fcst_stat_select.multiselect("option", "noneSelectedText", 'Select attribute stat');
-        }catch (err){
+        } catch (err) {
             fcst_stat_select.prop('disabled', 'disabled');
         }
-    }else{
-        try{
+    } else {
+        try {
+            fcst_stat_mode.multiselect("enable");
+        } catch (err) {
+            fcst_stat_mode.prop('disabled', '');
+        }
+        try {
             fcst_stat_select.multiselect("option", "noneSelectedText", 'Select ratio stat');
-        }catch (err){
+        } catch (err) {
             fcst_stat_select.prop('disabled', 'disabled');
         }
     }
@@ -1083,7 +1105,7 @@ function createSeriesMapForPermutation(fcst_var_indexes, y_axis) {
     var series_var_to_values_map = {};
     var selected_series_val, selected_series, isGroup, seriesName;
 
-    for (var i = 0; i < fcst_var_indexes.length; i++) {
+    for (var i = fcst_var_indexes.length-1; i >= 0; i--) {
         var listVal = [];
         selected_series = $("#series_var_" + y_axis + "_" + fcst_var_indexes[i]).multiselect("getChecked")[0].value;
         isGroup = $("#group_series_var_" + y_axis + "_" + fcst_var_indexes[i]).is(':checked');
@@ -2606,65 +2628,76 @@ function removeSeriesVarSeriesBox(id) {
     updateSeriesSeriesBox();
 
 }
-function  addSeriesVariableEns() {
+function addSeriesVariableEns() {
     var last_index;
 
-            if (series_var_y1_indexes.length > 0) {
-                last_index = series_var_y1_indexes[series_var_y1_indexes.length - 1];
-            } else {
-                last_index = 0;
-            }
-            series_var_y1_indexes.push(last_index + 1);
+    if (series_var_y1_indexes.length > 0) {
+        last_index = series_var_y1_indexes[series_var_y1_indexes.length - 1];
+    } else {
+        last_index = 0;
+    }
+    series_var_y1_indexes.push(last_index + 1);
 
-        var series_var, remove_var, series_var_val, group_series_var, group_series_var_label;
-        if (last_index == 0) {
-            $('#series_var_table_y1').css("display", "");
-            series_var = $("#series_var_y1_" + (last_index + 1));
-            $("#remove_series_var_y1_" + (last_index + 1)).button({
-                icons: {
-                    primary: "ui-icon-trash"
-                },
-                text: false
-            }).click(function () {
-                        removeSeriesVarSeriesBox($(this).attr('id'));
-                    });
-            series_var_val = $("#series_var_val_y1_" + (last_index + 1));
+    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label;
+    if (last_index == 0) {
+        $('#series_var_table_y1').css("display", "");
+        series_var = $("#series_var_y1_" + (last_index + 1));
+        $("#remove_series_var_y1_" + (last_index + 1)).button({
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false
+        }).click(function () {
+                    removeSeriesVarSeriesBox($(this).attr('id'));
+                });
+        series_var_val = $("#series_var_val_y1_" + (last_index + 1));
 
-        } else {
-            series_var = $("#series_var_y1_" + last_index).clone(false);
-            series_var.attr("id", 'series_var_y1_' + (last_index + 1));
-            series_var.css("display", '');
+    } else {
+        series_var = $("#series_var_y1_" + last_index).clone(false);
+        series_var.attr("id", 'series_var_y1_' + (last_index + 1));
+        series_var.css("display", '');
+    }
+
+    if (last_index > 0) {
+        remove_var = $("#remove_series_var_y1_" + last_index).button("enable").clone(true)
+                .attr("id", 'remove_series_var_y1_' + (last_index + 1));
+
+        series_var_val = $("#series_var_val_y1_" + last_index).clone(false);
+        series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
+        series_var_val.css("display", '');
+
+
+        $('#series_var_table_y1').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)));
+    }
+    series_var_val.multiselect({
+        selectedList: 100, // 0-based index
+        noneSelectedText: "Select value",
+        click: function () {
+            updateSeriesEns();
+        },
+        checkAll: function () {
+            updateSeriesSeriesBox();
+        },
+        uncheckAll: function () {
+            updateSeriesSeriesBox();
         }
 
-        if (last_index > 0) {
-            remove_var = $("#remove_series_var_y1_" + last_index).button("enable").clone(true)
-                    .attr("id", 'remove_series_var_y1_' + (last_index + 1));
-
-            series_var_val = $("#series_var_val_y1_" + last_index).clone(false);
-            series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
-            series_var_val.css("display", '');
-
-
-            $('#series_var_table_y1' ).append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)));
-        }
-        series_var_val.multiselect({
-            selectedList: 100, // 0-based index
-            noneSelectedText: "Select value",
-            click: function () {
-                updateSeriesEns();
-            }
-        });
+    });
+    try {
         series_var_val.multiselect("uncheckAll");
-        series_var.multiselect({
-            multiple: false,
-            selectedList: 1,
-            header: false,
-            minWidth: 'auto',
-            click: function () {
-                var id_array = this.id.split("_");
-                updateSeriesVarValEns(id_array[id_array.length - 1], []);
-            }
-        });
+    } catch (err) {
+
+    }
+    series_var.multiselect({
+        multiple: false,
+        selectedList: 1,
+        header: false,
+        minWidth: 'auto',
+        click: function () {
+            var id_array = this.id.split("_");
+            updateSeriesVarValEns(id_array[id_array.length - 1], []);
+        }
+    });
 }
 
 function addSeriesVariableSeriesBox(y_axis) {
@@ -2726,9 +2759,19 @@ function addSeriesVariableSeriesBox(y_axis) {
         noneSelectedText: "Select value",
         click: function () {
             updateSeriesSeriesBox();
+        },
+        checkAll: function () {
+            updateSeriesSeriesBox();
+        },
+        uncheckAll: function () {
+            updateSeriesSeriesBox();
         }
     });
-    series_var_val.multiselect("uncheckAll");
+    try{
+        series_var_val.multiselect("uncheckAll");
+    }catch (err){
+
+    }
     series_var.multiselect({
         multiple: false,
         selectedList: 1,
@@ -2916,13 +2959,12 @@ function loadXMLRoc() {
     var roc_ctc = $(initXML.find("plot").find("roc_calc").find("roc_ctc")).text();
     $("input[name=roc_type][value=pct]").prop('checked', roc_pct == "TRUE");
     $("input[name=roc_type][value=ctc]").prop('checked', roc_ctc == "TRUE");
-    initXML = null;
+
 }
 
 function loadXMLRhist() {
     updatePlotFix();
     $("input[name=normalized_histogram][value="+$(initXML.find("plot").find("normalized_histogram")).text() +"]").prop('checked', true);
-    initXML = null;
 }
 
 function loadXMLRely() {
@@ -2931,7 +2973,7 @@ function loadXMLRely() {
 
     $("input[name=rely_event_hist][value=true]").prop('checked', rely_event_hist == "TRUE" || rely_event_hist == "true");
     $("input[name=rely_event_hist][value=false]").prop('checked', rely_event_hist == "FALSE" || rely_event_hist == "false");
-    initXML = null;
+
 }
 
 function loadXMLEns() {
@@ -2967,7 +3009,7 @@ function loadXMLEns() {
     $("input[name=ensss_pts_disp][value=false]").prop('checked', ensss_pts_disp == "FALSE" || ensss_pts_disp == "false");
 
     updateSeriesEns();
-    initXML = null;
+
 }
 
 function updatePlotFix() {
@@ -3174,7 +3216,7 @@ function loadXMLSeries() {
     }
 
     updateSeriesSeriesBox();
-    initXML = null;
+
 
 }
 
@@ -3253,4 +3295,8 @@ function updateIndyVarSeries(selected_mode) {
     }
     $('#indy_var').multiselect('refresh');
 }
+
+String.prototype.endsWith = function (suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
 

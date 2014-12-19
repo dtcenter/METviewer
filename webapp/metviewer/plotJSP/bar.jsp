@@ -163,9 +163,15 @@
 
             });
             $("#series_var_val_y1_1").multiselect({
-               selectedList: 100, // 0-based index
-               noneSelectedText: "Select value",
-                click: function(){
+                selectedList: 100, // 0-based index
+                noneSelectedText: "Select value",
+                click: function () {
+                    updateSeriesSeriesBox();
+                },
+                checkAll: function () {
+                    updateSeriesSeriesBox();
+                },
+                uncheckAll: function () {
                     updateSeriesSeriesBox();
                 }
             });
@@ -231,11 +237,12 @@
 
             if (initXML != null) {
                 loadXMLSeries();
-                $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "true");
-                $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "true");
-                $("#box_notch").prop('checked', $(initXML.find("plot").find("box_notch")).text() == "true");
-                $("#box_avg").prop('checked', $(initXML.find("plot").find("box_avg")).text() == "true");
+                $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
+                $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "TRUE");
+                $("#box_notch").prop('checked', $(initXML.find("plot").find("box_notch")).text() == "TRUE");
+                $("#box_avg").prop('checked', $(initXML.find("plot").find("box_avg")).text() == "TRUE");
                 $('#box_boxwex').val($(initXML.find("plot").find("box_boxwex")).text());
+                initXML = null;
             }else{
                 updateForecastVariables();
                 updateStats("y1", 1, []);
