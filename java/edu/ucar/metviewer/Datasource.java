@@ -13,7 +13,6 @@ import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,10 +38,9 @@ public class Datasource {
 
   /**
    * Creates the connection pool and the list of all available databases using database credentials from the properties file
-   * @throws IOException
    * @throws SQLException
    */
-  private Datasource() throws IOException, SQLException {
+  private Datasource() throws SQLException {
     // load datasource properties
     ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
     String strDBHost = bundle.getString("db.host");
@@ -69,7 +67,7 @@ public class Datasource {
     connectionPool = new BoneCP(config); // setup the connection pool
 
 
-    listDB = new ArrayList<String>();
+    listDB = new ArrayList<>();
     initDBList();
 
   }
@@ -79,10 +77,9 @@ public class Datasource {
    * @param strDBHost - DB host
    * @param strDBUser - DB user name
    * @param strDBPassword - DB password
-   * @throws IOException
    * @throws SQLException
    */
-  private Datasource(String strDBHost, String strDBUser, String strDBPassword) throws IOException, SQLException {
+  private Datasource(String strDBHost, String strDBUser, String strDBPassword) throws SQLException {
     // load datasource properties
 
     try {
@@ -105,7 +102,7 @@ public class Datasource {
     connectionPool = new BoneCP(config); // setup the connection pool
 
 
-    listDB = new ArrayList<String>();
+    listDB = new ArrayList<>();
     initDBList();
 
   }
@@ -204,9 +201,8 @@ public class Datasource {
   /**
    * Returns a connection to MySQL
    * @return - connection
-   * @throws SQLException
    */
-  public Connection getConnection() throws SQLException {
+  public Connection getConnection()  {
     Connection con = null;
     try {
       con = connectionPool.getConnection();
@@ -230,9 +226,7 @@ public class Datasource {
     if (datasource == null) {
       try {
         datasource = new Datasource(strDBHost, strDBUser, strDBPassword);
-      } catch (IOException e) {
-        logger.error(e.getMessage());
-      } catch (SQLException e) {
+      } catch ( SQLException e) {
         logger.error(e.getMessage());
       }
     }
@@ -247,7 +241,7 @@ public class Datasource {
   /**
    * checks if a database with specified name exists
    * @param db - name of the database to check
-   * @return
+   * @return - is database valid
    */
   public  boolean validate(String db) {
     boolean result = false;
