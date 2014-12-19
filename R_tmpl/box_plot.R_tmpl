@@ -62,6 +62,7 @@ listLegendUsr = #<legend>#;
 
 listSeries1Var = names(listSeries1Val);
 listSeries2Var = names(listSeries2Val);
+box_outline = #<box_outline>#;
 
 
 # run event equalizer, if requested
@@ -380,28 +381,17 @@ if(length(listDiffSeries2) > 0){
 for( listAllStatsName in names(listAllStats1) ){
   listBox = listAllStats1[[listAllStatsName]]
   listNStatsFcstVar = c();
-      for(strIndy in listIndy){
-        listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
-      }
+  for(strIndy in listIndy){
+    listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
+  }
+  listNStats = listNStats +listNStatsFcstVar;
 
   # save the current list of series values for plotting
   intBoxesLen = length(listBoxes1);
   listBoxes1[[ intBoxesLen + 1 ]] = listBox;
   
   
-  # update the y1-axis limits to fit the data, depending on user-specification
-  if( 2 != length(listY1limUsr) ){
-    dblMin = min(unlist(listBox));
-    dblMax = max(unlist(listBox));
-    if( 2 != length(listY1lim) ){
-      listY1lim = c(dblMin, dblMax);
-    } else {
-      if( dblMin < listY1lim[1] ){ listY1lim = c(dblMin, listY1lim[2]); }
-      if( dblMax > listY1lim[2] ){ listY1lim = c(listY1lim[1], dblMax); }
-    }
-  } else {
-    listY1lim = listY1limUsr;
-  }
+
   
   # if the box mean is activated, add them to the plot
   if( boolBoxAvg ){
@@ -421,32 +411,17 @@ for( listAllStatsName in names(listAllStats1) ){
 for( listAllStatsName in names(listAllStats2) ){
   listBox = listAllStats2[[listAllStatsName]]
   listNStatsFcstVar = c();
-        for(strIndy in listIndy){
-          listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
-        }
+  for(strIndy in listIndy){
+    listNStatsFcstVar = append(listNStatsFcstVar, length(listBox[[ strIndy ]]));
+  }
+  listNStats = listNStats +listNStatsFcstVar;
 
   # save the current list of series values for plotting
   intBoxesLen = length(listBoxes2);
   listBoxes2[[ intBoxesLen + 1 ]] = listBox;
   
   
-  # update the y2-axis limits to fit the data, depending on user-specification
-  if( 2 != length(listY2limUsr) ){
-    if(length(unlist(listBox)) > 0){
-      dblMin = min(unlist(listBox));
-      dblMax = max(unlist(listBox));
-      if( 2 != length(listY2lim) ){
-        listY2lim = c(dblMin, dblMax);
-      } else {
-        if( dblMin < listY2lim[1] ){ listY2lim = c(dblMin, listY2lim[2]); }
-        if( dblMax > listY2lim[2] ){ listY2lim = c(listY2lim[1], dblMax); }
-      }
-    }else{
-      listY2lim = listY1lim;
-    }
-  } else {
-    listY2lim = listY2limUsr;
-  }
+
   
   # if the box mean is activated, add them to the plot
   if( boolBoxAvg ){
@@ -540,6 +515,77 @@ if( boolBoxPts == TRUE){
         
   }
 }
+
+# update the y1-axis limits to fit the data, depending on user-specification
+dblMin=NULL;
+dblMax=NULL;
+if( 2 != length(listY1limUsr) ){
+
+  listAllStats1List = unlist(listAllStats1);
+  if(box_outline == TRUE){
+    dblMin = min(listAllStats1List);
+    dblMax = max(listAllStats1List);
+  }else{
+    for(intPermIndex in 1:length(listBoxes1)){
+      listBox = listBoxes1[[intPermIndex]];
+      for(boxNames in names(listBox) ){
+        box = listBox[[boxNames]];
+        outliers = boxplot.stats_ci(box)$out;
+        listNoOutliers = box [! box %in% outliers];
+        dblMinCurrent = min(listNoOutliers);
+        dblMaxCurrent = max(listNoOutliers);
+        if (is.null(dblMin) || dblMin > dblMinCurrent) dblMin=dblMinCurrent;
+        if (is.null(dblMax) || dblMax < dblMaxCurrent) dblMax=dblMaxCurrent;
+      }
+    }
+  }
+  if( 2 != length(listY1lim) ){
+    listY1lim = c(dblMin, dblMax);
+  } else {
+    if( dblMin < listY1lim[1] ){ listY1lim = c(dblMin, listY1lim[2]); }
+    if( dblMax > listY1lim[2] ){ listY1lim = c(listY1lim[1], dblMax); }
+  }
+} else {
+  listY1lim = listY1limUsr;
+}
+
+# update the y2-axis limits to fit the data, depending on user-specification
+dblMin=NULL;
+dblMax=NULL;
+if( 2 != length(listY2limUsr) ){
+  if(length(unlist(listAllStats2)) > 0){
+
+    listAllStats2List = unlist(listAllStats2);
+    if(box_outline == TRUE){
+      dblMin = min(listAllStats2List);
+      dblMax = max(listAllStats2List);
+    }else{
+      for(intPermIndex in 1:length(listBoxes2)){
+        listBox = listBoxes2[[intPermIndex]];
+        for(boxNames in names(listBox) ){
+          box = listBox[[boxNames]];
+          outliers = boxplot.stats_ci(box)$out;
+          listNoOutliers = box [! box %in% outliers];
+          dblMinCurrent = min(listNoOutliers);
+          dblMaxCurrent = max(listNoOutliers);
+          if (is.null(dblMin) || dblMin > dblMinCurrent) dblMin=dblMinCurrent;
+          if (is.null(dblMax) || dblMax < dblMaxCurrent) dblMax=dblMaxCurrent;
+        }
+      }
+    }
+    if( 2 != length(listY2lim) ){
+      listY2lim = c(dblMin, dblMax);
+    } else {
+      if( dblMin < listY2lim[1] ){ listY2lim = c(dblMin, listY2lim[2]); }
+      if( dblMax > listY2lim[2] ){ listY2lim = c(listY2lim[1], dblMax); }
+    }
+  }else{
+    listY2lim = listY1lim;
+  }
+} else {
+  listY2lim = listY2limUsr;
+}
+
 # plot the series1 data
 
 for(intPermIndex in 1:length(listBoxes1)){
@@ -585,7 +631,7 @@ for(intPermIndex in 1:length(listBoxes1)){
       notch=#<box_notch>#,	# draw box notces - TRUE: notches on, FALSE: notches off
       boxwex=#<box_boxwex>#,	# scale factor to apply to all box widths
       col=strColor,			# box color(s)
-			outline=#<box_outline>#,# draw outliers - TRUE: draw, FALSE: no draw
+			outline=box_outline,# draw outliers - TRUE: draw, FALSE: no draw
       xaxt="n",				# x-axis type - n: no axis, s: compatibility with l and t
       yaxt="n",				# y-axis type - n: no axis, s: compatibility with l and t
       ylim=listY1lim,			# y1-axis limits

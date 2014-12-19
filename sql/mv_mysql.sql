@@ -959,12 +959,52 @@ CREATE TABLE line_data_nbrcts
     hk_bcu              DOUBLE,
     hss                 DOUBLE,
     hss_bcl             DOUBLE,
-    hss_bcu             DOUBLE,
-    odds                DOUBLE,
-    odds_ncl            DOUBLE,
-    odds_ncu            DOUBLE,
-    odds_bcl            DOUBLE,
-    odds_bcu            DOUBLE,    
+  hss_bcu DOUBLE,
+  odds DOUBLE,
+  odds_ncl DOUBLE,
+  odds_ncu DOUBLE,
+  odds_bcl DOUBLE,
+  odds_bcu DOUBLE,
+
+  lodds DOUBLE DEFAULT -9999,
+  lodds_ncl DOUBLE DEFAULT -9999,
+  lodds_ncu DOUBLE DEFAULT -9999,
+  lodds_bcl DOUBLE DEFAULT -9999,
+  lodds_bcu DOUBLE DEFAULT -9999,
+
+  orss DOUBLE DEFAULT -9999,
+  orss_ncl DOUBLE DEFAULT -9999,
+  orss_ncu DOUBLE DEFAULT -9999,
+  orss_bcl DOUBLE DEFAULT -9999,
+  orss_bcu DOUBLE DEFAULT -9999,
+
+  eds DOUBLE DEFAULT -9999,
+  eds_ncl DOUBLE DEFAULT -9999,
+  eds_ncu DOUBLE DEFAULT -9999,
+  eds_bcl DOUBLE DEFAULT -9999,
+  eds_bcu DOUBLE DEFAULT -9999,
+
+  seds DOUBLE DEFAULT -9999,
+  seds_ncl DOUBLE DEFAULT -9999,
+  seds_ncu DOUBLE DEFAULT -9999,
+  seds_bcl DOUBLE DEFAULT -9999,
+  seds_bcu DOUBLE DEFAULT -9999,
+
+  edi DOUBLE DEFAULT -9999,
+  edi_ncl DOUBLE DEFAULT -9999,
+  edi_ncu DOUBLE DEFAULT -9999,
+  edi_bcl DOUBLE DEFAULT -9999,
+  edi_bcu DOUBLE DEFAULT -9999,
+
+  sedi DOUBLE DEFAULT -9999,
+  sedi_ncl DOUBLE DEFAULT -9999,
+  sedi_ncu DOUBLE DEFAULT -9999,
+  sedi_bcl DOUBLE DEFAULT -9999,
+  sedi_bcu DOUBLE DEFAULT -9999,
+
+  bagss DOUBLE DEFAULT -9999,
+  bagss_bcl DOUBLE DEFAULT -9999,
+  bagss_bcu DOUBLE DEFAULT -9999,
     
     CONSTRAINT line_data_nbrcts_data_file_id_pk
             FOREIGN KEY(data_file_id)
@@ -1459,6 +1499,7 @@ INSERT INTO data_file_lu VALUES (2, 'mode_cts', 'Contingency table counts and st
 INSERT INTO data_file_lu VALUES (3, 'mode_obj', 'Attributes for simple objects, merged cluster objects and pairs of objects');
 INSERT INTO data_file_lu VALUES (4, 'wavelet_stat', 'Verification statistics for intensity-scale comparison of forecast and observations');
 INSERT INTO data_file_lu VALUES (5, 'ensemble_stat', 'Ensemble verification statistics');
+INSERT INTO data_file_lu VALUES (6, 'vsdb_point_stat', 'Verification statistics for forecasts at observation points for vsdb files');
 
 
 -- mv_rev contains information about metvdb revisions, and provides an indicator of
@@ -1583,6 +1624,9 @@ DROP FUNCTION IF EXISTS calcBCRMSE |
 CREATE FUNCTION calcBCRMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN RETURN FORMAT( SQRT((ffbar + oobar - 2*fobar) - POW(fbar - obar, 2)), 4 ); END |
 
+DROP FUNCTION IF EXISTS calcMAE |
+CREATE FUNCTION calcMAE ( mae REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN RETURN FORMAT( mae, 4 ); END |
 
 --
 -- CTC stat calculations

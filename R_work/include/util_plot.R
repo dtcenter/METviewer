@@ -46,7 +46,18 @@ seriesMinMax = function(series, numModels, log=FALSE){
 			if( dblMaxCur > dblMax ){ dblMax = dblMaxCur; }
 		}
 	}
-	if( Inf == dblMin | dblMin == dblMax ){ dblMin = 0; dblMax = 1; }
+	if( Inf == dblMin  ){
+    dblMin = 0; dblMax = 1; 
+	}
+  if(dblMin == dblMax){
+    if(dblMin > 0){
+      dblMin = 0;
+    }else if(dblMin < 0){
+      dblMax = 0;
+    }else{
+      dblMin = 0; dblMax = 1; 
+    }
+  }
 	return( list(min=dblMin, max=dblMax) );
 }
 
@@ -633,12 +644,12 @@ buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
       # parse the perm value as an integer, if possible
       valPerm = listPermVal[intVar];
       listPermValMirror = append(listPermValMirror, valPerm);
-      if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+      #if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
       
        #check if the input frame already has group series  ( from calculation agg stats )
       if( is.element(valPerm, unique(dfStatsVal[[ listSeriesVar[intVar] ]]))  ){
         #group is in
-        vectValPerms = valPerm
+        vectValPerms = valPerm;
       }else{
         vectValPerms= strsplit(valPerm, ",")[[1]];
         vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })

@@ -184,10 +184,10 @@ calcODDS = function(d){
   dblPOFD = calcPOFD(d);
   return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
 }
-# BCGSS Reference:
+# BAGSS Reference:
 # Bias Adjusted Precipitation Threat Scores
 # F. Mesinger, Adv. Geosci., 16, 137-142, 2008
-calcBCGSS = function(d){
+calcBAGSS = function(d){
 	if( 0 == d$total ){ return (NA); }
 	dblF  = d$fy_oy + d$fy_on;
 	dblO  = d$fy_oy + d$fn_oy;
@@ -365,6 +365,7 @@ for(strIndyVal in listIndyVal){
           listDiffSeries = listDiffSeries2;
      }
     listBoot = list();
+    listCount=list();
 
     # run the bootstrap flow for each series permutation
     for(intPerm in 1:nrow(matPerm)){
@@ -375,11 +376,16 @@ for(strIndyVal in listIndyVal){
       for(intSeriesVal in 1:length(listSeriesVar)){
         strSeriesVar = listSeriesVar[intSeriesVal];
         strSeriesVal = listPerm[intSeriesVal];
-        if( grepl("^[0-9]+$", strSeriesVal) ){ strSeriesVal = as.numeric(strSeriesVal); }
-        vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+        if( grepl("^[0-9]+$", strSeriesVal) ){
+          strSeriesVal = as.numeric(strSeriesVal);
+          vectValPerms = strSeriesVal;
+        }else{
+          vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+        }
         vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
         dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
       }
+      listCount[[listPerm]]=nrow(dfStatsPerm);
       if( 1 > nrow(dfStatsPerm) ){ next; }
 
       # add the contingency table constituents for this series permutation to the boot list
@@ -442,7 +448,7 @@ for(strIndyVal in listIndyVal){
 
         # store the bootstrapped stat value and CI values in the output dataframe
         dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
-        dfOut[listOutInd,]$nstats = nrow(dfStatsPerm)
+        dfOut[listOutInd,]$nstats = listCount[[listPerm]];
         strCIParm = strCIType;
         if( strCIType == "perc" ){ strCIParm = "percent"; }
         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){

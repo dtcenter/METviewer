@@ -892,10 +892,19 @@ if( 0 < length(listDep2Plot) ){
           if(listShowSignifSeries2[i] == FALSE){
             lwd_current = listLwdSeries2[i];
           }else{
-            if(  listYFr[ind] < 0  && listYTo[ind] > 0){
-              lwd_current = listLwdSeries2[i];
-             }else{
-              lwd_current = listLwdSeries2[i] + 3;
+            if(TRUE ==boolVertPlot){
+              if( listXFr[ind] < 0 && listXTo[ind] > 0){
+                lwd_current = listLwdSeries2[i];
+              }else{
+                lwd_current = listLwdSeries2[i] + 3;
+              }
+
+            }else{
+              if(  listYFr[ind] < 0  && listYTo[ind] > 0){
+                lwd_current = listLwdSeries2[i];
+              }else{
+                lwd_current = listLwdSeries2[i] + 3;
+              }
             }
           }
         
@@ -1015,10 +1024,19 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
         if(listShowSignifSeries1[i] == FALSE){
           lwd_current = listLwdSeries1[i];
         }else{
-          if(  listYFr[ind] < 0  && listYTo[ind] > 0){
-            lwd_current = listLwdSeries1[i];
+          if(TRUE ==boolVertPlot){
+            if( listXFr[ind] < 0 && listXTo[ind] > 0){
+              lwd_current = listLwdSeries1[i];
+            }else{
+              lwd_current = listLwdSeries1[i] + 3;
+            }
+
           }else{
-            lwd_current = listLwdSeries1[i] + 3;
+            if(  listYFr[ind] < 0  && listYTo[ind] > 0){
+              lwd_current = listLwdSeries1[i];
+            }else{
+              lwd_current = listLwdSeries1[i] + 3;
+            }
           }
         }
       
