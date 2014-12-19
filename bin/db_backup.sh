@@ -20,6 +20,7 @@ SUBJECT="Automated message from the DB backup on mandan"
 EMAIL="tatiana@ucar.edu"
 ERRORMESSAGE="/d3/projects/METViewer/src/apps/verif/metviewer/bin/errorMessage.txt"
 SUCCESSMESSAGE="/d3/projects/METViewer/src/apps/verif/metviewer/bin/successMessage.txt"
+TEMP_DIR="/d3/backups/metviewer_sql/"
 
 MAIN_START=$(date +%s.%N)
 mysql -umvuser -pmvuser -e 'show databases;' | {
@@ -49,9 +50,10 @@ mysql -umvuser -pmvuser -e 'show databases;' | {
 
             #analyze it first
             mysqlcheck -a -umvuser -pmvuser $db_name
+            printf '\n'$TEMP_DIR$db_name.sql
 
-            mysqldump -umvuser -pmvuser $db_name > $db_name.sql
-            mysql -umvuser -pmvuser -hdakota  $db_name <  $db_name.sql
+            mysqldump -umvuser -pmvuser $db_name > $TEMP_DIR$db_name.sql
+            mysql -umvuser -pmvuser -hdakota  $db_name <  $TEMP_DIR$db_name.sql
 
             if [ $? -gt 0 ];
             then
@@ -62,7 +64,7 @@ mysql -umvuser -pmvuser -e 'show databases;' | {
               printf '\n'$db_name' was backed up'
               /usr/bin/mail -s "$SUBJECT" "$EMAIL" < $SUCCESSMESSAGE
             fi
-            rm $db_name.sql
+            rm $TEMP_DIR$db_name.sql
           else
             #dates are the same - no changes were made - backup is not needed
             printf '\n'$db_name' was not changed and was not backed up '
