@@ -139,7 +139,7 @@ public class MVServlet extends HttpServlet {
         if (matDownload.matches()) {
 
 
-          String plot = "", type = "";
+          String plot, type;
           String filePath = "";
 
           plot = request.getParameter("plot");
@@ -160,7 +160,7 @@ public class MVServlet extends HttpServlet {
           } else if (type.equals("plot_image")) {
             filePath = _projectDir + "/plots/" + plot + ".png";
           }
-          int length = 0;
+          int length;
           File file = new File(filePath);
           ServletOutputStream outStream = null;
           DataInputStream in = null;
@@ -352,8 +352,6 @@ public class MVServlet extends HttpServlet {
               con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
             strResp = handleXMLUpload(mv_xml_upload, con);
-          } else {
-
           }
           request.getSession().setAttribute("init_xml", strResp);
           response.sendRedirect("/" + _strRedirect);
@@ -554,7 +552,7 @@ public class MVServlet extends HttpServlet {
         try {
           con.close();
         } catch (SQLException e) {
-          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+          _logger.error(e.getMessage());
         }
       }
     }
@@ -798,7 +796,7 @@ public class MVServlet extends HttpServlet {
       }
       //  if so, build a where clause for the criteria
       String strFieldDBCrit = MVUtil.formatField(strFieldCrit, boolMode, false);
-      if (-1 != strFieldDBCrit.indexOf("n_rank") || -1 != strFieldDBCrit.indexOf("n_bin")) {
+      if (strFieldDBCrit.contains("n_rank") || strFieldDBCrit.contains("n_bin")) {
         continue;
       }
       String strSQLOp = "IN";
@@ -824,7 +822,7 @@ public class MVServlet extends HttpServlet {
     }
 
     //  build a query for the values
-    String strSQL = "";
+    String strSQL;
     String strTmpTable = "";
     if (boolNRank) {
       strSQL = "SELECT DISTINCT ld.n_rank " +
@@ -968,6 +966,7 @@ public class MVServlet extends HttpServlet {
     }
 
     //  build a query for the fcst_var stat counts
+    //this is a query for the local db
     String strSQL = "(SELECT COUNT(*), 'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
@@ -979,6 +978,12 @@ public class MVServlet extends HttpServlet {
       "(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
+
+    //this is a query for the VSDB
+    /*String strSQL =
+         "(SELECT COUNT(*), 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+         "(SELECT COUNT(*), 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+         "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";*/
     _logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
     Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
     //stmt.setFetchSize(Integer.MIN_VALUE);
@@ -1104,7 +1109,7 @@ public class MVServlet extends HttpServlet {
     Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strPlotXML.getBytes()));
     FileOutputStream stream = null;
     OutputStreamWriter outputStreamWriter = null;
-    StreamResult streamResult = null;
+    StreamResult streamResult;
     try {
       //Begin write DOM to file
       File f = new File(_strPlotXML + "/" + strPlotPrefix + ".xml");
@@ -1534,7 +1539,7 @@ public class MVServlet extends HttpServlet {
         MVOrderedMap mapFixSet = (MVOrderedMap) objFixVal;
         String[] listFixSetKey = mapFixSet.getKeyList();
         MVOrderedMap mapFixSetSingle = new MVOrderedMap();
-        mapFixSetSingle.put(listFixSetKey[0], (String[]) mapFixSet.get(listFixSetKey[0]));
+        mapFixSetSingle.put(listFixSetKey[0], mapFixSet.get(listFixSetKey[0]));
         job.addPlotFixVal(listFixField[i], mapFixSetSingle);
       }
     }

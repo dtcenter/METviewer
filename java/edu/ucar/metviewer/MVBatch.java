@@ -1282,14 +1282,17 @@ public class MVBatch extends MVUtil {
             strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
               "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else if (boolCalcSl1l2) {
-            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar, ld.mae) stat_value,\n" +
+            if(strStat.equalsIgnoreCase("mae")){
+              strSelectStat += ",\n  calc" + strStat + "( ld.mae) stat_value,\n" +
+                            "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+            }else {
+              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
               "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+            }
           } else {
-            //if( boolBCRMSE ){ strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "),5),',','')) stat_value"; }
             if (boolBCRMSE) {
               strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
             }
-            //else            { strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + ",5),',','')) stat_value"; }
             else {
               strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(ld." + strStatField + " as DECIMAL(30, 5))) stat_value";
             }
@@ -1308,9 +1311,7 @@ public class MVBatch extends MVUtil {
 
             //  add the CIs to the select list, if present, otherwise, invalid data
             if (boolHasNorm) {
-              //strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_ncl,5),',','')) stat_ncl" +
               strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',CAST(ld." + strStatField + "_ncl  as DECIMAL(30, 5))) stat_ncl" +
-                // 				 ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_ncu,5),',','')) stat_ncu";
                 ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',CAST(ld." + strStatField + "_ncu  as DECIMAL(30, 5))) stat_ncu";
             } else {
               strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
@@ -1318,14 +1319,10 @@ public class MVBatch extends MVUtil {
 
             if (boolHasBoot && !boolAggStat) {
               if (boolBCRMSE) {
-                //strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcl),5),',','')) stat_bcl" +
                 strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
-                  //				",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',REPLACE(FORMAT(sqrt(ld." + strStatField + "_bcu),5),',','')) stat_bcu";
                   ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
               } else {
-                //strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_bcl,5),',','')) stat_bcl" +
                 strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(ld." + strStatField + "_bcl as DECIMAL(30, 5))) stat_bcl" +
-                  //  					",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',REPLACE(FORMAT(ld." + strStatField + "_bcu,5),',','')) stat_bcu";
                   ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(ld." + strStatField + "_bcu as DECIMAL(30, 5))) stat_bcu";
               }
             } else {

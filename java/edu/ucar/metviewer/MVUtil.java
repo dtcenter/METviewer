@@ -246,7 +246,7 @@ public class MVUtil{
 	public static String buildValueList(String[] values){
     String[] localValues;
     if(values != null && values.length > 0){
-      List<String> newValues = new ArrayList<String>();
+      List<String> newValues = new ArrayList<>();
       for(String value : values){
         if(value.contains(",")){
           String[] valuesArr = value.split(",");
@@ -283,7 +283,7 @@ public class MVUtil{
 		
 		//  use the ordered list of table entries, if appropriate
 		Map.Entry[] listVals = {};
-		listVals = ((MVOrderedMap)table).getOrderedEntries();
+		listVals = table.getOrderedEntries();
 		
 		//  if the input table contains a single value, build and return the simplest table
 		if( 1 == listVals.length ){
@@ -357,6 +357,7 @@ public class MVUtil{
 	public static SimpleDateFormat _formatDBms = null;
 	public static SimpleDateFormat _formatPlot = null;
 	public static SimpleDateFormat _formatStat = null;
+	public static SimpleDateFormat _formatStatVsdb = null;
 	public static SimpleDateFormat _formatFcstLead = null;
 	public static SimpleDateFormat _formatBase = null;
 	public static SimpleDateFormat _formatDate = null;
@@ -365,6 +366,7 @@ public class MVUtil{
 		try{ _formatDBms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");	_formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatPlot = new SimpleDateFormat("yyyyMMddHH");				_formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatStat = new SimpleDateFormat("yyyyMMdd_HHmmss");			_formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
+		try{ _formatStatVsdb = new SimpleDateFormat("yyyyMMddHH");			_formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatFcstLead = new SimpleDateFormat("HHmmss");				_formatFcstLead.setTimeZone(TimeZone.getTimeZone("UTC"));	}catch(Exception e){}
 		try{ _formatBase = new SimpleDateFormat("yyyyMMdd'b'");				_formatBase.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatDate = new SimpleDateFormat("yyyyMMdd");				_formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
@@ -382,7 +384,7 @@ public class MVUtil{
 	public static String buildTemplateString(String tmpl, MVOrderedMap vals, MVOrderedMap tmplMaps)
 		throws Exception {
 		
-		String strRet = new String(tmpl);
+		String strRet = tmpl;
 		Matcher matTmpl = _patPlotTmpl.matcher(tmpl);
 		while( matTmpl.find() ){			
 			String strTmplTag = matTmpl.group(1);
@@ -526,7 +528,7 @@ public class MVUtil{
 	 * @param thresh List of thresholds
 	 * @return Sorted threshold list, by value
 	 */
-	public static final String[] sortThresh(String[] thresh){
+	public static String[] sortThresh(String[] thresh){
 		return sortVals(thresh, true, _patThresh);
 	}
 	
@@ -537,7 +539,7 @@ public class MVUtil{
 	 * @param lev List of thresholds
 	 * @return Sorted threshold list, by value
 	 */
-	public static final String[] sortLev(String[] lev){
+	public static String[] sortLev(String[] lev){
 		return sortVals(lev, true, _patLev);
 	}
 	
@@ -549,7 +551,7 @@ public class MVUtil{
 	 * @param pat Pattern used to parse the input values
 	 * @return Sorted list, by numerical value
 	 */
-	public static final String[] sortVals(String[] vals, boolean asc, Pattern pat){
+	public static String[] sortVals(String[] vals, boolean asc, Pattern pat){
 		
 		//  parse the input values and store the numerical values in a sortable array
 		double[] listVal = new double[vals.length];		
@@ -591,7 +593,7 @@ public class MVUtil{
 				}
 				objVal = listValCur;
 			}
-			tableVal.put(new Double(listVal[i]), objVal);
+			tableVal.put(listVal[i], objVal);
 		}
 		
 		//  sort the numerical values and build a sorted list of values
@@ -601,7 +603,7 @@ public class MVUtil{
 		for(int i=0; i < listVal.length; i++){
 			
 			//  verify that the values have not already been added
-			Double dblKey = new Double(listVal[i]);
+			Double dblKey = listVal[i];
 			if( tableAdded.containsKey(dblKey) ){ continue; } 
 
 			//  if not, add the value(s) to the return list
@@ -629,7 +631,7 @@ public class MVUtil{
 	 * @param removeZeros true to remove the trailing 0000 from the lead time value
 	 * @return Sorted list of formatted lead times, by numerical value
 	 */
-	public static final String[] sortFormatLead(String[] lead, boolean asc, boolean removeZeros){
+	public static String[] sortFormatLead(String[] lead, boolean asc, boolean removeZeros){
 		
 		//  parse and format the leads and store the numerical values in a sortable array
 		double[] listVal = new double[lead.length];		
@@ -638,7 +640,7 @@ public class MVUtil{
 			listVal[i] = Double.parseDouble(lead[i]);
 			String strLead = lead[i];
 			if( removeZeros && strLead.endsWith("0000") ){ strLead = strLead.replaceAll("0000$", ""); }
-			tableVal.put(new Double(listVal[i]), strLead);
+			tableVal.put(listVal[i], strLead);
 		}
 		
 		//  sort the lead numerical values and build a sorted list of leads
@@ -654,7 +656,7 @@ public class MVUtil{
   	 * removes the trailing .0 from dates .
   	 * @return  list of formatted  dates
   	 */
-  	public static final String[] formatDates(String[] dates){
+  	public static String[] formatDates(String[] dates){
   		String[] listRet = new String[dates.length];
       for( int i=0; i< dates.length; i++ ){
         listRet[i] = dates[i].replace(".0", "");
@@ -662,7 +664,7 @@ public class MVUtil{
   		return listRet;
   	}
 	
-	public static final String[] sortHour(String[] hour, boolean asc){
+	public static String[] sortHour(String[] hour, boolean asc){
 		
 		//  parse and format the hours and store the numerical values in a sortable array
 		double[] listVal = new double[hour.length];		
@@ -671,7 +673,7 @@ public class MVUtil{
 			listVal[i] = Double.parseDouble(hour[i]);
 			String strHour = hour[i];
 			while( strHour.length() < 2 ){ strHour = "0" + strHour; }
-			tableVal.put(new Double(listVal[i]), strHour);
+			tableVal.put(listVal[i], strHour);
 		}
 		
 		//  sort the lead numerical values and build a sorted list of leads
@@ -914,7 +916,7 @@ public class MVUtil{
 	}
 	
 	public static int sum(int[] data){
-		if( 1 > data.length ){ return (int)0; }
+		if( 1 > data.length ){ return 0; }
 		int intSum = 0;
 		for(int i=0; i < data.length; i++){ intSum += data[i]; }
 		return intSum;
@@ -1287,7 +1289,6 @@ public class MVUtil{
 		_tableStatsCts.put("HK", 			new String[]{"nc", "bc", CTC});
 		_tableStatsCts.put("HSS", 			new String[]{"bc", CTC});
 		_tableStatsCts.put("ODDS", 			new String[]{"nc", "bc", CTC});
-    _tableStatsCts.put("BCGSS", 			new String[]{ "bc", CTC});
     _tableStatsCts.put("LODDS", 			new String[]{"nc", "bc", CTC});
     _tableStatsCts.put("ORSS", 			new String[]{"nc", "bc", CTC});
     _tableStatsCts.put("EDS", 			new String[]{"nc", "bc", CTC});
