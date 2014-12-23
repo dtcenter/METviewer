@@ -219,6 +219,7 @@ var listStatModeSingle = [
 
 
 var series_var_value_to_title_stat_map={};
+series_var_value_to_title_stat_map['model'] = 'MODEL';
 series_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
 series_var_value_to_title_stat_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
 series_var_value_to_title_stat_map['valid_hour'] = 'VALID_HOUR';

@@ -1626,7 +1626,7 @@ BEGIN RETURN FORMAT( SQRT((ffbar + oobar - 2*fobar) - POW(fbar - obar, 2)), 4 );
 
 DROP FUNCTION IF EXISTS calcMAE |
 CREATE FUNCTION calcMAE ( mae REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( mae, 4 ); END |
+BEGIN IF mae = -9999 THEN RETURN 'NA'; END IF; RETURN FORMAT( mae, 4 ); END |
 
 --
 -- CTC stat calculations
