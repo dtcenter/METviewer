@@ -488,6 +488,8 @@ public class MVLoad extends MVUtil {
         d._strLineType = "SL1L2";
       } else if (listToken[6].equals("VL1L2")) {
         d._strLineType = "VL1L2";
+      } else if (listToken[6].equals("RPS")) {
+        d._strLineType = "ENSCNT";
       } else if (listToken[6].startsWith("FHO")) {
         d._strLineType = "CTC";
         String[] threshArr = listToken[6].split("FHO");
@@ -706,7 +708,7 @@ public class MVLoad extends MVUtil {
      // }
 
       if (listToken[6].equals("RMSE")) {//CNT line type
-        for (int i = 0; i < 77; i++) {
+        for (int i = 0; i < 82; i++) {
           if (i == 53) {
             strLineDataValueList += ", '" + listToken[10] + "'";
           } else if (i == 31) {
@@ -717,27 +719,83 @@ public class MVLoad extends MVUtil {
             strLineDataValueList += ", '" + listToken[12] + "'";
           } else if (i == 0 ||i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
             strLineDataValueList += ", '0'";
+          } else if (i == 77) {
+                      strLineDataValueList += ", '" + listToken[13] + "'";
           } else {
             strLineDataValueList += ", '-9999'";
           }
         }
       }
+
+
       if (listToken[6].equals("BSS")) {//PSTD line type
-        for (int i = 0; i < 12; i++) {
-          if (i == 9) {
-            strLineDataValueList += ", '" + listToken[9] + "'";
-          } else if (i == 5) {
-            strLineDataValueList += ", '" + listToken[12] + "'";
-          } else if (i == 6) {
-            strLineDataValueList += ", '" + listToken[13] + "'";
-          } else if (i == 7) {
-            strLineDataValueList += ", '" + listToken[14] + "'";
-          } else if (i == 0 || i == 1) {//total, n_thresh
-             strLineDataValueList += ", '0'";
-          } else {
-            strLineDataValueList += ", '-9999'";
+        for (int i = 0; i < 27; i++) {
+          switch (i) {
+            case 0:
+            case 1:
+              strLineDataValueList += ", '0'";
+              break;
+            case 2:
+            case 3:
+            case 8:
+            case 10:
+            case 11:
+            case 4:
+            case 13:case 14:case 16:case 17:case 19:case 20:case 22:case 23:case 25:case 26:
+              strLineDataValueList += ", '-9999'";
+              break;
+            case 5:
+              strLineDataValueList += ", '" + listToken[12] + "'";
+              break;
+            case 6:
+              strLineDataValueList += ", '" + listToken[13] + "'";
+              break;
+            case 7:
+              strLineDataValueList += ", '" + listToken[14] + "'";
+              break;
+            case 9:
+              strLineDataValueList += ", '" + listToken[9] + "'";
+              break;
+            case 12:
+              strLineDataValueList += ", '" + listToken[10] + "'";
+              break;
+            case 15:
+              strLineDataValueList += ", '" + listToken[11] + "'";
+              break;
+            case 18:
+              strLineDataValueList += ", '" + listToken[15] + "'";
+              break;
+            case 21:
+              strLineDataValueList += ", '" + listToken[16] + "'";
+              break;
+            case 24:
+              strLineDataValueList += ", '" + listToken[17] + "'";
+              break;
+
+          }
+
+        }
+      }
+
+      if(listToken[6].equals("RPS")){//ENSCNT line type
+        for (int i = 0; i < 30; i++) {
+          switch (i) {
+            case 0:strLineDataValueList += ", '" + listToken[9] + "'"; break;
+            case 1:case 2:case 3:case 4: strLineDataValueList += ", '-9999'";break;
+            case 5:strLineDataValueList += ", '" + listToken[10] + "'"; break;
+            case 6:case 7:case 8:case 9: strLineDataValueList += ", '-9999'";break;
+            case 10:strLineDataValueList += ", '" + listToken[11] + "'"; break;
+            case 11:case 12:case 13:case 14: strLineDataValueList += ", '-9999'";break;
+            case 15:strLineDataValueList += ", '" + listToken[12] + "'"; break;
+            case 16:case 17:case 18:case 19: strLineDataValueList += ", '-9999'";break;
+            case 20:strLineDataValueList += ", '" + listToken[13] + "'"; break;
+            case 21:case 22:case 23:case 24: strLineDataValueList += ", '-9999'";break;
+            case 25:strLineDataValueList += ", '" + listToken[14] + "'"; break;
+            case 26:case 27:case 28:case 29:strLineDataValueList += ", '-9999'";break;
+
           }
         }
+
       }
 
       if (listToken[6].equals("HIST")) {//RHIST line type
@@ -1237,6 +1295,7 @@ public class MVLoad extends MVUtil {
       }
 
 
+
       //for METv5.0 add obs_qc - the last column
         if ("V4.1".compareTo(strMetVersion) < 0 && strLineType.equals("ORANK")) {
         strLineDataValueList += ", '" + replaceInvalidValues(listToken[38]) + "'";
@@ -1245,7 +1304,7 @@ public class MVLoad extends MVUtil {
        // if ("V4.1".compareTo(strMetVersion) < 0 && strLineType.equals("MPR")) {
       //  strLineDataValueList += ", '" + replaceInvalidValues(listToken[31]) + "'";
      // }
-        if ("V4.1".compareTo(strMetVersion) >= 0) {
+      if ("V4.1".compareTo(strMetVersion) >= 0) {
         if (strLineType.equals("ORANK")) {
           strLineDataValueList += ", -9999";
         }
@@ -1253,16 +1312,16 @@ public class MVLoad extends MVUtil {
           strLineDataValueList += ", -9999";
         }
 
-          //for version < v5.0 fill in missing values with -9999
+        //for version < v5.0 fill in missing values with -9999
         if (strLineType.equals("CTS")) {
-            strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
+          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
         }
         if (strLineType.equals("NBRCTS")) {
           strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
         }
 
         if (strLineType.equals("CNT")) {
-         strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999";
+          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999";
         }
 
         if (strLineType.equals("NBRCNT")) {
@@ -1274,6 +1333,14 @@ public class MVLoad extends MVUtil {
         if (strLineType.equals("SL1L2")) {
           strLineDataValueList += ", -9999";
         }
+
+      }
+
+      if (strLineType.equals("PSTD")) {
+        strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
+      }
+      if (strLineType.equals("CNT")) {
+        strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999";
       }
 
       //  add the values list to the line type values map
@@ -1383,7 +1450,6 @@ public class MVLoad extends MVUtil {
    */
   static class MVLoadStatInsertData {
 
-    public Connection _con = null;
     public final ArrayList _listInsertValues = new ArrayList();
     public final Hashtable _tableLineDataValues = new Hashtable();
     public final ArrayList _listStatGroupInsertValues = new ArrayList();
@@ -2048,7 +2114,7 @@ public class MVLoad extends MVUtil {
     "line_data_pstd", "line_data_pjc", "line_data_prc", "line_data_sl1l2", "line_data_sal1l2",
     "line_data_vl1l2", "line_data_val1l2", "line_data_mpr", "line_data_nbrctc", "line_data_nbrcts",
     "line_data_nbrcnt", "line_data_isc", "line_data_mctc", "line_data_rhist", "line_data_orank",
-    "line_data_ssvar"
+    "line_data_ssvar","line_data_enscnt"
   };
 
   public static final MVOrderedMap _mapIndexes = new MVOrderedMap();

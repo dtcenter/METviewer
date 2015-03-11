@@ -42,20 +42,20 @@ public class LoadDataTest  {
 
   @Before
   public  void init() {
-    TABLES_TO_ROWS.put("data_file", 1673);
-    TABLES_TO_ROWS.put("data_file_lu", 6);
-    TABLES_TO_ROWS.put("line_data_cnt", 148029);//148057
-    TABLES_TO_ROWS.put("line_data_ctc", 38415);//38527
-    TABLES_TO_ROWS.put("line_data_cts", 38415);//38527
-    TABLES_TO_ROWS.put("line_data_fho", 38415);//38527
+    TABLES_TO_ROWS.put("data_file", 1701);
+    TABLES_TO_ROWS.put("data_file_lu", 7);
+    TABLES_TO_ROWS.put("line_data_cnt", 149385);//148057
+    TABLES_TO_ROWS.put("line_data_ctc", 164435);//38527
+    TABLES_TO_ROWS.put("line_data_cts", 38575);//38527
+    TABLES_TO_ROWS.put("line_data_fho", 38495);//38527
     TABLES_TO_ROWS.put("line_data_isc", 0);
     TABLES_TO_ROWS.put("line_data_mctc", 0);
     TABLES_TO_ROWS.put("line_data_mctc_cnt", 0);
     TABLES_TO_ROWS.put("line_data_mcts", 0);
     TABLES_TO_ROWS.put("line_data_mpr", 2939590);
-    TABLES_TO_ROWS.put("line_data_nbrcnt", 0);
-    TABLES_TO_ROWS.put("line_data_nbrctc", 0);
-    TABLES_TO_ROWS.put("line_data_nbrcts", 0);
+    TABLES_TO_ROWS.put("line_data_nbrcnt", 80);
+    TABLES_TO_ROWS.put("line_data_nbrctc", 40);
+    TABLES_TO_ROWS.put("line_data_nbrcts", 80);
     TABLES_TO_ROWS.put("line_data_orank", 3980);
     TABLES_TO_ROWS.put("line_data_orank_ens", 19900);
     TABLES_TO_ROWS.put("line_data_pct", 1);
@@ -66,21 +66,22 @@ public class LoadDataTest  {
     TABLES_TO_ROWS.put("line_data_pjc_thresh", 4);
     TABLES_TO_ROWS.put("line_data_prc", 1);
     TABLES_TO_ROWS.put("line_data_prc_thresh", 4);
-    TABLES_TO_ROWS.put("line_data_pstd", 1);
+    TABLES_TO_ROWS.put("line_data_pstd", 1277);
     TABLES_TO_ROWS.put("line_data_pstd_thresh", 5);
-    TABLES_TO_ROWS.put("line_data_rhist", 19);
-    TABLES_TO_ROWS.put("line_data_rhist_rank", 114);
+    TABLES_TO_ROWS.put("line_data_rhist", 1295);
+    TABLES_TO_ROWS.put("line_data_rhist_rank", 23766);
     TABLES_TO_ROWS.put("line_data_sal1l2", 18);
-    TABLES_TO_ROWS.put("line_data_sl1l2", 140502);//140530
+    TABLES_TO_ROWS.put("line_data_sl1l2", 153444);//140530
     TABLES_TO_ROWS.put("line_data_ssvar", 2001);
     TABLES_TO_ROWS.put("line_data_val1l2", 18);
-    TABLES_TO_ROWS.put("line_data_vl1l2", 3698);
+    TABLES_TO_ROWS.put("line_data_vl1l2", 4146);
     TABLES_TO_ROWS.put("mode_cts", 1161);
     TABLES_TO_ROWS.put("mode_header", 398);
     TABLES_TO_ROWS.put("mode_obj_pair", 174290);
     TABLES_TO_ROWS.put("mode_obj_single", 22903);
     TABLES_TO_ROWS.put("mv_rev", 6);
-    TABLES_TO_ROWS.put("stat_header", 4311);
+    TABLES_TO_ROWS.put("stat_header", 6097);
+    TABLES_TO_ROWS.put("line_data_enscnt", 1276);
     // recreate database
     datasource = Datasource.getInstance(host, username, pwd);
     Reader reader = null;

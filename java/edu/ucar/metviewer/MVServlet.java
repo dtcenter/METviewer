@@ -977,7 +977,8 @@ public class MVServlet extends HttpServlet {
       "(SELECT COUNT(*), 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
       "(SELECT COUNT(*), 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
+      "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
+      "(SELECT COUNT(*), 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
 
     //this is a query for the VSDB
     /*String strSQL =
@@ -1034,6 +1035,9 @@ public class MVServlet extends HttpServlet {
             break;
           case 10:
             listStatName.addAll(Arrays.asList(MVUtil._tableStatsPhist.getKeyList()));
+            break;
+          case 11:
+            listStatName.addAll(Arrays.asList(MVUtil._tableStatsEnscnt.getKeyList()));
             break;
         }
       }
