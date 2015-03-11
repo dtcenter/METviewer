@@ -159,10 +159,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 			# if empty, initialize the equalization list
 			if( 0 < sum(is.na(listEqualize)) ){
 				listEqualize = unique(dfComp$equalize);
-			}
-			
-			# if there is an equalization list, equalize the current series data
-			else {
+			} else { # if there is an equalization list, equalize the current series data
 				listInd = listEqualize %in% unique(dfComp$equalize);
 
 				# report the discarded records
@@ -178,8 +175,11 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 		# create an equalized set of data for the minimal list of dates
 		dfIndyEq = dfIndy[dfIndy$equalize %in% listEqualize,];
 		intEqRow = nrow(dfStatsEq);
-		if( 0 < nrow(dfIndyEq) ){ dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfIndyEq)),] = dfIndyEq; }
-		else                    { cat("\n    WARNING: discarding all members for indy val", strIndyVal); }
+		if( 0 < nrow(dfIndyEq) ){
+		  dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfIndyEq)),] = dfIndyEq;
+		} else {
+		 cat("\n    WARNING: discarding all members for indy val", strIndyVal);
+		}
 	}
 	
 	if( nrow(dfStatsEq) != nrow(dfStats) ){
@@ -820,7 +820,6 @@ for(indy in listIndyVal){
     dblLoCI = q[["25%"]];
     dblUpCI = q[["75%"]];
   }
-
   listSeries[[intMedIndex]][intIndyIndex] = dblMed;
   listSeries[[intLoIndex]][intIndyIndex] = dblLoCI;
   listSeries[[intUpIndex]][intIndyIndex] = dblUpCI;
