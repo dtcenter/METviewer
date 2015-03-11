@@ -2,12 +2,10 @@ package edu.ucar.metviewer;
 
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -354,6 +352,7 @@ public class MVUtil{
 	}
 	
 	public static SimpleDateFormat _formatDB = null;
+	public static SimpleDateFormat _formatDB_local = null;
 	public static SimpleDateFormat _formatDBms = null;
 	public static SimpleDateFormat _formatPlot = null;
 	public static SimpleDateFormat _formatStat = null;
@@ -363,6 +362,7 @@ public class MVUtil{
 	public static SimpleDateFormat _formatDate = null;
 	static{
 		try{ _formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");		_formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));			}catch(Exception e){}
+		try{ _formatDB_local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");				}catch(Exception e){}
 		try{ _formatDBms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");	_formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatPlot = new SimpleDateFormat("yyyyMMddHH");				_formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
 		try{ _formatStat = new SimpleDateFormat("yyyyMMdd_HHmmss");			_formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));		}catch(Exception e){}
@@ -1100,95 +1100,84 @@ public class MVUtil{
 		return new String[]{ mat.group(1), mat.group(2) };
 	}
 	
-	/**
-	 * Prints a textual representation of the input {@link MVDataTable} with the field names in the 
-	 * first row to the specified {@link PrintStream} destination.  
-	 * @param tab The MVDataTable to print
-	 * @param str The stream to write the formatted results to (defaults to _out)
-	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
-	 * @param maxRows The max number of rows to print, -1 to print all rows
-	 */
-	public static void printFormattedTable(MVDataTable tab, PrintStream str, String delim, int maxRows){
-		String[] fields = tab.getFields();
-		int[] intFieldWidths = new int[tab.getNumFields()];
-		for(int i=0; i < fields.length; i++){ intFieldWidths[i] = tab.getMaxFieldLength(fields[i]) + 2; }
-		
-		for(int i=0; i < fields.length; i++){
-			str.print( delim.equals(" ")? padEnd(fields[i], intFieldWidths[i]) : (0 < i? delim : "") + fields[i] );
-		}
-		str.println();					
-		
-		MVOrderedMap[] rows = tab.getRows();
-		int intPrintRows = (0 < maxRows? (maxRows < rows.length? maxRows : rows.length) : rows.length);
-		int intLine = 1;
-		for(int i=0; i < intPrintRows; i++){
-			for(int j=0; j < fields.length; j++){
-				String strVal = (String)rows[i].get(fields[j]); 
-				str.print( delim.equals(" ")? padEnd(strVal, intFieldWidths[j]) : (0 < j? delim : "") + strVal );
-			}
-			str.println();
-			if( 0 == intLine++ % 100 ){ str.flush(); }
-		}
-		if( 0 < maxRows && maxRows < rows.length ){ str.println("(" + (rows.length - maxRows) + " more rows...)"); }
-	}
-	public void printFormattedTable(MVDataTable tab){ printFormattedTable(tab, _out, " ", 40); }
-	public void printFormattedTable(MVDataTable tab, int maxRows){ printFormattedTable(tab, _out, " ", maxRows); }
-	public void printFormattedTable(MVDataTable tab, PrintStream str, String delim){ printFormattedTable(tab, str, delim, -1); }
+
+
 	
 	/**
 	 * Prints a textual representation of the input {@link ResultSet} with the field names in the 
-	 * first row to the specified {@link PrintStream} destination.  
-	 * @param res The ResultSet to print
-	 * @param str The stream to write the formatted results to (defaults to _out)
-	 * @param delim The delimiter to insert between field headers and values (defaults to ' ')
-	 * @param maxRows The max number of rows to print, -1 to print all rows
-	 */
-	public synchronized void printFormattedTable(ResultSet res, PrintStream str, String delim, int maxRows){
-		try{
-			ResultSetMetaData met = res.getMetaData();
-      //res.getStatement().close();
-			//  get the column display widths
-			int[] intFieldWidths = new int[met.getColumnCount()];
-			for(int i=1; i <= met.getColumnCount(); i++){
-        intFieldWidths[i-1] = met.getColumnDisplaySize(i) + 2;
-      }
-			
-			//  print out the column headers
-			for(int i=1; i <= met.getColumnCount(); i++){
-				str.print(delim.equals(" ")? padEnd(met.getColumnLabel(i), intFieldWidths[i-1]) : (1 < i? delim : "") + met.getColumnLabel(i));
-			}
-			str.println();
+	 * first row to the specified {@link BufferedWriter} destination.
+   * @param res The ResultSet to print
+   * @param bufferedWriter The stream to write the formatted results to (defaults to _out)
+   * @param delim The delimiter to insert between field headers and values (defaults to ' ')
+   */
+public synchronized void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim){
 
-			//  print out the table of values
-			int intLine = 0;
-			while( res.next() ){
-				for(int i=1; i <= met.getColumnCount(); i++){
-					String strVal = res.getString(i); 
-					try{ strVal = _formatDB.format( _formatDBms.parse(strVal) ); }catch(Exception e){}
-					strVal = (strVal.equalsIgnoreCase("null")? "NA" : strVal);
-					str.print( delim.equals(" ")? padEnd(strVal, intFieldWidths[i-1]) : (1 < i? delim : "") + strVal );
-				}
-				str.println();
-				if( 0 == (intLine++ % 100) ){ str.flush(); }
-			}
-			
-			if( 0 == intLine ){ throw new Exception("result set contained no data"); }
-			
-		}catch(Exception e){
-			_out.println("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
+ 		try{
+ 			ResultSetMetaData met = res.getMetaData();
+ 			//  get the column display widths
+ 			int[] intFieldWidths = new int[met.getColumnCount()];
+ 			for(int i=1; i <= met.getColumnCount(); i++){
+         intFieldWidths[i-1] = met.getColumnDisplaySize(i) + 2;
+       }
+
+ 			//  print out the column headers
+ 			for(int i=1; i <= met.getColumnCount(); i++){
+        if (delim.equals(" ")) {
+          bufferedWriter.write(padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
+        }
+        else {
+          if (1 == i) {
+            bufferedWriter.write(met.getColumnLabel(i));
+          } else {
+            bufferedWriter.write(delim + met.getColumnLabel(i));
+          }
+        }
+ 			}
+      bufferedWriter.write(System.getProperty("line.separator"));
+
+ 			//  print out the table of values
+ 			int intLine = 0;
+ 			while( res.next() ){
+ 				for(int i=1; i <= met.getColumnCount(); i++){
+          String strVal;
+          String objectType = met.getColumnTypeName(i);
+          if(objectType.equals("DATETIME")){
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Timestamp ts = res.getTimestamp(i, cal);
+            strVal = _formatDB_local.format(ts);
+          }else{
+            strVal = res.getString(i);
+            strVal = (strVal.equalsIgnoreCase("null")? "NA" : strVal);
+            strVal = (strVal.equalsIgnoreCase("-9999")? "NA" : strVal);
+          }
+
+
+          if (delim.equals(" ")) {
+            bufferedWriter.write(padEnd(strVal, intFieldWidths[i - 1]));
+          }else {
+            if (1 == i) {
+              bufferedWriter.write( strVal);
+            } else {
+              bufferedWriter.write(delim + strVal);
+            }
+          }
+ 				}
+        bufferedWriter.write(System.getProperty("line.separator"));
+        intLine++;
+ 			}
+
+ 			if( 0 == intLine ){ throw new Exception("result set contained no data"); }
+
+ 		}catch(Exception e){
+ 			_out.println("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
+ 			e.printStackTrace();
+ 		}
+ 	}
 
 
 
 
-
-
-	public void printFormattedTable(ResultSet res){ printFormattedTable(res, _out, " ", 40); }
-	public void printFormattedTable(ResultSet res, int maxRows){ printFormattedTable(res, _out, " ", maxRows); }
-	public void printFormattedTable(ResultSet res, PrintStream str, String delim){ printFormattedTable(res, str, delim, -1); }
-	
 	/**
 	 * Run the system command and return the output
 	 */
@@ -1235,6 +1224,7 @@ public class MVUtil{
 		else if( _tableModeSingleStatField.containsKey(strStatMode) ){ return "mode_obj_single";  }
 		else if( _tableModePairStatField.containsKey(strStatMode)   ){ return "mode_obj_pair";    }
 		else if( _tableModeRatioField.containsKey(strStat)          ){ return "mode_obj_single";  }
+    else if( _tableStatsEnscnt.containsKey(strStat)             ){ return "line_data_enscnt";  }
 		else                                                         { return "";                 }
 	}
 
@@ -1242,6 +1232,22 @@ public class MVUtil{
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
   public static final String PCT = "pct";
   public static final String NBR_CNT  = "nbr_cnt";
+
+
+  public static final MVOrderedMap _tableStatsEnscnt = new MVOrderedMap();
+
+
+    static{
+      _tableStatsEnscnt.put("ENS_RPSF",			new String[]{});
+      _tableStatsEnscnt.put("ENS_RPSCL",		new String[]{});
+      _tableStatsEnscnt.put("ENS_RPSS", 			new String[]{});
+      _tableStatsEnscnt.put("ENS_CRPSF", 		new String[]{});
+      _tableStatsEnscnt.put("ENS_CRPSCL",		new String[]{});
+      _tableStatsEnscnt.put("ENS_CRPSS",		new String[]{});
+
+  	}
+
+
 
 	public static final MVOrderedMap _tableStatsCnt = new MVOrderedMap();
 
@@ -1269,6 +1275,7 @@ public class MVUtil{
 		_tableStatsCnt.put("E90", 			new String[]{"bc"});
     _tableStatsCnt.put("IQR", 		  new String[]{ "bc"});
     _tableStatsCnt.put("MAD", 		  new String[]{ "bc"});
+    _tableStatsCnt.put("PAC", 		  new String[]{ "bc"});
 	}
 	
 	public static final MVOrderedMap _tableStatsCts = new MVOrderedMap();
@@ -1333,7 +1340,14 @@ public class MVUtil{
 		_tableStatsPstd.put("PSTD_UNCERTAINTY",	new String[]{PCT});
 		_tableStatsPstd.put("PSTD_ROC_AUC",		new String[]{PCT});
 		_tableStatsPstd.put("PSTD_BRIER",			new String[]{"nc",PCT});
+		_tableStatsPstd.put("PSTD_BRIERCL",			new String[]{"nc",PCT});
+		_tableStatsPstd.put("PSTD_INF",			new String[]{"nc",PCT});
+		_tableStatsPstd.put("PSTD_BSS",			new String[]{"nc",PCT});
+		_tableStatsPstd.put("PSTD_BRIER10",			new String[]{"nc",PCT});
+		_tableStatsPstd.put("PSTD_BRIER90",			new String[]{"nc",PCT});
 	}
+
+
 	
 	public static final MVOrderedMap _tableStatsMcts = new MVOrderedMap();
 	static{
