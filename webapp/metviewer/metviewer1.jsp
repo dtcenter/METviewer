@@ -175,7 +175,8 @@
     var initXML;
 
     if(strInitXML != "null" && strInitXML.length > 0){
-        initXML = $( strInitXML );
+        xmlDoc = $.parseXML( strInitXML ),
+        initXML = $( xmlDoc );
     }
     var series1Names=[];
     var series2Names=[];
@@ -238,10 +239,17 @@
                             updateSeriesVarValSeries("y1", 1, []);
                             updateSeriesVarValSeries("y2", 1, []);
                         } else if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely') {
+                            updateSeriesVarValRhist(1, []);
                             for (i = 0; i < fixed_var_indexes.length; i++) {
                                 values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
                                 updateFixedVarValHist(fixed_var_indexes[i], values);
                             }
+                            if (currentTab == 'Rely') {
+                                updateSeriesRely();
+                            } else {
+                                updateSeriesRhist();
+                            }
+
                         } else if (currentTab == 'Ens_ss') {
 
                             for (i = 0; i < series_var_y1_indexes.length; i++) {
@@ -752,7 +760,9 @@
                 });
 
         $( "#plot_image" ).click(function() {
-            viewImage(resultName.replace("plot_", ""));
+            if (resultName && resultName.lenght > 0) {
+                viewImage(resultName.replace("plot_", ""));
+            }
         });
         var tabIndex = 0;
         if (initXML != null) {
@@ -880,7 +890,7 @@
             $("#y2tlab_perp").val($(initXML.find("plot").find("y2tlab_perp")).text());
             $("#y2tlab_size").val($(initXML.find("plot").find("y2tlab_size")).text());
             $("#y2tlab_orient").val($(initXML.find("plot").find("y2tlab_orient")).text());
-            $("#y2_lim").val($(initXML.find("plot").find("y1_lim")).text());
+            $("#y2_lim").val($(initXML.find("plot").find("y2_lim")).text());
             $("#y2_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
 
             $("#legend_size").val($(initXML.find("plot").find("legend_size")).text());

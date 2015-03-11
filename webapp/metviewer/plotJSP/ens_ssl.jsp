@@ -175,7 +175,6 @@
                                        </select>
 
                        </td>
-                       <!--td><input type="checkbox" id="group_series_var_y1_1" onclick="updateSeriesSeriesBox();"><label for="group_series_var_y1_1">Group_y1_1</label></td-->
                    </tr>
                </table>
                <button id="add_series_var_y1" style="margin-top:5px;">Series Variable</button>

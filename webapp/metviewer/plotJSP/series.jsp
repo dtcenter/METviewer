@@ -310,13 +310,13 @@
                     </td>
                     <td id ="fcst_stat_mode_config_y1_1" style="display: none;">
                         <table style="white-space:nowrap;" ><tr>
-                            <td rowspan="2"><input type="checkbox"  class="non-acov" name = "mode_stat_diff" value = "D" onclick="updateSeriesSeriesBox();"><label >Diff</label></td>
-                            <td><input type="checkbox"  checked  name = "mode_stat_fcst" value = "F" onclick="updateSeriesSeriesBox();"><label >Fcst</label></td>
+                            <td rowspan="2"><input type="checkbox"  class="non-acov non-pair" name = "mode_stat_diff" value = "D" onclick="updateSeriesSeriesBox();"><label >Diff</label></td>
+                            <td><input type="checkbox"  class ="non-pair" checked  name = "mode_stat_fcst" value = "F" onclick="updateSeriesSeriesBox();"><label >Fcst</label></td>
                             <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_simple" value = "S" onclick="updateSeriesSeriesBox();"><label >Simple</label></td>
                             <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_matched" value = "M" onclick="updateSeriesSeriesBox();"><label >Matched</label></td>
                         </tr>
                             <tr>
-                                <td><input type="checkbox"  checked  name = "mode_stat_obs" value = "O" onclick="updateSeriesSeriesBox();"><label >Obs</label></td>
+                                <td><input type="checkbox"  class="non-pair" checked  name = "mode_stat_obs" value = "O" onclick="updateSeriesSeriesBox();"><label >Obs</label></td>
                                 <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_cluster" value = "C" onclick="updateSeriesSeriesBox();"><label >Cluster</label></td>
                                 <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_unmatched" value = "U" onclick="updateSeriesSeriesBox();"><label >Unmatched</label></td>
                             </tr>
@@ -392,13 +392,13 @@
                     <td id ="fcst_stat_mode_config_y2_1" style="display: none;">
                         <table style="white-space:nowrap;">
                             <tr>
-                                <td rowspan="2"><input type="checkbox"  class="non-acov"  name = "mode_stat_diff" value = "D" onclick="updateSeriesSeriesBox();"><label >Diff</label></td>
-                                <td><input type="checkbox"  checked  name = "mode_stat_fcst" value = "F" onclick="updateSeriesSeriesBox();"><label >Fcst</label></td>
+                                <td rowspan="2"><input type="checkbox"  class="non-acov non-pair"  name = "mode_stat_diff" value = "D" onclick="updateSeriesSeriesBox();"><label >Diff</label></td>
+                                <td><input type="checkbox"  checked  name = "mode_stat_fcst" class="non-pair" value = "F" onclick="updateSeriesSeriesBox();"><label >Fcst</label></td>
                                 <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_simple" value = "S" onclick="updateSeriesSeriesBox();"><label >Simple</label></td>
                                 <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_matched" value = "M" onclick="updateSeriesSeriesBox();"><label >Matched</label></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox"  checked  name = "mode_stat_obs" value = "O" onclick="updateSeriesSeriesBox();"><label >Obs</label></td>
+                                <td><input type="checkbox"  checked  name = "mode_stat_obs" value = "O" class="non-pair" onclick="updateSeriesSeriesBox();"><label >Obs</label></td>
                                 <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_cluster" value = "C" onclick="updateSeriesSeriesBox();"><label >Cluster</label></td>
                                 <td><input type="checkbox"  class="non-acov" checked  name = "mode_stat_unmatched" value = "U" onclick="updateSeriesSeriesBox();"><label >Unmatched</label></td>
                             </tr>
