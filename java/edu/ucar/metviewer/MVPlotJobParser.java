@@ -1210,7 +1210,46 @@ public class MVPlotJobParser extends MVUtil {
     //  plot template
     strXML += "<template>" + job.getPlotTmpl() + "</template>";
 
-    //  if there are dep, series and indep elements present, handle them
+    //  if there are  series elements present, handle them
+    if (!job.getPlotTmpl().startsWith("roc") && !job.getPlotTmpl().startsWith("rely")) {
+      //  series
+      for (int intY = 1; intY <= 2; intY++) {
+
+        //  get the series for the current y-axis
+        MVOrderedMap mapSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val());
+        strXML += "<series" + intY + ">";
+
+        //  serialize each fcst_var and it's vals
+        String[] listSeriesField = mapSeries.getKeyList();
+
+        for (int i = 0; i < listSeriesField.length; i++) {
+
+          String fieldName = listSeriesField[i];
+          String strXMLSimpleValues = "";
+          String[] listSeriesVal = (String[]) mapSeries.get(i);
+          for (int j = 0; j < listSeriesVal.length; j++) {
+            if (listSeriesVal[j].contains(",")) {
+              strXML += "<field name=\"" + fieldName + "\">";
+              strXML += "<val>" + listSeriesVal[j] + "</val>";
+              strXML += "</field>";
+            } else {
+              if (strXMLSimpleValues.length() == 0) {
+                strXMLSimpleValues = "<field name=\"" + fieldName + "\">";
+              }
+              strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
+            }
+
+          }
+          if (strXMLSimpleValues.length() > 0) {
+            strXMLSimpleValues += "</field>";
+          }
+          strXML += strXMLSimpleValues;
+        }
+        strXML += "</series" + intY + ">";
+      }
+
+    }
+    //  if there are dep,  and indep elements present, handle them
     if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc") &&
       !job.getPlotTmpl().startsWith("rely")) {
 
@@ -1238,41 +1277,7 @@ public class MVPlotJobParser extends MVUtil {
       }
       strXML += "</dep>";
 
-      //  series
-      for (int intY = 1; intY <= 2; intY++) {
 
-        //  get the series for the current y-axis
-        MVOrderedMap mapSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val());
-        strXML += "<series" + intY + ">";
-
-        //  serialize each fcst_var and it's vals
-        String[] listSeriesField = mapSeries.getKeyList();
-
-        for (int i = 0; i < listSeriesField.length; i++) {
-
-          String fieldName = listSeriesField[i];
-          String strXMLSimpleValues = "";
-          String[] listSeriesVal = (String[]) mapSeries.get(i);
-          for (int j = 0; j < listSeriesVal.length; j++) {
-            if(listSeriesVal[j].contains(",")){
-              strXML+="<field name=\"" + fieldName + "\">";
-              strXML += "<val>" + listSeriesVal[j] + "</val>";
-              strXML += "</field>";
-            }else{
-              if(strXMLSimpleValues.length()==0){
-                strXMLSimpleValues = "<field name=\"" + fieldName + "\">";
-              }
-              strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
-            }
-
-          }
-          if(strXMLSimpleValues.length()>0){
-            strXMLSimpleValues += "</field>";
-          }
-          strXML +=strXMLSimpleValues;
-        }
-        strXML += "</series" + intY + ">";
-      }
 
       //  indep
       strXML += "<indep name=\"" + job.getIndyVar() + "\">";
