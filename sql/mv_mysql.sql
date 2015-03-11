@@ -1141,7 +1141,7 @@ CREATE TABLE line_data_enscnt
    CONSTRAINT line_data_enscnt_stat_header_id_pk
    FOREIGN KEY (stat_header_id)
    REFERENCES stat_header (stat_header_id)
-);
+) ENGINE MyISAM;
 
 
 
