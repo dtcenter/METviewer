@@ -1,4 +1,6 @@
 setwd("#<r_work>#");
+source("include/util_plot.R");
+
 
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
@@ -13,16 +15,92 @@ boolGridOn		= #<grid_on>#;
 
 boolNormalizedHistogram  = #<normalized_histogram>#;
 
-# read the plot data
-dfPlot = read.delim(strDataFile);
-listHistData = dfPlot[[2]];
+listSeries1Val = #<series1_list>#;
 
-# normalize to the number of observations if needed
-if( boolNormalizedHistogram ){
-  listHistData = listHistData / sum( listHistData );
+listLegendUsr = #<legend>#;
+
+listPlotDisp	= #<plot_disp>#;
+
+listPlotOrderSeries	= #<order_series>#;
+
+
+
+# read the plot data
+dfPlot = read.delim(strDataFile,header=TRUE,sep='');
+legend=c();
+
+if(length(listSeries1Val) > 0){
+  listSeriesVar = names(listSeries1Val);
+  matPermVal = permute(listSeries1Val);
+  intSeriesIndex=0;
+
+  listSeries = list();
+  listX = unique(dfPlot$i_value);
+  suffixesInd=1;
+  for(intPermVal in 1:nrow(matPermVal)){
+    seriesLegend="";
+    listPermVal = matPermVal[intPermVal,];
+    # build a data frame containing the permutation data
+    dfPerm = dfPlot;
+    for(intVar in 1:length(listSeriesVar)){
+      valPerm = listPermVal[intVar];
+      if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+      dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
+      seriesLegend = paste(seriesLegend,valPerm);
+    }
+    seriesLegend = paste(seriesLegend,'Rank Histogram');
+    legend=append(legend, seriesLegend);
+
+
+    # if there is no data for this case, skip to the next permutation
+    if( 1 > nrow(dfPerm) ){
+      dfPerm=data.frame(i_value=listX, stat_value=rep(0, length(listX)) );
+    }else{
+      dfPerm = subset(dfPerm, select=c(i_value, stat_value));
+    }
+    if( intPermVal == 1){
+      res = dfPerm;
+    }else{
+      res = merge(x=res, y=dfPerm, by="i_value", all=TRUE, suffixes=c("", paste(".",(suffixesInd), sep="")));
+      suffixesInd=suffixesInd+1;
+    }
+
+  }
+}else{
+  res=dfPlot;
+  legend=append(legend, 'Rank Histogram');
 }
 
-listX = 1:length(listHistData);
+#replace with user's legends
+if( 0 < length(listLegendUsr) ){
+  for(index in 1:length(listLegendUsr)){
+    if(nchar(listLegendUsr[index]) > 0){
+      legend[index]=listLegendUsr[index];
+    }
+  }
+}
+
+listHistData=vector();
+listVisibleLegend=vector();
+listVisibleColors=vector();
+for(n in 2:length(names(res))){
+  actualInd = listPlotOrderSeries[n-1];
+  if(listPlotDisp[actualInd]){
+    listHistData=rbind(listHistData,res[[actualInd+1]]);
+    listVisibleLegend=append(listVisibleLegend, legend[actualInd]);
+    listVisibleColors=append(listVisibleColors, listColors[actualInd]);
+  }
+}
+
+
+
+if( boolNormalizedHistogram ){
+  for(row in 1:nrow(listHistData)){
+    listHistData[row,] = listHistData[row,] / sum( listHistData[row,] );
+  }
+}
+
+listX = unique(dfPlot$i_value);
 
 
 # specify the output file
@@ -64,15 +142,22 @@ barplot(
 	listHistData,			# bar data 
 	width = 1,				# vector of bar widths, recycled if necessary
 	space = NULL,			# space left before each bar
-	legend.text = NULL, 	# vector of text used to construct a legend
+	legend.text = listVisibleLegend, 	# vector of text used to construct a legend
 	beside = TRUE,			# logical value indicating stacked or side-by-side bars - TRUE: side-by-side, FALSE: stacked
 	horiz = FALSE,			# logical value indicating horizontal or vertical bars
-	col = listColors,		# vector of box colors
+	col = listVisibleColors,		# vector of box colors
 	border = par("fg"),		# box border
 	tcl=.1,					# tick mark length
 	ylim=#<y1_lim>#,		# y axis limits
 	names.arg=listX,		# vector of names used as x labels
-	las=#<xtlab_orient>#	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+	las=#<xtlab_orient>#,	# axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  args.legend = list(
+    ncol=#<legend_ncol>#,			  # number of columns in legend
+    x="bottom",
+    inset=#<legend_inset>#,			# inset distance from margin
+    x.intersp=1,                # horizontal character spacing factor
+    y.intersp=.8					      # vertical character spacing factor
+    )
 );
 box();
 
