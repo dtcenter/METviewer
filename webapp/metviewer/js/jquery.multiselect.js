@@ -43,7 +43,8 @@
       position: {},
       appendTo: "body",
       addLabel:false,
-      allUnselected:false
+      allUnselected:false,
+      indy_var_vals_to_attr:null
     },
 
     _create: function() {
@@ -134,6 +135,10 @@
       var html = "";
       var id = el.attr('id') || multiselectID++; // unique ID for the label & option tags
 
+      //preserve values of Labels
+      var oldLabels=[];
+
+
       // build items
       el.find('option').each(function(i) {
         var $this = $(this);
@@ -147,6 +152,8 @@
         var labelClasses = [ 'ui-corner-all' ];
         var liClasses = (isDisabled ? 'ui-multiselect-disabled ' : ' ') + this.className;
         var optLabel;
+
+
 
         // is this an optgroup?
         if(parent.tagName === 'OPTGROUP') {
@@ -195,15 +202,35 @@
 
         // add the title and close everything off
         html += ' /><span>' + description + '</span>';
-          if (o.addLabel) {
-              var listParse = description.match(/(\d+)0000$/);
-              if (null != listParse) {
-                  description = listParse[1];
-              }
-              html += '</label>&nbsp;Label:<input id = "' + inputID + '_label' + '" type="text" size="8" value="' + description + '">&nbsp;Plot val:<input type="text" size="8" id = "' + inputID + '_plot_val' + '"></li>';
-          } else {
-              html += '</label></li>';
+        if (o.addLabel) {
+          var label_old;
+          var plot_val_old;
+          if(o.indy_var_vals_to_attr){
+            try{
+            label_old = o.indy_var_vals_to_attr[value].label;
+            plot_val_old = o.indy_var_vals_to_attr[value].plot_val;
+            }catch (e){
+
+            }
+          }else{
+            label_old = $('#'+inputID + '_label').val();
+            plot_val_old = $('#'+inputID + '_plot_val').val();
           }
+          var listParse = description.match(/(\d+)0000$/);
+          if (null != listParse) {
+            description = listParse[1];
+          }
+          if(label_old && label_old != description){
+            description = label_old;
+          }
+          var plot_val="";
+          if (plot_val_old ) {
+            plot_val = plot_val_old;
+          }
+          html += '</label>&nbsp;Label:<input id = "' + inputID + '_label' + '" type="text" size="8" value="' + description + '">&nbsp;Plot val:<input type="text" size="8" id = "' + inputID + '_plot_val' + '" value="'+plot_val +'" ></li>';
+        } else {
+          html += '</label></li>';
+        }
       });
 
       // insert into the DOM
@@ -750,6 +777,10 @@
           break;
         case 'allUnselected':
             this.refresh();
+              break;
+        case 'indy_var_vals_to_attr':
+          this.options.indy_var_vals_to_attr = value;
+
       }
 
       $.Widget.prototype._setOption.apply(this, arguments);
