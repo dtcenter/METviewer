@@ -534,8 +534,10 @@ cat("PROCESSING:", strIndyVal, "\n");
         if(length(listDiffSeries) > 0){
           for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
             listPerm = listDiffSeries[[diffSeriesName]];
-            # build an output entry for the current case
-            listOutPerm = data.frame(listPerm);
+             diffSeriesName = paste("DIFF(",listPerm[1],"-",listPerm[2],")" ,collapse="");
+
+             # build an output entry for the current case
+             listOutPerm = data.frame(diffSeriesName);
             names(listOutPerm) = names(listSeriesVal);
             for(strStaticVar in names(listStaticVal)){
               listOutPerm[[strStaticVar]] = listStaticVal[[strStaticVar]];

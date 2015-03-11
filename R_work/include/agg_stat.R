@@ -107,9 +107,13 @@ for(strStaticVar in names(listStaticVal)){
   listOutPerm[[strStaticVar]] = rep(listStaticVal[[strStaticVar]], intNumOut);
 }
 for(intOutCol in 1:ncol(matOut)){
-  if     ( intOutCol <  ncol(matOut) - 1 ){ listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol]; }
-  else if( intOutCol == ncol(matOut) - 1 ){ listOutPerm[[ strIndyVar ]] = matOut[,intOutCol]; }
-  else									{ listOutPerm$stat_name = matOut[,intOutCol]; }
+  if ( intOutCol <  ncol(matOut) - 1 ){
+    listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
+  } else if ( intOutCol == ncol(matOut) - 1 ){
+    listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
+  } else {
+    listOutPerm$stat_name = matOut[,intOutCol];
+  }
 }
 listOutPerm$stat_value = rep(NA, intNumOut);
 listOutPerm$stat_bcl = rep(NA, intNumOut);
@@ -122,10 +126,15 @@ listHist = c();
 
 # SL1L2 stat calculations
 calcStdDev		= function(sum, sum_sq, n){
-  if( 1 > n ){ return(NA); }
+  if ( 1 > n ){
+    return(NA);
+  }
   v = (sum_sq - sum*sum/n)/(n - 1);
-  if( 0 > v ){ return(NA);        }
-  else       { return( sqrt(v) ); }
+  if( 0 > v ){
+    return(NA);
+  } else {
+   return( sqrt(v) );
+  }
 }
 calcFBAR		= function(d){ return( d$fbar ); }
 calcOBAR		= function(d){ return( d$obar ); }
@@ -139,8 +148,11 @@ calcMBIAS		= function(d){ if( 0 == d$obar ){ return (NA); } else { return( d$fba
 calcPR_CORR		= function(d){
   v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
   pr_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
-  if( 0 >= v || 1 < pr_corr ){ return(NA);        }
-  else                       { return( pr_corr ); }
+  if( 0 >= v || 1 < pr_corr ){
+    return(NA);
+  } else {
+    return( pr_corr );
+  }
 }
 calcME			= function(d){ return( d$fbar - d$obar ); }
 calcMSE			= function(d){ return( d$ffbar + d$oobar - 2 * d$fobar ); }
@@ -240,10 +252,7 @@ booter.iid = function(d, i){
         fn_oy	= sum( d[i,][[ paste(strPerm, "fn_oy", sep="_") ]], na.rm=TRUE ),
         fn_on	= sum( d[i,][[ paste(strPerm, "fn_on", sep="_") ]], na.rm=TRUE )
       );
-    }
-
-    # perform the aggregation of the sampled SL1L2 lines
-    else if( boolAggSl1l2 ){
+    }  else if ( boolAggSl1l2 ){ # perform the aggregation of the sampled SL1L2 lines
       listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
       total		= sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
@@ -255,10 +264,7 @@ booter.iid = function(d, i){
         oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
         mae   = sum( d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal, na.rm=TRUE ) / total
       );
-    }
-
- # perform the aggregation of the sampled NBR_CNT lines
-    else if( boolAggNbrCnt ){
+    } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
       listTotal = d[i,][[ paste(strPerm, "total", sep="_") ]];
       total = sum(listTotal, na.rm=TRUE);
       listFbs = d[i,][[ paste(strPerm, "fbs", sep="_") ]];
@@ -385,14 +391,18 @@ for(strIndyVal in listIndyVal){
         vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
         dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
       }
-      listCount[[listPerm]]=nrow(dfStatsPerm);
+      listCount[[ paste(listPerm, collapse=',' ) ]]=nrow(dfStatsPerm);
       if( 1 > nrow(dfStatsPerm) ){ next; }
 
       # add the contingency table constituents for this series permutation to the boot list
       strPerm = escapeStr(paste(listPerm, sep="_"));
-      if     ( boolAggCtc    ){ listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");        }
-      else if( boolAggSl1l2  ){ listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae"); }
-      else if( boolAggNbrCnt ){ listFields = c("total", "fbs", "fss");                              }
+      if ( boolAggCtc    ){
+        listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");
+      } else if( boolAggSl1l2  ){
+        listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
+      } else if( boolAggNbrCnt ){
+       listFields = c("total", "fbs", "fss");
+      }
       for(strCount in listFields){
         listCounts = dfStatsPerm[[strCount]];
         strCountName = paste(paste(strPerm, sep = "_", collapse = "_"), strCount, sep = "_", collapse = "_");
@@ -448,7 +458,7 @@ for(strIndyVal in listIndyVal){
 
         # store the bootstrapped stat value and CI values in the output dataframe
         dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
-        dfOut[listOutInd,]$nstats = listCount[[listPerm]];
+        dfOut[listOutInd,]$nstats = listCount[[ paste(listPerm, collapse=',' ) ]];
         strCIParm = strCIType;
         if( strCIType == "perc" ){ strCIParm = "percent"; }
         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
