@@ -3682,6 +3682,7 @@ function requestDBUpdate() {
                 opt.appendTo(databaseEl);
             }
             databaseEl.multiselect('refresh');
+            $('#listdt').jqGrid('GridUnload');
             initPage();
         }});
 
