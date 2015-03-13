@@ -532,8 +532,8 @@ if( 2 != length(listY1limUsr) ){
         box = listBox[[boxNames]];
         outliers = boxplot.stats_ci(box)$out;
         listNoOutliers = box [! box %in% outliers];
-        dblMinCurrent = min(listNoOutliers);
-        dblMaxCurrent = max(listNoOutliers);
+        dblMinCurrent = min(listNoOutliers, na.rm = TRUE);
+        dblMaxCurrent = max(listNoOutliers, na.rm = TRUE);
         if (is.null(dblMin) || dblMin > dblMinCurrent) dblMin=dblMinCurrent;
         if (is.null(dblMax) || dblMax < dblMaxCurrent) dblMax=dblMaxCurrent;
       }
@@ -566,8 +566,8 @@ if( 2 != length(listY2limUsr) ){
           box = listBox[[boxNames]];
           outliers = boxplot.stats_ci(box)$out;
           listNoOutliers = box [! box %in% outliers];
-          dblMinCurrent = min(listNoOutliers);
-          dblMaxCurrent = max(listNoOutliers);
+          dblMinCurrent = min(listNoOutliers, na.rm = TRUE);
+          dblMaxCurrent = max(listNoOutliers, na.rm = TRUE);
           if (is.null(dblMin) || dblMin > dblMinCurrent) dblMin=dblMinCurrent;
           if (is.null(dblMax) || dblMax < dblMaxCurrent) dblMax=dblMaxCurrent;
         }
