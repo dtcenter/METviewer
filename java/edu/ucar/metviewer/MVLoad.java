@@ -154,11 +154,11 @@ public class MVLoad extends MVUtil {
       MVLoadJob job = parser.getLoadJob();
 
 
-      Class.forName("com.mysql.jdbc.Driver");
+      Class.forName(job.getDBDriver());
 
       // setup the connection pool
       BoneCPConfig config = new BoneCPConfig();
-      config.setJdbcUrl("jdbc:mysql://" + job.getDBHost() + "/" + job.getDBName()); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setJdbcUrl("jdbc:"+job.getDBManagementSystem()+"://" + job.getDBHost() + "/" + job.getDBName()); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
       config.setUsername(job.getDBUser());
       config.setPassword(job.getDBPassword());
       config.setMinConnectionsPerPartition(2);
@@ -173,6 +173,7 @@ public class MVLoad extends MVUtil {
 
       //  process the elements of the job
       System.out.println("Database Connection:\n" +
+        "      db: " + job.getDBManagementSystem() + "\n" +
         "      host: " + job.getDBHost() + "\n" +
         "  database: " + job.getDBName() + "\n" +
         "      user: " + job.getDBUser() + "\n" +
@@ -490,6 +491,8 @@ public class MVLoad extends MVUtil {
         d._strLineType = "VL1L2";
       } else if (listToken[6].equals("RPS")) {
         d._strLineType = "ENSCNT";
+      } else if (listToken[6].equals("HTFR")) {
+        d._strLineType = "PCT";
       } else if (listToken[6].startsWith("FHO")) {
         d._strLineType = "CTC";
         String[] threshArr = listToken[6].split("FHO");
@@ -810,11 +813,26 @@ public class MVLoad extends MVUtil {
           }
         }
       }
+      if (listToken[6].equals("HTFR")) {//PCT line type
+        System.out.println(line);
+        for (int i = 0; i < 2; i++) {
+          if (i == 1) {
+            int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+            strLineDataValueList += ", '" + intGroupSize + "'";
+          } else if (i == 0) {//total
+            strLineDataValueList += ", '0'";
+          }
+        }
+      }
 
       if (listToken[6].equals("SL1L2")) {//SL1L2 line type
         for (int i = 0; i < 7; i++) {
           if(i + 9 < listToken.length){
-            strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+            if(i == 0){
+              strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9])).intValue() + "'";
+            }else {
+              strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+            }
 
           }else{
             strLineDataValueList += ", '-9999'";
@@ -824,7 +842,11 @@ public class MVLoad extends MVUtil {
       if (listToken[6].equals("VL1L2")) {//VL1L2 line type
         for (int i = 0; i < 8; i++) {
           if(i + 9 < listToken.length){
-            strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+            if(i == 0){
+              strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9])).intValue() + "'";
+            }else {
+              strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+            }
           }else{
             strLineDataValueList += ", '-9999'";
           }
@@ -907,7 +929,7 @@ public class MVLoad extends MVUtil {
             intNumGroups = 0;
           }
           intGroupSize = 1;
-        } else if (listToken[6].equals("HTFR")) {//PRC line type)
+        } else if (listToken[6].equals("HTFR")) {//PCT line type)
           //intGroupCntIndex = 2;
           intGroupIndex = 9;
           try {
@@ -924,23 +946,33 @@ public class MVLoad extends MVUtil {
         }
 
         //  build a insert value statement for each threshold group
-
+        if(listToken[6].equals("HIST")) {
           for (int i = 0; i < intNumGroups; i++) {
             String strThreshValues = "(" + strLineDataId + (i + 1);
             for (int j = 0; j < intGroupSize; j++) {
-              if(listToken[6].equals("HIST")){
                 double res = Double.valueOf(listToken[intGroupIndex++]);
-                if(res != -9999){
+                if (res != -9999) {
                   strThreshValues += ", " + (res * 100);
                 }
-              }else {
-                strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex++]);
-              }
+
             }
             strThreshValues += ")";
             listThreshValues.add(strThreshValues);
             intVarLengthRecords++;
           }
+        }else if (listToken[6].equals("HTFR")){
+          for (int i = 0; i < intGroupSize; i++) {
+            String strThreshValues = "(" + strLineDataId + (i + 1) +",-9999";
+            for (int j = 0; j < intNumGroups; j++) {
+              strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex + j*intGroupSize]);
+
+            }
+            intGroupIndex++;
+            strThreshValues += ")";
+            listThreshValues.add(strThreshValues);
+            intVarLengthRecords++;
+          }
+        }
 
         d._tableVarLengthValues.put(d._strLineType, listThreshValues);
       }
