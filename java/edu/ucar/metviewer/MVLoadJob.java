@@ -6,6 +6,8 @@ public class MVLoadJob {
   protected String _strDBName = "";
   protected String _strDBUser = "";
   protected String _strDBPassword = "";
+  protected String _strDBManagementSystem = null;
+  protected String _strDBDriver= null;
 
   protected boolean _boolModSchema = false;
 
@@ -35,6 +37,34 @@ public class MVLoadJob {
   protected String _strLoadNote = "";
   protected boolean _boolLoadXML = true;
 
+
+  public String getDBManagementSystem() {
+    if(_strDBManagementSystem == null){
+      return "mysql";
+    }else {
+      return _strDBManagementSystem;
+    }
+  }
+
+  public void setDBManagementSystem(String _strDBManagementSystem) {
+    this._strDBManagementSystem = _strDBManagementSystem;
+  }
+
+  public String getDBDriver() {
+    if (_strDBDriver == null) {
+      if (getDBManagementSystem().equals("mysql")) {
+        _strDBDriver = "com.mysql.jdbc.Driver";
+      } else if (getDBManagementSystem().equals("postgresql")) {
+        _strDBDriver = "org.postgresql.Driver";
+      }
+    }
+    return _strDBDriver;
+
+  }
+
+  public void setDBDriver(String _strDBDriver) {
+    this._strDBDriver = _strDBDriver;
+  }
 
   public String getDBHost() {
     return _strDBHost;

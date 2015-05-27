@@ -22,6 +22,8 @@ public class MVBatch extends MVUtil {
   public String _strRtmplFolder = "";
   public String _strRworkFolder = "";
   public String _strPlotsFolder = "";
+  private String _dbManagementSystem = "mysql";
+  private String dbTimeType = "DATETIME";
 
   public static final Pattern _patRTmpl = Pattern.compile("#<(\\w+)>#");
   public static final Pattern _patDateRange = Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
@@ -32,6 +34,13 @@ public class MVBatch extends MVUtil {
   public int _intNumPlots = 0;
   public int _intPlotIndex = 0;
   public int _intNumPlotsRun = 0;
+
+  public void setDbManagementSystem(String dbManagementSystem){
+    _dbManagementSystem = dbManagementSystem;
+    if(_dbManagementSystem.equals("postgresql")){
+      dbTimeType = "TIMESTAMP";
+    }
+  }
 
   public final MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
 
@@ -103,7 +112,6 @@ public class MVBatch extends MVUtil {
       //con = Datasource.getInstance().getConnection();
       MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, con);
       MVOrderedMap mapJobs = parser.getJobsMap();
-
 
       //  build a list of jobs to run
       ArrayList listJobNamesInput = new ArrayList();
@@ -871,20 +879,20 @@ public class MVBatch extends MVUtil {
         if (boolModePlot) {
           //strSelectList	+= ",\n  " + getSQLDateFormat("h.fcst_init") + " fcst_init";
           strSelectList += ",\n  h.fcst_init";
-          strTempList += ",\n    fcst_init           DATETIME";
+          strTempList += ",\n    fcst_init           " + dbTimeType;
         } else {
           strSelectList += ",\n " + " ld.fcst_init_beg";
-          strTempList += ",\n    fcst_init_beg       DATETIME";
+          strTempList += ",\n    fcst_init_beg       "+dbTimeType;
         }
       }
       if (!strSelectList.contains("fcst_valid")) {
         if (boolModePlot) {
           //strSelectList	+= ",\n  " + getSQLDateFormat("h.fcst_valid") + " fcst_valid";
           strSelectList += ",\n  h.fcst_valid";
-          strTempList += ",\n    fcst_valid          DATETIME";
+          strTempList += ",\n    fcst_valid          "+dbTimeType;
         } else {
           strSelectList += ",\n " + " ld.fcst_valid_beg";
-          strTempList += ",\n    fcst_valid_beg      DATETIME";
+          strTempList += ",\n    fcst_valid_beg      "+dbTimeType;
         }
       }
 
@@ -902,12 +910,12 @@ public class MVBatch extends MVUtil {
       //  for ensemble spread/skill, add the ssvar line data and bail
       if (boolEnsSs) {
 
-        listSQL.add("DROP TEMPORARY TABLE IF EXISTS plot_data;");
+        listSQL.add("DROP  TABLE IF EXISTS plot_data;");
         listSQL.add("CREATE TEMPORARY TABLE plot_data\n(\n" +
           strTempList + ",\n" +
           "    fcst_var            VARCHAR(32),\n" +
-          "    total               INT UNSIGNED,\n" +
-          "    bin_n               INT UNSIGNED,\n" +
+          "    total               INT ,\n" +
+          "    bin_n               INT ,\n" +
           "    var_min             DOUBLE,\n" +
           "    var_max             DOUBLE,\n" +
           "    var_mean            DOUBLE,\n" +
@@ -1016,7 +1024,7 @@ public class MVBatch extends MVUtil {
             "    object_id           VARCHAR(16),\n" +
             "    object_cat          VARCHAR(16),\n" +
             "    area           VARCHAR(32),\n" +
-            "    total               INT UNSIGNED,\n" +
+            "    total               INT ,\n" +
             "    fcst_flag          BOOLEAN,\n" +
             "    simple_flag          BOOLEAN,\n" +
             "    matched_flag          BOOLEAN\n" +
@@ -1040,10 +1048,10 @@ public class MVBatch extends MVUtil {
           strTempList + ",\n" +
           "    stat_name           VARCHAR(32),\n" +
           "    stat_value          VARCHAR(16),\n" +
-          "    total               INT UNSIGNED,\n" +
-          "    fy_oy               INT UNSIGNED,\n" +
-          "    fy_on               INT UNSIGNED,\n" +
-          "    fn_oy               INT UNSIGNED,\n" +
+          "    total               INT ,\n" +
+          "    fy_oy               INT ,\n" +
+          "    fy_on               INT ,\n" +
+          "    fn_oy               INT ,\n" +
           "    fn_on               INT UNSIGNED\n" +
           ");\n";
 
@@ -1053,7 +1061,7 @@ public class MVBatch extends MVUtil {
           strTempList + ",\n" +
           "    stat_name           VARCHAR(32),\n" +
           "    stat_value          VARCHAR(16),\n" +
-          "    total               INT UNSIGNED,\n" +
+          "    total               INT ,\n" +
           "    fbar                DOUBLE,\n" +
           "    obar                DOUBLE,\n" +
           "    fobar               DOUBLE,\n" +
@@ -1068,14 +1076,14 @@ public class MVBatch extends MVUtil {
           strTempList + ",\n" +
           "    stat_name           VARCHAR(32),\n" +
           "    stat_value          VARCHAR(16),\n" +
-          "    total               INT UNSIGNED,\n" +
-          "    n_thresh            INT UNSIGNED";
+          "    total               INT ,\n" +
+          "    n_thresh            INT ";
 
         for (int i = 1; i < intPctThresh; i++) {
           strTempSQLCur += ",\n" +
             "    thresh_" + i + "            DOUBLE,\n" +
-            "    oy_" + i + "                INT UNSIGNED,\n" +
-            "    on_" + i + "                INT UNSIGNED";
+            "    oy_" + i + "                INT ,\n" +
+            "    on_" + i + "                INT ";
         }
         strTempSQLCur +=
           "\n);\n";
@@ -1086,7 +1094,7 @@ public class MVBatch extends MVUtil {
           strTempList + ",\n" +
           "    stat_name           VARCHAR(32),\n" +
           "    stat_value          VARCHAR(16),\n" +
-          "    total               INT UNSIGNED,\n" +
+          "    total               INT ,\n" +
           "    fbs                 DOUBLE,\n" +
           "    fss                 DOUBLE\n" +
           ");\n";
@@ -1107,7 +1115,7 @@ public class MVBatch extends MVUtil {
       //  store or validate the temp table structure
       if (1 == intY) {
         strTempSQL = strTempSQLCur;
-        listSQL.add("DROP TEMPORARY TABLE IF EXISTS plot_data;");
+        listSQL.add("DROP  TABLE IF EXISTS plot_data;");
         listSQL.add(strTempSQL);
       } else if (!strTempSQLCur.equals(strTempSQL)) {
         throw new Exception("plot_data schemas inconsistent between y1 and y2");
@@ -1300,10 +1308,18 @@ public class MVBatch extends MVUtil {
             }
           } else {
             if (boolBCRMSE) {
-              strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
+              if(_dbManagementSystem.equals("mysql")) {
+                strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
+              }else if(_dbManagementSystem.equals("postgresql")){
+                strSelectStat += ",\n  CASE WHEN ld." + strStatField + "=-9999 THEN 'NA' ELSE  CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5)) END  stat_value";
+              }
             }
             else {
+              if(_dbManagementSystem.equals("mysql")) {
               strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',ld." + strStatField + " ) stat_value";
+              }else if(_dbManagementSystem.equals("postgresql")){
+                strSelectStat += ",\n  CASE WHEN ld." + strStatField + "=-9999 THEN 'NA' ELSE ld." + strStatField + " END  stat_value";
+              }
             }
 
             //  determine if the current stat has normal or bootstrap CIs
@@ -1474,7 +1490,7 @@ public class MVBatch extends MVUtil {
 
 
     //  build the MODE single object stat tables
-    listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single;");
+    listQuery.add("DROP  TABLE IF EXISTS mode_single;");
     listQuery.add(
       "CREATE TEMPORARY TABLE mode_single\n" +
         "(\n" +
@@ -1486,9 +1502,9 @@ public class MVBatch extends MVUtil {
         "    axis_avg            DOUBLE,\n" +
         "    length              DOUBLE,\n" +
         "    width               DOUBLE,\n" +
-        "    area                INT UNSIGNED,\n" +
-        "    area_filter         INT UNSIGNED,\n" +
-        "    area_thresh         INT UNSIGNED,\n" +
+        "    area                INT ,\n" +
+        "    area_filter         INT ,\n" +
+        "    area_thresh         INT ,\n" +
         "    curvature           DOUBLE,\n" +
         "    curvature_x         DOUBLE,\n" +
         "    curvature_y         DOUBLE,\n" +
@@ -1500,7 +1516,7 @@ public class MVBatch extends MVUtil {
         "    intensity_90        DOUBLE,\n" +
         "    intensity_nn        DOUBLE,\n" +
         "    intensity_sum       DOUBLE,\n" +
-        "    total               INT UNSIGNED,\n" +
+        "    total               INT ,\n" +
         "    fcst_flag           BOOLEAN,\n" +
         "    simple_flag         BOOLEAN,\n" +
         "    matched_flag        BOOLEAN,\n" +
@@ -1550,10 +1566,10 @@ public class MVBatch extends MVUtil {
         "  AND mc.field = 'OBJECT';");
 
     if (!boolModeRatioPlot) {
-      listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_single2;");
+      listQuery.add("DROP  TABLE IF EXISTS mode_single2;");
       listQuery.add("CREATE TEMPORARY TABLE mode_single2 SELECT * FROM mode_single;");
 
-      listQuery.add("DROP TEMPORARY TABLE IF EXISTS mode_pair;");
+      listQuery.add("DROP  TABLE IF EXISTS mode_pair;");
       listQuery.add(
         "CREATE TEMPORARY TABLE mode_pair\n" +
           "(\n" +
@@ -1563,8 +1579,8 @@ public class MVBatch extends MVUtil {
           "    convex_hull_dist    DOUBLE,\n" +
           "    angle_diff          DOUBLE,\n" +
           "    area_ratio          DOUBLE,\n" +
-          "    intersection_area   INT UNSIGNED,\n" +
-          "    union_area          INT UNSIGNED,\n" +
+          "    intersection_area   INT ,\n" +
+          "    union_area          INT ,\n" +
           "    symmetric_diff      INTEGER,\n" +
           "    intersection_over_area DOUBLE,\n" +
           "    complexity_ratio    DOUBLE,\n" +
@@ -2393,7 +2409,7 @@ public class MVBatch extends MVUtil {
         intNumDepSeries *= listVal.length;
       }
       if ( intNumDepSeries < listObsThresh.size()) {
-        String strObsThreshMsg = "ROC plots must contain data from only a single obs_thresh, " +
+        String strObsThreshMsg = "ROC/Reliability plots must contain data from only a single obs_thresh, " +
           "instead found " + listObsThresh.size();
         for (int i = 0; i < listObsThresh.size(); i++) {
           strObsThreshMsg += (0 == i ? ": " : ", ") + listObsThresh.toString();
@@ -2402,7 +2418,7 @@ public class MVBatch extends MVUtil {
       }
 
       if ( 0 == listObsThresh.size()) {
-        String strObsThreshMsg = "ROC plots must contain data from at least one obs_thresh ";
+        String strObsThreshMsg = "ROC/Reliability plots must contain data from at least one obs_thresh ";
         throw new Exception(strObsThreshMsg);
       }
 
@@ -2416,7 +2432,7 @@ public class MVBatch extends MVUtil {
         throw new Exception(strFcstThreshMsg);
       }
       if (job.getRocPct() && 0 == listObsThresh.size()) {
-              String strObsThreshMsg = "ROC plots must contain data from at least one obs_thresh ";
+              String strObsThreshMsg = "ROC/Reliability plots must contain data from at least one obs_thresh ";
               throw new Exception(strObsThreshMsg);
             }
 

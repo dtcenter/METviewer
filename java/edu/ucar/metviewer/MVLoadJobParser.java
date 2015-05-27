@@ -47,6 +47,8 @@ public class MVLoadJobParser extends MVUtil {
             job.setDBUser(node._children[j]._value);
           } else if (node._children[j]._tag.equals("password")) {
             job.setDBPassword(node._children[j]._value);
+          } else if (node._children[j]._tag.equals("management_system")) {
+            job.setDBManagementSystem(node._children[j]._value);
           }
         }
       }

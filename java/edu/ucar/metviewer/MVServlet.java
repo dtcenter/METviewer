@@ -43,6 +43,8 @@ public class MVServlet extends HttpServlet {
   public static String _strDBHost = "";
   public static String _strDBUser = "";
   public static String _strDBPassword = "";
+  public static String _strDBManagementSystem = "";
+  public static String _strDBDriver = "";
 
   public static String _strPlotXML = "";
   public static String _strRTmpl = "";
@@ -79,6 +81,8 @@ public class MVServlet extends HttpServlet {
       _strDBHost = bundle.getString("db.host");
       _strDBUser = bundle.getString("db.user");
       _strDBPassword = bundle.getString("db.password");
+      _strDBManagementSystem = bundle.getString("db.managementSystem");
+      _strDBDriver = bundle.getString("db.driver");
 
       _boolListValCache = bundle.getString("cache.val").equals("true");
       _boolListStatCache = bundle.getString("cache.stat").equals("true");
@@ -127,7 +131,7 @@ public class MVServlet extends HttpServlet {
       Matcher matDBLoad = _patDBLoad.matcher(strPath);
       if (matDBLoad.matches()) {
         String strDB = matDBLoad.group(1);
-        if (!Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).validate(strDB)) {
+        if (!Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).validate(strDB)) {
           printErrorPage(response);
           return;
         }
@@ -147,18 +151,31 @@ public class MVServlet extends HttpServlet {
           type = request.getParameter("type");
 
 
-          if (type.equals("plot_xml")) {
-            filePath = _projectDir + "/xml/" + plot + ".xml";
-          } else if (type.equals("plot_sql")) {
-            filePath = _projectDir + "/xml/" + plot + ".sql";
-          } else if (type.equals("r_script")) {
-            filePath = _projectDir + "/R_work/scripts/" + plot + ".R";
-          } else if (type.equals("r_data") || type.equals("ui-tabs-1")) {
-            filePath = _projectDir + "/R_work/data/" + plot + ".data";
-          } else if (type.equals("plot_log")) {
-            filePath = _projectDir + "/xml/" + plot + ".log";
-          } else if (type.equals("plot_image")) {
-            filePath = _projectDir + "/plots/" + plot + ".png";
+          switch (type) {
+            case "plot_xml_url":
+              filePath = _projectDir + "/xml/" + plot + ".xml";
+              break;
+            case "plot_sql_url":
+              filePath = _projectDir + "/xml/" + plot + ".sql";
+              break;
+            case "r_script_url":
+              filePath = _projectDir + "/R_work/scripts/" + plot + ".R";
+              break;
+            case "r_data_url":
+              filePath = _projectDir + "/R_work/data/" + plot + ".data";
+              break;
+            case "plot_log_url":
+              filePath = _projectDir + "/xml/" + plot + ".log";
+              break;
+            case "plot_image_url":
+              filePath = _projectDir + "/plots/" + plot + ".png";
+              break;
+            case "y1_points_url":
+              filePath = _projectDir + "/R_work/data/" + plot + ".points1";
+              break;
+            case "y2_points_url":
+              filePath = _projectDir + "/R_work/data/" + plot + ".points2";
+              break;
           }
           int length;
           File file = new File(filePath);
@@ -264,25 +281,6 @@ public class MVServlet extends HttpServlet {
       String strRequestBody = "";
       request.getSession().setAttribute("init_xml", "");
 
-       /*if (!ServletFileUpload.isMultipartContent(request) && request.getParameterMap().size() > 0) {
-              String runId = request.getParameter("fileUploadLocal");
-              String xmlPath = request.getServletContext().getRealPath("") + File.separator + "xml";
-         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-              DocumentBuilder db = dbf.newDocumentBuilder();
-         FileInputStream fileInputStream = new FileInputStream(new File(xmlPath + File.separator + "plot_" + runId + ".xml"));
-              Document doc = db.parse(fileInputStream);
-              Node plot_spec = doc.getDocumentElement();
-              Node xml_upload = doc.createElement("xml_upload");
-              xml_upload.appendChild(plot_spec);
-              MVNode mv_xml_upload = new MVNode(xml_upload);
-
-              if (con == null) {
-                con = Datasource.getInstance().getConnection();
-              }
-              String strResp = handleXMLUpload(mv_xml_upload, con);
-              request.getSession().setAttribute("init_xml", strResp);
-              response.sendRedirect("/" + _strRedirect);
-            } //else {*/
 
       //  if the request is a file upload, build the request from the file XML
       if (ServletFileUpload.isMultipartContent(request)) {
@@ -312,12 +310,6 @@ public class MVServlet extends HttpServlet {
       }
       //  if the request is not a file upload, read it directly
       else {
-        // inputStreamReader = new InputStreamReader(request.getInputStream());
-        // reader = new BufferedReader(inputStreamReader);
-        // String strLine = "";
-        // while ((strLine = reader.readLine()) != null) {
-        //   strRequestBody = strRequestBody + strLine;
-        //  }
 
         String line;
         try {
@@ -349,13 +341,16 @@ public class MVServlet extends HttpServlet {
             MVNode mv_xml_upload = new MVNode(xml_upload);
 
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
-            strResp = handleXMLUpload(mv_xml_upload, con);
+            try {
+              strResp = handleXMLUpload(mv_xml_upload, con);
+            }catch (Exception e){
+              strResp = "";
+            }
           }
           request.getSession().setAttribute("init_xml", strResp);
           response.sendRedirect("/" + _strRedirect);
-          System.out.println(" _strRedirect " + "/" + _strRedirect);
         }
       } else {
 
@@ -378,24 +373,24 @@ public class MVServlet extends HttpServlet {
           //  <list_db> request
           if (nodeCall._tag.equalsIgnoreCase("list_db")) {
             strResp = "<list_db>";
-            databases = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getAllDatabases();
+            databases = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getAllDatabases();
             for (int j = 0; j < databases.size(); j++) {
               strResp += "<val>" + databases.get(j) + "</val>";
             }
             strResp += "</list_db>";
           } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
             strResp = "<list_db>";
-            Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).initDBList();
-            databases = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getAllDatabases();
+            Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).initDBList();
+            databases = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getAllDatabases();
             for (int j = 0; j < databases.size(); j++) {
               strResp += "<val>" + databases.get(j) + "</val>";
             }
             strResp += "</list_db>";
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
             handleClearListValCache(con);
-
+            handleClearListStatCache(con);
           }
 
           //  <date> tag, which is used to prevent caching
@@ -407,7 +402,7 @@ public class MVServlet extends HttpServlet {
 
             //  check the connection pool
             currentDBName = nodeCall._value;
-            con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection(currentDBName);
+            con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection(currentDBName);
 
 
           }
@@ -424,15 +419,15 @@ public class MVServlet extends HttpServlet {
           //  <list_val_clear_cache>
           else if (nodeCall._tag.equalsIgnoreCase("list_val_clear_cache")) {
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
-            strResp += handleClearListValCache(con);
+            strResp += handleClearListValCache(con) ;
           }
 
           //  <list_val_cache_keys>
           else if (nodeCall._tag.equalsIgnoreCase("list_val_cache_keys")) {
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
             strResp += handleListValCacheKeys(con);
           }
@@ -440,15 +435,15 @@ public class MVServlet extends HttpServlet {
           //  <list_stat_clear_cache>
           else if (nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache")) {
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
-            strResp += handleClearListStatCache(con);
+            strResp += handleClearListStatCache(con) ;
           }
 
           //  <list_stat_cache_keys>
           else if (nodeCall._tag.equalsIgnoreCase("list_stat_cache_keys")) {
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
             strResp += handleListStatCacheKeys(con);
           }
@@ -460,7 +455,7 @@ public class MVServlet extends HttpServlet {
           //  <list_mv_rev>
           else if (nodeCall._tag.equalsIgnoreCase("list_mv_rev")) {
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
             strResp += handleListMVRev(con);
           }
@@ -488,7 +483,7 @@ public class MVServlet extends HttpServlet {
           //  <xml_upload>
           else if (nodeCall._tag.equalsIgnoreCase("xml_upload")) {
             if (con == null) {
-              con = Datasource.getInstance(_strDBHost,  _strDBUser, _strDBPassword).getConnection();
+              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }try{
             strResp += handleXMLUpload(nodeCall, con);
             request.getSession().setAttribute("init_xml", strResp);
@@ -1081,9 +1076,13 @@ public class MVServlet extends HttpServlet {
     String strPlotXML = strRequest;
     strPlotXML = strPlotXML.substring(strPlotXML.indexOf("</db_con>") + 9);
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
+    String strPlotPrefix;
+  //  if(strPlotXML.contains("<file_name>") && strPlotXML.contains("</file_name>")){
+  //    strPlotPrefix = strPlotXML.split("<file_name>")[1].split("</file_name>")[0];
+  //  }else {
+      strPlotPrefix = "plot_" + _formatPlot.format(new java.util.Date());
+  //  }
 
-
-    String strPlotPrefix = "plot_" + _formatPlot.format(new java.util.Date());
     //  add plot file information to the plot spec
     // String strDBName = con.getMetaData().getURL();
     strPlotXML =
@@ -1185,6 +1184,7 @@ public class MVServlet extends HttpServlet {
       //  build the job SQL using the batch engine
       bat._boolSQLOnly = true;
       bat._boolVerbose = true;
+      bat.setDbManagementSystem(_strDBManagementSystem);
       if (strJobTmpl.equals("rhist.R_tmpl")) {
         bat.runRhistJob(job);
       } else if (strJobTmpl.equals("phist.R_tmpl")) {

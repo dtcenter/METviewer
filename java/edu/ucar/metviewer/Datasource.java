@@ -1,10 +1,6 @@
 /**
- * Datasource.java
- * Copyright UCAR (c) 2013.
- * University Corporation for Atmospheric Research (UCAR),
- * National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL),
- * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2013.
+ * Datasource.java Copyright UCAR (c) 2013. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
+ * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2013.
  */
 
 package edu.ucar.metviewer;
@@ -13,14 +9,8 @@ import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
 import org.apache.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.sql.*;
+import java.util.*;
 
 /**
  * This singleton creates and manages the connection pool
@@ -35,6 +25,10 @@ public class Datasource {
   private static final Logger logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
   private static BoneCP connectionPool;
   private static List<String> listDB;
+  private static String dbManagementSystem = "mysql";
+  private static String dbHost = "localhost";
+  private static String dbUser = "mvuser";
+  private static String dbPassword = "mvuser";
 
   /**
    * Creates the connection pool and the list of all available databases using database credentials from the properties file
@@ -43,30 +37,40 @@ public class Datasource {
   private Datasource() throws SQLException {
     // load datasource properties
     ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
-    String strDBHost = bundle.getString("db.host");
-    String strDBUser = bundle.getString("db.user");
-    String strDBPassword = bundle.getString("db.password");
+    dbHost = bundle.getString("db.host");
+    dbUser = bundle.getString("db.user");
+    dbPassword = bundle.getString("db.password");
+    dbManagementSystem = bundle.getString("db.managementSystem");
+    String strDBDriver = bundle.getString("db.driver");
+    if (strDBDriver.length() == 0) {
+          strDBDriver = "com.mysql.jdbc.Driver";
+        }
+        if (!strDBDriver.contains(dbManagementSystem)) {
+          throw new SQLException("Database type doesn't match to database driver. Can't initialise the pool.");
+        }
 
     try {
-      Class.forName("com.mysql.jdbc.Driver");
+      Class.forName(strDBDriver);
     } catch (ClassNotFoundException e) {
       logger.error(e.getMessage());
     }
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
-    config.setJdbcUrl("jdbc:mysql://" + strDBHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
-    config.setUsername(strDBUser);
-    config.setPassword(strDBPassword);
-    config.setMinConnectionsPerPartition(2);
-    config.setMaxConnectionsPerPartition(3);
-    config.setPartitionCount(1);
-    config.setIdleConnectionTestPeriodInSeconds(1);
-    config.setIdleMaxAgeInSeconds(240);
-    config.setStatementsCacheSize(100);
-    config.setReleaseHelperThreads(3);
-    connectionPool = new BoneCP(config); // setup the connection pool
+    if (dbManagementSystem.equals("mysql")) {
+      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + dbHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setUsername(dbUser);
+      config.setPassword(dbPassword);
+      config.setMinConnectionsPerPartition(2);
+      config.setMaxConnectionsPerPartition(3);
+      config.setPartitionCount(1);
+      config.setIdleConnectionTestPeriodInSeconds(1);
+      config.setIdleMaxAgeInSeconds(240);
+      config.setStatementsCacheSize(100);
+      config.setReleaseHelperThreads(3);
+      connectionPool = new BoneCP(config); // setup the connection pool
+    } else if (dbManagementSystem.equals("postgresql")) {
 
-
+    }
     listDB = new ArrayList<>();
     initDBList();
 
@@ -79,27 +83,42 @@ public class Datasource {
    * @param strDBPassword - DB password
    * @throws SQLException
    */
-  private Datasource(String strDBHost, String strDBUser, String strDBPassword) throws SQLException {
+  private Datasource(String strDBDriver, String strDBHost, String strDBUser, String strDBPassword) throws SQLException {
     // load datasource properties
+    dbHost = strDBHost;
+    dbUser = strDBUser;
+    dbPassword = strDBPassword;
+
+    if (strDBDriver == null) {
+      strDBDriver = "com.mysql.jdbc.Driver";
+    }
+    if (!strDBDriver.contains(dbManagementSystem)) {
+      throw new SQLException("Database type doesn't match to database driver. Can't initialise the pool.");
+    }
 
     try {
-      Class.forName("com.mysql.jdbc.Driver");
+      Class.forName(strDBDriver);
     } catch (ClassNotFoundException e) {
       logger.error(e.getMessage());
     }
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
-    config.setJdbcUrl("jdbc:mysql://" + strDBHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
-    config.setUsername(strDBUser);
-    config.setPassword(strDBPassword);
-    config.setMinConnectionsPerPartition(10);
-    config.setMaxConnectionsPerPartition(50);
-    config.setPartitionCount(1);
-    config.setIdleConnectionTestPeriodInSeconds(1);
-    config.setIdleMaxAgeInSeconds(240);
-    config.setStatementsCacheSize(100);
-    config.setReleaseHelperThreads(3);
-    connectionPool = new BoneCP(config); // setup the connection pool
+    if (dbManagementSystem.equals("mysql")) {
+      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setUsername(strDBUser);
+      config.setPassword(strDBPassword);
+      config.setMinConnectionsPerPartition(10);
+      config.setMaxConnectionsPerPartition(50);
+      config.setPartitionCount(1);
+      config.setIdleConnectionTestPeriodInSeconds(1);
+      config.setIdleMaxAgeInSeconds(240);
+      config.setStatementsCacheSize(100);
+      config.setReleaseHelperThreads(3);
+      connectionPool = new BoneCP(config); // setup the connection pool
+
+    } else if (dbManagementSystem.equals("postgresql")) {
+      //config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost+ "/template1" ); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+    }
 
 
     listDB = new ArrayList<>();
@@ -116,16 +135,34 @@ public class Datasource {
     Connection testConnection = null;
     Statement testStatement = null;
     listDB.clear();
+    ResultSet resultSet = null;
     try {
-      testConnection = connectionPool.getConnection();
-      testStatement = testConnection.createStatement();
-      //testStatement.executeQuery("select 1");
-      ResultSet resultSet = testStatement.executeQuery("show databases");
+
       String database;
-      while (resultSet.next()) {
-        database = resultSet.getString("Database");
-        if (database.startsWith(DB_PREFIX_MV)) {
-          listDB.add(database);
+      if (dbManagementSystem.equals("mysql")) {
+        testConnection = connectionPool.getConnection();
+        testStatement = testConnection.createStatement();
+        resultSet = testStatement.executeQuery("show databases");
+
+        while (resultSet.next()) {
+          database = resultSet.getString("Database");
+          if (database.startsWith(DB_PREFIX_MV)) {
+            listDB.add(database);
+          }
+        }
+      } else if (dbManagementSystem.equals("postgresql")) {
+        String url = "jdbc:" + dbManagementSystem + "://" + dbHost + "/" + "template1";
+        Properties props = new Properties();
+        props.setProperty("user", dbUser);
+        props.setProperty("password", dbPassword);
+        testConnection = DriverManager.getConnection(url, props);
+        testStatement = testConnection.createStatement();
+        resultSet = testStatement.executeQuery("SELECT datname FROM pg_database WHERE datistemplate = false;");
+        while (resultSet.next()) {
+          database = resultSet.getString("datname");
+          if (database.startsWith(DB_PREFIX_MV)) {
+            listDB.add(database);
+          }
         }
       }
       Collections.sort(listDB);
@@ -134,6 +171,9 @@ public class Datasource {
       logger.error(e.getMessage());
 
     } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
       if (testStatement != null) {
         testStatement.close();
       }
@@ -157,17 +197,20 @@ public class Datasource {
 
   }
 
-  public static Datasource getInstance(String strDBHost,  String strDBUser, String strDBPassword) {
-      if (datasource == null) {
-        try {
-          datasource = new Datasource(strDBHost, strDBUser, strDBPassword);
-        } catch (Exception e) {
-          logger.error(e.getMessage());
+  public static Datasource getInstance(String strDBManagementSystem, String strDBDriver, String strDBHost, String strDBUser, String strDBPassword) {
+    if (datasource == null) {
+      try {
+        if (strDBManagementSystem != null) {
+          dbManagementSystem = strDBManagementSystem;
         }
+        datasource = new Datasource(strDBDriver, strDBHost, strDBUser, strDBPassword);
+      } catch (Exception e) {
+        logger.error(e.getMessage());
       }
-      return datasource;
-
     }
+    return datasource;
+
+  }
 
   /**
    * Returns a connection to the database with the specified name
@@ -175,16 +218,24 @@ public class Datasource {
    * @return - db connection
    * @throws SQLException
    */
-  public  Connection getConnection(String db) throws SQLException {
+  public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
     Statement statement = null/**/;
     if (validDB) {
       try {
-        con = connectionPool.getConnection();
-        //con.setReadOnly(true);
-        statement = con.createStatement();
-        statement.executeQuery("use " + db);
+        if (dbManagementSystem.equals("mysql")) {
+          con = connectionPool.getConnection();
+          statement = con.createStatement();
+          //con.setReadOnly(true);
+          statement.executeQuery("use " + db);
+        } else if (dbManagementSystem.equals("postgresql")) {
+          String url = "jdbc:" + dbManagementSystem + "://" + dbHost + "/" + db;
+          Properties props = new Properties();
+          props.setProperty("user", dbUser);
+          props.setProperty("password", dbPassword);
+          con = DriverManager.getConnection(url, props);
+        }
 
       } catch (SQLException e) {
         logger.error(e.getMessage());
@@ -202,7 +253,7 @@ public class Datasource {
    * Returns a connection to MySQL
    * @return - connection
    */
-  public Connection getConnection()  {
+  public Connection getConnection() {
     Connection con = null;
     try {
       con = connectionPool.getConnection();
@@ -216,17 +267,20 @@ public class Datasource {
    * Returns a connection to the database with the specified name and credentials
    * @param strDBHost - DB host
    * @param strDBName - DB name
-    * @param strDBUser - DB user name
-    * @param strDBPassword - DB password
+   * @param strDBUser - DB user name
+   * @param strDBPassword - DB password
    * @return - db connection
    */
-  public  Connection getConnection(String strDBHost, String strDBName, String strDBUser, String strDBPassword) {
+  public Connection getConnection(String strDbManagementSystem, String strDBDriver, String strDBHost, String strDBName, String strDBUser, String strDBPassword) {
     Connection con = null;
 
     if (datasource == null) {
       try {
-        datasource = new Datasource(strDBHost, strDBUser, strDBPassword);
-      } catch ( SQLException e) {
+        if (strDbManagementSystem != null) {
+          dbManagementSystem = strDbManagementSystem;
+        }
+        datasource = new Datasource(strDBDriver, strDBHost, strDBUser, strDBPassword);
+      } catch (SQLException e) {
         logger.error(e.getMessage());
       }
     }
@@ -243,7 +297,7 @@ public class Datasource {
    * @param db - name of the database to check
    * @return - is database valid
    */
-  public  boolean validate(String db) {
+  public boolean validate(String db) {
     boolean result = false;
     for (String availableDB : listDB) {
       if (availableDB.equals(db)) {
