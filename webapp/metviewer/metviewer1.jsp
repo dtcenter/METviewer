@@ -170,7 +170,7 @@
     var top = -306;
     var currentTab = 'Series';
     var lastSelRow, lastSelCol;
-    var currentPlotTab = 'plot_image';
+    var currentPlotTab = 'plot_image_url';
     var resultName;
     var strInitXML = '<%= session.getAttribute("init_xml") %>';
     var initXML;
