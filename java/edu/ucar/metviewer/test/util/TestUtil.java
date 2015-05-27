@@ -46,6 +46,8 @@ public class TestUtil {
   public static boolean verbose = false;
   public static boolean sql = false;
   public static String job_name = null;
+  public static String type = null;
+  public static String driver = null;
 
   static {
     rootDir = "/d3/projects/METViewer/test_data";
@@ -65,6 +67,8 @@ public class TestUtil {
     verbose = false;
     sql = false;
     job_name = null;
+    type = "mysql";
+    driver = "com.mysql.jdbc.Driver";
   }
 
   public static final FilenameFilter DIRECTORY_FILTER = new FilenameFilter() {

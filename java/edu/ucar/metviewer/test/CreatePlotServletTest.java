@@ -137,11 +137,12 @@ public class CreatePlotServletTest {
 
     compareDataFilesWithoutNames(testDataDir, plotType);
     comparePlotFilesWithoutNames(testDataDir, plotType);
-    compareSqlFilesWithoutNames(testDataDir, plotType);
     comparePointsFilesWithoutNames(testDataDir, "1", plotType);
     comparePointsFilesWithoutNames(testDataDir, "2", plotType);
     compareAggStatInfoFilesWithoutNames(testDataDir, plotType);
     compareDataAggStatWithoutNames(testDataDir, plotType);
+    compareSqlFilesWithoutNames(testDataDir, plotType);
+
   }
 
   @After

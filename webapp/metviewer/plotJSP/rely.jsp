@@ -19,20 +19,37 @@
         }
     </style>
     <script type="text/javascript">
-        $(document).ready(function () {
-            series_var_y1_indexes=[];
-            $('.help-button').button({
+      $(document).ready(function () {
+        series_var_y1_indexes = [];
+        $('.help-button').button({
 
-                icons: {
-                    primary: "ui-icon-help"
-                },
-                text: false
+          icons: {
+            primary: "ui-icon-help"
+          },
+          text: false
 
-            }).click(function () {
-                        $('#helpContent').empty();
-                        $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
-                        $('#helpContent').dialog('open');
-                    });
+        }).click(function () {
+          $('#helpContent').empty();
+          $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+          $('#helpContent').dialog({
+            buttons: {
+              "Open in new window": function () {
+                var win = window.open('doc/plot.html');
+                if (win) {
+                  //Browser has allowed it to be opened
+                  win.focus();
+                } else {
+                  //Broswer has blocked it
+                  alert('Please allow popups for this site');
+                }
+              },
+              Cancel: function () {
+                $(this).dialog("close");
+              }
+            }
+          });
+          $('#helpContent').dialog('open');
+        });
 
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
                 height: 400,
@@ -70,38 +87,57 @@
                        });
 
         $("#fixed_var_1").multiselect({
-                multiple: false,
-                selectedList: 1,
-                header: false,
-                minWidth: 'auto',
-                height: 'auto',
-                click: function () {
-                    var id_array = this.id.split("_");
-                    updateFixedVarValHist(id_array[id_array.length - 1], []);
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+                $('#fixed_var_val_date_period_start_1').empty();
+                $('#fixed_var_val_date_period_end_1').empty();
+
+                if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    $("#fixed_var_val_date_period_button_1").css("display", "block");
+                } else {
+                    $("#fixed_var_val_date_period_button_1").css("display", "none");
                 }
-            });
+                var id_array = this.id.split("_");
+                updateFixedVarValHist(id_array[id_array.length - 1], []);
+            }
+        });
+        $("#fixed_var_val_date_period_button_1").button({
+            icons: {
+                primary: "ui-icon-check",
+                secondary: "ui-icon-circlesmall-plus"
+            },
+            text: false
+        }).click(function () {
+            $("#fixed_var_val_date_period_1").dialog("open");
+        });
+        createValDatePeriodDialog('fixed_var_val',1);
+
         $("#fixed_var_val_1").multiselect({
-                selectedList: 100, // 0-based index
-                noneSelectedText: "Select value"
-            });
+            selectedList: 100, // 0-based index
+            noneSelectedText: "Select value"
+        });
         updateFixedVarValHist(1, []);
         fixed_var_indexes.push(1);
 
 
         $('#add_fixed_var').button({
-                        icons: {
-                                   primary: "ui-icon-circle-plus"
-                               }
-                    }).click(function () {
-                        addFixedVariableRhist();
-                    });
-
+            icons: {
+                primary: "ui-icon-circle-plus"
+            }
+        }).click(function () {
+            addFixedVariableRhist();
+        });
+        getForecastVariablesHist();
         if (initXML != null) {
             loadXMLRely();
             initXML = null;
         }else{
             updateSeriesVarValRhist(1, []);
-                       updateSeriesRhist();
+            updateSeriesRhist();
             $("input[name=rely_event_hist][value=false]").prop('checked', true);
         }
 
@@ -151,6 +187,11 @@
                 </select>
 
             </td>
+            <td>
+                <button id="series_var_val_y1_date_period_button_1"
+                        style="display: none;">Select period
+                </button>
+            </td>
         </tr>
     </table>
     <button id="add_series_var_y1" style="margin-top:5px;">Series Variable
@@ -198,6 +239,11 @@
                 </select>
 
             </td>
+            <td>
+                <button id="fixed_var_val_date_period_button_1"
+                        style="display: none;">Select period
+                </button>
+            </td>
         </tr>
     </table>
     <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
@@ -224,5 +270,65 @@
 
 <div id="helpContent" title="Help">
 </div>
+<div id="fixed_var_val_date_period_1" style="display: none;">
+       <table>
+           <tr>
+               <td><label>Start:</label>
+               </td>
+               <td><select id="fixed_var_val_date_period_start_1"></select>
+               </td>
+           </tr>
+           <tr>
+               <td><label >End:</label>
+               </td>
+               <td><select id="fixed_var_val_date_period_end_1"></select></td>
+           </tr>
+           <tr>
+               <td colspan="2" style="text-align: center;">
+                   <label >By:</label><input
+                       type="text"
+                       style="width: 50px"
+                       id="fixed_var_val_date_period_by_1"/>
+                   <select id="fixed_var_val_date_period_by_unit_1">
+                       <option value="sec">sec</option>
+                       <option value="min">min</option>
+                       <option value="hours" selected>hours</option>
+                       <option value="days">days</option>
+                   </select>
+               </td>
+           </tr>
+       </table>
+   </div>
+<div id="series_var_val_y1_date_period_1" style="display: none;">
+        <table>
+            <tr>
+                <td><label>Start:</label>
+                </td>
+                <td><select
+                        id="series_var_val_y1_date_period_start_1"></select>
+                </td>
+            </tr>
+            <tr>
+                <td><label>End:</label>
+                </td>
+                <td><select id="series_var_val_y1_date_period_end_1"></select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <label>By:</label><input
+                        type="text"
+                        style="width: 50px"
+                        id="series_var_val_y1_date_period_by_1"/>
+                    <select id="series_var_val_y1_date_period_by_unit_1">
+                        <option value="sec">sec</option>
+                        <option value="min">min</option>
+                        <option value="hours" selected>hours</option>
+                        <option value="days">days</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
 </body>
 </html>

@@ -4,11 +4,11 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.1</TITLE>
+<TITLE>METViewer v1.2</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
-      href="css/custom-smoothness/jquery-ui-1.10.4.custom.min.css"/>
+      href="css/smoothness/jquery-ui.min.css"/>
 <link rel="stylesheet" href="css/layout-default-latest.css"/>
 <link rel="stylesheet" href="css/ui.jqgrid.css"/>
 <link rel="stylesheet" href="css/jquery.colorpicker.css"/>
@@ -145,8 +145,8 @@
 }
 </style>
 
-<script src="js/jquery-1.9.1.js" type="text/javascript"></script>
-<script src="js/jquery-ui-1.10.3.custom.min.js"
+<script src="js/jquery-min.js" type="text/javascript"></script>
+<script src="js/jquery-ui.min.js"
         type="text/javascript"></script>
 <script src="js/jquery.layout-latest.min.js"
         type="text/javascript"></script>
@@ -160,6 +160,7 @@
 <script type="text/javascript"
         src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
 <script type="text/javascript" src="js/metviewer_common.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
 
 <script type="text/javascript">
 
@@ -175,7 +176,7 @@
     var initXML;
 
     if(strInitXML != "null" && strInitXML.length > 0){
-        xmlDoc = $.parseXML( strInitXML ),
+        xmlDoc = $.parseXML( strInitXML );
         initXML = $( xmlDoc );
     }
     var series1Names=[];
@@ -316,21 +317,14 @@
             }
 
             , useStateCookie: false
-            //, cookie__keys: "west.size,west.isClosed"
         });
         $("#plot_display_inner").tabs({
-            //disabled: [ 1, 2, 3, 4, 5 ],
             heightStyle: "content",
             beforeActivate: function (event, ui) {
-                            currentPlotTab= ui.newPanel.attr('id');
-                            //alert(ui.newTab.index());
-                          },
-           // beforeLoad: function( event, ui ) {
-           //     ui.jqXHR.done(function( data ) {
-           //         ui.panel.html('<pre>'+data+'</pre>' );
-          // });
-          // },
-            load: function( event, ui ) {
+                currentPlotTab = ui.newPanel.attr("aria-labelledby");
+            },
+
+            load: function (event, ui) {
                 var pre = $("<pre/>").text(ui.panel.text());
                 ui.panel.empty();
                 ui.panel.append(pre);
@@ -479,13 +473,6 @@
                     title: "Apply defaults",
                     buttonicon: "ui-icon-transferthick-e-w",
                     onClickButton: function () {
-                        /*var sr = jQuery(this).jqGrid('getGridParam', 'selrow');
-                         if (sr) {
-                         jQuery(this).jqGrid('delRowData', sr);
-                         } else {
-                         jQuery.jgrid.viewModal("#alertmod", {gbox: "#gbox_" + "<portlet:namespace />criteriaTable", jqm: true});
-                         jQuery("#jqg_alrt").focus();
-                         }*/
                         alert("defaults..")
                     }
                 });
@@ -564,12 +551,12 @@
                 $("#y1AxisDiff").prop("checked", true);
                 $("#y2AxisDiff").removeAttr("checked");
 
-                $('#series1Y2').attr("disabled", true);
-                $('#series2Y2').attr("disabled", true);
-                $('#series1Y1').removeAttr('disabled');
-                $('#series2Y1').removeAttr('disabled');
-                $('#y2AxisDiff').removeAttr("disabled");
-                $('#y1AxisDiff').removeAttr("disabled");
+                $('#series1Y2').prop("disabled", true);
+                $('#series2Y2').prop("disabled", true);
+                $('#series1Y1').removeProp('disabled');
+                $('#series2Y1').removeProp('disabled');
+                $('#y2AxisDiff').removeProp("disabled");
+                $('#y1AxisDiff').removeProp("disabled");
                 series1Names=[];
                 series2Names=[];
 
@@ -760,7 +747,7 @@
                 });
 
         $( "#plot_image" ).click(function() {
-            if (resultName && resultName.lenght > 0) {
+            if (resultName && resultName.length > 0) {
                 viewImage(resultName.replace("plot_", ""));
             }
         });
@@ -811,104 +798,124 @@
            }
         });
 
-        if (initXML != null) {
-            $('#plot_title').val($(initXML.find("plot").find("tmpl").find("title")).text());
-            $('#x_label_title').val($(initXML.find("plot").find("tmpl").find("x_label")).text());
-            $('#y1_label_title').val($(initXML.find("plot").find("tmpl").find("y1_label")).text());
-            $('#y2_label_title').val($(initXML.find("plot").find("tmpl").find("y2_label")).text());
-            $('#caption').val($(initXML.find("plot").find("tmpl").find("caption")).text());
+      if (initXML != null) {
+        $('#plot_title').val($(initXML.find("plot").find("tmpl").find("title")).text());
+        $('#x_label_title').val($(initXML.find("plot").find("tmpl").find("x_label")).text());
+        $('#y1_label_title').val($(initXML.find("plot").find("tmpl").find("y1_label")).text());
+        $('#y2_label_title').val($(initXML.find("plot").find("tmpl").find("y2_label")).text());
+        $('#caption').val($(initXML.find("plot").find("tmpl").find("caption")).text());
 
-            $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true");
-            $("#event_equal_m").prop('checked', $(initXML.find("plot").find("event_equal_m")).text() == "true");
-            $("#vert_plot").prop('checked', $(initXML.find("plot").find("vert_plot")).text() == "true");
-            $("#x_reverse").prop('checked', $(initXML.find("plot").find("x_reverse")).text() == "true");
-            $("#num_stats").prop('checked', $(initXML.find("plot").find("num_stats")).text() == "true");
-            $("#grid_on").prop('checked', $(initXML.find("plot").find("grid_on")).text() == "true");
-            $("#sync_axes").prop('checked', $(initXML.find("plot").find("sync_axes")).text() == "true");
-            $("#dump_points1").prop('checked', $(initXML.find("plot").find("dump_points1")).text() == "true");
-            $("#dump_points2").prop('checked', $(initXML.find("plot").find("dump_points2")).text() == "true");
-            $("#indy1_stag").prop('checked', $(initXML.find("plot").find("indy1_stag")).text() == "true");
-            $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
-            $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() == "true");
-            $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
+        $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true");
+        $("#event_equal_m").prop('checked', $(initXML.find("plot").find("event_equal_m")).text() == "true");
+        $("#vert_plot").prop('checked', $(initXML.find("plot").find("vert_plot")).text() == "true");
+        $("#x_reverse").prop('checked', $(initXML.find("plot").find("x_reverse")).text() == "true");
+        $("#num_stats").prop('checked', $(initXML.find("plot").find("num_stats")).text() == "true");
+        $("#grid_on").prop('checked', $(initXML.find("plot").find("grid_on")).text() == "true");
+        $("#sync_axes").prop('checked', $(initXML.find("plot").find("sync_axes")).text() == "true");
+        $("#dump_points1").prop('checked', $(initXML.find("plot").find("dump_points1")).text() == "true");
+        $("#dump_points2").prop('checked', $(initXML.find("plot").find("dump_points2")).text() == "true");
+        $("#indy1_stag").prop('checked', $(initXML.find("plot").find("indy1_stag")).text() == "true");
+        $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
+        $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() == "true");
+        $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
 
-            $("#plot_type").val($(initXML.find("plot").find("plot_type")).text());
-            $("#plot_height").val($(initXML.find("plot").find("plot_height")).text());
-            $("#plot_width").val($(initXML.find("plot").find("plot_width")).text());
-            $("#plot_units").val($(initXML.find("plot").find("plot_units")).text());
-            $("#cex").val($(initXML.find("plot").find("cex")).text());
-            $("#plot_res").val($(initXML.find("plot").find("plot_res")).text());
-            $("#mar").val($(initXML.find("plot").find("mar")).text());
-            $("#mgp").val($(initXML.find("plot").find("mgp")).text());
-            $("#title_align").val($(initXML.find("plot").find("title_align")).text());
-            $("#title_offset").val($(initXML.find("plot").find("title_offset")).text());
-            $("#title_size").val($(initXML.find("plot").find("title_size")).text());
-            $("#title_weight").val($(initXML.find("plot").find("title_weight")).text());
-            $("#grid_lty").val($(initXML.find("plot").find("grid_lty")).text());
-            $("#grid_lwd").val($(initXML.find("plot").find("grid_lwd")).text());
-            $('#grid_col').colorpicker('setColor', $(initXML.find("plot").find("grid_col")).text());
-            $("#grid_x").val($(initXML.find("plot").find("grid_x")).text());
-            $("#plot_cmd").val($(initXML.find("plot").find("plot_cmd")).text());
+        $("#plot_type").val($(initXML.find("plot").find("plot_type")).text());
+        $("#plot_height").val($(initXML.find("plot").find("plot_height")).text());
+        $("#plot_width").val($(initXML.find("plot").find("plot_width")).text());
+        $("#plot_units").val($(initXML.find("plot").find("plot_units")).text());
+        $("#cex").val($(initXML.find("plot").find("cex")).text());
+        $("#plot_res").val($(initXML.find("plot").find("plot_res")).text());
 
-            $("#xlab_align").val($(initXML.find("plot").find("xlab_align")).text());
-            $("#xlab_offset").val($(initXML.find("plot").find("xlab_offset")).text());
-            $("#xlab_size").val($(initXML.find("plot").find("xlab_size")).text());
-            $("#xlab_weight").val($(initXML.find("plot").find("xlab_weight")).text());
-            $("#xtlab_horiz").val($(initXML.find("plot").find("xtlab_horiz")).text());
-            $("#xtlab_perp").val($(initXML.find("plot").find("xtlab_perp")).text());
-            $("#xtlab_size").val($(initXML.find("plot").find("xtlab_size")).text());
-            $("#xtlab_freq").val($(initXML.find("plot").find("xtlab_freq")).text());
-            $("#xtlab_orient").val($(initXML.find("plot").find("xtlab_orient")).text());
+        var mar_arr = $(initXML.find("plot").find("mar")).text().replace("c(", "").replace(")", "").split(",");
 
-            $("#x2lab_align").val($(initXML.find("plot").find("x2lab_align")).text());
-            $("#x2lab_offset").val($(initXML.find("plot").find("x2lab_offset")).text());
-            $("#x2lab_size").val($(initXML.find("plot").find("x2lab_size")).text());
-            $("#x2lab_weight").val($(initXML.find("plot").find("x2lab_weight")).text());
-            $("#x2tlab_horiz").val($(initXML.find("plot").find("x2tlab_horiz")).text());
-            $("#x2tlab_perp").val($(initXML.find("plot").find("x2tlab_perp")).text());
-            $("#x2tlab_size").val($(initXML.find("plot").find("x2tlab_size")).text());
-            $("#x2tlab_orient").val($(initXML.find("plot").find("x2tlab_orient")).text());
+        $("#mar_bottom").val(mar_arr[0]);
+        $("#mar_left").val(mar_arr[1]);
+        $("#mar_top").val(mar_arr[2]);
+        $("#mar_right").val(mar_arr[3]);
 
+        var mgp_arr = $(initXML.find("plot").find("mgp")).text().replace("c(", "").replace(")", "").split(",");
 
-            $("#ylab_align").val($(initXML.find("plot").find("ylab_align")).text());
-            $("#ylab_offset").val($(initXML.find("plot").find("ylab_offset")).text());
-            $("#ylab_size").val($(initXML.find("plot").find("ylab_size")).text());
-            $("#ylab_weight").val($(initXML.find("plot").find("ylab_weight")).text());
-            $("#ytlab_horiz").val($(initXML.find("plot").find("ytlab_horiz")).text());
-            $("#ytlab_perp").val($(initXML.find("plot").find("ytlab_perp")).text());
-            $("#ytlab_size").val($(initXML.find("plot").find("ytlab_size")).text());
-            $("#ytlab_orient").val($(initXML.find("plot").find("ytlab_orient")).text());
-            $("#y1_lim").val($(initXML.find("plot").find("y1_lim")).text());
-            $("#y1_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
+        $("#mgp_title").val(mgp_arr[0]);
+        $("#mgp_labels").val(mgp_arr[1]);
+        $("#mgp_line").val(mgp_arr[2]);
 
+        $("#title_align").val($(initXML.find("plot").find("title_align")).text());
+        $("#title_offset").val($(initXML.find("plot").find("title_offset")).text());
+        $("#title_size").val($(initXML.find("plot").find("title_size")).text());
+        $("#title_weight").val($(initXML.find("plot").find("title_weight")).text());
+        $("#grid_lty").val($(initXML.find("plot").find("grid_lty")).text());
+        $("#grid_lwd").val($(initXML.find("plot").find("grid_lwd")).text());
+        $('#grid_col').colorpicker('setColor', $(initXML.find("plot").find("grid_col")).text());
+        $("#grid_x").val($(initXML.find("plot").find("grid_x")).text());
+        $("#plot_cmd").val($(initXML.find("plot").find("plot_cmd")).text());
 
-            $("#y2lab_align").val($(initXML.find("plot").find("y2lab_align")).text());
-            $("#y2lab_offset").val($(initXML.find("plot").find("y2lab_offset")).text());
-            $("#y2lab_size").val($(initXML.find("plot").find("y2lab_size")).text());
-            $("#y2lab_weight").val($(initXML.find("plot").find("y2lab_weight")).text());
-            $("#y2tlab_horiz").val($(initXML.find("plot").find("y2tlab_horiz")).text());
-            $("#y2tlab_perp").val($(initXML.find("plot").find("y2tlab_perp")).text());
-            $("#y2tlab_size").val($(initXML.find("plot").find("y2tlab_size")).text());
-            $("#y2tlab_orient").val($(initXML.find("plot").find("y2tlab_orient")).text());
-            $("#y2_lim").val($(initXML.find("plot").find("y2_lim")).text());
-            $("#y2_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
+        $("#xlab_align").val($(initXML.find("plot").find("xlab_align")).text());
+        $("#xlab_offset").val($(initXML.find("plot").find("xlab_offset")).text());
+        $("#xlab_size").val($(initXML.find("plot").find("xlab_size")).text());
+        $("#xlab_weight").val($(initXML.find("plot").find("xlab_weight")).text());
+        $("#xtlab_horiz").val($(initXML.find("plot").find("xtlab_horiz")).text());
+        $("#xtlab_perp").val($(initXML.find("plot").find("xtlab_perp")).text());
+        $("#xtlab_size").val($(initXML.find("plot").find("xtlab_size")).text());
+        $("#xtlab_freq").val($(initXML.find("plot").find("xtlab_freq")).text());
+        $("#xtlab_orient").val($(initXML.find("plot").find("xtlab_orient")).text());
 
-            $("#legend_size").val($(initXML.find("plot").find("legend_size")).text());
-            $("#legend_inset").val($(initXML.find("plot").find("legend_inset")).text());
-            $("#legend_box").val($(initXML.find("plot").find("legend_box")).text());
-            $("#legend_ncol").val($(initXML.find("plot").find("legend_ncol")).text());
-            $("#caption_align").val($(initXML.find("plot").find("caption_align")).text());
-            $("#caption_offset").val($(initXML.find("plot").find("caption_offset")).text());
-            $("#caption_size").val($(initXML.find("plot").find("caption_size")).text());
-            $("#caption_weight").val($(initXML.find("plot").find("caption_weight")).text());
-            var caption_col = $(initXML.find("plot").find("caption_col")).text();
-            if(caption_col.length > 7) {
-                caption_col = caption_col.substring(0,7);
-            }
-            $('#caption_col').colorpicker('setColor', caption_col);
+        $("#x2lab_align").val($(initXML.find("plot").find("x2lab_align")).text());
+        $("#x2lab_offset").val($(initXML.find("plot").find("x2lab_offset")).text());
+        $("#x2lab_size").val($(initXML.find("plot").find("x2lab_size")).text());
+        $("#x2lab_weight").val($(initXML.find("plot").find("x2lab_weight")).text());
+        $("#x2tlab_horiz").val($(initXML.find("plot").find("x2tlab_horiz")).text());
+        $("#x2tlab_perp").val($(initXML.find("plot").find("x2tlab_perp")).text());
+        $("#x2tlab_size").val($(initXML.find("plot").find("x2tlab_size")).text());
+        $("#x2tlab_orient").val($(initXML.find("plot").find("x2tlab_orient")).text());
 
 
-        }else{
+        $("#ylab_align").val($(initXML.find("plot").find("ylab_align")).text());
+        $("#ylab_offset").val($(initXML.find("plot").find("ylab_offset")).text());
+        $("#ylab_size").val($(initXML.find("plot").find("ylab_size")).text());
+        $("#ylab_weight").val($(initXML.find("plot").find("ylab_weight")).text());
+        $("#ytlab_horiz").val($(initXML.find("plot").find("ytlab_horiz")).text());
+        $("#ytlab_perp").val($(initXML.find("plot").find("ytlab_perp")).text());
+        $("#ytlab_size").val($(initXML.find("plot").find("ytlab_size")).text());
+        $("#ytlab_orient").val($(initXML.find("plot").find("ytlab_orient")).text());
+
+        var y1_lim_arr = $(initXML.find("plot").find("y1_lim")).text().replace("c(", "").replace(")", "").split(",");
+
+        $("#y1_lim_min").val(y1_lim_arr[0]);
+        $("#y1_lim_max").val(y1_lim_arr[1]);
+        $("#y1_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
+
+
+        $("#y2lab_align").val($(initXML.find("plot").find("y2lab_align")).text());
+        $("#y2lab_offset").val($(initXML.find("plot").find("y2lab_offset")).text());
+        $("#y2lab_size").val($(initXML.find("plot").find("y2lab_size")).text());
+        $("#y2lab_weight").val($(initXML.find("plot").find("y2lab_weight")).text());
+        $("#y2tlab_horiz").val($(initXML.find("plot").find("y2tlab_horiz")).text());
+        $("#y2tlab_perp").val($(initXML.find("plot").find("y2tlab_perp")).text());
+        $("#y2tlab_size").val($(initXML.find("plot").find("y2tlab_size")).text());
+        $("#y2tlab_orient").val($(initXML.find("plot").find("y2tlab_orient")).text());
+        var y2_lim_arr = $(initXML.find("plot").find("y2_lim")).text().replace("c(", "").replace(")", "").split(",");
+        $("#y2_lim_min").val(y2_lim_arr[0]);
+        $("#y2_lim_max").val(y2_lim_arr[1]);
+        $("#y2_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
+
+        $("#legend_size").val($(initXML.find("plot").find("legend_size")).text());
+        var legend_inset_arr = $(initXML.find("plot").find("legend_inset")).text().replace("c(", "").replace(")", "").split(",");
+        $("#legend_inset_min").val(legend_inset_arr[0]);
+        $("#legend_inset_max").val(legend_inset_arr[1]);
+        $("#legend_box").val($(initXML.find("plot").find("legend_box")).text());
+        $("#legend_ncol").val($(initXML.find("plot").find("legend_ncol")).text());
+        $("#caption_align").val($(initXML.find("plot").find("caption_align")).text());
+        $("#caption_offset").val($(initXML.find("plot").find("caption_offset")).text());
+        $("#caption_size").val($(initXML.find("plot").find("caption_size")).text());
+        $("#caption_weight").val($(initXML.find("plot").find("caption_weight")).text());
+        var caption_col = $(initXML.find("plot").find("caption_col")).text();
+        if (caption_col.length > 7) {
+          caption_col = caption_col.substring(0, 7);
+        }
+        $('#caption_col').colorpicker('setColor', caption_col);
+
+
+      } else {
             resetFormatting();
         }
     }
@@ -993,7 +1000,9 @@
             }
         });*/
         $('#ui-tabs-1').empty();
-        $("#r_data_url").attr("href", "R_work/data/" + resultName + ".data");
+        $("#r_data_url").prop("href", "R_work/data/" + resultName + ".data");
+        $("#y1_points_url").prop("href", "R_work/data/" + resultName + ".points1");
+        $("#y2_points_url").prop("href", "R_work/data/" + resultName + ".points2");
         $('#plot_display_inner').tabs({ active: 0 });
 
     }
@@ -1169,12 +1178,14 @@
 
 
     <ul style="-moz-border-radius-bottomleft: 0; -moz-border-radius-bottomright: 0;">
-        <li><a href="#plot_image">Plot</a></li>
-        <li><a href="#plot_xml">XML</a></li>
-        <li><a href="#plot_log">Log</a></li>
-        <li><a href="#r_script">R script</a></li>
+        <li><a href="#plot_image" id="plot_image_url">Plot</a></li>
+        <li><a href="#plot_xml" id="plot_xml_url">XML</a></li>
+        <li><a href="#plot_log" id="plot_log_url">Log</a></li>
+        <li><a href="#r_script" id="r_script_url">R script</a></li>
         <li><a id="r_data_url" href="R_work/data/.data">R data</a></li>
-        <li><a href="#plot_sql">SQL</a></li>
+        <li><a href="#plot_sql" id="plot_sql_url">SQL</a></li>
+        <li><a id="y1_points_url" href="R_work/data/.points1">Y1 Points</a></li>
+        <li><a id="y2_points_url" href="R_work/data/.points2">Y2 Points</a></li>
     </ul>
     <div class="ui-layout-content ui-widget-content ui-corner-bottom" style="border-top: 0; padding-bottom: 1em;">
 
@@ -1192,6 +1203,12 @@
         <div id="r_data">
         </div>
         <div id="plot_sql">
+
+        </div>
+        <div id="y1_points">
+
+        </div>
+        <div id="y2_points">
 
         </div>
 
@@ -1215,35 +1232,39 @@
 <button id="reset_formatting" style="bottom: 28px; float: right; right: 3px;">Reset</button>
 <div class="ui-layout-content ui-widget-content ui-corner-bottom" style="border-top: 0; padding: 0;">
 <div id="plot_title_labels">
-    <table style="width: 100%;">
-        <col width="70">
-
-        <tr>
-            <td><label for="plot_title">Title</label></td>
-            <td><input type="text" id="plot_title" value="test title"
-                       style="width: 100%"></td>
-        </tr>
-        <tr>
-            <td><label for="x_label_title">X label</label></td>
-            <td><input type="text" id="x_label_title" value="test x_label"
-                       style="width: 100%"></td>
-        </tr>
-        <tr>
-            <td><label for="y1_label_title">Y1 label</label></td>
-            <td><input type="text" id="y1_label_title" value="test y_label"
-                       style="width: 100%"></td>
-        </tr>
-        <tr>
-            <td><label for="y1_label_title">Y2 label</label></td>
-            <td><input type="text" id="y2_label_title" value=""
-                       style="width: 100%"></td>
-        </tr>
-        <tr>
-            <td><label for="caption">Caption</label></td>
-            <td><input type="text" id="caption" value="" style="width: 100%">
-            </td>
-        </tr>
-    </table>
+  <table style="width: 100%;">
+    <col width="70">
+    <tr>
+      <td><label for="file_name">File name</label></td>
+      <td><input type="text" id="file_name" value=""
+                 style="width: 100%"></td>
+    </tr>
+    <tr>
+      <td><label for="plot_title">Title</label></td>
+      <td><input type="text" id="plot_title" value="test title"
+                 style="width: 100%"></td>
+    </tr>
+    <tr>
+      <td><label for="x_label_title">X label</label></td>
+      <td><input type="text" id="x_label_title" value="test x_label"
+                 style="width: 100%"></td>
+    </tr>
+    <tr>
+      <td><label for="y1_label_title">Y1 label</label></td>
+      <td><input type="text" id="y1_label_title" value="test y_label"
+                 style="width: 100%"></td>
+    </tr>
+    <tr>
+      <td><label for="y1_label_title">Y2 label</label></td>
+      <td><input type="text" id="y2_label_title" value=""
+                 style="width: 100%"></td>
+    </tr>
+    <tr>
+      <td><label for="caption">Caption</label></td>
+      <td><input type="text" id="caption" value="" style="width: 100%">
+      </td>
+    </tr>
+  </table>
 </div>
 <div id="common">
 
@@ -1328,10 +1349,19 @@
                             <td><input type="text" size="11" id="plot_res" value="72"></td>
                         </tr>
                         <tr>
-                            <td><label for="mar">Margins</label></td>
-                            <td ><input id="mar" type="text" value="c(8, 4, 5, 4)" size="11"></td>
-                            <td><label for="mgp">Axis Margin Line</label></td>
-                            <td ><input type="text" size="11" id="mgp" value="c(1, 1, 0)"></td>
+                            <td><label >Margins</label></td>
+                            <td colspan="2">
+                              <input type="text" size="3" id="mar_bottom" style="width:30px; margin-right:5px;">
+                              <input type="text" size="3" id="mar_left" style="width:30px; margin-right:5px;">
+                              <input type="text" size="3" id="mar_top" style="width:30px; margin-right:5px;">
+                              <input type="text" size="3" id="mar_right" style="width:30px; ">
+                            </td>
+                            <td><label>Axis Margin Line</label></td>
+                          <td colspan="2">
+                            <input type="text" size="3" id="mgp_title" style="width:30px; margin-right:5px;">
+                            <input type="text" size="3" id="mgp_labels" style="width:30px; margin-right:5px;">
+                            <input type="text" size="3" id="mgp_line" style="width:30px; margin-right:5px;">
+                            </td>
                         </tr>
 
                     </table>
@@ -1555,7 +1585,7 @@
                 <fieldset>
                     <legend>Y1 Bounds</legend>
                     <table style="width:100%"><tr>
-                        <td><label for="y1_lim" style="margin-right: 5px;">Limits</label><input type="text"size="12" id="y1_lim"></td>
+                        <td><label  style="margin-right: 5px;">Limits</label><input type="text" size="6" id="y1_lim_min" style="width:40px; margin-right:5px;"><input type="text" size="6" id="y1_lim_max" style="width:40px; margin-left:5px;"></td>
                         <td><label for="y1_bufr" style="margin-right: 5px;">Top and bottom buffer</label><input type="text" size="12" id="y1_bufr">
                     </tr></table>
                 </fieldset></td>
@@ -1589,8 +1619,6 @@
                                             <option value="5">Symbol</option>
                                         </select></td>
                         </tr>
-
-
                     </table>
                 </fieldset>
             </td>
@@ -1599,11 +1627,14 @@
                     <legend>Y1 values formatting</legend>
                     <table>
                         <tr>
-                            <td><label for="ytlab_horiz">Horizontal align</label></td>
-                            <td><input type="text" size="23" id="ytlab_horiz" value="0.5"></td>
+                            <td><label for="ytlab_horiz">Horizontal
+                                align</label></td>
+                            <td><input type="text" size="23" id="ytlab_horiz"
+                                       value="0.5"></td>
                         </tr>
                         <tr>
-                            <td><label for="ytlab_perp">Perpendicular offset</label></td>
+                            <td><label for="ytlab_perp">Perpendicular
+                                offset</label></td>
                             <td><input type="text" size="23" id="ytlab_perp" value=".5"></td>
                         </tr>
                         <tr>
@@ -1611,16 +1642,16 @@
                             <td><input type="text" size="23" id="ytlab_size" value="1"></td>
                         </tr>
                         <tr>
-                            <td><label for="ytlab_orient">Orientation</label></td>
+                            <td><label for="ytlab_orient">Orientation</label>
+                            </td>
                             <td><select id="ytlab_orient">
-                                                <option value="0">Parallel to axis</option>
-                                                <option value="1" selected>Horizontal</option>
-                                                <option value="2">Perpendicular to axis</option>
-                                                <option value="3">Vertical</option>
-                                            </select></td>
+                                <option value="0">Parallel to axis</option>
+                                <option value="1" selected>Horizontal</option>
+                                <option value="2">Perpendicular to axis
+                                </option>
+                                <option value="3">Vertical</option>
+                            </select></td>
                         </tr>
-
-
                     </table>
                 </fieldset>
             </td>
@@ -1634,7 +1665,7 @@
                        <fieldset>
                            <legend>Y2 Bounds</legend>
                            <table style="width:100%"><tr>
-                               <td><label for="y2_lim" style="margin-right: 5px;">Limits</label><input type="text"size="12" id="y2_lim"></td>
+                             <td><label  style="margin-right: 5px;">Limits</label><input type="text" size="6" id="y2_lim_min" style="width:40px; margin-right:5px;"><input type="text" size="6" id="y2_lim_max" style="width:40px; margin-left:5px;"></td>
                                <td><label for="y2_bufr" style="margin-right: 5px;">Top and bottom buffer</label><input type="text" size="12" id="y2_bufr">
                            </tr></table>
                        </fieldset></td>
@@ -1718,8 +1749,8 @@
                                   <td><input type="text" size="10" id="legend_size" value="0.8"></td>
                               </tr>
                               <tr>
-                                  <td><label for="legend_inset">Box Position</label></td>
-                                  <td><input type="text" size="10" id="legend_inset" value="c(0, -.25)"></td>
+                                  <td><label>Box Position</label></td>
+                                  <td><input type="text" size="5" id="legend_inset_min" style="width:40px; margin-right:5px;"><input type="text" size="5" id="legend_inset_max" style="width:40px; margin-left:5px;"></td>
                               </tr>
                               <tr>
                                   <td><label for="legend_box" style="width:75px">Box Type</label></td>

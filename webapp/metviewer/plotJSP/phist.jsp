@@ -23,28 +23,45 @@
             series_var_y1_indexes=[];
 
             $("#plot_data").multiselect({
-                            multiple: false,
-                            selectedList: 1,
-                            header: false,
-                            minWidth: 'auto',
-                            height: 'auto',
-                            click: function (event, ui) {
+                multiple: false,
+                selectedList: 1,
+                header: false,
+                minWidth: 'auto',
+                height: 'auto',
+                click: function (event, ui) {
 
-                            }
-                        });
+                }
+            });
 
-            $('.help-button').button({
+          $('.help-button').button({
 
-                icons: {
-                    primary: "ui-icon-help"
+            icons: {
+              primary: "ui-icon-help"
+            },
+            text: false
+
+          }).click(function () {
+            $('#helpContent').empty();
+            $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+            $('#helpContent').dialog({
+              buttons: {
+                "Open in new window": function () {
+                  var win = window.open('doc/plot.html');
+                  if (win) {
+                    //Browser has allowed it to be opened
+                    win.focus();
+                  } else {
+                    //Broswer has blocked it
+                    alert('Please allow popups for this site');
+                  }
                 },
-                text: false
-
-            }).click(function () {
-                        $('#helpContent').empty();
-                        $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
-                        $('#helpContent').dialog('open');
-                    });
+                Cancel: function () {
+                  $(this).dialog("close");
+                }
+              }
+            });
+            $('#helpContent').dialog('open');
+          });
 
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
                 height: 400,
@@ -62,8 +79,8 @@
             text: false,
             disabled: true
         }).click(function () {
-                    removeFixedVarRhist($(this).attr('id'));
-                });
+            removeFixedVarRhist($(this).attr('id'));
+        });
 
         $("#fixed_var_1").multiselect({
             multiple: false,
@@ -71,11 +88,32 @@
             header: false,
             minWidth: 'auto',
             height: 'auto',
-            click: function () {
+            click: function (event, ui) {
+                $('#fixed_var_val_date_period_start_1').empty();
+                $('#fixed_var_val_date_period_end_1').empty();
+
+                if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                    $("#fixed_var_val_date_period_button_1").css("display", "block");
+                } else {
+                    $("#fixed_var_val_date_period_button_1").css("display", "none");
+                }
                 var id_array = this.id.split("_");
                 updateFixedVarValHist(id_array[id_array.length - 1], []);
             }
         });
+
+        $("#fixed_var_val_date_period_button_1").button({
+            icons: {
+                primary: "ui-icon-check",
+                secondary: "ui-icon-circlesmall-plus"
+            },
+            text: false
+        }).click(function () {
+            $("#fixed_var_val_date_period_1").dialog("open");
+        });
+        createValDatePeriodDialog('fixed_var_val',1);
+
+
         $("#fixed_var_val_1").multiselect({
             selectedList: 100, // 0-based index
             noneSelectedText: "Select value"
@@ -109,7 +147,7 @@
                     }).click(function () {
                         addFixedVariableRhist();
                     });
-        //updateSeriesRhist();
+        getForecastVariablesHist();
         if (initXML != null) {
             loadXMLRhist();
             updateSeriesRhist();
@@ -158,16 +196,23 @@
                            </select>
                        </td>
                        <td>
-                           <select  multiple="multiple" id="series_var_val_y1_1" >
+                           <select multiple="multiple"
+                                   id="series_var_val_y1_1">
 
-                                       </select>
+                           </select>
 
+                       </td>
+                       <td>
+                           <button id="series_var_val_y1_date_period_button_1"
+                                   style="display: none;">Select period
+                           </button>
                        </td>
                    </tr>
                </table>
-               <button id="add_series_var_y1" style="margin-top:5px;">Series Variable</button>
-           </div>
-    </div>
+    <button id="add_series_var_y1" style="margin-top:5px;">Series Variable
+    </button>
+</div>
+</div>
 
 
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
@@ -209,6 +254,11 @@
                 </select>
 
             </td>
+            <td>
+                <button id="fixed_var_val_date_period_button_1"
+                        style="display: none;">Select period
+                </button>
+            </td>
         </tr>
     </table>
     <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
@@ -235,5 +285,66 @@
     </div>
 <div id="helpContent" title="Help">
 </div>
+<div id="fixed_var_val_date_period_1" style="display: none;">
+       <table>
+           <tr>
+               <td><label>Start:</label>
+               </td>
+               <td><select id="fixed_var_val_date_period_start_1"></select>
+               </td>
+           </tr>
+           <tr>
+               <td><label >End:</label>
+               </td>
+               <td><select id="fixed_var_val_date_period_end_1"></select></td>
+           </tr>
+           <tr>
+               <td colspan="2" style="text-align: center;">
+                   <label >By:</label><input
+                       type="text"
+                       style="width: 50px"
+                       id="fixed_var_val_date_period_by_1"/>
+                   <select id="fixed_var_val_date_period_by_unit_1">
+                       <option value="sec">sec</option>
+                       <option value="min">min</option>
+                       <option value="hours" selected>hours</option>
+                       <option value="days">days</option>
+                   </select>
+               </td>
+           </tr>
+       </table>
+   </div>
+<div id="series_var_val_y1_date_period_1" style="display: none;">
+        <table>
+            <tr>
+                <td><label>Start:</label>
+                </td>
+                <td><select
+                        id="series_var_val_y1_date_period_start_1"></select>
+                </td>
+            </tr>
+            <tr>
+                <td><label>End:</label>
+                </td>
+                <td><select id="series_var_val_y1_date_period_end_1"></select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <label>By:</label><input
+                        type="text"
+                        style="width: 50px"
+                        id="series_var_val_y1_date_period_by_1"/>
+                    <select id="series_var_val_y1_date_period_by_unit_1">
+                        <option value="sec">sec</option>
+                        <option value="min">min</option>
+                        <option value="hours" selected>hours</option>
+                        <option value="days">days</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+
 </body>
 </html>

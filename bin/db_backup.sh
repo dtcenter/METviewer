@@ -25,7 +25,7 @@ TEMP_DIR="/d3/backups/metviewer_sql/"
 MAIN_START=$(date +%s.%N)
 mysql -umvuser -pmvuser -e 'show databases;' | {
 	while read db_name ; do
-		if [ "$db_name" != "information_schema"  -a "$db_name" != "performance_schema" -a "$db_name" != "Database"  -a  "$db_name" != "mysql" ];
+		if [ "$db_name" != "information_schema"  -a "$db_name" != "performance_schema" -a "$db_name" != "Database"  -a  "$db_name" != "mysql" -a  "$db_name" != "nhc_display" ];
 		then
 		  printf '\n\nAbout to back up database: '$db_name'\n'
 		  LAST_DATE_DEV_STR="";

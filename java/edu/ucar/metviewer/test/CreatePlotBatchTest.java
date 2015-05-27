@@ -75,11 +75,12 @@ public class CreatePlotBatchTest  {
   public void compareOutputFiles() {
     compareDataFilesWithNames(testDataDir, plotType);
     comparePlotFilesWithNames(testDataDir, plotType);
-    compareRscriptFilesWithNames(testDataDir,plotType);
     comparePointsFilesWithNames(testDataDir, "1", plotType);
     comparePointsFilesWithNames(testDataDir, "2", plotType);
     compareAggStatInfoFilesWithNames(testDataDir,plotType);
     compareDataAggStatWithNames(testDataDir,plotType);
+    compareRscriptFilesWithNames(testDataDir,plotType);
+
   }
 
 

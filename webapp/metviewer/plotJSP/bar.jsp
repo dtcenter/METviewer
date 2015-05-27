@@ -28,10 +28,27 @@
                 text: false
 
             }).click(function () {
-                        $('#helpContent').empty();
-                        $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
-                        $('#helpContent').dialog('open');
-                    });
+                $('#helpContent').empty();
+                $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+                $('#helpContent').dialog({
+                    buttons: {
+                        "Open in new window": function () {
+                            var win = window.open('doc/plot.html');
+                            if (win) {
+                                //Browser has allowed it to be opened
+                                win.focus();
+                            } else {
+                                //Broswer has blocked it
+                                alert('Please allow popups for this site');
+                            }
+                        },
+                        Cancel: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+                $('#helpContent').dialog('open');
+            });
 
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
                 height: 400,
@@ -102,10 +119,10 @@
             $("#fcst_var_y1_1").multiselect({
                 multiple: false,
                 selectedList: 1,
-                header:false,
-                minWidth:'auto',
-                height:'auto',
-                click: function(){
+                header: false,
+                minWidth: 'auto',
+                height: 200,
+                click: function () {
                     var id_array = this.id.split("_");
                     updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
                     var selectedSeriesVarVal = $("#series_var_val_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("getChecked").val();
@@ -123,18 +140,26 @@
                 click: function (event, ui) {
                     var id_array = this.id.split("_");
                     $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).css("display", "none");
-                    try{
-                    $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("option", "allUnselected", true);
-                    } catch (err){}
+                    try {
+                        $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
+                    } catch (err) {
+                    }
                     updateSeriesSeriesBox();
                 },
 
-                                                    position: {
-                                                        my: 'right center' ,
-                                                              at: 'right center'
+                position: {
+                    my: 'right center',
+                    at: 'right center'
 
-                                                       }
+                },
+                checkAll: function () {
 
+                    updateSeriesSeriesBox();
+                },
+                uncheckAll: function () {
+
+                    updateSeriesSeriesBox();
+                }
             });
             $("#series_var_y1_1").multiselect({
                 multiple: false,
@@ -142,18 +167,47 @@
                 header: false,
                 minWidth: 'auto',
                 height: 'auto',
-                click: function () {
+                click: function (event, ui) {
+                    $('#series_var_val_y1_date_period_start_1').empty();
+                    $('#series_var_val_y1_date_period_end_1').empty();
+
+                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                        $("#series_var_val_y1_date_period_button_1").css("display", "block");
+                    } else {
+                        $("#series_var_val_y1_date_period_button_1").css("display", "none");
+                    }
                     var id_array = this.id.split("_");
-                    updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1],[]);
+                    updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
                 }
+
             });
+            $("#series_var_val_y1_date_period_button_1").button({
+                icons: {
+                    primary: "ui-icon-check",
+                    secondary: "ui-icon-circlesmall-plus"
+                },
+                text: false
+            }).click(function () {
+                $("#series_var_val_y1_date_period_1").dialog("open");
+            });
+            createValDatePeriodDialog('series_var_val_y1', 1);
+
+
             $("#indy_var").multiselect({
                 multiple: false,
                 selectedList: 1,
                 header: false,
                 minWidth: 'auto',
                 height: 300,
-                click: function () {
+                click: function (event, ui) {
+                    $('#date_period_start').empty();
+                    $('#date_period_end').empty();
+
+                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                        $("#date_period_button").css("display", "block");
+                    } else {
+                        $("#date_period_button").css("display", "none");
+                    }
                     $("#indy_var_val").multiselect("uncheckAll");
                 },
                 position: {
@@ -169,7 +223,7 @@
                     updateSeriesSeriesBox();
                 },
                 checkAll: function () {
-                    updateSeriesSeriesBox();
+                    updateSeriesSeriesBox(true);
                 },
                 uncheckAll: function () {
                     updateSeriesSeriesBox();
@@ -193,15 +247,24 @@
                     at: 'left top'
                 }
             });
+            $("#date_period_button").button({
+                icons: {
+                    primary: "ui-icon-check",
+                    secondary: "ui-icon-circlesmall-plus"
+                },
+                text: false
+            }).click(function () {
+                $("#date_period_dialog").dialog("open");
+            });
 
-
+            createDatePeriodDialog();
             $('#add_series_var_y1').button({
                 icons: {
-                           primary: "ui-icon-circle-plus"
-                       }
+                    primary: "ui-icon-circle-plus"
+                }
             }).click(function () {
-                            addSeriesVariableSeriesBox("y1");
-                        });
+                addSeriesVariableSeriesBox("y1");
+            });
 
             $('#statistics p').hide();
 
@@ -219,12 +282,12 @@
                 text: false,
                 disabled: true
             }).click(function () {
-                        if ($(this).attr('id').startsWith('remove_series_var')) {
-                            removeSeriesVarSeriesBox($(this).attr('id'));
-                        } else if ($(this).attr('id').startsWith('remove_fcst_var')) {
-                            removeFcstVarSeriesBox($(this).attr('id'));
-                        }
-                    });
+                if ($(this).attr('id').startsWith('remove_series_var')) {
+                    removeSeriesVarSeriesBox($(this).attr('id'));
+                } else if ($(this).attr('id').startsWith('remove_fcst_var')) {
+                    removeFcstVarSeriesBox($(this).attr('id'));
+                }
+            });
             $(".remove_fixed_var").button({
                 icons: {
                     primary: "ui-icon-trash"
@@ -330,11 +393,13 @@
 
                     <td>
                         <select id="series_var_y1_1">
-                            <option value="model" >MODEL</option>
+                            <option value="model">MODEL</option>
                             <option value="fcst_lead">FCST_LEAD</option>
-                            <option value="fcst_valid_beg">FCST_VALID_BEG</option>
+                            <option value="fcst_valid_beg">FCST_VALID_BEG
+                            </option>
                             <option value="valid_hour">VALID_HOUR</option>
-                            <option value="fcst_init_beg">FCST_INIT_BEG</option>
+                            <option value="fcst_init_beg">FCST_INIT_BEG
+                            </option>
                             <option value="init_hour">INIT_HOUR</option>
                             <option value="fcst_lev">FCST_LEV</option>
                             <option value="obtype">OBTYPE</option>
@@ -345,10 +410,15 @@
                         </select>
                     </td>
                     <td>
-                        <select  multiple="multiple" id="series_var_val_y1_1" >
+                        <select multiple="multiple" id="series_var_val_y1_1">
 
-                                    </select>
+                        </select>
 
+                    </td>
+                    <td>
+                        <button id="series_var_val_y1_date_period_button_1"
+                                style="display: none;">Select period
+                        </button>
                     </td>
                     <td><input type="checkbox" id="group_series_var_y1_1" onclick="updateSeriesSeriesBox();"><label for="group_series_var_y1_1">Group_y1_1</label></td>
                 </tr>
@@ -364,38 +434,28 @@
 
     <table id='fixed_var_table' style="display: none;">
         <tr>
-                            <td>
-                                <button id="remove_fixed_var_1" class="remove_fixed_var">
-                                    Remove
-                                </button>
-                            </td>
+            <td>
+                <button id="remove_fixed_var_1" class="remove_fixed_var">
+                    Remove
+                </button>
+            </td>
 
-                            <td>
-                                <select id="fixed_var_1">
+            <td>
+                <select id="fixed_var_1">
+                </select>
+            </td>
+            <td>
+                <select multiple="multiple" id="fixed_var_val_1"></select>
 
-                                                                <option value="fcst_lead">FCST_LEAD</option>
-                                                                <option value="model" >MODEL</option>
-                                                                <option value="fcst_valid_beg">FCST_VALID_BEG</option>
-                                                                <option value="valid_hour">VALID_HOUR</option>
-                                                                <option value="fcst_init_beg">FCST_INIT_BEG</option>
-                                                                <option value="init_hour">INIT_HOUR</option>
-                                                                <option value="fcst_lev">FCST_LEV</option>
-                                                                <option value="obtype">OBTYPE</option>
-                                                                <option value="vx_mask">VX_MASK</option>
-                                                                <option value="interp_mthd">INTERP_MTHD</option>
-                                                                <option value="interp_pnts">INTERP_PNTS</option>
-                                                                <option value="fcst_thresh">FCST_THRESH</option>
-                                                                <option value="obs_thresh">OBS_THRESH</option>
+            </td>
+            <td>
+                <button id="fixed_var_val_date_period_button_1"
+                        style="display: none;">Select period
+                </button>
+            </td>
 
-                                </select>
-                            </td>
-                            <td>
-                                <select  multiple="multiple" id="fixed_var_val_1" ></select>
-
-                            </td>
-
-                        </tr>
-        </table>
+        </tr>
+    </table>
         <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
     <br/>
     <br/>
@@ -413,17 +473,17 @@
 
                         <option value="fcst_lead">FCST_LEAD</option>
                         <option value="model">MODEL</option>
-                                                                                        <option value="fcst_valid_beg">FCST_VALID_BEG</option>
-                                                                                        <option value="valid_hour">VALID_HOUR</option>
-                                                                                        <option value="fcst_init_beg">FCST_INIT_BEG</option>
-                                                                                        <option value="init_hour">INIT_HOUR</option>
-                                                                                        <option value="fcst_lev">FCST_LEV</option>
-                                                                                        <option value="obtype">OBTYPE</option>
-                                                                                        <option value="vx_mask">VX_MASK</option>
-                                                                                        <option value="interp_mthd">INTERP_MTHD</option>
-                                                                                        <option value="interp_pnts">INTERP_PNTS</option>
-                                                                                        <option value="fcst_thresh">FCST_THRESH</option>
-                                                                                        <option value="obs_thresh">OBS_THRESH</option>
+                        <option value="fcst_valid_beg">FCST_VALID_BEG</option>
+                        <option value="valid_hour">VALID_HOUR</option>
+                        <option value="fcst_init_beg">FCST_INIT_BEG</option>
+                        <option value="init_hour">INIT_HOUR</option>
+                        <option value="fcst_lev">FCST_LEV</option>
+                        <option value="obtype">OBTYPE</option>
+                        <option value="vx_mask">VX_MASK</option>
+                        <option value="interp_mthd">INTERP_MTHD</option>
+                        <option value="interp_pnts">INTERP_PNTS</option>
+                        <option value="fcst_thresh">FCST_THRESH</option>
+                        <option value="obs_thresh">OBS_THRESH</option>
 
                     </select>
                 </td>
@@ -433,6 +493,7 @@
                     </select>
 
                 </td>
+                <td><button id="date_period_button" style="display: none;">Select multiple options</button></td>
 
             </tr>
         </table>
@@ -473,6 +534,92 @@
 
 <div id="helpContent" title="Help">
 </div>
+    <div id="date_period_dialog">
+          <table>
+              <tr>
+                  <td><label for="date_period_start">Start:</label></td>
+                  <td><select id="date_period_start"></select></td>
+              </tr>
+              <tr>
+                  <td><label for="date_period_end">End:</label></td>
+                  <td><select id="date_period_end"></select></td>
+              </tr>
+              <tr>
+                  <td colspan="2" style="text-align: center;">
+                      <label for="date_period_by">By:</label><input type="text"
+                                                                    style="width: 50px"
+                                                                    id="date_period_by"/>
+                      <select id="date_period_by_unit">
+                          <option value="sec">sec</option>
+                          <option value="min">min</option>
+                          <option value="hours" selected>hours</option>
+                          <option value="days">days</option>
+                      </select>
+                  </td>
+              </tr>
+          </table>
+      </div>
+    <div id="fixed_var_val_date_period_1" style="display: none;">
+            <table>
+                <tr>
+                    <td><label>Start:</label>
+                    </td>
+                    <td><select id="fixed_var_val_date_period_start_1"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label >End:</label>
+                    </td>
+                    <td><select id="fixed_var_val_date_period_end_1"></select></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <label >By:</label><input
+                            type="text"
+                            style="width: 50px"
+                            id="fixed_var_val_date_period_by_1"/>
+                        <select id="fixed_var_val_date_period_by_unit_1">
+                            <option value="sec">sec</option>
+                            <option value="min">min</option>
+                            <option value="hours" selected>hours</option>
+                            <option value="days">days</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    <div id="series_var_val_y1_date_period_1" style="display: none;">
+           <table>
+               <tr>
+                   <td><label>Start:</label>
+                   </td>
+                   <td><select
+                           id="series_var_val_y1_date_period_start_1"></select>
+                   </td>
+               </tr>
+               <tr>
+                   <td><label>End:</label>
+                   </td>
+                   <td><select id="series_var_val_y1_date_period_end_1"></select>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" style="text-align: center;">
+                       <label>By:</label><input
+                           type="text"
+                           style="width: 30px"
+                           id="series_var_val_y1_date_period_by_1"/>
+                       <select id="series_var_val_y1_date_period_by_unit_1">
+                           <option value="sec">sec</option>
+                           <option value="min">min</option>
+                           <option value="hours" selected>hours</option>
+                           <option value="days">days</option>
+                       </select>
+                   </td>
+               </tr>
+           </table>
+       </div>
+
 </div>
 </body>
 </html>

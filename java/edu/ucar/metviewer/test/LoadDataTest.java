@@ -83,7 +83,7 @@ public class LoadDataTest  {
     TABLES_TO_ROWS.put("stat_header", 6097);
     TABLES_TO_ROWS.put("line_data_enscnt", 1276);
     // recreate database
-    datasource = Datasource.getInstance(host, username, pwd);
+    datasource = Datasource.getInstance(type, driver, host, username, pwd);
     Reader reader = null;
     Connection con = null;
     try {

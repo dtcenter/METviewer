@@ -297,14 +297,19 @@ var series_var_y1_indexes = [1];
 var fcst_var_y2_indexes = [];
 var series_var_y2_indexes = [];
 var fixed_var_indexes = [];
+var date_period_indexes = [1];
 var firstSeriesFormatting= {order: "1", /*y_axis: "Y1",*/ hide: "No", /*title: "GSI3 TMP BASER",*/ plot_ci: "none", color: "", pch: 20, type: "b", lty: "1", lwd: "1", show_signif: "No", con_series: "1", legend: "", id:"1"};
 var seriesDiffY1 = [];
 var seriesDiffY2 = [];
 var previousIndVarValResponse ;
+var fixVarValResponse={};
+var seriesY1VarValResponse={};
+var seriesY2VarValResponse={};
 var xml = '<?xml version="1.0"?><Request/>';
 var group_name_to_value_map;
 var indy_var_vals_to_attr;
-
+var fcst_vars=[];
+var fcst_vars_stats=[];
 
 function cleanUp() {
 
@@ -313,10 +318,16 @@ function cleanUp() {
     fcst_var_y2_indexes = [];
     series_var_y2_indexes = [];
     fixed_var_indexes = [];
+    date_period_indexes = [1];
     seriesDiffY1 = [];
     seriesDiffY2 = [];
     previousIndVarValResponse = null;
+    fixVarValResponse = {};
+    seriesY1VarValResponse={};
+    seriesY2VarValResponse={};
     group_name_to_value_map = null;
+    fcst_vars=[];
+    fcst_vars_stats=[];
 }
 
 /**
@@ -338,6 +349,48 @@ function isModeStat(stat) {
         return false;
        }
    }
+}
+function getForecastVariablesHist() {
+    var selectedDatabase = $("#database").multiselect("getChecked").val();
+
+    //<request><db_con>mv_dart_gsi</db_con><list_stat><id>0</id><stat_fcst_var>TMP</stat_fcst_var></list_stat></request>
+    $.ajax({
+        async: false,
+        url: "servlet",
+        type: "POST",
+        dataType: 'xml',
+        processData: false,
+        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><stat_field>FCST_VAR</stat_field></list_val></request>',
+        error: function (jqXHR, textStatus, errorThrown) {
+        },
+        success: function (data) {
+            var values = $(data).find("val");
+            for (var i = 0; i < values.length; i++) {
+                fcst_vars.push( $(values[i]).text());
+            }
+        }
+    });
+    var fcst_var="TMP";
+    if(fcst_vars.length > 0){
+        fcst_var = fcst_vars[0];
+    }
+
+    $.ajax({
+            async: false,
+            url: "servlet",
+            type: "POST",
+            dataType: 'xml',
+            processData: false,
+            data: '<request><db_con>' + selectedDatabase + '</db_con><list_stat><id>0</id><stat_fcst_var>'+fcst_var+'</stat_fcst_var></list_stat></request>',
+            error: function (jqXHR, textStatus, errorThrown) {
+            },
+            success: function (data) {
+                var values = $(data).find("val");
+                for (var i = 0; i < values.length; i++) {
+                    fcst_vars_stats.push( $(values[i]).text());
+                }
+            }
+        });
 }
 
 function updateForecastVariables() {
@@ -481,29 +534,26 @@ function updateMode(y_axis, index, selectedVals) {
         } catch(err){}
     }
 
-    // if(fcst_stat_mode.find('option').length == 0){
-        for (var i = 0; i < listStatMode.length; i++) {
-            var t = listStatMode[i];
-            selected = (t == selectedModeStat);
-            if(selected){
-                is_fcst_stat_mode = true;
-            }
-            if(is_options_empty){
-                opt = $('<option />', {
-                    value: t,
-                    text: t,
-                    title: value_to_desc_map[t],
-                    selected: selected
-                });
-                opt.appendTo(fcst_stat_mode);
-            }else{
-                if(selected){
-                    fcst_stat_mode.val(t);
-                }
+    for (var i = 0; i < listStatMode.length; i++) {
+        var t = listStatMode[i];
+        selected = (t == selectedModeStat);
+        if (selected) {
+            is_fcst_stat_mode = true;
+        }
+        if (is_options_empty) {
+            opt = $('<option />', {
+                value: t,
+                text: t,
+                title: value_to_desc_map[t],
+                selected: selected
+            });
+            opt.appendTo(fcst_stat_mode);
+        } else {
+            if (selected) {
+                fcst_stat_mode.val(t);
             }
         }
-   // }
-
+    }
 
     fcst_stat_mode.multiselect({ multiple: false,
         selectedList: 1,
@@ -514,7 +564,10 @@ function updateMode(y_axis, index, selectedVals) {
         allUnselected: !is_fcst_stat_mode,
         click: function (event, ui) {
             var id_array = this.id.split("_");
-            $("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
+            //$("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
+            $("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1] +" option").removeAttr("selected");
+            $("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("refresh");
+
             var config_table = $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]);
             config_table.css("display", "block");
             if (ui.value == "ACOV") {
@@ -761,6 +814,7 @@ function updateSeriesVarValEns(index, selectedVals) {
 
         },
         success: function (data) {
+            seriesY1VarValResponse[index] = data;
             var values = $($.parseXML(data)).find("val");
             var opt, selected;
             if (values.length > 0) {
@@ -815,6 +869,12 @@ function updateSeriesVarValSeries(y_axis, index, selectedVals) {
 
         },
         success: function (data) {
+            if(y_axis == 'y1'){
+                seriesY1VarValResponse[index] = data;
+            }else{
+                seriesY2VarValResponse[index] = data;
+            }
+
             var values = $($.parseXML(data)).find("val");
             var opt,selected;
             if (values.length > 0) {
@@ -891,6 +951,7 @@ function updateFixedVarValHist(index, selectedVals) {
             console.log(errorThrown);
         },
         success: function (data) {
+            fixVarValResponse[index] = data;
             var values = $(data).find("val");
             var opt, selected;
             if (values.length > 0) {
@@ -945,6 +1006,7 @@ function updateFixedVarValSeries(index, selectedVals) {
             select.multiselect('refresh');
         },
         success: function (data) {
+            fixVarValResponse[index] = data;
             var values = $(data).find("val");
 
             var opt, selected;
@@ -975,7 +1037,8 @@ function updateFixedVarValSeries(index, selectedVals) {
                 }
             }
             selectedVals=[];
-        }});
+        }
+    });
 }
 function populateIndyVarVal(selectedVals) {
     //get value of database
@@ -1063,6 +1126,7 @@ function convertVarsAndStatsToXmlSeries(){
         }
     return  result + "</stat>";
 }
+
 function convertVarAndStatsForAxisToXml(y_axis, index) {
     var selectedVariable;
     try {
@@ -1080,6 +1144,7 @@ function convertVarAndStatsForAxisToXml(y_axis, index) {
     fcst_var = fcst_var + '</fcst_var>';
     return fcst_var;
 }
+
 function createStatNameForModeArrt(stat_name, y_axis, fcst_var_index) {
     var fcst_stat_mode_config = $("#fcst_stat_mode_config_" + y_axis + "_" + fcst_var_index);
     //this is mode attribute stat - add code
@@ -1331,7 +1396,11 @@ function updateSeriesRhist() {
                     series_formatting = {};
                     series_formatting.title = seriesName;
                     series_formatting.y_axis = y_axis;
-                    series_formatting.order = parseInt(order_series[number_series]);
+                    if(!order_series[number_series] || order_series[number_series] == ''){
+                        series_formatting.order = parseInt( i+1 );
+                    }else{
+                        series_formatting.order = parseInt(order_series[number_series]);
+                    }
                     series_formatting.hide = plot_disp[number_series];
                     series_formatting.plot_ci = plot_ci[number_series].trim();
                     series_formatting.show_signif = show_signif[number_series];
@@ -1377,25 +1446,35 @@ function updateSeriesRhist() {
 function updateSeriesVarValRhist(index, selectedVals) {
     $('#listdt').jqGrid('clearGridData');
     var select = $("#series_var_val_y1_" + index);
-        select.empty();
-        //get value of database
-        var selectedDatabase = $("#database").multiselect("getChecked").val();
+    select.empty();
+    //get value of database
+    var selectedDatabase = $("#database").multiselect("getChecked").val();
 
-        var selectedSeriesVariable;
-        try {
-            selectedSeriesVariable = $("#series_var_y1_" + index).multiselect("getChecked").val();
-        } catch (err) {
-            selectedSeriesVariable = $("#series_var_y1_" + index + ' option:first-child').val();
-        }
-        $.ajax({
+    var selectedSeriesVariable;
+    try {
+        selectedSeriesVariable = $("#series_var_y1_" + index).multiselect("getChecked").val();
+    } catch (err) {
+        selectedSeriesVariable = $("#series_var_y1_" + index + ' option:first-child').val();
+    }
+    var fcst_var = "TMP";
+    if (fcst_vars.length > 0) {
+        fcst_var = fcst_vars[0];
+    }
+    var fcst_vars_stat = "BASER";
+    if(fcst_vars_stats.length > 0){
+        fcst_vars_stat = fcst_vars_stats[0];
+    }
+    $.ajax({
             async: false,
             url: "servlet",
             type: "POST",
-            data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><ensss_field>' + selectedSeriesVariable + '</ensss_field><stat><fcst_var name="TMP"></fcst_var></stat></list_val></request>',
+        //<request><db_con>mv_dart_gsi</db_con><list_val><id>0</id><stat_field>fcst_valid_beg</stat_field><stat><fcst_var name="TMP" ><val>BCRMSE</val></fcst_var></stat></list_val></request>
+            data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><stat_field>' + selectedSeriesVariable + '</stat_field><stat><fcst_var name="'+ fcst_var+ '"><val>'+fcst_vars_stat +'</val></fcst_var></stat></list_val></request>',
             error: function (jqXHR, textStatus, errorThrown) {
 
             },
             success: function (data) {
+                seriesY1VarValResponse[index] = data;
                 var values = $($.parseXML(data)).find("val");
                 var opt, selected;
                 if (values.length > 0) {
@@ -1577,7 +1656,11 @@ function updateSeriesEns() {
                             series_formatting = {};
                             series_formatting.title = seriesName;
                             series_formatting.y_axis = y_axis;
-                            series_formatting.order = parseInt(order_series[number_series]);
+                            if (!order_series[number_series] || order_series[number_series] == '') {
+                                series_formatting.order = parseInt(i + 1);
+                            } else {
+                                series_formatting.order = parseInt(order_series[number_series]);
+                            }
                             series_formatting.hide = plot_disp[number_series];
                             series_formatting.plot_ci = plot_ci[number_series].trim();
                             series_formatting.show_signif = show_signif[number_series];
@@ -1621,7 +1704,7 @@ function updateSeriesEns() {
 }
 
 
-function updateSeriesSeriesBox() {
+function updateSeriesSeriesBox(isCheckAll) {
     var table = $("#listdt");
     table.saveCell(lastSelRow, lastSelCol);
     var oldSeriesData = table.jqGrid('getRowData');
@@ -1904,8 +1987,30 @@ function updateSeriesSeriesBox() {
     //set default color for each series if it is not a upload
     if (initXML == null) {
         colors = rainbow(newSeriesData.length);
+        var colors_new = [];
+        if (isCheckAll) {
+            colors_new = colors;
+        } else {
+            for (var i = 0; i < colors.length; i++) {
+                for (var j = 0; j < newSeriesData.length; j++) {
+                    if (newSeriesData[j].color && newSeriesData[j].color.length > 0
+                            && newSeriesData[j].color.substr(newSeriesData[j].color.length - 6).toUpperCase() === colors[i].substr(colors[i].length - 6).toUpperCase()
+                            && i != j) {
+                        colors_new[j] = colors[i];
+                        colors_new[i] = colors[j];
+                    }
+                }
+            }
+            for (var i = 0; i < colors.length; i++) {
+                if (!colors_new[i]) {
+                    colors_new[i] = colors[i];
+                }
+            }
+        }
         for (var i = 0; i < newSeriesData.length; i++) {
-            newSeriesData[i].color = colors[i];
+            if (!newSeriesData[i].color || newSeriesData[i].color.length == 0) {
+                newSeriesData[i].color = colors_new[i];
+            }
         }
     }
 
@@ -2139,6 +2244,7 @@ function sendXml() {
     $.ajax({
         url: 'servlet',
         processData: false,
+        contentType: 'application/json',
         type: "POST",  // type should be POST
         data: xml, // send the string directly
         success: function (response) {
@@ -2291,11 +2397,47 @@ function createXMLSeries(plot) {
     plot.append($('<plot_cond />').text($('#txtPlotCond').val()));
     var indep = $('<indep />').attr("name", $('#indy_var').val());
     var indy_var_val = $('[name="multiselect_indy_var_val"]');
-    for(var i=0; i<indy_var_val.length; i++){
-        var jqObject = $(indy_var_val[i])
-        if(jqObject.prop('checked')){
-            var id = jqObject.attr("id");
-            indep.append($('<val />').attr("label", $('#' + id + '_label').val()).attr("plot_val", $('#' + id + '_plot_val').val()).text(jqObject.val()));
+    if ($("#indy_var_val").multiselect("getChecked").length > 0) {
+        for (var i = 0; i < indy_var_val.length; i++) {
+            var jqObject = $(indy_var_val[i]);
+            if (jqObject.prop('checked')) {
+                var id = jqObject.attr("id");
+                indep.append($('<val />').attr("label", $('#' + id + '_label').val()).attr("plot_val", $('#' + id + '_plot_val').val()).text(jqObject.val()));
+            }
+        }
+    } else {
+        var start = moment($("#date_period_start").val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
+        var end = moment($("#date_period_end").val(), 'YYYY-MM-DD HH:mm:ss');
+        var by = $("#date_period_by").val().trim();
+        var unit = $("#date_period_by_unit").val();
+        var dates = $(previousIndVarValResponse).find("val");
+        if(by.length == 0) {
+            for (var i = 0; i < dates.length; i++) {
+                var t = moment($(dates[i]).text(), 'YYYY-MM-DD HH:mm:ss');
+                if (t.isSame(start) || t.isSame(end) || t.isBetween(start, end)) {
+                    indep.append($('<val />').attr("label", $(dates[i]).text()).attr("plot_val", "").text($(dates[i]).text()));
+                }
+            }
+        } else {
+            by = parseInt(by);
+            if (unit == "days") {
+                by = by * 24;
+            }
+            var current_date = start.clone();
+            while (current_date <= end) {
+                var current_date_str = current_date.format('YYYY-MM-DD HH:mm:ss');
+                var isFound = false;
+                for (var i = 0; i < dates.length; i++) {
+                    if($(dates[i]).text() == current_date_str){
+                        isFound=true;
+                        break;
+                    }
+                }
+                if(isFound){
+                    indep.append($('<val />').attr("label", current_date_str).attr("plot_val", "").text(current_date_str));
+                }
+                current_date.add(by, 'hour');
+            }
         }
     }
     plot.append(indep);
@@ -2323,156 +2465,200 @@ function createXMLSeries(plot) {
 
 
 }
-function createXMLCommon(plot){
+function createXMLCommon(plot) {
     var tmpl = $('<tmpl />');
-       tmpl.append($('<title />').text($('#plot_title').val()));
-       tmpl.append($('<x_label />').text($('#x_label_title').val()));
-       tmpl.append($('<y1_label />').text($('#y1_label_title').val()));
-       tmpl.append($('<y2_label />').text($('#y2_label_title').val()));
-       tmpl.append($('<caption />').text($('#caption').val()));
+    tmpl.append($('<title />').text($('#plot_title').val()));
+    tmpl.append($('<x_label />').text($('#x_label_title').val()));
+    tmpl.append($('<y1_label />').text($('#y1_label_title').val()));
+    tmpl.append($('<y2_label />').text($('#y2_label_title').val()));
+    tmpl.append($('<caption />').text($('#caption').val()));
+    tmpl.append($('<file_name />').text($('#file_name').val()));
 
-       var seriesDiffY1List = [];
-       if (seriesDiffY1.length > 0) {
-           for (var i = 0; i < seriesDiffY1.length; i++) {
-               seriesDiffY1List.push('c("' + seriesDiffY1[i].split(",")[0] + '","' + seriesDiffY1[i].split(",")[1] + '")');
-           }
-       }
-       var seriesDiffY2List = [];
-       if (seriesDiffY2.length > 0) {
-           for (var i = 0; i < seriesDiffY2.length; i++) {
-               seriesDiffY2List.push('c("' + seriesDiffY2[i].split(",")[0] + '","' + seriesDiffY2[i].split(",")[1] + '")');
-           }
-       }
-       tmpl.append($('<listDiffSeries1 />').text("list(" + seriesDiffY1List.join() + ")"));
-       tmpl.append($('<listDiffSeries2 />').text("list(" + seriesDiffY2List.join() + ")"));
-       plot.append(tmpl);
-       plot.append($('<event_equal />').text($('#event_equal').is(':checked')));
-       plot.append($('<event_equal_m />').text($('#event_equal_m').is(':checked')));
-       plot.append($('<vert_plot />').text($('#vert_plot').is(':checked')));
-       plot.append($('<x_reverse />').text($('#x_reverse').is(':checked')));
-       plot.append($('<num_stats />').text($('#num_stats').is(':checked')));
-       plot.append($('<indy1_stag />').text($('#indy1_stag').is(':checked')));
-       plot.append($('<indy2_stag />').text($('#indy2_stag').is(':checked')));
-       plot.append($('<grid_on />').text($('#grid_on').is(':checked')));
-       plot.append($('<sync_axes />').text($('#sync_axes').is(':checked')));
-       plot.append($('<dump_points1 />').text($('#dump_points1').is(':checked')));
-       plot.append($('<dump_points2 />').text($('#dump_points2').is(':checked')));
-       plot.append($('<log_y1 />').text($('#log_y1').is(':checked')));
-       plot.append($('<log_y2 />').text($('#log_y2').is(':checked')));
-       plot.append($('<varianceInflationFactor />').text($('#varianceInflationFactor').is(':checked')));
-       plot.append($('<plot_type />').text($('#plot_type').val()));
-       plot.append($('<plot_height />').text($('#plot_height').val()));
-       plot.append($('<plot_width />').text($('#plot_width').val()));
-       plot.append($('<plot_res />').text($('#plot_res').val()));
-       plot.append($('<plot_units />').text($('#plot_units').val()));
-       plot.append($('<mar />').text($('#mar').val()));
-       plot.append($('<mgp />').text($('#mgp').val()));
-       plot.append($('<cex />').text($('#cex').val()));
-       plot.append($('<title_weight />').text($('#title_weight').val()));
-       plot.append($('<title_size />').text($('#title_size').val()));
-       plot.append($('<title_offset />').text($('#title_offset').val()));
-       plot.append($('<title_align />').text($('#title_align').val()));
-       plot.append($('<xtlab_orient />').text($('#xtlab_orient').val()));
-       plot.append($('<xtlab_perp />').text($('#xtlab_perp').val()));
-       plot.append($('<xtlab_horiz />').text($('#xtlab_horiz').val()));
-       plot.append($('<xtlab_freq />').text($('#xtlab_freq').val()));
-       plot.append($('<xtlab_size />').text($('#xtlab_size').val()));
-       plot.append($('<xlab_weight />').text($('#xlab_weight').val()));
-       plot.append($('<xlab_size />').text($('#xlab_size').val()));
-       plot.append($('<xlab_offset />').text($('#xlab_offset').val()));
-       plot.append($('<xlab_align />').text($('#xlab_align').val()));
-       plot.append($('<ytlab_orient />').text($('#ytlab_orient').val()));
-       plot.append($('<ytlab_perp />').text($('#ytlab_perp').val()));
-       plot.append($('<ytlab_horiz />').text($('#ytlab_horiz').val()));
-       plot.append($('<ytlab_size />').text($('#ytlab_size').val()));
-       plot.append($('<ylab_weight />').text($('#ylab_weight').val()));
-       plot.append($('<ylab_size />').text($('#ylab_size').val()));
-       plot.append($('<ylab_offset />').text($('#ylab_offset').val()));
-       plot.append($('<ylab_align />').text($('#ylab_align').val()));
-       plot.append($('<grid_lty />').text($('#grid_lty').val()));
+    var seriesDiffY1List = [];
+    if (seriesDiffY1.length > 0) {
+        for (var i = 0; i < seriesDiffY1.length; i++) {
+            seriesDiffY1List.push('c("' + seriesDiffY1[i].split(",")[0] + '","' + seriesDiffY1[i].split(",")[1] + '")');
+        }
+    }
+    var seriesDiffY2List = [];
+    if (seriesDiffY2.length > 0) {
+        for (var i = 0; i < seriesDiffY2.length; i++) {
+            seriesDiffY2List.push('c("' + seriesDiffY2[i].split(",")[0] + '","' + seriesDiffY2[i].split(",")[1] + '")');
+        }
+    }
+    tmpl.append($('<listDiffSeries1 />').text("list(" + seriesDiffY1List.join() + ")"));
+    tmpl.append($('<listDiffSeries2 />').text("list(" + seriesDiffY2List.join() + ")"));
+    plot.append(tmpl);
+    plot.append($('<event_equal />').text($('#event_equal').is(':checked')));
+    plot.append($('<event_equal_m />').text($('#event_equal_m').is(':checked')));
+    plot.append($('<vert_plot />').text($('#vert_plot').is(':checked')));
+    plot.append($('<x_reverse />').text($('#x_reverse').is(':checked')));
+    plot.append($('<num_stats />').text($('#num_stats').is(':checked')));
+    plot.append($('<indy1_stag />').text($('#indy1_stag').is(':checked')));
+    plot.append($('<indy2_stag />').text($('#indy2_stag').is(':checked')));
+    plot.append($('<grid_on />').text($('#grid_on').is(':checked')));
+    plot.append($('<sync_axes />').text($('#sync_axes').is(':checked')));
+    plot.append($('<dump_points1 />').text($('#dump_points1').is(':checked')));
+    plot.append($('<dump_points2 />').text($('#dump_points2').is(':checked')));
+    plot.append($('<log_y1 />').text($('#log_y1').is(':checked')));
+    plot.append($('<log_y2 />').text($('#log_y2').is(':checked')));
+    plot.append($('<varianceInflationFactor />').text($('#varianceInflationFactor').is(':checked')));
+    plot.append($('<plot_type />').text($('#plot_type').val()));
+    plot.append($('<plot_height />').text($('#plot_height').val()));
+    plot.append($('<plot_width />').text($('#plot_width').val()));
+    plot.append($('<plot_res />').text($('#plot_res').val()));
+    plot.append($('<plot_units />').text($('#plot_units').val()));
+    var mar_bottom = $("#mar_bottom").val().trim();
+    var mar_left = $("#mar_left").val().trim();
+    var mar_top = $("#mar_top").val().trim();
+    var mar_right = $("#mar_right").val().trim();
+    if (mar_bottom.length == 0) {
+        mar_bottom = 0;
+    }
+    if (mar_left.length == 0) {
+        mar_left = 0;
+    }
+    if (mar_top.length == 0) {
+        mar_top = 0;
+    }
+    if (mar_right.length == 0) {
+        mar_right = 0;
+    }
+    plot.append($('<mar />').text("c(" + mar_bottom + "," + mar_left + "," + mar_top + "," + mar_right + ")"));
 
-       var grid_col = $('#grid_col').val();
-       if(grid_col.startsWith("#")){
-           plot.append($('<grid_col />').text(grid_col));
-       }else{
-           plot.append($('<grid_col />').text("#" + grid_col));
-       }
-       plot.append($('<grid_lwd />').text($('#grid_lwd').val()));
-       plot.append($('<grid_x />').text($('#grid_x').val()));
-       plot.append($('<x2tlab_orient />').text($('#x2tlab_orient').val()));
-       plot.append($('<x2tlab_perp />').text($('#x2tlab_perp').val()));
-       plot.append($('<x2tlab_horiz />').text($('#x2tlab_horiz').val()));
-       plot.append($('<x2tlab_size />').text($('#x2tlab_size').val()));
-       plot.append($('<x2lab_size />').text($('#x2lab_size').val()));
-       plot.append($('<x2lab_offset />').text($('#x2lab_offset').val()));
-       plot.append($('<x2lab_align />').text($('#x2lab_align').val()));
-       plot.append($('<y2tlab_orient />').text($('#y2tlab_orient').val()));
-       plot.append($('<y2tlab_perp />').text($('#y2tlab_perp').val()));
-       plot.append($('<y2tlab_horiz />').text($('#y2tlab_horiz').val()));
-       plot.append($('<y2tlab_size />').text($('#y2tlab_size').val()));
-       plot.append($('<y2lab_size />').text($('#y2lab_size').val()));
-       plot.append($('<y2lab_offset />').text($('#y2lab_offset').val()));
-       plot.append($('<y2lab_align />').text($('#y2lab_align').val()));
-       plot.append($('<legend_box />').text($('#legend_box').val()));
-       plot.append($('<legend_inset />').text($('#legend_inset').val()));
-       plot.append($('<legend_ncol />').text($('#legend_ncol').val()));
-       plot.append($('<legend_size />').text($('#legend_size').val()));
-       plot.append($('<caption_weight />').text($('#caption_weight').val()));
+    var mgp_title = $("#mgp_title").val().trim();
+    var mgp_labels = $("#mgp_labels").val().trim();
+    var mgp_line = $("#mgp_line").val().trim();
+    if (mgp_title.length == 0) {
+        mgp_title = 0;
+    }
+    if (mgp_labels.length == 0) {
+        mgp_labels = 0;
+    }
+    if (mgp_line.length == 0) {
+        mgp_line = 0;
+    }
+    plot.append($('<mgp />').text("c(" + mgp_title + "," + mgp_labels + "," + mgp_line + ")"));
+    plot.append($('<cex />').text($('#cex').val()));
+    plot.append($('<title_weight />').text($('#title_weight').val()));
+    plot.append($('<title_size />').text($('#title_size').val()));
+    plot.append($('<title_offset />').text($('#title_offset').val()));
+    plot.append($('<title_align />').text($('#title_align').val()));
+    plot.append($('<xtlab_orient />').text($('#xtlab_orient').val()));
+    plot.append($('<xtlab_perp />').text($('#xtlab_perp').val()));
+    plot.append($('<xtlab_horiz />').text($('#xtlab_horiz').val()));
+    plot.append($('<xtlab_freq />').text($('#xtlab_freq').val()));
+    plot.append($('<xtlab_size />').text($('#xtlab_size').val()));
+    plot.append($('<xlab_weight />').text($('#xlab_weight').val()));
+    plot.append($('<xlab_size />').text($('#xlab_size').val()));
+    plot.append($('<xlab_offset />').text($('#xlab_offset').val()));
+    plot.append($('<xlab_align />').text($('#xlab_align').val()));
+    plot.append($('<ytlab_orient />').text($('#ytlab_orient').val()));
+    plot.append($('<ytlab_perp />').text($('#ytlab_perp').val()));
+    plot.append($('<ytlab_horiz />').text($('#ytlab_horiz').val()));
+    plot.append($('<ytlab_size />').text($('#ytlab_size').val()));
+    plot.append($('<ylab_weight />').text($('#ylab_weight').val()));
+    plot.append($('<ylab_size />').text($('#ylab_size').val()));
+    plot.append($('<ylab_offset />').text($('#ylab_offset').val()));
+    plot.append($('<ylab_align />').text($('#ylab_align').val()));
+    plot.append($('<grid_lty />').text($('#grid_lty').val()));
 
-       var caption_col = $('#caption_col').val();
-       if (caption_col.startsWith("#")) {
-           plot.append($('<caption_col />').text(caption_col));
-       } else {
-           plot.append($('<caption_col />').text("#" + caption_col));
-       }
-       plot.append($('<caption_size />').text($('#caption_size').val()));
-       plot.append($('<caption_offset />').text($('#caption_offset').val()));
-       plot.append($('<caption_align />').text($('#caption_align').val()));
-       plot.append($('<ci_alpha />').text($('#ci_alpha').val()));
+    var grid_col = $('#grid_col').val();
+    if (grid_col.startsWith("#")) {
+        plot.append($('<grid_col />').text(grid_col));
+    } else {
+        plot.append($('<grid_col />').text("#" + grid_col));
+    }
+    plot.append($('<grid_lwd />').text($('#grid_lwd').val()));
+    plot.append($('<grid_x />').text($('#grid_x').val()));
+    plot.append($('<x2tlab_orient />').text($('#x2tlab_orient').val()));
+    plot.append($('<x2tlab_perp />').text($('#x2tlab_perp').val()));
+    plot.append($('<x2tlab_horiz />').text($('#x2tlab_horiz').val()));
+    plot.append($('<x2tlab_size />').text($('#x2tlab_size').val()));
+    plot.append($('<x2lab_size />').text($('#x2lab_size').val()));
+    plot.append($('<x2lab_offset />').text($('#x2lab_offset').val()));
+    plot.append($('<x2lab_align />').text($('#x2lab_align').val()));
+    plot.append($('<y2tlab_orient />').text($('#y2tlab_orient').val()));
+    plot.append($('<y2tlab_perp />').text($('#y2tlab_perp').val()));
+    plot.append($('<y2tlab_horiz />').text($('#y2tlab_horiz').val()));
+    plot.append($('<y2tlab_size />').text($('#y2tlab_size').val()));
+    plot.append($('<y2lab_size />').text($('#y2lab_size').val()));
+    plot.append($('<y2lab_offset />').text($('#y2lab_offset').val()));
+    plot.append($('<y2lab_align />').text($('#y2lab_align').val()));
+    plot.append($('<legend_box />').text($('#legend_box').val()));
+
+    if ($('#legend_inset_min').val().trim().length == 0 || $('#legend_inset_max').val().trim().length == 0) {
+        plot.append($('<legend_inset />').text("c()"));
+    } else {
+        plot.append($('<legend_inset />').text("c(" + $('#legend_inset_min').val() + "," + $('#legend_inset_max').val() + ")"));
+    }
+    plot.append($('<legend_ncol />').text($('#legend_ncol').val()));
+    plot.append($('<legend_size />').text($('#legend_size').val()));
+    plot.append($('<caption_weight />').text($('#caption_weight').val()));
+
+    var caption_col = $('#caption_col').val();
+    if (caption_col.startsWith("#")) {
+        plot.append($('<caption_col />').text(caption_col));
+    } else {
+        plot.append($('<caption_col />').text("#" + caption_col));
+    }
+    plot.append($('<caption_size />').text($('#caption_size').val()));
+    plot.append($('<caption_offset />').text($('#caption_offset').val()));
+    plot.append($('<caption_align />').text($('#caption_align').val()));
+    plot.append($('<ci_alpha />').text($('#ci_alpha').val()));
 
 
-       var allSeries = sortSeries();
-       var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [], orderArr = [], legendArr = [], showSignArr=[];
-       for (var i = 0; i < allSeries.length; i++) {
-           ciArr.push('"' + allSeries[i].plot_ci + '"');
-           if(allSeries[i].hide == "No"){
-               dispArr.push("TRUE");
-           }else{
-               dispArr.push("FALSE");
-           }
-           if(allSeries[i].show_signif == "No"){
-               showSignArr.push("FALSE");
-           }else{
-               showSignArr.push("TRUE");
-           }
-           colorsArr.push('"#' + allSeries[i].color + 'FF"');
-           pchArr.push(allSeries[i].pch);
-           typeArr.push('"' + allSeries[i].type + '"');
-           ltyArr.push(allSeries[i].lty);
-           lwdArr.push(allSeries[i].lwd);
-           conArr.push(allSeries[i].con_series);
-           orderArr.push(allSeries[i].order);
-           legendArr.push('"' + allSeries[i].legend + '"');
-       }
-       plot.append($('<plot_ci />').text("c(" + ciArr.join() + ")"));
-       plot.append($('<show_signif />').text("c(" + showSignArr.join() + ")"));
-       plot.append($('<plot_disp />').text("c(" + dispArr.join() + ")"));
-       plot.append($('<colors />').text("c(" + colorsArr.join() + ")"));
-       plot.append($('<pch />').text("c(" + pchArr.join() + ")"));
-       plot.append($('<type />').text("c(" + typeArr.join() + ")"));
-       plot.append($('<lty />').text("c(" + ltyArr.join() + ")"));
-       plot.append($('<lwd />').text("c(" + lwdArr.join() + ")"));
-       plot.append($('<con_series />').text("c(" + conArr.join() + ")"));
-       plot.append($('<order_series />').text("c(" + orderArr.join() + ")"));
-       plot.append($('<plot_cmd />').text($('#plot_cmd').val()));
-       plot.append($('<legend />').text("c(" + legendArr.join() + ")"));
+    var allSeries = sortSeries();
+    var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [], orderArr = [], legendArr = [], showSignArr = [];
+    for (var i = 0; i < allSeries.length; i++) {
+        ciArr.push('"' + allSeries[i].plot_ci + '"');
+        if (allSeries[i].hide == "No") {
+            dispArr.push("TRUE");
+        } else {
+            dispArr.push("FALSE");
+        }
+        if (allSeries[i].show_signif == "No") {
+            showSignArr.push("FALSE");
+        } else {
+            showSignArr.push("TRUE");
+        }
+        colorsArr.push('"#' + allSeries[i].color + 'FF"');
+        pchArr.push(allSeries[i].pch);
+        typeArr.push('"' + allSeries[i].type + '"');
+        ltyArr.push(allSeries[i].lty);
+        lwdArr.push(allSeries[i].lwd);
+        conArr.push(allSeries[i].con_series);
+        orderArr.push(allSeries[i].order);
+        legendArr.push('"' + allSeries[i].legend + '"');
+    }
+    plot.append($('<plot_ci />').text("c(" + ciArr.join() + ")"));
+    plot.append($('<show_signif />').text("c(" + showSignArr.join() + ")"));
+    plot.append($('<plot_disp />').text("c(" + dispArr.join() + ")"));
+    plot.append($('<colors />').text("c(" + colorsArr.join() + ")"));
+    plot.append($('<pch />').text("c(" + pchArr.join() + ")"));
+    plot.append($('<type />').text("c(" + typeArr.join() + ")"));
+    plot.append($('<lty />').text("c(" + ltyArr.join() + ")"));
+    plot.append($('<lwd />').text("c(" + lwdArr.join() + ")"));
+    plot.append($('<con_series />').text("c(" + conArr.join() + ")"));
+    plot.append($('<order_series />').text("c(" + orderArr.join() + ")"));
+    plot.append($('<plot_cmd />').text($('#plot_cmd').val()));
+    plot.append($('<legend />').text("c(" + legendArr.join() + ")"));
 
-       plot.append($('<y1_lim />').text($('#y1_lim').val()));
-       plot.append($('<y1_bufr />').text($('#y1_bufr').val()));
-       plot.append($('<y2_lim />').text($('#y2_lim').val()));
-       plot.append($('<y2_bufr />').text($('#y2_bufr').val()));
 
-       return plot;
+    if ($('#y1_lim_min').val().trim().length == 0 || $('#y1_lim_max').val().trim().length == 0) {
+        plot.append($('<y1_lim />').text("c()"));
+    } else {
+        plot.append($('<y1_lim />').text("c(" + $('#y1_lim_min').val() + "," + $('#y1_lim_max').val() + ")"));
+    }
+    plot.append($('<y1_bufr />').text($('#y1_bufr').val()));
+    if ($('#y2_lim_min').val().trim().length == 0 || $('#y2_lim_max').val().trim().length == 0) {
+        plot.append($('<y2_lim />').text("c()"));
+    } else {
+        plot.append($('<y2_lim />').text("c(" + $('#y2_lim_min').val() + "," + $('#y2_lim_max').val() + ")"));
+    }
+    plot.append($('<y2_bufr />').text($('#y2_bufr').val()));
+
+    return plot;
 }
 function sortSeries () {
     var allSeries = $("#listdt").jqGrid('getRowData');
@@ -2601,7 +2787,7 @@ function loadImage(id) {
             "Download to Disk": function () {
                 var inputs = '';
                 inputs += '<input type="hidden" name="plot" value="plot_' + id + '" />';
-                inputs += '<input type="hidden" name="type" value="plot_xml" />';
+                inputs += '<input type="hidden" name="type" value="plot_xml_url" />';
                 $('<form action="download" method="' + 'get' + '">' + inputs + '</form>').appendTo('body').submit().remove();
                 $(this).dialog("close");
             }
@@ -2664,6 +2850,7 @@ function formatXml(xml) {
     return formatted;
 }
 function resetFormatting() {
+    $('#file_name').val("");
     $('#plot_title').val("test title");
     $('#x_label_title').val("test x_label");
     $('#y1_label_title').val("test y_label");
@@ -2690,8 +2877,14 @@ function resetFormatting() {
     $("#plot_units").val("in");
     $("#cex").val("1");
     $("#plot_res").val("72");
-    $("#mar").val("c(8, 4, 5, 4)");
-    $("#mgp").val("c(1, 1, 0)");
+    $("#mar_bottom").val("8");
+    $("#mar_left").val("4");
+    $("#mar_top").val("5");
+    $("#mar_right").val("4");
+
+    $("#mgp_title").val("1");
+    $("#mgp_labels").val("1");
+    $("#mgp_line").val("0");
     $("#title_align").val("0.5");
     $("#title_offset").val("-2");
     $("#title_size").val("1.4");
@@ -2740,11 +2933,13 @@ function resetFormatting() {
     $("#y2tlab_perp").val("0.5");
     $("#y2tlab_size").val("1");
     $("#y2tlab_orient").val("1");
-    $("#y2_lim").val("c(0,1)");
+    $("#y2_lim_min").val("0");
+    $("#y2_lim_max").val("1");
     $("#y2_bufr").val("0");
 
     $("#legend_size").val("0.8");
-    $("#legend_inset").val("c(0, -.25)");
+    $("#legend_inset_min").val("0");
+    $("#legend_inset_max").val(" -.25");
     $("#legend_box").val("o");
     $("#legend_ncol").val("3");
     $("#caption_align").val("0");
@@ -2766,6 +2961,7 @@ function removeFixedVarRhist(id) {
     var index_of_removing_el = jQuery.inArray(parseInt(index), fixed_var_indexes);
     if (index_of_removing_el > -1) {
         fixed_var_indexes.splice(index_of_removing_el, 1);
+        fixVarValResponse[parseInt(index)] = null;
     }
     if (fixed_var_indexes.length == 1) {
         $("#remove_fixed_var_" + fixed_var_indexes[0] ).button( {disabled: true} );
@@ -2779,6 +2975,9 @@ function removeFixedVarSeries(id) {
     //destroy selects
     $("#fixed_var_" + index).multiselect("destroy");
     $("#fixed_var_val_" + index).multiselect("destroy");
+    $("#fixed_var_val_date_period_" + index).dialog("destroy");
+    $("#fixed_var_val_date_period_" + index).remove();
+    $("#fixed_var_val_date_period_button_" + index).button("destroy");
 
     var index_of_removing_el = jQuery.inArray(parseInt(index), fixed_var_indexes);
     if (index_of_removing_el > -1) {
@@ -2792,6 +2991,8 @@ function removeFixedVarSeries(id) {
 
 }
 
+
+
 function addFixedVariableRhist() {
     var last_index = fixed_var_indexes[fixed_var_indexes.length - 1];
     if (fixed_var_indexes.length == 1) {
@@ -2799,7 +3000,7 @@ function addFixedVariableRhist() {
     }
     fixed_var_indexes.push(last_index + 1);
 
-    var fixed_var, remove_var, fixed_var_val;
+    var fixed_var, remove_var, fixed_var_val,fixed_var_val_date_period_button, dialog;
 
     fixed_var = $("#fixed_var_" + last_index).clone(false);
     fixed_var.attr("id", 'fixed_var_' + (last_index + 1));
@@ -2812,13 +3013,32 @@ function addFixedVariableRhist() {
     fixed_var_val = $("#fixed_var_val_" + last_index).clone(false);
     fixed_var_val.attr("id", 'fixed_var_val_' + (last_index + 1));
     fixed_var_val.css("display", '');
-    fixed_var.val($("#fixed_var_" + last_index).multiselect("getChecked").val());
+    fixed_var.val(fixed_var.find(" option:first").val());
 
-    $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var)).append($('<td>').append(fixed_var_val)));
+    fixed_var_val_date_period_button = $("<button>", {
+        text: 'Select multiple options',
+        id: 'fixed_var_val_date_period_button_' + (last_index + 1)
+    }).css('display', 'none');
+
+    dialog = $("#fixed_var_val_date_period_" + (last_index )).clone(false).appendTo( "body" );
+    dialog.prop("id", "fixed_var_val_date_period_" + (last_index + 1));
+    dialog.find("#fixed_var_val_date_period_start_" + (last_index )).prop('id', 'fixed_var_val_date_period_start_' + (last_index + 1));
+    dialog.find("#fixed_var_val_date_period_end_" + (last_index )).prop('id', 'fixed_var_val_date_period_end_' + (last_index + 1));
+    dialog.find("#fixed_var_val_date_period_by_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_' + (last_index + 1));
+    dialog.find("#fixed_var_val_date_period_by_unit_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_unit_' + (last_index + 1));
+
+
+    $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var)).append($('<td>').append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button)));
+
+    createValDatePeriodDialog('fixed_var_val', (last_index + 1) );
 
     fixed_var_val.multiselect({
         selectedList: 100, // 0-based index
-        noneSelectedText: "Select value"
+        noneSelectedText: "Select value",
+        position: {
+            my: 'center center',
+            at: 'right center'
+        }
     });
     fixed_var.multiselect({
         multiple: false,
@@ -2826,11 +3046,28 @@ function addFixedVariableRhist() {
         header: false,
         minWidth: 'auto',
         height: 'auto',
-        click: function () {
+        click: function (event, ui) {
+            $('#fixed_var_val_date_period_start_' + (last_index + 1)).empty();
+            $('#fixed_var_val_date_period_end_' + (last_index + 1)).empty();
+
+            if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                $("#fixed_var_val_date_period_button_" + (last_index + 1)).css("display", "block");
+            } else {
+                $("#fixed_var_val_date_period_button_" + (last_index + 1)).css("display", "none");
+            }
             var id_array = this.id.split("_");
             updateFixedVarValHist(id_array[id_array.length - 1], []);
         }
     });
+    fixed_var_val_date_period_button.button({
+            icons: {
+                primary: "ui-icon-check",
+                secondary: "ui-icon-circlesmall-plus"
+            },
+            text: false
+        }).click(function () {
+            $("#fixed_var_val_date_period_" + (last_index + 1)).dialog("open");
+        });
     updateFixedVarValHist((last_index + 1), []);
 }
 
@@ -2844,7 +3081,7 @@ function addFixedVariableSeries() {
     }
     fixed_var_indexes.push(last_index + 1);
 
-    var fixed_var, remove_var, fixed_var_val;
+    var fixed_var, remove_var, fixed_var_val,fixed_var_val_date_period_button, dialog;
     if (last_index == 0) {
         $('#fixed_var_table').css("display", "");
         fixed_var = $("#fixed_var_" + (last_index + 1));
@@ -2855,27 +3092,49 @@ function addFixedVariableSeries() {
             text: false
         });
         fixed_var_val = $("#fixed_var_val_" + (last_index + 1));
+        fixed_var_val_date_period_button = $("#fixed_var_val_date_period_button_" + (last_index + 1));
+        dialog = $("#fixed_var_val_date_period_" + (last_index + 1));
 
     } else {
         fixed_var = $("#fixed_var_" + last_index).clone(false);
-        fixed_var.attr("id", 'fixed_var_' + (last_index + 1));
+        fixed_var.prop("id", 'fixed_var_' + (last_index + 1));
         fixed_var.css("display", '');
+        fixed_var.val(fixed_var.find(" option:first").val());
+
     }
 
     if (last_index > 0) {
         remove_var = $("#remove_fixed_var_" + last_index).clone(true)
-                .attr("id", 'remove_fixed_var_' + (last_index + 1));
+                .prop("id", 'remove_fixed_var_' + (last_index + 1));
 
         fixed_var_val = $("#fixed_var_val_" + last_index).clone(false);
-        fixed_var_val.attr("id", 'fixed_var_val_' + (last_index + 1));
+        fixed_var_val.prop("id", 'fixed_var_val_' + (last_index + 1));
         fixed_var_val.css("display", '');
-        fixed_var.val($("#fixed_var_" + last_index).multiselect("getChecked").val());
+        fixed_var.val(fixed_var.find(" option:first").val());
+        fixed_var_val_date_period_button = $("<button>",{
+                text: 'Select multiple options',
+                id: 'fixed_var_val_date_period_button_' + (last_index + 1)
+            }).css('display', 'none');
+        dialog = $("#fixed_var_val_date_period_" + (last_index )) .clone(false).appendTo( "body" );
+        dialog.prop("id", "fixed_var_val_date_period_" + (last_index +1));
+        dialog.find("#fixed_var_val_date_period_start_"+ (last_index )).prop('id', 'fixed_var_val_date_period_start_' + (last_index + 1));
+        dialog.find("#fixed_var_val_date_period_end_"+ (last_index )).prop('id', 'fixed_var_val_date_period_end_' + (last_index + 1));
+        dialog.find("#fixed_var_val_date_period_by_"+ (last_index )).prop('id', 'fixed_var_val_date_period_by_' + (last_index + 1));
+        dialog.find("#fixed_var_val_date_period_by_unit_"+ (last_index )).prop('id', 'fixed_var_val_date_period_by_unit_' + (last_index + 1));
 
-        $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var)).append($('<td>').append(fixed_var_val)));
+        $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var)).append($('<td>').append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button)));
     }
+
+
+    createValDatePeriodDialog('fixed_var_val', (last_index + 1) );
+
     fixed_var_val.multiselect({
         selectedList: 100, // 0-based index
-        noneSelectedText: "Select value"
+        noneSelectedText: "Select value",
+        position: {
+            my: 'center center',
+            at: 'right center'
+        }
     });
     fixed_var.multiselect({
         multiple: false,
@@ -2883,11 +3142,29 @@ function addFixedVariableSeries() {
         header: false,
         minWidth: 'auto',
         height: 'auto',
-        click: function () {
+        click: function (event, ui) {
+            $('#fixed_var_val_date_period_start_'+ (last_index + 1)).empty();
+            $('#fixed_var_val_date_period_end_'+ (last_index + 1)).empty();
+
+            if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                $("#fixed_var_val_date_period_button_" + (last_index + 1)).css("display", "block");
+            } else {
+                $("#fixed_var_val_date_period_button_" + (last_index + 1)).css("display", "none");
+            }
             var id_array = this.id.split("_");
             updateFixedVarValSeries(id_array[id_array.length - 1], []);
         }
     });
+    fixed_var_val_date_period_button.button({
+        icons: {
+            primary: "ui-icon-check",
+            secondary: "ui-icon-circlesmall-plus"
+        },
+        text: false
+    }).click(function () {
+        $("#fixed_var_val_date_period_" + (last_index + 1)).dialog("open");
+    });
+
     updateFixedVarValSeries((last_index + 1), []);
 }
 function removeSeriesVarCommon(id) {
@@ -2908,6 +3185,7 @@ function removeSeriesVarCommon(id) {
         index_of_removing_el = jQuery.inArray(parseInt(index), series_var_y1_indexes);
         if (index_of_removing_el > -1) {
             series_var_y1_indexes.splice(index_of_removing_el, 1);
+            seriesY1VarValResponse[parseInt(index)]=null;
         }
 
         if (series_var_y1_indexes.length > 0) {
@@ -2919,6 +3197,7 @@ function removeSeriesVarCommon(id) {
         index_of_removing_el = jQuery.inArray(parseInt(index), series_var_y2_indexes);
         if (index_of_removing_el > -1) {
             series_var_y2_indexes.splice(index_of_removing_el, 1);
+            seriesY1VarValResponse[parseInt(index)]=null;
         }
 
         if (series_var_y2_indexes.length > 0) {
@@ -2933,11 +3212,9 @@ function removeSeriesVarCommon(id) {
 function removeSeriesVarSeriesBox(id) {
     removeSeriesVarCommon(id);
     if (series_var_y1_indexes.length == 1) {
-                $("#remove_series_var_y1_" + (series_var_y1_indexes[0])).button("disable");
-            }
-
+        $("#remove_series_var_y1_" + (series_var_y1_indexes[0])).button("disable");
+    }
     updateSeriesSeriesBox();
-
 }
 function addSeriesVariableEns() {
     var last_index;
@@ -2987,7 +3264,7 @@ function addSeriesVariableEns() {
             updateSeriesEns();
         },
         checkAll: function () {
-            updateSeriesSeriesBox();
+            updateSeriesSeriesBox(true);
         },
         uncheckAll: function () {
             updateSeriesSeriesBox();
@@ -3022,7 +3299,7 @@ function addSeriesVariableRhist() {
     }
     series_var_y1_indexes.push(last_index + 1);
 
-    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label;
+    var series_var, remove_var, series_var_val, var_val_date_period_button, dialog;
     if (last_index == 0) {
         $('#series_var_table_y1').css("display", "");
         series_var = $("#series_var_y1_" + (last_index + 1));
@@ -3036,6 +3313,9 @@ function addSeriesVariableRhist() {
                                         updateSeriesRhist();
                 });
         series_var_val = $("#series_var_val_y1_" + (last_index + 1));
+        var_val_date_period_button = $("#series_var_val_y1_date_period_button_" + (last_index + 1));
+        dialog = $("#series_var_val_y1_date_period_" + (last_index + 1));
+
 
     } else {
         series_var = $("#series_var_y1_" + last_index).clone(false);
@@ -3051,9 +3331,23 @@ function addSeriesVariableRhist() {
         series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
         series_var_val.css("display", '');
 
+        var_val_date_period_button = $("<button>", {
+            text: 'Select multiple options',
+            id: 'series_var_val_y1_date_period_button_' + (last_index + 1)
+        }).css('display', 'none');
+        dialog = $("#series_var_val_y1_date_period_" + (last_index )).clone(false).appendTo( "body" );
+        dialog.prop("id", "series_var_val_y1_date_period_" + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_start_" + (last_index )).prop('id', 'series_var_val_y1_date_period_start_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_end_" + (last_index )).prop('id', 'series_var_val_y1_date_period_end_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_by_" + (last_index )).prop('id', 'series_var_val_y1_date_period_by_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_by_unit_" + (last_index )).prop('id', 'series_var_val_y1_date_period_by_unit_' + (last_index + 1));
+        $('body').append(dialog);
 
-        $('#series_var_table_y1').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)));
+
+        $('#series_var_table_y1').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)).append($('<td>').append(var_val_date_period_button)));
     }
+    createValDatePeriodDialog("series_var_val_y1", (last_index + 1));
+
     series_var_val.multiselect({
         selectedList: 100, // 0-based index
         noneSelectedText: "Select value",
@@ -3078,10 +3372,27 @@ function addSeriesVariableRhist() {
         selectedList: 1,
         header: false,
         minWidth: 'auto',
-        click: function () {
+        click: function (event, ui) {
+            $('#series_var_val_y1_date_period_start_' + (last_index + 1)).empty();
+            $('#series_var_val_y1_date_period_end_' + (last_index + 1)).empty();
+
+            if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                $("#series_var_val_y1_date_period_button_" + (last_index + 1)).css("display", "block");
+            } else {
+                $("#series_var_val_y1_date_period_button_" + (last_index + 1)).css("display", "none");
+            }
             var id_array = this.id.split("_");
             updateSeriesVarValRhist(id_array[id_array.length - 1], []);
         }
+    });
+    var_val_date_period_button.button({
+        icons: {
+            primary: "ui-icon-check",
+            secondary: "ui-icon-circlesmall-plus"
+        },
+        text: false
+    }).click(function () {
+        $("#series_var_val_y1_date_period_" + (last_index + 1)).dialog("open");
     });
 }
 
@@ -3103,7 +3414,7 @@ function addSeriesVariableSeriesBox(y_axis) {
         }
         series_var_y2_indexes.push(last_index + 1);
     }
-    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label;
+    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label,var_val_date_period_button, dialog;
     if (last_index == 0) {
         $('#series_var_table_' + y_axis).css("display", "");
         series_var = $("#series_var_" + y_axis + "_" + (last_index + 1));
@@ -3116,6 +3427,9 @@ function addSeriesVariableSeriesBox(y_axis) {
                     removeSeriesVarSeriesBox($(this).attr('id'));
                 });
         series_var_val = $("#series_var_val_" + y_axis + "_" + (last_index + 1));
+        var_val_date_period_button = $("#series_var_val_"+y_axis+"_date_period_button_" + (last_index + 1));
+        dialog = $("#series_var_val_"+y_axis+"_date_period_" + (last_index + 1));
+
 
     } else {
         series_var = $("#series_var_" + y_axis + "_" + last_index).clone(false);
@@ -3137,9 +3451,22 @@ function addSeriesVariableSeriesBox(y_axis) {
             updateSeriesSeriesBox();
         });
         group_series_var_label = $('<label for="' + 'group_series_var_' + y_axis + "_" + (last_index + 1) + '">Group_' + y_axis + '_' + (last_index + 1) + '</label>');
+        var_val_date_period_button = $("<button>", {
+            text: 'Select multiple options',
+            id: 'series_var_val_' + y_axis + '_date_period_button_' + (last_index + 1)
+        }).css('display', 'none');
+        dialog = $("#series_var_val_" + y_axis + "_date_period_" + (last_index )).clone(false).appendTo( "body" );
+        dialog.prop("id", "series_var_val_" + y_axis + "_date_period_" + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_start_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_start_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_end_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_end_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_by_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_by_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_by_unit_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_by_unit_' + (last_index + 1));
+        $('body').append(dialog);
 
-        $('#series_var_table_' + y_axis).append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)).append($('<td>').append(group_series_var).append(group_series_var_label)));
+        $('#series_var_table_' + y_axis).append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)).append($('<td>').append(var_val_date_period_button)).append($('<td>').append(group_series_var).append(group_series_var_label)));
     }
+    createValDatePeriodDialog("series_var_val_"+y_axis, (last_index + 1) );
+
     series_var_val.multiselect({
         selectedList: 100, // 0-based index
         noneSelectedText: "Select value",
@@ -3147,7 +3474,7 @@ function addSeriesVariableSeriesBox(y_axis) {
             updateSeriesSeriesBox();
         },
         checkAll: function () {
-            updateSeriesSeriesBox();
+            updateSeriesSeriesBox(true);
         },
         uncheckAll: function () {
             updateSeriesSeriesBox();
@@ -3163,10 +3490,27 @@ function addSeriesVariableSeriesBox(y_axis) {
         selectedList: 1,
         header: false,
         minWidth: 'auto',
-        click: function () {
+        click: function (event, ui) {
+            $('#series_var_val_' + y_axis + '_date_period_start_' + (last_index + 1)).empty();
+            $('#series_var_val_' + y_axis + '_date_period_end_' + (last_index + 1)).empty();
+
+            if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                $("#series_var_val_" + y_axis + "_date_period_button_" + (last_index + 1)).css("display", "block");
+            } else {
+                $("#series_var_val_" + y_axis + "_date_period_button_" + (last_index + 1)).css("display", "none");
+            }
             var id_array = this.id.split("_");
             updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
         }
+    });
+    var_val_date_period_button.button({
+        icons: {
+            primary: "ui-icon-check",
+            secondary: "ui-icon-circlesmall-plus"
+        },
+        text: false
+    }).click(function () {
+        $("#series_var_val_" + y_axis + "_date_period_" + (last_index + 1)).dialog("open");
     });
 }
 
@@ -3271,6 +3615,7 @@ function addFcstVariableSeries(y_axis) {
         selectedList: 1,
         header: false,
         minWidth: 'auto',
+        height:200,
         click: function () {
             var id_array = this.id.split("_");
             updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
@@ -3293,6 +3638,17 @@ function addFcstVariableSeries(y_axis) {
             noneSelectedText: "Select attribute stat",
             click: function (event, ui) {
                 updateSeriesSeriesBox();
+            },
+            position: {
+                my: 'right center',
+                at: 'right center'
+            },
+            checkAll: function () {
+
+                updateSeriesSeriesBox();
+            },
+            uncheckAll: function () {
+                updateSeriesSeriesBox();
             }
         });
 
@@ -3301,13 +3657,24 @@ function addFcstVariableSeries(y_axis) {
         fcst_stat.multiselect({
             selectedList: 100, // 0-based index
             noneSelectedText: "Select ratio stat",
+            position: {
+                my: 'right center',
+                at: 'right center'
+            },
             click: function (event, ui) {
                 var id_array = this.id.split("_");
                 $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).css("display", "none");
                 try {
-                    $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("option", "allUnselected", true);
+                    $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
                 } catch (err) {
+                    console.log("Error " + err);
                 }
+                updateSeriesSeriesBox();
+            },
+            checkAll: function () {
+                updateSeriesSeriesBox();
+            },
+            uncheckAll: function () {
                 updateSeriesSeriesBox();
             }
         });
@@ -3316,13 +3683,19 @@ function addFcstVariableSeries(y_axis) {
         } else {
             fcst_stat.multiselect("enable");
         }
-        fcst_stat_mode.multiselect({ multiple: false,
+        fcst_stat_mode.multiselect({
+            multiple: false,
             selectedList: 1,
             header: false,
             minWidth: 225,
             height: 300,
             noneSelectedText: "Select attribute stat",
             allUnselected: true,
+            position: {
+                my: 'right center',
+                at: 'right center'
+
+            },
             click: function (event, ui) {
                 var id_array = this.id.split("_");
                 $("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
@@ -3345,6 +3718,30 @@ function addFcstVariableSeries(y_axis) {
     }
 }
 function loadXMLRoc() {
+    var series_var_val;
+    if (initXML.find("plot").find("series1").children().length > 0) {
+        var series_arr = initXML.find("plot").find("series1").children();
+        for (var i = 0; i < series_arr.length; i++) {
+            series_var_val = [];
+            addSeriesVariableRhist();
+
+            var value = $(series_arr[i]).attr('name');
+            $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            $(series_arr[i]).find("val").each(function () {
+                series_var_val.push($(this).text());
+            });
+            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "block");
+            } else {
+                $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
+            }
+            updateSeriesVarValRhist((i + 1), series_var_val);
+
+        }
+    } else {
+        series_var_val = $("#series_var_y1_1").first().val();
+        updateSeriesVarValRhist(1, series_var_val);
+    }
     updatePlotFix();
     var roc_pct = $(initXML.find("plot").find("roc_calc").find("roc_pct")).text();
     var roc_ctc = $(initXML.find("plot").find("roc_calc").find("roc_ctc")).text();
@@ -3360,12 +3757,9 @@ function loadXMLRhist() {
 
         for (var i = 0; i < series_arr.length; i++) {
             series_var_val = [];
-            if (i == 0) {
-                $("#series_var_1" + "_" + ( i + 1)).val($(series_arr[i]).attr('name')).multiselect("refresh");
-            } else {
-                addSeriesVariableRhist();
-                $("#series_var_1" + "_" + (i + 1)).val($(series_arr[i]).attr('name')).multiselect("refresh");
-            }
+            addSeriesVariableRhist();
+            var value = $(series_arr[i]).attr('name');
+            $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
             $(series_arr[i]).find("val").each(function () {
                 var vals = $(this).text().split(",");
 
@@ -3373,7 +3767,12 @@ function loadXMLRhist() {
                     series_var_val.push(vals[k]);
                 }
             });
-            updateSeriesVarValRhist( (i + 1), series_var_val);
+            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "block");
+            } else {
+                $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
+            }
+            updateSeriesVarValRhist((i + 1), series_var_val);
 
         }
     } else {
@@ -3385,6 +3784,31 @@ function loadXMLRhist() {
 }
 
 function loadXMLRely() {
+    var series_var_val;
+       if (initXML.find("plot").find("series1").children().length > 0) {
+           var series_arr = initXML.find("plot").find("series1").children();
+           for (var i = 0; i < series_arr.length; i++) {
+               series_var_val = [];
+               addSeriesVariableRhist();
+
+               var value=$(series_arr[i]).attr('name');
+               $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+               $(series_arr[i]).find("val").each(function () {
+                   series_var_val.push($(this).text());
+               });
+               if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                   $("#series_var_val_y1_date_period_button_"+ (i + 1)).css("display", "block");
+               } else {
+                   $("#series_var_val_y1_date_period_button_"+ (i + 1)).css("display", "none");
+               }
+               updateSeriesVarValRhist((i + 1), series_var_val);
+
+           }
+       } else {
+           series_var_val = $("#series_var_y1_1").first().val();
+           updateSeriesVarValRhist(1, series_var_val);
+       }
+
     updatePlotFix();
     var rely_event_hist = $(initXML.find("plot").find("rely_event_hist")).text();
 
@@ -3399,16 +3823,19 @@ function loadXMLEns() {
         var series_arr = initXML.find("plot").find("series1").children();
         for (var i = 0; i < series_arr.length; i++) {
             series_var_val = [];
-            if (i == 0) {
-                $("#series_var_y1_" + ( i + 1)).val($(series_arr[i]).attr('name'));
-            } else {
+            if (i != 0) {
                 addSeriesVariableEns();
-
-                $("#series_var_y1_" + (i + 1)).val($(series_arr[i]).attr('name')).multiselect("refresh");
             }
+            var value=$(series_arr[i]).attr('name');
+            $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
+            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                $("#series_var_val_y1_date_period_button_"+ (i + 1)).css("display", "block");
+            } else {
+                $("#series_var_val_y1_date_period_button_"+ (i + 1)).css("display", "none");
+            }
             updateSeriesVarValEns((i + 1), series_var_val);
 
         }
@@ -3437,12 +3864,17 @@ function updatePlotFix() {
             if (i > 0 ) {
                 addFixedVariableRhist();
             }
-
-            $("#fixed_var_" + (i + 1)).val($(plot_fix_arr[i]).attr('name')).multiselect("refresh");
+            var value = $(plot_fix_arr[i]).attr('name');
+            $("#fixed_var_" + (i + 1)).val(value).multiselect("refresh");
 
             $(plot_fix_arr[i]).find("set").find("val").each(function () {
                 fixed_var_vals.push($(this).text());
             });
+            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "block");
+            } else {
+                $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "none");
+            }
             updateFixedVarValHist((i + 1), fixed_var_vals);
         }
 
@@ -3456,11 +3888,17 @@ function updatePlotFixSeries() {
             var fixed_var_vals = [];
 
             addFixedVariableSeries();
-            $("#fixed_var_" + (i + 1)).val($(plot_fix_arr[i]).attr('name')).multiselect("refresh");
+            var value = $(plot_fix_arr[i]).attr('name');
+            $("#fixed_var_" + (i + 1)).val(value).multiselect("refresh");
 
             $(plot_fix_arr[i]).find("set").find("val").each(function () {
                 fixed_var_vals.push($(this).text());
             });
+            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "block");
+            } else {
+                $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "none");
+            }
             updateFixedVarValSeries((i + 1), fixed_var_vals);
         }
 
@@ -3484,7 +3922,7 @@ function loadXMLSeries() {
             $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
         });
     }
-
+    var value;
     for (var y_axis_index = 1; y_axis_index <= 2; y_axis_index++) {
         var y_axis = "y" + y_axis_index;
         var index=0;
@@ -3493,17 +3931,18 @@ function loadXMLSeries() {
             var dep_arr = initXML.find("plot").find("dep").find("dep" + y_axis_index).children();
             for (var i = 0; i < dep_arr.length; i++) {
                 var fcst_stat = [];
+                value = $(dep_arr[i]).attr('name');
                 if (index == 0 && y_axis_index == 1) {
-                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
+                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val(value).multiselect("refresh");
                 } else {
                     addFcstVariableSeries(y_axis);
-                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
+                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val(value).multiselect("refresh");
                 }
                 $(dep_arr[i]).find("stat").each(function () {
                     fcst_stat.push($(this).text());
                 });
 
-                //$($(dep_arr[i]).find("stat")[0]).text()
+
                 if (selected_mode == 'stat') {
                     updateStats(y_axis, index+1, fcst_stat);
                     index++;
@@ -3537,11 +3976,12 @@ function loadXMLSeries() {
             for (var i = 0; i < series_arr.length; i++) {
                 series_var_val = [];
                 isGroup = false;
+                value =  $(series_arr[i]).attr('name');
                 if (i == 0 && y_axis_index == 1) {
-                    $("#series_var_" + y_axis + "_" + ( i + 1)).val($(series_arr[i]).attr('name')).multiselect("refresh");
+                    $("#series_var_" + y_axis + "_" + ( i + 1)).val(value).multiselect("refresh");
                 } else {
                     addSeriesVariableSeriesBox(y_axis);
-                    $("#series_var_" + y_axis + "_" + (i + 1)).val($(series_arr[i]).attr('name')).multiselect("refresh");
+                    $("#series_var_" + y_axis + "_" + (i + 1)).val(value).multiselect("refresh");
                 }
                 $(series_arr[i]).find("val").each(function () {
                     var vals = $(this).text().split(",");
@@ -3552,6 +3992,11 @@ function loadXMLSeries() {
                         series_var_val.push(vals[k]);
                     }
                 });
+                if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                    $("#series_var_val_" + y_axis + "_date_period_button_" + (i + 1)).css("display", "block");
+                } else {
+                    $("#series_var_val_" + y_axis + "_date_period_button_" + (i + 1)).css("display", "none");
+                }
                 updateSeriesVarValSeries(y_axis, (i + 1), series_var_val);
                 if (isGroup) {
                     $('#group_series_var_' + y_axis + "_" + (i + 1)).prop('checked', true);
@@ -3570,7 +4015,13 @@ function loadXMLSeries() {
         updateIndyVarSeries(selected_mode);
     }
 
-    $("#indy_var").val($(initXML.find("plot").find("indep")[0]).attr('name')).multiselect("refresh");
+    value = $(initXML.find("plot").find("indep")[0]).attr('name');
+    $("#indy_var").val(value).multiselect("refresh");
+    if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+        $("#date_period_button").css("display", "block");
+    } else {
+        $("#date_period_button").css("display", "none");
+    }
     var indy_var_vals = [];
     indy_var_vals_to_attr={};
     $(initXML.find("plot").find("indep")[0]).find("val").each(function () {
@@ -3583,7 +4034,6 @@ function loadXMLSeries() {
     if (indy_var_vals.length > 0) {
         $("#indy_var_val").multiselect("option", "indy_var_vals_to_attr", indy_var_vals_to_attr);
         populateIndyVarVal(indy_var_vals);
-       // $("#indy_var_val").multiselect("option", "indy_var_vals_to_attr", null);
     }
 
     if (initXML.find("plot").find("agg_stat").length > 0) {
@@ -3722,9 +4172,224 @@ function updateIndyVarSeries(selected_mode) {
         });
     }
     $('#indy_var').multiselect('refresh');
+    $("#date_period").css("display", "none");
+
 }
 
 String.prototype.endsWith = function (suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
+
+function createValDatePeriodDialog(prefix, var_index){
+    var start_el = $('#' + prefix +'_date_period_start_' + (var_index));
+    var end_el = $('#' + prefix +'_date_period_end_' + (var_index));
+
+    $("#" + prefix +"_date_period_" + (var_index )).dialog({
+        width: 295,
+        autoOpen: false,
+        position: {
+            my: "left bottom",
+            at: 'left top',
+            of: "#" + prefix +"_date_period_button_" + (var_index)
+        },
+        resizable: false,
+        draggable: false,
+        buttons: {
+            "Select values": function () {
+                if ( start_el.val() && end_el.val()) {
+                    var start = moment(start_el.val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
+                    var end = moment(end_el.val(), 'YYYY-MM-DD HH:mm:ss');
+                    var by = $("#" + prefix +"_date_period_by_" + (var_index)).val().trim();
+                    var unit = $("#" + prefix +"_date_period_by_unit_" +(var_index) ).val();
+
+                    if (by.length == 0) {
+                        by = 3600;
+                    }
+                    by = parseFloat(by);
+                    if(unit == "min"){
+                        by = by * 60;
+                    }else if (unit == "hours"){
+                        by = by * 3600;
+                    } else if (unit == "days") {
+                        by = by * 86400;
+                    }
+                    var dates;
+                    if (prefix == 'fixed_var_val') {
+                        dates = $(fixVarValResponse[var_index]).find("val");
+                    } else if (prefix == 'series_var_val_y1') {
+                        dates = $(seriesY1VarValResponse[var_index]).find("val");
+                    } else if (prefix == 'series_var_val_y2') {
+                        dates = $(seriesY2VarValResponse[var_index]).find("val");
+                    }
+                    var current_date = start.clone();
+                    while (current_date <= end) {
+                        var current_date_str = current_date.format('YYYY-MM-DD HH:mm:ss');
+                        var isFound = false;
+                        for (var i = 0; i < dates.length; i++) {
+                            if ($(dates[i]).text() == current_date_str) {
+                                isFound = true;
+                                break;
+                            }
+                        }
+                        if (isFound) {
+                            $("#"+prefix +"_" + (var_index)).find('option[value="' + current_date_str + '"]').prop('selected', true);
+                        }
+                        current_date.add(by, 'seconds');
+                    }
+                    try{
+                        $("#"+prefix +"_" + (var_index)).multiselect("refresh");
+                    } catch (err) {
+                        console.log(err)
+                    }
+                    if (prefix != 'fixed_var_val') {
+                        if (currentTab == "Series" || currentTab == "Box" || currentTab == "Bar") {
+                            updateSeriesSeriesBox();
+                        } else if (currentTab == "Rhist" || currentTab == "Phist" || currentTab == "Roc" || currentTab == "Rely") {
+                            updateSeriesRhist();
+                        } else if (currentTab = "Ens_ss") {
+                            updateSeriesEns();
+                        }
+
+                    }
+                }
+
+                $(this).dialog("close");
+            }
+        },
+        open: function (event, ui) {
+            var dates;
+            if(prefix == 'fixed_var_val'){
+                dates = $(fixVarValResponse[var_index]).find("val");
+            }else if( prefix == 'series_var_val_y1'){
+                dates = $(seriesY1VarValResponse[var_index]).find("val");
+            }else if(prefix == 'series_var_val_y2'){
+                dates = $(seriesY2VarValResponse[var_index]).find("val");
+            }
+            start_el.empty();
+            end_el.empty();
+            for (var i = 0; i < dates.length; i++) {
+                var t = $(dates[i]);
+                var option = $("<option/>")
+                        .attr("value", t.text())
+                        .text(t.text());
+                if (t.text() == start_el.val()) {
+                    option.prop("selected", true);
+                }
+                start_el.append(option);
+                if (t.text() == end_el.val()) {
+                    option.prop("selected", true);
+                } else {
+                    option.prop("selected", false);
+                }
+                end_el.append(option.clone());
+            }
+            end_el.find('option').last().prop('selected',true);
+            if(dates.length > 1) {
+                var start = moment($(dates[0]).text(), 'YYYY-MM-DD HH:mm:ss');
+                var end = moment($(dates[1]).text(), 'YYYY-MM-DD HH:mm:ss');
+                var d = moment.duration({from: start, to: end});
+                $("#" + prefix +"_date_period_by_" + (var_index)).val(d.as('hours'));
+            }
+        }
+    });
+    
+    
+}
+
+function createDatePeriodDialog(){
+    var start_el = $('#date_period_start');
+    var end_el = $('#date_period_end');
+    var indy_var_val = $('#indy_var_val');
+    $("#date_period_dialog").dialog({
+                    width: 295,
+                    autoOpen: false,
+                    position: {
+                        my: "left bottom",
+                        at: 'left top',
+                        of: "#date_period_button"
+                    },
+                    resizable: false,
+                    draggable: false,
+                    buttons: {
+                        "Select values": function () {
+                            if (start_el.val() && end_el.val()) {
+                                var start = moment(start_el.val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
+                                var end = moment(end_el.val(), 'YYYY-MM-DD HH:mm:ss');
+                                var by = $("#date_period_by").val().trim();
+                                var unit = $("#date_period_by_unit").val();
+
+                                if (by.length == 0) {
+                                    by = 3600;
+                                }
+                                by = parseInt(by);
+                                if(unit == "min"){
+                                    by = by * 60;
+                                }else if (unit == "hours"){
+                                    by = by * 3600;
+                                }else if (unit == "days") {
+                                    by = by * 86400;
+                                }
+                                var dates = $(previousIndVarValResponse).find("val");
+                                var current_date = start.clone();
+                                while (current_date <= end) {
+                                    var current_date_str = current_date.format('YYYY-MM-DD HH:mm:ss');
+                                    var isFound = false;
+                                    for (var i = 0; i < dates.length; i++) {
+                                        if ($(dates[i]).text() == current_date_str) {
+                                            isFound = true;
+                                            break;
+                                        }
+                                    }
+                                    if (isFound) {
+                                        indy_var_val.find('option[value="' + current_date_str + '"]').prop('selected', true);
+                                    }
+                                    current_date.add(by, 'seconds');
+                                }
+                                indy_var_val.multiselect("refresh");
+                            }
+
+                            $(this).dialog("close");
+                        }
+                    },
+                    open: function (event, ui) {
+                        var values =indy_var_val.val();
+                        if (values == null) {
+                            values = [];
+                        }
+                        populateIndyVarVal(values);
+
+                        var dates = $(previousIndVarValResponse).find("val");
+                        var start_val= start_el.val();
+                        var end_val= end_el.val();
+
+                        start_el.empty();
+                        end_el.empty();
+                        for (var i = 0; i < dates.length; i++) {
+                            var t = $(dates[i]);
+                            var option = $("<option/>")
+                                    .attr("value", t.text())
+                                    .text(t.text());
+                            if (t.text() == start_val) {
+                                option.prop("selected", true);
+                            }
+                            start_el.append(option);
+                            if (t.text() == end_val) {
+                                option.prop("selected", true);
+                            } else {
+                                option.prop("selected", false);
+                            }
+
+                            end_el.append(option.clone());
+
+                        }
+                        end_el.find('option').last().prop('selected',true);
+                        if(dates.length > 1) {
+                            var start = moment($(dates[0]).text(), 'YYYY-MM-DD HH:mm:ss');
+                            var end = moment($(dates[1]).text(), 'YYYY-MM-DD HH:mm:ss');
+                            var d = moment.duration({from: start, to: end});
+                            $("#date_period_by").val(d.as('hours'));
+                        }
+                    }
+                });
+}
 

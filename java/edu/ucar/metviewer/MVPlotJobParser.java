@@ -121,6 +121,8 @@ public class MVPlotJobParser extends MVUtil {
     String strDBName = "";
     String strDBUser = "";
     String strDBPassword = "";
+    String strDBType = null;
+    String strDBDriver = null;
 
     for (int i = 0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++) {
       MVNode node = _nodePlotSpec._children[i];
@@ -136,13 +138,17 @@ public class MVPlotJobParser extends MVUtil {
             strDBUser = node._children[j]._value;
           } else if (node._children[j]._tag.equals("password")) {
             strDBPassword = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("type")) {
+            strDBType = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("driver")) {
+            strDBDriver = node._children[j]._value;
           }
         }
 
         if (_con == null) {
           //batch mode
-          Datasource datasource = Datasource.getInstance( strDBHost,   strDBUser,  strDBPassword);
-          _con = datasource.getConnection(strDBHost, strDBName, strDBUser, strDBPassword);
+          Datasource datasource = Datasource.getInstance(strDBType,strDBDriver, strDBHost,   strDBUser,  strDBPassword);
+          _con = datasource.getConnection(strDBType,strDBDriver,strDBHost, strDBName, strDBUser, strDBPassword);
         }
 
 
@@ -258,6 +264,8 @@ public class MVPlotJobParser extends MVUtil {
         //  set the job database information
         job.setConnection(_con);
         job.setRscript(_strRscript);
+        job.setDBManagementSystem(strDBType);
+        job.setDBDriver(strDBDriver);
         job.setDBHost(strDBHost);
         job.setDBName(strDBName);
         job.setDBUser(strDBUser);
@@ -1200,6 +1208,8 @@ public class MVPlotJobParser extends MVUtil {
     String strXML =
       "<plot_spec>" +
         "<connection>" +
+        "<management_system>" + job.getDBManagementSystem() + "</management_system>" +
+        "<driver>" + job.getDBDriver() + "</driver>" +
         "<host>" + job.getDBHost() + "</host>" +
         "<database>" + job.getDBName() + "</database>" +
         "<user>" + job.getDBUser() + "</user>" +
@@ -1211,7 +1221,7 @@ public class MVPlotJobParser extends MVUtil {
     strXML += "<template>" + job.getPlotTmpl() + "</template>";
 
     //  if there are  series elements present, handle them
-    if (!job.getPlotTmpl().startsWith("roc") && !job.getPlotTmpl().startsWith("rely")) {
+    //if (!job.getPlotTmpl().startsWith("roc") && !job.getPlotTmpl().startsWith("rely")) {
       //  series
       for (int intY = 1; intY <= 2; intY++) {
 
@@ -1248,7 +1258,7 @@ public class MVPlotJobParser extends MVUtil {
         strXML += "</series" + intY + ">";
       }
 
-    }
+    //}
     //  if there are dep,  and indep elements present, handle them
     if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc") &&
       !job.getPlotTmpl().startsWith("rely")) {

@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Storage class for a xml plot specification, implementing the java bean
- * interface.  Instances are populated by the MVPlotJobParser and handled by
- * MVBatch.
+ * Storage class for a xml plot specification, implementing the java bean interface.  Instances are populated by the MVPlotJobParser and handled by MVBatch.
  */
 public class MVPlotJob extends MVUtil {
 
@@ -18,6 +16,8 @@ public class MVPlotJob extends MVUtil {
   protected String _strDBName = "";
   protected String _strDBUser = "";
   protected String _strDBPassword = "";
+  protected String _strDBManagementSystem = null;
+  protected String _strDBDriver = null;
 
   protected String _strRscript = "";
 
@@ -169,8 +169,8 @@ public class MVPlotJob extends MVUtil {
   protected String _strY2Bufr = ".04";
   protected String _plotStat = "median";
   protected String _strOrderSeries = "";
-  protected String _strDiffSeries1="list()";
-  protected String _strDiffSeries2="list()";
+  protected String _strDiffSeries1 = "list()";
+  protected String _strDiffSeries2 = "list()";
   protected String _strShowSignif = "";
 
 
@@ -196,6 +196,8 @@ public class MVPlotJob extends MVUtil {
 
     job._strJobName = _strJobName + "_copy";
     job._con = _con;
+    job._strDBManagementSystem = _strDBManagementSystem;
+    job._strDBDriver = _strDBDriver;
     job._strDBHost = _strDBHost;
     job._strDBName = _strDBName;
     job._strDBUser = _strDBUser;
@@ -350,6 +352,7 @@ public class MVPlotJob extends MVUtil {
     return job;
   }
 
+
   public String getJobName() {
     return _strJobName;
   }
@@ -364,6 +367,35 @@ public class MVPlotJob extends MVUtil {
 
   public void setConnection(Connection con) {
     _con = con;
+  }
+
+
+  public String getDBDriver() {
+    if (_strDBDriver == null) {
+      if (getDBManagementSystem().equals("mysql")) {
+        _strDBDriver = "com.mysql.jdbc.Driver";
+      } else if (getDBManagementSystem().equals("postgresql")) {
+        _strDBDriver = "org.postgresql.Driver";
+      }
+    }
+    return _strDBDriver;
+
+  }
+
+  public void setDBDriver(String dbDriver) {
+    _strDBDriver = dbDriver;
+  }
+
+  public String getDBManagementSystem() {
+    if (_strDBManagementSystem == null) {
+      return "mysql";
+    } else {
+      return _strDBManagementSystem;
+    }
+  }
+
+  public void setDBManagementSystem(String dbManagementSystem) {
+    _strDBManagementSystem = dbManagementSystem;
   }
 
   public String getDBHost() {
@@ -501,11 +533,9 @@ public class MVPlotJob extends MVUtil {
   }
 
 
-
   public void addSeries1Val(String field, String[] vals, int index) {
     _mapSeries1Val.putSeries(field, vals, index);
   }
-
 
 
   public void addSeries1Val(String field, String[] vals) {
@@ -521,19 +551,14 @@ public class MVPlotJob extends MVUtil {
   }
 
 
-
-
-
   public void removeSeries1Val(String field) {
     _mapSeries1Val.remove(field);
   }
 
 
-
   public void clearSeries1Val() {
     _mapSeries1Val = new MVOrderedMap();
   }
-
 
 
   public MVOrderedMap getSeries2Val() {
@@ -751,7 +776,6 @@ public class MVPlotJob extends MVUtil {
   public void setXReverse(boolean xReverse) {
     _boolXReverse = xReverse;
   }
-
 
 
   public boolean getShowNStats() {
@@ -1467,7 +1491,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public String getShowSignif() {
-    if(_strShowSignif.length() == 0){
+    if (_strShowSignif.length() == 0) {
       _strShowSignif = _strPlotDisp.replace("TRUE", "FALSE");
     }
     return _strShowSignif;
@@ -1599,17 +1623,17 @@ public class MVPlotJob extends MVUtil {
 
 
   public String getOrderSeries() {
-    if(_strOrderSeries.length() > 0){
-    return _strOrderSeries;
-    }else{
+    if (_strOrderSeries.length() > 0) {
+      return _strOrderSeries;
+    } else {
       //c(20, 20, 20)
       String templ = getPch();
       int size = templ.split(",").length;
       String result = "c(";
-      for(int i=1; i<= size; i++){
+      for (int i = 1; i <= size; i++) {
         result = result + i + ",";
       }
-      return result.substring(0, result.length()-1) + ")";
+      return result.substring(0, result.length() - 1) + ")";
     }
   }
 

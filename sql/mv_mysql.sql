@@ -1141,12 +1141,12 @@ CREATE TABLE line_data_enscnt
    CONSTRAINT line_data_enscnt_stat_header_id_pk
    FOREIGN KEY (stat_header_id)
    REFERENCES stat_header (stat_header_id)
-)
+);
 
 
 
---  contains stat data for a particular stat_header record, which it points 
---   at via the stat_header_id field.
+--  contains stat data for a particular stat_header record, which it points
+--    at via the stat_header_id field.
 
 DROP TABLE IF EXISTS line_data_isc;
 CREATE TABLE line_data_isc
