@@ -24,7 +24,6 @@ boolShowNStats	= #<show_nstats>#;
 listY1limUsr	= #<y1_lim>#;
 listY2limUsr	= #<y2_lim>#;
 		
-dfPlot = read.delim(strDataFile);
 
 strIndyVar = "#<indy_var>#";
 
@@ -64,6 +63,22 @@ listSeries1Var = names(listSeries1Val);
 listSeries2Var = names(listSeries2Val);
 box_outline = #<box_outline>#;
 
+#if fcst_var is a spetial char - read it as-is and do not convert
+sampleData = read.delim(strDataFile,nrows=5);
+classes <- sapply(sampleData, class);
+numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl');
+integer_columns <- c('fcst_lead','nstats');
+character_columns <- c('fcst_var', 'model', 'stat_name')
+for(col in 1:ncol(sampleData)){
+  if ( is.element( names(classes)[col] , numeric_columns) ){
+    classes[col]='numeric';
+  } else if ( is.element( names(classes)[col] , integer_columns) ){
+    classes[col]='integer';
+  } else if ( is.element( names(classes)[col] , character_columns) ){
+    classes[col]='character';
+  }
+}
+dfPlot = read.delim(strDataFile,colClasses = classes);
 
 # run event equalizer, if requested
 if( TRUE == boolEventEqual | TRUE == boolEventEqualM ){
