@@ -475,7 +475,12 @@ public class MVLoad extends MVUtil {
       String[] listToken = line.split("\\s+");
       intLine++;
       String thresh = "NA";
+      String modelName = listToken[1];
 
+      if(listToken[6].equals("BSS") || listToken[6].equals("ECON") || listToken[6].equals("HIST") || listToken[6].equals("HTFR")
+        || listToken[6].equals("RELI") || listToken[6].equals("RELP")|| listToken[6].equals("RMSE") || listToken[6].equals("RPS")){
+        modelName = modelName.split("\\/")[0]+ ensValue;
+      }
 
       //  if the line type load selector is activated, check that the current line type is on the list
 
@@ -552,7 +557,7 @@ public class MVLoad extends MVUtil {
       //  build the stat_header value list for this line
       String[] listStatHeaderValue = {
         listToken[0],    //  version
-        listToken[1].split("\\/")[0]+ ensValue,    //  model
+        modelName,    //  model
         listToken[7],    //  fcst_var
         listToken[8],    //  fcst_lev
         listToken[7],    //  obs_var
@@ -567,7 +572,7 @@ public class MVLoad extends MVUtil {
 
       //  build a where clause for searching for duplicate stat_header records
       String strStatHeaderWhereClause =
-        "  model = '" + listToken[1].split("\\/")[0] + ensValue + "'\n" +
+        "  model = '" + modelName + "'\n" +
           "  AND fcst_var = '" + listToken[7] + "'\n" +
           "  AND fcst_lev = '" + listToken[8] + "'\n" +
           "  AND obtype = '" + listToken[4] + "'\n" +
@@ -910,9 +915,6 @@ public class MVLoad extends MVUtil {
 			 */
 
       if (boolHasVarLengthGroups) {
-
-
-
         //  get the index information about the current line type
         //int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
        // int intGroupCntIndex =0;
