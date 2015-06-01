@@ -66,7 +66,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     
     # plot title
     mtext(
-      "test title", # label
+      "#<plot_title>#", # label
       font=2, # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
       las=0, # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
       side=3, # axis of interest, 1: below, 2: left, 3: above and 4: right
@@ -78,7 +78,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     
     # x-axis label
     mtext(
-      "test x_label", # label
+      "#<x_label>#", # label
       font=1, # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
       las=0, # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
       side=1, # axis of interest, 1: below, 2: left, 3: above and 4: right
@@ -103,7 +103,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     
     # y-axis label
     mtext(
-      "test y_label", # label
+      "#<y1_label>#", # label
       font=1, # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
       las=0, # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
       side=2, # axis of interest, 1: below, 2: left, 3: above and 4: right
