@@ -52,13 +52,15 @@ public class MVServlet extends HttpServlet {
   public static String _strPlots = "";
   public static String _strRscript = "";
   public static String _strRedirect = "";
+  public static String _strURLOutput = "";
+  public static String _strData = "";
+  public static String _strScripts = "";
 
 
   public static boolean _boolListValCache = false;
   public static Hashtable _tableListValCache = new Hashtable();
   public static boolean _boolListStatCache = false;
   public static Hashtable _tableListStatCache = new Hashtable();
-  public static String _projectDir;
   private static FilenameFilter PNG_FILTER = new FilenameFilter() {
     public boolean accept(File dir, String name) {
       return name.toLowerCase().endsWith(".png");
@@ -93,18 +95,23 @@ public class MVServlet extends HttpServlet {
       _strRTmpl = bundle.getString("folders.r_tmpl");
       _strRWork = bundle.getString("folders.r_work");
       _strPlots = bundle.getString("folders.plots");
+      _strData = bundle.getString("folders.data");
+      _strScripts = bundle.getString("folders.scripts");
+
       try {
         _strRedirect = bundle.getString("redirect");
       } catch (MissingResourceException e) {
         _strRedirect = "metviewer";
       }
+      try {
+        _strURLOutput = bundle.getString("url.output");
+      } catch (MissingResourceException e) {
+        _strURLOutput = "";
+      }
       if (_strRedirect.length() == 0) {
         _strRedirect = "metviewer";
       }
 
-      String catalinaHome = System.getProperty("catalina.base");
-      System.out.println("catalinaHome " + catalinaHome);
-      _projectDir = catalinaHome + "/webapps/" + _strRedirect;
 
     } catch (Exception e) {
       _logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
@@ -153,28 +160,28 @@ public class MVServlet extends HttpServlet {
 
           switch (type) {
             case "plot_xml_url":
-              filePath = _projectDir + "/xml/" + plot + ".xml";
+              filePath = _strPlotXML + "/"+ plot + ".xml";
               break;
             case "plot_sql_url":
-              filePath = _projectDir + "/xml/" + plot + ".sql";
+              filePath = _strPlotXML + "/" + plot + ".sql";
               break;
             case "r_script_url":
-              filePath = _projectDir + "/R_work/scripts/" + plot + ".R";
+              filePath =_strScripts+"/"  + plot + ".R";
               break;
             case "r_data_url":
-              filePath = _projectDir + "/R_work/data/" + plot + ".data";
+              filePath = _strData + "/" + plot + ".data";
               break;
             case "plot_log_url":
-              filePath = _projectDir + "/xml/" + plot + ".log";
+              filePath = _strPlotXML + "/" + plot + ".log";
               break;
             case "plot_image_url":
-              filePath = _projectDir + "/plots/" + plot + ".png";
+              filePath = _strPlots +  "/" + plot + ".png";
               break;
             case "y1_points_url":
-              filePath = _projectDir + "/R_work/data/" + plot + ".points1";
+              filePath = _strData + "/" + plot + ".points1";
               break;
             case "y2_points_url":
-              filePath = _projectDir + "/R_work/data/" + plot + ".points2";
+              filePath = _strData + "/" + plot + ".points2";
               break;
           }
           int length;
@@ -377,7 +384,9 @@ public class MVServlet extends HttpServlet {
             for (int j = 0; j < databases.size(); j++) {
               strResp += "<val>" + databases.get(j) + "</val>";
             }
+            strResp+="<url_output><![CDATA[" + _strURLOutput + "]]></url_output>";
             strResp += "</list_db>";
+
           } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
             strResp = "<list_db>";
             Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).initDBList();
@@ -386,6 +395,7 @@ public class MVServlet extends HttpServlet {
               strResp += "<val>" + databases.get(j) + "</val>";
             }
             strResp += "</list_db>";
+            strResp+="<url_output><![CDATA[" + _strURLOutput + "]]></url_output>";
             if (con == null) {
               con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver,_strDBHost,  _strDBUser, _strDBPassword).getConnection();
             }
@@ -962,18 +972,20 @@ public class MVServlet extends HttpServlet {
 
     //  build a query for the fcst_var stat counts
     //this is a query for the local db
-    String strSQL = "(SELECT COUNT(*), 'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-      "(SELECT COUNT(*), 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";
+
+
+    String strSQL = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n";
 
     //this is a query for the VSDB
     /*String strSQL =
@@ -994,7 +1006,7 @@ public class MVServlet extends HttpServlet {
     boolean boolCts = false;
     while (res.next()) {
       int intStatCount = res.getInt(1);
-      if (0 != intStatCount) {
+      if (-9999 != intStatCount) {
         switch (intStatIndex) {
           case 0:
           case 1:
@@ -1090,14 +1102,16 @@ public class MVServlet extends HttpServlet {
         "<connection>" +
         "<host>" + _strDBHost + "</host>" +
         "<database>" + currentDBName + "</database>" +
-        "<user>" + _strDBUser + "</user>" +
-        "<password>" + _strDBPassword + "</password>" +
+        "<user>" + "******" + "</user>" +
+        "<password>" + "******" + "</password>" +
         "</connection>" +
         (_strRscript.equals("") ? "" : "<rscript>" + _strRscript + "</rscript>") +
         "<folders>" +
         "<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
         "<r_work>" + _strRWork + "</r_work>" +
         "<plots>" + _strPlots + "</plots>" +
+        "<data>" + _strData + "</data>" +
+        "<scripts>" + _strScripts + "</scripts>" +
         "</folders>" +
         strPlotXML +
         "</plot_spec>";
@@ -1180,6 +1194,8 @@ public class MVServlet extends HttpServlet {
       bat._strRtmplFolder = parser.getRtmplFolder();
       bat._strRworkFolder = parser.getRworkFolder();
       bat._strPlotsFolder = parser.getPlotsFolder();
+      bat._strDataFolder = parser.getDataFolder();
+      bat._strScriptsFolder = parser.getScriptsFolder();
 
       //  build the job SQL using the batch engine
       bat._boolSQLOnly = true;
@@ -1559,26 +1575,25 @@ public class MVServlet extends HttpServlet {
     String dir, extension;
     FilenameFilter filter;
     if (showAll.equals("false")) {
-      dir = "/plots";
+      dir = _strPlots;
       extension = ".png";
       filter = PNG_FILTER;
     } else {
-      dir = "/xml";
+      dir = _strPlotXML;
       extension = ".xml";
       filter = XML_FILTER;
     }
 
-    File plotDir = new File(_projectDir + dir);
-    if (plotDir.exists()) {
+    File plotDir = new File(dir);
       String fileXML;
       String[] plotNames = plotDir.list(filter);
       Arrays.sort(plotNames, Collections.reverseOrder());
       for (String name : plotNames) {
 
         String success="true";
-        if(dir.equals("/xml")){
+        if(dir.equals(_strPlotXML)){
           //check if the image exists
-          File imageFile= new File(_projectDir + "/plots/" + name.replace(extension, "") + ".png");
+          File imageFile= new File(_strPlots +"/" + name.replace(extension, "") + ".png");
           if(!imageFile.exists()){
             success = "false";
           }
@@ -1589,7 +1604,7 @@ public class MVServlet extends HttpServlet {
       }
 
 
-    }
+
     return result;
   }
 
