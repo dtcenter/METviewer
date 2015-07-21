@@ -30,6 +30,8 @@ public class MVPlotJobParser extends MVUtil {
   protected String _strRtmplFolder = "";
   protected String _strRworkFolder = "";
   protected String _strPlotsFolder = "";
+  protected String _strDataFolder = "";
+  protected String _strScriptsFolder = "";
 
   /**
    * Build a parser whose input source is the specified URI
@@ -114,6 +116,12 @@ public class MVPlotJobParser extends MVUtil {
   public String getPlotsFolder() {
     return _strPlotsFolder;
   }
+  public String getDataFolder() {
+      return _strDataFolder;
+    }
+  public String getScriptsFolder() {
+       return _strScriptsFolder;
+     }
 
   protected void parsePlotJobSpec() throws Exception {
     ArrayList listJobs = new ArrayList();
@@ -168,6 +176,10 @@ public class MVPlotJobParser extends MVUtil {
             _strRworkFolder = node._children[j]._value;
           } else if (node._children[j]._tag.equals("plots")) {
             _strPlotsFolder = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("data")) {
+            _strDataFolder = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("scripts")) {
+            _strScriptsFolder = node._children[j]._value;
           }
         }
       }
@@ -1212,8 +1224,8 @@ public class MVPlotJobParser extends MVUtil {
         "<driver>" + job.getDBDriver() + "</driver>" +
         "<host>" + job.getDBHost() + "</host>" +
         "<database>" + job.getDBName() + "</database>" +
-        "<user>" + job.getDBUser() + "</user>" +
-        "<password>" + job.getDBPassword() + "</password>" +
+        "<user>" + "******" + "</user>" +
+        "<password>" + "******" + "</password>" +
         "</connection>" +
         "<plot>";
 
@@ -1314,7 +1326,7 @@ public class MVPlotJobParser extends MVUtil {
       if (objFixVal instanceof String[]) {
         String[] listFixVal = (String[]) objFixVal;
         for (int j = 0; j < listFixVal.length; j++) {
-          strXML += "<val>" + listFixVal[j] + "</val>";
+          strXML += "<val>" + listFixVal[j].replace(">", "&gt;").replace("<", "&lt;") + "</val>";
         }
       } else if (objFixVal instanceof MVOrderedMap) {
         MVOrderedMap mapFixSet = (MVOrderedMap) objFixVal;
@@ -1323,7 +1335,7 @@ public class MVPlotJobParser extends MVUtil {
           String[] listFixSetVal = (String[]) mapFixSet.get(listFixSetKey[j]);
           strXML += "<set name=\"" + listFixSetKey[j] + "\">";
           for (int k = 0; k < listFixSetVal.length; k++) {
-            strXML += "<val>" + listFixSetVal[k] + "</val>";
+            strXML += "<val>" + listFixSetVal[k].replace(">", "&gt;").replace("<", "&lt;") + "</val>";
           }
           strXML += "</set>";
         }
