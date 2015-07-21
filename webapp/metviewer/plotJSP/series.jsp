@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 
 <html>
 <HEAD>
@@ -48,247 +48,261 @@
             $('#helpContent').dialog('open');
           });
 
-            $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
-                height: 400,
-                width: 600,
-                autoOpen: false
-            });
+          $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
+            height: 400,
+            width: 600,
+            autoOpen: false
+          });
 
-            $("#tabs_axis_variables").tabs({
-                heightStyle: "content"
-            });
+          $("#tabs_axis_variables").tabs({
+            heightStyle: "content"
+          });
 
-            $('#add_fcst_var_y1').button({
-                        icons: {
-                            primary: "ui-icon-circle-plus"
-                        }
+          $('#add_fcst_var_y1').button({
+                    icons: {
+                      primary: "ui-icon-circle-plus"
                     }
-            ).click(function () {
-                        addFcstVariableSeries("y1");
-                    });
-            $('#add_fcst_var_y2').button({
-                icons: {
-                    primary: "ui-icon-circle-plus"
-                }
-            }).click(function () {
-                        addFcstVariableSeries("y2");
-                    });
-            $('#add_fixed_var').button({
-                icons: {
-                           primary: "ui-icon-circle-plus"
-                       }
-            }).click(function () {
-                addFixedVariableSeries();
-            });
-
-
-
-            $("#plot_data").multiselect({
-                multiple: false,
-                selectedList: 1,
-                header: false,
-                minWidth: 'auto',
-                height: 'auto',
-                click: function (event, ui) {
-                    updateForecastVariables();
-                    if (ui.value == 'stat') {
-                        updateStats("y1", 1, []);
-                        updateStats("y2", 1, []);
-                        updateFixVarSeries("stat");
-                        updateIndyVarSeries("stat");
-
-                    } else {
-                        updateMode("y1", 1, []);
-                        updateMode("y2", 1, []);
-                        updateFixVarSeries("mode");
-                        updateIndyVarSeries("mode");
-                    }
-                    updateSeriesVarValSeries("y1", 1, []);
-                    updateSeriesVarValSeries("y2", 1, []);
-                }
-            });
-
-            $("#plot_stat").multiselect({
-                multiple: false,
-                selectedList: 1,
-                header: false,
-                minWidth: 'auto',
-                height: 'auto'
-
-            });
-
-
-            $("#fcst_var_y1_1").multiselect({
-                multiple: false,
-                selectedList: 1,
-                header: false,
-                minWidth: 'auto',
-                height: 200,
-
-                click: function(){
-                    var id_array = this.id.split("_");
-                    updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
-                    var selectedSeriesVarVal = $("#series_var_val_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("getChecked").val();
-                    if (selectedSeriesVarVal == null) {
-                        selectedSeriesVarVal = [];
-                    }
-                    updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1],selectedSeriesVarVal);
                   }
-            });
+          ).click(function () {
+                    addFcstVariableSeries("y1");
+                  });
+          $('#add_fcst_var_y2').button({
+            icons: {
+              primary: "ui-icon-circle-plus"
+            }
+          }).click(function () {
+            addFcstVariableSeries("y2");
+          });
+          $('#add_fixed_var').button({
+            icons: {
+              primary: "ui-icon-circle-plus"
+            }
+          }).click(function () {
+            addFixedVariableSeries();
+          });
 
 
-            $("#fcst_stat_y1_1").multiselect({
-                selectedList: 100, // 0-based index
-                noneSelectedText: "Select attribute stat",
-                click: function (event, ui) {
-                    var id_array = this.id.split("_");
-                    $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).css("display", "none");
-                    try {
-                       $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
-                    } catch (err) {
-                      console.log("Error " + err);
-                    }
-                    updateSeriesSeriesBox();
-                },
-                position: {
-                    my: 'right center',
-                    at: 'right center'
-                },
-                checkAll: function () {
-                    updateSeriesSeriesBox();
-                },
-                uncheckAll: function () {
-                    updateSeriesSeriesBox();
-                }
+          $("#plot_data").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+              updateForecastVariables();
+              if (ui.value == 'stat') {
+                updateStats("y1", 1, []);
+                updateStats("y2", 1, []);
+                updateFixVarSeries("stat");
+                updateIndyVarSeries("stat");
 
-            });
-            $("#series_var_y1_1").multiselect({
-                multiple: false,
-                selectedList: 1,
-                header: false,
-                minWidth: 'auto',
-                height: 'auto',
-                click: function (event, ui) {
-                    $('#series_var_val_y1_date_period_start_1').empty();
-                    $('#series_var_val_y1_date_period_end_1').empty();
+              } else {
+                updateMode("y1", 1, []);
+                updateMode("y2", 1, []);
+                updateFixVarSeries("mode");
+                updateIndyVarSeries("mode");
+              }
+              updateSeriesVarValSeries("y1", 1, []);
+              updateSeriesVarValSeries("y2", 1, []);
+            }
+          });
 
-                    if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
-                        $("#series_var_val_y1_date_period_button_1").css("display", "block");
-                    } else {
-                        $("#series_var_val_y1_date_period_button_1").css("display", "none");
-                    }
-                    var id_array = this.id.split("_");
-                    updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
-                }
+          $("#plot_stat").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto'
 
-            });
-            $("#series_var_val_y1_date_period_button_1").button({
-                icons: {
-                    primary: "ui-icon-check",
-                    secondary: "ui-icon-circlesmall-plus"
-                },
-                text: false
-            }).click(function () {
-                $("#series_var_val_y1_date_period_1").dialog("open");
-            });
-            createValDatePeriodDialog('series_var_val_y1', 1);
+          });
 
 
-            $("#indy_var").multiselect({
-                multiple: false,
-                selectedList: 1,
-                header: false,
-                minWidth: 'auto',
-                height: 300,
-                click: function (event, ui) {
-                    $('#date_period_start').empty();
-                    $('#date_period_end').empty();
+          $("#fcst_var_y1_1").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 200,
 
-                    if(ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
-                        $("#date_period_button").css("display", "block");
-                    }else{
-                        $("#date_period_button").css("display", "none");
-                    }
-                    $("#indy_var_val").multiselect("uncheckAll");
-
-                },
-                position: {
-                    my: 'left bottom',
-                    at: 'left top'
-                }
-
-            });
-            $("#series_var_val_y1_1").multiselect({
-                selectedList: 100, // 0-based index
-                noneSelectedText: "Select value",
-                click: function () {
-                    updateSeriesSeriesBox();
-                },
-                checkAll: function () {
-                    updateSeriesSeriesBox(true);
-                },
-                uncheckAll: function () {
-                    updateSeriesSeriesBox();
-                }
-            });
-            $("#indy_var_val").multiselect({
-                selectedList: 100, // 0-based index
-                noneSelectedText: "Select value",
-                addLabel: true,
-                minWidth: 300,
-                height: 300,
-                beforeopen: function (event, ui) {
-                    var values = $('#indy_var_val').val();
-                    if (values == null) {
-                        values = [];
-                    }
-                    populateIndyVarVal(values);
-                },
-                position: {
-                    my: 'center center',
-                    at: 'right center'
-                }
-            });
-
-            $("#date_period_button").button({
-                icons: {
-                    primary: "ui-icon-check",
-                    secondary: "ui-icon-circlesmall-plus"
-                },
-                text: false
-            }).click(function () {
-                $("#date_period_dialog").dialog("open");
-            });
+            click: function () {
+              var id_array = this.id.split("_");
+              updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+              var selectedSeriesVarVal = $("#series_var_val_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("getChecked").val();
+              if (selectedSeriesVarVal == null) {
+                selectedSeriesVarVal = [];
+              }
+              updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], selectedSeriesVarVal);
+            }
+          });
 
 
+          $("#fcst_stat_y1_1").multiselect({
+            selectedList: 100, // 0-based index
+            noneSelectedText: "Select attribute stat",
+            click: function (event, ui) {
+              var id_array = this.id.split("_");
+              $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).css("display", "none");
+              try {
+                $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
+              } catch (err) {
+                console.log("Error " + err);
+              }
+              updateSeriesSeriesBox();
+            },
+            position: {
+              my: 'right center',
+              at: 'right center'
+            },
+            checkAll: function () {
+              updateSeriesSeriesBox();
+            },
+            uncheckAll: function () {
+              updateSeriesSeriesBox();
+            }
+
+          });
+          $("#series_var_y1_1").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+              $('#series_var_val_y1_date_period_start_1').empty();
+              $('#series_var_val_y1_date_period_end_1').empty();
+
+              if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                $("#series_var_val_y1_date_period_button_1").css("display", "block");
+              } else {
+                $("#series_var_val_y1_date_period_button_1").css("display", "none");
+              }
+              var id_array = this.id.split("_");
+              updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+            }
+
+          });
+          $("#series_var_val_y1_date_period_button_1").button({
+            icons: {
+              primary: "ui-icon-check",
+              secondary: "ui-icon-circlesmall-plus"
+            },
+            text: false
+          }).click(function () {
+            $("#series_var_val_y1_date_period_1").dialog("open");
+          });
+          createValDatePeriodDialog('series_var_val_y1', 1);
 
 
-            createDatePeriodDialog();
+          $("#indy_var").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 300,
+            click: function (event, ui) {
+              $('#date_period_start').empty();
+              $('#date_period_end').empty();
 
-            $('#add_series_var_y1').button({
-                icons: {
-                    primary: "ui-icon-circle-plus"
-                }
-            }).click(function () {
-                addSeriesVariableSeriesBox("y1");
-            });
-            $('#add_series_var_y2').button({
-                icons: {
-                    primary: "ui-icon-circle-plus"
-                }
-            }).click(function () {
-                addSeriesVariableSeriesBox("y2");
-            });
+              if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                $("#date_period_button").css("display", "block");
+              } else {
+                $("#date_period_button").css("display", "none");
+              }
+              $("#indy_var_val").multiselect("uncheckAll");
+
+            },
+            position: {
+              my: 'left bottom',
+              at: 'left top'
+            }
+
+          });
+          $("#series_var_val_y1_1").multiselect({
+            selectedList: 100, // 0-based index
+            noneSelectedText: "Select value",
+            click: function () {
+              updateSeriesSeriesBox();
+            },
+            checkAll: function () {
+              updateSeriesSeriesBox(true);
+            },
+            uncheckAll: function () {
+              updateSeriesSeriesBox();
+            }
+          });
+          $("#indy_var_val").multiselect({
+            selectedList: 100, // 0-based index
+            noneSelectedText: "Select value",
+            addLabel: true,
+            minWidth: 300,
+            height: 300,
+            beforeopen: function (event, ui) {
+              var values = $('#indy_var_val').val();
+              if (values == null) {
+                values = [];
+              }
+              populateIndyVarVal(values);
+            },
+            position: {
+              my: 'center center',
+              at: 'right center'
+            }
+          });
+
+          $("#date_period_button").button({
+            icons: {
+              primary: "ui-icon-check",
+              secondary: "ui-icon-circlesmall-plus"
+            },
+            text: false
+          }).click(function () {
+            $("#date_period_dialog").dialog("open");
+          });
 
 
-            $('#statistics p').hide();
+          createDatePeriodDialog();
 
-            $(' input[name="statistics"]').click(function () {
-                $('#statistics p').hide();
-                $(this).prop("checked", true);
-                $('#' + $(this).val()).show();
-            });
-            $('#radio').buttonset();
+          $('#add_series_var_y1').button({
+            icons: {
+              primary: "ui-icon-circle-plus"
+            }
+          }).click(function () {
+            addSeriesVariableSeriesBox("y1");
+          });
+          $('#add_series_var_y2').button({
+            icons: {
+              primary: "ui-icon-circle-plus"
+            }
+          }).click(function () {
+            addSeriesVariableSeriesBox("y2");
+          });
+
+
+          $('#aggregation_statistics ').hide();
+          $('#calculations_statistics ').hide();
+          $('#calc_none ').prop("checked", true);
+          $('#agg_none ').prop("checked", true);
+          $("input[name='calc_stat']").change(function () {
+            if ($( 'input[name=calc_stat]:checked' ).val() != "none") {
+              $("input[name=agg_stat][value=none]").prop('checked', true);
+            }
+          });
+          $("input[name='agg_stat']").change(function () {
+            if ($( 'input[name=agg_stat]:checked' ).val() != "none") {
+              $("input[name=calc_stat][value=none]").prop('checked', true);
+            }
+          });
+
+
+          $(' input[name="statistics"]').click(function () {
+            $('#aggregation_statistics ').hide();
+            $('#calculations_statistics ').hide();
+            $(this).prop("checked", true);
+            $('#' + $(this).val()).show();
+          });
+          $('#radio').buttonset();
+          $('#calculations_statistics').show();
+
 
             $(".remove_var").button({
                 icons: {
@@ -343,11 +357,7 @@
         <option selected="selected" value="stat">Stat</option>
         <option value="mode">MODE</option>
     </select></span>
-    <span style="margin-left:20px; margin-top: 5px;"><label for="plot_stat">Plot
-        statistic:</label><select id="plot_stat" name="plot_stat">
-        <option selected="selected" value="median">Median</option>
-        <option value="mean">Mean</option>
-    </select></span>
+
     </div>
     <div id="tabs_axis_variables" class="ui-layout-center no-padding"
          style="border:none;">
@@ -723,22 +733,20 @@
 
         <div id="statistics">
             <div id="radio">
-                <input type="radio" name="statistics" value="none"
-                       id="none_statistics_label" checked/>
-                <label for="none_statistics_label">None</label>
-                <input type="radio" name="statistics"
-                       value="aggregation_statistics"
-                       id="aggregation_statistics_label"/>
-                <label for="aggregation_statistics_label">Aggregation
-                    statistics</label>
 
-                <input type="radio" name="statistics"
-                       value="calculations_statistics"
-                       id="calculations_statistics_label"/>
-                <label for="calculations_statistics_label"> Statistics
-                    Calculations</label>
+              <input type="radio" name="statistics" checked
+                     value="calculations_statistics"
+                     id="calculations_statistics_label"/>
+              <label for="calculations_statistics_label"> Summary</label>
+              <input type="radio" name="statistics"
+                     value="aggregation_statistics"
+                     id="aggregation_statistics_label"/>
+              <label for="aggregation_statistics_label">Aggregation
+                statistics</label>
+
+
             </div>
-            <p id="aggregation_statistics">
+            <div id="aggregation_statistics">
                 <button class="help-button" style="float: right;bottom: 40px;"
                         alt="agg_stat">Help
                 </button>
@@ -794,35 +802,49 @@
                     <td><label for="cacheAggStat">Cache aggregation
                         statistics</label></td>
                 </tr>
+              <tr><td><input type="radio" value="none" name="agg_stat" checked
+                                             id="agg_none"></td><td colspan="3"><label for="agg_none">None</label></td></tr>
 
 
             </table>
 
 
-            </p>
+            </div>
 
-            <p id="calculations_statistics">
+            <div id="calculations_statistics">
+
                 <button class="help-button" style="float: right;bottom: 40px;"
                         alt="calc_stat">Help
                 </button>
-            <table>
+              <table style="width:100%">
+
                 <tr>
-                    <td><input type="radio" value="ctc" name="calc_stat"
-                               id="calc_ctc"></td>
-                    <td><label for="calc_ctc">Contingency table count
-                        (CTC)</label></td>
+                  <td><input type="radio" value="ctc" name="calc_stat"
+                             id="calc_ctc"></td>
+                  <td colspan="2"><label for="calc_ctc">Contingency table count
+                    (CTC)</label></td>
                 </tr>
                 <tr>
-                    <td><input type="radio" value="sl1l2" name="calc_stat"
-                               id="calc_sl1l2"></td>
-                    <td><label for="calc_sl1l2">Scalar partial sums
-                        (SL1L2)</label></td>
+                  <td><input type="radio" value="sl1l2" name="calc_stat"
+                             id="calc_sl1l2"></td>
+                  <td><label for="calc_sl1l2">Scalar partial sums
+                    (SL1L2)</label></td>
+                  <td><span ><label for="plot_stat">Plot
+                                       statistic:</label><select id="plot_stat" name="plot_stat">
+                                       <option selected="selected" value="median">Median</option>
+                                       <option value="mean">Mean</option>
+                                   </select></span></td>
                 </tr>
-            </table>
+                <tr>
+                  <td><input type="radio" value="none" name="calc_stat" checked
+                             id="calc_none"></td>
+                  <td colspan="2"><label for="calc_none">None</label></td>
+                </tr>
+              </table>
 
-            </p>
+            </div>
 
-            <p id="none"></p>
+            <div id="none"></div>
         </div>
     </div>
     <div id="helpContent" title="Help">

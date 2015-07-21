@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 
 <html>
 <HEAD>
@@ -242,7 +242,7 @@
                 noneSelectedText: "Select value",
                 addLabel: true,
                 minWidth: 300,
-                height: 'auto',
+                height: 300,
                 beforeopen: function (event, ui) {
                     var values = $('#indy_var_val').val();
                     if (values == null) {
@@ -280,16 +280,8 @@
             }).click(function () {
                 addSeriesVariableSeriesBox("y2");
             });
+          $('#calc_none ').prop("checked", true);
 
-
-            $('#statistics p').hide();
-
-            $(' input[name="statistics"]').click(function () {
-                $('#statistics p').hide();
-                $(this).prop("checked", true);
-                $('#' + $(this).val()).show();
-            });
-            $('#radio').buttonset();
 
             $(".remove_var").button({
                 icons: {
@@ -348,10 +340,7 @@
     <option selected="selected" value="stat">Stat</option>
     <option value="mode">MODE</option>
 </select></span>
-    <span style="margin-left:20px; margin-top: 5px;"><label for="plot_stat">Plot statistic:</label><select id="plot_stat" name="plot_stat">
-                       <option selected="selected" value="median">Median</option>
-                       <option value="mean">Mean</option>
-                   </select></span>
+
 </div>
 <div id="tabs_axis_variables" class="ui-layout-center no-padding" style="border:none;">
     <ul class="allow-overflow " style="background:none;border-left: medium none; border-right: medium none; border-top: medium none;">
@@ -604,38 +593,35 @@
     </table>
     </div>
 
-<div class="ui-widget-content ui-widget-content-plot ui-corner-all"  >
+  <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
     <div class="ui-widget-header-plot">Statistics:</div>
 
-<div id="statistics">
-    <div id="radio">
-    <input type="radio" name="statistics" value="none"
-           id="none_statistics_label" checked/>
-    <label for="none_statistics_label">None</label>
-
-
-    <input type="radio" name="statistics" value="calculations_statistics"
-           id="calculations_statistics_label"/>
-    <label for="calculations_statistics_label"> Statistics Calculations</label>
-</div>
-
-    <p id="calculations_statistics"><button class="help-button" style="float: right;bottom: 40px;" alt="calc_stat">Help</button>
-    <table>
-        <tr>
+      <div id="calculations_statistics">
+        <button class="help-button" style="float: right;bottom: 40px;" alt="calc_stat">Help</button>
+        <table style="width:100%">
+          <tr>
             <td><input type="radio" value="ctc" name="calc_stat" id="calc_ctc"></td>
-            <td><label for="calc_ctc">Contingency table count (CTC)</label></td>
-        </tr>
-    <tr>
+            <td colspan="2"><label for="calc_ctc">Contingency table count (CTC)</label></td>
+          </tr>
+          <tr>
             <td><input type="radio" value="sl1l2" name="calc_stat" id="calc_sl1l2"></td>
             <td><label for="calc_sl1l2">Scalar partial sums (SL1L2)</label></td>
-    </tr>
-    </table>
+            <td><span><label for="plot_stat">Plot
+              statistic:</label><select id="plot_stat" name="plot_stat">
+              <option selected="selected" value="median">Median</option>
+              <option value="mean">Mean</option>
+            </select></span></td>
+          </tr>
+          <tr>
+            <td><input type="radio" value="none" name="calc_stat" checked
+                       id="calc_none"></td>
+            <td colspan="2"><label for="calc_none">None</label></td>
+          </tr>
+        </table>
 
-    </p>
+      </div>
 
-    <p id="none"></p>
-</div>
-</div>
+  </div>
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
     <div class="ui-widget-header-plot">Plot Configurations</div>
     <table style="width: 95%;">
