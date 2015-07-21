@@ -57,7 +57,7 @@ public class Datasource {
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
     if (dbManagementSystem.equals("mysql")) {
-      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + dbHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + dbHost+"?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/
       config.setUsername(dbUser);
       config.setPassword(dbPassword);
       config.setMinConnectionsPerPartition(2);
@@ -104,7 +104,7 @@ public class Datasource {
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
     if (dbManagementSystem.equals("mysql")) {
-      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost +"?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
       config.setUsername(strDBUser);
       config.setPassword(strDBPassword);
       config.setMinConnectionsPerPartition(10);
