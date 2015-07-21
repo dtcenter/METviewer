@@ -22,6 +22,8 @@ public class MVBatch extends MVUtil {
   public String _strRtmplFolder = "";
   public String _strRworkFolder = "";
   public String _strPlotsFolder = "";
+  public String _strDataFolder = "";
+  public String _strScriptsFolder = "";
   private String _dbManagementSystem = "mysql";
   private String dbTimeType = "DATETIME";
 
@@ -164,6 +166,12 @@ public class MVBatch extends MVUtil {
       if (!parser.getPlotsFolder().equals("")) {
         bat._strPlotsFolder = parser.getPlotsFolder();
       }
+      if (!parser.getDataFolder().equals("")) {
+              bat._strDataFolder = parser.getDataFolder();
+            }
+      if (!parser.getScriptsFolder().equals("")) {
+                   bat._strScriptsFolder = parser.getScriptsFolder();
+                 }
 
       //  calculate the number of plots
       bat._intNumPlots = 0;
@@ -348,7 +356,17 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      String strDataFile = _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
+      if (_strDataFolder.equals("")) {
+        _strDataFolder = _strRworkFolder + "data/";
+      } else {
+        _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
+      }
+      if (_strScriptsFolder.equals("")) {
+        _strScriptsFolder = _strRworkFolder + "scripts/";
+      } else {
+        _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
+      }
+      String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
       boolean boolModeRatioPlot = isModeRatioJob(job);
       if (boolModeRatioPlot) {
         strDataFile = strDataFile + ".agg_stat_bootstrap";
@@ -547,7 +565,7 @@ public class MVBatch extends MVUtil {
 
       //  use the map of all plot values to populate the template strings
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
-      String strRFile = _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
+      String strRFile = _strScriptsFolder + buildTemplateString(job.getRFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
       String strTitle = buildTemplateString(job.getTitleTmpl(), mapTmplValsPlot, job.getTmplMaps());
       String strXLabel = buildTemplateString(job.getXLabelTmpl(), mapTmplValsPlot, job.getTmplMaps());
       String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapTmplValsPlot, job.getTmplMaps());
@@ -632,8 +650,8 @@ public class MVBatch extends MVUtil {
       tableRTags.put("log_y2", (job.getLogY2() ? "TRUE" : "FALSE"));
       tableRTags.put("variance_inflation_factor", (job.getVarianceInflationFactor() ? "TRUE" : "FALSE"));
       tableRTags.put("plot_stat", job.getPlotStat());
-      tableRTags.put("series1_diff_list", diffSeries1);
-      tableRTags.put("series2_diff_list", diffSeries2);
+      tableRTags.put("series1_diff_list", formatDiffR(diffSeries1));
+      tableRTags.put("series2_diff_list", formatDiffR(diffSeries2));
 
       // calculate the number of plot curves
       int intNumDep1 = 0;
@@ -1308,18 +1326,12 @@ public class MVBatch extends MVUtil {
             }
           } else {
             if (boolBCRMSE) {
-              if(_dbManagementSystem.equals("mysql")) {
                 strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
-              }else if(_dbManagementSystem.equals("postgresql")){
-                strSelectStat += ",\n  CASE WHEN ld." + strStatField + "=-9999 THEN 'NA' ELSE  CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5)) END  stat_value";
-              }
+
             }
             else {
-              if(_dbManagementSystem.equals("mysql")) {
               strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',ld." + strStatField + " ) stat_value";
-              }else if(_dbManagementSystem.equals("postgresql")){
-                strSelectStat += ",\n  CASE WHEN ld." + strStatField + "=-9999 THEN 'NA' ELSE ld." + strStatField + " END  stat_value";
-              }
+
             }
 
             //  determine if the current stat has normal or bootstrap CIs
@@ -1887,7 +1899,17 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      String strDataFile = _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+      if (_strDataFolder.equals("")) {
+        _strDataFolder = _strRworkFolder + "data/";
+      } else {
+        _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
+      }
+      if (_strScriptsFolder.equals("")) {
+        _strScriptsFolder = _strRworkFolder + "scripts/";
+      } else {
+        _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
+      }
+      String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -1913,7 +1935,7 @@ public class MVBatch extends MVUtil {
       }
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
-      String strRFile = _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+      String strRFile = _strScriptsFolder + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strTitle = buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strXLabel = buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
@@ -2118,7 +2140,17 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      String strDataFile = _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+      if (_strDataFolder.equals("")) {
+        _strDataFolder = _strRworkFolder + "data/";
+      } else {
+        _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
+      }
+      if (_strScriptsFolder.equals("")) {
+        _strScriptsFolder = _strRworkFolder + "scripts/";
+      } else {
+        _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
+      }
+      String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -2147,7 +2179,7 @@ public class MVBatch extends MVUtil {
       }
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
-      String strRFile = _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+      String strRFile = _strScriptsFolder + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strTitle = buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strXLabel = buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
@@ -2446,7 +2478,17 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      String strDataFile = _strRworkFolder + "data/" + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+      if (_strDataFolder.equals("")) {
+           _strDataFolder = _strRworkFolder + "data/";
+         } else {
+           _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
+         }
+         if (_strScriptsFolder.equals("")) {
+           _strScriptsFolder = _strRworkFolder + "scripts/";
+         } else {
+           _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
+         }
+      String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -2477,7 +2519,7 @@ public class MVBatch extends MVUtil {
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
-      String strRFile = _strRworkFolder + "scripts/" + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
+      String strRFile = _strScriptsFolder + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strTitle = buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strXLabel = buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
       String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps());
