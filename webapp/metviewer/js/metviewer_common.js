@@ -2441,9 +2441,8 @@ function createXMLSeries(plot) {
         }
     }
     plot.append(indep);
-    var statistics_val = $("input:radio[name='statistics']:checked").val();
 
-    if(statistics_val == 'aggregation_statistics'){
+    if($( 'input[name=agg_stat]:checked' ).val() && $( 'input[name=agg_stat]:checked' ).val() != "none"){
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_ctc />').text($('#agg_ctc').is(':checked')));
         agg_stat.append($('<agg_sl1l2 />').text($('#agg_sl1l2').is(':checked')));
@@ -2454,7 +2453,7 @@ function createXMLSeries(plot) {
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cache_agg_stat').is(':checked')));
         plot.append(agg_stat);
-    }else if(statistics_val == 'calculations_statistics'){
+    }else if($( 'input[name=calc_stat]:checked' ).val() && $( 'input[name=calc_stat]:checked' ).val() != "none"){
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_ctc />').text($('#calc_ctc').is(':checked')));
         calc_stat.append($('<calc_sl1l2 />').text($('#calc_sl1l2').is(':checked')));
@@ -2472,7 +2471,7 @@ function createXMLCommon(plot) {
     tmpl.append($('<y1_label />').text($('#y1_label_title').val()));
     tmpl.append($('<y2_label />').text($('#y2_label_title').val()));
     tmpl.append($('<caption />').text($('#caption').val()));
-    tmpl.append($('<file_name />').text($('#file_name').val()));
+    //tmpl.append($('<file_name />').text($('#file_name').val()));
 
     var seriesDiffY1List = [];
     if (seriesDiffY1.length > 0) {
@@ -2622,7 +2621,7 @@ function createXMLCommon(plot) {
         } else {
             showSignArr.push("TRUE");
         }
-        colorsArr.push('"#' + allSeries[i].color + 'FF"');
+        colorsArr.push('"' + allSeries[i].color + 'FF"');
         pchArr.push(allSeries[i].pch);
         typeArr.push('"' + allSeries[i].type + '"');
         ltyArr.push(allSeries[i].lty);
@@ -2765,7 +2764,7 @@ function loadImage(id) {
     top = top + 20;
     var dialog = $('<div>').attr("id", boxID+"dialog").dialog({
         height: 400,
-        width: 'auto',
+        width: 600,
         resizable: true,
         closeOnEscape: true,
         autoOpen: false,
@@ -2796,7 +2795,7 @@ function loadImage(id) {
             $.ajax({
                     async: false,
                     type: "GET",
-                    url: "xml/plot_" + id + ".xml",
+                    url: urlOutput +"xml/plot_" + id + ".xml",
                     dataType: "xml",
                     success: function (data) {
                         var xmlString;
@@ -2850,7 +2849,7 @@ function formatXml(xml) {
     return formatted;
 }
 function resetFormatting() {
-    $('#file_name').val("");
+   // $('#file_name').val("");
     $('#plot_title').val("test title");
     $('#x_label_title').val("test x_label");
     $('#y1_label_title').val("test y_label");
@@ -4039,7 +4038,7 @@ function loadXMLSeries() {
     if (initXML.find("plot").find("agg_stat").length > 0) {
         $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
         $('#radio').buttonset('refresh');
-        $('#statistics p').hide();
+        $('#calculations_statistics').hide();
         $('#aggregation_statistics').show();
 
         $("input[name=agg_stat][value=ctc]").prop('checked', $(initXML.find("plot").find("agg_stat").find("agg_ctc")).text() == "TRUE");
@@ -4056,14 +4055,13 @@ function loadXMLSeries() {
     } else if (initXML.find("plot").find("calc_stat").length > 0) {
         $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
         $('#radio').buttonset('refresh');
-        $('#statistics p').hide();
         $('#calculations_statistics').show();
         $("input[name=calc_stat][value=ctc]").prop('checked', $(initXML.find("plot").find("calc_stat").find("calc_ctc")).text() == "TRUE");
         $("input[name=calc_stat][value=sl1l2]").prop('checked', $(initXML.find("plot").find("calc_stat").find("calc_sl1l2")).text() == "TRUE");
     } else {
-        $("input[name=statistics][value=none]").prop('checked', true);
+        $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
         $('#radio').buttonset('refresh');
-        $('#statistics p').hide();
+        $('#aggregation_statistics ').hide();
         $('#none').show();
     }
 
