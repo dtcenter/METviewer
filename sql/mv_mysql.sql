@@ -10,7 +10,7 @@ CREATE TABLE data_file_lu
     type_name           VARCHAR(32),
     type_desc           VARCHAR(128),
     PRIMARY KEY (data_file_lu_id)
-);
+) ENGINE = MyISAM;
     
     
 -- data_file_id stores information about files that have been parsed and loaded into the
@@ -33,7 +33,8 @@ CREATE TABLE data_file
     CONSTRAINT stat_header_data_file_lu_id_pk
             FOREIGN KEY(data_file_lu_id)
             REFERENCES data_file_lu(data_file_lu_id)
-);
+) ENGINE = MyISAM;
+
 
 
 -- stat_header contains the forecast and observation bookkeeping information, except for
@@ -72,7 +73,7 @@ CREATE TABLE stat_header
             fcst_thresh,
             obs_thresh
         )
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_fho contains stat data for a particular stat_header record, which it points 
@@ -102,8 +103,9 @@ CREATE TABLE line_data_fho
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_fho_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+    INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_ctc contains stat data for a particular stat_header record, which it points 
@@ -135,7 +137,9 @@ CREATE TABLE line_data_ctc
     CONSTRAINT line_data_ctc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
             REFERENCES stat_header(stat_header_id)
-);
+    ,
+        INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_cts contains stat data for a particular stat_header record, which it points 
@@ -262,8 +266,9 @@ CREATE TABLE line_data_cts
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_cts_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 -- CREATE INDEX line_data_cts_fcst_lead_pk ON line_data_cts (fcst_lead);
 -- CREATE INDEX line_data_cts_fcst_valid_beg_pk ON line_data_cts (fcst_valid_beg);
 -- CREATE INDEX line_data_cts_fcst_init_beg_pk ON line_data_cts (fcst_init_beg);
@@ -376,8 +381,9 @@ CREATE TABLE line_data_cnt
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_cnt_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_mctc contains stat data for a particular stat_header record, which it points 
@@ -406,8 +412,9 @@ CREATE TABLE line_data_mctc
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_mctc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_mctc_cnt contains count data for a particular line_data_mctc record.  The 
@@ -426,7 +433,7 @@ CREATE TABLE line_data_mctc_cnt
     CONSTRAINT line_data_mctc_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_mctc(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_mcts contains stat data for a particular stat_header record, which it points 
@@ -469,8 +476,9 @@ CREATE TABLE line_data_mcts
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_mcts_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_pct contains stat data for a particular stat_header record, which it points 
@@ -499,8 +507,9 @@ CREATE TABLE line_data_pct
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_pct_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_pct_thresh contains threshold data for a particular line_data_pct record and
@@ -519,7 +528,7 @@ CREATE TABLE line_data_pct_thresh
     CONSTRAINT line_data_pct_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_pct(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_pstd contains stat data for a particular stat_header record, which it points 
@@ -575,8 +584,9 @@ CREATE TABLE line_data_pstd
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_pstd_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_pstd_thresh contains threshold data for a particular line_data_pstd record and
@@ -593,7 +603,7 @@ CREATE TABLE line_data_pstd_thresh
     CONSTRAINT line_data_pstd_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_pstd(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_pjc contains stat data for a particular stat_header record, which it points 
@@ -622,8 +632,9 @@ CREATE TABLE line_data_pjc
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_pjc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_pjc_thresh contains threshold data for a particular line_data_pjc record and
@@ -646,7 +657,7 @@ CREATE TABLE line_data_pjc_thresh
     CONSTRAINT line_data_pjc_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_pjc(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_prc contains stat data for a particular stat_header record, which it points 
@@ -675,8 +686,9 @@ CREATE TABLE line_data_prc
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_prc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_prc_thresh contains threshold data for a particular line_data_prc record and
@@ -695,7 +707,7 @@ CREATE TABLE line_data_prc_thresh
     CONSTRAINT line_data_prc_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_prc(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_sl1l2 contains stat data for a particular stat_header record, which it points 
@@ -728,8 +740,9 @@ CREATE TABLE line_data_sl1l2
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_sl1l2_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_sal1l2 contains stat data for a particular stat_header record, which it points 
@@ -762,8 +775,9 @@ CREATE TABLE line_data_sal1l2
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_sal2l1_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_vl1l2 contains stat data for a particular stat_header record, which it points 
@@ -797,8 +811,9 @@ CREATE TABLE line_data_vl1l2
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_vl1l2_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_val1l2 contains stat data for a particular stat_header record, which it points 
@@ -832,8 +847,9 @@ CREATE TABLE line_data_val1l2
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_val1l2_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_mpr contains stat data for a particular stat_header record, which it points 
@@ -870,8 +886,9 @@ CREATE TABLE line_data_mpr
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_mpr_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_nbrctc contains stat data for a particular stat_header record, which it points 
@@ -903,8 +920,9 @@ CREATE TABLE line_data_nbrctc
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_nbrctc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_nbrcts contains stat data for a particular stat_header record, which it points 
@@ -1032,8 +1050,9 @@ CREATE TABLE line_data_nbrcts
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_nbrcts_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_nbrcnt contains stat data for a particular stat_header record, which it points 
@@ -1080,8 +1099,9 @@ CREATE TABLE line_data_nbrcnt
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_nbrcnt_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 DROP TABLE IF EXISTS line_data_enscnt;
 CREATE TABLE line_data_enscnt
@@ -1140,8 +1160,9 @@ CREATE TABLE line_data_enscnt
    REFERENCES data_file (data_file_id),
    CONSTRAINT line_data_enscnt_stat_header_id_pk
    FOREIGN KEY (stat_header_id)
-   REFERENCES stat_header (stat_header_id)
-);
+   REFERENCES stat_header (stat_header_id),
+       INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 
@@ -1180,8 +1201,9 @@ CREATE TABLE line_data_isc
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_isc_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_rhist contains stat data for a particular stat_header record, which it points 
@@ -1213,8 +1235,9 @@ CREATE TABLE line_data_rhist
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_rhist_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_rhist_rank contains rank data for a particular line_data_rhist record.  The 
@@ -1231,7 +1254,7 @@ CREATE TABLE line_data_rhist_rank
     CONSTRAINT line_data_rhist_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_rhist(line_data_id)
-);
+) ENGINE = MyISAM;
 
 -- line_data_phist contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -1259,8 +1282,9 @@ CREATE TABLE line_data_phist
     CONSTRAINT line_data_phist_data_file_id_pk FOREIGN KEY(data_file_id) REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_phist_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_phist_rank contains rank data for a particular line_data_phist record.  The
@@ -1277,7 +1301,7 @@ CREATE TABLE line_data_phist_bin
     CONSTRAINT line_data_phist_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_phist(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 
@@ -1319,8 +1343,9 @@ CREATE TABLE line_data_orank
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_orank_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 -- line_data_orank_ens contains ensemble data for a particular line_data_orank record.  The 
@@ -1336,7 +1361,7 @@ CREATE TABLE line_data_orank_ens
     CONSTRAINT line_data_orank_id_pk
             FOREIGN KEY(line_data_id)
             REFERENCES line_data_orank(line_data_id)
-);
+) ENGINE = MyISAM;
 
 
 -- line_data_nbrcnt contains stat data for a particular stat_header record, which it points 
@@ -1398,8 +1423,9 @@ CREATE TABLE line_data_ssvar
             REFERENCES data_file(data_file_id),
     CONSTRAINT line_data_ssvar_stat_header_id_pk
             FOREIGN KEY(stat_header_id)
-            REFERENCES stat_header(stat_header_id)
-);
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
 
 
 
@@ -1460,7 +1486,7 @@ CREATE TABLE mode_header
             obs_var,
             obs_lev
         )
-);
+) ENGINE = MyISAM;
 
 
 -- mode_cts contains mode cts data for a particular mode_header record, which it points 
@@ -1492,7 +1518,7 @@ CREATE TABLE mode_cts
     CONSTRAINT mode_cts_mode_header_id_pk
         FOREIGN KEY(mode_header_id)
         REFERENCES mode_header(mode_header_id)
-);
+) ENGINE = MyISAM;
 
 
 -- mode_obj_single contains mode object data for a particular mode_header record, which it 
@@ -1532,7 +1558,7 @@ CREATE TABLE mode_obj_single
     CONSTRAINT mode_obj_single_mode_header_id_pk
             FOREIGN KEY(mode_header_id)
             REFERENCES mode_header(mode_header_id)
-);
+) ENGINE = MyISAM;
 
 
 -- mode_obj_pair contains mode object data for a particular mode_header record, which it 
@@ -1570,7 +1596,7 @@ CREATE TABLE mode_obj_pair
     CONSTRAINT mode_obj_pair_mode_obj_fcst_pk
         FOREIGN KEY(mode_obj_fcst_id)
         REFERENCES mode_obj_single(mode_obj_id)
-);
+) ENGINE = MyISAM;
 
 
 --  look-up table data
@@ -1595,7 +1621,7 @@ CREATE TABLE mv_rev
     rev_name            VARCHAR(16),
     rev_detail          VARCHAR(2048),
     PRIMARY KEY (rev_id)    
-);
+) ENGINE = MyISAM;
 
 INSERT INTO mv_rev VALUES (0, '2010-07-29 12:00:00', '0.1',   'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
 INSERT INTO mv_rev VALUES (1, '2010-10-14 12:00:00', '0.1',   'Increased web_plot.plot_xml field width to 65536');
@@ -1616,7 +1642,7 @@ CREATE TABLE IF NOT EXISTS instance_info
     update_detail       VARCHAR(2048),
     load_xml            TEXT,
     PRIMARY KEY (instance_info_id)    
-);
+) ENGINE = MyISAM;
 
 
 
@@ -1640,11 +1666,11 @@ END |
 
 DROP FUNCTION IF EXISTS calcFBAR |
 CREATE FUNCTION calcFBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( fbar, 4 ); END |
+BEGIN RETURN fbar; END |
 
 DROP FUNCTION IF EXISTS calcOBAR |
 CREATE FUNCTION calcOBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( obar, 4 ); END |
+BEGIN RETURN  obar; END |
 
 DROP FUNCTION IF EXISTS calcFSTDEV |
 CREATE FUNCTION calcFSTDEV (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
@@ -1656,19 +1682,19 @@ BEGIN RETURN calcStdDev(obar * total, oobar * total, total); END |
 
 DROP FUNCTION IF EXISTS calcFOBAR |
 CREATE FUNCTION calcFOBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( fobar, 4 ); END |
+BEGIN RETURN  fobar; END |
 
 DROP FUNCTION IF EXISTS calcFFBAR |
 CREATE FUNCTION calcFFBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( ffbar, 4 ); END |
+BEGIN RETURN  ffbar; END |
 
 DROP FUNCTION IF EXISTS calcOOBAR |
 CREATE FUNCTION calcOOBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( oobar, 4 ); END |
+BEGIN RETURN  oobar; END |
 
 DROP FUNCTION IF EXISTS calcMBIAS |
 CREATE FUNCTION calcMBIAS (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF 0 = obar THEN RETURN 'NA'; END IF; RETURN FORMAT( (fbar / obar), 4 ); END |
+BEGIN IF 0 = obar THEN RETURN 'NA'; END IF; RETURN  (fbar / obar); END |
 
 DROP FUNCTION IF EXISTS calcPR_CORR |
 CREATE FUNCTION calcPR_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
@@ -1679,36 +1705,36 @@ BEGIN
     IF 0 >= v THEN RETURN 'NA'; END IF;
     SET pr_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
     IF 1 < pr_corr THEN RETURN 'NA'; END IF;
-    RETURN FORMAT( pr_corr, 4 );
+    RETURN pr_corr;
 END |
 
 DROP FUNCTION IF EXISTS calcME |
 CREATE FUNCTION calcME (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( (fbar - obar), 4 ); END |
+BEGIN RETURN  (fbar - obar); END |
 
 DROP FUNCTION IF EXISTS calcMSE |
 CREATE FUNCTION calcMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( (ffbar + oobar - 2*fobar), 4 ); END |
+BEGIN RETURN (ffbar + oobar - 2*fobar); END |
 
 DROP FUNCTION IF EXISTS calcRMSE |
 CREATE FUNCTION calcRMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( SQRT(ffbar + oobar - 2*fobar), 4 ); END |
+BEGIN RETURN  SQRT(ffbar + oobar - 2*fobar); END |
 
 DROP FUNCTION IF EXISTS calcESTDEV |
 CREATE FUNCTION calcESTDEV (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( calcStdDev( (fbar - obar)*total, (ffbar + oobar - 2*fobar)*total, total ), 4 ); END |
+BEGIN RETURN calcStdDev( (fbar - obar)*total, (ffbar + oobar - 2*fobar)*total, total ); END |
 
 DROP FUNCTION IF EXISTS calcBCMSE |
 CREATE FUNCTION calcBCMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( (ffbar + oobar - 2*fobar) - POW(fbar - obar, 2), 4 ); END |
+BEGIN RETURN  (ffbar + oobar - 2*fobar) - POW(fbar - obar, 2); END |
 
 DROP FUNCTION IF EXISTS calcBCRMSE |
 CREATE FUNCTION calcBCRMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN FORMAT( SQRT((ffbar + oobar - 2*fobar) - POW(fbar - obar, 2)), 4 ); END |
+BEGIN RETURN  SQRT((ffbar + oobar - 2*fobar) - POW(fbar - obar, 2)); END |
 
 DROP FUNCTION IF EXISTS calcMAE |
 CREATE FUNCTION calcMAE ( mae REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF mae = -9999 THEN RETURN 'NA'; END IF; RETURN FORMAT( mae, 4 ); END |
+BEGIN IF mae = -9999 THEN RETURN 'NA'; END IF; RETURN  mae; END |
 
 --
 -- CTC stat calculations
@@ -1716,35 +1742,35 @@ BEGIN IF mae = -9999 THEN RETURN 'NA'; END IF; RETURN FORMAT( mae, 4 ); END |
 
 DROP FUNCTION IF EXISTS calcBASER |
 CREATE FUNCTION calcBASER (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF total = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT((fy_oy + fn_oy) / total, 4); END |
+BEGIN IF total = 0 THEN RETURN 'NA'; END IF; RETURN (fy_oy + fn_oy) / total; END |
 
 DROP FUNCTION IF EXISTS calcACC |
 CREATE FUNCTION calcACC (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF total = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT((fy_oy + fn_on) / total, 4); END |
+BEGIN IF total = 0 THEN RETURN 'NA'; END IF; RETURN (fy_oy + fn_on) / total; END |
 
 DROP FUNCTION IF EXISTS calcFBIAS |
 CREATE FUNCTION calcFBIAS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT((fy_oy + fy_on) / (fy_oy + fn_oy), 4); END |
+BEGIN IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN (fy_oy + fy_on) / (fy_oy + fn_oy); END |
 
 DROP FUNCTION IF EXISTS calcPODY |
 CREATE FUNCTION calcPODY (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT(fy_oy / (fy_oy + fn_oy), 4); END |
+BEGIN IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN fy_oy / (fy_oy + fn_oy); END |
 
 DROP FUNCTION IF EXISTS calcPOFD |
 CREATE FUNCTION calcPOFD (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT(fy_on / (fy_on + fn_on), 4); END |
+BEGIN IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF; RETURN fy_on / (fy_on + fn_on); END |
 
 DROP FUNCTION IF EXISTS calcPODN |
 CREATE FUNCTION calcPODN (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT(fn_on / (fy_on + fn_on), 4); END |
+BEGIN IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF; RETURN fn_on / (fy_on + fn_on); END |
 
 DROP FUNCTION IF EXISTS calcFAR |
 CREATE FUNCTION calcFAR (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fy_on) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT(fy_on / (fy_oy + fy_on), 4); END |
+BEGIN IF (fy_oy + fy_on) = 0 THEN RETURN 'NA'; END IF; RETURN fy_on / (fy_oy + fy_on); END |
 
 DROP FUNCTION IF EXISTS calcCSI |
 CREATE FUNCTION calcCSI (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fy_on + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN FORMAT(fy_oy / (fy_oy + fy_on + fn_oy), 4); END |
+BEGIN IF (fy_oy + fy_on + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN fy_oy / (fy_oy + fy_on + fn_oy); END |
 
 DROP FUNCTION IF EXISTS calcGSS |
 CREATE FUNCTION calcGSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
@@ -1752,14 +1778,14 @@ BEGIN
     DECLARE c REAL;
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on) / total ) * (fy_oy + fn_oy);
-    RETURN FORMAT( (fy_oy - c) / (fy_oy + fy_on + fn_oy - c), 4);
+    RETURN  (fy_oy - c) / (fy_oy + fy_on + fn_oy - c);
 END |
 
 DROP FUNCTION IF EXISTS calcHK |
 CREATE FUNCTION calcHK (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN	
     IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
-    RETURN FORMAT( (fy_oy / (fy_oy + fn_oy)) - (fy_on / (fy_on + fn_on)), 4);
+    RETURN (fy_oy / (fy_oy + fn_oy)) - (fy_on / (fy_on + fn_on));
 END |
 
 DROP FUNCTION IF EXISTS calcHSS |
@@ -1768,7 +1794,7 @@ BEGIN
     DECLARE c REAL;
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on)*(fy_oy + fn_oy) + (fn_oy + fn_on)*(fy_on + fn_on) ) / total;
-    RETURN FORMAT( (fy_oy + fn_on - c) / (total - c), 4);
+    RETURN  (fy_oy + fn_on - c) / (total - c);
 END |
 
 DROP FUNCTION IF EXISTS calcODDS |
@@ -1780,7 +1806,7 @@ BEGIN
     SET pody = fy_oy / (fy_oy + fn_oy);
     SET pofd = fy_on / (fy_on + fn_on);
     IF ( pody = 0 OR pofd = 0 ) THEN RETURN 'NA'; END IF;
-    RETURN FORMAT( (pody * (1-pofd)) / (pofd * (1-pody)), 4);
+    RETURN  (pody * (1-pofd)) / (pofd * (1-pody));
 END |
 
 DELIMITER ;
