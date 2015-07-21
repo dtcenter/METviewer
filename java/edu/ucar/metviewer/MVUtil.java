@@ -1057,7 +1057,43 @@ public class MVUtil{
 						 .replace("<",	"lt")
 						 .replace(">",	"gt");
 	}
-	
+
+	/**
+		 * Format the input String so that it conforms to R variable name standards
+		 * @param in String to format
+		 * @return Formatted String
+		 */
+		public static String formatDiffR(String in){
+			//list(c("rapcontrolens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER","rapstoch_V3ens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER"))
+			String[] diffComponents = in.split("\",\"");
+			if(diffComponents.length == 2) {
+				diffComponents[0] = diffComponents[0].replace("list(c(\"", "");
+				diffComponents[1] = diffComponents[1].replace("\"))", "");
+				for (int i=0 ; i<2; i++) {
+					String strFormatR = diffComponents[i];
+					Matcher matProb = _patProb.matcher(diffComponents[i]);
+					if (matProb.matches()) {
+						if (!diffComponents[i].contains("*")) {
+							strFormatR = "PROB_" + matProb.group(1) + matProb.group(2) + matProb.group(3);
+						} else {
+							strFormatR = "PROB_" + matProb.group(1);
+						}
+					}
+					diffComponents[i] = strFormatR.replace("(", "")
+						.replace(")", "")
+						.replace(".", "_d_")
+						.replace("<=", "le")
+						.replace(">=", "ge")
+						.replace("=", "eq")
+						.replace("<", "lt")
+						.replace(">", "gt");
+				}
+
+				return "list(c(\"" + diffComponents[0] + "\",\"" + diffComponents[1] + "\"))";
+			}else{
+				return in;
+			}
+		}
 	/**
 	 * An instantiable (default) instance of the Map.Entry class for manipulating Map.Entry[] structures
 	 */
