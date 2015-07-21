@@ -1,10 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 
 <HTML>
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.2</TITLE>
+<TITLE>METViewer v1.3-dev</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -174,10 +174,15 @@
     var resultName;
     var strInitXML = '<%= session.getAttribute("init_xml") %>';
     var initXML;
+    var urlOutput="";
 
-    if(strInitXML != "null" && strInitXML.length > 0){
-        xmlDoc = $.parseXML( strInitXML );
-        initXML = $( xmlDoc );
+    if (strInitXML != "null" && strInitXML.length > 0) {
+      try {
+        xmlDoc = $.parseXML(strInitXML);
+        initXML = $(xmlDoc);
+      } catch (e) {
+        console.log("Can't parse XML")
+      }
     }
     var series1Names=[];
     var series2Names=[];
@@ -197,7 +202,10 @@
             },
             success: function (data) {
 
-
+            var url_output_xml = $(data).find("url_output");
+                if(url_output_xml){
+                    urlOutput = $(url_output_xml).text();
+                }
                 var values = $(data).find("val");
                 var databaseEl = $("#database");
                 var selected, selectedDatabase;
@@ -523,9 +531,9 @@
                     }
                     $(this).dialog("close");
                     if(valid){
-                        if (currentTab == 'Series') {
+                       // if (currentTab == 'Series') {
                             updateSeriesSeriesBox();
-                        }
+                       // }
                         //force Event Equalizer
                         $("#event_equal").prop('checked', true);
 
@@ -929,13 +937,13 @@
         .error(function() {
                     $( this).attr( "src", 'images/no_image.png' );
         })
-        .attr( "src", 'plots/' + resultName + '.png' );
+        .attr( "src", urlOutput +'plots/' + resultName + '.png' );
         $.ajax({
             type: "GET",
-            url: "xml/" + resultName + ".xml",
+            url: urlOutput +"xml/" + resultName + ".xml",
             dataType: "xml",
             success: function (data) {
-                var xmlDoc = $.parseXML(data);
+                //var xmlDoc = $.parseXML(data);
                 var xmlString;
                 if (jQuery.browser == "msie") {
                     xmlString = data.xml;
@@ -952,7 +960,7 @@
         });
         $.ajax({
             type: "GET",
-            url: "xml/" + resultName + ".sql",
+            url: urlOutput +"xml/" + resultName + ".sql",
             dataType: "text",
             success: function (data) {
 
@@ -964,7 +972,7 @@
         });
         $.ajax({
             type: "GET",
-            url: "R_work/scripts/" + resultName + ".R",
+            url: urlOutput +"scripts/" + resultName + ".R",
             dataType: "text",
             success: function (data) {
 
@@ -976,7 +984,7 @@
         });
         $.ajax({
             type: "GET",
-            url: "xml/" + resultName + ".log",
+            url: urlOutput +"xml/" + resultName + ".log",
             dataType: "text",
             success: function (data) {
 
@@ -1000,9 +1008,9 @@
             }
         });*/
         $('#ui-tabs-1').empty();
-        $("#r_data_url").prop("href", "R_work/data/" + resultName + ".data");
-        $("#y1_points_url").prop("href", "R_work/data/" + resultName + ".points1");
-        $("#y2_points_url").prop("href", "R_work/data/" + resultName + ".points2");
+        $("#r_data_url").prop("href", urlOutput +"data/" + resultName + ".data");
+        $("#y1_points_url").prop("href", urlOutput+"data/" + resultName + ".points1");
+        $("#y2_points_url").prop("href", urlOutput+ "data/" + resultName + ".points2");
         $('#plot_display_inner').tabs({ active: 0 });
 
     }
@@ -1048,7 +1056,7 @@
                 top = top - 20;
             },
             open:function(e){
-                $(this).html('<img src="plots/plot_' + id + '.png" onError="this.src=\'images/no_image.png\';"/>');
+                $(this).html('<img src="' + urlOutput +'plots/plot_' + id + '.png" onError="this.src=\'images/no_image.png\';"/>');
             }
 
         });
@@ -1062,7 +1070,8 @@
     function colorDisplayUnmatter(cellvalue, options, cell) {
         var colorRGB = jQuery('input', cell).css('background-color');
         var parts = colorRGB.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-        delete(parts[0]);
+       // delete(parts[0]);
+        parts[0] = '#';
         for (var i = 1; i <= 3; ++i) {
             parts[i] = parseInt(parts[i]).toString(16);
             if (parts[i].length == 1) parts[i] = '0' + parts[i];
@@ -1234,11 +1243,11 @@
 <div id="plot_title_labels">
   <table style="width: 100%;">
     <col width="70">
-    <tr>
-      <td><label for="file_name">File name</label></td>
-      <td><input type="text" id="file_name" value=""
-                 style="width: 100%"></td>
-    </tr>
+    <%--<tr>--%>
+      <%--<td><label for="file_name">File name</label></td>--%>
+      <%--<td><input type="text" id="file_name" value=""--%>
+                 <%--style="width: 100%"></td>--%>
+    <%--</tr>--%>
     <tr>
       <td><label for="plot_title">Title</label></td>
       <td><input type="text" id="plot_title" value="test title"
@@ -1588,7 +1597,7 @@
                         <td><label  style="margin-right: 5px;">Limits</label><input type="text" size="6" id="y1_lim_min" style="width:40px; margin-right:5px;"><input type="text" size="6" id="y1_lim_max" style="width:40px; margin-left:5px;"></td>
                         <td><label for="y1_bufr" style="margin-right: 5px;">Top and bottom buffer</label><input type="text" size="12" id="y1_bufr">
                     </tr></table>
-                </fieldset></td>
+                </fieldset>
             </td>
         </tr>
         <tr>
