@@ -135,7 +135,6 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal, boolMu
 	# for each fcst_lead value, equalize the plot series by fcst_valid_beg
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 	for(strIndyVal in listIndyVal){
-		
 		# examine the stats for the current lead time
 		dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
 		if( 1 > nrow(dfIndy) ){ next; }
@@ -369,6 +368,9 @@ buildSeries = function(dfStats, strIndyVar, listIndyVal, strStatGroup, listSerie
 			strPlotCI = listPlotCI[intSeriesIndex];
 			dblLoCI = dblMed;
 			dblUpCI = dblMed;
+      
+		
+      
 			if( "std" == strPlotCI & 0 < sum(listStats != 0) ){
 				dblStdErr = 0;
 				if("mean" == strPlotStat){
@@ -776,7 +778,10 @@ for(indy in listIndyVal){
   strPlotCI = listPlotCI[intSeriesIndex];
   dblLoCI = dblMed;
   dblUpCI = dblMed;
-  if( "std" == strPlotCI & 0 < sum(listStats != 0) ){
+
+
+
+  if( "std" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
     dblStdErr = 0;
     if("mean" == strPlotStat){
       seModel = try(Compute_STDerr_from_mean( listStats, method = 'ML' ));
@@ -803,19 +808,19 @@ for(indy in listIndyVal){
       dblLoCI = dfStatsVal$stat_bcl;
       dblUpCI = dfStatsVal$stat_bcu;
     }
-  } else if( "q98" == strPlotCI & 0 < sum(listStats != 0) ){
+  } else if( "q98" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
     q = quantile(listStats, probs=c(0.01, 0.99));
     dblLoCI = q[["1%"]];
     dblUpCI = q[["99%"]];
-  } else if( "q90" == strPlotCI & 0 < sum(listStats != 0) ){
+  } else if( "q90" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
     q = quantile(listStats, probs=c(0.05, 0.95));
     dblLoCI = q[["5%"]];
     dblUpCI = q[["95%"]];
-  } else if( "q80" == strPlotCI & 0 < sum(listStats != 0) ){
+  } else if( "q80" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
     q = quantile(listStats, probs=c(0.10, 0.90));
     dblLoCI = q[["10%"]];
     dblUpCI = q[["90%"]];
-  } else if( "q50" == strPlotCI & 0 < sum(listStats != 0) ){
+  } else if( "q50" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
     q = quantile(listStats, probs=c(0.25, 0.75));
     dblLoCI = q[["25%"]];
     dblUpCI = q[["75%"]];

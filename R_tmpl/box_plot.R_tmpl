@@ -287,42 +287,28 @@ listAllStats1=list();
 listBoxes2 = list();
 listMeans2 = list();
 listAllStats2=list();
-for(strFcstVar in names(listDep1Plot)){
-  listStats = listDep1Plot[[strFcstVar]];
-  for(strStat in listStats){
-    
-    # segregate the data pertaining to the current stat
-    dfPlotStat = dfPlot1[ dfPlot1$fcst_var == strFcstVar & dfPlot1$stat_name == strStat,];
-    
-    # sort the dataset by valid time and lead time
-    listFields = names(dfPlotStat);
-    if( "fcst_valid_beg" %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid_beg),]; }
-    if( "fcst_valid"     %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid),];     }
-    if( "fcst_init_beg"  %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init_beg),];  }
-    if( "fcst_init"      %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init),];      }
-    
-    
-    # build a data series for each permutation of series values
-    for(intPermVal in 1:nrow(matPermVal1)){
 
-      # initialize the storage for this series
-      dfBox = dfPlotStat;
-      listPermVal = matPermVal1[intPermVal,];
-      listBox = list();
-      name = paste(listPermVal[length(listPermVal)],strFcstVar,strStat)
-      for(intVar in 1:length(listSeries1Var)){
-        vectValPerms= strsplit(listPermVal[intVar], ",")[[1]];
-        dfBox = dfBox[ dfBox[[ listSeries1Var[intVar] ]] %in% vectValPerms, ];
-      }
-      for(strIndy in listIndy){
-        listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
-      }
-      listAllStats1[[name]] = listBox;
-      
-      
-    }
+ll=list();
+
+for( strDep1Name in names(listDep1Plot) ){
+  for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+
+    dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
+    dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
+
+    listAllStats = buildAllStats(dfPlotStat, listSeries1Val,strDep1Stat,strDep1Name);
+    ll = append(ll, listAllStats);
   }
 }
+
+for( listAllStatsName in names(ll) ){
+  listBox = list();
+  for(strIndy in listIndy){
+    listBox[[ strIndy ]] = ll[[listAllStatsName]][ ll[[listAllStatsName]][[strIndyVar]] == strIndy, ]$stat_value;
+  }
+  listAllStats1[[listAllStatsName]] = listBox;
+}
+
 #add Y1 DIFF series - if exist
 if(length(listDiffSeries1) > 0){
   for( diffSeries1Name in 1: length(listDiffSeries1) ){ #1,2....
@@ -341,42 +327,25 @@ if(length(listDiffSeries1) > 0){
 }
 
 # build a box series Y2 for each plot series permutation
-for(strFcstVar in names(listDep2Plot)){
-  listStats = listDep2Plot[[strFcstVar]];
-  for(strStat in listStats){
-    
-    # segregate the data pertaining to the current stat
-    dfPlotStat = dfPlot2[ dfPlot2$fcst_var == strFcstVar & dfPlot2$stat_name == strStat,];
-    
-    # sort the dataset by valid time and lead time
-    listFields = names(dfPlotStat);
-    if( "fcst_valid_beg" %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid_beg),]; }
-    if( "fcst_valid"     %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_valid),];     }
-    if( "fcst_init_beg"  %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init_beg),];  }
-    if( "fcst_init"      %in% listFields ){ dfPlotStat = dfPlotStat[order(dfPlotStat$fcst_init),];      }
-    
-    
-    # build a data series for each permutation of series values
-    for(intPermVal in 1:nrow(matPermVal2)){
-         
-      # initialize the storage for this series
-      listPermVal = matPermVal2[intPermVal,];
-      dfBox = dfPlotStat;
-      listPermVal = matPermVal2[intPermVal,];
-      listBox = list();
-      name = paste(listPermVal[length(listPermVal)],strFcstVar,strStat)
-      for(intVar in 1:length(listSeries2Var)){
-        vectValPerms= strsplit(listPermVal[intVar], ",")[[1]];
-        dfBox = dfBox[ dfBox[[ listSeries2Var[intVar] ]] %in% vectValPerms, ];
-      }
-      for(strIndy in listIndy){
-        listBox[[ strIndy ]] = dfBox[ dfBox[[ strIndyVar ]] == strIndy, ]$stat_value;
-      }
-      listAllStats2[[name]] = listBox;
-      
-      
-    }
+ll=list();
+
+for( strDep1Name in names(listDep2Plot) ){
+  for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
+
+    dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep2Stat,];
+    dfPlotStat = scaleStats(dfPlotStat, listDep2Scale, paste(strDep2Name, "_", strDep2Stat, sep=""));
+
+    listAllStats = buildAllStats(dfPlotStat, listSeries2Val,strDep2Stat,strDep2Name);
+    ll = append(ll, listAllStats);
   }
+}
+
+for( listAllStatsName in names(ll) ){
+  listBox = list();
+  for(strIndy in listIndy){
+    listBox[[ strIndy ]] = ll[[listAllStatsName]][ ll[[listAllStatsName]][[strIndyVar]] == strIndy, ]$stat_value;
+  }
+  listAllStats2[[listAllStatsName]] = listBox;
 }
 #add Y2 DIFF series - if exist
 if(length(listDiffSeries2) > 0){

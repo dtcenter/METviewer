@@ -146,12 +146,16 @@ calcOOBAR		= function(d){ return( d$oobar ); }
 calcMAE		= function(d){ return( d$mae ); }
 calcMBIAS		= function(d){ if( 0 == d$obar ){ return (NA); } else { return( d$fbar / d$obar ); } }
 calcPR_CORR		= function(d){
-  v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
-  pr_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
-  if( 0 >= v || 1 < pr_corr ){
+  if( is.na(d$total) || is.na(d$ffbar) || is.na(d$fbar) || is.na(d$oobar) || is.na(d$obar) ){
     return(NA);
-  } else {
-    return( pr_corr );
+  } else{
+    v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
+    pr_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
+    if( 0 >= v || 1 < pr_corr ){
+      return(NA);
+    } else {
+      return( pr_corr );
+    }
   }
 }
 calcME			= function(d){ return( d$fbar - d$obar ); }
