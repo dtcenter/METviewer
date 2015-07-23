@@ -1363,7 +1363,7 @@ public synchronized void printFormattedTable(ResultSet res, BufferedWriter buffe
 		_tableStatsNbrcnt.put("NBR_FBS",	new String[]{"bc",NBR_CNT});
 		_tableStatsNbrcnt.put("NBR_FSS",	new String[]{"bc",NBR_CNT});
 		_tableStatsNbrcnt.put("NBR_AFSS",	new String[]{"bc",NBR_CNT});
-		_tableStatsNbrcnt.put("NBR_AUFSS",	new String[]{"bc",NBR_CNT});
+		_tableStatsNbrcnt.put("NBR_UFSS",	new String[]{"bc",NBR_CNT});
 		_tableStatsNbrcnt.put("NBR_F_RATE",	new String[]{"bc",NBR_CNT});
 		_tableStatsNbrcnt.put("NBR_O_RATE",	new String[]{"bc",NBR_CNT});
 	}
