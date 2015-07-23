@@ -1050,7 +1050,7 @@ public class MVUtil{
 		
 		return strFormatR.replace("(",	"")
 						 .replace(")",	"")
-						 .replace(".",	"_d_")
+						 //.replace(".",	"_d_")
 						 .replace("<=",	"le")
 						 .replace(">=",	"ge")
 						 .replace("=",	"eq")
@@ -1081,7 +1081,7 @@ public class MVUtil{
 					}
 					diffComponents[i] = strFormatR.replace("(", "")
 						.replace(")", "")
-						.replace(".", "_d_")
+			//			.replace(".", "_d_")
 						.replace("<=", "le")
 						.replace(">=", "ge")
 						.replace("=", "eq")
