@@ -335,10 +335,9 @@ public class MVServlet extends HttpServlet {
         String[] simpleRequest = strRequestBody.split("=");
         if (simpleRequest[0].equals("fileUploadLocal") && simpleRequest.length > 1) {
           String runId = simpleRequest[1];
-          String xmlPath = request.getServletContext().getRealPath("") + File.separator + "xml";
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
           DocumentBuilder db = dbf.newDocumentBuilder();
-          File plotXML = new File(xmlPath + File.separator + "plot_" + runId + ".xml");
+          File plotXML = new File(_strPlotXML + File.separator + "plot_" + runId + ".xml");
           if (plotXML.exists()) {
             fileInputStream = new FileInputStream(plotXML);
             Document doc = db.parse(fileInputStream);
