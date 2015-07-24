@@ -2453,11 +2453,13 @@ function createXMLSeries(plot) {
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cache_agg_stat').is(':checked')));
         plot.append(agg_stat);
-    }else if($( 'input[name=calc_stat]:checked' ).val() && $( 'input[name=calc_stat]:checked' ).val() != "none"){
-        var calc_stat = $('<calc_stat />');
-        calc_stat.append($('<calc_ctc />').text($('#calc_ctc').is(':checked')));
-        calc_stat.append($('<calc_sl1l2 />').text($('#calc_sl1l2').is(':checked')));
-        plot.append(calc_stat);
+    } else if ($('input[name=calc_stat]:checked').val() && $('input[name=calc_stat]:checked').val() != "none") {
+        if ($('#calc_ctc').is(':checked') || $('#calc_sl1l2').is(':checked')) {
+            var calc_stat = $('<calc_stat />');
+            calc_stat.append($('<calc_ctc />').text($('#calc_ctc').is(':checked')));
+            calc_stat.append($('<calc_sl1l2 />').text($('#calc_sl1l2').is(':checked')));
+            plot.append(calc_stat);
+        }
     }
     plot.append($('<plot_stat />').text($('#plot_stat').val()));
     return plot;

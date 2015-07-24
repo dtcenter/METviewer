@@ -119,7 +119,7 @@
                <mkdir dir="${dist}/metviewer/R_tmpl"/>
                <copy todir="${dist}/metviewer/R_tmpl">
                    <fileset dir="R_tmpl">
-                       <include name="*.R_tmpl"/>
+                       <include name="*tmpl"/>
                    </fileset>
                </copy>
 
