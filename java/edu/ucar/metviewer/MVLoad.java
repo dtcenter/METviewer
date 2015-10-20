@@ -714,7 +714,7 @@ public class MVLoad extends MVUtil {
         // }
 
         if (listToken[6].equals("RMSE")) {//CNT line type
-          for (int i = 0; i < 82; i++) {
+          for (int i = 0; i < 88; i++) {
             if (i == 53) {
               strLineDataValueList += ", '" + listToken[10] + "'";
             } else if (i == 31) {
@@ -735,7 +735,7 @@ public class MVLoad extends MVUtil {
 
 
         if (listToken[6].equals("BSS")) {//PSTD line type
-          for (int i = 0; i < 27; i++) {
+          for (int i = 0; i < 16; i++) {
             switch (i) {
               case 0:
               case 1:
@@ -749,14 +749,6 @@ public class MVLoad extends MVUtil {
               case 4:
               case 13:
               case 14:
-              case 16:
-              case 17:
-              case 19:
-              case 20:
-              case 22:
-              case 23:
-              case 25:
-              case 26:
                 strLineDataValueList += ", '-9999'";
                 break;
               case 5:
@@ -777,16 +769,6 @@ public class MVLoad extends MVUtil {
               case 15:
                 strLineDataValueList += ", '" + listToken[11] + "'";
                 break;
-              case 18:
-                strLineDataValueList += ", '" + listToken[15] + "'";
-                break;
-              case 21:
-                strLineDataValueList += ", '" + listToken[16] + "'";
-                break;
-              case 24:
-                strLineDataValueList += ", '" + listToken[17] + "'";
-                break;
-
             }
 
           }
@@ -856,7 +838,7 @@ public class MVLoad extends MVUtil {
         }
 
         if (listToken[6].equals("HIST")) {//RHIST line type
-          for (int i = 0; i < 4; i++) {
+          for (int i = 0; i < 5; i++) {
             if (i == 3) {
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
               strLineDataValueList += ", '" + intGroupSize + "'";
@@ -868,7 +850,6 @@ public class MVLoad extends MVUtil {
           }
         }
         if (listToken[6].equals("HTFR")) {//PCT line type
-          System.out.println(line);
           for (int i = 0; i < 2; i++) {
             if (i == 1) {
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
@@ -1320,7 +1301,12 @@ public class MVLoad extends MVUtil {
           strLineDataId = "" + intLineDataId + ", ";
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
-          intLineDataMax = listVarLengthGroupIndices[1];
+
+          if(d._strLineType.equals("RHIST") || d._strLineType.equals("PSTD")){
+            intLineDataMax = intLineDataMax - Integer.valueOf(listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
+          }else {
+            intLineDataMax = listVarLengthGroupIndices[1];
+          }
         }
 
         //  build the value list for the insert statment
@@ -1361,74 +1347,76 @@ public class MVLoad extends MVUtil {
 
         //  add total and all of the stats on the rest of the line to the value list
         for (int i = 21; i < intLineDataMax; i++) {
-
-          //  for the METv2.0 PSTD line type, add the baser and CIs
-          if (23 == i && "PSTD".equals(d._strLineType) && "V2.0".equals(strMetVersion)) {
-            strLineDataValueList += ", '-9999', '-9999', '-9999'";
-          }
-
           //  for the METv2.0 MPR line type, add the obs_sid
           if (23 == i && "MPR".equals(d._strLineType) && "V2.0".equals(strMetVersion)) {
             strLineDataValueList += ", 'NA'";
           }
-
-
           //  add the stats in order
           strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
+        }
 
-          //  for the METv < 4.1 SSVAR line type, add other 23 stats
-          if (32 == i && "SSVAR".equals(d._strLineType) && ("V4.1".compareTo(strMetVersion) > 0 || intLineDataMax == 33)) {
-            strLineDataValueList += ", '-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999', '-9999','-9999', '-9999'";
+
+
+        if(strLineType.equals("ORANK")){
+          //skip ensemble fields and get data for the rest
+          int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int extraFieldsInd = intLineDataMax + Integer.valueOf(listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
+          for(int i=extraFieldsInd; i<listToken.length; i++){
+            strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
           }
         }
 
 
-        //for METv5.0 add obs_qc - the last column
-        if ("V4.1".compareTo(strMetVersion) < 0 && strLineType.equals("ORANK")) {
-          strLineDataValueList += ", '" + replaceInvalidValues(listToken[38]) + "'";
+
+        String[] insertValuesArr = strLineDataValueList.split(",");
+        List<String> insertValuesList = new LinkedList<>(Arrays.asList(insertValuesArr));
+        int size= insertValuesList.size();
+        int maxSize = size;
+        switch (strLineType) {
+          case "CNT":
+            maxSize = 99;
+            break;
+          case "MPR":
+            maxSize = 21;
+            break;
+          case "ORANK":
+            maxSize = 26;
+            break;
+          case "CTS":
+            maxSize = 104;
+            break;
+          case "NBRCTS":
+            maxSize = 105;
+            break;
+          case "NBRCNT":
+            maxSize = 30;
+            break;
+          case "SAL1L2":
+            maxSize = 17;
+            break;
+          case "SL1L2":
+            maxSize = 17;
+            break;
+          case "PSTD":
+            maxSize = 28;
+            break;
+          case "SSVAR":
+            maxSize = 46;
+            break;
+          case "RHIST":
+            maxSize = 16;
+            break;
         }
-
-        // if ("V4.1".compareTo(strMetVersion) < 0 && strLineType.equals("MPR")) {
-        //  strLineDataValueList += ", '" + replaceInvalidValues(listToken[31]) + "'";
-        // }
-        if ("V4.1".compareTo(strMetVersion) >= 0) {
-          if (strLineType.equals("ORANK")) {
-            strLineDataValueList += ", -9999";
-          }
-          if (strLineType.equals("MPR")) {
-            strLineDataValueList += ", -9999";
-          }
-
-          //for version < v5.0 fill in missing values with -9999
-          if (strLineType.equals("CTS")) {
-            strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
-          }
-          if (strLineType.equals("NBRCTS")) {
-            strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
-          }
-
-          if (strLineType.equals("CNT")) {
-            strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999";
-          }
-
-          if (strLineType.equals("NBRCNT")) {
-            strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
-          }
-          if (strLineType.equals("SAL1L2")) {
-            strLineDataValueList += ", -9999";
-          }
-          if (strLineType.equals("SL1L2")) {
-            strLineDataValueList += ", -9999";
-          }
-
+        while (size < maxSize) {
+          insertValuesList.add("-9999");
+          size++;
         }
-
-        if (strLineType.equals("PSTD")) {
-          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999, -9999";
+        //strLineDataValueList = StringUtils.join(insertValuesList, ",");
+        strLineDataValueList = "";
+        for(String s :insertValuesList ){
+          strLineDataValueList = strLineDataValueList + s +",";
         }
-        if (strLineType.equals("CNT")) {
-          strLineDataValueList += ", -9999, -9999, -9999, -9999, -9999";
-        }
+        strLineDataValueList = strLineDataValueList.substring(0, strLineDataValueList.length()-1);
 
         //  add the values list to the line type values map
         ArrayList listLineTypeValues = new ArrayList();
@@ -1452,6 +1440,7 @@ public class MVLoad extends MVUtil {
           int intGroupIndex = listVarLengthGroupIndices[1];
           int intGroupSize = listVarLengthGroupIndices[2];
           int intNumGroups = Integer.parseInt(listToken[intGroupCntIndex]);
+
           if (d._strLineType.equals("PCT") || d._strLineType.equals("PJC") || d._strLineType.equals("PRC")) {
             intNumGroups -= 1;
           }
@@ -1470,6 +1459,9 @@ public class MVLoad extends MVUtil {
               }
             }
           } else {
+            if (d._strLineType.equals("RHIST") || d._strLineType.equals("PSTD")) {
+              intGroupIndex = intLineDataMax;
+            }
             for (int i = 0; i < intNumGroups; i++) {
               String strThreshValues = "(" + strLineDataId + (i + 1);
               for (int j = 0; j < intGroupSize; j++) {
@@ -1983,8 +1975,8 @@ public class MVLoad extends MVUtil {
     try {
       con = connectionPool.getConnection();
       stmt = con.createStatement();
-      stmt.execute("ALTER TABLE " + strLineDataTable + "  DISABLE KEYS");
-      stmt.execute("LOCK TABLES " + strLineDataTable + " WRITE");
+      //stmt.execute("ALTER TABLE " + strLineDataTable + "  DISABLE KEYS");
+      //stmt.execute("LOCK TABLES " + strLineDataTable + " WRITE");
       ps = con.prepareStatement(strLineDataInsert);
       for (int i = 0; i < listValues.size(); i++) {
 
@@ -2011,8 +2003,8 @@ public class MVLoad extends MVUtil {
       throw new Exception("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
       try {
-        stmt.execute("UNLOCK TABLES");
-        stmt.execute("ALTER TABLE " + strLineDataTable + "  ENABLE KEYS");
+       // stmt.execute("UNLOCK TABLES");
+       // stmt.execute("ALTER TABLE " + strLineDataTable + "  ENABLE KEYS");
         stmt.close();
       } catch (Exception e) { /* ignored */ }
       try {
@@ -2040,10 +2032,10 @@ public class MVLoad extends MVUtil {
     try {
       con = connectionPool.getConnection();
       stmt = con.createStatement();
-      if (table != null) {
+     /* if (table != null) {
         stmt.execute("ALTER TABLE " + table + "  DISABLE KEYS");
         stmt.execute("LOCK TABLES " + table + " WRITE");
-      }
+      }*/
       intRes = stmt.executeUpdate(update);
 
     } catch (SQLException se) {
@@ -2051,10 +2043,10 @@ public class MVLoad extends MVUtil {
       throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
     } finally {
       try {
-        if (table != null) {
+        /*if (table != null) {
           stmt.execute("UNLOCK TABLES");
           stmt.execute("ALTER TABLE " + table + "  ENABLE KEYS");
-        }
+        }*/
         stmt.close();
       } catch (Exception e) { /* ignored */ }
       try {
