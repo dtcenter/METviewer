@@ -108,9 +108,9 @@ public class MVServlet extends HttpServlet {
       } catch (MissingResourceException e) {
         _strURLOutput = "";
       }
-      if (_strRedirect.length() == 0) {
-        _strRedirect = "metviewer";
-      }
+     // if (_strRedirect.length() == 0) {
+      //  _strRedirect = "metviewer";
+     // }
 
 
     } catch (Exception e) {
@@ -143,7 +143,8 @@ public class MVServlet extends HttpServlet {
           return;
         }
         //  redirect the user to the web app
-        response.sendRedirect("/" + _strRedirect + "/metviewer1.jsp?db=" + matDBLoad.group(1));
+        //response.sendRedirect("/" + _strRedirect + "/metviewer1.jsp?db=" + matDBLoad.group(1));
+        request.getRequestDispatcher( _strRedirect + "/metviewer1.jsp?db=" + matDBLoad.group(1)).forward(request, response);
         return;
       } else {
         Matcher matDownload = _patDownload.matcher(strPath);
@@ -356,7 +357,8 @@ public class MVServlet extends HttpServlet {
             }
           }
           request.getSession().setAttribute("init_xml", strResp);
-          response.sendRedirect("/" + _strRedirect);
+          //response.sendRedirect("/" + _strRedirect);
+          request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
         }
       } else {
 
@@ -496,12 +498,13 @@ public class MVServlet extends HttpServlet {
             }try{
             strResp += handleXMLUpload(nodeCall, con);
             request.getSession().setAttribute("init_xml", strResp);
-            response.sendRedirect("/" + _strRedirect+ "/" + referer);
-              System.out.println(" _strRedirect " + "/" + _strRedirect);
+            //response.sendRedirect("/" + _strRedirect+ "/" + referer);
+            request.getRequestDispatcher( "/metviewer1.jsp").forward(request, response);
 
             } catch (Exception e){
               strResp="<error>could not parse request</error>";
-              response.sendRedirect("/" + _strRedirect + "/" + referer);
+              //response.sendRedirect("/" + _strRedirect + "/" + referer);
+              request.getRequestDispatcher( "/metviewer1.jsp").forward(request, response);
             }
 
           } else if (nodeCall._tag.equalsIgnoreCase("history")) {
@@ -910,7 +913,7 @@ public class MVServlet extends HttpServlet {
     for (int i = 0; i < listVal.length; i++) {
 
       //  add the database field value to the list
-      strResp += "<val>" + listVal[i].replace(">", "&gt;").replace("<", "&lt;") + "</val>";
+      strResp += "<val>" + listVal[i].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
 
       //  if the database field value is probabilistic, add a wild card version
       if (!strField.equals("fcst_var")) {
@@ -984,7 +987,9 @@ public class MVServlet extends HttpServlet {
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n";
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n"+
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n"+
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n";
 
     //this is a query for the VSDB
     /*String strSQL =
@@ -1044,6 +1049,12 @@ public class MVServlet extends HttpServlet {
             break;
           case 11:
             listStatName.addAll(Arrays.asList(MVUtil._tableStatsEnscnt.getKeyList()));
+            break;
+          case 12:
+            listStatName.addAll(Arrays.asList(MVUtil._tableStatsMpr.getKeyList()));
+            break;
+          case 13:
+            listStatName.addAll(Arrays.asList(MVUtil._tableStatsOrank.getKeyList()));
             break;
         }
       }
@@ -1302,8 +1313,8 @@ public class MVServlet extends HttpServlet {
         "<html>\n" +
         "<head>\n" +
         "<title>METViewer Error</title>\n" +
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"/" + _strRedirect + "/include/metviewer.css\"/>\n" +
-        "<link rel=\"shortcut icon\" href=\"/" + _strRedirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + _strRedirect + "/include/metviewer.css\"/>\n" +
+        "<link rel=\"shortcut icon\" href=\"" + _strRedirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
         "</head>\n" +
         "<body style=\"padding-left:20px; padding-top:20px\">\n" +
         "<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
