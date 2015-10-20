@@ -16,7 +16,6 @@
 	"use strict";
 
 	var _colorpicker_index = 0,
-
 		_container_popup = '<div class="ui-colorpicker ui-colorpicker-dialog ui-dialog ui-widget ui-widget-content ui-corner-all" style="display: none;"></div>',
 		_container_inlineFrame = '<div class="ui-colorpicker ui-colorpicker-inline ui-dialog ui-widget ui-widget-content ui-corner-all"></div>',
 		_container_inline = '<div class="ui-colorpicker ui-colorpicker-inline"></div>',

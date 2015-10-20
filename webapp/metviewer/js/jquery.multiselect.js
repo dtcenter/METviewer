@@ -220,7 +220,7 @@
           if (null != listParse) {
             description = listParse[1];
           }
-          if(label_old && label_old != description){
+          if (label_old != null && label_old != description ){
             description = label_old;
           }
           var plot_val="";
@@ -242,7 +242,7 @@
 
       // set widths
       this._setButtonWidth();
-      this._setMenuWidth();
+      this._setMenuWidth(checkboxContainer.actual( 'width' ));
 
       // remember default value
       this.button[0].defaultValue = this.update();
@@ -267,7 +267,7 @@
         if($.isFunction(o.selectedText)) {
           value = o.selectedText.call(this, numChecked, $inputs.length, $checked.get());
         } else if(/\d/.test(o.selectedList) && o.selectedList > 0 && numChecked <= o.selectedList) {
-          value = $checked.map(function() { return $(this).next().html().replace("&gt;", ">").replace("&lt;", "<"); }).get().join(', ');
+          value = $checked.map(function() { return $(this).next().html().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"); }).get().join(', ');
         } else {
           value = o.selectedText.replace('#', numChecked).replace('#', $inputs.length);
         }
@@ -484,9 +484,19 @@
     },
 
     // set menu width
-    _setMenuWidth: function() {
+    _setMenuWidth: function(width) {
+
       var m = this.menu;
-      m.outerWidth(this.button.outerWidth());
+      if(!width) {
+        m.outerWidth(this.button.outerWidth());
+      }else{
+        width = width + 17;// +possible scroll bar
+        if(this.button.outerWidth() > width){
+          m.outerWidth(this.button.outerWidth());
+        }else {
+          m.width(width);
+        }
+      }
     },
 
     // move up or down within the menu
@@ -782,7 +792,6 @@
           this.options.indy_var_vals_to_attr = value;
 
       }
-
       $.Widget.prototype._setOption.apply(this, arguments);
     }
   });
