@@ -1326,7 +1326,7 @@ public class MVPlotJobParser extends MVUtil {
       if (objFixVal instanceof String[]) {
         String[] listFixVal = (String[]) objFixVal;
         for (int j = 0; j < listFixVal.length; j++) {
-          strXML += "<val>" + listFixVal[j].replace(">", "&gt;").replace("<", "&lt;") + "</val>";
+          strXML += "<val>" + listFixVal[j].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
         }
       } else if (objFixVal instanceof MVOrderedMap) {
         MVOrderedMap mapFixSet = (MVOrderedMap) objFixVal;
@@ -1335,7 +1335,7 @@ public class MVPlotJobParser extends MVUtil {
           String[] listFixSetVal = (String[]) mapFixSet.get(listFixSetKey[j]);
           strXML += "<set name=\"" + listFixSetKey[j] + "\">";
           for (int k = 0; k < listFixSetVal.length; k++) {
-            strXML += "<val>" + listFixSetVal[k].replace(">", "&gt;").replace("<", "&lt;") + "</val>";
+            strXML += "<val>" + listFixSetVal[k].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
           }
           strXML += "</set>";
         }
@@ -1391,7 +1391,7 @@ public class MVPlotJobParser extends MVUtil {
         "<x_label>" + job.getXLabelTmpl() + "</x_label>" +
         "<y1_label>" + job.getY1LabelTmpl() + "</y1_label>" +
         "<y2_label>" + job.getY2LabelTmpl() + "</y2_label>" +
-        "<caption>" + job.getCaptionTmpl().replace(">", "&gt;").replace("<", "&lt;").replace("&", "&#38;") + "</caption>" +
+        "<caption>" + job.getCaptionTmpl().replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</caption>" +
         "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
         "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>" +
         "</tmpl>";
