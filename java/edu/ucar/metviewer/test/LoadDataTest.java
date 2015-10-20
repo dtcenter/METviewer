@@ -58,8 +58,8 @@ public class LoadDataTest  {
     TABLES_TO_ROWS.put("line_data_nbrcts", 80);
     TABLES_TO_ROWS.put("line_data_orank", 3980);
     TABLES_TO_ROWS.put("line_data_orank_ens", 19900);
-    TABLES_TO_ROWS.put("line_data_pct", 1);
-    TABLES_TO_ROWS.put("line_data_pct_thresh", 4);
+    TABLES_TO_ROWS.put("line_data_pct", 1277);
+    TABLES_TO_ROWS.put("line_data_pct_thresh", 23656);
     TABLES_TO_ROWS.put("line_data_phist", 19);
     TABLES_TO_ROWS.put("line_data_phist_bin", 380);
     TABLES_TO_ROWS.put("line_data_pjc", 1);

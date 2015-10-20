@@ -6,7 +6,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-find /var/www/dtcenter/met/metviewer_outputplots -mtime +7 -exec rm {} \;
+find /var/www/dtcenter/met/metviewer_output/plots -mtime +7 -exec rm {} \;
 find /var/www/dtcenter/met/metviewer_output/xml -mtime +7 -exec rm {} \;
 find /var/www/dtcenter/met/metviewer_output/data -mtime +7 -exec rm {} \;
 find /var/www/dtcenter/met/metviewer_output/scripts -mtime +7 -exec rm {} \;
