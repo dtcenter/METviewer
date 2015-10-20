@@ -18,7 +18,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-io-2.4.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mockito-all-1.9.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-fileupload-1.3.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/build
+CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
 ARGS=1
 
