@@ -561,6 +561,10 @@ public class MVUtil{
 			
 			//  apply the pattern to the value
 			double dblVal = 0;
+      //if value is double and ends with '.' - remove '.' to match the pattern
+			if(vals[i].endsWith(".")){
+				vals[i] = vals[i].substring(0,vals[i].length()-1);
+			}
 			Matcher mat = pat.matcher(vals[i]);
 			
 			//  if the value matches, parse out the numerical value 
@@ -1261,6 +1265,8 @@ public synchronized void printFormattedTable(ResultSet res, BufferedWriter buffe
 		else if( _tableModePairStatField.containsKey(strStatMode)   ){ return "mode_obj_pair";    }
 		else if( _tableModeRatioField.containsKey(strStat)          ){ return "mode_obj_single";  }
     else if( _tableStatsEnscnt.containsKey(strStat)             ){ return "line_data_enscnt";  }
+    else if( _tableStatsMpr.containsKey(strStat)                ){ return "line_data_mpr";  }
+    else if( _tableStatsOrank.containsKey(strStat)              ){ return "line_data_orank";  }
 		else                                                         { return "";                 }
 	}
 
@@ -1283,6 +1289,22 @@ public synchronized void printFormattedTable(ResultSet res, BufferedWriter buffe
 
   	}
 
+
+	public static final MVOrderedMap _tableStatsMpr = new MVOrderedMap();
+	static {
+		_tableStatsMpr.put("MPR_FCST", new String[]{""});
+		_tableStatsMpr.put("MPR_OBS", new String[]{""});
+		_tableStatsMpr.put("MPR_CLIMO", new String[]{""});
+	}
+
+	public static final MVOrderedMap _tableStatsOrank = new MVOrderedMap();
+		static {
+			_tableStatsOrank.put("PIT", new String[]{""});
+			_tableStatsOrank.put("RANK", new String[]{""});
+			_tableStatsOrank.put("ENS_MEAN", new String[]{""});
+			_tableStatsOrank.put("ORANK_OBS", new String[]{""});
+			_tableStatsOrank.put("ORANK_CLIMO", new String[]{""});
+		}
 
 
 	public static final MVOrderedMap _tableStatsCnt = new MVOrderedMap();

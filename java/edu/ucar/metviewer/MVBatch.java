@@ -1271,6 +1271,12 @@ public class MVBatch extends MVUtil {
             tableStats = _tableStatsVl1l2;
             strStatTable = "line_data_vl1l2 ld\n";
             strStatField = strStat.replace("VL1L2_", "").toLowerCase();
+          } else if (_tableStatsMpr.containsKey(strStat)) {
+            tableStats = _tableStatsMpr;
+            strStatTable = "line_data_mpr ld\n";
+          } else if (_tableStatsOrank.containsKey(strStat)) {
+            tableStats = _tableStatsOrank;
+            strStatTable = "line_data_orank ld\n";
           } else {
             throw new Exception("unrecognized stat: " + strStat);
           }
