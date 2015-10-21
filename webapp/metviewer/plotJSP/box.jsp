@@ -610,6 +610,7 @@
               statistic:</label><select id="plot_stat" name="plot_stat">
               <option selected="selected" value="median">Median</option>
               <option value="mean">Mean</option>
+              <option value="sum">Sum</option>
             </select></span></td>
           </tr>
           <tr>
