@@ -369,11 +369,17 @@ CREATE TABLE line_data_cnt
     mad                 DOUBLE DEFAULT -9999,
     mad_bcl             DOUBLE DEFAULT -9999,
     mad_bcu             DOUBLE DEFAULT -9999,
-    pac                 DOUBLE DEFAULT -9999,
-    pac_ncl             DOUBLE DEFAULT -9999,
-    pac_ncu             DOUBLE DEFAULT -9999,
-    pac_bcl             DOUBLE DEFAULT -9999,
-    pac_bcu             DOUBLE DEFAULT -9999,
+    anom_corr           DOUBLE DEFAULT -9999,
+    anom_corr_ncl       DOUBLE DEFAULT -9999,
+    anom_corr_ncu       DOUBLE DEFAULT -9999,
+    anom_corr_bcl       DOUBLE DEFAULT -9999,
+    anom_corr_bcu       DOUBLE DEFAULT -9999,
+    me2                 DOUBLE DEFAULT -9999,
+    me2_bcl             DOUBLE DEFAULT -9999,
+    me2_bcu             DOUBLE DEFAULT -9999,
+    msess               DOUBLE DEFAULT -9999,
+    msess_bcl           DOUBLE DEFAULT -9999,
+    msess_bcu           DOUBLE DEFAULT -9999,
 
     
     CONSTRAINT line_data_cnt_data_file_id_pk
@@ -562,21 +568,12 @@ CREATE TABLE line_data_pstd
     brier               DOUBLE,
     brier_ncl           DOUBLE,
     brier_ncu           DOUBLE,
+
     briercl            DOUBLE DEFAULT -9999,
     briercl_ncl        DOUBLE DEFAULT -9999,
     briercl_ncu        DOUBLE DEFAULT -9999,
     bss                 DOUBLE DEFAULT -9999,
-    bss_ncl             DOUBLE DEFAULT -9999,
-    bss_ncu             DOUBLE DEFAULT -9999,
-    inf                 DOUBLE DEFAULT -9999,
-    inf_ncl             DOUBLE DEFAULT -9999,
-    inf_ncu             DOUBLE DEFAULT -9999,
-    brier10               DOUBLE DEFAULT -9999,
-    brier10_ncl           DOUBLE DEFAULT -9999,
-    brier10_ncu           DOUBLE DEFAULT -9999,
-    brier90               DOUBLE DEFAULT -9999,
-    brier90_ncl           DOUBLE DEFAULT -9999,
-    brier90_ncu           DOUBLE DEFAULT -9999,
+
 
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_pstd_data_file_id_pk
@@ -876,9 +873,9 @@ CREATE TABLE line_data_mpr
     obs_lon             DOUBLE,
     obs_lvl             DOUBLE,
     obs_elv             DOUBLE,
-    fcst                DOUBLE,
-    obs                 DOUBLE,
-    climo               DOUBLE,
+    mpr_fcst               DOUBLE,
+    mpr_obs                 DOUBLE,
+    mpr_climo               DOUBLE,
     obs_qc              DOUBLE DEFAULT -9999,
     
     CONSTRAINT line_data_mpr_data_file_id_pk
@@ -1228,7 +1225,8 @@ CREATE TABLE line_data_rhist
     crps                DOUBLE,
     ign                 DOUBLE,
     n_rank              INT UNSIGNED,
-    
+    crpss               DOUBLE,
+
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_rhist_data_file_id_pk
             FOREIGN KEY(data_file_id)
@@ -1330,13 +1328,15 @@ CREATE TABLE line_data_orank
     obs_lon             VARCHAR(64),
     obs_lvl             VARCHAR(64),
     obs_elv             VARCHAR(64),
-    obs                 DOUBLE,
+    orank_obs                 DOUBLE,
     pit                 DOUBLE,
     rank                INT UNSIGNED,
     n_ens_vld           INT UNSIGNED,
     n_ens               INT UNSIGNED,
     obs_qc              DOUBLE DEFAULT -9999,
-    
+    ens_mean            DOUBLE DEFAULT -9999,
+    orank_climo               DOUBLE DEFAULT -9999,
+
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_orank_data_file_id_pk
             FOREIGN KEY(data_file_id)
