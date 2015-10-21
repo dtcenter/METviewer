@@ -97,12 +97,6 @@ Compute_STDerr_from_median_variance_inflation_factor <- function ( data, method 
 
 }
 
-
-
-
-
-
-
 Compute_STDerr_from_mean <- function ( data, method )
 {
 
@@ -151,4 +145,11 @@ Compute_STDerr_from_mean <- function ( data, method )
 
    return ( c(STDerr_data, RATIO_flag, AR1, length(data)) );
 
+}
+Compute_STDerr_from_sum <- function ( data, method )
+{
+   STDerr = Compute_STDerr_from_mean( data, method = 'ML' );
+   ## multiply Standard Error by data size
+   STDerr[1] = STDerr[1] * length(data)
+   return (STDerr);
 }

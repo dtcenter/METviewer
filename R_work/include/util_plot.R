@@ -624,7 +624,7 @@ calcBrierCI = function(dfPct, brier, alpha){
 #        listPlotCI: list of confidence interval types to use for each series
 #          dblAlpha: alpha value to use when calculating confidence intervals
 #    boolVarianceInflationFactor: include or not Variance Inflation Factor to Compute_STDerr_from_median
-#       strPlotStat: use mean or median value
+#       strPlotStat: use mean , median or sum value
 #
 #    RETURNS:
 #            series: contains series data, in sets of three vectors: median, upper and
@@ -702,7 +702,7 @@ buildAllStats = function(dfStats, listSeriesVal, strDepStat,strDepName){
 #        listPlotCI: list of confidence interval types to use for each series
 #          dblAlpha: alpha value to use when calculating confidence intervals
 #    boolVarianceInflationFactor: include or not Variance Inflation Factor to Compute_STDerr_from_median
-#       strPlotStat: use mean or median value
+#       strPlotStat: use mean ,  median or sum value
 #
 #    RETURNS:
 #            series: contains series data
@@ -757,14 +757,13 @@ for(indy in listIndyVal){
 
   # add the median value to the current series point
   listStats = dfStatsVal$stat_value;
-
   if("mean" == strPlotStat){
     dblMed = mean(listStats);
-    
+  }else if("sum" == strPlotStat){
+    dblMed = sum(listStats);
   } else {
     # use median if strPlotStat = 'median' or anything else since 'median' is the default
     dblMed = median(listStats);
-    
   }
   if( TRUE == listPlotDisp[intSeriesIndex] ){
     if(length(listStats) == 1 && 'nstats' %in% names(dfStatsVal)){
@@ -785,6 +784,8 @@ for(indy in listIndyVal){
     dblStdErr = 0;
     if("mean" == strPlotStat){
       seModel = try(Compute_STDerr_from_mean( listStats, method = 'ML' ));
+    }else if("sum" == strPlotStat){
+    	seModel = try(Compute_STDerr_from_sum( listStats, method = 'ML' ));
     } else {
       if(TRUE == boolVarianceInflationFactor){
         seModel = try(Compute_STDerr_from_median_variance_inflation_factor( listStats, method = 'ML' ));
@@ -792,7 +793,6 @@ for(indy in listIndyVal){
         seModel = try(Compute_STDerr_from_median_no_variance_inflation_factor( listStats, method = 'ML' ));
       }
     }
-
     if( 1 < length(seModel) && 0 == seModel[2] ){ dblStdErr = dblZVal * seModel[1]; }
     dblLoCI = dblMed - dblStdErr;
     dblUpCI  = dblMed + dblStdErr;
@@ -825,6 +825,7 @@ for(indy in listIndyVal){
     dblLoCI = q[["25%"]];
     dblUpCI = q[["75%"]];
   }
+
   listSeries[[intMedIndex]][intIndyIndex] = dblMed;
   listSeries[[intLoIndex]][intIndyIndex] = dblLoCI;
   listSeries[[intUpIndex]][intIndyIndex] = dblUpCI;
