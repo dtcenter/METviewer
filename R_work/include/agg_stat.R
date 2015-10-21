@@ -1,3 +1,4 @@
+#.libPaths("/common/data/web/metviewer/dev/r-lib");
 library(boot);
 library(gsl);
 
