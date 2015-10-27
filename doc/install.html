@@ -89,10 +89,16 @@ METViewer relies on the following tools.  These must be installed and tested pri
 				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
 				<span class="term" style="padding-left:40px">$ ant</span><br/>
 			</li><br/>
-			<li style="list-style-type:disc">Deploy the web app to tomcat:<br/>
+			<li style="list-style-type:disc">Install load_batch modual:<br/>
 				<span class="term" style="padding-left:40px">$ cd [tomcat_base]/webapps</span><br/>		 
 				<span class="term" style="padding-left:40px">$ cp [install]/dist/metviewer.war ./</span><br/>
-			</li><br/><br/>
+			</li><br/>
+			<li style="list-style-type:disc">Deploy the web app to tomcat:<br/>
+							<span class="term" style="padding-left:40px">$ cd [install]/dist</span><br/>
+							<span class="term" style="padding-left:40px">$ cp [install]/dist/batch_load.tar [load_batch_dir]</span><br/>
+							<span class="term" style="padding-left:40px">$cd [load_batch_dir]</span><br/>
+							<span class="term" style="padding-left:40px">$ tar -zxvf batch_load.tar</span><br/>
+						</li><br/><br/>
 		</ul>
 	</li>
 	<li class="inst">Create a METViewer database:<br/>
