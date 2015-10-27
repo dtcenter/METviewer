@@ -1,4 +1,4 @@
-<project name="metviewer" default="webapp" basedir=".">
+<project name="metviewer" default="all" basedir=".">
 
     <description>METViewer build file</description>
 
@@ -72,7 +72,6 @@
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}"/>
-
     </target>
 
     <target name="dist-test" depends="compile-all"
@@ -83,28 +82,19 @@
         <jar jarfile="${dist}/lib/metviewer_all.jar" basedir="${build}"/>
 
     </target>
-    <target name="mv_output">
-        <mkdir dir="${dist}/mv_output"/>
-        <mkdir dir="${dist}/mv_output/data"/>
-        <mkdir dir="${dist}/mv_output/scripts"/>
-        <mkdir dir="${dist}/mv_output/plots/"/>
-        <mkdir dir="${dist}/mv_output/xml/"/>
 
-
-        <tar destfile="${dist}/mv_output.tar" basedir="${dist}/mv_output">
-
-        </tar>
-        <delete dir="${dist}/mv_output"/>
-
-    </target>
     <!-- Build the web application folder -->
-    <target name="webapp" depends="dist, dist-test,mv_output"
+    <target name="webapp" depends="dist, dist-test"
             description="build the web application bundle">
-
         <!-- Copy the webapp contents to the dist folder -->
         <delete dir="${dist}/metviewer"/>
         <copy todir="${dist}/metviewer">
-            <fileset dir="webapp/metviewer"/>
+            <fileset dir="webapp/metviewer">
+                <exclude name="**/*.ncep"/>
+                <exclude name="**/*.noaa"/>
+                <exclude name="**/*.dev"/>
+                <exclude name="**/*mvservlet_psql.properties"/>
+            </fileset>
         </copy>
 
         <!-- Copy the R_work/include folder R files -->
@@ -116,12 +106,12 @@
         </copy>
 
         <!-- Copy the R_tmpl folder R files -->
-               <mkdir dir="${dist}/metviewer/R_tmpl"/>
-               <copy todir="${dist}/metviewer/R_tmpl">
-                   <fileset dir="R_tmpl">
-                       <include name="*tmpl"/>
-                   </fileset>
-               </copy>
+        <mkdir dir="${dist}/metviewer/R_tmpl"/>
+        <copy todir="${dist}/metviewer/R_tmpl">
+            <fileset dir="R_tmpl">
+                <include name="*tmpl"/>
+            </fileset>
+        </copy>
 
 
         <!-- Copy the support jar files to the dist folder -->
@@ -160,6 +150,22 @@
              basedir="${dist}/metviewer">
         </war>
     </target>
+
+    <target name="batch_load" depends="dist" description="Create load_batch module">
+        <tar destfile="${dist}/batch_load.tar">
+            <tarfileset dir=".">
+                <exclude name="**/*.war"/>
+                <exclude name="**/*.tar"/>
+                <include name="bin/**"/>
+                <include name="dist/lib/metviewer.jar"/>
+                <include name="R_work/**"/>
+                <include name="R_tmpl/**"/>
+                <include name="sql/**"/>
+                <include name="lib/**"/>
+            </tarfileset>
+        </tar>
+    </target>
+    <target name="all" depends="war,batch_load" description="Create all modules"/>
 
 </project>
 
