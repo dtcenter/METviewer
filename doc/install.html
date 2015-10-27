@@ -17,7 +17,7 @@ METViewer relies on the following tools.  These must be installed and tested pri
 <ul>
 	<li>
 		<b class="inst">Java JDK</b> - 
-			<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.7
+			<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.8
 	</li>
 	<li>
 		<b class="inst">ant</b> - <a href="http://ant.apache.org/bindownload.cgi" target="_blank">download</a> and install the latest version
@@ -29,7 +29,7 @@ METViewer relies on the following tools.  These must be installed and tested pri
     </li>
 	<li>
 		<b class="inst">Apache Tomcat</b> - 
-			<a href="http://tomcat.apache.org/download-55.cgi" target="_blank">download</a> and install the latest version; test the sample JSP web apps 		
+			<a href="http://tomcat.apache.org/" target="_blank">download</a> and install the latest version; test the sample JSP web apps
 	</li>
 	<li>
 		<b class="inst">R</b> - <a href="http://dev.mysql.com/downloads/mysql/" target="_blank">download</a> and install the latest version
@@ -38,13 +38,8 @@ METViewer relies on the following tools.  These must be installed and tested pri
 </p>
 
 <p>
-Download and build the METViewer <a href="http://www.dtcenter.org/met/users/downloads/MET_releases/METViewer_v0.5.7_20121003.tar.gz">source code</a>.  
-For the following instructions, the placeholder [install] should be replaced with the absolute folder name where the METViewer source bundle will be built.<br/>
 <ol>
-	<li class="inst">Unpack the METViewer source bundle:<br/>
-		<span class="term" style="padding-left:40px">$ cd [intall]</span><br/>	 
-		<span class="term" style="padding-left:40px">$ tar xzf metviewer.tar.gz</span><br/><br/>			 
-	</li>
+
 	<li class="inst">Configure the batch tool, database loader tool and web application:<br/>
 		<ul>
 			<li style="list-style-type:disc">edit [install]/metviewer/bin/mv_batch.sh:<br/>
@@ -68,16 +63,25 @@ For the following instructions, the placeholder [install] should be replaced wit
 				<ul>
 					<li>set db.host to the MySQL database server host and port, e.g. db.ncep.gov:3306</li>
 					<li>set db.user and db.password to the database username and password</li>
-					<li>set db.list to the name of the database with the compatible schema and data</li>
 					<li>set cache.val to true/false depending on whether value caching should be enabled (recommend true)</li>
 					<li>set cache.stat to true/false depending on whether statistics caching should be enabled (recommend true)</li>
-					<li>set folders.plot_xml to the absolute path of [install]/metviewer/dist/metviewer/xml</li>
-					<li>set folders.r_tmpl to the absolute path of [install]/metviewer/R_tmpl</li>
-					<li>set folders.r_work to the absolute path of [install]/metviewer/dist/metviewer/R_work</li>
-					<li>set folders.plots to the absolute path of [install]/metviewer/dist/metviewer/plots</li>
+					<li>set folders.plot_xml to the absolute path of [output_dir]/xml</li>
+					<li>set folders.r_tmpl to the absolute path of [tomcat]/metviewer/R_tmpl</li>
+					<li>set folders.r_work to the absolute path of [tomcat]/metviewer/R_work</li>
+					<li>set folders.plots to the absolute path of [output_dir]/plots</li>
+					<li>set folders.data to the absolute path of [output_dir]/data</li>
+					<li>set folders.scripts to the absolute path of [output_dir]/scripts</li>
+					<li>set redirect to the application name in url (ex. if the application URL is "http://www.dtcenter.org/met/metviewer/" tedirect is "metviewer")</li>
+					<li>set url.output to the url to the output folder</li>
 				</ul>
 			</li><br/><br/>
 		</ul>
+	</li>
+	<li class="inst">Configure the batch tool, database loader tool and web application:<br/>
+		<ul>
+			<li>Create output folders: [output_dir]/plots, [output_dir]/data, [output_dir]/scripts, [output_dir]/xml</li>
+			<li>Include [output_dir] to Apache context</li>
+			</ul>
 	</li>
 	<li class="inst">Build and deploy the application:<br/>
 		<ul>
@@ -87,7 +91,7 @@ For the following instructions, the placeholder [install] should be replaced wit
 			</li><br/>
 			<li style="list-style-type:disc">Deploy the web app to tomcat:<br/>
 				<span class="term" style="padding-left:40px">$ cd [tomcat_base]/webapps</span><br/>		 
-				<span class="term" style="padding-left:40px">$ ln -s [install]/metviewer/dist/metviewer metviewer</span><br/>
+				<span class="term" style="padding-left:40px">$ cp [install]/dist/metviewer.war ./</span><br/>
 			</li><br/><br/>
 		</ul>
 	</li>
