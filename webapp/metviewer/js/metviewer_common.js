@@ -2959,7 +2959,8 @@ function resetFormatting() {
     $("#ytlab_perp").val("0.5");
     $("#ytlab_size").val("1");
     $("#ytlab_orient").val("1");
-    $("#y1_lim").val("");
+    $("#y1_lim_min").val("");
+    $("#y1_lim_max").val("");
     $("#y1_bufr").val("0.04");
 
 

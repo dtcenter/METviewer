@@ -143,13 +143,13 @@
         width: 550px;
     }
     .ui-jqgrid td input, .ui-jqgrid td select, .ui-jqgrid td textarea {
-    .ui-jqgrid td input, .ui-jqgrid td select, .ui-jqgrid td textarea {
         padding-bottom: 1px;
         padding-top: 1px;
     }
     .ui-jqgrid tr.jqgrow td {
         height: 20px;
     }
+
 </style>
 
 <script src="js/jquery-min.js" type="text/javascript"></script>
