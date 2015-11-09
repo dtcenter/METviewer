@@ -405,7 +405,7 @@ if(length(listDiffSeries1) > 0){
     }
 
     #create a legend
-    listLegendNotOrdered[intLegendIndex] = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");;
+    listLegendNotOrdered[intLegendIndex] = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
     intLegendIndex = intLegendIndex + 1;
   }
 }
