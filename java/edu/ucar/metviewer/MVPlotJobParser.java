@@ -315,6 +315,25 @@ public class MVPlotJobParser extends MVUtil {
           } else if (boolPlotRun) {
             strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
           }
+        } else if (job.getPlotTmpl().equals("performance.R_tmpl")) {
+          //  performance plot must have a fcst_var selected
+          if (job.getPlotFixVal().containsKey("fcst_var")) {
+            MVOrderedMap mapDep = new MVOrderedMap(), mapFarPody = new MVOrderedMap();
+            Object objFcstVar = job.getPlotFixVal().get("fcst_var");
+            String[] listFcstVar;
+            if (objFcstVar instanceof String[])
+              listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
+            else {
+              MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
+              listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
+            }
+            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            mapDep.put("dep1", mapFarPody);
+            mapDep.put("dep2", new MVOrderedMap());
+            job.addDepGroup(mapDep);
+          } else if (boolPlotRun) {
+            strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
+          }
 
         } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") && !job.getPlotTmpl().equals("phist.R_tmpl")) {
           strCompleteness = checkJobCompleteness(job);

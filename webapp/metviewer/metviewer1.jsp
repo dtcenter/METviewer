@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.4</TITLE>
+<TITLE>METViewer v1.5-dev</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -276,6 +276,13 @@
                                 values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
                                 updateFixedVarValHist(fixed_var_indexes[i], values);
                             }
+                        } else if (currentTab == 'Perf') {
+                            $('#listdt').jqGrid('clearGridData');
+                            updateSeriesVarValSeries("y1", 1, []);
+                            var rowCount = $('#fixed_var_table').find('tr').length;
+                            for( i=rowCount -1; i>= 0; i--){
+                                removeFixedVarSeries("fixed_var_" + (i+1));
+                            }
                         }
                     }
                 });
@@ -340,6 +347,7 @@
             <li><a href="plotJSP/roc.jsp">Roc</a></li>
             <li><a href="plotJSP/rely.jsp">Rely</a></li>
             <li><a href="plotJSP/ens_ssl.jsp">Ens_ss</a></li>
+            <li><a href="plotJSP/performance.jsp">Perf</a></li>
         </ul>
 
 

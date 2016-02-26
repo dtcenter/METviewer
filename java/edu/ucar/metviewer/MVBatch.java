@@ -655,8 +655,12 @@ public class MVBatch extends MVUtil {
 
       // calculate the number of plot curves
       int intNumDep1 = 0;
-      for (int i = 0; i < listDep1Plot.length; i++) {
-        intNumDep1 += ((String[]) listDep1Plot[i].getValue()).length;
+      if(job.getPlotTmpl().equals("performance.R_tmpl")){
+        intNumDep1 = 1;
+      }else {
+        for (int i = 0; i < listDep1Plot.length; i++) {
+          intNumDep1 += ((String[]) listDep1Plot[i].getValue()).length;
+        }
       }
       int intNumDep2 = 0;
       for (int i = 0; i < listDep2Plot.length; i++) {
@@ -1258,7 +1262,7 @@ public class MVBatch extends MVUtil {
             strStatField = strStat.replace("MCTS_", "").toLowerCase();
           } else if (_tableStatsRhist.containsKey(strStat)) {
             tableStats = _tableStatsRhist;
-            isAggTypeValid(_tableStatsRhist, strStat, aggType);
+           // isAggTypeValid(_tableStatsRhist, strStat, aggType);
             strStatTable = "line_data_rhist ld\n";
             strStatField = strStat.replace("RHIST_", "").toLowerCase();
           } else if (_tableStatsPhist.containsKey(strStat)) {

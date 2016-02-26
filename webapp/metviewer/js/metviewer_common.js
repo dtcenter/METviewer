@@ -610,6 +610,10 @@ function updateMode(y_axis, index, selectedVals) {
         } else {
             config_table.find(".non-acov").removeAttr("disabled");
         }
+        //add a first letter if mode code has only 2 letters
+        if(selectedModeStatCode.length == 2){
+            selectedModeStatCode = "A"+selectedModeStatCode;
+        }
         if (selectedModeStat == "ACOV") {
             if (selectedModeStatCode[0] == "A") {
                 config_table.find('[name="mode_stat_fcst"]').prop('checked', true);
@@ -621,7 +625,6 @@ function updateMode(y_axis, index, selectedVals) {
                 config_table.find('[name="mode_stat_fcst"]').prop('checked', false);
                 config_table.find('[name="mode_stat_obs"]').prop('checked', true);
             }
-
         } else {
             if (selectedModeStatCode[0] == "D") {
                 config_table.find('[name="mode_stat_diff"]').prop('checked', true);
@@ -660,6 +663,11 @@ function updateMode(y_axis, index, selectedVals) {
                 config_table.find('[name="mode_stat_matched"]').prop('checked', false);
                 config_table.find('[name="mode_stat_unmatched"]').prop('checked', true);
             }
+        }
+        if (listStatModePair.indexOf(selectedModeStat) > -1) {
+            config_table.find(".non-pair").attr("disabled", true);
+        } else {
+            config_table.find(".non-pair").removeAttr("disabled");
         }
     }
 
@@ -871,18 +879,26 @@ function updateSeriesVarValSeries(y_axis, index, selectedVals) {
     select.empty();
     //get value of database
     var selectedDatabase = $("#database").multiselect("getChecked").val();
-    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+    var selected_mode, statst ;
+    if(currentTab == 'Perf'){
+        selected_mode = 'stat';
+        statst = '<stat></stat>';
+    }else {
+        selected_mode = $("#plot_data").multiselect("getChecked").val();
+        statst = convertVarsAndStatsToXmlSeries();
+    }
     var selectedSeriesVariable;
     try {
         selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index).multiselect("getChecked").val();
     } catch (err) {
         selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index + ' option:first-child').val();
     }
+    var url ='<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>'
     $.ajax({
         async: false,
         url: "servlet",
         type: "POST",
-        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + convertVarsAndStatsToXmlSeries() + '</list_val></request>',
+        data: url,
         error: function (jqXHR, textStatus, errorThrown) {
 
         },
@@ -1009,7 +1025,14 @@ function updateFixedVarValSeries(index, selectedVals) {
     //get value of database
     var selectedDatabase = $("#database").multiselect("getChecked").val();
     var selectedFixedVariable;
-    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+    var selected_mode, statst ;
+       if(currentTab == 'Perf'){
+           selected_mode = 'stat';
+           statst = '<stat><fcst_var ><val>FAR</val></fcst_var></stat>';
+       }else {
+           selected_mode = $("#plot_data").multiselect("getChecked").val();
+           statst = convertVarsAndStatsToXmlSeries();
+       }
     try {
         selectedFixedVariable = $("#fixed_var_" + index).multiselect("getChecked").val();
     } catch (err) {
@@ -1020,7 +1043,7 @@ function updateFixedVarValSeries(index, selectedVals) {
         url: "servlet",
         type: "POST",
         dataType: 'xml',
-        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + convertVarsAndStatsToXmlSeries() + '</list_val></request>',
+        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
         error: function (jqXHR, textStatus, errorThrown) {
             select.multiselect('refresh');
         },
@@ -1063,7 +1086,14 @@ function populateIndyVarVal(selectedVals) {
     //get value of database
     var selectedDatabase = $("#database").multiselect("getChecked").val();
     var selectedFixedVariable;
-    var selected_mode = $("#plot_data").multiselect("getChecked").val();
+    var selected_mode, statst ;
+    if(currentTab == 'Perf'){
+            selected_mode = 'stat';
+            statst = '<stat><fcst_var ><val>FAR</val></fcst_var></stat>';
+        }else {
+            selected_mode = $("#plot_data").multiselect("getChecked").val();
+            statst = convertVarsAndStatsToXmlSeries();
+        }
     try {
         selectedFixedVariable = $("#indy_var").multiselect("getChecked").val();
     } catch (err) {
@@ -1074,7 +1104,7 @@ function populateIndyVarVal(selectedVals) {
         url: "servlet",
         type: "POST",
         dataType: 'xml',
-        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + convertVarsAndStatsToXmlSeries() + '</list_val></request>',
+        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
         error: function (jqXHR, textStatus, errorThrown) {
 
         },
@@ -1723,6 +1753,155 @@ function updateSeriesEns() {
     }
     outerLayout.sizePane("south", $('#gbox_listdt').height());
 }
+function updateSeriesPerf() {
+    var table = $("#listdt");
+    table.saveCell(lastSelRow, lastSelCol);
+    var oldSeriesData = table.jqGrid('getRowData');
+    table.jqGrid('clearGridData');
+
+    var series_perm;
+    var number_series = 0;
+    var series_formatting = {};
+    var isFixedFormatting = $("#seriesLock").is(':checked');
+    var newSeriesData = [];
+    var y_axis;
+    var plot_ci = [];
+    var plot_disp = [];
+    var show_signif = [];
+    var colors = [];
+    var pch = [];
+    var lty = [];
+    var lwd = [];
+    var con_series = [];
+    var order_series = [];
+    var legend = [];
+    var type = [];
+
+    if (initXML != null) {
+        plot_ci = initXML.find("plot").find("plot_ci").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        plot_disp = initXML.find("plot").find("plot_disp").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        show_signif = initXML.find("plot").find("show_signif").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        for (var i = 0; i < plot_disp.length; i++) {
+            if (plot_disp[i].trim() == "TRUE") {
+                plot_disp[i] = "No";
+            } else {
+                plot_disp[i] = "Yes";
+            }
+            if (show_signif[i].trim() == "TRUE") {
+                show_signif[i] = "No";
+            } else {
+                show_signif[i] = "Yes";
+            }
+        }
+
+        colors = initXML.find("plot").find("colors").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        for (var i = 0; i < colors.length; i++) {
+            colors[i] = colors[i].replace(/FF$/, "");
+        }
+        pch = initXML.find("plot").find("pch").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        lty = initXML.find("plot").find("lty").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        lwd = initXML.find("plot").find("lwd").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        con_series = initXML.find("plot").find("con_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        order_series = initXML.find("plot").find("order_series").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        type = initXML.find("plot").find("type").text().replace("c(", "").replace(")", "").replace(/"/g, "").split(",");
+        legend = initXML.find("plot").find("legend").text().replace("c(", "").replace(/\)$/, "").replace(/"/g, "").split(",");
+        if (legend.length != order_series.length) {
+            for (var k = 0; k < order_series.length; k++) {
+                legend[k] = "";
+            }
+        }
+    }
+
+
+    series_perm = permuteSeriesNew(createSeriesMapForPermutationEns(series_var_y1_indexes, "y1"), 0);
+
+
+
+            for (var series_perm_index = 0; series_perm_index < series_perm.length; series_perm_index++) {
+                var seriesName = series_perm[series_perm_index] ;
+                //check if this series was their before
+                var isSeriesOld = false;
+                for (var i = 0; i < oldSeriesData.length; i++) {
+                    if (oldSeriesData[i]['title'] == seriesName) {
+                        series_formatting = {};
+                        series_formatting.title = seriesName;
+                        series_formatting.y_axis = "";
+                        series_formatting.order = number_series + 1;
+                        series_formatting.hide = oldSeriesData[i]['hide'];
+                        series_formatting.plot_ci = oldSeriesData[i]['plot_ci'];
+                        series_formatting.show_signif = oldSeriesData[i]['show_signif'];
+                        series_formatting.color = oldSeriesData[i]['color'];
+                        series_formatting.pch = oldSeriesData[i]['pch'];
+                        series_formatting.type = oldSeriesData[i]['type'];
+                        series_formatting.lty = oldSeriesData[i]['lty'];
+                        series_formatting.lwd = oldSeriesData[i]['lwd'];
+                        series_formatting.con_series = oldSeriesData[i]['con_series'];
+                        series_formatting.legend = oldSeriesData[i]['legend'];
+                        series_formatting.id = number_series + 1;
+                        isSeriesOld = true;
+                        break;
+                    }
+                }
+                //if it is a new series
+                if (!isSeriesOld) {
+                    //check if it is the first
+                    if (isFixedFormatting && number_series > 0 && initXML == null) {
+                        series_formatting = jQuery.extend(true, {}, newSeriesData[newSeriesData.length - 1]);
+                        series_formatting.title = seriesName;
+                        series_formatting.y_axis = y_axis;
+                        series_formatting.id = number_series + 1;
+                        series_formatting.order = number_series + 1;
+                    } else {
+                        if (initXML != null) {
+                            series_formatting = {};
+                            series_formatting.title = seriesName;
+                            series_formatting.y_axis = y_axis;
+                            if (!order_series[number_series] || order_series[number_series] == '') {
+                                series_formatting.order = parseInt(i + 1);
+                            } else {
+                                series_formatting.order = parseInt(order_series[number_series]);
+                            }
+                            series_formatting.hide = plot_disp[number_series];
+                            series_formatting.plot_ci = plot_ci[number_series].trim();
+                            series_formatting.show_signif = show_signif[number_series];
+                            series_formatting.pch = pch[number_series].trim();
+                            series_formatting.type = type[number_series].trim();
+                            series_formatting.lty = lty[number_series].trim();
+                            series_formatting.lwd = lwd[number_series].trim();
+                            series_formatting.con_series = con_series[number_series].trim();
+                            series_formatting.legend = legend[number_series].trim();
+                            series_formatting.color = colors[number_series].trim();
+                            series_formatting.id = number_series + 1;
+
+                        } else {
+                            series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+                            series_formatting.title = seriesName;
+                            series_formatting.y_axis = y_axis;
+                            series_formatting.id = number_series + 1;
+                            series_formatting.order = number_series + 1;
+                        }
+                    }
+                }
+                number_series++;
+                newSeriesData.push(series_formatting);
+            }
+
+
+
+    //set default color for each series if it is not a upload
+    if (initXML == null) {
+        colors = rainbow(newSeriesData.length);
+        for (var i = 0; i < newSeriesData.length; i++) {
+            newSeriesData[i].color = colors[i];
+        }
+    }
+
+    newSeriesData.sort(SortByOrder);
+    for (var i = 0; i < newSeriesData.length; i++) {
+        table.jqGrid('addRowData', i + 1, newSeriesData[i]);
+    }
+    outerLayout.sizePane("south", $('#gbox_listdt').height());
+}
 
 
 function updateSeriesSeriesBox(isCheckAll) {
@@ -2274,6 +2453,11 @@ function sendXml() {
         template = $('<template>ens_ss.R_tmpl</template>');
         plot.append(template);
         plot = createXMLEns(plot);
+    } else if (currentTab == 'Perf') {
+        template = $('<template>performance.R_tmpl</template>');
+        plot.append(template);
+        plot = createXMLPerf(plot);
+        plot = createXMLCommon(plot);
     }
     result.append(plot);
     xml = $('<root />').append(result).html();
@@ -2411,6 +2595,83 @@ function createXMLPlotFix(plot) {
     }
     plot.append(plot_fix);
     return plot;
+}
+function createXMLPerf(plot) {
+
+    plot.append(createSeriesElementForAxis(1, series_var_y1_indexes));
+
+    plot = createXMLPlotFix(plot);
+    plot.append($('<plot_cond />').text($('#txtPlotCond').val()));
+    var indep = $('<indep />').attr("name", $('#indy_var').val());
+    var indy_var_val = $('[name="multiselect_indy_var_val"]');
+    if ($("#indy_var_val").multiselect("getChecked").length > 0) {
+        for (var i = 0; i < indy_var_val.length; i++) {
+            var jqObject = $(indy_var_val[i]);
+            if (jqObject.prop('checked')) {
+                var id = jqObject.attr("id");
+                indep.append($('<val />').attr("label", $('#' + id + '_label').val()).attr("plot_val", $('#' + id + '_plot_val').val()).text(jqObject.val()));
+            }
+        }
+    } else {
+        var start = moment($("#date_period_start").val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
+        var end = moment($("#date_period_end").val(), 'YYYY-MM-DD HH:mm:ss');
+        var by = $("#date_period_by").val().trim();
+        var unit = $("#date_period_by_unit").val();
+        var dates = $(previousIndVarValResponse).find("val");
+        if (by.length == 0) {
+            for (var i = 0; i < dates.length; i++) {
+                var t = moment($(dates[i]).text(), 'YYYY-MM-DD HH:mm:ss');
+                if (t.isSame(start) || t.isSame(end) || t.isBetween(start, end)) {
+                    indep.append($('<val />').attr("label", $(dates[i]).text()).attr("plot_val", "").text($(dates[i]).text()));
+                }
+            }
+        } else {
+            by = parseInt(by);
+            if (unit == "days") {
+                by = by * 24;
+            }
+            var current_date = start.clone();
+            while (current_date <= end) {
+                var current_date_str = current_date.format('YYYY-MM-DD HH:mm:ss');
+                var isFound = false;
+                for (var i = 0; i < dates.length; i++) {
+                    if ($(dates[i]).text() == current_date_str) {
+                        isFound = true;
+                        break;
+                    }
+                }
+                if (isFound) {
+                    indep.append($('<val />').attr("label", current_date_str).attr("plot_val", "").text(current_date_str));
+                }
+                current_date.add(by, 'hour');
+            }
+        }
+    }
+    plot.append(indep);
+
+    if ($('input[name=agg_stat]:checked').val() && $('input[name=agg_stat]:checked').val() != "none") {
+        var agg_stat = $('<agg_stat />');
+        agg_stat.append($('<agg_ctc />').text($('#agg_ctc').is(':checked')));
+        agg_stat.append($('<agg_sl1l2 />').text($('#agg_sl1l2').is(':checked')));
+        agg_stat.append($('<agg_pct />').text($('#agg_pct').is(':checked')));
+        agg_stat.append($('<agg_nbrcnt />').text($('#agg_nbrcnt').is(':checked')));
+        agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
+        agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
+        agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
+        agg_stat.append($('<cache_agg_stat />').text($('#cache_agg_stat').is(':checked')));
+        plot.append(agg_stat);
+    } else if ($('input[name=calc_stat]:checked').val() && $('input[name=calc_stat]:checked').val() != "none") {
+        if ($('#calc_ctc').is(':checked') || $('#calc_sl1l2').is(':checked')) {
+            var calc_stat = $('<calc_stat />');
+            calc_stat.append($('<calc_ctc />').text($('#calc_ctc').is(':checked')));
+            calc_stat.append($('<calc_sl1l2 />').text($('#calc_sl1l2').is(':checked')));
+            plot.append(calc_stat);
+        }
+    }
+    plot.append($('<plot_stat />').text($('#plot_stat').val()));
+    return plot;
+
+
 }
 
 
@@ -2699,6 +2960,8 @@ function createXMLCommon(plot) {
     return plot;
 }
 function sortSeries() {
+   // $("#listdt").jqGrid('saveCell', editedRow, editedCol);
+    $("#listdt").saveCell(lastSelRow, lastSelCol);
     var allSeries = $("#listdt").jqGrid('getRowData');
     allSeries = allSeries.sort(function (a, b) {
         return (parseInt(a.id) > parseInt(b.id)) ? 1 : ((parseInt(a.id) < parseInt(b.id)) ? -1 : 0);
@@ -3012,11 +3275,14 @@ function removeFixedVarSeries(id) {
     var id_array = id.split("_");
     var index = id_array[id_array.length - 1];
     //destroy selects
-    $("#fixed_var_" + index).multiselect("destroy");
-    $("#fixed_var_val_" + index).multiselect("destroy");
-    $("#fixed_var_val_date_period_" + index).dialog("destroy");
-    $("#fixed_var_val_date_period_" + index).remove();
-    $("#fixed_var_val_date_period_button_" + index).button("destroy");
+    try {
+        $("#fixed_var_" + index).multiselect("destroy");
+        $("#fixed_var_val_" + index).multiselect("destroy");
+        $("#fixed_var_val_date_period_" + index).dialog("destroy");
+        $("#fixed_var_val_date_period_" + index).remove();
+        $("#fixed_var_val_date_period_button_" + index).button("destroy");
+    } catch (e) {
+    }
 
     var index_of_removing_el = jQuery.inArray(parseInt(index), fixed_var_indexes);
     if (index_of_removing_el > -1) {
@@ -3326,6 +3592,77 @@ function addSeriesVariableEns() {
     });
 }
 
+function addSeriesVariablePerf() {
+    var last_index;
+
+    if (series_var_y1_indexes.length > 0) {
+        last_index = series_var_y1_indexes[series_var_y1_indexes.length - 1];
+    } else {
+        last_index = 0;
+    }
+    series_var_y1_indexes.push(last_index + 1);
+
+    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label;
+    if (last_index == 0) {
+        $('#series_var_table_y1').css("display", "");
+        series_var = $("#series_var_y1_" + (last_index + 1));
+        $("#remove_series_var_y1_" + (last_index + 1)).button({
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false
+        }).click(function () {
+            removeSeriesVarSeriesBox($(this).attr('id'));
+        });
+        series_var_val = $("#series_var_val_y1_" + (last_index + 1));
+
+    } else {
+        series_var = $("#series_var_y1_" + last_index).clone(false);
+        series_var.attr("id", 'series_var_y1_' + (last_index + 1));
+        series_var.css("display", '');
+    }
+
+    if (last_index > 0) {
+        remove_var = $("#remove_series_var_y1_" + last_index).button("enable").clone(true)
+                .attr("id", 'remove_series_var_y1_' + (last_index + 1));
+
+        series_var_val = $("#series_var_val_y1_" + last_index).clone(false);
+        series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
+        series_var_val.css("display", '');
+
+
+        $('#series_var_table_y1').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)));
+    }
+    series_var_val.multiselect({
+        selectedList: 100, // 0-based index
+        noneSelectedText: "Select value",
+        click: function () {
+            updateSeriesPerf();
+        },
+        checkAll: function () {
+            updateSeriesSeriesBox(true);
+        },
+        uncheckAll: function () {
+            updateSeriesSeriesBox();
+        }
+
+    });
+    try {
+        series_var_val.multiselect("uncheckAll");
+    } catch (err) {
+
+    }
+    series_var.multiselect({
+        multiple: false,
+        selectedList: 1,
+        header: false,
+        minWidth: 'auto',
+        click: function () {
+            var id_array = this.id.split("_");
+            updateSeriesVarValEns(id_array[id_array.length - 1], []);
+        }
+    });
+}
 
 function addSeriesVariableRhist() {
     var last_index;
@@ -3959,8 +4296,13 @@ function loadXMLSeries() {
             $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
         });
     }
-    var value;
-    for (var y_axis_index = 1; y_axis_index <= 2; y_axis_index++) {
+    var value, number_of_axis;
+    if(currentTab == 'Perf'){
+        number_of_axis = 1
+    }else{
+        number_of_axis = 2;
+    }
+    for (var y_axis_index = 1; y_axis_index <= number_of_axis; y_axis_index++) {
         var y_axis = "y" + y_axis_index;
         var index = 0;
 
@@ -4127,8 +4469,11 @@ function loadXMLSeries() {
             seriesDiffY2.push(t2[i]);
         }
     }
-
-    updateSeriesSeriesBox();
+    if (currentTab == 'Perf') {
+        updateSeriesPerf();
+    }else {
+        updateSeriesSeriesBox();
+    }
 
 
 }
@@ -4725,7 +5070,7 @@ function initPage() {
                 align: "center",
                 edittype: "select",
                 formatter: 'select',
-                editoptions: {value: "20:Small circle;19:Circle;15:Square;17:Triangle;18:Rhombus"}
+                editoptions: {value: "20:Small circle;19:Circle;15:Square;17:Triangle;18:Rhombus;1:Ring"}
             },
             {
                 name: 'type',
@@ -4734,7 +5079,7 @@ function initPage() {
                 editable: true,
                 edittype: "select",
                 formatter: 'select',
-                editoptions: {value: "p:points;l:lines;o:overplotted;b:joined lines;s:stair steps;h:histogram-like;n:nothing;"},
+                editoptions: {value: "p:points;l:lines;o:overplotted;b:joined lines;s:stair steps;h:histogram-like;n:nothing"},
                 width: 50,
                 align: "center"
             },
@@ -4793,7 +5138,7 @@ function initPage() {
         title: "Add Difference Curve",
         buttonicon: "ui-icon-plus",
         onClickButton: function () {
-            if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Ens_ss') {
+            if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Ens_ss' || currentTab == 'Perf') {
                 $("#unavailableDiffCurveDialogForm").dialog("open");
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
@@ -5158,7 +5503,9 @@ function initPage() {
             currentTab = "Rely";
         } else if (template == "ens_ss.R_tmpl") {
             currentTab = "Ens_ss";
-        }
+        } else if (template == "performance.R_tmpl") {
+                    currentTab = "Perf";
+                }
 
         var tabs = $("#plot_config").find("a");
 

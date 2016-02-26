@@ -1416,12 +1416,17 @@ public synchronized void printFormattedTable(ResultSet res, BufferedWriter buffe
 	}
 	
 	public static final MVOrderedMap _tableStatsPhist = new MVOrderedMap();
-	static{
-		_tableStatsPhist.put("PHIST_CRPS",	new String[]{});
-		_tableStatsPhist.put("PHIST_IGN",	new String[]{});
-	}
+	//static{
+//		_tableStatsPhist.put("PHIST_CRPS",	new String[]{});
+//		_tableStatsPhist.put("PHIST_IGN",	new String[]{});
+//	}
 
   public static final MVOrderedMap _tableStatsRhist = new MVOrderedMap();
+	static{
+		_tableStatsRhist.put("RHIST_CRPS",	new String[]{});
+		_tableStatsRhist.put("RHIST_CRPSS",	new String[]{});
+		_tableStatsRhist.put("RHIST_IGN",	new String[]{});
+		}
 
 	
 	public static final MVOrderedMap _tableStatsVl1l2 = new MVOrderedMap();
