@@ -2494,7 +2494,7 @@ function sendXml() {
             }
         },
         error: function (response) {
-            alert(response);
+            alert("error creating a plot or Proxy timeout: " +response);
         }
     });
 }
