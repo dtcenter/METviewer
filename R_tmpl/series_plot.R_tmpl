@@ -78,7 +78,7 @@ listConSeries = #<con_series>#;
 #  Build the series data for the plot 
 #
 
-#if fcst_var is a spetial char - read it as-is and do not convert
+#if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strDataFile,nrows=5);
 classes <- sapply(sampleData, class);
 numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl');
