@@ -51,8 +51,9 @@ for(intY in 1:intYMax){
 listOutPerm = list();
 intNumOut = nrow(matOut);
 for(strStaticVar in names(listStaticVal)){
-	strStaticValFmt = formatR(listStaticVal[[strStaticVar]]);
-	listOutPerm[[strStaticVar]] = rep(strStaticValFmt, intNumOut);
+	#strStaticValFmt = formatR(listStaticVal[[strStaticVar]]);
+	#listOutPerm[[strStaticVar]] = rep(strStaticValFmt, intNumOut);
+	listOutPerm[[strStaticVar]] = rep(listStaticVal[[strStaticVar]], intNumOut);
 }
 for(intOutCol in 1:ncol(matOut)){
 	if     ( intOutCol <  ncol(matOut) - 1 ){ listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol]; }
