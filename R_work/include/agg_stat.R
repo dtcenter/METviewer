@@ -1,4 +1,4 @@
-#.libPaths("/common/data/web/metviewer/dev/r-lib");
+.libPaths("/common/data/web/metviewer/dev/r-lib");
 library(boot);
 library(gsl);
 
@@ -244,7 +244,8 @@ booter.iid = function(d, i){
   for(intPerm in 1:nrow(matPerm)){
 
     # create the permutation column name string
-    strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
+    #strPerm = escapeStr(paste(matPerm[intPerm,], sep="_", collapse="_"));
+    strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
 
     # create the permutation column name string
 
@@ -411,7 +412,9 @@ for(strIndyVal in listIndyVal){
       for(strCount in listFields){
         listCounts = dfStatsPerm[[strCount]];
         strCountName = paste(paste(strPerm, sep = "_", collapse = "_"), strCount, sep = "_", collapse = "_");
-        listBoot[[strCountName]] = listCounts;
+        strCountName1 = paste(paste(intPerm, sep = "_", collapse = "_"), strCount, sep = "_", collapse = "_");
+
+        listBoot[[strCountName1]] = listCounts;
       }
     }
 
