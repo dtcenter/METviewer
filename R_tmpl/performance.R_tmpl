@@ -117,7 +117,7 @@ par(
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strDataFile,nrows=5);
 classes <- sapply(sampleData, class);
-numeric_columns <- c('far',  'far_ncu', 'far_ncl','pody',  'pody_ncu', 'pody_ncl');
+numeric_columns <- c('far',  'far_ncu', 'far_ncl','pody',  'pody_ncu', 'pody_ncl', 'stat_value');
 integer_columns <- c('fcst_lead','nstats');
 character_columns <- c('fcst_var', 'model', 'stat_name')
 for(col in 1:ncol(sampleData)){
