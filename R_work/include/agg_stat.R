@@ -332,8 +332,8 @@ booter.iid = function(d, i){
         listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
         listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
 
-        strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));
-        strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
+        strSeriesDiff1Short = paste(listSeriesDiff1Short,sep="_", collapse="_");
+        strSeriesDiff2Short = paste(listSeriesDiff2Short,sep="_", collapse="_");
 
         for(ind in seq(from=1, to=length(listRetTest[[strStat]]), by=2) ) {
           if( matPerm[strtoi(listRetTest[[strStat]][ind+1])] == strSeriesDiff1Short){
