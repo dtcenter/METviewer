@@ -336,10 +336,10 @@ booter.iid = function(d, i){
         strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
 
         for(ind in seq(from=1, to=length(listRetTest[[strStat]]), by=2) ) {
-          if(listRetTest[[strStat]][ind+1] == strSeriesDiff1Short){
+          if( matPerm[strtoi(listRetTest[[strStat]][ind+1])] == strSeriesDiff1Short){
             dblStat1=listRetTest[[strStat]][ind];
           }
-          if(listRetTest[[strStat]][ind+1] == strSeriesDiff2Short){
+          if( matPerm[strtoi(listRetTest[[strStat]][ind+1])] == strSeriesDiff2Short){
             dblStat2=listRetTest[[strStat]][ind];
           }
           ind=ind+1;
