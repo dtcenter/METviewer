@@ -495,6 +495,8 @@ cat("PROCESSING:", strIndyVal, "\n");
 			
 			for(intPerm in 1:nrow(matPerm)){
 				listPerm = matPerm[intPerm,];
+        dfStatsPerm = buildPermData(dfStatsIndy, listPerm);
+        if( 1 > nrow(dfStatsPerm) ){ next; }
 						
 				# build an output entry for the current case
 				listOutPerm = data.frame(listPerm);
