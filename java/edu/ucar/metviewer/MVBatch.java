@@ -978,10 +978,14 @@ public class MVBatch extends MVUtil {
         job.setIndyLabel(listIndy[1]);
       }
       boolean boolModeRatioPlot = isModeRatioJob(job);
+
+      //  build the SQL statements for the current plot
+      ArrayList listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
       MVOrderedMap mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
       mapTmplValsPlot.put("indy_var", job.getIndyVar());
       addTmplValDep(job, mapTmplValsPlot);
       _out.println(mapTmplValsPlot.getRDecl() + "\n");
+
       Hashtable tableAggStatInfo = new Hashtable();
       //  resolve the dep maps and series values for each y-axis
       MVOrderedMap mapDep = job.getDepGroups()[0];
@@ -1110,8 +1114,7 @@ public class MVBatch extends MVUtil {
        *  Build and run the query
 			 */
 
-      //  build the SQL statements for the current plot
-      ArrayList listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal, mapPlotFixValEq);
+
 
 
       //  run the plot SQL against the database connection
@@ -1156,6 +1159,7 @@ public class MVBatch extends MVUtil {
 
       //  update the fcst_var values in the plot_data table
       updatePlotDataFcstVar(job);
+
 
 			/*
        *  Print the data file in the R_work subfolder and file specified by the data file template
@@ -1543,7 +1547,7 @@ public class MVBatch extends MVUtil {
    * @return list of SQL statements that result in plot data
    * @throws Exception
    */
-  public ArrayList buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal, MVOrderedMap mapPlotFixValEq) throws Exception {
+  public ArrayList buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception {
 
     //  determine if the plot job is for stat data or MODE data
     boolean boolModePlot = isModeJob(job);
@@ -1552,7 +1556,6 @@ public class MVBatch extends MVUtil {
 
     //  populate the plot template values with plot_fix values
     Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
-    Map.Entry[] listPlotFixValEq = buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixValEq);
 
     //  build the sql where clauses for the current permutation of fixed variables and values
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
