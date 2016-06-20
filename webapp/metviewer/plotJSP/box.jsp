@@ -38,7 +38,7 @@
                                 //Browser has allowed it to be opened
                                 win.focus();
                             } else {
-                                //Broswer has blocked it
+                                //Browser has blocked it
                                 alert('Please allow popups for this site');
                             }
                         },
@@ -305,7 +305,8 @@
                         removeFixedVarSeries($(this).attr('id'));
                     });
 
-
+            $('#indy_var_event_equal ').prop("checked", true);
+            $('#event_equal').prop("checked", false);
             if (initXML != null) {
                 loadXMLSeries();
                 $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
@@ -551,11 +552,16 @@
                         style="display: none;">Select period
                 </button>
             </td>
+            <td><input type="checkbox" id="fix_var_event_equal_1" checked><label for="fix_var_event_equal_1">Equalize</label> </td>
 
         </tr>
     </table>
         <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
-    <br/>
+    <div>
+
+         <input type="checkbox" id="event_equal">
+                         <label for="event_equal">Event Equalizer</label>
+       </div>
     <br/>
     <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">
 </div>
@@ -589,6 +595,7 @@
                 </select>
             </td>
             <td><button id="date_period_button" style="display: none;">Select multiple options</button></td>
+            <td><input type="checkbox" checked="" id="indy_var_event_equal"><label for="indy_var_event_equal">Equalize</label></td>
         </tr>
     </table>
     </div>

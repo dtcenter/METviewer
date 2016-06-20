@@ -1,4 +1,5 @@
 setwd("#<r_work>#");
+.libPaths("/common/data/web/metviewer/dev/r-lib");
 source("include/util_plot.R");
 suppressMessages( library(verification) )
 

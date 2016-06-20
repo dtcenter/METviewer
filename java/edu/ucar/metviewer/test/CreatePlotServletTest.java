@@ -1,10 +1,6 @@
 /**
- * CreatePlotServletTest.java
- * Copyright UCAR (c) 2014.
- * University Corporation for Atmospheric Research (UCAR),
- * National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL),
- * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
+ * CreatePlotServletTest.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
+ * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
  */
 
 package edu.ucar.metviewer.test;
@@ -38,10 +34,10 @@ import static org.mockito.Mockito.*;
 @RunWith(Parameterized.class)
 public class CreatePlotServletTest {
 
-  private String xmlStr;
   private static final String RESPONSE_RED = "<response><plot>plot_\\d{8}_\\d{6}</plot></response>";
-  private String plotType = null;
   private static String testDataDir;
+  private String xmlStr;
+  private String plotType = null;
 
 
   public CreatePlotServletTest(String plotType) {

@@ -1,10 +1,6 @@
 /**
- * LoadDataTest.java
- * Copyright UCAR (c) 2014.
- * University Corporation for Atmospheric Research (UCAR),
- * National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL),
- * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
+ * LoadDataTest.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
+ * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
  */
 
 package edu.ucar.metviewer.test;
@@ -32,16 +28,14 @@ import static org.junit.Assert.assertEquals;
  * @author : tatiana $
  * @version : 1.0 : 18/Jul/14 11:44 $
  */
-public class LoadDataTest  {
+public class LoadDataTest {
 
-
-  private static Datasource datasource;
 
   private static final Map<String, Integer> TABLES_TO_ROWS = new HashMap<>();
-
+  private static Datasource datasource;
 
   @Before
-  public  void init() {
+  public void init() {
     TABLES_TO_ROWS.put("data_file", 1701);
     TABLES_TO_ROWS.put("data_file_lu", 7);
     TABLES_TO_ROWS.put("line_data_cnt", 149385);//148057

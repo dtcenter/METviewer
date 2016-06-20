@@ -9,9 +9,9 @@ strPlotFile = "#<plot_file>#";
 #
 #  Plot Control Variables
 #
+boolEqualizeByIndep = #<equalize_by_indep>#;
 boolDumpPoints1	= #<dump_points1>#;
 boolEventEqual  = #<event_equal>#;
-boolEventEqualM = #<event_equal_m>#;
 boolShowNStats	= #<show_nstats>#;
 boolGridOn		= #<grid_on>#;
 boolLogY1		= #<log_y1>#;
@@ -33,6 +33,8 @@ listDep1Plot = #<dep1_plot>#;
 listAggVal = #<agg_list>#;
 
 listSeries1Val = #<series1_list>#;
+
+listFixedValEx = #<fix_val_list_eq>#;
 
 listDep1Scale = #<dep1_scale>#;
 
@@ -81,18 +83,43 @@ for(index in 1:length(listPlotOrderSeries)){
 }
 
 # run event equalizer, if requested
-if( TRUE == boolEventEqual ){
+if( FALSE != boolEventEqual  ){
+  #run event equalizer on Y1
   dfPlot1 = data.frame();
+   #list all fixed variables
+   listFixVars=c();
+   listFixVarVals = c();
+   if(length(listFixedValEx) > 0){
+     for(index in 1:length(listFixedValEx)){
+       if(is.null(listFixVars)){
+        listFixVars = names(listFixedValEx[index]);
+        listFixVarVals = permute(listFixedValEx[index]);
+       }else{
+        listFixVars =  append(listFixVars, names(listFixedValEx[index]));
+        listFixVarVals = append(listFixVarVals, permute(listFixedValEx[index]));
+       }
+     }
+   }
   for( strDep1Name in names(listDep1Plot) ){
     for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
       for(strSeriesVal in names(listSeries1Val)){
-        fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% listSeries1Val[[strSeriesVal]] & dfPlot$stat_name %in% strDep1Stat,  ];
-        fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, boolEventEqualM);
-        dfPlot1 = rbind(dfPlot1, fPlot);
-      }
-    }
-  }
+          vectValPerms = c();
+          for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+          }
+          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+          dfPlot1 = rbind(dfPlot1, fPlot);
+       }
+     }
+   }
+
+
   dfPlot = dfPlot1;
+
+strAfrerEqualizeFile = sub("\\.data$", ".dataAfterEq", strDataFile, perl=TRUE);
+write.table(dfPlot, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
+
 }
 
 

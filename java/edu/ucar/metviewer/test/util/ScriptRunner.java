@@ -1,10 +1,6 @@
 /**
- * ScriptRunner.java
- * Copyright UCAR (c) 2014.
- * University Corporation for Atmospheric Research (UCAR),
- * National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL),
- * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
+ * ScriptRunner.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
+ * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
  */
 
 package edu.ucar.metviewer.test.util;
@@ -23,10 +19,10 @@ public class ScriptRunner {
 
   private static final String DEFAULT_DELIMITER = ";";
 
-  private Connection connection;
+  private final Connection connection;
 
-  private boolean stopOnError;
-  private boolean autoCommit;
+  private final boolean stopOnError;
+  private final boolean autoCommit;
 
   private PrintWriter logWriter = new PrintWriter(System.out);
   private PrintWriter errorLogWriter = new PrintWriter(System.err);
@@ -104,7 +100,7 @@ public class ScriptRunner {
     StringBuffer command = null;
     try {
       LineNumberReader lineReader = new LineNumberReader(reader);
-      String line = null;
+      String line;
       while ((line = lineReader.readLine()) != null) {
         if (command == null) {
           command = new StringBuffer();
@@ -118,7 +114,7 @@ public class ScriptRunner {
         } else if (trimmedLine.length() < 1
           || trimmedLine.startsWith("--")) {
           // Do nothing
-        } else if(trimmedLine.startsWith("DELIMITER")){
+        } else if (trimmedLine.startsWith("DELIMITER")) {
           this.delimiter = trimmedLine.substring(trimmedLine.length() - 1);
 
         } else if (!fullLineDelimiter

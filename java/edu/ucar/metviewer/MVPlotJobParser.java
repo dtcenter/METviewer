@@ -1,5 +1,6 @@
 package edu.ucar.metviewer;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -12,19 +13,139 @@ import java.util.*;
 
 public class MVPlotJobParser extends MVUtil {
 
+  public static final Hashtable _tableFormatBoolean = new Hashtable();
+  private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVPlotJobParser");
+  private static final Hashtable _tableFormatString = new Hashtable();
+
+  static {
+    try {
+      _tableFormatBoolean.put("vert_plot", MVPlotJob.class.getDeclaredMethod("setVertPlot", boolean.class));
+      _tableFormatBoolean.put("x_reverse", MVPlotJob.class.getDeclaredMethod("setXReverse", boolean.class));
+      _tableFormatBoolean.put("num_stats", MVPlotJob.class.getDeclaredMethod("setShowNStats", boolean.class));
+      _tableFormatBoolean.put("indy1_stag", MVPlotJob.class.getDeclaredMethod("setIndy1Stagger", boolean.class));
+      _tableFormatBoolean.put("indy2_stag", MVPlotJob.class.getDeclaredMethod("setIndy2Stagger", boolean.class));
+      _tableFormatBoolean.put("grid_on", MVPlotJob.class.getDeclaredMethod("setGridOn", boolean.class));
+      _tableFormatBoolean.put("sync_axes", MVPlotJob.class.getDeclaredMethod("setSyncAxes", boolean.class));
+      _tableFormatBoolean.put("dump_points1", MVPlotJob.class.getDeclaredMethod("setDumpPoints1", boolean.class));
+      _tableFormatBoolean.put("dump_points2", MVPlotJob.class.getDeclaredMethod("setDumpPoints2", boolean.class));
+      _tableFormatBoolean.put("log_y1", MVPlotJob.class.getDeclaredMethod("setLogY1", boolean.class));
+      _tableFormatBoolean.put("log_y2", MVPlotJob.class.getDeclaredMethod("setLogY2", boolean.class));
+      _tableFormatBoolean.put("varianceInflationFactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", boolean.class));
+      _tableFormatBoolean.put("varianceinflationfactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", boolean.class));
+      _tableFormatBoolean.put("normalizedHistogram", MVPlotJob.class.getDeclaredMethod("setNormalizedHistogram", boolean.class));
+      _tableFormatBoolean.put("cache_agg_stat", MVPlotJob.class.getDeclaredMethod("setCacheAggStat", boolean.class));
+      _tableFormatBoolean.put("event_equal", MVPlotJob.class.getDeclaredMethod("setEventEqual", Boolean.class));
+
+    } catch (NoSuchMethodException e) {
+      _logger.error(e.getMessage());
+    }
+  }
+
+  static {
+    try {
+      _tableFormatString.put("plot_type", MVPlotJob.class.getDeclaredMethod("setPlotType", String.class));
+      _tableFormatString.put("plot_height", MVPlotJob.class.getDeclaredMethod("setPlotHeight", String.class));
+      _tableFormatString.put("plot_width", MVPlotJob.class.getDeclaredMethod("setPlotWidth", String.class));
+      _tableFormatString.put("plot_res", MVPlotJob.class.getDeclaredMethod("setPlotRes", String.class));
+      _tableFormatString.put("plot_units", MVPlotJob.class.getDeclaredMethod("setPlotUnits", String.class));
+      _tableFormatString.put("mar", MVPlotJob.class.getDeclaredMethod("setMar", String.class));
+      _tableFormatString.put("mgp", MVPlotJob.class.getDeclaredMethod("setMgp", String.class));
+      _tableFormatString.put("cex", MVPlotJob.class.getDeclaredMethod("setCex", String.class));
+      _tableFormatString.put("title_weight", MVPlotJob.class.getDeclaredMethod("setTitleWeight", String.class));
+      _tableFormatString.put("title_size", MVPlotJob.class.getDeclaredMethod("setTitleSize", String.class));
+      _tableFormatString.put("title_offset", MVPlotJob.class.getDeclaredMethod("setTitleOffset", String.class));
+      _tableFormatString.put("title_align", MVPlotJob.class.getDeclaredMethod("setTitleAlign", String.class));
+      _tableFormatString.put("xtlab_orient", MVPlotJob.class.getDeclaredMethod("setXtlabOrient", String.class));
+      _tableFormatString.put("xtlab_perp", MVPlotJob.class.getDeclaredMethod("setXtlabPerp", String.class));
+      _tableFormatString.put("xtlab_horiz", MVPlotJob.class.getDeclaredMethod("setXtlabHoriz", String.class));
+      _tableFormatString.put("xtlab_freq", MVPlotJob.class.getDeclaredMethod("setXtlabFreq", String.class));
+      _tableFormatString.put("xtlab_size", MVPlotJob.class.getDeclaredMethod("setXtlabSize", String.class));
+      _tableFormatString.put("xlab_weight", MVPlotJob.class.getDeclaredMethod("setXlabWeight", String.class));
+      _tableFormatString.put("xlab_size", MVPlotJob.class.getDeclaredMethod("setXlabSize", String.class));
+      _tableFormatString.put("xlab_offset", MVPlotJob.class.getDeclaredMethod("setXlabOffset", String.class));
+      _tableFormatString.put("xlab_align", MVPlotJob.class.getDeclaredMethod("setXlabAlign", String.class));
+      _tableFormatString.put("ytlab_orient", MVPlotJob.class.getDeclaredMethod("setYtlabOrient", String.class));
+      _tableFormatString.put("ytlab_perp", MVPlotJob.class.getDeclaredMethod("setYtlabPerp", String.class));
+      _tableFormatString.put("ytlab_horiz", MVPlotJob.class.getDeclaredMethod("setYtlabHoriz", String.class));
+      _tableFormatString.put("ytlab_size", MVPlotJob.class.getDeclaredMethod("setYtlabSize", String.class));
+      _tableFormatString.put("ylab_weight", MVPlotJob.class.getDeclaredMethod("setYlabWeight", String.class));
+      _tableFormatString.put("ylab_size", MVPlotJob.class.getDeclaredMethod("setYlabSize", String.class));
+      _tableFormatString.put("ylab_offset", MVPlotJob.class.getDeclaredMethod("setYlabOffset", String.class));
+      _tableFormatString.put("ylab_align", MVPlotJob.class.getDeclaredMethod("setYlabAlign", String.class));
+      _tableFormatString.put("grid_lty", MVPlotJob.class.getDeclaredMethod("setGridLty", String.class));
+      _tableFormatString.put("grid_col", MVPlotJob.class.getDeclaredMethod("setGridCol", String.class));
+      _tableFormatString.put("grid_lwd", MVPlotJob.class.getDeclaredMethod("setGridLwd", String.class));
+      _tableFormatString.put("grid_x", MVPlotJob.class.getDeclaredMethod("setGridX", String.class));
+      _tableFormatString.put("x2tlab_orient", MVPlotJob.class.getDeclaredMethod("setX2tlabOrient", String.class));
+      _tableFormatString.put("x2tlab_perp", MVPlotJob.class.getDeclaredMethod("setX2tlabPerp", String.class));
+      _tableFormatString.put("x2tlab_horiz", MVPlotJob.class.getDeclaredMethod("setX2tlabHoriz", String.class));
+      _tableFormatString.put("x2tlab_size", MVPlotJob.class.getDeclaredMethod("setX2tlabSize", String.class));
+      _tableFormatString.put("x2lab_weight", MVPlotJob.class.getDeclaredMethod("setX2labWeight", String.class));
+      _tableFormatString.put("x2lab_size", MVPlotJob.class.getDeclaredMethod("setX2labSize", String.class));
+      _tableFormatString.put("x2lab_offset", MVPlotJob.class.getDeclaredMethod("setX2labOffset", String.class));
+      _tableFormatString.put("x2lab_align", MVPlotJob.class.getDeclaredMethod("setX2labAlign", String.class));
+      _tableFormatString.put("y2tlab_orient", MVPlotJob.class.getDeclaredMethod("setY2tlabOrient", String.class));
+      _tableFormatString.put("y2tlab_perp", MVPlotJob.class.getDeclaredMethod("setY2tlabPerp", String.class));
+      _tableFormatString.put("y2tlab_horiz", MVPlotJob.class.getDeclaredMethod("setY2tlabHoriz", String.class));
+      _tableFormatString.put("y2tlab_size", MVPlotJob.class.getDeclaredMethod("setY2tlabSize", String.class));
+      _tableFormatString.put("y2lab_weight", MVPlotJob.class.getDeclaredMethod("setY2labWeight", String.class));
+      _tableFormatString.put("y2lab_size", MVPlotJob.class.getDeclaredMethod("setY2labSize", String.class));
+      _tableFormatString.put("y2lab_offset", MVPlotJob.class.getDeclaredMethod("setY2labOffset", String.class));
+      _tableFormatString.put("y2lab_align", MVPlotJob.class.getDeclaredMethod("setY2labAlign", String.class));
+      _tableFormatString.put("legend_size", MVPlotJob.class.getDeclaredMethod("setLegendSize", String.class));
+      _tableFormatString.put("legend_box", MVPlotJob.class.getDeclaredMethod("setLegendBox", String.class));
+      _tableFormatString.put("legend_inset", MVPlotJob.class.getDeclaredMethod("setLegendInset", String.class));
+      _tableFormatString.put("legend_ncol", MVPlotJob.class.getDeclaredMethod("setLegendNcol", String.class));
+      _tableFormatString.put("caption_weight", MVPlotJob.class.getDeclaredMethod("setCaptionWeight", String.class));
+      _tableFormatString.put("caption_col", MVPlotJob.class.getDeclaredMethod("setCaptionCol", String.class));
+      _tableFormatString.put("caption_size", MVPlotJob.class.getDeclaredMethod("setCaptionSize", String.class));
+      _tableFormatString.put("caption_offset", MVPlotJob.class.getDeclaredMethod("setCaptionOffset", String.class));
+      _tableFormatString.put("caption_align", MVPlotJob.class.getDeclaredMethod("setCaptionAlign", String.class));
+      _tableFormatString.put("box_pts", MVPlotJob.class.getDeclaredMethod("setBoxPts", String.class));
+      _tableFormatString.put("box_outline", MVPlotJob.class.getDeclaredMethod("setBoxOutline", String.class));
+      _tableFormatString.put("box_boxwex", MVPlotJob.class.getDeclaredMethod("setBoxBoxwex", String.class));
+      _tableFormatString.put("box_notch", MVPlotJob.class.getDeclaredMethod("setBoxNotch", String.class));
+      _tableFormatString.put("box_avg", MVPlotJob.class.getDeclaredMethod("setBoxAvg", String.class));
+      _tableFormatString.put("rely_event_hist", MVPlotJob.class.getDeclaredMethod("setRelyEventHist", String.class));
+      _tableFormatString.put("ci_alpha", MVPlotJob.class.getDeclaredMethod("setCIAlpha", String.class));
+      _tableFormatString.put("ensss_pts", MVPlotJob.class.getDeclaredMethod("setEnsSsPts", String.class));
+      _tableFormatString.put("ensss_pts_disp", MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp", String.class));
+
+      _tableFormatString.put("plot_ci", MVPlotJob.class.getDeclaredMethod("setPlotCI", String.class));
+      _tableFormatString.put("plot_disp", MVPlotJob.class.getDeclaredMethod("setPlotDisp", String.class));
+      _tableFormatString.put("show_signif", MVPlotJob.class.getDeclaredMethod("setShowSignif", String.class));
+      //_tableFormatString.put("listDiffSeries1", MVPlotJob.class.getDeclaredMethod("setDiffSeries1", new Class[]{String.class}));
+      //_tableFormatString.put("listDiffSeries2", MVPlotJob.class.getDeclaredMethod("setDiffSeries2", new Class[]{String.class}));
+      _tableFormatString.put("order_series", MVPlotJob.class.getDeclaredMethod("setOrderSeries", String.class));
+      _tableFormatString.put("colors", MVPlotJob.class.getDeclaredMethod("setColors", String.class));
+      _tableFormatString.put("pch", MVPlotJob.class.getDeclaredMethod("setPch", String.class));
+      _tableFormatString.put("type", MVPlotJob.class.getDeclaredMethod("setType", String.class));
+      _tableFormatString.put("lty", MVPlotJob.class.getDeclaredMethod("setLty", String.class));
+      _tableFormatString.put("lwd", MVPlotJob.class.getDeclaredMethod("setLwd", String.class));
+      _tableFormatString.put("con_series", MVPlotJob.class.getDeclaredMethod("setConSeries", String.class));
+      _tableFormatString.put("legend", MVPlotJob.class.getDeclaredMethod("setLegend", String.class));
+      _tableFormatString.put("y1_lim", MVPlotJob.class.getDeclaredMethod("setY1Lim", String.class));
+      _tableFormatString.put("y1_bufr", MVPlotJob.class.getDeclaredMethod("setY1Bufr", String.class));
+      _tableFormatString.put("y2_lim", MVPlotJob.class.getDeclaredMethod("setY2Lim", String.class));
+      _tableFormatString.put("y2_bufr", MVPlotJob.class.getDeclaredMethod("setY2Bufr", String.class));
+      _tableFormatString.put("plot_cmd", MVPlotJob.class.getDeclaredMethod("setPlotCmd", String.class));
+      _tableFormatString.put("plot_cond", MVPlotJob.class.getDeclaredMethod("setPlotCond", String.class));
+      _tableFormatString.put("plot_stat", MVPlotJob.class.getDeclaredMethod("setPlotStat", String.class));
+    } catch (NoSuchMethodException e) {
+      _logger.error(e.getMessage());
+    }
+  }
+
+  protected final MVOrderedMap _mapJobs = new MVOrderedMap();
+  protected final Hashtable _tableDateListDecl = new Hashtable();
+  protected final Hashtable _tableDateRangeDecl = new Hashtable();
+  protected final Hashtable _tableDateRangeListDecl = new Hashtable();
+  protected final Hashtable _tablePlotDecl = new Hashtable();
+  protected final Hashtable _tablePlotNode = new Hashtable();
   protected Document _doc = null;
-
   protected MVPlotJob[] _listJobs = {};
-  protected MVOrderedMap _mapJobs = new MVOrderedMap();
-
-  protected Hashtable _tableDateListDecl = new Hashtable();
-  protected Hashtable _tableDateRangeDecl = new Hashtable();
-  protected Hashtable _tableDateRangeListDecl = new Hashtable();
-  protected Hashtable _tablePlotDecl = new Hashtable();
-  protected Hashtable _tablePlotNode = new Hashtable();
   protected Hashtable _tableTmplVal = new Hashtable();
   protected MVNode _nodePlotSpec = null;
-
   protected Connection _con = null;
   protected String _strRscript = "Rscript";
   protected String _strRtmplFolder = "";
@@ -37,8 +158,7 @@ public class MVPlotJobParser extends MVUtil {
    * Build a parser whose input source is the specified URI
    *
    * @param spec URI of the XML plot specification source
-   * @param con  Optional database connection to use in absense of plot_spec
-   *             &lt;connection&gt;
+   * @param con  Optional database connection to use in absense of plot_spec &lt;connection&gt;
    */
   public MVPlotJobParser(String spec, Connection con) throws Exception {
     _con = con;
@@ -93,6 +213,463 @@ public class MVPlotJobParser extends MVUtil {
     return dbf.newDocumentBuilder();
   }
 
+  /**
+   * Determine if the input plot job has many necessary components to build a plot.  If not, return the structure name that has been found to be missing.
+   *
+   * @param job plot job to inspect
+   * @return name of missing structure, or an empty string if the job is ok
+   */
+  public static String checkJobCompleteness(MVPlotJob job) {
+    if (job.getPlotTmpl().equals("")) {
+      return "lacks template";
+    } else if (job.getIndyVar().equals("")) {
+      return "lacks indep";
+    } else if (1 > job.getIndyVal().length &&
+      null == job.getIndyDep()) {
+      return "lacks indep";
+    } else if (1 > job.getDepGroups().length) {
+      return "lacks dep";
+    } else if (1 > job.getSeries1Val().size()) {
+      return "lacks series1";
+    } else if (job.getRFileTmpl().equals("")) {
+      return "lacks r_file";
+    } else if (job.getPlotFileTmpl().equals("")) {
+      return "lacks plot_file";
+    } else if (job.getDataFileTmpl().equals("")) {
+      return "lacks data_file";
+    } else if (job.getXLabelTmpl().equals("")) {
+      return "lacks x_label";
+    } else if (job.getY1LabelTmpl().equals("")) {
+      return "lacks y1_label";
+    } else if ((job.getAggCtc() ||
+      job.getAggSl1l2()) &&
+      (job.getCalcCtc() ||
+        job.getCalcSl1l2())) {
+      return "has both agg_stat and calc_stat";
+    }
+    return "";
+  }
+
+  /**
+   * Build a list of String date representations, specified by the information in the input &lt;date_list&gt; node.  The input database connection is used to
+   * query for all dates of the specified field between the start and end date.
+   *
+   * @param nodeDateList XML plot specification node specifying the date list
+   * @param con          Database connection to query against
+   * @return List of String representations of specified dates
+   */
+  public static String[] parseDateList(MVNode nodeDateList, Connection con) {
+    String strField = "";
+    String strStart = "";
+    String strEnd = "";
+    String strHour = "";
+
+    for (int i = 0; i < nodeDateList._children.length; i++) {
+      MVNode nodeChild = nodeDateList._children[i];
+      if (nodeChild._tag.equals("field")) {
+        strField = nodeChild._name;
+      } else if (nodeChild._tag.equals("hour")) {
+        strHour = nodeChild._value;
+      } else if (nodeChild._tag.equals("start")) {
+        strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
+      } else if (nodeChild._tag.equals("end")) {
+        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
+      } else if (nodeChild._tag.equals("val")) {
+        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
+      }
+    }
+
+    return buildDateAggList(con, strField, strStart, strEnd, strHour);
+  }
+
+  /**
+   * Form a SQL between clause using the information in the input &lt;date_range&gt; node.
+   *
+   * @param nodeDateRange Contains date range information
+   * @return String containing SQL between clause
+   */
+  public static String parseDateRange(MVNode nodeDateRange) {
+    String strStart = "";
+    String strEnd = "";
+    String strFormat = _formatDB.toPattern();
+    for (int j = 0; j < nodeDateRange._children.length; j++) {
+      MVNode nodeChild = nodeDateRange._children[j];
+      if (nodeChild._tag.equals("start")) {
+        strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
+      } else if (nodeChild._tag.equals("end")) {
+        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
+      }
+    }
+    return "BETWEEN '" + strStart + "' AND '" + strEnd + "'";
+  }
+
+  /**
+   * Parse the &lt;indep&gt; node of a xml plot specification, returning the parsed information in the form of two lists.  The first list contains the
+   * independent variable values, the second list contains the labels and the third contains the plot values.
+   *
+   * @param node XML plot specification &lt;indep&gt; node
+   * @param dep  (optional) String representation of a dependency value date
+   * @return Two lists of independent variable values and labels, respectively
+   */
+  public static String[][] parseIndyNode(MVNode node, String dep) {
+    int intIndyNum = node._children.length;
+    ArrayList listIndyVal = new ArrayList();
+    ArrayList listIndyLabel = new ArrayList();
+    ArrayList listIndyPlotVal = new ArrayList();
+    for (int j = 0; j < intIndyNum; j++) {
+      MVNode nodeIndyVal = node._children[j];
+
+      //  <val>
+      if (nodeIndyVal._tag.equals("val")) {
+        listIndyVal.add(nodeIndyVal._value);
+        if (!nodeIndyVal._label.equals("")) {
+          listIndyLabel.add(nodeIndyVal._label);
+        } else {
+          listIndyLabel.add(nodeIndyVal._value);
+        }
+        if (!nodeIndyVal._plotVal.equals("")) {
+          listIndyPlotVal.add(nodeIndyVal._plotVal);
+        }
+      }
+
+      //  <date_list>
+      else if (nodeIndyVal._tag.equalsIgnoreCase("date_list")) {
+        String strStart = "";
+        String strEnd = "";
+        int intInc = 0;
+        String strFormat = _formatDB.toPattern();
+
+        for (int k = 0; k < nodeIndyVal._children.length; k++) {
+          MVNode nodeChild = nodeIndyVal._children[k];
+          if (nodeChild._tag.equals("start")) {
+            strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat, dep) : nodeChild._value);
+          } else if (nodeChild._tag.equals("end")) {
+            strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat, dep) : nodeChild._value);
+          } else if (nodeChild._tag.equals("inc")) {
+            intInc = Integer.parseInt(nodeChild._value);
+          } else if (nodeChild._tag.equals("label_format")) {
+            strFormat = nodeChild._value;
+          }
+        }
+
+        SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
+        formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
+        String[] listLabels = new String[listDates.length];
+        for (int k = 0; k < listDates.length; k++) {
+          try {
+            listLabels[k] = formatLabel.format(_formatDB.parse(listDates[k]));
+          } catch (Exception e) {
+          }
+        }
+
+        listIndyVal.addAll(Arrays.asList(listDates));
+        listIndyLabel.addAll(Arrays.asList(listLabels));
+      }
+    }
+
+    return new String[][]{toArray(listIndyVal), toArray(listIndyLabel), toArray(listIndyPlotVal)};
+  }
+
+  public static String serializeJob(MVPlotJob job) {
+
+    //  database information
+    String strXML =
+      "<plot_spec>" +
+        "<connection>" +
+        "<management_system>" + job.getDBManagementSystem() + "</management_system>" +
+        "<driver>" + job.getDBDriver() + "</driver>" +
+        "<host>" + job.getDBHost() + "</host>" +
+        "<database>" + job.getDBName() + "</database>" +
+        "<user>" + "******" + "</user>" +
+        "<password>" + "******" + "</password>" +
+        "</connection>" +
+        "<plot>";
+
+    //  plot template
+    strXML += "<template>" + job.getPlotTmpl() + "</template>";
+
+    //  if there are  series elements present, handle them
+    //if (!job.getPlotTmpl().startsWith("roc") && !job.getPlotTmpl().startsWith("rely")) {
+    //  series
+    for (int intY = 1; intY <= 2; intY++) {
+
+      //  get the series for the current y-axis
+      MVOrderedMap mapSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val());
+      strXML += "<series" + intY + ">";
+
+      //  serialize each fcst_var and it's vals
+      String[] listSeriesField = mapSeries.getKeyList();
+
+      for (int i = 0; i < listSeriesField.length; i++) {
+
+        String fieldName = listSeriesField[i];
+        String strXMLSimpleValues = "";
+        String[] listSeriesVal = (String[]) mapSeries.get(i);
+        for (int j = 0; j < listSeriesVal.length; j++) {
+          if (listSeriesVal[j].contains(",")) {
+            strXML += "<field name=\"" + fieldName + "\">";
+            strXML += "<val>" + listSeriesVal[j] + "</val>";
+            strXML += "</field>";
+          } else {
+            if (strXMLSimpleValues.length() == 0) {
+              strXMLSimpleValues = "<field name=\"" + fieldName + "\">";
+            }
+            strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
+          }
+
+        }
+        if (strXMLSimpleValues.length() > 0) {
+          strXMLSimpleValues += "</field>";
+        }
+        strXML += strXMLSimpleValues;
+      }
+      strXML += "</series" + intY + ">";
+    }
+
+    //}
+    //  if there are dep,  and indep elements present, handle them
+    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc") &&
+      !job.getPlotTmpl().startsWith("rely")) {
+
+      // dep
+      strXML += "<dep>";
+      MVOrderedMap[] listDepGroup = job.getDepGroups();
+      for (int intY = 1; intY <= 2; intY++) {
+
+        //  get the list of fcst_var for the current dep
+        MVOrderedMap mapDep = (MVOrderedMap) listDepGroup[0].get("dep" + intY);
+        Map.Entry[] listDep = mapDep.getOrderedEntries();
+
+        //  serialize the dep and it's fcst_var stats
+        String strDep = "dep" + intY;
+        strXML += "<" + strDep + ">";
+        for (int i = 0; i < listDep.length; i++) {
+          String[] listStat = (String[]) listDep[i].getValue();
+          strXML += "<fcst_var name=\"" + listDep[i].getKey().toString() + "\">";
+          for (int j = 0; j < listStat.length; j++) {
+            strXML += "<stat>" + listStat[j] + "</stat>";
+          }
+          strXML += "</fcst_var>";
+        }
+        strXML += "</" + strDep + ">";
+      }
+      strXML += "</dep>";
+
+
+      //  indep
+      strXML += "<indep name=\"" + job.getIndyVar() + "\">";
+      String[] listIndyVal = job.getIndyVal();
+      String[] listIndyPlotVal = job.getIndyPlotVal();
+      String[] listIndyLabel = job.getIndyLabel();
+      for (int i = 0; i < listIndyVal.length; i++) {
+        String strIndyPlotVal = (0 < listIndyPlotVal.length ? listIndyPlotVal[i] : "");
+        strXML +=
+          "<val label=\"" + listIndyLabel[i].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "\" plot_val=\"" + strIndyPlotVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "\">" +
+            listIndyVal[i].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") +
+            "</val>";
+      }
+      strXML += "</indep>";
+    }
+
+    //  plot_fix
+    MVOrderedMap mapPlotFix = job.getPlotFixVal();
+    strXML += "<plot_fix>";
+    String[] listFixField = mapPlotFix.getKeyList();
+    String[] listFixFieldEx = job.getPlotFixValEq().getKeyList();
+    for (int i = 0; i < listFixField.length; i++) {
+      boolean isEqualize = false;
+      for (String name : listFixFieldEx) {
+        if (name.equals(listFixField[i])) {
+          isEqualize = true;
+          break;
+        }
+      }
+      strXML += "<field name=\"" + listFixField[i] + "\" equalize=\"" + String.valueOf(isEqualize) + "\" >";
+      Object objFixVal = mapPlotFix.get(listFixField[i]);
+      if (objFixVal instanceof String[]) {
+        String[] listFixVal = (String[]) objFixVal;
+        for (int j = 0; j < listFixVal.length; j++) {
+          strXML += "<val>" + listFixVal[j].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
+        }
+      } else if (objFixVal instanceof MVOrderedMap) {
+        MVOrderedMap mapFixSet = (MVOrderedMap) objFixVal;
+        String[] listFixSetKey = mapFixSet.getKeyList();
+        for (int j = 0; j < listFixSetKey.length; j++) {
+          String[] listFixSetVal = (String[]) mapFixSet.get(listFixSetKey[j]);
+          strXML += "<set name=\"" + listFixSetKey[j] + "\">";
+          for (int k = 0; k < listFixSetVal.length; k++) {
+            strXML += "<val>" + listFixSetVal[k].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
+          }
+          strXML += "</set>";
+        }
+      }
+      strXML += "</field>";
+    }
+    strXML += "</plot_fix>";
+
+    //  agg_stat
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() || job.getAggNbrCnt()) || MVBatch.isModeRatioJob(job)) {
+      strXML +=
+        "<agg_stat>" +
+          "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>" +
+          "<agg_sl1l2>" + (job.getAggSl1l2() ? "TRUE" : "FALSE") + "</agg_sl1l2>" +
+          "<agg_pct>" + (job.getAggPct() ? "TRUE" : "FALSE") + "</agg_pct>" +
+          "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
+          "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
+          "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
+          "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
+          "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE") + "</cache_agg_stat>" +
+          "</agg_stat>";
+    }
+
+    //  calc_stat
+    if (job.getCalcCtc() || job.getCalcSl1l2()) {
+      strXML +=
+        "<calc_stat>" +
+          "<calc_ctc>" + (job.getCalcCtc() ? "TRUE" : "FALSE") + "</calc_ctc>" +
+          "<calc_sl1l2>" + (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>" +
+          "</calc_stat>";
+    }
+
+    //  roc_calc
+    if (job.getPlotTmpl().equals("roc.R_tmpl")) {
+      strXML +=
+        "<roc_calc>" +
+          "<roc_pct>" + (job.getRocPct() ? "TRUE" : "FALSE") + "</roc_pct>" +
+          "<roc_ctc>" + (job.getRocCtc() ? "TRUE" : "FALSE") + "</roc_ctc>" +
+          "</roc_calc>";
+    }
+
+    //  roc_calc
+    if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
+      strXML +=
+        "<ensss_pts>" + job.getEnsSsPts() + "</ensss_pts>" +
+          "<ensss_pts_disp>" + job.getEnsSsPtsDisp() + "</ensss_pts_disp>";
+    }
+
+    //  tmpl
+    strXML +=
+      "<tmpl>" +
+        "<title>" + job.getTitleTmpl() + "</title>" +
+        "<x_label>" + job.getXLabelTmpl() + "</x_label>" +
+        "<y1_label>" + job.getY1LabelTmpl() + "</y1_label>" +
+        "<y2_label>" + job.getY2LabelTmpl() + "</y2_label>" +
+        "<caption>" + job.getCaptionTmpl().replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</caption>" +
+        "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
+        "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>" +
+        "</tmpl>";
+
+    //  plot_cmd / plot_cond
+    strXML +=
+      "<plot_cmd>" + job.getPlotCmd() + "</plot_cmd>" +
+        "<plot_cond>" + job.getPlotCond() + "</plot_cond>";
+
+    //  plot fmt
+    strXML +=
+      "<event_equal>" + job.getEventEqual() + "</event_equal>" +
+        "<vert_plot>" + job.getVertPlot() + "</vert_plot>" +
+        "<x_reverse>" + job.getXReverse() + "</x_reverse>" +
+        "<num_stats>" + job.getShowNStats() + "</num_stats>" +
+        "<indy1_stag>" + job.getIndy1Stagger() + "</indy1_stag>" +
+        "<indy2_stag>" + job.getIndy2Stagger() + "</indy2_stag>" +
+        "<grid_on>" + job.getGridOn() + "</grid_on>" +
+        "<sync_axes>" + job.getSyncAxes() + "</sync_axes>" +
+        "<dump_points1>" + job.getDumpPoints1() + "</dump_points1>" +
+        "<dump_points2>" + job.getDumpPoints2() + "</dump_points2>" +
+        "<log_y1>" + job.getLogY1() + "</log_y1>" +
+        "<log_y2>" + job.getLogY2() + "</log_y2>" +
+        "<plot_type>" + job.getPlotType() + "</plot_type>" +
+        "<plot_height>" + job.getPlotHeight() + "</plot_height>" +
+        "<plot_width>" + job.getPlotWidth() + "</plot_width>" +
+        "<plot_res>" + job.getPlotRes() + "</plot_res>" +
+        "<plot_units>" + job.getPlotUnits() + "</plot_units>" +
+        "<mar>" + job.getMar() + "</mar>" +
+        "<mgp>" + job.getMgp() + "</mgp>" +
+        "<cex>" + job.getCex() + "</cex>" +
+        "<title_weight>" + job.getTitleWeight() + "</title_weight>" +
+        "<title_size>" + job.getTitleSize() + "</title_size>" +
+        "<title_offset>" + job.getTitleOffset() + "</title_offset>" +
+        "<title_align>" + job.getTitleAlign() + "</title_align>" +
+        "<xtlab_orient>" + job.getXtlabOrient() + "</xtlab_orient>" +
+        "<xtlab_perp>" + job.getXtlabPerp() + "</xtlab_perp>" +
+        "<xtlab_horiz>" + job.getXtlabHoriz() + "</xtlab_horiz>" +
+        "<xtlab_freq>" + job.getXtlabFreq() + "</xtlab_freq>" +
+        "<xlab_weight>" + job.getXlabWeight() + "</xlab_weight>" +
+        "<xlab_size>" + job.getXlabSize() + "</xlab_size>" +
+        "<xtlab_size>" + job.getXtlabSize() + "</xtlab_size>" +
+        "<xlab_offset>" + job.getXlabOffset() + "</xlab_offset>" +
+        "<xlab_align>" + job.getYlabAlign() + "</xlab_align>" +
+        "<ytlab_orient>" + job.getYtlabOrient() + "</ytlab_orient>" +
+        "<ytlab_perp>" + job.getYtlabPerp() + "</ytlab_perp>" +
+        "<ytlab_horiz>" + job.getYtlabHoriz() + "</ytlab_horiz>" +
+        "<ylab_weight>" + job.getYlabWeight() + "</ylab_weight>" +
+        "<ylab_size>" + job.getYlabSize() + "</ylab_size>" +
+        "<ytlab_size>" + job.getYtlabSize() + "</ytlab_size>" +
+        "<ylab_offset>" + job.getYlabOffset() + "</ylab_offset>" +
+        "<ylab_align>" + job.getYlabAlign() + "</ylab_align>" +
+        "<grid_lty>" + job.getGridLty() + "</grid_lty>" +
+        "<grid_col>" + job.getGridCol() + "</grid_col>" +
+        "<grid_lwd>" + job.getGridLwd() + "</grid_lwd>" +
+        "<grid_x>" + job.getGridX() + "</grid_x>" +
+        "<x2tlab_orient>" + job.getX2tlabOrient() + "</x2tlab_orient>" +
+        "<x2tlab_perp>" + job.getX2tlabPerp() + "</x2tlab_perp>" +
+        "<x2tlab_horiz>" + job.getX2tlabHoriz() + "</x2tlab_horiz>" +
+        "<x2lab_weight>" + job.getX2labWeight() + "</x2lab_weight>" +
+        "<x2lab_size>" + job.getX2labSize() + "</x2lab_size>" +
+        "<x2tlab_size>" + job.getX2tlabSize() + "</x2tlab_size>" +
+        "<x2lab_offset>" + job.getX2labOffset() + "</x2lab_offset>" +
+        "<x2lab_align>" + job.getX2labAlign() + "</x2lab_align>" +
+        "<y2tlab_orient>" + job.getY2tlabOrient() + "</y2tlab_orient>" +
+        "<y2tlab_perp>" + job.getY2tlabPerp() + "</y2tlab_perp>" +
+        "<y2tlab_horiz>" + job.getY2tlabHoriz() + "</y2tlab_horiz>" +
+        "<y2lab_weight>" + job.getY2labWeight() + "</y2lab_weight>" +
+        "<y2lab_size>" + job.getY2labSize() + "</y2lab_size>" +
+        "<y2tlab_size>" + job.getY2tlabSize() + "</y2tlab_size>" +
+        "<y2lab_offset>" + job.getY2labOffset() + "</y2lab_offset>" +
+        "<y2lab_align>" + job.getY2labAlign() + "</y2lab_align>" +
+        "<legend_size>" + job.getLegendSize() + "</legend_size>" +
+        "<legend_box>" + job.getLegendBox() + "</legend_box>" +
+        "<legend_inset>" + job.getLegendInset() + "</legend_inset>" +
+        "<legend_ncol>" + job.getLegendNcol() + "</legend_ncol>" +
+        "<caption_weight>" + job.getCaptionWeight() + "</caption_weight>" +
+        "<caption_col>" + job.getCaptionCol() + "</caption_col>" +
+        "<caption_size>" + job.getCaptionSize() + "</caption_size>" +
+        "<caption_offset>" + job.getCaptionOffset() + "</caption_offset>" +
+        "<caption_align>" + job.getCaptionAlign() + "</caption_align>" +
+        "<box_pts>" + job.getBoxPts() + "</box_pts>" +
+        "<box_outline>" + job.getBoxOutline() + "</box_outline>" +
+        "<box_boxwex>" + job.getBoxBoxwex() + "</box_boxwex>" +
+        "<box_notch>" + job.getBoxNotch() + "</box_notch>" +
+        "<box_avg>" + job.getBoxAvg() + "</box_avg>" +
+        "<rely_event_hist>" + job.getRelyEventHist() + "</rely_event_hist>" +
+        "<ci_alpha>" + job.getCIAlpha() + "</ci_alpha>" +
+
+        "<plot_ci>" + job.getPlotCI() + "</plot_ci>" +
+        "<plot_disp>" + job.getPlotDisp() + "</plot_disp>" +
+        "<show_signif>" + job.getShowSignif() + "</show_signif>" +
+        "<order_series>" + job.getOrderSeries() + "</order_series>" +
+        "<colors>" + job.getColors() + "</colors>" +
+        "<pch>" + job.getPch() + "</pch>" +
+        "<type>" + job.getType() + "</type>" +
+        "<lty>" + job.getLty() + "</lty>" +
+        "<lwd>" + job.getLwd() + "</lwd>" +
+        "<con_series>" + job.getConSeries() + "</con_series>" +
+        "<legend>" + job.getLegend() + "</legend>" +
+
+        "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
+        "<y1_bufr>" + job.getY1Bufr() + "</y1_bufr>" +
+        "<y2_lim>" + job.getY2Lim() + "</y2_lim>" +
+        "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>" +
+        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>" +
+        "<normalized_histogram>" + job.getNormalizedHistogram() + "</normalized_histogram>" +
+        "<plot_stat>" + job.getPlotStat() + "</plot_stat>";
+
+    //  close the plot job
+    strXML += "</plot></plot_spec>";
+    return strXML;
+  }
+
   public Document getDocument() {
     return _doc;
   }
@@ -116,12 +693,14 @@ public class MVPlotJobParser extends MVUtil {
   public String getPlotsFolder() {
     return _strPlotsFolder;
   }
+
   public String getDataFolder() {
-      return _strDataFolder;
-    }
+    return _strDataFolder;
+  }
+
   public String getScriptsFolder() {
-       return _strScriptsFolder;
-     }
+    return _strScriptsFolder;
+  }
 
   protected void parsePlotJobSpec() throws Exception {
     ArrayList listJobs = new ArrayList();
@@ -155,10 +734,9 @@ public class MVPlotJobParser extends MVUtil {
 
         if (_con == null) {
           //batch mode
-          Datasource datasource = Datasource.getInstance(strDBType,strDBDriver, strDBHost,   strDBUser,  strDBPassword);
-          _con = datasource.getConnection(strDBType,strDBDriver,strDBHost, strDBName, strDBUser, strDBPassword);
+          Datasource datasource = Datasource.getInstance(strDBType, strDBDriver, strDBHost, strDBUser, strDBPassword);
+          _con = datasource.getConnection(strDBType, strDBDriver, strDBHost, strDBName, strDBUser, strDBPassword);
         }
-
 
       }
 
@@ -253,7 +831,7 @@ public class MVPlotJobParser extends MVUtil {
         //  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs
         _tablePlotNode.put(node._name, node);
         String strInherits = node._inherits.trim();
-        MVPlotJob job = null;
+        MVPlotJob job;
 
         if ("".equals(strInherits)) {
           job = parsePlotJob(node, null);
@@ -356,9 +934,8 @@ public class MVPlotJobParser extends MVUtil {
   }
 
   /**
-   * Parse a single xml plot specification &lt;plot&gt; node from an xml plot
-   * specification and return the resulting MVPlotJob.  The inherited job is
-   * specified by the input jobBase.
+   * Parse a single xml plot specification &lt;plot&gt; node from an xml plot specification and return the resulting MVPlotJob.  The inherited job is specified
+   * by the input jobBase.
    *
    * @param nodePlot XML plot specification object to parse
    * @param jobBase  MVPlotJob whose characteristics to inherit
@@ -377,6 +954,9 @@ public class MVPlotJobParser extends MVUtil {
 
       //  <indep>
       else if (node._tag.equals("indep")) {
+        String equalize = node.getAttribute("equalize");
+        job.setEqualizeByIndep(Boolean.valueOf(equalize));
+
         job.setIndyVar(node._name);
         if (!"".equals(node._depends)) {
           job.setIndyDep(new MVPlotDep(node._depends, node));
@@ -393,7 +973,7 @@ public class MVPlotJobParser extends MVUtil {
 
         for (int j = 0; j < node._children.length; j++) {
           MVNode nodeFix = node._children[j];
-
+          String equalize = nodeFix.getAttribute("equalize");
           //  <remove> and <clear>
           if (nodeFix._tag.equals("remove")) {
             job.removePlotFixVal(nodeFix._name);
@@ -474,8 +1054,14 @@ public class MVPlotJobParser extends MVUtil {
           }
           if (0 < listFixVal.size()) {
             job.addPlotFixVal(nodeFix._name, toArray(listFixVal));
+            if ("true".equals(equalize)) {
+              job.addPlotFixValEq(nodeFix._name, toArray(listFixVal));
+            }
           } else if (0 < mapFixVal.size()) {
             job.addPlotFixVal(nodeFix._name, mapFixVal);
+            if ("true".equals(equalize)) {
+              job.addPlotFixValEq(nodeFix._name, mapFixVal);
+            }
           }
 
           if (0 < mapTmplVal.size()) {
@@ -515,12 +1101,12 @@ public class MVPlotJobParser extends MVUtil {
             listAggVal[k] = nodeSeries._children[k]._value;
           }
           if (node._tag.equals("series1")) {
-            if(jobBase != null){
+            if (jobBase != null) {
               job.clearSeries1Val();
             }
             job.addSeries1Val(nodeSeries._name, listAggVal);
           } else if (node._tag.equals("series2")) {
-            if(jobBase != null){
+            if (jobBase != null) {
               job.clearSeries2Val();
             }
             job.addSeries2Val(nodeSeries._name, listAggVal);
@@ -633,7 +1219,7 @@ public class MVPlotJobParser extends MVUtil {
             MVOrderedMap mapValMap = new MVOrderedMap();
             for (int k = 0; k < nodeTmpl._children.length; k++) {
               MVNode nodeKey = nodeTmpl._children[k]._children[0];
-              String strKey = "";
+              String strKey;
               if (0 < nodeKey._children.length && nodeKey._children[0]._tag.equals("date_range")) {
                 strKey = _tableDateRangeDecl.get(nodeKey._children[0]._name).toString();
               } else {
@@ -755,7 +1341,7 @@ public class MVPlotJobParser extends MVUtil {
 
         //if (!job.getCalcCtc() && !job.getCalcSl1l2()) {
         //  throw new Exception("invalid calc_stat setting - neither calc_ctc nor calc_sl1l2 are true");
-       // }
+        // }
         if (job.getCalcCtc() && job.getCalcSl1l2()) {
           throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 are true");
         }
@@ -825,13 +1411,13 @@ public class MVPlotJobParser extends MVUtil {
 
   private void validateListDiffSeries(MVNode node, MVNode nodeTmpl) throws Exception {
     String[] diffSeries = nodeTmpl._value.split("c\\(");
-    for (int k=1; k< diffSeries.length; k++) {
-      String diffSeriesArray[] = diffSeries[k].replace("\"", "").replace(")","").split(",");
+    for (int k = 1; k < diffSeries.length; k++) {
+      String diffSeriesArray[] = diffSeries[k].replace("\"", "").replace(")", "").split(",");
       String diffSeriesParametersArray[] = diffSeriesArray[0].split(" ");
 
-      if(diffSeriesParametersArray.length > 2){
-        String variableStat = diffSeriesParametersArray[diffSeriesParametersArray.length-2] + " " + diffSeriesParametersArray[diffSeriesParametersArray.length-1];
-        if(!diffSeriesArray[1].endsWith(variableStat)){
+      if (diffSeriesParametersArray.length > 2) {
+        String variableStat = diffSeriesParametersArray[diffSeriesParametersArray.length - 2] + " " + diffSeriesParametersArray[diffSeriesParametersArray.length - 1];
+        if (!diffSeriesArray[1].endsWith(variableStat)) {
           throw new Exception("Difference curve " + diffSeries[k] + " wants to be calculated using different variable and/or statistic. It isn't supported by Image Viewer.");
         }
       }
@@ -850,348 +1436,7 @@ public class MVPlotJobParser extends MVUtil {
   }
 
   /**
-   * Determine if the input plot job has many necessary components to build a
-   * plot.  If not, return the structure name that has been found to be
-   * missing.
-   *
-   * @param job plot job to inspect
-   * @return name of missing structure, or an empty string if the job is ok
-   */
-  public static String checkJobCompleteness(MVPlotJob job) {
-    if (job.getPlotTmpl().equals("")) {
-      return "lacks template";
-    } else if (job.getIndyVar().equals("")) {
-      return "lacks indep";
-    } else if (1 > job.getIndyVal().length &&
-      null == job.getIndyDep()) {
-      return "lacks indep";
-    } else if (1 > job.getDepGroups().length) {
-      return "lacks dep";
-    } else if (1 > job.getSeries1Val().size()) {
-      return "lacks series1";
-    } else if (job.getRFileTmpl().equals("")) {
-      return "lacks r_file";
-    } else if (job.getPlotFileTmpl().equals("")) {
-      return "lacks plot_file";
-    } else if (job.getDataFileTmpl().equals("")) {
-      return "lacks data_file";
-    } else if (job.getXLabelTmpl().equals("")) {
-      return "lacks x_label";
-    } else if (job.getY1LabelTmpl().equals("")) {
-      return "lacks y1_label";
-    } else if ((job.getAggCtc() ||
-      job.getAggSl1l2()) &&
-      (job.getCalcCtc() ||
-        job.getCalcSl1l2())) {
-      return "has both agg_stat and calc_stat";
-    }
-    return "";
-  }
-
-  public static final Hashtable _tableFormatBoolean = new Hashtable();
-
-  static {
-    try {
-      _tableFormatBoolean.put("event_equal", MVPlotJob.class.getDeclaredMethod("setEventEqual", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("event_equal_m", MVPlotJob.class.getDeclaredMethod("setEventEqualM", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("vert_plot", MVPlotJob.class.getDeclaredMethod("setVertPlot", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("x_reverse", MVPlotJob.class.getDeclaredMethod("setXReverse", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("num_stats", MVPlotJob.class.getDeclaredMethod("setShowNStats", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("indy1_stag", MVPlotJob.class.getDeclaredMethod("setIndy1Stagger", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("indy2_stag", MVPlotJob.class.getDeclaredMethod("setIndy2Stagger", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("grid_on", MVPlotJob.class.getDeclaredMethod("setGridOn", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("sync_axes", MVPlotJob.class.getDeclaredMethod("setSyncAxes", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("dump_points1", MVPlotJob.class.getDeclaredMethod("setDumpPoints1", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("dump_points2", MVPlotJob.class.getDeclaredMethod("setDumpPoints2", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("log_y1", MVPlotJob.class.getDeclaredMethod("setLogY1", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("log_y2", MVPlotJob.class.getDeclaredMethod("setLogY2", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("varianceInflationFactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("varianceinflationfactor", MVPlotJob.class.getDeclaredMethod("setVarianceInflationFactor", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("normalizedHistogram", MVPlotJob.class.getDeclaredMethod("setNormalizedHistogram", new Class[]{boolean.class}));
-      _tableFormatBoolean.put("cache_agg_stat", MVPlotJob.class.getDeclaredMethod("setCacheAggStat", new Class[]{boolean.class}));
-    } catch (NoSuchMethodException e) {
-    }
-  }
-
-  public static final Hashtable _tableFormatString = new Hashtable();
-
-  static {
-    try {
-      _tableFormatString.put("plot_type", MVPlotJob.class.getDeclaredMethod("setPlotType", new Class[]{String.class}));
-      _tableFormatString.put("plot_height", MVPlotJob.class.getDeclaredMethod("setPlotHeight", new Class[]{String.class}));
-      _tableFormatString.put("plot_width", MVPlotJob.class.getDeclaredMethod("setPlotWidth", new Class[]{String.class}));
-      _tableFormatString.put("plot_res", MVPlotJob.class.getDeclaredMethod("setPlotRes", new Class[]{String.class}));
-      _tableFormatString.put("plot_units", MVPlotJob.class.getDeclaredMethod("setPlotUnits", new Class[]{String.class}));
-      _tableFormatString.put("mar", MVPlotJob.class.getDeclaredMethod("setMar", new Class[]{String.class}));
-      _tableFormatString.put("mgp", MVPlotJob.class.getDeclaredMethod("setMgp", new Class[]{String.class}));
-      _tableFormatString.put("cex", MVPlotJob.class.getDeclaredMethod("setCex", new Class[]{String.class}));
-      _tableFormatString.put("title_weight", MVPlotJob.class.getDeclaredMethod("setTitleWeight", new Class[]{String.class}));
-      _tableFormatString.put("title_size", MVPlotJob.class.getDeclaredMethod("setTitleSize", new Class[]{String.class}));
-      _tableFormatString.put("title_offset", MVPlotJob.class.getDeclaredMethod("setTitleOffset", new Class[]{String.class}));
-      _tableFormatString.put("title_align", MVPlotJob.class.getDeclaredMethod("setTitleAlign", new Class[]{String.class}));
-      _tableFormatString.put("xtlab_orient", MVPlotJob.class.getDeclaredMethod("setXtlabOrient", new Class[]{String.class}));
-      _tableFormatString.put("xtlab_perp", MVPlotJob.class.getDeclaredMethod("setXtlabPerp", new Class[]{String.class}));
-      _tableFormatString.put("xtlab_horiz", MVPlotJob.class.getDeclaredMethod("setXtlabHoriz", new Class[]{String.class}));
-      _tableFormatString.put("xtlab_freq", MVPlotJob.class.getDeclaredMethod("setXtlabFreq", new Class[]{String.class}));
-      _tableFormatString.put("xtlab_size", MVPlotJob.class.getDeclaredMethod("setXtlabSize", new Class[]{String.class}));
-      _tableFormatString.put("xlab_weight", MVPlotJob.class.getDeclaredMethod("setXlabWeight", new Class[]{String.class}));
-      _tableFormatString.put("xlab_size", MVPlotJob.class.getDeclaredMethod("setXlabSize", new Class[]{String.class}));
-      _tableFormatString.put("xlab_offset", MVPlotJob.class.getDeclaredMethod("setXlabOffset", new Class[]{String.class}));
-      _tableFormatString.put("xlab_align", MVPlotJob.class.getDeclaredMethod("setXlabAlign", new Class[]{String.class}));
-      _tableFormatString.put("ytlab_orient", MVPlotJob.class.getDeclaredMethod("setYtlabOrient", new Class[]{String.class}));
-      _tableFormatString.put("ytlab_perp", MVPlotJob.class.getDeclaredMethod("setYtlabPerp", new Class[]{String.class}));
-      _tableFormatString.put("ytlab_horiz", MVPlotJob.class.getDeclaredMethod("setYtlabHoriz", new Class[]{String.class}));
-      _tableFormatString.put("ytlab_size", MVPlotJob.class.getDeclaredMethod("setYtlabSize", new Class[]{String.class}));
-      _tableFormatString.put("ylab_weight", MVPlotJob.class.getDeclaredMethod("setYlabWeight", new Class[]{String.class}));
-      _tableFormatString.put("ylab_size", MVPlotJob.class.getDeclaredMethod("setYlabSize", new Class[]{String.class}));
-      _tableFormatString.put("ylab_offset", MVPlotJob.class.getDeclaredMethod("setYlabOffset", new Class[]{String.class}));
-      _tableFormatString.put("ylab_align", MVPlotJob.class.getDeclaredMethod("setYlabAlign", new Class[]{String.class}));
-      _tableFormatString.put("grid_lty", MVPlotJob.class.getDeclaredMethod("setGridLty", new Class[]{String.class}));
-      _tableFormatString.put("grid_col", MVPlotJob.class.getDeclaredMethod("setGridCol", new Class[]{String.class}));
-      _tableFormatString.put("grid_lwd", MVPlotJob.class.getDeclaredMethod("setGridLwd", new Class[]{String.class}));
-      _tableFormatString.put("grid_x", MVPlotJob.class.getDeclaredMethod("setGridX", new Class[]{String.class}));
-      _tableFormatString.put("x2tlab_orient", MVPlotJob.class.getDeclaredMethod("setX2tlabOrient", new Class[]{String.class}));
-      _tableFormatString.put("x2tlab_perp", MVPlotJob.class.getDeclaredMethod("setX2tlabPerp", new Class[]{String.class}));
-      _tableFormatString.put("x2tlab_horiz", MVPlotJob.class.getDeclaredMethod("setX2tlabHoriz", new Class[]{String.class}));
-      _tableFormatString.put("x2tlab_size", MVPlotJob.class.getDeclaredMethod("setX2tlabSize", new Class[]{String.class}));
-      _tableFormatString.put("x2lab_weight", MVPlotJob.class.getDeclaredMethod("setX2labWeight", new Class[]{String.class}));
-      _tableFormatString.put("x2lab_size", MVPlotJob.class.getDeclaredMethod("setX2labSize", new Class[]{String.class}));
-      _tableFormatString.put("x2lab_offset", MVPlotJob.class.getDeclaredMethod("setX2labOffset", new Class[]{String.class}));
-      _tableFormatString.put("x2lab_align", MVPlotJob.class.getDeclaredMethod("setX2labAlign", new Class[]{String.class}));
-      _tableFormatString.put("y2tlab_orient", MVPlotJob.class.getDeclaredMethod("setY2tlabOrient", new Class[]{String.class}));
-      _tableFormatString.put("y2tlab_perp", MVPlotJob.class.getDeclaredMethod("setY2tlabPerp", new Class[]{String.class}));
-      _tableFormatString.put("y2tlab_horiz", MVPlotJob.class.getDeclaredMethod("setY2tlabHoriz", new Class[]{String.class}));
-      _tableFormatString.put("y2tlab_size", MVPlotJob.class.getDeclaredMethod("setY2tlabSize", new Class[]{String.class}));
-      _tableFormatString.put("y2lab_weight", MVPlotJob.class.getDeclaredMethod("setY2labWeight", new Class[]{String.class}));
-      _tableFormatString.put("y2lab_size", MVPlotJob.class.getDeclaredMethod("setY2labSize", new Class[]{String.class}));
-      _tableFormatString.put("y2lab_offset", MVPlotJob.class.getDeclaredMethod("setY2labOffset", new Class[]{String.class}));
-      _tableFormatString.put("y2lab_align", MVPlotJob.class.getDeclaredMethod("setY2labAlign", new Class[]{String.class}));
-      _tableFormatString.put("legend_size", MVPlotJob.class.getDeclaredMethod("setLegendSize", new Class[]{String.class}));
-      _tableFormatString.put("legend_box", MVPlotJob.class.getDeclaredMethod("setLegendBox", new Class[]{String.class}));
-      _tableFormatString.put("legend_inset", MVPlotJob.class.getDeclaredMethod("setLegendInset", new Class[]{String.class}));
-      _tableFormatString.put("legend_ncol", MVPlotJob.class.getDeclaredMethod("setLegendNcol", new Class[]{String.class}));
-      _tableFormatString.put("caption_weight", MVPlotJob.class.getDeclaredMethod("setCaptionWeight", new Class[]{String.class}));
-      _tableFormatString.put("caption_col", MVPlotJob.class.getDeclaredMethod("setCaptionCol", new Class[]{String.class}));
-      _tableFormatString.put("caption_size", MVPlotJob.class.getDeclaredMethod("setCaptionSize", new Class[]{String.class}));
-      _tableFormatString.put("caption_offset", MVPlotJob.class.getDeclaredMethod("setCaptionOffset", new Class[]{String.class}));
-      _tableFormatString.put("caption_align", MVPlotJob.class.getDeclaredMethod("setCaptionAlign", new Class[]{String.class}));
-      _tableFormatString.put("box_pts", MVPlotJob.class.getDeclaredMethod("setBoxPts", new Class[]{String.class}));
-      _tableFormatString.put("box_outline", MVPlotJob.class.getDeclaredMethod("setBoxOutline", new Class[]{String.class}));
-      _tableFormatString.put("box_boxwex", MVPlotJob.class.getDeclaredMethod("setBoxBoxwex", new Class[]{String.class}));
-      _tableFormatString.put("box_notch", MVPlotJob.class.getDeclaredMethod("setBoxNotch", new Class[]{String.class}));
-      _tableFormatString.put("box_avg", MVPlotJob.class.getDeclaredMethod("setBoxAvg", new Class[]{String.class}));
-      _tableFormatString.put("rely_event_hist", MVPlotJob.class.getDeclaredMethod("setRelyEventHist", new Class[]{String.class}));
-      _tableFormatString.put("ci_alpha", MVPlotJob.class.getDeclaredMethod("setCIAlpha", new Class[]{String.class}));
-      _tableFormatString.put("ensss_pts", MVPlotJob.class.getDeclaredMethod("setEnsSsPts", new Class[]{String.class}));
-      _tableFormatString.put("ensss_pts_disp", MVPlotJob.class.getDeclaredMethod("setEnsSsPtsDisp", new Class[]{String.class}));
-
-      _tableFormatString.put("plot_ci", MVPlotJob.class.getDeclaredMethod("setPlotCI", new Class[]{String.class}));
-      _tableFormatString.put("plot_disp", MVPlotJob.class.getDeclaredMethod("setPlotDisp", new Class[]{String.class}));
-      _tableFormatString.put("show_signif", MVPlotJob.class.getDeclaredMethod("setShowSignif", String.class));
-      //_tableFormatString.put("listDiffSeries1", MVPlotJob.class.getDeclaredMethod("setDiffSeries1", new Class[]{String.class}));
-      //_tableFormatString.put("listDiffSeries2", MVPlotJob.class.getDeclaredMethod("setDiffSeries2", new Class[]{String.class}));
-      _tableFormatString.put("order_series", MVPlotJob.class.getDeclaredMethod("setOrderSeries", new Class[]{String.class}));
-      _tableFormatString.put("colors", MVPlotJob.class.getDeclaredMethod("setColors", new Class[]{String.class}));
-      _tableFormatString.put("pch", MVPlotJob.class.getDeclaredMethod("setPch", new Class[]{String.class}));
-      _tableFormatString.put("type", MVPlotJob.class.getDeclaredMethod("setType", new Class[]{String.class}));
-      _tableFormatString.put("lty", MVPlotJob.class.getDeclaredMethod("setLty", new Class[]{String.class}));
-      _tableFormatString.put("lwd", MVPlotJob.class.getDeclaredMethod("setLwd", new Class[]{String.class}));
-      _tableFormatString.put("con_series", MVPlotJob.class.getDeclaredMethod("setConSeries", new Class[]{String.class}));
-      _tableFormatString.put("legend", MVPlotJob.class.getDeclaredMethod("setLegend", new Class[]{String.class}));
-      _tableFormatString.put("y1_lim", MVPlotJob.class.getDeclaredMethod("setY1Lim", new Class[]{String.class}));
-      _tableFormatString.put("y1_bufr", MVPlotJob.class.getDeclaredMethod("setY1Bufr", new Class[]{String.class}));
-      _tableFormatString.put("y2_lim", MVPlotJob.class.getDeclaredMethod("setY2Lim", new Class[]{String.class}));
-      _tableFormatString.put("y2_bufr", MVPlotJob.class.getDeclaredMethod("setY2Bufr", new Class[]{String.class}));
-      _tableFormatString.put("plot_cmd", MVPlotJob.class.getDeclaredMethod("setPlotCmd", new Class[]{String.class}));
-      _tableFormatString.put("plot_cond", MVPlotJob.class.getDeclaredMethod("setPlotCond", new Class[]{String.class}));
-      _tableFormatString.put("plot_stat", MVPlotJob.class.getDeclaredMethod("setPlotStat", new Class[]{String.class}));
-    } catch (NoSuchMethodException e) {
-    }
-  }
-
-  /**
-   * Populate an MVOrderedMap data structure with information specified in the
-   * input XML plot specification &lt;dep&gt; node.  The returned data
-   * structure should be added to an MVPlotJob.
-   *
-   * @param nodeDep
-   * @return
-   */
-  public static MVOrderedMap buildDepMap(MVNode nodeDep) {
-
-    //  <dep>
-    MVOrderedMap mapDep = new MVOrderedMap();
-    for (int i = 0; i < nodeDep._children.length; i++) {
-
-      //  <dep1> or <dep2>
-      MVNode nodeDepN = nodeDep._children[i];
-      if (nodeDepN._tag.startsWith("dep")) {
-        MVOrderedMap mapDepN = new MVOrderedMap();
-
-        //  <fcst_var>
-        for (int j = 0; j < nodeDepN._children.length; j++) {
-          MVNode nodeFcstVar = nodeDepN._children[j];
-          ArrayList listStats = new ArrayList();
-
-          //  <stat>s
-          for (int k = 0; k < nodeFcstVar._children.length; k++) {
-            listStats.add(nodeFcstVar._children[k]._value);
-          }
-          mapDepN.put(nodeFcstVar._name, listStats.toArray(new String[]{}));
-        }
-        mapDep.put(nodeDepN._tag, mapDepN);
-      }
-
-      //  <fix>
-      else if (nodeDepN._tag.startsWith("fix")) {
-        MVOrderedMap mapFix = new MVOrderedMap();
-
-        //  <fcst_var>
-        for (int j = 0; j < nodeDepN._children.length; j++) {
-          MVNode nodeFcstVar = nodeDepN._children[j];
-          MVOrderedMap mapFcstVar = new MVOrderedMap();
-
-          //  <var>s
-          for (int k = 0; k < nodeFcstVar._children.length; k++) {
-            mapFcstVar.put(nodeFcstVar._children[k]._name, nodeFcstVar._children[k]._value);
-          }
-          mapFix.put(nodeFcstVar._name, mapFcstVar);
-        }
-        mapDep.put(nodeDepN._tag, mapFix);
-      }
-    }
-    return mapDep;
-  }
-
-  /**
-   * Build a list of String date representations, specified by the information
-   * in the input &lt;date_list&gt; node.  The input database connection is
-   * used to query for all dates of the specified field between the start and
-   * end date.
-   *
-   * @param nodeDateList XML plot specification node specifying the date list
-   * @param con          Database connection to query against
-   * @return List of String representations of specified dates
-   */
-  public static String[] parseDateList(MVNode nodeDateList, Connection con) {
-    String strField = "";
-    String strStart = "";
-    String strEnd = "";
-    String strHour = "";
-
-    for (int i = 0; i < nodeDateList._children.length; i++) {
-      MVNode nodeChild = nodeDateList._children[i];
-      if (nodeChild._tag.equals("field")) {
-        strField = nodeChild._name;
-      } else if (nodeChild._tag.equals("hour")) {
-        strHour = nodeChild._value;
-      } else if (nodeChild._tag.equals("start")) {
-        strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
-      } else if (nodeChild._tag.equals("end")) {
-        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
-      } else if (nodeChild._tag.equals("val")) {
-        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
-      }
-    }
-
-    return buildDateAggList(con, strField, strStart, strEnd, strHour);
-  }
-
-  /**
-   * Form a SQL between clause using the information in the input
-   * &lt;date_range&gt; node.
-   *
-   * @param nodeDateRange Contains date range information
-   * @return String containing SQL between clause
-   */
-  public static String parseDateRange(MVNode nodeDateRange) {
-    String strStart = "";
-    String strEnd = "";
-    String strFormat = _formatDB.toPattern();
-    for (int j = 0; j < nodeDateRange._children.length; j++) {
-      MVNode nodeChild = nodeDateRange._children[j];
-      if (nodeChild._tag.equals("start")) {
-        strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
-      } else if (nodeChild._tag.equals("end")) {
-        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
-      }
-    }
-    return "BETWEEN '" + strStart + "' AND '" + strEnd + "'";
-  }
-
-  /**
-   * Parse the &lt;indep&gt; node of a xml plot specification, returning the
-   * parsed information in the form of two lists.  The first list contains the
-   * independent variable values, the second list contains the labels and the
-   * third contains the plot values.
-   *
-   * @param node XML plot specification &lt;indep&gt; node
-   * @param dep  (optional) String representation of a dependency value date
-   * @return Two lists of independent variable values and labels, respectively
-   */
-  public static String[][] parseIndyNode(MVNode node, String dep) {
-    int intIndyNum = node._children.length;
-    ArrayList listIndyVal = new ArrayList();
-    ArrayList listIndyLabel = new ArrayList();
-    ArrayList listIndyPlotVal = new ArrayList();
-    for (int j = 0; j < intIndyNum; j++) {
-      MVNode nodeIndyVal = node._children[j];
-
-      //  <val>
-      if (nodeIndyVal._tag.equals("val")) {
-        listIndyVal.add(nodeIndyVal._value);
-        if (!nodeIndyVal._label.equals("")) {
-          listIndyLabel.add(nodeIndyVal._label);
-        } else {
-          listIndyLabel.add(nodeIndyVal._value);
-        }
-        if (!nodeIndyVal._plotVal.equals("")) {
-          listIndyPlotVal.add(nodeIndyVal._plotVal);
-        }
-      }
-
-      //  <date_list>
-      else if (nodeIndyVal._tag.equalsIgnoreCase("date_list")) {
-        String strStart = "";
-        String strEnd = "";
-        int intInc = 0;
-        String strFormat = _formatDB.toPattern();
-
-        for (int k = 0; k < nodeIndyVal._children.length; k++) {
-          MVNode nodeChild = nodeIndyVal._children[k];
-          if (nodeChild._tag.equals("start")) {
-            strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat, dep) : nodeChild._value);
-          } else if (nodeChild._tag.equals("end")) {
-            strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat, dep) : nodeChild._value);
-          } else if (nodeChild._tag.equals("inc")) {
-            intInc = Integer.parseInt(nodeChild._value);
-          } else if (nodeChild._tag.equals("label_format")) {
-            strFormat = nodeChild._value;
-          }
-        }
-
-        SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
-        formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
-        String[] listLabels = new String[listDates.length];
-        for (int k = 0; k < listDates.length; k++) {
-          try {
-            listLabels[k] = formatLabel.format(_formatDB.parse(listDates[k]));
-          } catch (Exception e) {
-          }
-        }
-
-        listIndyVal.addAll(Arrays.asList(listDates));
-        listIndyLabel.addAll(Arrays.asList(listLabels));
-      }
-    }
-
-    return new String[][]{toArray(listIndyVal), toArray(listIndyLabel), toArray(listIndyPlotVal)};
-  }
-
-  /**
-   * Determine if the input statistic name is valid by searching the tables of
-   * supported statistics.
+   * Determine if the input statistic name is valid by searching the tables of supported statistics.
    *
    * @param strStat name of statistic to test for validity
    * @return true if valid, false otherwise
@@ -1201,8 +1446,7 @@ public class MVPlotJobParser extends MVUtil {
   }
 
   /**
-   * Determine if the input order name is valid by validating the order of
-   * integers
+   * Determine if the input order name is valid by validating the order of integers
    *
    * @param strStat order of series
    * @return true if valid, false otherwise
@@ -1231,298 +1475,5 @@ public class MVPlotJobParser extends MVUtil {
       }
     }
     return result;
-  }
-
-  public static String serializeJob(MVPlotJob job) throws Exception {
-
-    //  database information
-    String strXML =
-      "<plot_spec>" +
-        "<connection>" +
-        "<management_system>" + job.getDBManagementSystem() + "</management_system>" +
-        "<driver>" + job.getDBDriver() + "</driver>" +
-        "<host>" + job.getDBHost() + "</host>" +
-        "<database>" + job.getDBName() + "</database>" +
-        "<user>" + "******" + "</user>" +
-        "<password>" + "******" + "</password>" +
-        "</connection>" +
-        "<plot>";
-
-    //  plot template
-    strXML += "<template>" + job.getPlotTmpl() + "</template>";
-
-    //  if there are  series elements present, handle them
-    //if (!job.getPlotTmpl().startsWith("roc") && !job.getPlotTmpl().startsWith("rely")) {
-      //  series
-      for (int intY = 1; intY <= 2; intY++) {
-
-        //  get the series for the current y-axis
-        MVOrderedMap mapSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val());
-        strXML += "<series" + intY + ">";
-
-        //  serialize each fcst_var and it's vals
-        String[] listSeriesField = mapSeries.getKeyList();
-
-        for (int i = 0; i < listSeriesField.length; i++) {
-
-          String fieldName = listSeriesField[i];
-          String strXMLSimpleValues = "";
-          String[] listSeriesVal = (String[]) mapSeries.get(i);
-          for (int j = 0; j < listSeriesVal.length; j++) {
-            if (listSeriesVal[j].contains(",")) {
-              strXML += "<field name=\"" + fieldName + "\">";
-              strXML += "<val>" + listSeriesVal[j] + "</val>";
-              strXML += "</field>";
-            } else {
-              if (strXMLSimpleValues.length() == 0) {
-                strXMLSimpleValues = "<field name=\"" + fieldName + "\">";
-              }
-              strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
-            }
-
-          }
-          if (strXMLSimpleValues.length() > 0) {
-            strXMLSimpleValues += "</field>";
-          }
-          strXML += strXMLSimpleValues;
-        }
-        strXML += "</series" + intY + ">";
-      }
-
-    //}
-    //  if there are dep,  and indep elements present, handle them
-    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc") &&
-      !job.getPlotTmpl().startsWith("rely")) {
-
-      // dep
-      strXML += "<dep>";
-      MVOrderedMap[] listDepGroup = job.getDepGroups();
-      for (int intY = 1; intY <= 2; intY++) {
-
-        //  get the list of fcst_var for the current dep
-        MVOrderedMap mapDep = (MVOrderedMap) listDepGroup[0].get("dep" + intY);
-        Map.Entry[] listDep = mapDep.getOrderedEntries();
-
-        //  serialize the dep and it's fcst_var stats
-        String strDep = "dep" + intY;
-        strXML += "<" + strDep + ">";
-        for (int i = 0; i < listDep.length; i++) {
-          String[] listStat = (String[]) listDep[i].getValue();
-          strXML += "<fcst_var name=\"" + listDep[i].getKey().toString() + "\">";
-          for (int j = 0; j < listStat.length; j++) {
-            strXML += "<stat>" + listStat[j] + "</stat>";
-          }
-          strXML += "</fcst_var>";
-        }
-        strXML += "</" + strDep + ">";
-      }
-      strXML += "</dep>";
-
-
-
-      //  indep
-      strXML += "<indep name=\"" + job.getIndyVar() + "\">";
-      String[] listIndyVal = job.getIndyVal();
-      String[] listIndyPlotVal = job.getIndyPlotVal();
-      String[] listIndyLabel = job.getIndyLabel();
-      for (int i = 0; i < listIndyVal.length; i++) {
-        String strIndyPlotVal = (0 < listIndyPlotVal.length ? listIndyPlotVal[i] : "");
-        strXML +=
-          "<val label=\"" + listIndyLabel[i] + "\" plot_val=\"" + strIndyPlotVal + "\">" +
-            listIndyVal[i] +
-            "</val>";
-      }
-      strXML += "</indep>";
-    }
-
-    //  plot_fix
-    MVOrderedMap mapPlotFix = job.getPlotFixVal();
-    strXML += "<plot_fix>";
-    String[] listFixField = mapPlotFix.getKeyList();
-    for (int i = 0; i < listFixField.length; i++) {
-      strXML += "<field name=\"" + listFixField[i] + "\">";
-      Object objFixVal = mapPlotFix.get(listFixField[i]);
-      if (objFixVal instanceof String[]) {
-        String[] listFixVal = (String[]) objFixVal;
-        for (int j = 0; j < listFixVal.length; j++) {
-          strXML += "<val>" + listFixVal[j].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
-        }
-      } else if (objFixVal instanceof MVOrderedMap) {
-        MVOrderedMap mapFixSet = (MVOrderedMap) objFixVal;
-        String[] listFixSetKey = mapFixSet.getKeyList();
-        for (int j = 0; j < listFixSetKey.length; j++) {
-          String[] listFixSetVal = (String[]) mapFixSet.get(listFixSetKey[j]);
-          strXML += "<set name=\"" + listFixSetKey[j] + "\">";
-          for (int k = 0; k < listFixSetVal.length; k++) {
-            strXML += "<val>" + listFixSetVal[k].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>";
-          }
-          strXML += "</set>";
-        }
-      }
-      strXML += "</field>";
-    }
-    strXML += "</plot_fix>";
-
-    //  agg_stat
-    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() || job.getAggNbrCnt()) || MVBatch.isModeRatioJob(job)) {
-      strXML +=
-        "<agg_stat>" +
-          "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>" +
-          "<agg_sl1l2>" + (job.getAggSl1l2() ? "TRUE" : "FALSE") + "</agg_sl1l2>" +
-          "<agg_pct>" + (job.getAggPct() ? "TRUE" : "FALSE") + "</agg_pct>" +
-          "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
-          "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
-          "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
-          "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
-          "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE") + "</cache_agg_stat>" +
-          "</agg_stat>";
-    }
-
-    //  calc_stat
-    if (job.getCalcCtc() || job.getCalcSl1l2()) {
-      strXML +=
-        "<calc_stat>" +
-          "<calc_ctc>" + (job.getCalcCtc() ? "TRUE" : "FALSE") + "</calc_ctc>" +
-          "<calc_sl1l2>" + (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>" +
-          "</calc_stat>";
-    }
-
-    //  roc_calc
-    if (job.getPlotTmpl().equals("roc.R_tmpl")) {
-      strXML +=
-        "<roc_calc>" +
-          "<roc_pct>" + (job.getRocPct() ? "TRUE" : "FALSE") + "</roc_pct>" +
-          "<roc_ctc>" + (job.getRocCtc() ? "TRUE" : "FALSE") + "</roc_ctc>" +
-          "</roc_calc>";
-    }
-
-    //  roc_calc
-        if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
-          strXML +=
-            "<ensss_pts>" + job.getEnsSsPts() + "</ensss_pts>" +
-              "<ensss_pts_disp>" + job.getEnsSsPtsDisp() + "</ensss_pts_disp>";
-        }
-
-    //  tmpl
-    strXML +=
-      "<tmpl>" +
-        "<title>" + job.getTitleTmpl() + "</title>" +
-        "<x_label>" + job.getXLabelTmpl() + "</x_label>" +
-        "<y1_label>" + job.getY1LabelTmpl() + "</y1_label>" +
-        "<y2_label>" + job.getY2LabelTmpl() + "</y2_label>" +
-        "<caption>" + job.getCaptionTmpl().replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</caption>" +
-        "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
-        "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>" +
-        "</tmpl>";
-
-    //  plot_cmd / plot_cond
-    strXML +=
-      "<plot_cmd>" + job.getPlotCmd() + "</plot_cmd>" +
-        "<plot_cond>" + job.getPlotCond() + "</plot_cond>";
-
-    //  plot fmt
-    strXML +=
-      "<event_equal>" + job.getEventEqual() + "</event_equal>" +
-        "<event_equal_m>" + job.getEventEqualM() + "</event_equal_m>" +
-        "<vert_plot>" + job.getVertPlot() + "</vert_plot>" +
-        "<x_reverse>" + job.getXReverse() + "</x_reverse>" +
-        "<num_stats>" + job.getShowNStats() + "</num_stats>" +
-        "<indy1_stag>" + job.getIndy1Stagger() + "</indy1_stag>" +
-        "<indy2_stag>" + job.getIndy2Stagger() + "</indy2_stag>" +
-        "<grid_on>" + job.getGridOn() + "</grid_on>" +
-        "<sync_axes>" + job.getSyncAxes() + "</sync_axes>" +
-        "<dump_points1>" + job.getDumpPoints1() + "</dump_points1>" +
-        "<dump_points2>" + job.getDumpPoints2() + "</dump_points2>" +
-        "<log_y1>" + job.getLogY1() + "</log_y1>" +
-        "<log_y2>" + job.getLogY2() + "</log_y2>" +
-        "<plot_type>" + job.getPlotType() + "</plot_type>" +
-        "<plot_height>" + job.getPlotHeight() + "</plot_height>" +
-        "<plot_width>" + job.getPlotWidth() + "</plot_width>" +
-        "<plot_res>" + job.getPlotRes() + "</plot_res>" +
-        "<plot_units>" + job.getPlotUnits() + "</plot_units>" +
-        "<mar>" + job.getMar() + "</mar>" +
-        "<mgp>" + job.getMgp() + "</mgp>" +
-        "<cex>" + job.getCex() + "</cex>" +
-        "<title_weight>" + job.getTitleWeight() + "</title_weight>" +
-        "<title_size>" + job.getTitleSize() + "</title_size>" +
-        "<title_offset>" + job.getTitleOffset() + "</title_offset>" +
-        "<title_align>" + job.getTitleAlign() + "</title_align>" +
-        "<xtlab_orient>" + job.getXtlabOrient() + "</xtlab_orient>" +
-        "<xtlab_perp>" + job.getXtlabPerp() + "</xtlab_perp>" +
-        "<xtlab_horiz>" + job.getXtlabHoriz() + "</xtlab_horiz>" +
-        "<xtlab_freq>" + job.getXtlabFreq() + "</xtlab_freq>" +
-        "<xlab_weight>" + job.getXlabWeight() + "</xlab_weight>" +
-        "<xlab_size>" + job.getXlabSize() + "</xlab_size>" +
-        "<xtlab_size>" + job.getXtlabSize() + "</xtlab_size>" +
-        "<xlab_offset>" + job.getXlabOffset() + "</xlab_offset>" +
-        "<xlab_align>" + job.getYlabAlign() + "</xlab_align>" +
-        "<ytlab_orient>" + job.getYtlabOrient() + "</ytlab_orient>" +
-        "<ytlab_perp>" + job.getYtlabPerp() + "</ytlab_perp>" +
-        "<ytlab_horiz>" + job.getYtlabHoriz() + "</ytlab_horiz>" +
-        "<ylab_weight>" + job.getYlabWeight() + "</ylab_weight>" +
-        "<ylab_size>" + job.getYlabSize() + "</ylab_size>" +
-        "<ytlab_size>" + job.getYtlabSize() + "</ytlab_size>" +
-        "<ylab_offset>" + job.getYlabOffset() + "</ylab_offset>" +
-        "<ylab_align>" + job.getYlabAlign() + "</ylab_align>" +
-        "<grid_lty>" + job.getGridLty() + "</grid_lty>" +
-        "<grid_col>" + job.getGridCol() + "</grid_col>" +
-        "<grid_lwd>" + job.getGridLwd() + "</grid_lwd>" +
-        "<grid_x>" + job.getGridX() + "</grid_x>" +
-        "<x2tlab_orient>" + job.getX2tlabOrient() + "</x2tlab_orient>" +
-        "<x2tlab_perp>" + job.getX2tlabPerp() + "</x2tlab_perp>" +
-        "<x2tlab_horiz>" + job.getX2tlabHoriz() + "</x2tlab_horiz>" +
-        "<x2lab_weight>" + job.getX2labWeight() + "</x2lab_weight>" +
-        "<x2lab_size>" + job.getX2labSize() + "</x2lab_size>" +
-        "<x2tlab_size>" + job.getX2tlabSize() + "</x2tlab_size>" +
-        "<x2lab_offset>" + job.getX2labOffset() + "</x2lab_offset>" +
-        "<x2lab_align>" + job.getX2labAlign() + "</x2lab_align>" +
-        "<y2tlab_orient>" + job.getY2tlabOrient() + "</y2tlab_orient>" +
-        "<y2tlab_perp>" + job.getY2tlabPerp() + "</y2tlab_perp>" +
-        "<y2tlab_horiz>" + job.getY2tlabHoriz() + "</y2tlab_horiz>" +
-        "<y2lab_weight>" + job.getY2labWeight() + "</y2lab_weight>" +
-        "<y2lab_size>" + job.getY2labSize() + "</y2lab_size>" +
-        "<y2tlab_size>" + job.getY2tlabSize() + "</y2tlab_size>" +
-        "<y2lab_offset>" + job.getY2labOffset() + "</y2lab_offset>" +
-        "<y2lab_align>" + job.getY2labAlign() + "</y2lab_align>" +
-        "<legend_size>" + job.getLegendSize() + "</legend_size>" +
-        "<legend_box>" + job.getLegendBox() + "</legend_box>" +
-        "<legend_inset>" + job.getLegendInset() + "</legend_inset>" +
-        "<legend_ncol>" + job.getLegendNcol() + "</legend_ncol>" +
-        "<caption_weight>" + job.getCaptionWeight() + "</caption_weight>" +
-        "<caption_col>" + job.getCaptionCol() + "</caption_col>" +
-        "<caption_size>" + job.getCaptionSize() + "</caption_size>" +
-        "<caption_offset>" + job.getCaptionOffset() + "</caption_offset>" +
-        "<caption_align>" + job.getCaptionAlign() + "</caption_align>" +
-        "<box_pts>" + job.getBoxPts() + "</box_pts>" +
-        "<box_outline>" + job.getBoxOutline() + "</box_outline>" +
-        "<box_boxwex>" + job.getBoxBoxwex() + "</box_boxwex>" +
-        "<box_notch>" + job.getBoxNotch() + "</box_notch>" +
-        "<box_avg>" + job.getBoxAvg() + "</box_avg>" +
-        "<rely_event_hist>" + job.getRelyEventHist() + "</rely_event_hist>" +
-        "<ci_alpha>" + job.getCIAlpha() + "</ci_alpha>" +
-
-        "<plot_ci>" + job.getPlotCI() + "</plot_ci>" +
-        "<plot_disp>" + job.getPlotDisp() + "</plot_disp>" +
-        "<show_signif>" + job.getShowSignif() + "</show_signif>" +
-        "<order_series>" + job.getOrderSeries() + "</order_series>" +
-        "<colors>" + job.getColors() + "</colors>" +
-        "<pch>" + job.getPch() + "</pch>" +
-        "<type>" + job.getType() + "</type>" +
-        "<lty>" + job.getLty() + "</lty>" +
-        "<lwd>" + job.getLwd() + "</lwd>" +
-        "<con_series>" + job.getConSeries() + "</con_series>" +
-        "<legend>" + job.getLegend() + "</legend>" +
-
-        "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
-        "<y1_bufr>" + job.getY1Bufr() + "</y1_bufr>" +
-        "<y2_lim>" + job.getY2Lim() + "</y2_lim>" +
-        "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>" +
-        "<varianceInflationFactor>" + job.getVarianceInflationFactor() + "</varianceInflationFactor>" +
-        "<normalized_histogram>" + job.getNormalizedHistogram() + "</normalized_histogram>" +
-        "<plot_stat>" + job.getPlotStat() + "</plot_stat>";
-
-    //  close the plot job
-    strXML += "</plot></plot_spec>";
-    return strXML;
   }
 }

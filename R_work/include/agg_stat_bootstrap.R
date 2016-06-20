@@ -14,6 +14,16 @@ source("util_plot.R");
 
 # read the plot data
 dfStatsRec = read.delim(strInputDataFile);
+dfPlot1 = data.frame();
+
+if(boolEventEqual){
+  dfStatsRec = equalizeAggStatsAgainstValues(strInputEeDataFile,listFixedValEx,listDep1Plot,listDep2Plot,listSeries1Val,listSeries2Val,dfStatsRec);
+
+  strAfrerEqualizeFile = sub("\\.agg_stat_bootstrap", ".dataAfterEq", strInputDataFile, perl=TRUE);
+  write.table(dfStatsRec, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
+}
+
+
 intYMax = 1;
 if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 

@@ -1,10 +1,6 @@
 /**
- * TestUtil.java
- * Copyright UCAR (c) 2014.
- * University Corporation for Atmospheric Research (UCAR),
- * National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL),
- * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
+ * TestUtil.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
+ * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
  */
 
 package edu.ucar.metviewer.test.util;
@@ -28,13 +24,125 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestUtil {
 
-  public static String rootDir;
-
   public final static String FILE_SEPARATOR;
+  private static final Comparator<File> FILE_NAME_COMPARATOR = new Comparator<File>() {
+    @Override
+    public int compare(File o1, File o2) {
+      return o1.getName().compareTo(o2.getName());
+    }
+  };
+  public static String rootDir;
   public static String rworkDir;
   public static String plotsDir;
+  private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".png";
+    }
+
+    @Override
+    public String getActualDir() {
+      return plotsDir;
+    }
+  };
+  private static final CustomFilenameFilter XML_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".xml";
+    }
+
+    @Override
+    public String getActualDir() {
+      return plotsDir;
+    }
+  };
+  public static final FilenameFilter DIRECTORY_FILTER = new FilenameFilter() {
+    @Override
+    public boolean accept(File current, String name) {
+      File f = new File(current, name);
+      return f.isDirectory() && f.list(XML_FILES_FILTER).length > 0;
+    }
+  };
+  private static final CustomFilenameFilter SQL_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".sql";
+    }
+
+    @Override
+    public String getActualDir() {
+      return plotsDir;
+    }
+  };
   public static String dataDir;
+  private static final CustomFilenameFilter DATA_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".data";
+    }
+
+    @Override
+    public String getActualDir() {
+      return dataDir;
+    }
+  };
+  private static final CustomFilenameFilter POINTS1_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".points1";
+    }
+
+    @Override
+    public String getActualDir() {
+      return dataDir;
+    }
+  };
+  private static final CustomFilenameFilter POINTS2_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".points2";
+    }
+
+    @Override
+    public String getActualDir() {
+      return dataDir;
+    }
+  };
+  private static final CustomFilenameFilter DATA_AGG_STAT_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".data.agg_stat";
+    }
+
+    @Override
+    public String getActualDir() {
+      return dataDir;
+    }
+  };
+  private static final CustomFilenameFilter AGG_STAT_INFO_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".agg_stat.info";
+    }
+
+    @Override
+    public String getActualDir() {
+      return dataDir;
+    }
+
+  };
   public static String scriptsDir;
+  private static final CustomFilenameFilter RSCRIPT_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".R";
+    }
+
+    @Override
+    public String getActualDir() {
+      return scriptsDir;
+    }
+  };
   public static String loadDir;
   public static String database;
   public static String username;
@@ -70,131 +178,6 @@ public class TestUtil {
     type = "mysql";
     driver = "com.mysql.jdbc.Driver";
   }
-
-  public static final FilenameFilter DIRECTORY_FILTER = new FilenameFilter() {
-    @Override
-    public boolean accept(File current, String name) {
-      File f = new File(current, name);
-      return f.isDirectory() && f.list(XML_FILES_FILTER).length > 0;
-    }
-  };
-
-  private static final CustomFilenameFilter DATA_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".data";
-    }
-
-    @Override
-    public String getActualDir() {
-      return dataDir;
-    }
-  };
-  private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".png";
-    }
-
-    @Override
-    public String getActualDir() {
-      return plotsDir;
-    }
-  };
-
-  private static final CustomFilenameFilter POINTS1_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".points1";
-    }
-
-    @Override
-    public String getActualDir() {
-      return dataDir;
-    }
-  };
-
-  private static final CustomFilenameFilter POINTS2_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".points2";
-    }
-
-    @Override
-    public String getActualDir() {
-      return dataDir;
-    }
-  };
-
-  private static final CustomFilenameFilter XML_FILES_FILTER = new CustomFilenameFilter() {
-      @Override
-      public String getFileExtension() {
-        return ".xml";
-      }
-
-      @Override
-      public String getActualDir() {
-        return plotsDir;
-      }
-    };
-
-
-  private static final CustomFilenameFilter RSCRIPT_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".R";
-    }
-
-    @Override
-    public String getActualDir() {
-      return scriptsDir;
-    }
-  };
-
-  private static final CustomFilenameFilter SQL_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".sql";
-    }
-
-    @Override
-    public String getActualDir() {
-      return plotsDir;
-    }
-  };
-
-  private static final CustomFilenameFilter DATA_AGG_STAT_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".data.agg_stat";
-    }
-
-    @Override
-    public String getActualDir() {
-      return dataDir;
-    }
-  };
-
-  private static final CustomFilenameFilter AGG_STAT_INFO_FILES_FILTER = new CustomFilenameFilter() {
-    @Override
-    public String getFileExtension() {
-      return ".agg_stat.info";
-    }
-
-    @Override
-    public String getActualDir() {
-      return dataDir;
-    }
-
-  };
-
-
-  private static final Comparator<File> FILE_NAME_COMPARATOR = new Comparator<File>() {
-    @Override
-    public int compare(File o1, File o2) {
-      return o1.getName().compareTo(o2.getName());
-    }
-  };
 
   public static void runBatch(String testDataDir, String plotType) {
     List<String> argsList = new ArrayList<>();
@@ -383,7 +366,9 @@ public class TestUtil {
   }
 
   public abstract static class CustomFilenameFilter implements FilenameFilter {
+
     public abstract String getFileExtension();
+
     public abstract String getActualDir();
 
     @Override

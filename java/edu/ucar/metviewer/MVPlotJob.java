@@ -27,9 +27,12 @@ public class MVPlotJob extends MVUtil {
   protected String[] _listIndyVal = {};
   protected String[] _listIndyPlotVal = {};
   protected String[] _listIndyLabel = {};
+
+
   protected MVPlotDep _depIndy = null;
 
   protected MVOrderedMap _mapPlotFixVal = new MVOrderedMap();
+  protected MVOrderedMap _mapPlotFixValEq = new MVOrderedMap();
 
   protected MVOrderedMap[] _listDepGroup = {};
 
@@ -56,7 +59,6 @@ public class MVPlotJob extends MVUtil {
   protected String _strPlotCond = "";
 
   protected boolean _boolEventEqual = false;
-  protected boolean _boolEventEqualM = false;
   protected boolean _boolVertPlot = false;
   protected boolean _boolXReverse = false;
   protected boolean _boolShowNStats = false;
@@ -147,6 +149,7 @@ public class MVPlotJob extends MVUtil {
   protected String _strAggBootRepl = "1";
   protected String _strAggBootCI = "bca";
   protected boolean _boolEveqDis = false;
+  protected boolean _equalizeByIndep = true;
 
   protected boolean _boolCalcCtc = false;
   protected boolean _boolCalcSl1l2 = false;
@@ -174,18 +177,6 @@ public class MVPlotJob extends MVUtil {
   protected String _strShowSignif = "";
 
 
-  public static MVPlotJob getBaseJob(Connection con) throws Exception {
-    return new MVPlotJob();
-  }
-
-  public static MVPlotJob[] getJobs(Connection con, MVPlotJob base) throws Exception {
-    return new MVPlotJob[]{};
-  }
-
-  public static MVPlotJob[] getJobs(Connection con) throws Exception {
-    return new MVPlotJob[]{};
-  }
-
   /**
    * Deep copy of the MVPlotJob, useful for inheritance.
    *
@@ -210,9 +201,11 @@ public class MVPlotJob extends MVUtil {
     job._listIndyLabel = copyList(_listIndyLabel);
     job._depIndy = _depIndy;
     job._mapPlotFixVal = new MVOrderedMap(_mapPlotFixVal);
+    job._mapPlotFixValEq = new MVOrderedMap(_mapPlotFixValEq);
     job._listDepGroup = copyList(_listDepGroup);
     job._mapSeries1Val = new MVOrderedMap(_mapSeries1Val, "s");
     job._mapSeries2Val = new MVOrderedMap(_mapSeries2Val, "s");
+
 
     job._mapSeriesNobs = new MVOrderedMap(_mapSeriesNobs);
     job._mapDep1Scale = new MVOrderedMap(_mapDep1Scale);
@@ -232,7 +225,6 @@ public class MVPlotJob extends MVUtil {
     job._strPlotCond = _strPlotCond;
 
     job._boolEventEqual = _boolEventEqual;
-    job._boolEventEqualM = _boolEventEqualM;
     job._boolVertPlot = _boolVertPlot;
     job._boolXReverse = _boolXReverse;
     job._boolShowNStats = _boolShowNStats;
@@ -323,6 +315,7 @@ public class MVPlotJob extends MVUtil {
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootCI = _strAggBootCI;
     job._boolEveqDis = _boolEveqDis;
+    job._equalizeByIndep = _equalizeByIndep;
 
     job._boolCalcCtc = _boolCalcCtc;
     job._boolCalcSl1l2 = _boolCalcSl1l2;
@@ -478,6 +471,7 @@ public class MVPlotJob extends MVUtil {
     _listIndyLabel = indyLabel;
   }
 
+
   public MVPlotDep getIndyDep() {
     return _depIndy;
   }
@@ -490,25 +484,46 @@ public class MVPlotJob extends MVUtil {
     return _mapPlotFixVal;
   }
 
+  public MVOrderedMap getPlotFixValEq() {
+    return _mapPlotFixValEq;
+  }
+
   public void addPlotFixVal(String field, String[] vals, int index) {
     _mapPlotFixVal.put(field, vals, index);
+  }
+
+  public void addPlotFixValEq(String field, String[] vals, int index) {
+    _mapPlotFixValEq.put(field, vals, index);
   }
 
   public void addPlotFixVal(String field, String[] vals) {
     addPlotFixVal(field, vals, _mapPlotFixVal.size());
   }
 
+  public void addPlotFixValEq(String field, String[] vals) {
+    addPlotFixValEq(field, vals, _mapPlotFixValEq.size());
+  }
+
   public void addPlotFixVal(String field, MVOrderedMap sets, int index) {
     _mapPlotFixVal.put(field, sets, index);
+  }
+
+  public void addPlotFixValEq(String field, MVOrderedMap sets, int index) {
+    _mapPlotFixValEq.put(field, sets, index);
   }
 
   public void addPlotFixVal(String field, MVOrderedMap sets) {
     addPlotFixVal(field, sets, _mapPlotFixVal.size());
   }
 
+  public void addPlotFixValEq(String field, MVOrderedMap sets) {
+    addPlotFixValEq(field, sets, _mapPlotFixValEq.size());
+  }
+
   public void removePlotFixVal(String field) {
     _mapPlotFixVal.remove(field);
   }
+
 
   public void clearPlotFixVal() {
     _mapPlotFixVal = new MVOrderedMap();
@@ -649,13 +664,6 @@ public class MVPlotJob extends MVUtil {
     addTmplMap(field, map, _mapTmplMaps.size());
   }
 
-  public void removeTmplMap(String field) {
-    _mapTmplMaps.remove(field);
-  }
-
-  public void clearTmplMap() {
-    _mapTmplMaps = new MVOrderedMap();
-  }
 
   public MVOrderedMap getTmplVal() {
     return _mapTmplVal;
@@ -749,17 +757,10 @@ public class MVPlotJob extends MVUtil {
     return _boolEventEqual;
   }
 
-  public void setEventEqual(boolean eventEqual) {
+  public void setEventEqual(Boolean eventEqual) {
     _boolEventEqual = eventEqual;
   }
 
-  public boolean getEventEqualM() {
-    return _boolEventEqualM;
-  }
-
-  public void setEventEqualM(boolean eventEqualM) {
-    _boolEventEqualM = eventEqualM;
-  }
 
   public boolean getVertPlot() {
     return _boolVertPlot;
@@ -1645,6 +1646,10 @@ public class MVPlotJob extends MVUtil {
     return _strDiffSeries1;
   }
 
+  public void setDiffSeries1(String _strDiffSeries1) {
+    this._strDiffSeries1 = _strDiffSeries1;
+  }
+
   public int getDiffSeries1Count() {
     if (_strDiffSeries1.equals("list()")) {
       return 0;
@@ -1661,10 +1666,6 @@ public class MVPlotJob extends MVUtil {
     return diffSeries.length - 1;
   }
 
-  public void setDiffSeries1(String _strDiffSeries1) {
-    this._strDiffSeries1 = _strDiffSeries1;
-  }
-
   public String getDiffSeries2() {
     return _strDiffSeries2;
   }
@@ -1672,5 +1673,14 @@ public class MVPlotJob extends MVUtil {
   public void setDiffSeries2(String _strDiffSeries2) {
     this._strDiffSeries2 = _strDiffSeries2;
   }
+
+  public boolean getEqualizeByIndep() {
+    return this._equalizeByIndep;
+  }
+
+  public void setEqualizeByIndep(Boolean equalizeByIndep) {
+    this._equalizeByIndep = equalizeByIndep;
+  }
+
 }
 

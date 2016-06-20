@@ -1,16 +1,19 @@
 package edu.ucar.metviewer;
 
 /**
- * Storage class for plot feature dependency information.  If a xml plot
- * specification contains features that are dependent on other plot
- * information, the database variable should be stored along with the xml plot
- * specification node.  When the plot is generated the dependent information
- * will be parsed and generated.
+ * Storage class for plot feature dependency information.  If a xml plot specification contains features that are dependent on other plot information, the
+ * database variable should be stored along with the xml plot specification node.  When the plot is generated the dependent information will be parsed and
+ * generated.
  */
 public class MVPlotDep {
 
   protected String _strDepVar = "";
   protected MVNode _nodeSpec = null;
+
+  public MVPlotDep(String depVar, MVNode node) {
+    _strDepVar = depVar;
+    _nodeSpec = node;
+  }
 
   public String getDepVar() {
     return _strDepVar;
@@ -26,10 +29,5 @@ public class MVPlotDep {
 
   public void setSpec(MVNode spec) {
     _nodeSpec = spec;
-  }
-
-  public MVPlotDep(String depVar, MVNode node) {
-    _strDepVar = depVar;
-    _nodeSpec = node;
   }
 }

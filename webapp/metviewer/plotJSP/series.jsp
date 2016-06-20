@@ -36,7 +36,7 @@
                     //Browser has allowed it to be opened
                     win.focus();
                   } else {
-                    //Broswer has blocked it
+                    //Browser has blocked it
                     alert('Please allow popups for this site');
                   }
                 },
@@ -95,13 +95,25 @@
                 updateStats("y2", 1, []);
                 updateFixVarSeries("stat");
                 updateIndyVarSeries("stat");
+                $("#agg_none").prop('checked', 'checked');
 
               } else {
                 updateMode("y1", 1, []);
                 updateMode("y2", 1, []);
                 updateFixVarSeries("mode");
                 updateIndyVarSeries("mode");
-              }
+                  $("#agg_mode").prop('checked', 'checked');
+                  $('#radio')
+                        .find('input')
+                        .removeProp('checked')
+                        .filter('[value="aggregation_statistics"]')
+                        .prop('checked', true)
+                        .end()
+                        .end()
+                        .buttonset('refresh');
+                $('#aggregation_statistics ').show();
+                            $('#calculations_statistics ').hide();
+                }
               updateSeriesVarValSeries("y1", 1, []);
               updateSeriesVarValSeries("y2", 1, []);
             }
@@ -282,6 +294,8 @@
           $('#calculations_statistics ').hide();
           $('#calc_none ').prop("checked", true);
           $('#agg_none ').prop("checked", true);
+          $('#indy_var_event_equal ').prop("checked", true);
+          $('#event_equal').prop("checked", false);
           $("input[name='calc_stat']").change(function () {
             if ($( 'input[name=calc_stat]:checked' ).val() != "none") {
               $("input[name=agg_stat][value=none]").prop('checked', true);
@@ -673,13 +687,18 @@
                             style="display: none;">Select period
                     </button>
                 </td>
+              <td><input type="checkbox" id="fix_var_event_equal_1" checked><label for="fix_var_event_equal_1">Equalize</label> </td>
 
 
             </tr>
         </table>
         <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
-        <br/>
-        <br/>
+      <div>
+
+      <input type="checkbox" id="event_equal">
+                      <label for="event_equal">Event Equalizer</label>
+    </div>
+      <br/>
         <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""
                                                           id="txtPlotCond"
                                                           style="width: 95%">
@@ -723,6 +742,7 @@
                         Select multiple options
                     </button>
                 </td>
+              <td><input type="checkbox" checked="" id="indy_var_event_equal"><label for="indy_var_event_equal">Equalize</label></td>
             </tr>
 
         </table>
@@ -777,7 +797,7 @@
                         <option value="bca">bca</option>
                         <option value="all">all</option>
                     </select></td>
-                    <td><label for="boot_ci">Confidence Interval</label></td>
+                    <td><label for="boot_ci">Confidence Interval method</label></td>
                 </tr>
                 <tr>
                     <td><input type="radio" value="pct" name="agg_stat"
@@ -785,25 +805,25 @@
                     <td><label for="agg_pct">Probability methods output
                         (PCT)</label></td>
 
-                    <td style="text-align:right;"><input id="selEveqDis"
-                                                         type="checkbox"></td>
-                    <td><label
-                            title="Disables automatic event equalization that occurs when bootstrap confidence intervals are requested"
-                            for="selEveqDis">Event equalization</label></td>
+                  <td style="text-align:right;"><input id="cacheAggStat"
+                                                                        type="checkbox"></td>
+                                   <td><label for="cacheAggStat">Cache aggregation
+                                       statistics</label></td>
                 </tr>
                 <tr>
                     <td><input type="radio" value="nbrcnt" name="agg_stat"
                                id="agg_nbrcnt"></td>
                     <td><label for="agg_nbrcnt">Nbrhood method count
                         (NBR_CNT)</label></td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
 
-                    <td style="text-align:right;"><input id="cacheAggStat"
-                                                         type="checkbox"></td>
-                    <td><label for="cacheAggStat">Cache aggregation
-                        statistics</label></td>
                 </tr>
+
+              <tr><td><input type="radio" value="mode" name="agg_stat" checked
+                                             id="agg_mode"></td><td colspan="3"><label for="agg_mode">Mode</label></td></tr>
               <tr><td><input type="radio" value="none" name="agg_stat" checked
-                                             id="agg_none"></td><td colspan="3"><label for="agg_none">None</label></td></tr>
+                                                         id="agg_none"></td><td colspan="3"><label for="agg_none">None</label></td></tr>
 
 
             </table>

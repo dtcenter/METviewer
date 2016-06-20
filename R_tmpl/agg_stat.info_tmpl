@@ -1,4 +1,3 @@
-
 # script configuration
 
 boolAggCtc = #<agg_ctc>#;
@@ -9,6 +8,7 @@ boolEveqDis = #<eveq_dis>#;
 intNumReplicates = #<boot_repl>#;
 strCIType = "#<boot_ci>#";
 dblAlpha = #<ci_alpha>#;
+boolEqualizeByIndep = #<equalize_by_indep>#;
 
 # data set information
 strIndyVar = "#<indy_var>#";
@@ -17,6 +17,8 @@ listIndyVal = #<indy_list>#;
 listSeries1Val = #<series1_list>#;
 
 listSeries2Val = #<series2_list>#;
+
+listFixedValEx = #<fix_val_list_eq>#;
 		
 listStat1 = #<agg_stat1>#;
 
@@ -32,3 +34,7 @@ strWorkingDir = "#<working_dir>#";
 listDiffSeries1=#<series1_diff_list>#;
 
 listDiffSeries2=#<series2_diff_list>#;
+
+listDep1Plot = #<dep1_plot>#;
+
+listDep2Plot = #<dep2_plot>#;

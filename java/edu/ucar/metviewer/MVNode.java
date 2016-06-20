@@ -18,6 +18,7 @@ public class MVNode {
   protected String _depends = "";
   protected String _plotVal = "";
   protected String _value = "";
+  protected String _equalize = "";
   protected MVNode[] _children = {};
 
   public MVNode(Node node) {
@@ -43,6 +44,8 @@ public class MVNode {
         _depends = nodeAttr.getNodeValue();
       } else if (strAttrName.equals("plot_val")) {
         _plotVal = nodeAttr.getNodeValue();
+      } else if (strAttrName.equals("equalize")) {
+        _equalize = nodeAttr.getNodeValue();
       } else {
         System.out.println("  **  WARNING: unrecognized attribute name '" + strAttrName + "' in node '" + _tag + "'");
       }
@@ -95,17 +98,6 @@ public class MVNode {
     return strRet;
   }
 
-  public static String printNode(MVNode mvnode) {
-    return printNode(mvnode, 0);
-  }
-
-  public String printNode() {
-    return printNode(this, 0);
-  }
-
-  public String printNode(int lev) {
-    return printNode(this, lev);
-  }
 
   public static String tabPad(int lev) {
     String pad = "";
@@ -115,35 +107,16 @@ public class MVNode {
     return pad;
   }
 
-  public static String getNodeTypeString(Node node) {
-    switch (node.getNodeType()) {
-      case Node.ATTRIBUTE_NODE:
-        return "ATTRIBUTE_NODE";
-      case Node.CDATA_SECTION_NODE:
-        return "CDATA_SECTION_NODE";
-      case Node.COMMENT_NODE:
-        return "COMMENT_NODE";
-      case Node.DOCUMENT_FRAGMENT_NODE:
-        return "DOCUMENT_FRAGMENT_NODE";
-      case Node.DOCUMENT_NODE:
-        return "DOCUMENT_NODE";
-      case Node.DOCUMENT_TYPE_NODE:
-        return "DOCUMENT_TYPE_NODE";
-      case Node.ELEMENT_NODE:
-        return "ELEMENT_NODE";
-      case Node.ENTITY_NODE:
-        return "ENTITY_NODE";
-      case Node.ENTITY_REFERENCE_NODE:
-        return "ENTITY_REFERENCE_NODE";
-      case Node.NOTATION_NODE:
-        return "NOTATION_NODE";
-      case Node.PROCESSING_INSTRUCTION_NODE:
-        return "PROCESSING_INSTRUCTION_NODE";
-      case Node.TEXT_NODE:
-        return "TEXT_NODE";
-      default:
-        return "(unknown)";
+  public String getAttribute(String attributeName) {
+    String attributeValue = null;
+    NamedNodeMap namedNodeMap = _node.getAttributes();
+    if (namedNodeMap.getLength() > 0) {
+      try {
+        attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
+      } catch (NullPointerException e) {
+      }
     }
+    return attributeValue;
   }
 
 }

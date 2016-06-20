@@ -2,20 +2,52 @@ package edu.ucar.metviewer;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extension of Hashtable that returns the set of entries in the order that
- * they were inserted into the table, via the method getOrderedEntries().
+ * Extension of Hashtable that returns the set of entries in the order that they were inserted into the table, via the method getOrderedEntries().
  */
 public class MVOrderedMap extends Hashtable {
 
+  public static final Pattern _patMap = Pattern.compile("(?s)map\\((.*)\\)");
+  public static final Pattern _patList = Pattern.compile("(?s)list\\((.*)\\)");
+  public static final Pattern _patPair = Pattern.compile("(?s)^\\s*([\\w\\d]+)\\s*=\\s*(.*)\\s*$");
   private static final long serialVersionUID = 1L;
+  public final ArrayList _listKeys = new ArrayList();
 
-  public ArrayList _listKeys = new ArrayList();
+  /**
+   * Default constructor creates an empty map
+   */
+  public MVOrderedMap() {
+    super();
+  }
+
+
+  /**
+   * Copy constructor
+   *
+   * @param copy Map to copy
+   */
+  public MVOrderedMap(MVOrderedMap copy) {
+    super();
+    _listKeys.addAll(copy._listKeys);
+    Map.Entry[] listEntries = copy.getOrderedEntries();
+    for (Map.Entry listEntry : listEntries) {
+      put(listEntry.getKey(), listEntry.getValue());
+    }
+  }
+
+  public MVOrderedMap(MVOrderedMap copy, String s) {
+    super();
+    _listKeys.addAll(copy._listKeys);
+    Map.Entry[] listEntries = copy.getOrderedEntriesSeries();
+    for (int i = 0; i < listEntries.length; i++) {
+      //putSeries(listEntries[i].getKey(), listEntries[i].getValue(), i);
+      super.put(i, listEntries[i].getValue());
+    }
+  }
 
   public static void main(String[] args) {
     System.out.println("----  MVOrderedMap Test  ----");
@@ -34,41 +66,54 @@ public class MVOrderedMap extends Hashtable {
     System.out.println("----  MVOrderedMap Test Complete  ----");
   }
 
-  /**
-   * Default constructor creates an empty map
-   */
-  public MVOrderedMap() {
-    super();
-  }
+  public static MVOrderedMap parseMap(String map) {
+    MVOrderedMap ret = new MVOrderedMap();
 
-  /**
-   * Copy constructor
-   *
-   * @param copy Map to copy
-   */
-  public MVOrderedMap(MVOrderedMap copy) {
-    super();
-    _listKeys.addAll(copy._listKeys);
-    Map.Entry[] listEntries = copy.getOrderedEntries();
-    for (int i = 0; i < listEntries.length; i++) {
-      put(listEntries[i].getKey(), listEntries[i].getValue());
+    Matcher matMap = _patMap.matcher(map.replace("\n", ""));
+    if (!matMap.matches()) {
+      return null;
     }
-  }
 
-  public MVOrderedMap(MVOrderedMap copy, String s) {
-    super();
-    _listKeys.addAll(copy._listKeys);
-    Map.Entry[] listEntries = copy.getOrderedEntriesSeries();
-    for (int i = 0; i < listEntries.length; i++) {
-      //putSeries(listEntries[i].getKey(), listEntries[i].getValue(), i);
-       super.put(i, listEntries[i].getValue());
+    String strData = matMap.group(1);
+    String[] listMembers = strData.split(";");
+    for (String listMember : listMembers) {
+      Matcher matPair = _patPair.matcher(listMember);
+      if (!matPair.matches()) {
+        return null;
+      }
+
+      String strKey = matPair.group(1);
+      String strVal = matPair.group(2);
+
+      String[] listVal = parseList(strVal);
+      MVOrderedMap mapVal = parseMap(strVal);
+      Object objVal = strVal;
+      if (null != listVal) {
+        objVal = listVal;
+      } else if (null != mapVal) {
+        objVal = mapVal;
+      }
+
+      ret.put(strKey, objVal);
     }
+
+    return ret;
   }
 
+  public static String[] parseList(String list) {
+    String[] listData = null;
+    Matcher matList = _patList.matcher(list);
+    if (matList.matches()) {
+      listData = matList.group(1).split(",");
+      for (int i = 0; i < listData.length; i++) {
+        listData[i] = listData[i].trim();
+      }
+    }
+    return listData;
+  }
 
   /**
-   * Pseudo-override of the Hashtable get() method to cast the return value as
-   * a string.
+   * Pseudo-override of the Hashtable get() method to cast the return value as a string.
    *
    * @param key Symbol (String) used as the index for the value
    * @return The inserted value, cast as a String
@@ -78,8 +123,7 @@ public class MVOrderedMap extends Hashtable {
   }
 
   /**
-   * Pseudo-override of the Hashtable get() method to cast the return value as
-   * an int.
+   * Pseudo-override of the Hashtable get() method to cast the return value as an int.
    *
    * @param key Symbol (String) used as the index for the value
    * @return The inserted value, cast as an int
@@ -89,8 +133,7 @@ public class MVOrderedMap extends Hashtable {
   }
 
   /**
-   * Pseudo-override of the Hashtable get() method to cast the return value as
-   * an double.
+   * Pseudo-override of the Hashtable get() method to cast the return value as an double.
    *
    * @param key Symbol (String) used as the index for the value
    * @return The inserted value, cast as a double
@@ -100,9 +143,7 @@ public class MVOrderedMap extends Hashtable {
   }
 
   /**
-   * Pseudo-override of the Hashtable get() method to use the input as a
-   * pattern, using the * character as a wildcard, which returns a list of
-   * matched values
+   * Pseudo-override of the Hashtable get() method to use the input as a pattern, using the * character as a wildcard, which returns a list of matched values
    *
    * @param key Pattern used to match keys for the value(s)
    * @return List of matched values
@@ -111,8 +152,8 @@ public class MVOrderedMap extends Hashtable {
     ArrayList listRet = new ArrayList();
     String strPat = key.replace(".", "\\.").replace("*", ".*").replace("(", "\\(").replace(")", "\\)");
     Pattern patKey = Pattern.compile(strPat);
-    for (int i = 0; i < _listKeys.size(); i++) {
-      String strKey = _listKeys.get(i).toString();
+    for (Object _listKey : _listKeys) {
+      String strKey = _listKey.toString();
       Matcher matKey = patKey.matcher(strKey);
       if (matKey.matches()) {
         listRet.add(getStr(strKey));
@@ -122,8 +163,7 @@ public class MVOrderedMap extends Hashtable {
   }
 
   /**
-   * Inserts the key/value pair into the table, putting the key into the
-   * ordered list at the position specified by index
+   * Inserts the key/value pair into the table, putting the key into the ordered list at the position specified by index
    *
    * @param key   Symbol used as the index for value
    * @param value Data to store, indexed by key field
@@ -137,24 +177,17 @@ public class MVOrderedMap extends Hashtable {
     return super.put(key, value);
   }
 
-  public Object putSeries(Object key, Object value, int index) {
-    Object result = null;
-
+  public void putSeries(Object key, Object value, int index) {
     _listKeys.add(index, key);
-
-
-    return super.put(index, value);
+    super.put(index, value);
   }
 
-
   /**
-   * Overrides put() in {@link Hashtable} to add the key/value pair to the
-   * table and the key at the end of the ordered list
+   * Overrides put() in {@link Hashtable} to add the key/value pair to the table and the key at the end of the ordered list
    */
   public Object put(Object key, Object value) {
     return put(key, value, _listKeys.size());
   }
-
 
   /**
    * Pseudo-override to ease the process of inserting integers into the map
@@ -185,10 +218,8 @@ public class MVOrderedMap extends Hashtable {
     return put(key, "" + value);
   }
 
-
   /**
-   * Overrides remove() in {@link Hashtable} to remove the key/value pair from
-   * the table
+   * Overrides remove() in {@link Hashtable} to remove the key/value pair from the table
    */
   public Object remove(Object key) {
     _listKeys.remove(key);
@@ -205,15 +236,14 @@ public class MVOrderedMap extends Hashtable {
   }
 
   /**
-   * Returns a {@link Map.Entry} array with the entries in the same order that
-   * they were inserted into the table.
+   * Returns a {@link Map.Entry} array with the entries in the same order that they were inserted into the table.
    *
    * @return The ordered list of table entries
    */
   public Map.Entry[] getOrderedEntries() {
     Map.Entry[] ret = new Map.Entry[size()];
-    for (Iterator iterEntries = entrySet().iterator(); iterEntries.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iterEntries.next();
+    for (Object o : entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       ret[_listKeys.indexOf(entry.getKey())] = entry;
     }
     return ret;
@@ -221,9 +251,9 @@ public class MVOrderedMap extends Hashtable {
 
   public Map.Entry[] getOrderedEntriesSeries() {
     Map.Entry[] ret = new Map.Entry[size()];
-    for (Iterator iterEntries = entrySet().iterator(); iterEntries.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iterEntries.next();
-      ret[(Integer) entry.getKey()] = entry;
+    for (Object o : entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
+      ret[(int) entry.getKey()] = entry;
     }
     return ret;
   }
@@ -252,9 +282,7 @@ public class MVOrderedMap extends Hashtable {
         newSize = newSize + curArr.length;
         newArr = new String[newSize];
         System.arraycopy(oldArr, 0, newArr, 0, oldArr.length);
-        for (int k = 0; k < curArr.length; k++) {
-          newArr[oldArr.length + k] = curArr[k];
-        }
+        System.arraycopy(curArr, 0, newArr, oldArr.length, curArr.length);
 
 
         simpleMap.put(_listKeys.get(i), newArr);
@@ -269,17 +297,15 @@ public class MVOrderedMap extends Hashtable {
     MVOrderedMap simpleMap = convertFromSeriesMap();
 
     Map.Entry[] ret = new Map.Entry[simpleMap.size()];
-    for (Iterator iterEntries = simpleMap.entrySet().iterator(); iterEntries.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iterEntries.next();
+    for (Object o : simpleMap.entrySet()) {
+      Map.Entry entry = (Map.Entry) o;
       ret[simpleMap._listKeys.indexOf(entry.getKey())] = entry;
     }
     return ret;
   }
 
-
   /**
-   * Returns a string representation of the MVOrderedMap in R declaration
-   * syntax
+   * Returns a string representation of the MVOrderedMap in R declaration syntax
    */
   public String getRDecl() {
     return MVUtil.getRDecl(this);
@@ -287,57 +313,6 @@ public class MVOrderedMap extends Hashtable {
 
   public String getRDeclSeries() {
     return MVUtil.getRDecl(convertFromSeriesMap());
-  }
-
-  public static final Pattern _patMap = Pattern.compile("(?s)map\\((.*)\\)");
-  public static final Pattern _patList = Pattern.compile("(?s)list\\((.*)\\)");
-  public static final Pattern _patPair = Pattern.compile("(?s)^\\s*([\\w\\d]+)\\s*=\\s*(.*)\\s*$");
-
-  public static MVOrderedMap parseMap(String map) {
-    MVOrderedMap ret = new MVOrderedMap();
-
-    Matcher matMap = _patMap.matcher(map.replace("\n", ""));
-    if (!matMap.matches()) {
-      return null;
-    }
-
-    String strData = matMap.group(1);
-    String[] listMembers = strData.split(";");
-    for (int i = 0; i < listMembers.length; i++) {
-      Matcher matPair = _patPair.matcher(listMembers[i]);
-      if (!matPair.matches()) {
-        return null;
-      }
-
-      String strKey = matPair.group(1);
-      String strVal = matPair.group(2);
-
-      String[] listVal = parseList(strVal);
-      MVOrderedMap mapVal = parseMap(strVal);
-      Object objVal = strVal;
-      if (null != listVal) {
-        objVal = listVal;
-      } else if (null != mapVal) {
-        objVal = mapVal;
-      }
-
-      ret.put(strKey, objVal);
-    }
-
-    return ret;
-  }
-
-
-  public static String[] parseList(String list) {
-    String[] listData = null;
-    Matcher matList = _patList.matcher(list);
-    if (matList.matches()) {
-      listData = matList.group(1).split(",");
-      for (int i = 0; i < listData.length; i++) {
-        listData[i] = listData[i].trim();
-      }
-    }
-    return listData;
   }
 }
 

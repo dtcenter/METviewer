@@ -7,9 +7,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * Mutable data structure that stores data and facilitates subsetting of the
- * rows to create individual data sets.  After the MVDataTable is loaded,
- * subsets of rows can be built using the subset command.
+ * Mutable data structure that stores data and facilitates subsetting of the rows to create individual data sets.  After the MVDataTable is loaded, subsets of
+ * rows can be built using the subset command.
  */
 public class MVDataTable {
 
@@ -17,10 +16,9 @@ public class MVDataTable {
   protected ArrayList _listRows = new ArrayList();
 
   /**
-   * Create a MVDataTable which contains the contents of the input {@
-	 * ResultSet}.
-	 *
-	 * @param res The results of a database query to be loaded
+   * Create a MVDataTable which contains the contents of the input {@ ResultSet}.
+   *
+   * @param res The results of a database query to be loaded
    */
   public MVDataTable(ResultSet res) {
     try {
@@ -33,8 +31,8 @@ public class MVDataTable {
       String[] listFields = (String[]) (_listFields.toArray(new String[]{}));
       while (res.next()) {
         MVOrderedMap row = new MVOrderedMap();
-        for (int i = 0; i < listFields.length; i++) {
-          row.put(listFields[i], res.getString(listFields[i]));
+        for (String listField : listFields) {
+          row.put(listField, res.getString(listField));
         }
         addRow(row);
       }
@@ -46,8 +44,7 @@ public class MVDataTable {
   }
 
   /**
-   * Create a MVDataTable with the input row as the single row in the table and
-   * initialize the field names to the keys in the input row.
+   * Create a MVDataTable with the input row as the single row in the table and initialize the field names to the keys in the input row.
    *
    * @param row New row which contains field information for the table
    */
@@ -78,8 +75,8 @@ public class MVDataTable {
       _listFields.add(tab._listFields.get(i));
     }
     MVOrderedMap[] listRows = tab.getRows();
-    for (int i = 0; i < listRows.length; i++) {
-      _listRows.add(new MVOrderedMap(listRows[i]));
+    for (MVOrderedMap listRow : listRows) {
+      _listRows.add(new MVOrderedMap(listRow));
     }
   }
 
@@ -91,20 +88,17 @@ public class MVDataTable {
   }
 
   /**
-   * Accessor for the MVDataTable rows.  Each hastable is indexed by the field
-   * names.
+   * Accessor for the MVDataTable rows.  Each hastable is indexed by the field names.
    */
   public MVOrderedMap[] getRows() {
     return (MVOrderedMap[]) _listRows.toArray(new MVOrderedMap[]{});
   }
 
   /**
-   * Builds a new MVDataTable by applying the input {@link MVRowComp} equals()
-   * function to each row of this MVDataTable.  Each row is a {@link
-   * MVOrderedMap} of values, stored by field names.
+   * Builds a new MVDataTable by applying the input {@link MVRowComp} equals() function to each row of this MVDataTable.  Each row is a {@link MVOrderedMap} of
+   * values, stored by field names.
    *
-   * @param c Discriminates which rows are included into the subset, using the
-   *          equals() function
+   * @param c Discriminates which rows are included into the subset, using the equals() function
    * @return A new MVDataTable containing the appropriate subset of rows
    */
   public MVDataTable getRows(MVRowComp c) {
@@ -112,10 +106,10 @@ public class MVDataTable {
 
     ret._listFields = (ArrayList) _listFields.clone();
     MVOrderedMap[] rows = (MVOrderedMap[]) _listRows.toArray(new MVOrderedMap[]{});
-    for (int i = 0; i < rows.length; i++) {
+    for (MVOrderedMap row : rows) {
       //if( c.equals(rows[i]) ){ ret._listRows.add(new MVOrderedMap(rows[i])); }
-      if (c.equals(rows[i])) {
-        ret._listRows.add(rows[i]);
+      if (c.equals(row)) {
+        ret._listRows.add(row);
       }
     }
 
@@ -211,8 +205,8 @@ public class MVDataTable {
     if (!_listFields.contains(field)) {
       _listFields.add(index, field);
     }
-    for (int i = 0; i < _listRows.size(); i++) {
-      MVOrderedMap row = (MVOrderedMap) _listRows.get(i);
+    for (Object _listRow : _listRows) {
+      MVOrderedMap row = (MVOrderedMap) _listRow;
       row.put(field, val, index);
     }
   }
@@ -226,14 +220,13 @@ public class MVDataTable {
   }
 
   public void addFields(String[] fields) {
-    for (int i = 0; i < fields.length; i++) {
-      addField(fields[i]);
+    for (String field : fields) {
+      addField(field);
     }
   }
 
   /**
-   * Remove the field and all associated data from the MVDataTable.  The
-   * MVDataTable is not affected if the field is not found.
+   * Remove the field and all associated data from the MVDataTable.  The MVDataTable is not affected if the field is not found.
    *
    * @param field Name of the field to remove, along with accompanying data
    */
@@ -244,18 +237,16 @@ public class MVDataTable {
 
     _listFields.remove(field);
     MVOrderedMap[] rows = (MVOrderedMap[]) _listRows.toArray(new MVOrderedMap[]{});
-    for (int i = 0; i < rows.length; i++) {
-      rows[i].remove(field);
+    for (MVOrderedMap row : rows) {
+      row.remove(field);
     }
   }
 
   /**
-   * Indicates whether or not the input field is present among the fields in the
-   * able
+   * Indicates whether or not the input field is present among the fields in the able
    *
    * @param field Name of the field to test
-   * @return true if the input field is present among this table's field names,
-   *         false otherwise
+   * @return true if the input field is present among this table's field names, false otherwise
    */
   public boolean containsField(String field) {
     return _listFields.contains(field);
@@ -276,21 +267,18 @@ public class MVDataTable {
     _listFields.remove(field);
     _listFields.add(field, name);
 
-    for (int i = 0; i < _listRows.size(); i++) {
-      MVOrderedMap row = (MVOrderedMap) _listRows.get(i);
+    for (Object _listRow : _listRows) {
+      MVOrderedMap row = (MVOrderedMap) _listRow;
       String strVal = (String) row.get(strOrig);
       row.put(name, strVal);
     }
   }
 
   /**
-   * Add a row to the MVDataTable.  If fields are missing from the input {@link
-   * MVOrderedMap}, they are initialized to "".  Extra data in the row structure
-   * is removed.  If the MVDataTable is empty when this function is called, the
-   * keys of the input row are set as the fields.
+   * Add a row to the MVDataTable.  If fields are missing from the input {@link MVOrderedMap}, they are initialized to "".  Extra data in the row structure is
+   * removed.  If the MVDataTable is empty when this function is called, the keys of the input row are set as the fields.
    *
-   * @param row   Contains the values for the row, mapped by the MVDataTable
-   *              field names
+   * @param row   Contains the values for the row, mapped by the MVDataTable field names
    * @param index The (zero-based) index of the new field
    */
   public void addRow(MVOrderedMap row, int index) {
@@ -298,27 +286,21 @@ public class MVDataTable {
 
     //  if the MVDataTable is currently empty, set the fields to the row keys
     if (1 > _listFields.size()) {
-      String[] listKeys = {};
-      if (row instanceof MVOrderedMap) {
-        listKeys = row.getKeyList();
-      } else {
-        listKeys = (String[]) row.keySet().toArray(new String[]{});
-      }
+      String[] listKeys = row.getKeyList();
       _listFields.addAll(Arrays.asList(listKeys));
     }
 
     //  remove inappropriate values from the input row
-    for (int i = 0; i < vals.length; i++) {
-      if (!_listFields.contains(vals[i].getKey())) {
-        System.out.println("  **  WARNING: MVDataTable.addRow() removed key " + vals[i].getKey());
-        row.remove(vals[i].getKey());
-        continue;
+    for (Map.Entry val : vals) {
+      if (!_listFields.contains(val.getKey())) {
+        System.out.println("  **  WARNING: MVDataTable.addRow() removed key " + val.getKey());
+        row.remove(val.getKey());
       }
     }
 
     //  set default values for unspecified fields
-    for (int i = 0; i < _listFields.size(); i++) {
-      String strField = (String) _listFields.get(i);
+    for (Object _listField : _listFields) {
+      String strField = (String) _listField;
       if (!row.containsKey(strField)) {
         row.put(strField, "");
       }
@@ -345,8 +327,7 @@ public class MVDataTable {
   }
 
   /**
-   * Set a particular element in the MVDataTable to the value specified.  If the
-   * specified row or field is not valid, no element is set.
+   * Set a particular element in the MVDataTable to the value specified.  If the specified row or field is not valid, no element is set.
    *
    * @param field Name of the field to set
    * @param row   Index (zero-based) of the row to set
@@ -362,9 +343,8 @@ public class MVDataTable {
   }
 
   /**
-   * Set a group of elements, speicified by input {@link MVRowComp} c, to the
-   * value specified. The equals() function of input c is used to determine
-   * which rows have their field value set to val.
+   * Set a group of elements, speicified by input {@link MVRowComp} c, to the value specified. The equals() function of input c is used to determine which rows
+   * have their field value set to val.
    *
    * @param field Name of the field to set
    * @param c     Indicates which rows to set, via the equals() function
@@ -376,16 +356,15 @@ public class MVDataTable {
     }
 
     MVOrderedMap[] rows = (MVOrderedMap[]) _listRows.toArray(new MVOrderedMap[]{});
-    for (int i = 0; i < rows.length; i++) {
-      if (c.equals(rows[i])) {
-        rows[i].put(field, val);
+    for (MVOrderedMap row : rows) {
+      if (c.equals(row)) {
+        row.put(field, val);
       }
     }
   }
 
   /**
-   * Set a group of elements in a particular row of the MVDataTable.  The
-   * field/value pairs are specified by input {@link MVOrderedMap} vals.  If the
+   * Set a group of elements in a particular row of the MVDataTable.  The field/value pairs are specified by input {@link MVOrderedMap} vals.  If the
    * (zero-based) row index is not valid, no elements are set.
    *
    * @param vals Contains the field/value pairs to set
@@ -397,32 +376,28 @@ public class MVDataTable {
     }
 
     Map.Entry[] listVals = (Map.Entry[]) vals.entrySet().toArray(new Map.Entry[]{});
-    for (int i = 0; i < listVals.length; i++) {
-      set((String) listVals[i].getKey(), row, (String) listVals[i].getValue());
+    for (Map.Entry listVal : listVals) {
+      set((String) listVal.getKey(), row, (String) listVal.getValue());
     }
   }
 
   /**
-   * Set a group of elements in rows specified by input {@link MVRowComp} c.
-   * The field/value pairs are specified by input {@link MVOrderedMap} vals.
-   * The equals() function of input c is used to determine which rows have their
-   * field values set.
+   * Set a group of elements in rows specified by input {@link MVRowComp} c. The field/value pairs are specified by input {@link MVOrderedMap} vals. The
+   * equals() function of input c is used to determine which rows have their field values set.
    *
    * @param vals Contains the field/value pairs to set
    * @param c    Inidcates which rows to set, via the equals() function
    */
   public void set(MVOrderedMap vals, MVRowComp c) {
     Map.Entry[] listVals = (Map.Entry[]) vals.entrySet().toArray(new Map.Entry[]{});
-    for (int i = 0; i < listVals.length; i++) {
-      set((String) listVals[i].getKey(), c, (String) listVals[i].getValue());
+    for (Map.Entry listVal : listVals) {
+      set((String) listVal.getKey(), c, (String) listVal.getValue());
     }
   }
 
   /**
-   * Set a column of data, specified by input field, to an array of values,
-   * specified by input vals.  If the input array has a different length than
-   * the number of rows in the table, the values are either partially used or
-   * recycled.
+   * Set a column of data, specified by input field, to an array of values, specified by input vals.  If the input array has a different length than the number
+   * of rows in the table, the values are either partially used or recycled.
    *
    * @param field The field name of the column to set
    * @param vals  Values to set the column to
@@ -439,8 +414,7 @@ public class MVDataTable {
   }
 
   /**
-   * Return the maximum field name/value length in characters for the specified
-   * field
+   * Return the maximum field name/value length in characters for the specified field
    *
    * @param field The field name of the column to examine
    * @return Size in characters of the max field name/value length
@@ -451,8 +425,8 @@ public class MVDataTable {
     }
     int intLength = field.length();
     MVOrderedMap[] rows = (MVOrderedMap[]) _listRows.toArray(new MVOrderedMap[]{});
-    for (int i = 0; i < rows.length; i++) {
-      String strVal = (String) rows[i].get(field);
+    for (MVOrderedMap row : rows) {
+      String strVal = (String) row.get(field);
       if (intLength < strVal.length()) {
         intLength = strVal.length();
       }
@@ -461,8 +435,8 @@ public class MVDataTable {
   }
 
   public void clear() {
-    for (int i = 0; i < _listRows.size(); i++) {
-      ((MVOrderedMap) _listRows.get(i)).clear();
+    for (Object _listRow : _listRows) {
+      ((MVOrderedMap) _listRow).clear();
     }
     _listRows.clear();
   }

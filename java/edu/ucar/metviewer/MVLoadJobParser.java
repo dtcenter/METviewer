@@ -9,8 +9,7 @@ import java.util.Hashtable;
 
 public class MVLoadJobParser extends MVUtil {
 
-  protected Hashtable _tableDateListDecl = new Hashtable();
-  protected Hashtable _tableDateRangeDecl = new Hashtable();
+  protected final Hashtable _tableDateListDecl = new Hashtable();
   protected MVNode _nodeLoadSpec = null;
   protected MVLoadJob _job = null;
 
@@ -31,7 +30,7 @@ public class MVLoadJobParser extends MVUtil {
     return _job;
   }
 
-  public void parseLoadJobSpec() throws Exception {
+  public void parseLoadJobSpec() {
     MVLoadJob job = new MVLoadJob();
     for (int i = 0; null != _nodeLoadSpec && i < _nodeLoadSpec._children.length; i++) {
       MVNode node = _nodeLoadSpec._children[i];
@@ -136,7 +135,5 @@ public class MVLoadJobParser extends MVUtil {
 
     _job = job;
   }
-
-
 
 }

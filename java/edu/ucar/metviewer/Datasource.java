@@ -14,15 +14,15 @@ import java.util.*;
 
 /**
  * This singleton creates and manages the connection pool
+ *
  * @author tatiana: tatiana $
  * @version : 1.0 : 20/May/13 09:17 $
  */
 public class Datasource {
 
   private static final String DB_PREFIX_MV = "mv_";
-  private static final String DB_PREFIX_VSDB = "EMC_VSDB_verif";
-  private static Datasource datasource = null;
   private static final Logger logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
+  private static Datasource datasource = null;
   private static BoneCP connectionPool;
   private static List<String> listDB;
   private static String dbManagementSystem = "mysql";
@@ -32,6 +32,7 @@ public class Datasource {
 
   /**
    * Creates the connection pool and the list of all available databases using database credentials from the properties file
+   *
    * @throws SQLException
    */
   private Datasource() throws SQLException {
@@ -43,11 +44,11 @@ public class Datasource {
     dbManagementSystem = bundle.getString("db.managementSystem");
     String strDBDriver = bundle.getString("db.driver");
     if (strDBDriver.length() == 0) {
-          strDBDriver = "com.mysql.jdbc.Driver";
-        }
-        if (!strDBDriver.contains(dbManagementSystem)) {
-          throw new SQLException("Database type doesn't match to database driver. Can't initialise the pool.");
-        }
+      strDBDriver = "com.mysql.jdbc.Driver";
+    }
+    if (!strDBDriver.contains(dbManagementSystem)) {
+      throw new SQLException("Database type doesn't match to database driver. Can't initialise the pool.");
+    }
 
     try {
       Class.forName(strDBDriver);
@@ -57,7 +58,7 @@ public class Datasource {
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
     if (dbManagementSystem.equals("mysql")) {
-      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + dbHost+"?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/
+      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + dbHost + "?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/
       config.setUsername(dbUser);
       config.setPassword(dbPassword);
       config.setMinConnectionsPerPartition(2);
@@ -78,8 +79,9 @@ public class Datasource {
 
   /**
    * Creates the connection pool and the list of all available databases using database credentials from the parameters list
-   * @param strDBHost - DB host
-   * @param strDBUser - DB user name
+   *
+   * @param strDBHost     - DB host
+   * @param strDBUser     - DB user name
    * @param strDBPassword - DB password
    * @throws SQLException
    */
@@ -104,7 +106,7 @@ public class Datasource {
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
     if (dbManagementSystem.equals("mysql")) {
-      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost +"?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost + "?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
       config.setUsername(strDBUser);
       config.setPassword(strDBPassword);
       config.setMinConnectionsPerPartition(10);
@@ -126,8 +128,36 @@ public class Datasource {
 
   }
 
+  public static Datasource getInstance() {
+    if (datasource == null) {
+      try {
+        datasource = new Datasource();
+      } catch (Exception e) {
+        logger.error(e.getMessage());
+      }
+    }
+    return datasource;
+
+  }
+
+  public static Datasource getInstance(String strDBManagementSystem, String strDBDriver, String strDBHost, String strDBUser, String strDBPassword) {
+    if (datasource == null) {
+      try {
+        if (strDBManagementSystem != null) {
+          dbManagementSystem = strDBManagementSystem;
+        }
+        datasource = new Datasource(strDBDriver, strDBHost, strDBUser, strDBPassword);
+      } catch (Exception e) {
+        logger.error(e.getMessage());
+      }
+    }
+    return datasource;
+
+  }
+
   /**
    * creates a list of all available database names that starts form the valid prefix
+   *
    * @throws SQLException
    */
 
@@ -184,36 +214,9 @@ public class Datasource {
     }
   }
 
-
-  public static Datasource getInstance() {
-    if (datasource == null) {
-      try {
-        datasource = new Datasource();
-      } catch (Exception e) {
-        logger.error(e.getMessage());
-      }
-    }
-    return datasource;
-
-  }
-
-  public static Datasource getInstance(String strDBManagementSystem, String strDBDriver, String strDBHost, String strDBUser, String strDBPassword) {
-    if (datasource == null) {
-      try {
-        if (strDBManagementSystem != null) {
-          dbManagementSystem = strDBManagementSystem;
-        }
-        datasource = new Datasource(strDBDriver, strDBHost, strDBUser, strDBPassword);
-      } catch (Exception e) {
-        logger.error(e.getMessage());
-      }
-    }
-    return datasource;
-
-  }
-
   /**
    * Returns a connection to the database with the specified name
+   *
    * @param db - a name of database to get a connection for
    * @return - db connection
    * @throws SQLException
@@ -251,6 +254,7 @@ public class Datasource {
 
   /**
    * Returns a connection to MySQL
+   *
    * @return - connection
    */
   public Connection getConnection() {
@@ -265,9 +269,10 @@ public class Datasource {
 
   /**
    * Returns a connection to the database with the specified name and credentials
-   * @param strDBHost - DB host
-   * @param strDBName - DB name
-   * @param strDBUser - DB user name
+   *
+   * @param strDBHost     - DB host
+   * @param strDBName     - DB name
+   * @param strDBUser     - DB user name
    * @param strDBPassword - DB password
    * @return - db connection
    */
@@ -294,6 +299,7 @@ public class Datasource {
 
   /**
    * checks if a database with specified name exists
+   *
    * @param db - name of the database to check
    * @return - is database valid
    */
@@ -310,6 +316,7 @@ public class Datasource {
 
   /**
    * Returns a list of all available database names
+   *
    * @return list of database names
    */
   public List<String> getAllDatabases() {

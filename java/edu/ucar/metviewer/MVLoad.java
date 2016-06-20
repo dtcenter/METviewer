@@ -16,9 +16,48 @@ import java.util.stream.IntStream;
 
 public class MVLoad extends MVUtil {
 
-  //public static String _strMetVersion				= "V3.0";
-  public static final Pattern _patVersion = Pattern.compile("(V\\d+\\.\\d+).*");
-
+  public static final DecimalFormat _formatPerf = new DecimalFormat("0.000");
+  public static final Pattern _patModeSingle = Pattern.compile("^(C?[FO]\\d{3})$");
+  public static final Pattern _patModePair = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
+  public static final Hashtable _tableStatHeaders = new Hashtable(1024);
+  public static final Hashtable _tableModeHeaders = new Hashtable(1024);
+  public static final long _intStatHeaderTableTime = 0;
+  public static final int _intStatGroupRecords = 0;
+  public static final int _intStatGroupInserts = 0;
+  /*
+   * data_file_lu_id values for each MET output type
+   */
+  public static final Hashtable<String, Integer> _tableDataFileLU = new Hashtable<>();
+  /*
+   * variable length table names for each variable length output line type
+   */
+  public static final Hashtable _tableVarLengthTable = new Hashtable();
+  /*
+   * variable length group data indices for lines with an arbitrary number of fields
+   *   - index of field containing number of sets
+   *   - index of first repeating field(s)
+   *   - number of fields in each repeating set
+   */
+  public static final Hashtable _tableVarLengthGroupIndices = new Hashtable();
+  public static final Hashtable _tableVarLengthLineDataId = new Hashtable();
+  public static final int INDEX_LINE_DATA = 1;
+  public static final int INDEX_STAT_GROUP = 2;
+  public static final int INDEX_VAR_LENGTH = 3;
+  //  line_type_lu_id values for the various mode line types
+  public static final int MODE_CTS = 19;
+  public static final int MODE_SINGLE = 17;
+  public static final int MODE_PAIR = 18;
+  public static final Hashtable _tableAlphaLineTypes = new Hashtable();
+  public static final Hashtable _tableCovThreshLineTypes = new Hashtable();
+  public static final String[] _listLineDataTables = {
+    "line_data_fho", "line_data_ctc", "line_data_cts", "line_data_cnt", "line_data_pct",
+    "line_data_pstd", "line_data_pjc", "line_data_prc", "line_data_sl1l2", "line_data_sal1l2",
+    "line_data_vl1l2", "line_data_val1l2", "line_data_mpr", "line_data_nbrctc", "line_data_nbrcts",
+    "line_data_nbrcnt", "line_data_isc", "line_data_mctc", "line_data_rhist", "line_data_orank",
+    "line_data_ssvar", "line_data_enscnt"
+  };
+  public static final MVOrderedMap _mapIndexes = new MVOrderedMap();
+  public static final Pattern _patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   public static boolean _boolVerbose = false;
   public static int _intInsertSize = 1;
   public static boolean _boolModeHeaderDBCheck = false;
@@ -26,36 +65,21 @@ public class MVLoad extends MVUtil {
   public static boolean _boolDropIndexes = false;
   public static boolean _boolApplyIndexes = false;
   public static boolean _boolIndexOnly = false;
-
   public static boolean _boolLineTypeLoad = false;
   public static Hashtable _tableLineTypeLoad = new Hashtable();
   public static boolean _boolLoadStat = true;
   public static boolean _boolLoadMode = true;
   public static boolean _boolLoadMpr = false;
   public static boolean _boolLoadOrank = false;
-
   public static boolean _boolForceDupFile = false;
-
-  public static final DecimalFormat _formatPerf = new DecimalFormat("0.000");
-
-  public static final Pattern _patModeSingle = Pattern.compile("^(C?[FO]\\d{3})$");
-  public static final Pattern _patModePair = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
-
-  public static final Hashtable _tableStatHeaders = new Hashtable(1024);
-  public static final Hashtable _tableModeHeaders = new Hashtable(1024);
-
   public static long _intStatHeaderSearchTime = 0;
-  public static final long _intStatHeaderTableTime = 0;
   public static long _intModeHeaderSearchTime = 0;
-
   public static int _intNumStatFiles = 0;
   public static int _intStatLinesTotal = 0;
   public static int _intStatHeaderRecords = 0;
   public static int _intStatHeaderInserts = 0;
   public static int _intLineDataRecords = 0;
   public static int _intLineDataInserts = 0;
-  public static final int _intStatGroupRecords = 0;
-  public static final int _intStatGroupInserts = 0;
   public static int _intVarLengthRecords = 0;
   public static int _intVarLengthInserts = 0;
   public static int _intNumModeFiles = 0;
@@ -64,28 +88,18 @@ public class MVLoad extends MVUtil {
   public static int _intModeCtsRecords = 0;
   public static int _intModeObjSingleRecords = 0;
   public static int _intModeObjPairRecords = 0;
-
   private static BoneCP connectionPool;
 
-  /*
-   * data_file_lu_id values for each MET output type
-   */
-  public static final Hashtable _tableDataFileLU = new Hashtable();
-
   static {
-    _tableDataFileLU.put("point_stat", "0");
-    _tableDataFileLU.put("grid_stat", "1");
-    _tableDataFileLU.put("mode_cts", "2");
-    _tableDataFileLU.put("mode_obj", "3");
-    _tableDataFileLU.put("wavelet_stat", "4");
-    _tableDataFileLU.put("ensemble_stat", "5");
-    _tableDataFileLU.put("vsdb_point_stat", "6");
+    _tableDataFileLU.put("point_stat", 0);
+    _tableDataFileLU.put("grid_stat", 1);
+    _tableDataFileLU.put("mode_cts", 2);
+    _tableDataFileLU.put("mode_obj", 3);
+    _tableDataFileLU.put("wavelet_stat", 4);
+    _tableDataFileLU.put("ensemble_stat", 5);
+    _tableDataFileLU.put("vsdb_point_stat", 6);
+    _tableDataFileLU.put("stat", 7);
   }
-
-  /*
-   * variable length table names for each variable length output line type
-   */
-  public static final Hashtable _tableVarLengthTable = new Hashtable();
 
   static {
     _tableVarLengthTable.put("PCT", "line_data_pct_thresh");
@@ -98,14 +112,6 @@ public class MVLoad extends MVUtil {
     _tableVarLengthTable.put("ORANK", "line_data_orank_ens");
   }
 
-  /*
-   * variable length group data indices for lines with an arbitrary number of fields
-   *   - index of field containing number of sets
-   *   - index of first repeating field(s)
-   *   - number of fields in each repeating set
-   */
-  public static final Hashtable _tableVarLengthGroupIndices = new Hashtable();
-
   static {
     _tableVarLengthGroupIndices.put("PCT", new int[]{22, 23, 3});
     _tableVarLengthGroupIndices.put("PSTD", new int[]{22, 33, 1});
@@ -117,7 +123,46 @@ public class MVLoad extends MVUtil {
     _tableVarLengthGroupIndices.put("ORANK", new int[]{32, 33, 1});
   }
 
-  public static final Hashtable _tableVarLengthLineDataId = new Hashtable();
+  static {
+    _tableAlphaLineTypes.put("CTS", Boolean.TRUE);
+    _tableAlphaLineTypes.put("CNT", Boolean.TRUE);
+    _tableAlphaLineTypes.put("PSTD", Boolean.TRUE);
+    _tableAlphaLineTypes.put("NBRCTS", Boolean.TRUE);
+    _tableAlphaLineTypes.put("NBRCNT", Boolean.TRUE);
+    _tableAlphaLineTypes.put("MCTS", Boolean.TRUE);
+    _tableAlphaLineTypes.put("SSVAR", Boolean.TRUE);
+  }
+
+  static {
+    _tableCovThreshLineTypes.put("NBRCTC", Boolean.TRUE);
+    _tableCovThreshLineTypes.put("NBRCTS", Boolean.TRUE);
+  }
+
+  static {
+    _mapIndexes.put("#stat_header#_model_idx", "model");
+    _mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
+    _mapIndexes.put("#stat_header#_fcst_lev_idx", "fcst_lev");
+    _mapIndexes.put("#stat_header#_obtype_idx", "obtype");
+    _mapIndexes.put("#stat_header#_vx_mask_idx", "vx_mask");
+    _mapIndexes.put("#stat_header#_interp_mthd_idx", "interp_mthd");
+    _mapIndexes.put("#stat_header#_interp_pnts_idx", "interp_pnts");
+    _mapIndexes.put("#stat_header#_fcst_thresh_idx", "fcst_thresh");
+
+    _mapIndexes.put("#mode_header#_model_idx", "model");
+    _mapIndexes.put("#mode_header#_fcst_lead_idx", "fcst_lead");
+    _mapIndexes.put("#mode_header#_fcst_valid_idx", "fcst_valid");
+    _mapIndexes.put("#mode_header#_fcst_init_idx", "fcst_init");
+    _mapIndexes.put("#mode_header#_fcst_rad_idx", "fcst_rad");
+    _mapIndexes.put("#mode_header#_fcst_thr_idx", "fcst_thr");
+    _mapIndexes.put("#mode_header#_fcst_var_idx", "fcst_var");
+    _mapIndexes.put("#mode_header#_fcst_lev_idx", "fcst_lev");
+
+    for (int i = 0; i < _listLineDataTables.length; i++) {
+      _mapIndexes.put("#" + _listLineDataTables[i] + "#_fcst_lead_idx", "fcst_lead");
+      _mapIndexes.put("#" + _listLineDataTables[i] + "#_fcst_valid_beg_idx", "fcst_valid_beg");
+      _mapIndexes.put("#" + _listLineDataTables[i] + "#_fcst_init_beg_idx", "fcst_init_beg");
+    }
+  }
 
   public static void main(String[] argv) {
     System.out.println("----  MVLoad  ----\n");
@@ -156,7 +201,7 @@ public class MVLoad extends MVUtil {
 
       // setup the connection pool
       BoneCPConfig config = new BoneCPConfig();
-      config.setJdbcUrl("jdbc:" + job.getDBManagementSystem() + "://" + job.getDBHost() + "/" + job.getDBName()+"?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
+      config.setJdbcUrl("jdbc:" + job.getDBManagementSystem() + "://" + job.getDBHost() + "/" + job.getDBName() + "?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
       config.setUsername(job.getDBUser());
       config.setPassword(job.getDBPassword());
       config.setMinConnectionsPerPartition(2);
@@ -224,7 +269,7 @@ public class MVLoad extends MVUtil {
 
       //  if there are <load_file> files specified, load them
       String[] listLoadFiles = job.getLoadFiles();
-      if (!_boolIndexOnly && 0 < listLoadFiles.length) {
+      if (!_boolIndexOnly && listLoadFiles != null) {
         for (int i = 0; i < listLoadFiles.length; i++) {
           try {
             processFile(new File(listLoadFiles[i]));
@@ -259,14 +304,16 @@ public class MVLoad extends MVUtil {
 
           //  process each fine in the folder
           File[] listDataFiles = fileBaseFolder.listFiles();
-          for (int j = 0; j < listDataFiles.length; j++) {
-            try {
-              processFile(listDataFiles[j]);
-            } catch (Exception e) {
-              System.out.println("  **  ERROR: caught " + e.getClass() + " in processFile()\n" +
-                e.getMessage() + "\n" +
-                "  **  WARNING: error(s) encountered loading file " + listDataFiles[j] + " - skipping file");
-              e.printStackTrace();
+          if (listDataFiles != null) {
+            for (int j = 0; j < listDataFiles.length; j++) {
+              try {
+                processFile(listDataFiles[j]);
+              } catch (Exception e) {
+                System.out.println("  **  ERROR: caught " + e.getClass() + " in processFile()\n" +
+                  e.getMessage() + "\n" +
+                  "  **  WARNING: error(s) encountered loading file " + listDataFiles[j] + " - skipping file");
+                e.printStackTrace();
+              }
             }
           }
           _tableModeHeaders.clear();
@@ -324,10 +371,10 @@ public class MVLoad extends MVUtil {
         int intInstInfoIdNext = getNextId("instance_info", "instance_info_id");
         String strUpdater = "";
         try {
-          strUpdater = sysCmd("whoami");
+          strUpdater = sysCmd();
         } catch (Exception e) {
           try {
-            strUpdater = sysCmd("echo %USERNAME%");
+            strUpdater = sysCmd();
           } catch (Exception e2) {
           }
         }
@@ -357,7 +404,7 @@ public class MVLoad extends MVUtil {
 
         //  execute the insert SQL
         System.out.print("Inserting instance_info record...  ");
-        int intInsert = executeUpdate(strInstInfoSQL, "instance_info");
+        int intInsert = executeUpdate(strInstInfoSQL);
         if (1 != intInsert) {
           throw new Exception("unexpected number of instance_info rows inserted: " + intInsert);
         }
@@ -399,9 +446,7 @@ public class MVLoad extends MVUtil {
     String strFileMsg = "  " + info._dataFilePath + "/" + info._dataFileFilename +
       (_boolVerbose ? "\n" + padBegin("data file time: ", 36) + formatTimeSpan(intProcessDataFileTime) : "");
 
-    if ((info._dataFileLuTypeName.equals("point_stat") || info._dataFileLuTypeName.equals("grid_stat") ||
-      info._dataFileLuTypeName.equals("wavelet_stat") || info._dataFileLuTypeName.equals("ensemble_stat")) &&
-      _boolLoadStat) {
+    if (info._dataFileLuTypeName.equals("stat") && _boolLoadStat) {
       System.out.println(strFileMsg);
       loadStatFile(info);
       _intNumStatFiles++;
@@ -416,7 +461,6 @@ public class MVLoad extends MVUtil {
       _intNumStatFiles++;
     }
   }
-
 
   public static void loadStatFileVSDB(DataFileInfo info) throws Exception {
 
@@ -515,15 +559,10 @@ public class MVLoad extends MVUtil {
         //  parse the valid times
 
         java.util.Date dateFcstInitBeg = _formatStatVsdb.parse(listToken[3]);
-        java.util.Date dateFcstInitEnd = _formatStatVsdb.parse(listToken[3]);
-        java.util.Date dateObsInitBeg = _formatStatVsdb.parse(listToken[3]);
-        java.util.Date dateObsInitEnd = _formatStatVsdb.parse(listToken[3]);
 
         //  format the valid times for the database insert
         String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
-        //String strFcstInitEnd = _formatDB.format(dateFcstInitEnd);
-        //String strObsInitBeg = _formatDB.format(dateObsInitBeg);
-        //String strObsInitEnd = _formatDB.format(dateObsInitEnd);
+
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = listToken[2];
@@ -646,7 +685,7 @@ public class MVLoad extends MVUtil {
             //  insert the record into the stat_header database table
             String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
 
-            int intStatHeaderInsert = executeUpdate(strStatHeaderInsert,"stat_header");
+            int intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
             if (1 != intStatHeaderInsert) {
               System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
             }
@@ -1063,7 +1102,6 @@ public class MVLoad extends MVUtil {
 
   }
 
-
   /**
    * Load the MET output data from the data file underlying the input DataFileInfo object into the database underlying the input Connection. The header
    * information can be checked in two different ways: using a table for the current file (specified by _boolStatHeaderTableCheck) or by searching the
@@ -1169,7 +1207,7 @@ public class MVLoad extends MVUtil {
           continue;
         }
 
-			
+
 			/*
        * * * *  stat_header insert  * * * *
 			 */
@@ -1272,7 +1310,7 @@ public class MVLoad extends MVUtil {
 
             //  insert the record into the stat_header database table
             String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
-            int intStatHeaderInsert = executeUpdate(strStatHeaderInsert, "stat_header");
+            int intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
             if (1 != intStatHeaderInsert) {
               System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
             }
@@ -1282,7 +1320,7 @@ public class MVLoad extends MVUtil {
           }
         }
 
-			
+
 			/*
        * * * *  line_data insert  * * * *
 			 */
@@ -1302,9 +1340,9 @@ public class MVLoad extends MVUtil {
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
 
-          if(d._strLineType.equals("RHIST") || d._strLineType.equals("PSTD")){
+          if (d._strLineType.equals("RHIST") || d._strLineType.equals("PSTD")) {
             intLineDataMax = intLineDataMax - Integer.valueOf(listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
-          }else {
+          } else {
             intLineDataMax = listVarLengthGroupIndices[1];
           }
         }
@@ -1356,21 +1394,19 @@ public class MVLoad extends MVUtil {
         }
 
 
-
-        if(strLineType.equals("ORANK")){
+        if (strLineType.equals("ORANK")) {
           //skip ensemble fields and get data for the rest
           int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
           int extraFieldsInd = intLineDataMax + Integer.valueOf(listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
-          for(int i=extraFieldsInd; i<listToken.length; i++){
+          for (int i = extraFieldsInd; i < listToken.length; i++) {
             strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
           }
         }
 
 
-
         String[] insertValuesArr = strLineDataValueList.split(",");
         List<String> insertValuesList = new LinkedList<>(Arrays.asList(insertValuesArr));
-        int size= insertValuesList.size();
+        int size = insertValuesList.size();
         int maxSize = size;
         switch (strLineType) {
           case "CNT":
@@ -1413,10 +1449,10 @@ public class MVLoad extends MVUtil {
         }
         //strLineDataValueList = StringUtils.join(insertValuesList, ",");
         strLineDataValueList = "";
-        for(String s :insertValuesList ){
-          strLineDataValueList = strLineDataValueList + s +",";
+        for (String s : insertValuesList) {
+          strLineDataValueList = strLineDataValueList + s + ",";
         }
-        strLineDataValueList = strLineDataValueList.substring(0, strLineDataValueList.length()-1);
+        strLineDataValueList = strLineDataValueList.substring(0, strLineDataValueList.length() - 1);
 
         //  add the values list to the line type values map
         ArrayList listLineTypeValues = new ArrayList();
@@ -1427,7 +1463,7 @@ public class MVLoad extends MVUtil {
         d._tableLineDataValues.put(d._strLineType, listLineTypeValues);
         intLineDataInserts++;
 
-			
+
 			/*
        * * * *  var_length insert  * * * *
 			 */
@@ -1533,25 +1569,6 @@ public class MVLoad extends MVUtil {
 
   }
 
-  /*
-   * MVLoadStatInsertData is used to store insert value lists for the various types of grid_stat and point_stat
-   * tables.  The structure is built in loadStatFile() and is unloaded and executed in commitStatData().
-   */
-  static class MVLoadStatInsertData {
-
-    public final ArrayList _listInsertValues = new ArrayList();
-    public final Hashtable _tableLineDataValues = new Hashtable();
-    public final ArrayList _listStatGroupInsertValues = new ArrayList();
-    public final Hashtable _tableVarLengthValues = new Hashtable();
-    public String _strLineType = "";
-    public String _strFileLine = "";
-  }
-
-
-  public static final int INDEX_LINE_DATA = 1;
-  public static final int INDEX_STAT_GROUP = 2;
-  public static final int INDEX_VAR_LENGTH = 3;
-
   /**
    * Loads the insert value lists stored in the data structure MVLoadStatInsertData.  This method was designed to be called from loadStatFile(), which is
    * responsible for building insert value lists for the various types of grid_stat and point_stat database tables.
@@ -1567,14 +1584,14 @@ public class MVLoad extends MVUtil {
     String strValueList;
 
 		/*
-		 * * * *  stat_header was committed commit  * * * *
+     * * * *  stat_header was committed commit  * * * *
 		 */
 
     d._listInsertValues.clear();
 
-		
+
 		/*
-		 * * * *  line_data commit  * * * * 
+     * * * *  line_data commit  * * * *
 		 */
 
     //  for each line type, build an insert statement with the appropriate list of values
@@ -1583,12 +1600,7 @@ public class MVLoad extends MVUtil {
       d._strLineType = entry.getKey().toString();
       ArrayList listValues = (ArrayList) entry.getValue();
       String strLineDataTable = "line_data_" + d._strLineType.toLowerCase();
-      //  build the list of value lists for this line type
-      strValueList = "";
-      //for (int i = 0; i < listValues.size(); i++) {
-      //  strValueList += (0 < i ? ", " : "") + listValues.get(i).toString();
-     // }
-     // int intResLineDataInsert = executeUpdate(strLineDataInsert, strLineDataTable);
+
       int intResLineDataInsert = executeBatch(listValues, strLineDataTable);
       if (listValues.size() != intResLineDataInsert) {
         System.out.println("  **  WARNING: unexpected result from line_data INSERT: " +
@@ -1597,10 +1609,10 @@ public class MVLoad extends MVUtil {
       listInserts[INDEX_LINE_DATA]++; //  intLineDataInserts++;
     }
     d._tableLineDataValues.clear();
-	
-		
+
+
 		/*
-		 * * * *  stat_group commit  * * * * 
+		 * * * *  stat_group commit  * * * *
 		 */
 
     //  build a stat_group insert with all stored values
@@ -1610,7 +1622,7 @@ public class MVLoad extends MVUtil {
         strStatGroupInsertValues += (i == 0 ? "" : ", ") + d._listStatGroupInsertValues.get(i).toString();
       }
       String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
-      int intStatGroupInsert = executeUpdate(strStatGroupInsert, "stat_group");
+      int intStatGroupInsert = executeUpdate(strStatGroupInsert);
       if (d._listStatGroupInsertValues.size() != intStatGroupInsert) {
         System.out.println("  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " +
           d._listStatGroupInsertValues.size() + "\n        " + d._strFileLine);
@@ -1618,9 +1630,9 @@ public class MVLoad extends MVUtil {
       listInserts[INDEX_STAT_GROUP]++; //  intStatGroupInserts++;
     }
     d._listStatGroupInsertValues.clear();
-		
+
 		/*
-		 * * * *  variable length data commit  * * * * 
+		 * * * *  variable length data commit  * * * *
 		 */
 
     //  insert probabilistic data into the thresh tables
@@ -1636,7 +1648,7 @@ public class MVLoad extends MVUtil {
         strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
         listInserts[INDEX_VAR_LENGTH]++; //  intVarLengthInserts++;
       }
-      int intThreshInsert = executeUpdate(strThreshInsert, strVarLengthTable);
+      int intThreshInsert = executeUpdate(strThreshInsert);
       if (listVarLengthValues.length != intThreshInsert) {
         System.out.println("  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
           listVarLengthValues.length + "\n        " + d._strFileLine);
@@ -1647,11 +1659,6 @@ public class MVLoad extends MVUtil {
 
     return listInserts;
   }
-
-  //  line_type_lu_id values for the various mode line types
-  public static final int MODE_CTS = 19;
-  public static final int MODE_SINGLE = 17;
-  public static final int MODE_PAIR = 18;
 
   /**
    * Load the MET output data from the data file underlying the input DataFileInfo object into the database underlying the input Connection. The header
@@ -1701,7 +1708,7 @@ public class MVLoad extends MVUtil {
 
         //  determine the line type
         int intLineTypeLuId;
-        int intDataFileLuId = Integer.parseInt(info._dataFileLuId);
+        int intDataFileLuId = info._dataFileLuId;
         String strObjectId = listToken[16];
         Matcher matModeSingle = _patModeSingle.matcher(strObjectId);
         Matcher matModePair = _patModePair.matcher(strObjectId);
@@ -1714,8 +1721,8 @@ public class MVLoad extends MVUtil {
         } else {
           throw new Exception("METViewer load error: loadModeFile() unable to determine line type " + listToken[16] + "\n        " + strFileLine);
         }
-			
-			
+
+
 			/*
 			 * * * *  mode_header insert  * * * *
 			 */
@@ -1743,17 +1750,27 @@ public class MVLoad extends MVUtil {
         String strFcstInit = _formatDB.format(dateFcstInitBeg);
 
         //  build a value list from the header information
+        //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
+
         String strModeHeaderValueList = "" +
           "'" + listToken[0] + "', " +      //  version
           "'" + listToken[1] + "', " +      //  model
           "'" + listToken[2] + "', " +      //  fcst_lead
-          "'" + strFcstValidBeg + "', " +      //  fcst_valid
-          "'" + listToken[4] + "', " +      //  fcst_accum
-          "'" + strFcstInit + "', " +        //  fcst_init
+          "'" + strFcstValidBeg + "', ";      //  fcst_valid
+        if ("NA".equals(listToken[4])) {
+          strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  fcst_accum
+        } else {
+          strModeHeaderValueList = strModeHeaderValueList + "'" + listToken[4] + "', ";      //  fcst_accum
+        }
+        strModeHeaderValueList = strModeHeaderValueList + "'" + strFcstInit + "', " +        //  fcst_init
           "'" + listToken[5] + "', " +      //  obs_lead
-          "'" + strObsValidBeg + "', " +      //  obs_valid
-          "'" + listToken[7] + "', " +      //  obs_accum
-          "'" + listToken[8] + "', " +      //  fcst_rad
+          "'" + strObsValidBeg + "', ";      //  obs_valid
+        if ("NA".equals(listToken[7])) {
+          strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  obs_accum
+        } else {
+          strModeHeaderValueList = strModeHeaderValueList + "'" + listToken[7] + "', ";      //  obs_accum
+        }
+        strModeHeaderValueList = strModeHeaderValueList + "'" + listToken[8] + "', " +      //  fcst_rad
           "'" + listToken[9] + "', " +      //  fcst_thr
           "'" + listToken[10] + "', " +      //  obs_rad
           "'" + listToken[11] + "', " +      //  obs_thr
@@ -1843,15 +1860,15 @@ public class MVLoad extends MVUtil {
 
             //  insert the record into the mode_header database table
             String strModeHeaderInsert = "INSERT INTO mode_header VALUES (" + strModeHeaderValueList + ");";
-            int intModeHeaderInsert = executeUpdate(strModeHeaderInsert, "mode_header");
+            int intModeHeaderInsert = executeUpdate(strModeHeaderInsert);
             if (1 != intModeHeaderInsert) {
               System.out.println("  **  WARNING: unexpected result from mode_header INSERT: " + intModeHeaderInsert + "\n        " + strFileLine);
             }
             intModeHeaderInserts++;
           }
         }
-			
-			
+
+
 			/*
 			 * * * *  mode_cts insert  * * * *
 			 */
@@ -1866,14 +1883,14 @@ public class MVLoad extends MVUtil {
 
           //  insert the record into the mode_cts database table
           String strModeCtsInsert = "INSERT INTO mode_cts VALUES (" + strCTSValueList + ");";
-          int intModeCtsInsert = executeUpdate(strModeCtsInsert, "mode_cts");
+          int intModeCtsInsert = executeUpdate(strModeCtsInsert);
           if (1 != intModeCtsInsert) {
             System.out.println("  **  WARNING: unexpected result from mode_cts INSERT: " + intModeCtsInsert + "\n        " + strFileLine);
           }
           intModeCtsInserts++;
 
         }
-			
+
 			/*
 			 * * * *  mode_obj_single insert  * * * *
 			 */
@@ -1889,7 +1906,7 @@ public class MVLoad extends MVUtil {
 
           //  insert the record into the mode_obj_single database table
           String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strSingleValueList + ");";
-          int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert, "mode_obj_single");
+          int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert);
           if (1 != intModeObjSingleInsert) {
             System.out.println("  **  WARNING: unexpected result from mode_obj_single INSERT: " + intModeObjSingleInsert + "\n        " + strFileLine);
           }
@@ -1919,7 +1936,7 @@ public class MVLoad extends MVUtil {
 
           //  insert the record into the mode_obj_pair database table
           String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strPairValueList + ");";
-          int intModeObjPairInsert = executeUpdate(strModeObjPairInsert, "mode_obj_pair");
+          int intModeObjPairInsert = executeUpdate(strModeObjPairInsert);
           if (1 != intModeObjPairInsert) {
             System.out.println("  **  WARNING: unexpected result from mode_obj_pair INSERT: " + intModeObjPairInsert + "\n        " + strFileLine);
           }
@@ -2002,17 +2019,9 @@ public class MVLoad extends MVUtil {
       //throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage() + "\n  sql: " + update);
       throw new Exception("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
-      try {
-       // stmt.execute("UNLOCK TABLES");
-       // stmt.execute("ALTER TABLE " + strLineDataTable + "  ENABLE KEYS");
-        stmt.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        con.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        ps.close();
-      } catch (Exception e) { /* ignored */ }
+      if (ps != null) ps.close();
+      if (stmt != null) stmt.close();
+      if (con != null) con.close();
     }
     return intResLineDataInsert;
   }
@@ -2024,7 +2033,7 @@ public class MVLoad extends MVUtil {
    * @return Number of records affected (output of Statement.executeUpdate() call)
    * @throws SQLException
    */
-  public static int executeUpdate(String update, String table) throws Exception {
+  public static int executeUpdate(String update) throws Exception {
 
     int intRes = -1;
     Connection con = null;
@@ -2042,16 +2051,8 @@ public class MVLoad extends MVUtil {
       System.out.println("Error " + update);
       throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
     } finally {
-      try {
-        /*if (table != null) {
-          stmt.execute("UNLOCK TABLES");
-          stmt.execute("ALTER TABLE " + table + "  ENABLE KEYS");
-        }*/
-        stmt.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        con.close();
-      } catch (Exception e) { /* ignored */ }
+      if (stmt != null) stmt.close();
+      if (con != null) con.close();
     }
 
     return intRes;
@@ -2089,15 +2090,9 @@ public class MVLoad extends MVUtil {
         intId = (Integer.parseInt(strId) + 1);
       }
     } finally {
-      try {
-        res.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        stmt.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        con.close();
-      } catch (Exception e) { /* ignored */ }
+      if (res != null) res.close();
+      if (stmt != null) stmt.close();
+      if (con != null) con.close();
     }
 
     return intId;
@@ -2113,9 +2108,9 @@ public class MVLoad extends MVUtil {
   public static DataFileInfo processDataFile(File file) throws Exception {
     String strPath = file.getParent().replace("\\", "/");
     String strFile = file.getName();
-    String strDataFileLuId = "-1";
+    int strDataFileLuId = -1;
     String strDataFileLuTypeName;
-    String strDataFileId = "-1";
+    Integer dataFileId = -1;
 
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -2124,18 +2119,12 @@ public class MVLoad extends MVUtil {
     String strModDate = _formatDB.format(cal.getTime());
 
     // determine the type of the input data file by parsing the filename
-    if (strFile.matches("^point_stat\\S+\\.stat$")) {
-      strDataFileLuTypeName = "point_stat";
-    } else if (strFile.matches("^grid_stat\\S+\\.stat$")) {
-      strDataFileLuTypeName = "grid_stat";
-    } else if (strFile.matches("^wavelet_stat\\S+\\.stat$")) {
-      strDataFileLuTypeName = "wavelet_stat";
-    } else if (strFile.matches("^mode_\\S+_obj\\.txt$")) {
+    if (strFile.matches("\\S+\\.stat$")) {
+      strDataFileLuTypeName = "stat";
+    } else if (strFile.matches("\\S+_obj\\.txt$")) {
       strDataFileLuTypeName = "mode_obj";
-    } else if (strFile.matches("^mode_\\S+_cts\\.txt$")) {
+    } else if (strFile.matches("\\S+_cts\\.txt$")) {
       strDataFileLuTypeName = "mode_cts";
-    } else if (strFile.matches("^ensemble_stat.*\\S+\\.stat$")) {
-      strDataFileLuTypeName = "ensemble_stat";
     } else if (strFile.matches("\\S+\\.vsdb$")) {
       strDataFileLuTypeName = "vsdb_point_stat";
     }
@@ -2146,7 +2135,7 @@ public class MVLoad extends MVUtil {
     }
 
     if (!"".equals(strDataFileLuTypeName)) {
-      strDataFileLuId = (String) _tableDataFileLU.get(strDataFileLuTypeName);
+      strDataFileLuId = _tableDataFileLU.get(strDataFileLuTypeName);
     }
 
     // build a query to look for the file and path in the data_file table
@@ -2176,12 +2165,12 @@ public class MVLoad extends MVUtil {
       // if the data file is already present in the database, print a warning and return the id
       if (res.next()) {
         strDataFileLuTypeName = res.getString(1);
-        strDataFileId = res.getString(2);
+        dataFileId = res.getInt(2);
         strLoadDate = res.getString(3);
         strModDate = res.getString(4);
 
         if (_boolForceDupFile) {
-          DataFileInfo info = new DataFileInfo(strDataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
+          DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
           System.out.println("  **  WARNING: file already present in table data_file"); // :\n" + printDataFileInfo(info) + "\n");
           return info;
         } else {
@@ -2194,110 +2183,37 @@ public class MVLoad extends MVUtil {
       if (!res.next()) {
         throw new Exception("METViewer load error: processDataFile() unable to find max data_file_id");
       }
-      strDataFileId = res.getString(1);
-      if (null == strDataFileId) {
-        strDataFileId = "0";
-      } else {
-        strDataFileId = "" + (Integer.parseInt(strDataFileId) + 1);
+      dataFileId = res.getInt(1);
+      if (res.wasNull()) {
+        dataFileId = 0;
       }
+      dataFileId = dataFileId + 1;
+
     } catch (Exception e) {
       throw new Exception(e.getMessage());
     } finally {
-      try {
-        res.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        stmt.close();
-      } catch (Exception e) { /* ignored */ }
-      try {
-        con.close();
-      } catch (Exception e) { /* ignored */ }
+      if (res != null) res.close();
+      if (stmt != null) stmt.close();
+      if (con != null) con.close();
     }
 
 
     // add the input file to the data_file table
     String strDataFileInsert =
       "INSERT INTO data_file VALUES (" +
-        strDataFileId + ", " +      // data_file_id
+        dataFileId + ", " +      // data_file_id
         strDataFileLuId + ", " +    // data_file_lu_id
         "'" + strFile + "', " +      // filename
         "'" + strPath + "', " +      // path
         "'" + strLoadDate + "', " +    // load_date
         "'" + strModDate + "');";    // mod_date
-    int intRes = executeUpdate(strDataFileInsert, "data_file");
+    int intRes = executeUpdate(strDataFileInsert);
     if (1 != intRes) {
       System.out.println("  **  WARNING: unexpected result from data_file INSERT: " + intRes);
     }
 
-    return new DataFileInfo(strDataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
+    return new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId, strDataFileLuTypeName);
   }
-
-  public static String printDataFileInfo(DataFileInfo info) {
-    int intPad = 22;
-    return
-      padBegin("dataFileId: ", intPad) + info._dataFileId + "\n" +
-        padBegin("dataFileFilename: ", intPad) + info._dataFileFilename + "\n" +
-        padBegin("dataFilePath: ", intPad) + info._dataFilePath + "\n" +
-        padBegin("dataFileLuId: ", intPad) + info._dataFileLuId + "\n" +
-        padBegin("dataFileLuTypeName: ", intPad) + info._dataFileLuTypeName + "\n";
-  }
-
-  public static final Hashtable _tableAlphaLineTypes = new Hashtable();
-
-  static {
-    _tableAlphaLineTypes.put("CTS", Boolean.TRUE);
-    _tableAlphaLineTypes.put("CNT", Boolean.TRUE);
-    _tableAlphaLineTypes.put("PSTD", Boolean.TRUE);
-    _tableAlphaLineTypes.put("NBRCTS", Boolean.TRUE);
-    _tableAlphaLineTypes.put("NBRCNT", Boolean.TRUE);
-    _tableAlphaLineTypes.put("MCTS", Boolean.TRUE);
-    _tableAlphaLineTypes.put("SSVAR", Boolean.TRUE);
-  }
-
-  public static final Hashtable _tableCovThreshLineTypes = new Hashtable();
-
-  static {
-    _tableCovThreshLineTypes.put("NBRCTC", Boolean.TRUE);
-    _tableCovThreshLineTypes.put("NBRCTS", Boolean.TRUE);
-  }
-
-  public static final String[] _listLineDataTables = {
-    "line_data_fho", "line_data_ctc", "line_data_cts", "line_data_cnt", "line_data_pct",
-    "line_data_pstd", "line_data_pjc", "line_data_prc", "line_data_sl1l2", "line_data_sal1l2",
-    "line_data_vl1l2", "line_data_val1l2", "line_data_mpr", "line_data_nbrctc", "line_data_nbrcts",
-    "line_data_nbrcnt", "line_data_isc", "line_data_mctc", "line_data_rhist", "line_data_orank",
-    "line_data_ssvar", "line_data_enscnt"
-  };
-
-  public static final MVOrderedMap _mapIndexes = new MVOrderedMap();
-
-  static {
-    _mapIndexes.put("#stat_header#_model_idx", "model");
-    _mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
-    _mapIndexes.put("#stat_header#_fcst_lev_idx", "fcst_lev");
-    _mapIndexes.put("#stat_header#_obtype_idx", "obtype");
-    _mapIndexes.put("#stat_header#_vx_mask_idx", "vx_mask");
-    _mapIndexes.put("#stat_header#_interp_mthd_idx", "interp_mthd");
-    _mapIndexes.put("#stat_header#_interp_pnts_idx", "interp_pnts");
-    _mapIndexes.put("#stat_header#_fcst_thresh_idx", "fcst_thresh");
-
-    _mapIndexes.put("#mode_header#_model_idx", "model");
-    _mapIndexes.put("#mode_header#_fcst_lead_idx", "fcst_lead");
-    _mapIndexes.put("#mode_header#_fcst_valid_idx", "fcst_valid");
-    _mapIndexes.put("#mode_header#_fcst_init_idx", "fcst_init");
-    _mapIndexes.put("#mode_header#_fcst_rad_idx", "fcst_rad");
-    _mapIndexes.put("#mode_header#_fcst_thr_idx", "fcst_thr");
-    _mapIndexes.put("#mode_header#_fcst_var_idx", "fcst_var");
-    _mapIndexes.put("#mode_header#_fcst_lev_idx", "fcst_lev");
-
-    for (int i = 0; i < _listLineDataTables.length; i++) {
-      _mapIndexes.put("#" + _listLineDataTables[i] + "#_fcst_lead_idx", "fcst_lead");
-      _mapIndexes.put("#" + _listLineDataTables[i] + "#_fcst_valid_beg_idx", "fcst_valid_beg");
-      _mapIndexes.put("#" + _listLineDataTables[i] + "#_fcst_init_beg_idx", "fcst_init_beg");
-    }
-  }
-
-  public static final Pattern _patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
 
   public static void applyIndexes(boolean drop) throws Exception {
 
@@ -2322,7 +2238,7 @@ public class MVLoad extends MVUtil {
         strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");";
       }
       try {
-        executeUpdate(strIndex, null);
+        executeUpdate(strIndex);
       } catch (Exception e) {
         System.out.println("  **  ERROR: caught " + e.getClass() + " applying index " + strIndexName + ": " + e.getMessage());
       }
@@ -2342,7 +2258,6 @@ public class MVLoad extends MVUtil {
     applyIndexes(true);
   }
 
-
   /**
    * Initialize the table containing the max line_data_id for all line_data tables corresponding to variable length rows. //* @param con database connection
    * used to search against
@@ -2359,13 +2274,35 @@ public class MVLoad extends MVUtil {
     }
   }
 
+  /*
+   * MVLoadStatInsertData is used to store insert value lists for the various types of grid_stat and point_stat
+   * tables.  The structure is built in loadStatFile() and is unloaded and executed in commitStatData().
+   */
+  static class MVLoadStatInsertData {
+
+    public final ArrayList _listInsertValues = new ArrayList();
+    public final Hashtable _tableLineDataValues = new Hashtable();
+    public final ArrayList _listStatGroupInsertValues = new ArrayList();
+    public final Hashtable _tableVarLengthValues = new Hashtable();
+    public String _strLineType = "";
+    public String _strFileLine = "";
+  }
+
 }
 
 class DataFileInfo {
 
-  public DataFileInfo(String dataFileId, String dataFileFilename,
+  public Integer _dataFileId = 0;
+  public String _dataFileFilename = "";
+  public String _dataFilePath = "";
+  public String _dataFileLoadDate = "";
+  public String _dataFileModDate = "";
+  public int _dataFileLuId = -1;
+  public String _dataFileLuTypeName = "";
+
+  public DataFileInfo(Integer dataFileId, String dataFileFilename,
                       String dataFilePath, String dataFileLoadDate,
-                      String dataFileModDate, String dataFileLuId,
+                      String dataFileModDate, int dataFileLuId,
                       String dataFileLuTypeName) {
     _dataFileId = dataFileId;
     _dataFileFilename = dataFileFilename;
@@ -2375,12 +2312,4 @@ class DataFileInfo {
     _dataFileLuId = dataFileLuId;
     _dataFileLuTypeName = dataFileLuTypeName;
   }
-
-  public String _dataFileId = "";
-  public String _dataFileFilename = "";
-  public String _dataFilePath = "";
-  public String _dataFileLoadDate = "";
-  public String _dataFileModDate = "";
-  public String _dataFileLuId = "";
-  public String _dataFileLuTypeName = "";
 }

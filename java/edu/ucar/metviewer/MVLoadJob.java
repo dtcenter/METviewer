@@ -7,7 +7,7 @@ public class MVLoadJob {
   protected String _strDBUser = "";
   protected String _strDBPassword = "";
   protected String _strDBManagementSystem = null;
-  protected String _strDBDriver= null;
+  protected String _strDBDriver = null;
 
   protected boolean _boolModSchema = false;
 
@@ -39,9 +39,9 @@ public class MVLoadJob {
 
 
   public String getDBManagementSystem() {
-    if(_strDBManagementSystem == null){
+    if (_strDBManagementSystem == null) {
       return "mysql";
-    }else {
+    } else {
       return _strDBManagementSystem;
     }
   }

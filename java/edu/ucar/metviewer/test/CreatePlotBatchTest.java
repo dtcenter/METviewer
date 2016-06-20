@@ -1,10 +1,6 @@
 /**
- * CreatePlotBatchTest.java
- * Copyright UCAR (c) 2014.
- * University Corporation for Atmospheric Research (UCAR),
- * National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL),
- * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
+ * CreatePlotBatchTest.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
+ * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
  */
 
 package edu.ucar.metviewer.test;
@@ -29,21 +25,14 @@ import static edu.ucar.metviewer.test.util.TestUtil.*;
  * @version : 1.0 : 22/Jul/14 14:52 $
  */
 @RunWith(Parameterized.class)
-public class CreatePlotBatchTest  {
+public class CreatePlotBatchTest {
 
-  private String plotType = null;
   private static String testDataDir;
+  private String plotType = null;
 
   public CreatePlotBatchTest(String plotType) {
     super();
     this.plotType = plotType;
-  }
-
-
-  @Before
-  public void runScript() {
-    cleanWorkingDirs();
-    runBatch(testDataDir, plotType);
   }
 
   /**
@@ -56,20 +45,25 @@ public class CreatePlotBatchTest  {
     testDataDir = rootDir + FILE_SEPARATOR + "plots_batch";
 
     File file = new File(testDataDir);
-    if(!file.exists()){
-      throw new Exception(testDataDir  + " doesn't exist.");
+    if (!file.exists()) {
+      throw new Exception(testDataDir + " doesn't exist.");
     }
     String[] directories = file.list(DIRECTORY_FILTER);
     Collection<String[]> plots = new ArrayList<>();
     for (String directory : directories) {
       plots.add(new String[]{directory});
     }
-    if(plots.size() == 0){
-      throw new Exception(testDataDir  + " doesn't have any test cases.");
+    if (plots.size() == 0) {
+      throw new Exception(testDataDir + " doesn't have any test cases.");
     }
     return plots;
   }
 
+  @Before
+  public void runScript() {
+    cleanWorkingDirs();
+    runBatch(testDataDir, plotType);
+  }
 
   @Test
   public void compareOutputFiles() {
@@ -77,12 +71,11 @@ public class CreatePlotBatchTest  {
     comparePlotFilesWithNames(testDataDir, plotType);
     comparePointsFilesWithNames(testDataDir, "1", plotType);
     comparePointsFilesWithNames(testDataDir, "2", plotType);
-    compareAggStatInfoFilesWithNames(testDataDir,plotType);
-    compareDataAggStatWithNames(testDataDir,plotType);
+    compareAggStatInfoFilesWithNames(testDataDir, plotType);
+    compareDataAggStatWithNames(testDataDir, plotType);
     //compareRscriptFilesWithNames(testDataDir,plotType);
 
   }
-
 
 
   @After

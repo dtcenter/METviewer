@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.5</TITLE>
+<TITLE>METViewer v1.6</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -306,7 +306,7 @@
 
 
 </div>
-<div id="series_formatting" class="ui-layout-south " style="overflow: visible; padding-bottom: 10px; padding-left: 10px; padding-top: 0; padding-right: 0" >
+<div id="series_formatting" class="ui-layout-south " style="overflow: visible; padding: 0 0 10px 10px;" >
     <div >
         <table id="listdt" ></table>
         <div id="pagerdt"></div>
@@ -458,13 +458,7 @@
 <div id="common">
 
     <table style="width: 95%;">
-        <tr>
-            <td><input type="checkbox" id="event_equal"/>
-                <label for="event_equal">Event Equalizer</label></td>
-            <td><input type="checkbox" id="event_equal_m"/>
-                <label for="event_equal_m">Event Equalizer
-                    Multi</label></td>
-        </tr>
+
         <tr>
             <td><input type="checkbox" id="vert_plot"/>
                 <label for="vert_plot">Vertical Levels Plot</label></td>

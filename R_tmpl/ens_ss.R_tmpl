@@ -57,7 +57,7 @@ for(intPermVal in 1:nrow(matPermVal)){
 	# if there is no data for this case, skip to the next permutation
 	if( 1 > nrow(dfPerm) ){
 		rm(dfPerm);
-		intSeriesIndex = intSeriesIndex + 1;
+	#	intSeriesIndex = intSeriesIndex + 1;
 		next;
 	}
 	
