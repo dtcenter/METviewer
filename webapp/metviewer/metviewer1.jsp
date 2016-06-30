@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.6</TITLE>
+<TITLE>METViewer v1.7</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -196,6 +196,9 @@
 
 
     $(document).ready(function () {
+        $('input[name=derive_oper]').change(function () {
+            createNewDiffSeriesName($('input[name=yAxisDiff]').val());
+        });
 
         $.ajax({
             async: false,
@@ -995,20 +998,20 @@
 </div>
 
 </div>
-<div id="unavailableDiffCurveDialogForm" title="Add Series Difference Curve">
+<div id="unavailableDiffCurveDialogForm" title="Add Derived Curve">
     <div style="margin-top: 20px; padding: 0 .7em;" class="ui-state-highlight ui-corner-all">
     		<p><span style="float: left; margin-right: .3em;" class="ui-icon ui-icon-info"></span>
                 Series Difference Curves are not supported for this plot type.</p>
     	</div>
 </div>
 
-<div id="incorrectDiffCurveDialogForm" title="Add Series Difference Curve">
+<div id="incorrectDiffCurveDialogForm" title="Add Derived Curve">
     <div style="margin-top: 20px; padding: 0 .7em;" class="ui-state-highlight ui-corner-all">
     		<p><span style="float: left; margin-right: .3em;" class="ui-icon ui-icon-info"></span>
-                It should be more than one series to create a difference curve.</p>
+                It should be more than one series to create a derived curve.</p>
     	</div>
 </div>
-<div id="addDiffCurveDialogForm" title="Add Series Difference Curve">
+<div id="addDiffCurveDialogForm" title="Add Derived Curve">
     <form>
         <div style="text-align:center; padding-right: 10px; padding-left: 10px;">
         <table align="center" >
@@ -1026,9 +1029,9 @@
                         <div class="diffSelect">
 
                         <select name="series1Y1" id="series1Y1"
-                                     onchange="populateSecondSelect(1,series1Names); createNewDiffSeriesName(1);"></select>
+                                     onchange=" createNewDiffSeriesName(1);"></select>
                         </div>
-                        <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
+                        <div class="diffSelect header" style="font-size:12px;text-align:center;">and </div>
                         <div class="diffSelect">
                         <select name="series2Y1" id="series2Y1"
                                      onchange="createNewDiffSeriesName(1)"></select>
@@ -1041,7 +1044,7 @@
                         <div class="diffSelect">
 
                         <select name="series1Y2" id="series1Y2" disabled
-                                     onchange="populateSecondSelect(2,series2Names); createNewDiffSeriesName(2)">
+                                     onchange=" createNewDiffSeriesName(2)">
                         </select></div>
                         <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
                         <div class="diffSelect">
@@ -1054,6 +1057,10 @@
                 </td>
             </tr>
         </table>
+            <div><input type="radio" name="derive_oper" value="DIFF" id="derive_oper_diff" checked /><label for="derive_oper_diff">DIFF</label>
+            <input type="radio" name="derive_oper" value="RATIO" id="derive_oper_ratio" checked /><label for="derive_oper_ratio">RATIO</label>
+            <input type="radio" name="derive_oper" value="SS" id="derive_oper_SS" checked /><label for="derive_oper_ss">SS</label>
+            </div>
         <div id="newDiffSeriesName" class="diffSelect" style="font-weight:bold;"></div>
         </div>
     </form>

@@ -376,12 +376,12 @@ if(length(listDiffSeries1) > 0){
 
     #get  names of DIFF series
     diffSeriesVec = listDiffSeries1[[diffSeries1Name]];
-    diffSeriesName = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
+    derivedCurveName = getDerivedCurveName(diffSeriesVec);
     #check if the input frame already has diff series  ( from calculation agg stats )
     listSeriesVar = names(listSeries1Val);
 
     for(var in listSeriesVar){
-      dfStatsIndy1 = dfPlot[dfPlot[[var]] == diffSeriesName ,];
+      dfStatsIndy1 = dfPlot[dfPlot[[var]] == derivedCurveName ,];
     }
     if(nrow(dfStatsIndy1) == 0){
 
@@ -401,13 +401,12 @@ if(length(listDiffSeries1) > 0){
         if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
         if( "fcst_init"      %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
 
-        #calculate DIFF
-        dfStatsIndy1$stat_value = dfStatsIndy1$stat_value - dfStatsIndy2$stat_value;
+        dfStatsIndy1$stat_value = calcDerivedCurveValue(dfStatsIndy1$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
         if('stat_bcl' %in% names(dfStatsIndy1)){
-            dfStatsIndy1$stat_bcl = dfStatsIndy1$stat_bcl - dfStatsIndy2$stat_bcl;
+          dfStatsIndy1$stat_bcl = calcDerivedCurveValue(dfStatsIndy1$stat_bcl, dfStatsIndy2$stat_bcl, derivedCurveName);
         }
         if('stat_bcu' %in% names(dfStatsIndy1)){
-           dfStatsIndy1$stat_bcu = dfStatsIndy1$stat_bcu - dfStatsIndy2$stat_bcu;
+          dfStatsIndy1$stat_bcu = calcDerivedCurveValue(dfStatsIndy1$stat_bcu, dfStatsIndy2$stat_bcu,derivedCurveName);
         }
 
         if(length(names(plotDataDiff)) == 0){
@@ -431,7 +430,7 @@ if(length(listDiffSeries1) > 0){
     }
 
     #create a legend
-    listLegendNotOrdered[intLegendIndex] = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
+    listLegendNotOrdered[intLegendIndex] = derivedCurveName;
     intLegendIndex = intLegendIndex + 1;
   }
 }
@@ -444,13 +443,13 @@ if(length(listDiffSeries2) > 0){
 
     #get  names of DIFF series
     diffSeriesVec = listDiffSeries2[[diffSeries2Name]];
-    diffSeriesName = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
+    derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
     #check if the input frame already has diff series  ( from calculation agg stats )
     listSeriesVar = names(listSeries2Val);
 
     for(var in listSeriesVar){
-      dfStatsIndy1 = dfPlot[dfPlot[[var]] == diffSeriesName ,];
+      dfStatsIndy1 = dfPlot[dfPlot[[var]] == derivedCurveName ,];
     }
 
     if(nrow(dfStatsIndy1) == 0){
@@ -471,15 +470,13 @@ if(length(listDiffSeries2) > 0){
       if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
       if( "fcst_init"      %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
 
-      #calculate DIFF
-      dfStatsIndy1$stat_value = dfStatsIndy1$stat_value - dfStatsIndy2$stat_value;
+      dfStatsIndy1$stat_value = calcDerivedCurveValue(dfStatsIndy1$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
       if('stat_bcl' %in% names(dfStatsIndy1)){
-        dfStatsIndy1$stat_bcl = dfStatsIndy1$stat_bcl - dfStatsIndy2$stat_bcl;
+        dfStatsIndy1$stat_bcl = calcDerivedCurveValue(dfStatsIndy1$stat_bcl, dfStatsIndy2$stat_bcl, derivedCurveName);
       }
       if('stat_bcu' %in% names(dfStatsIndy1)){
-        dfStatsIndy1$stat_bcu = dfStatsIndy1$stat_bcu - dfStatsIndy2$stat_bcu;
+        dfStatsIndy1$stat_bcu = calcDerivedCurveValue(dfStatsIndy1$stat_bcu, dfStatsIndy2$stat_bcu,derivedCurveName);
       }
-
       if(length(names(plotDataDiff)) == 0){
         plotDataDiff = dfStatsIndy1;
       }else{
@@ -500,7 +497,7 @@ if(length(listDiffSeries2) > 0){
       listNStats = listPlotData2$nstats;
     }
 
-    listLegendNotOrdered[intLegendIndex] = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
+    listLegendNotOrdered[intLegendIndex] = derivedCurveName;
     intLegendIndex = intLegendIndex + 1;
   }
 }
@@ -579,7 +576,7 @@ if( "jpeg" == strPlotType ){
 }
 
 # specify the y-axis limits and labels
-listY1Bounds = seriesMinMax(listSeries1, intNumSeries1+intNumSeries1Diff, boolLogY1);
+listY1Bounds = seriesMinMax(listSeries1, intNumSeries1+intNumSeries1Diff, boolLogY1, head(listPlotDisp, intNumSeries1+intNumSeries1Diff));
 if( TRUE == boolLogY1 ){
   dblY1Min = 10^listY1Bounds$min;	
   dblY1Max = 10^listY1Bounds$max;	
@@ -821,7 +818,7 @@ if( 0 < length(listDep2Plot) ){
   if( FALSE == boolSyncAxes ){
     
     # determine the axis bounds, depending on the y2_log setting
-    listY2Bounds = seriesMinMax(listSeries2, intNumSeries2 +intNumSeries2Diff , boolLogY2);
+    listY2Bounds = seriesMinMax(listSeries2, intNumSeries2 +intNumSeries2Diff , boolLogY2, tail(listPlotDisp, intNumSeries2 +intNumSeries2Diff));
     if( TRUE == boolLogY2 ){
       dblY2Min = 10^listY2Bounds$min;	
       dblY2Max = 10^listY2Bounds$max;	

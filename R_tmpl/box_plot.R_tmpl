@@ -321,16 +321,16 @@ if(length(listDiffSeries1) > 0){
   for( diffSeries1Name in 1: length(listDiffSeries1) ){ #1,2....
    #get  names of DIFF series
     diffSeriesVec = listDiffSeries1[[diffSeries1Name]];
+    derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
     listBox1 = listAllStats1[[ diffSeriesVec[1] ]];
     listBox2 = listAllStats1[[ diffSeriesVec[2] ]];
     listBoxDiff = list();
     for(strIndy in listIndy){
-      listBoxDiff[[strIndy]] = listBox1[[strIndy]] - listBox2[[strIndy]];
-
+      listBoxDiff[[strIndy]] = calcDerivedCurveValue(listBox1[[strIndy]], listBox2[[strIndy]], derivedCurveName);
     }
-    name = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
-    listAllStats1[[name]] = listBoxDiff;
+    listAllStats1[[derivedCurveName]] = listBoxDiff;
+
   }
 }
 
@@ -359,14 +359,15 @@ for( listAllStatsName in names(ll) ){
 if(length(listDiffSeries2) > 0){
   for( diffSeries2Name in 1: length(listDiffSeries2) ){ #1,2....
     diffSeriesVec = listDiffSeries2[[diffSeries2Name]];
+    derivedCurveName = getDerivedCurveName(diffSeriesVec);
+
     listBox1 = listAllStats2[[ diffSeriesVec[1] ]];
     listBox2 = listAllStats2[[ diffSeriesVec[2] ]];
     listBoxDiff = list();
     for(strIndy in listIndy){
-      listBoxDiff[[strIndy]] = listBox1[[strIndy]] - listBox2[[strIndy]];
+      listBoxDiff[[strIndy]] = calcDerivedCurveValue(listBox1[[strIndy]], listBox2[[strIndy]], derivedCurveName);
     }
-    name = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
-    listAllStats2[[name]] = listBoxDiff;
+    listAllStats2[[derivedCurveName]] = listBoxDiff;
   }
 }
 

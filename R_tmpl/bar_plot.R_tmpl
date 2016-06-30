@@ -154,16 +154,22 @@ for( listAllStatsName in names(listAllStats) ){
 if(length(listDiffSeries1) > 0){
   for( diffSeries1Name in 1: length(listDiffSeries1) ){ #1,2....
     diffSeriesVec = listDiffSeries1[[diffSeries1Name]];
+    derivedCurveName = getDerivedCurveName(diffSeriesVec);
+
     plotData1 = listAllStats[[diffSeriesVec[1]]];
     plotData2 = listAllStats[[diffSeriesVec[2]]];
-    plotData1$stat_value = plotData1$stat_value - plotData2$stat_value;
+    plotData1$stat_value = calcDerivedCurveValue(plotData1$stat_value, plotData2$stat_value, derivedCurveName);
+
+
     listPlotData1 = buildSeriesData(plotData1, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp,
-                                    listPlotCI[(intNumSeries1 +1):(length(listPlotCI))],  boolVarianceInflationFactor, strPlotStat);
+    listPlotCI[(intNumSeries1 +1):(length(listPlotCI))],  boolVarianceInflationFactor, strPlotStat);
     listSeries1 = append(listSeries1, listPlotData1$series);
-    if( TRUE == exists("listNStats") ){ listNStats = listNStats + listPlotData1$nstats; }
-    else                              { listNStats = listPlotData1$nstats; }
-    listLegend1 = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
-    listLegendNotOrdered[depIndex] = listLegend1;
+    if( TRUE == exists("listNStats") ){
+      listNStats = listNStats + listPlotData1$nstats;
+    } else {
+      listNStats = listPlotData1$nstats;
+    }
+    listLegendNotOrdered[depIndex] = derivedCurveName;
     depIndex = depIndex + 1;
   }
 }
