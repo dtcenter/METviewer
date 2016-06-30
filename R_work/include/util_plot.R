@@ -27,24 +27,26 @@ parseLev = function(listLev){
 #   the maximum value of the high error bar values.  This method is called by plotting
 #   functions to determine sensible axis bounds.  For exponential bounds, set log=TRUE.
 #   If log=TRUE, then only the bounding integer exponents of 10 will be returned.
-seriesMinMax = function(series, numModels, log=FALSE){	
+seriesMinMax = function(series, numModels, log=FALSE,listPlotDisp){	
 	dblMin = Inf; dblMax = -Inf;
-	for( i in 1:numModels ) {				
-		listData = append(series[[3*(i-1)+2]], series[[3*(i-1)+3]]);
-		listData = listData[!is.na(listData)];
-		if( TRUE == log ){ listData = listData[listData > 0]; }
-		if( 0 < length(listData) ){
-			if( TRUE == log ){
-				dblMinCur = floor( log10(min(listData)) );
-				dblMaxCur = ceiling( log10(max(listData)) );
-			} else {
-				dblMinCur = min(listData);
-				dblMaxCur = max(listData);
-			}
-			
-			if( dblMinCur < dblMin ){ dblMin = dblMinCur; }
-			if( dblMaxCur > dblMax ){ dblMax = dblMaxCur; }
-		}
+	for( i in 1:numModels ) {	
+	  if(listPlotDisp[i] == TRUE){
+  		listData = append(series[[3*(i-1)+2]], series[[3*(i-1)+3]]);
+  		listData = listData[!is.na(listData)];
+  		if( TRUE == log ){ listData = listData[listData > 0]; }
+  		if( 0 < length(listData) ){
+  			if( TRUE == log ){
+  				dblMinCur = floor( log10(min(listData)) );
+  				dblMaxCur = ceiling( log10(max(listData)) );
+  			} else {
+  				dblMinCur = min(listData);
+  				dblMaxCur = max(listData);
+  			}
+  			
+  			if( dblMinCur < dblMin ){ dblMin = dblMinCur; }
+  			if( dblMaxCur > dblMax ){ dblMax = dblMaxCur; }
+  		}
+  	}
 	}
 	if( Inf == dblMin  ){
     dblMin = 0; dblMax = 1; 
@@ -1198,4 +1200,32 @@ equalizeAggStatsAgainstValues=function(strInputEeDataFile,listFixedValEx,listDep
   }
  return( dfStatsRec );
 }
+
+getDerivedCurveName = function(diffSeriesVec){
+	operation='DIFF';
+	operationSign = '-';
+	if(length(diffSeriesVec) == 3){
+		operation=diffSeriesVec[3];
+	}
+	if(operation == 'RATIO'){
+		operationSign = '/';
+	}else if(operation == 'SS'){
+		operationSign = 'and';
+	}
+	name = paste(operation,"(",diffSeriesVec[1],operationSign,diffSeriesVec[2],")" ,collapse="", sep = "");
+	return(name);
+}
+calcDerivedCurveValue = function(val1, val2, derivedCurveName){
+	if(  grepl('^DIFF', derivedCurveName) ){
+		result = as.numeric(val1)  - as.numeric(val2);
+	}else if( grepl('^RATIO', derivedCurveName) ){
+			result = as.numeric(val1)  / as.numeric(val2);
+	}else if( grepl('^SS', derivedCurveName) ){
+			result = ( as.numeric(val1)  - as.numeric(val2) ) / as.numeric(val1);
+	}
+  result[result == Inf ] = NA;
+	return( result );
+}
+
+
 

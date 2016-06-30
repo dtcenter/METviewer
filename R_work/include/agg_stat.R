@@ -130,19 +130,25 @@ for(intY in 1:intYMax){
 
   #add diff series
   if(length(listDiffSeries) > 0){
-    for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
-      listDiffVal = list();
-      for(var in listSeriesVar){
-        listDiffVal[[var]]="";
-      }
-      diffSeriesVec = listDiffSeries[[diffSeriesName]];
-      listDiffVal[[strDiffVar]] = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
-      listDiffVal[[strIndyVar]] = listIndyVal;
-      listDiffVal$stat_name = listStat;
-      matOut = rbind(matOut, permute(listDiffVal));
-    }
+     for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
+       listDiffVal = list();
+       for(var in listSeriesVar){
+         listDiffVal[[var]]="";
+       }
+       diffSeriesVec = listDiffSeries[[diffSeriesName]];
+       listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+       listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
 
-  }
+       strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+       strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+       derivedCurveName = getDerivedCurveName(diffSeriesVec);
+       listDiffVal[[strDiffVar]] = derivedCurveName;
+       listDiffVal[[strIndyVar]] = listIndyVal;
+       listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
+       matOut = rbind(matOut, permute(listDiffVal));
+     }
+
+   }
 
 }
 
@@ -367,22 +373,25 @@ booter.iid = function(d, i){
       listRet[[strStat]] = append(listRet[[strStat]], dblStat);
     }
   }
-  for(strStat in listStat){
-    if(length(listDiffSeries) > 0){
+  if(length(listDiffSeries) > 0){
       for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
-      #get  names of DIFF series
-      diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+        #get  names of DIFF series
+        diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
 
-      listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-      listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
-      if(listSeriesDiff1[length(listSeriesDiff1)] == strStat && listSeriesDiff2[length(listSeriesDiff2)] == strStat){
+        listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+        listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+
+        strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+        strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+
         listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
         listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
 
-        strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));
+        strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));# number for model
         strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
         indPerm1=0;
         indPerm2=0;
+        derivedCurveName = getDerivedCurveName(diffSeriesVec);
         for(intPerm in 1:nrow(matPerm)){
           strPerm = escapeStr(paste(matPerm[[intPerm]], sep="_", collapse="_"));
           if(strSeriesDiff1Short == strPerm){
@@ -391,13 +400,11 @@ booter.iid = function(d, i){
           if(strSeriesDiff2Short == strPerm){
             indPerm2=intPerm;
           }
-          if(indPerm1 != 0 && indPerm2 !=0){
-            listRet[[paste(strStat, indPerm1, indPerm2,sep = "_")]] = as.numeric(listRet[[strStat]][indPerm1]) - as.numeric(listRet[[strStat]][indPerm2]);
-          }
+        }
+        if(indPerm1 != 0 && indPerm2 !=0){
+          listRet[[paste(strStat1,strStat2, indPerm1, indPerm2,sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indPerm1],listRet[[strStat2]][indPerm2], derivedCurveName);
         }
       }
-      }
-    }
   }
 return( unlist(listRet) );
 }
@@ -426,7 +433,6 @@ for(strIndyVal in listIndyVal){
           listDiffSeries = listDiffSeries2;
      }
     listBoot = list();
-    listCount=list();
 
     # run the bootstrap flow for each series permutation
     for(intPerm in 1:nrow(matPerm)){
@@ -446,7 +452,6 @@ for(strIndyVal in listIndyVal){
         vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
         dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
       }
-      listCount[[ paste(listPerm, collapse=',' ) ]]=nrow(dfStatsPerm);
       if( 1 > nrow(dfStatsPerm) ){ next; }
 
       # add the contingency table constituents for this series permutation to the boot list
@@ -515,7 +520,7 @@ for(strIndyVal in listIndyVal){
 
         # store the bootstrapped stat value and CI values in the output dataframe
         dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
-        dfOut[listOutInd,]$nstats = listCount[[ paste(listPerm, collapse=',' ) ]];
+        dfOut[listOutInd,]$nstats = nrow(dfStatsPerm[dfStatsPerm$stat_name == strStat,]);
         strCIParm = strCIType;
         if( strCIType == "perc" ){ strCIParm = "percent"; }
         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
@@ -529,39 +534,42 @@ for(strIndyVal in listIndyVal){
       }
     }
     if(length(listDiffSeries) > 0){
-      for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
-        if( 1 < intNumReplicates ){
-          stBootCI = Sys.time();
-          bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-          dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-        }
+       for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+         if( 1 < intNumReplicates ){
+           stBootCI = Sys.time();
+           bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+           dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+         }
 
-        diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
-        listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-        strStat= listSeriesDiff1[length(listSeriesDiff1)]
-        diffSeriesName = paste("DIFF(",diffSeriesVec[1],"-",diffSeriesVec[2],")" ,collapse="");
-        # build a indicator list for the pertinent rows in the output dataframe
-        listOutInd = rep(TRUE, nrow(dfOut));
-        strDiffVar = listSeriesVar[length(listSeriesVar)];
-        listOutInd = listOutInd & (dfOut[[strDiffVar]] == diffSeriesName);
+         diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+         listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+         listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+         strStat1= listSeriesDiff1[length(listSeriesDiff1)];
+         strStat2= listSeriesDiff2[length(listSeriesDiff2)];
 
+         derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
-        listOutInd1 = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
+         # build a indicator list for the pertinent rows in the output dataframe
+         listOutInd = rep(TRUE, nrow(dfOut));
+         strDiffVar = listSeriesVar[length(listSeriesVar)];
+         listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
 
-        dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-        dfOut[listOutInd1,]$nstats = nrow(dfStatsPerm)
-        strCIParm = strCIType;
-        if( strCIType == "perc" ){ strCIParm = "percent"; }
-        if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-          dfOut[listOutInd1,]$stat_bcl = bootCI[[strCIParm]][4];
-          dfOut[listOutInd1,]$stat_bcu = bootCI[[strCIParm]][5];
-        } else {
-          dfOut[listOutInd1,]$stat_bcl = NA;
-          dfOut[listOutInd1,]$stat_bcu = NA;
-        }
+        listOutInd1 = listOutInd & (dfOut$stat_name == paste(strStat1,strStat2,collapse = "", sep=","))  & (dfOut[[strIndyVar]] == strIndyVal);
 
-        intBootIndex = intBootIndex + 1;
-      }
+         dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
+         dfOut[listOutInd1,]$nstats = 0;
+         strCIParm = strCIType;
+         if( strCIType == "perc" ){ strCIParm = "percent"; }
+         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
+           dfOut[listOutInd1,]$stat_bcl = bootCI[[strCIParm]][4];
+           dfOut[listOutInd1,]$stat_bcu = bootCI[[strCIParm]][5];
+         } else {
+           dfOut[listOutInd1,]$stat_bcl = NA;
+           dfOut[listOutInd1,]$stat_bcu = NA;
+         }
+
+         intBootIndex = intBootIndex + 1;
+       }
     }
 
   } # end for(intY in 1:intYMax)

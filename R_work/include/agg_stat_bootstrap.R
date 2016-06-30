@@ -410,44 +410,53 @@ booter.iid = function(d, i){
 		dfStatsPerm = buildPermData(dfBoot, listPerm);
 		if( 1 > nrow(dfStatsPerm) ){ listStatVal = append(listStatVal, NA); next; }
 		
-		# calculate the stat and add it to the list (AREARAT_FSA_OSA)
+		# calculate the stat and add it to the list
 		for(strStat in listStat){
         dblStat=do.call( paste("calc", strStat, sep=""), list(d=dfStatsPerm) );	
 		  	listStatVal = append(listStatVal, dblStat);
 		  	listRet[[strStat]] = append(listRet[[strStat]], dblStat);
         listRetTest[[strStat]] = append(listRetTest[[strStat]], dblStat);
-		}
-		listRetTest[[strStat]] = append(listRetTest[[strStat]], strPerm);
+		    listRetTest[[strStat]] = append(listRetTest[[strStat]], strPerm);
+    }
 	}
-	if(length(listDiffSeries) > 0){
-      for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
-        #get  names of DIFF series
-        diffSeriesVec = listDiffSeries1[[diffSeriesNameInd]];
+  if(length(listDiffSeries) > 0){
+    for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+      #get  names of defived series
+      diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
 
-        listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-        listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
-        if(listSeriesDiff1[length(listSeriesDiff1)] == strStat && listSeriesDiff2[length(listSeriesDiff2)] == strStat){
-          listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
-          listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
+      listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+      listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
 
-          strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));
-          strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
+      strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+      strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
 
-          for(ind in seq(from=1, to=length(listRetTest[[strStat]]), by=2) ) {
-            if(listRetTest[[strStat]][ind+1] == strSeriesDiff1Short){
-              dblStat1=listRetTest[[strStat]][ind];
-            }
-            if(listRetTest[[strStat]][ind+1] == strSeriesDiff2Short){
-              dblStat2=listRetTest[[strStat]][ind];
-            }
-            ind=ind+1;
-          }
-          if(TRUE == exists("dblStat1") && TRUE == exists("dblStat2")){
-            listRet[[strStat]] = append(listRet[[strStat]], as.numeric(dblStat1) - as.numeric(dblStat2));
-          }
+      listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
+      listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
+
+      strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));
+      strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
+
+      derivedCurveName = getDerivedCurveName(diffSeriesVec);
+
+
+      for(ind in seq(from=1, to=length(listRetTest[[strStat1]]), by=2) ) {
+        if(listRetTest[[strStat1]][ind+1] == strSeriesDiff1Short){
+          dblStat1=listRetTest[[strStat1]][ind];
         }
+        ind=ind+1;
+      }
+      for(ind in seq(from=1, to=length(listRetTest[[strStat2]]), by=2) ) {
+        if(listRetTest[[strStat2]][ind+1] == strSeriesDiff2Short){
+          dblStat2=listRetTest[[strStat2]][ind];
+        }
+        ind=ind+1;
+      }
+      if(TRUE == exists("dblStat1") && TRUE == exists("dblStat2")){
+        derivedValues = calcDerivedCurveValue(dblStat1, dblStat2, derivedCurveName);
+        listRet[[paste(strStat1,strStat1,sep=",")]] = append(listRet[[paste(strStat1,strStat1,sep=",")]], derivedValues);
       }
     }
+  }
 	#return (listStatVal);
 	return( unlist(listRet) );
 }
@@ -543,43 +552,48 @@ cat("PROCESSING:", strIndyVal, "\n");
 			
 		}  #  END:  for strStat
 		 #add diff series
-        if(length(listDiffSeries) > 0){
-          for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
-            listPerm = listDiffSeries[[diffSeriesName]];
-             diffSeriesName = paste("DIFF(",listPerm[1],"-",listPerm[2],")" ,collapse="");
+  if(length(listDiffSeries) > 0){
+    for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
+      diffSeriesVec = listDiffSeries[[diffSeriesName]];
+      listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+      listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
 
-             # build an output entry for the current case
-             listOutPerm = data.frame(diffSeriesName);
-            names(listOutPerm) = names(listSeriesVal);
-            for(strStaticVar in names(listStaticVal)){
-              listOutPerm[[strStaticVar]] = listStaticVal[[strStaticVar]];
-            }
-            listOutPerm[[strIndyVar]]  = strIndyVal;
-            listOutPerm$stat_name		= strStat;
-            listOutPerm$stat_value		= bootStat$t0[intBootIndex];
+      strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+      strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+      derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
-            # calculate the bootstrap CIs, if appropriate
-            if( 1 < intNumReplicates ){
+      # build an output entry for the current case
+      listOutPerm = data.frame(derivedCurveName);
+      names(listOutPerm) = names(listSeriesVal);
+      for(strStaticVar in names(listStaticVal)){
+        listOutPerm[[strStaticVar]] = listStaticVal[[strStaticVar]];
+      }
+      listOutPerm[[strIndyVar]]  = strIndyVal;
+      listOutPerm$stat_name		= paste(strStat1,strStat2,sep=',',collapse="");
+      listOutPerm$stat_value		= bootStat$t0[intBootIndex];
 
-              # calculate the confidence interval for the current stat and series permutation
-              bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+      # calculate the bootstrap CIs, if appropriate
+      if( 1 < intNumReplicates ){
 
-            }
+        # calculate the confidence interval for the current stat and series permutation
+        bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
 
-            # store the bootstrapped stat value and CI values in the output dataframe
-            strCIParm = strCIType;
-            if( strCIType == "perc" ){ strCIParm = "percent"; }
-            if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-              listOutPerm$stat_bcl = bootCI[[strCIParm]][4];
-              listOutPerm$stat_bcu = bootCI[[strCIParm]][5];
-            } else {
-              listOutPerm$stat_bcl = NA;
-              listOutPerm$stat_bcu = NA;
-            }
-            dfOut = rbind(dfOut, listOutPerm);
-            intBootIndex = intBootIndex + 1;
-          }
-        }
+      }
+
+      # store the bootstrapped stat value and CI values in the output dataframe
+      strCIParm = strCIType;
+      if( strCIType == "perc" ){ strCIParm = "percent"; }
+      if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
+        listOutPerm$stat_bcl = bootCI[[strCIParm]][4];
+        listOutPerm$stat_bcu = bootCI[[strCIParm]][5];
+      } else {
+        listOutPerm$stat_bcl = NA;
+        listOutPerm$stat_bcu = NA;
+      }
+      dfOut = rbind(dfOut, listOutPerm);
+      intBootIndex = intBootIndex + 1;
+    }
+  }
 		
 	}  #  END:  for intY
 	
