@@ -539,6 +539,15 @@ public class MVPlotJobParser extends MVUtil {
           "<roc_pct>" + (job.getRocPct() ? "TRUE" : "FALSE") + "</roc_pct>" +
           "<roc_ctc>" + (job.getRocCtc() ? "TRUE" : "FALSE") + "</roc_ctc>" +
           "</roc_calc>";
+
+    }
+
+    if (job.getPlotTmpl().equals("roc.R_tmpl") || job.getPlotTmpl().equals("rely.R_tmpl")) {
+      strXML = strXML + "<summary_curve>";
+           for(String stat : job.getSummaryCurve()){
+             strXML = strXML +"<val>" + stat +"</val>";
+           }
+           strXML = strXML + "</summary_curve>";
     }
 
     //  roc_calc
@@ -1364,6 +1373,13 @@ public class MVPlotJobParser extends MVUtil {
         if (job.getRocPct() && job.getRocCtc()) {
           throw new Exception("invalid roc_calc setting - both roc_pct and roc_ctc are true");
         }
+      } else if (node._tag.equals("summary_curve")) {
+        for (int j = 0; j < node._children.length; j++) {
+          MVNode nodeVal = node._children[j];
+          if (nodeVal._tag.equals("val")) {
+            job.addSummaryCurve(nodeVal._value);
+          }
+        }
       }
       //  <normalized_histogram>
       else if (node._tag.equals("normalized_histogram")) {
@@ -1417,7 +1433,7 @@ public class MVPlotJobParser extends MVUtil {
 
       if (diffSeriesParametersArray.length > 2) {
         String variableStat = diffSeriesParametersArray[diffSeriesParametersArray.length - 2] + " " + diffSeriesParametersArray[diffSeriesParametersArray.length - 1];
-        if (!diffSeriesArray[1].endsWith(variableStat)) {
+        if (diffSeriesArray.length > 2 && diffSeriesArray[2].equals("DIFF") && !diffSeriesArray[1].endsWith(variableStat)) {
           throw new Exception("Difference curve " + diffSeries[k] + " wants to be calculated using different variable and/or statistic. It isn't supported by Image Viewer.");
         }
       }

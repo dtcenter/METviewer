@@ -1,8 +1,10 @@
 package edu.ucar.metviewer;
 
+
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Storage class for a xml plot specification, implementing the java bean interface.  Instances are populated by the MVPlotJobParser and handled by MVBatch.
@@ -175,6 +177,7 @@ public class MVPlotJob extends MVUtil {
   protected String _strDiffSeries1 = "list()";
   protected String _strDiffSeries2 = "list()";
   protected String _strShowSignif = "";
+  protected List<String> summaryCurve = new ArrayList<>();
 
 
   /**
@@ -341,6 +344,7 @@ public class MVPlotJob extends MVUtil {
     job._strY2Lim = _strY2Lim;
     job._strY2Bufr = _strY2Bufr;
     job._plotStat = _plotStat;
+    job.summaryCurve.addAll(summaryCurve);
 
     return job;
   }
@@ -1682,5 +1686,23 @@ public class MVPlotJob extends MVUtil {
     this._equalizeByIndep = equalizeByIndep;
   }
 
+  public void addSummaryCurve(String value) {
+    this.summaryCurve.add(value);
+  }
+
+  public List<String> getSummaryCurve(){
+    return this.summaryCurve;
+  }
+
+  public String getSummaryCurveRformat() {
+    String result="c(";
+    for(String stat : summaryCurve){
+      result = result + "'" + stat + "'" +",";
+    }
+    if(summaryCurve.size() > 0){
+      result = result.substring(0, result.length() - 1);
+    }
+    return result + ")";
+  }
 }
 

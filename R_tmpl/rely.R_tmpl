@@ -25,6 +25,9 @@ listLty = #<lty>#;
 
 listLwd = #<lwd>#;
 
+listStatisticsCurvs	= #<summary_curves>#;
+
+
 legend=c();
 
 if(length(listSeries1Val) > 0){
@@ -83,7 +86,6 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
     T = sum(dfPerm$n_i); # T
     oy_total = sum(dfPerm$oy_i); # n_.1
     o_bar = oy_total / T; # n_.1 / T
-    cat("o_bar ", o_bar, "\n")
     dfPerm$o_bar_i = dfPerm$oy_i / dfPerm$n_i; # o_bar_i
     
     # row-based calculations
@@ -269,6 +271,19 @@ if(length(listSeries1Val) > 0){
   legend=append(legend, 'Reliability Curve');
   initSeries(dfPerm,envir=env);
 }
+
+if(length(listStatisticsCurvs) > 0){
+  intPermVal = intPermVal + 1;
+    for(index in 1:length(listStatisticsCurvs)){
+      groupStats_oy_i = aggregate(oy_i ~ thresh_i, data = dfPct, FUN = listStatisticsCurvs[index]);
+      groupStats_on_i = aggregate(on_i ~ thresh_i, data = dfPct, FUN = listStatisticsCurvs[index]);
+      dfPerm= merge(groupStats_oy_i, groupStats_on_i,by="thresh_i");
+      seriesLegend = paste(listStatisticsCurvs[index],'Reliability Curve');
+      legend=append(legend, seriesLegend);
+      initSeries(dfPerm,envir=env, intPermVal);
+    }
+}
+
 
 
 listColorsOrdered=c();

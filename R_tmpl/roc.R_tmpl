@@ -16,6 +16,8 @@ listPlotDisp	= #<plot_disp>#;
 
 listPlotOrderSeries	= #<order_series>#;
 
+listStatisticsCurvs	= #<summary_curves>#;
+
 
 drawLine <- function(dfPerm,envir, intPermVal=1) {
 
@@ -57,13 +59,13 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
       ylab="", # y1-axis label
       fg="gray"
     );
-    
+
     # specify the axis formatting
     par(
       usr=c(0, 1, 0, 1), # vector c(x1, x2, y1, y2) giving the extreme coordinates of the plotting region
       xpd=NA # plot clipping - FALSE: plot, TRUE: figure, NA: device
     );
-    
+
     # plot title
     mtext(
       "#<plot_title>#", # label
@@ -75,7 +77,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
       adj=0.5, # axis label parallel location adjustment
       line=1 # margin line, starting at 0 counting outwards
     );
-    
+
     # x-axis label
     mtext(
       "#<x_label>#", # label
@@ -87,7 +89,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
       adj=0.5, # axis label parallel location adjustment
       line=1 # margin line, starting at 0 counting outwards
     );
-    
+
     # specify the x-axis
     axis(
       1, # axis of interest, 1: below, 2: left, 3: above and 4: right
@@ -100,7 +102,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
       cex.axis=1,# relative axis label magnification
       col="gray" # axis color
     );
-    
+
     # y-axis label
     mtext(
       "#<y1_label>#", # label
@@ -112,7 +114,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
       adj=0.5, # axis label parallel location adjustment
       line=1 # margin line, starting at 0 counting outwards
     );
-    
+
     # specify the y-axis
     axis(
       2, # axis of interest, 1: below, 2: left, 3: above and 4: right
@@ -140,12 +142,12 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
 
     envir$isPlotCreated=TRUE;
   }
-  
+
   actualInd = listPlotOrderSeries[intPermVal];
-  
+
   #if do not show or no data - continue to the next
   if(listPlotDisp[actualInd] & !is.na(dfROC)){
-  
+
     # plot the series line
     lines(
       x=listPOFD, # x coordinates
@@ -239,7 +241,7 @@ if(length(listSeries1Val) > 0){
       dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
       seriesLegend = paste(seriesLegend,valPerm);
     }
-  
+
     seriesLegend = paste(seriesLegend,'ROC Curve');
     legend=append(legend, seriesLegend);
     drawLine(dfPerm,envir=env, intPermVal);
@@ -248,6 +250,34 @@ if(length(listSeries1Val) > 0){
   dfPerm = dfData;
   legend=append(legend, 'ROC Curve');
   drawLine(dfPerm,envir=env);
+}
+#adding sum curevs
+if(length(listStatisticsCurvs) > 0){
+  intPermVal = intPermVal + 1;
+  if( TRUE == boolRocPct ){
+    for(index in 1:length(listStatisticsCurvs)){
+      groupStats_oy_i = aggregate(oy_i ~ thresh_i, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_on_i = aggregate(on_i ~ thresh_i, data = dfData, FUN = listStatisticsCurvs[index]);
+      dfPerm= merge(groupStats_oy_i, groupStats_on_i,by="thresh_i");
+      seriesLegend = paste(listStatisticsCurvs[index],'ROC Curve');
+      legend=append(legend, seriesLegend);
+      drawLine(dfPerm,envir=env, intPermVal);
+    }
+  }else{
+
+    for(index in 1:length(listStatisticsCurvs)){
+      groupStats_fy_oy =  aggregate(fy_oy ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_fn_oy =  aggregate(fn_oy ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_fy_on =  aggregate(fy_on ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_fn_on =  aggregate(fn_on ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      dfPerm= merge(groupStats_fy_oy, groupStats_fn_oy, by="thresh");
+      dfPerm= merge(dfPerm, groupStats_fy_on, by="thresh");
+      dfPerm= merge(dfPerm, groupStats_fn_on, by="thresh");
+      seriesLegend = paste(listStatisticsCurvs[index],'ROC Curve');
+      legend=append(legend, seriesLegend);
+      drawLine(dfPerm,envir=env, intPermVal);
+    }
+  }
 }
 
 
