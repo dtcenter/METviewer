@@ -821,7 +821,7 @@
                 </tr>
 
               <tr><td><input type="radio" value="mode" name="agg_stat" checked
-                                             id="agg_mode"></td><td colspan="3"><label for="agg_mode">Mode</label></td></tr>
+                                             id="agg_mode"></td><td colspan="3"><label for="agg_mode">MODE</label></td></tr>
               <tr><td><input type="radio" value="none" name="agg_stat" checked
                                                          id="agg_none"></td><td colspan="3"><label for="agg_none">None</label></td></tr>
 
