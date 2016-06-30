@@ -131,21 +131,38 @@
         }).click(function () {
             addFixedVariableRhist();
         });
-        getForecastVariablesHist();
-        if (initXML != null) {
-            loadXMLRely();
-            initXML = null;
+      getForecastVariablesHist();
+
+      $("input:radio[name='rely_event_hist']").change(function () {
+        updateSeriesRhist();
+      });
+      updateSeriesRhist();
+      $('#is_hist').buttonset();
+      $('#summary_curve').val("none");
+      $("#summary_curve").multiselect({
+        multiple: false,
+        header: false,
+        height: 'auto',
+        selectedList: 1,
+        create: function () {
+          $('#summary_curve').multiselect("uncheckAll");
+        },
+        click: function (event, ui) {
+          updateSeriesRhist();
+        }
+      });
+
+      if (initXML != null) {
+        loadXMLRely();
+        updateSeriesRhist();
+        initXML = null;
         }else{
             updateSeriesVarValRhist(1, []);
             updateSeriesRhist();
             $("input[name=rely_event_hist][value=false]").prop('checked', true);
         }
 
-        $("input:radio[name='rely_event_hist']").change(function() {
-            updateSeriesRhist();
-                });
-        updateSeriesRhist();
-        $('#is_hist').buttonset();
+
     </script>
 </head>
 <body>
@@ -267,6 +284,21 @@
         <label for="false_is_hist">No</label>
     </div>
     </div>
+
+<div class="ui-widget-content ui-widget-content-plot ui-corner-all">
+  <div class="ui-widget-header-plot">Summary Curve
+    <button class="help-button" style="float: right;" alt="roc_calc">Help
+    </button>
+  </div>
+
+  <select id="summary_curve" style="width: 135px;">
+    <option value="none">None</option>
+     <option value="median">Median</option>
+     <option value="mean">Mean</option>
+  </select>
+
+
+</div>
 
 <div id="helpContent" title="Help">
 </div>

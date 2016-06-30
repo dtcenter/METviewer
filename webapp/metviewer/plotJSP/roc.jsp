@@ -134,6 +134,20 @@
                     addFixedVariableRhist();
                 });
         getForecastVariablesHist();
+        $('#roc_type').buttonset();
+        $('#summary_curve').val("none");
+        $("#summary_curve").multiselect({
+         multiple: false,
+         header: false,
+         height: 'auto',
+         selectedList: 1,
+         create: function () {
+           $('#summary_curve').multiselect("uncheckAll");
+         },
+         click: function (event, ui) {
+           updateSeriesRhist();
+         }
+       });
         if (initXML != null) {
             loadXMLRoc();
             updateSeriesRhist();
@@ -143,7 +157,7 @@
             updateSeriesRhist();
             $("input[name=roc_type][value=pct]").prop('checked', true);
         }
-        $('#roc_type').buttonset();
+
     </script>
 </head>
 <body>
@@ -201,47 +215,44 @@
         <button class="help-button" style="float: right;" alt="plot_fix">Help
         </button>
     </div>
-    <table id='fixed_var_table'>
-        <tr>
-            <td>
-                <button id="remove_fixed_var_1" class="remove_fixed_var">
-                    Remove
-                </button>
-            </td>
+  <table id='fixed_var_table'>
+    <tr>
+      <td>
+        <button id="remove_fixed_var_1" class="remove_fixed_var">
+          Remove
+        </button>
+      </td>
 
-            <td>
-                <select id="fixed_var_1">
-                    <option value="fcst_var">FCST_VAR</option>
-                    <option value="model">MODEL</option>
-                    <option value="fcst_lead">FCST_LEAD</option>
-                    <option value="fcst_valid_beg">FCST_VALID_BEG</option>
-                    <option value="valid_hour">VALID_HOUR</option>
-                    <option value="fcst_init_beg">FCST_INIT_BEG</option>
-                    <option value="init_hour">INIT_HOUR</option>
-                    <option value="fcst_lev">FCST_LEV</option>
-                    <option value="obtype">OBTYPE</option>
-                    <option value="vx_mask">VX_MASK</option>
-                    <option value="interp_mthd">INTERP_MTHD</option>
-                    <option value="interp_pnts">INTERP_PNTS</option>
-                    <option value="fcst_thresh">FCST_THRESH</option>
-                    <option value="obs_thresh">OBS_THRESH</option>
+      <td>
+        <select id="fixed_var_1">
+          <option value="fcst_var">FCST_VAR</option>
+          <option value="model">MODEL</option>
+          <option value="fcst_lead">FCST_LEAD</option>
+          <option value="fcst_valid_beg">FCST_VALID_BEG</option>
+          <option value="valid_hour">VALID_HOUR</option>
+          <option value="fcst_init_beg">FCST_INIT_BEG</option>
+          <option value="init_hour">INIT_HOUR</option>
+          <option value="fcst_lev">FCST_LEV</option>
+          <option value="obtype">OBTYPE</option>
+          <option value="vx_mask">VX_MASK</option>
+          <option value="interp_mthd">INTERP_MTHD</option>
+          <option value="interp_pnts">INTERP_PNTS</option>
+          <option value="fcst_thresh">FCST_THRESH</option>
+          <option value="obs_thresh">OBS_THRESH</option>
+        </select>
+      </td>
+      <td>
+        <select multiple="multiple" id="fixed_var_val_1">
+        </select>
 
-
-                </select>
-            </td>
-            <td>
-                <select multiple="multiple" id="fixed_var_val_1">
-
-                </select>
-
-            </td>
-            <td>
-                           <button id="fixed_var_val_date_period_button_1"
-                                   style="display: none;">Select period
-                           </button>
-                       </td>
-        </tr>
-    </table>
+      </td>
+      <td>
+        <button id="fixed_var_val_date_period_button_1"
+                style="display: none;">Select period
+        </button>
+      </td>
+    </tr>
+  </table>
     <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
     <br/>
         <br/>
@@ -262,6 +273,21 @@
         <label for="ctc_roc_pct">CTC</label>
     </div>
     </div>
+
+<div class="ui-widget-content ui-widget-content-plot ui-corner-all">
+  <div class="ui-widget-header-plot">Summary Curve
+    <button class="help-button" style="float: right;" alt="roc_calc">Help
+    </button>
+  </div>
+
+  <select id="summary_curve" style="width: 135px;">
+    <option value="none">None</option>
+    <option value="median">Median</option>
+    <option value="mean">Mean</option>
+  </select>
+
+
+</div>
 <div id="helpContent" title="Help">
 </div>
 <div id="fixed_var_val_date_period_1" style="display: none;">
