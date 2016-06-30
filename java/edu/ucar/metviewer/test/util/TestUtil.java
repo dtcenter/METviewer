@@ -302,10 +302,11 @@ public class TestUtil {
 
   /**
    * Compare the number of files, names (if requested) and contents
-   * @param testDataDir - expected files root dir
-   * @param plotType - use case
+   *
+   * @param testDataDir    - expected files root dir
+   * @param plotType       - use case
    * @param isCompareNames - should the name comparison be executed
-   * @param filter - custom file filter to use
+   * @param filter         - custom file filter to use
    */
   private static void compareFiles(String testDataDir, String plotType, boolean isCompareNames, CustomFilenameFilter filter) {
     //get all test results datafiles
@@ -322,12 +323,24 @@ public class TestUtil {
           assertTrue("File names for " + plotType + " " + filter.getFileExtension() + " should be identical but they are not", expectedFiles[i].getName().equals(actualFiles[i].getName()));
         }
         try {
-         // assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFiles[i].getName() + " must be identical but they are not", FileUtils.contentEquals(expectedFiles[i], actualFiles[i]));
+          // assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFiles[i].getName() + " must be identical but they are not", FileUtils.contentEquals(expectedFiles[i], actualFiles[i]));
           assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFiles[i].getName() + " must be identical but they are not",
             Files.lines(Paths.get(expectedFiles[i].getAbsolutePath())).count() == Files.lines(Paths.get(actualFiles[i].getAbsolutePath())).count()
           );
-        } catch (IOException e) {
-          out.println(e.getMessage());
+        } catch (Exception e) {
+          try {
+            Files.lines(Paths.get(expectedFiles[i].getAbsolutePath())).count();
+          } catch (Exception ex) {
+            out.println("Error reading file " + expectedFiles[i].getAbsolutePath());
+            out.println(ex);
+          }
+          try {
+            Files.lines(Paths.get(actualFiles[i].getAbsolutePath())).count();
+          } catch (Exception ex) {
+            out.println("Error reading file " + actualFiles[i].getAbsolutePath());
+            out.println(ex);
+          }
+
         }
       }
     }
@@ -335,38 +348,22 @@ public class TestUtil {
 
   /**
    * Reads the content of the file to a string
+   *
    * @param requestFile - file to read
    * @return - content of the file as string
    */
   public static String readFileToString(File requestFile) {
-    BufferedReader reader = null;
-    FileReader fileReader = null;
     StringBuilder stringBuilder = new StringBuilder();
-    try {
-      fileReader = new FileReader(requestFile);
-      reader = new BufferedReader(fileReader);
+    try (FileReader fileReader = new FileReader(requestFile); BufferedReader reader = new BufferedReader(fileReader)) {
       String line;
       while ((line = reader.readLine()) != null) {
         stringBuilder.append(line);
       }
-    } catch (IOException e) {
-      out.println(e.getMessage());
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          out.println(e.getMessage());
-        }
-      }
-      if (fileReader != null) {
-        try {
-          fileReader.close();
-        } catch (IOException e) {
-          out.println(e.getMessage());
-        }
-      }
+    } catch (Exception e) {
+      out.println("Error reading file " + requestFile.getAbsolutePath());
+      out.println(e);
     }
+
     return stringBuilder.toString();
   }
 
