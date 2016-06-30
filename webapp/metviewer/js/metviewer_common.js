@@ -1409,6 +1409,20 @@ function updateSeriesRhist() {
     if (series_perm.length == 0) {
         series_perm[0] = "";
     }
+
+    if (currentTab == 'Roc' || currentTab == 'Rely') {
+        var selected_stats;
+        try {
+            selected_stats = $("#summary_curve").multiselect("getChecked");
+        } catch (err) {
+            selected_stats = [];
+        }
+        for (var i = 0; i < selected_stats.length; i++) {
+            if(selected_stats[i].value != 'none') {
+                series_perm.push(selected_stats[i].value);
+            }
+        }
+    }
     for (var series_perm_index = 0; series_perm_index < series_perm.length; series_perm_index++) {
         seriesName = series_perm[series_perm_index] + " " + stat_name;
         //check if this series was their before
@@ -1491,6 +1505,8 @@ function updateSeriesRhist() {
     for (var i = 0; i < newSeriesData.length; i++) {
         table.jqGrid('addRowData', i + 1, newSeriesData[i]);
     }
+
+
     outerLayout.sizePane("south", $('#gbox_listdt').height())
 }
 
@@ -2071,12 +2087,19 @@ function updateSeriesSeriesBox(isCheckAll) {
     }
 
     var seriesDiff = [];
-    var diffSeries1, diffSeries2, isDiffSeries1, isDiffSeries2, strSeriesName;
+    var diffSeries1, diffSeries2, isDiffSeries1, isDiffSeries2, strSeriesName, oper,operSign;
     for (var i = 0; i < seriesDiffY1.length; i++) {
         diffSeries1 = seriesDiffY1[i].split(",")[0];
         diffSeries2 = seriesDiffY1[i].split(",")[1];
+        oper = seriesDiffY1[i].split(",")[2];
         isDiffSeries1 = false;
         isDiffSeries2 = false;
+        operSign = '"and"';
+        if (oper === "DIFF") {
+            operSign = '"-"';
+        } else if (oper === "RATIO") {
+            operSign = '"/"';
+        }
         for (var j = 0; j < newSeriesData.length; j++) {
             if (diffSeries1 == newSeriesData[j].title) {
                 isDiffSeries1 = true;
@@ -2087,7 +2110,7 @@ function updateSeriesSeriesBox(isCheckAll) {
         }
         if (isDiffSeries1 && isDiffSeries2) {
             seriesDiff.push(seriesDiffY1[i]);
-            strSeriesName = 'DIFF ("' + diffSeries1 + '"-"' + diffSeries2 + '")';
+            strSeriesName = oper+' ("' + diffSeries1 + operSign + diffSeries2 + '")';
             if (isFixedFormatting && initXML == null) {
                 series_formatting = jQuery.extend(true, {}, newSeriesData[newSeriesData.length - 1]);
                 series_formatting.title = strSeriesName;
@@ -2129,8 +2152,14 @@ function updateSeriesSeriesBox(isCheckAll) {
     for (var i = 0; i < seriesDiffY2.length; i++) {
         diffSeries1 = seriesDiffY2[i].split(",")[0];
         diffSeries2 = seriesDiffY2[i].split(",")[1];
+        oper = seriesDiffY1[i].split(",")[2];
         isDiffSeries1 = false;
         isDiffSeries2 = false;
+        if (oper === "DIFF") {
+                    operSign = '"-"';
+                } else if (oper === "RATIO") {
+                    operSign = '"/"';
+                }
         for (var j = 0; j < newSeriesData.length; j++) {
             if (diffSeries1 == newSeriesData[j].title) {
                 isDiffSeries1 = true;
@@ -2141,7 +2170,7 @@ function updateSeriesSeriesBox(isCheckAll) {
         }
         if (isDiffSeries1 && isDiffSeries2) {
             seriesDiff.push(seriesDiffY2[i]);
-            strSeriesName = 'DIFF ("' + diffSeries1 + '"-"' + diffSeries2 + '")';
+            strSeriesName = oper+' ("' + diffSeries1 + operSign + diffSeries2 + '")';
 
             if (isFixedFormatting && initXML == null) {
                 series_formatting = jQuery.extend(true, {}, newSeriesData[newSeriesData.length - 1]);
@@ -2369,32 +2398,19 @@ function permuteSeries(series_var_indexes, intIndex, y_axis) {
     }
     return listRet;
 }
-function populateSecondSelect(yAxis, seriesNames) {
-    var select1 = $('#series1Y' + yAxis);
-    if (select1.children().length > 0) {
-        var selectedSeries = select1.val();
-        var variableStatArray = selectedSeries.split(" ");
-        var variableStat;
-        if (variableStatArray.length > 2) {
-            variableStat = variableStatArray[variableStatArray.length - 2] + " " + variableStatArray[variableStatArray.length - 1];
-        }
-        var select2 = $('#series2Y' + yAxis);
-        select2.empty();
-        for (var i = 0; i < seriesNames.length; i++) {
-            if (seriesNames[i].endsWith(variableStat) && selectedSeries != seriesNames[i]) {
-                select2.append($("<option></option>")
-                        .attr("value", seriesNames[i])
-                        .text(seriesNames[i]));
 
-            }
-        }
-    }
-}
 function createNewDiffSeriesName(yAxis) {
     var val1 = $('#series1Y' + yAxis).val();
     var val2 = $('#series2Y' + yAxis).val();
+    var oper =jQuery( 'input[name=derive_oper]:checked' ).val();
+    var operSign='"and"';
+    if(oper === "DIFF"){
+        operSign = '"-"';
+    }else if(oper === "RATIO"){
+        operSign = '"/"';
+    }
     if (val1 && val2) {
-        $('#newDiffSeriesName').text('DIFF ( "' + val1 + '"-"' + val2 + '" )');
+        $('#newDiffSeriesName').text(oper+' ( "' + val1 + operSign + val2 + '" )');
     } else {
         $('#newDiffSeriesName').text("N/A");
     }
@@ -2529,6 +2545,19 @@ function createXMLRoc(plot) {
         roc_calc.append($('<roc_ctc />').text("true"));
     }
     plot.append(roc_calc);
+    var selected_stats;
+    var summary_curve = $('<summary_curve />');
+    try {
+        selected_stats = $("#summary_curve").multiselect("getChecked");
+    } catch (err) {
+        selected_stats = [];
+    }
+    for (var i = 0; i < selected_stats.length; i++) {
+        if(selected_stats[i].value != 'none') {
+            summary_curve.append($('<val />').text(selected_stats[i].value));
+        }
+    }
+    plot.append(summary_curve);
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -2567,6 +2596,19 @@ function createXMLRely(plot) {
     plot.append(createSeriesElementForAxis(1, series_var_y1_indexes));
     plot = createXMLPlotFix(plot);
     plot.append($('<rely_event_hist />').text($("input:radio[name='rely_event_hist']:checked").val()));
+    var selected_stats;
+    var summary_curve = $('<summary_curve />');
+    try {
+        selected_stats = $("#summary_curve").multiselect("getChecked");
+    } catch (err) {
+        selected_stats = [];
+    }
+    for (var i = 0; i < selected_stats.length; i++) {
+        if(selected_stats[i].value != 'none'){
+            summary_curve.append($('<val />').text(selected_stats[i].value));
+        }
+    }
+    plot.append(summary_curve);
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -2779,13 +2821,15 @@ function createXMLCommon(plot) {
     var seriesDiffY1List = [];
     if (seriesDiffY1.length > 0) {
         for (var i = 0; i < seriesDiffY1.length; i++) {
-            seriesDiffY1List.push('c("' + seriesDiffY1[i].split(",")[0] + '","' + seriesDiffY1[i].split(",")[1] + '")');
+            var arr = seriesDiffY1[i].split(",");
+            seriesDiffY1List.push('c("' + arr[0] + '","' + arr[1]+ '","' + arr[2] +'")');
         }
     }
     var seriesDiffY2List = [];
     if (seriesDiffY2.length > 0) {
         for (var i = 0; i < seriesDiffY2.length; i++) {
-            seriesDiffY2List.push('c("' + seriesDiffY2[i].split(",")[0] + '","' + seriesDiffY2[i].split(",")[1] + '")');
+            var arr = seriesDiffY2[i].split(",");
+            seriesDiffY2List.push('c("' + arr[0] + '","' + arr[1]+ '","' + arr[2] +'")');
         }
     }
     tmpl.append($('<listDiffSeries1 />').text("list(" + seriesDiffY1List.join() + ")"));
@@ -4140,6 +4184,14 @@ function loadXMLRoc() {
     $("input[name=roc_type][value=pct]").prop('checked', roc_pct == "TRUE");
     $("input[name=roc_type][value=ctc]").prop('checked', roc_ctc == "TRUE");
 
+    if (initXML.find("plot").find("summary_curve") && initXML.find("plot").find("summary_curve").children().length > 0){
+        var stats = initXML.find("plot").find("summary_curve").children();
+        for (var i = 0; i < stats.length; i++) {
+            $("#summary_curve option[value='"+stats[i]+"']").prop('selected',true);
+        }
+        $("#summary_curve").multiselect("refresh");
+    }
+
 }
 
 function loadXMLRhist() {
@@ -4206,7 +4258,13 @@ function loadXMLRely() {
 
     $("input[name=rely_event_hist][value=true]").prop('checked', rely_event_hist == "TRUE" || rely_event_hist == "true");
     $("input[name=rely_event_hist][value=false]").prop('checked', rely_event_hist == "FALSE" || rely_event_hist == "false");
-
+    if (initXML.find("plot").find("summary_curve") && initXML.find("plot").find("summary_curve").children().length > 0) {
+        var stats = initXML.find("plot").find("summary_curve").children();
+        for (var i = 0; i < stats.length; i++) {
+            $("#summary_curve option[value='" + stats[i] + "']").prop('selected', true);
+        }
+        $("#summary_curve").multiselect("refresh");
+    }
 }
 
 function loadXMLEns() {
@@ -4545,6 +4603,11 @@ function updateFixVarSeries(selected_mode) {
     }
     //find an id of the remaining fixed_var
     var remaining_fixed_var_id = $(".remove_fixed_var").prop("id").split("remove_fixed_var_")[1];
+    try {
+        $('#fixed_var_val_' + remaining_fixed_var_id).multiselect('uncheckAll');
+        $('#fixed_var_val_' + remaining_fixed_var_id).multiselect('refresh');
+    } catch (err) {
+    }
     fixed_var_indexes.push(parseInt(remaining_fixed_var_id));
     $('#fixed_var_'+ remaining_fixed_var_id).empty();
     if (selected_mode == "stat") {
@@ -4557,9 +4620,12 @@ function updateFixVarSeries(selected_mode) {
         });
     }
     try {
+        $('#fixed_var_'+remaining_fixed_var_id).multiselect('uncheckAll');
         $('#fixed_var_'+remaining_fixed_var_id).multiselect('refresh');
     } catch (err) {
     }
+
+
 }
 
 function updateIndyVarSeries(selected_mode) {
@@ -5153,8 +5219,8 @@ function initPage() {
     });
     $("#listdt").jqGrid('navGrid', '#pagerdt', {edit: false, add: false, del: false, search: false, refresh: false});
     $("#listdt").jqGrid('navButtonAdd', '#pagerdt', {
-        caption: "Add Difference Curve",
-        title: "Add Difference Curve",
+        caption: "Add Derived Curve",
+        title: "Add Derived Curve",
         buttonicon: "ui-icon-plus",
         onClickButton: function () {
             if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Ens_ss' || currentTab == 'Perf') {
@@ -5169,20 +5235,37 @@ function initPage() {
             }
         }
     }).jqGrid('navButtonAdd', '#pagerdt', {
-        caption: "Remove Difference Curve",
-        title: "Remove Difference Curve",
+        caption: "Remove Derived Curve",
+        title: "Remove Derived Curve",
         buttonicon: "ui-icon-trash",
         onClickButton: function () {
             var sr = $(this).jqGrid('getGridParam', 'selrow');
             if (sr) {
                 var rowData = $(this).getRowData(sr);
-                if (rowData.title.startsWith("DIFF")) {
+                if (rowData.title.startsWith("DIFF") || rowData.title.startsWith("RATIO") || rowData.title.startsWith("SS")) {
                     $(this).jqGrid('delRowData', sr);
-                    var titleArr = rowData.title.replace("DIFF (", "").replace(")", "").split('"-"');
-                    for (var i = 0; i < titleArr.length; i++) {
-                        titleArr[i] = titleArr[i].replace('"', "");
+                    var titleArr,title;
+                    if (rowData.title.startsWith("DIFF")) {
+                        titleArr = rowData.title.replace("DIFF (", "").replace(")", "").split('"-"');
+                        for (var i = 0; i < titleArr.length; i++) {
+                            titleArr[i] = titleArr[i].replace('"', "");
+                        }
+                        title = titleArr.join() + ",DIFF";
+                    } else if (rowData.title.startsWith("RATIO")) {
+                        titleArr = rowData.title.replace("RATIO (", "").replace(")", "").split('"/"');
+                        for (var i = 0; i < titleArr.length; i++) {
+                            titleArr[i] = titleArr[i].replace('"', "");
+                        }
+                        title = titleArr.join() + ",RATIO";
+                    } else {
+                        titleArr = rowData.title.replace("SS (", "").replace(")", "").split('"and"');
+                        for (var i = 0; i < titleArr.length; i++) {
+                            titleArr[i] = titleArr[i].replace('"', "");
+                        }
+                        title = titleArr.join() + ",SS";
                     }
-                    var title = titleArr.join();
+
+
                     var index;
                     if (rowData.y_axis == "Y1") {
                         index = seriesDiffY1.indexOf(title);
@@ -5207,7 +5290,7 @@ function initPage() {
                         gbox: "#gbox_" + $.jgrid.jqID(this.p.id),
                         jqm: true
                     });
-                    $(idSelector).find("#alertcnt_listdt").empty().append('<div>This is not a difference curve</div>');
+                    $(idSelector).find("#alertcnt_listdt").empty().append('<div>This is not a dirived curve</div>');
                     $(idSelector).find(".ui-jqdialog-titlebar-close").focus();
                 }
             } else {
@@ -5261,14 +5344,15 @@ function initPage() {
             "Create a Difference Curve": function () {
                 var valid = false;
                 var yAxisValue = $('input:radio[name=yAxisDiff]:checked').val();
+                var oper =jQuery( 'input[name=derive_oper]:checked' ).val();
                 if (yAxisValue.indexOf("1") !== -1) {
                     if ($('#series1Y1').val() && $('#series2Y1').val()) {
-                        seriesDiffY1.push($('#series1Y1').val() + "," + $('#series2Y1').val());
+                        seriesDiffY1.push($('#series1Y1').val() + "," + $('#series2Y1').val()+ "," + oper);
                         valid = true;
                     }
                 } else {
                     if ($('#series1Y2').val() && $('#series2Y2').val()) {
-                        seriesDiffY2.push($('#series1Y2').val() + "," + $('#series2Y2').val());
+                        seriesDiffY2.push($('#series1Y2').val() + "," + $('#series2Y2').val()+ "," + oper);
                         valid = true;
                     }
                 }
@@ -5285,6 +5369,8 @@ function initPage() {
             }
         },
         open: function () {
+
+            $("input[name=derive_oper][value=DIFF]").prop('checked', true);
             var allSeries = $("#listdt").jqGrid('getRowData');
             for (var i = 0; i < allSeries.length; i++) {
                 $("#listdt").jqGrid('setCell', allSeries[i].id, 'order', i + 1);
@@ -5311,8 +5397,7 @@ function initPage() {
 
             for (var i = 0; i < allSeries.length; i++) {
                 var isInclude = false;
-                if (allSeries[i].title.indexOf('DIFF') != 0) {
-
+                if (allSeries[i].title.indexOf('DIFF') != 0 && allSeries[i].title.indexOf('RATIO') != 0 && allSeries[i].title.indexOf('SS') != 0) {
                     // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
                     if (selected_mode == "mode") {
                         var desc = allSeries[i].title.split(" ");
@@ -5333,20 +5418,26 @@ function initPage() {
                                 .append($("<option></option>")
                                         .attr("value", allSeries[i].title)
                                         .text(allSeries[i].title));
+                        $('#series1Y2')
+                                                       .append($("<option></option>")
+                                                               .attr("value", allSeries[i].title)
+                                                               .text(allSeries[i].title));
                         series2Names.push(allSeries[i].title);
                     } else {
                         $('#series1Y1')
                                 .append($("<option></option>")
                                         .attr("value", allSeries[i].title)
                                         .text(allSeries[i].title));
+                        $('#series2Y1')
+                                                       .append($("<option></option>")
+                                                               .attr("value", allSeries[i].title)
+                                                               .text(allSeries[i].title));
 
                         series1Names.push(allSeries[i].title);
                     }
                 }
             }
 
-            populateSecondSelect(1, series1Names);
-            populateSecondSelect(2, series2Names);
 
             if ($("#series1Y2 option").length > 0 && $("#series1Y1 option").length > 0) {
                 createNewDiffSeriesName(1);
@@ -5370,7 +5461,6 @@ function initPage() {
 
         },
         close: function () {
-            //allFields.val("").removeClass("ui-state-error");
         }
     });
 
