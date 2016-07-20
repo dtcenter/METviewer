@@ -1003,33 +1003,35 @@ public class MVBatch extends MVUtil {
 
       ArrayList listAggStats1 = new ArrayList();
       ArrayList listAggStats2 = new ArrayList();
+      MVOrderedMap mapAggStatStatic = new MVOrderedMap();
       //  build a list of the plot dep stats for the two y-axes, verifying that the fcst_var remains constant
 
       String strFcstVar = "";
-      for (int intY = 1; intY <= 2; intY++) {
-        MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
-        MVOrderedMap mapStat = new MVOrderedMap();
-        String[][] listFcstVarStat = buildFcstVarStatList(mapDepY);
-        for (int i = 0; i < listFcstVarStat.length; i++) {
-          String strFcstVarCur = listFcstVarStat[i][0];
-          if (strFcstVar.equals("")) {
-            strFcstVar = strFcstVarCur;
-          } else if (!strFcstVar.equals(strFcstVarCur)) {
-            throw new Exception("fcst_var must remain constant when agg_stat/agg_pct/agg_stat_bootstrap is activated");
-          }
-          mapStat.put(listFcstVarStat[i][1], listFcstVarStat[i][0]);
-        }
-        if (1 == intY) {
-          listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
-        } else if (2 == intY) {
-          listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
-        }
-      }
 
-      MVOrderedMap mapAggStatStatic = new MVOrderedMap();
-      mapAggStatStatic.put("fcst_var", strFcstVar);
 
       if (isModeJob(job) || boolAggStat || boolAggPct) {
+
+        for (int intY = 1; intY <= 2; intY++) {
+          MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
+          MVOrderedMap mapStat = new MVOrderedMap();
+          String[][] listFcstVarStat = buildFcstVarStatList(mapDepY);
+          for (int i = 0; i < listFcstVarStat.length; i++) {
+            String strFcstVarCur = listFcstVarStat[i][0];
+            if (strFcstVar.equals("")) {
+              strFcstVar = strFcstVarCur;
+            } else if (!strFcstVar.equals(strFcstVarCur)) {
+              throw new Exception("fcst_var must remain constant when agg_stat/agg_pct/agg_stat_bootstrap is activated");
+            }
+            mapStat.put(listFcstVarStat[i][1], listFcstVarStat[i][0]);
+          }
+          if (1 == intY) {
+            listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
+          } else if (2 == intY) {
+            listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
+          }
+        }
+
+        mapAggStatStatic.put("fcst_var", strFcstVar);
         MVOrderedMap mapDep1Plot = (MVOrderedMap) mapDep.get("dep1");
         MVOrderedMap mapDep2Plot = (MVOrderedMap) mapDep.get("dep2");
         //  build the map containing tag values for the agg_stat info template
@@ -1651,7 +1653,23 @@ public class MVBatch extends MVUtil {
           strTempList += ",\n    fcst_valid_beg      " + dbTimeType;
         }
       }
-      strSelectPlotList = strSelectList;
+      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere,false).invoke();
+      strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
+      //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+      if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour") ) {
+        if (boolModePlot) {
+          strSelectPlotList += ",\n  h.fcst_init";
+        } else {
+          strSelectPlotList += ",\n " + " ld.fcst_init_beg";
+        }
+      }
+      if (!strSelectPlotList.contains("fcst_valid")) {
+        if (boolModePlot) {
+          strSelectPlotList += ",\n  h.fcst_valid";
+        } else {
+          strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
+        }
+      }
 
       if (!boolEnsSs && !strSelectList.contains("fcst_lead")) {
         if (boolModePlot) {
@@ -2255,7 +2273,23 @@ public class MVBatch extends MVUtil {
         strSelectList += ",\n  h.fcst_valid";
         strTempList += ",\n    fcst_valid          " + dbTimeType;
       }
-      strSelectPlotList = strSelectList;
+      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere,false).invoke();
+           strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
+           //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+           if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour") ) {
+             if (boolModePlot) {
+               strSelectPlotList += ",\n  h.fcst_init";
+             } else {
+               strSelectPlotList += ",\n " + " ld.fcst_init_beg";
+             }
+           }
+           if (!strSelectPlotList.contains("fcst_valid")) {
+             if (boolModePlot) {
+               strSelectPlotList += ",\n  h.fcst_valid";
+             } else {
+               strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
+             }
+           }
 
       if (!strSelectList.contains("fcst_lead")) {
         if (job.getEventEqual()) {
@@ -3453,6 +3487,7 @@ public class MVBatch extends MVUtil {
     private String strSelectList = "";
     private String strTempList = "";
     private String strWhere = "";
+    boolean isFormatSelect = true;
 
     public BuildQueryStrings(boolean boolModePlot, Hashtable tableHeaderSQLType, Map.Entry[] listSeries, String strWhere) {
       this.boolModePlot = boolModePlot;
@@ -3460,6 +3495,13 @@ public class MVBatch extends MVUtil {
       this.listSeries = listSeries;
       this.strWhere = strWhere;
     }
+    public BuildQueryStrings(boolean boolModePlot, Hashtable tableHeaderSQLType, Map.Entry[] listSeries, String strWhere, boolean isFormatSelect) {
+          this.boolModePlot = boolModePlot;
+          this.tableHeaderSQLType = tableHeaderSQLType;
+          this.listSeries = listSeries;
+          this.strWhere = strWhere;
+      this.isFormatSelect = isFormatSelect;
+        }
 
     public String getStrSelectList() {
       return strSelectList;
@@ -3489,9 +3531,17 @@ public class MVBatch extends MVUtil {
 
         //  build the select list element, where clause and temp table list element
         if (strSelectList.equals("")) {
-          strSelectList += "" + "  " + formatField(strSeriesField, boolModePlot, true);
+          if(isFormatSelect) {
+            strSelectList += "" + "  " + formatField(strSeriesField, boolModePlot, true);
+          }else {
+            strSelectList += "" + "  " + strSeriesField;
+          }
         } else {
-          strSelectList += ",\n" + "  " + formatField(strSeriesField, boolModePlot, true);
+          if(isFormatSelect) {
+            strSelectList += ",\n" + "  " + formatField(strSeriesField, boolModePlot, true);
+          }else {
+            strSelectList += ",\n" + "  " +strSeriesField;
+          }
         }
         strWhere += (strWhere.equals("") ? "  " : "  AND ") + formatField(strSeriesField, boolModePlot, false) +
           " IN (" + buildValueList(listSeriesVal) + ")\n";
