@@ -4372,6 +4372,8 @@ function loadXMLSeries() {
         $.each(fix_var_value_to_title_mode_map, function (key, val) {
             $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
         });
+
+
     }
     var value, number_of_axis;
     if(currentTab == 'Perf'){
@@ -4515,10 +4517,24 @@ function loadXMLSeries() {
         $("input[name=calc_stat][value=ctc]").prop('checked', $(initXML.find("plot").find("calc_stat").find("calc_ctc")).text() == "TRUE");
         $("input[name=calc_stat][value=sl1l2]").prop('checked', $(initXML.find("plot").find("calc_stat").find("calc_sl1l2")).text() == "TRUE");
     } else {
-        $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
-        $('#radio').buttonset('refresh');
-        $('#aggregation_statistics ').hide();
-        $('#none').show();
+        if (selected_mode == "stat") {
+            $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+            $('#radio').buttonset('refresh');
+            $('#aggregation_statistics ').hide();
+            $('#none').show();
+        } else {
+            $("#agg_mode").prop('checked', 'checked');
+            $('#radio')
+                    .find('input')
+                    .removeProp('checked')
+                    .filter('[value="aggregation_statistics"]')
+                    .prop('checked', true)
+                    .end()
+                    .end()
+                    .buttonset('refresh');
+            $('#aggregation_statistics ').show();
+            $('#calculations_statistics ').hide();
+        }
     }
 
 
