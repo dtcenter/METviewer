@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.7</TITLE>
+<TITLE>METViewer v1.7.1</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
