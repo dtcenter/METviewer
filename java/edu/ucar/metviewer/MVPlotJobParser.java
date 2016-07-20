@@ -409,13 +409,29 @@ public class MVPlotJobParser extends MVUtil {
         for (int j = 0; j < listSeriesVal.length; j++) {
           if (listSeriesVal[j].contains(",")) {
             strXML += "<field name=\"" + fieldName + "\">";
-            strXML += "<val>" + listSeriesVal[j] + "</val>";
+            if (fieldName.equals("init_hour")) {
+              String strHour = listSeriesVal[j];
+              while (strHour.length() < 2) {
+                strHour = "0" + strHour;
+              }
+              strXML += "<val>" + strHour + "</val>";
+            } else {
+              strXML += "<val>" + listSeriesVal[j] + "</val>";
+            }
             strXML += "</field>";
           } else {
             if (strXMLSimpleValues.length() == 0) {
               strXMLSimpleValues = "<field name=\"" + fieldName + "\">";
             }
-            strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
+            if (fieldName.equals("init_hour")) {
+              String strHour = listSeriesVal[j];
+              while (strHour.length() < 2) {
+                strHour = "0" + strHour;
+              }
+              strXMLSimpleValues += "<val>" + strHour + "</val>";
+            } else {
+              strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
+            }
           }
 
         }
@@ -1332,9 +1348,6 @@ public class MVPlotJobParser extends MVUtil {
           }
         }
 
-        if (!MVBatch.isModeRatioJob(job) && !job.getAggCtc() && !job.getAggSl1l2() && !job.getAggPct() && !job.getAggNbrCnt()) {
-          throw new Exception("invalid agg_stat setting - one of the aggregation line types must be selected");
-        }
       }
 
       //  <calc_stat>
