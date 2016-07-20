@@ -778,9 +778,9 @@ public class MVBatch extends MVUtil {
     }
 
     //  build the query COUNT(object_id)
-    return
+    String result =
       "INSERT INTO plot_data\n" +
-        "SELECT\n" + strSelectListStat + ",\n" +
+        "SELECT\n" + "s."+ strSelectListStat + ",\n" +
         "  s.object_id,\n" +
         "  s.object_cat,\n" +
         "  '" + stat + "' stat_name,\n" +
@@ -790,8 +790,11 @@ public class MVBatch extends MVUtil {
         strWhere + "\n" +
         "  AND s.fcst_flag = 1\n" +
         "  AND s2.fcst_flag = 0\n" +
-        "  AND RIGHT(s.object_id, 3) = RIGHT(s2.object_id, 3)\n" +
-        "  AND " + strTableStats[0] + " != -9999 AND " + strTableStats[1] + " != -9999;";
+        "  AND RIGHT(s.object_id, 3) = RIGHT(s2.object_id, 3)\n";
+    if ( !strTableStat.contains("object_id")) {
+      result = result + "  AND " + strTableStats[0] + " != -9999 AND " + strTableStats[1] + " != -9999;";
+    }
+    return result;
   }
 
   public static String buildModeSingleStatTable(String selectList, String strWhere, String stat, String[] groups) {

@@ -430,7 +430,7 @@ public class MVPlotJobParser extends MVUtil {
               }
               strXMLSimpleValues += "<val>" + strHour + "</val>";
             } else {
-              strXMLSimpleValues += "<val>" + listSeriesVal[j] + "</val>";
+              strXMLSimpleValues += "<val>" + listSeriesVal[j].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;")  + "</val>";
             }
           }
 
