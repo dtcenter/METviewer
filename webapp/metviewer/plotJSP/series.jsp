@@ -102,17 +102,20 @@
                 updateMode("y2", 1, []);
                 updateFixVarSeries("mode");
                 updateIndyVarSeries("mode");
-                  $("#agg_mode").prop('checked', 'checked');
+                $("#agg_stat").val('mode');
+                $("#agg_stat").multiselect("refresh");
+                $("#calc_stat").val('none');
+                $("#calc_stat").multiselect("refresh");
                   $('#radio')
                         .find('input')
                         .removeProp('checked')
                         .filter('[value="aggregation_statistics"]')
                         .prop('checked', true)
                         .end()
-                        .end()
-                        .buttonset('refresh');
+                        .end();
+                       // .buttonset('refresh');
                 $('#aggregation_statistics ').show();
-                            $('#calculations_statistics ').hide();
+                $('#calculations_statistics ').hide();
                 }
               updateSeriesVarValSeries("y1", 1, []);
               updateSeriesVarValSeries("y2", 1, []);
@@ -292,21 +295,36 @@
 
           $('#aggregation_statistics ').hide();
           $('#calculations_statistics ').hide();
-          $('#calc_none ').prop("checked", true);
-          $('#agg_none ').prop("checked", true);
+
           $('#indy_var_event_equal ').prop("checked", true);
           $('#event_equal').prop("checked", false);
-          $("input[name='calc_stat']").change(function () {
-            if ($( 'input[name=calc_stat]:checked' ).val() != "none") {
-              $("input[name=agg_stat][value=none]").prop('checked', true);
-            }
-          });
-          $("input[name='agg_stat']").change(function () {
-            if ($( 'input[name=agg_stat]:checked' ).val() != "none") {
-              $("input[name=calc_stat][value=none]").prop('checked', true);
-            }
-          });
 
+          $("#calc_stat").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+              if (ui.value !== "none") {
+                $("#agg_stat").val("none");
+                $("#agg_stat").multiselect("refresh");
+              }
+            }
+          });
+          $("#agg_stat").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+              if (ui.value !== "none") {
+                $("#calc_stat").val("none");
+                $("#calc_stat").multiselect("refresh");
+              }
+            }
+          });
 
           $(' input[name="statistics"]').click(function () {
             $('#aggregation_statistics ').hide();
@@ -314,7 +332,7 @@
             $(this).prop("checked", true);
             $('#' + $(this).val()).show();
           });
-          $('#radio').buttonset();
+          //$('#radio').buttonset();
           $('#calculations_statistics').show();
 
 
@@ -772,10 +790,17 @@
                 </button>
             <table style="width:100%">
                 <tr>
-                    <td><input type="radio" value="ctc" name="agg_stat"
-                               id="agg_ctc"></td>
-                    <td><label for="agg_ctc">Contingency table count
-                        (CTC)</label></td>
+                    <td><select id="agg_stat">
+                      <option value="none">None</option>
+                      <option value="ctc">Contingency table count (CTC)</option>
+                      <option value="sl1l2">Scalar partial sums (SL1L2)</option>
+                      <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
+                      <option value="pct">Probability methods output (PCT)</option>
+                      <option value="nbrcnt">Nbrhood method count (NBR_CNT)</option>
+                      <option value="mode">MODE</option>
+                    </select>
+                  </td>
+
 
                     <td style="text-align:right;"><input type="text" value="1"
                                                          size="4"
@@ -784,10 +809,8 @@
                         replications</label></td>
                 </tr>
                 <tr>
-                    <td><input type="radio" value="sl1l2" name="agg_stat"
-                               id="agg_sl1l2"></td>
-                    <td><label for="agg_sl1l2">Scalar partial sums
-                        (SL1L2)</label></td>
+                    <td>&nbsp;</td>
+
 
                     <td style="text-align:right;"><select id="boot_ci">
                         <option selected value="perc">perc</option>
@@ -800,31 +823,13 @@
                     <td><label for="boot_ci">Confidence Interval method</label></td>
                 </tr>
                 <tr>
-                    <td><input type="radio" value="pct" name="agg_stat"
-                               id="agg_pct"></td>
-                    <td><label for="agg_pct">Probability methods output
-                        (PCT)</label></td>
+                  <td>&nbsp;</td>
 
                   <td style="text-align:right;"><input id="cacheAggStat"
                                                                         type="checkbox"></td>
                                    <td><label for="cacheAggStat">Cache aggregation
                                        statistics</label></td>
                 </tr>
-                <tr>
-                    <td><input type="radio" value="nbrcnt" name="agg_stat"
-                               id="agg_nbrcnt"></td>
-                    <td><label for="agg_nbrcnt">Nbrhood method count
-                        (NBR_CNT)</label></td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-
-                </tr>
-
-              <tr><td><input type="radio" value="mode" name="agg_stat" checked
-                                             id="agg_mode"></td><td colspan="3"><label for="agg_mode">MODE</label></td></tr>
-              <tr><td><input type="radio" value="none" name="agg_stat" checked
-                                                         id="agg_none"></td><td colspan="3"><label for="agg_none">None</label></td></tr>
-
 
             </table>
 
@@ -837,30 +842,22 @@
                         alt="calc_stat">Help
                 </button>
               <table style="width:100%">
+                <tr>
+                  <td><select id="calc_stat" >
+                    <option value="none">None</option>
+                    <option value="ctc">Contingency table count (CTC)</option>
+                    <option value="sl1l2">Scalar partial sums (SL1L2)</option>
+                    <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
+                  </select>
+                  </td>
+                  <td><span><label for="plot_stat">Plot
+                    statistic:</label><select id="plot_stat" name="plot_stat">
+                    <option selected="selected" value="median">Median</option>
+                    <option value="mean">Mean</option>
+                    <option value="sum">Sum</option>
+                  </select></span></td>
+                </tr>
 
-                <tr>
-                  <td><input type="radio" value="ctc" name="calc_stat"
-                             id="calc_ctc"></td>
-                  <td colspan="2"><label for="calc_ctc">Contingency table count
-                    (CTC)</label></td>
-                </tr>
-                <tr>
-                  <td><input type="radio" value="sl1l2" name="calc_stat"
-                             id="calc_sl1l2"></td>
-                  <td><label for="calc_sl1l2">Scalar partial sums
-                    (SL1L2)</label></td>
-                  <td><span ><label for="plot_stat">Plot
-                                       statistic:</label><select id="plot_stat" name="plot_stat">
-                                       <option selected="selected" value="median">Median</option>
-                                       <option value="mean">Mean</option>
-                                       <option value="sum">Sum</option>
-                                   </select></span></td>
-                </tr>
-                <tr>
-                  <td><input type="radio" value="none" name="calc_stat" checked
-                             id="calc_none"></td>
-                  <td colspan="2"><label for="calc_none">None</label></td>
-                </tr>
               </table>
 
             </div>

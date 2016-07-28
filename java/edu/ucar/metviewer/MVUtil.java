@@ -31,6 +31,7 @@ public class MVUtil {
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
+  public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
   public static final String PCT = "pct";
   public static final String NBR_CNT = "nbr_cnt";
   public static final MVOrderedMap _tableStatsEnscnt = new MVOrderedMap();
@@ -158,6 +159,9 @@ public class MVUtil {
     _tableStatsCnt.put("IQR", new String[]{"bc"});
     _tableStatsCnt.put("MAD", new String[]{"bc"});
     _tableStatsCnt.put("PAC", new String[]{"bc"});
+    _tableStatsCnt.put("ANOM_CORR", new String[]{"bc",SAL1L2});
+    _tableStatsCnt.put("ME2", new String[]{"bc",SL1L2});
+    _tableStatsCnt.put("MSESS", new String[]{"bc",SL1L2});
   }
 
   static {

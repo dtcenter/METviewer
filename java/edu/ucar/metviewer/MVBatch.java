@@ -780,7 +780,7 @@ public class MVBatch extends MVUtil {
     //  build the query COUNT(object_id)
     String result =
       "INSERT INTO plot_data\n" +
-        "SELECT\n" + "s."+ strSelectListStat + ",\n" +
+        "SELECT\n" +  strSelectListStat + ",\n" +
         "  s.object_id,\n" +
         "  s.object_cat,\n" +
         "  '" + stat + "' stat_name,\n" +
@@ -951,9 +951,10 @@ public class MVBatch extends MVUtil {
     //  determine if the plots require data aggregation
     boolean boolAggCtc = job.getAggCtc();
     boolean boolAggSl1l2 = job.getAggSl1l2();
+    boolean boolAggSal1l2 = job.getAggSal1l2();
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggNbrCnt;
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 ||boolAggNbrCnt;
 
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
@@ -1041,6 +1042,7 @@ public class MVBatch extends MVUtil {
 
         tableAggStatInfo.put("agg_ctc", job.getAggCtc() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_sl1l2", job.getAggSl1l2() ? "TRUE" : "FALSE");
+        tableAggStatInfo.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("event_equal", job.getEventEqual());
         tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
@@ -1205,7 +1207,7 @@ public class MVBatch extends MVUtil {
       //  get the plot data from the plot_data temp table and write it to a data file
       stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
       String strPlotDataSelect = "SELECT * FROM plot_data;";
-      if (job.getCalcCtc() || job.getCalcSl1l2()) {
+      if (job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2()) {
         strPlotDataSelect = "SELECT * FROM plot_data WHERE stat_value != 'NA';";
       }
       if (_boolVerbose) {
@@ -1573,13 +1575,15 @@ public class MVBatch extends MVUtil {
     //  determine if the plot requires data aggregation or calculations
     boolean boolAggCtc = job.getAggCtc();
     boolean boolAggSl1l2 = job.getAggSl1l2();
+    boolean boolAggSal1l2 = job.getAggSal1l2();
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggPct || boolAggNbrCnt;
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt;
     boolean boolCalcCtc = job.getCalcCtc();
     boolean boolCalcSl1l2 = job.getCalcSl1l2();
+    boolean boolCalcSal1l2 = job.getCalcSal1l2();
     boolean boolCalcStat;
-    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2;
+    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 ||boolCalcSal1l2;
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -1882,6 +1886,21 @@ public class MVBatch extends MVUtil {
           "    mae                 DOUBLE\n" +
           ");\n";
 
+      } else if (boolAggSal1l2) {
+
+        strTempSQLCur = "CREATE TEMPORARY TABLE plot_data\n(\n" +
+          strTempList + ",\n" +
+          "    stat_name           VARCHAR(32),\n" +
+          "    stat_value          VARCHAR(16),\n" +
+          "    total               INT ,\n" +
+          "    fabar                DOUBLE,\n" +
+          "    oabar                DOUBLE,\n" +
+          "    foabar               DOUBLE,\n" +
+          "    ffabar               DOUBLE,\n" +
+          "    ooabar               DOUBLE,\n" +
+          "    mae                 DOUBLE\n" +
+          ");\n";
+
       } else if (boolAggPct) {
 
         strTempSQLCur = "CREATE TEMPORARY TABLE plot_data\n(\n" +
@@ -1983,7 +2002,9 @@ public class MVBatch extends MVUtil {
             if (boolCalcCtc || boolAggCtc) {
               aggType = MVUtil.CTC;
             } else if (boolCalcSl1l2 || boolAggSl1l2) {
-              aggType = MVUtil.SL1L2;
+              aggType = MVUtil.SL1L2;}
+            else if (boolCalcSal1l2 || boolAggSal1l2) {
+              aggType = MVUtil.SAL1L2;
             } else if (boolAggNbrCnt) {
               aggType = MVUtil.NBR_CNT;
             } else if (boolAggPct) {
@@ -1996,7 +2017,7 @@ public class MVBatch extends MVUtil {
             tableStats = _tableStatsCnt;
             if (boolAggStat || boolCalcStat) {
               isAggTypeValid(_tableStatsCnt, strStat, aggType);
-              strStatTable = "line_data_sl1l2" + " ld\n";
+              strStatTable = "line_data_" + aggType + " ld\n";
             } else {
               strStatTable = "line_data_cnt" + " ld\n";
             }
@@ -2075,7 +2096,7 @@ public class MVBatch extends MVUtil {
 
           //  build the mode SQL
           String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
-          listSQL.addAll(buildModeStatSQL(strSelectPlotList, strWhereFcstVar, strStat, listGroupBy));
+          listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy));
 
         } else {
           boolean boolBCRMSE = false;
@@ -2091,8 +2112,10 @@ public class MVBatch extends MVUtil {
           //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
           if (boolAggCtc) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
-          } else if (boolAggSl1l2) {
+          } else if (boolAggSl1l2 ) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
+          } else if ( boolAggSal1l2) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
           } else if (boolAggPct) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
             for (int i = 1; i < intPctThresh; i++) {
@@ -2118,6 +2141,9 @@ public class MVBatch extends MVUtil {
               strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
             }
+          } else if (boolCalcSal1l2) {
+            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
+              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else {
             if (boolBCRMSE) {
               strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";

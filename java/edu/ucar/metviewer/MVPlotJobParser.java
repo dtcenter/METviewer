@@ -241,10 +241,7 @@ public class MVPlotJobParser extends MVUtil {
       return "lacks x_label";
     } else if (job.getY1LabelTmpl().equals("")) {
       return "lacks y1_label";
-    } else if ((job.getAggCtc() ||
-      job.getAggSl1l2()) &&
-      (job.getCalcCtc() ||
-        job.getCalcSl1l2())) {
+    } else if ( (job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2()) && (job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2())) {
       return "has both agg_stat and calc_stat";
     }
     return "";
@@ -525,11 +522,12 @@ public class MVPlotJobParser extends MVUtil {
     strXML += "</plot_fix>";
 
     //  agg_stat
-    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggPct() || job.getAggNbrCnt()) || MVBatch.isModeRatioJob(job)) {
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct() || job.getAggNbrCnt()) || MVBatch.isModeRatioJob(job)) {
       strXML +=
         "<agg_stat>" +
           "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>" +
           "<agg_sl1l2>" + (job.getAggSl1l2() ? "TRUE" : "FALSE") + "</agg_sl1l2>" +
+          "<agg_sal1l2>" + (job.getAggSal1l2() ? "TRUE" : "FALSE") + "</agg_sal1l2>" +
           "<agg_pct>" + (job.getAggPct() ? "TRUE" : "FALSE") + "</agg_pct>" +
           "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
@@ -540,11 +538,12 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     //  calc_stat
-    if (job.getCalcCtc() || job.getCalcSl1l2()) {
+    if (job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2()) {
       strXML +=
         "<calc_stat>" +
           "<calc_ctc>" + (job.getCalcCtc() ? "TRUE" : "FALSE") + "</calc_ctc>" +
           "<calc_sl1l2>" + (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>" +
+          "<calc_sal1l2>" + (job.getCalcSal1l2() ? "TRUE" : "FALSE") + "</calc_sal1l2>" +
           "</calc_stat>";
     }
 
@@ -1333,6 +1332,8 @@ public class MVPlotJobParser extends MVUtil {
             job.setAggCtc(nodeAggStat._value.equalsIgnoreCase("true"));
           } else if (nodeAggStat._tag.equals("agg_sl1l2")) {
             job.setAggSl1l2(nodeAggStat._value.equalsIgnoreCase("true"));
+          } else if (nodeAggStat._tag.equals("agg_sal1l2")) {
+            job.setAggSal1l2(nodeAggStat._value.equalsIgnoreCase("true"));
           } else if (nodeAggStat._tag.equals("agg_pct")) {
             job.setAggPct(nodeAggStat._value.equalsIgnoreCase("true"));
           } else if (nodeAggStat._tag.equals("agg_nbrcnt")) {
@@ -1358,14 +1359,13 @@ public class MVPlotJobParser extends MVUtil {
             job.setCalcCtc(nodeCalcStat._value.equalsIgnoreCase("true"));
           } else if (nodeCalcStat._tag.equals("calc_sl1l2")) {
             job.setCalcSl1l2(nodeCalcStat._value.equalsIgnoreCase("true"));
+          } else if (nodeCalcStat._tag.equals("calc_sal1l2")) {
+            job.setCalcSal1l2(nodeCalcStat._value.equalsIgnoreCase("true"));
           }
         }
 
-        //if (!job.getCalcCtc() && !job.getCalcSl1l2()) {
-        //  throw new Exception("invalid calc_stat setting - neither calc_ctc nor calc_sl1l2 are true");
-        // }
-        if (job.getCalcCtc() && job.getCalcSl1l2()) {
-          throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 are true");
+        if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()) {
+          throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 and calc_sal1l2 are true");
         }
       }
 

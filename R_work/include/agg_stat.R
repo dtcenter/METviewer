@@ -215,8 +215,31 @@ calcPR_CORR		= function(d){
     }
   }
 }
+
+calcANOM_CORR		= function(d){
+  if( is.na(d$total) || is.na(d$ffbar) || is.na(d$fbar) || is.na(d$oobar) || is.na(d$obar) ){
+    return(NA);
+  } else{
+    v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
+    anom_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
+    if( 0 >= v || 1 < anom_corr ){
+      return(NA);
+    } else {
+      return( anom_corr );
+    }
+  }
+}
 calcME			= function(d){ return( d$fbar - d$obar ); }
+calcME2			= function(d){
+  me = d$fbar - d$obar;
+  return( me * me );
+}
 calcMSE			= function(d){ return( d$ffbar + d$oobar - 2 * d$fobar ); }
+calcMSESS			= function(d){
+  ostdev=calcOSTDEV( d );
+  mse=calcMSE( d );
+  return( 1.0 - mse/(ostdev*ostdev) );
+}
 calcRMSE		= function(d){ return( sqrt(calcMSE(d)) ); }
 calcESTDEV		= function(d){ return( calcStdDev( calcME(d) * d$total, calcMSE(d) * d$total, d$total) ); }
 calcBCMSE		= function(d){ return( calcMSE(d) - (d$fbar - d$obar)^2 ); }
@@ -324,6 +347,18 @@ booter.iid = function(d, i){
         fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
         ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
         oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+        mae   = sum( d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal, na.rm=TRUE ) / total
+      );
+     }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
+      listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
+      total		= sum(listTotal, na.rm=TRUE);
+      dfSeriesSums = data.frame(
+        total	= total,
+        fbar	= sum( d[i,][[ paste(strPerm, "fabar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
+        obar	= sum( d[i,][[ paste(strPerm, "oabar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
+        fobar	= sum( d[i,][[ paste(strPerm, "faobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+        ffbar	= sum( d[i,][[ paste(strPerm, "ffabar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
+        oobar	= sum( d[i,][[ paste(strPerm, "ooabar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
         mae   = sum( d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal, na.rm=TRUE ) / total
       );
     } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
@@ -460,6 +495,8 @@ for(strIndyVal in listIndyVal){
         listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");
       } else if( boolAggSl1l2  ){
         listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
+      } else if( boolAggSal1l2  ){
+        listFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
       } else if( boolAggNbrCnt ){
        listFields = c("total", "fbs", "fss");
       }

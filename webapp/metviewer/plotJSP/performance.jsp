@@ -194,16 +194,31 @@
 
           $('#aggregation_statistics ').hide();
           $('#calculations_statistics ').hide();
-          $('#calc_none ').prop("checked", true);
-          $('#agg_none ').prop("checked", true);
-          $("input[name='calc_stat']").change(function () {
-            if ($( 'input[name=calc_stat]:checked' ).val() != "none") {
-              $("input[name=agg_stat][value=none]").prop('checked', true);
+
+          $("#calc_stat").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+              if (ui.value !== "none") {
+                $("#agg_stat").val("none");
+                $("#agg_stat").multiselect("refresh");
+              }
             }
           });
-          $("input[name='agg_stat']").change(function () {
-            if ($( 'input[name=agg_stat]:checked' ).val() != "none") {
-              $("input[name=calc_stat][value=none]").prop('checked', true);
+          $("#agg_stat").multiselect({
+            multiple: false,
+            selectedList: 1,
+            header: false,
+            minWidth: 'auto',
+            height: 'auto',
+            click: function (event, ui) {
+              if (ui.value !== "none") {
+                $("#calc_stat").val("none");
+                $("#calc_stat").multiselect("refresh");
+              }
             }
           });
 
@@ -214,7 +229,7 @@
             $(this).prop("checked", true);
             $('#' + $(this).val()).show();
           });
-          $('#radio').buttonset();
+          //$('#radio').buttonset();
           $('#calculations_statistics').show();
 
 
@@ -440,11 +455,12 @@
                         alt="agg_stat">Help
                 </button>
             <table style="width:100%">
-                <tr>
-                    <td><input type="radio" value="ctc" name="agg_stat"
-                               id="agg_ctc"></td>
-                    <td><label for="agg_ctc">Contingency table count
-                        (CTC)</label></td>
+                <tr><td>
+                  <select id="agg_stat">
+                    <option value="none">None</option>
+                    <option value="ctc">Contingency table count (CTC)</option>
+                  </select>
+                </td>
 
                     <td style="text-align:right;"><input type="text" value="1"
                                                          size="4"
@@ -453,9 +469,7 @@
                         replications</label></td>
                 </tr>
                 <tr>
-                    <td><input type="radio" value="none" name="agg_stat" checked
-                                                                 id="agg_none"></td>
-                    <td><label for="agg_none">None</label></td>
+                    <td>&nbsp;</td>
 
                     <td style="text-align:right;"><select id="boot_ci">
                         <option selected value="perc">perc</option>
@@ -471,7 +485,7 @@
 
 
 
-                    <td colspan="3" style="text-align:right;"><input id="selEveqDis"
+                    <td colspan="2" style="text-align:right;"><input id="selEveqDis"
                                                          type="checkbox"></td>
                     <td><label
                             title="Disables automatic event equalization that occurs when bootstrap confidence intervals are requested"
@@ -480,7 +494,7 @@
                 <tr>
 
 
-                    <td colspan="3" style="text-align:right;"><input id="cacheAggStat"
+                    <td colspan="2" style="text-align:right;"><input id="cacheAggStat"
                                                          type="checkbox"></td>
                     <td><label for="cacheAggStat">Cache aggregation
                         statistics</label></td>
@@ -501,21 +515,18 @@
               <table style="width:100%">
 
                 <tr>
-                  <td><input type="radio" value="ctc" name="calc_stat"
-                             id="calc_ctc"></td>
-                  <td colspan="3"><label for="calc_ctc">Contingency table count
-                    (CTC)</label></td>
-                </tr>
-                <tr>
-                  <td><input type="radio" value="none" name="calc_stat" checked
-                                               id="calc_none"></td>
-                  <td><label for="calc_none">None</label></td>
-                  <td style="text-align:center;"><span ><label for="plot_stat">Plot
-                                       statistic:</label><select id="plot_stat" name="plot_stat">
-                                       <option selected="selected" value="median">Median</option>
-                                       <option value="mean">Mean</option>
-                                       <option value="sum">Sum</option>
-                                   </select></span></td>
+                  <td><select id="calc_stat">
+                    <option value="none">None</option>
+                    <option value="ctc">Contingency table count (CTC)</option>
+                  </select></td>
+
+
+                  <td style="text-align:center;"><span><label for="plot_stat">Plot
+                    statistic:</label><select id="plot_stat" name="plot_stat">
+                    <option selected="selected" value="median">Median</option>
+                    <option value="mean">Mean</option>
+                    <option value="sum">Sum</option>
+                  </select></span></td>
                 </tr>
 
               </table>

@@ -265,7 +265,6 @@
             }).click(function () {
                 addSeriesVariableSeriesBox("y1");
             });
-            $('#calc_none ').prop("checked", true);
 
 
             $(".remove_var").button({
@@ -292,6 +291,13 @@
 
             $('#indy_var_event_equal ').prop("checked", true);
             $('#event_equal').prop("checked", false);
+            $("#calc_stat").multiselect({
+                multiple: false,
+                selectedList: 1,
+                header: false,
+                minWidth: 'auto',
+                height: 'auto'
+            });
             if (initXML != null) {
                 loadXMLSeries();
                 $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
@@ -502,27 +508,22 @@
 
         <div id="calculations_statistics">
           <button class="help-button" style="float: right;bottom: 40px;" alt="calc_stat">Help</button>
-          <table style="width:100%">
-            <tr>
-              <td><input type="radio" value="ctc" name="calc_stat" id="calc_ctc"></td>
-              <td colspan="2"><label for="calc_ctc">Contingency table count (CTC)</label></td>
-            </tr>
-            <tr>
-              <td><input type="radio" value="sl1l2" name="calc_stat" id="calc_sl1l2"></td>
-              <td><label for="calc_sl1l2">Scalar partial sums (SL1L2)</label></td>
-              <td><span><label for="plot_stat">Plot
-                statistic:</label><select id="plot_stat" name="plot_stat">
-                <option selected="selected" value="median">Median</option>
-                <option value="mean">Mean</option>
-                  <option value="sum">Sum</option>
-              </select></span></td>
-            </tr>
-            <tr>
-              <td><input type="radio" value="none" name="calc_stat" checked
-                         id="calc_none"></td>
-              <td colspan="2"><label for="calc_none">None</label></td>
-            </tr>
-          </table>
+            <table style="width:100%">
+                <td><select id="calc_stat">
+                    <option value="none">None</option>
+                    <option value="ctc">Contingency table count (CTC)</option>
+                    <option value="sl1l2">Scalar partial sums (SL1L2)</option>
+                    <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
+                </select>
+                </td>
+                <td><span><label for="plot_stat">Plot
+                    statistic:</label><select id="plot_stat" name="plot_stat">
+                    <option selected="selected" value="median">Median</option>
+                    <option value="mean">Mean</option>
+                    <option value="sum">Sum</option>
+                </select></span></td>
+                </tr>
+            </table>
 
         </div>
 
