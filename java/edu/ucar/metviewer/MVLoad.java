@@ -558,10 +558,10 @@ public class MVLoad extends MVUtil {
 
         //  parse the valid times
 
-        java.util.Date dateFcstInitBeg = _formatStatVsdb.parse(listToken[3]);
+        java.util.Date dateFcstValidBeg = _formatStatVsdb.parse(listToken[3]);
 
         //  format the valid times for the database insert
-        String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
+        String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
 
 
         //  calculate the number of seconds corresponding to fcst_lead
@@ -569,11 +569,11 @@ public class MVLoad extends MVUtil {
         int intFcstLeadSec = Integer.parseInt(strFcstLead) * 3600;
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
-        Calendar calFcstValidBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calFcstValidBeg.setTime(dateFcstInitBeg);
-        calFcstValidBeg.add(Calendar.SECOND, intFcstLeadSec);
-        java.util.Date dateFcstValidBeg = calFcstValidBeg.getTime();
-        String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
+        Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calFcstInitBeg.setTime(dateFcstValidBeg);
+        calFcstInitBeg.add( Calendar.SECOND, (-1) * intFcstLeadSec);
+        java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
+        String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
         String strObsValidBeg = _formatDB.format(dateFcstValidBeg);
         String strFcstValidEnd = _formatDB.format(dateFcstValidBeg);
         String strObsValidEnd = _formatDB.format(dateFcstValidBeg);
@@ -765,7 +765,7 @@ public class MVLoad extends MVUtil {
             } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
               strLineDataValueList += ", '0'";
             } else if (i == 77) {
-              strLineDataValueList += ", '" + listToken[13] + "'";
+
             } else {
               strLineDataValueList += ", '-9999'";
             }
