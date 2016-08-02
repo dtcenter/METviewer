@@ -149,6 +149,7 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolAggSal1l2 = false;
   protected boolean _boolAggPct = false;
   protected boolean _boolAggNbrCnt = false;
+  protected boolean _boolAggSsvar = false;
   protected String _strAggBootRepl = "1";
   protected String _strAggBootCI = "bca";
   protected boolean _boolEveqDis = false;
@@ -318,6 +319,7 @@ public class MVPlotJob extends MVUtil {
     job._boolAggSal1l2 = _boolAggSal1l2;
     job._boolAggPct = _boolAggPct;
     job._boolAggNbrCnt = _boolAggNbrCnt;
+    job._boolAggSsvar = _boolAggSsvar;
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootCI = _strAggBootCI;
     job._boolEveqDis = _boolEveqDis;
@@ -1433,6 +1435,14 @@ public class MVPlotJob extends MVUtil {
 
   public void setAggNbrCnt(boolean aggNbrCnt) {
     _boolAggNbrCnt = aggNbrCnt;
+  }
+
+  public boolean getAggSsvar() {
+    return _boolAggSsvar;
+  }
+
+  public void setAggSsvar(boolean aggSsvar) {
+    _boolAggSsvar = aggSsvar;
   }
 
   public String getAggBootRepl() {

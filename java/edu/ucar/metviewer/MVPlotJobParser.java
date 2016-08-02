@@ -1338,6 +1338,8 @@ public class MVPlotJobParser extends MVUtil {
             job.setAggPct(nodeAggStat._value.equalsIgnoreCase("true"));
           } else if (nodeAggStat._tag.equals("agg_nbrcnt")) {
             job.setAggNbrCnt(nodeAggStat._value.equalsIgnoreCase("true"));
+          } else if (nodeAggStat._tag.equals("agg_ssvar")) {
+            job.setAggSsvar(nodeAggStat._value.equalsIgnoreCase("true"));
           } else if (nodeAggStat._tag.equals("boot_repl")) {
             job.setAggBootRepl(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_ci")) {
