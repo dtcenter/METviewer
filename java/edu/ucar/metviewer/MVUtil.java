@@ -32,12 +32,14 @@ public class MVUtil {
   public static final String CTC = "ctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
+  public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
   public static final String PCT = "pct";
   public static final String NBR_CNT = "nbr_cnt";
   public static final MVOrderedMap _tableStatsEnscnt = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsMpr = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsOrank = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsCnt = new MVOrderedMap();
+  public static final MVOrderedMap _tableStatsSsvar = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsCts = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsNbrcts = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsNbrcnt = new MVOrderedMap();
@@ -163,6 +165,29 @@ public class MVUtil {
     _tableStatsCnt.put("ME2", new String[]{"bc",SL1L2});
     _tableStatsCnt.put("MSESS", new String[]{"bc",SL1L2});
   }
+
+  static {
+    _tableStatsSsvar.put("SSVAR_FBAR", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_FSTDEV", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_OBAR", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_OSTDEV", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_PR_CORR", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_ME", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_ESTDEV", new String[]{"nc", "bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_MBIAS", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_MSE", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_BCMSE", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_BCRMSE", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_RMSE", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_ANOM_CORR", new String[]{"bc",SSVAR});
+    _tableStatsSsvar.put("SSVAR_ME2", new String[]{"bc",SSVAR});
+    _tableStatsSsvar.put("SSVAR_MSESS", new String[]{"bc",SSVAR});
+    _tableStatsSsvar.put("SSVAR_Spread", new String[]{"bc",SSVAR});
+    }
+
+
+
+
 
   static {
     _tableStatsCts.put("BASER", new String[]{"nc", "bc", CTC});
@@ -1761,7 +1786,9 @@ public class MVUtil {
     } else if (_tableStatsMpr.containsKey(strStat)) {
       return "line_data_mpr";
     } else if (_tableStatsOrank.containsKey(strStat)) {
-      return "line_data_orank";
+      return "line_data_orank"; }
+    else if (_tableStatsSsvar.containsKey(strStat)) {
+      return "line_data_ssvar";
     } else {
       return "";
     }
@@ -1774,7 +1801,7 @@ public class MVUtil {
    * @param bufferedWriter The stream to write the formatted results to (defaults to _out)
    * @param delim          The delimiter to insert between field headers and values (defaults to ' ')
    */
-  public synchronized void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim) {
+  public synchronized void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -1800,34 +1827,46 @@ public class MVUtil {
 
       //  print out the table of values
       int intLine = 0;
+      boolean isValValid;
       while (res.next()) {
+        String line = "";
+        isValValid = true;
         for (int i = 1; i <= met.getColumnCount(); i++) {
           String strVal;
           String objectType = met.getColumnTypeName(i);
+
+
           if (objectType.equals("DATETIME")) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeZone(TimeZone.getTimeZone("UTC"));
             Timestamp ts = res.getTimestamp(i, cal);
             strVal = _formatDB_local.format(ts);
           } else {
+
             strVal = res.getString(i);
             strVal = (strVal.equalsIgnoreCase("null") ? "NA" : strVal);
             strVal = (strVal.equalsIgnoreCase("-9999") ? "NA" : strVal);
           }
-
+          String columnName = met.getColumnName(i);
+          if (columnName.equals("stat_value") && isCalc && strVal.equals("NA")/*job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() */) {
+            isValValid = false;
+          }
 
           if (delim.equals(" ")) {
-            bufferedWriter.write(padEnd(strVal, intFieldWidths[i - 1]));
+            line = line +(padEnd(strVal, intFieldWidths[i - 1]));
           } else {
             if (1 == i) {
-              bufferedWriter.write(strVal);
+              line = line +(strVal);
             } else {
-              bufferedWriter.write(delim + strVal);
+              line = line +(delim + strVal);
             }
           }
         }
-        bufferedWriter.write(System.getProperty("line.separator"));
-        intLine++;
+        if(isValValid) {
+          bufferedWriter.write(line);
+          bufferedWriter.write(System.getProperty("line.separator"));
+          intLine++;
+        }
       }
 
       if (0 == intLine) {
