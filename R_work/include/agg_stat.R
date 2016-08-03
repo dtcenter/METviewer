@@ -1,6 +1,7 @@
 .libPaths("/common/data/web/metviewer/dev/r-lib");
 library(boot);
 library(gsl);
+library(stats);
 
 # parse the command line arguments
 strInputInfoFile = "~/plot_00124_20130923_082001.agg_stat.info";
@@ -36,6 +37,11 @@ dfStatsRecAxis2= data.frame();
 
 # run event equalizer, if requested
 if( boolEventEqual  ){
+  boolMulti=FALSE;
+  #for SSVAR use equalization of mulitple events
+  if(boolAggSsvar){
+    boolMulti=TRUE;
+  }
   #run event equalizer on Y1
   dfPlot1 = data.frame();
   #list all fixed variables
@@ -60,7 +66,7 @@ if( boolEventEqual  ){
           vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
         }
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep1Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms & dfStatsRec$stat_name %in% strDep1Stat,  ];
-        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
     }
@@ -78,7 +84,7 @@ if( boolEventEqual  ){
             vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
           }
           fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms & dfStatsRec$stat_name %in% strDep2Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+          fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
           dfPlot2 = rbind(dfPlot2, fPlot);
         }
       }
@@ -93,8 +99,8 @@ if( boolEventEqual  ){
   }else{
     dfStatsRec = dfPlot1;
   }
-strAfrerEqualizeFile = sub("\\.agg_stat", ".dataAfterEq", strInputDataFile, perl=TRUE);
-write.table(dfStatsRec, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
+  strAfrerEqualizeFile = sub("\\.agg_stat", ".dataAfterEq", strInputDataFile, perl=TRUE);
+  write.table(dfStatsRec, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
 }
 
 for(intY in 1:intYMax){
@@ -130,25 +136,25 @@ for(intY in 1:intYMax){
 
   #add diff series
   if(length(listDiffSeries) > 0){
-     for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
-       listDiffVal = list();
-       for(var in listSeriesVar){
-         listDiffVal[[var]]="";
-       }
-       diffSeriesVec = listDiffSeries[[diffSeriesName]];
-       listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-       listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+    for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
+      listDiffVal = list();
+      for(var in listSeriesVar){
+        listDiffVal[[var]]="";
+      }
+      diffSeriesVec = listDiffSeries[[diffSeriesName]];
+      listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+      listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
 
-       strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
-       strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
-       derivedCurveName = getDerivedCurveName(diffSeriesVec);
-       listDiffVal[[strDiffVar]] = derivedCurveName;
-       listDiffVal[[strIndyVar]] = listIndyVal;
-       listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
-       matOut = rbind(matOut, permute(listDiffVal));
-     }
+      strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+      strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+      derivedCurveName = getDerivedCurveName(diffSeriesVec);
+      listDiffVal[[strDiffVar]] = derivedCurveName;
+      listDiffVal[[strIndyVar]] = listIndyVal;
+      listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
+      matOut = rbind(matOut, permute(listDiffVal));
+    }
 
-   }
+  }
 
 }
 
@@ -190,7 +196,7 @@ calcStdDev		= function(sum, sum_sq, n){
   if( 0 > v ){
     return(NA);
   } else {
-   return( sqrt(v) );
+    return( sqrt(v) );
   }
 }
 calcFBAR		= function(d){ return( d$fbar ); }
@@ -245,6 +251,32 @@ calcESTDEV		= function(d){ return( calcStdDev( calcME(d) * d$total, calcMSE(d) *
 calcBCMSE		= function(d){ return( calcMSE(d) - (d$fbar - d$obar)^2 ); }
 calcBCRMSE		= function(d){ return( sqrt(calcBCMSE(d)) ); }
 
+# SSVAR stat calculations
+calcSSVAR_FBAR		= function(d){ return( calcFBAR(d) ); }
+calcSSVAR_OBAR		= function(d){ return( calcOBAR(d) ); }
+calcSSVAR_FSTDEV		= function(d){ return( calcFSTDEV(d) ); }
+calcSSVAR_OSTDEV		= function(d){ calcOSTDEV(d ); }
+calcSSVAR_FOBAR		= function(d){ return( calcFOBAR(d) ); }
+calcSSVAR_FFBAR		= function(d){ return( calcFFBAR(d) ); }
+calcSSVAR_OOBAR		= function(d){ return( calcOOBAR(d) ); }
+calcSSVAR_MBIAS		= function(d){ return( calcMBIAS(d) ); }
+calcSSVAR_PR_CORR		= function(d){ return( calcPR_CORR(d) ); }
+
+calcSSVAR_ANOM_CORR		= function(d){ return( calcANOM_CORR(d) ); }
+calcSSVAR_ME			= function(d){ return( calcME(d) ); }
+calcSSVAR_ME2			= function(d){ return( calcME2(d) ); }
+calcSSVAR_MSE			= function(d){ return( calcMSE(d) ); }
+calcSSVAR_MSESS			= function(d){ return( calcMSESS(d) ); }
+calcSSVAR_RMSE		= function(d){ return( calcRMSE(d) ); }
+calcSSVAR_ESTDEV		= function(d){ return( calcESTDEV(d) ); }
+calcSSVAR_BCMSE		= function(d){ return( calcBCMSE(d)); }
+calcSSVAR_BCRMSE		= function(d){ return( calcBCRMSE(d) ); }
+
+calcSSVAR_Spread = function(d){
+  if( length( d$varmean ) < 1 ){ return (NA); }
+  return( sqrt(weighted.mean(d$varmean, d$binn)) );
+}
+
 
 # CTC stat calculations
 calcBASER		= function(d){ if( 0 == d$total )                      { return (NA); } else { return( (d$fy_oy + d$fn_oy) / d$total ); }             }
@@ -284,18 +316,18 @@ calcODDS = function(d){
 # Bias Adjusted Precipitation Threat Scores
 # F. Mesinger, Adv. Geosci., 16, 137-142, 2008
 calcBAGSS = function(d){
-	if( 0 == d$total ){ return (NA); }
-	dblF  = d$fy_oy + d$fy_on;
-	dblO  = d$fy_oy + d$fn_oy;
-	dblLf = log(dblO / d$fn_oy);
-	dblHa = tryCatch({
-      dblO - (d$fy_on / dblLf) * lambert_W0(dblO / d$fy_on * dblLf);
+  if( 0 == d$total ){ return (NA); }
+  dblF  = d$fy_oy + d$fy_on;
+  dblO  = d$fy_oy + d$fn_oy;
+  dblLf = log(dblO / d$fn_oy);
+  dblHa = tryCatch({
+    dblO - (d$fy_on / dblLf) * lambert_W0(dblO / d$fy_on * dblLf);
   }, warning = function(w) {
-      return (NA)
+    return (NA)
   }, error = function(e) {
-      return (NA)
+    return (NA)
   });
-	return( (dblHa - (dblO^2 / d$total)) / (2*dblO - dblHa - (dblO^2 / d$total)) );
+  return( (dblHa - (dblO^2 / d$total)) / (2*dblO - dblHa - (dblO^2 / d$total)) );
 }
 
 
@@ -331,35 +363,48 @@ booter.iid = function(d, i){
     # perform the aggregation of the sampled CTC lines
     if( boolAggCtc ){
       dfSeriesSums = data.frame(
-        total	= sum( d[i,][[ paste(strPerm, "total", sep="_") ]], na.rm=TRUE ),
-        fy_oy	= sum( d[i,][[ paste(strPerm, "fy_oy", sep="_") ]], na.rm=TRUE ),
-        fy_on	= sum( d[i,][[ paste(strPerm, "fy_on", sep="_") ]], na.rm=TRUE ),
-        fn_oy	= sum( d[i,][[ paste(strPerm, "fn_oy", sep="_") ]], na.rm=TRUE ),
-        fn_on	= sum( d[i,][[ paste(strPerm, "fn_on", sep="_") ]], na.rm=TRUE )
+        total	= sum( as.numeric(d[i,][[ paste(strPerm, "total", sep="_") ]]), na.rm=TRUE ),
+        fy_oy	= sum( as.numeric(d[i,][[ paste(strPerm, "fy_oy", sep="_") ]]), na.rm=TRUE ),
+        fy_on	= sum( as.numeric(d[i,][[ paste(strPerm, "fy_on", sep="_") ]]), na.rm=TRUE ),
+        fn_oy	= sum( as.numeric(d[i,][[ paste(strPerm, "fn_oy", sep="_") ]]), na.rm=TRUE ),
+        fn_on	= sum( as.numeric(d[i,][[ paste(strPerm, "fn_on", sep="_") ]]), na.rm=TRUE )
       );
     }  else if ( boolAggSl1l2 ){ # perform the aggregation of the sampled SL1L2 lines
       listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
       total		= sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
         total	= total,
-        fbar	= sum( d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
-        obar	= sum( d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
-        fobar	= sum( d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        ffbar	= sum( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        oobar	= sum( d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        mae   = sum( d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal, na.rm=TRUE ) / total
+        fbar	= sum( as.numeric(d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
+        obar	= sum( as.numeric(d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
+        fobar	= sum( as.numeric(d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        ffbar	= sum( as.numeric(d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        oobar	= sum( as.numeric(d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        mae   = sum( as.numeric(d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal), na.rm=TRUE ) / total
       );
-     }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
+    }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
       listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
       total		= sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
         total	= total,
-        fbar	= sum( d[i,][[ paste(strPerm, "fabar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
-        obar	= sum( d[i,][[ paste(strPerm, "oabar", sep="_") ]]  * listTotal, na.rm=TRUE ) / total,
-        fobar	= sum( d[i,][[ paste(strPerm, "faobar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        ffbar	= sum( d[i,][[ paste(strPerm, "ffabar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        oobar	= sum( d[i,][[ paste(strPerm, "ooabar", sep="_") ]] * listTotal, na.rm=TRUE ) / total,
-        mae   = sum( d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal, na.rm=TRUE ) / total
+        fbar	= sum( as.numeric(d[i,][[ paste(strPerm, "fabar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
+        obar	= sum( as.numeric(d[i,][[ paste(strPerm, "oabar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
+        fobar	= sum( as.numeric(d[i,][[ paste(strPerm, "faobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        ffbar	= sum( as.numeric(d[i,][[ paste(strPerm, "ffabar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        oobar	= sum( as.numeric(d[i,][[ paste(strPerm, "ooabar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        mae   = sum( as.numeric(d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal), na.rm=TRUE ) / total
+      );
+    }  else if ( boolAggSsvar ){ # perform the aggregation of the sampled SSVAR lines
+      listTotal  = d[i,][[ paste(strPerm, "bin_n", sep="_") ]];
+      total    = sum(listTotal, na.rm=TRUE);
+      dfSeriesSums = data.frame(
+        total  = total,
+        fbar	= sum( as.numeric(d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
+        obar	= sum( as.numeric(d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
+        fobar	= sum( as.numeric(d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        ffbar	= sum( as.numeric(d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        oobar	= sum( as.numeric(d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        varmean	= sum( as.numeric(d[i,][[ paste(strPerm, "var_mean", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        binn	=  total
       );
     } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
       listTotal = d[i,][[ paste(strPerm, "total", sep="_") ]];
@@ -409,39 +454,39 @@ booter.iid = function(d, i){
     }
   }
   if(length(listDiffSeries) > 0){
-      for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
-        #get  names of DIFF series
-        diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+    for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+      #get  names of DIFF series
+      diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
 
-        listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-        listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+      listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+      listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
 
-        strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
-        strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+      strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+      strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
 
-        listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
-        listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
+      listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
+      listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
 
-        strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));# number for model
-        strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
-        indPerm1=0;
-        indPerm2=0;
-        derivedCurveName = getDerivedCurveName(diffSeriesVec);
-        for(intPerm in 1:nrow(matPerm)){
-          strPerm = escapeStr(paste(matPerm[[intPerm]], sep="_", collapse="_"));
-          if(strSeriesDiff1Short == strPerm){
-            indPerm1=intPerm;
-          }
-          if(strSeriesDiff2Short == strPerm){
-            indPerm2=intPerm;
-          }
+      strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));# number for model
+      strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
+      indPerm1=0;
+      indPerm2=0;
+      derivedCurveName = getDerivedCurveName(diffSeriesVec);
+      for(intPerm in 1:nrow(matPerm)){
+        strPerm = escapeStr(paste(matPerm[[intPerm]], sep="_", collapse="_"));
+        if(strSeriesDiff1Short == strPerm){
+          indPerm1=intPerm;
         }
-        if(indPerm1 != 0 && indPerm2 !=0){
-          listRet[[paste(strStat1,strStat2, indPerm1, indPerm2,sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indPerm1],listRet[[strStat2]][indPerm2], derivedCurveName);
+        if(strSeriesDiff2Short == strPerm){
+          indPerm2=intPerm;
         }
       }
+      if(indPerm1 != 0 && indPerm2 !=0){
+        listRet[[paste(strStat1,strStat2, indPerm1, indPerm2,sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indPerm1],listRet[[strStat2]][indPerm2], derivedCurveName);
+      }
+    }
   }
-return( unlist(listRet) );
+  return( unlist(listRet) );
 }
 
 
@@ -456,17 +501,17 @@ for(strIndyVal in listIndyVal){
 
     # build permutations for each plot series
     if( 1 == intY ){
-          matPerm = permute(listSeries1Val);
-          listStat = listStat1;
-          matCIPerm = matCIPerm1;
-          listDiffSeries = listDiffSeries1;
-     }
-     if( 2 == intY ){
-          matPerm = permute(listSeries2Val);
-          listStat = listStat2;
-          matCIPerm = matCIPerm2;
-          listDiffSeries = listDiffSeries2;
-     }
+      matPerm = permute(listSeries1Val);
+      listStat = listStat1;
+      matCIPerm = matCIPerm1;
+      listDiffSeries = listDiffSeries1;
+    }
+    if( 2 == intY ){
+      matPerm = permute(listSeries2Val);
+      listStat = listStat2;
+      matCIPerm = matCIPerm2;
+      listDiffSeries = listDiffSeries2;
+    }
     listBoot = list();
 
     # run the bootstrap flow for each series permutation
@@ -497,8 +542,10 @@ for(strIndyVal in listIndyVal){
         listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
       } else if( boolAggSal1l2  ){
         listFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
+      } else if( boolAggSsvar  ){
+        listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
       } else if( boolAggNbrCnt ){
-       listFields = c("total", "fbs", "fss");
+        listFields = c("total", "fbs", "fss");
       }
       for(strCount in listFields){
         listCounts = dfStatsPerm[[strCount]];
@@ -571,42 +618,42 @@ for(strIndyVal in listIndyVal){
       }
     }
     if(length(listDiffSeries) > 0){
-       for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
-         if( 1 < intNumReplicates ){
-           stBootCI = Sys.time();
-           bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-           dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-         }
+      for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+        if( 1 < intNumReplicates ){
+          stBootCI = Sys.time();
+          bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+          dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+        }
 
-         diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
-         listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-         listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
-         strStat1= listSeriesDiff1[length(listSeriesDiff1)];
-         strStat2= listSeriesDiff2[length(listSeriesDiff2)];
+        diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+        listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+        listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+        strStat1= listSeriesDiff1[length(listSeriesDiff1)];
+        strStat2= listSeriesDiff2[length(listSeriesDiff2)];
 
-         derivedCurveName = getDerivedCurveName(diffSeriesVec);
+        derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
-         # build a indicator list for the pertinent rows in the output dataframe
-         listOutInd = rep(TRUE, nrow(dfOut));
-         strDiffVar = listSeriesVar[length(listSeriesVar)];
-         listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
+        # build a indicator list for the pertinent rows in the output dataframe
+        listOutInd = rep(TRUE, nrow(dfOut));
+        strDiffVar = listSeriesVar[length(listSeriesVar)];
+        listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
 
         listOutInd1 = listOutInd & (dfOut$stat_name == paste(strStat1,strStat2,collapse = "", sep=","))  & (dfOut[[strIndyVar]] == strIndyVal);
 
-         dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-         dfOut[listOutInd1,]$nstats = 0;
-         strCIParm = strCIType;
-         if( strCIType == "perc" ){ strCIParm = "percent"; }
-         if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-           dfOut[listOutInd1,]$stat_bcl = bootCI[[strCIParm]][4];
-           dfOut[listOutInd1,]$stat_bcu = bootCI[[strCIParm]][5];
-         } else {
-           dfOut[listOutInd1,]$stat_bcl = NA;
-           dfOut[listOutInd1,]$stat_bcu = NA;
-         }
+        dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
+        dfOut[listOutInd1,]$nstats = 0;
+        strCIParm = strCIType;
+        if( strCIType == "perc" ){ strCIParm = "percent"; }
+        if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
+          dfOut[listOutInd1,]$stat_bcl = bootCI[[strCIParm]][4];
+          dfOut[listOutInd1,]$stat_bcu = bootCI[[strCIParm]][5];
+        } else {
+          dfOut[listOutInd1,]$stat_bcl = NA;
+          dfOut[listOutInd1,]$stat_bcu = NA;
+        }
 
-         intBootIndex = intBootIndex + 1;
-       }
+        intBootIndex = intBootIndex + 1;
+      }
     }
 
   } # end for(intY in 1:intYMax)
