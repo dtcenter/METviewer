@@ -4,6 +4,7 @@ boolAggCtc = #<agg_ctc>#;
 boolAggSl1l2 = #<agg_sl1l2>#;
 boolAggSal1l2 = #<agg_sal1l2>#;
 boolAggNbrCnt = #<agg_nbrcnt>#;
+boolAggSsvar = #<agg_ssvar>#;
 boolEventEqual = #<event_equal>#;
 
 boolEveqDis = #<eveq_dis>#;

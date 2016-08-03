@@ -522,7 +522,7 @@ public class MVPlotJobParser extends MVUtil {
     strXML += "</plot_fix>";
 
     //  agg_stat
-    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct() || job.getAggNbrCnt()) || MVBatch.isModeRatioJob(job)) {
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct() || job.getAggNbrCnt() || job.getAggSsvar())  || MVBatch.isModeRatioJob(job)) {
       strXML +=
         "<agg_stat>" +
           "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>" +
@@ -530,6 +530,7 @@ public class MVPlotJobParser extends MVUtil {
           "<agg_sal1l2>" + (job.getAggSal1l2() ? "TRUE" : "FALSE") + "</agg_sal1l2>" +
           "<agg_pct>" + (job.getAggPct() ? "TRUE" : "FALSE") + "</agg_pct>" +
           "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
+          "<agg_ssvar>" + (job.getAggSsvar() ? "TRUE" : "FALSE") + "</agg_ssvar>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
           "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
           "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
