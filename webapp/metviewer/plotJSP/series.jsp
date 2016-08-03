@@ -305,6 +305,10 @@
             header: false,
             minWidth: 'auto',
             height: 'auto',
+            position: {
+              my: 'left bottom',
+              at: 'left top'
+            },
             click: function (event, ui) {
               if (ui.value !== "none") {
                 $("#agg_stat").val("none");
@@ -318,6 +322,10 @@
             header: false,
             minWidth: 'auto',
             height: 'auto',
+            position: {
+              my: 'left bottom',
+              at: 'left top'
+            },
             click: function (event, ui) {
               if (ui.value !== "none") {
                 $("#calc_stat").val("none");
@@ -332,7 +340,6 @@
             $(this).prop("checked", true);
             $('#' + $(this).val()).show();
           });
-          //$('#radio').buttonset();
           $('#calculations_statistics').show();
 
 
@@ -713,7 +720,7 @@
         <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
       <div>
 
-      <input type="checkbox" id="event_equal">
+      <input type="checkbox" id="event_equal" />
                       <label for="event_equal">Event Equalizer</label>
     </div>
       <br/>
@@ -797,6 +804,7 @@
                       <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
                       <option value="pct">Probability methods output (PCT)</option>
                       <option value="nbrcnt">Nbrhood method count (NBR_CNT)</option>
+                      <option value="ssvar">Spread/Skill Variance (SSVAR)</option>
                       <option value="mode">MODE</option>
                     </select>
                   </td>

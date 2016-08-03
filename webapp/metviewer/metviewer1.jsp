@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.7.1</TITLE>
+<TITLE>METViewer v1.8</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -1059,7 +1059,7 @@
         </table>
             <div><input type="radio" name="derive_oper" value="DIFF" id="derive_oper_diff" checked /><label for="derive_oper_diff">DIFF</label>
             <input type="radio" name="derive_oper" value="RATIO" id="derive_oper_ratio" checked /><label for="derive_oper_ratio">RATIO</label>
-            <input type="radio" name="derive_oper" value="SS" id="derive_oper_SS" checked /><label for="derive_oper_ss">SS</label>
+            <input type="radio" name="derive_oper" value="SS" id="derive_oper_SS" checked /><label for="derive_oper_ss">SKILL SCORE</label>
             </div>
         <div id="newDiffSeriesName" class="diffSelect" style="font-weight:bold;"></div>
         </div>

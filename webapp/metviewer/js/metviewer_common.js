@@ -418,14 +418,19 @@ function updateForecastVariables() {
 
     //TO_DO reset all selects
     select_y1.empty();
-    select_y1.multiselect('refresh');
+    try{
+        select_y1.multiselect('refresh');
+    } catch (err) {}
+
     select_y2.empty();
     try {
         select_y2.multiselect('refresh');
     } catch (err) {
     }
     indy_var_val.empty();
+    try{
     indy_var_val.multiselect('refresh');
+    } catch (err) {}
     for (var i = 1; i < fcst_var_y1_indexes.length; i++) {
         removeFcstVarSeriesBox("fcst_var_y1_" + fcst_var_y1_indexes[i]);
     }
@@ -475,7 +480,9 @@ function updateForecastVariables() {
                     opt.appendTo(select_y1);
                     opt.clone().appendTo(select_y2);
                 }
+                try{
                 select_y1.multiselect('refresh');
+                } catch (err) {}
                 try {
                     select_y2.multiselect('refresh');
                 } catch (err) {
@@ -487,7 +494,9 @@ function updateForecastVariables() {
                 });
                 opt.appendTo(select_y1);
                 opt.clone().appendTo(select_y2);
+                try{
                 select_y1.multiselect('refresh');
+                } catch (err) {}
                 try {
                     select_y2.multiselect('refresh');
                 } catch (err) {
@@ -582,7 +591,9 @@ function updateMode(y_axis, index, selectedVals) {
         click: function (event, ui) {
             var id_array = this.id.split("_");
             $("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1] + " option").removeAttr("selected");
+            try{
             $("#fcst_stat_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("refresh");
+            } catch (err) {}
 
             var config_table = $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]);
             config_table.css("display", "block");
@@ -1047,7 +1058,9 @@ function updateFixedVarValSeries(index, selectedVals,equalize) {
         dataType: 'xml',
         data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
         error: function (jqXHR, textStatus, errorThrown) {
+            try{
             select.multiselect('refresh');
+            } catch (err) {}
         },
         success: function (data) {
             fixVarValResponse[index] = data;
@@ -2701,7 +2714,7 @@ function createXMLPerf(plot) {
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
         agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
-        agg_stat.append($('<cache_agg_stat />').text($('#cache_agg_stat').is(':checked')));
+        agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
         plot.append(agg_stat);
     }
     else if (calc_stat_val !== "none") {
@@ -2790,7 +2803,7 @@ function createXMLSeries(plot) {
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
         agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
-        agg_stat.append($('<cache_agg_stat />').text($('#cache_agg_stat').is(':checked')));
+        agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
         plot.append(agg_stat);
     }
 
@@ -4157,7 +4170,9 @@ function loadXMLRoc() {
             addSeriesVariableRhist();
 
             var value = $(series_arr[i]).attr('name');
-            $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            try {
+                $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            } catch (err) {}
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
@@ -4184,7 +4199,9 @@ function loadXMLRoc() {
         for (var i = 0; i < stats.length; i++) {
             $("#summary_curve option[value='"+stats[i]+"']").prop('selected',true);
         }
-        $("#summary_curve").multiselect("refresh");
+        try {
+            $("#summary_curve").multiselect("refresh");
+        } catch (err) {}
     }
 
 }
@@ -4198,7 +4215,9 @@ function loadXMLRhist() {
             series_var_val = [];
             addSeriesVariableRhist();
             var value = $(series_arr[i]).attr('name');
+            try{
             $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            } catch (err) {}
             $(series_arr[i]).find("val").each(function () {
                 var vals = $(this).text().split(",");
 
@@ -4231,7 +4250,9 @@ function loadXMLRely() {
             addSeriesVariableRhist();
 
             var value = $(series_arr[i]).attr('name');
+            try{
             $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            } catch (err) {}
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
@@ -4258,7 +4279,9 @@ function loadXMLRely() {
         for (var i = 0; i < stats.length; i++) {
             $("#summary_curve option[value='" + stats[i] + "']").prop('selected', true);
         }
+        try{
         $("#summary_curve").multiselect("refresh");
+        } catch (err) {}
     }
 }
 
@@ -4272,7 +4295,9 @@ function loadXMLEns() {
                 addSeriesVariableEns();
             }
             var value = $(series_arr[i]).attr('name');
+            try{
             $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            } catch (err) {}
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
@@ -4310,7 +4335,9 @@ function updatePlotFix() {
                 addFixedVariableRhist();
             }
             var value = $(plot_fix_arr[i]).attr('name');
-            $("#fixed_var_" + (i + 1)).val(value).multiselect("refresh");
+            try {
+                $("#fixed_var_" + (i + 1)).val(value).multiselect("refresh");
+            }catch (e){}
 
             $(plot_fix_arr[i]).find("set").find("val").each(function () {
                 fixed_var_vals.push($(this).text());
@@ -4334,8 +4361,10 @@ function updatePlotFixSeries() {
             var equalize = $(plot_fix_arr[i]).attr('equalize');
             addFixedVariableSeries();
             var value = $(plot_fix_arr[i]).attr('name');
-
-            $("#fixed_var_" + (i + 1)).val(value).multiselect("refresh");
+            try {
+                $("#fixed_var_" + (i + 1)).val(value).multiselect("refresh");
+            } catch (e) {
+            }
 
             $(plot_fix_arr[i]).find("set").find("val").each(function () {
                 fixed_var_vals.push($(this).text());
@@ -4354,11 +4383,17 @@ function updatePlotFixSeries() {
 
 function loadXMLSeries() {
     //Parse the plot_type from _strInitXML using assumptions about the first stat
+    $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true");
+
     var stat = $(initXML.find("plot").find("dep").find("dep1").find("stat")[0]).text();
     var selected_mode = isModeStat(stat) ? "mode" : "stat";
-    $("#plot_data").val(selected_mode).multiselect("refresh");
+    try {
+        $("#plot_data").val(selected_mode).multiselect("refresh");
+    }catch(e){}
     updateForecastVariables();
-    $("#plot_stat").val(initXML.find("plot").find("plot_stat").text()).multiselect("refresh");
+    try {
+        $("#plot_stat").val(initXML.find("plot").find("plot_stat").text()).multiselect("refresh");
+    }catch (e){}
     if (selected_mode == "stat") {
         $.each(fix_var_value_to_title_stat_map, function (key, val) {
             $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
@@ -4386,10 +4421,16 @@ function loadXMLSeries() {
                 var fcst_stat = [];
                 value = $(dep_arr[i]).attr('name');
                 if (index == 0 && y_axis_index == 1) {
-                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val(value).multiselect("refresh");
+                    try {
+                        $("#fcst_var_" + y_axis + "_" + (index + 1)).val(value).multiselect("refresh");
+                    } catch (e) {
+                    }
                 } else {
                     addFcstVariableSeries(y_axis);
-                    $("#fcst_var_" + y_axis + "_" + (index + 1)).val(value).multiselect("refresh");
+                    try {
+                        $("#fcst_var_" + y_axis + "_" + (index + 1)).val(value).multiselect("refresh");
+                    } catch (e) {
+                    }
                 }
                 $(dep_arr[i]).find("stat").each(function () {
                     fcst_stat.push($(this).text());
@@ -4404,7 +4445,9 @@ function loadXMLSeries() {
                         for (var fcst_stat_ind = 0; fcst_stat_ind < fcst_stat.length; fcst_stat_ind++) {
                             if (fcst_stat_ind > 0) {
                                 addFcstVariableSeries(y_axis);
+                                try {
                                 $("#fcst_var_" + y_axis + "_" + (index + 1)).val($(dep_arr[i]).attr('name')).multiselect("refresh");
+                                }catch (e){}
                             }
                             updateMode(y_axis, index + 1, fcst_stat[fcst_stat_ind]);
                             index++;
@@ -4431,10 +4474,14 @@ function loadXMLSeries() {
                 isGroup = false;
                 value = $(series_arr[i]).attr('name');
                 if (i == 0 && y_axis_index == 1) {
+                    try{
                     $("#series_var_" + y_axis + "_" + ( i + 1)).val(value).multiselect("refresh");
+                    } catch (err) {}
                 } else {
                     addSeriesVariableSeriesBox(y_axis);
+                    try{
                     $("#series_var_" + y_axis + "_" + (i + 1)).val(value).multiselect("refresh");
+                    } catch (err) {}
                 }
                 $(series_arr[i]).find("val").each(function () {
                     var vals = $(this).text().split(",");
@@ -4469,7 +4516,9 @@ function loadXMLSeries() {
     }
 
     value = $(initXML.find("plot").find("indep")[0]).attr('name');
+    try{
     $("#indy_var").val(value).multiselect("refresh");
+    }catch (e){}
     if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
         $("#date_period_button").css("display", "block");
     } else {
@@ -4491,7 +4540,6 @@ function loadXMLSeries() {
 
     if (initXML.find("plot").find("agg_stat").length > 0) {
         $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
-        //$('#radio').buttonset('refresh');
         $('#calculations_statistics').hide();
         $('#aggregation_statistics').show();
 
@@ -4505,6 +4553,12 @@ function loadXMLSeries() {
             $('#agg_stat').val('pct');
         }else if($(initXML.find("plot").find("agg_stat").find("agg_nbrcnt")).text() == "TRUE"){
             $('#agg_stat').val('nbrcnt');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_ssvar")).text() == "TRUE") {
+            $('#agg_stat').val('ssvar');
+        }
+        try {
+            $('#agg_stat').multiselect('refresh');
+        } catch (e) {
         }
         $("#boot_repl").val($(initXML.find("plot").find("agg_stat").find("boot_repl")).text());
         $("#boot_ci").val($(initXML.find("plot").find("agg_stat").find("boot_ci")).text());
@@ -4512,7 +4566,6 @@ function loadXMLSeries() {
 
     } else if (initXML.find("plot").find("calc_stat").length > 0) {
         $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
-        //$('#radio').buttonset('refresh');
         $('#calculations_statistics').show();
         if($(initXML.find("plot").find("calc_stat").find("calc_ctc")).text() == "TRUE"){
             $('#calc_stat').val('ctc');
@@ -4521,23 +4574,17 @@ function loadXMLSeries() {
         }else if($(initXML.find("plot").find("calc_stat").find("calc_sal1l2")).text() == "TRUE"){
             $('#calc_stat').val('sal1l2');
         }
-        $('#calc_stat').multiselect('refresh');
+        try {
+            $('#calc_stat').multiselect('refresh');
+        }catch (e){}
     } else {
         if (selected_mode == "stat") {
             $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
-            $('#radio').buttonset('refresh');
             $('#aggregation_statistics ').hide();
             $('#none').show();
         } else {
             $("#agg_mode").prop('checked', 'checked');
-            $('#radio')
-                    .find('input')
-                    .removeProp('checked')
-                    .filter('[value="aggregation_statistics"]')
-                    .prop('checked', true)
-                    .end()
-                    .end()
-                    .buttonset('refresh');
+
             $('#aggregation_statistics ').show();
             $('#calculations_statistics ').hide();
         }
@@ -4662,7 +4709,9 @@ function updateIndyVarSeries(selected_mode) {
             $('#indy_var').append('<option value="' + key + '">' + val + '</option>');
         });
     }
+    try{
     $('#indy_var').multiselect('refresh');
+    } catch (err) {}
     $("#date_period").css("display", "none");
 
 }
@@ -4836,7 +4885,9 @@ function createDatePeriodDialog() {
                         }
                         current_date.add(by, 'seconds');
                     }
+                    try{
                     indy_var_val.multiselect("refresh");
+                    } catch (err) {}
                 }
 
                 $(this).dialog("close");
@@ -5363,7 +5414,7 @@ function initPage() {
         width: "auto",
         modal: true,
         buttons: {
-            "Create a Difference Curve": function () {
+            "Create Derived Curve": function () {
                 var valid = false;
                 var yAxisValue = $('input:radio[name=yAxisDiff]:checked').val();
                 var oper =jQuery( 'input[name=derive_oper]:checked' ).val();
@@ -5668,7 +5719,6 @@ function initPage() {
         $('#y2_label_title').val($(initXML.find("plot").find("tmpl").find("y2_label")).text());
         $('#caption').val($(initXML.find("plot").find("tmpl").find("caption")).text());
 
-        $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true");
         $("#vert_plot").prop('checked', $(initXML.find("plot").find("vert_plot")).text() == "true");
         $("#x_reverse").prop('checked', $(initXML.find("plot").find("x_reverse")).text() == "true");
         $("#num_stats").prop('checked', $(initXML.find("plot").find("num_stats")).text() == "true");
