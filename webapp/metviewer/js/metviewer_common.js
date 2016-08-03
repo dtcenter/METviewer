@@ -2638,16 +2638,18 @@ function createXMLBox(plot) {
 
 function createXMLPlotFix(plot) {
     var plot_fix = $('<plot_fix />');
-    for (var i = 0; i < fixed_var_indexes.length; i++) {
-        var field = $('<field />').attr("name", $("#fixed_var_" + fixed_var_indexes[i]).val()).attr("equalize",$("#fix_var_event_equal_" + fixed_var_indexes[i]).is(':checked') );
-        var set = $('<set />').attr("name", $("#fixed_var_" + fixed_var_indexes[i]).val() + "_" + i);
-        var valArr = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
-        if (valArr) {
-            for (var j = 0; j < valArr.length; j++) {
-                set.append($('<val />').text(valArr[j]));
+    if ($('#fixed_var_table').css("display") !== 'none') {
+        for (var i = 0; i < fixed_var_indexes.length; i++) {
+            var field = $('<field />').attr("name", $("#fixed_var_" + fixed_var_indexes[i]).val()).attr("equalize", $("#fix_var_event_equal_" + fixed_var_indexes[i]).is(':checked'));
+            var set = $('<set />').attr("name", $("#fixed_var_" + fixed_var_indexes[i]).val() + "_" + i);
+            var valArr = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
+            if (valArr) {
+                for (var j = 0; j < valArr.length; j++) {
+                    set.append($('<val />').text(valArr[j]));
+                }
+                field.append(set);
+                plot_fix.append(field);
             }
-            field.append(set);
-            plot_fix.append(field);
         }
     }
     plot.append(plot_fix);
