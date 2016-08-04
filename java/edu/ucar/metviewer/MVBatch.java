@@ -263,8 +263,10 @@ public class MVBatch extends MVUtil {
    * @param strWhere      list of where clauses for temp table population
    * @return list of DDL and queries that build and populate MODE temp tables
    */
-  public static ArrayList buildModeTempSQL(String strTempList, String strSelectList, String strWhere) {
+  public static ArrayList buildModeTempSQL(String strTempList, String strSelectList, String strWhere, boolean boolModeRatioPlot, String strStat) {
 
+    //  build the appropriate type of query, depending on the statistic
+    String[] listStatComp = parseModeStat(strStat);
     ArrayList listQuery = new ArrayList();
 
     //  add the object information to the temp table field list
@@ -273,82 +275,134 @@ public class MVBatch extends MVUtil {
       "    object_cat          VARCHAR(128),\n";
 
 
-    //  build the MODE single object stat tables
-    listQuery.add("DROP  TABLE IF EXISTS mode_single;");
-    listQuery.add(
-      "CREATE TEMPORARY TABLE mode_single\n" +
-        "(\n" +
-        strTempListMode +
-        "    centroid_x          DOUBLE,\n" +
-        "    centroid_y          DOUBLE,\n" +
-        "    centroid_lat        DOUBLE,\n" +
-        "    centroid_lon        DOUBLE,\n" +
-        "    axis_avg            DOUBLE,\n" +
-        "    length              DOUBLE,\n" +
-        "    width               DOUBLE,\n" +
-        "    area                INT ,\n" +
-        "    area_filter         INT ,\n" +
-        "    area_thresh         INT ,\n" +
-        "    curvature           DOUBLE,\n" +
-        "    curvature_x         DOUBLE,\n" +
-        "    curvature_y         DOUBLE,\n" +
-        "    complexity          DOUBLE,\n" +
-        "    intensity_10        DOUBLE,\n" +
-        "    intensity_25        DOUBLE,\n" +
-        "    intensity_50        DOUBLE,\n" +
-        "    intensity_75        DOUBLE,\n" +
-        "    intensity_90        DOUBLE,\n" +
-        "    intensity_nn        DOUBLE,\n" +
-        "    intensity_sum       DOUBLE,\n" +
-        "    total               INT ,\n" +
-        "    fcst_flag           BOOLEAN,\n" +
-        "    simple_flag         BOOLEAN,\n" +
-        "    matched_flag        BOOLEAN,\n" +
-        "    INDEX (fcst_valid),\n" +
-        "    INDEX (object_id),\n" +
-        "    INDEX (object_cat)\n" +
-        ");");
+    if (_tableModePairStatField.containsKey(listStatComp[0])) {
 
-    //  insert information from mode_obj_single into the temp tables with header data
-    listQuery.add(
-      "INSERT INTO mode_single\n" +
-        "SELECT\n" + strSelectList + ",\n" +
-        "  mos.object_id,\n" +
-        "  mos.object_cat,\n" +
-        "  mos.centroid_x,\n" +
-        "  mos.centroid_y,\n" +
-        "  mos.centroid_lat,\n" +
-        "  mos.centroid_lon,\n" +
-        "  mos.axis_avg,\n" +
-        "  mos.length,\n" +
-        "  mos.width,\n" +
-        "  mos.area,\n" +
-        "  mos.area_filter,\n" +
-        "  mos.area_thresh,\n" +
-        "  mos.curvature,\n" +
-        "  mos.curvature_x,\n" +
-        "  mos.curvature_y,\n" +
-        "  mos.complexity,\n" +
-        "  mos.intensity_10,\n" +
-        "  mos.intensity_25,\n" +
-        "  mos.intensity_50,\n" +
-        "  mos.intensity_75,\n" +
-        "  mos.intensity_90,\n" +
-        "  mos.intensity_nn,\n" +
-        "  mos.intensity_sum,\n" +
-        "  mc.total,\n" +
-        "  IF(mos.object_id REGEXP '^C?F[[:digit:]]{3}$', 1, 0) fcst_flag,\n" +
-        "  IF(mos.object_id REGEXP '^[FO][[:digit:]]{3}$', 1, 0) simple_flag,\n" +
-        "  IF(mos.object_cat REGEXP '^C[FO]000$', 0, 1) matched_flag\n" +
-        "FROM\n" +
-        "  mode_header h,\n" +
-        "  mode_obj_single mos,\n" +
-        "  mode_cts mc\n" +
-        "WHERE\n" + strWhere +
-        "  AND mos.mode_header_id = h.mode_header_id\n" +
-        "  AND mc.mode_header_id = mos.mode_header_id\n" +
-        "  AND mc.field = 'OBJECT';");
+      listQuery.add("DROP  TABLE IF EXISTS mode_pair;");
+      listQuery.add(
+        "CREATE TEMPORARY TABLE mode_pair\n" +
+          "(\n" +
+          strTempListMode +
+          "    centroid_dist       DOUBLE,\n" +
+          "    boundary_dist       DOUBLE,\n" +
+          "    convex_hull_dist    DOUBLE,\n" +
+          "    angle_diff          DOUBLE,\n" +
+          "    area_ratio          DOUBLE,\n" +
+          "    intersection_area   INT ,\n" +
+          "    union_area          INT ,\n" +
+          "    symmetric_diff      INTEGER,\n" +
+          "    intersection_over_area DOUBLE,\n" +
+          "    complexity_ratio    DOUBLE,\n" +
+          "    percentile_intensity_ratio DOUBLE,\n" +
+          "    interest            DOUBLE,\n" +
+          "    simple_flag         BOOLEAN,\n" +
+          "    matched_flag        BOOLEAN,\n" +
+          "    INDEX (fcst_valid),\n" +
+          "    INDEX (object_id),\n" +
+          "    INDEX (object_cat)\n" +
+          ");");
 
+      listQuery.add(
+        "INSERT INTO mode_pair\n" +
+          "SELECT\n" + strSelectList + ",\n" +
+          "  mop.object_id,\n" +
+          "  mop.object_cat,\n" +
+          "  mop.centroid_dist,\n" +
+          "  mop.boundary_dist,\n" +
+          "  mop.convex_hull_dist,\n" +
+          "  mop.angle_diff,\n" +
+          "  mop.area_ratio,\n" +
+          "  mop.intersection_area,\n" +
+          "  mop.union_area,\n" +
+          "  mop.symmetric_diff,\n" +
+          "  mop.intersection_over_area,\n" +
+          "  mop.complexity_ratio,\n" +
+          "  mop.percentile_intensity_ratio,\n" +
+          "  mop.interest,\n" +
+          "  IF(mop.object_id REGEXP '^F[[:digit:]]{3}_O[[:digit:]]{3}$', 1, 0) simple_flag,\n" +
+          //"  IF(mop.interest >= 0.7, 1, 0) matched_flag\n" +
+          "  IF(mop.interest >= 0, 1, 0) matched_flag\n" +
+          "FROM\n" +
+          "  mode_header h,\n" +
+          "  mode_obj_pair mop\n" +
+          "WHERE\n" + strWhere +
+          "  AND mop.mode_header_id = h.mode_header_id;");
+    } else {
+      //  build the MODE single object stat tables
+      listQuery.add("DROP  TABLE IF EXISTS mode_single;");
+      listQuery.add(
+        "CREATE TEMPORARY TABLE mode_single\n" +
+          "(\n" +
+          strTempListMode +
+          "    centroid_x          DOUBLE,\n" +
+          "    centroid_y          DOUBLE,\n" +
+          "    centroid_lat        DOUBLE,\n" +
+          "    centroid_lon        DOUBLE,\n" +
+          "    axis_avg            DOUBLE,\n" +
+          "    length              DOUBLE,\n" +
+          "    width               DOUBLE,\n" +
+          "    area                INT ,\n" +
+          "    area_filter         INT ,\n" +
+          "    area_thresh         INT ,\n" +
+          "    curvature           DOUBLE,\n" +
+          "    curvature_x         DOUBLE,\n" +
+          "    curvature_y         DOUBLE,\n" +
+          "    complexity          DOUBLE,\n" +
+          "    intensity_10        DOUBLE,\n" +
+          "    intensity_25        DOUBLE,\n" +
+          "    intensity_50        DOUBLE,\n" +
+          "    intensity_75        DOUBLE,\n" +
+          "    intensity_90        DOUBLE,\n" +
+          "    intensity_nn        DOUBLE,\n" +
+          "    intensity_sum       DOUBLE,\n" +
+          "    total               INT ,\n" +
+          "    fcst_flag           BOOLEAN,\n" +
+          "    simple_flag         BOOLEAN,\n" +
+          "    matched_flag        BOOLEAN,\n" +
+          "    INDEX (fcst_valid),\n" +
+          "    INDEX (object_id),\n" +
+          "    INDEX (object_cat)\n" +
+          ");");
+
+      //  insert information from mode_obj_single into the temp tables with header data
+      listQuery.add(
+        "INSERT INTO mode_single\n" +
+          "SELECT\n" + strSelectList + ",\n" +
+          "  mos.object_id,\n" +
+          "  mos.object_cat,\n" +
+          "  mos.centroid_x,\n" +
+          "  mos.centroid_y,\n" +
+          "  mos.centroid_lat,\n" +
+          "  mos.centroid_lon,\n" +
+          "  mos.axis_avg,\n" +
+          "  mos.length,\n" +
+          "  mos.width,\n" +
+          "  mos.area,\n" +
+          "  mos.area_filter,\n" +
+          "  mos.area_thresh,\n" +
+          "  mos.curvature,\n" +
+          "  mos.curvature_x,\n" +
+          "  mos.curvature_y,\n" +
+          "  mos.complexity,\n" +
+          "  mos.intensity_10,\n" +
+          "  mos.intensity_25,\n" +
+          "  mos.intensity_50,\n" +
+          "  mos.intensity_75,\n" +
+          "  mos.intensity_90,\n" +
+          "  mos.intensity_nn,\n" +
+          "  mos.intensity_sum,\n" +
+          "  mc.total,\n" +
+          "  IF(mos.object_id REGEXP '^C?F[[:digit:]]{3}$', 1, 0) fcst_flag,\n" +
+          "  IF(mos.object_id REGEXP '^[FO][[:digit:]]{3}$', 1, 0) simple_flag,\n" +
+          "  IF(mos.object_cat REGEXP '^C[FO]000$', 0, 1) matched_flag\n" +
+          "FROM\n" +
+          "  mode_header h,\n" +
+          "  mode_obj_single mos,\n" +
+          "  mode_cts mc\n" +
+          "WHERE\n" + strWhere +
+          "  AND mos.mode_header_id = h.mode_header_id\n" +
+          "  AND mc.mode_header_id = mos.mode_header_id\n" +
+          "  AND mc.field = 'OBJECT';");
+    }
 
     return listQuery;
   }
@@ -410,6 +464,8 @@ public class MVBatch extends MVUtil {
         listQuery.add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat));
       }
     } else if (_tableModePairStatField.containsKey(listStatComp[0])) {
+
+
       if (listStatComp[0].equals("MAXINT")) {
         String[] listMaxintQueries = {
           buildModePairStatTable(strSelectList, strWhere, "MAXINTF_" + listStatComp[1]),
@@ -671,8 +727,8 @@ public class MVBatch extends MVUtil {
 
     //  build the query
     return
-     // "INSERT INTO plot_data\n" +
-        "SELECT\n" + strSelectListStat + ",\n" +
+      // "INSERT INTO plot_data\n" +
+      "SELECT\n" + strSelectListStat + ",\n" +
         "  " + strObjectId + ",\n" +
         "  object_cat,\n" +
         "  '" + stat + "' stat_name,\n" +
@@ -701,7 +757,7 @@ public class MVBatch extends MVUtil {
     //  build the where clause using the input select fields
     Matcher mat = _patModeSingle.matcher(strSelectList);
     while (mat.find()) {
-      if(!mat.group(1).contains("NULL") && !mat.group(1).contains("FROM") && !mat.group(1).contains("WHERE") ) {
+      if (!mat.group(1).contains("NULL") && !mat.group(1).contains("FROM") && !mat.group(1).contains("WHERE")) {
         strWhere += "\n  AND s." + mat.group(1) + " = s2." + mat.group(1);
       }
     }
@@ -729,7 +785,7 @@ public class MVBatch extends MVUtil {
 
     //  build the query COUNT(object_id)
     String result =
-        "SELECT\n" +  strSelectListStat + ",\n" +
+      "SELECT\n" + strSelectListStat + ",\n" +
         "  s.object_id,\n" +
         "  s.object_cat,\n" +
         "  '" + stat + "' stat_name,\n" +
@@ -740,7 +796,7 @@ public class MVBatch extends MVUtil {
         "  AND s.fcst_flag = 1\n" +
         "  AND s2.fcst_flag = 0\n" +
         "  AND RIGHT(s.object_id, 3) = RIGHT(s2.object_id, 3)\n";
-    if ( !strTableStat.contains("object_id")) {
+    if (!strTableStat.contains("object_id")) {
       result = result + "  AND " + strTableStats[0] + " != -9999 AND " + strTableStats[1] + " != -9999;";
     }
     return result;
@@ -790,7 +846,7 @@ public class MVBatch extends MVUtil {
 
     //  build the query
     return
-        "SELECT\n" + strSelectListStat + ",\n" +
+      "SELECT\n" + strSelectListStat + ",\n" +
         "  object_id,\n" +
         "  object_cat,\n" +
         "  '" + stat + "' stat_name,\n" +
@@ -812,7 +868,7 @@ public class MVBatch extends MVUtil {
 
 
     return
-        "SELECT\n" + strSelectListStat + ",\n" +
+      "SELECT\n" + strSelectListStat + ",\n" +
         "  object_id,\n" +
         "  object_cat,\n" +
         "  area,\n" +
@@ -831,7 +887,7 @@ public class MVBatch extends MVUtil {
 
 
     return
-        "SELECT\n" + strSelectListStat + ",\n" +
+      "SELECT\n" + strSelectListStat + ",\n" +
         "  total\n" +
         "FROM mode_single\n" +
         "WHERE\n" + strWhere + ";";
@@ -859,7 +915,7 @@ public class MVBatch extends MVUtil {
 
     //  build the query
     return
-        "SELECT\n" + strSelectListStat + ",\n" +
+      "SELECT\n" + strSelectListStat + ",\n" +
         "  '' object_id,\n" +
         "  '' object_cat,\n" +
         "  '" + stat + "' stat_name,\n" +
@@ -900,7 +956,7 @@ public class MVBatch extends MVUtil {
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 ||boolAggNbrCnt || boolAggSsvar;
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar;
 
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
@@ -1026,7 +1082,7 @@ public class MVBatch extends MVUtil {
         Statement stmt;
         List<String> eventEqualizeSql = buildPlotModeEventEqualizeSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
 
-        for (int i = 0; i < eventEqualizeSql.size()-1; i++) {
+        for (int i = 0; i < eventEqualizeSql.size() - 1; i++) {
           if (_boolVerbose) {
             _out.println(eventEqualizeSql.get(i) + "\n");
           }
@@ -1044,12 +1100,12 @@ public class MVBatch extends MVUtil {
         if (!_boolSQLOnly) {
           //  get the number of rows in the job data set
           stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-          stmt.execute(eventEqualizeSql.get(eventEqualizeSql.size()-1));
+          stmt.execute(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
           String strDataFileEe = _strDataFolder + "/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
           try (ResultSet rs = stmt.getResultSet();
                FileWriter fstream = new FileWriter(new File(strDataFileEe + "_ee_input"));
                BufferedWriter out = new BufferedWriter(fstream)) {
-            printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() );
+            printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
           } finally {
             stmt.close();
           }
@@ -1072,14 +1128,12 @@ public class MVBatch extends MVUtil {
 			 */
 
 
-
-
       //  run the plot SQL against the database connection
       long intStartTime = (new java.util.Date()).getTime();
       Statement stmt;
-    //  ResultSet res;
+      //  ResultSet res;
       String[] listSQL = toArray(listQuery);
-      for (int i = 0; i < listSQL.length -1; i++) {
+      for (int i = 0; i < listSQL.length - 1; i++) {
         if (_boolVerbose) {
           _out.println(listSQL[i] + "\n");
         }
@@ -1139,16 +1193,16 @@ public class MVBatch extends MVUtil {
 
       //  get the plot data from the plot_data temp table and write it to a data file
       stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-      String strPlotDataSelect = listSQL[listSQL.length-1];
+      String strPlotDataSelect = listSQL[listSQL.length - 1];
 
       if (_boolVerbose) {
         _out.println(strPlotDataSelect);
       }
       stmt.execute(strPlotDataSelect);
-      _out.println("Query returned  plot_data rows in " +formatTimeSpan((new java.util.Date()).getTime() - intStartTime));
+      _out.println("Query returned  plot_data rows in " + formatTimeSpan((new java.util.Date()).getTime() - intStartTime));
 
       try (ResultSet rs = stmt.getResultSet(); FileWriter fstream = new FileWriter(new File(strDataFile)); BufferedWriter out = new BufferedWriter(fstream)) {
-        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() );
+        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
       } catch (Exception e) {
         System.out.println(e.getMessage());
       } finally {
@@ -1515,7 +1569,7 @@ public class MVBatch extends MVUtil {
     boolean boolCalcSl1l2 = job.getCalcSl1l2();
     boolean boolCalcSal1l2 = job.getCalcSal1l2();
     boolean boolCalcStat;
-    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 ||boolCalcSal1l2;
+    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2;
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -1592,10 +1646,10 @@ public class MVBatch extends MVUtil {
           strTempList += ",\n    fcst_valid_beg      " + dbTimeType;
         }
       }
-      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere,false).invoke();
+      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere, false).invoke();
       strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
       //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-      if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour") ) {
+      if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour")) {
         if (boolModePlot) {
           strSelectPlotList += ",\n  h.fcst_init";
         } else {
@@ -1661,7 +1715,7 @@ public class MVBatch extends MVUtil {
 
 
 			/*
-			 *  Construct the query components for the independent variable and values
+       *  Construct the query components for the independent variable and values
 			 */
 
       //  validate and get the type and values for the independent variable
@@ -1743,15 +1797,15 @@ public class MVBatch extends MVUtil {
 			 */
 
       String strTempSQLCur = "";
-      if (boolModePlot) {
+     /* if (boolModePlot) {
 
         //  the single and pair temp tables only need to be built once
         if (1 == intY) {
-          listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere));
+          listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, boolModeRatioPlot));
         }
 
 
-      }
+      }*/
 
 
 			/*
@@ -1804,8 +1858,8 @@ public class MVBatch extends MVUtil {
             if (boolCalcCtc || boolAggCtc) {
               aggType = MVUtil.CTC;
             } else if (boolCalcSl1l2 || boolAggSl1l2) {
-              aggType = MVUtil.SL1L2;}
-            else if (boolCalcSal1l2 || boolAggSal1l2) {
+              aggType = MVUtil.SL1L2;
+            } else if (boolCalcSal1l2 || boolAggSal1l2) {
               aggType = MVUtil.SAL1L2;
             } else if (boolAggNbrCnt) {
               aggType = MVUtil.NBR_CNT;
@@ -1904,7 +1958,10 @@ public class MVBatch extends MVUtil {
 
         //  build the SQL for the current fcst_var and stat
         if (boolModePlot) {
-
+          //  the single and pair temp tables only need to be built once
+          if (1 == intY) {
+            listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, boolModeRatioPlot, strStat));
+          }
           //  build the mode SQL
           String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
           listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy));
@@ -1923,11 +1980,11 @@ public class MVBatch extends MVUtil {
           //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
           if (boolAggCtc) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
-          } else if (boolAggSl1l2 ) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";}
-          else if (boolAggSsvar) {
+          } else if (boolAggSl1l2) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
+          } else if (boolAggSsvar) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  ld.var_mean, \n  ld.bin_n";
-          } else if ( boolAggSal1l2) {
+          } else if (boolAggSal1l2) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
           } else if (boolAggPct) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
@@ -2114,23 +2171,23 @@ public class MVBatch extends MVUtil {
         strSelectList += ",\n  h.fcst_valid";
         strTempList += ",\n    fcst_valid          " + dbTimeType;
       }
-      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere,false).invoke();
-           strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
-           //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-           if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour") ) {
-             if (boolModePlot) {
-               strSelectPlotList += ",\n  h.fcst_init";
-             } else {
-               strSelectPlotList += ",\n " + " ld.fcst_init_beg";
-             }
-           }
-           if (!strSelectPlotList.contains("fcst_valid")) {
-             if (boolModePlot) {
-               strSelectPlotList += ",\n  h.fcst_valid";
-             } else {
-               strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
-             }
-           }
+      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere, false).invoke();
+      strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
+      //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+      if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour")) {
+        if (boolModePlot) {
+          strSelectPlotList += ",\n  h.fcst_init";
+        } else {
+          strSelectPlotList += ",\n " + " ld.fcst_init_beg";
+        }
+      }
+      if (!strSelectPlotList.contains("fcst_valid")) {
+        if (boolModePlot) {
+          strSelectPlotList += ",\n  h.fcst_valid";
+        } else {
+          strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
+        }
+      }
 
       if (!strSelectList.contains("fcst_lead")) {
         if (job.getEventEqual()) {
@@ -2269,7 +2326,6 @@ public class MVBatch extends MVUtil {
       throw new Exception("aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
     }
   }
-
 
 
   /**
@@ -2455,7 +2511,7 @@ public class MVBatch extends MVUtil {
       stmt.execute(strPlotDataSelect);
 
       try (ResultSet rs = stmt.getResultSet(); FileWriter fstream = new FileWriter(new File(strDataFile)); BufferedWriter out = new BufferedWriter(fstream)) {
-        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() );
+        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
       } catch (Exception e) {
         System.out.println(e.getMessage());
       } finally {
@@ -2694,7 +2750,7 @@ public class MVBatch extends MVUtil {
            FileWriter fstream = new FileWriter(new File(strDataFile));
            BufferedWriter out = new BufferedWriter(fstream);) {
 
-        printFormattedTable(rs, out, "\t",job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() );
+        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
       } finally {
 
         stmt.close();
@@ -2892,7 +2948,7 @@ public class MVBatch extends MVUtil {
           while (res.next()) {
             listFcstThresh.add(res.getString(1));
           }
-        }finally {
+        } finally {
           stmt.close();
           res.close();
         }
@@ -3027,7 +3083,7 @@ public class MVBatch extends MVUtil {
 
       try (ResultSet rs = stmt.getResultSet(); FileWriter fstream = new FileWriter(new File(strDataFile)); BufferedWriter out = new BufferedWriter(fstream)) {
 
-        printFormattedTable(rs, out, "\t",job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() );
+        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
       } finally {
 
         stmt.close();
@@ -3258,13 +3314,14 @@ public class MVBatch extends MVUtil {
       this.listSeries = listSeries;
       this.strWhere = strWhere;
     }
+
     public BuildQueryStrings(boolean boolModePlot, Hashtable tableHeaderSQLType, Map.Entry[] listSeries, String strWhere, boolean isFormatSelect) {
-          this.boolModePlot = boolModePlot;
-          this.tableHeaderSQLType = tableHeaderSQLType;
-          this.listSeries = listSeries;
-          this.strWhere = strWhere;
+      this.boolModePlot = boolModePlot;
+      this.tableHeaderSQLType = tableHeaderSQLType;
+      this.listSeries = listSeries;
+      this.strWhere = strWhere;
       this.isFormatSelect = isFormatSelect;
-        }
+    }
 
     public String getStrSelectList() {
       return strSelectList;
@@ -3294,16 +3351,16 @@ public class MVBatch extends MVUtil {
 
         //  build the select list element, where clause and temp table list element
         if (strSelectList.equals("")) {
-          if(isFormatSelect) {
+          if (isFormatSelect) {
             strSelectList += "" + "  " + formatField(strSeriesField, boolModePlot, true);
-          }else {
+          } else {
             strSelectList += "" + "  " + strSeriesField;
           }
         } else {
-          if(isFormatSelect) {
+          if (isFormatSelect) {
             strSelectList += ",\n" + "  " + formatField(strSeriesField, boolModePlot, true);
-          }else {
-            strSelectList += ",\n" + "  " +strSeriesField;
+          } else {
+            strSelectList += ",\n" + "  " + strSeriesField;
           }
         }
         strWhere += (strWhere.equals("") ? "  " : "  AND ") + formatField(strSeriesField, boolModePlot, false) +
