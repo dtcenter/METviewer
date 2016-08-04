@@ -473,11 +473,12 @@ booter.iid = function(d, i){
       indPerm2=0;
       derivedCurveName = getDerivedCurveName(diffSeriesVec);
       for(intPerm in 1:nrow(matPerm)){
-        strPerm = escapeStr(paste(matPerm[[intPerm]], sep="_", collapse="_"));
-        if(strSeriesDiff1Short == strPerm){
+        d1 = listSeriesDiff1Short %in% matPerm[intPerm,];
+        d2 = listSeriesDiff2Short %in% matPerm[intPerm,];
+        if( all(d1) ){
           indPerm1=intPerm;
         }
-        if(strSeriesDiff2Short == strPerm){
+        if( all(d2) ){
           indPerm2=intPerm;
         }
       }
