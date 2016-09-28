@@ -1,16 +1,16 @@
 body, html {
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 body { 
 	background-color: #ffffff; 
 	color: #222266;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 12px;
 }
 h1 {
 	color: #002866;
-	font-family: courier;
+	font-family: courier, serif;
 	font-size: 32px;
 	font-style: italic;
 	font-weight: bold;
@@ -18,7 +18,7 @@ h1 {
 }		
 h2 {
 	color: #002866;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 20px;
 	font-weight: normal;
 	padding-left: 10px;
@@ -33,9 +33,7 @@ p {
 }
 a {
 	color: #0066ff;
-	/* font-family: courier; */
 	font-size: 12px;
-	/* font-weight: bold; */
 	text-decoration: none;
 }
 a.loc { color: #0066ff; font-size: 10px; }
@@ -43,16 +41,17 @@ a.toc { color: #0066ff; font-size: 14px; font-weight: bold; }
 
 b {
 	color: #7f7f7f;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 11px;
 	font-weight: bold;
 }
 b.tag  { color: #0066ff; }
+
 b.inst { color: #0066ff; font-size: 14px; }
 
 li {
-	list-style-position: inside;
-	list-style-type: circle;
+	list-style: circle inside;
+	padding-top: 5px;
 }
 li.inst     { list-style-type: decimal;     }
 li.inst_sub { list-style-type: lower-alpha; }
@@ -63,34 +62,34 @@ th {
 td {
 	background-color: #ffffff; 
 	color: #222266;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 11px;
 }
 td.header {
 	color: #002866;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 12px;
 	font-weight: bold;
 }
 .code {
 	color: #0066ff;
-	font-family: courier;
+	font-family: courier, serif;
 	font-size: 14px;
 	font-weight: bold;
 }
 .term {
 	color: #7f7f7f;
-	font-family: courier;
+	font-family: courier, serif;
 	font-size: 14px;
 	font-weight: bold;
 }
 .loc {
 	color: #7f7f7f;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 10px;
 }
 .opt {
 	color: #ddbb00;
-	font-family: verdana;
+	font-family: verdana, serif;
 	font-size: 10px;
 }
