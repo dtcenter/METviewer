@@ -37,12 +37,8 @@ public class AllTestRunner {
     List<Failure> failureListTestMVServlet = result.getFailures();
 
 
-    //result = JUnitCore.runClasses(CreatePlotServletTest.class);
-    //List<Failure> failureCreatePlotServletTest = result.getFailures();
-
     System.out.println("*************************************************");
     if (failureListLoadDataTest != null) {
-
 
       for (Failure failure : failureListLoadDataTest) {
         System.out.println(failure.toString());
@@ -74,14 +70,7 @@ public class AllTestRunner {
     }
     System.out.println("*************************************************");
     System.out.println();
-   /* System.out.println("*************************************************");
-    for (Failure failure : failureCreatePlotServletTest) {
-      System.out.println(failure.toString());
-    }
-    if (failureCreatePlotServletTest.size() == 0) {
-      System.out.println("***** Create Plot Servlet tests finished successfully... *****");
-    }
-    System.out.println("*************************************************");*/
+
   }
 
 }
