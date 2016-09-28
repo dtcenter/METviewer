@@ -54,7 +54,7 @@ public class CreatePlotServletTest {
   @Parameterized.Parameters
   public static Collection<String[]> data() throws Exception {
     //get all dir names - excludes load
-    testDataDir = rootDir + FILE_SEPARATOR + "plots_web";
+    testDataDir = ROOT_DIR + FILE_SEPARATOR + "plots_web";
     File file = new File(testDataDir);
     String[] directories = file.list(DIRECTORY_FILTER);
     Collection<String[]> plots = new ArrayList<>();
@@ -70,7 +70,6 @@ public class CreatePlotServletTest {
 
   @Before
   public void prepareRequest() {
-    cleanWorkingDirs();
     File requestFile = new File(testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + "request.xml");
     xmlStr = readFileToString(requestFile);
   }
@@ -95,14 +94,14 @@ public class CreatePlotServletTest {
       when(request.getReader()).thenReturn(bufferedReader);
       when(request.getSession()).thenReturn(httpSession);
       when(response.getWriter()).thenReturn(printWriter);
-      MVServlet._strPlotXML = plotsDir;
-      MVServlet._strRTmpl = templateDir;
-      MVServlet._strRWork = rworkDir;
-      MVServlet._strPlots = plotsDir;
+      MVServlet._strPlotXML = PLOTS_DIR;
+      MVServlet._strRTmpl = TEMPLATE_DIR;
+      MVServlet._strRWork = RWORK_DIR;
+      MVServlet._strPlots = PLOTS_DIR;
       MVServlet._strRscript = rscript;
       MVServlet._strDBHost = host;
-      MVServlet._strDBUser = username;
-      MVServlet._strDBPassword = pwd;
+      MVServlet._strDBUser = USERNAME;
+      MVServlet._strDBPassword = PWD;
       MVServlet._boolListValCache = true;
       MVServlet._boolListStatCache = true;
 
@@ -131,19 +130,15 @@ public class CreatePlotServletTest {
       }
     }
 
-    compareDataFilesWithoutNames(testDataDir, plotType);
     comparePlotFilesWithoutNames(testDataDir, plotType);
     comparePointsFilesWithoutNames(testDataDir, "1", plotType);
     comparePointsFilesWithoutNames(testDataDir, "2", plotType);
-    compareAggStatInfoFilesWithoutNames(testDataDir, plotType);
-    compareDataAggStatWithoutNames(testDataDir, plotType);
-    compareSqlFilesWithoutNames(testDataDir, plotType);
 
   }
 
   @After
   public void cleanup() {
-    cleanWorkingDirs();
+    //cleanWorkingDirs();
   }
 
 }

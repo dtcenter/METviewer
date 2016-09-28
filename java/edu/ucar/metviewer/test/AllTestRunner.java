@@ -11,6 +11,8 @@ import org.junit.runner.notification.Failure;
 
 import java.util.List;
 
+import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 11/Jul/14 13:54 $
@@ -18,6 +20,7 @@ import java.util.List;
 public class AllTestRunner {
 
   public static void main(String[] args) {
+    cleanWorkingDirs();
     Result result;
     List<Failure> failureListLoadDataTest = null;
     if (args.length > 0 && args[0].equals("all")) {
@@ -34,8 +37,8 @@ public class AllTestRunner {
     List<Failure> failureListTestMVServlet = result.getFailures();
 
 
-    result = JUnitCore.runClasses(CreatePlotServletTest.class);
-    List<Failure> failureCreatePlotServletTest = result.getFailures();
+    //result = JUnitCore.runClasses(CreatePlotServletTest.class);
+    //List<Failure> failureCreatePlotServletTest = result.getFailures();
 
     System.out.println("*************************************************");
     if (failureListLoadDataTest != null) {
@@ -71,14 +74,14 @@ public class AllTestRunner {
     }
     System.out.println("*************************************************");
     System.out.println();
-    System.out.println("*************************************************");
+   /* System.out.println("*************************************************");
     for (Failure failure : failureCreatePlotServletTest) {
       System.out.println(failure.toString());
     }
     if (failureCreatePlotServletTest.size() == 0) {
       System.out.println("***** Create Plot Servlet tests finished successfully... *****");
     }
-    System.out.println("*************************************************");
+    System.out.println("*************************************************");*/
   }
 
 }

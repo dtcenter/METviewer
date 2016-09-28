@@ -42,7 +42,7 @@ public class CreatePlotBatchTest {
    */
   @Parameterized.Parameters
   public static Collection<String[]> data() throws Exception {
-    testDataDir = rootDir + FILE_SEPARATOR + "plots_batch";
+    testDataDir = ROOT_DIR + FILE_SEPARATOR + "plots_batch";
 
     File file = new File(testDataDir);
     if (!file.exists()) {
@@ -61,26 +61,24 @@ public class CreatePlotBatchTest {
 
   @Before
   public void runScript() {
-    cleanWorkingDirs();
     runBatch(testDataDir, plotType);
   }
 
   @Test
   public void compareOutputFiles() {
-    compareDataFilesWithNames(testDataDir, plotType);
+    if(!"ens_ss".equals(plotType)) {
+      comparePointsFilesWithNames(testDataDir, "1", plotType);
+      comparePointsFilesWithNames(testDataDir, "2", plotType);
+    }
     comparePlotFilesWithNames(testDataDir, plotType);
-    comparePointsFilesWithNames(testDataDir, "1", plotType);
-    comparePointsFilesWithNames(testDataDir, "2", plotType);
-    compareAggStatInfoFilesWithNames(testDataDir, plotType);
-    compareDataAggStatWithNames(testDataDir, plotType);
-    //compareRscriptFilesWithNames(testDataDir,plotType);
+
 
   }
 
 
   @After
   public void cleanup() {
-    cleanWorkingDirs();
+    //cleanWorkingDirs();
   }
 
 }

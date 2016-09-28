@@ -8,16 +8,18 @@ package edu.ucar.metviewer.test.util;
 import edu.ucar.metviewer.MVBatch;
 import org.apache.commons.io.FileUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.System.out;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -26,16 +28,16 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestUtil {
 
-  public final static String FILE_SEPARATOR;
+  public static final String FILE_SEPARATOR;
   private static final Comparator<File> FILE_NAME_COMPARATOR = new Comparator<File>() {
     @Override
     public int compare(File o1, File o2) {
       return o1.getName().compareTo(o2.getName());
     }
   };
-  public static String rootDir;
-  public static String rworkDir;
-  public static String plotsDir;
+  public static final String ROOT_DIR;
+  public static final String RWORK_DIR;
+  public static final String PLOTS_DIR;
   private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
     @Override
     public String getFileExtension() {
@@ -44,7 +46,7 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return plotsDir;
+      return PLOTS_DIR;
     }
   };
   private static final CustomFilenameFilter XML_FILES_FILTER = new CustomFilenameFilter() {
@@ -55,7 +57,7 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return plotsDir;
+      return PLOTS_DIR;
     }
   };
   public static final FilenameFilter DIRECTORY_FILTER = new FilenameFilter() {
@@ -73,10 +75,10 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return plotsDir;
+      return PLOTS_DIR;
     }
   };
-  public static String dataDir;
+  public static final String DATA_DIR;
   private static final CustomFilenameFilter DATA_FILES_FILTER = new CustomFilenameFilter() {
     @Override
     public String getFileExtension() {
@@ -85,7 +87,7 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return dataDir;
+      return DATA_DIR;
     }
   };
   private static final CustomFilenameFilter POINTS1_FILES_FILTER = new CustomFilenameFilter() {
@@ -96,7 +98,7 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return dataDir;
+      return DATA_DIR;
     }
   };
   private static final CustomFilenameFilter POINTS2_FILES_FILTER = new CustomFilenameFilter() {
@@ -107,7 +109,7 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return dataDir;
+      return DATA_DIR;
     }
   };
   private static final CustomFilenameFilter DATA_AGG_STAT_FILES_FILTER = new CustomFilenameFilter() {
@@ -118,7 +120,7 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return dataDir;
+      return DATA_DIR;
     }
   };
   private static final CustomFilenameFilter AGG_STAT_INFO_FILES_FILTER = new CustomFilenameFilter() {
@@ -129,11 +131,11 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return dataDir;
+      return DATA_DIR;
     }
 
   };
-  public static String scriptsDir;
+  public static final String SCRIPTS_DIR;
   private static final CustomFilenameFilter RSCRIPT_FILES_FILTER = new CustomFilenameFilter() {
     @Override
     public String getFileExtension() {
@@ -142,16 +144,16 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return scriptsDir;
+      return SCRIPTS_DIR;
     }
   };
-  public static String loadDir;
-  public static String database;
-  public static String username;
-  public static String pwd;
-  public static String host;
-  public static String rscript;
-  public static String templateDir;
+  public static final String LOAD_DIR;
+  public static  final String DATABASE;
+  public static  final String USERNAME;
+  public static  final String PWD;
+  public static  final String host;
+  public static final  String rscript;
+  public static  final String TEMPLATE_DIR;
   public static boolean list = false;
   public static boolean verbose = false;
   public static boolean sql = false;
@@ -160,25 +162,30 @@ public class TestUtil {
   public static String driver = null;
 
   static {
-    rootDir = "/d3/projects/METViewer/test_data";
+    ROOT_DIR = "/d3/projects/METViewer/test_data";
     FILE_SEPARATOR = System.getProperty("file.separator");
-    rworkDir = rootDir + FILE_SEPARATOR + "R_work";
-    plotsDir = rworkDir + FILE_SEPARATOR + "plots";
-    dataDir = rworkDir + FILE_SEPARATOR + "data";
-    scriptsDir = rworkDir + FILE_SEPARATOR + "scripts";
-    loadDir = rootDir + FILE_SEPARATOR + "load_data";
-    database = "mv_test";
-    username = "mvuser";
-    pwd = "mvuser";
+
+    RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
+    PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
+    DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
+    SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
+    LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
+    DATABASE = "mv_test";
+    USERNAME = "mvuser";
+    PWD = "mvuser";
     host = "dakota.rap.ucar.edu:3306";
     rscript = "Rscript";
-    templateDir = rootDir + FILE_SEPARATOR + "R_tmpl/";
+    TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
     list = false;
-    verbose = false;
+    verbose = true;
     sql = false;
     job_name = null;
     type = "mysql";
     driver = "com.mysql.jdbc.Driver";
+  }
+
+  private TestUtil() {
+    throw new IllegalAccessError("Utility class");
   }
 
   public static void runBatch(String testDataDir, String plotType) {
@@ -206,15 +213,18 @@ public class TestUtil {
 
 
   public static void cleanWorkingDirs() {
-   try {
-      File testDir = new File(plotsDir);
-      FileUtils.cleanDirectory(testDir);
-      testDir = new File(dataDir);
-      FileUtils.cleanDirectory(testDir);
-      testDir = new File(scriptsDir);
-      FileUtils.cleanDirectory(testDir);
-    } catch (IOException e) {
-      out.println(e.getMessage());
+    boolean doClean = true;
+    if (doClean) {
+      try {
+        File testDir = new File(PLOTS_DIR);
+        FileUtils.cleanDirectory(testDir);
+        testDir = new File(DATA_DIR);
+        FileUtils.cleanDirectory(testDir);
+        testDir = new File(SCRIPTS_DIR);
+        FileUtils.cleanDirectory(testDir);
+      } catch (IOException e) {
+        out.println(e.getMessage());
+      }
     }
   }
 
@@ -226,7 +236,7 @@ public class TestUtil {
       filenameFilter = POINTS2_FILES_FILTER;
     }
     if (filenameFilter != null) {
-      compareFiles(testDataDir, plotType, true, filenameFilter);
+      compareTextFiles(testDataDir, plotType, true, true, filenameFilter);
     }
   }
 
@@ -239,66 +249,22 @@ public class TestUtil {
       filenameFilter = POINTS2_FILES_FILTER;
     }
     if (filenameFilter != null) {
-      compareFiles(testDataDir, plotType, false, filenameFilter);
+      compareTextFiles(testDataDir, plotType, false, false, filenameFilter);
     }
 
   }
 
 
-  public static void compareDataFilesWithNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, true, DATA_FILES_FILTER);
-
-  }
-
-  public static void compareDataFilesWithoutNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, false, DATA_FILES_FILTER);
-
-  }
-
-
   public static void comparePlotFilesWithNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, true, PLOT_FILES_FILTER);
+    compareBinaryFiles(testDataDir, plotType, true, true, PLOT_FILES_FILTER);
 
   }
 
   public static void comparePlotFilesWithoutNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, false, PLOT_FILES_FILTER);
+    compareBinaryFiles(testDataDir, plotType, false, false, PLOT_FILES_FILTER);
 
   }
 
-
-  public static void compareRscriptFilesWithNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, true, RSCRIPT_FILES_FILTER);
-
-  }
-
-  public static void compareRscriptFilesWithoutNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, false, RSCRIPT_FILES_FILTER);
-
-  }
-
-
-  public static void compareSqlFilesWithoutNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, false, SQL_FILES_FILTER);
-
-  }
-
-
-  public static void compareAggStatInfoFilesWithoutNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, false, AGG_STAT_INFO_FILES_FILTER);
-  }
-
-  public static void compareAggStatInfoFilesWithNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, true, AGG_STAT_INFO_FILES_FILTER);
-  }
-
-  public static void compareDataAggStatWithNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, true, DATA_AGG_STAT_FILES_FILTER);
-  }
-
-  public static void compareDataAggStatWithoutNames(String testDataDir, String plotType) {
-    compareFiles(testDataDir, plotType, false, DATA_AGG_STAT_FILES_FILTER);
-  }
 
   /**
    * Compare the number of files, names (if requested) and contents
@@ -308,24 +274,21 @@ public class TestUtil {
    * @param isCompareNames - should the name comparison be executed
    * @param filter         - custom file filter to use
    */
-  private static void compareFiles(String testDataDir, String plotType, boolean isCompareNames, CustomFilenameFilter filter) {
+  private static void compareTextFiles(String testDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
     //get all test results datafiles
-    File[] actualFiles = new File(filter.getActualDir()).listFiles(filter);
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = dir.listFiles(filter);
-    assertEquals("Number of files for " + plotType + " " + filter.getFileExtension() + " must be identical", expectedFiles.length, actualFiles.length);
-    if (actualFiles.length > 0) {
-      Arrays.sort(actualFiles, FILE_NAME_COMPARATOR);
-      Arrays.sort(expectedFiles, FILE_NAME_COMPARATOR);
 
-      for (int i = 0; i < actualFiles.length; i++) {
-        if (isCompareNames) {
-          assertTrue("File names for " + plotType + " " + filter.getFileExtension() + " should be identical but they are not", expectedFiles[i].getName().equals(actualFiles[i].getName()));
-        }
+    for (int i = 0; i < expectedFiles.length; i++) {
+      File actualFile = new File(filter.getActualDir() + "/" + expectedFiles[i].getName());
+      if (isCompareNames) {
+
+        assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+      }
+      if (isCompareContent) {
         try {
-          // assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFiles[i].getName() + " must be identical but they are not", FileUtils.contentEquals(expectedFiles[i], actualFiles[i]));
-          assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFiles[i].getName() + " must be identical but they are not",
-            Files.lines(Paths.get(expectedFiles[i].getAbsolutePath())).count() == Files.lines(Paths.get(actualFiles[i].getAbsolutePath())).count()
+          assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be identical but they are not",
+            Files.lines(Paths.get(expectedFiles[i].getAbsolutePath())).count() == Files.lines(Paths.get(actualFile.getAbsolutePath())).count()
           );
         } catch (Exception e) {
           try {
@@ -335,15 +298,60 @@ public class TestUtil {
             out.println(ex);
           }
           try {
-            Files.lines(Paths.get(actualFiles[i].getAbsolutePath())).count();
+            Files.lines(Paths.get(actualFile.getAbsolutePath())).count();
           } catch (Exception ex) {
-            out.println("Error reading file " + actualFiles[i].getAbsolutePath());
+            out.println("Error reading file " + actualFile.getAbsolutePath());
             out.println(ex);
           }
 
         }
+
+        ArrayList<String> actualLines = new ArrayList<>();
+        ArrayList<String> expectedLines = new ArrayList<>();
+        try (Stream<String> stream = Files.lines(Paths.get(actualFile.getAbsolutePath()))) {
+          actualLines = stream.collect(Collectors.toCollection(ArrayList::new));
+        } catch (IOException e) {
+          out.println(e);
+        }
+        try (Stream<String> stream = Files.lines(Paths.get(expectedFiles[i].getAbsolutePath()))) {
+          expectedLines = stream.collect(Collectors.toCollection(ArrayList::new));
+        } catch (IOException e) {
+          out.println(e);
+        }
+        for (int j = 0; j < actualLines.size(); j++) {
+          assertTrue("Line " + expectedLines.get(j) + " from file " + actualFile.getAbsolutePath() + " is incorrect", actualLines.get(j).equals(expectedLines.get(j)));
+        }
       }
     }
+
+  }
+
+  private static void compareBinaryFiles(String testDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
+    //get all test results datafiles
+    File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
+    File[] expectedFiles = dir.listFiles(filter);
+    for (int i = 0; i < expectedFiles.length; i++) {
+      File actualFile = new File(filter.getActualDir() + "/" + expectedFiles[i].getName());
+      if (isCompareNames) {
+        assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+      }
+      if (isCompareContent) {
+
+
+        BufferedImage expectedImg = null;
+        BufferedImage actualImg = null;
+        boolean areTheSame = false;
+        try {
+          expectedImg = ImageIO.read(expectedFiles[i]);
+          actualImg = ImageIO.read(actualFile);
+          areTheSame = bufferedImagesEqual(expectedImg, actualImg);
+        } catch (IOException e) {
+        }
+        assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be identical but they are not", areTheSame);
+
+      }
+    }
+
   }
 
   /**
@@ -377,6 +385,20 @@ public class TestUtil {
     public boolean accept(File dir, String name) {
       return name.endsWith(getFileExtension());
     }
+  }
+
+  static boolean bufferedImagesEqual(BufferedImage img1, BufferedImage img2) {
+    if (img1.getWidth() == img2.getWidth() && img1.getHeight() == img2.getHeight()) {
+      for (int x = 0; x < img1.getWidth(); x++) {
+        for (int y = 0; y < img1.getHeight(); y++) {
+          if (img1.getRGB(x, y) != img2.getRGB(x, y))
+            return false;
+        }
+      }
+    } else {
+      return false;
+    }
+    return true;
   }
 
 }

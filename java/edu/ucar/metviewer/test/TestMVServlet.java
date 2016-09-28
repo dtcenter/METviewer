@@ -41,7 +41,7 @@ public class TestMVServlet {
 
   @Parameterized.Parameters
   public static Collection<String[]> data() throws Exception {
-    String testDataDir = rootDir + FILE_SEPARATOR + "servlet";
+    String testDataDir = ROOT_DIR + FILE_SEPARATOR + "servlet";
     Collection<String[]> requestResponse = new ArrayList<>();
     File file = new File(testDataDir);
     //get all requests
@@ -92,14 +92,14 @@ public class TestMVServlet {
       when(request.getSession()).thenReturn(httpSession);
       when(response.getWriter()).thenReturn(printWriter);
 
-      MVServlet._strPlotXML = plotsDir;
-      MVServlet._strRTmpl = templateDir;
-      MVServlet._strRWork = rworkDir;
-      MVServlet._strPlots = plotsDir;
+      MVServlet._strPlotXML = PLOTS_DIR;
+      MVServlet._strRTmpl = TEMPLATE_DIR;
+      MVServlet._strRWork = RWORK_DIR;
+      MVServlet._strPlots = PLOTS_DIR;
       MVServlet._strRscript = rscript;
       MVServlet._strDBHost = host;
-      MVServlet._strDBUser = username;
-      MVServlet._strDBPassword = pwd;
+      MVServlet._strDBUser = USERNAME;
+      MVServlet._strDBPassword = PWD;
       MVServlet._boolListValCache = true;
       MVServlet._boolListStatCache = true;
 
