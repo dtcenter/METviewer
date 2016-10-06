@@ -753,7 +753,7 @@ public class MVLoad extends MVUtil {
         // }
 
         if (listToken[6].equals("RMSE")) {//CNT line type
-          for (int i = 0; i < 88; i++) {
+          for (int i = 0; i < 89; i++) {
             if (i == 53) {
               strLineDataValueList += ", '" + listToken[10] + "'";
             } else if (i == 31) {
@@ -889,14 +889,8 @@ public class MVLoad extends MVUtil {
           }
         }
         if (listToken[6].equals("HTFR")) {//PCT line type
-          for (int i = 0; i < 2; i++) {
-            if (i == 1) {
-              int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-              strLineDataValueList += ", '" + intGroupSize + "'";
-            } else if (i == 0) {//total
-              strLineDataValueList += ", '0'";
-            }
-          }
+          int total =Integer.valueOf(listToken[1].split("\\/")[1]);
+          strLineDataValueList += ", " + total + ", " + (total +1);
         }
 
         if (listToken[6].equals("SL1L2")) {//SL1L2 line type
@@ -1018,24 +1012,31 @@ public class MVLoad extends MVUtil {
           //  build a insert value statement for each threshold group
           if (listToken[6].equals("HIST")) {
             for (int i = 0; i < intNumGroups; i++) {
-              String strThreshValues = "(" + strLineDataId + (i + 1);
+              StringBuilder strThreshValues = new StringBuilder("(");
+              strThreshValues.append( strLineDataId).append(i + 1);
               for (int j = 0; j < intGroupSize; j++) {
-                double res = Double.valueOf(listToken[intGroupIndex++]);
+                double res = Double.parseDouble(listToken[intGroupIndex++]);
                 if (res != -9999) {
-                  strThreshValues += ", " + (res * 100);
+                  strThreshValues.append(", ").append(res * 100);
                 }
 
               }
-              strThreshValues += ")";
+              strThreshValues.append(")");
               listThreshValues.add(strThreshValues);
               intVarLengthRecords++;
             }
           } else if (listToken[6].equals("HTFR")) {
             for (int i = 0; i < intGroupSize; i++) {
-              String strThreshValues = "(" + strLineDataId + (i + 1) + ",-9999";
+
+              double thresh_i ;
+              if(intGroupSize > 1) {
+                thresh_i=i / (intGroupSize - 1);
+              }else {
+                thresh_i=0;
+              }
+              String strThreshValues = "(" + strLineDataId + (i + 1) + "," +thresh_i;
               for (int j = 0; j < intNumGroups; j++) {
                 strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex + j * intGroupSize]);
-
               }
               intGroupIndex++;
               strThreshValues += ")";
@@ -1447,7 +1448,6 @@ public class MVLoad extends MVUtil {
           insertValuesList.add("-9999");
           size++;
         }
-        //strLineDataValueList = StringUtils.join(insertValuesList, ",");
         strLineDataValueList = "";
         for (String s : insertValuesList) {
           strLineDataValueList = strLineDataValueList + s + ",";
@@ -1533,13 +1533,10 @@ public class MVLoad extends MVUtil {
 
     //  commit all the remaining stored data
     int[] listInserts = commitStatData(d);
-    //intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
     intLineDataInserts += listInserts[INDEX_LINE_DATA];
     intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
 
     reader.close();
-    //_tableStatHeaders.clear();
-    //_tableStatHeaders = new Hashtable();
 
     _intStatLinesTotal += (intLine - 1);
     _intStatHeaderRecords += intStatHeaderRecords;
@@ -2041,10 +2038,6 @@ public class MVLoad extends MVUtil {
     try {
       con = connectionPool.getConnection();
       stmt = con.createStatement();
-     /* if (table != null) {
-        stmt.execute("ALTER TABLE " + table + "  DISABLE KEYS");
-        stmt.execute("LOCK TABLES " + table + " WRITE");
-      }*/
       intRes = stmt.executeUpdate(update);
 
     } catch (SQLException se) {
@@ -2159,7 +2152,6 @@ public class MVLoad extends MVUtil {
     try {
       con = connectionPool.getConnection();
       stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-      //stmt.setFetchSize(Integer.MIN_VALUE);
       res = stmt.executeQuery(strDataFileQuery);
 
       // if the data file is already present in the database, print a warning and return the id
