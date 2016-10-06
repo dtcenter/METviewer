@@ -76,7 +76,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-                    addSeriesVariableRhist();
+                    addSeriesVarRhist();
                 });
         $(".remove_var").button({
             icons: {
@@ -131,7 +131,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-                    addFixedVariableRhist();
+                    addFixedVarRhist();
                 });
         getForecastVariablesHist();
         $('#roc_type').buttonset();

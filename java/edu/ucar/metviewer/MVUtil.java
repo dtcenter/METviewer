@@ -161,9 +161,9 @@ public class MVUtil {
     _tableStatsCnt.put("IQR", new String[]{"bc"});
     _tableStatsCnt.put("MAD", new String[]{"bc"});
     _tableStatsCnt.put("PAC", new String[]{"bc"});
-    _tableStatsCnt.put("ANOM_CORR", new String[]{"bc",SAL1L2});
-    _tableStatsCnt.put("ME2", new String[]{"bc",SL1L2});
-    _tableStatsCnt.put("MSESS", new String[]{"bc",SL1L2});
+    _tableStatsCnt.put("ANOM_CORR", new String[]{"bc", SAL1L2});
+    _tableStatsCnt.put("ME2", new String[]{"bc", SL1L2});
+    _tableStatsCnt.put("MSESS", new String[]{"bc", SL1L2});
   }
 
   static {
@@ -179,14 +179,11 @@ public class MVUtil {
     _tableStatsSsvar.put("SSVAR_BCMSE", new String[]{"bc", SSVAR});
     _tableStatsSsvar.put("SSVAR_BCRMSE", new String[]{"bc", SSVAR});
     _tableStatsSsvar.put("SSVAR_RMSE", new String[]{"bc", SSVAR});
-    _tableStatsSsvar.put("SSVAR_ANOM_CORR", new String[]{"bc",SSVAR});
-    _tableStatsSsvar.put("SSVAR_ME2", new String[]{"bc",SSVAR});
-    _tableStatsSsvar.put("SSVAR_MSESS", new String[]{"bc",SSVAR});
-    _tableStatsSsvar.put("SSVAR_Spread", new String[]{"bc",SSVAR});
-    }
-
-
-
+    _tableStatsSsvar.put("SSVAR_ANOM_CORR", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_ME2", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_MSESS", new String[]{"bc", SSVAR});
+    _tableStatsSsvar.put("SSVAR_Spread", new String[]{"bc", SSVAR});
+  }
 
 
   static {
@@ -368,7 +365,7 @@ public class MVUtil {
     _tableModeSingleStatField.put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
     _tableModeSingleStatField.put("AREA", "area");
     _tableModeSingleStatField.put("AREAFIL", "area_filter");
-    _tableModeSingleStatField.put("AREATHR", "area_threshold");
+    _tableModeSingleStatField.put("AREATHR", "area_thresh");
     _tableModeSingleStatField.put("CURV", "curvature");
     _tableModeSingleStatField.put("CURVX", "curvature_x");
     _tableModeSingleStatField.put("CURVY", "curvature_y");
@@ -564,29 +561,26 @@ public class MVUtil {
    * @return list containing the requested dates in SQL format
    */
   public static String[] buildDateAggList(Connection con, String field, String begin, String end, String hour) {
-    ArrayList listDates = new ArrayList();
-    try {
-      String strWhere = "";
-      if ((null != begin && !begin.equals("")) && (null != end && !end.equals(""))) {
-        strWhere = "WHERE " + field + " BETWEEN '" + begin + "' AND '" + end + "' ";
-      } else if (null != begin && !begin.equals("")) {
-        strWhere = "WHERE " + field + " >= '" + begin + "' ";
-      } else if (null != end && !end.equals("")) {
-        strWhere = "WHERE " + field + " <= '" + end + "' ";
-      }
+    List<String> listDates = new ArrayList<>();
 
-      if (null != hour && !hour.equals("")) {
-        strWhere += (strWhere.equals("") ? "WHERE" : "AND") + " HOUR(" + field + ") = '" + hour + "' ";
-      }
+    String strWhere = "";
+    if ((null != begin && !begin.isEmpty()) && (null != end && !end.equals(""))) {
+      strWhere = "WHERE " + field + " BETWEEN '" + begin + "' AND '" + end + "' ";
+    } else if (null != begin && !begin.isEmpty()) {
+      strWhere = "WHERE " + field + " >= '" + begin + "' ";
+    } else if (null != end && !end.isEmpty()) {
+      strWhere = "WHERE " + field + " <= '" + end + "' ";
+    }
 
-      Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-      //stmt.setFetchSize(Integer.MIN_VALUE);
-      String strTable = (field.equalsIgnoreCase("fcst_valid") || field.equalsIgnoreCase("fcst_init") ? "mode_header" : "stat_header");
-      ResultSet res = stmt.executeQuery("SELECT DISTINCT " + field + " FROM " + strTable + " " + strWhere + "ORDER BY " + field);
-      for (int i = 0; res.next(); i++) {
+    if (null != hour && !hour.isEmpty()) {
+      strWhere += (strWhere.isEmpty() ? "WHERE" : "AND") + " HOUR(" + field + ") = '" + hour + "' ";
+    }
+    String strTable = (field.equalsIgnoreCase("fcst_valid") || field.equalsIgnoreCase("fcst_init") ? "mode_header" : "stat_header");
+    try (Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+         ResultSet res = stmt.executeQuery("SELECT DISTINCT " + field + " FROM " + strTable + " " + strWhere + "ORDER BY " + field);) {
+      while (res.next()) {
         listDates.add(res.getString(1));
       }
-      stmt.close();
     } catch (Exception e) {
       System.err.println("  **  ERROR: caught " + e.getClass() + " in buildDateAggList(): " + e.getMessage());
       e.printStackTrace();
@@ -964,10 +958,9 @@ public class MVUtil {
 
   /**
    * Reformat the fcst_thresh value using the directions provided in the body of the template tag.  It is assumed that the input template tag has the
-   * parameterized tag format:
-   * <i>fcst_thresh?param1=val1;param2=val2[;...]  where the params can be the following:</i> <ul> <li><b>units</b> set to either mm or in (input assumed to be
-   * in mm) <li><b>format</b> set to the java formatting string to apply, for example 0.00# <li><b>symbol</b> set to either letters or math, for example ge or
-   * >=, respectively </ul>
+   * parameterized tag format: <i>fcst_thresh?param1=val1;param2=val2[;...]  where the params can be the following:</i> <ul> <li><b>units</b> set to either mm
+   * or in (input assumed to be in mm) <li><b>format</b> set to the java formatting string to apply, for example 0.00# <li><b>symbol</b> set to either letters
+   * or math, for example ge or >=, respectively </ul>
    *
    * @param fcstTag    Template tag name (including params) for fcst_thresh
    * @param fcstThresh Template map value to be formatted
@@ -1317,7 +1310,7 @@ public class MVUtil {
 
     switch ((int) (rel / 0.16667)) {
       /*
-			case 0:				return new Color(max, max*(min + (1-min)*(float)(rel/.25)), min);
+      case 0:				return new Color(max, max*(min + (1-min)*(float)(rel/.25)), min);
 			case 1:	rel -= .25;	return new Color(min + max*(1-min)*(float)(1 - rel/.25), max, max*(min + (1-min)*(float)(rel/.25)));
 			case 2:	rel -= .50;	return new Color(min, max*(min + (1-min)*(float)(1 - rel/.25)), max);
 			case 3:	rel -= .75;	return new Color(max*(min + (1-min)*(float)(rel/.25)), min, max);
@@ -1510,11 +1503,11 @@ public class MVUtil {
    * @param list ArrayList to convert
    * @return Converted list
    */
-  public static String[] toArray(ArrayList list) {
-    return (String[]) list.toArray(new String[]{});
+  public static String[] toArray(List<String> list) {
+    return list.toArray(new String[]{});
   }
 
-  public static ArrayList toArrayList(String[] list) {
+  public static List<String> toArrayList(String[] list) {
     ArrayList ret = new ArrayList();
     ret.addAll(Arrays.asList(list));
     return ret;
@@ -1592,7 +1585,6 @@ public class MVUtil {
         return new String[]{};
       }
       String strList = matRColStr.group(1);
-      //return strList.split("\"\\s*,\\s*\"");
       ArrayList list = new ArrayList();
       while (strList.matches(".*\"\\s*,\\s*\".*")) {
         list.add(strList.replaceFirst("\"\\s*,\\s*\".*", ""));
@@ -1665,7 +1657,6 @@ public class MVUtil {
 
     return strFormatR.replace("(", "")
       .replace(")", "")
-      //.replace(".",	"_d_")
       .replace("<=", "le")
       .replace(">=", "ge")
       .replace("=", "eq")
@@ -1697,7 +1688,6 @@ public class MVUtil {
         }
         diffComponents[i] = strFormatR.replace("(", "")
           .replace(")", "")
-          //			.replace(".", "_d_")
           .replace("<=", "le")
           .replace(">=", "ge")
           .replace("=", "eq")
@@ -1786,8 +1776,8 @@ public class MVUtil {
     } else if (_tableStatsMpr.containsKey(strStat)) {
       return "line_data_mpr";
     } else if (_tableStatsOrank.containsKey(strStat)) {
-      return "line_data_orank"; }
-    else if (_tableStatsSsvar.containsKey(strStat)) {
+      return "line_data_orank";
+    } else if (_tableStatsSsvar.containsKey(strStat)) {
       return "line_data_ssvar";
     } else {
       return "";
@@ -1801,7 +1791,7 @@ public class MVUtil {
    * @param bufferedWriter The stream to write the formatted results to (defaults to _out)
    * @param delim          The delimiter to insert between field headers and values (defaults to ' ')
    */
-  public synchronized void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc) {
+  public synchronized void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -1812,18 +1802,20 @@ public class MVUtil {
       }
 
       //  print out the column headers
-      for (int i = 1; i <= met.getColumnCount(); i++) {
-        if (delim.equals(" ")) {
-          bufferedWriter.write(padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
-        } else {
-          if (1 == i) {
-            bufferedWriter.write(met.getColumnLabel(i));
+      if (isHeader) {
+        for (int i = 1; i <= met.getColumnCount(); i++) {
+          if (delim.equals(" ")) {
+            bufferedWriter.write(padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
           } else {
-            bufferedWriter.write(delim + met.getColumnLabel(i));
+            if (1 == i) {
+              bufferedWriter.write(met.getColumnLabel(i));
+            } else {
+              bufferedWriter.write(delim + met.getColumnLabel(i));
+            }
           }
         }
+        bufferedWriter.write(System.getProperty("line.separator"));
       }
-      bufferedWriter.write(System.getProperty("line.separator"));
 
       //  print out the table of values
       int intLine = 0;
@@ -1853,16 +1845,16 @@ public class MVUtil {
           }
 
           if (delim.equals(" ")) {
-            line = line +(padEnd(strVal, intFieldWidths[i - 1]));
+            line = line + (padEnd(strVal, intFieldWidths[i - 1]));
           } else {
             if (1 == i) {
-              line = line +(strVal);
+              line = line + (strVal);
             } else {
-              line = line +(delim + strVal);
+              line = line + (delim + strVal);
             }
           }
         }
-        if(isValValid) {
+        if (isValValid) {
           bufferedWriter.write(line);
           bufferedWriter.write(System.getProperty("line.separator"));
           intLine++;

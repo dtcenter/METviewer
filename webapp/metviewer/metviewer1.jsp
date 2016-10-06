@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v1.8</TITLE>
+<TITLE>METViewer v1.9</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -197,7 +197,7 @@
 
     $(document).ready(function () {
         $('input[name=derive_oper]').change(function () {
-            createNewDiffSeriesName($('input[name=yAxisDiff]').val());
+            createNewDerivedSeriesName($('input[name=yAxisDiff]').val());
         });
 
         $.ajax({
@@ -255,9 +255,9 @@
                             updateForecastVariables();
                             updateStats("y1", 1, []);
                             updateStats("y2", 1, []);
-                            updateSeriesVarValSeries("y1", 1, []);
-                            updateSeriesVarValSeries("y2", 1, []);
-                        } else if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely') {
+                            updateSeriesVarVal("y1", 1, []);
+                            updateSeriesVarVal("y2", 1, []);
+                        } else if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely' ) {
                             updateSeriesVarValRhist(1, []);
                             for (i = 0; i < fixed_var_indexes.length; i++) {
                                 values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
@@ -281,11 +281,15 @@
                             }
                         } else if (currentTab == 'Perf') {
                             $('#listdt').jqGrid('clearGridData');
-                            updateSeriesVarValSeries("y1", 1, []);
+                            updateSeriesVarVal("y1", 1, []);
                             var rowCount = $('#fixed_var_table').find('tr').length;
                             for( i=rowCount -1; i>= 0; i--){
-                                removeFixedVarSeries("fixed_var_" + (i+1));
+                                removeFixedVar("fixed_var_" + (i+1));
                             }
+                        }  else if (currentTab == 'Taylor') {
+                            $('#listdt').jqGrid('clearGridData');
+                            updateForecastVariables();
+                            updateSeriesVarVal("y1", 1, []);
                         }
                     }
                 });
@@ -299,15 +303,15 @@
 
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
+        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 1.9<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
 
-      <label for="database">Database:</label><select id="database">
-        </select>
-            <span style="margin-left:20px;"><button id="generate_plot">Generate Plot </button></span>
+        </div>
+        <label for="database">Database:</label><select id="database">
+    </select>
+        <span style="margin-left:20px;"><button id="generate_plot">Generate Plot</button></span>
         <button id="load_xml" style="float: right">Load XML</button>
-               <button id="reload_databases" style="float: right">Reload databases</button>
+        <button id="reload_databases" style="float: right">Reload databases</button>
     </div>
-
-
 </div>
 <div id="series_formatting" class="ui-layout-south " style="overflow: visible; padding: 0 0 10px 10px;" >
     <div >
@@ -351,6 +355,7 @@
             <li><a href="plotJSP/rely.jsp">Rely</a></li>
             <li><a href="plotJSP/ens_ssl.jsp">Ens_ss</a></li>
             <li><a href="plotJSP/performance.jsp">Perf</a></li>
+            <li><a href="plotJSP/taylor.jsp">Taylor</a></li>
         </ul>
 
 
@@ -1029,12 +1034,12 @@
                         <div class="diffSelect">
 
                         <select name="series1Y1" id="series1Y1"
-                                     onchange=" createNewDiffSeriesName(1);"></select>
+                                     onchange=" createNewDerivedSeriesName(1);"></select>
                         </div>
                         <div class="diffSelect header" style="font-size:12px;text-align:center;">and </div>
                         <div class="diffSelect">
                         <select name="series2Y1" id="series2Y1"
-                                     onchange="createNewDiffSeriesName(1)"></select>
+                                     onchange="createNewDerivedSeriesName(1)"></select>
                         </div>
 
                     </fieldset>
@@ -1044,13 +1049,13 @@
                         <div class="diffSelect">
 
                         <select name="series1Y2" id="series1Y2" disabled
-                                     onchange=" createNewDiffSeriesName(2)">
+                                     onchange=" createNewDerivedSeriesName(2)">
                         </select></div>
                         <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
                         <div class="diffSelect">
 
                         <select name="series2Y2" id="series2Y2" disabled
-                                     onchange="createNewDiffSeriesName(2)">
+                                     onchange="createNewDerivedSeriesName(2)">
                         </select></div>
 
                     </fieldset>

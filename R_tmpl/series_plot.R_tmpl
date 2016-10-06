@@ -127,19 +127,22 @@ if( FALSE != boolEventEqual  ){
        }
      }
    }
+
   for( strDep1Name in names(listDep1Plot) ){
     for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+      fPlot = dfPlot;
       for(strSeriesVal in names(listSeries1Val)){
-          vectValPerms = c();
-          for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
-          }
-          fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep1Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-          dfPlot1 = rbind(dfPlot1, fPlot);
-       }
-     }
-   }
+        vectValPerms = c();
+        for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+          vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+        }
+        fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
+      }
+      fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+      dfPlot1 = rbind(dfPlot1, fPlot);
+    }
+
+  }
 
   #if the second Y axis is present - run event equalizer on Y1
   # and then run event equalizer on Y1 and Y2 equalized data
@@ -147,17 +150,19 @@ if( FALSE != boolEventEqual  ){
     dfPlot2 = data.frame();
     for( strDep2Name in names(listDep2Plot) ){
       for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
-        for(strSeriesVal in names(listSeries2Val)){
-          vectValPerms = c();
-          for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
-          }
-          fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% vectValPerms & dfPlot$stat_name %in% strDep2Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-          dfPlot2 = rbind(dfPlot2, fPlot);
+        fPlot = dfPlot;
+             for(strSeriesVal in names(listSeries2Val)){
+               vectValPerms = c();
+               for(index in 1:length(listSeries2Val[[strSeriesVal]])){
+                 vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+               }
+               fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
+             }
+             fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+             dfPlot2 = rbind(dfPlot2, fPlot);
         }
       }
-    }
+
     dfPlot = rbind(dfPlot1, dfPlot2);
     listSeriesVal=list();
     for( seriesVal in names(listSeries1Val) ){
@@ -165,7 +170,7 @@ if( FALSE != boolEventEqual  ){
     }
     listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
     dfPlot = eventEqualize(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
-    
+
   }else{
     dfPlot = dfPlot1;
   }
@@ -184,6 +189,7 @@ listLwdOrdered=c();
 listPchOrdered=c();
 listPlotDispOrdered=c();
 listShowSignifOrdered=c();
+listTypeOrdered=c();
 for(index in 1:length(listPlotOrderSeries)){
   listLwdOrdered[ listPlotOrderSeries[index] ] = listLwd[index];
   listColorsOrdered[ listPlotOrderSeries[index] ]=listColors[index];
@@ -191,6 +197,7 @@ for(index in 1:length(listPlotOrderSeries)){
   listPchOrdered[ listPlotOrderSeries[index] ]=listPch[index];
   listPlotDispOrdered[ listPlotOrderSeries[index] ]=listPlotDisp[index];
   listShowSignifOrdered[ listPlotOrderSeries[index] ]=listShowSignif[index];
+  listTypeOrdered[ listPlotOrderSeries[index] ]=listType[index];
 }
 
  # calculate the number of Y1 series per dep stat
@@ -1111,6 +1118,16 @@ listLegendDisp = listLegend[listPlotDispOrdered];
 listColorsDisp = listColorsOrdered[listPlotDispOrdered];
 listLtyDisp    = listLtyOrdered[listPlotDispOrdered];
 listPchDisp    = listPchOrdered[listPlotDispOrdered];
+listTypeDisp = listTypeOrdered[listPlotDispOrdered];
+
+
+#display only a symbol for line type 'p'
+for(indType in 1:length(listTypeDisp) ){
+  if (listTypeDisp[indType] == 'p'){
+    listLtyDisp[indType] = NaN;
+    listLtyDisp[indType] = NaN;
+  }
+}
 
 # add the legend
 legend(

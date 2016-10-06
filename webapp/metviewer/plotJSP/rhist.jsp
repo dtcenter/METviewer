@@ -125,7 +125,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-            addFixedVariableRhist();
+            addFixedVarRhist();
         });
 
 
@@ -134,7 +134,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-            addSeriesVariableRhist();
+            addSeriesVarRhist();
         });
         $(".remove_var").button({
             icons: {

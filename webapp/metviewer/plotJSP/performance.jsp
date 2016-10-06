@@ -63,7 +63,7 @@
               primary: "ui-icon-circle-plus"
             }
           }).click(function () {
-            addFixedVariableSeries();
+            addFixedVar();
           });
 
 
@@ -98,7 +98,7 @@
                 $("#series_var_val_y1_date_period_button_1").css("display", "none");
               }
               var id_array = this.id.split("_");
-              updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+              updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
             }
 
           });
@@ -148,7 +148,7 @@
               updateSeriesPerf(true);
             },
             uncheckAll: function () {
-              updateSeriesSeriesBox();
+              updateSeries();
             }
           });
           $("#indy_var_val").multiselect({
@@ -188,7 +188,7 @@
               primary: "ui-icon-circle-plus"
             }
           }).click(function () {
-            addSeriesVariablePerf();
+            addSeriesVarPerf();
           });
 
 
@@ -241,9 +241,9 @@
                 disabled: true
             }).click(function () {
                         if ($(this).attr('id').startsWith('remove_series_var')) {
-                            removeSeriesVarSeriesBox($(this).attr('id'));
+                            removeSeriesVar($(this).attr('id'));
                         } else if ($(this).attr('id').startsWith('remove_fcst_var')) {
-                            removeFcstVarSeriesBox($(this).attr('id'));
+                            removeFcstVar($(this).attr('id'));
                         }
                     });
             $(".remove_fixed_var").button({
@@ -252,7 +252,7 @@
                 },
                 text: false
             }).click(function () {
-                removeFixedVarSeries($(this).attr('id'));
+                removeFixedVar($(this).attr('id'));
             });
 
             if (initXML != null) {
@@ -260,7 +260,7 @@
                 initXML = null;
 
             }else{
-                updateSeriesVarValSeries("y1", 1, []);
+                updateSeriesVarVal("y1", 1, []);
 
             }
 

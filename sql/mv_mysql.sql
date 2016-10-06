@@ -1,7 +1,7 @@
 -- data_file_type_lu is a look-up table containing information about the different types
---   of MET output data files.  Each data file that is loaded into the database is
+--   of MET output data files.  Each data file that is loaded into the DATABASE is
 --   represented by a record in the data_file table, which points at one of the data file
---   types.  The file type indicates which database tables store the data in the file.
+--   types.  The file type indicates which DATABASE tables store the data in the file.
 
 DROP TABLE IF EXISTS data_file_lu;
 CREATE TABLE data_file_lu
@@ -14,7 +14,7 @@ CREATE TABLE data_file_lu
     
     
 -- data_file_id stores information about files that have been parsed and loaded into the
---   database.  Each record represents a single file of a particular MET output data file
+--   DATABASE.  Each record represents a single file of a particular MET output data file
 --   type (point_stat, mode, etc.).  Each data_file record points at its file type in the
 --   data_file_type_lu table via the data_file_type_lu_id field.
 
@@ -1665,7 +1665,7 @@ DELIMITER |
 DROP FUNCTION IF EXISTS calcStdDev |
 CREATE FUNCTION calcStdDev (vsum REAL, vsum_sq REAL, n INT) RETURNS REAL DETERMINISTIC
 BEGIN
-    DECLARE v REAL;
+    DECLARE v DECIMAL(12,6);
     IF 1 > n THEN RETURN -1; END IF;
     SET v = (vsum_sq - vsum*vsum/n)/(n - 1);
     IF 0 > v THEN RETURN -1; END IF;
@@ -1674,11 +1674,11 @@ END |
 
 DROP FUNCTION IF EXISTS calcFBAR |
 CREATE FUNCTION calcFBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN fbar; END |
+BEGIN RETURN IFNULL(fbar, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcOBAR |
 CREATE FUNCTION calcOBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  obar; END |
+BEGIN RETURN  IFNULL(obar, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcFSTDEV |
 CREATE FUNCTION calcFSTDEV (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
@@ -1686,88 +1686,118 @@ BEGIN RETURN calcStdDev(fbar * total, ffbar * total, total); END |
 
 DROP FUNCTION IF EXISTS calcOSTDEV |
 CREATE FUNCTION calcOSTDEV (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN calcStdDev(obar * total, oobar * total, total); END |
+BEGIN
+    RETURN calcStdDev(obar * total, oobar * total, total);
+END |
 
 DROP FUNCTION IF EXISTS calcFOBAR |
 CREATE FUNCTION calcFOBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  fobar; END |
+BEGIN RETURN  IFNULL( fobar, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcFFBAR |
 CREATE FUNCTION calcFFBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  ffbar; END |
+BEGIN RETURN  IFNULL(ffbar, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcOOBAR |
 CREATE FUNCTION calcOOBAR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  oobar; END |
+BEGIN RETURN  IFNULL(oobar, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcMBIAS |
 CREATE FUNCTION calcMBIAS (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF 0 = obar THEN RETURN 'NA'; END IF; RETURN  (fbar / obar); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF 0 = obar THEN RETURN 'NA'; END IF;
+    SET result =(fbar / obar);
+    RETURN  IFNULL( result, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcPR_CORR |
 CREATE FUNCTION calcPR_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE v REAL;
-    DECLARE pr_corr REAL;
+    DECLARE v DECIMAL(12,6);
+    DECLARE pr_corr DECIMAL(12,6);
     SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
     IF 0 >= v THEN RETURN 'NA'; END IF;
     SET pr_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
     IF 1 < pr_corr THEN RETURN 'NA'; END IF;
-    RETURN pr_corr;
+    RETURN IFNULL( pr_corr, 'NA') ;
 END |
 
 DROP FUNCTION IF EXISTS calcANOM_CORR |
 CREATE FUNCTION calcANOM_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE v REAL;
-    DECLARE anom_corr REAL;
+    DECLARE v DECIMAL(12,6);
+    DECLARE anom_corr DECIMAL(12,6);
     SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
     IF 0 >= v THEN RETURN 'NA'; END IF;
     SET anom_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
     IF 1 < anom_corr THEN RETURN 'NA'; END IF;
-    RETURN anom_corr;
+    RETURN IFNULL(anom_corr, 'NA');
 END |
 
 
 DROP FUNCTION IF EXISTS calcME |
 CREATE FUNCTION calcME (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  (fbar - obar); END |
+BEGIN
+    RETURN  IFNULL((fbar - obar), 'NA') ;
+END |
 
 DROP FUNCTION IF EXISTS calcME2 |
 CREATE FUNCTION calcME2 (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE me REAL;
+    DECLARE me DECIMAL(12,6);
     SET me = calcME(total , fbar , obar , fobar , ffbar , oobar );
-RETURN  (me * me); END |
+RETURN  IFNULL((me * me), 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcMSE |
 CREATE FUNCTION calcMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN (ffbar + oobar - 2*fobar); END |
+BEGIN
+    RETURN IFNULL((ffbar + oobar - 2*fobar), 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcMSESS |
 CREATE FUNCTION calcMSESS (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE ostdev REAL;
-    DECLARE mse REAL;
+    DECLARE ostdev DECIMAL(12,6);
+    DECLARE mse DECIMAL(12,6);
     SET ostdev=calcOSTDEV(total , fbar , obar , fobar , ffbar , oobar );
     SET mse=calcMSE(total , fbar , obar , fobar , ffbar , oobar );
-RETURN (1.0 - mse/(ostdev*ostdev) ); END |
+RETURN IFNULL( (1.0 - mse/(ostdev*ostdev) ), 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcRMSE |
 CREATE FUNCTION calcRMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  SQRT(ffbar + oobar - 2*fobar); END |
+BEGIN
+    DECLARE a DECIMAL(12,6);
+    SET a = ffbar + oobar - 2*fobar;
+    RETURN  IFNULL(SQRT(a), 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcESTDEV |
 CREATE FUNCTION calcESTDEV (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN calcStdDev( (fbar - obar)*total, (ffbar + oobar - 2*fobar)*total, total ); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    DECLARE a DECIMAL(12,6);
+    DECLARE b DECIMAL(12,6);
+    SET a = (fbar - obar)*total;
+    SET b = (ffbar + oobar - 2*fobar)*total;
+    SET result = calcStdDev(a , b , total );
+    RETURN  result;
+END |
 
 DROP FUNCTION IF EXISTS calcBCMSE |
 CREATE FUNCTION calcBCMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  (ffbar + oobar - 2*fobar) - POW(fbar - obar, 2); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    SET result = (ffbar + oobar - 2*fobar) - POW(fbar - obar, 2);
+    RETURN  IFNULL( result, 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcBCRMSE |
 CREATE FUNCTION calcBCRMSE (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN RETURN  SQRT((ffbar + oobar - 2*fobar) - POW(fbar - obar, 2)); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    SET result = SQRT((ffbar + oobar - 2*fobar) - POW(fbar - obar, 2));
+    RETURN  IFNULL(result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcMAE |
 CREATE FUNCTION calcMAE ( mae REAL) RETURNS CHAR(16) DETERMINISTIC
@@ -1779,99 +1809,151 @@ BEGIN IF mae = -9999 THEN RETURN 'NA'; END IF; RETURN  mae; END |
 
 DROP FUNCTION IF EXISTS calcBASER |
 CREATE FUNCTION calcBASER (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF total = 0 THEN RETURN 'NA'; END IF; RETURN (fy_oy + fn_oy) / total; END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF total = 0 THEN RETURN 'NA'; END IF;
+    SET result = (fy_oy + fn_oy) / total;
+    RETURN IFNULL(result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcACC |
 CREATE FUNCTION calcACC (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF total = 0 THEN RETURN 'NA'; END IF; RETURN (fy_oy + fn_on) / total; END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF total = 0 THEN RETURN 'NA'; END IF;
+    SET result = (fy_oy + fn_on) / total;
+    RETURN IFNULL(result, 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcFBIAS |
 CREATE FUNCTION calcFBIAS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN (fy_oy + fy_on) / (fy_oy + fn_oy); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF;
+    SET result = (fy_oy + fy_on) / (fy_oy + fn_oy);
+    RETURN IFNULL( result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcPODY |
 CREATE FUNCTION calcPODY (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN fy_oy / (fy_oy + fn_oy); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF (fy_oy + fn_oy) = 0 THEN RETURN 'NA'; END IF;
+    SET result = fy_oy / (fy_oy + fn_oy);
+    RETURN IFNULL( result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcPOFD |
 CREATE FUNCTION calcPOFD (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF; RETURN fy_on / (fy_on + fn_on); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF;
+    SET result = fy_on / (fy_on + fn_on);
+    RETURN IFNULL( result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcPODN |
 CREATE FUNCTION calcPODN (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF; RETURN fn_on / (fy_on + fn_on); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF (fy_on + fn_on) = 0 THEN RETURN 'NA'; END IF;
+    SET result = fn_on / (fy_on + fn_on);
+    RETURN IFNULL( result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcFAR |
 CREATE FUNCTION calcFAR (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fy_on) = 0 THEN RETURN 'NA'; END IF; RETURN fy_on / (fy_oy + fy_on); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF (fy_oy + fy_on) = 0 THEN RETURN 'NA'; END IF;
+    SET result = fy_on / (fy_oy + fy_on);
+    RETURN IFNULL( result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcCSI |
 CREATE FUNCTION calcCSI (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN IF (fy_oy + fy_on + fn_oy) = 0 THEN RETURN 'NA'; END IF; RETURN fy_oy / (fy_oy + fy_on + fn_oy); END |
+BEGIN
+    DECLARE result DECIMAL(12,6);
+    IF (fy_oy + fy_on + fn_oy) = 0 THEN RETURN 'NA'; END IF;
+    SET result = fy_oy / (fy_oy + fy_on + fn_oy);
+    RETURN IFNULL( result , 'NA');
+END |
 
 DROP FUNCTION IF EXISTS calcGSS |
 CREATE FUNCTION calcGSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE c REAL;
+    DECLARE c DECIMAL(12,6);
+    DECLARE result DECIMAL(12,6);
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on) / total ) * (fy_oy + fn_oy);
-    RETURN  (fy_oy - c) / (fy_oy + fy_on + fn_oy - c);
+    SET result = (fy_oy - c) / (fy_oy + fy_on + fn_oy - c);
+    RETURN IFNULL( result , 'NA');
 END |
 
 DROP FUNCTION IF EXISTS calcHK |
 CREATE FUNCTION calcHK (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
-BEGIN	
+BEGIN
+    DECLARE result DECIMAL(12,6);
     IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
-    RETURN (fy_oy / (fy_oy + fn_oy)) - (fy_on / (fy_on + fn_on));
+    SET result = (fy_oy / (fy_oy + fn_oy)) - (fy_on / (fy_on + fn_on));
+    RETURN IFNULL( result , 'NA');
 END |
 
 DROP FUNCTION IF EXISTS calcHSS |
 CREATE FUNCTION calcHSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE c REAL;
+    DECLARE c DECIMAL(12,6);
+    DECLARE result DECIMAL(12,6);
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on)*(fy_oy + fn_oy) + (fn_oy + fn_on)*(fy_on + fn_on) ) / total;
-    RETURN  (fy_oy + fn_on - c) / (total - c);
+    SET result = (fy_oy + fn_on - c) / (total - c);
+    RETURN  IFNULL( result , 'NA');
 END |
 
 DROP FUNCTION IF EXISTS calcODDS |
 CREATE FUNCTION calcODDS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE pody REAL;
-    DECLARE pofd REAL;
+    DECLARE pody DECIMAL(12,6);
+    DECLARE pofd DECIMAL(12,6);
+    DECLARE result DECIMAL(12,6);
     IF ( (fy_oy + fn_oy) = 0 OR (fy_on + fn_on) = 0 ) THEN RETURN 'NA'; END IF;
     SET pody = fy_oy / (fy_oy + fn_oy);
     SET pofd = fy_on / (fy_on + fn_on);
     IF ( pody = 0 OR pofd = 0 ) THEN RETURN 'NA'; END IF;
-    RETURN  (pody * (1-pofd)) / (pofd * (1-pody));
+    SET result = (pody * (1-pofd)) / (pofd * (1-pody));
+    RETURN  IFNULL(result , 'NA');
 END |
 
 DROP FUNCTION IF EXISTS calcME2 |
 CREATE FUNCTION calcME2 (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-  DECLARE me REAL;
+  DECLARE me DECIMAL(12,6);
+  DECLARE result DECIMAL(12,6);
   SET me = calcME(total , fbar , obar , fobar , ffbar , oobar );
-RETURN  (me * me); END |
+  SET result = (me * me);
+RETURN  IFNULL(result, 'NA'); END |
 
 DROP FUNCTION IF EXISTS calcMSESS |
 CREATE FUNCTION calcMSESS (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE ostdev REAL;
-    DECLARE mse REAL;
+    DECLARE ostdev DECIMAL(12,6);
+    DECLARE mse DECIMAL(12,6);
+    DECLARE result DECIMAL(12,6);
     SET ostdev=calcOSTDEV(total , fbar , obar , fobar , ffbar , oobar );
     SET mse=calcMSE(total , fbar , obar , fobar , ffbar , oobar );
-RETURN (1.0 - mse/(ostdev*ostdev) ); END |
+    SET result = (1.0 - mse/(ostdev*ostdev) );
+RETURN IFNULL( result ,'NA'); END |
 
 DROP FUNCTION IF EXISTS calcANOM_CORR |
 CREATE FUNCTION calcANOM_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE v REAL;
-    DECLARE anom_corr REAL;
+    DECLARE v DECIMAL(12,6);
+    DECLARE anom_corr DECIMAL(12,6);
     SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
     IF 0 >= v THEN RETURN 'NA'; END IF;
     SET anom_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
     IF 1 < anom_corr THEN RETURN 'NA'; END IF;
-    RETURN anom_corr;
+    RETURN IFNULL(anom_corr, 'NA');
 END |
 
 DELIMITER ;

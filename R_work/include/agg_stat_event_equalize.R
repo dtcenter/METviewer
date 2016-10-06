@@ -48,12 +48,16 @@ if(length(listFixedValEx) > 0){
 }
 for( strDep1Name in names(listDep1Plot) ){
     for(strSeriesVal in names(listSeries1Val)){
-      vectValPerms = c();
-      for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-        vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
-      }
-      fPlot = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot[[strSeriesVal]] %in% vectValPerms,  ];
-      fPlot = eventEqualizeAddStat(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+      fPlot = dfPlot;
+              for(strSeriesVal in names(listSeries1Val)){
+                vectValPerms = c();
+                for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+                  vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+                }
+                fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
+
+              }
+              fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
       dfPlot1 = rbind(dfPlot1, fPlot);
     }
 
@@ -65,13 +69,17 @@ if(length(listSeries2Val) > 0){
   dfPlot2 = data.frame();
   for( strDep2Name in names(listDep2Plot) ){
       for(strSeriesVal in names(listSeries2Val)){
-        vectValPerms = c();
-        for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
-        }
-        fPlot = dfPlot[dfPlot$fcst_var == strDep2Name & dfPlot[[strSeriesVal]] %in% vectValPerms,  ];
-        fPlot = eventEqualizeAddStat(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-        dfPlot2 = rbind(dfPlot2, fPlot);
+        fPlot = dfPlot;
+               for(strSeriesVal in names(listSeries2Val)){
+                 vectValPerms = c();
+                 for(index in 1:length(listSeries2Val[[strSeriesVal]])){
+                   vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+                 }
+                 fPlot = fPlot[dfPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
+
+               }
+               fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+       dfPlot2 = rbind(dfPlot2, fPlot);
       }
 
   }
@@ -81,7 +89,7 @@ if(length(listSeries2Val) > 0){
     listSeriesVal[[seriesVal]] = append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]);
   }
   listSeriesVal$model = append(listSeries1Val$model,listSeries2Val$model)
-  dfPlot = eventEqualizeAddStat(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
+  dfPlot = eventEqualizeAggStat(dfPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
 } else{
   dfPlot = dfPlot1;
 }

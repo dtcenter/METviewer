@@ -114,20 +114,11 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     equalize_by = paste(dfStats$fcst_valid_beg, dfStats$fcst_lead);
 
     #add indy var if nedded
-    if( boolEqualizeByIndep == 'TRUE' &&  strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid_beg' ) {
-      dfStats$equalize = paste(equalize_by, dfStats[[strIndyVar]]);
-    }else{
-      dfStats$equalize = equalize_by;
-    }
-
-    #add fixed vars if nedded
-    if (length(listFixVars) > 0){
-      for(index in 1:length(listFixVars)){
-        if(listFixVars[index] != 'fcst_lead' || listFixVars[index] != 'fcst_valid_beg') {
-          dfStats$equalize = paste(	dfStats$equalize,dfStats[[listFixVars[index]]] );
-        }
-      }
-    }
+    #if( boolEqualizeByIndep == 'TRUE' &&  strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid_beg' ) {
+    #  dfStats$equalize = paste(equalize_by, dfStats[[strIndyVar]]);
+    #}else{
+    #  dfStats$equalize = equalize_by;
+    #}
 
   } else if( "fcst_valid" %in% names(dfStats) ) {
     dfStats$fcst_valid = as.POSIXct(dfStats$fcst_valid, format="%Y-%m-%d %H:%M:%S", tz="GMT");
@@ -135,19 +126,10 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     #always use fcst_valid_beg and fcst_lead for equalization
     equalize_by = paste(dfStats$fcst_valid, dfStats$fcst_lead);
 
-    if( boolEqualizeByIndep == 'TRUE' && strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid'  ){
+    if( boolEqualizeByIndep == 'TRUE' && strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid' && strIndyVar != ""  ){
       dfStats$equalize = paste(equalize_by, dfStats[[strIndyVar]]);
     }else{
       dfStats$equalize = equalize_by;
-    }
-
-    #add fixed vars if nedded
-    if (length(listFixVars) > 0){
-      for(index in 1:length(listFixVars)){
-        if(listFixVars[index] != 'fcst_lead' || listFixVars[index] != 'fcst_valid') {
-          dfStats$equalize = paste(	dfStats$equalize,dfStats[[listFixVars[index]]]);
-        }
-      }
     }
   } else {
     cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
@@ -173,47 +155,104 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
 	
 	# for each fcst_lead value, equalize the plot series by fcst_valid_beg
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
+	
+	# create all permutationa of fix vars
+	names(listFixVarVals) = listFixVars;
+	if( is.null(listFixVarVals) || length(listFixVarVals) == 0){
+	  frameFixVarVals = data.frame();
+	}else{
+	 frameFixVarVals = permute(listFixVarVals);
+	}
+	
+	if(is.null(listIndyVal)){
+	  listIndyVal = c(NaN);
+	}
+	
 	for(strIndyVal in listIndyVal){
 		# examine the stats for the current lead time
-		dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
+	  if(is.nan(strIndyVal) || boolEqualizeByIndep == 'TRUE'){
+	    dfIndy = dfStats;
+	  }else{
+  	    if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
+  	      dfIndy = dfStats[as.character(dfStats[[strIndyVar]]) == strIndyVal,];
+  	    }else{
+  		    dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
+  	    }
+	    
+	  }
 		if( 1 > nrow(dfIndy) ){ next; }
 		
 		# find the minimal list of dates which all series have in common
-		listDates = array();
-		listEqualize = array();
-		for(intSeries in 1:nrow(dfSeriesPerm)){
-			dfComp = dfIndy;
-			for(strSeriesVar in names(listSeriesValNoGroups)){
-				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
-				  dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];				
-			}
-			
-			# if the list contains repetetive values, throw an error
-			if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
-				strFixVars='';
-		  	if(length(listFixVars) >0){
-		    	strFixVars = paste(listFixVars, collapse=",");
-					strFixVars = paste(",", strFixVars, sep = "");
-		  	}
-				stop("ERROR: eventEqualize() detected non-unique events for indy var ", strIndyVar , "=",strIndyVal, " using [fcst_valid_beg,fcst_lead", strFixVars, "]");
-			}
+		listEqualize = vector();
 		
-			
-			# if empty, initialize the equalization list
-			if( 0 < sum(is.na(listEqualize)) ){
-				listEqualize = unique(dfComp$equalize);
-			} else { # if there is an equalization list, equalize the current series data
-				listInd = listEqualize %in% unique(dfComp$equalize);
+		for(intSeries in 1:nrow(dfSeriesPerm)){
+  		 if(nrow(frameFixVarVals) == 0){
+  		   rows=1;
+  		 }else{
+  		   rows = nrow(frameFixVarVals);
+  		 }
 
-				# report the discarded records
-				listDiscard = listEqualize[ !listInd ];
-				listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
-				for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
-				
-				# update the equalization list
-				listEqualize = listEqualize[listInd];
-			}			
-		}
+		    for( rowNumber in 1:rows){
+		      dfComp = dfIndy;
+		      for(strSeriesVar in names(listSeriesValNoGroups)){
+		        valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
+		        if(strSeriesVar != "fcst_valid_beg" && strSeriesVar != 'fcst_lead'){
+		          if( strSeriesVar == 'fcst_init_beg'){
+		            dfComp = dfComp[as.character(dfComp[[strSeriesVar]]) == valSeries,];
+		          }else{
+		            dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
+		          }
+		        }
+		      }
+		      
+		      
+		      if( !is.null(listFixVars) && length(listFixVars) > 0){
+      			for(indFixVar in 1:length(listFixVars) ){
+      			  if(listFixVars[[indFixVar]] != "fcst_valid_beg" && listFixVars[[indFixVar]] != "fcst_lead"){
+        			  fixVal = frameFixVarVals[rowNumber,][indFixVar];
+        			  if( suppressWarnings( all(!is.na( as.numeric( as.character(fixVal) ) ) ) ) ) {
+        			    fixVal = as.numeric( as.character(fixVal) );
+        			  }else{
+        			    fixVal =  as.character(fixVal) ;
+        			  }
+        			  if( listFixVars[indFixVar] == 'fcst_init_beg'){
+        			    dfComp = dfComp[as.character(dfComp[[listFixVars[[indFixVar]]]]) == fixVal ,];
+        			  }else{
+        			    dfComp = dfComp[dfComp[[listFixVars[[indFixVar]]]] == fixVal ,];
+        			  }
+      			  }
+      			}
+		      }
+    			
+    			# if the list contains repetetive values, show a warning
+    			if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
+    				strFixVars='';
+    		  	if(length(listFixVars) >0){
+    		    	strFixVars = paste(listFixVars, collapse=",");
+    					strFixVars = paste(",", strFixVars, sep = "");
+    		  	}
+    				#stop("ERROR: eventEqualize() detected non-unique events for indy var ", strIndyVar , "=",strIndyVal, " using [fcst_valid_beg,fcst_lead", strFixVars, "]");
+					  warning("\nWARNING: eventEqualize() detected non-unique events   using [fcst_valid_beg,fcst_lead", strFixVars, "]");
+    			}
+    		
+    			
+    			# if empty, initialize the equalization list
+    			if( 0 < sum(is.na(listEqualize)) ){
+    				listEqualize = unique(dfComp$equalize);
+    			} else { # if there is an equalization list, equalize the current series data
+    				listInd = listEqualize %in% unique(dfComp$equalize);
+    
+    				# report the discarded records
+    				listDiscard = listEqualize[ !listInd ];
+    				listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
+    				for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
+    				
+    				# update the equalization list
+    				listEqualize = listEqualize[listInd];
+    			}		
+		    }
+		  }
+		
 		
 		# create an equalized set of data for the minimal list of dates
 		dfIndyEq = dfIndy[dfIndy$equalize %in% listEqualize,];
@@ -243,19 +282,8 @@ eventEqualizeRhist = function(dfStats, listSeriesVal,listFixVars, listFixVarVals
 
     #always use fcst_valid_beg and fcst_lead for equalization
     equalize_by = paste(dfStats$fcst_valid_beg, dfStats$fcst_lead);
+	  dfStats$equalize = equalize_by;
 
-
-      dfStats$equalize = equalize_by;
-
-
-    #add fixed vars if nedded
-    if (length(listFixVars) > 0){
-      for(index in 1:length(listFixVars)){
-        if(listFixVars[index] != 'fcst_lead' || listFixVars[index] != 'fcst_valid_beg') {
-          dfStats$equalize = paste(	dfStats$equalize,dfStats[[listFixVars[index]]] );
-        }
-      }
-    }
 
   } else {
     cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
@@ -275,6 +303,10 @@ eventEqualizeRhist = function(dfStats, listSeriesVal,listFixVars, listFixVarVals
 	  listSeriesValNoGroups[[strSeriesVar]] = valSeriesNew;
 	}
 
+  # create a list of permutations representing the plot series
+	dfSeriesPerm = data.frame( permute(listSeriesValNoGroups) );
+	names(dfSeriesPerm) = names(listSeriesValNoGroups);
+
 	# create a list of permutations representing the plot series
 	dfSeriesPerm = data.frame( permute(listSeriesValNoGroups) );
 	names(dfSeriesPerm) = names(listSeriesValNoGroups);
@@ -284,39 +316,60 @@ eventEqualizeRhist = function(dfStats, listSeriesVal,listFixVars, listFixVarVals
 		# examine the stats for the current lead time
 
 		# find the minimal list of dates which all series have in common
-		listDates = array();
 		listEqualize = array();
 		for(intSeries in 1:nrow(dfSeriesPerm)){
-			dfComp = dfStats;
-			for(strSeriesVar in names(listSeriesValNoGroups)){
-				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
-				  dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
+
+			for( rowNumber in 1:nrow(frameFixVarVals)){
+
+				dfComp = dfStats;
+				for(strSeriesVar in names(listSeriesValNoGroups)){
+					valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
+					if(strSeriesVar == 'fcst_valid_beg' || strSeriesVar == 'fcst_init_beg'){
+				  	dfComp = dfComp[as.character(dfComp[[strSeriesVar]]) == valSeries,];
+					}else{
+						dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
+					}
 			}
 
-			# if the list contains repetetive values, throw an error
-			if(  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
-				strFixVars='';
-		  	if(length(listFixVars) >0){
-		    	strFixVars = paste(listFixVars, collapse=",");
-					strFixVars = paste(",", strFixVars, sep = "");
-		  	}
-				stop("ERROR: eventEqualize() detected non-unique events  using [fcst_valid_beg,fcst_lead", strFixVars, "]");
+			for(indFixVar in 1:length(listFixVars) ){
+				fixVal = frameFixVarVals[rowNumber,][indFixVar];
+				if( suppressWarnings( all(!is.na( as.numeric( as.character(fixVal) ) ) ) ) ) {
+					fixVal = as.numeric( as.character(fixVal) );
+				}else{
+					fixVal =  as.character(fixVal) ;
+				}
+				if(listFixVars[indFixVar] == 'fcst_valid_beg' || listFixVars[indFixVar] == 'fcst_init_beg'){
+					dfComp = dfComp[as.character(dfComp[[listFixVars[[indFixVar]]]]) == fixVal ,];
+				}else{
+					dfComp = dfComp[dfComp[[listFixVars[[indFixVar]]]] == fixVal ,];
+				}
 			}
 
+				# if the list contains repetetive values, throw an error
+				if(  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
+					strFixVars='';
+					if(length(listFixVars) >0){
+						strFixVars = paste(listFixVars, collapse=",");
+						strFixVars = paste(",", strFixVars, sep = "");
+					}
+					warning("\nWARNING: eventEqualize() detected non-unique events   using [fcst_valid_beg,fcst_lead", strFixVars, "]");
+				}
 
-			# if empty, initialize the equalization list
-			if( 0 < sum(is.na(listEqualize)) ){
-				listEqualize = unique(dfComp$equalize);
-			} else { # if there is an equalization list, equalize the current series data
-				listInd = listEqualize %in% unique(dfComp$equalize);
 
-				# report the discarded records
-				listDiscard = listEqualize[ !listInd ];
-				listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
-				for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
+				# if empty, initialize the equalization list
+				if( 0 < sum(is.na(listEqualize)) ){
+					listEqualize = unique(dfComp$equalize);
+				} else { # if there is an equalization list, equalize the current series data
+					listInd = listEqualize %in% unique(dfComp$equalize);
 
-				# update the equalization list
-				listEqualize = listEqualize[listInd];
+					# report the discarded records
+					listDiscard = listEqualize[ !listInd ];
+					listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
+					for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
+
+					# update the equalization list
+					listEqualize = listEqualize[listInd];
+				}
 			}
 		}
 
@@ -339,7 +392,7 @@ eventEqualizeRhist = function(dfStats, listSeriesVal,listFixVars, listFixVarVals
 }
 
 
-eventEqualizeAddStat = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFixVars, listFixVarVals, boolEqualizeByIndep ,boolMulti){
+eventEqualizeAggStat = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFixVars, listFixVarVals, boolEqualizeByIndep ,boolMulti){
 
   # convert the dates from strings to POSIXct, and create a unique member to use for equalization
    if( "fcst_valid" %in% names(dfStats) ) {
@@ -352,15 +405,6 @@ eventEqualizeAddStat = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,
       dfStats$equalize = paste(equalize_by, dfStats[[strIndyVar]]);
     }else{
       dfStats$equalize = equalize_by;
-    }
-
-    #add fixed vars if nedded
-    if (length(listFixVars) > 0){
-      for(index in 1:length(listFixVars)){
-        if(listFixVars[index] != 'fcst_lead' || listFixVars[index] != 'fcst_valid') {
-          dfStats$equalize = paste(	dfStats$equalize,dfStats[[listFixVars[index]]]);
-        }
-      }
     }
   } else {
     cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
@@ -384,45 +428,140 @@ eventEqualizeAddStat = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,
 	dfSeriesPerm = data.frame( permute(listSeriesValNoGroups) );
 	names(dfSeriesPerm) = names(listSeriesValNoGroups);
 
+	# create all permutationa of fix vars
+	names(listFixVarVals) = listFixVars;
+	frameFixVarVals = permute(listFixVarVals);
+
 	# for each fcst_lead value, equalize the plot series by fcst_valid_beg
 	dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
-	for(strIndyVal in listIndyVal){
-		# examine the stats for the current lead time
-		dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
-		if( 1 > nrow(dfIndy) ){ next; }
+	if (is.null(listIndyVal)){
+	  # find the minimal list of dates which all series have in common
+	  listDates = array();
+	  listEqualize = array();
+	  for(intSeries in 1:nrow(dfSeriesPerm)){
 
-		# find the minimal list of dates which all series have in common
-		listDates = array();
-		listEqualize = array();
-		for(intSeries in 1:nrow(dfSeriesPerm)){
-			dfComp = dfIndy;
-			for(strSeriesVar in names(listSeriesValNoGroups)){
-				valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
-				  dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
-			}
+			for( rowNumber in 1:nrow(frameFixVarVals)){
+				dfComp = dfIndy;
+				for(strSeriesVar in names(listSeriesValNoGroups)){
+					valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
+					if(strSeriesVar == 'fcst_valid_beg' || strSeriesVar == 'fcst_init_beg'){
+						dfComp = dfComp[as.character(dfComp[[strSeriesVar]]) == valSeries,];
+					}else{
+						dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
+					}
+				}
 
-			# if the list contains repetetive values, throw an error
-			if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
-				stop("ERROR: eventEqualize() detected non-unique events for indy val ", strIndyVal);
-			}
+				for(indFixVar in 1:length(listFixVars) ){
+					fixVal = frameFixVarVals[rowNumber,][indFixVar];
+					if( suppressWarnings( all(!is.na( as.numeric( as.character(fixVal) ) ) ) ) ) {
+						fixVal = as.numeric( as.character(fixVal) );
+					}else{
+						fixVal =  as.character(fixVal) ;
+					}
+					if(listFixVars[indFixVar] == 'fcst_valid_beg' || listFixVars[indFixVar] == 'fcst_init_beg'){
+						dfComp = dfComp[as.character(dfComp[[listFixVars[[indFixVar]]]]) == fixVal ,];
+					}else{
+						dfComp = dfComp[dfComp[[listFixVars[[indFixVar]]]] == fixVal ,];
+					}
+				}
+
+				# if the list contains repetetive values, throw an error
+				if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
+					warning("\nWARNING: eventEqualize() detected non-unique events for indy val ", strIndyVal);
+				}
 
 
-			# if empty, initialize the equalization list
-			if( 0 < sum(is.na(listEqualize)) ){
-				listEqualize = unique(dfComp$equalize);
-			} else { # if there is an equalization list, equalize the current series data
-				listInd = listEqualize %in% unique(dfComp$equalize);
+				# if empty, initialize the equalization list
+				if( 0 < sum(is.na(listEqualize)) ){
+					listEqualize = unique(dfComp$equalize);
+				} else { # if there is an equalization list, equalize the current series data
+					listInd = listEqualize %in% unique(dfComp$equalize);
 
-				# report the discarded records
-				listDiscard = listEqualize[ !listInd ];
-				listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
-				for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
+					# report the discarded records
+					listDiscard = listEqualize[ !listInd ];
+					listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
+					for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
 
-				# update the equalization list
-				listEqualize = listEqualize[listInd];
+					# update the equalization list
+					listEqualize = listEqualize[listInd];
+				}
 			}
 		}
+	  
+	  # create an equalized set of data for the minimal list of dates
+	  dfIndyEq = dfIndy[dfIndy$equalize %in% listEqualize,];
+	  intEqRow = nrow(dfStatsEq);
+	  if( 0 < nrow(dfIndyEq) ){
+	    dfStatsEq[(intEqRow+1):(intEqRow+nrow(dfIndyEq)),] = dfIndyEq;
+	  } else {
+	    cat("\n    WARNING: discarding all members for indy val", strIndyVal);
+	  }
 
+	}else{
+	
+		for(strIndyVal in listIndyVal){
+			# examine the stats for the current lead time
+			if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
+				dfIndy = dfStats[as.character(dfStats[[strIndyVar]]) == strIndyVal,];
+			}else{
+				dfIndy = dfStats[dfStats[[strIndyVar]] == strIndyVal,];
+			}
+			if( 1 > nrow(dfIndy) ){ next; }
+
+			# find the minimal list of dates which all series have in common
+			listDates = array();
+			listEqualize = array();
+
+
+			for(intSeries in 1:nrow(dfSeriesPerm)){
+
+				for( rowNumber in 1:nrow(frameFixVarVals)){
+					dfComp = dfIndy;
+					for(strSeriesVar in names(listSeriesValNoGroups)){
+						valSeries = array(dfSeriesPerm[[strSeriesVar]])[intSeries];
+						if(strSeriesVar == 'fcst_valid_beg' || strSeriesVar == 'fcst_init_beg'){
+							dfComp = dfComp[as.character(dfComp[[strSeriesVar]]) == valSeries,];
+						}else{
+							dfComp = dfComp[dfComp[[strSeriesVar]] == valSeries,];
+						}
+					}
+
+					for(indFixVar in 1:length(listFixVars) ){
+						fixVal = frameFixVarVals[rowNumber,][indFixVar];
+						if( suppressWarnings( all(!is.na( as.numeric( as.character(fixVal) ) ) ) ) ) {
+							fixVal = as.numeric( as.character(fixVal) );
+						}else{
+							fixVal =  as.character(fixVal) ;
+						}
+						if(listFixVars[indFixVar] == 'fcst_valid_beg' || listFixVars[indFixVar] == 'fcst_init_beg'){
+							dfComp = dfComp[as.character(dfComp[[listFixVars[[indFixVar]]]]) == fixVal ,];
+						}else{
+							dfComp = dfComp[dfComp[[listFixVars[[indFixVar]]]] == fixVal ,];
+						}
+					}
+
+				# if the list contains repetetive values, throw an error
+				if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
+					cat("\nWARNING: eventEqualize() detected non-unique events for indy val ", strIndyVal);
+				}
+
+
+				# if empty, initialize the equalization list
+				if( 0 < sum(is.na(listEqualize)) ){
+					listEqualize = unique(dfComp$equalize);
+				} else { # if there is an equalization list, equalize the current series data
+					listInd = listEqualize %in% unique(dfComp$equalize);
+
+					# report the discarded records
+					listDiscard = listEqualize[ !listInd ];
+					listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
+					for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member", strDiscard); }
+
+					# update the equalization list
+					listEqualize = listEqualize[listInd];
+				}
+			}
+		}
 		# create an equalized set of data for the minimal list of dates
 		dfIndyEq = dfIndy[dfIndy$equalize %in% listEqualize,];
 		intEqRow = nrow(dfStatsEq);
@@ -432,6 +571,7 @@ eventEqualizeAddStat = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,
 		 cat("\n    WARNING: discarding all members for indy val", strIndyVal);
 		}
 	}
+}
 
 	if( nrow(dfStatsEq) != nrow(dfStats) ){
 		cat("\n    WARNING: event equalization removed ", (nrow(dfStats) - nrow(dfStatsEq)), " rows", sep="");

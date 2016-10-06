@@ -111,7 +111,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-            addFixedVariableRhist();
+            addFixedVarRhist();
         });
 
         $("#series_var_y1_1").multiselect({
@@ -161,7 +161,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-                    addSeriesVariableEns();
+                    addSeriesVarEns();
         });
         $(".remove_var").button({
             icons: {
@@ -170,7 +170,7 @@
             text: false,
             disabled: true
         }).click(function () {
-            removeSeriesVarSeriesBox($(this).attr('id'));
+            removeSeriesVar($(this).attr('id'));
         });
 
         getForecastVariablesHist();

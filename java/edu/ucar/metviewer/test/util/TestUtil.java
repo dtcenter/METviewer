@@ -148,7 +148,7 @@ public class TestUtil {
     }
   };
   public static final String LOAD_DIR;
-  public static  final String DATABASE;
+  public static  final String database;
   public static  final String USERNAME;
   public static  final String PWD;
   public static  final String host;
@@ -170,7 +170,7 @@ public class TestUtil {
     DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
     SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
-    DATABASE = "mv_test";
+    database = "mv_test";
     USERNAME = "mvuser";
     PWD = "mvuser";
     host = "dakota.rap.ucar.edu:3306";

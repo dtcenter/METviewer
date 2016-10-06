@@ -64,21 +64,21 @@
                     }
                   }
           ).click(function () {
-                    addFcstVariableSeries("y1");
+                    addFcstVar("y1");
                   });
           $('#add_fcst_var_y2').button({
             icons: {
               primary: "ui-icon-circle-plus"
             }
           }).click(function () {
-            addFcstVariableSeries("y2");
+            addFcstVar("y2");
           });
           $('#add_fixed_var').button({
             icons: {
               primary: "ui-icon-circle-plus"
             }
           }).click(function () {
-            addFixedVariableSeries();
+            addFixedVar();
           });
 
 
@@ -93,15 +93,15 @@
               if (ui.value == 'stat') {
                 updateStats("y1", 1, []);
                 updateStats("y2", 1, []);
-                updateFixVarSeries("stat");
-                updateIndyVarSeries("stat");
+                updateFixVar("stat");
+                updateIndyVar("stat");
                 $("#agg_none").prop('checked', 'checked');
 
               } else {
                 updateMode("y1", 1, []);
                 updateMode("y2", 1, []);
-                updateFixVarSeries("mode");
-                updateIndyVarSeries("mode");
+                updateFixVar("mode");
+                updateIndyVar("mode");
                 $("#agg_stat").val('mode');
                 $("#agg_stat").multiselect("refresh");
                 $("#calc_stat").val('none');
@@ -117,8 +117,8 @@
                 $('#aggregation_statistics ').show();
                 $('#calculations_statistics ').hide();
                 }
-              updateSeriesVarValSeries("y1", 1, []);
-              updateSeriesVarValSeries("y2", 1, []);
+              updateSeriesVarVal("y1", 1, []);
+              updateSeriesVarVal("y2", 1, []);
             }
           });
 
@@ -146,7 +146,7 @@
               if (selectedSeriesVarVal == null) {
                 selectedSeriesVarVal = [];
               }
-              updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], selectedSeriesVarVal);
+              updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], selectedSeriesVarVal);
             }
           });
 
@@ -162,17 +162,17 @@
               } catch (err) {
                 console.log("Error " + err);
               }
-              updateSeriesSeriesBox();
+              updateSeries();
             },
             position: {
               my: 'right center',
               at: 'right center'
             },
             checkAll: function () {
-              updateSeriesSeriesBox();
+              updateSeries();
             },
             uncheckAll: function () {
-              updateSeriesSeriesBox();
+              updateSeries();
             }
 
           });
@@ -192,7 +192,7 @@
                 $("#series_var_val_y1_date_period_button_1").css("display", "none");
               }
               var id_array = this.id.split("_");
-              updateSeriesVarValSeries(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+              updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
             }
 
           });
@@ -236,13 +236,13 @@
             selectedList: 100, // 0-based index
             noneSelectedText: "Select value",
             click: function () {
-              updateSeriesSeriesBox();
+              updateSeries();
             },
             checkAll: function () {
-              updateSeriesSeriesBox(true);
+              updateSeries(true);
             },
             uncheckAll: function () {
-              updateSeriesSeriesBox();
+              updateSeries();
             }
           });
           $("#indy_var_val").multiselect({
@@ -282,14 +282,14 @@
               primary: "ui-icon-circle-plus"
             }
           }).click(function () {
-            addSeriesVariableSeriesBox("y1");
+            addSeriesVar("y1");
           });
           $('#add_series_var_y2').button({
             icons: {
               primary: "ui-icon-circle-plus"
             }
           }).click(function () {
-            addSeriesVariableSeriesBox("y2");
+            addSeriesVar("y2");
           });
 
 
@@ -351,9 +351,9 @@
                 disabled: true
             }).click(function () {
                         if ($(this).attr('id').startsWith('remove_series_var')) {
-                            removeSeriesVarSeriesBox($(this).attr('id'));
+                            removeSeriesVar($(this).attr('id'));
                         } else if ($(this).attr('id').startsWith('remove_fcst_var')) {
-                            removeFcstVarSeriesBox($(this).attr('id'));
+                            removeFcstVar($(this).attr('id'));
                         }
                     });
             $(".remove_fixed_var").button({
@@ -362,7 +362,7 @@
                 },
                 text: false
             }).click(function () {
-                removeFixedVarSeries($(this).attr('id'));
+                removeFixedVar($(this).attr('id'));
             });
 
 
@@ -375,8 +375,8 @@
                 updateForecastVariables();
                 updateStats("y1", 1, []);
                 updateStats("y2", 1, []);
-                updateSeriesVarValSeries("y1", 1, []);
-                updateSeriesVarValSeries("y2", 1, []);
+                updateSeriesVarVal("y1", 1, []);
+                updateSeriesVarVal("y2", 1, []);
                 $.each(fix_var_value_to_title_stat_map, function (key, val) {
                     $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
                 });
@@ -443,40 +443,40 @@
                                                            class="non-acov non-pair"
                                                            name="mode_stat_diff"
                                                            value="D"
-                                                           onclick="updateSeriesSeriesBox();"><label>Diff</label>
+                                                           onclick="updateSeries();"><label>Diff</label>
                                     </td>
                                     <td><input type="checkbox" class="non-pair"
                                                checked name="mode_stat_fcst"
                                                value="F"
-                                               onclick="updateSeriesSeriesBox();"><label>Fcst</label>
+                                               onclick="updateSeries();"><label>Fcst</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked name="mode_stat_simple"
                                                value="S"
-                                               onclick="updateSeriesSeriesBox();"><label>Simple</label>
+                                               onclick="updateSeries();"><label>Simple</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked name="mode_stat_matched"
                                                value="M"
-                                               onclick="updateSeriesSeriesBox();"><label>Matched</label>
+                                               onclick="updateSeries();"><label>Matched</label>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" class="non-pair"
                                                checked name="mode_stat_obs"
                                                value="O"
-                                               onclick="updateSeriesSeriesBox();"><label>Obs</label>
+                                               onclick="updateSeries();"><label>Obs</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked name="mode_stat_cluster"
                                                value="C"
-                                               onclick="updateSeriesSeriesBox();"><label>Cluster</label>
+                                               onclick="updateSeries();"><label>Cluster</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked
                                                name="mode_stat_unmatched"
                                                value="U"
-                                               onclick="updateSeriesSeriesBox();"><label>Unmatched</label>
+                                               onclick="updateSeries();"><label>Unmatched</label>
                                     </td>
                                 </tr>
                             </table>
@@ -534,7 +534,7 @@
                             </button>
                         </td>
                         <td><input type="checkbox" id="group_series_var_y1_1"
-                                   onclick="updateSeriesSeriesBox();"><label
+                                   onclick="updateSeries();"><label
                                 for="group_series_var_y1_1">Group_y1_1</label>
                         </td>
                     </tr>
@@ -581,40 +581,40 @@
                                                            class="non-acov non-pair"
                                                            name="mode_stat_diff"
                                                            value="D"
-                                                           onclick="updateSeriesSeriesBox();"><label>Diff</label>
+                                                           onclick="updateSeries();"><label>Diff</label>
                                     </td>
                                     <td><input type="checkbox" checked
                                                name="mode_stat_fcst"
                                                class="non-pair" value="F"
-                                               onclick="updateSeriesSeriesBox();"><label>Fcst</label>
+                                               onclick="updateSeries();"><label>Fcst</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked name="mode_stat_simple"
                                                value="S"
-                                               onclick="updateSeriesSeriesBox();"><label>Simple</label>
+                                               onclick="updateSeries();"><label>Simple</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked name="mode_stat_matched"
                                                value="M"
-                                               onclick="updateSeriesSeriesBox();"><label>Matched</label>
+                                               onclick="updateSeries();"><label>Matched</label>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" checked
                                                name="mode_stat_obs" value="O"
                                                class="non-pair"
-                                               onclick="updateSeriesSeriesBox();"><label>Obs</label>
+                                               onclick="updateSeries();"><label>Obs</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked name="mode_stat_cluster"
                                                value="C"
-                                               onclick="updateSeriesSeriesBox();"><label>Cluster</label>
+                                               onclick="updateSeries();"><label>Cluster</label>
                                     </td>
                                     <td><input type="checkbox" class="non-acov"
                                                checked
                                                name="mode_stat_unmatched"
                                                value="U"
-                                               onclick="updateSeriesSeriesBox();"><label>Unmatched</label>
+                                               onclick="updateSeries();"><label>Unmatched</label>
                                     </td>
                                 </tr>
                             </table>
@@ -672,7 +672,7 @@
                             </button>
                         </td>
                         <td><input type="checkbox" id="group_series_var_y2_1"
-                                   onclick="updateSeriesSeriesBox();"><label
+                                   onclick="updateSeries();"><label
                                 for="group_series_var_y2_1">Group_y2_1</label>
                         </td>
                     </tr>

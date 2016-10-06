@@ -29,6 +29,33 @@ if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 # sort the dataset by init time, lead time and independent variable
 listFields = names(dfStatsRec);
 
+listGroupToValue=c();
+if(length(names(listSeries1Val)) > 1){
+  for (index  in 1: length(names(listSeries1Val)) ){
+    strSeriesVar=names(listSeries1Val)[[index]];
+    valSeries = listSeries1Val[[strSeriesVar]];
+    for(strVar in valSeries){
+      if( grepl(',', strVar)) {
+        newName = paste('Group_y1_',index,sep = "");
+        listGroupToValue[[newName]]= strVar;
+      }
+    }
+  }
+}
+
+if(length(names(listSeries2Val)) > 1){
+  for (index  in 1: length(names(listSeries2Val)) ){
+    strSeriesVar=names(listSeries2Val)[[index]];
+    valSeries = listSeries2Val[[strSeriesVar]];
+    for(strVar in valSeries){
+      if( grepl(',', strVar)) {
+        newName = paste('Group_y2_',index,sep = "");
+        listGroupToValue[[newName]]= strVar;
+      }
+    }
+  }
+}
+
 
 dfStatsRecAxis1= data.frame();
 dfStatsRecAxis2= data.frame();
@@ -60,17 +87,20 @@ if( boolEventEqual  ){
   }
   for( strDep1Name in names(listDep1Plot) ){
     for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+      fPlot = dfStatsRec;
       for(strSeriesVal in names(listSeries1Val)){
         vectValPerms = c();
         for(index in 1:length(listSeries1Val[[strSeriesVal]])){
           vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
         }
-        fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep1Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms & dfStatsRec$stat_name %in% strDep1Stat,  ];
-        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-        dfPlot1 = rbind(dfPlot1, fPlot);
+        fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
       }
+
+      fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+      dfPlot1 = rbind(dfPlot1, fPlot);
     }
   }
+
 
   #if the second Y axis is present - run event equalizer on Y1
   # and then run event equalizer on Y1 and Y2 equalized data
@@ -78,17 +108,20 @@ if( boolEventEqual  ){
     dfPlot2 = data.frame();
     for( strDep2Name in names(listDep2Plot) ){
       for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
+        fPlot = dfStatsRec;
         for(strSeriesVal in names(listSeries2Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries2Val[[strSeriesVal]])){
             vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
           }
-          fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms & dfStatsRec$stat_name %in% strDep2Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-          dfPlot2 = rbind(dfPlot2, fPlot);
+          fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
         }
+
+        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+        dfPlot2 = rbind(dfPlot2, fPlot);
       }
     }
+
     dfStatsRec = rbind(dfPlot1, dfPlot2);
     listSeriesVal=list();
     for( seriesVal in names(listSeries1Val) ){
@@ -169,14 +202,25 @@ intNumOut = nrow(matOut);
 for(strStaticVar in names(listStaticVal)){
   listOutPerm[[strStaticVar]] = rep(listStaticVal[[strStaticVar]], intNumOut);
 }
-for(intOutCol in 1:ncol(matOut)){
-  if ( intOutCol <  ncol(matOut) - 1 ){
-    listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
-  } else if ( intOutCol == ncol(matOut) - 1 ){
-    listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
-  } else {
-    listOutPerm$stat_name = matOut[,intOutCol];
+if(strIndyVar != ""){
+  for(intOutCol in 1:ncol(matOut)){
+    if ( intOutCol <  ncol(matOut) - 1 ){
+      listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
+    } else if ( intOutCol == ncol(matOut) - 1 ){
+        listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
+    } else {
+      listOutPerm$stat_name = matOut[,intOutCol];
+    }
   }
+}else{
+  for(intOutCol in 1:ncol(matOut)){
+    if ( intOutCol ==   ncol(matOut)   ){
+      listOutPerm$stat_name = matOut[,intOutCol];
+    }else{
+      listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
+    }
+  }
+
 }
 listOutPerm$stat_value = rep(NA, intNumOut);
 listOutPerm$stat_bcl = rep(NA, intNumOut);
@@ -472,6 +516,23 @@ booter.iid = function(d, i){
       indPerm1=0;
       indPerm2=0;
       derivedCurveName = getDerivedCurveName(diffSeriesVec);
+
+      #remove groups from the series vars
+      for(groupName in names(listGroupToValue)){
+        for(index in 1:length( listSeriesDiff1Short)){
+          if(groupName == listSeriesDiff1Short[index]){
+            listSeriesDiff1Short[index] = listGroupToValue[[groupName]];
+            break;
+          }
+        }
+        for(index in 1:length( listSeriesDiff2Short)){
+          if(groupName == listSeriesDiff2Short[index]){
+            listSeriesDiff2Short[index] = listGroupToValue[[groupName]];
+            break;
+          }
+        }
+      }
+
       for(intPerm in 1:nrow(matPerm)){
         d1 = listSeriesDiff1Short %in% matPerm[intPerm,];
         d2 = listSeriesDiff2Short %in% matPerm[intPerm,];
@@ -483,18 +544,28 @@ booter.iid = function(d, i){
         }
       }
       if(indPerm1 != 0 && indPerm2 !=0){
-        listRet[[paste(strStat1,strStat2, indPerm1, indPerm2,sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indPerm1],listRet[[strStat2]][indPerm2], derivedCurveName);
+        listRet[[paste(strStat1,strStat2, indPerm1, indPerm2,diffSeriesVec[length(diffSeriesVec)],sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indPerm1],listRet[[strStat2]][indPerm2], derivedCurveName);
       }
     }
   }
   return( unlist(listRet) );
 }
 
+if(is.null(listIndyVal)){
+  listIndyVal = c(NaN);
+}
 
 # run the bootstrap flow for each independent variable value
 for(strIndyVal in listIndyVal){
-
-  dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
+  if(is.nan(strIndyVal)){
+    dfStatsIndy = dfStatsRec;
+  }else{
+    if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
+      dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) == strIndyVal,];
+    } else {
+      dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
+    }
+  }
   if( 1 > nrow(dfStatsIndy) ){ next; }
 
   # for each series group, bootstrap the statistics
@@ -593,7 +664,11 @@ for(strIndyVal in listIndyVal){
           strSeriesVal = listPerm[intSeriesVal];
           listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
         }
-        listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
+        if(strIndyVar == ""){
+          listOutInd = listOutInd & (dfOut$stat_name == strStat);
+        }else{
+          listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
+        }
         if( 1 < intNumReplicates ){
 
           # calculate the confidence interval for the current stat and series permutation
