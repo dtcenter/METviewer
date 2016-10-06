@@ -129,19 +129,19 @@ public class MVBatch extends MVUtil {
       }
 
       //  get the path information for the job
-      if (!parser.getRtmplFolder().equals("")) {
+      if (!parser.getRtmplFolder().isEmpty()) {
         bat._strRtmplFolder = parser.getRtmplFolder();
       }
-      if (!parser.getRworkFolder().equals("")) {
+      if (!parser.getRworkFolder().isEmpty()) {
         bat._strRworkFolder = parser.getRworkFolder();
       }
-      if (!parser.getPlotsFolder().equals("")) {
+      if (!parser.getPlotsFolder().isEmpty()) {
         bat._strPlotsFolder = parser.getPlotsFolder();
       }
-      if (!parser.getDataFolder().equals("")) {
+      if (!parser.getDataFolder().isEmpty()) {
         bat._strDataFolder = parser.getDataFolder();
       }
-      if (!parser.getScriptsFolder().equals("")) {
+      if (!parser.getScriptsFolder().isEmpty()) {
         bat._strScriptsFolder = parser.getScriptsFolder();
       }
 
@@ -228,9 +228,9 @@ public class MVBatch extends MVUtil {
     MVOrderedMap[] listDep = job.getDepGroups();
     if (listDep.length > 0) {
       String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
-      //String strStat = parseModeStat(listFcstVarStat[0][1])[0];
-
-      return (_tableModeRatioField.containsKey(listFcstVarStat[0][1]));
+      if (listFcstVarStat.length > 0) {
+        return (_tableModeRatioField.containsKey(listFcstVarStat[0][1]));
+      } else return false;
     } else {
       return false;
     }
@@ -328,7 +328,7 @@ public class MVBatch extends MVUtil {
           "  AND mop.mode_header_id = h.mode_header_id;");
     } else {
       //  build the MODE single object stat tables
-      listQuery.add("DROP  TABLE IF EXISTS mode_single;");
+      listQuery.add("\nDROP  TABLE IF EXISTS mode_single;");
       listQuery.add(
         "CREATE TEMPORARY TABLE mode_single\n" +
           "(\n" +
@@ -407,13 +407,13 @@ public class MVBatch extends MVUtil {
     return listQuery;
   }
 
-  public static ArrayList buildModeEventEqualizeTempSQL(String strTempList, String strSelectList, String strWhere) {
+  public static List<String> buildModeEventEqualizeTempSQL(String strTempList, String strSelectList, String strWhere) {
 
-    ArrayList listQuery = new ArrayList();
+    List<String> listQuery = new ArrayList<>();
 
 
     //  build the MODE single object stat tables
-    listQuery.add("DROP  TABLE IF EXISTS mode_single;");
+    listQuery.add("\nDROP  TABLE IF EXISTS mode_single;");
     listQuery.add(
       "CREATE TEMPORARY TABLE mode_single\n" +
         "(\n" +
@@ -558,7 +558,7 @@ public class MVBatch extends MVUtil {
    * @param tableRTags template value table to receive plot formatting values
    * @param job        source for plot formatting values
    */
-  public static void populatePlotFmtTmpl(Hashtable tableRTags, MVPlotJob job) {
+  public static void populatePlotFmtTmpl(HashMap<String, String> tableRTags, MVPlotJob job) {
     tableRTags.put("plot_type", job.getPlotType());
     tableRTags.put("plot_width", job.getPlotWidth());
     tableRTags.put("plot_height", job.getPlotHeight());
@@ -637,7 +637,7 @@ public class MVBatch extends MVUtil {
    * @param vals   Table containing values corresponding to tags in the input template
    * @throws Exception
    */
-  public static void populateTemplateFile(String tmpl, String output, Hashtable vals) throws Exception {
+  public static void populateTemplateFile(String tmpl, String output, HashMap<String, String> vals) throws Exception {
     FileReader fileReader = null;
     BufferedReader reader = null;
     PrintStream writer = null;
@@ -655,7 +655,7 @@ public class MVBatch extends MVUtil {
           if (!vals.containsKey(strRtmplTag)) {
             continue;
           }
-          String strRTagVal = (String) vals.get(strRtmplTag);
+          String strRTagVal = vals.get(strRtmplTag);
           strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
         }
 
@@ -860,12 +860,6 @@ public class MVBatch extends MVUtil {
     //  build the list of fields involved in the computations
     String strSelectListStat = selectList.replaceAll("h\\.", "");
 
-    //  build the group by clause
-    String strGroupBy = "";
-    for (int i = 0; i < groups.length; i++) {
-      strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
-    }
-
 
     return
       "SELECT\n" + strSelectListStat + ",\n" +
@@ -942,6 +936,16 @@ public class MVBatch extends MVUtil {
    */
   public void runJob(MVPlotJob job) throws Exception {
 
+    if (job.getPlotTmpl().equals("taylor_plot.R_tmpl")) {
+      job.setEventEqual(Boolean.TRUE);
+      job.setEqualizeByIndep(Boolean.TRUE);
+      job.setAggSl1l2(Boolean.TRUE);
+      job.setPlotFixValEq(new MVOrderedMap(job.getPlotFixVal()));
+      for (String var : ((MVOrderedMap) job.getDepGroups()[0].get("dep1")).getKeyList()) {
+        ((MVOrderedMap) job.getDepGroups()[0].get("dep1")).put(var, new String[]{"FBAR", "FSTDEV", "OBAR", "OSTDEV", "PR_CORR", "RMSE"});
+      }
+    }
+
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     MVOrderedMap mapPlotFixValEq = job.getPlotFixValEq();
     MVOrderedMap mapTmplVals = job.getTmplVal();
@@ -986,13 +990,15 @@ public class MVBatch extends MVUtil {
       boolean boolModeRatioPlot = isModeRatioJob(job);
 
       //  build the SQL statements for the current plot
-      ArrayList listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
-      MVOrderedMap mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
-      mapTmplValsPlot.put("indy_var", job.getIndyVar());
-      addTmplValDep(job, mapTmplValsPlot);
-      _out.println(mapTmplValsPlot.getRDecl() + "\n");
+      ArrayList<String> listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
 
-      Hashtable tableAggStatInfo = new Hashtable();
+      MVOrderedMap mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
+      if (job.getIndyVar() != null) {
+        mapTmplValsPlot.put("indy_var", job.getIndyVar());
+      }
+      addTmplValDep(job, mapTmplValsPlot);
+
+      HashMap<String, String> tableAggStatInfo = new HashMap<>();
       //  resolve the dep maps and series values for each y-axis
       MVOrderedMap mapDep = job.getDepGroups()[0];
 
@@ -1007,8 +1013,8 @@ public class MVBatch extends MVUtil {
         }
       }
 
-      ArrayList listAggStats1 = new ArrayList();
-      ArrayList listAggStats2 = new ArrayList();
+      List<String> listAggStats1 = new ArrayList<>();
+      List<String> listAggStats2 = new ArrayList<>();
       MVOrderedMap mapAggStatStatic = new MVOrderedMap();
       //  build a list of the plot dep stats for the two y-axes, verifying that the fcst_var remains constant
 
@@ -1019,21 +1025,23 @@ public class MVBatch extends MVUtil {
 
         for (int intY = 1; intY <= 2; intY++) {
           MVOrderedMap mapDepY = (MVOrderedMap) mapDep.get("dep" + intY);
-          MVOrderedMap mapStat = new MVOrderedMap();
-          String[][] listFcstVarStat = buildFcstVarStatList(mapDepY);
-          for (int i = 0; i < listFcstVarStat.length; i++) {
-            String strFcstVarCur = listFcstVarStat[i][0];
-            if (strFcstVar.equals("")) {
-              strFcstVar = strFcstVarCur;
-            } else if (!strFcstVar.equals(strFcstVarCur)) {
-              throw new Exception("fcst_var must remain constant for MODE or when agg_stat/agg_pct/agg_stat_bootstrap is activated");
+          if (mapDepY != null) {
+            MVOrderedMap mapStat = new MVOrderedMap();
+            String[][] listFcstVarStat = buildFcstVarStatList(mapDepY);
+            for (int i = 0; i < listFcstVarStat.length; i++) {
+              String strFcstVarCur = listFcstVarStat[i][0];
+              if (strFcstVar.isEmpty()) {
+                strFcstVar = strFcstVarCur;
+              } else if (!strFcstVar.equals(strFcstVarCur)) {
+                throw new Exception("fcst_var must remain constant for MODE or when agg_stat/agg_pct/agg_stat_bootstrap is activated");
+              }
+              mapStat.put(listFcstVarStat[i][1], listFcstVarStat[i][0]);
             }
-            mapStat.put(listFcstVarStat[i][1], listFcstVarStat[i][0]);
-          }
-          if (1 == intY) {
-            listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
-          } else if (2 == intY) {
-            listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
+            if (1 == intY) {
+              listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
+            } else if (2 == intY) {
+              listAggStats2.addAll(Arrays.asList(mapStat.getKeyList()));
+            }
           }
         }
 
@@ -1047,7 +1055,7 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
-        tableAggStatInfo.put("event_equal", job.getEventEqual());
+        tableAggStatInfo.put("event_equal", String.valueOf(job.getEventEqual()));
         tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("boot_repl", job.getAggBootRepl());
@@ -1072,14 +1080,13 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("series1_diff_list", diffSeries1);
         tableAggStatInfo.put("series2_diff_list", diffSeries2);
         tableAggStatInfo.put("dep1_plot", mapDep1Plot.getRDecl());
-        tableAggStatInfo.put("dep2_plot", (null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()"));
+        tableAggStatInfo.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
 
       }
 
       if (isModeJob(job) && job.getEventEqual()) {
         //run ee first
         //create sql query
-        Statement stmt;
         List<String> eventEqualizeSql = buildPlotModeEventEqualizeSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
 
         for (int i = 0; i < eventEqualizeSql.size() - 1; i++) {
@@ -1089,39 +1096,45 @@ public class MVBatch extends MVUtil {
           if (_boolSQLOnly) {
             continue;
           }
-
-          stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-          stmt.execute(eventEqualizeSql.get(i));
-          stmt.close();
+          ResultSet resultSet = null;
+          try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
+            stmt.execute(eventEqualizeSql.get(i));
+            resultSet = stmt.getResultSet();
+          } catch (Exception e) {
+          } finally {
+            if (resultSet != null) {
+              resultSet.close();
+            }
+          }
         }
         if (_boolVerbose) {
           _out.println(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
         }
         if (!_boolSQLOnly) {
-          //  get the number of rows in the job data set
-          stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-          stmt.execute(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
           String strDataFileEe = _strDataFolder + "/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
-          try (ResultSet rs = stmt.getResultSet();
-               FileWriter fstream = new FileWriter(new File(strDataFileEe + "_ee_input"));
+
+          //  get the number of rows in the job data set
+          try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+               ResultSet resultSet = stmt.executeQuery(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
+               FileWriter fstream = new FileWriter(new File(strDataFileEe + "_ee_input"), true);
                BufferedWriter out = new BufferedWriter(fstream)) {
-            printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
-          } finally {
-            stmt.close();
+            printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
+            out.flush();
+
+            String tmplFileName = "agg_stat_event_equalize.info_tmpl";
+            tableAggStatInfo.put("agg_stat_input", strDataFileEe + "_ee_input");
+            tableAggStatInfo.put("agg_stat_output", strDataFileEe + ".ee");
+            String eeInfo = strDataFileEe.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
+
+
+            populateTemplateFile(_strRtmplFolder + "/" + tmplFileName, eeInfo, tableAggStatInfo);
+            boolean boolSuccess = runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo});
+
+          } catch (Exception e) {
           }
-          String tmplFileName = "agg_stat_event_equalize.info_tmpl";
-          tableAggStatInfo.put("agg_stat_input", strDataFileEe + "_ee_input");
-          tableAggStatInfo.put("agg_stat_output", strDataFileEe + ".ee");
-          String eeInfo = strDataFileEe.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
-
-
-          populateTemplateFile(_strRtmplFolder + "/" + tmplFileName, eeInfo, tableAggStatInfo);
-          boolean boolSuccess = runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo});
-
         }
+
       }
-
-
 
 			/*
        *  Build and run the query
@@ -1130,24 +1143,48 @@ public class MVBatch extends MVUtil {
 
       //  run the plot SQL against the database connection
       long intStartTime = (new java.util.Date()).getTime();
-      Statement stmt;
-      //  ResultSet res;
-      String[] listSQL = toArray(listQuery);
-      for (int i = 0; i < listSQL.length - 1; i++) {
+      List<String> listSQLBeforeSelect = new ArrayList<>();
+      List<String> listSQLLastSelectTemp = new ArrayList<>();
+      List<String> listSQLLastSelect = new ArrayList<>();
+      for (int i = listQuery.size() - 1; i >= 0; i--) {
+        if (listQuery.get(i).startsWith("SELECT")) {
+          listSQLLastSelectTemp.add(listQuery.get(i));
+        } else {
+          break;
+        }
+      }
+      for (String sql : listQuery) {
+        if (listSQLLastSelectTemp.contains(sql)) {
+          listSQLLastSelect.add(sql);
+        } else {
+          listSQLBeforeSelect.add(sql);
+        }
+      }
+      for (int i = 0; i < listSQLBeforeSelect.size(); i++) {
         if (_boolVerbose) {
-          _out.println(listSQL[i] + "\n");
+          _out.println(listSQLBeforeSelect.get(i) + "\n");
         }
         if (_boolSQLOnly) {
           continue;
         }
+        ResultSet resultSet = null;
 
-        stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-        stmt.execute(listSQL[i]);
-        stmt.close();
+        try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
+          stmt.execute(listSQLBeforeSelect.get(i));
+          resultSet = stmt.getResultSet();
+        } catch (Exception e) {
+
+        } finally {
+          if (resultSet != null) {
+            resultSet.close();
+          }
+        }
       }
 
       if (_boolVerbose) {
-        _out.println(listSQL[listSQL.length - 1] + "\n");
+        for (int i = 0; i < listSQLLastSelect.size(); i++) {
+          _out.println(listSQLLastSelect.get(i) + "\n");
+        }
       }
       if (_boolSQLOnly) {
         return;
@@ -1163,12 +1200,12 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      if (_strDataFolder.equals("")) {
+      if (_strDataFolder.isEmpty()) {
         _strDataFolder = _strRworkFolder + "data/";
       } else {
         _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
       }
-      if (_strScriptsFolder.equals("")) {
+      if (_strScriptsFolder.isEmpty()) {
         _strScriptsFolder = _strRworkFolder + "scripts/";
       } else {
         _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
@@ -1192,22 +1229,20 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the plot data from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-      String strPlotDataSelect = listSQL[listSQL.length - 1];
 
-      if (_boolVerbose) {
-        _out.println(strPlotDataSelect);
+      for (int i = 0; i < listSQLLastSelect.size(); i++) {
+        try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+             ResultSet rs = stmt.executeQuery(listSQLLastSelect.get(i));
+             FileWriter fstream = new FileWriter(new File(strDataFile), true);
+             BufferedWriter out = new BufferedWriter(fstream)) {
+
+          printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), i == 0);
+        } catch (Exception e) {
+          System.out.println(e.getMessage());
+        }
       }
-      stmt.execute(strPlotDataSelect);
       _out.println("Query returned  plot_data rows in " + formatTimeSpan((new java.util.Date()).getTime() - intStartTime));
 
-      try (ResultSet rs = stmt.getResultSet(); FileWriter fstream = new FileWriter(new File(strDataFile)); BufferedWriter out = new BufferedWriter(fstream)) {
-        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
-      } finally {
-        stmt.close();
-      }
 
 
 			/*
@@ -1358,14 +1393,14 @@ public class MVBatch extends MVUtil {
       Map.Entry[] listDep2Plot = (null != mapDep2Plot ? mapDep2Plot.getOrderedEntries() : new Map.Entry[]{});
 
 
-      Hashtable tableRTags = new Hashtable();
+      HashMap<String, String> tableRTags = new HashMap<>();
 
       //  populate the plot settings in the R script template
       tableRTags.put("r_work", _strRworkFolder);
       tableRTags.put("indy_var", job.getIndyVar());
-      tableRTags.put("indy_list", (0 < job.getIndyVal().length ? printRCol(listIndyValFmt, true) : "c()"));
-      tableRTags.put("indy_label", (0 < listIndyLabel.length ? printRCol(listIndyLabel, true) : "c()"));
-      tableRTags.put("indy_plot_val", (0 < job.getIndyPlotVal().length ? printRCol(job.getIndyPlotVal(), false) : "c()"));
+      tableRTags.put("indy_list", 0 < job.getIndyVal().length ? printRCol(listIndyValFmt, true) : "c()");
+      tableRTags.put("indy_label", 0 < listIndyLabel.length ? printRCol(listIndyLabel, true) : "c()");
+      tableRTags.put("indy_plot_val", 0 < job.getIndyPlotVal().length ? printRCol(job.getIndyPlotVal(), false) : "c()");
       tableRTags.put("dep1_plot", mapDep1Plot.getRDecl());
       tableRTags.put("dep2_plot", (null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()"));
       tableRTags.put("agg_list", (new MVOrderedMap()).getRDecl());
@@ -1382,20 +1417,20 @@ public class MVBatch extends MVUtil {
       tableRTags.put("y2_label", strY2Label);
       tableRTags.put("plot_caption", strCaption);
       tableRTags.put("plot_cmd", job.getPlotCmd());
-      tableRTags.put("event_equal", (job.getEventEqual() ? "TRUE" : "FALSE"));
-      tableRTags.put("vert_plot", (job.getVertPlot() ? "TRUE" : "FALSE"));
-      tableRTags.put("equalize_by_indep", (job.getEqualizeByIndep() ? "TRUE" : "FALSE"));
-      tableRTags.put("x_reverse", (job.getXReverse() ? "TRUE" : "FALSE"));
-      tableRTags.put("show_nstats", (job.getShowNStats() ? "TRUE" : "FALSE"));
-      tableRTags.put("indy1_stagger", (job.getIndy1Stagger() ? "TRUE" : "FALSE"));
-      tableRTags.put("indy2_stagger", (job.getIndy2Stagger() ? "TRUE" : "FALSE"));
-      tableRTags.put("grid_on", (job.getGridOn() ? "TRUE" : "FALSE"));
-      tableRTags.put("sync_axes", (job.getSyncAxes() ? "TRUE" : "FALSE"));
-      tableRTags.put("dump_points1", (job.getDumpPoints1() ? "TRUE" : "FALSE"));
-      tableRTags.put("dump_points2", (job.getDumpPoints2() ? "TRUE" : "FALSE"));
-      tableRTags.put("log_y1", (job.getLogY1() ? "TRUE" : "FALSE"));
-      tableRTags.put("log_y2", (job.getLogY2() ? "TRUE" : "FALSE"));
-      tableRTags.put("variance_inflation_factor", (job.getVarianceInflationFactor() ? "TRUE" : "FALSE"));
+      tableRTags.put("event_equal", job.getEventEqual() ? "TRUE" : "FALSE");
+      tableRTags.put("vert_plot", job.getVertPlot() ? "TRUE" : "FALSE");
+      tableRTags.put("equalize_by_indep", job.getEqualizeByIndep() ? "TRUE" : "FALSE");
+      tableRTags.put("x_reverse", job.getXReverse() ? "TRUE" : "FALSE");
+      tableRTags.put("show_nstats", job.getShowNStats() ? "TRUE" : "FALSE");
+      tableRTags.put("indy1_stagger", job.getIndy1Stagger() ? "TRUE" : "FALSE");
+      tableRTags.put("indy2_stagger", job.getIndy2Stagger() ? "TRUE" : "FALSE");
+      tableRTags.put("grid_on", job.getGridOn() ? "TRUE" : "FALSE");
+      tableRTags.put("sync_axes", job.getSyncAxes() ? "TRUE" : "FALSE");
+      tableRTags.put("dump_points1", job.getDumpPoints1() ? "TRUE" : "FALSE");
+      tableRTags.put("dump_points2", job.getDumpPoints2() ? "TRUE" : "FALSE");
+      tableRTags.put("log_y1", job.getLogY1() ? "TRUE" : "FALSE");
+      tableRTags.put("log_y2", job.getLogY2() ? "TRUE" : "FALSE");
+      tableRTags.put("variance_inflation_factor", job.getVarianceInflationFactor() ? "TRUE" : "FALSE");
       tableRTags.put("plot_stat", job.getPlotStat());
       tableRTags.put("series1_diff_list", diffSeries1);
       tableRTags.put("series2_diff_list", diffSeries2);
@@ -1407,6 +1442,8 @@ public class MVBatch extends MVUtil {
       int intNumDep1 = 0;
       if (job.getPlotTmpl().equals("performance.R_tmpl")) {
         intNumDep1 = 1;
+      } else if (job.getPlotTmpl().equals("taylor_plot.R_tmpl")) {
+        intNumDep1 = listDep1Plot.length;
       } else {
         for (Map.Entry aListDep1Plot : listDep1Plot) {
           intNumDep1 += ((String[]) aListDep1Plot.getValue()).length;
@@ -1459,7 +1496,7 @@ public class MVBatch extends MVUtil {
       if (intNumDepSeries != parseRCol(job.getLwd()).length) {
         throw new Exception("length of lwd differs from number of series (" + intNumDepSeries + ")");
       }
-      if (!job.getLegend().equals("") &&
+      if (!job.getLegend().isEmpty() &&
         intNumDepSeries != parseRCol(job.getLegend()).length) {
         throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")");
       }
@@ -1477,21 +1514,23 @@ public class MVBatch extends MVUtil {
       }
 
       //  replace the template tags with the template values for the current plot
-      tableRTags.put("plot_ci", job.getPlotCI().equals("") ? printRCol(rep("none", intNumDepSeries), false) : job.getPlotCI());
-      tableRTags.put("plot_disp", job.getPlotDisp().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
-      tableRTags.put("show_signif", job.getShowSignif().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getShowSignif());
-      tableRTags.put("order_series", job.getOrderSeries().equals("") ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
-      tableRTags.put("colors", job.getColors().equals("") ? "rainbow(" + intNumDepSeries + ")" : job.getColors());
-      tableRTags.put("pch", job.getPch().equals("") ? printRCol(rep(20, intNumDepSeries)) : job.getPch());
-      tableRTags.put("type", job.getType().equals("") ? printRCol(rep("b", intNumDepSeries)) : job.getType());
-      tableRTags.put("lty", job.getLty().equals("") ? printRCol(rep(1, intNumDepSeries)) : job.getLty());
-      tableRTags.put("lwd", job.getLwd().equals("") ? printRCol(rep(1, intNumDepSeries)) : job.getLwd());
-      tableRTags.put("con_series", job.getConSeries().equals("") ? printRCol(rep(0, intNumDepSeries)) : job.getConSeries());
-      tableRTags.put("legend", job.getLegend().equals("") ? "c()" : job.getLegend());
-      tableRTags.put("y1_lim", job.getY1Lim().equals("") ? "c()" : job.getY1Lim());
-      tableRTags.put("y1_bufr", job.getY1Bufr().equals("") ? "0" : job.getY1Bufr());
-      tableRTags.put("y2_lim", job.getY2Lim().equals("") ? "c()" : job.getY2Lim());
-      tableRTags.put("y2_bufr", job.getY2Bufr().equals("") ? "0" : job.getY2Bufr());
+      tableRTags.put("plot_ci", job.getPlotCI().isEmpty() ? printRCol(rep("none", intNumDepSeries), false) : job.getPlotCI());
+      tableRTags.put("plot_disp", job.getPlotDisp().isEmpty() ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
+      tableRTags.put("show_signif", job.getShowSignif().isEmpty() ? printRCol(rep("TRUE", intNumDepSeries)) : job.getShowSignif());
+      tableRTags.put("order_series", job.getOrderSeries().isEmpty() ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
+      tableRTags.put("colors", job.getColors().isEmpty() ? "rainbow(" + intNumDepSeries + ")" : job.getColors());
+      tableRTags.put("pch", job.getPch().isEmpty() ? printRCol(rep(20, intNumDepSeries)) : job.getPch());
+      tableRTags.put("type", job.getType().isEmpty() ? printRCol(rep("b", intNumDepSeries)) : job.getType());
+      tableRTags.put("lty", job.getLty().isEmpty() ? printRCol(rep(1, intNumDepSeries)) : job.getLty());
+      tableRTags.put("lwd", job.getLwd().isEmpty() ? printRCol(rep(1, intNumDepSeries)) : job.getLwd());
+      tableRTags.put("con_series", job.getConSeries().isEmpty() ? printRCol(rep(0, intNumDepSeries)) : job.getConSeries());
+      tableRTags.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
+      tableRTags.put("y1_lim", job.getY1Lim().isEmpty() ? "c()" : job.getY1Lim());
+      tableRTags.put("y1_bufr", job.getY1Bufr().isEmpty() ? "0" : job.getY1Bufr());
+      tableRTags.put("y2_lim", job.getY2Lim().isEmpty() ? "c()" : job.getY2Lim());
+      tableRTags.put("y2_bufr", job.getY2Bufr().isEmpty() ? "0" : job.getY2Bufr());
+      tableRTags.put("pos", job.getTaylorVoc() ? "TRUE" : "FALSE");
+      tableRTags.put("show_gamma", job.getTaylorShowGamma() ? "TRUE" : "FALSE");
 
       if (job.getLogY1() && !job.getY1Lim().equals("c()")) {
         //check if y1_lim has 0
@@ -1539,12 +1578,18 @@ public class MVBatch extends MVUtil {
    * @return list of SQL statements that result in plot data
    * @throws Exception
    */
+
   public ArrayList buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception {
 
     //  determine if the plot job is for stat data or MODE data
     boolean boolModePlot = isModeJob(job);
     boolean boolModeRatioPlot = isModeRatioJob(job);
-    Hashtable tableHeaderSQLType = (boolModePlot ? _tableModeHeaderSQLType : _tableStatHeaderSQLType);
+    HashMap <String, String> tableHeaderSQLType;
+    if (boolModePlot) {
+      tableHeaderSQLType = new HashMap<>(_tableModeHeaderSQLType);
+    } else {
+      tableHeaderSQLType = new HashMap<>(_tableStatHeaderSQLType);
+    }
 
     //  populate the plot template values with plot_fix values
     Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
@@ -1553,7 +1598,7 @@ public class MVBatch extends MVUtil {
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
 
     //  add the user-specified condition clause, if present
-    if (null != job.getPlotCond() && !job.getPlotCond().equals("")) {
+    if (null != job.getPlotCond() && job.getPlotCond().length() >0) {
       strPlotFixWhere += "  AND " + job.getPlotCond() + "\n";
     }
 
@@ -1585,8 +1630,536 @@ public class MVBatch extends MVUtil {
 		 */
 
     ArrayList listSQL = new ArrayList();
-    String strTempSQL = "";
     String strSelectSQL = "";
+    for (int intY = 1; intY <= 2; intY++) {
+
+      //  get the dep values for the current dep group
+      MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
+      if (mapDep != null) {
+
+        //  establish lists of entires for each group of variables and values
+        Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSQLSeries();
+        String[] listSeriesField = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getKeyList();
+        Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
+
+        //  if there is a mis-match between the presence of series and dep values, bail
+        if (0 < listDepPlot.length && 1 > listSeries.length) {
+          throw new Exception("dep values present, but no series values for Y" + intY);
+        }
+        if (1 > listDepPlot.length && 0 < listSeries.length) {
+          throw new Exception("series values present, but no dep values for Y" + intY);
+        }
+
+        //  there must be at least one y1 series and stat, but not for y2
+        if (1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
+          throw new Exception("no Y1 series stat found");
+        }
+        if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
+          continue;
+        }
+
+
+			/*
+       *  Construct query components from the series variable/value pairs
+			 */
+
+        //  build the select list and where clauses for the series variables and values
+        String strSelectPlotList = "";
+        String strWhere = strPlotFixWhere;
+        BuildQueryStrings buildQueryStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere).invoke();
+        String strSelectList = buildQueryStrings.getStrSelectList();
+        String strTempList = buildQueryStrings.getStrTempList();
+        strWhere = buildQueryStrings.getStrWhere();
+
+        //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+        if (!strSelectList.contains("fcst_init")) {
+          if (boolModePlot) {
+            //strSelectList	+= ",\n  " + getSQLDateFormat("h.fcst_init") + " fcst_init";
+            strSelectList += ",\n  h.fcst_init";
+            strTempList += ",\n    fcst_init           " + dbTimeType;
+          } else {
+            strSelectList += ",\n " + " ld.fcst_init_beg";
+            strTempList += ",\n    fcst_init_beg       " + dbTimeType;
+          }
+        }
+        if (!strSelectList.contains("fcst_valid")) {
+          if (boolModePlot) {
+            strSelectList += ",\n  h.fcst_valid";
+            strTempList += ",\n    fcst_valid          " + dbTimeType;
+          } else {
+            strSelectList += ",\n " + " ld.fcst_valid_beg";
+            strTempList += ",\n    fcst_valid_beg      " + dbTimeType;
+          }
+        }
+        BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere, false).invoke();
+        strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
+        //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+        if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour")) {
+          if (boolModePlot) {
+            strSelectPlotList += ",\n  h.fcst_init";
+          } else {
+            strSelectPlotList += ",\n " + " ld.fcst_init_beg";
+          }
+        }
+        if (!strSelectPlotList.contains("fcst_valid")) {
+          if (boolModePlot) {
+            strSelectPlotList += ",\n  h.fcst_valid";
+          } else {
+            strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
+          }
+        }
+
+        if (!boolEnsSs && !strSelectList.contains("fcst_lead")) {
+          if (boolModePlot) {
+
+            if (job.getEventEqual()) {
+              strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
+            } else {
+              strSelectList += ",\n  h.fcst_lead";
+            }
+            strSelectPlotList += ",\n  h.fcst_lead";
+            strTempList += ",\n    fcst_lead          " + "INT ";
+          } else {
+            if (job.getEventEqual()) {
+              strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
+            } else {
+              strSelectList += ",\n " + " ld.fcst_lead";
+            }
+            strSelectPlotList += ",\n  h.fcst_lead";
+            strTempList += ",\n    fcst_lead      " + "INT ";
+          }
+        }
+
+
+        //  for MODE, build the group by list
+        String[] listGroupBy = new String[]{};
+        if (boolModePlot && !boolModeRatioPlot) {
+          ArrayList<String> listGroupFields = new ArrayList<>();
+          listGroupFields.add(job.getIndyVar());
+          for (Map.Entry listSery : listSeries) {
+            listGroupFields.add(listSery.getKey().toString());
+          }
+
+          Collections.addAll(listGroupFields, job.getPlotFixVal().getKeyList());
+          listGroupBy = listGroupFields.toArray(new String[]{});
+        }
+
+        //  for ensemble spread/skill, add the ssvar line data and bail
+        if (boolEnsSs) {
+
+          listSQL.add("SELECT\n" +
+            strSelectPlotList + ",\n  h.fcst_var,\n" +
+            "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
+            "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar " +
+            "FROM\n" +
+            "  stat_header h,\n" +
+            "  line_data_ssvar ld\n" +
+            "WHERE\n" + strWhere +
+            "  AND h.stat_header_id = ld.stat_header_id;\n");
+
+          return listSQL;
+        }
+
+
+			/*
+       *  Construct the query components for the independent variable and values
+			 */
+
+        //  validate and get the type and values for the independent variable
+        String strIndyVarType = "";
+        String strIndyVar = job.getIndyVar();
+        if (!strIndyVar.isEmpty()) {
+          String[] listIndyVal = job.getIndyVal();
+          if (!tableHeaderSQLType.containsKey(strIndyVar)) {
+            throw new Exception("unrecognized indep " + (boolModePlot ? "mode" : "stat") + "_header field: " + strIndyVar);
+          }
+          strIndyVarType = tableHeaderSQLType.get(strIndyVar).toString();
+          if (1 > listIndyVal.length) {
+            throw new Exception("no independent variable values specified");
+          }
+
+          //  construct the select list item, where clause and temp table entry for the independent variable
+          if (!strSelectList.contains(strIndyVar)) {
+            strSelectList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
+            strSelectPlotList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
+            strTempList += ",\n    " + padEnd(strIndyVar, 20) + strIndyVarType;
+          }
+          String strIndyVarFormatted = formatField(strIndyVar, boolModePlot, false);
+          if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
+            strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , " + strIndyVarFormatted + " , " + strIndyVarFormatted + " + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) ";
+          }
+          strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted +
+            " IN (" + buildValueList(job.getIndyVal()) + ")\n";
+        }
+        //  add fcst_var to the select list and temp table entries
+        strSelectList += ",\n  h.fcst_var";
+        strSelectPlotList += ",\n  h.fcst_var";
+        strTempList += ",\n    fcst_var            VARCHAR(64)";
+
+        if (listPlotFixVal.length > 0) {
+          for (int i = 0; i < listPlotFixVal.length; i++) {
+            String strField = (String) listPlotFixVal[i].getKey();
+            if (!strTempList.contains(strField)) {
+              if (listPlotFixVal[i].getValue() != null) {
+                strSelectList += ",\n  " + formatField(strField, boolModePlot, true);
+                strSelectPlotList += ",\n  " + formatField(strField, boolModePlot, true);
+                strTempList += ",\n    " + strField + "            VARCHAR(64)";
+              }
+            }
+          }
+        }
+      /*
+       *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists
+			 */
+        int intPctThresh = -1;
+        if (boolAggPct) {
+          String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" +
+            "WHERE\n" + strWhere + "  AND ld.stat_header_id = h.stat_header_id;";
+          if (_boolVerbose || _boolSQLOnly) {
+            System.out.println(strSelPctThresh + "\n");
+          }
+
+          //  run the PCT thresh query
+          try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+               ResultSet resultSet = stmt.executeQuery(strSelPctThresh);
+          ) {
+
+            //  validate and save the number of thresholds
+            int intNumPctThresh = 0;
+            while (resultSet.next()) {
+              intPctThresh = resultSet.getInt(1);
+              intNumPctThresh++;
+            }
+            if (1 != intNumPctThresh) {
+              throw new Exception("number of PCT thresholds (" + intNumPctThresh + ") not distinct for plot data");
+            } else if (1 > intNumPctThresh) {
+              throw new Exception("invalid number of PCT thresholds (" + intNumPctThresh + ") found");
+            }
+          }
+        }
+
+
+
+			/*
+       *  Construct a query for each fcst_var/stat pair
+			 */
+
+        //  determine how many queries are needed to gather that stat information
+        int intNumQueries = -1;
+        String[][] listFcstVarStat = buildFcstVarStatList(mapDep);
+
+        intNumQueries = listFcstVarStat.length;
+
+        //  build a query for each fcst_var/stat pair or a just single query for contingency tables or partial sums
+        for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
+
+          //  get the current fcst_var/stat pair
+          String strFcstVar = listFcstVarStat[intFcstVarStat][0];
+          String strStat = listFcstVarStat[intFcstVarStat][1];
+
+          //  build the fcst_var where clause criteria
+          String strFcstVarClause = "= '" + strFcstVar + "'";
+          Matcher matProb = _patProb.matcher(strFcstVar);
+          if (matProb.matches() && strFcstVar.contains("*")) {
+            Pattern patFcstVar = Pattern.compile(strFcstVar.replace("*", ".*").replace("(", "\\(").replace(")", "\\)"));
+            if (!_mapFcstVarPat.containsKey(patFcstVar)) {
+              _mapFcstVarPat.put(patFcstVar, formatR(strFcstVar));
+            }
+            strFcstVarClause = "LIKE '" + strFcstVar.replace("*", "%") + "'";
+          }
+
+          //  determine the table containing the current stat
+          Hashtable tableStats = null;
+          String strStatTable = "";
+          String strStatField = strStat.toLowerCase();
+          if (boolModePlot) {
+            String strStatMode = parseModeStat(strStat)[0];
+            if (_tableModeSingleStatField.containsKey(strStatMode)) {
+              tableStats = _tableModeSingleStatField;
+            } else if (_tableModePairStatField.containsKey(strStatMode)) {
+              tableStats = _tableModeSingleStatField;
+            } else if (_tableModeRatioField.containsKey(strStat)) {
+              tableStats = _tableModeSingleStatField;
+            } else {
+              throw new Exception("unrecognized mode stat: " + strStatMode);
+            }
+          } else {
+
+            String aggType = null;
+            if (boolAggStat || boolCalcStat) {
+              if (boolCalcCtc || boolAggCtc) {
+                aggType = MVUtil.CTC;
+              } else if (boolCalcSl1l2 || boolAggSl1l2) {
+                aggType = MVUtil.SL1L2;
+              } else if (boolCalcSal1l2 || boolAggSal1l2) {
+                aggType = MVUtil.SAL1L2;
+              } else if (boolAggNbrCnt) {
+                aggType = MVUtil.NBR_CNT;
+              } else if (boolAggPct) {
+                aggType = MVUtil.PCT;
+              } else if (boolAggSsvar) {
+                aggType = MVUtil.SSVAR;
+              }
+            }
+
+
+            if (_tableStatsCnt.containsKey(strStat)) {
+              tableStats = _tableStatsCnt;
+              if (boolAggStat || boolCalcStat) {
+                isAggTypeValid(_tableStatsCnt, strStat, aggType);
+                strStatTable = "line_data_" + aggType + " ld\n";
+              } else {
+                strStatTable = "line_data_cnt" + " ld\n";
+              }
+            } else if (_tableStatsSsvar.containsKey(strStat)) {
+              tableStats = _tableStatsSsvar;
+              if (boolAggStat) {
+                isAggTypeValid(_tableStatsSsvar, strStat, aggType);
+                strStatTable = "line_data_" + aggType + " ld\n";
+              } else {
+                strStatTable = "line_data_ssvar" + " ld\n";
+              }
+            } else if (_tableStatsCts.containsKey(strStat)) {
+              tableStats = _tableStatsCts;
+              if (boolAggStat || boolCalcStat) {
+                isAggTypeValid(_tableStatsCts, strStat, aggType);
+                strStatTable = "line_data_ctc" + " ld\n";
+              } else {
+                strStatTable = "line_data_cts" + " ld\n";
+              }
+            } else if (_tableStatsNbrcnt.containsKey(strStat)) {
+              tableStats = _tableStatsNbrcnt;
+              if (boolAggStat) {
+                isAggTypeValid(_tableStatsNbrcnt, strStat, aggType);
+              }
+              strStatTable = "line_data_nbrcnt ld\n";
+              strStatField = strStat.replace("NBR_", "").toLowerCase();
+            } else if (_tableStatsEnscnt.containsKey(strStat)) {
+              tableStats = _tableStatsEnscnt;
+              if (boolAggStat) {
+                isAggTypeValid(_tableStatsEnscnt, strStat, aggType);
+              }
+              strStatTable = "line_data_enscnt ld\n";
+              strStatField = strStat.replace("ENS_", "").toLowerCase();
+            } else if (_tableStatsNbrcts.containsKey(strStat)) {
+              tableStats = _tableStatsNbrcts;
+              isAggTypeValid(_tableStatsNbrcts, strStat, aggType);
+              strStatTable = "line_data_nbrcts ld\n";
+              strStatField = strStat.replace("NBR_", "").toLowerCase();
+            } else if (_tableStatsPstd.containsKey(strStat)) {
+              tableStats = _tableStatsPstd;
+              strStatTable = "line_data_pstd ld\n";
+              if (boolAggStat) {
+                strStatTable = "line_data_pct ld";
+                isAggTypeValid(_tableStatsPstd, strStat, aggType);
+                for (int i = 1; i < intPctThresh; i++) {
+                  strStatTable += ",\n  line_data_pct_thresh ldt" + i;
+                }
+                strStatTable += "\n";
+              }
+              strStatField = strStat.replace("PSTD_", "").toLowerCase();
+            } else if (_tableStatsMcts.containsKey(strStat)) {
+              tableStats = _tableStatsMcts;
+              isAggTypeValid(_tableStatsMcts, strStat, aggType);
+              strStatTable = "line_data_mcts ld\n";
+              strStatField = strStat.replace("MCTS_", "").toLowerCase();
+            } else if (_tableStatsRhist.containsKey(strStat)) {
+              tableStats = _tableStatsRhist;
+              strStatTable = "line_data_rhist ld\n";
+              strStatField = strStat.replace("RHIST_", "").toLowerCase();
+            } else if (_tableStatsPhist.containsKey(strStat)) {
+              tableStats = _tableStatsPhist;
+              isAggTypeValid(_tableStatsPhist, strStat, aggType);
+              strStatTable = "line_data_phist ld\n";
+              strStatField = strStat.replace("PHIST_", "").toLowerCase();
+            } else if (_tableStatsVl1l2.containsKey(strStat)) {
+              isAggTypeValid(_tableStatsRhist, strStat, aggType);
+              tableStats = _tableStatsVl1l2;
+              strStatTable = "line_data_vl1l2 ld\n";
+              strStatField = strStat.replace("VL1L2_", "").toLowerCase();
+            } else if (_tableStatsMpr.containsKey(strStat)) {
+              tableStats = _tableStatsMpr;
+              strStatTable = "line_data_mpr ld\n";
+            } else if (_tableStatsOrank.containsKey(strStat)) {
+              tableStats = _tableStatsOrank;
+              strStatTable = "line_data_orank ld\n";
+            } else {
+              throw new Exception("unrecognized stat: " + strStat);
+            }
+          }
+
+          //  build the SQL for the current fcst_var and stat
+          if (boolModePlot) {
+            //  the single and pair temp tables only need to be built once
+            if (1 == intY) {
+              listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, boolModeRatioPlot, strStat));
+            }
+            //  build the mode SQL
+            String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
+            listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy));
+
+          } else {
+            boolean boolBCRMSE = false;
+            String strSelectStat = strSelectList;
+
+            //  build the select list and temp table elements for the stat and CIs
+            if (strStat.equals("BCRMSE")) {
+              boolBCRMSE = true;
+              strStatField = "bcmse";
+            }
+            strSelectStat += ",\n  '" + strStat + "' stat_name";
+
+            //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
+            if (boolAggCtc) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
+            } else if (boolAggSl1l2) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
+            } else if (boolAggSsvar) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  ld.var_mean, \n  ld.bin_n";
+            } else if (boolAggSal1l2) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
+            } else if (boolAggPct) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
+              for (int i = 1; i < intPctThresh; i++) {
+                strSelectStat += ",\n";
+                if (i < intPctThresh - 1) {
+                  strSelectStat += "  FORMAT((ldt" + i + ".thresh_i + ldt" + (i + 1) + ".thresh_i)/2, 3),\n";
+                } else {
+                  strSelectStat += "  FORMAT((ldt" + i + ".thresh_i + 1)/2, 3),\n";
+                }
+                strSelectStat += "  ldt" + i + ".oy_i,\n" +
+                  "  ldt" + i + ".on_i";
+              }
+            } else if (boolAggNbrCnt) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
+            } else if (boolCalcCtc) {
+              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
+                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+            } else if (boolCalcSl1l2) {
+              if (strStat.equalsIgnoreCase("mae")) {
+                strSelectStat += ",\n  calc" + strStat + "( ld.mae) stat_value,\n" +
+                  "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+              } else {
+                strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
+                  "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+              }
+            } else if (boolCalcSal1l2) {
+              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
+                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+            } else {
+              if (boolBCRMSE) {
+                strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
+
+              } else {
+                strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',ld." + strStatField + " ) stat_value";
+
+              }
+
+              //  determine if the current stat has normal or bootstrap CIs
+              String[] listStatCI = (String[]) tableStats.get(strStat);
+              boolean boolHasNorm = false;
+              boolean boolHasBoot = false;
+              for (String aListStatCI : listStatCI) {
+                if (aListStatCI.equals("nc")) {
+                  boolHasNorm = true;
+                } else if (aListStatCI.equals("bc")) {
+                  boolHasBoot = true;
+                }
+              }
+
+              //  add the CIs to the select list, if present, otherwise, invalid data
+              if (boolHasNorm) {
+                strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',ld." + strStatField + "_ncl  ) stat_ncl" +
+                  ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',ld." + strStatField + "_ncu  ) stat_ncu";
+              } else {
+                strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
+              }
+
+              if (boolHasBoot && !boolAggStat) {
+                if (boolBCRMSE) {
+                  strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
+                    ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
+                } else {
+                  strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',ld." + strStatField + "_bcl) stat_bcl" +
+                    ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',ld." + strStatField + "_bcu ) stat_bcu";
+                }
+              } else {
+                strSelectStat += ",\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+              }
+            }
+
+            String strStatNaClause = "";
+            if (!boolAggStat && !boolCalcStat) {
+              strStatNaClause = "\n  AND ld." + strStatField + " != -9999";
+            }
+            if (boolAggPct) {
+              for (int i = 1; i < intPctThresh; i++) {
+                strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n" +
+                  "  AND ldt" + i + ".i_value = " + i;
+              }
+            }
+
+            //  build the query
+            strSelectSQL += (strSelectSQL.isEmpty() ? "" : "\nUNION\n") +
+              "SELECT\n" + strSelectStat + "\n" +
+              "FROM\n  stat_header h,\n  " + strStatTable +
+              "WHERE\n" + strWhere +
+              "  AND h.fcst_var " + strFcstVarClause + "\n" +
+              "  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;
+          }
+
+        }  //  end: for(int intFcstVarStat=0; intFcstVarStat < listFcstVarStat.length; intFcstVarStat++)
+      }
+
+    }  //  end: for(int intY=1; intY <= 2; intY++)
+
+    //  add the stat plot query to the list
+    if (!boolModePlot) {
+      listSQL.add(strSelectSQL + ";");
+    }
+
+    //remove duplicated queries
+    listSQL = new ArrayList<>(new LinkedHashSet<>(listSQL));
+
+    return listSQL;
+  }
+
+  public List<String> buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception {
+
+    //  determine if the plot job is for stat data or MODE data
+    boolean boolModePlot = isModeJob(job);
+    HashMap<String, String> tableHeaderSQLType;
+    if (boolModePlot) {
+      tableHeaderSQLType = new HashMap<>(_tableModeHeaderSQLType);
+    }else {
+      tableHeaderSQLType =  new HashMap<>(_tableStatHeaderSQLType);
+    }
+
+    //  populate the plot template values with plot_fix values
+    Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
+
+    //  build the sql where clauses for the current permutation of fixed variables and values
+    String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
+
+    //  add the user-specified condition clause, if present
+    if (null != job.getPlotCond() && job.getPlotCond().length() > 0) {
+      strPlotFixWhere += "  AND " + job.getPlotCond() + "\n";
+    }
+
+
+    //  remove multiple dep group capability
+    MVOrderedMap[] listDep = job.getDepGroups();
+    if (1 != listDep.length) {
+      throw new Exception("unexpected number of <dep> groups: " + listDep.length);
+    }
+    MVOrderedMap mapDepGroup = listDep[0];
+
+
+		/*
+     *  Build queries for statistics on both the y1 and y2 axes
+		 */
+
+    List<String> listSQL = new ArrayList<>();
     for (int intY = 1; intY <= 2; intY++) {
 
       //  get the dep values for the current dep group
@@ -1594,7 +2167,6 @@ public class MVBatch extends MVUtil {
 
       //  establish lists of entires for each group of variables and values
       Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSQLSeries();
-      String[] listSeriesField = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getKeyList();
       Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
       //  if there is a mis-match between the presence of series and dep values, bail
@@ -1619,543 +2191,7 @@ public class MVBatch extends MVUtil {
 			 */
 
       //  build the select list and where clauses for the series variables and values
-      String strSelectPlotList = "";
-      String strWhere = strPlotFixWhere;
-      BuildQueryStrings buildQueryStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere).invoke();
-      String strSelectList = buildQueryStrings.getStrSelectList();
-      String strTempList = buildQueryStrings.getStrTempList();
-      strWhere = buildQueryStrings.getStrWhere();
-
-      //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-      if (!strSelectList.contains("fcst_init")) {
-        if (boolModePlot) {
-          //strSelectList	+= ",\n  " + getSQLDateFormat("h.fcst_init") + " fcst_init";
-          strSelectList += ",\n  h.fcst_init";
-          strTempList += ",\n    fcst_init           " + dbTimeType;
-        } else {
-          strSelectList += ",\n " + " ld.fcst_init_beg";
-          strTempList += ",\n    fcst_init_beg       " + dbTimeType;
-        }
-      }
-      if (!strSelectList.contains("fcst_valid")) {
-        if (boolModePlot) {
-          strSelectList += ",\n  h.fcst_valid";
-          strTempList += ",\n    fcst_valid          " + dbTimeType;
-        } else {
-          strSelectList += ",\n " + " ld.fcst_valid_beg";
-          strTempList += ",\n    fcst_valid_beg      " + dbTimeType;
-        }
-      }
-      BuildQueryStrings buildQueryPlotStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere, false).invoke();
-      strSelectPlotList = buildQueryPlotStrings.getStrSelectList();
-      //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-      if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour")) {
-        if (boolModePlot) {
-          strSelectPlotList += ",\n  h.fcst_init";
-        } else {
-          strSelectPlotList += ",\n " + " ld.fcst_init_beg";
-        }
-      }
-      if (!strSelectPlotList.contains("fcst_valid")) {
-        if (boolModePlot) {
-          strSelectPlotList += ",\n  h.fcst_valid";
-        } else {
-          strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
-        }
-      }
-
-      if (!boolEnsSs && !strSelectList.contains("fcst_lead")) {
-        if (boolModePlot) {
-
-          if (job.getEventEqual()) {
-            strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
-          } else {
-            strSelectList += ",\n  h.fcst_lead";
-          }
-          strSelectPlotList += ",\n  h.fcst_lead";
-          strTempList += ",\n    fcst_lead          " + "INT ";
-        } else {
-          if (job.getEventEqual()) {
-            strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
-          } else {
-            strSelectList += ",\n " + " ld.fcst_lead";
-          }
-          strSelectPlotList += ",\n  h.fcst_lead";
-          strTempList += ",\n    fcst_lead      " + "INT ";
-        }
-      }
-
-
-      //  for MODE, build the group by list
-      String[] listGroupBy = new String[]{};
-      if (boolModePlot && !boolModeRatioPlot) {
-        ArrayList listGroupFields = new ArrayList();
-        listGroupFields.add(job.getIndyVar());
-        for (int i = 0; i < listSeries.length; i++) {
-          listGroupFields.add(listSeries[i].getKey().toString());
-        }
-        listGroupBy = (String[]) listGroupFields.toArray(new String[]{});
-      }
-
-      //  for ensemble spread/skill, add the ssvar line data and bail
-      if (boolEnsSs) {
-
-        listSQL.add("SELECT\n" +
-          strSelectPlotList + ",\n  h.fcst_var,\n" +
-          "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
-          "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar " +
-          "FROM\n" +
-          "  stat_header h,\n" +
-          "  line_data_ssvar ld\n" +
-          "WHERE\n" + strWhere +
-          "  AND h.stat_header_id = ld.stat_header_id;\n");
-
-        return listSQL;
-      }
-
-
-			/*
-       *  Construct the query components for the independent variable and values
-			 */
-
-      //  validate and get the type and values for the independent variable
-      String strIndyVarType = "";
-      String strIndyVar = job.getIndyVar();
-      String[] listIndyVal = job.getIndyVal();
-      if (!tableHeaderSQLType.containsKey(strIndyVar)) {
-        throw new Exception("unrecognized indep " + (boolModePlot ? "mode" : "stat") + "_header field: " + strIndyVar);
-      }
-      strIndyVarType = tableHeaderSQLType.get(strIndyVar).toString();
-      if (1 > listIndyVal.length) {
-        throw new Exception("no independent variable values specified");
-      }
-
-      //  construct the select list item, where clause and temp table entry for the independent variable
-      if (!strSelectList.contains(strIndyVar)) {
-        strSelectList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
-        strSelectPlotList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
-        strTempList += ",\n    " + padEnd(strIndyVar, 20) + strIndyVarType;
-      }
-      String strIndyVarFormatted = formatField(strIndyVar, boolModePlot, false);
-      if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
-        strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , " + strIndyVarFormatted + " , " + strIndyVarFormatted + " + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) ";
-      }
-      strWhere += (!strWhere.equals("") ? "  AND " : "") + strIndyVarFormatted +
-        " IN (" + buildValueList(job.getIndyVal()) + ")\n";
-
-      //  add fcst_var to the select list and temp table entries
-      strSelectList += ",\n  h.fcst_var";
-      strSelectPlotList += ",\n  h.fcst_var";
-      strTempList += ",\n    fcst_var            VARCHAR(64)";
-
-      if (listPlotFixVal.length > 0) {
-        for (int i = 0; i < listPlotFixVal.length; i++) {
-          String strField = (String) listPlotFixVal[i].getKey();
-          if (!strTempList.contains(strField)) {
-            if (listPlotFixVal[i].getValue() != null) {
-              strSelectList += ",\n  " + formatField(strField, boolModePlot, true);
-              strSelectPlotList += ",\n  " + formatField(strField, boolModePlot, true);
-              strTempList += ",\n    " + strField + "            VARCHAR(64)";
-            }
-          }
-        }
-      }
-			/*
-			 *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists
-			 */
-      int intPctThresh = -1;
-      if (boolAggPct) {
-        String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" +
-          "WHERE\n" + strWhere + "  AND ld.stat_header_id = h.stat_header_id;";
-        if (_boolVerbose || _boolSQLOnly) {
-          System.out.println(strSelPctThresh + "\n");
-        }
-
-        //  run the PCT thresh query
-        try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
-          stmt.executeQuery(strSelPctThresh);
-
-          //  validate and save the number of thresholds
-          int intNumPctThresh = 0;
-          ResultSet r = stmt.getResultSet();
-          while (r.next()) {
-            intPctThresh = r.getInt(1);
-            intNumPctThresh++;
-          }
-          if (1 != intNumPctThresh) {
-            throw new Exception("number of PCT thresholds (" + intNumPctThresh + ") not distinct for plot data");
-          } else if (1 > intNumPctThresh) {
-            throw new Exception("invalid number of PCT thresholds (" + intNumPctThresh + ") found");
-          }
-        } catch (Exception e) {
-
-        }
-      }
-
-			/*
-			 *  Build the temp tables to hold plot data
-			 */
-
-      String strTempSQLCur = "";
-     /* if (boolModePlot) {
-
-        //  the single and pair temp tables only need to be built once
-        if (1 == intY) {
-          listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, boolModeRatioPlot));
-        }
-
-
-      }*/
-
-
-			/*
-			 *  Construct a query for each fcst_var/stat pair
-			 */
-
-      //  determine how many queries are needed to gather that stat information
-      int intNumQueries = -1;
-      String[][] listFcstVarStat = buildFcstVarStatList(mapDep);
-
-      intNumQueries = listFcstVarStat.length;
-
-      //  build a query for each fcst_var/stat pair or a just single query for contingency tables or partial sums
-      for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
-
-        //  get the current fcst_var/stat pair
-        String strFcstVar = listFcstVarStat[intFcstVarStat][0];
-        String strStat = listFcstVarStat[intFcstVarStat][1];
-
-        //  build the fcst_var where clause criteria
-        String strFcstVarClause = "= '" + strFcstVar + "'";
-        Matcher matProb = _patProb.matcher(strFcstVar);
-        if (matProb.matches() && strFcstVar.contains("*")) {
-          Pattern patFcstVar = Pattern.compile(strFcstVar.replace("*", ".*").replace("(", "\\(").replace(")", "\\)"));
-          if (!_mapFcstVarPat.containsKey(patFcstVar)) {
-            _mapFcstVarPat.put(patFcstVar, formatR(strFcstVar));
-          }
-          strFcstVarClause = "LIKE '" + strFcstVar.replace("*", "%") + "'";
-        }
-
-        //  determine the table containing the current stat
-        Hashtable tableStats = null;
-        String strStatTable = "";
-        String strStatField = strStat.toLowerCase();
-        if (boolModePlot) {
-          String strStatMode = parseModeStat(strStat)[0];
-          if (_tableModeSingleStatField.containsKey(strStatMode)) {
-            tableStats = _tableModeSingleStatField;
-          } else if (_tableModePairStatField.containsKey(strStatMode)) {
-            tableStats = _tableModeSingleStatField;
-          } else if (_tableModeRatioField.containsKey(strStat)) {
-            tableStats = _tableModeSingleStatField;
-          } else {
-            throw new Exception("unrecognized mode stat: " + strStatMode);
-          }
-        } else {
-
-          String aggType = null;
-          if (boolAggStat || boolCalcStat) {
-            if (boolCalcCtc || boolAggCtc) {
-              aggType = MVUtil.CTC;
-            } else if (boolCalcSl1l2 || boolAggSl1l2) {
-              aggType = MVUtil.SL1L2;
-            } else if (boolCalcSal1l2 || boolAggSal1l2) {
-              aggType = MVUtil.SAL1L2;
-            } else if (boolAggNbrCnt) {
-              aggType = MVUtil.NBR_CNT;
-            } else if (boolAggPct) {
-              aggType = MVUtil.PCT;
-            } else if (boolAggSsvar) {
-              aggType = MVUtil.SSVAR;
-            }
-          }
-
-
-          if (_tableStatsCnt.containsKey(strStat)) {
-            tableStats = _tableStatsCnt;
-            if (boolAggStat || boolCalcStat) {
-              isAggTypeValid(_tableStatsCnt, strStat, aggType);
-              strStatTable = "line_data_" + aggType + " ld\n";
-            } else {
-              strStatTable = "line_data_cnt" + " ld\n";
-            }
-          } else if (_tableStatsSsvar.containsKey(strStat)) {
-            tableStats = _tableStatsSsvar;
-            if (boolAggStat) {
-              isAggTypeValid(_tableStatsSsvar, strStat, aggType);
-              strStatTable = "line_data_" + aggType + " ld\n";
-            } else {
-              strStatTable = "line_data_ssvar" + " ld\n";
-            }
-          } else if (_tableStatsCts.containsKey(strStat)) {
-            tableStats = _tableStatsCts;
-            if (boolAggStat || boolCalcStat) {
-              isAggTypeValid(_tableStatsCts, strStat, aggType);
-              strStatTable = "line_data_ctc" + " ld\n";
-            } else {
-              strStatTable = "line_data_cts" + " ld\n";
-            }
-          } else if (_tableStatsNbrcnt.containsKey(strStat)) {
-            tableStats = _tableStatsNbrcnt;
-            if (boolAggStat) {
-              isAggTypeValid(_tableStatsNbrcnt, strStat, aggType);
-            }
-            strStatTable = "line_data_nbrcnt ld\n";
-            strStatField = strStat.replace("NBR_", "").toLowerCase();
-          } else if (_tableStatsEnscnt.containsKey(strStat)) {
-            tableStats = _tableStatsEnscnt;
-            if (boolAggStat) {
-              isAggTypeValid(_tableStatsEnscnt, strStat, aggType);
-            }
-            strStatTable = "line_data_enscnt ld\n";
-            strStatField = strStat.replace("ENS_", "").toLowerCase();
-          } else if (_tableStatsNbrcts.containsKey(strStat)) {
-            tableStats = _tableStatsNbrcts;
-            isAggTypeValid(_tableStatsNbrcts, strStat, aggType);
-            strStatTable = "line_data_nbrcts ld\n";
-            strStatField = strStat.replace("NBR_", "").toLowerCase();
-          } else if (_tableStatsPstd.containsKey(strStat)) {
-            tableStats = _tableStatsPstd;
-            strStatTable = "line_data_pstd ld\n";
-            if (boolAggStat) {
-              strStatTable = "line_data_pct ld";
-              isAggTypeValid(_tableStatsPstd, strStat, aggType);
-              for (int i = 1; i < intPctThresh; i++) {
-                strStatTable += ",\n  line_data_pct_thresh ldt" + i;
-              }
-              strStatTable += "\n";
-            }
-            strStatField = strStat.replace("PSTD_", "").toLowerCase();
-          } else if (_tableStatsMcts.containsKey(strStat)) {
-            tableStats = _tableStatsMcts;
-            isAggTypeValid(_tableStatsMcts, strStat, aggType);
-            strStatTable = "line_data_mcts ld\n";
-            strStatField = strStat.replace("MCTS_", "").toLowerCase();
-          } else if (_tableStatsRhist.containsKey(strStat)) {
-            tableStats = _tableStatsRhist;
-            strStatTable = "line_data_rhist ld\n";
-            strStatField = strStat.replace("RHIST_", "").toLowerCase();
-          } else if (_tableStatsPhist.containsKey(strStat)) {
-            tableStats = _tableStatsPhist;
-            isAggTypeValid(_tableStatsPhist, strStat, aggType);
-            strStatTable = "line_data_phist ld\n";
-            strStatField = strStat.replace("PHIST_", "").toLowerCase();
-          } else if (_tableStatsVl1l2.containsKey(strStat)) {
-            isAggTypeValid(_tableStatsRhist, strStat, aggType);
-            tableStats = _tableStatsVl1l2;
-            strStatTable = "line_data_vl1l2 ld\n";
-            strStatField = strStat.replace("VL1L2_", "").toLowerCase();
-          } else if (_tableStatsMpr.containsKey(strStat)) {
-            tableStats = _tableStatsMpr;
-            strStatTable = "line_data_mpr ld\n";
-          } else if (_tableStatsOrank.containsKey(strStat)) {
-            tableStats = _tableStatsOrank;
-            strStatTable = "line_data_orank ld\n";
-          } else {
-            throw new Exception("unrecognized stat: " + strStat);
-          }
-        }
-
-        //  build the SQL for the current fcst_var and stat
-        if (boolModePlot) {
-          //  the single and pair temp tables only need to be built once
-          if (1 == intY) {
-            listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, boolModeRatioPlot, strStat));
-          }
-          //  build the mode SQL
-          String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
-          listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy));
-
-        } else {
-          boolean boolBCRMSE = false;
-          String strSelectStat = strSelectList;
-
-          //  build the select list and temp table elements for the stat and CIs
-          if (strStat.equals("BCRMSE")) {
-            boolBCRMSE = true;
-            strStatField = "bcmse";
-          }
-          strSelectStat += ",\n  '" + strStat + "' stat_name";
-
-          //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
-          if (boolAggCtc) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
-          } else if (boolAggSl1l2) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
-          } else if (boolAggSsvar) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  ld.var_mean, \n  ld.bin_n";
-          } else if (boolAggSal1l2) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
-          } else if (boolAggPct) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
-            for (int i = 1; i < intPctThresh; i++) {
-              strSelectStat += ",\n";
-              if (i < intPctThresh - 1) {
-                strSelectStat += "  FORMAT((ldt" + i + ".thresh_i + ldt" + (i + 1) + ".thresh_i)/2, 3),\n";
-              } else {
-                strSelectStat += "  FORMAT((ldt" + i + ".thresh_i + 1)/2, 3),\n";
-              }
-              strSelectStat += "  ldt" + i + ".oy_i,\n" +
-                "  ldt" + i + ".on_i";
-            }
-          } else if (boolAggNbrCnt) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
-          } else if (boolCalcCtc) {
-            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
-              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-          } else if (boolCalcSl1l2) {
-            if (strStat.equalsIgnoreCase("mae")) {
-              strSelectStat += ",\n  calc" + strStat + "( ld.mae) stat_value,\n" +
-                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-            } else {
-              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
-                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-            }
-          } else if (boolCalcSal1l2) {
-            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
-              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-          } else {
-            if (boolBCRMSE) {
-              strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
-
-            } else {
-              strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',ld." + strStatField + " ) stat_value";
-
-            }
-
-            //  determine if the current stat has normal or bootstrap CIs
-            String[] listStatCI = (String[]) tableStats.get(strStat);
-            boolean boolHasNorm = false;
-            boolean boolHasBoot = false;
-            for (String aListStatCI : listStatCI) {
-              if (aListStatCI.equals("nc")) {
-                boolHasNorm = true;
-              } else if (aListStatCI.equals("bc")) {
-                boolHasBoot = true;
-              }
-            }
-
-            //  add the CIs to the select list, if present, otherwise, invalid data
-            if (boolHasNorm) {
-              strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',ld." + strStatField + "_ncl  ) stat_ncl" +
-                ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',ld." + strStatField + "_ncu  ) stat_ncu";
-            } else {
-              strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
-            }
-
-            if (boolHasBoot && !boolAggStat) {
-              if (boolBCRMSE) {
-                strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
-                  ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
-              } else {
-                strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',ld." + strStatField + "_bcl) stat_bcl" +
-                  ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',ld." + strStatField + "_bcu ) stat_bcu";
-              }
-            } else {
-              strSelectStat += ",\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-            }
-          }
-
-          String strStatNaClause = "";
-          if (!boolAggStat && !boolCalcStat) {
-            strStatNaClause = "\n  AND ld." + strStatField + " != -9999";
-          }
-          if (boolAggPct) {
-            for (int i = 1; i < intPctThresh; i++) {
-              strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n" +
-                "  AND ldt" + i + ".i_value = " + i;
-            }
-          }
-
-          //  build the query
-          strSelectSQL += (strSelectSQL.equals("") ? "" : "\nUNION\n") +
-            "SELECT\n" + strSelectStat + "\n" +
-            "FROM\n  stat_header h,\n  " + strStatTable +
-            "WHERE\n" + strWhere +
-            "  AND h.fcst_var " + strFcstVarClause + "\n" +
-            "  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;
-        }
-
-      }  //  end: for(int intFcstVarStat=0; intFcstVarStat < listFcstVarStat.length; intFcstVarStat++)
-
-    }  //  end: for(int intY=1; intY <= 2; intY++)
-
-    //  add the stat plot query to the list
-    if (!boolModePlot) {
-      listSQL.add(strSelectSQL + ";");
-    }
-
-    //remove duplicated queries
-    listSQL = new ArrayList<>(new LinkedHashSet<>(listSQL));
-
-    return listSQL;
-  }
-
-  public ArrayList buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception {
-
-    //  determine if the plot job is for stat data or MODE data
-    boolean boolModePlot = isModeJob(job);
-    boolean boolModeRatioPlot = isModeRatioJob(job);
-    Hashtable tableHeaderSQLType = (boolModePlot ? _tableModeHeaderSQLType : _tableStatHeaderSQLType);
-
-    //  populate the plot template values with plot_fix values
-    Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
-
-    //  build the sql where clauses for the current permutation of fixed variables and values
-    String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
-
-    //  add the user-specified condition clause, if present
-    if (null != job.getPlotCond() && !job.getPlotCond().equals("")) {
-      strPlotFixWhere += "  AND " + job.getPlotCond() + "\n";
-    }
-
-
-    //  remove multiple dep group capability
-    MVOrderedMap[] listDep = job.getDepGroups();
-    if (1 != listDep.length) {
-      throw new Exception("unexpected number of <dep> groups: " + listDep.length);
-    }
-    MVOrderedMap mapDepGroup = listDep[0];
-
-
-		/*
-		 *  Build queries for statistics on both the y1 and y2 axes
-		 */
-
-    ArrayList listSQL = new ArrayList();
-    String strTempSQL = "";
-    for (int intY = 1; intY <= 2; intY++) {
-
-      //  get the dep values for the current dep group
-      MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
-
-      //  establish lists of entires for each group of variables and values
-      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSQLSeries();
-      Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
-
-      //  if there is a mis-match between the presence of series and dep values, bail
-      if (0 < listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("dep values present, but no series values for Y" + intY);
-      }
-      if (1 > listDepPlot.length && 0 < listSeries.length) {
-        throw new Exception("series values present, but no dep values for Y" + intY);
-      }
-
-      //  there must be at least one y1 series and stat, but not for y2
-      if (1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("no Y1 series stat found");
-      }
-      if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-        continue;
-      }
-
-
-			/*
-			 *  Construct query components from the series variable/value pairs
-			 */
-
-      //  build the select list and where clauses for the series variables and values
-      String strSelectPlotList = "";
+      String strSelectPlotList;
       String strWhere = strPlotFixWhere;
       BuildQueryStrings buildQueryStrings = new BuildQueryStrings(boolModePlot, tableHeaderSQLType, listSeries, strWhere).invoke();
       String strSelectList = buildQueryStrings.getStrSelectList();
@@ -2199,16 +2235,12 @@ public class MVBatch extends MVUtil {
         strTempList += ",\n    fcst_lead          " + "INT ";
       }
 
-
-
-
-
 			/*
-			 *  Construct the query components for the independent variable and values
+       *  Construct the query components for the independent variable and values
 			 */
 
       //  validate and get the type and values for the independent variable
-      String strIndyVarType = "";
+      String strIndyVarType;
       String strIndyVar = job.getIndyVar();
       String[] listIndyVal = job.getIndyVal();
       if (!tableHeaderSQLType.containsKey(strIndyVar)) {
@@ -2229,7 +2261,7 @@ public class MVBatch extends MVUtil {
       if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
         strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , " + strIndyVarFormatted + " , " + strIndyVarFormatted + " + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) ";
       }
-      strWhere += (!strWhere.equals("") ? "  AND " : "") + strIndyVarFormatted +
+      strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted +
         " IN (" + buildValueList(job.getIndyVal()) + ")\n";
 
       //  add fcst_var to the select list and temp table entries
@@ -2251,10 +2283,9 @@ public class MVBatch extends MVUtil {
       }
 
 			/*
-			 *  Build the temp tables to hold plot data
+       *  Build the temp tables to hold plot data
 			 */
 
-      String strTempSQLCur = "";
 
       //  the single and pair temp tables only need to be built once
       if (1 == intY) {
@@ -2263,11 +2294,11 @@ public class MVBatch extends MVUtil {
 
 
 			/*
-			 *  Construct a query for each fcst_var/stat pair
+       *  Construct a query for each fcst_var/stat pair
 			 */
 
       //  determine how many queries are needed to gather that stat information
-      int intNumQueries = -1;
+      int intNumQueries;
       String[][] listFcstVarStat = buildFcstVarStatList(mapDep);
 
       intNumQueries = listFcstVarStat.length;
@@ -2340,21 +2371,23 @@ public class MVBatch extends MVUtil {
       //  get a list of dep groups
       MVOrderedMap[] listDepGroup = job.getDepGroups();
       MVOrderedMap mapDep = (MVOrderedMap) listDepGroup[0].get("dep" + intY);
-      Map.Entry[] listDep = mapDep.getOrderedEntries();
+      if (mapDep != null) {
+        Map.Entry[] listDep = mapDep.getOrderedEntries();
 
-      //  build tmpl map values for each fcst_var
-      String strDep = "dep" + intY;
-      for (int i = 0; i < listDep.length; i++) {
+        //  build tmpl map values for each fcst_var
+        String strDep = "dep" + intY;
+        for (int i = 0; i < listDep.length; i++) {
 
-        //  resolve the fcst_var and stats for the current dep
-        String strFcstVar = listDep[i].getKey().toString();
-        String[] listStat = (String[]) listDep[i].getValue();
+          //  resolve the fcst_var and stats for the current dep
+          String strFcstVar = listDep[i].getKey().toString();
+          String[] listStat = (String[]) listDep[i].getValue();
 
-        //  build and add the fcst_var to the tmpl value map
-        String strDepFcstVar = strDep + "_" + (i + 1);
-        mapTmplVals.put(strDepFcstVar, strFcstVar);
-        for (int j = 0; j < listStat.length; j++) {
-          mapTmplVals.put(strDepFcstVar + "_stat" + (j + 1), listStat[j]);
+          //  build and add the fcst_var to the tmpl value map
+          String strDepFcstVar = strDep + "_" + (i + 1);
+          mapTmplVals.put(strDepFcstVar, strFcstVar);
+          for (int j = 0; j < listStat.length; j++) {
+            mapTmplVals.put(strDepFcstVar + "_stat" + (j + 1), listStat[j]);
+          }
         }
       }
     }
@@ -2367,7 +2400,7 @@ public class MVBatch extends MVUtil {
    * @throws Exception
    */
   public void runRhistJob(MVPlotJob job) throws Exception {
-    Hashtable tableHeaderSQLType = _tableStatHeaderSQLType;
+    HashMap<String, String> tableHeaderSQLType = new HashMap<>(_tableStatHeaderSQLType);
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2388,10 +2421,10 @@ public class MVBatch extends MVUtil {
       }
       strTempType = tableHeaderSQLType.get(strSeriesField).toString();
       //  build the select list element, where clause and temp table list element
-      strSelectList += (strSelectList.equals("") ? "" : ",") + "  " + formatField(strSeriesField, false, true);
+      strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
         " IN (" + buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.equals("") ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
+      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
 
     }
 
@@ -2424,31 +2457,25 @@ public class MVBatch extends MVUtil {
       }
 
       //  run the rank number query and warn, if necessary
-      Statement stmt = null;
       String strMsg = "";
-      ResultSet res = null;
-      try {
-        stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        stmt.execute(strRankNumSelect);
-        res = stmt.getResultSet();
-        ArrayList listRankNum = new ArrayList();
-        while (res.next()) {
-          listRankNum.add(res.getString(1));
+      try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(strRankNumSelect);
+      ) {
+
+        List<String> listRankNum = new ArrayList<>();
+        while (resultSet.next()) {
+          listRankNum.add(resultSet.getString(1));
         }
 
-        if (0 == listRankNum.size()) {
+        if (listRankNum.isEmpty()) {
           throw new Exception("no rank data found");
         } else if (1 < listRankNum.size()) {
           strMsg = "  **  WARNING: multiple n_rank values found for search criteria: ";
           for (int i = 0; i < listRankNum.size(); i++) {
-            strMsg += (0 < i ? ", " : "") + listRankNum.get(i).toString();
+            strMsg += (0 < i ? ", " : "") + listRankNum.get(i);
           }
           _out.println(strMsg);
         }
-      } catch (Exception e) {
-      } finally {
-        if (stmt != null) stmt.close();
-        if (res != null) res.close();
       }
 
 
@@ -2485,7 +2512,7 @@ public class MVBatch extends MVUtil {
 
 
 			/*
-			 *  Print the data file in the R_work subfolder and file specified by the data file template
+       *  Print the data file in the R_work subfolder and file specified by the data file template
 			 */
 
       //  construct the file system paths for the files used to build the plot
@@ -2507,15 +2534,13 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      stmt.execute(strPlotDataSelect);
-
-      try (ResultSet rs = stmt.getResultSet(); FileWriter fstream = new FileWriter(new File(strDataFile)); BufferedWriter out = new BufferedWriter(fstream)) {
-        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
+      try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
+           FileWriter fstream = new FileWriter(new File(strDataFile));
+           BufferedWriter out = new BufferedWriter(fstream)) {
+        printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
       } catch (Exception e) {
         System.out.println(e.getMessage());
-      } finally {
-        stmt.close();
       }
 
       //  build the template strings using the current template values
@@ -2546,13 +2571,13 @@ public class MVBatch extends MVUtil {
       if (intNumDepSeries != parseRCol(job.getColors()).length) {
         throw new Exception("length of colors differs from number of series (" + intNumDepSeries + ")");
       }
-      if (!job.getLegend().equals("") &&
+      if (!job.getLegend().isEmpty() &&
         intNumDepSeries != parseRCol(job.getLegend()).length) {
         throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")");
       }
 
       //  create a table containing all template values for populating the R_tmpl
-      Hashtable tableRTags = new Hashtable();
+      HashMap<String, String> tableRTags = new HashMap<>();
 
       tableRTags.put("r_work", _strRworkFolder);
       tableRTags.put("plot_file", strPlotFile);
@@ -2562,16 +2587,16 @@ public class MVBatch extends MVUtil {
       tableRTags.put("y1_label", strY1Label);
       tableRTags.put("plot_caption", strCaption);
       tableRTags.put("plot_cmd", job.getPlotCmd());
-      tableRTags.put("grid_on", (job.getGridOn() ? "TRUE" : "FALSE"));
-      tableRTags.put("colors", job.getColors().equals("") ? "\"gray\"" : job.getColors());
-      tableRTags.put("y1_lim", job.getY1Lim().equals("") ? "c()" : job.getY1Lim());
-      tableRTags.put("normalized_histogram", (job.getNormalizedHistogram() ? "TRUE" : "FALSE"));
+      tableRTags.put("grid_on", job.getGridOn() ? "TRUE" : "FALSE");
+      tableRTags.put("colors", job.getColors().isEmpty() ? "\"gray\"" : job.getColors());
+      tableRTags.put("y1_lim", job.getY1Lim().isEmpty() ? "c()" : job.getY1Lim());
+      tableRTags.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : "FALSE");
       tableRTags.put("series1_list", job.getSeries1Val().getRDeclSeries());
       tableRTags.put("legend_ncol", job.getLegendNcol());
       tableRTags.put("legend_inset", job.getLegendInset());
-      tableRTags.put("legend", job.getLegend().equals("") ? "c()" : job.getLegend());
-      tableRTags.put("plot_disp", job.getPlotDisp().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
-      tableRTags.put("order_series", job.getOrderSeries().equals("") ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
+      tableRTags.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
+      tableRTags.put("plot_disp", job.getPlotDisp().isEmpty() ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
+      tableRTags.put("order_series", job.getOrderSeries().isEmpty() ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
 
       populatePlotFmtTmpl(tableRTags, job);
 
@@ -2582,12 +2607,12 @@ public class MVBatch extends MVUtil {
 
 
 			/*
-			 *  Attempt to run the generated R script
+       *  Attempt to run the generated R script
 			 */
 
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile);
-      if (!strMsg.equals("")) {
+      if (!strMsg.isEmpty()) {
         _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
       }
       _intNumPlotsRun++;
@@ -2626,10 +2651,10 @@ public class MVBatch extends MVUtil {
       }
       strTempType = tableHeaderSQLType.get(strSeriesField).toString();
       //  build the select list element, where clause and temp table list element
-      strSelectList += (strSelectList.equals("") ? "" : ",") + "  " + formatField(strSeriesField, false, true);
+      strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
         " IN (" + buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.equals("") ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
+      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
 
     }
 
@@ -2639,7 +2664,6 @@ public class MVBatch extends MVUtil {
       //  populate the template map with fixed values
       Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, aListPlotFixPerm, mapPlotFixVal);
 
-      Statement stmt = null;
 
       //  build the stat_header where clauses of the sql
       String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
@@ -2662,32 +2686,25 @@ public class MVBatch extends MVUtil {
       }
       String strMsg = "";
       //  run the rank number query and warn, if necessary
-      ResultSet res = null;
-      try {
-        stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        stmt.execute(strBinNumSelect);
-        res = stmt.getResultSet();
-        ArrayList listBinNum = new ArrayList();
-        while (res.next()) {
-          listBinNum.add(res.getString(1));
+      try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(strBinNumSelect);) {
+
+        List<String> listBinNum = new ArrayList<>();
+        while (resultSet.next()) {
+          listBinNum.add(resultSet.getString(1));
         }
 
-        if (0 == listBinNum.size()) {
+        if (listBinNum.isEmpty()) {
           throw new Exception("no bin data found");
         } else if (1 < listBinNum.size()) {
           strMsg = "  **  WARNING: multiple n_bin values found for search criteria: ";
           for (int i = 0; i < listBinNum.size(); i++) {
-            strMsg += (0 < i ? ", " : "") + listBinNum.get(i).toString();
+            strMsg += (0 < i ? ", " : "") + listBinNum.get(i);
           }
           _out.println(strMsg);
         }
       } catch (Exception e) {
-      } finally {
-        if (stmt != null) stmt.close();
-        if (res != null) res.close();
-
       }
-
       //  build a query for the bin data
       strWhere = strWhere + strWhereSeries;
       String strPlotDataSelect =
@@ -2729,12 +2746,12 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      if (_strDataFolder.equals("")) {
+      if (_strDataFolder.length() == 0) {
         _strDataFolder = _strRworkFolder + "data/";
       } else {
         _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
       }
-      if (_strScriptsFolder.equals("")) {
+      if (_strScriptsFolder.length() == 0) {
         _strScriptsFolder = _strRworkFolder + "scripts/";
       } else {
         _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
@@ -2743,17 +2760,14 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      stmt.execute(strPlotDataSelect);
-
-      try (ResultSet rs = stmt.getResultSet();
+      try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
            FileWriter fstream = new FileWriter(new File(strDataFile));
            BufferedWriter out = new BufferedWriter(fstream);) {
 
-        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
-      } finally {
+        printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
+      } catch (Exception e) {
 
-        stmt.close();
       }
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
@@ -2783,13 +2797,13 @@ public class MVBatch extends MVUtil {
       if (intNumDepSeries != parseRCol(job.getColors()).length) {
         throw new Exception("length of colors differs from number of series (" + intNumDepSeries + ")");
       }
-      if (!job.getLegend().equals("") &&
+      if (!job.getLegend().isEmpty() &&
         intNumDepSeries != parseRCol(job.getLegend()).length) {
         throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")");
       }
 
       //  create a table containing all template values for populating the R_tmpl
-      Hashtable tableRTags = new Hashtable();
+      HashMap<String, String> tableRTags = new HashMap<>();
 
       tableRTags.put("r_work", _strRworkFolder);
       tableRTags.put("plot_file", strPlotFile);
@@ -2799,16 +2813,16 @@ public class MVBatch extends MVUtil {
       tableRTags.put("y1_label", strY1Label);
       tableRTags.put("plot_caption", strCaption);
       tableRTags.put("plot_cmd", job.getPlotCmd());
-      tableRTags.put("grid_on", (job.getGridOn() ? "TRUE" : "FALSE"));
-      tableRTags.put("colors", job.getColors().equals("") ? "\"gray\"" : job.getColors());
-      tableRTags.put("y1_lim", job.getY1Lim().equals("") ? "c()" : job.getY1Lim());
-      tableRTags.put("normalized_histogram", (job.getNormalizedHistogram() ? "TRUE" : "FALSE"));
+      tableRTags.put("grid_on", job.getGridOn() ? "TRUE" : "FALSE");
+      tableRTags.put("colors", job.getColors().length() == 0 ? "\"gray\"" : job.getColors());
+      tableRTags.put("y1_lim", job.getY1Lim().length() == 0 ? "c()" : job.getY1Lim());
+      tableRTags.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : "FALSE");
       tableRTags.put("series1_list", job.getSeries1Val().getRDeclSeries());
       tableRTags.put("legend_ncol", job.getLegendNcol());
       tableRTags.put("legend_inset", job.getLegendInset());
-      tableRTags.put("legend", job.getLegend().equals("") ? "c()" : job.getLegend());
-      tableRTags.put("plot_disp", job.getPlotDisp().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
-      tableRTags.put("order_series", job.getOrderSeries().equals("") ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
+      tableRTags.put("legend", job.getLegend().length() == 0 ? "c()" : job.getLegend());
+      tableRTags.put("plot_disp", job.getPlotDisp().length() == 0 ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
+      tableRTags.put("order_series", job.getOrderSeries().length() == 0 ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
 
 
       populatePlotFmtTmpl(tableRTags, job);
@@ -2820,12 +2834,12 @@ public class MVBatch extends MVUtil {
 
 
   			/*
-  			 *  Attempt to run the generated R script
+         *  Attempt to run the generated R script
   			 */
 
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile);
-      if (!strMsg.equals("")) {
+      if (strMsg.length() > 0) {
         _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
       }
       _intNumPlotsRun++;
@@ -2834,12 +2848,14 @@ public class MVBatch extends MVUtil {
 
   }
 
+
   /**
    * Build SQL for and gather data from the line_data_prc and line_data_prc_thresh tables and use it to build a ROC plot or a reliability plot.
    *
    * @param job ROC/reliability plot job
    * @throws Exception
    */
+
   public void runRocRelyJob(MVPlotJob job) throws Exception {
 
     //  build a list of fixed value permutations for all plots
@@ -2862,10 +2878,10 @@ public class MVBatch extends MVUtil {
       }
       strTempType = tableHeaderSQLType.get(strSeriesField).toString();
       //  build the select list element, where clause and temp table list element
-      strSelectList += (strSelectList.equals("") ? "" : ",") + "  " + formatField(strSeriesField, false, true);
+      strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
         " IN (" + buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.equals("") ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
+      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
 
     }
 
@@ -2877,15 +2893,14 @@ public class MVBatch extends MVUtil {
       Map.Entry[] listPlotFixVal = buildPlotFixTmplMap(job, aListPlotFixPerm, mapPlotFixVal);
 
       boolean boolRelyPlot = job.getPlotTmpl().startsWith("rely");
-      Statement stmt = null;
 
       //  build the stat_header where clauses of the sql
       String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
       strWhere = strWhere + strWhereSeries;
 
       //  store distinct fcst_thresh and obs_thresh values to verify the plot spec
-      ArrayList listFcstThresh = new ArrayList();
-      ArrayList listObsThresh = new ArrayList();
+      List<String> listFcstThresh = new ArrayList<>();
+      List<String> listObsThresh = new ArrayList<>();
 
       //  check to ensure only a single obs_thresh is used
       String strObsThreshSelect =
@@ -2903,20 +2918,13 @@ public class MVBatch extends MVUtil {
       if (_boolVerbose || _boolSQLOnly) {
         _out.println(strObsThreshSelect + "\n");
       }
-      ResultSet res = null;
-      try {
-        stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        stmt.execute(strObsThreshSelect);
-        res = stmt.getResultSet();
-        while (res.next()) {
-          listObsThresh.add(res.getString(1));
+      try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(strObsThreshSelect);) {
+        while (resultSet.next()) {
+          listObsThresh.add(resultSet.getString(1));
         }
       } catch (Exception e) {
-      } finally {
-        if (stmt != null) stmt.close();
-        if (res != null) res.close();
       }
-
 
       //  build the query depending on the type of data requested
       String strPlotDataSelect = "";
@@ -2941,16 +2949,11 @@ public class MVBatch extends MVUtil {
         if (_boolVerbose || _boolSQLOnly) {
           _out.println(strFcstThreshSelect + "\n");
         }
-        try {
-          stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-          stmt.execute(strFcstThreshSelect);
-          res = stmt.getResultSet();
-          while (res.next()) {
-            listFcstThresh.add(res.getString(1));
+        try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+             ResultSet resultSet = stmt.executeQuery(strFcstThreshSelect);) {
+          while (resultSet.next()) {
+            listFcstThresh.add(resultSet.getString(1));
           }
-        } finally {
-          stmt.close();
-          res.close();
         }
 
         //  build the plot data sql
@@ -3034,7 +3037,7 @@ public class MVBatch extends MVUtil {
         throw new Exception(strObsThreshMsg);
       }
 
-      if (0 == listObsThresh.size()) {
+      if (listObsThresh.isEmpty()) {
         String strObsThreshMsg = "ROC/Reliability plots must contain data from at least one obs_thresh ";
         throw new Exception(strObsThreshMsg);
       }
@@ -3048,7 +3051,7 @@ public class MVBatch extends MVUtil {
         }
         throw new Exception(strFcstThreshMsg);
       }
-      if (job.getRocPct() && 0 == listObsThresh.size()) {
+      if (job.getRocPct() && listObsThresh.isEmpty()) {
         String strObsThreshMsg = "ROC/Reliability plots must contain data from at least one obs_thresh ";
         throw new Exception(strObsThreshMsg);
       }
@@ -3063,12 +3066,12 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      if (_strDataFolder.equals("")) {
+      if (_strDataFolder.length() == 0) {
         _strDataFolder = _strRworkFolder + "data/";
       } else {
         _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
       }
-      if (_strScriptsFolder.equals("")) {
+      if (_strScriptsFolder.length() == 0) {
         _strScriptsFolder = _strRworkFolder + "scripts/";
       } else {
         _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
@@ -3077,17 +3080,18 @@ public class MVBatch extends MVUtil {
       (new File(strDataFile)).getParentFile().mkdirs();
 
       //  get the data for the current plot from the plot_data temp table and write it to a data file
-      stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      //stmt.setFetchSize(Integer.MIN_VALUE);
-      stmt.execute(strPlotDataSelect);
 
-      try (ResultSet rs = stmt.getResultSet(); FileWriter fstream = new FileWriter(new File(strDataFile)); BufferedWriter out = new BufferedWriter(fstream)) {
 
-        printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2());
-      } finally {
+      try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
+           FileWriter fstream = new FileWriter(new File(strDataFile));
+           BufferedWriter out = new BufferedWriter(fstream)) {
 
-        stmt.close();
+        printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
+      } catch (Exception e) {
+
       }
+
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
@@ -3103,7 +3107,7 @@ public class MVBatch extends MVUtil {
       (new File(strRFile)).getParentFile().mkdirs();
 
       //  create a table containing all template values for populating the R_tmpl
-      Hashtable tableRTags = new Hashtable();
+      HashMap<String, String> tableRTags = new HashMap();
 
       tableRTags.put("r_work", _strRworkFolder);
       tableRTags.put("plot_file", strPlotFile);
@@ -3124,15 +3128,15 @@ public class MVBatch extends MVUtil {
       tableRTags.put("y2lab_align", job.getY2labAlign());
       tableRTags.put("plot_caption", strCaption);
       tableRTags.put("plot_cmd", job.getPlotCmd());
-      tableRTags.put("colors", job.getColors().equals("") ? "c(\"gray\")" : job.getColors());
-      tableRTags.put("pch", job.getPch().equals("") ? "c(20)" : job.getPch());
-      tableRTags.put("type", job.getType().equals("") ? "c(b)" : job.getType());
-      tableRTags.put("lty", job.getLty().equals("") ? "c(1)" : job.getLty());
-      tableRTags.put("lwd", job.getLwd().equals("") ? "c(1)" : job.getLwd());
+      tableRTags.put("colors", job.getColors().isEmpty() ? "c(\"gray\")" : job.getColors());
+      tableRTags.put("pch", job.getPch().isEmpty() ? "c(20)" : job.getPch());
+      tableRTags.put("type", job.getType().isEmpty() ? "c(b)" : job.getType());
+      tableRTags.put("lty", job.getLty().isEmpty() ? "c(1)" : job.getLty());
+      tableRTags.put("lwd", job.getLwd().isEmpty() ? "c(1)" : job.getLwd());
       tableRTags.put("series1_list", job.getSeries1Val().getRDeclSeries());
-      tableRTags.put("legend", job.getLegend().equals("") ? "c()" : job.getLegend());
-      tableRTags.put("plot_disp", job.getPlotDisp().equals("") ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
-      tableRTags.put("order_series", job.getOrderSeries().equals("") ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
+      tableRTags.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
+      tableRTags.put("plot_disp", job.getPlotDisp().isEmpty() ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
+      tableRTags.put("order_series", job.getOrderSeries().isEmpty() ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
       tableRTags.put("legend_size", job.getLegendSize());
       tableRTags.put("legend_box", job.getLegendBox());
       tableRTags.put("legend_inset", job.getLegendInset());
@@ -3146,7 +3150,7 @@ public class MVBatch extends MVUtil {
       populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
 
 			/*
-			 *  Attempt to run the generated R script
+       *  Attempt to run the generated R script
 			 */
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile);
@@ -3207,22 +3211,22 @@ public class MVBatch extends MVUtil {
   /**
    * Run the input R script named r using the Rscript command.  The output and error output will be written to standard output.
    *
-   * @param Rscript Rscript command
+   * @param rscript Rscript command
    * @param script  R script to run
    * @param args    (optional) Arguments to pass to the R script
    * @throws Exception
    */
-  public boolean runRscript(String Rscript, String script, String[] args) throws Exception {
+  public boolean runRscript(String rscript, String script, String[] args) throws Exception {
 
     //  build a list of arguments
-    String strArgList = "";
+    StringBuilder strArgList = new StringBuilder();
     for (int i = 0; null != args && i < args.length; i++) {
-      strArgList += " " + args[i];
+      strArgList.append(" ").append( args[i]);
     }
 
     //  run the R script and wait for it to complete
     if (!_boolSQLOnly) {
-      _out.println("\nRunning '" + Rscript + " " + script + "'");
+      _out.println("\nRunning '" + rscript + " " + script + "'");
     }
 
     Process proc = null;
@@ -3234,12 +3238,13 @@ public class MVBatch extends MVUtil {
 
     boolean boolExit = false;
     int intExitStatus = 0;
-    String strProcStd = "", strProcErr = "";
+    StringBuilder strProcStd = new StringBuilder();
+    StringBuilder strProcErr = new StringBuilder();
 
 
     try {
 
-      proc = Runtime.getRuntime().exec(Rscript + " " + script + strArgList);
+      proc = Runtime.getRuntime().exec(rscript + " " + script + strArgList);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
@@ -3253,10 +3258,10 @@ public class MVBatch extends MVUtil {
         }
 
         while (readerProcStd.ready()) {
-          strProcStd += readerProcStd.readLine() + "\n";
+          strProcStd.append(readerProcStd.readLine()).append("\n");
         }
         while (readerProcErr.ready()) {
-          strProcErr += readerProcErr.readLine() + "\n";
+          strProcErr.append(readerProcErr.readLine()).append("\n");
         }
       }
     } catch (Exception e) {
@@ -3282,11 +3287,11 @@ public class MVBatch extends MVUtil {
     }
 
 
-    if (!"".equals(strProcStd) && !_boolSQLOnly) {
+    if (strProcStd.length() > 0 && !_boolSQLOnly) {
       _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
     }
 
-    if (!"".equals(strProcErr) && !_boolSQLOnly) {
+    if (strProcErr.length() > 0 && !_boolSQLOnly) {
       _out.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
     }
 
@@ -3294,28 +3299,28 @@ public class MVBatch extends MVUtil {
     return 0 == intExitStatus;
   }
 
-  public boolean runRscript(String Rscript, String script) throws Exception {
-    return runRscript(Rscript, script, new String[]{});
+  public boolean runRscript(String rscript, String script) throws Exception {
+    return runRscript(rscript, script, new String[]{});
   }
 
   private class BuildQueryStrings {
 
     private boolean boolModePlot;
-    private Hashtable tableHeaderSQLType;
+    private HashMap<String, String> tableHeaderSQLType;
     private Map.Entry[] listSeries;
     private String strSelectList = "";
     private String strTempList = "";
     private String strWhere = "";
     boolean isFormatSelect = true;
 
-    public BuildQueryStrings(boolean boolModePlot, Hashtable tableHeaderSQLType, Map.Entry[] listSeries, String strWhere) {
+    public BuildQueryStrings(boolean boolModePlot, HashMap<String, String> tableHeaderSQLType, Map.Entry[] listSeries, String strWhere) {
       this.boolModePlot = boolModePlot;
       this.tableHeaderSQLType = tableHeaderSQLType;
       this.listSeries = listSeries;
       this.strWhere = strWhere;
     }
 
-    public BuildQueryStrings(boolean boolModePlot, Hashtable tableHeaderSQLType, Map.Entry[] listSeries, String strWhere, boolean isFormatSelect) {
+    public BuildQueryStrings(boolean boolModePlot, HashMap<String, String> tableHeaderSQLType, Map.Entry[] listSeries, String strWhere, boolean isFormatSelect) {
       this.boolModePlot = boolModePlot;
       this.tableHeaderSQLType = tableHeaderSQLType;
       this.listSeries = listSeries;
@@ -3343,14 +3348,14 @@ public class MVBatch extends MVUtil {
         String[] listSeriesVal = (String[]) listSery.getValue();
 
         //  validate the series field and get its type
-        String strTempType = "";
+        String strTempType;
         if (!tableHeaderSQLType.containsKey(strSeriesField)) {
           throw new Exception("unrecognized " + (boolModePlot ? "mode" : "stat") + "_header field: " + strSeriesField);
         }
-        strTempType = tableHeaderSQLType.get(strSeriesField).toString();
+        strTempType = tableHeaderSQLType.get(strSeriesField);
 
         //  build the select list element, where clause and temp table list element
-        if (strSelectList.equals("")) {
+        if (strSelectList.length() == 0) {
           if (isFormatSelect) {
             strSelectList += "" + "  " + formatField(strSeriesField, boolModePlot, true);
           } else {
@@ -3363,9 +3368,9 @@ public class MVBatch extends MVUtil {
             strSelectList += ",\n" + "  " + strSeriesField;
           }
         }
-        strWhere += (strWhere.equals("") ? "  " : "  AND ") + formatField(strSeriesField, boolModePlot, false) +
+        strWhere += (strWhere.isEmpty() ? "  " : "  AND ") + formatField(strSeriesField, boolModePlot, false) +
           " IN (" + buildValueList(listSeriesVal) + ")\n";
-        strTempList += (strTempList.equals("") ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
+        strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType + "";
       }
       return this;
     }

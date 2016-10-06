@@ -76,16 +76,16 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("mv_rev", 6);
     TABLES_TO_ROWS.put("stat_header", 6097);
     TABLES_TO_ROWS.put("line_data_enscnt", 1276);
-    // recreate DATABASE
+    // recreate database
     datasource = Datasource.getInstance(type, driver, host, USERNAME, PWD);
     Reader reader = null;
     Connection con = null;
     try {
       con = datasource.getConnection();
       Statement statement = con.createStatement();
-      statement.executeUpdate("drop DATABASE " + DATABASE);
-      statement.executeUpdate("create DATABASE " + DATABASE);
-      statement.executeUpdate("use " + DATABASE);
+      statement.executeUpdate("drop database " + database);
+      statement.executeUpdate("create database " + database);
+      statement.executeUpdate("use " + database);
       ScriptRunner scriptRunner = new ScriptRunner(con, false, true);
       reader = new FileReader(LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql");
       scriptRunner.runScript(reader);
@@ -119,7 +119,7 @@ public class LoadDataTest {
     Connection con = null;
 
     try {
-      con = datasource.getConnection(DATABASE);
+      con = datasource.getConnection(database);
       for (Map.Entry<String, Integer> entry : TABLES_TO_ROWS.entrySet()) {
         Integer rows = getNumberOfRows(con, entry.getKey());
         assertEquals("Number of rows in table " + entry.getKey() + " should be " + entry.getValue() + " but it is not", entry.getValue(), rows);

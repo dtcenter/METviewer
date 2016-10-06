@@ -224,14 +224,14 @@ public class Datasource {
   public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
-    Statement statement = null/**/;
+    Statement statement = null;
+    ResultSet rs = null;
     if (validDB) {
       try {
         if (dbManagementSystem.equals("mysql")) {
           con = connectionPool.getConnection();
           statement = con.createStatement();
-          //con.setReadOnly(true);
-          statement.executeQuery("use " + db);
+          rs = statement.executeQuery("use " + db);
         } else if (dbManagementSystem.equals("postgresql")) {
           String url = "jdbc:" + dbManagementSystem + "://" + dbHost + "/" + db;
           Properties props = new Properties();
@@ -245,6 +245,9 @@ public class Datasource {
       } finally {
         if (statement != null) {
           statement.close();
+        }
+        if(rs != null){
+          rs.close();
         }
 
       }
