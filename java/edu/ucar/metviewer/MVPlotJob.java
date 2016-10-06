@@ -162,6 +162,9 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolRocPct = false;
   protected boolean _boolRocCtc = false;
 
+  protected boolean _boolTaylorVoc = true;
+  protected boolean _boolTaylorShowGamma = true;
+
   protected String _strPlotCI = "";
   protected String _strPlotDisp = "";
   protected String _strColors = "";
@@ -245,6 +248,8 @@ public class MVPlotJob extends MVUtil {
     job._boolVarianceInflationFactor = _boolVarianceInflationFactor;
     job._boolNormalizedHistogram = _boolNormalizedHistogram;
     job._boolCacheAggStat = _boolCacheAggStat;
+    job._boolTaylorVoc = _boolTaylorVoc;
+    job._boolTaylorShowGamma = _boolTaylorShowGamma;
 
     job._strPlotType = _strPlotType;
     job._strPlotHeight = _strPlotHeight;
@@ -528,6 +533,9 @@ public class MVPlotJob extends MVUtil {
 
   public void addPlotFixValEq(String field, MVOrderedMap sets) {
     addPlotFixValEq(field, sets, _mapPlotFixValEq.size());
+  }
+  public void setPlotFixValEq(MVOrderedMap plotFixValEq){
+    _mapPlotFixValEq =plotFixValEq;
   }
 
   public void removePlotFixVal(String field) {
@@ -1499,6 +1507,22 @@ public class MVPlotJob extends MVUtil {
 
   public void setRocPct(boolean rocPct) {
     _boolRocPct = rocPct;
+  }
+
+  public boolean getTaylorVoc() {
+    return _boolTaylorVoc;
+  }
+
+  public void setTaylorVoc(boolean taylorVoc) {
+    _boolTaylorVoc = taylorVoc;
+  }
+
+  public boolean getTaylorShowGamma() {
+    return _boolTaylorShowGamma;
+  }
+
+  public void setTaylorShowGamma(boolean taylorShowGamma) {
+    _boolTaylorShowGamma = taylorShowGamma;
   }
 
   public boolean getRocCtc() {
