@@ -133,6 +133,17 @@ public class MVLoadJobParser extends MVUtil {
       }
     }
 
+    //check if all load values are present in folder_tmpl
+    String[] loadVals = job.getLoadVal().getKeyList();
+    if(loadVals != null) {
+      for (String val : loadVals) {
+        if (!job.getFolderTmpl().contains("{" + val + "}")) {
+          //remove value
+          job.getLoadVal().remove(val);
+        }
+      }
+    }
+
     _job = job;
   }
 
