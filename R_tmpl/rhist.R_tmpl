@@ -23,10 +23,20 @@ listPlotDisp	= #<plot_disp>#;
 
 listPlotOrderSeries	= #<order_series>#;
 
+#old warning status
+oldWarn <- getOption("warn");
 
 
 # read the plot data
+options(warn = -1);
+
 dfPlot = read.delim(strDataFile,header=TRUE,sep='');
+options(warn = oldWarn)
+
+if( nrow(dfPlot) == 0 ){
+  stop("ERROR: No data was found.");
+}
+
 legend=c();
 
 if(length(listSeries1Val) > 0){
