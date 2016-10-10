@@ -23,9 +23,18 @@ listPlotDisp	= #<plot_disp>#;
 
 listPlotOrderSeries	= #<order_series>#;
 
+#old warning status
+oldWarn <- getOption("warn");
 
 # read the plot data
+options(warn = -1);
 dfPlot = read.delim(strDataFile,header=TRUE,sep='');
+options(warn = oldWarn)
+
+if( nrow(dfPlot) == 0 ){
+  stop("ERROR: No data was found.");
+}
+
 legend=c();
 
 if(length(listSeries1Val) > 0){
@@ -99,9 +108,11 @@ if( boolNormalizedHistogram ){
   }
 }
 
-listX = 1:length(listHistData);
-
-
+if( nrow(listHistData)>0) {
+  listX = 1:length(listHistData[1,]);
+}else{
+  listX=vector();
+}
 # specify the output file
 strPlotType = "#<plot_type>#";
 if( "jpeg" == strPlotType ){
