@@ -72,15 +72,15 @@
             });
         });
 
-        $(".remove_fixed_var").button({
+        $("#remove_fixed_var_1").button({
             icons: {
                 primary: "ui-icon-trash"
             },
             text: false,
             disabled: true
         }).click(function () {
-                    removeFixedVarRhist($(this).attr('id'));
-                });
+            removeFixedVarRhist($(this).prop('id'));
+        });
 
         $("#fixed_var_1").multiselect({
             multiple: false,

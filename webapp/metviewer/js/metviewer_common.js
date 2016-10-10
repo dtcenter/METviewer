@@ -3345,7 +3345,7 @@ function removeFixedVar(id) {
 
 
 function addFixedVarRhist() {
-    var last_index = fixed_var_indexes[fixed_var_indexes.length - 1];
+    var last_index ;
     if (fixed_var_indexes.length > 0) {
         last_index = parseInt(fixed_var_indexes[fixed_var_indexes.length - 1]);
     } else {
@@ -3384,11 +3384,20 @@ function addFixedVarRhist() {
 
 
     if (!is_not_visible) {
-        remove_var = $("#remove_fixed_var_" + last_index).clone(true)
-                .attr("id", 'remove_fixed_var_' + new_index);
+
+        remove_var = $(' <button id="remove_fixed_var_"' + new_index + '" class="remove_fixed_var">Remove</button>').button({
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false
+        }).click(function () {
+            removeFixedVarRhist("remove_fixed_var_" + new_index);
+        });
+
+
 
         fixed_var_val = $("#fixed_var_val_" + last_index).clone(false);
-        fixed_var_val.attr("id", 'fixed_var_val_' + new_index);
+        fixed_var_val.prop("id", 'fixed_var_val_' + new_index);
         fixed_var_val.css("display", '');
         fixed_var.val(fixed_var.find(" option:first").val());
 
