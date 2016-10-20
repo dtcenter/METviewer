@@ -2013,7 +2013,9 @@ public class MVBatch extends MVUtil {
               strStatTable = "line_data_phist ld\n";
               strStatField = strStat.replace("PHIST_", "").toLowerCase();
             } else if (_tableStatsVl1l2.containsKey(strStat)) {
-              isAggTypeValid(_tableStatsRhist, strStat, aggType);
+              if (boolAggStat || boolCalcStat) {
+                isAggTypeValid(_tableStatsVl1l2, strStat, aggType);
+              }
               tableStats = _tableStatsVl1l2;
               strStatTable = "line_data_vl1l2 ld\n";
               strStatField = strStat.replace("VL1L2_", "").toLowerCase();
