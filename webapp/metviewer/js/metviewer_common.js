@@ -904,7 +904,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     try {
         selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index).multiselect("getChecked").val();
     } catch (err) {
-        selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index + ' option:first-child').val();
+        selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index).find('option:first-child').val();
     }
     var url = '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
     $.ajax({
@@ -3463,7 +3463,12 @@ function addFixedVar() {
     if (fixed_var_indexes.length > 0) {
         last_index = parseInt(fixed_var_indexes[fixed_var_indexes.length - 1]);
     } else {
-        last_index = 1;
+        var firstSelect = $("#fixed_var_table select:first-child");
+        if (firstSelect) {
+            last_index = parseInt(firstSelect.prop("id").split("fixed_var_")[1]);
+        } else {
+            last_index = 1;
+        }
     }
     var new_index = last_index;
 
