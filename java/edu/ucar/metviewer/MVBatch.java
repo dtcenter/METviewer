@@ -447,17 +447,17 @@ public class MVBatch extends MVUtil {
    * @param listGroupBy   list of fields to group by
    * @return list of SQL queries for gathering plot data
    */
-  public static ArrayList buildModeStatSQL(String strSelectList, String strWhere, String strStat, String[] listGroupBy) {
+  public static List<String> buildModeStatSQL(String strSelectList, String strWhere, String strStat, String[] listGroupBy, boolean isEventEqualization) {
 
-    ArrayList listQuery = new ArrayList();
+    List<String> listQuery = new ArrayList<>();
 
     //  build the appropriate type of query, depending on the statistic
     String[] listStatComp = parseModeStat(strStat);
     if (listStatComp[0].equals("ACOV")) {
-      listQuery.add(buildModeSingleAcovTable(strSelectList, strWhere, strStat));
+      listQuery.add(buildModeSingleAcovTable(strSelectList, strWhere, strStat,listGroupBy,isEventEqualization));
     } else if (_tableModeSingleStatField.containsKey(listStatComp[0])) {
       if (!listStatComp[1].startsWith("D")) {
-        listQuery.add(buildModeSingleStatTable(strSelectList, strWhere, strStat, listGroupBy));
+        listQuery.add(buildModeSingleStatTable(strSelectList, strWhere, strStat, listGroupBy, isEventEqualization));
       } else {
         listQuery.add("DROP  TABLE IF EXISTS mode_single2;");
         listQuery.add("CREATE TEMPORARY TABLE mode_single2 SELECT * FROM mode_single;");
@@ -480,7 +480,6 @@ public class MVBatch extends MVUtil {
     } else if (listStatComp[0].equals("RATIO") || listStatComp[0].equals("AREARAT") || strStat.startsWith("OBJ")) {
       listQuery.add(buildModeSingleStatRatioTable(strSelectList, strWhere, strStat, listGroupBy));
     }
-    strSelectList = strSelectList.replaceAll("h\\.", "");
     return listQuery;
   }
 
@@ -706,7 +705,7 @@ public class MVBatch extends MVUtil {
     //  build the list of fields involved in the computations
     String strSelectListStat = strSelectList.replaceAll("h\\.", "");
     String strGroupListMMI = strSelectListStat.replaceAll("HOUR\\([^\\)]+\\) ", "");
-
+    strGroupListMMI = strGroupListMMI.replaceAll("if\\D+fcst_lead", "fcst_lead");
     //  set the object_id field, depending on the stat
     String strObjectId = "object_id";
     String strObjectIdName = "object_id";
@@ -802,7 +801,7 @@ public class MVBatch extends MVUtil {
     return result;
   }
 
-  public static String buildModeSingleStatTable(String selectList, String strWhere, String stat, String[] groups) {
+  public static String buildModeSingleStatTable(String selectList, String strWhere, String stat, String[] groups,boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = parseModeStat(stat);
@@ -837,10 +836,28 @@ public class MVBatch extends MVUtil {
         strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
       }
       if (!strStatName.equals("CNTSUM")) {
-        if (!strGroupBy.equals("\nGROUP BY\n")) {
-          strGroupBy += ",";
+
+        if (!strGroupBy.contains("fcst_valid")) {
+          if (groups.length > 0) {
+            strGroupBy += "  ,";
+          }
+          strGroupBy += " fcst_valid";
         }
-        strGroupBy += "  fcst_valid";
+      }
+      //mandatory group by fcst_valid and fcst_lead for EE
+      if (isEventEqualization) {
+        if (!strGroupBy.contains("fcst_valid")) {
+          if (groups.length > 0) {
+            strGroupBy += "  ,";
+          }
+          strGroupBy += " fcst_valid";
+        }
+        if (!strGroupBy.contains("fcst_lead")) {
+          if (groups.length > 0) {
+            strGroupBy += "  ,";
+          }
+          strGroupBy += " fcst_lead";
+        }
       }
     }
 
@@ -887,7 +904,7 @@ public class MVBatch extends MVUtil {
         "WHERE\n" + strWhere + ";";
   }
 
-  public static String buildModeSingleAcovTable(String selectList, String strWhere, String stat) {
+  public static String buildModeSingleAcovTable(String selectList, String strWhere, String stat,String[] groups,boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = parseModeStat(stat);
@@ -895,16 +912,39 @@ public class MVBatch extends MVUtil {
       return "";
     }
     String strStatFlag = listStatParse[1];
+    String strGroupBy  = "\nGROUP BY\n";
+      for (int i = 0; i < groups.length; i++) {
+        strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
+      }
 
     //  build the query components
     String strSelectListStat = selectList.replaceAll("h\\.", "").replaceAll(",\\s+$", "");
     String strStat = "SUM(area) / (2*total)";
-    String strGroupBy = strSelectListStat;
-    strGroupBy = strGroupBy.replaceAll("DATE_FORMAT\\(.*\\) ", "");
     if (strStatFlag.charAt(0) != 'A') {
       strStat = "SUM(area) / total";
-      strGroupBy += ",\n  fcst_flag";
+      strGroupBy += " , fcst_flag";
       strWhere += "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0) ? "1" : "0");
+    }
+
+
+
+    if (!strGroupBy.contains("fcst_valid")) {
+      if (groups.length > 0) {
+        strGroupBy += "  ,";
+      }
+      strGroupBy += " fcst_valid";
+
+    }
+
+    //mandatory group by fcst_valid and fcst_lead for EE
+    if (isEventEqualization) {
+
+      if (!strGroupBy.contains("fcst_lead")) {
+        if (groups.length > 0) {
+          strGroupBy += "  ,";
+        }
+        strGroupBy += " fcst_lead";
+      }
     }
 
     //  build the query
@@ -918,7 +958,7 @@ public class MVBatch extends MVUtil {
         "WHERE\n" +
         strWhere + "\n" +
         "  AND simple_flag = 1\n" +
-        "GROUP BY\n" + strGroupBy + ";";
+         strGroupBy + ";";
   }
 
   public void setDbManagementSystem(String dbManagementSystem) {
@@ -1996,7 +2036,7 @@ public class MVBatch extends MVUtil {
             }
             //  build the mode SQL
             String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
-            listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy));
+            listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy, job.getEventEqual()));
 
           } else {
             boolean boolBCRMSE = false;
