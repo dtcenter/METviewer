@@ -1956,6 +1956,144 @@ BEGIN
     RETURN IFNULL(anom_corr, 'NA');
 END |
 
+
+--
+--  Vl1l2 stat calculations
+--
+
+DROP FUNCTION IF EXISTS calcVL1L2_FBAR |
+CREATE FUNCTION calcVL1L2_FBAR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL, uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        IF 0 = uvffbar THEN RETURN 'NA'; END IF;
+        SET result = SQRT(uvffbar);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_OBAR |
+
+CREATE FUNCTION calcVL1L2_OBAR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL, uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        IF 0 = uvffbar THEN RETURN 'NA'; END IF;
+        SET result = SQRT(uvoobar);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_ME |
+CREATE FUNCTION calcVL1L2_ME(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL, uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = SQRT(POW(ufbar, 2) - 2 * ufbar * uobar + POW(uobar, 2) + POW(vfbar, 2) - 2 * vfbar * vobar + POW(vobar, 2));
+        RETURN IFNULL(result, 'NA');
+    END |
+
+
+DROP FUNCTION IF EXISTS calcVL1L2_BIAS |
+CREATE FUNCTION calcVL1L2_BIAS(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = SQRT(uvffbar) - SQRT(uvoobar);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+
+DROP FUNCTION IF EXISTS calcVL1L2_MSE |
+CREATE FUNCTION calcVL1L2_MSE(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = uvffbar -2 * uvfobar + uvoobar;
+        if result < 0 THEN RETURN 'NA'; END IF;
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_RMSE |
+CREATE FUNCTION calcVL1L2_RMSE(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = SQRT( calcVL1L2_MSE(total , ufbar , vfbar , uobar , vobar , uvfobar , uvffbar ,uvoobar ) );
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_MAE |
+CREATE FUNCTION calcVL1L2_MAE(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =  SQRT(POW(ufbar, 2) -2 * ufbar * uobar + POW(uobar, 2) + POW(vfbar, 2) - 2 * vfbar * vobar + POW(vobar, 2));
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_FVAR |
+CREATE FUNCTION calcVL1L2_FVAR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =  total * (uvffbar - POW(ufbar, 2) - POW(vfbar, 2)) / total;
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_OVAR |
+CREATE FUNCTION calcVL1L2_OVAR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =  total *( uvoobar - POW(uobar, 2) - POW(vobar, 2) )/ total;
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_FSTDEV |
+CREATE FUNCTION calcVL1L2_FSTDEV(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =  SQRT( calcVL1L2_FVAR (total , ufbar , vfbar , uobar , vobar , uvfobar , uvffbar , uvoobar));
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_OSTDEV |
+CREATE FUNCTION calcVL1L2_OSTDEV(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =  SQRT( calcVL1L2_OVAR (total , ufbar , vfbar , uobar , vobar , uvfobar , uvffbar , uvoobar));
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_FOSTDEV |
+CREATE FUNCTION calcVL1L2_FOSTDEV(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =  SQRT( total * (uvffbar - POW(ufbar, 2) +uvoobar-POW(uobar, 2)-POW(vobar, 2) -2*(uvfobar-ufbar*uobar - vfbar*vobar))/total);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+
+DROP FUNCTION IF EXISTS calcVL1L2_COV |
+CREATE FUNCTION calcVL1L2_COV(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =   total * (uvfobar -ufbar*uobar - vfbar * vobar) / (total-0.);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_CORR |
+CREATE FUNCTION calcVL1L2_CORR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result =   (total * (uvfobar - ufbar * uobar - vfbar * vobar) / total) /
+                       (SQRT(total*(uvffbar-ufbar*ufbar-vfbar*vfbar)/total) *
+            SQRT( total*(uvoobar-uobar*uobar-vobar*vobar)/total));
+        RETURN IFNULL(result, 'NA');
+    END |
+
+
 DELIMITER ;
 
 

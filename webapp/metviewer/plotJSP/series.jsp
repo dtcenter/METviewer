@@ -102,20 +102,6 @@
                 updateMode("y2", 1, []);
                 updateFixVar("mode");
                 updateIndyVar("mode");
-                $("#agg_stat").val('mode');
-                $("#agg_stat").multiselect("refresh");
-                $("#calc_stat").val('none');
-                $("#calc_stat").multiselect("refresh");
-                  $('#radio')
-                        .find('input')
-                        .removeProp('checked')
-                        .filter('[value="aggregation_statistics"]')
-                        .prop('checked', true)
-                        .end()
-                        .end();
-                       // .buttonset('refresh');
-                $('#aggregation_statistics ').show();
-                $('#calculations_statistics ').hide();
                 }
               updateSeriesVarVal("y1", 1, []);
               updateSeriesVarVal("y2", 1, []);
@@ -162,6 +148,18 @@
               } catch (err) {
                 console.log("Error " + err);
               }
+
+              if ($("#plot_data").val() === "mode") {
+                $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
+                $('#agg_stat').val('mode');
+                try {
+                  $('#agg_stat').multiselect('refresh');
+                } catch (e) {
+                }
+                $('#aggregation_statistics ').show();
+                $('#calculations_statistics ').hide();
+              }
+
               updateSeries();
             },
             position: {
@@ -805,7 +803,8 @@
                       <option value="pct">Probability methods output (PCT)</option>
                       <option value="nbrcnt">Nbrhood method count (NBR_CNT)</option>
                       <option value="ssvar">Spread/Skill Variance (SSVAR)</option>
-                      <option value="mode">MODE</option>
+                      <option value="vl1l2">Vector partial sums (VL1L2)</option>
+                      <option value="mode">MODE-ratio</option>
                     </select>
                   </td>
 
@@ -856,6 +855,7 @@
                     <option value="ctc">Contingency table count (CTC)</option>
                     <option value="sl1l2">Scalar partial sums (SL1L2)</option>
                     <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
+                    <option value="vl1l2">Vector partial sums (VL1L2)</option>
                   </select>
                   </td>
                   <td><span><label for="plot_stat">Plot

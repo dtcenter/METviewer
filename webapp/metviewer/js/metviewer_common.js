@@ -612,6 +612,15 @@ function updateMode(y_axis, index, selectedVals) {
             } else {
                 config_table.find(".non-pair").removeAttr("disabled");
             }
+            $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+            $('#calc_stat').val('none');
+            try {
+                $('#calc_stat').multiselect('refresh');
+            } catch (e) {
+            }
+            $('#aggregation_statistics ').hide();
+            $('#calculations_statistics ').show();
+
             updateSeries();
         }
     });
@@ -2681,10 +2690,12 @@ function createXMLPerf(plot) {
         }
     }
     plot.append(indep);
+    var statistic = $("input:radio[name ='statistics']:checked").val();
+
     var calc_stat_val = $('#calc_stat').val();
     var agg_stat_val = $('#agg_stat').val();
 
-    if (agg_stat_val && agg_stat_val !== "none") {
+    if (statistic === 'aggregation_statistics'  && agg_stat_val !== "none") {
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
@@ -2693,7 +2704,7 @@ function createXMLPerf(plot) {
         agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
         plot.append(agg_stat);
     }
-    else if (calc_stat_val !== "none") {
+    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);
@@ -2790,10 +2801,11 @@ function createXMLSeries(plot) {
         }
     }
     plot.append(indep);
+    var statistic = $("input:radio[name ='statistics']:checked").val();
     var calc_stat_val = $('#calc_stat').val();
     var agg_stat_val = $('#agg_stat').val();
 
-    if (agg_stat_val && agg_stat_val !== "none") {
+    if (statistic === 'aggregation_statistics'  && agg_stat_val !== "none") {
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
@@ -2803,7 +2815,7 @@ function createXMLSeries(plot) {
         plot.append(agg_stat);
     }
 
-    else if (calc_stat_val !== "none") {
+    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);
@@ -4141,6 +4153,14 @@ function addFcstVar(y_axis) {
                 } catch (err) {
                     console.log("Error " + err);
                 }
+                $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
+                $('#agg_stat').val('mode');
+                try {
+                    $('#agg_stat').multiselect('refresh');
+                } catch (e) {
+                }
+                $('#aggregation_statistics ').show();
+                $('#calculations_statistics ').hide();
                 updateSeries();
             },
             checkAll: function () {
@@ -4187,6 +4207,14 @@ function addFcstVar(y_axis) {
                 } else {
                     config_table.find(".non-pair").removeAttr("disabled");
                 }
+                $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+                $('#calc_stat').val('none');
+                try {
+                    $('#calc_stat').multiselect('refresh');
+                } catch (e) {
+                }
+                $('#aggregation_statistics ').hide();
+                $('#calculations_statistics ').show();
 
                 updateSeries();
             }
@@ -4449,6 +4477,7 @@ function loadXMLSeries() {
     } else {
         number_of_axis = 2;
     }
+    var fcst_stat;
     for (var y_axis_index = 1; y_axis_index <= number_of_axis; y_axis_index++) {
         var y_axis = "y" + y_axis_index;
         var index = 0;
@@ -4456,7 +4485,7 @@ function loadXMLSeries() {
         if (initXML.find("plot").find("dep").find("dep" + y_axis_index).children().length > 0) {
             var dep_arr = initXML.find("plot").find("dep").find("dep" + y_axis_index).children();
             for (var i = 0; i < dep_arr.length; i++) {
-                var fcst_stat = [];
+                 fcst_stat = [];
                 value = $(dep_arr[i]).attr('name');
                 if (index === 0 && y_axis_index === 1) {
                     try {
@@ -4601,6 +4630,12 @@ function loadXMLSeries() {
             $('#agg_stat').val('nbrcnt');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_ssvar")).text() === "TRUE") {
             $('#agg_stat').val('ssvar');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_vl1l2")).text() === "TRUE") {
+            $('#agg_stat').val('vl1l2');
+        } else  {
+            if(selected_mode === "mode" && listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
+                $('#agg_stat').val('mode');
+            }
         }
         try {
             $('#agg_stat').multiselect('refresh');
@@ -4619,6 +4654,8 @@ function loadXMLSeries() {
             $('#calc_stat').val('sl1l2');
         } else if ($(initXML.find("plot").find("calc_stat").find("calc_sal1l2")).text() == "TRUE") {
             $('#calc_stat').val('sal1l2');
+        } else if ($(initXML.find("plot").find("calc_stat").find("calc_vl1l2")).text() == "TRUE") {
+            $('#calc_stat').val('vl1l2');
         }
         try {
             $('#calc_stat').multiselect('refresh');
@@ -4630,11 +4667,23 @@ function loadXMLSeries() {
             $('#aggregation_statistics ').hide();
             $('#none').show();
         } else {
-            $("#agg_mode").prop('checked', 'checked');
+            if (listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
+                $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
+                $('#agg_stat').val('mode');
+                try {
+                    $('#agg_stat').multiselect('refresh');
+                } catch (e) {
+                }
+                $('#aggregation_statistics ').show();
+                $('#calculations_statistics ').hide();
+            } else {
+                $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+                $('#aggregation_statistics ').hide();
+                $('#none').show();
+            }
 
-            $('#aggregation_statistics ').show();
-            $('#calculations_statistics ').hide();
         }
+
     }
 
 

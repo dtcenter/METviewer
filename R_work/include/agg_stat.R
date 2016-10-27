@@ -384,6 +384,65 @@ calcNBR_UFSS = function(d){ return ( d$ufss ); }
 calcNBR_F_RATE = function(d){ return ( d$f_rate ); }
 calcNBR_O_RATE = function(d){ return ( d$o_rate ); }
 
+#VL1L2 "calculations"
+calcVL1L2_FBAR = function(d){ return ( sqrt(d$uvffbar) ); }
+calcVL1L2_OBAR = function(d){ return ( sqrt(d$uvoobar) ); }
+calcVL1L2_ME = function(d){
+  me = sqrt(d$ufbar^2 - 2 * d$ufbar * d$uobar + d$uobar^2 + d$vfbar^2 - 2 * d$vfbar * d$vobar + d$vobar^2);
+  return ( round(me, digits=5)) ;
+}
+calcVL1L2_BIAS = function(d){
+  bias = sqrt(d$uvffbar) - sqrt(d$uvoobar);
+  return ( round(bias, digits=5)) ;
+}
+calcVL1L2_MSE = function(d){
+  mse = d$uvffbar -2 * d$uvfobar + d$uvoobar;
+  if (mse < 0 ){
+    return (NA);
+  }
+  return ( round(mse, digits=5)) ;
+}
+calcVL1L2_RMSE = function(d){
+  rmse = sqrt( calcVL1L2_MSE(d ) );
+  return ( round(rmse, digits=5)) ;
+}
+calcVL1L2_MAE = function(d){
+  mae = sqrt(d$ufbar^2 -2 * d$ufbar * d$uobar + d$uobar^2 + d$vfbar^2 - 2 * d$vfbar * d$vobar + d$vobar^2);
+  return ( round(mae, digits=5)) ;
+}
+
+calcVL1L2_FVAR = function(d){
+  fvar = d$total * (d$uvffbar - d$ufbar^2 - d$vfbar^2 )/ d$total;
+  return ( round(fvar, digits=5)) ;
+}
+calcVL1L2_OVAR = function(d){
+  ovar = d$total * ( d$uvoobar - d$uobar^2 - d$vobar^2 )/ d$total;
+  return ( round(ovar, digits=5)) ;
+}
+calcVL1L2_FSTDEV = function(d){
+  fstdev = sqrt( calcVL1L2_FVAR (d));
+  return ( round(fstdev, digits=5)) ;
+}
+calcVL1L2_OSTDEV = function(d){
+  ostdev = sqrt( calcVL1L2_OVAR (d));
+  return ( round(ostdev, digits=5)) ;
+}
+calcVL1L2_FOSTDEV = function(d){
+  ostdev =  sqrt( d$total * (d$uvffbar - d$ufba^2 +d$uvoobar-d$uobar^2-d$vobar^2 -2*(d$uvfobar-d$ufbar*d$uobar - d$vfbar*d$vobar))/d$total);
+  return ( round(ostdev, digits=5)) ;
+}
+calcVL1L2_COV = function(d){
+  cov =    d$total * (d$uvfobar -d$ufbar*d$uobar - d$vfbar * d$vobar) / (d$total-0.);
+
+  return ( round(cov, digits=5)) ;
+}
+calcVL1L2_CORR = function(d){
+  corr = (d$total * (d$uvfobar - d$ufbar * d$uobar - d$vfbar * d$vobar) / d$total) /
+                         (sqrt(d$total*(d$uvffbar-d$ufbar*d$ufbar-d$vfbar*d$vfbar)/d$total) *
+                         sqrt( d$total*(d$uvoobar-d$uobar*d$uobar-d$vobar*d$vobar)/d$total))
+  return ( round(corr, digits=5)) ;
+}
+
 
 # booter function
 booter.iid = function(d, i){
@@ -418,36 +477,49 @@ booter.iid = function(d, i){
       total		= sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
         total	= total,
-        fbar	= sum( as.numeric(d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
-        obar	= sum( as.numeric(d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
-        fobar	= sum( as.numeric(d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        ffbar	= sum( as.numeric(d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        oobar	= sum( as.numeric(d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        mae   = sum( as.numeric(d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal), na.rm=TRUE ) / total
+        fbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fbar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total,
+        obar	= sum( as.numeric( d[i,][[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        fobar	= sum( as.numeric( d[i,][[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        mae   = sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+      );
+    }  else if ( boolAggVl1l2 ){ # perform the aggregation of the sampled VL1L2 lines
+        listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
+        total    = sum(listTotal, na.rm=TRUE);
+        dfSeriesSums = data.frame(
+        total  = total,
+        ufbar  = sum( as.numeric( d[i,][[ paste(strPerm, "ufbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        vfbar  = sum( as.numeric( d[i,][[ paste(strPerm, "vfbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        uobar  = sum( as.numeric( d[i,][[ paste(strPerm, "uobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        vobar  = sum( as.numeric( d[i,][[ paste(strPerm, "vobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        uvfobar  = sum( as.numeric( d[i,][[ paste(strPerm, "uvfobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        uvffbar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvffbar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
+        uvoobar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
       );
     }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
-      listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
+    listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
       total		= sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
         total	= total,
-        fbar	= sum( as.numeric(d[i,][[ paste(strPerm, "fabar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
-        obar	= sum( as.numeric(d[i,][[ paste(strPerm, "oabar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
-        fobar	= sum( as.numeric(d[i,][[ paste(strPerm, "faobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        ffbar	= sum( as.numeric(d[i,][[ paste(strPerm, "ffabar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        oobar	= sum( as.numeric(d[i,][[ paste(strPerm, "ooabar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        mae   = sum( as.numeric(d[i,][[ paste(strPerm, "mae", sep="_") ]]   * listTotal), na.rm=TRUE ) / total
+        fbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        obar	= sum( as.numeric( d[i,][[ paste(strPerm, "oabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        fobar	= sum( as.numeric( d[i,][[ paste(strPerm, "faobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "ooabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        mae   = sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
       );
     }  else if ( boolAggSsvar ){ # perform the aggregation of the sampled SSVAR lines
       listTotal  = d[i,][[ paste(strPerm, "bin_n", sep="_") ]];
       total    = sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
         total  = total,
-        fbar	= sum( as.numeric(d[i,][[ paste(strPerm, "fbar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
-        obar	= sum( as.numeric(d[i,][[ paste(strPerm, "obar", sep="_") ]]  * listTotal), na.rm=TRUE ) / total,
-        fobar	= sum( as.numeric(d[i,][[ paste(strPerm, "fobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        ffbar	= sum( as.numeric(d[i,][[ paste(strPerm, "ffbar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        oobar	= sum( as.numeric(d[i,][[ paste(strPerm, "oobar", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
-        varmean	= sum( as.numeric(d[i,][[ paste(strPerm, "var_mean", sep="_") ]] * listTotal), na.rm=TRUE ) / total,
+        fbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        obar	= sum( as.numeric( d[i,][[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        fobar	= sum( as.numeric( d[i,][[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+        varmean	= sum( as.numeric( d[i,][[ paste(strPerm, "var_mean", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
         binn	=  total
       );
     } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
@@ -614,6 +686,8 @@ for(strIndyVal in listIndyVal){
         listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
       } else if( boolAggSal1l2  ){
         listFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
+      } else if( boolAggVl1l2  ){
+        listFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar");
       } else if( boolAggSsvar  ){
         listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
       } else if( boolAggNbrCnt ){

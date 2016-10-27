@@ -35,6 +35,7 @@ public class MVUtil {
   public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
   public static final String PCT = "pct";
   public static final String NBR_CNT = "nbr_cnt";
+  public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final MVOrderedMap _tableStatsEnscnt = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsMpr = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsOrank = new MVOrderedMap();
@@ -266,6 +267,20 @@ public class MVUtil {
     _tableStatsVl1l2.put("VL1L2_VFBAR", new String[]{});
     _tableStatsVl1l2.put("VL1L2_UOBAR", new String[]{});
     _tableStatsVl1l2.put("VL1L2_VOBAR", new String[]{});
+    _tableStatsVl1l2.put("VL1L2_FBAR", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OBAR", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_ME", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_BIAS", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_MSE", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_RMSE", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_MAE", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FVAR", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OVAR", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FSTDEV", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OSTDEV", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FOSTDEV", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_COV", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_CORR", new String[]{ VL1L2});
   }
 
   static {

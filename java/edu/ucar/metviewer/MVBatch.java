@@ -846,7 +846,7 @@ public class MVBatch extends MVUtil {
       }
       //mandatory group by fcst_valid and fcst_lead for EE
       if (isEventEqualization) {
-        if (!strGroupBy.contains("fcst_valid")) {
+        if (!strGroupBy.contains("fcst_valid") ) {
           if (groups.length > 0) {
             strGroupBy += "  ,";
           }
@@ -1000,7 +1000,8 @@ public class MVBatch extends MVUtil {
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar;
+    boolean boolAggVl1l2 = job.getAggVl1l2();
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2;
 
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
@@ -1095,6 +1096,7 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
+        tableAggStatInfo.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("event_equal", String.valueOf(job.getEventEqual()));
         tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
@@ -1649,12 +1651,14 @@ public class MVBatch extends MVUtil {
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt || boolAggSsvar;
+    boolean boolAggVl1l2 = job.getAggVl1l2();
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2;
     boolean boolCalcCtc = job.getCalcCtc();
     boolean boolCalcSl1l2 = job.getCalcSl1l2();
     boolean boolCalcSal1l2 = job.getCalcSal1l2();
+    boolean boolCalcVl1l2 = job.getCalcVl1l2();
     boolean boolCalcStat;
-    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2;
+    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2 ||boolCalcVl1l2;
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -1939,6 +1943,8 @@ public class MVBatch extends MVUtil {
                 aggType = MVUtil.PCT;
               } else if (boolAggSsvar) {
                 aggType = MVUtil.SSVAR;
+              } else if (boolCalcVl1l2 || boolAggVl1l2) {
+                aggType = MVUtil.VL1L2;
               }
             }
 
@@ -2074,6 +2080,9 @@ public class MVBatch extends MVUtil {
               }
             } else if (boolAggNbrCnt) {
               strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
+            } else if (boolAggVl1l2) {
+              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar";
+
             } else if (boolCalcCtc) {
               strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
@@ -2087,6 +2096,9 @@ public class MVBatch extends MVUtil {
               }
             } else if (boolCalcSal1l2) {
               strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
+                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+            } else if (boolCalcVl1l2) {
+              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, ld.uvfobar, ld.uvffbar, ld.uvoobar) stat_value,\n" +
                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
             } else {
               if (boolBCRMSE) {

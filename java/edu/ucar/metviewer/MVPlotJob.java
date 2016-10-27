@@ -150,6 +150,7 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolAggPct = false;
   protected boolean _boolAggNbrCnt = false;
   protected boolean _boolAggSsvar = false;
+  protected boolean _boolAggVl1l2 = false;
   protected String _strAggBootRepl = "1";
   protected String _strAggBootCI = "bca";
   protected boolean _boolEveqDis = false;
@@ -158,6 +159,7 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolCalcCtc = false;
   protected boolean _boolCalcSl1l2 = false;
   protected boolean _boolCalcSal1l2 = false;
+  protected boolean _boolCalcVl1l2 = false;
 
   protected boolean _boolRocPct = false;
   protected boolean _boolRocCtc = false;
@@ -327,12 +329,14 @@ public class MVPlotJob extends MVUtil {
     job._boolAggSsvar = _boolAggSsvar;
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootCI = _strAggBootCI;
+    job._boolAggVl1l2 = _boolAggVl1l2;
     job._boolEveqDis = _boolEveqDis;
     job._equalizeByIndep = _equalizeByIndep;
 
     job._boolCalcCtc = _boolCalcCtc;
     job._boolCalcSl1l2 = _boolCalcSl1l2;
     job._boolCalcSal1l2 = _boolCalcSal1l2;
+    job._boolCalcVl1l2 = _boolCalcVl1l2;
 
     job._boolRocPct = _boolRocPct;
     job._boolRocCtc = _boolRocCtc;
@@ -534,8 +538,9 @@ public class MVPlotJob extends MVUtil {
   public void addPlotFixValEq(String field, MVOrderedMap sets) {
     addPlotFixValEq(field, sets, _mapPlotFixValEq.size());
   }
-  public void setPlotFixValEq(MVOrderedMap plotFixValEq){
-    _mapPlotFixValEq =plotFixValEq;
+
+  public void setPlotFixValEq(MVOrderedMap plotFixValEq) {
+    _mapPlotFixValEq = plotFixValEq;
   }
 
   public void removePlotFixVal(String field) {
@@ -1422,12 +1427,12 @@ public class MVPlotJob extends MVUtil {
   }
 
   public boolean getAggSal1l2() {
-      return _boolAggSal1l2;
-    }
+    return _boolAggSal1l2;
+  }
 
-    public void setAggSal1l2(boolean aggSal1l2) {
-      _boolAggSal1l2 = aggSal1l2;
-    }
+  public void setAggSal1l2(boolean aggSal1l2) {
+    _boolAggSal1l2 = aggSal1l2;
+  }
 
   public boolean getAggPct() {
     return _boolAggPct;
@@ -1494,12 +1499,29 @@ public class MVPlotJob extends MVUtil {
   }
 
   public boolean getCalcSal1l2() {
-     return _boolCalcSal1l2;
-   }
+    return _boolCalcSal1l2;
+  }
 
-   public void setCalcSl1l2(boolean calcSl1l2) {
-     _boolCalcSl1l2 = calcSl1l2;
-   }
+  public void setCalcVl1l2(boolean calcVl1l2) {
+    _boolCalcVl1l2 = calcVl1l2;
+  }
+
+  public boolean getCalcVl1l2() {
+    return _boolCalcVl1l2;
+  }
+
+  public void setAggVl1l2(boolean aggVl1l2) {
+      _boolAggVl1l2 = aggVl1l2;
+    }
+
+    public boolean getAggVl1l2() {
+      return _boolAggVl1l2;
+    }
+
+
+  public void setCalcSl1l2(boolean calcSl1l2) {
+    _boolCalcSl1l2 = calcSl1l2;
+  }
 
   public boolean getRocPct() {
     return _boolRocPct;
@@ -1744,16 +1766,16 @@ public class MVPlotJob extends MVUtil {
     this.summaryCurve.add(value);
   }
 
-  public List<String> getSummaryCurve(){
+  public List<String> getSummaryCurve() {
     return this.summaryCurve;
   }
 
   public String getSummaryCurveRformat() {
-    String result="c(";
-    for(String stat : summaryCurve){
-      result = result + "'" + stat + "'" +",";
+    String result = "c(";
+    for (String stat : summaryCurve) {
+      result = result + "'" + stat + "'" + ",";
     }
-    if(summaryCurve.size() > 0){
+    if (summaryCurve.size() > 0) {
       result = result.substring(0, result.length() - 1);
     }
     return result + ")";

@@ -13,9 +13,9 @@ import java.util.*;
 
 public class MVPlotJobParser extends MVUtil {
 
-  protected static final HashMap<String,Method> _tableFormatBoolean = new HashMap<>();
+  protected static final HashMap<String, Method> _tableFormatBoolean = new HashMap<>();
   private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVPlotJobParser");
-  private static final HashMap<String,Method> _tableFormatString = new HashMap<>();
+  private static final HashMap<String, Method> _tableFormatString = new HashMap<>();
 
   static {
     try {
@@ -37,7 +37,6 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("event_equal", MVPlotJob.class.getDeclaredMethod("setEventEqual", Boolean.class));
       _tableFormatBoolean.put("taylor_voc", MVPlotJob.class.getDeclaredMethod("setTaylorVoc", Boolean.class));
       _tableFormatBoolean.put("taylor_show_gamma", MVPlotJob.class.getDeclaredMethod("setTaylorShowGamma", boolean.class));
-
 
     } catch (NoSuchMethodException e) {
       _logger.error(e.getMessage());
@@ -449,7 +448,7 @@ public class MVPlotJobParser extends MVUtil {
         axis = 1;
       }
       // dep
-      strXML .append( "<dep>");
+      strXML.append("<dep>");
       MVOrderedMap[] listDepGroup = job.getDepGroups();
       for (int intY = 1; intY <= axis; intY++) {
 
@@ -459,38 +458,38 @@ public class MVPlotJobParser extends MVUtil {
 
         //  serialize the dep and it's fcst_var stats
         String strDep = "dep" + intY;
-        strXML .append("<" + strDep + ">");
+        strXML.append("<" + strDep + ">");
         for (int i = 0; i < listDep.length; i++) {
           String[] listStat = (String[]) listDep[i].getValue();
-          strXML.append( "<fcst_var name=\"" + listDep[i].getKey().toString() + "\">");
+          strXML.append("<fcst_var name=\"" + listDep[i].getKey().toString() + "\">");
           for (int j = 0; j < listStat.length; j++) {
-            strXML .append("<stat>" + listStat[j] + "</stat>");
+            strXML.append("<stat>" + listStat[j] + "</stat>");
           }
-          strXML .append( "</fcst_var>");
+          strXML.append("</fcst_var>");
         }
-        strXML .append( "</" + strDep + ">");
+        strXML.append("</" + strDep + ">");
       }
-      strXML .append( "</dep>");
+      strXML.append("</dep>");
 
 
       //  indep
-      strXML .append( "<indep name=\"" + job.getIndyVar() + "\">");
+      strXML.append("<indep name=\"" + job.getIndyVar() + "\">");
       String[] listIndyVal = job.getIndyVal();
       String[] listIndyPlotVal = job.getIndyPlotVal();
       String[] listIndyLabel = job.getIndyLabel();
       for (int i = 0; i < listIndyVal.length; i++) {
         String strIndyPlotVal = (0 < listIndyPlotVal.length ? listIndyPlotVal[i] : "");
-        strXML .append(
+        strXML.append(
           "<val label=\"" + listIndyLabel[i].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "\" plot_val=\"" + strIndyPlotVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "\">" +
             listIndyVal[i].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") +
             "</val>");
       }
-      strXML .append( "</indep>");
+      strXML.append("</indep>");
     }
 
     //  plot_fix
     MVOrderedMap mapPlotFix = job.getPlotFixVal();
-    strXML .append( "<plot_fix>");
+    strXML.append("<plot_fix>");
     String[] listFixField = mapPlotFix.getKeyList();
     String[] listFixFieldEx = job.getPlotFixValEq().getKeyList();
     for (int i = 0; i < listFixField.length; i++) {
@@ -501,32 +500,32 @@ public class MVPlotJobParser extends MVUtil {
           break;
         }
       }
-      strXML .append( "<field name=\"" + listFixField[i] + "\" equalize=\"" + String.valueOf(isEqualize) + "\" >");
+      strXML.append("<field name=\"" + listFixField[i] + "\" equalize=\"" + String.valueOf(isEqualize) + "\" >");
       Object objFixVal = mapPlotFix.get(listFixField[i]);
       if (objFixVal instanceof String[]) {
         String[] listFixVal = (String[]) objFixVal;
         for (int j = 0; j < listFixVal.length; j++) {
-          strXML .append( "<val>" + listFixVal[j].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>");
+          strXML.append("<val>" + listFixVal[j].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>");
         }
       } else if (objFixVal instanceof MVOrderedMap) {
         MVOrderedMap mapFixSet = (MVOrderedMap) objFixVal;
         String[] listFixSetKey = mapFixSet.getKeyList();
         for (int j = 0; j < listFixSetKey.length; j++) {
           String[] listFixSetVal = (String[]) mapFixSet.get(listFixSetKey[j]);
-          strXML .append( "<set name=\"" + listFixSetKey[j] + "\">");
+          strXML.append("<set name=\"" + listFixSetKey[j] + "\">");
           for (int k = 0; k < listFixSetVal.length; k++) {
-            strXML .append( "<val>" + listFixSetVal[k].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>");
+            strXML.append("<val>" + listFixSetVal[k].replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</val>");
           }
-          strXML .append( "</set>");
+          strXML.append("</set>");
         }
       }
-      strXML .append( "</field>");
+      strXML.append("</field>");
     }
-    strXML .append( "</plot_fix>");
+    strXML.append("</plot_fix>");
 
     //  agg_stat
-    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct() || job.getAggNbrCnt() || job.getAggSsvar()) || MVBatch.isModeRatioJob(job)) {
-      strXML .append(
+    if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2() || job.getAggPct() || job.getAggNbrCnt() || job.getAggSsvar() || job.getAggVl1l2()) || MVBatch.isModeRatioJob(job)) {
+      strXML.append(
         "<agg_stat>" +
           "<agg_ctc>" + (job.getAggCtc() ? "TRUE" : "FALSE") + "</agg_ctc>" +
           "<agg_sl1l2>" + (job.getAggSl1l2() ? "TRUE" : "FALSE") + "</agg_sl1l2>" +
@@ -534,6 +533,7 @@ public class MVPlotJobParser extends MVUtil {
           "<agg_pct>" + (job.getAggPct() ? "TRUE" : "FALSE") + "</agg_pct>" +
           "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
           "<agg_ssvar>" + (job.getAggSsvar() ? "TRUE" : "FALSE") + "</agg_ssvar>" +
+          "<agg_vl1l2>" + (job.getAggVl1l2() ? "TRUE" : "FALSE") + "</agg_vl1l2>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
           "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
           "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
@@ -542,18 +542,19 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     //  calc_stat
-    if (job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2()) {
-      strXML .append(
+    if (job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() || job.getCalcVl1l2()) {
+      strXML.append(
         "<calc_stat>" +
           "<calc_ctc>" + (job.getCalcCtc() ? "TRUE" : "FALSE") + "</calc_ctc>" +
           "<calc_sl1l2>" + (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>" +
           "<calc_sal1l2>" + (job.getCalcSal1l2() ? "TRUE" : "FALSE") + "</calc_sal1l2>" +
+          "<calc_vl1l2>" + (job.getCalcVl1l2() ? "TRUE" : "FALSE") + "</calc_vl1l2>" +
           "</calc_stat>");
     }
 
     //  roc_calc
     if (job.getPlotTmpl().equals("roc.R_tmpl")) {
-      strXML .append(
+      strXML.append(
         "<roc_calc>" +
           "<roc_pct>" + (job.getRocPct() ? "TRUE" : "FALSE") + "</roc_pct>" +
           "<roc_ctc>" + (job.getRocCtc() ? "TRUE" : "FALSE") + "</roc_ctc>" +
@@ -562,11 +563,11 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     if (job.getPlotTmpl().equals("roc.R_tmpl") || job.getPlotTmpl().equals("rely.R_tmpl")) {
-      strXML .append( "<summary_curve>");
+      strXML.append("<summary_curve>");
       for (String stat : job.getSummaryCurve()) {
-        strXML .append( "<val>" + stat + "</val>");
+        strXML.append("<val>" + stat + "</val>");
       }
-      strXML .append( "</summary_curve>");
+      strXML.append("</summary_curve>");
     }
 
     //  roc_calc
@@ -601,7 +602,7 @@ public class MVPlotJobParser extends MVUtil {
         "<plot_cond>" + job.getPlotCond() + "</plot_cond>");
 
     //  plot fmt
-    strXML .append(
+    strXML.append(
       "<event_equal>" + job.getEventEqual() + "</event_equal>" +
         "<vert_plot>" + job.getVertPlot() + "</vert_plot>" +
         "<x_reverse>" + job.getXReverse() + "</x_reverse>" +
@@ -701,7 +702,7 @@ public class MVPlotJobParser extends MVUtil {
         "<plot_stat>" + job.getPlotStat() + "</plot_stat>");
 
     //  close the plot job
-    strXML .append( "</plot></plot_spec>");
+    strXML.append("</plot></plot_spec>");
     return strXML;
   }
 
@@ -1248,13 +1249,13 @@ public class MVPlotJobParser extends MVUtil {
       }
 
       //  <taylor_voc>
-            else if (node._tag.equals("taylor_voc")) {
-              job.setTaylorVoc(Boolean.valueOf(node._value));
-            }
+      else if (node._tag.equals("taylor_voc")) {
+        job.setTaylorVoc(Boolean.valueOf(node._value));
+      }
       //  <taylor_show_gamma>
-            else if (node._tag.equals("taylor_show_gamma")) {
-              job.setTaylorShowGamma(Boolean.valueOf(node._value));
-            }
+      else if (node._tag.equals("taylor_show_gamma")) {
+        job.setTaylorShowGamma(Boolean.valueOf(node._value));
+      }
 
       //  <tmpl>
       else if (node._tag.equals("tmpl")) {
@@ -1351,26 +1352,29 @@ public class MVPlotJobParser extends MVUtil {
       else if (node._tag.equals("agg_stat")) {
         for (int j = 0; j < node._children.length; j++) {
           MVNode nodeAggStat = node._children[j];
+          boolean val = nodeAggStat._value.equalsIgnoreCase("true");
           if (nodeAggStat._tag.equals("agg_ctc")) {
-            job.setAggCtc(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setAggCtc(val);
           } else if (nodeAggStat._tag.equals("agg_sl1l2")) {
-            job.setAggSl1l2(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setAggSl1l2(val);
           } else if (nodeAggStat._tag.equals("agg_sal1l2")) {
-            job.setAggSal1l2(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setAggSal1l2(val);
           } else if (nodeAggStat._tag.equals("agg_pct")) {
-            job.setAggPct(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setAggPct(val);
           } else if (nodeAggStat._tag.equals("agg_nbrcnt")) {
-            job.setAggNbrCnt(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setAggNbrCnt(val);
           } else if (nodeAggStat._tag.equals("agg_ssvar")) {
-            job.setAggSsvar(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setAggSsvar(val);
+          } else if (nodeAggStat._tag.equals("agg_vl1l2")) {
+            job.setAggVl1l2(val);
           } else if (nodeAggStat._tag.equals("boot_repl")) {
             job.setAggBootRepl(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_ci")) {
             job.setAggBootCI(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("eveq_dis")) {
-            job.setEveqDis(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setEveqDis(val);
           } else if (nodeAggStat._tag.equals("cache_agg_stat")) {
-            job.setCacheAggStat(nodeAggStat._value.equalsIgnoreCase("true"));
+            job.setCacheAggStat(val);
           }
         }
 
@@ -1380,17 +1384,20 @@ public class MVPlotJobParser extends MVUtil {
       else if (node._tag.equals("calc_stat")) {
         for (int j = 0; j < node._children.length; j++) {
           MVNode nodeCalcStat = node._children[j];
+          boolean val = nodeCalcStat._value.equalsIgnoreCase("true");
           if (nodeCalcStat._tag.equals("calc_ctc")) {
-            job.setCalcCtc(nodeCalcStat._value.equalsIgnoreCase("true"));
+            job.setCalcCtc(val);
           } else if (nodeCalcStat._tag.equals("calc_sl1l2")) {
-            job.setCalcSl1l2(nodeCalcStat._value.equalsIgnoreCase("true"));
+            job.setCalcSl1l2(val);
           } else if (nodeCalcStat._tag.equals("calc_sal1l2")) {
-            job.setCalcSal1l2(nodeCalcStat._value.equalsIgnoreCase("true"));
+            job.setCalcSal1l2(val);
+          } else if (nodeCalcStat._tag.equals("calc_vl1l2")) {
+            job.setCalcVl1l2(val);
           }
         }
 
-        if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()) {
-          throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 and calc_sal1l2 are true");
+        if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2() &&  job.getCalcVl1l2()) {
+          throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 and calc_sal1l2 and calc_vl1l2 are true");
         }
       }
 
