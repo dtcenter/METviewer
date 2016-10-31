@@ -193,7 +193,13 @@ for(intY in 1:intYMax){
 
 
 
-if( 1 > nrow(dfStatsRec) ){ stop("ERROR: eventEqualize() removed all data"); }
+if( 1 > nrow(dfStatsRec) ){
+  if( boolEventEqual  ){
+    stop("ERROR: eventEqualize() removed all data");
+  }else{
+    stop("ERROR: Database query returned empy set");
+  }
+}
 
 
 # build a dataframe (dfOut) to store the bootstrapped statistics
