@@ -1158,7 +1158,7 @@ public class MVBatch extends MVUtil {
           //  get the number of rows in the job data set
           try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
                ResultSet resultSet = stmt.executeQuery(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
-               FileWriter fstream = new FileWriter(new File(strDataFileEe + "_ee_input"), true);
+               FileWriter fstream = new FileWriter(new File(strDataFileEe + "_ee_input"), false);
                BufferedWriter out = new BufferedWriter(fstream)) {
             printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
             out.flush();
@@ -1275,7 +1275,7 @@ public class MVBatch extends MVUtil {
       for (int i = 0; i < listSQLLastSelect.size(); i++) {
         try (Statement stmt = job.getConnection().createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
              ResultSet rs = stmt.executeQuery(listSQLLastSelect.get(i));
-             FileWriter fstream = new FileWriter(new File(strDataFile), true);
+             FileWriter fstream = new FileWriter(new File(strDataFile), false);
              BufferedWriter out = new BufferedWriter(fstream)) {
 
           printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), i == 0);
@@ -2590,7 +2590,7 @@ public class MVBatch extends MVUtil {
       //  get the data for the current plot from the plot_data temp table and write it to a data file
       try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
-           FileWriter fstream = new FileWriter(new File(strDataFile));
+           FileWriter fstream = new FileWriter(new File(strDataFile), false);
            BufferedWriter out = new BufferedWriter(fstream)) {
         printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
       } catch (Exception e) {
@@ -2816,7 +2816,7 @@ public class MVBatch extends MVUtil {
       //  get the data for the current plot from the plot_data temp table and write it to a data file
       try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
-           FileWriter fstream = new FileWriter(new File(strDataFile));
+           FileWriter fstream = new FileWriter(new File(strDataFile),false);
            BufferedWriter out = new BufferedWriter(fstream);) {
 
         printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
@@ -3138,7 +3138,7 @@ public class MVBatch extends MVUtil {
 
       try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
-           FileWriter fstream = new FileWriter(new File(strDataFile));
+           FileWriter fstream = new FileWriter(new File(strDataFile),false);
            BufferedWriter out = new BufferedWriter(fstream)) {
 
         printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
