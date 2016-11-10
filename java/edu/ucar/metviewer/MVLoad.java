@@ -19,27 +19,27 @@ public class MVLoad extends MVUtil {
   public static final DecimalFormat _formatPerf = new DecimalFormat("0.000");
   public static final Pattern _patModeSingle = Pattern.compile("^(C?[FO]\\d{3})$");
   public static final Pattern _patModePair = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
-  public static final Hashtable _tableStatHeaders = new Hashtable(1024);
-  public static final Hashtable _tableModeHeaders = new Hashtable(1024);
+  protected static final Hashtable _tableStatHeaders = new Hashtable(1024);
+  protected static final Hashtable _tableModeHeaders = new Hashtable(1024);
   public static final long _intStatHeaderTableTime = 0;
   public static final int _intStatGroupRecords = 0;
   public static final int _intStatGroupInserts = 0;
   /*
    * data_file_lu_id values for each MET output type
    */
-  public static final Hashtable<String, Integer> _tableDataFileLU = new Hashtable<>();
+  protected static final Map<String, Integer> _tableDataFileLU = new HashMap<>();
   /*
    * variable length table names for each variable length output line type
    */
-  public static final Hashtable _tableVarLengthTable = new Hashtable();
+  protected static final Map<String, String> _tableVarLengthTable = new HashMap<>();
   /*
    * variable length group data indices for lines with an arbitrary number of fields
    *   - index of field containing number of sets
    *   - index of first repeating field(s)
    *   - number of fields in each repeating set
    */
-  public static final Hashtable _tableVarLengthGroupIndices = new Hashtable();
-  public static final Hashtable _tableVarLengthLineDataId = new Hashtable();
+  protected static final Hashtable _tableVarLengthGroupIndices = new Hashtable();
+  protected static final Map<String, Integer> _tableVarLengthLineDataId = new HashMap<>();
   public static final int INDEX_LINE_DATA = 1;
   public static final int INDEX_STAT_GROUP = 2;
   public static final int INDEX_VAR_LENGTH = 3;
@@ -47,16 +47,16 @@ public class MVLoad extends MVUtil {
   public static final int MODE_CTS = 19;
   public static final int MODE_SINGLE = 17;
   public static final int MODE_PAIR = 18;
-  public static final Hashtable _tableAlphaLineTypes = new Hashtable();
-  public static final Hashtable _tableCovThreshLineTypes = new Hashtable();
-  public static final String[] _listLineDataTables = {
+  protected static final Map<String, Boolean> _tableAlphaLineTypes = new HashMap<>();
+  protected static final Map<String, Boolean> _tableCovThreshLineTypes = new HashMap<>();
+  protected static final String[] _listLineDataTables = {
     "line_data_fho", "line_data_ctc", "line_data_cts", "line_data_cnt", "line_data_pct",
     "line_data_pstd", "line_data_pjc", "line_data_prc", "line_data_sl1l2", "line_data_sal1l2",
     "line_data_vl1l2", "line_data_val1l2", "line_data_mpr", "line_data_nbrctc", "line_data_nbrcts",
     "line_data_nbrcnt", "line_data_isc", "line_data_mctc", "line_data_rhist", "line_data_orank",
     "line_data_ssvar", "line_data_enscnt"
   };
-  public static final MVOrderedMap _mapIndexes = new MVOrderedMap();
+  protected static final MVOrderedMap _mapIndexes = new MVOrderedMap();
   public static final Pattern _patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   public static boolean _boolVerbose = false;
   public static int _intInsertSize = 1;
@@ -66,7 +66,7 @@ public class MVLoad extends MVUtil {
   public static boolean _boolApplyIndexes = false;
   public static boolean _boolIndexOnly = false;
   public static boolean _boolLineTypeLoad = false;
-  public static Hashtable _tableLineTypeLoad = new Hashtable();
+  protected static Hashtable _tableLineTypeLoad = new Hashtable();
   public static boolean _boolLoadStat = true;
   public static boolean _boolLoadMode = true;
   public static boolean _boolLoadMpr = false;
@@ -298,7 +298,6 @@ public class MVLoad extends MVUtil {
           //  try to access the folder and its contents, and continue if it does not exist
           File fileBaseFolder = new File(strBaseFolder);
           if (!fileBaseFolder.exists()) {
-            //System.out.println("  **  WARNING: base folder not found: " + fileBaseFolder);
             continue;
           }
 
@@ -385,11 +384,12 @@ public class MVLoad extends MVUtil {
         //  read the load xml into a string, if requested
         String strLoadXML = "";
         if (job.getLoadXML()) {
-          BufferedReader reader = new BufferedReader(new FileReader(strXML));
-          while (reader.ready()) {
-            strLoadXML += reader.readLine().trim();
+          try (BufferedReader reader = new BufferedReader(new FileReader(strXML))) {
+            while (reader.ready()) {
+              strLoadXML += reader.readLine().trim();
+            }
+            reader.close();
           }
-          reader.close();
         }
 
         //  construct an update statement for instance_info
@@ -466,7 +466,6 @@ public class MVLoad extends MVUtil {
 
     //  initialize the insert data structure
     MVLoadStatInsertData d = new MVLoadStatInsertData();
-    //d._con = con;
 
     //  performance counters
     long intStatHeaderLoadStart = (new java.util.Date()).getTime();
@@ -490,17 +489,15 @@ public class MVLoad extends MVUtil {
       String[] ensValue1 = ensValueArr[ensValueArr.length - 1].split("_");
       ensValue = "_" + ensValue1[ensValue1.length - 1];
     }
-    FileReader fileReader = null;
-    BufferedReader reader = null;
+
     int intLine = 0;
-    try {
-      fileReader = new FileReader(strFilename);
-      reader = new BufferedReader(fileReader);
+    try (FileReader fileReader = new FileReader(strFilename); BufferedReader reader = new BufferedReader(fileReader)) {
+
+
       //  read in each line of the input file, remove "="
       while (reader.ready()) {
 
         String line = reader.readLine();
-        //System.out.println(line);
         line = line.replaceAll("\\s=\\s", " "); // remove " = "
         Matcher m = Pattern.compile("\\d-0\\.").matcher(line); // some records do not have a space betven columns if the value in column starts with "-"
 
@@ -533,8 +530,12 @@ public class MVLoad extends MVUtil {
           d._strLineType = "RHIST";
         } else if (listToken[6].equals("SL1L2")) {
           d._strLineType = "SL1L2";
+        } else if (listToken[6].equals("SAL1L2")) {
+          d._strLineType = "SAL1L2";
         } else if (listToken[6].equals("VL1L2")) {
           d._strLineType = "VL1L2";
+        } else if (listToken[6].equals("VAL1L2")) {
+          d._strLineType = "VAL1L2";
         } else if (listToken[6].equals("RPS")) {
           d._strLineType = "ENSCNT";
         } else if (listToken[6].equals("HTFR")) {
@@ -548,10 +549,8 @@ public class MVLoad extends MVUtil {
         } else {
           continue;
         }
-        if (_boolLineTypeLoad) {
-          if (!_tableLineTypeLoad.containsKey(d._strLineType)) {
-            continue;
-          }
+        if (_boolLineTypeLoad && !_tableLineTypeLoad.containsKey(d._strLineType)) {
+          continue;
         }
 
         d._strFileLine = strFilename + ":" + intLine;
@@ -571,7 +570,7 @@ public class MVLoad extends MVUtil {
         //  determine the init time by combining fcst_valid_beg and fcst_lead
         Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calFcstInitBeg.setTime(dateFcstValidBeg);
-        calFcstInitBeg.add( Calendar.SECOND, (-1) * intFcstLeadSec);
+        calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
         java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
         String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
         String strObsValidBeg = _formatDB.format(dateFcstValidBeg);
@@ -647,7 +646,6 @@ public class MVLoad extends MVUtil {
             try {
               con = connectionPool.getConnection();
               stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-              //stmt.setFetchSize(Integer.MIN_VALUE);
               res = stmt.executeQuery(strStatHeaderSelect);
               if (res.next()) {
                 String strStatHeaderIdDup = res.getString(1);
@@ -701,7 +699,6 @@ public class MVLoad extends MVUtil {
 			 */
 
         //
-        //int intLineDataMax = listToken.length;
         String strLineDataId = "";
         intLineDataRecords++;
 
@@ -710,11 +707,9 @@ public class MVLoad extends MVUtil {
 
         //  determine the maximum token index for the data
         if (boolHasVarLengthGroups) {
-          int intLineDataId = (Integer) _tableVarLengthLineDataId.get(strLineType);
-          strLineDataId = "" + intLineDataId + ", ";
+          int intLineDataId =  _tableVarLengthLineDataId.get(strLineType);
+          strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
-          int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
-          //intLineDataMax = listVarLengthGroupIndices[1];
         }
 
         //  build the value list for the insert statment
@@ -748,9 +743,6 @@ public class MVLoad extends MVUtil {
           }
           strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
         }
-        //else if (!strAlpha.equals("NA")) {
-        //System.out.println("  **  WARNING: unexpected alpha value '" + strAlpha + "' in line type '" + d._strLineType + "'\n        " + d._strFileLine);
-        // }
 
         if (listToken[6].equals("RMSE")) {//CNT line type
           for (int i = 0; i < 89; i++) {
@@ -889,11 +881,11 @@ public class MVLoad extends MVUtil {
           }
         }
         if (listToken[6].equals("HTFR")) {//PCT line type
-          int total =Integer.valueOf(listToken[1].split("\\/")[1]);
-          strLineDataValueList += ", " + total + ", " + (total +1);
+          int total = Integer.parseInt(listToken[1].split("\\/")[1]);
+          strLineDataValueList += ", " + total + ", " + (total + 1);
         }
 
-        if (listToken[6].equals("SL1L2")) {//SL1L2 line type
+        if (listToken[6].equals("SL1L2") || listToken[6].equals("SAL1L2")) {//SL1L2,SAL1L2 line types
           for (int i = 0; i < 7; i++) {
             if (i + 9 < listToken.length) {
               if (i == 0) {
@@ -907,7 +899,7 @@ public class MVLoad extends MVUtil {
             }
           }
         }
-        if (listToken[6].equals("VL1L2")) {//VL1L2 line type
+        if (listToken[6].equals("VL1L2") || listToken[6].equals("VAL1L2")) {//VL1L2,VAL1L2 line type
           for (int i = 0; i < 8; i++) {
             if (i + 9 < listToken.length) {
               if (i == 0) {
@@ -923,12 +915,9 @@ public class MVLoad extends MVUtil {
         }
         if (listToken[6].startsWith("FHO")) {//CTC line type
 
-          double total = Double.valueOf(listToken[9]);
-          //if(total == 36){
-
-          //}
-          double f_rate = Double.valueOf(listToken[10]);
-          double h_rate = Double.valueOf(listToken[11]);
+          double total = Double.parseDouble(listToken[9]);
+          double f_rate = Double.parseDouble(listToken[10]);
+          double h_rate = Double.parseDouble(listToken[11]);
           double o_rate;
           if (listToken.length > 12) {
             o_rate = Double.valueOf(listToken[12]);
@@ -963,9 +952,9 @@ public class MVLoad extends MVUtil {
 
 
         //  add the values list to the line type values map
-        ArrayList listLineTypeValues = new ArrayList();
+        List<String> listLineTypeValues = new ArrayList<>();
         if (d._tableLineDataValues.containsKey(d._strLineType)) {
-          listLineTypeValues = (ArrayList) d._tableLineDataValues.get(d._strLineType);
+          listLineTypeValues = d._tableLineDataValues.get(d._strLineType);
         }
         listLineTypeValues.add("(" + strLineDataValueList + ")");
         d._tableLineDataValues.put(d._strLineType, listLineTypeValues);
@@ -978,14 +967,11 @@ public class MVLoad extends MVUtil {
 
         if (boolHasVarLengthGroups) {
           //  get the index information about the current line type
-          //int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
-          // int intGroupCntIndex =0;
           int intGroupIndex = 0;
           int intGroupSize = 0;
           int intNumGroups = 0;
 
           if (listToken[6].equals("HIST")) {//RHIST line type)
-            //intGroupCntIndex = 1;
             intGroupIndex = 9;
             try {
               intNumGroups = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
@@ -994,7 +980,6 @@ public class MVLoad extends MVUtil {
             }
             intGroupSize = 1;
           } else if (listToken[6].equals("HTFR")) {//PCT line type)
-            //intGroupCntIndex = 2;
             intGroupIndex = 9;
             try {
               intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
@@ -1004,16 +989,16 @@ public class MVLoad extends MVUtil {
             intNumGroups = 2;
           }
 
-          ArrayList listThreshValues = (ArrayList) d._tableVarLengthValues.get(d._strLineType);
+          List<String> listThreshValues = d._tableVarLengthValues.get(d._strLineType);
           if (null == listThreshValues) {
-            listThreshValues = new ArrayList();
+            listThreshValues = new ArrayList<>();
           }
 
           //  build a insert value statement for each threshold group
           if (listToken[6].equals("HIST")) {
             for (int i = 0; i < intNumGroups; i++) {
               StringBuilder strThreshValues = new StringBuilder("(");
-              strThreshValues.append( strLineDataId).append(i + 1);
+              strThreshValues.append(strLineDataId).append(i + 1);
               for (int j = 0; j < intGroupSize; j++) {
                 double res = Double.parseDouble(listToken[intGroupIndex++]);
                 if (res != -9999) {
@@ -1022,19 +1007,19 @@ public class MVLoad extends MVUtil {
 
               }
               strThreshValues.append(")");
-              listThreshValues.add(strThreshValues);
+              listThreshValues.add(strThreshValues.toString());
               intVarLengthRecords++;
             }
           } else if (listToken[6].equals("HTFR")) {
             for (int i = 0; i < intGroupSize; i++) {
 
-              double thresh_i ;
-              if(intGroupSize > 1) {
-                thresh_i=i / (intGroupSize - 1);
-              }else {
-                thresh_i=0;
+              double thresh_i;
+              if (intGroupSize > 1) {
+                thresh_i = i / (intGroupSize - 1);
+              } else {
+                thresh_i = 0;
               }
-              String strThreshValues = "(" + strLineDataId + (i + 1) + "," +thresh_i;
+              String strThreshValues = "(" + strLineDataId + (i + 1) + "," + thresh_i;
               for (int j = 0; j < intNumGroups; j++) {
                 strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex + j * intGroupSize]);
               }
@@ -1051,21 +1036,15 @@ public class MVLoad extends MVUtil {
         //  if the insert threshhold has been reached, commit the stored data to the database
         if (_intInsertSize <= d._listInsertValues.size()) {
           int[] listInserts = commitStatData(d);
-          //intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
           intLineDataInserts += listInserts[INDEX_LINE_DATA];
           intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
         }
 
       }  // end: while( reader.ready() )
+      fileReader.close();
+      reader.close();
     } catch (Exception e) {
       System.out.println(e.getMessage());
-    } finally {
-      if (fileReader != null) {
-        fileReader.close();
-      }
-      if (reader != null) {
-        reader.close();
-      }
     }
 
     //  commit all the remaining stored data
@@ -1116,8 +1095,6 @@ public class MVLoad extends MVUtil {
 
     //  initialize the insert data structure
     MVLoadStatInsertData d = new MVLoadStatInsertData();
-    //d._con = con;
-
     //  performance counters
     long intStatHeaderLoadStart = (new java.util.Date()).getTime();
     long intStatHeaderSearchTime = 0;
@@ -1135,11 +1112,9 @@ public class MVLoad extends MVUtil {
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
     int intLine = 0;
-    FileReader fileReader = null;
-    BufferedReader reader = null;
-    try {
-      fileReader = new FileReader(strFilename);
-      reader = new BufferedReader(fileReader);
+    try (
+      FileReader fileReader = new FileReader(strFilename);
+      BufferedReader reader = new BufferedReader(fileReader)){
       //  read in each line of the input file
       while (reader.ready()) {
         String[] listToken = reader.readLine().split("\\s+");
@@ -1161,10 +1136,8 @@ public class MVLoad extends MVUtil {
 
         //  if the line type load selector is activated, check that the current line type is on the list
         d._strLineType = listToken[20];
-        if (_boolLineTypeLoad) {
-          if (!_tableLineTypeLoad.containsKey(d._strLineType)) {
+        if (_boolLineTypeLoad && !_tableLineTypeLoad.containsKey(d._strLineType)) {
             continue;
-          }
         }
 
         d._strFileLine = strFilename + ":" + intLine;
@@ -1306,7 +1279,7 @@ public class MVLoad extends MVUtil {
 
             //  build an insert statement for the mode header
             strStatHeaderValueList = "" +
-              intStatHeaderId + ", " +        //  stat_header_id
+              Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
               strStatHeaderValueList;
 
             //  insert the record into the stat_header database table
@@ -1336,8 +1309,8 @@ public class MVLoad extends MVUtil {
 
         //  determine the maximum token index for the data
         if (boolHasVarLengthGroups) {
-          int intLineDataId = (Integer) _tableVarLengthLineDataId.get(strLineType);
-          strLineDataId = "" + intLineDataId + ", ";
+          int intLineDataId =  _tableVarLengthLineDataId.get(strLineType);
+          strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
 
@@ -1455,9 +1428,9 @@ public class MVLoad extends MVUtil {
         strLineDataValueList = strLineDataValueList.substring(0, strLineDataValueList.length() - 1);
 
         //  add the values list to the line type values map
-        ArrayList listLineTypeValues = new ArrayList();
+        List<String> listLineTypeValues = new ArrayList<>();
         if (d._tableLineDataValues.containsKey(d._strLineType)) {
-          listLineTypeValues = (ArrayList) d._tableLineDataValues.get(d._strLineType);
+          listLineTypeValues = d._tableLineDataValues.get(d._strLineType);
         }
         listLineTypeValues.add("(" + strLineDataValueList + ")");
         d._tableLineDataValues.put(d._strLineType, listLineTypeValues);
@@ -1480,7 +1453,7 @@ public class MVLoad extends MVUtil {
           if (d._strLineType.equals("PCT") || d._strLineType.equals("PJC") || d._strLineType.equals("PRC")) {
             intNumGroups -= 1;
           }
-          ArrayList listThreshValues = (ArrayList) d._tableVarLengthValues.get(d._strLineType);
+          List<String> listThreshValues = d._tableVarLengthValues.get(d._strLineType);
           if (null == listThreshValues) {
             listThreshValues = new ArrayList();
           }
@@ -1514,21 +1487,15 @@ public class MVLoad extends MVUtil {
         //  if the insert threshhold has been reached, commit the stored data to the database
         if (_intInsertSize <= d._listInsertValues.size()) {
           int[] listInserts = commitStatData(d);
-          //intStatHeaderInserts	+= listInserts[INDEX_STAT_HEADERS];
           intLineDataInserts += listInserts[INDEX_LINE_DATA];
           intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
         }
 
       }  // end: while( reader.ready() )
+      fileReader.close();
+      reader.close();
     } catch (Exception e) {
       System.out.println(e.getMessage());
-    } finally {
-      if (fileReader != null) {
-        fileReader.close();
-      }
-      if (reader != null) {
-        reader.close();
-      }
     }
 
     //  commit all the remaining stored data
@@ -1536,7 +1503,6 @@ public class MVLoad extends MVUtil {
     intLineDataInserts += listInserts[INDEX_LINE_DATA];
     intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
 
-    reader.close();
 
     _intStatLinesTotal += (intLine - 1);
     _intStatHeaderRecords += intStatHeaderRecords;
@@ -1578,7 +1544,6 @@ public class MVLoad extends MVUtil {
     throws Exception {
 
     int[] listInserts = new int[]{0, 0, 0, 0};
-    String strValueList;
 
 		/*
      * * * *  stat_header was committed commit  * * * *
@@ -1592,9 +1557,8 @@ public class MVLoad extends MVUtil {
 		 */
 
     //  for each line type, build an insert statement with the appropriate list of values
-    for (Iterator iterEntries = d._tableLineDataValues.entrySet().iterator(); iterEntries.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) iterEntries.next();
-      d._strLineType = entry.getKey().toString();
+    for (Map.Entry<String, List<String>> entry : d._tableLineDataValues.entrySet()) {
+      d._strLineType = entry.getKey();
       ArrayList listValues = (ArrayList) entry.getValue();
       String strLineDataTable = "line_data_" + d._strLineType.toLowerCase();
 
@@ -1609,14 +1573,14 @@ public class MVLoad extends MVUtil {
 
 
 		/*
-		 * * * *  stat_group commit  * * * *
+     * * * *  stat_group commit  * * * *
 		 */
 
     //  build a stat_group insert with all stored values
-    if (0 < d._listStatGroupInsertValues.size()) {
+    if (!d._listStatGroupInsertValues.isEmpty()) {
       String strStatGroupInsertValues = "";
       for (int i = 0; i < d._listStatGroupInsertValues.size(); i++) {
-        strStatGroupInsertValues += (i == 0 ? "" : ", ") + d._listStatGroupInsertValues.get(i).toString();
+        strStatGroupInsertValues += (i == 0 ? "" : ", ") + d._listStatGroupInsertValues.get(i);
       }
       String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
       int intStatGroupInsert = executeUpdate(strStatGroupInsert);
@@ -1633,13 +1597,13 @@ public class MVLoad extends MVUtil {
 		 */
 
     //  insert probabilistic data into the thresh tables
-    String[] listVarLengthTypes = (String[]) d._tableVarLengthValues.keySet().toArray(new String[]{});
+    String[] listVarLengthTypes = d._tableVarLengthValues.keySet().toArray(new String[]{});
     for (int i = 0; i < listVarLengthTypes.length; i++) {
-      String[] listVarLengthValues = toArray((ArrayList) d._tableVarLengthValues.get(listVarLengthTypes[i]));
+      String[] listVarLengthValues = toArray(d._tableVarLengthValues.get(listVarLengthTypes[i]));
       if (1 > listVarLengthValues.length) {
         continue;
       }
-      String strVarLengthTable = _tableVarLengthTable.get(listVarLengthTypes[i]).toString();
+      String strVarLengthTable = _tableVarLengthTable.get(listVarLengthTypes[i]);
       String strThreshInsert = "INSERT INTO " + strVarLengthTable + " VALUES ";
       for (int j = 0; j < listVarLengthValues.length; j++) {
         strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
@@ -1650,8 +1614,7 @@ public class MVLoad extends MVUtil {
         System.out.println("  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
           listVarLengthValues.length + "\n        " + d._strFileLine);
       }
-      // listInserts[INDEX_VAR_LENGTH]++; //  intVarLengthInserts++;
-      d._tableVarLengthValues.put(listVarLengthTypes[i], new ArrayList());
+      d._tableVarLengthValues.put(listVarLengthTypes[i], new ArrayList<>());
     }
 
     return listInserts;
@@ -1685,12 +1648,10 @@ public class MVLoad extends MVUtil {
 
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
-    FileReader fileReader = null;
-    BufferedReader reader = null;
     int intLine = 1;
-    try {
-      fileReader = new FileReader(strFilename);
-      reader = new BufferedReader(fileReader);
+    try (
+      FileReader fileReader = new FileReader(strFilename);
+      BufferedReader reader = new BufferedReader(fileReader);){
       //  read each line of the input file
       while (reader.ready()) {
         String[] listToken = reader.readLine().split("\\s+");
@@ -1809,32 +1770,20 @@ public class MVLoad extends MVUtil {
           long intModeHeaderSearchBegin = (new java.util.Date()).getTime();
           if (_boolModeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n" + strModeHeaderWhereClause;
-            Connection con = null;
-            Statement stmt = null;
-            ResultSet res = null;
-            try {
-              con = connectionPool.getConnection();
-              stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-              //stmt.setFetchSize(Integer.MIN_VALUE);
-              res = stmt.executeQuery(strModeHeaderSelect);
+            try (Connection con = connectionPool.getConnection();
+                 Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+                 ResultSet res = stmt.executeQuery(strModeHeaderSelect)) {
               if (res.next()) {
                 String strModeHeaderIdDup = res.getString(1);
                 intModeHeaderId = Integer.parseInt(strModeHeaderIdDup);
                 boolFoundModeHeader = true;
                 System.out.println("  **  WARNING: found duplicate mode_header record with id " + strModeHeaderIdDup + "\n        " + strFileLine);
               }
+              res.close();
+              stmt.close();
+              con.close();
             } catch (Exception e) {
               System.out.println(e.getMessage());
-            } finally {
-              try {
-                res.close();
-              } catch (Exception e) { /* ignored */ }
-              try {
-                stmt.close();
-              } catch (Exception e) { /* ignored */ }
-              try {
-                con.close();
-              } catch (Exception e) { /* ignored */ }
             }
 
           }
@@ -1943,15 +1892,10 @@ public class MVLoad extends MVUtil {
 
         intLine++;
       }
+      fileReader.close();
+      reader.close();
     } catch (Exception e) {
       System.out.println(e.getMessage());
-    } finally {
-      if (fileReader != null) {
-        fileReader.close();
-      }
-      if (reader != null) {
-        reader.close();
-      }
     }
 
     //  increment the global mode counters
@@ -1973,10 +1917,10 @@ public class MVLoad extends MVUtil {
     }
   }
 
-  public static int executeBatch(ArrayList listValues, String strLineDataTable) throws Exception {
+  public static int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
 
     String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + "(";
-    int numberOfValues = listValues.get(0).toString().split(",").length;
+    int numberOfValues = listValues.get(0).split(",").length;
     for (int i = 0; i < numberOfValues; i++) {
       strLineDataInsert = strLineDataInsert + "?,";
     }
@@ -1989,12 +1933,10 @@ public class MVLoad extends MVUtil {
     try {
       con = connectionPool.getConnection();
       stmt = con.createStatement();
-      //stmt.execute("ALTER TABLE " + strLineDataTable + "  DISABLE KEYS");
-      //stmt.execute("LOCK TABLES " + strLineDataTable + " WRITE");
       ps = con.prepareStatement(strLineDataInsert);
       for (int i = 0; i < listValues.size(); i++) {
 
-        String[] listValuesArr = listValues.get(i).toString().split(",");
+        String[] listValuesArr = listValues.get(i).split(",");
         listValuesArr[0] = listValuesArr[0].replace("(", "");
         listValuesArr[listValuesArr.length - 1] = listValuesArr[listValuesArr.length - 1].replace(")", "");
         for (int j = 0; j < listValuesArr.length; j++) {
@@ -2013,12 +1955,14 @@ public class MVLoad extends MVUtil {
       intResLineDataInsert = intResLineDataInsert + IntStream.of(updateCounts).sum();
 
     } catch (SQLException se) {
-      //throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage() + "\n  sql: " + update);
       throw new Exception("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
-      if (ps != null) ps.close();
-      if (stmt != null) stmt.close();
-      if (con != null) con.close();
+      if (ps != null)
+        ps.close();
+      if (stmt != null)
+        stmt.close();
+      if (con != null)
+        con.close();
     }
     return intResLineDataInsert;
   }
@@ -2033,19 +1977,15 @@ public class MVLoad extends MVUtil {
   public static int executeUpdate(String update) throws Exception {
 
     int intRes = -1;
-    Connection con = null;
-    Statement stmt = null;
-    try {
-      con = connectionPool.getConnection();
-      stmt = con.createStatement();
+    try (
+      Connection con = connectionPool.getConnection();
+      Statement stmt = con.createStatement();) {
       intRes = stmt.executeUpdate(update);
-
+      stmt.close();
+      con.close();
     } catch (SQLException se) {
       System.out.println("Error " + update);
       throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
-    } finally {
-      if (stmt != null) stmt.close();
-      if (con != null) con.close();
     }
 
     return intRes;
@@ -2066,13 +2006,13 @@ public class MVLoad extends MVUtil {
    */
   public static int getNextId(String table, String field) throws Exception {
     int intId = -1;
-    Connection con = null;
-    Statement stmt = null;
+    PreparedStatement pstmt = null;
     ResultSet res = null;
-    try {
-      con = connectionPool.getConnection();
-      stmt = con.createStatement();
-      res = stmt.executeQuery("SELECT MAX(" + field + ") FROM " + table + ";");
+    try (Connection con = connectionPool.getConnection();) {
+      pstmt = con.prepareStatement("SELECT MAX(?) FROM ?;");
+      pstmt.setString(1, field);
+      pstmt.setString(2, table);
+      res = pstmt.executeQuery();
       if (!res.next()) {
         throw new Exception("METViewer load error: getNextId(" + table + ", " + field + ") unable to find max id");
       }
@@ -2080,12 +2020,16 @@ public class MVLoad extends MVUtil {
       if (null == strId) {
         intId = 0;
       } else {
-        intId = (Integer.parseInt(strId) + 1);
+        intId = Integer.parseInt(strId) + 1;
       }
+
+    } catch (Exception e) {
+      throw new Exception(e.getMessage());
     } finally {
-      if (res != null) res.close();
-      if (stmt != null) stmt.close();
-      if (con != null) con.close();
+      if (pstmt != null)
+        pstmt.close();
+      if (res != null)
+        res.close();
     }
 
     return intId;
@@ -2120,10 +2064,7 @@ public class MVLoad extends MVUtil {
       strDataFileLuTypeName = "mode_cts";
     } else if (strFile.matches("\\S+\\.vsdb$")) {
       strDataFileLuTypeName = "vsdb_point_stat";
-    }
-    //else{ throw new Exception("processDataFile() - could not determine file type of " + strFile); }
-    else {
-      //System.out.println("  **  WARNING: could not determine file type of "	+ strFile);
+    } else {
       return null;
     }
 
@@ -2146,13 +2087,11 @@ public class MVLoad extends MVUtil {
         "  AND df.filename = \'" + strFile + "\' " +
         "  AND df.path = \'" + strPath + "\';";
 
-    Connection con = null;
-    Statement stmt = null;
-    ResultSet res = null;
-    try {
-      con = connectionPool.getConnection();
-      stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-      res = stmt.executeQuery(strDataFileQuery);
+
+    try (
+      Connection con = connectionPool.getConnection();
+      Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      ResultSet res = stmt.executeQuery(strDataFileQuery);) {
 
       // if the data file is already present in the database, print a warning and return the id
       if (res.next()) {
@@ -2169,9 +2108,18 @@ public class MVLoad extends MVUtil {
           throw new Exception("file already present in table data_file, use force_dup_file setting to override");
         }
       }
+      res.close();
+      stmt.close();
+      con.close();
+    } catch (Exception e) {
+      throw new Exception(e.getMessage());
+    }
+    // if the file is not present in the data_file table, query for the largest data_file_id
+    try (
+      Connection con = connectionPool.getConnection();
+      Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      ResultSet res = stmt.executeQuery("SELECT MAX(data_file_id) FROM data_file;")) {
 
-      // if the file is not present in the data_file table, query for the largest data_file_id
-      res = stmt.executeQuery("SELECT MAX(data_file_id) FROM data_file;");
       if (!res.next()) {
         throw new Exception("METViewer load error: processDataFile() unable to find max data_file_id");
       }
@@ -2180,13 +2128,12 @@ public class MVLoad extends MVUtil {
         dataFileId = 0;
       }
       dataFileId = dataFileId + 1;
+      res.close();
+      stmt.close();
+      con.close();
 
     } catch (Exception e) {
       throw new Exception(e.getMessage());
-    } finally {
-      if (res != null) res.close();
-      if (stmt != null) stmt.close();
-      if (con != null) con.close();
     }
 
 
@@ -2258,7 +2205,7 @@ public class MVLoad extends MVUtil {
    */
   public static void initVarLengthLineDataIds() throws Exception {
     _tableVarLengthLineDataId.clear();
-    String[] listVarLengthLines = (String[]) _tableVarLengthTable.keySet().toArray(new String[]{});
+    String[] listVarLengthLines =  _tableVarLengthTable.keySet().toArray(new String[]{});
     for (int i = 0; i < listVarLengthLines.length; i++) {
       String strVarLengthTable = "line_data_" + listVarLengthLines[i].toLowerCase();
       int intLineDataId = getNextId(strVarLengthTable, "line_data_id");
@@ -2272,10 +2219,10 @@ public class MVLoad extends MVUtil {
    */
   static class MVLoadStatInsertData {
 
-    public final ArrayList _listInsertValues = new ArrayList();
-    public final Hashtable _tableLineDataValues = new Hashtable();
-    public final ArrayList _listStatGroupInsertValues = new ArrayList();
-    public final Hashtable _tableVarLengthValues = new Hashtable();
+    public final List<String> _listInsertValues = new ArrayList<>();
+    public final Map<String, List<String>> _tableLineDataValues = new HashMap<>();
+    public final List<String> _listStatGroupInsertValues = new ArrayList<>();
+    public final Map<String, List<String>> _tableVarLengthValues = new HashMap<>();
     public String _strLineType = "";
     public String _strFileLine = "";
   }
