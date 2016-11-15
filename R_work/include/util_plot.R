@@ -170,11 +170,17 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     dfComp = dfStats;
     for(strVarIndex in 1:ncol(dfVarsForEEPerm)){
       if(names(listVarsForEE)[strVarIndex] == 'fcst_init_beg'){
-        dfComp = dfComp[as.character(dfComp[[names(listVarsForEE)[strVarIndex]]]) == dfVarsForEEPerm[index,strVarIndex],];
-      }else{
-        dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
-      }
+       dfComp = dfComp[as.character(dfComp[[names(listVarsForEE)[strVarIndex]]]) == dfVarsForEEPerm[index,strVarIndex],];
+     }else{
+       if(is.na( strtoi(dfVarsForEEPerm[index,strVarIndex]))){
+         #for strings
+         dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
+       }else{
+         #for integer string
+         dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == strtoi(dfVarsForEEPerm[index,strVarIndex]) ,];
+       }
     }
+  }
 
     # if the list contains repetetive values, show a warning
     if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
