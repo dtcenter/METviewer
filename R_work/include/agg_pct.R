@@ -51,37 +51,41 @@ if( boolEventEqual  ){
       }
     }
   }
-  for( strDep1Name in names(listDep1Plot) ){
-    for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-      for(strSeriesVal in names(listSeries1Val)){
-        vectValPerms = c();
-        for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
-        }
-        fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep1Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms & dfStatsRec$stat_name %in% strDep1Stat,  ];
-        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-        dfPlot1 = rbind(dfPlot1, fPlot);
-      }
-    }
-  }
+for( strDep1Name in names(listDep1Plot) ){
+   for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+     fPlot = dfStatsRec;
+     for(strSeriesVal in names(listSeries1Val)){
+       vectValPerms = c();
+       for(index in 1:length(listSeries1Val[[strSeriesVal]])){
+         vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+       }
+       fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
+     }
+
+     fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+     dfPlot1 = rbind(dfPlot1, fPlot);
+   }
+ }
 
   #if the second Y axis is present - run event equalizer on Y1
   # and then run event equalizer on Y1 and Y2 equalized data
   if(length(listSeries2Val) > 0){
     dfPlot2 = data.frame();
-    for( strDep2Name in names(listDep2Plot) ){
-      for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
-        for(strSeriesVal in names(listSeries2Val)){
-          vectValPerms = c();
-          for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-            vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
-          }
-          fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms & dfStatsRec$stat_name %in% strDep2Stat,  ];
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-          dfPlot2 = rbind(dfPlot2, fPlot);
-        }
-      }
-    }
+  for( strDep2Name in names(listDep2Plot) ){
+       for( strDep2Stat in listDep2Plot[[strDep2Name]] ){
+         fPlot = dfStatsRec;
+         for(strSeriesVal in names(listSeries2Val)){
+           vectValPerms = c();
+           for(index in 1:length(listSeries2Val[[strSeriesVal]])){
+             vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+           }
+           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
+         }
+
+         fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+         dfPlot2 = rbind(dfPlot2, fPlot);
+       }
+     }
     dfStatsRec = rbind(dfPlot1, dfPlot2);
     listSeriesVal=list();
     for( seriesVal in names(listSeries1Val) ){
@@ -237,8 +241,9 @@ for(strIndyVal in listIndyVal){
         resolution	= sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
         uncertainty	= o_bar * (1 - o_bar),
         baser		= o_bar
-      );
+        );
       listStat$brier	= listStat$reliability - listStat$resolution + listStat$uncertainty;
+      listStat$bss_smpl	= ( listStat$resolution - listStat$reliability ) / listStat$uncertainty ;
       listStat$b_ci	= calcBrierCI(dfPctPerm, listStat$brier, dblAlpha);
 
       # build the dataframe for calculating and use the trapezoidal method roc_auc
