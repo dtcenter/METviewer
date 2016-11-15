@@ -247,6 +247,7 @@ public class MVUtil {
     _tableStatsPstd.put("PSTD_BSS", new String[]{"nc", PCT});
     _tableStatsPstd.put("PSTD_BRIER10", new String[]{"nc", PCT});
     _tableStatsPstd.put("PSTD_BRIER90", new String[]{"nc", PCT});
+    _tableStatsPstd.put("PSTD_BSS_SMPL", new String[]{ PCT});
   }
 
   static {
@@ -600,7 +601,7 @@ public class MVUtil {
       System.err.println("  **  ERROR: caught " + e.getClass() + " in buildDateAggList(): " + e.getMessage());
       e.printStackTrace();
     }
-    return (String[]) listDates.toArray(new String[]{});
+    return listDates.toArray(new String[]{});
   }
 
   public static String[] buildDateAggList(Connection con, String field, String begin, String end) {
