@@ -454,7 +454,7 @@ public class MVBatch extends MVUtil {
     //  build the appropriate type of query, depending on the statistic
     String[] listStatComp = parseModeStat(strStat);
     if (listStatComp[0].equals("ACOV")) {
-      listQuery.add(buildModeSingleAcovTable(strSelectList, strWhere, strStat,listGroupBy,isEventEqualization));
+      listQuery.add(buildModeSingleAcovTable(strSelectList, strWhere, strStat, listGroupBy, isEventEqualization));
     } else if (_tableModeSingleStatField.containsKey(listStatComp[0])) {
       if (!listStatComp[1].startsWith("D")) {
         listQuery.add(buildModeSingleStatTable(strSelectList, strWhere, strStat, listGroupBy, isEventEqualization));
@@ -801,7 +801,7 @@ public class MVBatch extends MVUtil {
     return result;
   }
 
-  public static String buildModeSingleStatTable(String selectList, String strWhere, String stat, String[] groups,boolean isEventEqualization) {
+  public static String buildModeSingleStatTable(String selectList, String strWhere, String stat, String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = parseModeStat(stat);
@@ -846,7 +846,7 @@ public class MVBatch extends MVUtil {
       }
       //mandatory group by fcst_valid and fcst_lead for EE
       if (isEventEqualization) {
-        if (!strGroupBy.contains("fcst_valid") ) {
+        if (!strGroupBy.contains("fcst_valid")) {
           if (groups.length > 0) {
             strGroupBy += "  ,";
           }
@@ -904,7 +904,7 @@ public class MVBatch extends MVUtil {
         "WHERE\n" + strWhere + ";";
   }
 
-  public static String buildModeSingleAcovTable(String selectList, String strWhere, String stat,String[] groups,boolean isEventEqualization) {
+  public static String buildModeSingleAcovTable(String selectList, String strWhere, String stat, String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = parseModeStat(stat);
@@ -912,10 +912,10 @@ public class MVBatch extends MVUtil {
       return "";
     }
     String strStatFlag = listStatParse[1];
-    String strGroupBy  = "\nGROUP BY\n";
-      for (int i = 0; i < groups.length; i++) {
-        strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
-      }
+    String strGroupBy = "\nGROUP BY\n";
+    for (int i = 0; i < groups.length; i++) {
+      strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
+    }
 
     //  build the query components
     String strSelectListStat = selectList.replaceAll("h\\.", "").replaceAll(",\\s+$", "");
@@ -925,7 +925,6 @@ public class MVBatch extends MVUtil {
       strGroupBy += " , fcst_flag";
       strWhere += "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0) ? "1" : "0");
     }
-
 
 
     if (!strGroupBy.contains("fcst_valid")) {
@@ -958,7 +957,7 @@ public class MVBatch extends MVUtil {
         "WHERE\n" +
         strWhere + "\n" +
         "  AND simple_flag = 1\n" +
-         strGroupBy + ";";
+        strGroupBy + ";";
   }
 
   public void setDbManagementSystem(String dbManagementSystem) {
@@ -1173,6 +1172,7 @@ public class MVBatch extends MVUtil {
             boolean boolSuccess = runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo});
 
           } catch (Exception e) {
+            throw e;
           }
         }
 
@@ -1281,6 +1281,20 @@ public class MVBatch extends MVUtil {
           printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), i == 0);
         } catch (Exception e) {
           System.out.println(e.getMessage());
+          if (e.getMessage().contains("Unknown column")) {
+            Pattern pattern = Pattern.compile("'(.*?)'");
+            Matcher matcher = pattern.matcher(e.getMessage());
+            String stat = "This";
+            if (matcher.find()) {
+              stat = matcher.group(1);
+              if (stat.contains(".")) {
+                stat = stat.split("\\.")[1];
+              }
+            }
+            throw new Exception(stat + " statistic can only be plotted as an aggregation of lines");
+          } else {
+            throw e;
+          }
         }
       }
       _out.println("Query returned  plot_data rows in " + formatTimeSpan((new java.util.Date()).getTime() - intStartTime));
@@ -1626,7 +1640,7 @@ public class MVBatch extends MVUtil {
     //  determine if the plot job is for stat data or MODE data
     boolean boolModePlot = isModeJob(job);
     boolean boolModeRatioPlot = isModeRatioJob(job);
-    HashMap <String, String> tableHeaderSQLType;
+    HashMap<String, String> tableHeaderSQLType;
     if (boolModePlot) {
       tableHeaderSQLType = new HashMap<>(_tableModeHeaderSQLType);
     } else {
@@ -1640,7 +1654,7 @@ public class MVBatch extends MVUtil {
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
 
     //  add the user-specified condition clause, if present
-    if (null != job.getPlotCond() && job.getPlotCond().length() >0) {
+    if (null != job.getPlotCond() && job.getPlotCond().length() > 0) {
       strPlotFixWhere += "  AND " + job.getPlotCond() + "\n";
     }
 
@@ -1658,7 +1672,7 @@ public class MVBatch extends MVUtil {
     boolean boolCalcSal1l2 = job.getCalcSal1l2();
     boolean boolCalcVl1l2 = job.getCalcVl1l2();
     boolean boolCalcStat;
-    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2 ||boolCalcVl1l2;
+    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2 || boolCalcVl1l2;
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -1879,6 +1893,8 @@ public class MVBatch extends MVUtil {
             } else if (1 > intNumPctThresh) {
               throw new Exception("invalid number of PCT thresholds (" + intNumPctThresh + ") found");
             }
+          } catch (Exception e) {
+            throw e;
           }
         }
 
@@ -2185,8 +2201,8 @@ public class MVBatch extends MVUtil {
     HashMap<String, String> tableHeaderSQLType;
     if (boolModePlot) {
       tableHeaderSQLType = new HashMap<>(_tableModeHeaderSQLType);
-    }else {
-      tableHeaderSQLType =  new HashMap<>(_tableStatHeaderSQLType);
+    } else {
+      tableHeaderSQLType = new HashMap<>(_tableStatHeaderSQLType);
     }
 
     //  populate the plot template values with plot_fix values
@@ -2530,6 +2546,8 @@ public class MVBatch extends MVUtil {
           }
           _out.println(strMsg);
         }
+      } catch (Exception e) {
+        throw e;
       }
 
 
@@ -2595,6 +2613,7 @@ public class MVBatch extends MVUtil {
         printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
       } catch (Exception e) {
         System.out.println(e.getMessage());
+        throw e;
       }
 
       //  build the template strings using the current template values
@@ -2758,6 +2777,7 @@ public class MVBatch extends MVUtil {
           _out.println(strMsg);
         }
       } catch (Exception e) {
+        throw e;
       }
       //  build a query for the bin data
       strWhere = strWhere + strWhereSeries;
@@ -2816,12 +2836,12 @@ public class MVBatch extends MVUtil {
       //  get the data for the current plot from the plot_data temp table and write it to a data file
       try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
-           FileWriter fstream = new FileWriter(new File(strDataFile),false);
+           FileWriter fstream = new FileWriter(new File(strDataFile), false);
            BufferedWriter out = new BufferedWriter(fstream);) {
 
         printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
       } catch (Exception e) {
-
+        throw e;
       }
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps());
@@ -2978,6 +2998,7 @@ public class MVBatch extends MVUtil {
           listObsThresh.add(resultSet.getString(1));
         }
       } catch (Exception e) {
+        throw e;
       }
 
       //  build the query depending on the type of data requested
@@ -3008,6 +3029,8 @@ public class MVBatch extends MVUtil {
           while (resultSet.next()) {
             listFcstThresh.add(resultSet.getString(1));
           }
+        }catch (Exception e){
+          throw e;
         }
 
         //  build the plot data sql
@@ -3138,12 +3161,12 @@ public class MVBatch extends MVUtil {
 
       try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(strPlotDataSelect);
-           FileWriter fstream = new FileWriter(new File(strDataFile),false);
+           FileWriter fstream = new FileWriter(new File(strDataFile), false);
            BufferedWriter out = new BufferedWriter(fstream)) {
 
         printFormattedTable(resultSet, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), true);
       } catch (Exception e) {
-
+throw e;
       }
 
 
@@ -3275,7 +3298,7 @@ public class MVBatch extends MVUtil {
     //  build a list of arguments
     StringBuilder strArgList = new StringBuilder();
     for (int i = 0; null != args && i < args.length; i++) {
-      strArgList.append(" ").append( args[i]);
+      strArgList.append(" ").append(args[i]);
     }
 
     //  run the R script and wait for it to complete
