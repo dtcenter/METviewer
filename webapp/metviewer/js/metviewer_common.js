@@ -1139,7 +1139,6 @@ function populateIndyVarVal(selectedVals) {
         dataType: 'xml',
         data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
         error: function () {
-
         },
         success: function (data) {
             var values = $(data).find("val");
