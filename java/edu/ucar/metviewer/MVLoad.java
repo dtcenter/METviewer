@@ -2009,9 +2009,7 @@ public class MVLoad extends MVUtil {
     PreparedStatement pstmt = null;
     ResultSet res = null;
     try (Connection con = connectionPool.getConnection();) {
-      pstmt = con.prepareStatement("SELECT MAX(?) FROM ?;");
-      pstmt.setString(1, field);
-      pstmt.setString(2, table);
+      pstmt = con.prepareStatement("SELECT MAX(" + field + ") FROM " + table);
       res = pstmt.executeQuery();
       if (!res.next()) {
         throw new Exception("METViewer load error: getNextId(" + table + ", " + field + ") unable to find max id");
@@ -2048,6 +2046,11 @@ public class MVLoad extends MVUtil {
     int strDataFileLuId = -1;
     String strDataFileLuTypeName;
     Integer dataFileId = -1;
+
+    //check file size and return if it  is 0
+    if(file.length() == 0){
+      return null;
+    }
 
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
