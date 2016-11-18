@@ -280,7 +280,14 @@ if(length(listStatisticsCurvs) > 0){
   }
 }
 
-
+#replace with user's legends
+if( 0 < length(listLegendUsr) ){
+  for(index in 1:length(listLegendUsr)){
+    if(nchar(listLegendUsr[index]) > 0){
+      legend[index]=listLegendUsr[index];
+    }
+  }
+}
 
 listColorsOrdered=c();
 listLegendOrdered=c();
