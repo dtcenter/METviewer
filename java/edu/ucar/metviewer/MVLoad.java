@@ -498,548 +498,552 @@ public class MVLoad extends MVUtil {
       while (reader.ready()) {
 
         String line = reader.readLine();
-        line = line.replaceAll("\\s=\\s", " "); // remove " = "
-        Matcher m = Pattern.compile("\\d-0\\.").matcher(line); // some records do not have a space betven columns if the value in column starts with "-"
+        try {
+          line = line.replaceAll("\\s=\\s", " "); // remove " = "
+          Matcher m = Pattern.compile("\\d-0\\.").matcher(line); // some records do not have a space between columns if the value in column starts with "-"
 
-        List<String> allMatches = new ArrayList<>();
-        while (m.find()) {
-          allMatches.add(m.group());
-        }
-        for (String match : allMatches) {
-          String newStr = match.replace("-", " -");
-          line = line.replace(match, newStr);
-        }
-
-        String[] listToken = line.split("\\s+");
-        intLine++;
-        String thresh = "NA";
-        String modelName = listToken[1];
-
-        if (listToken[6].equals("BSS") || listToken[6].equals("ECON") || listToken[6].equals("HIST") || listToken[6].equals("HTFR")
-          || listToken[6].equals("RELI") || listToken[6].equals("RELP") || listToken[6].equals("RMSE") || listToken[6].equals("RPS")) {
-          modelName = modelName.split("\\/")[0] + ensValue;
-        }
-
-        //  if the line type load selector is activated, check that the current line type is on the list
-
-        if (listToken[6].equals("RMSE")) {
-          d._strLineType = "CNT";
-        } else if (listToken[6].equals("BSS")) {
-          d._strLineType = "PSTD";
-        } else if (listToken[6].equals("HIST")) {
-          d._strLineType = "RHIST";
-        } else if (listToken[6].equals("SL1L2")) {
-          d._strLineType = "SL1L2";
-        } else if (listToken[6].equals("SAL1L2")) {
-          d._strLineType = "SAL1L2";
-        } else if (listToken[6].equals("VL1L2")) {
-          d._strLineType = "VL1L2";
-        } else if (listToken[6].equals("VAL1L2")) {
-          d._strLineType = "VAL1L2";
-        } else if (listToken[6].equals("RPS")) {
-          d._strLineType = "ENSCNT";
-        } else if (listToken[6].equals("HTFR")) {
-          d._strLineType = "PCT";
-        } else if (listToken[6].startsWith("FHO")) {
-          d._strLineType = "CTC";
-          String[] threshArr = listToken[6].split("FHO");
-          if (threshArr.length > 1) {
-            thresh = threshArr[1];
+          List<String> allMatches = new ArrayList<>();
+          while (m.find()) {
+            allMatches.add(m.group());
           }
-        } else {
-          continue;
-        }
-        if (_boolLineTypeLoad && !_tableLineTypeLoad.containsKey(d._strLineType)) {
-          continue;
-        }
+          for (String match : allMatches) {
+            String newStr = match.replace("-", " -");
+            line = line.replace(match, newStr);
+          }
 
-        d._strFileLine = strFilename + ":" + intLine;
+          String[] listToken = line.split("\\s+");
+          intLine++;
+          String thresh = "NA";
+          String modelName = listToken[1];
 
-        //  parse the valid times
+          if (listToken[6].equals("BSS") || listToken[6].equals("ECON") || listToken[6].equals("HIST") || listToken[6].equals("HTFR")
+            || listToken[6].equals("RELI") || listToken[6].equals("RELP") || listToken[6].equals("RMSE") || listToken[6].equals("RPS")) {
+            modelName = modelName.split("\\/")[0] + ensValue;
+          }
 
-        java.util.Date dateFcstValidBeg = _formatStatVsdb.parse(listToken[3]);
+          //  if the line type load selector is activated, check that the current line type is on the list
 
-        //  format the valid times for the database insert
-        String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
+          if (listToken[6].equals("RMSE")) {
+            d._strLineType = "CNT";
+          } else if (listToken[6].equals("BSS")) {
+            d._strLineType = "PSTD";
+          } else if (listToken[6].equals("HIST")) {
+            d._strLineType = "RHIST";
+          } else if (listToken[6].equals("SL1L2")) {
+            d._strLineType = "SL1L2";
+          } else if (listToken[6].equals("SAL1L2")) {
+            d._strLineType = "SAL1L2";
+          } else if (listToken[6].equals("VL1L2")) {
+            d._strLineType = "VL1L2";
+          } else if (listToken[6].equals("VAL1L2")) {
+            d._strLineType = "VAL1L2";
+          } else if (listToken[6].equals("RPS")) {
+            d._strLineType = "ENSCNT";
+          } else if (listToken[6].equals("HTFR")) {
+            d._strLineType = "PCT";
+          } else if (listToken[6].startsWith("FHO")) {
+            d._strLineType = "CTC";
+            String[] threshArr = listToken[6].split("FHO");
+            if (threshArr.length > 1) {
+              thresh = threshArr[1];
+            }
+          } else {
+            continue;
+          }
+          if (_boolLineTypeLoad && !_tableLineTypeLoad.containsKey(d._strLineType)) {
+            continue;
+          }
+
+          d._strFileLine = strFilename + ":" + intLine;
+
+          //  parse the valid times
+
+          java.util.Date dateFcstValidBeg = _formatStatVsdb.parse(listToken[3]);
+
+          //  format the valid times for the database insert
+          String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
 
 
-        //  calculate the number of seconds corresponding to fcst_lead
-        String strFcstLead = listToken[2];
-        int intFcstLeadSec = Integer.parseInt(strFcstLead) * 3600;
+          //  calculate the number of seconds corresponding to fcst_lead
+          String strFcstLead = listToken[2];
+          int intFcstLeadSec = Integer.parseInt(strFcstLead) * 3600;
 
-        //  determine the init time by combining fcst_valid_beg and fcst_lead
-        Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calFcstInitBeg.setTime(dateFcstValidBeg);
-        calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
-        java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
-        String strObsValidBeg = _formatDB.format(dateFcstValidBeg);
-        String strFcstValidEnd = _formatDB.format(dateFcstValidBeg);
-        String strObsValidEnd = _formatDB.format(dateFcstValidBeg);
+          //  determine the init time by combining fcst_valid_beg and fcst_lead
+          Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+          calFcstInitBeg.setTime(dateFcstValidBeg);
+          calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
+          java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
+          String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
+          String strObsValidBeg = _formatDB.format(dateFcstValidBeg);
+          String strFcstValidEnd = _formatDB.format(dateFcstValidBeg);
+          String strObsValidEnd = _formatDB.format(dateFcstValidBeg);
 
-        //  ensure that the interp_pnts field value is a reasonable integer
-        String strInterpPnts = "0";
+          //  ensure that the interp_pnts field value is a reasonable integer
+          String strInterpPnts = "0";
 
-        String strLineType = d._strLineType;
+          String strLineType = d._strLineType;
 
 
 
 			/*
        * * * *  stat_header insert  * * * *
 			 */
-        intStatHeaderRecords++;
+          intStatHeaderRecords++;
 
-        //  build the stat_header value list for this line
-        String[] listStatHeaderValue = {
-          listToken[0],    //  version
-          modelName,    //  model
-          listToken[7],    //  fcst_var
-          listToken[8],    //  fcst_lev
-          listToken[7],    //  obs_var
-          listToken[8],    //  obs_lev
-          listToken[4],    //  obtype
-          listToken[5],    //  vx_mask
-          "NA",    //  interp_mthd
-          strInterpPnts,    //  interp_pnts
-          thresh,    //  fcst_thresh
-          thresh    //  obs_thresh
-        };
+          //  build the stat_header value list for this line
+          String[] listStatHeaderValue = {
+            listToken[0],    //  version
+            modelName,    //  model
+            listToken[7],    //  fcst_var
+            listToken[8],    //  fcst_lev
+            listToken[7],    //  obs_var
+            listToken[8],    //  obs_lev
+            listToken[4],    //  obtype
+            listToken[5],    //  vx_mask
+            "NA",    //  interp_mthd
+            strInterpPnts,    //  interp_pnts
+            thresh,    //  fcst_thresh
+            thresh    //  obs_thresh
+          };
 
-        //  build a where clause for searching for duplicate stat_header records
-        String strStatHeaderWhereClause =
-          "  model = '" + modelName + "'\n" +
-            "  AND fcst_var = '" + listToken[7] + "'\n" +
-            "  AND fcst_lev = '" + listToken[8] + "'\n" +
-            "  AND obtype = '" + listToken[4] + "'\n" +
-            "  AND vx_mask = '" + listToken[5] + "'\n" +
-            "  AND interp_mthd = '" + "NA" + "'\n" +
-            "  AND interp_pnts = " + strInterpPnts + "\n" +
-            "  AND fcst_thresh = '" + thresh + "'\n" +
-            "  AND obs_thresh = '" + thresh + "'";
+          //  build a where clause for searching for duplicate stat_header records
+          String strStatHeaderWhereClause =
+            "  model = '" + modelName + "'\n" +
+              "  AND fcst_var = '" + listToken[7] + "'\n" +
+              "  AND fcst_lev = '" + listToken[8] + "'\n" +
+              "  AND obtype = '" + listToken[4] + "'\n" +
+              "  AND vx_mask = '" + listToken[5] + "'\n" +
+              "  AND interp_mthd = '" + "NA" + "'\n" +
+              "  AND interp_pnts = " + strInterpPnts + "\n" +
+              "  AND fcst_thresh = '" + thresh + "'\n" +
+              "  AND obs_thresh = '" + thresh + "'";
 
-        //  build the value list for the stat_header insert
-        String strStatHeaderValueList = "";
-        for (int i = 0; i < listStatHeaderValue.length; i++) {
-          strStatHeaderValueList += (0 < i ? ", " : "") + "'" + listStatHeaderValue[i] + "'";
-        }
+          //  build the value list for the stat_header insert
+          String strStatHeaderValueList = "";
+          for (int i = 0; i < listStatHeaderValue.length; i++) {
+            strStatHeaderValueList += (0 < i ? ", " : "") + "'" + listStatHeaderValue[i] + "'";
+          }
 
 
-        String strFileLine = strFilename + ":" + intLine;
+          String strFileLine = strFilename + ":" + intLine;
 
-        //  look for the header key in the table
-        int intStatHeaderId = -1;
-        if (_tableStatHeaders.containsKey(strStatHeaderValueList)) {
-          intStatHeaderId = (Integer) _tableStatHeaders.get(strStatHeaderValueList);
-        }
+          //  look for the header key in the table
+          int intStatHeaderId = -1;
+          if (_tableStatHeaders.containsKey(strStatHeaderValueList)) {
+            intStatHeaderId = (Integer) _tableStatHeaders.get(strStatHeaderValueList);
+          }
 
-        //  if the stat_header does not yet exist, create one
-        else {
+          //  if the stat_header does not yet exist, create one
+          else {
 
-          //  look for an existing stat_header record with the same information
-          boolean boolFoundStatHeader = false;
-          long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
-          if (_boolStatHeaderDBCheck) {
-            String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-            Connection con = null;
-            Statement stmt = null;
-            ResultSet res = null;
-            try {
-              con = connectionPool.getConnection();
-              stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-              res = stmt.executeQuery(strStatHeaderSelect);
-              if (res.next()) {
-                String strStatHeaderIdDup = res.getString(1);
-                intStatHeaderId = Integer.parseInt(strStatHeaderIdDup);
-                boolFoundStatHeader = true;
+            //  look for an existing stat_header record with the same information
+            boolean boolFoundStatHeader = false;
+            long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
+            if (_boolStatHeaderDBCheck) {
+              String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
+              Connection con = null;
+              Statement stmt = null;
+              ResultSet res = null;
+              try {
+                con = connectionPool.getConnection();
+                stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+                res = stmt.executeQuery(strStatHeaderSelect);
+                if (res.next()) {
+                  String strStatHeaderIdDup = res.getString(1);
+                  intStatHeaderId = Integer.parseInt(strStatHeaderIdDup);
+                  boolFoundStatHeader = true;
+                }
+              } catch (Exception e) {
+                System.out.println(e.getMessage());
+              } finally {
+                try {
+                  res.close();
+                } catch (Exception e) { /* ignored */ }
+                try {
+                  stmt.close();
+                } catch (Exception e) { /* ignored */ }
+                try {
+                  con.close();
+                } catch (Exception e) { /* ignored */ }
               }
-            } catch (Exception e) {
-              System.out.println(e.getMessage());
-            } finally {
-              try {
-                res.close();
-              } catch (Exception e) { /* ignored */ }
-              try {
-                stmt.close();
-              } catch (Exception e) { /* ignored */ }
-              try {
-                con.close();
-              } catch (Exception e) { /* ignored */ }
+            }
+            intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
+            _intStatHeaderSearchTime += intStatHeaderSearchTime;
+
+            //  if the stat_header was not found, add it to the table
+            if (!boolFoundStatHeader) {
+
+              intStatHeaderId = intStatHeaderIdNext++;
+              _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
+
+              //  build an insert statement for the mode header
+              strStatHeaderValueList = "" +
+                intStatHeaderId + ", " +        //  stat_header_id
+                strStatHeaderValueList;
+
+              //  insert the record into the stat_header database table
+              String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
+
+              int intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
+              if (1 != intStatHeaderInsert) {
+                System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
+              }
+              intStatHeaderInserts++;
+            } else {
+              _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
             }
           }
-          intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
-          _intStatHeaderSearchTime += intStatHeaderSearchTime;
-
-          //  if the stat_header was not found, add it to the table
-          if (!boolFoundStatHeader) {
-
-            intStatHeaderId = intStatHeaderIdNext++;
-            _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
-
-            //  build an insert statement for the mode header
-            strStatHeaderValueList = "" +
-              intStatHeaderId + ", " +        //  stat_header_id
-              strStatHeaderValueList;
-
-            //  insert the record into the stat_header database table
-            String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
-
-            int intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
-            if (1 != intStatHeaderInsert) {
-              System.out.println("  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
-            }
-            intStatHeaderInserts++;
-          } else {
-            _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
-          }
-        }
 
 
 			/*
        * * * *  line_data insert  * * * *
 			 */
 
-        //
-        String strLineDataId = "";
-        intLineDataRecords++;
+          //
+          String strLineDataId = "";
+          intLineDataRecords++;
 
-        //  if the line type is of variable length, get the line_data_id
-        boolean boolHasVarLengthGroups = _tableVarLengthGroupIndices.containsKey(d._strLineType);
+          //  if the line type is of variable length, get the line_data_id
+          boolean boolHasVarLengthGroups = _tableVarLengthGroupIndices.containsKey(d._strLineType);
 
-        //  determine the maximum token index for the data
-        if (boolHasVarLengthGroups) {
-          int intLineDataId =  _tableVarLengthLineDataId.get(strLineType);
-          strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
-          _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
-        }
-
-        //  build the value list for the insert statment
-        String strLineDataValueList = "" +
-          strLineDataId +            //  line_data_id (if present)
-          intStatHeaderId + ", " +      //  stat_header_id
-          info._dataFileId + ", " +      //  data_file_id
-          intLine + ", " +          //  line_num
-          strFcstLead + ", " +        //  fcst_lead
-          "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
-          "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
-          "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
-          "000000" + ", " +        //  obs_lead
-          "'" + strObsValidBeg + "', " +    //  obs_valid_beg
-          "'" + strObsValidEnd + "'";      //  obs_valid_end
-
-        //  if the line data requires a cov_thresh value, add it
-        String strCovThresh = "NA";
-        if (_tableCovThreshLineTypes.containsKey(d._strLineType)) {
-          if (strCovThresh.equals("NA")) {
-            System.out.println("  **  WARNING: cov_thresh value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
+          //  determine the maximum token index for the data
+          if (boolHasVarLengthGroups) {
+            int intLineDataId = _tableVarLengthLineDataId.get(strLineType);
+            strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
+            _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           }
-          strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
-        }
 
-        //  if the line data requires an alpha value, add it
-        String strAlpha = "-9999";
-        if (_tableAlphaLineTypes.containsKey(d._strLineType)) {
-          if (strAlpha.equals("NA")) {
-            System.out.println("  **  WARNING: alpha value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
-          }
-          strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
-        }
+          //  build the value list for the insert statment
+          String strLineDataValueList = "" +
+            strLineDataId +            //  line_data_id (if present)
+            intStatHeaderId + ", " +      //  stat_header_id
+            info._dataFileId + ", " +      //  data_file_id
+            intLine + ", " +          //  line_num
+            strFcstLead + ", " +        //  fcst_lead
+            "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
+            "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
+            "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
+            "000000" + ", " +        //  obs_lead
+            "'" + strObsValidBeg + "', " +    //  obs_valid_beg
+            "'" + strObsValidEnd + "'";      //  obs_valid_end
 
-        if (listToken[6].equals("RMSE")) {//CNT line type
-          for (int i = 0; i < 89; i++) {
-            if (i == 53) {
-              strLineDataValueList += ", '" + listToken[10] + "'";
-            } else if (i == 31) {
-              strLineDataValueList += ", '" + listToken[11] + "'";
-            } else if (i == 36) {
-              strLineDataValueList += ", '" + listToken[9] + "'";
-            } else if (i == 44) {
-              strLineDataValueList += ", '" + listToken[12] + "'";
-            } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
-              strLineDataValueList += ", '0'";
-            } else if (i == 77) {
-
-            } else {
-              strLineDataValueList += ", '-9999'";
+          //  if the line data requires a cov_thresh value, add it
+          String strCovThresh = "NA";
+          if (_tableCovThreshLineTypes.containsKey(d._strLineType)) {
+            if (strCovThresh.equals("NA")) {
+              System.out.println("  **  WARNING: cov_thresh value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
             }
+            strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
           }
-        }
 
+          //  if the line data requires an alpha value, add it
+          String strAlpha = "-9999";
+          if (_tableAlphaLineTypes.containsKey(d._strLineType)) {
+            if (strAlpha.equals("NA")) {
+              System.out.println("  **  WARNING: alpha value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
+            }
+            strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
+          }
 
-        if (listToken[6].equals("BSS")) {//PSTD line type
-          for (int i = 0; i < 16; i++) {
-            switch (i) {
-              case 0:
-              case 1:
+          if (listToken[6].equals("RMSE")) {//CNT line type
+            for (int i = 0; i < 89; i++) {
+              if (i == 53) {
+                strLineDataValueList += ", '" + listToken[10] + "'";
+              } else if (i == 31) {
+                strLineDataValueList += ", '" + listToken[11] + "'";
+              } else if (i == 36) {
+                strLineDataValueList += ", '" + listToken[9] + "'";
+              } else if (i == 44) {
+                strLineDataValueList += ", '" + listToken[12] + "'";
+              } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
                 strLineDataValueList += ", '0'";
-                break;
-              case 2:
-              case 3:
-              case 8:
-              case 10:
-              case 11:
-              case 4:
-              case 13:
-              case 14:
-                strLineDataValueList += ", '-9999'";
-                break;
-              case 5:
-                strLineDataValueList += ", '" + listToken[12] + "'";
-                break;
-              case 6:
-                strLineDataValueList += ", '" + listToken[13] + "'";
-                break;
-              case 7:
-                strLineDataValueList += ", '" + listToken[14] + "'";
-                break;
-              case 9:
-                strLineDataValueList += ", '" + listToken[9] + "'";
-                break;
-              case 12:
-                strLineDataValueList += ", '" + listToken[10] + "'";
-                break;
-              case 15:
-                strLineDataValueList += ", '" + listToken[11] + "'";
-                break;
-            }
+              } else if (i == 77) {
 
-          }
-        }
-
-        if (listToken[6].equals("RPS")) {//ENSCNT line type
-          for (int i = 0; i < 30; i++) {
-            switch (i) {
-              case 0:
-                strLineDataValueList += ", '" + listToken[9] + "'";
-                break;
-              case 1:
-              case 2:
-              case 3:
-              case 4:
-                strLineDataValueList += ", '-9999'";
-                break;
-              case 5:
-                strLineDataValueList += ", '" + listToken[10] + "'";
-                break;
-              case 6:
-              case 7:
-              case 8:
-              case 9:
-                strLineDataValueList += ", '-9999'";
-                break;
-              case 10:
-                strLineDataValueList += ", '" + listToken[11] + "'";
-                break;
-              case 11:
-              case 12:
-              case 13:
-              case 14:
-                strLineDataValueList += ", '-9999'";
-                break;
-              case 15:
-                strLineDataValueList += ", '" + listToken[12] + "'";
-                break;
-              case 16:
-              case 17:
-              case 18:
-              case 19:
-                strLineDataValueList += ", '-9999'";
-                break;
-              case 20:
-                strLineDataValueList += ", '" + listToken[13] + "'";
-                break;
-              case 21:
-              case 22:
-              case 23:
-              case 24:
-                strLineDataValueList += ", '-9999'";
-                break;
-              case 25:
-                strLineDataValueList += ", '" + listToken[14] + "'";
-                break;
-              case 26:
-              case 27:
-              case 28:
-              case 29:
-                strLineDataValueList += ", '-9999'";
-                break;
-
-            }
-          }
-
-        }
-
-        if (listToken[6].equals("HIST")) {//RHIST line type
-          for (int i = 0; i < 5; i++) {
-            if (i == 3) {
-              int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-              strLineDataValueList += ", '" + intGroupSize + "'";
-            } else if (i == 0) {//total
-              strLineDataValueList += ", '0'";
-            } else {
-              strLineDataValueList += ", '-9999'";
-            }
-          }
-        }
-        if (listToken[6].equals("HTFR")) {//PCT line type
-          int total = Integer.parseInt(listToken[1].split("\\/")[1]);
-          strLineDataValueList += ", " + total + ", " + (total + 1);
-        }
-
-        if (listToken[6].equals("SL1L2") || listToken[6].equals("SAL1L2")) {//SL1L2,SAL1L2 line types
-          for (int i = 0; i < 7; i++) {
-            if (i + 9 < listToken.length) {
-              if (i == 0) {
-                strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9])).intValue() + "'";
               } else {
-                strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                strLineDataValueList += ", '-9999'";
+              }
+            }
+          }
+
+
+          if (listToken[6].equals("BSS")) {//PSTD line type
+            for (int i = 0; i < 16; i++) {
+              switch (i) {
+                case 0:
+                case 1:
+                  strLineDataValueList += ", '0'";
+                  break;
+                case 2:
+                case 3:
+                case 8:
+                case 10:
+                case 11:
+                case 4:
+                case 13:
+                case 14:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+                case 5:
+                  strLineDataValueList += ", '" + listToken[12] + "'";
+                  break;
+                case 6:
+                  strLineDataValueList += ", '" + listToken[13] + "'";
+                  break;
+                case 7:
+                  strLineDataValueList += ", '" + listToken[14] + "'";
+                  break;
+                case 9:
+                  strLineDataValueList += ", '" + listToken[9] + "'";
+                  break;
+                case 12:
+                  strLineDataValueList += ", '" + listToken[10] + "'";
+                  break;
+                case 15:
+                  strLineDataValueList += ", '" + listToken[11] + "'";
+                  break;
               }
 
-            } else {
-              strLineDataValueList += ", '-9999'";
             }
           }
-        }
-        if (listToken[6].equals("VL1L2") || listToken[6].equals("VAL1L2")) {//VL1L2,VAL1L2 line type
-          for (int i = 0; i < 8; i++) {
-            if (i + 9 < listToken.length) {
-              if (i == 0) {
-                strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9])).intValue() + "'";
-              } else {
-                strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+
+          if (listToken[6].equals("RPS")) {//ENSCNT line type
+            for (int i = 0; i < 30; i++) {
+              switch (i) {
+                case 0:
+                  strLineDataValueList += ", '" + listToken[9] + "'";
+                  break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+                case 5:
+                  strLineDataValueList += ", '" + listToken[10] + "'";
+                  break;
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+                case 10:
+                  strLineDataValueList += ", '" + listToken[11] + "'";
+                  break;
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+                case 15:
+                  strLineDataValueList += ", '" + listToken[12] + "'";
+                  break;
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+                case 20:
+                  strLineDataValueList += ", '" + listToken[13] + "'";
+                  break;
+                case 21:
+                case 22:
+                case 23:
+                case 24:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+                case 25:
+                  strLineDataValueList += ", '" + listToken[14] + "'";
+                  break;
+                case 26:
+                case 27:
+                case 28:
+                case 29:
+                  strLineDataValueList += ", '-9999'";
+                  break;
+
               }
+            }
+
+          }
+
+          if (listToken[6].equals("HIST")) {//RHIST line type
+            for (int i = 0; i < 5; i++) {
+              if (i == 3) {
+                int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+                strLineDataValueList += ", '" + intGroupSize + "'";
+              } else if (i == 0) {//total
+                strLineDataValueList += ", '0'";
+              } else {
+                strLineDataValueList += ", '-9999'";
+              }
+            }
+          }
+          if (listToken[6].equals("HTFR")) {//PCT line type
+            int total = Integer.parseInt(listToken[1].split("\\/")[1]);
+            strLineDataValueList += ", " + total + ", " + (total + 1);
+          }
+
+          if (listToken[6].equals("SL1L2") || listToken[6].equals("SAL1L2")) {//SL1L2,SAL1L2 line types
+            for (int i = 0; i < 7; i++) {
+              if (i + 9 < listToken.length) {
+                if (i == 0) {
+                  strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9])).intValue() + "'";
+                } else {
+                  strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                }
+
+              } else {
+                strLineDataValueList += ", '-9999'";
+              }
+            }
+          }
+          if (listToken[6].equals("VL1L2") || listToken[6].equals("VAL1L2")) {//VL1L2,VAL1L2 line type
+            for (int i = 0; i < 8; i++) {
+              if (i + 9 < listToken.length) {
+                if (i == 0) {
+                  strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9])).intValue() + "'";
+                } else {
+                  strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                }
+              } else {
+                strLineDataValueList += ", '-9999'";
+              }
+
+            }
+          }
+          if (listToken[6].startsWith("FHO")) {//CTC line type
+
+            double total = Double.parseDouble(listToken[9]);
+            double f_rate = Double.parseDouble(listToken[10]);
+            double h_rate = Double.parseDouble(listToken[11]);
+            double o_rate;
+            if (listToken.length > 12) {
+              o_rate = Double.valueOf(listToken[12]);
             } else {
-              strLineDataValueList += ", '-9999'";
+              o_rate = 0;
+              System.out.println("Error");
             }
 
-          }
-        }
-        if (listToken[6].startsWith("FHO")) {//CTC line type
-
-          double total = Double.parseDouble(listToken[9]);
-          double f_rate = Double.parseDouble(listToken[10]);
-          double h_rate = Double.parseDouble(listToken[11]);
-          double o_rate;
-          if (listToken.length > 12) {
-            o_rate = Double.valueOf(listToken[12]);
-          } else {
-            o_rate = 0;
-            System.out.println("Error");
-          }
-
-          double fy = total * f_rate;
-          double fy_oy = total * h_rate;
-          double oy = total * o_rate;
-          double fy_on = fy - fy_oy;
-          double fn_oy = oy - fy_oy;
-          double fn_on = total - fy - oy + fy_oy;
+            double fy = total * f_rate;
+            double fy_oy = total * h_rate;
+            double oy = total * o_rate;
+            double fy_on = fy - fy_oy;
+            double fn_oy = oy - fy_oy;
+            double fn_on = total - fy - oy + fy_oy;
 
 
-          for (int i = 0; i < 5; i++) {
-            if (i == 4) {
-              strLineDataValueList += ", '" + Math.max(0, fn_on) + "'";
-            } else if (i == 3) {
-              strLineDataValueList += ", '" + Math.max(0, fn_oy) + "'";
-            } else if (i == 2) {
-              strLineDataValueList += ", '" + Math.max(0, fy_on) + "'";
-            } else if (i == 1) {
-              strLineDataValueList += ", '" + Math.max(0, fy_oy) + "'";
-            } else if (i == 0) {//total,
-              strLineDataValueList += ", '" + listToken[9] + "'";
+            for (int i = 0; i < 5; i++) {
+              if (i == 4) {
+                strLineDataValueList += ", '" + Math.max(0, fn_on) + "'";
+              } else if (i == 3) {
+                strLineDataValueList += ", '" + Math.max(0, fn_oy) + "'";
+              } else if (i == 2) {
+                strLineDataValueList += ", '" + Math.max(0, fy_on) + "'";
+              } else if (i == 1) {
+                strLineDataValueList += ", '" + Math.max(0, fy_oy) + "'";
+              } else if (i == 0) {//total,
+                strLineDataValueList += ", '" + listToken[9] + "'";
+              }
+
             }
-
           }
-        }
 
 
-        //  add the values list to the line type values map
-        List<String> listLineTypeValues = new ArrayList<>();
-        if (d._tableLineDataValues.containsKey(d._strLineType)) {
-          listLineTypeValues = d._tableLineDataValues.get(d._strLineType);
-        }
-        listLineTypeValues.add("(" + strLineDataValueList + ")");
-        d._tableLineDataValues.put(d._strLineType, listLineTypeValues);
-        intLineDataInserts++;
+          //  add the values list to the line type values map
+          List<String> listLineTypeValues = new ArrayList<>();
+          if (d._tableLineDataValues.containsKey(d._strLineType)) {
+            listLineTypeValues = d._tableLineDataValues.get(d._strLineType);
+          }
+          listLineTypeValues.add("(" + strLineDataValueList + ")");
+          d._tableLineDataValues.put(d._strLineType, listLineTypeValues);
+          intLineDataInserts++;
 
 
 			/*
        * * * *  var_length insert  * * * *
 			 */
 
-        if (boolHasVarLengthGroups) {
-          //  get the index information about the current line type
-          int intGroupIndex = 0;
-          int intGroupSize = 0;
-          int intNumGroups = 0;
+          if (boolHasVarLengthGroups) {
+            //  get the index information about the current line type
+            int intGroupIndex = 0;
+            int intGroupSize = 0;
+            int intNumGroups = 0;
 
-          if (listToken[6].equals("HIST")) {//RHIST line type)
-            intGroupIndex = 9;
-            try {
-              intNumGroups = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-            } catch (Exception e) {
-              intNumGroups = 0;
+            if (listToken[6].equals("HIST")) {//RHIST line type)
+              intGroupIndex = 9;
+              try {
+                intNumGroups = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+              } catch (Exception e) {
+                intNumGroups = 0;
+              }
+              intGroupSize = 1;
+            } else if (listToken[6].equals("HTFR")) {//PCT line type)
+              intGroupIndex = 9;
+              try {
+                intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+              } catch (Exception e) {
+                intGroupSize = 0;
+              }
+              intNumGroups = 2;
             }
-            intGroupSize = 1;
-          } else if (listToken[6].equals("HTFR")) {//PCT line type)
-            intGroupIndex = 9;
-            try {
-              intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-            } catch (Exception e) {
-              intGroupSize = 0;
+
+            List<String> listThreshValues = d._tableVarLengthValues.get(d._strLineType);
+            if (null == listThreshValues) {
+              listThreshValues = new ArrayList<>();
             }
-            intNumGroups = 2;
-          }
 
-          List<String> listThreshValues = d._tableVarLengthValues.get(d._strLineType);
-          if (null == listThreshValues) {
-            listThreshValues = new ArrayList<>();
-          }
+            //  build a insert value statement for each threshold group
+            if (listToken[6].equals("HIST")) {
+              for (int i = 0; i < intNumGroups; i++) {
+                StringBuilder strThreshValues = new StringBuilder("(");
+                strThreshValues.append(strLineDataId).append(i + 1);
+                for (int j = 0; j < intGroupSize; j++) {
+                  double res = Double.parseDouble(listToken[intGroupIndex++]);
+                  if (res != -9999) {
+                    strThreshValues.append(", ").append(res * 100);
+                  }
 
-          //  build a insert value statement for each threshold group
-          if (listToken[6].equals("HIST")) {
-            for (int i = 0; i < intNumGroups; i++) {
-              StringBuilder strThreshValues = new StringBuilder("(");
-              strThreshValues.append(strLineDataId).append(i + 1);
-              for (int j = 0; j < intGroupSize; j++) {
-                double res = Double.parseDouble(listToken[intGroupIndex++]);
-                if (res != -9999) {
-                  strThreshValues.append(", ").append(res * 100);
                 }
+                strThreshValues.append(")");
+                listThreshValues.add(strThreshValues.toString());
+                intVarLengthRecords++;
+              }
+            } else if (listToken[6].equals("HTFR")) {
+              for (int i = 0; i < intGroupSize; i++) {
 
+                double thresh_i;
+                if (intGroupSize > 1) {
+                  thresh_i = i / (intGroupSize - 1);
+                } else {
+                  thresh_i = 0;
+                }
+                String strThreshValues = "(" + strLineDataId + (i + 1) + "," + thresh_i;
+                for (int j = 0; j < intNumGroups; j++) {
+                  strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex + j * intGroupSize]);
+                }
+                intGroupIndex++;
+                strThreshValues += ")";
+                listThreshValues.add(strThreshValues);
+                intVarLengthRecords++;
               }
-              strThreshValues.append(")");
-              listThreshValues.add(strThreshValues.toString());
-              intVarLengthRecords++;
             }
-          } else if (listToken[6].equals("HTFR")) {
-            for (int i = 0; i < intGroupSize; i++) {
 
-              double thresh_i;
-              if (intGroupSize > 1) {
-                thresh_i = i / (intGroupSize - 1);
-              } else {
-                thresh_i = 0;
-              }
-              String strThreshValues = "(" + strLineDataId + (i + 1) + "," + thresh_i;
-              for (int j = 0; j < intNumGroups; j++) {
-                strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex + j * intGroupSize]);
-              }
-              intGroupIndex++;
-              strThreshValues += ")";
-              listThreshValues.add(strThreshValues);
-              intVarLengthRecords++;
-            }
+            d._tableVarLengthValues.put(d._strLineType, listThreshValues);
           }
 
-          d._tableVarLengthValues.put(d._strLineType, listThreshValues);
+          //  if the insert threshhold has been reached, commit the stored data to the database
+          if (_intInsertSize <= d._listInsertValues.size()) {
+            int[] listInserts = commitStatData(d);
+            intLineDataInserts += listInserts[INDEX_LINE_DATA];
+            intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
+          }
+        } catch (Exception e) {
+          System.out.println("ERROR: line:" + line + "has errors and would be ignored.");
+          System.out.println(e.getMessage());
         }
-
-        //  if the insert threshhold has been reached, commit the stored data to the database
-        if (_intInsertSize <= d._listInsertValues.size()) {
-          int[] listInserts = commitStatData(d);
-          intLineDataInserts += listInserts[INDEX_LINE_DATA];
-          intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
-        }
-
       }  // end: while( reader.ready() )
       fileReader.close();
       reader.close();
@@ -1114,7 +1118,7 @@ public class MVLoad extends MVUtil {
     int intLine = 0;
     try (
       FileReader fileReader = new FileReader(strFilename);
-      BufferedReader reader = new BufferedReader(fileReader)){
+      BufferedReader reader = new BufferedReader(fileReader)) {
       //  read in each line of the input file
       while (reader.ready()) {
         String[] listToken = reader.readLine().split("\\s+");
@@ -1137,7 +1141,7 @@ public class MVLoad extends MVUtil {
         //  if the line type load selector is activated, check that the current line type is on the list
         d._strLineType = listToken[20];
         if (_boolLineTypeLoad && !_tableLineTypeLoad.containsKey(d._strLineType)) {
-            continue;
+          continue;
         }
 
         d._strFileLine = strFilename + ":" + intLine;
@@ -1309,7 +1313,7 @@ public class MVLoad extends MVUtil {
 
         //  determine the maximum token index for the data
         if (boolHasVarLengthGroups) {
-          int intLineDataId =  _tableVarLengthLineDataId.get(strLineType);
+          int intLineDataId = _tableVarLengthLineDataId.get(strLineType);
           strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
@@ -1593,7 +1597,7 @@ public class MVLoad extends MVUtil {
     d._listStatGroupInsertValues.clear();
 
 		/*
-		 * * * *  variable length data commit  * * * *
+     * * * *  variable length data commit  * * * *
 		 */
 
     //  insert probabilistic data into the thresh tables
@@ -1651,7 +1655,7 @@ public class MVLoad extends MVUtil {
     int intLine = 1;
     try (
       FileReader fileReader = new FileReader(strFilename);
-      BufferedReader reader = new BufferedReader(fileReader);){
+      BufferedReader reader = new BufferedReader(fileReader);) {
       //  read each line of the input file
       while (reader.ready()) {
         String[] listToken = reader.readLine().split("\\s+");
@@ -1682,7 +1686,7 @@ public class MVLoad extends MVUtil {
 
 
 			/*
-			 * * * *  mode_header insert  * * * *
+       * * * *  mode_header insert  * * * *
 			 */
 
         //  parse the valid times
@@ -2048,7 +2052,7 @@ public class MVLoad extends MVUtil {
     Integer dataFileId = -1;
 
     //check file size and return if it  is 0
-    if(file.length() == 0){
+    if (file.length() == 0) {
       return null;
     }
 
@@ -2208,7 +2212,7 @@ public class MVLoad extends MVUtil {
    */
   public static void initVarLengthLineDataIds() throws Exception {
     _tableVarLengthLineDataId.clear();
-    String[] listVarLengthLines =  _tableVarLengthTable.keySet().toArray(new String[]{});
+    String[] listVarLengthLines = _tableVarLengthTable.keySet().toArray(new String[]{});
     for (int i = 0; i < listVarLengthLines.length; i++) {
       String strVarLengthTable = "line_data_" + listVarLengthLines[i].toLowerCase();
       int intLineDataId = getNextId(strVarLengthTable, "line_data_id");
