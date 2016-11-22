@@ -990,7 +990,9 @@ public class MVPlotJobParser extends MVUtil {
       //  <indep>
       else if (node._tag.equals("indep")) {
         String equalize = node.getAttribute("equalize");
-        job.setEqualizeByIndep(Boolean.valueOf(equalize));
+        if ("true".equalsIgnoreCase(equalize) || "false".equalsIgnoreCase(equalize)) {
+          job.setEqualizeByIndep(Boolean.valueOf(equalize));
+        }
 
         job.setIndyVar(node._name);
         if (!"".equals(node._depends)) {
@@ -1250,11 +1252,15 @@ public class MVPlotJobParser extends MVUtil {
 
       //  <taylor_voc>
       else if (node._tag.equals("taylor_voc")) {
-        job.setTaylorVoc(Boolean.valueOf(node._value));
+        if ("true".equalsIgnoreCase(node._value) || "false".equalsIgnoreCase(node._value)) {
+          job.setTaylorVoc(Boolean.valueOf(node._value));
+        }
       }
       //  <taylor_show_gamma>
       else if (node._tag.equals("taylor_show_gamma")) {
-        job.setTaylorShowGamma(Boolean.valueOf(node._value));
+        if ("true".equalsIgnoreCase(node._value) || "false".equalsIgnoreCase(node._value)) {
+          job.setTaylorShowGamma(Boolean.valueOf(node._value));
+        }
       }
 
       //  <tmpl>

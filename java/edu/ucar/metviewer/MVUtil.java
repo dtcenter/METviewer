@@ -34,7 +34,7 @@ public class MVUtil {
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
   public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
   public static final String PCT = "pct";
-  public static final String NBR_CNT = "nbr_cnt";
+  public static final String NBR_CNT = "nbr_cnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final MVOrderedMap _tableStatsEnscnt = new MVOrderedMap();
   public static final MVOrderedMap _tableStatsMpr = new MVOrderedMap();
@@ -892,7 +892,6 @@ public class MVUtil {
       String strTmplTagName = matTmpl.group(2);
 
       MVOrderedMap mapParms = parseTagParams(strTmplTag);
-      //String strVal = ((String)vals.get(strTmplTagName)).replace(" ", "_");
       if (strTmplTagName.equals("date")) {
         vals.put("date", _formatDate.format(new java.util.Date()));
       }

@@ -547,6 +547,12 @@ public class MVLoad extends MVUtil {
             if (threshArr.length > 1) {
               thresh = threshArr[1];
             }
+          } else if (listToken[6].startsWith("FSS")) {
+            d._strLineType = "NBRCNT";
+            String[] threshArr = listToken[6].split("FSS");
+            if (threshArr.length > 1) {
+              thresh = threshArr[1];
+            }
           } else {
             continue;
           }
@@ -948,6 +954,17 @@ public class MVLoad extends MVUtil {
                 strLineDataValueList += ", '" + listToken[9] + "'";
               }
 
+            }
+          }
+          if (listToken[6].startsWith("FSS")) {//NBRCNT line type
+            for (int i = 0; i < 19; i++) {
+              if (i == 0) {//total,
+                strLineDataValueList += ", " + listToken[9] ;
+              }else if(i == 1){//fbs
+                strLineDataValueList += ", " + listToken[10] ;
+              }else{
+                strLineDataValueList += ", '-9999'";
+              }
             }
           }
 
