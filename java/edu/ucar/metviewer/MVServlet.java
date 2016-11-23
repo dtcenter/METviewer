@@ -258,6 +258,7 @@ public class MVServlet extends HttpServlet {
           tableLineDataTables.put(strLineDataTable, "true");
           if (strLineDataTable.equals("line_data_cnt")) {
             tableLineDataTables.put("line_data_sl1l2", "true");
+            tableLineDataTables.put("line_data_sal1l2", "true");
           } else if (strLineDataTable.equals("line_data_cts")) {
             tableLineDataTables.put("line_data_ctc", "true");
           }
@@ -491,7 +492,9 @@ public class MVServlet extends HttpServlet {
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n";
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n"+
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n";
+    //  "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n";
 
     //this is a query for the VSDB
     /*String strSQL =
@@ -514,6 +517,7 @@ public class MVServlet extends HttpServlet {
           switch (intStatIndex) {
             case 0:
             case 1:
+            case 15:
               if (!boolCnt) {
                 listStatName.addAll(Arrays.asList(MVUtil._tableStatsCnt.getKeyList()));
               }
@@ -542,6 +546,7 @@ public class MVServlet extends HttpServlet {
               listStatName.addAll(Arrays.asList(MVUtil._tableStatsRhist.getKeyList()));
               break;
             case 9:
+            //case 16:
               listStatName.addAll(Arrays.asList(MVUtil._tableStatsVl1l2.getKeyList()));
               break;
             case 10:
@@ -559,6 +564,7 @@ public class MVServlet extends HttpServlet {
             case 14:
               listStatName.addAll(Arrays.asList(MVUtil._tableStatsSsvar.getKeyList()));
               break;
+
           }
         }
         intStatIndex++;
