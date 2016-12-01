@@ -4336,6 +4336,7 @@ function loadXMLRely() {
 
     $("input[name=rely_event_hist][value=true]").prop('checked', rely_event_hist == "TRUE" || rely_event_hist == "true");
     $("input[name=rely_event_hist][value=false]").prop('checked', rely_event_hist == "FALSE" || rely_event_hist == "false");
+    $('#is_hist').buttonset("refresh");
     if (initXML.find("plot").find("summary_curve") && initXML.find("plot").find("summary_curve").children().length > 0) {
         var stats = initXML.find("plot").find("summary_curve").children();
         for (var i = 0; i < stats.length; i++) {
@@ -4370,7 +4371,6 @@ function loadXMLEns() {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
             }
             updateSeriesVarValEns((i + 1), series_var_val);
-
         }
     } else {
         series_var_val = $("#series_var_y1_1").first().val();
@@ -4386,7 +4386,6 @@ function loadXMLEns() {
     $("input[name=ensss_pts_disp][value=false]").prop('checked', ensss_pts_disp == "FALSE" || ensss_pts_disp == "false");
 
     updateSeriesEns();
-
 }
 
 function updatePlotFix() {
