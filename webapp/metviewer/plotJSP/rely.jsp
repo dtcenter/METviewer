@@ -160,6 +160,7 @@
             updateSeriesVarValRhist(1, []);
             updateSeriesRhist();
             $("input[name=rely_event_hist][value=false]").prop('checked', true);
+            $('#is_hist').buttonset("refresh");
         }
 
 
@@ -275,7 +276,7 @@
 
     <div id="is_hist">
         <input type="radio" name="rely_event_hist" value="true"
-               id="true_is_hist" checked/>
+               id="true_is_hist" checked="checked"/>
         <label for="true_is_hist">Yes</label>
 
 
