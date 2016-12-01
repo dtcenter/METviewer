@@ -104,7 +104,7 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
     dfPerm=NA;
     dfPermHist=data.frame(thresh_i=envir$listX, stat_value=rep(0, length(envir$listX)) );
   }
-  if(!envir$isPlotCreated & !is.na(dfPerm)){
+  if( !envir$isPlotCreated & any( !is.na(dfPerm) ) ){
     # create a new plot with no axes
     plot(
       x=listThresh, # series x data
@@ -213,7 +213,7 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
   actualInd = listPlotOrderSeries[intPermVal];
 
   #if do not show or no data - continue to the next
-  if(listPlotDisp[actualInd] & !is.na(dfPerm)){
+  if( listPlotDisp[actualInd] & any( !is.na(dfPerm) ) ){
     # if the event histogram is activated, plot the number of events by threshold on the y2 axis
     if( envir$boolEventHist ){
       dfPermHist = subset(dfPerm, select=c(thresh_i, n_i));
