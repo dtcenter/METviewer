@@ -23,29 +23,27 @@
   ---- Database Scrubbing Done ----<br/>
 </p>
 
-The <span class="term">prune_db_spec_file</span> passed to the prunning module information about the criteria to use for deleting data. It is an XML file whose
-top-level tag is <span class="code">&lt;prune_spec&gt;</prune_spec></span> which contains the following elements, divided into functional sections:
+The <span class="term">prune_db_spec_file</span> passed to the prunning module contains information about the criteria for deleting data. It is an XML file whose
+top-level tag is <span class="code">&lt;prune_spec&gt;</prune_spec></span> which contains the elements described below, divided into functional sections.  The data to be deleted may be specified in one of three ways: as a list of file names, as a list of directories, or as a set of values for various fields in the data.
 
 
 <ul>
   <li><span class="code">&lt;connection&gt;</span> see <a href="common_xml.html">common xml</a></li>
-  <li><span class="code">&lt;info_only&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicates if the information about
-    deletion should be displayed (<span class="code">true</span>) or the actual deletion performed (<span class="code">false</span>)
-  </li>
+  <li><span class="code">&lt;info_only&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicates if the data to be deleted should only be listed (<span class="code">true</span>) or the actual deletion performed (<span class="code">false</span>)</li>
 
   <li>
     <span class="code">&lt;fields&gt;</span>: a list of fields used for pruning
     <ul>
-      <li><span class="code">&lt;value_range&gt;</span> The inclusive range for continues variables like dates
+      <li><span class="code">&lt;value_range&gt;</span> an inclusive range for continuous variables, such as dates
         <ul>
-          <li><span class="code">&lt;start&gt;</span> Beginning of the range
-          <li><span class="code">&lt;end&gt;</span> End of the range
+          <li><span class="code">&lt;start&gt;</span> beginning of the range
+          <li><span class="code">&lt;end&gt;</span> end of the range
         </ul>
       </li>
       OR
-      <li><span class="code">&lt;value_list&gt;</span> The list of values like models
+      <li><span class="code">&lt;value_list&gt;</span> a list of values, such as models
         <ul>
-          <li><span class="code">&lt;value&gt;</span> Single value
+          <li><span class="code">&lt;value&gt;</span> single value
         </ul>
       </li>
     </ul>
@@ -54,7 +52,7 @@ top-level tag is <span class="code">&lt;prune_spec&gt;</prune_spec></span> which
   OR
 
   <li>
-    <span class="code">&lt;files&gt;</span>: a list of files used for pruning
+    <span class="code">&lt;files&gt;</span>: a set of files to be removed
     <ul>
       <li><span class="code">&lt;file&gt;</span> File name
     </ul>
@@ -62,9 +60,9 @@ top-level tag is <span class="code">&lt;prune_spec&gt;</prune_spec></span> which
 
   OR
   <li>
-    <span class="code">&lt;folders&gt;</span>: folders description used for pruning
+    <span class="code">&lt;folders&gt;</span>: a set of directories to be removed
     <ul>
-      <li><span class="code">&lt;folder_tmpl&gt;</span>: a template string describing the file structure of the input MET files, which is populated with values
+      <li><span class="code">&lt;folder_tmpl&gt;</span>: a template string describing the file structure of the MET files, which is populated with values
         specified in the
         <span class="code">&lt;load_val&gt;</span> tag structure
       </li>
@@ -74,8 +72,8 @@ top-level tag is <span class="code">&lt;prune_spec&gt;</prune_spec></span> which
         <span class="code">&lt;load_val&gt;</span>: a tree structure containing values used to populate the <span class="code">&lt;folder_tmpl&gt;</span>
         template
         <ul>
-          <li><span class="code">&lt;field&gt;</span>: a template value, whose name is specified by the attribute name, and whose values are specified by it's
-            chilren
+          <li><span class="code">&lt;field&gt;</span>: a template value, whose name is specified by the attribute name, and whose values are specified by its
+            children
             <span class="code">&lt;val&gt;</span> tags
           </li>
           <ul>
@@ -94,8 +92,9 @@ top-level tag is <span class="code">&lt;prune_spec&gt;</prune_spec></span> which
 </ul>
 
 
-<p><span class="code">Examples:</span></p>
-This configuration will remove data from database 'mv_database' that has model names NAM and GFS, forecast variable APCP_03<br/> and forecast valid dates
+<p><span class="code">Example 1: Prune by describing the data (&ltfields&gt)</span></p>
+
+The following configuration will remove data from database 'mv_database' that has model names NAM and GFS, forecast variable APCP_03<br/> and forecast valid dates
 between 2013-07-05 06:00 and 2013-07-05 18:00:00<br/>
 <p class="code">
   &lt;prune_spec&gt;<br/>
@@ -129,10 +128,15 @@ between 2013-07-05 06:00 and 2013-07-05 18:00:00<br/>
   &lt;/prune_spec&gt;<br/>
 </p>
 
-This configuration will remove data from database 'mv_database' that was loaded from files<br/>
+<p><span class="code">Example 2: Prune by a list of files (&lt;files&gt;) and by a list of directories (&lt;folders&gt;)</span></p>
+
+This configuration will remove data from database 'mv_database' that was loaded from the following files:<br/>
+<p class="term" style="padding-left: 40px">
 /d3/metprd/grid_stat/grid_stat_APCP_03_030000L_20130705_030000V.stat<br/>
-/d3//metprd/mode/mode_APCP_06_180000L_20130705_180000V_060000A_obj.txt<br/>
-and directories<br/>
+/d3/metprd/mode/mode_APCP_06_180000L_20130705_180000V_060000A_obj.txt<br/>
+</p>
+
+And from the following directories:<br/>
 <p class="term" style="padding-left: 40px">
   /d1/data/arw/FULL/2010051914<br/>
   /d1/data/arw/SWC/2010051914<br/>
@@ -142,7 +146,8 @@ and directories<br/>
   /d1/data/arw/SWC/2010051915<br/>
   /d1/data/nmm/FULL/2010051915<br/>
   /d1/data/nmm/SWC/2010051915<br/>
-</p><br/>
+</p>
+
 <p class="code">
   &lt;prune_spec&gt;<br/>
   &nbsp;&nbsp;&lt;connection&gt;<br/>
@@ -154,10 +159,10 @@ and directories<br/>
   &nbsp;&nbsp;&lt;info_only&gt;<span class="term">false</span>&lt;/info_only&gt;<br/>
   <br/>
   &nbsp;&nbsp;&lt;files&gt;<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;file&gt;<span class="term">/d3/metprd/grid_stat/grid_stat_APCP_03_030000L_20130705_030000V.stat</span>&lt;/file &gt;<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;file&gt;<span class="term">/d3/metprd/grid_stat/grid_stat_APCP_03_030000L_20130705_030000V.stat</span>&lt;/file &gt;<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;file&gt;<span class="term">/d3/metprd/grid_stat/grid_stat_APCP_03_030000L_20130705_030000V.stat</span>&lt;/file&gt;<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;file&gt;<span class="term">/d3/metprd/grid_stat/grid_stat_APCP_03_030000L_20130705_030000V.stat</span>&lt;/file&gt;<br/>
 
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/files&gt;<br/>
+  &nbsp;&nbsp;&lt;/files&gt;<br/>
   &nbsp;&nbsp;&lt;folders&gt;<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;date_list name="<span class="term">folder_dates</span>"&gt;<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;start&gt;<span class="term">2010051914</span>&lt;/start&gt;<br/>
