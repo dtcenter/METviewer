@@ -190,19 +190,7 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
       cex.axis=#<ytlab_size>#,# relative axis label magnification
       col="gray" # axis color
     );
-    # specify the y1-axis
-    axis(
-      2, # axis of interest, 1: below, 2: left, 3: above and 4: right
-      at=seq(0,1,.1), # locations of tick marks
-      labels=TRUE, # tick labels on/off
-      tick=TRUE, # tick marks on/off
-      tck=.01, # length of tick marks as a fraction of plot window
-      las=1, # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-      padj=0.5, # axis label perpendicular location adjustment
-      hadj=0.5, # axis label parallel location adjustment
-      cex.axis=1,# relative axis label magnification
-      col="gray" # axis color
-  );
+
 
     # set the axis bounds for y1 plotting
     listY1Usr = par()$usr;
