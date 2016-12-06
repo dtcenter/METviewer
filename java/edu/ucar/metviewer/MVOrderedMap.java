@@ -2,6 +2,7 @@ package edu.ucar.metviewer;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ public class MVOrderedMap extends Hashtable {
   public static final Pattern _patList = Pattern.compile("(?s)list\\((.*)\\)");
   public static final Pattern _patPair = Pattern.compile("(?s)^\\s*([\\w\\d]+)\\s*=\\s*(.*)\\s*$");
   private static final long serialVersionUID = 1L;
-  public final ArrayList _listKeys = new ArrayList();
+  public final List _listKeys = new ArrayList();
 
   /**
    * Default constructor creates an empty map
@@ -44,7 +45,6 @@ public class MVOrderedMap extends Hashtable {
     _listKeys.addAll(copy._listKeys);
     Map.Entry[] listEntries = copy.getOrderedEntriesSeries();
     for (int i = 0; i < listEntries.length; i++) {
-      //putSeries(listEntries[i].getKey(), listEntries[i].getValue(), i);
       super.put(i, listEntries[i].getValue());
     }
   }
@@ -211,11 +211,11 @@ public class MVOrderedMap extends Hashtable {
   }
 
   public Object putStr(Object key, int value) {
-    return put(key, "" + value);
+    return put(key,  Integer.toString(value));
   }
 
   public Object putStr(Object key, double value) {
-    return put(key, "" + value);
+    return put(key, Double.toString( value));
   }
 
   /**

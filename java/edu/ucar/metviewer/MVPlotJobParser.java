@@ -13,9 +13,9 @@ import java.util.*;
 
 public class MVPlotJobParser extends MVUtil {
 
-  protected static final HashMap<String, Method> _tableFormatBoolean = new HashMap<>();
+  protected static final Map<String, Method> _tableFormatBoolean = new HashMap<>();
   private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVPlotJobParser");
-  private static final HashMap<String, Method> _tableFormatString = new HashMap<>();
+  private static final Map<String, Method> _tableFormatString = new HashMap<>();
 
   static {
     try {
@@ -139,14 +139,13 @@ public class MVPlotJobParser extends MVUtil {
   }
 
   protected final MVOrderedMap _mapJobs = new MVOrderedMap();
-  protected final Hashtable _tableDateListDecl = new Hashtable();
-  protected final Hashtable _tableDateRangeDecl = new Hashtable();
-  protected final Hashtable _tableDateRangeListDecl = new Hashtable();
-  protected final Hashtable _tablePlotDecl = new Hashtable();
-  protected final Hashtable _tablePlotNode = new Hashtable();
+  protected final Map _tableDateListDecl = new HashMap<>();
+  protected final Map _tableDateRangeDecl = new HashMap<>();
+  protected final Map _tableDateRangeListDecl = new HashMap<>();
+  protected final Map _tablePlotDecl = new HashMap<>();
+  protected final Map _tablePlotNode = new HashMap<>();
   protected Document _doc = null;
   protected MVPlotJob[] _listJobs = {};
-  protected Hashtable _tableTmplVal = new Hashtable();
   protected MVNode _nodePlotSpec = null;
   protected Connection _con = null;
   protected String _strRscript = "Rscript";
@@ -163,6 +162,7 @@ public class MVPlotJobParser extends MVUtil {
    * @param con  Optional database connection to use in absense of plot_spec &lt;connection&gt;
    */
   public MVPlotJobParser(String spec, Connection con) throws Exception {
+    super();
     _con = con;
     DocumentBuilder builder = getDocumentBuilder();
     //  parse the input document and build the MVNode data structure
@@ -183,6 +183,7 @@ public class MVPlotJobParser extends MVUtil {
    * @param con Database connection for the plot data
    */
   public MVPlotJobParser(InputStream in, Connection con) throws Exception {
+    super();
     _con = con;
     DocumentBuilder builder = getDocumentBuilder();
 
@@ -198,6 +199,7 @@ public class MVPlotJobParser extends MVUtil {
    * @param node plot_spec MVNode to parse
    */
   public MVPlotJobParser(MVNode node, Connection con) throws Exception {
+    super();
     _con = con;
     _nodePlotSpec = node;
     parsePlotJobSpec();
@@ -290,7 +292,9 @@ public class MVPlotJobParser extends MVUtil {
   public static String parseDateRange(MVNode nodeDateRange) {
     String strStart = "";
     String strEnd = "";
-    String strFormat = _formatDB.toPattern();
+    SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                   formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+    String strFormat = formatDB.toPattern();
     for (int j = 0; j < nodeDateRange._children.length; j++) {
       MVNode nodeChild = nodeDateRange._children[j];
       if (nodeChild._tag.equals("start")) {
@@ -336,7 +340,9 @@ public class MVPlotJobParser extends MVUtil {
         String strStart = "";
         String strEnd = "";
         int intInc = 0;
-        String strFormat = _formatDB.toPattern();
+        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String strFormat = formatDB.toPattern();
 
         for (int k = 0; k < nodeIndyVal._children.length; k++) {
           MVNode nodeChild = nodeIndyVal._children[k];
@@ -351,13 +357,13 @@ public class MVPlotJobParser extends MVUtil {
           }
         }
 
-        SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat);
+        SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat, Locale.US);
         formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String[] listDates = buildDateList(strStart, strEnd, intInc, _formatDB.toPattern());
+        String[] listDates = buildDateList(strStart, strEnd, intInc, formatDB.toPattern());
         String[] listLabels = new String[listDates.length];
         for (int k = 0; k < listDates.length; k++) {
           try {
-            listLabels[k] = formatLabel.format(_formatDB.parse(listDates[k]));
+            listLabels[k] = formatLabel.format(formatDB.parse(listDates[k]));
           } catch (Exception e) {
           }
         }
@@ -392,7 +398,7 @@ public class MVPlotJobParser extends MVUtil {
 
       //  get the series for the current y-axis
       MVOrderedMap mapSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val());
-      strXML.append("<series").append(intY).append(">");
+      strXML.append("<series").append(intY).append('>');
 
       //  serialize each fcst_var and it's vals
       String[] listSeriesField = mapSeries.getKeyList();
@@ -711,7 +717,7 @@ public class MVPlotJobParser extends MVUtil {
   }
 
   public MVPlotJob[] getJobsList() {
-    return _listJobs;
+    return Arrays.copyOf(_listJobs, _listJobs.length);
   }
 
   public MVOrderedMap getJobsMap() {
@@ -821,7 +827,9 @@ public class MVPlotJobParser extends MVUtil {
         String strRangeEnd = "";
         int intRangeLength = -1;
         int intInc = -1;
-        String strFormat = _formatDB.toPattern();
+        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String strFormat = formatDB.toPattern();
         for (int l = 0; l < node._children.length; l++) {
           MVNode nodeChild = node._children[l];
           if (nodeChild._tag.equals("range_start")) {
@@ -839,17 +847,17 @@ public class MVPlotJobParser extends MVUtil {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         long intEndTime = -1;
         try {
-          cal.setTime(_formatDB.parse(strRangeStart));
-          intEndTime = _formatDB.parse(strRangeEnd).getTime();
+          cal.setTime(formatDB.parse(strRangeStart));
+          intEndTime = formatDB.parse(strRangeEnd).getTime();
         } catch (Exception e) {
         }
 
         //  build the list
         ArrayList listDateRange = new ArrayList();
         while (cal.getTime().getTime() <= intEndTime) {
-          String strStartCur = _formatDB.format(cal.getTime());
+          String strStartCur = formatDB.format(cal.getTime());
           cal.add(Calendar.MINUTE, intRangeLength);
-          String strEndCur = _formatDB.format(cal.getTime());
+          String strEndCur = formatDB.format(cal.getTime());
           listDateRange.add("BETWEEN '" + strStartCur + "' AND '" + strEndCur + "'");
           cal.add(Calendar.MINUTE, intInc - intRangeLength);
         }
@@ -913,12 +921,13 @@ public class MVPlotJobParser extends MVUtil {
 
           //  ensemble spread/skill must have a fcst_var selected
           if (job.getPlotFixVal().containsKey("fcst_var")) {
-            MVOrderedMap mapDep = new MVOrderedMap(), mapMse = new MVOrderedMap();
+            MVOrderedMap mapDep = new MVOrderedMap();
+            MVOrderedMap mapMse = new MVOrderedMap();
             Object objFcstVar = job.getPlotFixVal().get("fcst_var");
             String[] listFcstVar;
-            if (objFcstVar instanceof String[])
+            if (objFcstVar instanceof String[]) {
               listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
-            else {
+            } else {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
@@ -932,12 +941,13 @@ public class MVPlotJobParser extends MVUtil {
         } else if (job.getPlotTmpl().equals("performance.R_tmpl")) {
           //  performance plot must have a fcst_var selected
           if (job.getPlotFixVal().containsKey("fcst_var")) {
-            MVOrderedMap mapDep = new MVOrderedMap(), mapFarPody = new MVOrderedMap();
+            MVOrderedMap mapDep = new MVOrderedMap();
+            MVOrderedMap mapFarPody = new MVOrderedMap();
             Object objFcstVar = job.getPlotFixVal().get("fcst_var");
             String[] listFcstVar;
-            if (objFcstVar instanceof String[])
+            if (objFcstVar instanceof String[]) {
               listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
-            else {
+            }else {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
@@ -1093,7 +1103,7 @@ public class MVPlotJobParser extends MVUtil {
             }
 
           }
-          if (0 < listFixVal.size()) {
+          if (!listFixVal.isEmpty()) {
             job.addPlotFixVal(nodeFix._name, toArray(listFixVal));
             if ("true".equals(equalize)) {
               job.addPlotFixValEq(nodeFix._name, toArray(listFixVal));

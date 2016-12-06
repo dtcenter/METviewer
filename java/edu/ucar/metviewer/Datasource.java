@@ -18,7 +18,7 @@ import java.util.*;
  * @author tatiana: tatiana $
  * @version : 1.0 : 20/May/13 09:17 $
  */
-public class Datasource {
+public final class Datasource {
 
   private static final String DB_PREFIX_MV = "mv_";
   private static final Logger logger = Logger.getLogger("edu.ucar.metviewer.Datasource");
@@ -26,9 +26,9 @@ public class Datasource {
   private static BoneCP connectionPool;
   private static List<String> listDB;
   private static String dbManagementSystem = "mysql";
-  private static String dbHost = "localhost";
-  private static String dbUser = "mvuser";
-  private static String dbPassword = "mvuser";
+  private static String dbHost;
+  private static String dbUser;
+  private static String dbPassword ;
 
   /**
    * Creates the connection pool and the list of all available databases using database credentials from the properties file
@@ -57,7 +57,7 @@ public class Datasource {
     }
     // setup the connection pool
     BoneCPConfig config = new BoneCPConfig();
-    if (dbManagementSystem.equals("mysql")) {
+    if ("mysql".equals(dbManagementSystem)) {
       config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + dbHost + "?rewriteBatchedStatements=true"); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/
       config.setUsername(dbUser);
       config.setPassword(dbPassword);
@@ -69,8 +69,6 @@ public class Datasource {
       config.setStatementsCacheSize(100);
       config.setReleaseHelperThreads(3);
       connectionPool = new BoneCP(config); // setup the connection pool
-    } else if (dbManagementSystem.equals("postgresql")) {
-
     }
     listDB = new ArrayList<>();
     initDBList();
@@ -118,8 +116,6 @@ public class Datasource {
       config.setReleaseHelperThreads(3);
       connectionPool = new BoneCP(config); // setup the connection pool
 
-    } else if (dbManagementSystem.equals("postgresql")) {
-      //config.setJdbcUrl("jdbc:" + dbManagementSystem + "://" + strDBHost+ "/template1" ); // jdbc url specific to your database, eg jdbc:mysql://127.0.0.1/yourdb
     }
 
 
@@ -128,17 +124,6 @@ public class Datasource {
 
   }
 
-  public static Datasource getInstance() {
-    if (datasource == null) {
-      try {
-        datasource = new Datasource();
-      } catch (Exception e) {
-        logger.error(e.getMessage());
-      }
-    }
-    return datasource;
-
-  }
 
   public static Datasource getInstance(String strDBManagementSystem, String strDBDriver, String strDBHost, String strDBUser, String strDBPassword) {
     if (datasource == null) {

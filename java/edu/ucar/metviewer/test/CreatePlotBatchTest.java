@@ -53,7 +53,7 @@ public class CreatePlotBatchTest {
     for (String directory : directories) {
       plots.add(new String[]{directory});
     }
-    if (plots.size() == 0) {
+    if (plots.isEmpty()) {
       throw new Exception(testDataDir + " doesn't have any test cases.");
     }
     return plots;

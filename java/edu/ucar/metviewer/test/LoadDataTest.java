@@ -80,9 +80,10 @@ public class LoadDataTest {
     datasource = Datasource.getInstance(type, driver, host, USERNAME, PWD);
     Reader reader = null;
     Connection con = null;
+    Statement statement = null;
     try {
       con = datasource.getConnection();
-      Statement statement = con.createStatement();
+      statement = con.createStatement();
       statement.executeUpdate("drop database " + database);
       statement.executeUpdate("create database " + database);
       statement.executeUpdate("use " + database);
@@ -103,6 +104,13 @@ public class LoadDataTest {
       if (con != null) {
         try {
           con.close();
+        } catch (SQLException e) {
+          System.out.println(e.getMessage());
+        }
+      }
+      if(statement != null){
+        try {
+          statement.close();
         } catch (SQLException e) {
           System.out.println(e.getMessage());
         }

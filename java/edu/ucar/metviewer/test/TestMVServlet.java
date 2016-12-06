@@ -30,8 +30,8 @@ import static org.mockito.Mockito.*;
 @RunWith(Parameterized.class)
 public class TestMVServlet {
 
-  private String requestValue;
-  private String responseValue;
+  private final String requestValue;
+  private final String responseValue;
 
   public TestMVServlet(String requestValue, String responseValue) {
     this.requestValue = requestValue;
@@ -65,7 +65,7 @@ public class TestMVServlet {
       String responseStr = readFileToString(responseFile);
       requestResponse.add(new String[]{requestStr, responseStr});
     }
-    if (requestResponse.size() == 0) {
+    if (requestResponse.isEmpty()) {
       throw new Exception(testDataDir + " doesn't have any test cases.");
     }
     return requestResponse;

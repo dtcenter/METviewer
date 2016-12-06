@@ -39,19 +39,19 @@ public class MVServlet extends HttpServlet {
   public static final Pattern _patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
   public static final Pattern _patDownload = Pattern.compile(".*/download");
   public static final Pattern _patProbFcstVar = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]{1,2})([^\\)]+)\\)");
-  public static final SimpleDateFormat _formatPlot = new SimpleDateFormat("yyyyMMdd_HHmmss");
-  protected static final HashMap<String, String> _tableListValCache = new HashMap<>();
-  protected static final HashMap<String, String> _tableListStatCache = new HashMap<>();
+  private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
+  protected static final Map<String, String> _tableListValCache = new HashMap<>();
+  protected static final Map<String, String> _tableListStatCache = new HashMap<>();
   private static final long serialVersionUID = 1L;
   private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVServlet");
   private static final FilenameFilter PNG_FILTER = new FilenameFilter() {
     public boolean accept(File dir, String name) {
-      return name.toLowerCase().endsWith(".png");
+      return name.toLowerCase(Locale.ENGLISH).endsWith(".png");
     }
   };
   private static final FilenameFilter XML_FILTER = new FilenameFilter() {
     public boolean accept(File dir, String name) {
-      return name.toLowerCase().endsWith(".xml");
+      return name.toLowerCase(Locale.ENGLISH).endsWith(".xml");
     }
   };
   public static String _strDBHost = "";
@@ -100,7 +100,8 @@ public class MVServlet extends HttpServlet {
     }
     String strKeyPrefix = "<db>" + con.getMetaData().getURL() + "</db>";
     String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
-    String strXML = "", strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
+    String strXML = "";
+    String strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
     for (String listKey : listKeys) {
       strMsg += "  " + listKey + "\n";
       strXML += "<key>" + listKey + "</key>";
@@ -138,7 +139,8 @@ public class MVServlet extends HttpServlet {
     }
     String strKeyPrefix = "<db>" + con.getMetaData().getURL() + "</db>";
     String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
-    String strXML = "", strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
+    String strXML = "";
+    String strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
     for (String listKey : listKeys) {
       strMsg += "  " + listKey + "\n";
       strXML += "<key>" + listKey + "</key>";
@@ -223,13 +225,13 @@ public class MVServlet extends HttpServlet {
     }
 
     //  determine if the requested field is n_rank and format accordingly
-    String strField = strHeaderField.toLowerCase();
+    String strField = strHeaderField.toLowerCase(Locale.ENGLISH);
     boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
     boolean boolNBin = strField.equalsIgnoreCase("N_BIN");
 
     //  parse the fcst_var/stat constraint to build a list of line_data tables and fcst_var values
-    Hashtable tableFcstVarStat = new Hashtable();
-    Hashtable tableLineDataTables = new Hashtable();
+    Map<String, String> tableFcstVarStat = new HashMap<>();
+    Map<String, String> tableLineDataTables = new HashMap<>();
     boolean boolFcstVar = false;
     if (boolRhist) {
       tableLineDataTables.put("line_data_rhist", "true");
@@ -267,13 +269,13 @@ public class MVServlet extends HttpServlet {
     }
 
     //  build a list of the line_data tables for all the stats
-    String[] listTables = (String[]) tableLineDataTables.keySet().toArray(new String[]{});
+    String[] listTables =  tableLineDataTables.keySet().toArray(new String[]{});
 
     //  build the where clause for the fcst_var values, if present
     String strWhere = "";
     if (boolFcstVar) {
       String strFcstVarList = "";
-      String[] listFcstVar = (String[]) tableFcstVarStat.keySet().toArray(new String[]{});
+      String[] listFcstVar =  tableFcstVarStat.keySet().toArray(new String[]{});
       boolean boolRegEx = false;
       for (int i = 0; i < listFcstVar.length; i++) {
         if (listFcstVar[i].contains("*")) {
@@ -298,7 +300,7 @@ public class MVServlet extends HttpServlet {
 
       //  determine if the field should be used as criteria
       MVNode nodeField = nodeCall._children[i];
-      String strFieldCrit = nodeField._name.toLowerCase();
+      String strFieldCrit = nodeField._name.toLowerCase(Locale.ENGLISH);
       boolean boolTimeCritField = false;
       boolean boolTimeCritCur = false;
       if (strFieldCrit.contains("valid") || strFieldCrit.contains("init") || strFieldCrit.contains("lead")) {
@@ -350,19 +352,19 @@ public class MVServlet extends HttpServlet {
     } else if (!boolMode && (strField.equals("fcst_lead") || strField.contains("valid") || strField.contains("init"))) {
       String strSelectField = MVUtil.formatField(strField, boolMode);
       //  create a temp table for the list values from the different line_data tables
-      strTmpTable = "tmp_" + (new java.util.Date()).getTime();
+      strTmpTable = "tmp_" + new Date().getTime();
       try (Statement stmtTmp = con.createStatement();) {
         String strTmpSQL = "CREATE TEMPORARY TABLE " + strTmpTable + " (" + strField + " TEXT);";
         _logger.debug("handleListVal() - sql: " + strTmpSQL);
-        long intStartTmp = (new java.util.Date()).getTime();
+        long intStartTmp = new Date().getTime();
         stmtTmp.executeUpdate(strTmpSQL);
-        _logger.debug("handleListVal() - temp table " + strTmpTable + " query returned in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStartTmp));
+        _logger.debug("handleListVal() - temp table " + strTmpTable + " query returned in " + MVUtil.formatTimeSpan(new Date().getTime() - intStartTmp));
         //  add all distinct list field values to the temp table from each line_data table
         for (int i = 0; i < listTables.length; i++) {
           strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTables[i] + " ld" + strWhereTime;
           _logger.debug("handleListVal() - sql: " + strTmpSQL);
           if (0 == i) {
-            intStart = (new java.util.Date()).getTime();
+            intStart = new Date().getTime();
           }
           stmtTmp.executeUpdate(strTmpSQL);
         }
@@ -376,12 +378,12 @@ public class MVServlet extends HttpServlet {
       strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
     }
     //  execute the query
-    try (Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
          ResultSet res = stmt.executeQuery(strSQL)) {
 
       _logger.debug("handleListVal() - sql: " + strSQL);
       if (0 == intStart) {
-        intStart = (new java.util.Date()).getTime();
+        intStart = new Date().getTime();
       }
 
       //  build a list of values from the query
@@ -393,7 +395,7 @@ public class MVServlet extends HttpServlet {
         intNumVal++;
       }
 
-      _logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
+      _logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan(new Date().getTime() - intStart));
       String[] listVal = listRes.toArray(new String[]{});
 
       //  drop the temp table, if present
@@ -492,7 +494,7 @@ public class MVServlet extends HttpServlet {
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n"+
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n";
     //  "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n";
 
@@ -502,11 +504,11 @@ public class MVServlet extends HttpServlet {
          "(SELECT COUNT(*), 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
          "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";*/
     _logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
-    long intStart = (new java.util.Date()).getTime();
+    long intStart = new Date().getTime();
     //  build a list of stat names using the stat ids returned by the query
     StringBuilder strResp = new StringBuilder("<list_stat><id>" + strId + "</id>");
     List<String> listStatName = new ArrayList<>();
-    try (Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
          ResultSet res = stmt.executeQuery(strSQL)) {
       int intStatIndex = 0;
       boolean boolCnt = false;
@@ -546,7 +548,7 @@ public class MVServlet extends HttpServlet {
               listStatName.addAll(Arrays.asList(MVUtil._tableStatsRhist.getKeyList()));
               break;
             case 9:
-            //case 16:
+              //case 16:
               listStatName.addAll(Arrays.asList(MVUtil._tableStatsVl1l2.getKeyList()));
               break;
             case 10:
@@ -564,6 +566,7 @@ public class MVServlet extends HttpServlet {
             case 14:
               listStatName.addAll(Arrays.asList(MVUtil._tableStatsSsvar.getKeyList()));
               break;
+            default:
 
           }
         }
@@ -584,7 +587,7 @@ public class MVServlet extends HttpServlet {
       strResp.append("<val>").append(aListStat).append("</val>");
       intNumStat++;
     }
-    _logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStart));
+    _logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan(new Date().getTime() - intStart));
 
     //  clean up
     strResp.append("</list_stat>");
@@ -607,7 +610,9 @@ public class MVServlet extends HttpServlet {
     strPlotXML = strPlotXML.substring(strPlotXML.indexOf("</db_con>") + 9);
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
     String strPlotPrefix;
-    strPlotPrefix = "plot_" + _formatPlot.format(new java.util.Date());
+    SimpleDateFormat formatPlot = new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
+
+    strPlotPrefix = "plot_" + formatPlot.format(new Date());
 
     //  add plot file information to the plot spec
     strPlotXML =
@@ -805,7 +810,7 @@ public class MVServlet extends HttpServlet {
 
     //  query the database for the contents of the mv_rev table
     try (
-      Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+      Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
       ResultSet res = stmt.executeQuery("SELECT * FROM mv_rev;");) {
       while (res.next()) {
         strResp.append("<val>");
@@ -831,7 +836,7 @@ public class MVServlet extends HttpServlet {
     StringBuilder strResp = new StringBuilder("<list_inst_info>");
 
     //  query the database for the contents of the instance_info table
-    try (Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
          ResultSet res = stmt.executeQuery("SELECT * FROM instance_info;")) {
       while (res.next()) {
         strResp.append("<val>");
@@ -870,7 +875,9 @@ public class MVServlet extends HttpServlet {
       return "<error>update_detail must not be blank</error>";
     }
     try {
-      MVUtil._formatDB.parse(strInfoDate);
+      SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+      formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+      formatDB.parse(strInfoDate);
     } catch (Exception e) {
       return "<error>could not parse update_date: '" + strInfoDate + "'</error>";
     }
@@ -914,7 +921,9 @@ public class MVServlet extends HttpServlet {
       return "<error>update_detail must not be blank</error>";
     }
     try {
-      MVUtil._formatDB.parse(strInfoDate);
+      SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+      formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+      formatDB.parse(strInfoDate);
     } catch (Exception e) {
       return "<error>could not parse update_date: '" + strInfoDate + "'</error>";
     }
@@ -961,7 +970,7 @@ public class MVServlet extends HttpServlet {
 
     //  get the load XML for the specified instance_info_id
     String strLoadXML = "";
-    try (Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
          ResultSet res = stmt.executeQuery("SELECT load_xml FROM instance_info WHERE instance_info_id = " + strInfoId + ";");) {
 
       while (res.next()) {
@@ -1173,6 +1182,9 @@ public class MVServlet extends HttpServlet {
             case "y2_points_url":
               filePath = _strData + "/" + plot + ".points2";
               break;
+            default:
+              filePath = _strPlotXML + "/" + plot + ".xml";
+              break;
           }
           int length;
           File file = new File(filePath);
@@ -1185,7 +1197,7 @@ public class MVServlet extends HttpServlet {
           }
           response.setContentType(mimetype);
           response.setContentLength((int) file.length());
-          String fileName = (new File(filePath)).getName();
+          String fileName = new File(filePath).getName();
 
           // sets HTTP header
           response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
@@ -1253,7 +1265,7 @@ public class MVServlet extends HttpServlet {
             try (InputStreamReader inputStreamReader = new InputStreamReader(item.getInputStream())) {
               reader = new BufferedReader(inputStreamReader);
               while (reader.ready()) {
-                strUploadXML.append(reader.readLine().replaceAll("<\\?.*\\?>", "")).append("\n");
+                strUploadXML.append(reader.readLine().replaceAll("<\\?.*\\?>", "")).append('\n');
               }
             }
           }
@@ -1271,8 +1283,9 @@ public class MVServlet extends HttpServlet {
         String line;
         try {
           reader = request.getReader();
-          while ((line = reader.readLine()) != null)
+          while ((line = reader.readLine()) != null) {
             strRequestBody = strRequestBody + line;
+          }
         } catch (Exception e) {
           System.out.println(e.getMessage());
         }

@@ -10,6 +10,7 @@ import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -19,8 +20,8 @@ public class MVLoad extends MVUtil {
   public static final DecimalFormat _formatPerf = new DecimalFormat("0.000");
   public static final Pattern _patModeSingle = Pattern.compile("^(C?[FO]\\d{3})$");
   public static final Pattern _patModePair = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
-  protected static final Hashtable _tableStatHeaders = new Hashtable(1024);
-  protected static final Hashtable _tableModeHeaders = new Hashtable(1024);
+  protected static final Map _tableStatHeaders = new HashMap<>(1024);
+  protected static final Map _tableModeHeaders = new HashMap<>(1024);
   public static final long _intStatHeaderTableTime = 0;
   public static final int _intStatGroupRecords = 0;
   public static final int _intStatGroupInserts = 0;
@@ -38,7 +39,7 @@ public class MVLoad extends MVUtil {
    *   - index of first repeating field(s)
    *   - number of fields in each repeating set
    */
-  protected static final Hashtable _tableVarLengthGroupIndices = new Hashtable();
+  protected static final Map _tableVarLengthGroupIndices = new HashMap<>();
   protected static final Map<String, Integer> _tableVarLengthLineDataId = new HashMap<>();
   public static final int INDEX_LINE_DATA = 1;
   public static final int INDEX_STAT_GROUP = 2;
@@ -66,7 +67,7 @@ public class MVLoad extends MVUtil {
   public static boolean _boolApplyIndexes = false;
   public static boolean _boolIndexOnly = false;
   public static boolean _boolLineTypeLoad = false;
-  protected static Hashtable _tableLineTypeLoad = new Hashtable();
+  protected static Map _tableLineTypeLoad = new HashMap<>();
   public static boolean _boolLoadStat = true;
   public static boolean _boolLoadMode = true;
   public static boolean _boolLoadMpr = false;
@@ -166,7 +167,7 @@ public class MVLoad extends MVUtil {
 
   public static void main(String[] argv) {
     System.out.println("----  MVLoad  ----\n");
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
     try {
 
@@ -190,7 +191,7 @@ public class MVLoad extends MVUtil {
       }
 
       //  parse the plot job
-      System.out.println("Begin time: " + format.format(new java.util.Date()) + "\n" +
+      System.out.println("Begin time: " + format.format(new Date()) + "\n" +
         "Parsing: " + strXML + "\n" +
         (_boolIndexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
@@ -250,7 +251,7 @@ public class MVLoad extends MVUtil {
         throw new Exception("METViewer load error: insert size (" + _intInsertSize + ") > 1 and database header check turned on");
       }
 
-      long intLoadTimeStart = (new java.util.Date()).getTime();
+      long intLoadTimeStart = new Date().getTime();
 
       //  drop the database indexes, if requested
       if (_boolDropIndexes) {
@@ -269,10 +270,12 @@ public class MVLoad extends MVUtil {
 
       //  if there are <load_file> files specified, load them
       String[] listLoadFiles = job.getLoadFiles();
+      File file;
       if (!_boolIndexOnly && listLoadFiles != null) {
         for (int i = 0; i < listLoadFiles.length; i++) {
           try {
-            processFile(new File(listLoadFiles[i]));
+            file = new File(listLoadFiles[i]);
+            processFile(file);
           } catch (Exception e) {
             System.out.println("  **  ERROR: caught " + e.getClass() + " loading file " + listLoadFiles[i] + ": " + e.getMessage());
             e.printStackTrace();
@@ -288,21 +291,25 @@ public class MVLoad extends MVUtil {
 
         //  build a folder with each permutation of load values and load the data therein
         MVOrderedMap[] listPerm = permute(job.getLoadVal()).getRows();
+        String strBaseFolder;
+        long intPermStart;
+        File fileBaseFolder;
+        File[] listDataFiles;
         for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
 
           //  determine the name of the current folder
-          String strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);
+           strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);
           System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder /* + "\n" + listPerm[intPerm].getRDecl() */);
-          long intPermStart = (new java.util.Date()).getTime();
+           intPermStart = new Date().getTime();
 
           //  try to access the folder and its contents, and continue if it does not exist
-          File fileBaseFolder = new File(strBaseFolder);
+           fileBaseFolder = new File(strBaseFolder);
           if (!fileBaseFolder.exists()) {
             continue;
           }
 
           //  process each fine in the folder
-          File[] listDataFiles = fileBaseFolder.listFiles();
+           listDataFiles = fileBaseFolder.listFiles();
           if (listDataFiles != null) {
             for (int j = 0; j < listDataFiles.length; j++) {
               try {
@@ -323,13 +330,13 @@ public class MVLoad extends MVUtil {
           intStatLinesPrev = _intStatLinesTotal;
           intModeLinesPrev = _intModeLinesTotal;
           System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " complete - insert time: " +
-            formatTimeSpan((new java.util.Date()).getTime() - intPermStart) + "  stat lines: " + intStatLinesPerm +
+            formatTimeSpan(new Date().getTime() - intPermStart) + "  stat lines: " + intStatLinesPerm +
             "  mode lines: " + intModeLinesPerm + "\n");
         }
       }
 
       //  print a performance report
-      long intLoadTime = (new java.util.Date()).getTime() - intLoadTimeStart;
+      long intLoadTime = new Date().getTime() - intLoadTimeStart;
       double dblLinesPerMSec = (double) _intStatLinesTotal / (double) (intLoadTime);
       if (!_boolIndexOnly) {
         System.out.println("\n    ==== grid_stat ====\n\n" +
@@ -378,7 +385,9 @@ public class MVLoad extends MVUtil {
           }
         }
         strUpdater = strUpdater.trim();
-        String strUpdateDate = _formatDB.format(new java.util.Date());
+        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String strUpdateDate = formatDB.format(new Date());
         String strUpdateDetail = job.getLoadNote();
 
         //  read the load xml into a string, if requested
@@ -411,7 +420,7 @@ public class MVLoad extends MVUtil {
         System.out.println("Done\n");
       }
 
-      System.out.println("End time: " + format.format(new java.util.Date()) + "\n" +
+      System.out.println("End time: " + format.format(new Date()) + "\n" +
         "Load total: " + formatTimeSpan(intLoadTime) + "\n");
     } catch (Exception e) {
       System.err.println("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
@@ -437,12 +446,12 @@ public class MVLoad extends MVUtil {
    * @throws Exception
    */
   public static void processFile(File file) throws Exception {
-    long intProcessDataFileBegin = (new java.util.Date()).getTime();
+    long intProcessDataFileBegin = new Date().getTime();
     DataFileInfo info = processDataFile(file);
     if (null == info) {
       return;
     }
-    long intProcessDataFileTime = (new java.util.Date()).getTime() - intProcessDataFileBegin;
+    long intProcessDataFileTime = new Date().getTime() - intProcessDataFileBegin;
     String strFileMsg = "  " + info._dataFilePath + "/" + info._dataFileFilename +
       (_boolVerbose ? "\n" + padBegin("data file time: ", 36) + formatTimeSpan(intProcessDataFileTime) : "");
 
@@ -468,7 +477,7 @@ public class MVLoad extends MVUtil {
     MVLoadStatInsertData d = new MVLoadStatInsertData();
 
     //  performance counters
-    long intStatHeaderLoadStart = (new java.util.Date()).getTime();
+    long intStatHeaderLoadStart = new Date().getTime();
     long intStatHeaderSearchTime = 0;
     int intStatHeaderRecords = 0;
     int intStatHeaderInserts = 0;
@@ -492,7 +501,11 @@ public class MVLoad extends MVUtil {
 
     int intLine = 0;
     try (FileReader fileReader = new FileReader(strFilename); BufferedReader reader = new BufferedReader(fileReader)) {
-
+      List<String> allMatches;
+      SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                   formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+              SimpleDateFormat formatStatVsdb = new SimpleDateFormat("yyyyMMddHH", Locale.US);
+                   formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
 
       //  read in each line of the input file, remove "="
       while (reader.ready()) {
@@ -502,7 +515,7 @@ public class MVLoad extends MVUtil {
           line = line.replaceAll("\\s=\\s", " "); // remove " = "
           Matcher m = Pattern.compile("\\d-0\\.").matcher(line); // some records do not have a space between columns if the value in column starts with "-"
 
-          List<String> allMatches = new ArrayList<>();
+          allMatches = new ArrayList<>();
           while (m.find()) {
             allMatches.add(m.group());
           }
@@ -564,10 +577,11 @@ public class MVLoad extends MVUtil {
 
           //  parse the valid times
 
-          java.util.Date dateFcstValidBeg = _formatStatVsdb.parse(listToken[3]);
+
+          Date dateFcstValidBeg = formatStatVsdb.parse(listToken[3]);
 
           //  format the valid times for the database insert
-          String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
+          String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
 
 
           //  calculate the number of seconds corresponding to fcst_lead
@@ -578,11 +592,11 @@ public class MVLoad extends MVUtil {
           Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
           calFcstInitBeg.setTime(dateFcstValidBeg);
           calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
-          java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
-          String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
-          String strObsValidBeg = _formatDB.format(dateFcstValidBeg);
-          String strFcstValidEnd = _formatDB.format(dateFcstValidBeg);
-          String strObsValidEnd = _formatDB.format(dateFcstValidBeg);
+          Date dateFcstInitBeg = calFcstInitBeg.getTime();
+          String strFcstInitBeg = formatDB.format(dateFcstInitBeg);
+          String strObsValidBeg = formatDB.format(dateFcstValidBeg);
+          String strFcstValidEnd = formatDB.format(dateFcstValidBeg);
+          String strObsValidEnd = formatDB.format(dateFcstValidBeg);
 
           //  ensure that the interp_pnts field value is a reasonable integer
           String strInterpPnts = "0";
@@ -644,7 +658,7 @@ public class MVLoad extends MVUtil {
 
             //  look for an existing stat_header record with the same information
             boolean boolFoundStatHeader = false;
-            long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
+            long intStatHeaderSearchBegin = new Date().getTime();
             if (_boolStatHeaderDBCheck) {
               String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
               Connection con = null;
@@ -673,7 +687,7 @@ public class MVLoad extends MVUtil {
                 } catch (Exception e) { /* ignored */ }
               }
             }
-            intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
+            intStatHeaderSearchTime = new Date().getTime() - intStatHeaderSearchBegin;
             _intStatHeaderSearchTime += intStatHeaderSearchTime;
 
             //  if the stat_header was not found, add it to the table
@@ -683,8 +697,7 @@ public class MVLoad extends MVUtil {
               _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
 
               //  build an insert statement for the mode header
-              strStatHeaderValueList = "" +
-                intStatHeaderId + ", " +        //  stat_header_id
+              strStatHeaderValueList =Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
                 strStatHeaderValueList;
 
               //  insert the record into the stat_header database table
@@ -715,12 +728,12 @@ public class MVLoad extends MVUtil {
           //  determine the maximum token index for the data
           if (boolHasVarLengthGroups) {
             int intLineDataId = _tableVarLengthLineDataId.get(strLineType);
-            strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
+            strLineDataId =  Integer.toString(intLineDataId) + ", ";
             _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           }
 
           //  build the value list for the insert statment
-          String strLineDataValueList = "" +
+          String strLineDataValueList =
             strLineDataId +            //  line_data_id (if present)
             intStatHeaderId + ", " +      //  stat_header_id
             info._dataFileId + ", " +      //  data_file_id
@@ -764,7 +777,7 @@ public class MVLoad extends MVUtil {
               } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
                 strLineDataValueList += ", '0'";
               } else if (i == 77) {
-
+//do nothing
               } else {
                 strLineDataValueList += ", '-9999'";
               }
@@ -807,6 +820,7 @@ public class MVLoad extends MVUtil {
                 case 15:
                   strLineDataValueList += ", '" + listToken[11] + "'";
                   break;
+                default:
               }
 
             }
@@ -869,6 +883,7 @@ public class MVLoad extends MVUtil {
                 case 29:
                   strLineDataValueList += ", '-9999'";
                   break;
+                default:
 
               }
             }
@@ -1024,7 +1039,7 @@ public class MVLoad extends MVUtil {
                   }
 
                 }
-                strThreshValues.append(")");
+                strThreshValues.append(')');
                 listThreshValues.add(strThreshValues.toString());
                 intVarLengthRecords++;
               }
@@ -1083,7 +1098,7 @@ public class MVLoad extends MVUtil {
     _intVarLengthInserts += intVarLengthInserts;
 
     //  print a performance report
-    long intStatHeaderLoadTime = (new java.util.Date()).getTime() - intStatHeaderLoadStart;
+    long intStatHeaderLoadTime = new Date().getTime() - intStatHeaderLoadStart;
     double dblLinesPerMSec = (double) (intLine - 1) / (double) (intStatHeaderLoadTime);
 
     if (_boolVerbose) {
@@ -1117,7 +1132,7 @@ public class MVLoad extends MVUtil {
     //  initialize the insert data structure
     MVLoadStatInsertData d = new MVLoadStatInsertData();
     //  performance counters
-    long intStatHeaderLoadStart = (new java.util.Date()).getTime();
+    long intStatHeaderLoadStart = new Date().getTime();
     long intStatHeaderSearchTime = 0;
     int intStatHeaderRecords = 0;
     int intStatHeaderInserts = 0;
@@ -1163,17 +1178,23 @@ public class MVLoad extends MVUtil {
 
         d._strFileLine = strFilename + ":" + intLine;
 
+        SimpleDateFormat formatStat = new SimpleDateFormat(MVUtil.DB_DATE_STAT, Locale.US);
+            formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+             formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         //  parse the valid times
-        java.util.Date dateFcstValidBeg = _formatStat.parse(listToken[3]);
-        java.util.Date dateFcstValidEnd = _formatStat.parse(listToken[4]);
-        java.util.Date dateObsValidBeg = _formatStat.parse(listToken[6]);
-        java.util.Date dateObsValidEnd = _formatStat.parse(listToken[7]);
+        Date dateFcstValidBeg = formatStat.parse(listToken[3]);
+        Date dateFcstValidEnd = formatStat.parse(listToken[4]);
+        Date dateObsValidBeg = formatStat.parse(listToken[6]);
+        Date dateObsValidEnd = formatStat.parse(listToken[7]);
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
-        String strFcstValidEnd = _formatDB.format(dateFcstValidEnd);
-        String strObsValidBeg = _formatDB.format(dateObsValidBeg);
-        String strObsValidEnd = _formatDB.format(dateObsValidEnd);
+        String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
+        String strFcstValidEnd = formatDB.format(dateFcstValidEnd);
+        String strObsValidBeg = formatDB.format(dateObsValidBeg);
+        String strObsValidEnd = formatDB.format(dateObsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = listToken[2];
@@ -1186,8 +1207,8 @@ public class MVLoad extends MVUtil {
         Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
-        java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInitBeg = _formatDB.format(dateFcstInitBeg);
+        Date dateFcstInitBeg = calFcstInitBeg.getTime();
+        String strFcstInitBeg = formatDB.format(dateFcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
         String strInterpPnts = listToken[15];
@@ -1259,7 +1280,7 @@ public class MVLoad extends MVUtil {
 
           //  look for an existing stat_header record with the same information
           boolean boolFoundStatHeader = false;
-          long intStatHeaderSearchBegin = (new java.util.Date()).getTime();
+          long intStatHeaderSearchBegin = new Date().getTime();
           if (_boolStatHeaderDBCheck) {
             String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
             Connection con = null;
@@ -1289,7 +1310,7 @@ public class MVLoad extends MVUtil {
               } catch (Exception e) { /* ignored */ }
             }
           }
-          intStatHeaderSearchTime = (new java.util.Date()).getTime() - intStatHeaderSearchBegin;
+          intStatHeaderSearchTime = new Date().getTime() - intStatHeaderSearchBegin;
           _intStatHeaderSearchTime += intStatHeaderSearchTime;
 
           //  if the stat_header was not found, add it to the table
@@ -1299,7 +1320,7 @@ public class MVLoad extends MVUtil {
             _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
 
             //  build an insert statement for the mode header
-            strStatHeaderValueList = "" +
+            strStatHeaderValueList =
               Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
               strStatHeaderValueList;
 
@@ -1331,7 +1352,7 @@ public class MVLoad extends MVUtil {
         //  determine the maximum token index for the data
         if (boolHasVarLengthGroups) {
           int intLineDataId = _tableVarLengthLineDataId.get(strLineType);
-          strLineDataId = "" + Integer.toString(intLineDataId) + ", ";
+          strLineDataId = Integer.toString(intLineDataId) + ", ";
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
 
@@ -1343,7 +1364,7 @@ public class MVLoad extends MVUtil {
         }
 
         //  build the value list for the insert statment
-        String strLineDataValueList = "" +
+        String strLineDataValueList =
           strLineDataId +            //  line_data_id (if present)
           intStatHeaderId + ", " +      //  stat_header_id
           info._dataFileId + ", " +      //  data_file_id
@@ -1437,6 +1458,7 @@ public class MVLoad extends MVUtil {
           case "RHIST":
             maxSize = 16;
             break;
+          default:
         }
         while (size < maxSize) {
           insertValuesList.add("-9999");
@@ -1534,7 +1556,7 @@ public class MVLoad extends MVUtil {
     _intVarLengthInserts += intVarLengthInserts;
 
     //  print a performance report
-    long intStatHeaderLoadTime = (new java.util.Date()).getTime() - intStatHeaderLoadStart;
+    long intStatHeaderLoadTime = new Date().getTime() - intStatHeaderLoadStart;
     double dblLinesPerMSec = (double) (intLine - 1) / (double) (intStatHeaderLoadTime);
 
     if (_boolVerbose) {
@@ -1581,7 +1603,7 @@ public class MVLoad extends MVUtil {
     for (Map.Entry<String, List<String>> entry : d._tableLineDataValues.entrySet()) {
       d._strLineType = entry.getKey();
       ArrayList listValues = (ArrayList) entry.getValue();
-      String strLineDataTable = "line_data_" + d._strLineType.toLowerCase();
+      String strLineDataTable = "line_data_" + d._strLineType.toLowerCase(Locale.US);
 
       int intResLineDataInsert = executeBatch(listValues, strLineDataTable);
       if (listValues.size() != intResLineDataInsert) {
@@ -1653,10 +1675,10 @@ public class MVLoad extends MVUtil {
   public static void loadModeFile(DataFileInfo info) throws Exception {
 
     //  data structure for storing mode object ids
-    Hashtable tableModeObjectId = new Hashtable();
+    Map<String, Integer> tableModeObjectId = new HashMap<>();
 
     //  performance counters
-    long intModeHeaderLoadStart = (new java.util.Date()).getTime();
+    long intModeHeaderLoadStart = new Date().getTime();
     long intModeHeaderSearchTime = 0;
     int intModeHeaderInserts = 0;
     int intModeCtsInserts = 0;
@@ -1706,13 +1728,17 @@ public class MVLoad extends MVUtil {
        * * * *  mode_header insert  * * * *
 			 */
 
+        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat formatStat = new SimpleDateFormat(MVUtil.DB_DATE_STAT, Locale.US);
+                    formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
         //  parse the valid times
-        java.util.Date dateFcstValidBeg = _formatStat.parse(listToken[3]);
-        java.util.Date dateObsValidBeg = _formatStat.parse(listToken[6]);
+        Date dateFcstValidBeg = formatStat.parse(listToken[3]);
+        Date dateObsValidBeg = formatStat.parse(listToken[6]);
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = _formatDB.format(dateFcstValidBeg);
-        String strObsValidBeg = _formatDB.format(dateObsValidBeg);
+        String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
+        String strObsValidBeg = formatDB.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = listToken[2];
@@ -1725,13 +1751,13 @@ public class MVLoad extends MVUtil {
         Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
-        java.util.Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = _formatDB.format(dateFcstInitBeg);
+        Date dateFcstInitBeg = calFcstInitBeg.getTime();
+        String strFcstInit = formatDB.format(dateFcstInitBeg);
 
         //  build a value list from the header information
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
 
-        String strModeHeaderValueList = "" +
+        String strModeHeaderValueList =
           "'" + listToken[0] + "', " +      //  version
           "'" + listToken[1] + "', " +      //  model
           "'" + listToken[2] + "', " +      //  fcst_lead
@@ -1758,7 +1784,7 @@ public class MVLoad extends MVUtil {
           "'" + listToken[14] + "', " +      //  obs_var
           "'" + listToken[15] + "'";        //  obs_lev
 
-        String strModeHeaderWhereClause = "" +
+        String strModeHeaderWhereClause =
           "  version = '" + listToken[0] + "'\n" +
           "  AND model = '" + listToken[1] + "'\n" +
           "  AND fcst_lead = '" + listToken[2] + "'\n" +
@@ -1788,7 +1814,7 @@ public class MVLoad extends MVUtil {
 
           //  look for an existing mode_header record with the same information
           boolean boolFoundModeHeader = false;
-          long intModeHeaderSearchBegin = (new java.util.Date()).getTime();
+          long intModeHeaderSearchBegin = new Date().getTime();
           if (_boolModeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n" + strModeHeaderWhereClause;
             try (Connection con = connectionPool.getConnection();
@@ -1808,7 +1834,7 @@ public class MVLoad extends MVUtil {
             }
 
           }
-          intModeHeaderSearchTime = (new java.util.Date()).getTime() - intModeHeaderSearchBegin;
+          intModeHeaderSearchTime = new Date().getTime() - intModeHeaderSearchBegin;
           _intModeHeaderSearchTime += intModeHeaderSearchTime;
 
           //  if the mode_header was not found, add it to the table
@@ -1818,7 +1844,7 @@ public class MVLoad extends MVUtil {
             _tableModeHeaders.put(strModeHeaderValueList, intModeHeaderId);
 
             //  build an insert statement for the mode header
-            strModeHeaderValueList = "" +
+            strModeHeaderValueList =
               intModeHeaderId + ", " +        //  mode_header_id
               intLineTypeLuId + ", " +        //  line_type_lu_id
               info._dataFileId + ", " +        //  data_file_id
@@ -1843,7 +1869,7 @@ public class MVLoad extends MVUtil {
         if (MODE_CTS == intLineTypeLuId) {
 
           //  build the value list for the mode_cts insert
-          String strCTSValueList = "" + intModeHeaderId + ", '" + listToken[16] + "'";
+          String strCTSValueList = intModeHeaderId + ", '" + listToken[16] + "'";
           for (int i = 0; i < 18; i++) {
             strCTSValueList += ", " + replaceInvalidValues(listToken[17 + i]);
           }
@@ -1866,7 +1892,7 @@ public class MVLoad extends MVUtil {
 
           //  build the value list for the mode_cts insert
           int intModeObjId = intModeObjIdNext++;
-          String strSingleValueList = "" + intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + listToken[17] + "'";
+          String strSingleValueList =  intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + listToken[17] + "'";
           for (int i = 0; i < 21; i++) {
             strSingleValueList += ", " + replaceInvalidValues(listToken[18 + i]);
           }
@@ -1891,11 +1917,11 @@ public class MVLoad extends MVUtil {
         else if (MODE_PAIR == intLineTypeLuId) {
 
           //  determine the mode_obj_id values for the pair
-          int intModeObjectIdFcst = (Integer) tableModeObjectId.get(matModePair.group(1));
-          int intModeObjectIdObs = (Integer) tableModeObjectId.get(matModePair.group(2));
+          int intModeObjectIdFcst =  tableModeObjectId.get(matModePair.group(1));
+          int intModeObjectIdObs =  tableModeObjectId.get(matModePair.group(2));
 
           //  build the value list for the mode_cts insert
-          String strPairValueList = "" + intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " +
+          String strPairValueList =  intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " +
             "'" + listToken[16] + "', '" + listToken[17] + "'";
           for (int i = 0; i < 12; i++) {
             strPairValueList += ", " + replaceInvalidValues(listToken[39 + i]);
@@ -1928,7 +1954,7 @@ public class MVLoad extends MVUtil {
 
     //  print a performance report
     if (_boolVerbose) {
-      long intModeHeaderLoadTime = (new java.util.Date()).getTime() - intModeHeaderLoadStart;
+      long intModeHeaderLoadTime = new Date().getTime() - intModeHeaderLoadStart;
       System.out.println(padBegin("mode_header inserts: ", 36) + intModeHeaderInserts + "\n" +
         padBegin("mode_cts inserts: ", 36) + intModeCtsInserts + "\n" +
         padBegin("mode_obj_single inserts: ", 36) + intModeObjSingleInserts + "\n" +
@@ -1978,12 +2004,15 @@ public class MVLoad extends MVUtil {
     } catch (SQLException se) {
       throw new Exception("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
-      if (ps != null)
+      if (ps != null) {
         ps.close();
-      if (stmt != null)
+      }
+      if (stmt != null) {
         stmt.close();
-      if (con != null)
+      }
+      if (con != null) {
         con.close();
+      }
     }
     return intResLineDataInsert;
   }
@@ -2045,10 +2074,12 @@ public class MVLoad extends MVUtil {
     } catch (Exception e) {
       throw new Exception(e.getMessage());
     } finally {
-      if (pstmt != null)
+      if (pstmt != null) {
         pstmt.close();
-      if (res != null)
+      }
+      if (res != null) {
         res.close();
+      }
     }
 
     return intId;
@@ -2072,12 +2103,13 @@ public class MVLoad extends MVUtil {
     if (file.length() == 0) {
       return null;
     }
-
+    SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+                   formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    String strLoadDate = _formatDB.format(cal.getTime());
+    String strLoadDate = formatDB.format(cal.getTime());
     cal.setTimeInMillis(file.lastModified());
-    String strModDate = _formatDB.format(cal.getTime());
+    String strModDate = formatDB.format(cal.getTime());
 
     // determine the type of the input data file by parsing the filename
     if (strFile.matches("\\S+\\.stat$")) {
@@ -2185,7 +2217,7 @@ public class MVLoad extends MVUtil {
     for (int i = 0; i < listIndexes.length; i++) {
       String strIndexKey = listIndexes[i].getKey().toString();
       String strField = listIndexes[i].getValue().toString();
-      long intIndexStart = (new java.util.Date()).getTime();
+      long intIndexStart = new Date().getTime();
 
       //  build a create index statment and run it
       Matcher matIndex = _patIndexName.matcher(strIndexKey);
@@ -2207,7 +2239,7 @@ public class MVLoad extends MVUtil {
       }
 
       //  print out a performance message
-      long intIndexTime = (new java.util.Date()).getTime() - intIndexStart;
+      long intIndexTime = new Date().getTime() - intIndexStart;
       System.out.println(padBegin(strIndexName + ": ", 36) + formatTimeSpan(intIndexTime));
     }
     System.out.println();

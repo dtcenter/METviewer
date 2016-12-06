@@ -1,5 +1,7 @@
 package edu.ucar.metviewer;
 
+import java.util.Arrays;
+
 public class MVLoadJob {
 
   protected String _strDBHost = "";
@@ -247,11 +249,11 @@ public class MVLoadJob {
   }
 
   public String[] getLoadFiles() {
-    return _listLoadFiles;
+    return Arrays.copyOf(_listLoadFiles, _listLoadFiles.length);
   }
 
   public void setLoadFiles(String[] loadFiles) {
-    _listLoadFiles = loadFiles;
+    _listLoadFiles = Arrays.copyOf(loadFiles, loadFiles.length);
   }
 
   public String getLoadNote() {

@@ -3,20 +3,18 @@ package edu.ucar.metviewer;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
+import java.util.*;
 
 public class MVLoadJobParser extends MVUtil {
 
-  protected final Hashtable _tableDateListDecl = new Hashtable();
+  protected final Map _tableDateListDecl = new HashMap();
   protected MVNode _nodeLoadSpec = null;
   protected MVLoadJob _job = null;
 
 
   public MVLoadJobParser(String spec) throws Exception {
 
-
+  super();
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setNamespaceAware(true);
     Document doc = dbf.newDocumentBuilder().parse(spec);
@@ -30,8 +28,13 @@ public class MVLoadJobParser extends MVUtil {
     return _job;
   }
 
-  public void parseLoadJobSpec() {
+  private void parseLoadJobSpec() {
     MVLoadJob job = new MVLoadJob();
+    List<String> listLoadFiles;
+    List<String> listVal;
+    String strFieldName;
+    MVNode nodeChild;
+    MVNode nodeField;
     for (int i = 0; null != _nodeLoadSpec && i < _nodeLoadSpec._children.length; i++) {
       MVNode node = _nodeLoadSpec._children[i];
 
@@ -92,7 +95,7 @@ public class MVLoadJobParser extends MVUtil {
 
       //  <load_files>
       else if (node._tag.equals("load_files")) {
-        ArrayList listLoadFiles = new ArrayList();
+         listLoadFiles = new ArrayList<>();
         for (int j = 0; j < node._children.length; j++) {
           listLoadFiles.add(node._children[j]._value);
         }
@@ -102,11 +105,11 @@ public class MVLoadJobParser extends MVUtil {
       //  <load_val>
       else if (node._tag.equals("load_val")) {
         for (int j = 0; j < node._children.length; j++) {
-          MVNode nodeField = node._children[j];
-          String strFieldName = nodeField._name;
-          ArrayList listVal = new ArrayList();
+           nodeField = node._children[j];
+           strFieldName = nodeField._name;
+           listVal = new ArrayList<>();
           for (int k = 0; k < nodeField._children.length; k++) {
-            MVNode nodeChild = nodeField._children[k];
+             nodeChild = nodeField._children[k];
 
             //  <val>
             if (nodeChild._tag.equals("val")) {

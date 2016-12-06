@@ -9,6 +9,7 @@ import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,62 +58,10 @@ public class MVUtil {
   public static final MVOrderedMap _tableModePairStatField = new MVOrderedMap();
   public static final MVOrderedMap _tableModeRatioField = new MVOrderedMap();
   public static final MVOrderedMap _tableCalcStatCTC = new MVOrderedMap();
-  public static SimpleDateFormat _formatDB = null;
-  public static SimpleDateFormat _formatDB_local = null;
-  public static SimpleDateFormat _formatDBms = null;
-  public static SimpleDateFormat _formatPlot = null;
-  public static SimpleDateFormat _formatStat = null;
-  public static SimpleDateFormat _formatStatVsdb = null;
-  public static SimpleDateFormat _formatFcstLead = null;
-  public static SimpleDateFormat _formatBase = null;
-  public static SimpleDateFormat _formatDate = null;
-
-  static {
-    try {
-      _formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      _formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatDB_local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    } catch (Exception e) {
-    }
-    try {
-      _formatDBms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-      _formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatPlot = new SimpleDateFormat("yyyyMMddHH");
-      _formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatStat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-      _formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatStatVsdb = new SimpleDateFormat("yyyyMMddHH");
-      _formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatFcstLead = new SimpleDateFormat("HHmmss");
-      _formatFcstLead.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatBase = new SimpleDateFormat("yyyyMMdd'b'");
-      _formatBase.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-    try {
-      _formatDate = new SimpleDateFormat("yyyyMMdd");
-      _formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
-    } catch (Exception e) {
-    }
-  }
+  public static String DB_DATE = "yyyy-MM-dd HH:mm:ss";
+  public static String DB_DATE_MS = "yyyy-MM-dd HH:mm:ss.S";
+  public static String DB_DATE_PLOT = "yyyyMMddHH";
+  public static String DB_DATE_STAT = "yyyyMMdd_HHmmss";
 
   static {
     _tableStatsEnscnt.put("ENS_RPSF", new String[]{});
@@ -247,7 +196,7 @@ public class MVUtil {
     _tableStatsPstd.put("PSTD_BSS", new String[]{"nc", PCT});
     _tableStatsPstd.put("PSTD_BRIER10", new String[]{"nc", PCT});
     _tableStatsPstd.put("PSTD_BRIER90", new String[]{"nc", PCT});
-    _tableStatsPstd.put("PSTD_BSS_SMPL", new String[]{ PCT});
+    _tableStatsPstd.put("PSTD_BSS_SMPL", new String[]{PCT});
   }
 
   static {
@@ -268,20 +217,20 @@ public class MVUtil {
     _tableStatsVl1l2.put("VL1L2_VFBAR", new String[]{});
     _tableStatsVl1l2.put("VL1L2_UOBAR", new String[]{});
     _tableStatsVl1l2.put("VL1L2_VOBAR", new String[]{});
-    _tableStatsVl1l2.put("VL1L2_FBAR", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_OBAR", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_ME", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_BIAS", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_MSE", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_RMSE", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_MAE", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_FVAR", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_OVAR", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_FSTDEV", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_OSTDEV", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_FOSTDEV", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_COV", new String[]{ VL1L2});
-    _tableStatsVl1l2.put("VL1L2_CORR", new String[]{ VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FBAR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OBAR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_ME", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_BIAS", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_MSE", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_RMSE", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_MAE", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FVAR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OVAR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FSTDEV", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OSTDEV", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FOSTDEV", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_COV", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_CORR", new String[]{VL1L2});
   }
 
   static {
@@ -580,7 +529,7 @@ public class MVUtil {
     List<String> listDates = new ArrayList<>();
 
     String strWhere = "";
-    if ((null != begin && !begin.isEmpty()) && (null != end && !end.equals(""))) {
+    if ((null != begin && !begin.isEmpty()) && (null != end && end.length()>0)) {
       strWhere = "WHERE " + field + " BETWEEN '" + begin + "' AND '" + end + "' ";
     } else if (null != begin && !begin.isEmpty()) {
       strWhere = "WHERE " + field + " >= '" + begin + "' ";
@@ -627,13 +576,13 @@ public class MVUtil {
    * @return List of date strings
    */
   public static String[] buildDateList(String start, String end, int incr, String format) {
-    SimpleDateFormat formatDate = new SimpleDateFormat(format);
+    SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.US);
     formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     ArrayList listDates = new ArrayList();
 
     try {
-      java.util.Date dateStart = formatDate.parse(start);
-      java.util.Date dateEnd = formatDate.parse(end);
+      Date dateStart = formatDate.parse(start);
+      Date dateEnd = formatDate.parse(end);
       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       cal.setTime(dateStart);
 
@@ -704,7 +653,7 @@ public class MVUtil {
       }
     }
 
-    SimpleDateFormat formatOffset = new SimpleDateFormat(format);
+    SimpleDateFormat formatOffset = new SimpleDateFormat(format, Locale.US);
     formatOffset.setTimeZone(TimeZone.getTimeZone("UTC"));
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     try {
@@ -736,7 +685,7 @@ public class MVUtil {
    * @param units specifies the units of the returned value (0-4), 0 is default
    * @return difference between input dates in the specified units
    */
-  public static long dateDiff(java.sql.Date date1, java.sql.Date date2, int units) {
+  public static long dateDiff(Date date1, Date date2, int units) {
     int intDiv = 1;
     switch (units) {
       case 1:
@@ -751,6 +700,7 @@ public class MVUtil {
       case 4:
         intDiv = 86400000;
         break;
+      default:
     }
     return (date1.getTime() - date2.getTime()) / intDiv;
   }
@@ -887,13 +837,15 @@ public class MVUtil {
 
     String strRet = tmpl;
     Matcher matTmpl = _patPlotTmpl.matcher(tmpl);
+    SimpleDateFormat formatDate = new SimpleDateFormat("yyyyMMdd", Locale.US);
+         formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     while (matTmpl.find()) {
       String strTmplTag = matTmpl.group(1);
       String strTmplTagName = matTmpl.group(2);
 
       MVOrderedMap mapParms = parseTagParams(strTmplTag);
       if (strTmplTagName.equals("date")) {
-        vals.put("date", _formatDate.format(new java.util.Date()));
+        vals.put("date", formatDate.format(new Date()));
       }
 
       if (!vals.containsKey(strTmplTagName)) {
@@ -934,13 +886,12 @@ public class MVUtil {
             strVal = "0" + strVal;
           }
 
-        } else if (strTmplTagName.equals("init_hour") || strTmplTagName.equals("valid_hour")) {
-          if (strFormat.equals("HH")) {
-            while (2 > strVal.length()) {
-              strVal = "0" + strVal;
-            }
+        } else if (strTmplTagName.equals("init_hour") || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
+          while (2 > strVal.length()) {
+            strVal = "0" + strVal;
           }
         }
+
 
         if (mapParms.getStr("format").equalsIgnoreCase("R")) {
           strVal = formatR(strVal);
@@ -948,10 +899,16 @@ public class MVUtil {
       }
 
       //  if the tag value is a date, format it accordingly
-      java.util.Date dateParse;
+      Date dateParse;
       try {
-        if (null != (dateParse = _formatDB.parse(strVal)) || null != (dateParse = _formatDBms.parse(strVal))) {
-          strVal = _formatPlot.format(dateParse);
+        SimpleDateFormat formatDB = new SimpleDateFormat(DB_DATE, Locale.US);
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat formatDBms = new SimpleDateFormat(DB_DATE_MS, Locale.US);
+        formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat formatPlot = new SimpleDateFormat(DB_DATE_PLOT, Locale.US);
+        formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
+        if (null != (dateParse = formatDB.parse(strVal)) || null != (dateParse = formatDBms.parse(strVal))) {
+          strVal = formatPlot.format(dateParse);
         }
       } catch (Exception e) {
       }
@@ -987,7 +944,8 @@ public class MVUtil {
     DecimalFormat format = new DecimalFormat("0.000");
 
     //  attempt to parse the input threshold
-    String strSymbol, strThresh;
+    String strSymbol;
+    String strThresh;
     double dblThresh;
     Matcher matFcstThresh = _patThresh.matcher(fcstThresh);
     if (matFcstThresh.matches()) {
@@ -1011,7 +969,7 @@ public class MVUtil {
     //  change the format, if requested
     if (mapParams.containsKey("format")) {
       String strFormat = mapParams.get("format").toString();
-      strThresh = (new DecimalFormat(strFormat)).format(dblThresh);
+      strThresh = new DecimalFormat(strFormat).format(dblThresh);
       strThreshRet = strSymbol + strThresh;
     }
 
@@ -1065,7 +1023,7 @@ public class MVUtil {
 
     //  parse the input values and store the numerical values in a sortable array
     double[] listVal = new double[vals.length];
-    Hashtable tableVal = new Hashtable();
+    Map tableVal = new HashMap<>();
     double dblInvalid = -.00001;
     for (int i = 0; i < vals.length; i++) {
 
@@ -1113,7 +1071,7 @@ public class MVUtil {
     //  sort the numerical values and build a sorted list of values
     Arrays.sort(listVal);
     ArrayList listRet = new ArrayList();
-    Hashtable tableAdded = new Hashtable();
+    Map<Double, String> tableAdded = new HashMap<>();
     for (int i = 0; i < listVal.length; i++) {
 
       //  verify that the values have not already been added
@@ -1150,7 +1108,7 @@ public class MVUtil {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.length];
-    Hashtable tableVal = new Hashtable();
+    Map<Double, String> tableVal = new HashMap<>();
     for (int i = 0; i < lead.length; i++) {
       listVal[i] = Double.parseDouble(lead[i]);
       String strLead = lead[i];
@@ -1164,7 +1122,7 @@ public class MVUtil {
     Arrays.sort(listVal);
     String[] listRet = new String[lead.length];
     for (int i = 0; i < listVal.length; i++) {
-      listRet[asc ? i : listVal.length - 1 - i] = tableVal.get(listVal[i]).toString();
+      listRet[asc ? i : listVal.length - 1 - i] = tableVal.get(listVal[i]);
     }
 
     return listRet;
@@ -1187,7 +1145,7 @@ public class MVUtil {
 
     //  parse and format the hours and store the numerical values in a sortable array
     double[] listVal = new double[hour.length];
-    Hashtable tableVal = new Hashtable();
+    Map<Double, String> tableVal = new HashMap<>();
     for (int i = 0; i < hour.length; i++) {
       listVal[i] = Double.parseDouble(hour[i]);
       String strHour = hour[i];
@@ -1236,7 +1194,9 @@ public class MVUtil {
    * @return the padded version of the input str
    */
   public static String padEnd(String str, String pad, int width) {
-    while (width > str.length()) str += pad;
+    while (width > str.length()) {
+      str += pad;
+    }
     return str;
   }
 
@@ -1256,7 +1216,9 @@ public class MVUtil {
    * @return the padded version of the input str
    */
   public static String padBegin(String str, String pad, int width) {
-    while (width > str.length()) str = pad + str;
+    while (width > str.length()) {
+      str = pad + str;
+    }
     return str;
   }
 
@@ -1286,9 +1248,9 @@ public class MVUtil {
     span -= intSec * 1000l;
     long intMS = span;
 
-    return (0 < intDay ? "" + intDay + "d " : "") + "" + intHr +
-      (10 > intMin ? ":0" : ":") + intMin + (10 > intSec ? ":0" : ":") + intSec + "." +
-      (100 > intMS ? "0" + (10 > intMS ? "0" : "") : "") + intMS;
+    return (0 < intDay ?  Long.toString(intDay) + "d " : "")  + Long.toString(intHr) +
+      (10 > intMin ? ":0" : ":") + Long.toString(intMin) + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "." +
+      (100 > intMS ? "0" + (10 > intMS ? "0" : "") : "") + Long.toString(intMS);
   }
 
   /**
@@ -1317,8 +1279,11 @@ public class MVUtil {
   }
 
   public static Color interpolateColor(double rel) {
-    if (rel < 0.0) return new Color(1f, 0f, 0f);
-    else if (rel > 1.0) return new Color(1f, 0f, 1f);
+    if (rel < 0.0) {
+      return new Color(1f, 0f, 0f);
+    } else if (rel > 1.0) {
+      return new Color(1f, 0f, 1f);
+    }
 
     float min = 0f;
     float max = 1f;
@@ -1421,9 +1386,6 @@ public class MVUtil {
     return ret;
   }
 
-  public static String[] decimate(String[] list) {
-    return decimate(list, Math.round((float) list.length / 30f));
-  }
 
   /**
    * Append the first array with the values of the second
@@ -1433,20 +1395,11 @@ public class MVUtil {
    * @return The combined array
    */
   public static Object[] append(Object[] l1, Object[] l2, Object[] cast) {
-    ArrayList listRet = new ArrayList();
-    for (int i = 0; i < l1.length; i++) {
-      listRet.add(l1[i]);
-    }
-    for (int i = 0; i < l2.length; i++) {
-      listRet.add(l2[i]);
-    }
+    List listRet = Arrays.asList(l1);
+    listRet.addAll(Arrays.asList(l2));
     return listRet.toArray(cast);
 
-		/*
-		List listRet = Arrays.asList(l1);
-		listRet.addAll( Arrays.asList(l2) );
-		return listRet.toArray();
-		*/
+
   }
 
   public static String[] append(String[] s1, String[] s2) {
@@ -1460,10 +1413,7 @@ public class MVUtil {
   public static String[] append(String[] s1, String s2) {
     return append(s1, new String[]{s2});
   }
-  //static{
-//		_tableStatsPhist.put("PHIST_CRPS",	new String[]{});
-//		_tableStatsPhist.put("PHIST_IGN",	new String[]{});
-//	}
+
 
   public static Map.Entry[] append(Map.Entry[] s1, Map.Entry[] s2) {
     return (Map.Entry[]) append(s1, s2, new Map.Entry[]{});
@@ -1492,13 +1442,13 @@ public class MVUtil {
   }
 
   public static String[] unique(String[] data) {
-    Hashtable table = new Hashtable();
-    for (int i = 0; i < data.length; i++) {
-      if (!table.containsKey(data[i])) {
-        table.put(data[i], "true");
+    Map<String, String> table = new HashMap<>();
+    for (String aData : data) {
+      if (!table.containsKey(aData)) {
+        table.put(aData, "true");
       }
     }
-    return (String[]) table.keySet().toArray(new String[]{});
+    return  table.keySet().toArray(new String[]{});
   }
 
   public static int sum(int[] data) {
@@ -1523,7 +1473,7 @@ public class MVUtil {
   }
 
   public static List<String> toArrayList(String[] list) {
-    ArrayList ret = new ArrayList();
+    List<String> ret = new ArrayList<>();
     ret.addAll(Arrays.asList(list));
     return ret;
   }
@@ -1549,11 +1499,7 @@ public class MVUtil {
    * @return Copied list
    */
   public static String[] copyList(String[] list) {
-    String[] listRet = new String[list.length];
-    for (int i = 0; i < list.length; i++) {
-      listRet[i] = list[i];
-    }
-    return listRet;
+    return  list.clone();
   }
 
   /**
@@ -1806,7 +1752,7 @@ public class MVUtil {
    * @param bufferedWriter The stream to write the formatted results to (defaults to _out)
    * @param delim          The delimiter to insert between field headers and values (defaults to ' ')
    */
-  public synchronized void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
+  public  void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -1835,6 +1781,8 @@ public class MVUtil {
       //  print out the table of values
       int intLine = 0;
       boolean isValValid;
+      SimpleDateFormat formatDB = new SimpleDateFormat(DB_DATE, Locale.US);
+
       while (res.next()) {
         String line = "";
         isValValid = true;
@@ -1847,12 +1795,12 @@ public class MVUtil {
             Calendar cal = Calendar.getInstance();
             cal.setTimeZone(TimeZone.getTimeZone("UTC"));
             Timestamp ts = res.getTimestamp(i, cal);
-            strVal = _formatDB_local.format(ts);
+            strVal = formatDB.format(ts);
           } else {
 
             strVal = res.getString(i);
-            strVal = (strVal.equalsIgnoreCase("null") ? "NA" : strVal);
-            strVal = (strVal.equalsIgnoreCase("-9999") ? "NA" : strVal);
+            strVal = strVal.equalsIgnoreCase("null") ? "NA" : strVal;
+            strVal = strVal.equalsIgnoreCase("-9999") ? "NA" : strVal;
           }
           String columnName = met.getColumnName(i);
           if (columnName.equals("stat_value") && isCalc && strVal.equals("NA")/*job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() */) {

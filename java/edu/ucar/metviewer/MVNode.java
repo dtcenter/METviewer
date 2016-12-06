@@ -65,7 +65,7 @@ public class MVNode {
         listChildren.add(new MVNode(nodeChild));
       }
     }
-    _children = (0 < listChildren.size() ? (MVNode[]) listChildren.toArray(new MVNode[]{}) : new MVNode[]{});
+    _children = (!listChildren.isEmpty() ? (MVNode[]) listChildren.toArray(new MVNode[]{}) : new MVNode[]{});
   }
 
   public static String printNode(MVNode mvnode, int lev) {

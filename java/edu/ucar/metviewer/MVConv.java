@@ -152,7 +152,7 @@ public class MVConv extends MVUtil {
       System.out.println("  processing " + intNumStatId + " stat_header rows\n");
 
       //  bookkeeping for performance information
-      long intStartTime = (new java.util.Date()).getTime();
+      long intStartTime = new java.util.Date().getTime();
       System.out.println("  start time: " + _formatDB.format(new java.util.Date()) + "\n");
 
       //  gather the list of stat_header_ids from the source database

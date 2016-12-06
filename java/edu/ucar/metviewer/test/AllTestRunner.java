@@ -43,7 +43,7 @@ public class AllTestRunner {
       for (Failure failure : failureListLoadDataTest) {
         System.out.println(failure.toString());
       }
-      if (failureListLoadDataTest.size() == 0) {
+      if (failureListLoadDataTest.isEmpty()) {
         System.out.println("***** Database loading tests finished successfully... *****");
       }
 
@@ -56,7 +56,7 @@ public class AllTestRunner {
     for (Failure failure : failureListCreatePlotBatchTest) {
       System.out.println(failure.toString());
     }
-    if (failureListCreatePlotBatchTest.size() == 0) {
+    if (failureListCreatePlotBatchTest.isEmpty()) {
       System.out.println("***** Plot making tests finished successfully... *****");
     }
     System.out.println("*************************************************");
@@ -65,7 +65,7 @@ public class AllTestRunner {
     for (Failure failure : failureListTestMVServlet) {
       System.out.println(failure.toString());
     }
-    if (failureListTestMVServlet.size() == 0) {
+    if (failureListTestMVServlet.isEmpty()) {
       System.out.println("***** Servlet tests finished successfully... *****");
     }
     System.out.println("*************************************************");

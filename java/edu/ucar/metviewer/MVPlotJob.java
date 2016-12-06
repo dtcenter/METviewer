@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Storage class for a xml plot specification, implementing the java bean interface.  Instances are populated by the MVPlotJobParser and handled by MVBatch.
@@ -311,11 +312,11 @@ public class MVPlotJob extends MVUtil {
     job._strCaptionSize = _strCaptionSize;
     job._strCaptionOffset = _strCaptionOffset;
     job._strCaptionAlign = _strCaptionAlign;
-    job._strBoxOutline = _strBoxOutline.toUpperCase();
-    job._strBoxPts = _strBoxPts.toUpperCase();
+    job._strBoxOutline = _strBoxOutline.toUpperCase(Locale.US);
+    job._strBoxPts = _strBoxPts.toUpperCase(Locale.US);
     job._strBoxBoxwex = _strBoxBoxwex;
-    job._strBoxNotch = _strBoxNotch.toUpperCase();
-    job._strBoxAvg = _strBoxAvg.toUpperCase();
+    job._strBoxNotch = _strBoxNotch.toUpperCase(Locale.US);
+    job._strBoxAvg = _strBoxAvg.toUpperCase(Locale.US);
     job._strRelyEventHist = _strRelyEventHist;
     job._strCIAlpha = _strCIAlpha;
     job._strEnsSsPts = _strEnsSsPts;
@@ -467,27 +468,27 @@ public class MVPlotJob extends MVUtil {
   }
 
   public String[] getIndyVal() {
-    return _listIndyVal;
+    return Arrays.copyOf(_listIndyVal, _listIndyVal.length);
   }
 
   public void setIndyVal(String[] indyVal) {
-    _listIndyVal = indyVal;
+    _listIndyVal = Arrays.copyOf(indyVal, indyVal.length);
   }
 
   public String[] getIndyPlotVal() {
-    return _listIndyPlotVal;
+    return Arrays.copyOf(_listIndyPlotVal, _listIndyPlotVal.length);
   }
 
   public void setIndyPlotVal(String[] indyPlotVal) {
-    _listIndyPlotVal = indyPlotVal;
+    _listIndyPlotVal = Arrays.copyOf(indyPlotVal, indyPlotVal.length);
   }
 
   public String[] getIndyLabel() {
-    return _listIndyLabel;
+    return Arrays.copyOf(_listIndyLabel, _listIndyLabel.length);
   }
 
   public void setIndyLabel(String[] indyLabel) {
-    _listIndyLabel = indyLabel;
+    _listIndyLabel = Arrays.copyOf(indyLabel, indyLabel.length);
   }
 
 
@@ -553,7 +554,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public MVOrderedMap[] getDepGroups() {
-    return _listDepGroup;
+    return Arrays.copyOf(_listDepGroup, _listDepGroup.length);
   }
 
   public void addDepGroup(MVOrderedMap depGroup) {
@@ -1343,7 +1344,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxOutline(String boxOutline) {
-    _strBoxOutline = boxOutline.toUpperCase();
+    _strBoxOutline = boxOutline.toUpperCase(Locale.US);
   }
 
   public String getBoxPts() {
@@ -1351,7 +1352,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxPts(String boxPts) {
-    _strBoxPts = boxPts.toUpperCase();
+    _strBoxPts = boxPts.toUpperCase(Locale.US);
   }
 
   public String getBoxBoxwex() {
@@ -1367,7 +1368,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxNotch(String boxNotch) {
-    _strBoxNotch = boxNotch.toUpperCase();
+    _strBoxNotch = boxNotch.toUpperCase(Locale.US);
   }
 
   public String getBoxAvg() {
@@ -1375,11 +1376,11 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setBoxAvg(String boxAvg) {
-    _strBoxAvg = boxAvg.toUpperCase();
+    _strBoxAvg = boxAvg.toUpperCase(Locale.US);
   }
 
   public String getRelyEventHist() {
-    return _strRelyEventHist.toUpperCase();
+    return _strRelyEventHist.toUpperCase(Locale.US);
   }
 
   public void setRelyEventHist(String relyEventHist) {
@@ -1407,7 +1408,7 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setEnsSsPtsDisp(String ensSsPtsDisp) {
-    _strEnsSsPtsDisp = ensSsPtsDisp.toUpperCase();
+    _strEnsSsPtsDisp = ensSsPtsDisp.toUpperCase(Locale.US);
   }
 
   public boolean getAggCtc() {
@@ -1775,7 +1776,7 @@ public class MVPlotJob extends MVUtil {
     for (String stat : summaryCurve) {
       result = result + "'" + stat + "'" + ",";
     }
-    if (summaryCurve.size() > 0) {
+    if (!summaryCurve.isEmpty()) {
       result = result.substring(0, result.length() - 1);
     }
     return result + ")";
