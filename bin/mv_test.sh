@@ -1,7 +1,7 @@
 #!/bin/bash
 
 JAVA=/usr/local/jdk/bin/java
-MV_HOME=/d3/projects/METViewer/src_dev/apps/verif/metviewer
+MV_HOME=/d3/projects/METViewer/src_dev/apps/METViewer
 
 # construct the classpath for MVLoad
 CLASSPATH=$MV_HOME/lib/log4j-1.2.15.jar
