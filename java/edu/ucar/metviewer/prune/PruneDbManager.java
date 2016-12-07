@@ -382,7 +382,7 @@ public class PruneDbManager {
       if (matcher.find()) {
         field = matcher.group(1);
       }
-      logger.info("Field " + field + " is not in table '" + table.getName() + ". Skipping this table");
+      logger.info("Field " + field + " is not in table '" + table.getName() + "'. Skipping this table");
     }
   }
 
