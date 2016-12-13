@@ -3486,6 +3486,8 @@ function addFixedVar() {
 
     var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, dialog, fix_var_event_equal, fix_var_event_equal_label;
     var is_not_visible = $('#fixed_var_table').css("display") === 'none';
+    var isEq = $('#event_equal').prop("checked");
+
     if (is_not_visible) {
         if (fixed_var_indexes.length === 0) {
             fixed_var_indexes.push(new_index);
@@ -3501,7 +3503,7 @@ function addFixedVar() {
         fixed_var_val = $("#fixed_var_val_" + new_index);
         fixed_var_val_date_period_button = $("#fixed_var_val_date_period_button_" + new_index);
         dialog = $("#fixed_var_val_date_period_" + new_index);
-        $("#fix_var_event_equal_" + new_index).prop("checked", true);
+        $("#fix_var_event_equal_" + new_index).prop("checked", isEq).prop('disabled', !isEq);
 
     } else {
         new_index = parseInt(last_index) + 1;
@@ -3532,7 +3534,7 @@ function addFixedVar() {
         dialog.find("#fixed_var_val_date_period_by_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_' + new_index);
         dialog.find("#fixed_var_val_date_period_by_unit_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_unit_' + new_index);
         fix_var_event_equal = $("#fix_var_event_equal_" + last_index).clone(true)
-                .prop("id", 'fix_var_event_equal_' + new_index).prop("checked", true);
+                .prop("id", 'fix_var_event_equal_' + new_index).prop("checked", isEq).prop('disabled', !isEq);
         if ($("#fix_var_event_equal_" + last_index).find('label').size() > 0) {
             fix_var_event_equal_label = $('<label for="fix_var_event_equal_' + new_index + '">Equalize</label>');
         }
@@ -3542,9 +3544,7 @@ function addFixedVar() {
                 .append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button)).append($('<td>').append(fix_var_event_equal).append(fix_var_event_equal_label)));
     }
 
-
     createValDatePeriodDialog('fixed_var_val', new_index);
-
     fixed_var_val.multiselect({
         selectedList: 100, // 0-based index
         noneSelectedText: "Select value",
@@ -3553,6 +3553,7 @@ function addFixedVar() {
             at: 'right center'
         }
     });
+
     fixed_var.multiselect({
         multiple: false,
         selectedList: 1,
