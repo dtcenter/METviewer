@@ -289,7 +289,6 @@
                         removeFixedVar($(this).attr('id'));
                     });
 
-            $('#indy_var_event_equal ').prop("checked", true);
             $('#event_equal').prop("checked", false);
             $("#calc_stat").multiselect({
                 multiple: false,
@@ -297,6 +296,23 @@
                 header: false,
                 minWidth: 'auto',
                 height: 'auto'
+            });
+            $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
+            $("#fix_var_event_equal_1").prop('checked', false).prop('disabled', true);
+
+            $('#event_equal').on("click", function () {
+                if ($(this).prop("checked")) {
+                    for (var i = 0; i < fixed_var_indexes.length; i++) {
+                        $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', true).prop('disabled', false);
+                    }
+                    $("#indy_var_event_equal").prop('checked', true).prop('disabled', false);
+                } else {
+                    for (var i = 0; i < fixed_var_indexes.length; i++) {
+                        $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', false).prop('disabled', true);
+                    }
+                    $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
+
+                }
             });
             if (initXML != null) {
                 loadXMLSeries();
@@ -450,15 +466,15 @@
                         style="display: none;">Select period
                 </button>
             </td>
-            <td><input type="checkbox" id="fix_var_event_equal_1" checked><label for="fix_var_event_equal_1">Equalize</label> </td>
+            <td><input type="checkbox" id="fix_var_event_equal_1" title='Add entry to event equalization logic'><label for="fix_var_event_equal_1" title='Add entry to event equalization logic'>Equalize</label> </td>
 
         </tr>
     </table>
         <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
     <div>
 
-         <input type="checkbox" id="event_equal">
-                         <label for="event_equal">Event Equalizer</label>
+         <input type="checkbox" id="event_equal" title="Equalize based on the valid time, lead time, and all series entries">
+                         <label for="event_equal" title="Equalize based on the valid time, lead time, and all series entries">Event Equalizer</label>
        </div>
        </div>
     <br/>
@@ -467,7 +483,7 @@
 
 
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all"  >
-    <div class="ui-widget-header-plot">Independent Variables:<button class="help-button" style="float: right;" alt="indep">Help</button></div>
+    <div class="ui-widget-header-plot">Independent Variable:<button class="help-button" style="float: right;" alt="indep">Help</button></div>
 
     <table id='indy_var_table'>
             <tr>
@@ -497,7 +513,7 @@
 
                 </td>
                 <td><button id="date_period_button" style="display: none;">Select multiple options</button></td>
-                <td><input type="checkbox" checked="" id="indy_var_event_equal"><label for="indy_var_event_equal">Equalize</label></td>
+                <td><input type="checkbox"  id="indy_var_event_equal" title='Add entry to event equalization logic'><label for="indy_var_event_equal" title='Add entry to event equalization logic'>Equalize</label></td>
 
             </tr>
         </table>
