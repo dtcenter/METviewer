@@ -1289,7 +1289,7 @@ public class MVBatch extends MVUtil {
       for (int i = 0; i < listSQLLastSelect.size(); i++) {
         try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
              ResultSet rs = stmt.executeQuery(listSQLLastSelect.get(i));
-             FileWriter fstream = new FileWriter(new File(strDataFile), false);
+             FileWriter fstream = new FileWriter(new File(strDataFile), i != 0);
              BufferedWriter out = new BufferedWriter(fstream)) {
 
           printFormattedTable(rs, out, "\t", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), i == 0);
