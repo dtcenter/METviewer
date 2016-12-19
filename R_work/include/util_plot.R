@@ -187,8 +187,10 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
       warning("\nWARNING: eventEqualize() detected non-unique events   for ", dfVarsForEEPerm[index,], " using [fcst_valid_beg,fcst_lead)]" );
     }
 
-    if( 0 < sum(is.na(listEqualize) ) || length(listEqualize) == 0 ){
+    #if(  0 < sum(is.na(listEqualize) ) || length(listEqualize) == 0 ){
+    if(  index == 1 ){
       #init the equalization list
+
       listEqualize = unique(dfComp$equalize);
     } else {
       # if there is an equalization list, equalize the current series data
@@ -200,7 +202,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
       listDiscard = listEqualize[ !listInd ];
 
       #add cases that are in current permutation but not in the common cases and add them to the discarded list
-      listDiscard = append(listDiscard, dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]);
+      listDiscard = append(listDiscard, unique(dfComp$equalize[ !(dfComp$equalize %in% listEqualize) ]));
 
       # report the discarded records
       for(strDiscard in listDiscard){ cat("\n    WARNING: discarding series member with case", strDiscard, " for ", dfVarsForEEPerm[index,] ); }
@@ -715,6 +717,16 @@ calcDerivedCurveValue = function(val1, val2, derivedCurveName){
   }
   result[result == Inf ] = NA;
   return( result );
+}
+
+
+atan2d <- function (y, x) {
+  if (nargs() != 2) {
+    stop("There should only be two arguments.")
+  }
+  stopifnot(is.numeric((c(y, x)))) # from pracma trisolve
+  y <- 180 / pi * atan2 (y, x)
+  return(y)
 }
 
 

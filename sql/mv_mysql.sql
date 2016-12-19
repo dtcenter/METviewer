@@ -1980,13 +1980,7 @@ CREATE FUNCTION calcVL1L2_OBAR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vo
         RETURN IFNULL(result, 'NA');
     END |
 
-DROP FUNCTION IF EXISTS calcVL1L2_ME |
-CREATE FUNCTION calcVL1L2_ME(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL, uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
-    BEGIN
-        DECLARE result DECIMAL(12, 6);
-        SET result = SQRT(POW(ufbar, 2) - 2 * ufbar * uobar + POW(uobar, 2) + POW(vfbar, 2) - 2 * vfbar * vobar + POW(vobar, 2));
-        RETURN IFNULL(result, 'NA');
-    END |
+
 
 
 DROP FUNCTION IF EXISTS calcVL1L2_BIAS |
@@ -2018,14 +2012,6 @@ CREATE FUNCTION calcVL1L2_RMSE(total INT, ufbar REAL, vfbar REAL, uobar REAL, vo
         RETURN IFNULL(result, 'NA');
     END |
 
-DROP FUNCTION IF EXISTS calcVL1L2_MAE |
-CREATE FUNCTION calcVL1L2_MAE(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
-    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
-    BEGIN
-        DECLARE result DECIMAL(12, 6);
-        SET result =  SQRT(POW(ufbar, 2) -2 * ufbar * uobar + POW(uobar, 2) + POW(vfbar, 2) - 2 * vfbar * vobar + POW(vobar, 2));
-        RETURN IFNULL(result, 'NA');
-    END |
 
 DROP FUNCTION IF EXISTS calcVL1L2_FVAR |
 CREATE FUNCTION calcVL1L2_FVAR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
@@ -2093,6 +2079,140 @@ CREATE FUNCTION calcVL1L2_CORR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vo
         RETURN IFNULL(result, 'NA');
     END |
 
+DROP FUNCTION IF EXISTS calc_spd |
+CREATE FUNCTION calc_spd(u REAL, v REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN
+  RETURN  SQRT( POW(u, 2) + POW(v, 2) ) ;
+END |
+
+DROP FUNCTION IF EXISTS calc_dir |
+CREATE FUNCTION calc_dir(u REAL, v REAL) RETURNS CHAR(16) DETERMINISTIC
+
+  BEGIN
+    DECLARE tolerance DECIMAL(12, 6);
+    DECLARE result DECIMAL(12, 6);
+    SET tolerance = 1e-5;
+    IF ABS(u - 0) < tolerance && ABS(v - 0) < tolerance THEN RETURN 'NA'; END IF;
+    SET result = 180 / PI() * ATAN2(u, v);
+    RETURN result;
+
+  END|
+
+
+
+DROP FUNCTION IF EXISTS calcVL1L2_FSPD |
+CREATE FUNCTION calcVL1L2_FSPD(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calc_spd( ufbar, vfbar );
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_OSPD |
+CREATE FUNCTION calcVL1L2_OSPD(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calc_spd( uobar, vobar );
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_FDIR |
+CREATE FUNCTION calcVL1L2_FDIR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calc_dir(-ufbar, -vfbar);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_ODIR |
+CREATE FUNCTION calcVL1L2_ODIR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calc_dir(-uobar, -vobar);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_VDIFF_SPD |
+CREATE FUNCTION calcVL1L2_VDIFF_SPD(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calc_spd( ufbar-uobar, vfbar-vobar );
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_VDIFF_DIR |
+CREATE FUNCTION calcVL1L2_VDIFF_DIR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calc_dir( -(ufbar-uobar), -(vfbar-vobar) );
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_SPD_ERR |
+CREATE FUNCTION calcVL1L2_SPD_ERR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = calcVL1L2_FSPD(total ,ufbar ,vfbar ,uobar ,vobar ,uvfobar ,uvffbar ,uvoobar) -
+                     calcVL1L2_OSPD(total ,ufbar ,vfbar ,uobar ,vobar ,uvfobar ,uvffbar ,uvoobar);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_SPD_ABSERR |
+CREATE FUNCTION calcVL1L2_SPD_ABSERR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = ABS( calcVL1L2_SPD_ERR(total ,ufbar ,vfbar ,uobar ,vobar ,uvfobar ,uvffbar ,uvoobar));
+        RETURN IFNULL(result, 'NA');
+    END |
+
+
+DROP FUNCTION IF EXISTS calcVL1L2_DIR_ERR |
+CREATE FUNCTION calcVL1L2_DIR_ERR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+      DECLARE result DECIMAL(12, 6);
+             DECLARE len DECIMAL(12, 6);
+             DECLARE uf DECIMAL(12, 6);
+             DECLARE vf DECIMAL(12, 6);
+             DECLARE uo DECIMAL(12, 6);
+             DECLARE vo DECIMAL(12, 6);
+             DECLARE a DECIMAL(12, 6);
+             DECLARE b DECIMAL(12, 6);
+
+
+        SET len = calcVL1L2_FSPD(total ,ufbar ,vfbar ,uobar ,vobar ,uvfobar ,uvffbar ,uvoobar);
+        SET uf = ufbar / len;
+        SET vf = vfbar / len;
+
+        SET len = calcVL1L2_OSPD(total ,ufbar ,vfbar ,uobar ,vobar ,uvfobar ,uvffbar ,uvoobar);
+        SET uo = uobar / len;
+        SET vo = vobar / len;
+
+        SET a = vo*uf - uo*vf;
+        SET b = uo*uf + vo*vf;
+
+        IF 0 = a && 0 = b THEN RETURN 'NA'; END IF;
+
+        SET result =calc_dir(a, b);
+        RETURN IFNULL(result, 'NA');
+    END |
+
+DROP FUNCTION IF EXISTS calcVL1L2_DIR_ABSERR |
+CREATE FUNCTION calcVL1L2_DIR_ABSERR(total INT, ufbar REAL, vfbar REAL, uobar REAL, vobar REAL, uvfobar REAL, uvffbar REAL,
+    uvoobar REAL) RETURNS CHAR(16) DETERMINISTIC
+    BEGIN
+        DECLARE result DECIMAL(12, 6);
+        SET result = ABS( calcVL1L2_VDIFF_DIR(total , ufbar , vfbar , uobar , vobar , uvfobar , uvffbar ,uvoobar ));
+        RETURN IFNULL(result, 'NA');
+    END |
 
 DELIMITER ;
 
