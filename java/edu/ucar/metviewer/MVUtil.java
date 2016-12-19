@@ -219,11 +219,10 @@ public class MVUtil {
     _tableStatsVl1l2.put("VL1L2_VOBAR", new String[]{});
     _tableStatsVl1l2.put("VL1L2_FBAR", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_OBAR", new String[]{VL1L2});
-    _tableStatsVl1l2.put("VL1L2_ME", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_BIAS", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_MSE", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_RMSE", new String[]{VL1L2});
-    _tableStatsVl1l2.put("VL1L2_MAE", new String[]{VL1L2});
+
     _tableStatsVl1l2.put("VL1L2_FVAR", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_OVAR", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_FSTDEV", new String[]{VL1L2});
@@ -231,6 +230,22 @@ public class MVUtil {
     _tableStatsVl1l2.put("VL1L2_FOSTDEV", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_COV", new String[]{VL1L2});
     _tableStatsVl1l2.put("VL1L2_CORR", new String[]{VL1L2});
+
+
+    _tableStatsVl1l2.put("VL1L2_FSPD", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_OSPD", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_FDIR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_ODIR", new String[]{VL1L2});
+
+    _tableStatsVl1l2.put("VL1L2_VDIFF_SPD", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_VDIFF_DIR", new String[]{VL1L2});
+
+    _tableStatsVl1l2.put("VL1L2_SPD_ERR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_SPD_ABSERR", new String[]{VL1L2});
+
+    _tableStatsVl1l2.put("VL1L2_DIR_ABSERR", new String[]{VL1L2});
+    _tableStatsVl1l2.put("VL1L2_DIR_ERR", new String[]{VL1L2});
+
   }
 
   static {
