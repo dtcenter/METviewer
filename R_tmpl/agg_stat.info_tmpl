@@ -12,6 +12,7 @@ intNumReplicates = #<boot_repl>#;
 strCIType = "#<boot_ci>#";
 dblAlpha = #<ci_alpha>#;
 boolEqualizeByIndep = #<equalize_by_indep>#;
+boolAppend = #<append_to_file>#;
 
 # data set information
 strIndyVar = "#<indy_var>#";
