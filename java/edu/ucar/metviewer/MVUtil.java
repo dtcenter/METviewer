@@ -1,7 +1,10 @@
 package edu.ucar.metviewer;
 
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -59,8 +62,6 @@ public class MVUtil {
   public static String DB_DATE_MS = "yyyy-MM-dd HH:mm:ss.S";
   public static String DB_DATE_PLOT = "yyyyMMddHH";
   public static String DB_DATE_STAT = "yyyyMMdd_HHmmss";
-  public static final Pattern _patRTmpl = Pattern.compile("#<(\\w+)>#");
-
 
   static {
     _tableStatsEnscnt.put("ENS_RPSF", new String[]{});
@@ -545,7 +546,7 @@ public class MVUtil {
     List<String> listDates = new ArrayList<>();
 
     String strWhere = "";
-    if ((null != begin && !begin.isEmpty()) && (null != end && end.length() > 0)) {
+    if ((null != begin && !begin.isEmpty()) && (null != end && end.length()>0)) {
       strWhere = "WHERE " + field + " BETWEEN '" + begin + "' AND '" + end + "' ";
     } else if (null != begin && !begin.isEmpty()) {
       strWhere = "WHERE " + field + " >= '" + begin + "' ";
@@ -854,7 +855,7 @@ public class MVUtil {
     String strRet = tmpl;
     Matcher matTmpl = _patPlotTmpl.matcher(tmpl);
     SimpleDateFormat formatDate = new SimpleDateFormat("yyyyMMdd", Locale.US);
-    formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+         formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     while (matTmpl.find()) {
       String strTmplTag = matTmpl.group(1);
       String strTmplTagName = matTmpl.group(2);
@@ -1264,7 +1265,7 @@ public class MVUtil {
     span -= intSec * 1000l;
     long intMS = span;
 
-    return (0 < intDay ? Long.toString(intDay) + "d " : "") + Long.toString(intHr) +
+    return (0 < intDay ?  Long.toString(intDay) + "d " : "")  + Long.toString(intHr) +
       (10 > intMin ? ":0" : ":") + Long.toString(intMin) + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "." +
       (100 > intMS ? "0" + (10 > intMS ? "0" : "") : "") + Long.toString(intMS);
   }
@@ -1415,6 +1416,7 @@ public class MVUtil {
     listRet.addAll(Arrays.asList(l2));
     return listRet.toArray(cast);
 
+
   }
 
   public static String[] append(String[] s1, String[] s2) {
@@ -1463,7 +1465,7 @@ public class MVUtil {
         table.put(aData, "true");
       }
     }
-    return table.keySet().toArray(new String[]{});
+    return  table.keySet().toArray(new String[]{});
   }
 
   public static int sum(int[] data) {
@@ -1514,7 +1516,7 @@ public class MVUtil {
    * @return Copied list
    */
   public static String[] copyList(String[] list) {
-    return list.clone();
+    return  list.clone();
   }
 
   /**
@@ -1764,10 +1766,10 @@ public class MVUtil {
    * Prints a textual representation of the input {@link ResultSet} with the field names in the first row to the specified {@link BufferedWriter} destination.
    *
    * @param res            The ResultSet to print
-   * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
+   * @param bufferedWriter The stream to write the formatted results to (defaults to _out)
    * @param delim          The delimiter to insert between field headers and values (defaults to ' ')
    */
-  public static void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
+  public  void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -1850,150 +1852,100 @@ public class MVUtil {
   }
 
 
-  public boolean runRscript(String rscript, String script, boolean _boolSQLOnly) throws Exception {
-    return runRscript(rscript, script, new String[]{}, _boolSQLOnly);
-  }
+  public boolean runRscript(String rscript, String script,  boolean _boolSQLOnly) throws Exception {
+      return runRscript(rscript, script, new String[]{}, _boolSQLOnly);
+    }
 
   /**
-   * Run the input R script named r using the Rscript command.  The output and error output will be written to standard output.
-   *
-   * @param rscript Rscript command
-   * @param script  R script to run
-   * @param args    (optional) Arguments to pass to the R script
-   * @throws Exception
-   */
-  public boolean runRscript(String rscript, String script, String[] args, boolean _boolSQLOnly) throws Exception {
+     * Run the input R script named r using the Rscript command.  The output and error output will be written to standard output.
+     *
+     * @param rscript Rscript command
+     * @param script  R script to run
+     * @param args    (optional) Arguments to pass to the R script
+     * @throws Exception
+     */
+    public boolean runRscript(String rscript, String script, String[] args, boolean _boolSQLOnly) throws Exception {
 
-    //  build a list of arguments
-    StringBuilder strArgList = new StringBuilder();
-    for (int i = 0; null != args && i < args.length; i++) {
-      strArgList.append(' ').append(args[i]);
-    }
-
-    //  run the R script and wait for it to complete
-    if (!_boolSQLOnly) {
-      _out.println("\nRunning '" + rscript + " " + script + "'");
-    }
-
-    Process proc = null;
-    InputStreamReader inputStreamReader = null;
-    InputStreamReader errorInputStreamReader = null;
-
-    BufferedReader readerProcStd = null;
-    BufferedReader readerProcErr = null;
-
-    boolean boolExit = false;
-    int intExitStatus = 0;
-    StringBuilder strProcStd = new StringBuilder();
-    StringBuilder strProcErr = new StringBuilder();
-
-
-    try {
-
-      proc = Runtime.getRuntime().exec(rscript + " " + script + strArgList);
-      inputStreamReader = new InputStreamReader(proc.getInputStream());
-      errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
-
-      readerProcStd = new BufferedReader(inputStreamReader);
-      readerProcErr = new BufferedReader(errorInputStreamReader);
-      while (!boolExit) {
-        try {
-          intExitStatus = proc.exitValue();
-          boolExit = true;
-        } catch (Exception e) {
-        }
-
-        while (readerProcStd.ready()) {
-          strProcStd.append(readerProcStd.readLine()).append('\n');
-        }
-        while (readerProcErr.ready()) {
-          strProcErr.append(readerProcErr.readLine()).append('\n');
-        }
-      }
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    } finally {
-
-      if (inputStreamReader != null) {
-        inputStreamReader.close();
-      }
-      if (errorInputStreamReader != null) {
-        errorInputStreamReader.close();
-      }
-      if (readerProcStd != null) {
-        readerProcStd.close();
-      }
-      if (readerProcErr != null) {
-        readerProcErr.close();
-      }
-      if (proc != null) {
-        proc.destroy();
+      //  build a list of arguments
+      StringBuilder strArgList = new StringBuilder();
+      for (int i = 0; null != args && i < args.length; i++) {
+        strArgList.append(' ').append(args[i]);
       }
 
-    }
+      //  run the R script and wait for it to complete
+      if (!_boolSQLOnly) {
+        _out.println("\nRunning '" + rscript + " " + script + "'");
+      }
+
+      Process proc = null;
+      InputStreamReader inputStreamReader = null;
+      InputStreamReader errorInputStreamReader = null;
+
+      BufferedReader readerProcStd = null;
+      BufferedReader readerProcErr = null;
+
+      boolean boolExit = false;
+      int intExitStatus = 0;
+      StringBuilder strProcStd = new StringBuilder();
+      StringBuilder strProcErr = new StringBuilder();
 
 
-    if (strProcStd.length() > 0 && !_boolSQLOnly) {
-      _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
-    }
+      try {
 
-    if (strProcErr.length() > 0 && !_boolSQLOnly) {
-      _out.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
-    }
+        proc = Runtime.getRuntime().exec(rscript + " " + script + strArgList);
+        inputStreamReader = new InputStreamReader(proc.getInputStream());
+        errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
-    //  return the success flag
-    return 0 == intExitStatus;
-  }
-
-  /**
-   * Populate the template tags in the input template file named tmpl with values from the input table vals and write the result to the output file named
-   * output.
-   *
-   * @param tmpl   Template file to populate
-   * @param output Output file to write
-   * @param vals   Table containing values corresponding to tags in the input template
-   * @throws Exception
-   */
-  public static void populateTemplateFile(String tmpl, String output, Map<String, String> vals) throws Exception {
-    FileReader fileReader = null;
-    BufferedReader reader = null;
-    PrintStream writer = null;
-    try {
-      fileReader = new FileReader(tmpl);
-      reader = new BufferedReader(fileReader);
-      writer = new PrintStream(output);
-      while (reader.ready()) {
-        String strTmplLine = reader.readLine();
-        String strOutputLine = strTmplLine;
-
-        Matcher matRtmplLine = _patRTmpl.matcher(strTmplLine);
-        while (matRtmplLine.find()) {
-          String strRtmplTag = matRtmplLine.group(1);
-          if (!vals.containsKey(strRtmplTag)) {
-            continue;
+        readerProcStd = new BufferedReader(inputStreamReader);
+        readerProcErr = new BufferedReader(errorInputStreamReader);
+        while (!boolExit) {
+          try {
+            intExitStatus = proc.exitValue();
+            boolExit = true;
+          } catch (Exception e) {
           }
-          String strRTagVal = vals.get(strRtmplTag);
-          strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
+
+          while (readerProcStd.ready()) {
+            strProcStd.append(readerProcStd.readLine()).append('\n');
+          }
+          while (readerProcErr.ready()) {
+            strProcErr.append(readerProcErr.readLine()).append('\n');
+          }
+        }
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      } finally {
+
+        if (inputStreamReader != null) {
+          inputStreamReader.close();
+        }
+        if (errorInputStreamReader != null) {
+          errorInputStreamReader.close();
+        }
+        if (readerProcStd != null) {
+          readerProcStd.close();
+        }
+        if (readerProcErr != null) {
+          readerProcErr.close();
+        }
+        if (proc != null) {
+          proc.destroy();
         }
 
-        writer.println(strOutputLine);
-      }
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-      if (writer != null) {
-        writer.close();
-      }
-      if (fileReader != null) {
-        fileReader.close();
       }
 
+
+      if (strProcStd.length() > 0 && !_boolSQLOnly) {
+        _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
+      }
+
+      if (strProcErr.length() > 0 && !_boolSQLOnly) {
+        _out.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
+      }
+
+      //  return the success flag
+      return 0 == intExitStatus;
     }
-
-  }
 
   /**
    * An instantiable (default) instance of the Map.Entry class for manipulating Map.Entry[] structures
