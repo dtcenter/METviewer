@@ -1,3 +1,4 @@
+#.libPaths("/common/data/web/metviewer/dev/r-lib");
 library(plotrix)
 taylor.diagram.custom<-function(data,col,pch,pos.cor,show.gamma ){
     # Add the col and pch vectors as columns to the 'data' dataframe
