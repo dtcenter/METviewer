@@ -814,7 +814,7 @@ for(strIndyVal in listIndyVal){
     # bootstrap the series data
     dfBoot = data.frame(listBoot, check.names=FALSE);
     stBoot = Sys.time();
-    bootStat = try(boot(dfBoot, booter.iid, R=intNumReplicates , parallel = 'multicore', ncpus=4 ));
+    bootStat = try(boot(dfBoot, booter.iid, intNumReplicates));
 
     dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
     intNumBoots = intNumBoots + 1;
@@ -867,7 +867,11 @@ for(strIndyVal in listIndyVal){
     }
     if(length(listDiffSeries) > 0){
       for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
-
+        if( 1 < intNumReplicates ){
+          stBootCI = Sys.time();
+          bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+          dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+        }
 
         diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
         listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
@@ -888,38 +892,13 @@ for(strIndyVal in listIndyVal){
           stat_name == paste(strStat1,strStat2,collapse = "", sep=",");
         }
 
-      listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
+        listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
 
-      diff_sig = NA;
-      # Use the empirical distribution and just compute the ratio of differences < 0 if needed
-      if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
-        diff_repl = bootStat$t[,intBootIndex];
-        if(all(is.na(diff_repl))){
-          dfOut[listOutInd1,]$stat_value = NA;
-        }else{
-          pval_emp = sum( diff_repl < 0 ) / length( diff_repl );
-
-          if( mean(diff_repl) > 0 ){
-            diff_sig = pval_emp * -1;
-          }else{
-            diff_sig = pval_emp;
-          }
-
-          dfOut[listOutInd1,]$stat_value = diff_sig;
-        }
-      }else{
-        if( 1 < intNumReplicates ){
-          stBootCI = Sys.time();
-          bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-          dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-        }
         dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-      };
-
         dfOut[listOutInd1,]$nstats = 0;
         strCIParm = strCIType;
         if( strCIType == "perc" ){ strCIParm = "percent"; }
-        if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
+        if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
           dfOut[listOutInd1,]$stat_bcl = bootCI[[strCIParm]][4];
           dfOut[listOutInd1,]$stat_bcu = bootCI[[strCIParm]][5];
         } else {
