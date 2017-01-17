@@ -250,6 +250,7 @@ public class MVUtil {
 
   static {
     _tableStatHeaderSQLType.put("model", "VARCHAR(64)");
+    _tableStatHeaderSQLType.put("descr", "VARCHAR(64)");
     _tableStatHeaderSQLType.put("fcst_lead", "INT");
     _tableStatHeaderSQLType.put("fcst_valid_beg", "DATETIME");
     _tableStatHeaderSQLType.put("fcst_valid_end", "DATETIME");
@@ -273,6 +274,7 @@ public class MVUtil {
 
   static {
     _tableModeHeaderSQLType.put("model", "VARCHAR(64)");
+    _tableModeHeaderSQLType.put("descr", "VARCHAR(64)");
     _tableModeHeaderSQLType.put("fcst_lead", "INT UNSIGNED");
     _tableModeHeaderSQLType.put("fcst_valid", "DATETIME");
     _tableModeHeaderSQLType.put("fcst_accum", "INT UNSIGNED");
@@ -1848,6 +1850,102 @@ public class MVUtil {
       e.printStackTrace();
     }
   }
+
+
+  public boolean runRscript(String rscript, String script,  boolean _boolSQLOnly) throws Exception {
+      return runRscript(rscript, script, new String[]{}, _boolSQLOnly);
+    }
+
+  /**
+     * Run the input R script named r using the Rscript command.  The output and error output will be written to standard output.
+     *
+     * @param rscript Rscript command
+     * @param script  R script to run
+     * @param args    (optional) Arguments to pass to the R script
+     * @throws Exception
+     */
+    public boolean runRscript(String rscript, String script, String[] args, boolean _boolSQLOnly) throws Exception {
+
+      //  build a list of arguments
+      StringBuilder strArgList = new StringBuilder();
+      for (int i = 0; null != args && i < args.length; i++) {
+        strArgList.append(' ').append(args[i]);
+      }
+
+      //  run the R script and wait for it to complete
+      if (!_boolSQLOnly) {
+        _out.println("\nRunning '" + rscript + " " + script + "'");
+      }
+
+      Process proc = null;
+      InputStreamReader inputStreamReader = null;
+      InputStreamReader errorInputStreamReader = null;
+
+      BufferedReader readerProcStd = null;
+      BufferedReader readerProcErr = null;
+
+      boolean boolExit = false;
+      int intExitStatus = 0;
+      StringBuilder strProcStd = new StringBuilder();
+      StringBuilder strProcErr = new StringBuilder();
+
+
+      try {
+
+        proc = Runtime.getRuntime().exec(rscript + " " + script + strArgList);
+        inputStreamReader = new InputStreamReader(proc.getInputStream());
+        errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
+
+        readerProcStd = new BufferedReader(inputStreamReader);
+        readerProcErr = new BufferedReader(errorInputStreamReader);
+        while (!boolExit) {
+          try {
+            intExitStatus = proc.exitValue();
+            boolExit = true;
+          } catch (Exception e) {
+          }
+
+          while (readerProcStd.ready()) {
+            strProcStd.append(readerProcStd.readLine()).append('\n');
+          }
+          while (readerProcErr.ready()) {
+            strProcErr.append(readerProcErr.readLine()).append('\n');
+          }
+        }
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      } finally {
+
+        if (inputStreamReader != null) {
+          inputStreamReader.close();
+        }
+        if (errorInputStreamReader != null) {
+          errorInputStreamReader.close();
+        }
+        if (readerProcStd != null) {
+          readerProcStd.close();
+        }
+        if (readerProcErr != null) {
+          readerProcErr.close();
+        }
+        if (proc != null) {
+          proc.destroy();
+        }
+
+      }
+
+
+      if (strProcStd.length() > 0 && !_boolSQLOnly) {
+        _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
+      }
+
+      if (strProcErr.length() > 0 && !_boolSQLOnly) {
+        _out.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
+      }
+
+      //  return the success flag
+      return 0 == intExitStatus;
+    }
 
   /**
    * An instantiable (default) instance of the Map.Entry class for manipulating Map.Entry[] structures
