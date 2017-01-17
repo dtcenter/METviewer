@@ -1123,6 +1123,7 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_stat1", printRCol(toArray(listAggStats1), true));
         tableAggStatInfo.put("agg_stat2", printRCol(toArray(listAggStats2), true));
         tableAggStatInfo.put("agg_stat_static", mapAggStatStatic.getRDecl());
+        tableAggStatInfo.put("append_to_file", "FALSE");
 
         tableAggStatInfo.put("working_dir", _strRworkFolder + "/include");
         tableAggStatInfo.put("event_equal", job.getEventEqual() ? "TRUE" : "FALSE");
@@ -1183,7 +1184,7 @@ public class MVBatch extends MVUtil {
 
 
             populateTemplateFile(_strRtmplFolder + "/" + tmplFileName, eeInfo, tableAggStatInfo);
-            runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo});
+            runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo},_boolSQLOnly);
 
           } catch (Exception e) {
             throw e;
@@ -1396,7 +1397,7 @@ public class MVBatch extends MVUtil {
             scriptFileName = "include/agg_pct.R";
           }
 
-          runRscript(job.getRscript(), _strRworkFolder + scriptFileName, new String[]{strAggInfo});
+          runRscript(job.getRscript(), _strRworkFolder + scriptFileName, new String[]{strAggInfo},_boolSQLOnly);
 
           if (!fileAggOutput.exists()) {
             return;
@@ -1631,7 +1632,7 @@ public class MVBatch extends MVUtil {
 			 */
 
 
-      boolean boolSuccess = runRscript(job.getRscript(), strRFile);
+      boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       _intNumPlotsRun++;
       _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile);
 
@@ -2696,7 +2697,7 @@ public class MVBatch extends MVUtil {
 			 */
 
 
-      boolean boolSuccess = runRscript(job.getRscript(), strRFile);
+      boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       if (!strMsg.isEmpty()) {
         _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
       }
@@ -2924,7 +2925,7 @@ public class MVBatch extends MVUtil {
   			 */
 
 
-      boolean boolSuccess = runRscript(job.getRscript(), strRFile);
+      boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       if (strMsg.length() > 0) {
         _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
       }
@@ -3242,7 +3243,7 @@ public class MVBatch extends MVUtil {
        *  Attempt to run the generated R script
 			 */
 
-      boolean boolSuccess = runRscript(job.getRscript(), strRFile);
+      boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       _intNumPlotsRun++;
       _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
     }
@@ -3301,100 +3302,8 @@ public class MVBatch extends MVUtil {
     return listPlotFixVal;
   }
 
-  /**
-   * Run the input R script named r using the Rscript command.  The output and error output will be written to standard output.
-   *
-   * @param rscript Rscript command
-   * @param script  R script to run
-   * @param args    (optional) Arguments to pass to the R script
-   * @throws Exception
-   */
-  public boolean runRscript(String rscript, String script, String[] args) throws Exception {
-
-    //  build a list of arguments
-    StringBuilder strArgList = new StringBuilder();
-    for (int i = 0; null != args && i < args.length; i++) {
-      strArgList.append(' ').append(args[i]);
-    }
-
-    //  run the R script and wait for it to complete
-    if (!_boolSQLOnly) {
-      _out.println("\nRunning '" + rscript + " " + script + "'");
-    }
-
-    Process proc = null;
-    InputStreamReader inputStreamReader = null;
-    InputStreamReader errorInputStreamReader = null;
-
-    BufferedReader readerProcStd = null;
-    BufferedReader readerProcErr = null;
-
-    boolean boolExit = false;
-    int intExitStatus = 0;
-    StringBuilder strProcStd = new StringBuilder();
-    StringBuilder strProcErr = new StringBuilder();
 
 
-    try {
-
-      proc = Runtime.getRuntime().exec(rscript + " " + script + strArgList);
-      inputStreamReader = new InputStreamReader(proc.getInputStream());
-      errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
-
-      readerProcStd = new BufferedReader(inputStreamReader);
-      readerProcErr = new BufferedReader(errorInputStreamReader);
-      while (!boolExit) {
-        try {
-          intExitStatus = proc.exitValue();
-          boolExit = true;
-        } catch (Exception e) {
-        }
-
-        while (readerProcStd.ready()) {
-          strProcStd.append(readerProcStd.readLine()).append('\n');
-        }
-        while (readerProcErr.ready()) {
-          strProcErr.append(readerProcErr.readLine()).append('\n');
-        }
-      }
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    } finally {
-
-      if (inputStreamReader != null) {
-        inputStreamReader.close();
-      }
-      if (errorInputStreamReader != null) {
-        errorInputStreamReader.close();
-      }
-      if (readerProcStd != null) {
-        readerProcStd.close();
-      }
-      if (readerProcErr != null) {
-        readerProcErr.close();
-      }
-      if (proc != null) {
-        proc.destroy();
-      }
-
-    }
-
-
-    if (strProcStd.length() > 0 && !_boolSQLOnly) {
-      _out.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
-    }
-
-    if (strProcErr.length() > 0 && !_boolSQLOnly) {
-      _out.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
-    }
-
-    //  return the success flag
-    return 0 == intExitStatus;
-  }
-
-  public boolean runRscript(String rscript, String script) throws Exception {
-    return runRscript(rscript, script, new String[]{});
-  }
 
   private class BuildQueryStrings {
 
