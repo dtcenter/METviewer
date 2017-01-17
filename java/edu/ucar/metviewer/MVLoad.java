@@ -298,18 +298,18 @@ public class MVLoad extends MVUtil {
         for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
 
           //  determine the name of the current folder
-           strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);
+          strBaseFolder = buildTemplateString(job.getFolderTmpl(), listPerm[intPerm]);
           System.out.println("Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder /* + "\n" + listPerm[intPerm].getRDecl() */);
-           intPermStart = new Date().getTime();
+          intPermStart = new Date().getTime();
 
           //  try to access the folder and its contents, and continue if it does not exist
-           fileBaseFolder = new File(strBaseFolder);
+          fileBaseFolder = new File(strBaseFolder);
           if (!fileBaseFolder.exists()) {
             continue;
           }
 
           //  process each fine in the folder
-           listDataFiles = fileBaseFolder.listFiles();
+          listDataFiles = fileBaseFolder.listFiles();
           if (listDataFiles != null) {
             for (int j = 0; j < listDataFiles.length; j++) {
               try {
@@ -386,7 +386,7 @@ public class MVLoad extends MVUtil {
         }
         strUpdater = strUpdater.trim();
         SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-                       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         String strUpdateDate = formatDB.format(new Date());
         String strUpdateDetail = job.getLoadNote();
 
@@ -503,9 +503,9 @@ public class MVLoad extends MVUtil {
     try (FileReader fileReader = new FileReader(strFilename); BufferedReader reader = new BufferedReader(fileReader)) {
       List<String> allMatches;
       SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-                   formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-              SimpleDateFormat formatStatVsdb = new SimpleDateFormat("yyyyMMddHH", Locale.US);
-                   formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
+      formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+      SimpleDateFormat formatStatVsdb = new SimpleDateFormat("yyyyMMddHH", Locale.US);
+      formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
 
       //  read in each line of the input file, remove "="
       while (reader.ready()) {
@@ -613,7 +613,8 @@ public class MVLoad extends MVUtil {
           //  build the stat_header value list for this line
           String[] listStatHeaderValue = {
             listToken[0],    //  version
-            modelName,    //  model
+            modelName,      //  model
+            "NA",           //  discr
             listToken[7],    //  fcst_var
             listToken[8],    //  fcst_lev
             listToken[7],    //  obs_var
@@ -629,6 +630,7 @@ public class MVLoad extends MVUtil {
           //  build a where clause for searching for duplicate stat_header records
           String strStatHeaderWhereClause =
             "  model = '" + modelName + "'\n" +
+            "  AND discr = '" + "NA" + "'\n" +
               "  AND fcst_var = '" + listToken[7] + "'\n" +
               "  AND fcst_lev = '" + listToken[8] + "'\n" +
               "  AND obtype = '" + listToken[4] + "'\n" +
@@ -697,7 +699,7 @@ public class MVLoad extends MVUtil {
               _tableStatHeaders.put(strStatHeaderValueList, intStatHeaderId);
 
               //  build an insert statement for the mode header
-              strStatHeaderValueList =Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
+              strStatHeaderValueList = Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
                 strStatHeaderValueList;
 
               //  insert the record into the stat_header database table
@@ -728,23 +730,23 @@ public class MVLoad extends MVUtil {
           //  determine the maximum token index for the data
           if (boolHasVarLengthGroups) {
             int intLineDataId = _tableVarLengthLineDataId.get(strLineType);
-            strLineDataId =  Integer.toString(intLineDataId) + ", ";
+            strLineDataId = Integer.toString(intLineDataId) + ", ";
             _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
           }
 
           //  build the value list for the insert statment
           String strLineDataValueList =
             strLineDataId +            //  line_data_id (if present)
-            intStatHeaderId + ", " +      //  stat_header_id
-            info._dataFileId + ", " +      //  data_file_id
-            intLine + ", " +          //  line_num
-            strFcstLead + ", " +        //  fcst_lead
-            "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
-            "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
-            "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
-            "000000" + ", " +        //  obs_lead
-            "'" + strObsValidBeg + "', " +    //  obs_valid_beg
-            "'" + strObsValidEnd + "'";      //  obs_valid_end
+              intStatHeaderId + ", " +      //  stat_header_id
+              info._dataFileId + ", " +      //  data_file_id
+              intLine + ", " +          //  line_num
+              strFcstLead + ", " +        //  fcst_lead
+              "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
+              "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
+              "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
+              "000000" + ", " +        //  obs_lead
+              "'" + strObsValidBeg + "', " +    //  obs_valid_beg
+              "'" + strObsValidEnd + "'";      //  obs_valid_end
 
           //  if the line data requires a cov_thresh value, add it
           String strCovThresh = "NA";
@@ -974,10 +976,10 @@ public class MVLoad extends MVUtil {
           if (listToken[6].startsWith("FSS")) {//NBRCNT line type
             for (int i = 0; i < 19; i++) {
               if (i == 0) {//total,
-                strLineDataValueList += ", " + listToken[9] ;
-              }else if(i == 1){//fbs
-                strLineDataValueList += ", " + listToken[10] ;
-              }else{
+                strLineDataValueList += ", " + listToken[9];
+              } else if (i == 1) {//fbs
+                strLineDataValueList += ", " + listToken[10];
+              } else {
                 strLineDataValueList += ", '-9999'";
               }
             }
@@ -1073,7 +1075,7 @@ public class MVLoad extends MVUtil {
             intVarLengthInserts += listInserts[INDEX_VAR_LENGTH];
           }
         } catch (Exception e) {
-          System.out.println("ERROR: line:" + line + "has errors and would be ignored.");
+          System.out.println("ERROR: line:" + line + " has errors and would be ignored.");
           System.out.println(e.getMessage());
         }
       }  // end: while( reader.ready() )
@@ -1118,6 +1120,15 @@ public class MVLoad extends MVUtil {
 
   }
 
+  private static String findValueInArray(String[] listToken, List<String> headerNames, String header) {
+    int pos = headerNames.indexOf(header);
+    if (pos >= 0 && pos < listToken.length) {
+      return listToken[pos];
+    } else {
+      return "NA";
+    }
+  }
+
   /**
    * Load the MET output data from the data file underlying the input DataFileInfo object into the database underlying the input Connection. The header
    * information can be checked in two different ways: using a table for the current file (specified by _boolStatHeaderTableCheck) or by searching the
@@ -1148,6 +1159,7 @@ public class MVLoad extends MVUtil {
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
     int intLine = 0;
+    List<String> headerNames = new ArrayList<>();
     try (
       FileReader fileReader = new FileReader(strFilename);
       BufferedReader reader = new BufferedReader(fileReader)) {
@@ -1158,11 +1170,12 @@ public class MVLoad extends MVUtil {
 
         //  the first line is the header line
         if (1 > listToken.length || listToken[0].equals("VERSION")) {
+          headerNames = Arrays.asList(listToken);
           continue;
         }
 
         //  error if the version number does not match the configured value
-        String strMetVersion = listToken[0];
+        String strMetVersion = findValueInArray(listToken, headerNames, "VERSION");
 
         //  update the var length tree with information for METv2.0, if necessary
         if ("V2.0".equals(strMetVersion)) {
@@ -1171,7 +1184,7 @@ public class MVLoad extends MVUtil {
 
 
         //  if the line type load selector is activated, check that the current line type is on the list
-        d._strLineType = listToken[20];
+        d._strLineType = findValueInArray(listToken, headerNames, "LINE_TYPE");
         if (_boolLineTypeLoad && !_tableLineTypeLoad.containsKey(d._strLineType)) {
           continue;
         }
@@ -1179,16 +1192,16 @@ public class MVLoad extends MVUtil {
         d._strFileLine = strFilename + ":" + intLine;
 
         SimpleDateFormat formatStat = new SimpleDateFormat(MVUtil.DB_DATE_STAT, Locale.US);
-            formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-             formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         //  parse the valid times
-        Date dateFcstValidBeg = formatStat.parse(listToken[3]);
-        Date dateFcstValidEnd = formatStat.parse(listToken[4]);
-        Date dateObsValidBeg = formatStat.parse(listToken[6]);
-        Date dateObsValidEnd = formatStat.parse(listToken[7]);
+        Date dateFcstValidBeg = formatStat.parse(findValueInArray(listToken, headerNames, "FCST_VALID_BEG"));
+        Date dateFcstValidEnd = formatStat.parse(findValueInArray(listToken, headerNames, "FCST_VALID_END"));
+        Date dateObsValidBeg = formatStat.parse(findValueInArray(listToken, headerNames, "OBS_VALID_BEG"));
+        Date dateObsValidEnd = formatStat.parse(findValueInArray(listToken, headerNames, "OBS_VALID_END"));
 
         //  format the valid times for the database insert
         String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
@@ -1197,7 +1210,7 @@ public class MVLoad extends MVUtil {
         String strObsValidEnd = formatDB.format(dateObsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
-        String strFcstLead = listToken[2];
+        String strFcstLead = findValueInArray(listToken, headerNames, "FCST_LEAD");
         int intFcstLeadLen = strFcstLead.length();
         int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(intFcstLeadLen - 2, intFcstLeadLen));
         intFcstLeadSec += Integer.parseInt(strFcstLead.substring(intFcstLeadLen - 4, intFcstLeadLen - 2)) * 60;
@@ -1211,7 +1224,7 @@ public class MVLoad extends MVUtil {
         String strFcstInitBeg = formatDB.format(dateFcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
-        String strInterpPnts = listToken[15];
+        String strInterpPnts = findValueInArray(listToken, headerNames, "INTERP_PNTS");
         if (strInterpPnts.equals("NA")) {
           strInterpPnts = "0";
         }
@@ -1231,34 +1244,36 @@ public class MVLoad extends MVUtil {
 
         //  build the stat_header value list for this line
         String[] listStatHeaderValue = {
-          listToken[0],    //  version
-          listToken[1],    //  model
-          listToken[8],    //  fcst_var
-          listToken[9],    //  fcst_lev
-          listToken[10],    //  obs_var
-          listToken[11],    //  obs_lev
-          listToken[12],    //  obtype
-          listToken[13],    //  vx_mask
-          listToken[14],    //  interp_mthd
+          findValueInArray(listToken, headerNames, "VERSION"),    //  version
+          findValueInArray(listToken, headerNames, "MODEL"),    //  model
+          findValueInArray(listToken, headerNames, "DESC"),    //  descr
+          findValueInArray(listToken, headerNames, "FCST_VAR"),    //  fcst_var
+          findValueInArray(listToken, headerNames, "FCST_LEV"),    //  fcst_lev
+          findValueInArray(listToken, headerNames, "OBS_VAR"),    //  obs_var
+          findValueInArray(listToken, headerNames, "OBS_LEV"),    //  obs_lev
+          findValueInArray(listToken, headerNames, "OBTYPE"),    //  obtype
+          findValueInArray(listToken, headerNames, "VX_MASK"),    //  vx_mask
+          findValueInArray(listToken, headerNames, "INTERP_MTHD"),    //  interp_mthd
           strInterpPnts,    //  interp_pnts
-          listToken[16],    //  fcst_thresh
-          listToken[17]    //  obs_thresh
+          findValueInArray(listToken, headerNames, "FCST_THRESH"),    //  fcst_thresh
+          findValueInArray(listToken, headerNames, "OBS_THRESH")    //  obs_thresh
         };
 
         //  build a where clause for searching for duplicate stat_header records
         String strStatHeaderWhereClause =
-          "  model = '" + listToken[1] + "'\n" +
+          "  model = '" + findValueInArray(listToken, headerNames, "MODEL") + "'\n" +
+            "  desc = '" + findValueInArray(listToken, headerNames, "DESC") + "'\n" +
             //"  AND version = '" +				listToken[0] + "'\n" +
-            "  AND fcst_var = '" + listToken[8] + "'\n" +
-            "  AND fcst_lev = '" + listToken[9] + "'\n" +
+            "  AND fcst_var = '" + findValueInArray(listToken, headerNames, "FCST_VAR") + "'\n" +
+            "  AND fcst_lev = '" + findValueInArray(listToken, headerNames, "FCST_LEV") + "'\n" +
             //"  AND obs_var = '" +			listToken[10] + "'\n" +
             //"  AND obs_lev = '" +			listToken[11] + "'\n" +
-            "  AND obtype = '" + listToken[12] + "'\n" +
-            "  AND vx_mask = '" + listToken[13] + "'\n" +
-            "  AND interp_mthd = '" + listToken[14] + "'\n" +
+            "  AND obtype = '" + findValueInArray(listToken, headerNames, "OBTYPE") + "'\n" +
+            "  AND vx_mask = '" + findValueInArray(listToken, headerNames, "VX_MASK") + "'\n" +
+            "  AND interp_mthd = '" + findValueInArray(listToken, headerNames, "INTERP_MTHD") + "'\n" +
             "  AND interp_pnts = " + strInterpPnts + "\n" +
-            "  AND fcst_thresh = '" + listToken[16] + "'\n" +
-            "  AND obs_thresh = '" + listToken[17] + "'";
+            "  AND fcst_thresh = '" + findValueInArray(listToken, headerNames, "FCST_THRESH") + "'\n" +
+            "  AND obs_thresh = '" + findValueInArray(listToken, headerNames, "OBS_THRESH") + "'";
 
         //  build the value list for the stat_header insert
         String strStatHeaderValueList = "";
@@ -1322,7 +1337,7 @@ public class MVLoad extends MVUtil {
             //  build an insert statement for the mode header
             strStatHeaderValueList =
               Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
-              strStatHeaderValueList;
+                strStatHeaderValueList;
 
             //  insert the record into the stat_header database table
             String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
@@ -1366,19 +1381,19 @@ public class MVLoad extends MVUtil {
         //  build the value list for the insert statment
         String strLineDataValueList =
           strLineDataId +            //  line_data_id (if present)
-          intStatHeaderId + ", " +      //  stat_header_id
-          info._dataFileId + ", " +      //  data_file_id
-          intLine + ", " +          //  line_num
-          strFcstLead + ", " +        //  fcst_lead
-          "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
-          "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
-          "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
-          listToken[5] + ", " +        //  obs_lead
-          "'" + strObsValidBeg + "', " +    //  obs_valid_beg
-          "'" + strObsValidEnd + "'";      //  obs_valid_end
+            intStatHeaderId + ", " +      //  stat_header_id
+            info._dataFileId + ", " +      //  data_file_id
+            intLine + ", " +          //  line_num
+            strFcstLead + ", " +        //  fcst_lead
+            "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
+            "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
+            "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
+            findValueInArray(listToken, headerNames, "OBS_LEAD") + ", " +        //  obs_lead
+            "'" + strObsValidBeg + "', " +    //  obs_valid_beg
+            "'" + strObsValidEnd + "'";      //  obs_valid_end
 
         //  if the line data requires a cov_thresh value, add it
-        String strCovThresh = listToken[18];
+        String strCovThresh = findValueInArray(listToken, headerNames, "COV_THRESH");
         if (_tableCovThreshLineTypes.containsKey(d._strLineType)) {
           if (strCovThresh.equals("NA")) {
             System.out.println("  **  WARNING: cov_thresh value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
@@ -1389,7 +1404,7 @@ public class MVLoad extends MVUtil {
         }
 
         //  if the line data requires an alpha value, add it
-        String strAlpha = listToken[19];
+        String strAlpha = findValueInArray(listToken, headerNames, "ALPHA");
         if (_tableAlphaLineTypes.containsKey(d._strLineType)) {
           if (strAlpha.equals("NA")) {
             System.out.println("  **  WARNING: alpha value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
@@ -1400,9 +1415,9 @@ public class MVLoad extends MVUtil {
         }
 
         //  add total and all of the stats on the rest of the line to the value list
-        for (int i = 21; i < intLineDataMax; i++) {
+        for (int i = headerNames.size(); i < intLineDataMax; i++) {
           //  for the METv2.0 MPR line type, add the obs_sid
-          if (23 == i && "MPR".equals(d._strLineType) && "V2.0".equals(strMetVersion)) {
+          if (headerNames.size() +2 == i && "MPR".equals(d._strLineType) && "V2.0".equals(strMetVersion)) {
             strLineDataValueList += ", 'NA'";
           }
           //  add the stats in order
@@ -1498,7 +1513,7 @@ public class MVLoad extends MVUtil {
           }
           List<String> listThreshValues = d._tableVarLengthValues.get(d._strLineType);
           if (null == listThreshValues) {
-            listThreshValues = new ArrayList();
+            listThreshValues = new ArrayList<>();
           }
 
           //  build a insert value statement for each threshold group
@@ -1692,6 +1707,7 @@ public class MVLoad extends MVUtil {
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
     int intLine = 1;
+    List<String> headerNames = new ArrayList<>();
     try (
       FileReader fileReader = new FileReader(strFilename);
       BufferedReader reader = new BufferedReader(fileReader);) {
@@ -1701,6 +1717,7 @@ public class MVLoad extends MVUtil {
 
         //  the first line is the header line
         if (1 > listToken.length || listToken[0].equals("VERSION")) {
+          headerNames = Arrays.asList(listToken);
           intLine++;
           continue;
         }
@@ -1710,7 +1727,7 @@ public class MVLoad extends MVUtil {
         //  determine the line type
         int intLineTypeLuId;
         int intDataFileLuId = info._dataFileLuId;
-        String strObjectId = listToken[16];
+        String strObjectId = findValueInArray(listToken, headerNames, "OBJECT_ID");
         Matcher matModeSingle = _patModeSingle.matcher(strObjectId);
         Matcher matModePair = _patModePair.matcher(strObjectId);
         if (2 == intDataFileLuId) {
@@ -1720,7 +1737,7 @@ public class MVLoad extends MVUtil {
         } else if (matModePair.matches()) {
           intLineTypeLuId = MODE_PAIR;
         } else {
-          throw new Exception("METViewer load error: loadModeFile() unable to determine line type " + listToken[16] + "\n        " + strFileLine);
+          throw new Exception("METViewer load error: loadModeFile() unable to determine line type " + findValueInArray(listToken, headerNames, "OBJECT_ID") + "\n        " + strFileLine);
         }
 
 
@@ -1729,19 +1746,19 @@ public class MVLoad extends MVUtil {
 			 */
 
         SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-                    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat formatStat = new SimpleDateFormat(MVUtil.DB_DATE_STAT, Locale.US);
-                    formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
         //  parse the valid times
-        Date dateFcstValidBeg = formatStat.parse(listToken[3]);
-        Date dateObsValidBeg = formatStat.parse(listToken[6]);
+        Date dateFcstValidBeg = formatStat.parse(findValueInArray(listToken, headerNames, "FCST_VALID"));
+        Date dateObsValidBeg = formatStat.parse(findValueInArray(listToken, headerNames, "OBS_VALID"));
 
         //  format the valid times for the database insert
         String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
         String strObsValidBeg = formatDB.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
-        String strFcstLead = listToken[2];
+        String strFcstLead = findValueInArray(listToken, headerNames, "FCST_LEAD");
         int intFcstLeadLen = strFcstLead.length();
         int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(intFcstLeadLen - 2, intFcstLeadLen));
         intFcstLeadSec += Integer.parseInt(strFcstLead.substring(intFcstLeadLen - 4, intFcstLeadLen - 2)) * 60;
@@ -1758,50 +1775,52 @@ public class MVLoad extends MVUtil {
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
 
         String strModeHeaderValueList =
-          "'" + listToken[0] + "', " +      //  version
-          "'" + listToken[1] + "', " +      //  model
-          "'" + listToken[2] + "', " +      //  fcst_lead
-          "'" + strFcstValidBeg + "', ";      //  fcst_valid
-        if ("NA".equals(listToken[4])) {
+          "'" + findValueInArray(listToken, headerNames, "VERSION") + "', " +      //  version
+            "'" + findValueInArray(listToken, headerNames, "MODEL") + "', " +      //  model
+            "'" + findValueInArray(listToken, headerNames, "DESC") + "', " +      //  descr
+            "'" + findValueInArray(listToken, headerNames, "FCST_LEAD") + "', " +      //  fcst_lead
+            "'" + strFcstValidBeg + "', ";      //  fcst_valid
+        if ("NA".equals(findValueInArray(listToken, headerNames, "FCST_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  fcst_accum
         } else {
-          strModeHeaderValueList = strModeHeaderValueList + "'" + listToken[4] + "', ";      //  fcst_accum
+          strModeHeaderValueList = strModeHeaderValueList + "'" + findValueInArray(listToken, headerNames, "FCST_ACCUM") + "', ";      //  fcst_accum
         }
         strModeHeaderValueList = strModeHeaderValueList + "'" + strFcstInit + "', " +        //  fcst_init
-          "'" + listToken[5] + "', " +      //  obs_lead
+          "'" + findValueInArray(listToken, headerNames, "OBS_LEAD") + "', " +      //  obs_lead
           "'" + strObsValidBeg + "', ";      //  obs_valid
-        if ("NA".equals(listToken[7])) {
+        if ("NA".equals(findValueInArray(listToken, headerNames, "OBS_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  obs_accum
         } else {
-          strModeHeaderValueList = strModeHeaderValueList + "'" + listToken[7] + "', ";      //  obs_accum
+          strModeHeaderValueList = strModeHeaderValueList + "'" + findValueInArray(listToken, headerNames, "OBS_ACCUM") + "', ";      //  obs_accum
         }
-        strModeHeaderValueList = strModeHeaderValueList + "'" + listToken[8] + "', " +      //  fcst_rad
-          "'" + listToken[9] + "', " +      //  fcst_thr
-          "'" + listToken[10] + "', " +      //  obs_rad
-          "'" + listToken[11] + "', " +      //  obs_thr
-          "'" + listToken[12] + "', " +      //  fcst_var
-          "'" + listToken[13] + "', " +      //  fcst_lev
-          "'" + listToken[14] + "', " +      //  obs_var
-          "'" + listToken[15] + "'";        //  obs_lev
+        strModeHeaderValueList = strModeHeaderValueList + "'" + findValueInArray(listToken, headerNames, "FCST_RAD") + "', " +      //  fcst_rad
+          "'" + findValueInArray(listToken, headerNames, "FCST_THR") + "', " +      //  fcst_thr
+          "'" + findValueInArray(listToken, headerNames, "OBS_RAD") + "', " +      //  obs_rad
+          "'" + findValueInArray(listToken, headerNames, "OBS_THR") + "', " +      //  obs_thr
+          "'" + findValueInArray(listToken, headerNames, "FCST_VAR") + "', " +      //  fcst_var
+          "'" + findValueInArray(listToken, headerNames, "FCST_LEV") + "', " +      //  fcst_lev
+          "'" + findValueInArray(listToken, headerNames, "OBS_VAR") + "', " +      //  obs_var
+          "'" + findValueInArray(listToken, headerNames, "OBS_LEV") + "'";        //  obs_lev
 
         String strModeHeaderWhereClause =
-          "  version = '" + listToken[0] + "'\n" +
-          "  AND model = '" + listToken[1] + "'\n" +
-          "  AND fcst_lead = '" + listToken[2] + "'\n" +
-          "  AND fcst_valid = '" + strFcstValidBeg + "'\n" +
-          "  AND fcst_accum = '" + listToken[4] + "'\n" +
-          "  AND fcst_init = '" + strFcstInit + "'\n" +
-          "  AND obs_lead = '" + listToken[5] + "'\n" +
-          "  AND obs_valid = '" + strObsValidBeg + "'\n" +
-          "  AND obs_accum = '" + listToken[7] + "'\n" +
-          "  AND fcst_rad = '" + listToken[8] + "'\n" +
-          "  AND fcst_thr = '" + listToken[9] + "'\n" +
-          "  AND obs_rad = '" + listToken[10] + "'\n" +
-          "  AND obs_thr = '" + listToken[11] + "'\n" +
-          "  AND fcst_var = '" + listToken[12] + "'\n" +
-          "  AND fcst_lev = '" + listToken[13] + "'\n" +
-          "  AND obs_var = '" + listToken[14] + "'\n" +
-          "  AND obs_lev = '" + listToken[15] + "';";
+          "  version = '" + findValueInArray(listToken, headerNames, "VERSION") + "'\n" +
+            "  AND model = '" + findValueInArray(listToken, headerNames, "MODEL") + "'\n" +
+            "  AND descr = '" + findValueInArray(listToken, headerNames, "DESC") + "'\n" +
+            "  AND fcst_lead = '" + findValueInArray(listToken, headerNames, "FCST_LEAD") + "'\n" +
+            "  AND fcst_valid = '" + strFcstValidBeg + "'\n" +
+            "  AND fcst_accum = '" + findValueInArray(listToken, headerNames, "FCST_ACCUM") + "'\n" +
+            "  AND fcst_init = '" + strFcstInit + "'\n" +
+            "  AND obs_lead = '" + findValueInArray(listToken, headerNames, "OBS_LEAD") + "'\n" +
+            "  AND obs_valid = '" + strObsValidBeg + "'\n" +
+            "  AND obs_accum = '" + findValueInArray(listToken, headerNames, "OBS_ACCUM") + "'\n" +
+            "  AND fcst_rad = '" + findValueInArray(listToken, headerNames, "FCST_RAD") + "'\n" +
+            "  AND fcst_thr = '" + findValueInArray(listToken, headerNames, "FCST_THR") + "'\n" +
+            "  AND obs_rad = '" + findValueInArray(listToken, headerNames, "OBS_RAD") + "'\n" +
+            "  AND obs_thr = '" + findValueInArray(listToken, headerNames, "OBS_THR") + "'\n" +
+            "  AND fcst_var = '" + findValueInArray(listToken, headerNames, "FCST_VAR") + "'\n" +
+            "  AND fcst_lev = '" + findValueInArray(listToken, headerNames, "FCST_LEV") + "'\n" +
+            "  AND obs_var = '" + findValueInArray(listToken, headerNames, "OBS_VAR") + "'\n" +
+            "  AND obs_lev = '" + findValueInArray(listToken, headerNames, "OBS_LEV") + "';";
 
         //  look for the header key in the table
         int intModeHeaderId = -1;
@@ -1846,10 +1865,10 @@ public class MVLoad extends MVUtil {
             //  build an insert statement for the mode header
             strModeHeaderValueList =
               intModeHeaderId + ", " +        //  mode_header_id
-              intLineTypeLuId + ", " +        //  line_type_lu_id
-              info._dataFileId + ", " +        //  data_file_id
-              intLine + ", " +            //  linenumber
-              strModeHeaderValueList;
+                intLineTypeLuId + ", " +        //  line_type_lu_id
+                info._dataFileId + ", " +        //  data_file_id
+                intLine + ", " +            //  linenumber
+                strModeHeaderValueList;
 
             //  insert the record into the mode_header database table
             String strModeHeaderInsert = "INSERT INTO mode_header VALUES (" + strModeHeaderValueList + ");";
@@ -1863,15 +1882,16 @@ public class MVLoad extends MVUtil {
 
 
 			/*
-			 * * * *  mode_cts insert  * * * *
+       * * * *  mode_cts insert  * * * *
 			 */
 
         if (MODE_CTS == intLineTypeLuId) {
 
           //  build the value list for the mode_cts insert
-          String strCTSValueList = intModeHeaderId + ", '" + listToken[16] + "'";
+          String strCTSValueList = intModeHeaderId + ", '" + findValueInArray(listToken, headerNames, "FIELD") + "'";
+          int totalIndex = headerNames.indexOf("TOTAL");
           for (int i = 0; i < 18; i++) {
-            strCTSValueList += ", " + replaceInvalidValues(listToken[17 + i]);
+            strCTSValueList += ", " + replaceInvalidValues(listToken[totalIndex + i]);
           }
 
           //  insert the record into the mode_cts database table
@@ -1892,9 +1912,10 @@ public class MVLoad extends MVUtil {
 
           //  build the value list for the mode_cts insert
           int intModeObjId = intModeObjIdNext++;
-          String strSingleValueList =  intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + listToken[17] + "'";
+          String strSingleValueList = intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + findValueInArray(listToken, headerNames, "OBJECT_CAT") + "'";
+          int centroidxIndex = headerNames.indexOf("CENTROID_X");
           for (int i = 0; i < 21; i++) {
-            strSingleValueList += ", " + replaceInvalidValues(listToken[18 + i]);
+            strSingleValueList += ", " + replaceInvalidValues(listToken[centroidxIndex + i]);
           }
 
           //  insert the record into the mode_obj_single database table
@@ -1917,14 +1938,15 @@ public class MVLoad extends MVUtil {
         else if (MODE_PAIR == intLineTypeLuId) {
 
           //  determine the mode_obj_id values for the pair
-          int intModeObjectIdFcst =  tableModeObjectId.get(matModePair.group(1));
-          int intModeObjectIdObs =  tableModeObjectId.get(matModePair.group(2));
+          int intModeObjectIdFcst = tableModeObjectId.get(matModePair.group(1));
+          int intModeObjectIdObs = tableModeObjectId.get(matModePair.group(2));
 
           //  build the value list for the mode_cts insert
-          String strPairValueList =  intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " +
-            "'" + listToken[16] + "', '" + listToken[17] + "'";
+          String strPairValueList = intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " +
+            "'" + strObjectId + "', '" + findValueInArray(listToken, headerNames, "OBJECT_CAT") + "'";
+          int centroiddistIndex = headerNames.indexOf("CENTROID_DIST");
           for (int i = 0; i < 12; i++) {
-            strPairValueList += ", " + replaceInvalidValues(listToken[39 + i]);
+            strPairValueList += ", " + replaceInvalidValues(listToken[centroiddistIndex + i]);
           }
 
           //  insert the record into the mode_obj_pair database table
@@ -2104,7 +2126,7 @@ public class MVLoad extends MVUtil {
       return null;
     }
     SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-                   formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     String strLoadDate = formatDB.format(cal.getTime());
