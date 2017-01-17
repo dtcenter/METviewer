@@ -1,4 +1,4 @@
-.libPaths("/common/data/web/metviewer/dev/r-lib");
+#.libPaths("/common/data/web/metviewer/dev/r-lib");
 library(boot);
 library(gsl);
 library(stats);
@@ -170,20 +170,28 @@ for(intY in 1:intYMax){
   #add diff series
   if(length(listDiffSeries) > 0){
     for( diffSeriesName in 1: length(listDiffSeries) ){ #1,2....
-      listDiffVal = list();
-      for(var in listSeriesVar){
-        listDiffVal[[var]]="";
-      }
+      listDiffVal = listSeriesVal;
+
+      listDiffVal[[strDiffVar]]=NULL;
       diffSeriesVec = listDiffSeries[[diffSeriesName]];
       listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
       listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
 
       strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
       strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+      for(var in listSeriesVar){
+        if( !is.null(listDiffVal[[var]]) && intersect(listDiffVal[[var]], listSeriesDiff1) == intersect(listDiffVal[[var]], listSeriesDiff2) ){
+         listDiffVal[[var]] = intersect(listDiffVal[[var]], listSeriesDiff1);
+        }
+      }
       derivedCurveName = getDerivedCurveName(diffSeriesVec);
       listDiffVal[[strDiffVar]] = derivedCurveName;
       listDiffVal[[strIndyVar]] = listIndyVal;
-      listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
+      if(strStat1 == strStat2){
+         listDiffVal$stat_name = strStat1;
+      }else{
+        listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
+      }
       matOut = rbind(matOut, permute(listDiffVal));
     }
 
@@ -878,7 +886,13 @@ for(strIndyVal in listIndyVal){
         strDiffVar = listSeriesVar[length(listSeriesVar)];
         listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
 
-        listOutInd1 = listOutInd & (dfOut$stat_name == paste(strStat1,strStat2,collapse = "", sep=","))  & (dfOut[[strIndyVar]] == strIndyVal);
+        if(strStat1 == strStat2){
+          stat_name = strStat1;
+        }else{
+          stat_name == paste(strStat1,strStat2,collapse = "", sep=",");
+        }
+
+        listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
 
         dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
         dfOut[listOutInd1,]$nstats = 0;
@@ -905,7 +919,7 @@ for(strIndyVal in listIndyVal){
 
 
 
-write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t");
+write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t", append=boolAppend, col.names=!boolAppend);
 
 cat(
   "    boot time: ", formatTimeSpan(dblBootTime), "\n",
