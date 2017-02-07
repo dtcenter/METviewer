@@ -1318,7 +1318,8 @@ public class MVServlet extends HttpServlet {
 
               }
             }
-            request.getSession().setAttribute("init_xml", strResp.toString());
+            request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
+
             request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
           }
         }
@@ -1461,7 +1462,8 @@ public class MVServlet extends HttpServlet {
             }
             try {
               strResp.append(handleXMLUpload(nodeCall, con));
-              request.getSession().setAttribute("init_xml", strResp);
+              request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
+
               request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
 
             } catch (Exception e) {
