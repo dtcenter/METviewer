@@ -310,10 +310,10 @@ calcPctROC = function(dfData){
 
   # build the ROC contingency data table
   for( thresh in listThresh ){
-    dfROC[dfROC$thresh == thresh,]$n11  = sum( dfData[dfData$thresh_i >  thresh,]$oy_i );
-    dfROC[dfROC$thresh == thresh,]$n10  = sum( dfData[dfData$thresh_i >  thresh,]$on_i );
-    dfROC[dfROC$thresh == thresh,]$n01  = sum( dfData[dfData$thresh_i <= thresh,]$oy_i );
-    dfROC[dfROC$thresh == thresh,]$n00  = sum( dfData[dfData$thresh_i <= thresh,]$on_i );
+    dfROC[dfROC$thresh == thresh,]$n11  = sum( as.numeric (dfData[dfData$thresh_i >  thresh,]$oy_i ) );
+    dfROC[dfROC$thresh == thresh,]$n10  = sum( as.numeric (dfData[dfData$thresh_i >  thresh,]$on_i ) );
+    dfROC[dfROC$thresh == thresh,]$n01  = sum( as.numeric (dfData[dfData$thresh_i <= thresh,]$oy_i ) );
+    dfROC[dfROC$thresh == thresh,]$n00  = sum( as.numeric (dfData[dfData$thresh_i <= thresh,]$on_i ) );
   }
 
   # generate the pody and pofd scores from the contingency tables
