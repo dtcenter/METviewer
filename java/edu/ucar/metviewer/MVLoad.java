@@ -529,7 +529,7 @@ public class MVLoad extends MVUtil {
           String thresh = "NA";
           String modelName = listToken[1];
 
-          if (listToken[6].equals("BSS") || listToken[6].equals("ECON") || listToken[6].equals("HIST") || listToken[6].equals("HTFR")
+          if (listToken[6].equals("BSS") || listToken[6].equals("ECON") || listToken[6].equals("HIST")
             || listToken[6].equals("RELI") || listToken[6].equals("RELP") || listToken[6].equals("RMSE") || listToken[6].equals("RPS")) {
             modelName = modelName.split("\\/")[0] + ensValue;
           }
@@ -552,7 +552,7 @@ public class MVLoad extends MVUtil {
             d._strLineType = "VAL1L2";
           } else if (listToken[6].equals("RPS")) {
             d._strLineType = "ENSCNT";
-          } else if (listToken[6].equals("HTFR")) {
+          } else if (listToken[6].equals("RELI")) {
             d._strLineType = "PCT";
           } else if (listToken[6].startsWith("FHO")) {
             d._strLineType = "CTC";
@@ -614,7 +614,7 @@ public class MVLoad extends MVUtil {
           String[] listStatHeaderValue = {
             listToken[0],    //  version
             modelName,      //  model
-            "NA",           //  discr
+            "NA",           //  descr
             listToken[7],    //  fcst_var
             listToken[8],    //  fcst_lev
             listToken[7],    //  obs_var
@@ -630,7 +630,7 @@ public class MVLoad extends MVUtil {
           //  build a where clause for searching for duplicate stat_header records
           String strStatHeaderWhereClause =
             "  model = '" + modelName + "'\n" +
-            "  AND discr = '" + "NA" + "'\n" +
+            "  AND descr = '" + "NA" + "'\n" +
               "  AND fcst_var = '" + listToken[7] + "'\n" +
               "  AND fcst_lev = '" + listToken[8] + "'\n" +
               "  AND obtype = '" + listToken[4] + "'\n" +
@@ -904,9 +904,27 @@ public class MVLoad extends MVUtil {
               }
             }
           }
-          if (listToken[6].equals("HTFR")) {//PCT line type
-            int total = Integer.parseInt(listToken[1].split("\\/")[1]);
-            strLineDataValueList += ", " + total + ", " + (total + 1);
+          if (listToken[6].equals("RELI")) {//PCT line type
+            int total = 0;
+            int intGroupSize;
+            int intGroupIndex = 9;
+            try {
+              intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+            } catch (Exception e) {
+              intGroupSize = 0;
+            }
+            for (int i = 0; i < intGroupSize; i++) {
+              Integer on;
+              try {
+                on = Double.valueOf(listToken[intGroupIndex + intGroupSize]).intValue();
+                total = total + on;
+              } catch (Exception e) {
+              }
+              intGroupIndex++;
+            }
+
+
+            strLineDataValueList += ", " + total + ", " + intGroupSize;
           }
 
           if (listToken[6].equals("SL1L2") || listToken[6].equals("SAL1L2")) {//SL1L2,SAL1L2 line types
@@ -1014,7 +1032,7 @@ public class MVLoad extends MVUtil {
                 intNumGroups = 0;
               }
               intGroupSize = 1;
-            } else if (listToken[6].equals("HTFR")) {//PCT line type)
+            } else if (listToken[6].equals("RELI")) {//PCT line type)
               intGroupIndex = 9;
               try {
                 intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
@@ -1045,19 +1063,27 @@ public class MVLoad extends MVUtil {
                 listThreshValues.add(strThreshValues.toString());
                 intVarLengthRecords++;
               }
-            } else if (listToken[6].equals("HTFR")) {
+            } else if (listToken[6].equals("RELI")) {
+              int total =0;
               for (int i = 0; i < intGroupSize; i++) {
-
                 double thresh_i;
                 if (intGroupSize > 1) {
-                  thresh_i = i / (intGroupSize - 1);
+                  thresh_i = (double) i / (double)(intGroupSize - 1);
                 } else {
                   thresh_i = 0;
                 }
                 String strThreshValues = "(" + strLineDataId + (i + 1) + "," + thresh_i;
-                for (int j = 0; j < intNumGroups; j++) {
-                  strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex + j * intGroupSize]);
+                Integer oy = null;
+                Integer on = null;
+                try{
+                  oy = Double.valueOf(listToken[intGroupIndex]).intValue();
+                  on = Double.valueOf(listToken[intGroupIndex +intGroupSize]).intValue() - oy;
+                  strThreshValues += ", " + oy + ", " + on;
+                  total = total + oy + on;
+                }catch (Exception e){
+                  strThreshValues += ", -9999,  -9999";
                 }
+
                 intGroupIndex++;
                 strThreshValues += ")";
                 listThreshValues.add(strThreshValues);
