@@ -1766,10 +1766,10 @@ public class MVUtil {
    * Prints a textual representation of the input {@link ResultSet} with the field names in the first row to the specified {@link BufferedWriter} destination.
    *
    * @param res            The ResultSet to print
-   * @param bufferedWriter The stream to write the formatted results to (defaults to _out)
+   * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
    * @param delim          The delimiter to insert between field headers and values (defaults to ' ')
    */
-  public  void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
+  public  static void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
