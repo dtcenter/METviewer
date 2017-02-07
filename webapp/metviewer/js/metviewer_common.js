@@ -1710,88 +1710,97 @@ function updateSeriesEns() {
     series_perm = permuteSeries(createSeriesMapForPermutationEns(series_var_y1_indexes, "y1"), 0);
 
     var ensss_pts_disp = $("input:radio[name='ensss_pts_disp']:checked").val();
-    for (var index = 0; index < 2; index++) {
-        if (index == 0 || (index == 1 && ensss_pts_disp == "true")) {
-            var stat_name;
-            if (index == 0) {
-                stat_name = "MSE";
-                y_axis = "Y1";
-            } else {
 
-                stat_name = "#PTS";
-                y_axis = "Y2";
-            }
-
-            for (var series_perm_index = 0; series_perm_index < series_perm.length; series_perm_index++) {
-                var seriesName = series_perm[series_perm_index] + " " + stat_name;
-                //check if this series was their before
-                var isSeriesOld = false;
-                for (var i = 0; i < oldSeriesData.length; i++) {
-                    if (oldSeriesData[i]['title'] == seriesName) {
-                        series_formatting = {};
-                        series_formatting.title = seriesName;
-                        series_formatting.y_axis = y_axis;
-                        series_formatting.order = number_series + 1;
-                        series_formatting.hide = oldSeriesData[i]['hide'];
-                        series_formatting.plot_ci = oldSeriesData[i]['plot_ci'];
-                        series_formatting.show_signif = oldSeriesData[i]['show_signif'];
-                        series_formatting.color = oldSeriesData[i]['color'];
-                        series_formatting.pch = oldSeriesData[i]['pch'];
-                        series_formatting.type = oldSeriesData[i]['type'];
-                        series_formatting.lty = oldSeriesData[i]['lty'];
-                        series_formatting.lwd = oldSeriesData[i]['lwd'];
-                        series_formatting.con_series = oldSeriesData[i]['con_series'];
-                        series_formatting.legend = oldSeriesData[i]['legend'];
-                        series_formatting.id = number_series + 1;
-                        isSeriesOld = true;
-                        break;
-                    }
-                }
-                //if it is a new series
-                if (!isSeriesOld) {
-                    //check if it is the first
-                    if (isFixedFormatting && number_series > 0 && initXML == null) {
-                        series_formatting = jQuery.extend(true, {}, newSeriesData[newSeriesData.length - 1]);
-                        series_formatting.title = seriesName;
-                        series_formatting.y_axis = y_axis;
-                        series_formatting.id = number_series + 1;
-                        series_formatting.order = number_series + 1;
-                    } else {
-                        if (initXML != null) {
-                            series_formatting = {};
-                            series_formatting.title = seriesName;
-                            series_formatting.y_axis = y_axis;
-                            if (!order_series[number_series] || order_series[number_series] == '') {
-                                series_formatting.order = parseInt(i + 1);
-                            } else {
-                                series_formatting.order = parseInt(order_series[number_series]);
-                            }
-                            series_formatting.hide = plot_disp[number_series];
-                            series_formatting.plot_ci = plot_ci[number_series].trim();
-                            series_formatting.show_signif = show_signif[number_series];
-                            series_formatting.pch = pch[number_series].trim();
-                            series_formatting.type = type[number_series].trim();
-                            series_formatting.lty = lty[number_series].trim();
-                            series_formatting.lwd = lwd[number_series].trim();
-                            series_formatting.con_series = con_series[number_series].trim();
-                            series_formatting.legend = legend[number_series].trim();
-                            series_formatting.color = colors[number_series].trim();
-                            series_formatting.id = number_series + 1;
-
-                        } else {
-                            series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
-                            series_formatting.title = seriesName;
-                            series_formatting.y_axis = y_axis;
-                            series_formatting.id = number_series + 1;
-                            series_formatting.order = number_series + 1;
-                        }
-                    }
-                }
-                number_series++;
-                newSeriesData.push(series_formatting);
-            }
+    if (ensss_pts_disp === "true") {
+        var new_series_perm = [];
+        var j = 0;
+        for (var i = 0; i < series_perm.length; i++) {
+            new_series_perm[j] = series_perm[i] + " " + "MSE";
+            new_series_perm[j + 1] = series_perm[i] + " " + "#PTS";
+            j = j + 2;
+        }
+        series_perm = new_series_perm;
+    } else {
+        for (var i = 0; i < series_perm.length; i++) {
+            series_perm[i] = series_perm[i] + " " + "MSE";
         }
     }
+
+
+    for (var series_perm_index = 0; series_perm_index < series_perm.length; series_perm_index++) {
+        var seriesName = series_perm[series_perm_index];
+        //check if this series was their before
+        var isSeriesOld = false;
+        if (seriesName.indexOf("#PTS") > 0) {
+            y_axis = "Y2";
+        } else {
+            y_axis = "Y1";
+        }
+        for (var i = 0; i < oldSeriesData.length; i++) {
+            if (oldSeriesData[i]['title'] == seriesName) {
+                series_formatting = {};
+                series_formatting.title = seriesName;
+                series_formatting.y_axis = y_axis;
+                series_formatting.order = number_series + 1;
+                series_formatting.hide = oldSeriesData[i]['hide'];
+                series_formatting.plot_ci = oldSeriesData[i]['plot_ci'];
+                series_formatting.show_signif = oldSeriesData[i]['show_signif'];
+                series_formatting.color = oldSeriesData[i]['color'];
+                series_formatting.pch = oldSeriesData[i]['pch'];
+                series_formatting.type = oldSeriesData[i]['type'];
+                series_formatting.lty = oldSeriesData[i]['lty'];
+                series_formatting.lwd = oldSeriesData[i]['lwd'];
+                series_formatting.con_series = oldSeriesData[i]['con_series'];
+                series_formatting.legend = oldSeriesData[i]['legend'];
+                series_formatting.id = number_series + 1;
+                isSeriesOld = true;
+                break;
+            }
+        }
+        //if it is a new series
+        if (!isSeriesOld) {
+            //check if it is the first
+            if (isFixedFormatting && number_series > 0 && initXML == null) {
+                series_formatting = jQuery.extend(true, {}, newSeriesData[newSeriesData.length - 1]);
+                series_formatting.title = seriesName;
+                series_formatting.y_axis = y_axis;
+                series_formatting.id = number_series + 1;
+                series_formatting.order = number_series + 1;
+            } else {
+                if (initXML != null) {
+                    series_formatting = {};
+                    series_formatting.title = seriesName;
+                    series_formatting.y_axis = y_axis;
+                    if (!order_series[number_series] || order_series[number_series] == '') {
+                        series_formatting.order = parseInt(i + 1);
+                    } else {
+                        series_formatting.order = parseInt(order_series[number_series]);
+                    }
+                    series_formatting.hide = plot_disp[number_series];
+                    series_formatting.plot_ci = plot_ci[number_series].trim();
+                    series_formatting.show_signif = show_signif[number_series];
+                    series_formatting.pch = pch[number_series].trim();
+                    series_formatting.type = type[number_series].trim();
+                    series_formatting.lty = lty[number_series].trim();
+                    series_formatting.lwd = lwd[number_series].trim();
+                    series_formatting.con_series = con_series[number_series].trim();
+                    series_formatting.legend = legend[number_series].trim();
+                    series_formatting.color = colors[number_series].trim();
+                    series_formatting.id = number_series + 1;
+
+                } else {
+                    series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+                    series_formatting.title = seriesName;
+                    series_formatting.y_axis = y_axis;
+                    series_formatting.id = number_series + 1;
+                    series_formatting.order = number_series + 1;
+                }
+            }
+        }
+        number_series++;
+        newSeriesData.push(series_formatting);
+    }
+
 
     //set default color for each series if it is not a upload
     if (initXML == null) {
