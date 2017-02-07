@@ -83,8 +83,8 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
     # calculate vectors and constants to use below
     dfPerm$n_i = dfPerm$oy_i + dfPerm$on_i; # n_j.
     dfPerm = dfPerm[0 != dfPerm$n_i,];
-    T = sum(dfPerm$n_i); # T
-    oy_total = sum(dfPerm$oy_i); # n_.1
+    T = sum( as.numeric(dfPerm$n_i) ); # T
+    oy_total = sum( as.numeric(dfPerm$oy_i) ); # n_.1
     o_bar = oy_total / T; # n_.1 / T
     dfPerm$o_bar_i = dfPerm$oy_i / dfPerm$n_i; # o_bar_i
     
@@ -332,7 +332,7 @@ if(boolEventHist == TRUE){
   # determine and set the limits for the y2 axis
   resTemp = env$res;
   resTemp$thresh_i = NULL;
-  listY2Tick = pretty(range(resTemp), 4);
+  listY2Tick = pretty(range(resTemp,na.rm = TRUE), 4);
   listY2Usr = c(par()$usr[1:2], listY2Tick[1], listY2Tick[length(listY2Tick)]);
   par(new=TRUE,usr=listY2Usr, xaxs="r");
   
