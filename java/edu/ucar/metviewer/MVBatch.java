@@ -14,7 +14,7 @@ public class MVBatch extends MVUtil {
   public static final Pattern _patDateRange = Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
   public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
   public final MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
-  public PrintStream _out = System.out;
+  public PrintStream printStream = System.out;
   public boolean _boolSQLOnly = false;
   public boolean _boolVerbose = false;
   public String _strRtmplFolder = "";
@@ -31,7 +31,7 @@ public class MVBatch extends MVUtil {
 
   public MVBatch(PrintStream log) {
     super();
-    _out = log;
+    printStream = log;
   }
 
   public MVBatch() {
@@ -56,7 +56,7 @@ public class MVBatch extends MVUtil {
   public static void main(String[] argv) {
     MVBatch bat = new MVBatch();
 
-    bat._out.println("----  MVBatch  ----\n");
+    bat.printStream.println("----  MVBatch  ----\n");
 
     try {
 
@@ -64,7 +64,7 @@ public class MVBatch extends MVUtil {
 
       //  if no input file is present, bail
       if (1 > argv.length) {
-        bat._out.println(getUsage() + "\n----  MVBatch Done  ----");
+        bat.printStream.println(getUsage() + "\n----  MVBatch Done  ----");
         return;
       }
 
@@ -88,7 +88,7 @@ public class MVBatch extends MVUtil {
       //  parse the input file
       String strXMLInput = argv[intArg++];
       if (!bat._boolSQLOnly) {
-        bat._out.println("input file: " + strXMLInput + "\n");
+        bat.printStream.println("input file: " + strXMLInput + "\n");
       }
       MVPlotJobParser parser = new MVPlotJobParser(strXMLInput, null);
       MVOrderedMap mapJobs = parser.getJobsMap();
@@ -103,15 +103,15 @@ public class MVBatch extends MVUtil {
         listJobNames = toArray(listJobNamesInput);
       }
       if (!bat._boolSQLOnly) {
-        bat._out.println((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
+        bat.printStream.println((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
         for (int i = 0; i < listJobNames.length; i++) {
-          bat._out.println("  " + listJobNames[i]);
+          bat.printStream.println("  " + listJobNames[i]);
         }
       }
 
       //  if only a list of plot jobs is requested, return
       if (boolList) {
-        bat._out.println("\n----  MVBatch Done  ----");
+        bat.printStream.println("\n----  MVBatch Done  ----");
         return;
       }
 
@@ -122,7 +122,7 @@ public class MVBatch extends MVUtil {
         ArrayList listJobs = new ArrayList();
         for (int i = 0; i < listJobNames.length; i++) {
           if (!mapJobs.containsKey(listJobNames[i])) {
-            bat._out.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
+            bat.printStream.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
             continue;
           }
           listJobs.add(mapJobs.get(listJobNames[i]));
@@ -169,12 +169,12 @@ public class MVBatch extends MVUtil {
       if (!bat._boolSQLOnly) {
         SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
                        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-        bat._out.println("Running " + bat._intNumPlots + " plots\n" + "Begin time: " + formatDB.format(dateStart) + "\n");
+        bat.printStream.println("Running " + bat._intNumPlots + " plots\n" + "Begin time: " + formatDB.format(dateStart) + "\n");
       }
 
       for (int intJob = 0; intJob < jobs.length; intJob++) {
         if (0 < intJob) {
-          bat._out.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
+          bat.printStream.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
         }
         if (jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl")) {
           bat.runRhistJob(jobs[intJob]);
@@ -194,7 +194,7 @@ public class MVBatch extends MVUtil {
       SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
       if (!bat._boolSQLOnly) {
-        bat._out.println("\n" +
+        bat.printStream.println("\n" +
           padBegin("End time: ") + formatDB.format(dateEnd) + "\n" +
           padBegin("Plots run: ") + bat._intNumPlotsRun + " of " + bat._intNumPlots + "\n" +
           padBegin("Total time: ") + formatTimeSpan(intPlotTime) + "\n" +
@@ -206,7 +206,7 @@ public class MVBatch extends MVUtil {
       e.printStackTrace();
     }
 
-    bat._out.println("\n----  MVBatch Done  ----");
+    bat.printStream.println("\n----  MVBatch Done  ----");
   }
 
   /**
@@ -1027,7 +1027,7 @@ public class MVBatch extends MVUtil {
     for (int intPlotFix = 0; intPlotFix < listPlotFixPerm.length; intPlotFix++) {
 
       if (0 < intPlotFix) {
-        _out.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
+        printStream.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
       }
 
       //  if the independent variable uses a dependency, populate the values
@@ -1147,7 +1147,7 @@ public class MVBatch extends MVUtil {
 
         for (int i = 0; i < eventEqualizeSql.size() - 1; i++) {
           if (_boolVerbose) {
-            _out.println(eventEqualizeSql.get(i) + "\n");
+            printStream.println(eventEqualizeSql.get(i) + "\n");
           }
           if (_boolSQLOnly) {
             continue;
@@ -1164,7 +1164,7 @@ public class MVBatch extends MVUtil {
           }
         }
         if (_boolVerbose) {
-          _out.println(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
+          printStream.println(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
         }
         if (!_boolSQLOnly) {
           String strDataFileEe = _strDataFolder + "/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps());
@@ -1219,7 +1219,7 @@ public class MVBatch extends MVUtil {
       }
       for (int i = 0; i < listSQLBeforeSelect.size(); i++) {
         if (_boolVerbose) {
-          _out.println(listSQLBeforeSelect.get(i) + "\n");
+          printStream.println(listSQLBeforeSelect.get(i) + "\n");
         }
         if (_boolSQLOnly) {
           continue;
@@ -1240,7 +1240,7 @@ public class MVBatch extends MVUtil {
 
       if (_boolVerbose) {
         for (int i = 0; i < listSQLLastSelect.size(); i++) {
-          _out.println(listSQLLastSelect.get(i) + "\n");
+          printStream.println(listSQLLastSelect.get(i) + "\n");
         }
       }
       if (_boolSQLOnly) {
@@ -1312,7 +1312,7 @@ public class MVBatch extends MVUtil {
           }
         }
       }
-      _out.println("Query returned  plot_data rows in " + formatTimeSpan(new Date().getTime() - intStartTime));
+      printStream.println("Query returned  plot_data rows in " + formatTimeSpan(new Date().getTime() - intStartTime));
 
 
 
@@ -1634,7 +1634,7 @@ public class MVBatch extends MVUtil {
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       _intNumPlotsRun++;
-      _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile);
+      printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile);
 
     }  //  end: for(int intPlotFix=0; intPlotFix < listPlotFixPerm.length; intPlotFix++)
 
@@ -2536,7 +2536,7 @@ public class MVBatch extends MVUtil {
           strWhere +
           "  AND h.stat_header_id = ld.stat_header_id;";
       if (_boolVerbose) {
-        _out.println(strRankNumSelect + "\n");
+        printStream.println(strRankNumSelect + "\n");
       }
 
       //  run the rank number query and warn, if necessary
@@ -2557,7 +2557,7 @@ public class MVBatch extends MVUtil {
           for (int i = 0; i < listRankNum.size(); i++) {
             strMsg += (0 < i ? ", " : "") + listRankNum.get(i);
           }
-          _out.println(strMsg);
+          printStream.println(strMsg);
         }
       } catch (Exception e) {
         throw e;
@@ -2589,7 +2589,7 @@ public class MVBatch extends MVUtil {
       strPlotDataSelect = strPlotDataSelect + ";";
 
       if (_boolVerbose) {
-        _out.println(strPlotDataSelect + "\n");
+        printStream.println(strPlotDataSelect + "\n");
       }
       if (_boolSQLOnly) {
         return;
@@ -2699,10 +2699,10 @@ public class MVBatch extends MVUtil {
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       if (!strMsg.isEmpty()) {
-        _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
+        printStream.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
       }
       _intNumPlotsRun++;
-      _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
+      printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
     }
 
   }
@@ -2768,7 +2768,7 @@ public class MVBatch extends MVUtil {
           strWhere +
           "  AND h.stat_header_id = ld.stat_header_id;";
       if (_boolVerbose) {
-        _out.println(strBinNumSelect + "\n");
+        printStream.println(strBinNumSelect + "\n");
       }
       String strMsg = "";
       //  run the rank number query and warn, if necessary
@@ -2787,7 +2787,7 @@ public class MVBatch extends MVUtil {
           for (int i = 0; i < listBinNum.size(); i++) {
             strMsg += (0 < i ? ", " : "") + listBinNum.get(i);
           }
-          _out.println(strMsg);
+          printStream.println(strMsg);
         }
       } catch (Exception e) {
         throw e;
@@ -2817,7 +2817,7 @@ public class MVBatch extends MVUtil {
       strPlotDataSelect = strPlotDataSelect + ";";
 
       if (_boolVerbose) {
-        _out.println(strPlotDataSelect + "\n");
+        printStream.println(strPlotDataSelect + "\n");
       }
       if (_boolSQLOnly) {
         return;
@@ -2927,10 +2927,10 @@ public class MVBatch extends MVUtil {
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       if (strMsg.length() > 0) {
-        _out.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
+        printStream.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
       }
       _intNumPlotsRun++;
-      _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
+      printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
     }
 
   }
@@ -3003,7 +3003,7 @@ public class MVBatch extends MVUtil {
 
       //  run the obs_thresh query and throw an error, if necessary
       if (_boolVerbose || _boolSQLOnly) {
-        _out.println(strObsThreshSelect + "\n");
+        printStream.println(strObsThreshSelect + "\n");
       }
       try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(strObsThreshSelect);) {
@@ -3035,7 +3035,7 @@ public class MVBatch extends MVUtil {
 
         //  run the fcst_thresh query and throw an error, if necessary
         if (_boolVerbose || _boolSQLOnly) {
-          _out.println(strFcstThreshSelect + "\n");
+          printStream.println(strFcstThreshSelect + "\n");
         }
         try (Statement stmt = job.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
              ResultSet resultSet = stmt.executeQuery(strFcstThreshSelect);) {
@@ -3105,7 +3105,7 @@ public class MVBatch extends MVUtil {
 
       //  print the SQL and continue if no plot is requested
       if (_boolVerbose) {
-        _out.println(strPlotDataSelect + "\n");
+        printStream.println(strPlotDataSelect + "\n");
       }
       if (_boolSQLOnly) {
         continue;
@@ -3245,7 +3245,7 @@ public class MVBatch extends MVUtil {
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile, _boolSQLOnly);
       _intNumPlotsRun++;
-      _out.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
+      printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
     }
 
   }
