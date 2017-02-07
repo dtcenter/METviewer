@@ -18,14 +18,14 @@ trap 'my_trap_handler ${LINENO} $?' ERR
 
 SUBJECT="Automated message from the DB backup on mandan"
 EMAIL="tatiana@ucar.edu"
-ERRORMESSAGE="/d3/projects/METViewer/src/apps/verif/metviewer/bin/errorMessage.txt"
-SUCCESSMESSAGE="/d3/projects/METViewer/src/apps/verif/metviewer/bin/successMessage.txt"
+ERRORMESSAGE="/d3/projects/METViewer/src/apps/METViewer/bin/errorMessage.txt"
+SUCCESSMESSAGE="/d3/projects/METViewer/src/apps/METViewer/bin/successMessage.txt"
 TEMP_DIR="/d3/backups/metviewer_sql/"
 
 MAIN_START=$(date +%s.%N)
 mysql -umvuser -pmvuser -e 'show databases;' | {
 	while read db_name ; do
-		if [ "$db_name" != "information_schema"  -a "$db_name" != "performance_schema" -a "$db_name" != "Database"  -a  "$db_name" != "mysql" -a  "$db_name" != "nhc_display" ];
+		if [ "$db_name" != "information_schema"  -a "$db_name" != "performance_schema" -a "$db_name" != "Database"  -a  "$db_name" != "mysql" -a  "$db_name" != "nhc_display" -a  "$db_name" != "nhc_display_fdeck_training" ];
 		then
 		  printf '\n\nAbout to back up database: '$db_name'\n'
 		  LAST_DATE_DEV_STR="";
