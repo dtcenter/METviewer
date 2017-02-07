@@ -225,6 +225,7 @@ var listStatMode = listStatModeSingle.concat(listStatModePair);
 
 var series_var_value_to_title_stat_map = {};
 series_var_value_to_title_stat_map['model'] = 'MODEL';
+series_var_value_to_title_stat_map['descr'] = 'DESC';
 series_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
 series_var_value_to_title_stat_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
 series_var_value_to_title_stat_map['valid_hour'] = 'VALID_HOUR';
@@ -240,6 +241,7 @@ series_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
 var fix_var_value_to_title_stat_map = {};
 fix_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
 fix_var_value_to_title_stat_map['model'] = 'MODEL';
+fix_var_value_to_title_stat_map['descr'] = 'DESC';
 fix_var_value_to_title_stat_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
 fix_var_value_to_title_stat_map['valid_hour'] = 'VALID_HOUR';
 fix_var_value_to_title_stat_map['fcst_init_beg'] = 'FCST_INIT_BEG';
@@ -255,6 +257,7 @@ fix_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
 var fix_var_value_to_title_mode_map = {};
 fix_var_value_to_title_mode_map['fcst_lead'] = 'FCST_LEAD';
 fix_var_value_to_title_mode_map['model'] = 'MODEL';
+fix_var_value_to_title_mode_map['descr'] = 'DESC';
 fix_var_value_to_title_mode_map['fcst_valid'] = 'FCST_VALID';
 fix_var_value_to_title_mode_map['valid_hour'] = 'VALID_HOUR';
 fix_var_value_to_title_mode_map['fcst_init'] = 'FCST_INIT';
@@ -267,6 +270,7 @@ fix_var_value_to_title_mode_map['fcst_lev'] = 'FCST_LEV';
 var indy_var_value_to_title_stat_map = {};
 indy_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
 indy_var_value_to_title_stat_map['model'] = 'MODEL';
+indy_var_value_to_title_stat_map['descr'] = 'DESC';
 indy_var_value_to_title_stat_map['fcst_lev'] = 'FCST_LEV';
 indy_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
 indy_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
@@ -280,6 +284,7 @@ indy_var_value_to_title_stat_map['vx_mask'] = 'VX_MASK';
 var indy_var_value_to_title_mode_map = {};
 indy_var_value_to_title_mode_map['fcst_lead'] = 'FCST_LEAD';
 indy_var_value_to_title_mode_map['model'] = 'MODEL';
+indy_var_value_to_title_mode_map['descr'] = 'DESC';
 indy_var_value_to_title_mode_map['fcst_lev'] = 'FCST_LEV';
 indy_var_value_to_title_mode_map['fcst_thr'] = 'FCST_THR';
 indy_var_value_to_title_mode_map['fcst_valid'] = 'FCST_VALID';
@@ -385,7 +390,6 @@ function getForecastVariablesHist() {
     if (fcst_vars.length > 0) {
         fcst_var = fcst_vars[0];
     }
-
     $.ajax({
         async: false,
         url: "servlet",
@@ -407,12 +411,10 @@ function getForecastVariablesHist() {
 function updateForecastVariables() {
     var i;
     $('#listdt').jqGrid('clearGridData');
-
     selected_mode = $("#plot_data").multiselect("getChecked").val();
     if (!selected_mode) {
         selected_mode = 'stat';
     }
-
     var select_y1 = $("#fcst_var_y1_1");
     var select_y2 = $('#fcst_var_y2_1');
     var indy_var_val = $('#indy_var_val');
@@ -457,7 +459,6 @@ function updateForecastVariables() {
 
     //get value of database
     var selectedDatabase = $("#database").multiselect("getChecked").val();
-
     $.ajax({
         async: false,
         url: "servlet",
