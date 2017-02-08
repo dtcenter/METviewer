@@ -708,8 +708,21 @@ getDerivedCurveName = function(diffSeriesVec){
 }
 
 calcDerivedCurveValue = function(val1, val2, derivedCurveName){
-    if(  grepl('^DIFF', derivedCurveName) ){
+   if(  grepl('^DIFF', derivedCurveName) ){
     result = as.numeric(val1)  - as.numeric(val2);
+    if( grepl('^DIFF_SIG', derivedCurveName) ){
+      if (length(result) != 0 ){
+        pval_emp = sum( result < 0 ) / length( result );
+        if( mean(result) > 0 ){
+          diff_sig = pval_emp * -1;
+        }else{
+          diff_sig = pval_emp;
+        }
+        result = diff_sig;
+      }else{
+        result = NA;
+      }
+    }
   }else if( grepl('^RATIO', derivedCurveName) ){
     result = as.numeric(val1)  / as.numeric(val2);
   }else if( grepl('^SS', derivedCurveName) ){
