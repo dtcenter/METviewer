@@ -303,7 +303,7 @@
 
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
-        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 1.10<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
+        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 1.11<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
 
         </div>
         <label for="database">Database:</label><select id="database">
