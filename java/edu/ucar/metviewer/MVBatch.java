@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 public class MVBatch extends MVUtil {
 
-  public static final Pattern _patRTmpl = Pattern.compile("#<(\\w+)>#");
   public static final Pattern _patDateRange = Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
   public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
   public final MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
@@ -636,55 +635,7 @@ public class MVBatch extends MVUtil {
     tableRTags.put("ensss_pts_disp", job.getEnsSsPtsDisp());
   }
 
-  /**
-   * Populate the template tags in the input template file named tmpl with values from the input table vals and write the result to the output file named
-   * output.
-   *
-   * @param tmpl   Template file to populate
-   * @param output Output file to write
-   * @param vals   Table containing values corresponding to tags in the input template
-   * @throws Exception
-   */
-  public static void populateTemplateFile(String tmpl, String output, Map<String, String> vals) throws Exception {
-    FileReader fileReader = null;
-    BufferedReader reader = null;
-    PrintStream writer = null;
-    try {
-      fileReader = new FileReader(tmpl);
-      reader = new BufferedReader(fileReader);
-      writer = new PrintStream(output);
-      while (reader.ready()) {
-        String strTmplLine = reader.readLine();
-        String strOutputLine = strTmplLine;
 
-        Matcher matRtmplLine = _patRTmpl.matcher(strTmplLine);
-        while (matRtmplLine.find()) {
-          String strRtmplTag = matRtmplLine.group(1);
-          if (!vals.containsKey(strRtmplTag)) {
-            continue;
-          }
-          String strRTagVal = vals.get(strRtmplTag);
-          strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
-        }
-
-        writer.println(strOutputLine);
-      }
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-      if (writer != null) {
-        writer.close();
-      }
-      if (fileReader != null) {
-        fileReader.close();
-      }
-
-    }
-
-  }
 
   /**
    * Build SQL to gather mode pair data
