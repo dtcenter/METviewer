@@ -1288,7 +1288,7 @@ public class MVLoad extends MVUtil {
         //  build a where clause for searching for duplicate stat_header records
         String strStatHeaderWhereClause =
           "  model = '" + findValueInArray(listToken, headerNames, "MODEL") + "'\n" +
-            "  desc = '" + findValueInArray(listToken, headerNames, "DESC") + "'\n" +
+            " AND descr = '" + findValueInArray(listToken, headerNames, "DESC") + "'\n" +
             //"  AND version = '" +				listToken[0] + "'\n" +
             "  AND fcst_var = '" + findValueInArray(listToken, headerNames, "FCST_VAR") + "'\n" +
             "  AND fcst_lev = '" + findValueInArray(listToken, headerNames, "FCST_LEV") + "'\n" +
