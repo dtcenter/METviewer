@@ -9,6 +9,7 @@ boolAggVl1l2 = #<agg_vl1l2>#;
 boolEventEqual = #<event_equal>#;
 boolEveqDis = #<eveq_dis>#;
 intNumReplicates = #<boot_repl>#;
+intRandomSeed = #<boot_random_seed>#;
 strCIType = "#<boot_ci>#";
 dblAlpha = #<ci_alpha>#;
 boolEqualizeByIndep = #<equalize_by_indep>#;
