@@ -1,5 +1,7 @@
 package edu.ucar.metviewer;
 
+import org.apache.log4j.Logger;
+
 import java.awt.*;
 import java.io.*;
 import java.sql.*;
@@ -60,6 +62,8 @@ public class MVUtil {
   public static String DB_DATE_PLOT = "yyyyMMddHH";
   public static String DB_DATE_STAT = "yyyyMMdd_HHmmss";
   public static final Pattern _patRTmpl = Pattern.compile("#<(\\w+)>#");
+  private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVUtil");
+
 
 
   static {
@@ -109,7 +113,7 @@ public class MVUtil {
     _tableStatsCnt.put("E90", new String[]{"bc"});
     _tableStatsCnt.put("IQR", new String[]{"bc"});
     _tableStatsCnt.put("MAD", new String[]{"bc"});
-    _tableStatsCnt.put("PAC", new String[]{"bc"});
+    //_tableStatsCnt.put("PAC", new String[]{"bc"});
     _tableStatsCnt.put("ANOM_CORR", new String[]{"bc", SAL1L2});
     _tableStatsCnt.put("ME2", new String[]{"bc", SL1L2});
     _tableStatsCnt.put("MSESS", new String[]{"bc", SL1L2});
@@ -1840,12 +1844,12 @@ public class MVUtil {
       }
 
       if (0 == intLine) {
-        throw new Exception("result set contained no data");
+        _logger.info("No data was returned from database");
+        throw new EmptyResultSetException("result set contained no data");
       }
 
     } catch (Exception e) {
       _out.println("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
-      e.printStackTrace();
     }
   }
 
