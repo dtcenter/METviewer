@@ -307,11 +307,13 @@ listLwd		= #<lwd>#;
 
 # plot the y2-axis series first, so that they lie underneath the y1-axis series
 listY1Usr = par()$usr;
-intFormatIndex = nrow(matPermVal) + 1;
+intFormatIndex = 2;
+intFormatIndexInc  = 1;
 if( TRUE == boolEnsSsPtsDisp ){
 
+  intFormatIndexInc = 2;
   # set the plot window limits
-dblY2BufrPct = #<y2_bufr>#;
+  dblY2BufrPct = #<y2_bufr>#;
   dblY2Bufr = (dblY2Max - dblY2Min) * dblY2BufrPct;
   listY2Usr = c(par()$usr[1:2], dblY2Min - dblY2Bufr, dblY2Max + dblY2Bufr);
   par(new=TRUE, usr=listY2Usr, xaxs="r");
@@ -336,7 +338,7 @@ axis(
     listPermValStr = paste(listPermVal,collapse = '_');
     # if the current series is not displayed, continue to the next
     if( !listPlotDisp[intFormatIndex] ){
-      intFormatIndex = intFormatIndex + 1;
+      intFormatIndex = intFormatIndex + intFormatIndexInc;
       next;
     }
 
@@ -366,7 +368,7 @@ axis(
       lwd=intLwd			# line width
     );
 
-    intFormatIndex = intFormatIndex + 1;
+    intFormatIndex = intFormatIndex + intFormatIndexInc;
 
 	} # end: for(i in 1:intNumSeries2)
 
@@ -395,7 +397,7 @@ for(intPermVal in 1:nrow(matPermVal)){
   listPermValStr = paste(listPermVal,collapse = '_');
   # if the current series is not displayed, continue to the next
   if( !listPlotDisp[intFormatIndex] ){
-    intFormatIndex = intFormatIndex + 1;
+    intFormatIndex = intFormatIndex + intFormatIndexInc;
     next;
   }
 
@@ -424,7 +426,7 @@ for(intPermVal in 1:nrow(matPermVal)){
     lwd=intLwd			# line width
   );
 
-  intFormatIndex = intFormatIndex + 1;
+  intFormatIndex = intFormatIndex + intFormatIndexInc;
 } # end: for(i in 1:intNumSeries1)
 
 # widen the line widths in the legend, if necessary
