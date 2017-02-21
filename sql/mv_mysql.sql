@@ -65,6 +65,7 @@ CREATE TABLE stat_header
     CONSTRAINT stat_header_unique_pk
         UNIQUE INDEX (
             model,
+            descr,
             fcst_var,
             fcst_lev,
             obtype,
@@ -1469,13 +1470,13 @@ CREATE TABLE mode_header
     CONSTRAINT mode_header_data_file_id_pk
         FOREIGN KEY(data_file_id)
         REFERENCES data_file(data_file_id),
-    CONSTRAINT stat_header_unique_pk
+    CONSTRAINT mode_header_unique_pk
         UNIQUE INDEX (
             model,
+            descr,
             fcst_lead,
             fcst_valid,
             fcst_accum,
-            fcst_init,
             obs_lead,
             obs_valid,
             obs_accum,
@@ -1946,17 +1947,6 @@ BEGIN
     SET result = (1.0 - mse/(ostdev*ostdev) );
 RETURN IFNULL( result ,'NA'); END |
 
-DROP FUNCTION IF EXISTS calcANOM_CORR |
-CREATE FUNCTION calcANOM_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
-BEGIN
-    DECLARE v DECIMAL(12,6);
-    DECLARE anom_corr DECIMAL(12,6);
-    SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
-    IF 0 >= v THEN RETURN 'NA'; END IF;
-    SET anom_corr = (POW(total,2) * fobar - POW(total,2) * fbar * obar) / SQRT(v);
-    IF 1 < anom_corr THEN RETURN 'NA'; END IF;
-    RETURN IFNULL(anom_corr, 'NA');
-END |
 
 
 --
