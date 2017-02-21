@@ -243,6 +243,25 @@ public class MVBatch extends MVUtil {
       return false;
     }
   }
+  public static void validateModeSeriesDefinition(MVPlotJob job) throws Exception {
+    MVOrderedMap[] listDep = job.getDepGroups();
+    for (int dep=1; dep<=2; dep++) {
+      String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep"+ dep));
+
+      for (int i=0; i <listFcstVarStat.length; i++) {
+        String stat = listFcstVarStat[i][1].split("_")[0];
+        String type = listFcstVarStat[i][1].split("_")[1];
+        //validate for all attr stats except for those
+        if( !stat.equals("CNT") && !stat.equals("CNTSUM") && !stat.equals("MAXINT") && !stat.equals("MAXINTF") && !stat.equals("MAXINTO") && type.startsWith("D")){
+
+          if( !type.equals("DCM")){
+            throw new Exception("Incorrect series definition. Stat " + stat + " can only have Cluster and Matched for Diff type");
+          }
+        }
+      }
+    }
+  }
+
 
   /**
    * Build a list of the fcst_var/stat combinations stored in the input <dep> structure.  The output list is structured as a list of pairs of Strings, with the
@@ -977,6 +996,9 @@ public class MVBatch extends MVUtil {
     //  run the plot jobs once for each permutation of plot fixed values
     for (int intPlotFix = 0; intPlotFix < listPlotFixPerm.length; intPlotFix++) {
 
+
+
+
       if (0 < intPlotFix) {
         printStream.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
       }
@@ -993,6 +1015,10 @@ public class MVBatch extends MVUtil {
         job.setIndyLabel(listIndy[1]);
       }
       boolean boolModeRatioPlot = isModeRatioJob(job);
+      //if it is a model job with attribute stat  - validate
+            if(isModeJob(job) && !boolModeRatioPlot){
+              validateModeSeriesDefinition(job);
+            }
 
       //  build the SQL statements for the current plot
        listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
