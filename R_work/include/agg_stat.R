@@ -814,6 +814,9 @@ for(strIndyVal in listIndyVal){
     # bootstrap the series data
     dfBoot = data.frame(listBoot, check.names=FALSE);
     stBoot = Sys.time();
+    if( !is.na(intRandomSeed) ){
+      set.seed(intRandomSeed);
+    }
     bootStat = try(boot(dfBoot, booter.iid, R=intNumReplicates , parallel = 'multicore', ncpus=4 ));
 
     dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
@@ -893,20 +896,16 @@ for(strIndyVal in listIndyVal){
       diff_sig = NA;
       # Use the empirical distribution and just compute the ratio of differences < 0 if needed
       if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
-        diff_repl = bootStat$t[,intBootIndex];
-        if(all(is.na(diff_repl))){
-          dfOut[listOutInd1,]$stat_value = NA;
-        }else{
-          pval_emp = sum( diff_repl < 0 ) / length( diff_repl );
+      if( !all(is.na(bootStat$t[,intBootIndex])) ){
+        mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
 
-          if( mean(diff_repl) > 0 ){
-            diff_sig = pval_emp * -1;
-          }else{
-            diff_sig = pval_emp;
-          }
+        bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
 
-          dfOut[listOutInd1,]$stat_value = diff_sig;
-        }
+        pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
+        diff_sig = perfectScoreAdjustment(mean_bootStat, listDep1Plot[[1]], pval);
+
+      }
+        dfOut[listOutInd1,]$stat_value = diff_sig;
       }else{
         if( 1 < intNumReplicates ){
           stBootCI = Sys.time();
