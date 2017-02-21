@@ -201,8 +201,13 @@ for(strIndyVal in listIndyVal){
       for(intSeriesVal in 1:length(listSeriesVar)){
         strSeriesVar = listSeriesVar[intSeriesVal];
         strSeriesVal = listPerm[intSeriesVal];
-        if( grepl("^[0-9]+$", strSeriesVal) ){ strSeriesVal = as.numeric(strSeriesVal); }
-        dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] == strSeriesVal,];
+        if( grepl("^[0-9]+$", strSeriesVal) ){
+          strSeriesVal = as.numeric(strSeriesVal);
+        }else{
+          vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+        }
+        vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+        dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
       }
       if( 1 > nrow(dfStatsPerm) ){ next; }
 
@@ -211,12 +216,12 @@ for(strIndyVal in listIndyVal){
 
       # aggregate the data set and format it into a single PCT table
       dfAggPerm = dfStatsPerm[1,];
-      for(oy_i in seq(11, ncol(dfAggPerm), 3)){ dfAggPerm[1,oy_i] = sum(dfStatsPerm[,oy_i]); }
-      for(on_i in seq(12, ncol(dfAggPerm), 3)){ dfAggPerm[1,on_i] = sum(dfStatsPerm[,on_i]); }
+      for(oy_i in seq( 10 +length(listSeries1Val) , ncol(dfAggPerm), 3)){ dfAggPerm[1,oy_i] = sum(dfStatsPerm[,oy_i]); }
+      for(on_i in seq( 11 +length(listSeries1Val), ncol(dfAggPerm), 3)){ dfAggPerm[1,on_i] = sum(dfStatsPerm[,on_i]); }
       dfPctPerm = data.frame(
-        thresh_i	= c( t( dfAggPerm[1,seq(10, ncol(dfAggPerm), 3)] ) ),
-        oy_i		= c( t( dfAggPerm[1,seq(11, ncol(dfAggPerm), 3)] ) ),
-        on_i		= c( t( dfAggPerm[1,seq(12, ncol(dfAggPerm), 3)] ) )
+        thresh_i	= c( t( dfAggPerm[1,seq( 9+length(listSeries1Val), ncol(dfAggPerm), 3)] ) ),
+        oy_i		= c( t( dfAggPerm[1,seq( 10 +length(listSeries1Val), ncol(dfAggPerm), 3)] ) ),
+        on_i		= c( t( dfAggPerm[1,seq( 11 +length(listSeries1Val), ncol(dfAggPerm), 3)] ) )
       );
 
       # calculate vectors and constants to use below
