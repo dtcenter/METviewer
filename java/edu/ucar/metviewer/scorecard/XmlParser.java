@@ -77,8 +77,14 @@ public class XmlParser {
         } else if ("boot_repl".equals(plotNode.getNodeName())) {
           try {
             scorecard.setNumBootReplicates(Integer.valueOf(plotNode.getTextContent()));
-          }catch (NumberFormatException e){
+          } catch (NumberFormatException e) {
             logger.error("Incorrect value for <boot_repl> :" + plotNode.getTextContent() + ". Using default value 1000");
+          }
+        } else if ("boot_random_seed".equals(plotNode.getNodeName())) {
+          try {
+            scorecard.setBootRandomSeed(Integer.valueOf(plotNode.getTextContent()));
+          } catch (NumberFormatException e) {
+            logger.error("Incorrect value for <boot_random_seed> :" + plotNode.getTextContent() + ". Using default value NULL");
           }
         } else if ("tmpl".equals(plotNode.getNodeName())) {
           setTmpl(scorecard, plotNode);
@@ -162,7 +168,7 @@ public class XmlParser {
         fieldName = fieldAtts.item(k).getNodeValue();
 
         if (!fieldName.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
-          fieldName = fieldName.replaceAll("\\s+","");
+          fieldName = fieldName.replaceAll("\\s+", "");
         }
         break;
       }
