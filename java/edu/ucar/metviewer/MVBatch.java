@@ -1065,6 +1065,7 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("boot_repl", job.getAggBootRepl());
+        tableAggStatInfo.put("boot_random_seed", "NA");
         tableAggStatInfo.put("boot_ci", job.getAggBootCI());
         tableAggStatInfo.put("ci_alpha", job.getCIAlpha());
         tableAggStatInfo.put("indy_var", job.getIndyVar());
