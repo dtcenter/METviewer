@@ -1,6 +1,9 @@
 package edu.ucar.metviewer;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
@@ -12,6 +15,7 @@ public class MVBatch extends MVUtil {
 
   public static final Pattern _patDateRange = Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
   public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
+  public static final String INSERT_INTO_MODE_SINGLE = "INSERT INTO mode_single";
   public final MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
   public PrintStream printStream = System.out;
   public boolean _boolSQLOnly = false;
@@ -59,7 +63,7 @@ public class MVBatch extends MVUtil {
 
     try {
 
-      MVPlotJob[] jobs ;
+      MVPlotJob[] jobs;
 
       //  if no input file is present, bail
       if (1 > argv.length) {
@@ -167,7 +171,7 @@ public class MVBatch extends MVUtil {
       Date dateStart = new Date();
       if (!bat._boolSQLOnly) {
         SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-                       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         bat.printStream.println("Running " + bat._intNumPlots + " plots\n" + "Begin time: " + formatDB.format(dateStart) + "\n");
       }
 
@@ -243,18 +247,19 @@ public class MVBatch extends MVUtil {
       return false;
     }
   }
+
   public static void validateModeSeriesDefinition(MVPlotJob job) throws Exception {
     MVOrderedMap[] listDep = job.getDepGroups();
-    for (int dep=1; dep<=2; dep++) {
-      String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep"+ dep));
+    for (int dep = 1; dep <= 2; dep++) {
+      String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep" + dep));
 
-      for (int i=0; i <listFcstVarStat.length; i++) {
+      for (int i = 0; i < listFcstVarStat.length; i++) {
         String stat = listFcstVarStat[i][1].split("_")[0];
         String type = listFcstVarStat[i][1].split("_")[1];
         //validate for all attr stats except for those
-        if( !stat.equals("CNT") && !stat.equals("CNTSUM") && !stat.equals("MAXINT") && !stat.equals("MAXINTF") && !stat.equals("MAXINTO") && type.startsWith("D")){
+        if (!stat.equals("CNT") && !stat.equals("CNTSUM") && !stat.equals("MAXINT") && !stat.equals("MAXINTF") && !stat.equals("MAXINTO") && type.startsWith("D")) {
 
-          if( !type.equals("DCM")){
+          if (!type.equals("DCM")) {
             throw new Exception("Incorrect series definition. Stat " + stat + " can only have Cluster and Matched for Diff type");
           }
         }
@@ -275,7 +280,7 @@ public class MVBatch extends MVUtil {
     String[] listFcstVar = mapDep.getKeyList();
     String[] listStat;
     for (int intFcstVar = 0; intFcstVar < listFcstVar.length; intFcstVar++) {
-       listStat = (String[]) mapDep.get(listFcstVar[intFcstVar]);
+      listStat = (String[]) mapDep.get(listFcstVar[intFcstVar]);
       for (int intStat = 0; intStat < listStat.length; intStat++) {
         listRet.add(new String[]{listFcstVar[intFcstVar], listStat[intStat]});
       }
@@ -393,7 +398,7 @@ public class MVBatch extends MVUtil {
 
       //  insert information from mode_obj_single into the temp tables with header data
       listQuery.add(
-        "INSERT INTO mode_single\n" +
+        INSERT_INTO_MODE_SINGLE +"\n" +
           "SELECT\n" + strSelectList + ",\n" +
           "  mos.object_id,\n" +
           "  mos.object_cat,\n" +
@@ -451,7 +456,7 @@ public class MVBatch extends MVUtil {
 
     //  insert information from mode_obj_single into the temp tables with header data
     listQuery.add(
-      "INSERT INTO mode_single\n" +
+      INSERT_INTO_MODE_SINGLE +"\n" +
         "SELECT  \n" + strSelectList + ",\n" +
         "  mc.total \n" +
         "FROM\n" +
@@ -487,8 +492,7 @@ public class MVBatch extends MVUtil {
       if (!listStatComp[1].startsWith("D")) {
         listQuery.add(buildModeSingleStatTable(strSelectList, strWhere, strStat, listGroupBy, isEventEqualization));
       } else {
-        listQuery.add("DROP  TABLE IF EXISTS mode_single2;");
-        listQuery.add("CREATE TEMPORARY TABLE mode_single2 SELECT * FROM mode_single;");
+        //we will add statements for creating mode_single2 table later
         listQuery.add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat));
       }
     } else if (_tableModePairStatField.containsKey(listStatComp[0])) {
@@ -653,7 +657,6 @@ public class MVBatch extends MVUtil {
     tableRTags.put("ensss_pts", job.getEnsSsPts());
     tableRTags.put("ensss_pts_disp", job.getEnsSsPtsDisp());
   }
-
 
 
   /**
@@ -997,8 +1000,6 @@ public class MVBatch extends MVUtil {
     for (int intPlotFix = 0; intPlotFix < listPlotFixPerm.length; intPlotFix++) {
 
 
-
-
       if (0 < intPlotFix) {
         printStream.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
       }
@@ -1016,25 +1017,25 @@ public class MVBatch extends MVUtil {
       }
       boolean boolModeRatioPlot = isModeRatioJob(job);
       //if it is a model job with attribute stat  - validate
-            if(isModeJob(job) && !boolModeRatioPlot){
-              validateModeSeriesDefinition(job);
-            }
+      if (isModeJob(job) && !boolModeRatioPlot) {
+        validateModeSeriesDefinition(job);
+      }
 
       //  build the SQL statements for the current plot
-       listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
+      listQuery = buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal);
 
-       mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
+      mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
       if (job.getIndyVar() != null) {
         mapTmplValsPlot.put("indy_var", job.getIndyVar());
       }
       addTmplValDep(job, mapTmplValsPlot);
 
-       tableAggStatInfo = new HashMap<>();
+      tableAggStatInfo = new HashMap<>();
       //  resolve the dep maps and series values for each y-axis
-       mapDep = job.getDepGroups()[0];
+      mapDep = job.getDepGroups()[0];
 
       // format the indy values, if fcst_hour or valid_hour is being used
-       listIndyValFmt = job.getIndyVal();
+      listIndyValFmt = job.getIndyVal();
       if (job.getIndyVar().matches(".*_hour")) {
         for (int i = 0; i < listIndyValFmt.length; i++) {
           try {
@@ -1162,7 +1163,7 @@ public class MVBatch extends MVUtil {
 
 
             populateTemplateFile(_strRtmplFolder + "/" + tmplFileName, eeInfo, tableAggStatInfo);
-            runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo},_boolSQLOnly);
+            runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo}, _boolSQLOnly);
 
           } catch (Exception e) {
             throw e;
@@ -1375,7 +1376,7 @@ public class MVBatch extends MVUtil {
             scriptFileName = "include/agg_pct.R";
           }
 
-          runRscript(job.getRscript(), _strRworkFolder + scriptFileName, new String[]{strAggInfo},_boolSQLOnly);
+          runRscript(job.getRscript(), _strRworkFolder + scriptFileName, new String[]{strAggInfo}, _boolSQLOnly);
 
           if (!fileAggOutput.exists()) {
             return;
@@ -2183,6 +2184,23 @@ public class MVBatch extends MVUtil {
     //remove duplicated queries
     listSQL = new ArrayList<>(new LinkedHashSet<>(listSQL));
 
+    //add statements for creating mode_single2 table if needed
+    boolean hasSecondTable = false;
+    Integer insertInd = null;
+    for (int i = 0; i < listSQL.size(); i++) {
+      if (listSQL.get(i).contains("mode_single2")) {
+        hasSecondTable = true;
+      }
+      if (listSQL.get(i).contains(INSERT_INTO_MODE_SINGLE)) {
+        insertInd = i;
+      }
+    }
+    if(hasSecondTable  && insertInd != null){
+      listSQL.add(insertInd+1, "DROP  TABLE IF EXISTS mode_single2;");
+      listSQL.add(insertInd+2, "CREATE TEMPORARY TABLE mode_single2 SELECT * FROM mode_single;");
+    }
+
+
     return listSQL;
   }
 
@@ -2718,7 +2736,7 @@ public class MVBatch extends MVUtil {
       strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
         " IN (" + buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType ;
+      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType;
 
     }
 
@@ -2946,7 +2964,7 @@ public class MVBatch extends MVUtil {
       strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
         " IN (" + buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType ;
+      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType;
 
     }
 
@@ -3241,9 +3259,9 @@ public class MVBatch extends MVUtil {
     MVOrderedMap mapTmplVals = job.getTmplVal();
     Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
     SimpleDateFormat formatPlot = new SimpleDateFormat(MVUtil.DB_DATE_PLOT);
-       formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
+    formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
     SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-         formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     //  add the fixed values to the template value map, and insert set values for this permutation
     for (Map.Entry aListPlotFixVal1 : listPlotFixVal) {
@@ -3281,8 +3299,6 @@ public class MVBatch extends MVUtil {
   }
 
 
-
-
   private class BuildQueryStrings {
 
     private final boolean boolModePlot;
@@ -3303,7 +3319,8 @@ public class MVBatch extends MVUtil {
     public BuildQueryStrings(boolean boolModePlot, Map<String, String> tableHeaderSQLType, Map.Entry[] listSeries, String strWhere, boolean isFormatSelect) {
       this.boolModePlot = boolModePlot;
       this.tableHeaderSQLType = tableHeaderSQLType;
-      this.listSeries = Arrays.copyOf(listSeries, listSeries.length);;
+      this.listSeries = Arrays.copyOf(listSeries, listSeries.length);
+      ;
       this.strWhere = strWhere;
       this.isFormatSelect = isFormatSelect;
     }
@@ -3337,9 +3354,9 @@ public class MVBatch extends MVUtil {
         //  build the select list element, where clause and temp table list element
         if (strSelectList.length() == 0) {
           if (isFormatSelect) {
-            strSelectList +=  "  " + formatField(strSeriesField, boolModePlot, true);
+            strSelectList += "  " + formatField(strSeriesField, boolModePlot, true);
           } else {
-            strSelectList +=  "  " + strSeriesField;
+            strSelectList += "  " + strSeriesField;
           }
         } else {
           if (isFormatSelect) {
@@ -3350,7 +3367,7 @@ public class MVBatch extends MVUtil {
         }
         strWhere += (strWhere.isEmpty() ? "  " : "  AND ") + formatField(strSeriesField, boolModePlot, false) +
           " IN (" + buildValueList(listSeriesVal) + ")\n";
-        strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType ;
+        strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + padEnd(strSeriesField, 20) + strTempType;
       }
       return this;
     }
