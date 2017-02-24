@@ -100,6 +100,14 @@ public class XmlParser {
           } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
             scorecard.setViewSymbol(Boolean.FALSE);
           }
+        } else if ("view_legend".equals(plotNode.getNodeName())) {
+          if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
+            scorecard.setViewLegend(Boolean.TRUE);
+          } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+            scorecard.setViewLegend(Boolean.FALSE);
+          }
+        } else if ("stat_flag".equals(plotNode.getNodeName())) {
+          scorecard.setStatFlag(plotNode.getTextContent());
         }
 
       }
