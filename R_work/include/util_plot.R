@@ -710,19 +710,6 @@ getDerivedCurveName = function(diffSeriesVec){
 calcDerivedCurveValue = function(val1, val2, derivedCurveName){
    if(  grepl('^DIFF', derivedCurveName) ){
     result = as.numeric(val1)  - as.numeric(val2);
-    if( grepl('^DIFF_SIG', derivedCurveName) ){
-      if (length(result) != 0 ){
-        pval_emp = sum( result < 0 ) / length( result );
-        if( mean(result) > 0 ){
-          diff_sig = pval_emp * -1;
-        }else{
-          diff_sig = pval_emp;
-        }
-        result = diff_sig;
-      }else{
-        result = NA;
-      }
-    }
   }else if( grepl('^RATIO', derivedCurveName) ){
     result = as.numeric(val1)  / as.numeric(val2);
   }else if( grepl('^SS', derivedCurveName) ){
@@ -742,5 +729,30 @@ atan2d <- function (y, x) {
   return(y)
 }
 
+sameElements <- function (a,b){
+  l <- Map(table,list(a, b)) # Compute frequencies - returns ordered table
+  Reduce(identical,l) # Check if frequencies are the same for all input vectors
+}
 
+perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
+  na_perf_score_stats <- c('BASER','FMEAN','FBAR','FSTDEV', 'OBAR', 'OSTDEV', 'FRANK_TIES', 'ORANK_TIES',
+    'FBAR',  'FSTDEV', 'OBAR', 'OSTDEV', 'RANKS', 'FRANK_TIES', 'ORANK_TIES','VL1L2_FBAR', 'VL1L2_OBAR','VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV' );
+
+  zero_perf_score_stats <- c('POFD','FAR','ESTDEV','MAE', 'MSE', 'BCMSE', 'RMSE', 'E10', 'E25', 'E50', 'E75',
+    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE'  );
+
+  one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
+    'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR');
+
+  if( statistic %in% na_perf_score_stats ){
+    result = NA;
+  }else if( statistic %in% zero_perf_score_stats && abs(meanStats1 - 0) > abs(meanStats2 - 0) ){
+    result = pval * -1;
+  }else if( statistic %in% one_perf_score_stats && abs(meanStats1 - 1) > abs(meanStats2 - 1) ){
+    result = pval * -1;
+  }else{
+    result = pval;
+  }
+  return(result);
+}
 
