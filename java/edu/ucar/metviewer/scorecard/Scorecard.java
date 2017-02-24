@@ -6,15 +6,15 @@
 package edu.ucar.metviewer.scorecard;
 
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
-import edu.ucar.metviewer.scorecard.db.CalcDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
+import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.exceptions.MissingFileException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import edu.ucar.metviewer.scorecard.rscript.AggRscriptManager;
-import edu.ucar.metviewer.scorecard.rscript.CalcRscriptManager;
 import edu.ucar.metviewer.scorecard.rscript.RscriptManager;
+import edu.ucar.metviewer.scorecard.rscript.SumRscriptManager;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -45,10 +45,38 @@ public class Scorecard {
   private Boolean aggStat = Boolean.TRUE;
   private Boolean viewValue = Boolean.FALSE;
   private Boolean viewSymbol = Boolean.TRUE;
+  private Boolean viewLegend = Boolean.TRUE;
   private int numBootReplicates = 1000;
+  private Integer bootRandomSeed;
+  private String statFlag = "NCAR";
 
   private static final String USAGE = "USAGE:  mv_scorecatd.sh <scorecard_spec_file>\n" +
     "                    where <scorecard_spec_file> specifies the XML scorecard specification document\n";
+
+
+  public String getStatFlag() {
+    return statFlag;
+  }
+
+  public void setStatFlag(String statFlag) {
+    this.statFlag = statFlag;
+  }
+
+  public Boolean getViewLegend() {
+    return viewLegend;
+  }
+
+  public void setViewLegend(Boolean viewLegend) {
+    this.viewLegend = viewLegend;
+  }
+
+  public Integer getBootRandomSeed() {
+    return bootRandomSeed;
+  }
+
+  public void setBootRandomSeed(Integer bootRandomSeed) {
+    this.bootRandomSeed = bootRandomSeed;
+  }
 
   public int getNumBootReplicates() {
     return numBootReplicates;
@@ -192,6 +220,8 @@ public class Scorecard {
   }
 
   public static void main(String[] args) throws Exception {
+    long begin = System.currentTimeMillis();
+    long nanos = System.nanoTime();
     String filename;
     updateLog4jConfiguration();
     if (0 == args.length) {
@@ -214,14 +244,14 @@ public class Scorecard {
           scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
           rscriptManager = new AggRscriptManager(scorecard);
         } else {
-          scorecardDbManager = new CalcDatabaseManagerMySQL(scorecard);
-          rscriptManager = new CalcRscriptManager(scorecard);
+          scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
+          rscriptManager = new SumRscriptManager(scorecard);
         }
 
-         for (Map<String, Entry> mapRow : listRows) {
-           scorecardDbManager.createDataFile(mapRow);
-           rscriptManager.calculateStats(mapRow);
-         }
+        for (Map<String, Entry> mapRow : listRows) {
+          scorecardDbManager.createDataFile(mapRow);
+          rscriptManager.calculateStatsForRow(mapRow);
+        }
 
         File dataFile = new File(scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
         if (dataFile.exists()) {
@@ -234,7 +264,10 @@ public class Scorecard {
       }
 
     }
-    logger.info("----  Scorecard Done  ----");
+    long duration = System.nanoTime() - nanos;
+    int seconds = (int) (duration / 1000000000);
+    logger.info("----  Scorecard Done  ---- " + seconds + " seconds");
+
   }
 
   private void cleanOldResults() {
