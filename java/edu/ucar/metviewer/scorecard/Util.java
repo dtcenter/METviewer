@@ -18,10 +18,11 @@ import java.util.Map;
  * @version : 1.0 : 20/01/17 14:56 $
  */
 public class Util {
+
   private static final Logger logger = Logger.getLogger(Util.class);
   private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2, MVUtil.VL1L2};
 
-  private Util(){
+  private Util() {
 
   }
 
@@ -36,30 +37,35 @@ public class Util {
     }
     return stat;
   }
+
   public static String getAggTypeForStat(final String stat) {
-       String aggType = null;
+    String aggType = null;
 
-       MVOrderedMap orderedMap;
+    MVOrderedMap orderedMap;
 
-       if (MVUtil._tableStatsCnt.containsKey(stat)) {
-         orderedMap = MVUtil._tableStatsCnt;
-       } else if (MVUtil._tableStatsSsvar.containsKey(stat)) {
-         orderedMap = MVUtil._tableStatsSsvar;
-       }else {
-         orderedMap = new MVOrderedMap();
-       }
-       try {
-         String[] entry = (String[]) orderedMap.get(stat);
-         for (String st : entry) {
-           if (Arrays.asList(aggTypes).contains(st.toLowerCase())) {
-             aggType = st;
-             break;
-           }
-         }
-       } catch (NullPointerException e) {
-         logger.error(e);
-         aggType = "";
-       }
-       return aggType;
-     }
+    if (MVUtil._tableStatsCnt.containsKey(stat)) {
+      orderedMap = MVUtil._tableStatsCnt;
+    } else if (MVUtil._tableStatsSsvar.containsKey(stat)) {
+      orderedMap = MVUtil._tableStatsSsvar;
+    } else if (MVUtil._tableStatsCts.containsKey(stat)) {
+      orderedMap = MVUtil._tableStatsCts;
+    } else if (MVUtil._tableStatsVl1l2.containsKey(stat)) {
+      orderedMap = MVUtil._tableStatsVl1l2;
+    } else {
+      orderedMap = new MVOrderedMap();
+    }
+    try {
+      String[] entry = (String[]) orderedMap.get(stat);
+      for (String st : entry) {
+        if (Arrays.asList(aggTypes).contains(st.toLowerCase())) {
+          aggType = st;
+          break;
+        }
+      }
+    } catch (NullPointerException e) {
+      logger.error(e);
+      aggType = "";
+    }
+    return aggType;
+  }
 }
