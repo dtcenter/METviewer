@@ -4,30 +4,33 @@ source("include/Compute_STDerr.R");
 source("include/util_plot.R");
 
 strDataFile = "#<data_file>#";
+strPlotFile = "#<plot_file>#";
 
 #
 #  Plot Control Variables
 #
 boolEqualizeByIndep = #<equalize_by_indep>#;
-boolEventEqual	= #<event_equal>#;
+boolEventEqual  = #<event_equal>#;
+boolAppend = #<append_to_file>#;
+statFlag = "#<stat_flag>#";
 
 dblAlpha = 0.05;
 
-strIndyVar		= "#<indy_var>#";
+strIndyVar    = "#<indy_var>#";
 
 listIndy = #<indy_list>#;
 
 listIndyPlotVal = #<indy_plot_val>#;
 
-listDep1Plot = #<dep1_plot>#;
+listDepPlot = #<dep1_plot>#;
 
-listSeries1Val = #<series1_list>#;
+listSeriesVal = #<series_list>#;
 
 listFixedValEx = #<fix_val_list_eq>#;
 
 strPlotStat = "#<plot_stat>#";
 
-listDiffSeries1=#<series1_diff_list>#;
+listDiffSeries=#<series_diff_list>#;
 
 listDep1Scale = list(
 
@@ -37,117 +40,125 @@ listDep1Scale = list(
 #
 #  Build the series data for the plot
 #
-
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strDataFile,nrows=5);
-classes <- sapply(sampleData, class);
-numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl');
-integer_columns <- c('fcst_lead','nstats');
-character_columns <- c('fcst_var', 'model', 'stat_name')
-for(col in 1:ncol(sampleData)){
-  if ( is.element( names(classes)[col] , numeric_columns) ){
-    classes[col]='numeric';
-  } else if ( is.element( names(classes)[col] , integer_columns) ){
-    classes[col]='integer';
-  } else if ( is.element( names(classes)[col] , character_columns) ){
-    classes[col]='character';
-  }
-}
 
-dfPlot = read.delim(strDataFile,colClasses = classes);
-strDbFile = sub("\\.data$", ".dataFromDb", strDataFile, perl=TRUE);
-write.table(dfPlot, file=strDbFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t", append=FALSE);
-
-# build the list of independent values
-listX = 1:length(listIndy);
-if( length(listIndyPlotVal) == length(listIndy) ){ listX = listIndyPlotVal; }
-
-# run event equalizer, if requested
-if( FALSE != boolEventEqual  ){
-  #run event equalizer on Y1
-  dfPlot1 = data.frame();
-  #list all fixed variables
-  listFixVars=c();
-  listFixVarVals = c();
-  if(length(listFixedValEx) > 0){
-    for(index in 1:length(listFixedValEx)){
-      if(is.null(listFixVars)){
-        listFixVars = names(listFixedValEx[index]);
-        listFixVarVals = permute(listFixedValEx[index]);
-      }else{
-        listFixVars =  append(listFixVars, names(listFixedValEx[index]));
-        listFixVarVals = append(listFixVarVals, permute(listFixedValEx[index]));
-      }
+if ( nrow(sampleData) > 0){
+  classes <- sapply(sampleData, class);
+  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl');
+  integer_columns <- c('fcst_lead','nstats');
+  character_columns <- c('fcst_var', 'model', 'stat_name')
+  for(col in 1:ncol(sampleData)){
+    if ( is.element( names(classes)[col] , numeric_columns) ){
+      classes[col]='numeric';
+    } else if ( is.element( names(classes)[col] , integer_columns) ){
+      classes[col]='integer';
+    } else if ( is.element( names(classes)[col] , character_columns) ){
+      classes[col]='character';
     }
   }
+  dfPlot = read.delim(strDataFile,colClasses = classes);
 
-  for( strDep1Name in names(listDep1Plot) ){
-    for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-      fPlot = dfPlot;
-      for(strSeriesVal in names(listSeries1Val)){
-        vectValPerms = c();
-        for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-          vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+
+  # run event equalizer, if requested
+  if( FALSE != boolEventEqual  ){
+    #run event equalizer on Y1
+    dfPlot1 = data.frame();
+    #list all fixed variables
+    listFixVars=c();
+    listFixVarVals = c();
+    if(length(listFixedValEx) > 0){
+      for(index in 1:length(listFixedValEx)){
+        if(is.null(listFixVars)){
+          listFixVars = names(listFixedValEx[index]);
+          listFixVarVals = permute(listFixedValEx[index]);
+        }else{
+          listFixVars =  append(listFixVars, names(listFixedValEx[index]));
+          listFixVarVals = append(listFixVarVals, permute(listFixedValEx[index]));
         }
-        fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
       }
-      fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-      dfPlot1 = rbind(dfPlot1, fPlot);
     }
 
+    for( strDep1Name in names(listDepPlot) ){
+      for( strDep1Stat in listDepPlot[[strDep1Name]] ){
+        fPlot = dfPlot;
+        for(strSeriesVal in names(listSeriesVal)){
+          vectValPerms = c();
+          for(index in 1:length(listSeriesVal[[strSeriesVal]])){
+            vectValPerms= append(vectValPerms, strsplit(listSeriesVal[[strSeriesVal]][index], ",")[[1]]);
+          }
+          fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
+        }
+        fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeriesVal, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        dfPlot1 = rbind(dfPlot1, fPlot);
+      }
+
+    }
+
+    dfPlot = dfPlot1;
+
+    strAfrerEqualizeFile = sub("\\.dataFromDb", ".dataAfterEq", strDataFile, perl=TRUE);
+    write.table(dfPlot, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
+
   }
 
-  dfPlot = dfPlot1;
 
-  strAfrerEqualizeFile = sub("\\.data$", ".dataAfterEq", strDataFile, perl=TRUE);
-  write.table(dfPlot, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
+  # build the y1 plot series using information in the plot dataframe
+  listSeries1 = list();
+  listAllStats=list();
+  for( strDep1Name in names(listDepPlot) ){
+    for( strDep1Stat in listDepPlot[[strDep1Name]] ){
 
-}
+      # gather the stats that pertain to the current fcst_var and stat
+      dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
+      dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
 
+      # determine the visibility of the series for the current stat
 
-# build the y1 plot series using information in the plot dataframe
-listSeries1 = list();
-listAllStats=list();
-for( strDep1Name in names(listDep1Plot) ){
-  for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
-
-    # gather the stats that pertain to the current fcst_var and stat
-    dfPlotStat = dfPlot[dfPlot$fcst_var == strDep1Name & dfPlot$stat_name == strDep1Stat,];
-    dfPlotStat = scaleStats(dfPlotStat, listDep1Scale, paste(strDep1Name, "_", strDep1Stat, sep=""));
-
-    # determine the visibility of the series for the current stat
-
-    # build the y1 plot series using information in the plot dataframe
-    listAllStats1 = buildAllStats(dfPlotStat, listSeries1Val,strDep1Stat,strDep1Name);
-    listAllStats = append(listAllStats, listAllStats1);
+      # build the y1 plot series using information in the plot dataframe
+      listAllStats1 = buildAllStats(dfPlotStat, listSeriesVal,strDep1Stat,strDep1Name);
+      listAllStats = append(listAllStats, listAllStats1);
+    }
   }
-}
 
+  plotDataDiff=list();
 
-#add Y1 DIFF series - if exist
-if(length(listDiffSeries1) > 0){
-  for( diffSeries1Name in 1: length(listDiffSeries1) ){ #1,2....
+  #add Y1 DIFF series - if exist
+  if(length(listDiffSeries) > 0){
+    for( diffSeries1Name in 1: length(listDiffSeries) ){ #1,2....
 
     #get  names of DIFF series
-    diffSeriesVec = listDiffSeries1[[diffSeries1Name]];
+    diffSeriesVec = listDiffSeries[[diffSeries1Name]];
     derivedCurveName = getDerivedCurveName(diffSeriesVec);
-    #check if the input frame already has diff series  ( from calculation agg stats )
-    listSeriesVar = names(listSeries1Val);
 
-    for(var in listSeriesVar){
-      dfStatsIndy1 = dfPlot[dfPlot[[var]] == derivedCurveName ,];
+    diffSeriesArr1 = strsplit(diffSeriesVec[1], ' ');
+    diffSeriesArr2 = strsplit(diffSeriesVec[2], ' ');
+
+    name1 = NA;
+    name2 = NA;
+    for( name in names(listAllStats) ){
+      nameArr = strsplit(name, ' ');
+      if(is.na(name1) && sameElements (nameArr,diffSeriesArr1) ){
+        name1=name;
+      }
+      if(is.na(name2) &&  sameElements (nameArr,diffSeriesArr2) ){
+        name2=name;
+      }
+      if( !is.na(name1) && !is.na(name2) ){
+        break;
+      }
     }
-    if(nrow(dfStatsIndy1) == 0){
 
-      #get plot data to calculate DIFF
-      plotData1 = listAllStats[[ diffSeriesVec[1] ]];
-      plotData2 = listAllStats[[ diffSeriesVec[2] ]];
+    #get plot data to calculate DIFF
+    plotData1 = listAllStats[[ name1 ]];
+    plotData2 = listAllStats[[ name2 ]];
 
-      plotDataDiff=list();
-      listFields = names(plotData1);
-      for(indy in listIndy){
-        dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
-        dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+    listFields = names(plotData1);
+    for(indy in listIndy){
+      dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
+      dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+
+      if(nrow(dfStatsIndy1) != 0 && nrow(dfStatsIndy2) != 0){
 
         #sort data
         if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
@@ -155,9 +166,38 @@ if(length(listDiffSeries1) > 0){
         if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
         if( "fcst_init"      %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
 
-        dfStatsIndy1$stat_value = calcDerivedCurveValue(dfStatsIndy1$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
+        derived_stat_list = calcDerivedCurveValue(dfStatsIndy1$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
+
+        derived_stat = NA;
+        if( grepl('^DIFF_SIG', derivedCurveName) ){
+          if(statFlag == 'EMC' && listDepPlot[[1]] == 'ME'){
+            derived_stat_list_ME = calcDerivedCurveValue( abs(dfStatsIndy1$stat_value), abs(dfStatsIndy2$stat_value), derivedCurveName);
+            avg = mean( derived_stat_list_ME, na.rm = TRUE );
+          }else{
+            avg = mean( derived_stat_list, na.rm = TRUE );
+          }
+          sdv = sd( derived_stat_list, na.rm = TRUE );
+          total = length(derived_stat_list);
+          t = avg / ( sdv / sqrt(total) );
+          pval = 1 - 2 * pt( abs(t), total-1,  lower.tail = FALSE);
+
+          derived_stat = perfectScoreAdjustment( mean( dfStatsIndy1$stat_value, na.rm = TRUE ), mean( dfStatsIndy2$stat_value, na.rm = TRUE ), listDepPlot[[1]], pval);
+        }
+
+
+
+        dfStatsIndy1$stat_value = derived_stat;
         if( grepl('^DIFF_SIG', derivedCurveName) ){
           dfStatsIndy1 = dfStatsIndy1[1,];
+          # get correct fcst_lead
+          fcst_leads = listSeriesVal$fcst_lead;
+          for( fcst_lead in listSeriesVal$fcst_lead ){
+            fscr_lead_str = paste(" ", fcst_lead, " ", sep="");
+            if( grepl( fscr_lead_str, derivedCurveName) ){
+              dfStatsIndy1$fcst_lead = fcst_lead;
+              break;
+            }
+          }
           dfStatsIndy1$model = derivedCurveName;
           dfStatsIndy1$equalize = NULL;
           dfStatsIndy1$stat_ncl = NULL;
@@ -178,9 +218,9 @@ if(length(listDiffSeries1) > 0){
           plotDataDiff = merge(plotDataDiff,dfStatsIndy1,all=TRUE);
         }
       }
-    }else{
-      plotDataDiff = dfStatsIndy1;
+
+    }
     }
   }
+  write.table(plotDataDiff, file=strPlotFile, quote=FALSE, row.names=FALSE,  sep = "\t", append=boolAppend,col.names=!boolAppend);
 }
-write.table(plotDataDiff, file=strDataFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t", append=FALSE);
