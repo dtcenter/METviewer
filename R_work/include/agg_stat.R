@@ -181,14 +181,14 @@ for(intY in 1:intYMax){
       strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
       for(var in listSeriesVar){
         if( !is.null(listDiffVal[[var]]) && intersect(listDiffVal[[var]], listSeriesDiff1) == intersect(listDiffVal[[var]], listSeriesDiff2) ){
-         listDiffVal[[var]] = intersect(listDiffVal[[var]], listSeriesDiff1);
+          listDiffVal[[var]] = intersect(listDiffVal[[var]], listSeriesDiff1);
         }
       }
       derivedCurveName = getDerivedCurveName(diffSeriesVec);
       listDiffVal[[strDiffVar]] = derivedCurveName;
       listDiffVal[[strIndyVar]] = listIndyVal;
       if(strStat1 == strStat2){
-         listDiffVal$stat_name = strStat1;
+        listDiffVal$stat_name = strStat1;
       }else{
         listDiffVal$stat_name = paste(strStat1,strStat2,collapse="", sep=",");
       }
@@ -221,7 +221,7 @@ if(strIndyVar != ""){
     if ( intOutCol <  ncol(matOut) - 1 ){
       listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
     } else if ( intOutCol == ncol(matOut) - 1 ){
-        listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
+      listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
     } else {
       listOutPerm$stat_name = matOut[,intOutCol];
     }
@@ -446,8 +446,8 @@ calcVL1L2_COV = function(d){
 }
 calcVL1L2_CORR = function(d){
   corr = (d$total * (d$uvfobar - d$ufbar * d$uobar - d$vfbar * d$vobar) / d$total) /
-                         (sqrt(d$total*(d$uvffbar-d$ufbar*d$ufbar-d$vfbar*d$vfbar)/d$total) *
-                         sqrt( d$total*(d$uvoobar-d$uobar*d$uobar-d$vobar*d$vobar)/d$total))
+    (sqrt(d$total*(d$uvffbar-d$ufbar*d$ufbar-d$vfbar*d$vfbar)/d$total) *
+       sqrt( d$total*(d$uvoobar-d$uobar*d$uobar-d$vobar*d$vobar)/d$total))
   return ( round(corr, digits=5)) ;
 }
 
@@ -458,10 +458,10 @@ calc_spd = function(u,v){
 calc_dir = function(u,v){
   tolerance = 1e-5;
   if( abs(u-0)< tolerance && abs(v-0)< tolerance ){
-      return (NA);
-    } else {
-      return ( atan2d( u, v ) ) ;
-    }
+    return (NA);
+  } else {
+    return ( atan2d( u, v ) ) ;
+  }
 }
 
 calcVL1L2_FSPD = function(d){
@@ -477,11 +477,11 @@ calcVL1L2_OSPD = function(d){
 calcVL1L2_FDIR = function(d){
   fdir = calc_dir(-d$ufbar, -d$vfbar);
 
-    if(is.na(fdir)){
-      return (NA);
-    } else {
-      return ( round(fdir, digits=5)) ;
-    }
+  if(is.na(fdir)){
+    return (NA);
+  } else {
+    return ( round(fdir, digits=5)) ;
+  }
 }
 
 calcVL1L2_ODIR = function(d){
@@ -541,6 +541,52 @@ calcVL1L2_DIR_ERR = function(d){
 
 }
 
+findIndexes = function(diffSeriesVec, listGroupToValue, matPerm){
+  listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
+  listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+
+  strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+  strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
+
+  listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
+  listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
+
+  strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));# number for model
+  strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
+  indPerm1=0;
+  indPerm2=0;
+  derivedCurveName = getDerivedCurveName(diffSeriesVec);
+
+  #remove groups from the series vars
+  for(groupName in names(listGroupToValue)){
+    for(index in 1:length( listSeriesDiff1Short)){
+      if(groupName == listSeriesDiff1Short[index]){
+        listSeriesDiff1Short[index] = listGroupToValue[[groupName]];
+        break;
+      }
+    }
+    for(index in 1:length( listSeriesDiff2Short)){
+      if(groupName == listSeriesDiff2Short[index]){
+        listSeriesDiff2Short[index] = listGroupToValue[[groupName]];
+        break;
+      }
+    }
+  }
+
+  for(intPerm in 1:nrow(matPerm)){
+    d1 = listSeriesDiff1Short %in% matPerm[intPerm,];
+    d2 = listSeriesDiff2Short %in% matPerm[intPerm,];
+    if( all(d1) ){
+      indPerm1=intPerm;
+    }
+    if( all(d2) ){
+      indPerm2=intPerm;
+    }
+  }
+  return ( c(indPerm1, indPerm2));
+
+}
+
 
 # booter function
 booter.iid = function(d, i){
@@ -583,9 +629,9 @@ booter.iid = function(d, i){
         mae   = sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
       );
     }  else if ( boolAggVl1l2 ){ # perform the aggregation of the sampled VL1L2 lines
-        listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total    = sum(listTotal, na.rm=TRUE);
-        dfSeriesSums = data.frame(
+      listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
+      total    = sum(listTotal, na.rm=TRUE);
+      dfSeriesSums = data.frame(
         total  = total,
         ufbar  = sum( as.numeric( d[i,][[ paste(strPerm, "ufbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
         vfbar  = sum( as.numeric( d[i,][[ paste(strPerm, "vfbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
@@ -596,7 +642,7 @@ booter.iid = function(d, i){
         uvoobar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
       );
     }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
-    listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
+      listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
       total		= sum(listTotal, na.rm=TRUE);
       dfSeriesSums = data.frame(
         total	= total,
@@ -672,49 +718,9 @@ booter.iid = function(d, i){
       #get  names of DIFF series
       diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
 
-      listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-      listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
-
-      strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
-      strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
-
-      listSeriesDiff1Short = listSeriesDiff1[1:(length(listSeriesDiff1)-2)];
-      listSeriesDiff2Short = listSeriesDiff2[1:(length(listSeriesDiff2)-2)];
-
-      strSeriesDiff1Short = escapeStr(paste(listSeriesDiff1Short,sep="_", collapse="_"));# number for model
-      strSeriesDiff2Short = escapeStr(paste(listSeriesDiff2Short,sep="_", collapse="_"));
-      indPerm1=0;
-      indPerm2=0;
-      derivedCurveName = getDerivedCurveName(diffSeriesVec);
-
-      #remove groups from the series vars
-      for(groupName in names(listGroupToValue)){
-        for(index in 1:length( listSeriesDiff1Short)){
-          if(groupName == listSeriesDiff1Short[index]){
-            listSeriesDiff1Short[index] = listGroupToValue[[groupName]];
-            break;
-          }
-        }
-        for(index in 1:length( listSeriesDiff2Short)){
-          if(groupName == listSeriesDiff2Short[index]){
-            listSeriesDiff2Short[index] = listGroupToValue[[groupName]];
-            break;
-          }
-        }
-      }
-
-      for(intPerm in 1:nrow(matPerm)){
-        d1 = listSeriesDiff1Short %in% matPerm[intPerm,];
-        d2 = listSeriesDiff2Short %in% matPerm[intPerm,];
-        if( all(d1) ){
-          indPerm1=intPerm;
-        }
-        if( all(d2) ){
-          indPerm2=intPerm;
-        }
-      }
-      if(indPerm1 != 0 && indPerm2 !=0){
-        listRet[[paste(strStat1,strStat2, indPerm1, indPerm2,diffSeriesVec[length(diffSeriesVec)],sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indPerm1],listRet[[strStat2]][indPerm2], derivedCurveName);
+      indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
+      if(indexes[1] != 0 && indexes[2] !=0){
+        listRet[[paste(strStat1,strStat2, indexes[1], indexes[2],diffSeriesVec[length(diffSeriesVec)],sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indexes[1]],listRet[[strStat2]][indexes[2]], derivedCurveName);
       }
     }
   }
@@ -891,29 +897,30 @@ for(strIndyVal in listIndyVal){
           stat_name == paste(strStat1,strStat2,collapse = "", sep=",");
         }
 
-      listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
+        listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
 
-      diff_sig = NA;
-      # Use the empirical distribution and just compute the ratio of differences < 0 if needed
-      if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
-      if( !all(is.na(bootStat$t[,intBootIndex])) ){
-        mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
+        diff_sig = NA;
+        # Use the empirical distribution and just compute the ratio of differences < 0 if needed
+        if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
+          if( !all(is.na(bootStat$t[,intBootIndex])) ){
+            indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
 
-        bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
+            mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
+            bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
 
-        pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
-        diff_sig = perfectScoreAdjustment(mean_bootStat, listDep1Plot[[1]], pval);
+            pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
+            diff_sig = perfectScoreAdjustment(bootStat$t0[indexes[1]], bootStat$t0[indexes[2]], listDep1Plot[[1]], pval);
 
-      }
-        dfOut[listOutInd1,]$stat_value = diff_sig;
-      }else{
-        if( 1 < intNumReplicates ){
-          stBootCI = Sys.time();
-          bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-          dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-        }
-        dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-      };
+          }
+          dfOut[listOutInd1,]$stat_value = diff_sig;
+        }else{
+          if( 1 < intNumReplicates ){
+            stBootCI = Sys.time();
+            bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+            dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+          }
+          dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
+        };
 
         dfOut[listOutInd1,]$nstats = 0;
         strCIParm = strCIType;
