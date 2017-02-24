@@ -9,13 +9,10 @@ import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
-import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,109 +56,23 @@ public class AggRscriptManager extends RscriptManager {
     tableAggStatInfoCommon.put("dep2_plot", "c()");
     tableAggStatInfoCommon.put("agg_stat_input", scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile());
     tableAggStatInfoCommon.put("agg_stat_output", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+    String seed = "NA";
+    if (scorecard.getBootRandomSeed() != null) {
+      seed = String.valueOf(scorecard.getBootRandomSeed());
+    }
+    tableAggStatInfoCommon.put("boot_random_seed", seed);
 
   }
 
-  public void calculateStats(Map<String, Entry> mapRow) {
+  @Override
+  public void calculateStatsForRow(Map<String, Entry> mapRow) {
+    clean();
+    initModels();
+    if (models != null) {
 
-    Map<String, String> tableAggStatInfo = new HashMap<>(tableAggStatInfoCommon);
-    String stat = Util.getStatForRow(mapRow);
-
-    initAggBool(tableAggStatInfo, Util.getAggTypeForStat(stat));
-
-
-    StringBuilder fixVars = new StringBuilder();
-    String fcstVar = null;
-    StringBuilder diffVals = new StringBuilder();
-    List<String> diffSeries = new ArrayList<>();
-    for (Map.Entry<String, Entry> entry : mapRow.entrySet()) {
-      if ("fcst_var".equals(entry.getKey())) {
-        fcstVar = entry.getValue().getName();
-      } else if (!"stat".equals(entry.getKey())){ // do not include stat variable to the fix vars list
-        fixVars.append("`").append(entry.getKey()).append("` = c(\"").append(entry.getValue().getName()).append(  "\"),");
-        diffVals.append(entry.getValue().getName()).append( " ");
-      }
-    }
-
-    if (fixVars.length() > 0) {
-      fixVars.deleteCharAt(fixVars.length() - 1);
-    }
-    if (diffVals.length() > 0) {
-      diffVals.deleteCharAt(diffVals.length() - 1);
-    }
-
-    List<Entry> models = null;
-    for (Field fixedField : fixedVars) {
-      if ("model".equals(fixedField.getName())) {
-        models = fixedField.getValues();
-        break;
-      }
-    }
-    if(models != null) {
-
-
-      StringBuilder seriesList = new StringBuilder("list(");
-      String indyVar = "";
-
-      StringBuilder indyList = new StringBuilder();
-      for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
-        if ("fcst_lead".equals(entry.getKey())) {
-          seriesList.append("`").append(entry.getKey()).append("` = c(");
-          for (Entry val : entry.getValue()) {
-            if (seriesList.indexOf(val.getName()) == -1) {
-              seriesList.append("\"").append(val.getName()).append("\",");
-            }
-            StringBuilder difStr = new StringBuilder("c(");
-            for (Entry model : models) {
-              difStr.append("\"");
-              if(diffVals.length() > 0){
-                difStr.append(diffVals).append(" ");
-              }
-              difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
-            }
-
-            difStr.append("\"DIFF_SIG\"").append("),");
-            diffSeries.add(difStr.toString().trim());
-          }
-          if (seriesList.length() > 0) {
-            seriesList.deleteCharAt(seriesList.length() - 1);
-          }
-          seriesList.append("),");
-        } else {
-          indyVar = entry.getKey();
-          for (Entry val : entry.getValue()) {
-            if (indyList.indexOf(val.getName()) == -1) {
-              indyList.append("\"").append(val.getName()).append("\",");
-            }
-          }
-          if (indyList.length() > 0) {
-            indyList.deleteCharAt(indyList.length() - 1);
-          }
-        }
-      }
-      if(seriesList.charAt(seriesList.length()-1) == ',' && fixVars.length() == 0){
-        seriesList.deleteCharAt(seriesList.length() - 1);
-      }
-      seriesList.append(fixVars).append(", `model` = c(");
-      for (Entry val : models) {
-        seriesList.append("\"").append(val.getName()).append("\",");
-      }
-      if (seriesList.length() > 0) {
-        seriesList.deleteCharAt(seriesList.length() - 1);
-      }
-
-      seriesList.append("))");
-
-      StringBuilder seriesDiffList = new StringBuilder("list(");
-      for (String diff : diffSeries) {
-        if (seriesDiffList.indexOf(diff) == -1) {
-          seriesDiffList.append(diff);
-        }
-      }
-      if (seriesDiffList.length() > 0) {
-        seriesDiffList.deleteCharAt(seriesDiffList.length() - 1);
-      }
-      seriesDiffList.append(")");
+      Map<String, String> tableAggStatInfo = new HashMap<>(tableAggStatInfoCommon);
+      init(mapRow);
+      initAggBool(tableAggStatInfo, Util.getAggTypeForStat(stat));
 
 
       tableAggStatInfo.put("indy_var", indyVar);
@@ -181,7 +92,7 @@ public class AggRscriptManager extends RscriptManager {
       //check id output file exists and its length not 0
       File output = new File(tableAggStatInfo.get("agg_stat_output"));
       boolean isAppend = false;
-      if(output.exists() && output.length() > 0){
+      if (output.exists() && output.length() > 0) {
         isAppend = true;
       }
       tableAggStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
