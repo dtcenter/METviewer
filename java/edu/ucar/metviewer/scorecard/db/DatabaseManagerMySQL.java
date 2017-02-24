@@ -35,7 +35,7 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
   protected Datasource datasource;
   protected final Map<String, List<Entry>> columnsDescription;
   protected final String databaseName;
-  protected  String aggStatDataFilePath;
+  protected String aggStatDataFilePath;
   protected final List<Field> fixedVars;
 
 
@@ -47,6 +47,7 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
   }
 
   protected abstract String getSelectFields(String table);
+
   protected abstract String getStatValue(String table, String stat);
 
   @Override
@@ -86,6 +87,22 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
       StringBuilder values = new StringBuilder();
       if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg".equals(fixedField.getName())) {
         whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'").append(fixedField.getValues().get(0).getName()).append("' AND '").append(fixedField.getValues().get(1).getName()).append("' AND ");
+      } else if ("init_hour".equals(fixedField.getName())) {
+        for (Entry val : fixedField.getValues()) {
+          values.append(Integer.valueOf(val.getName())).append(",");
+        }
+        if (values.length() > 0) {
+          values.deleteCharAt(values.length() - 1);
+        }
+        whereFields.append("HOUR(fcst_init_beg) IN (").append(values.toString()).append(") AND ");
+      } else if ("valid_hour".equals(fixedField.getName())) {
+        for (Entry val : fixedField.getValues()) {
+          values.append(Integer.valueOf(val.getName())).append(",");
+        }
+        if (values.length() > 0) {
+          values.deleteCharAt(values.length() - 1);
+        }
+        whereFields.append("HOUR(fcst_valid_beg) IN (").append(values.toString()).append(") AND ");
       } else {
         for (Entry val : fixedField.getValues()) {
           values.append(val.getName()).append(",");
@@ -95,7 +112,7 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
         }
         whereFields.append(fixedField.getName()).append(" IN ('").append(values.toString().replaceAll(",", "','")).append("') AND ");
       }
-      if (selectFields.indexOf(fixedField.getName()) == -1) {
+      if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals("init_hour") && !fixedField.getName().equals("valid_hour")) {
         selectFields.append(fixedField.getName()).append(",");
       }
     }
@@ -126,7 +143,6 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
     }
 
     selectFields.append(getSelectFields(table));
-
 
 
     whereFields.append("stat_header.stat_header_id = ").append(table).append(".stat_header_id;");
