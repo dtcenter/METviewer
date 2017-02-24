@@ -35,7 +35,7 @@ public class GraphicalOutputManager {
   public static final String BLACK_000000 = "#000000";
 
   private static final Logger logger = Logger.getLogger(GraphicalOutputManager.class);
-  private static final String CSS = "table {border-collapse: collapse;border-spacing: 0; margin-right:10px;}" +
+  private static final String CSS = "table {border-collapse: collapse;border-spacing: 0;}" +
     "table, th, td {border: 1px solid black;text-align:center;}" +
     "th {color: red;}" +
     "#thside {color: blue;}" +
@@ -58,6 +58,7 @@ public class GraphicalOutputManager {
   private final String plotFileStr;
   private final boolean viewSymbol;
   private final boolean viewValue;
+  private final boolean viewLegend;
   private String model1;
   private String model2;
 
@@ -77,6 +78,7 @@ public class GraphicalOutputManager {
     title1.withText(scorecard.getTitle());
     viewSymbol = scorecard.getViewSymbol();
     viewValue = scorecard.getViewValue();
+    viewLegend = scorecard.getViewLegend();
     plotFileStr = scorecard.getWorkingFolders().getPlotsDir() + scorecard.getPlotFile();
 
     String range = "";
@@ -89,7 +91,7 @@ public class GraphicalOutputManager {
         model2 = fixField.getValues().get(1).getLabel();
       }
     }
-    title2.withText("for " + model1 + " and " + model2 );
+    title2.withText("for " + model1 + " and " + model2);
     title3.withText(range);
   }
 
@@ -200,7 +202,11 @@ public class GraphicalOutputManager {
       htmlTable.with(createHtmlTableBody(table));
 
       //add all html tags together
-      String htmlPageStr = html.with(htmlBody.with(title1).with(title2).with(title3).with(htmlTable).with(createHtmlLegend())).render();
+      htmlBody.with(title1).with(title2).with(title3).with(htmlTable);
+      if(viewLegend){
+        htmlBody.with(createHtmlLegend());
+      }
+      String htmlPageStr = html.with(htmlBody).render();
 
       //create  HTML file
       String htmlFileName = plotFileStr.replaceAll(".png", ".html").replaceAll(".jpeg", ".html");
@@ -258,7 +264,7 @@ public class GraphicalOutputManager {
         Map<String, Entry> cellFieldsValues = new HashMap<>(listRows.get(rowCounter));
         cellFieldsValues.putAll(mapColumn);
         int index = -1;
-
+        boolean isCellCreated = false;
         // find the corresponding value in the JSON table and create a cell
         for (int i = 0; i < table.size(); i++) {
           JsonNode node = table.get(i);
@@ -276,33 +282,43 @@ public class GraphicalOutputManager {
               value = BigDecimal.valueOf(-9999);
             }
             htmlTr.with(createTableCell(value));
+            isCellCreated = true;
+
             break;
           } else {
             //this JSON row doesn't match
             //if no more JSON rows - no value for this combination - insert empty cell
             //if there are more JSON rows - continue the search
             if (i == table.size() - 1) {
-              String background = WHITE_FFFFFF;
-              for (LegendRange range : rangeList) {
-                if (range.getLowerLimit() == null || range.getUpperLimit() == null) {
-                  background = range.getBackground();
-                  break;
-                }
-              }
-              ContainerTag htmlTd = td().attr("style", "background-color: " + background);
-              htmlTr.with(htmlTd);
+              htmlTr.with(createEmptyCell());
+              isCellCreated = true;
             }
           }
 
         }
-        //we are done with the row from JSON table - remove it to spped up next searches
+        //we are done with the row from JSON table - remove it to speed up next searches
         if (index != -1) {
           table.remove(index);
+        }
+        if (!isCellCreated) {
+          //the cell value is not in the data table
+          htmlTr.with(createEmptyCell());
         }
       }
       tBody.with(htmlTr);
     }
     return tBody;
+  }
+
+  private ContainerTag createEmptyCell() {
+    String background = WHITE_FFFFFF;
+    for (LegendRange range : rangeList) {
+      if (range.getLowerLimit() == null || range.getUpperLimit() == null) {
+        background = range.getBackground();
+        break;
+      }
+    }
+    return td().attr("style", "background-color: " + background);
   }
 
   private boolean isJsonRowMatch(Map<String, Entry> cellFieldsValues, JsonNode node) {
@@ -326,7 +342,7 @@ public class GraphicalOutputManager {
     int columnNumber = 0;
     for (Map.Entry<String, Entry> entry : listRows.get(rowCounter).entrySet()) {
       if (rowFieldToCountMap.get(rowCounter).get(entry.getKey()) != 0) {
-        ContainerTag td=td(entry.getValue().getLabel());
+        ContainerTag td = td(entry.getValue().getLabel());
         if (columnNumber == 0) {
           //add color for the first column
           td.withId("thside");
