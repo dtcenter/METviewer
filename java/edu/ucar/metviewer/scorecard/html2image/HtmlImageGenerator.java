@@ -33,7 +33,7 @@ public class HtmlImageGenerator {
     editorPane.setEditable(false);
     editorPane.setEditorKitForContentType(TEXT_HTML, new SynchronousHTMLEditorKit());
     editorPane.setContentType(TEXT_HTML);
-    editorPane.setMargin(DEFAULT_INSETS);
+    //editorPane.setMargin(DEFAULT_INSETS);
     editorPane.putClientProperty(JEditorPane.W3C_LENGTH_UNITS, Boolean.FALSE);
     editorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
     editorPane.setOpaque(true);
@@ -71,6 +71,7 @@ public class HtmlImageGenerator {
 
   public BufferedImage getBufferedImage() {
     Dimension prefSize = editorPane.getPreferredSize();
+    editorPane.setSize(prefSize);
     BufferedImage img = new BufferedImage(prefSize.width, prefSize.height, BufferedImage.TYPE_INT_ARGB);
     Graphics graphics = img.createGraphics();
     editorPane.printAll(graphics);
