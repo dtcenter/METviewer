@@ -591,13 +591,14 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     //  tmpl
+
     strXML.append(
       "<tmpl>" +
-        "<title>" + job.getTitleTmpl() + "</title>" +
-        "<x_label>" + job.getXLabelTmpl() + "</x_label>" +
-        "<y1_label>" + job.getY1LabelTmpl() + "</y1_label>" +
-        "<y2_label>" + job.getY2LabelTmpl() + "</y2_label>" +
-        "<caption>" + job.getCaptionTmpl().replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</caption>" +
+        "<title>" + preserveBackslash(job.getTitleTmpl()) + "</title>" +
+        "<x_label>" + preserveBackslash(job.getXLabelTmpl()) + "</x_label>" +
+        "<y1_label>" + preserveBackslash(job.getY1LabelTmpl()) + "</y1_label>" +
+        "<y2_label>" + preserveBackslash(job.getY2LabelTmpl()) + "</y2_label>" +
+        "<caption>" + preserveBackslash(job.getCaptionTmpl()).replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;") + "</caption>" +
         "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>" +
         "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>" +
         "</tmpl>");
@@ -1551,6 +1552,13 @@ public class MVPlotJobParser extends MVUtil {
         }
       }
     }
+    return result;
+  }
+  private static String preserveBackslash(String str){
+    String result = str;
+       if(str.contains("\\")){
+         result = str.replaceAll("\\\\", "\\\\\\\\");
+       }
     return result;
   }
 }
