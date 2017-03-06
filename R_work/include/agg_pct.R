@@ -216,13 +216,17 @@ for(strIndyVal in listIndyVal){
 
       # aggregate the data set and format it into a single PCT table
       dfAggPerm = dfStatsPerm[1,];
-      for(oy_i in seq( 10 +length(listSeries1Val) , ncol(dfAggPerm), 3)){ dfAggPerm[1,oy_i] = sum(dfStatsPerm[,oy_i]); }
-      for(on_i in seq( 11 +length(listSeries1Val), ncol(dfAggPerm), 3)){ dfAggPerm[1,on_i] = sum(dfStatsPerm[,on_i]); }
-      dfPctPerm = data.frame(
-        thresh_i	= c( t( dfAggPerm[1,seq( 9+length(listSeries1Val), ncol(dfAggPerm), 3)] ) ),
-        oy_i		= c( t( dfAggPerm[1,seq( 10 +length(listSeries1Val), ncol(dfAggPerm), 3)] ) ),
-        on_i		= c( t( dfAggPerm[1,seq( 11 +length(listSeries1Val), ncol(dfAggPerm), 3)] ) )
-      );
+      oy_i_index = which( colnames(dfAggPerm)=="oy_i" );
+      on_i_index = which( colnames(dfAggPerm)=="on_i" );
+      thresh_i_index = oy_i_index - 1;
+
+     for(oy_i in seq( oy_i_index , ncol(dfAggPerm), 3)){ dfAggPerm[1,oy_i] = sum(dfStatsPerm[,oy_i]); }
+     for(on_i in seq( on_i_index, ncol(dfAggPerm), 3)){ dfAggPerm[1,on_i] = sum(dfStatsPerm[,on_i]); }
+     dfPctPerm = data.frame(
+            thresh_i	= c( t( dfAggPerm[1,seq( thresh_i_index, ncol(dfAggPerm), 3)] ) ),
+            oy_i		= c( t( dfAggPerm[1,seq( oy_i_index, ncol(dfAggPerm), 3)] ) ),
+            on_i		= c( t( dfAggPerm[1,seq( on_i_index, ncol(dfAggPerm), 3)] ) )
+     );
 
       # calculate vectors and constants to use below
       dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
@@ -248,7 +252,7 @@ for(strIndyVal in listIndyVal){
         baser		= o_bar
         );
       listStat$brier	= listStat$reliability - listStat$resolution + listStat$uncertainty;
-      listStat$bss_smpl	= ( listStat$resolution - listStat$reliability ) / listStat$uncertainty ;
+      listStat$bss	= ( listStat$resolution - listStat$reliability ) / listStat$uncertainty ;
       listStat$b_ci	= calcBrierCI(dfPctPerm, listStat$brier, dblAlpha);
 
       # build the dataframe for calculating and use the trapezoidal method roc_auc
