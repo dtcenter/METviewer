@@ -1716,7 +1716,7 @@ BEGIN
 DROP FUNCTION IF EXISTS calcPR_CORR |
 CREATE FUNCTION calcPR_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE v DECIMAL(12,6);
+    DECLARE v DOUBLE;
     DECLARE pr_corr DECIMAL(12,6);
     SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
     IF 0 >= v THEN RETURN 'NA'; END IF;
@@ -1728,7 +1728,7 @@ END |
 DROP FUNCTION IF EXISTS calcANOM_CORR |
 CREATE FUNCTION calcANOM_CORR (total INT, fbar REAL, obar REAL, fobar REAL, ffbar REAL, oobar REAL) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE v DECIMAL(12,6);
+    DECLARE v DOUBLE;
     DECLARE anom_corr DECIMAL(12,6);
     SET v = (POW(total,2) * ffbar - POW(total,2) * POW(fbar,2)) * (POW(total,2) * oobar - POW(total,2) * POW(obar,2));
     IF 0 >= v THEN RETURN 'NA'; END IF;
@@ -1885,7 +1885,7 @@ END |
 DROP FUNCTION IF EXISTS calcGSS |
 CREATE FUNCTION calcGSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE c DECIMAL(12,6);
+    DECLARE c DOUBLE;
     DECLARE result DECIMAL(12,6);
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on) / total ) * (fy_oy + fn_oy);
@@ -1905,7 +1905,7 @@ END |
 DROP FUNCTION IF EXISTS calcHSS |
 CREATE FUNCTION calcHSS (total INT, fy_oy INT, fy_on INT, fn_oy INT, fn_on INT) RETURNS CHAR(16) DETERMINISTIC
 BEGIN
-    DECLARE c DECIMAL(12,6);
+    DECLARE c DOUBLE;
     DECLARE result DECIMAL(12,6);
     IF total = 0 THEN RETURN 'NA'; END IF;
     SET c = ( (fy_oy + fy_on)*(fy_oy + fn_oy) + (fn_oy + fn_on)*(fy_on + fn_on) ) / total;
