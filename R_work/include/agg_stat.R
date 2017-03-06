@@ -894,7 +894,7 @@ for(strIndyVal in listIndyVal){
         if(strStat1 == strStat2){
           stat_name = strStat1;
         }else{
-          stat_name == paste(strStat1,strStat2,collapse = "", sep=",");
+          stat_name = paste(strStat1,strStat2,collapse = "", sep=",");
         }
 
         listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
