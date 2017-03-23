@@ -213,6 +213,7 @@ public class MVUtil {
     _tableStatsRhist.put("RHIST_CRPS", new String[]{});
     _tableStatsRhist.put("RHIST_CRPSS", new String[]{});
     _tableStatsRhist.put("RHIST_IGN", new String[]{});
+    _tableStatsRhist.put("RHIST_SPREAD", new String[]{});
   }
 
   static {
