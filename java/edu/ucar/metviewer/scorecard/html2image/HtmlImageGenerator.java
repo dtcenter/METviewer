@@ -50,14 +50,11 @@ public class HtmlImageGenerator {
   }
 
   public void saveAsImage(File file) {
-    BufferedImage image = getBufferedImage();
-    BufferedImage bufferedImageToWrite = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-    Graphics graphics2D = bufferedImageToWrite.createGraphics();
-    graphics2D.drawImage(image, 0, 0, Color.WHITE, null);
-    image.flush();
-    bufferedImageToWrite.flush();
     final String formatName = FormatNameUtil.formatForFilename(file.getName());
-    graphics2D.dispose();
+
+    BufferedImage image = getInBufferedImage();
+    BufferedImage bufferedImageToWrite = getOutBufferedImage(image);
+
     try {
       boolean success = ImageIO.write(bufferedImageToWrite, formatName, file);
       if (!success)
@@ -68,8 +65,23 @@ public class HtmlImageGenerator {
     }
   }
 
+  private BufferedImage getOutBufferedImage(BufferedImage image) {
+    BufferedImage bufferedImageToWrite = null;
+    try {
+      bufferedImageToWrite = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+      Graphics graphics2D = bufferedImageToWrite.createGraphics();
+      graphics2D.drawImage(image, 0, 0, Color.WHITE, null);
+      image.flush();
+      bufferedImageToWrite.flush();
+      graphics2D.dispose();
+    } catch (Exception e) {
+      logger.error(e);
+    }
+    return bufferedImageToWrite;
+  }
 
-  public BufferedImage getBufferedImage() {
+
+  public BufferedImage getInBufferedImage() {
     Dimension prefSize = editorPane.getPreferredSize();
     editorPane.setSize(prefSize);
     BufferedImage img = new BufferedImage(prefSize.width, prefSize.height, BufferedImage.TYPE_INT_ARGB);
