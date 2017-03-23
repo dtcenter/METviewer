@@ -43,7 +43,7 @@ public abstract class RscriptManager {
     rScriptCommand = scorecard.getrScriptCommand();
   }
 
-  public abstract void calculateStatsForRow(Map<String, Entry> mapRow);
+  public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName);
 
   protected void initModels() {
     for (Field fixedField : fixedVars) {
