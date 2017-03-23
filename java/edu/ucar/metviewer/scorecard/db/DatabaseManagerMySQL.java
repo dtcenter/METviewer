@@ -51,11 +51,13 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
   protected abstract String getStatValue(String table, String stat);
 
   @Override
-  public void createDataFile(Map<String, Entry> map) {
+  public void createDataFile(Map<String, Entry> map, String threadName) {
     String mysql = getQueryForRow(map);
+    int lastDot = aggStatDataFilePath.lastIndexOf('.');
+    String thredFileName = aggStatDataFilePath.substring(0,lastDot) + threadName + aggStatDataFilePath.substring(lastDot);
     try (Connection con = datasource.getConnection(databaseName);
          PreparedStatement pstmt = con.prepareStatement(mysql); ResultSet res = pstmt.executeQuery();
-         FileWriter fstream = new FileWriter(new File(aggStatDataFilePath), false);
+         FileWriter fstream = new FileWriter(new File(thredFileName), false);
          BufferedWriter out = new BufferedWriter(fstream)) {
       MVUtil.printFormattedTable(res, out, "\t", false, true);// isCalc=false,  isHeader=true
       out.flush();
@@ -142,8 +144,12 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
       selectFields.append("fcst_lead,");
     }
 
-    selectFields.append(getSelectFields(table));
 
+    selectFields.append(getSelectFields(table));
+    //make sure that selectFields doesn't have "," as the last element
+    if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
+        selectFields.deleteCharAt(selectFields.length() - 1);
+    }
 
     whereFields.append("stat_header.stat_header_id = ").append(table).append(".stat_header_id;");
 
