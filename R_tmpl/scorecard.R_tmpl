@@ -45,7 +45,7 @@ sampleData = read.delim(strDataFile,nrows=5);
 
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
-  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl');
+  numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss');
   integer_columns <- c('fcst_lead','nstats');
   character_columns <- c('fcst_var', 'model', 'stat_name')
   for(col in 1:ncol(sampleData)){
@@ -170,18 +170,89 @@ if ( nrow(sampleData) > 0){
 
         derived_stat = NA;
         if( grepl('^DIFF_SIG', derivedCurveName) ){
-          if(statFlag == 'EMC' && listDepPlot[[1]] == 'ME'){
-            derived_stat_list_ME = calcDerivedCurveValue( abs(dfStatsIndy1$stat_value), abs(dfStatsIndy2$stat_value), derivedCurveName);
-            avg = mean( derived_stat_list_ME, na.rm = TRUE );
+          if(statFlag == 'EMC'){
+            ndays = as.numeric(difftime( as.Date('2014-07-30'), as.Date('2014-05-20')));
+                    ndays=ndays+1;
+            if ( ndays >= 80 ){
+              alpha1=1.960  ; #95% confidence level
+              alpha2=2.576  ; #99% confidence level
+              alpha3=3.291  ; #99.9% confidence level
+            }else if (ndays >= 40 && ndays < 80 ){
+              alpha1=2.0    ; #95% confidence level
+              alpha2=2.66   ; #99% confidence level
+              alpha3=3.46   ; #99.9% confidence level
+            } else if( ndays >= 20 && ndays < 40 ){
+              alpha1=2.042  ; #95% confidence level
+              alpha2=2.75   ; #99% confidence level
+              alpha3=3.646  ; #99.9% confidence level
+            } else if (ndays < 20 ){
+              alpha1=2.228  ; #95% confidence level
+              alpha2=3.169  ; #99% confidence level
+              alpha3=4.587  ; #99.9% confidence level
+            }
+            acdm1 = mean( derived_stat_list, na.rm = TRUE );
+            acdm = sum( dfStatsIndy1$stat_value - dfStatsIndy2$stat_value ) / ndays;
+            std1 = sd( derived_stat_list, na.rm = TRUE );
+
+            std = sqrt ( sum( (dfStatsIndy1$stat_value - dfStatsIndy2$stat_value - acdm) * (dfStatsIndy1$stat_value - dfStatsIndy2$stat_value -acdm) ) / ndays );
+            nsz = nrow(dfStatsIndy1);
+
+            if (nsz >= 80) {
+              intvl = 1.960 * std / sqrt(nsz - 1);
+            } else if (nsz >= 40 && nsz < 80) {
+              intvl = 2.000 * std / sqrt(nsz - 1);
+            } else if (nsz >= 20 && nsz < 40) {
+              intvl = 2.042 * std / sqrt(nsz - 1);
+            } else if (nsz < 20) {
+              intvl = 2.228 * std / sqrt(nsz - 1);
+            }
+            ###--!!!!!!!!!!!!!--
+            ##intvl = 1.960 * std / sqrt(nsz - 1);
+            ###--!!!!!!!!!!!!!--
+            cat(mean(dfStatsIndy1$stat_value), " " ,mean(dfStatsIndy2$stat_value) , " ", intvl, '\n');
+
+            if ( grepl('ME$',listDepPlot[[1]] ) || grepl('BIAS$',listDepPlot[[1]] )){ #bias
+              ds = ( abs(mean(dfStatsIndy1$stat_value)) - abs(mean(dfStatsIndy2$stat_value)) )  / intvl;
+            }else if ( grepl('RMSE$',listDepPlot[[1]] ) ){
+              ds=( mean(dfStatsIndy1$stat_value) - mean(dfStatsIndy2$stat_value) ) / intvl;
+            }else {
+              ds= ( mean(dfStatsIndy2$stat_value) - mean(dfStatsIndy1$stat_value) ) / intvl;
+            }
+
+             ds95 = (-1) * ds;
+             ds99 = (-1) * ds * alpha1 / alpha2;
+             ds999 = (-1) * ds * alpha1 / alpha3;
+             cat(ds95, " " ,ds99 , " ", ds999, '\n\n');
+
+             for (index in 1:length(ds)) {
+               if (ds999[index] >= 1) {
+                 derived_stat[index] = 1;
+               } else if (ds999[index] < 1 && ds99[index] >= 1) {
+                 derived_stat[index] = 0.99;
+               } else if (ds99[index] < 1 && ds95[index] >= 1) {
+                 derived_stat[index] = 0.95;
+               } else if (ds95[index] > -1 && ds95[index] < 1) {
+                 derived_stat[index] = 0;
+               } else if (ds95[index] <= -1 && ds99[index] > -1) {
+                 derived_stat[index] = -0.95;
+               } else if (ds99[index] <= -1 && ds999[index] > -1) {
+                 derived_stat[index] = -0.99;
+               } else if (ds999[index] <= -1 && ds999[index] > -100.0) {
+                 derived_stat[index] = -1;
+               } else if (ds999[index] < -100.0) {
+                 derived_stat[index] = -1;
+               }
+             }
+
           }else{
             avg = mean( derived_stat_list, na.rm = TRUE );
-          }
-          sdv = sd( derived_stat_list, na.rm = TRUE );
-          total = length(derived_stat_list);
-          t = avg / ( sdv / sqrt(total) );
-          pval = 1 - 2 * pt( abs(t), total-1,  lower.tail = FALSE);
+            sdv = sd( derived_stat_list, na.rm = TRUE );
+            total = length(derived_stat_list);
+            t = avg / ( sdv / sqrt(total) );
+            pval = 1 - 2 * pt( abs(t), total-1,  lower.tail = FALSE);
 
-          derived_stat = perfectScoreAdjustment( mean( dfStatsIndy1$stat_value, na.rm = TRUE ), mean( dfStatsIndy2$stat_value, na.rm = TRUE ), listDepPlot[[1]], pval);
+            derived_stat = perfectScoreAdjustment( mean( dfStatsIndy1$stat_value, na.rm = TRUE ), mean( dfStatsIndy2$stat_value, na.rm = TRUE ), listDepPlot[[1]], pval);
+          }
         }
 
 
