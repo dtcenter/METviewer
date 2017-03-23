@@ -203,7 +203,7 @@ public class GraphicalOutputManager {
 
       //add all html tags together
       htmlBody.with(title1).with(title2).with(title3).with(htmlTable);
-      if(viewLegend){
+      if (viewLegend) {
         htmlBody.with(createHtmlLegend());
       }
       String htmlPageStr = html.with(htmlBody).render();
@@ -220,9 +220,19 @@ public class GraphicalOutputManager {
       }
 
       //create an image
-      HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
-      imageGenerator.loadHtml(htmlPageStr);
-      imageGenerator.saveAsImage(plotFileStr);
+
+      try {
+
+        System.setProperty("java.awt.headless", "true");
+        HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
+        imageGenerator.loadHtml(htmlPageStr);
+        imageGenerator.saveAsImage(plotFileStr);
+
+
+      } catch (Exception e) {
+        logger.error(e);
+        logger.info("Image was not  saved");
+      }
       logger.info("Image was saved to " + plotFileStr);
     } else {
       throw new MissingFileException(dataFile.getAbsolutePath());
