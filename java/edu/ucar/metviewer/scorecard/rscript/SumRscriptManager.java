@@ -24,6 +24,8 @@ public class SumRscriptManager extends RscriptManager {
 
   Map<String, String> tableCalcStatInfoCommon;
   private final String calcStatTemplScript;
+  private final String dataFilePath;
+
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private String strRFile;
 
@@ -32,6 +34,7 @@ public class SumRscriptManager extends RscriptManager {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
     strRFile = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
+    dataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
 
     tableCalcStatInfoCommon = new HashMap<>();
     tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
@@ -47,10 +50,11 @@ public class SumRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
     tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
     tableCalcStatInfoCommon.put("stat_flag", scorecard.getStatFlag());
+
   }
 
   @Override
-  public void calculateStatsForRow(Map<String, Entry> mapRow) {
+  public void calculateStatsForRow(Map<String, Entry> mapRow, String threadName) {
     clean();
     initModels();
     if (models != null) {
@@ -62,13 +66,15 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("series_list", seriesList.toString());
       tableCalcStatInfo.put("series_diff_list", seriesDiffList.toString());
 
-      //check id output file exists and its length not 0
+      //check if output file exists and its length is not 0
       File output = new File(tableCalcStatInfo.get("plot_file"));
       boolean isAppend = false;
       if (output.exists() && output.length() > 0) {
         isAppend = true;
       }
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
+
+
 
 
       try {
