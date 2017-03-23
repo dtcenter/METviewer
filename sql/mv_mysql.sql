@@ -1228,6 +1228,7 @@ CREATE TABLE line_data_rhist
     ign                 DOUBLE,
     n_rank              INT UNSIGNED,
     crpss               DOUBLE,
+    spread              DOUBLE,
 
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_rhist_data_file_id_pk
@@ -1337,7 +1338,8 @@ CREATE TABLE line_data_orank
     n_ens               INT UNSIGNED,
     obs_qc              DOUBLE DEFAULT -9999,
     ens_mean            DOUBLE DEFAULT -9999,
-    orank_climo               DOUBLE DEFAULT -9999,
+    orank_climo         DOUBLE DEFAULT -9999,
+    orank_enc_spread    DOUBLE DEFAULT -9999,
 
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_orank_data_file_id_pk
