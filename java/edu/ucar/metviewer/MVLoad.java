@@ -119,8 +119,8 @@ public class MVLoad extends MVUtil {
     _tableVarLengthGroupIndices.put("PJC", new int[]{22, 23, 7});
     _tableVarLengthGroupIndices.put("PRC", new int[]{22, 23, 3});
     _tableVarLengthGroupIndices.put("MCTC", new int[]{22, 23, 1});
-    _tableVarLengthGroupIndices.put("RHIST", new int[]{24, 25, 1});
-    _tableVarLengthGroupIndices.put("PHIST", new int[]{23, 24, 1});
+    _tableVarLengthGroupIndices.put("RHIST", new int[]{25, 25, 1});
+    _tableVarLengthGroupIndices.put("PHIST", new int[]{24, 25, 1});
     _tableVarLengthGroupIndices.put("ORANK", new int[]{32, 33, 1});
   }
 
@@ -1479,7 +1479,7 @@ public class MVLoad extends MVUtil {
             maxSize = 21;
             break;
           case "ORANK":
-            maxSize = 26;
+            maxSize = 27;
             break;
           case "CTS":
             maxSize = 104;
@@ -1503,7 +1503,7 @@ public class MVLoad extends MVUtil {
             maxSize = 46;
             break;
           case "RHIST":
-            maxSize = 16;
+            maxSize = 17;
             break;
           default:
         }
