@@ -21,6 +21,7 @@ import org.apache.log4j.PatternLayout;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 /**
  * @author : tatiana $
@@ -247,16 +248,58 @@ public class Scorecard {
           scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
           rscriptManager = new SumRscriptManager(scorecard);
         }
+        int rowCounter = 1;
+        //List<Callable<String>> callables = new ArrayList<>();
+
+
 
         for (Map<String, Entry> mapRow : listRows) {
-          scorecardDbManager.createDataFile(mapRow);
-          rscriptManager.calculateStatsForRow(mapRow);
+          StringBuilder logMessage = new StringBuilder();
+          for(Map.Entry<String, Entry> column : mapRow.entrySet()){
+            logMessage.append(column.getKey()).append(": ").append(column.getValue().getName()).append(", ");
+          }
+          logger.info("---------------------------------------------------------------------------------------");
+          logger.info("Row #" + rowCounter + ": " +logMessage);
+          logger.info("---------------------------------------------------------------------------------------");
+
+          scorecardDbManager.createDataFile(mapRow, "");
+          rscriptManager.calculateStatsForRow(mapRow, "");
+          logger.info("---------------------------------------------------------------------------------------");
+         // callables.add(callable(scorecardDbManager, rscriptManager, mapRow, String.valueOf(rowCounter)));
+          rowCounter++;
         }
+        /*ExecutorService executor = Executors.newWorkStealingPool();
+       executor.invokeAll(callables)
+          .stream()
+          .map(future -> {
+            try {
+              return future.get();
+            } catch (Exception e) {
+              throw new IllegalStateException(e);
+            }
+          })
+          .forEach(System.out::println);
+        try {
+          System.out.println("attempt to shutdown executor");
+          executor.shutdown();
+          executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          System.err.println("tasks interrupted");
+        } finally {
+          if (!executor.isTerminated()) {
+            System.err.println("cancel non-finished tasks");
+          }
+          executor.shutdownNow();
+          System.out.println("shutdown finished");
+        }
+*/
 
         File dataFile = new File(scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
         if (dataFile.exists()) {
           GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
           graphicalOutputManager.createGraphics();
+
+
         } else {
           throw new MissingFileException(dataFile.getAbsolutePath());
         }
@@ -268,6 +311,27 @@ public class Scorecard {
     int seconds = (int) (duration / 1000000000);
     logger.info("----  Scorecard Done  ---- " + seconds + " seconds");
 
+  }
+
+  private static Callable<String> callable(DatabaseManager scorecardDbManager, RscriptManager rscriptManager, Map<String, Entry> mapRow, String rowCounter) {
+    return () -> {
+
+      StringBuilder logMessage = new StringBuilder();
+      for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
+        logMessage.append(column.getKey()).append(": ").append(column.getValue().getName()).append(", ");
+      }
+      logger.info("---------------------------------------------------------------------------------------");
+      logger.info("Row #" + rowCounter + ": " + logMessage);
+      logger.info("---------------------------------------------------------------------------------------");
+
+      scorecardDbManager.createDataFile(mapRow, rowCounter);
+      logger.info("Row #" + rowCounter + ": " + "done database");
+      rscriptManager.calculateStatsForRow(mapRow, rowCounter);
+      logger.info("Row #" + rowCounter + ": " + "done Rscript");
+      logger.info("---------------------------------------------------------------------------------------");
+
+      return rowCounter + " done";
+    };
   }
 
   private void cleanOldResults() {
