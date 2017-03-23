@@ -15,5 +15,5 @@ import java.util.Map;
  */
 @FunctionalInterface
 public interface DatabaseManager {
-  public void createDataFile(Map<String, Entry> map) ;
+  public void createDataFile(Map<String, Entry> map, String threadName) ;
 }
