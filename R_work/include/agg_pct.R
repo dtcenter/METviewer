@@ -222,7 +222,7 @@ if ( nrow(sampleData) > 0){
           strSeriesVar = listSeriesVar[intSeriesVal];
           strSeriesVal = listPerm[intSeriesVal];
           if( grepl("^[0-9]+$", strSeriesVal) ){
-            strSeriesVal = as.numeric(strSeriesVal);
+            vectValPerms = as.numeric(strSeriesVal);
           }else{
             vectValPerms= strsplit(strSeriesVal, ",")[[1]];
           }
