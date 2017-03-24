@@ -114,10 +114,10 @@ public class MVLoad extends MVUtil {
   }
 
   static {
-    _tableVarLengthGroupIndices.put("PCT", new int[]{22, 23, 3});
-    _tableVarLengthGroupIndices.put("PSTD", new int[]{22, 33, 1});
-    _tableVarLengthGroupIndices.put("PJC", new int[]{22, 23, 7});
-    _tableVarLengthGroupIndices.put("PRC", new int[]{22, 23, 3});
+    _tableVarLengthGroupIndices.put("PCT", new int[]{23, 24, 3});
+    _tableVarLengthGroupIndices.put("PSTD", new int[]{23, 33, 1});
+    _tableVarLengthGroupIndices.put("PJC", new int[]{23, 24, 7});
+    _tableVarLengthGroupIndices.put("PRC", new int[]{23, 24, 3});
     _tableVarLengthGroupIndices.put("MCTC", new int[]{22, 23, 1});
     _tableVarLengthGroupIndices.put("RHIST", new int[]{25, 25, 1});
     _tableVarLengthGroupIndices.put("PHIST", new int[]{24, 25, 1});
@@ -137,6 +137,10 @@ public class MVLoad extends MVUtil {
   static {
     _tableCovThreshLineTypes.put("NBRCTC", Boolean.TRUE);
     _tableCovThreshLineTypes.put("NBRCTS", Boolean.TRUE);
+    _tableCovThreshLineTypes.put("PCT", Boolean.TRUE);
+    _tableCovThreshLineTypes.put("PSTD", Boolean.TRUE);
+    _tableCovThreshLineTypes.put("PJC", Boolean.TRUE);
+    _tableCovThreshLineTypes.put("PRC", Boolean.TRUE);
   }
 
   static {
@@ -893,7 +897,7 @@ public class MVLoad extends MVUtil {
           }
 
           if (listToken[6].equals("HIST")) {//RHIST line type
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 6; i++) {
               if (i == 3) {
                 int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
                 strLineDataValueList += ", '" + intGroupSize + "'";
@@ -1209,10 +1213,6 @@ public class MVLoad extends MVUtil {
         //  error if the version number does not match the configured value
         String strMetVersion = findValueInArray(listToken, headerNames, "VERSION");
 
-        //  update the var length tree with information for METv2.0, if necessary
-        if ("V2.0".equals(strMetVersion)) {
-          _tableVarLengthGroupIndices.put("PSTD", new int[]{22, 30, 1});
-        }
 
 
         //  if the line type load selector is activated, check that the current line type is on the list
@@ -1401,7 +1401,14 @@ public class MVLoad extends MVUtil {
           int intLineDataId = _tableVarLengthLineDataId.get(strLineType);
           strLineDataId = Integer.toString(intLineDataId) + ", ";
           _tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
-          int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int[] listVarLengthGroupIndices1 = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1, listVarLengthGroupIndices1.length);
+          if(headerNames.indexOf("DESC") < 0){
+            //for old versions
+            listVarLengthGroupIndices[0] = listVarLengthGroupIndices[0]-1;
+            listVarLengthGroupIndices[1] = listVarLengthGroupIndices[1]-1;
+
+          }
 
           if (d._strLineType.equals("RHIST") || d._strLineType.equals("PSTD")) {
             intLineDataMax = intLineDataMax - Integer.valueOf(listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
@@ -1459,7 +1466,13 @@ public class MVLoad extends MVUtil {
 
         if (strLineType.equals("ORANK")) {
           //skip ensemble fields and get data for the rest
-          int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int[] listVarLengthGroupIndices1 = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1, listVarLengthGroupIndices1.length);
+          if (headerNames.indexOf("DESC") < 0) {
+            //for old versions
+            listVarLengthGroupIndices[0] = listVarLengthGroupIndices[0]-1;
+            listVarLengthGroupIndices[1] = listVarLengthGroupIndices[1]-1;
+          }
           int extraFieldsInd = intLineDataMax + Integer.valueOf(listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
           for (int i = extraFieldsInd; i < listToken.length; i++) {
             strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
@@ -1497,7 +1510,7 @@ public class MVLoad extends MVUtil {
             maxSize = 17;
             break;
           case "PSTD":
-            maxSize = 28;
+            maxSize = 29;
             break;
           case "SSVAR":
             maxSize = 46;
@@ -1534,7 +1547,13 @@ public class MVLoad extends MVUtil {
         if (boolHasVarLengthGroups) {
 
           //  get the index information about the current line type
-          int[] listVarLengthGroupIndices = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int[] listVarLengthGroupIndices1 = (int[]) _tableVarLengthGroupIndices.get(d._strLineType);
+          int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1, listVarLengthGroupIndices1.length);
+          if (headerNames.indexOf("DESC") < 0) {
+            //for old versions
+            listVarLengthGroupIndices[0] = listVarLengthGroupIndices[0]-1;
+            listVarLengthGroupIndices[1] = listVarLengthGroupIndices[1]-1;
+          }
           int intGroupCntIndex = listVarLengthGroupIndices[0];
           int intGroupIndex = listVarLengthGroupIndices[1];
           int intGroupSize = listVarLengthGroupIndices[2];
