@@ -506,6 +506,7 @@ CREATE TABLE line_data_pct
     obs_lead            INT UNSIGNED,
     obs_valid_beg       DATETIME,
     obs_valid_end       DATETIME,
+    cov_thresh          VARCHAR(32),
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
     
@@ -556,6 +557,7 @@ CREATE TABLE line_data_pstd
     obs_lead            INT UNSIGNED,
     obs_valid_beg       DATETIME,
     obs_valid_end       DATETIME,
+    cov_thresh          VARCHAR(32),
     alpha               DOUBLE,
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
@@ -622,6 +624,7 @@ CREATE TABLE line_data_pjc
     obs_lead            INT UNSIGNED,
     obs_valid_beg       DATETIME,
     obs_valid_end       DATETIME,
+    cov_thresh          VARCHAR(32),
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
     
@@ -676,6 +679,7 @@ CREATE TABLE line_data_prc
     obs_lead            INT UNSIGNED,
     obs_valid_beg       DATETIME,
     obs_valid_end       DATETIME,
+    cov_thresh          VARCHAR(32),
     total               INT UNSIGNED,
     n_thresh            INT UNSIGNED,
     
