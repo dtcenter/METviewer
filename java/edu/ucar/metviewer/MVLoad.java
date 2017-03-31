@@ -118,10 +118,10 @@ public class MVLoad extends MVUtil {
     _tableVarLengthGroupIndices.put("PSTD", new int[]{23, 33, 1});
     _tableVarLengthGroupIndices.put("PJC", new int[]{23, 24, 7});
     _tableVarLengthGroupIndices.put("PRC", new int[]{23, 24, 3});
-    _tableVarLengthGroupIndices.put("MCTC", new int[]{22, 23, 1});
+    _tableVarLengthGroupIndices.put("MCTC", new int[]{23, 24, 1});
     _tableVarLengthGroupIndices.put("RHIST", new int[]{25, 25, 1});
     _tableVarLengthGroupIndices.put("PHIST", new int[]{24, 25, 1});
-    _tableVarLengthGroupIndices.put("ORANK", new int[]{32, 33, 1});
+    _tableVarLengthGroupIndices.put("ORANK", new int[]{33, 33, 1});
   }
 
   static {
