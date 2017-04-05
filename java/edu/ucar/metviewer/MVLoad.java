@@ -998,7 +998,7 @@ public class MVLoad extends MVUtil {
           if (listToken[6].startsWith("FSS")) {//NBRCNT line type
             double fss = -9999;
             if(listToken.length > 11) {
-               fss = 1 - Double.valueOf(listToken[10]) / (Double.valueOf(listToken[11]) - Double.valueOf(listToken[12]));
+               fss = 1 - Double.valueOf(listToken[10]) / (Double.valueOf(listToken[11]) + Double.valueOf(listToken[12]));
             }
             for (int i = 0; i < 19; i++) {
               if (i == 0) {//total,
