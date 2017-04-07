@@ -313,7 +313,8 @@ for( strDep1Name in names(listDep1Plot) ){
   }
 }
 
-for( listAllStatsName in names(listAllStats) ){
+for( ind in 1: length(listAllStats) ){
+  listAllStatsName = names(listAllStats)[ind];
 
   #alvays use "sum" for "CNTSUM" stat
   stat =strPlotStat;
@@ -321,8 +322,8 @@ for( listAllStatsName in names(listAllStats) ){
     stat = "sum";
   }
   
-  listPlotData1 = buildSeriesData(listAllStats[[listAllStatsName]], strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp[indexesNumSeries1],
-                                  listPlotCI[indexesNumSeries1], dblAlpha, boolVarianceInflationFactor, stat);
+  listPlotData1 = buildSeriesData(listAllStats[[listAllStatsName]], strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp[indexesNumSeries1[ind]],
+                                  listPlotCI[indexesNumSeries1[ind]], dblAlpha, boolVarianceInflationFactor, stat);
   listSeries1 = append(listSeries1, listPlotData1$series);
   if( TRUE == exists("listNStats") ){
     if("nstats" %in% names(listAllStats[[listAllStatsName]])){
@@ -360,15 +361,16 @@ if( 0 < length(listDep2Plot) ){
   }
 
 
-  for( listAllStatsName in names(listAllStatsY2) ){
+for( ind in 1: length(listAllStatsY2) ){
+    listAllStatsName = names(listAllStatsY2)[ind];
 
     #alvays use "sum" for "CNTSUM" stat
     stat =strPlotStat;
     if( substring(strDep1Stat, 1, nchar("CNTSUM")) == "CNTSUM" ){
       stat = "sum";
     }
-    listPlotData2 = buildSeriesData(listAllStatsY2[[listAllStatsName]], strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDisp[indexesNumSeries2],
-                                    listPlotCI[indexesNumSeries2], dblAlpha, boolVarianceInflationFactor, stat);
+    listPlotData2 = buildSeriesData(listAllStatsY2[[listAllStatsName]], strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDisp[indexesNumSeries2[ind]],
+                                    listPlotCI[indexesNumSeries2[ind]], dblAlpha, boolVarianceInflationFactor, stat);
     listSeries2 = append(listSeries2, listPlotData2$series);
     if( TRUE == exists("listNStats") ){
       if("nstats" %in% names(listAllStatsY2[[listAllStatsName]])){
@@ -438,8 +440,8 @@ if(length(listDiffSeries1) > 0){
     }
 
     #build series data using DIFF
-    listPlotData1 = buildSeriesData(plotDataDiff, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp[indexesNumSeries1Diff],
-                                    listPlotCI[indexesNumSeries1Diff], dblAlpha, boolVarianceInflationFactor, strPlotStat);
+    listPlotData1 = buildSeriesData(plotDataDiff, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp[indexesNumSeries1Diff[diffSeries1Name]],
+                                    listPlotCI[indexesNumSeries1Diff[diffSeries1Name]], dblAlpha, boolVarianceInflationFactor, strPlotStat);
     listSeries1 = append(listSeries1, listPlotData1$series);
     if( TRUE == exists("listNStats") ){
       listNStats = listNStats + listPlotData1$nstats;
@@ -505,8 +507,8 @@ if(length(listDiffSeries2) > 0){
       plotDataDiff = dfStatsIndy1;
     }
 
-    listPlotData2 = buildSeriesData(plotDataDiff, strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDisp[indexesNumSeries2Diff],
-                                    listPlotCI[indexesNumSeries2Diff], dblAlpha, boolVarianceInflationFactor, strPlotStat);
+    listPlotData2 = buildSeriesData(plotDataDiff, strIndyVar, listIndy, strDep2Stat, listSeries2Val, listPlotDisp[indexesNumSeries2Diff[diffSeries2Name]],
+                                    listPlotCI[indexesNumSeries2Diff[diffSeries2Name]], dblAlpha, boolVarianceInflationFactor, strPlotStat);
     listSeries2 = append(listSeries2, listPlotData2$series);
 
     if( TRUE == exists("listNStats") ){
