@@ -286,6 +286,7 @@ listLegendOrdered=c();
 listLtyOrdered=c();
 listLwdOrdered=c();
 listPchOrdered=c();
+listTypeOrdered=c();
 listPlotDispOrdered=c();
 for(index in 1:length(listPlotOrderSeries)){
   listLwdOrdered[listPlotOrderSeries[index]]=listLwd[index];
@@ -293,6 +294,7 @@ for(index in 1:length(listPlotOrderSeries)){
   listLegendOrdered[listPlotOrderSeries[index]]=legend[index];
   listLtyOrdered[listPlotOrderSeries[index]]=listLty[index];
   listPchOrdered[listPlotOrderSeries[index]]=listPch[index];
+  listTypeOrdered[listPlotOrderSeries[index]]=listType[index];
   listPlotDispOrdered[listPlotOrderSeries[index]]=listPlotDisp[index];
 }
 
@@ -304,6 +306,7 @@ listLegendDisp = listLegendOrdered[listPlotDispOrdered];
 listColorsDisp = listColorsOrdered[listPlotDispOrdered];
 listLtyDisp    = listLtyOrdered[listPlotDispOrdered];
 listPchDisp    = listPchOrdered[listPlotDispOrdered];
+listTypeDisp    = listTypeOrdered[listPlotDispOrdered];
 
 
 if(boolEventHist == TRUE){
@@ -391,7 +394,7 @@ for (i in 1:length(env$o_bar)){
     a=env$o_bar[i][[1]], # intercept
     b=0, # slope
     lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-    col=listColors[i], # line color
+    col=listColorsDisp[i], # line color
     lend=1, # line end style - 0: rounded, 1: butt, 2: square
     cex=1, # line magnification
     lwd=1.5, # line width
@@ -405,7 +408,7 @@ for (i in 1:length(env$dblNoSkillB)){
     a=env$dblNoSkillB[i][[1]], # intercept
     b=env$dblNoSkillM[i][[1]], # slope
     lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-    col=listColors[i], # line color
+    col=listColorsDisp[i], # line color
     lend=1, # line end style - 0: rounded, 1: butt, 2: square
     cex=1, # line magnification
     lwd=1.5, # line width
@@ -418,15 +421,15 @@ for (i in 1:length(env$listThresh)){
   lines(
     x=env$listThresh[i][[1]], # x coordinates
     y=env$listCal[i][[1]], # y coordinates
-    type=listType[i], # series line type - p: points, l: lines, o: overplotted points and lines,
+    type=listTypeDisp[i], # series line type - p: points, l: lines, o: overplotted points and lines,
     # b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
-    pch=listPch[i], # point symbol - see example(points)
+    pch=listPchDisp[i], # point symbol - see example(points)
     font=5, # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-    lty=listLty[], # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-    col=listColors[i], # line color
+    lty=listLtyDisp[], # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+    col=listColorsDisp[i], # line color
     lend=1, # line end style - 0: rounded, 1: butt, 2: square
     cex=1, # line magnification
-    lwd=listLwd[i] # line width
+    lwd=listLwdLeg[i] # line width
   );
 }
 
