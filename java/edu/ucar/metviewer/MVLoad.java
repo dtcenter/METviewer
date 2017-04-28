@@ -771,7 +771,7 @@ public class MVLoad extends MVUtil {
           }
 
           if (listToken[6].equals("RMSE")) {//CNT line type
-            for (int i = 0; i < 89; i++) {
+            for (int i = 0; i < 88; i++) {
               if (i == 53) {
                 strLineDataValueList += ", '" + listToken[10] + "'";
               } else if (i == 31) {
@@ -783,7 +783,7 @@ public class MVLoad extends MVUtil {
               } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
                 strLineDataValueList += ", '0'";
               } else if (i == 77) {
-//do nothing
+                strLineDataValueList += ", '" + listToken[13] + "'";
               } else {
                 strLineDataValueList += ", '-9999'";
               }
