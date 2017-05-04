@@ -755,9 +755,6 @@ public class MVLoad extends MVUtil {
           //  if the line data requires a cov_thresh value, add it
           String strCovThresh = "NA";
           if (_tableCovThreshLineTypes.containsKey(d._strLineType)) {
-            if (strCovThresh.equals("NA")) {
-              System.out.println("  **  WARNING: cov_thresh value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
-            }
             strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
           }
 
@@ -1434,9 +1431,6 @@ public class MVLoad extends MVUtil {
         //  if the line data requires a cov_thresh value, add it
         String strCovThresh = findValueInArray(listToken, headerNames, "COV_THRESH");
         if (_tableCovThreshLineTypes.containsKey(d._strLineType)) {
-          if (strCovThresh.equals("NA")) {
-            System.out.println("  **  WARNING: cov_thresh value NA with line type '" + d._strLineType + "'\n        " + d._strFileLine);
-          }
           strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
         } else if (!strCovThresh.equals("NA")) {
           System.out.println("  **  WARNING: unexpected cov_thresh value '" + strCovThresh + "' with line type '" + d._strLineType + "'\n        " + d._strFileLine);
