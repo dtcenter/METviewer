@@ -1,0 +1,456 @@
+<html>
+<head>
+  <title>METViewer Documentation</title>
+  <link rel="stylesheet" type="text/css" href="mv_doc.css"/>
+  <link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
+</head>
+<body>
+
+<p class="loc" style="padding-top:10px">
+  <b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Batch Plotting
+</p>
+<hr/>
+
+<h2>METViewer Documentation - Scorecard Module</h2>
+
+<p>The scorecard Module is used to generate a scorecard image and HTML table using data in the METViewer database. The usage statement:</p>
+
+<p class="term">
+  USAGE: mv_scorecatd.sh scorecard_spec_file<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"scorecard_spec_file" specifies the XML plot specification
+  document<br/>
+  ---- Scorecard Done ----<br/>
+</p>
+
+<p>
+  The <span class="term">scorecard_spec_file</span> passed to the scorecard module contains information about the scorecard that will be generated. It is an XML
+  file whose
+  top-level tag is <span class="code">&lt;plot_spec&gt;</span> which contains the following elements, divided into functional sections:
+
+
+<li><span class="code">&lt;connection&gt;</span> see <a href="common_xml.html">common xml</a></li>
+<br/>
+
+<li><span class="code">&lt;rscript&gt;</span> specifies the Rscript instance to use, for example <span class="term">/usr/local/bin/Rscript</span>,</li>
+<br/>
+
+<li>
+  <span class="code">&lt;folders&gt;</span>: a structure that specifies the input and output file system folders
+  <ul>
+    <li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used by METViewer, typically <span class="term">R_tmpl/</span>
+      from the metviewer
+      CVS source tree
+    <li><span class="code">&lt;r_work&gt;</span>: the folder that will contain the data and generated R scripts, must contain the sub-folder
+      <span class="term">include/</span>
+    <li><span class="code">&lt;plots&gt;</span>: the output folder that will contain generated image and HTML files</li>
+    <li><span class="code">&lt;data&gt;</span>: the output folder that will contain generated data files</li>
+    <li><span class="code">&lt;scripts&gt;</span>: the output folder that will contain scripts files</li>
+  </ul>
+</li>
+<br/>
+
+<li>
+  <span class="code">&lt;plot&gt;</span>: a structure that specifies scorecard characteristics
+  <ul>
+    <li><span class="code">&lt;view_value&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+      display statistical values in the scorecard cells. The default value is FALSE (do not display)
+    </li>
+    <li><span class="code">&lt;view_symbol&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+      display a symbol in the scorecard cells. The default value is TRUE ( display)
+    </li>
+    <li><span class="code">&lt;view_legend&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+      display a legend for the scorecard. The default value is TRUE ( display)
+    </li>
+    <li><span class="code">&lt;stat_flag&gt;</span>: <span class="code">NCAR</span> or <span class="code">EMC</span>, which algorithm to use to calculate
+      statistics.The default value is NCAR
+    </li>
+    <br/>
+
+    <a name="template"></a>
+    <li>
+      <span class="code">&lt;template&gt;</span>: the name of the R plot script template to use. The following templates are currently supported:
+      <ul>
+        <li><span class="term">scorecard.R_tmpl</span></li>
+      </ul>
+
+    </li>
+    <br/>
+
+    <a name="plot_fix"></a>
+    <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range and init hour - that are constant.<br/>
+      Model field contains two values - first and second model names.<br/>
+      Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains two values - start and end dates<br/>
+      Init hour can contain one or more values<br/>
+      <ul>
+        <li><span class="code">&lt;field</span> name="model"<span class="code">&gt;</span></li>
+        <ul>
+          <li><span class="code">&lt;val</span> name="<span class="loc">first_model</span>" <span class="code">/&gt;</span></li>
+          <li><span class="code">&lt;val</span> name="<span class="loc">second_model</span>" <span class="code">/&gt;</span></li>
+        </ul>
+        <li><span class="code">&lt;/field&gt;</span></li>
+        <li><span class="code">&lt;field</span> name="fcst_valid_beg"<span class="code">&gt;</span></li>
+        <ul>
+          <li><span class="code">&lt;val</span> name="<span class="loc">start_date</span>" <span class="code">/&gt;</span></li>
+          <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>" <span class="code">/&gt;</span></li>
+        </ul>
+        <li><span class="code">&lt;/field&gt;</span></li>
+        <li><span class="code">&lt;field</span> name="init_hour"<span class="code">&gt;</span></li>
+        <ul>
+          <li><span class="code">&lt;val</span> name="<span class="loc">first_hour</span>" <span class="code">/&gt;</span></li>
+        </ul>
+        <li><span class="code">&lt;/field&gt;</span></li>
+      </ul>
+    </li>
+    <br/>
+
+    <a name="rows"></a>
+    <li><span class="code">&lt;rows&gt;</span>: describes an individual row in the scorecard table.<br/>
+      Contains one or more nested <span class="code">&lt;field&gt;</span> elements
+      <ul>
+        <li><span class="code">&lt;field&gt;</span>: describes an individual row or row group in the scorecard table. <b>Attributes:</b>
+
+        </li>
+        <ul>
+          <ul style="list-style-image:url('att_bullet.gif')">
+            <li><span class="code">name</span>: database field name</li>
+          </ul>
+          <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can have more than one value element. <b>Attributes:</b>
+            <ul style="list-style-image:url('att_bullet.gif')">
+              <li><span class="code">name</span>: database field name</li>
+              <li><span class="code">label</span>: the label that shows up on the image</li>
+            </ul>
+          </li>
+          <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
+        </ul>
+        <br/>
+      </ul>
+    </li>
+
+    <a name="columns"></a>
+    <li><span class="code">&lt;columns&gt;</span>: describes an individual column in the scorecard table.<br/>
+      Contains one or more nested <span class="code">&lt;field&gt;</span> elements
+      <ul>
+        <li><span class="code">&lt;field&gt;</span>: describes an individual column or column group in the scorecard table. <b>Attributes:</b>
+          <ul>
+            <ul style="list-style-image:url('att_bullet.gif')">
+              <li><span class="code">name</span>: database field name</li>
+            </ul>
+            <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can have more than one value element. <b>Attributes:</b>
+              <ul style="list-style-image:url('att_bullet.gif')">
+                <li><span class="code">name</span>: database field name</li>
+                <li><span class="code">label</span>: the label that shows up on the image</li>
+              </ul>
+            </li>
+            <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
+          </ul>
+          <br/>
+      </ul>
+    </li>
+    <br/>
+    <li><a name="agg_stat"></a>
+      <span class="code">&lt;agg_stat&gt;</span>: <span class="code">TRUE</span>(bootstrapping) or <span class="code">FALSE</span>(student-T/normal),
+      indicating whether or not to create a scorecard
+      using aggregated statistics.<br/>The default value is TRUE (use bootstrapping )
+    </li>
+    <li><a name="boot_repl"></a>
+      <span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for no bootstrapping. Used when <span class="code">&lt;agg_stat&gt;</span>
+      is TRUE
+    </li>
+    <li><a name="boot_random_seed"></a>
+      <span class="code">&lt;boot_random_seed&gt;</span>: value of Random.seed for bootstrapping to get a reproducible random results.
+      Used when <span class="code">&lt;agg_stat&gt;</span> is TRUE
+    </li>
+
+    <a name="tmpl"></a>
+    <li><span class="code">&lt;tmpl&gt;</span>:</li>
+    <ul>
+      <li><span class="code">&lt;data_file&gt;</span>: name of the R data.frame data file, inside of the <span class="code">&lt;r_work&gt;</span> folder
+        specified above
+      </li>
+      <li><span class="code">&lt;plot_file&gt;</span>: name of the output image file, inside of the <span class="code">&lt;plots&gt;</span> folder specified
+        above
+      </li>
+      <li><span class="code">&lt;title&gt;</span>: title of the scorecard displayed on the image. Default value:
+        <span style="font-weight: bold;">Verification Scorecard</span></li>
+    </ul>
+
+
+    </li>
+  </ul>
+</li>
+
+</p>
+<br/>
+<p>
+  Here is a simple example. It produces <a class="loc" href="scorecard_sum_emc.html">this</a> scorecard :
+  <br/><br/>
+<textarea rows="40" cols="100" style="border:none; font-size: 12px;">
+  <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  <plot_spec>
+    <connection>
+      <host>db_host:3306</host>
+      <database>database_name</database>
+      <user>user_name</user>
+      <password>password</password>
+    </connection>
+
+    <rscript>/usr/local/bin/Rscript</rscript>
+    <folders>
+      <r_tmpl>path_to_R_tmpl</r_tmpl>
+      <r_work>path_to_R_work/</r_work>
+      <plots>path_to_plots_foulder</plots>
+      <data>path_to_data_foulder</data>
+      <scripts>path_to_scripts_foulder</scripts>
+    </folders>
+    <plot>
+      <view_value>false</view_value>
+      <view_symbol>true</view_symbol>
+      <view_legend>false</view_legend>
+
+      <!--stat_flag>NCAR</stat_flag-->
+      <stat_flag>EMC</stat_flag>
+
+      <template>scorecard.R_tmpl</template>
+
+      <plot_fix>
+        <field name="model">
+          <val name="PR4RN_1405"/>
+          <val name="GFS2016"/>
+        </field>
+        <field name="fcst_valid_beg">
+          <val name="2014-05-20 00:00:00"/>
+          <val name="2014-07-30 00:00:00"/>
+        </field>
+        <field name="init_hour">
+          <val name="00"/>
+          <val name="12"/>
+        </field>
+      </plot_fix>
+
+      <rows>
+        <field name="stat">
+          <val name="ANOM_CORR" label="Anom Corr"/>
+          <field name="fcst_var">
+            <val name="HGT" label="Heights"/>
+            <field name="fcst_lev">
+              <val name="P250"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="VL1L2_CORR" label="Anom Corr"/>
+          <field name="fcst_var">
+            <val name="WIND" label="Vector Wind"/>
+            <field name="fcst_lev">
+              <val name="P250"/>
+              <val name="P500"/>
+              <val name="P850"/>
+            </field>
+          </field>
+        </field>
+
+
+        <field name="stat">
+          <val name="ANOM_CORR" label="Anom Corr"/>
+          <field name="fcst_var">
+            <val name="T" label="Temp"/>
+            <field name="fcst_lev">
+              <val name="P250"/>
+              <val name="P500"/>
+              <val name="P850"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="ANOM_CORR" label="Anom Corr"/>
+          <field name="fcst_var">
+            <val name="PMSL" label="MSLP"/>
+            <field name="fcst_lev">
+              <val name="MSL"/>
+            </field>
+          </field>
+        </field>
+
+
+        <field name="stat">
+          <val name="RMSE"/>
+          <field name="fcst_var">
+            <val name="HGT" label="Heights"/>
+            <field name="fcst_lev">
+              <val name="P10"/>
+              <val name="P20"/>
+              <val name="P50"/>
+              <val name="P100"/>
+              <val name="P200"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P850"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="VL1L2_RMSE" label="RMSE"/>
+          <field name="fcst_var">
+            <val name="WIND" label="Vector Wind"/>
+            <field name="fcst_lev">
+              <val name="P10"/>
+              <val name="P20"/>
+              <val name="P50"/>
+              <val name="P100"/>
+              <val name="P200"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P850"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="RMSE"/>
+          <field name="fcst_var">
+            <val name="T" label="Temp"/>
+            <field name="fcst_lev">
+              <val name="P10"/>
+              <val name="P20"/>
+              <val name="P50"/>
+              <val name="P100"/>
+              <val name="P200"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P850"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="ME" label="Bias"/>
+          <field name="fcst_var">
+            <val name="HGT" label="Heights"/>
+            <field name="fcst_lev">
+              <val name="P10"/>
+              <val name="P20"/>
+              <val name="P50"/>
+              <val name="P100"/>
+              <val name="P200"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P850"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="VL1L2_BIAS" label="Bias"/>
+          <field name="fcst_var">
+            <val name="WIND" label="Wind Speed"/>
+            <field name="fcst_lev">
+              <val name="P10"/>
+              <val name="P20"/>
+              <val name="P50"/>
+              <val name="P100"/>
+              <val name="P200"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P850"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+        <field name="stat">
+          <val name="ME" label="Bias"/>
+          <field name="fcst_var">
+            <val name="T" label="Temp"/>
+            <field name="fcst_lev">
+              <val name="P10"/>
+              <val name="P20"/>
+              <val name="P50"/>
+              <val name="P100"/>
+              <val name="P200"/>
+              <val name="P500"/>
+              <val name="P700"/>
+              <val name="P850"/>
+              <val name="P1000"/>
+            </field>
+          </field>
+        </field>
+
+      </rows>
+
+      <columns>
+        <field name="vx_mask">
+          <val name="G2/PNA" label="N.American"/>
+          <field name="fcst_lead">
+            <val name="24" label="Day 1"/>
+            <val name="72" label="Day 3"/>
+            <val name="120" label="Day 5"/>
+            <val name="144" label="Day 6"/>
+            <val name="192" label="Day 8"/>
+            <val name="240" label="Day 10"/>
+          </field>
+        </field>
+
+        <field name="vx_mask">
+          <val name="G2/NHX" label="N.Hemisphere"/>
+          <field name="fcst_lead">
+            <val name="24" label="Day 1"/>
+            <val name="72" label="Day 3"/>
+            <val name="120" label="Day 5"/>
+            <val name="144" label="Day 6"/>
+            <val name="192" label="Day 8"/>
+            <val name="240" label="Day 10"/>
+          </field>
+        </field>
+        <field name="vx_mask">
+          <val name="G2/SHX" label="S.Hemisphere"/>
+          <field name="fcst_lead">
+            <val name="24" label="Day 1"/>
+            <val name="72" label="Day 3"/>
+            <val name="120" label="Day 5"/>
+            <val name="144" label="Day 6"/>
+            <val name="192" label="Day 8"/>
+            <val name="240" label="Day 10"/>
+          </field>
+        </field>
+        <field name="vx_mask">
+          <val name="G2/TRO" label="Tropics"/>
+          <field name="fcst_lead">
+            <val name="24" label="Day 1"/>
+            <val name="72" label="Day 3"/>
+            <val name="120" label="Day 5"/>
+            <val name="144" label="Day 6"/>
+            <val name="192" label="Day 8"/>
+            <val name="240" label="Day 10"/>
+          </field>
+        </field>
+
+
+      </columns>
+
+      <agg_stat>false</agg_stat>
+      <boot_repl>1000</boot_repl>
+      <boot_random_seed>1</boot_random_seed>
+
+      <tmpl>
+        <data_file>scorecard.data</data_file>
+        <plot_file>scorecard.png</plot_file>
+        <title>METViewer Scorecard</title>
+      </tmpl>
+
+    </plot>
+  </plot_spec>
+  </textarea>
+</p>
+
+</body>
+</html>
