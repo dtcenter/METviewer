@@ -11,6 +11,8 @@ import java.awt.*;
 import java.math.BigDecimal;
 
 /**
+ * Deskription how the threshold would be represented in the table and legend
+ *
  * @author : tatiana $
  * @version : 1.0 : 31/01/17 13:44 $
  */
@@ -18,14 +20,14 @@ public class LegendRange {
 
   private static final Logger logger = Logger.getLogger(LegendRange.class);
 
-  private String symbol = "";
-  private String color = "#000000";
-  private String background = "#WHITE_FFFFFF";
+  private String symbol = ""; //HTML symbol
+  private String color = "#000000"; // color of the symbol
+  private String background = "#FFFFFF"; // cell's background
   private BigDecimal upperLimit;
   private BigDecimal lowerLimit;
   private boolean includeUpperLimit;
   private boolean includeLowerLimit;
-  private String formatString = "";
+  private String formatString = "";//format for the legend text
 
 
   public void setFormatString(String formatString) {
@@ -57,7 +59,7 @@ public class LegendRange {
     if (validateColorStr(background)) {
       this.background = background;
     } else {
-      this.background = "#WHITE_FFFFFF";//white
+      this.background = "#FFFFFF";//white
       logger.error("Background color for the legend range is invalid: " + background + ". Use white color instead");
     }
   }
