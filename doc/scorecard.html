@@ -27,110 +27,90 @@
   file whose
   top-level tag is <span class="code">&lt;plot_spec&gt;</span> which contains the following elements, divided into functional sections:
 
+</p>
+<ul>
+  <li><span class="code">&lt;connection&gt;</span> see <a href="common_xml.html">common xml</a></li>
+  <br/>
 
-<li><span class="code">&lt;connection&gt;</span> see <a href="common_xml.html">common xml</a></li>
-<br/>
+  <li><span class="code">&lt;rscript&gt;</span> specifies the Rscript instance to use, for example <span class="term">/usr/local/bin/Rscript</span>,</li>
+  <br/>
 
-<li><span class="code">&lt;rscript&gt;</span> specifies the Rscript instance to use, for example <span class="term">/usr/local/bin/Rscript</span>,</li>
-<br/>
+  <li>
+    <span class="code">&lt;folders&gt;</span>: a structure that specifies the input and output file system folders
+    <ul>
+      <li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used by METViewer, typically <span class="term">R_tmpl/</span>
+        from the metviewer
+        CVS source tree
+      <li><span class="code">&lt;r_work&gt;</span>: the folder that will contain the data and generated R scripts, must contain the sub-folder
+        <span class="term">include/</span>
+      <li><span class="code">&lt;plots&gt;</span>: the output folder that will contain generated image and HTML files</li>
+      <li><span class="code">&lt;data&gt;</span>: the output folder that will contain generated data files</li>
+      <li><span class="code">&lt;scripts&gt;</span>: the output folder that will contain scripts files</li>
+    </ul>
+  </li>
+  <br/>
 
-<li>
-  <span class="code">&lt;folders&gt;</span>: a structure that specifies the input and output file system folders
-  <ul>
-    <li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used by METViewer, typically <span class="term">R_tmpl/</span>
-      from the metviewer
-      CVS source tree
-    <li><span class="code">&lt;r_work&gt;</span>: the folder that will contain the data and generated R scripts, must contain the sub-folder
-      <span class="term">include/</span>
-    <li><span class="code">&lt;plots&gt;</span>: the output folder that will contain generated image and HTML files</li>
-    <li><span class="code">&lt;data&gt;</span>: the output folder that will contain generated data files</li>
-    <li><span class="code">&lt;scripts&gt;</span>: the output folder that will contain scripts files</li>
-  </ul>
-</li>
-<br/>
+  <li>
+    <span class="code">&lt;plot&gt;</span>: a structure that specifies scorecard characteristics
+    <ul>
+      <li><span class="code">&lt;view_value&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+        display statistical values in the scorecard cells. The default value is FALSE (do not display)
+      </li>
+      <li><span class="code">&lt;view_symbol&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+        display a symbol in the scorecard cells. The default value is TRUE ( display)
+      </li>
+      <li><span class="code">&lt;view_legend&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+        display a legend for the scorecard. The default value is TRUE ( display)
+      </li>
+      <li><span class="code">&lt;stat_flag&gt;</span>: <span class="code">NCAR</span> or <span class="code">EMC</span>, which algorithm to use to calculate
+        statistics.The default value is NCAR
+      </li>
+      <br/>
 
-<li>
-  <span class="code">&lt;plot&gt;</span>: a structure that specifies scorecard characteristics
-  <ul>
-    <li><span class="code">&lt;view_value&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
-      display statistical values in the scorecard cells. The default value is FALSE (do not display)
-    </li>
-    <li><span class="code">&lt;view_symbol&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
-      display a symbol in the scorecard cells. The default value is TRUE ( display)
-    </li>
-    <li><span class="code">&lt;view_legend&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
-      display a legend for the scorecard. The default value is TRUE ( display)
-    </li>
-    <li><span class="code">&lt;stat_flag&gt;</span>: <span class="code">NCAR</span> or <span class="code">EMC</span>, which algorithm to use to calculate
-      statistics.The default value is NCAR
-    </li>
-    <br/>
-
-    <a name="template"></a>
-    <li>
-      <span class="code">&lt;template&gt;</span>: the name of the R plot script template to use. The following templates are currently supported:
-      <ul>
-        <li><span class="term">scorecard.R_tmpl</span></li>
-      </ul>
-
-    </li>
-    <br/>
-
-    <a name="plot_fix"></a>
-    <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range and init hour - that are constant.<br/>
-      Model field contains two values - first and second model names.<br/>
-      Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains two values - start and end dates<br/>
-      Init hour can contain one or more values<br/>
-      <ul>
-        <li><span class="code">&lt;field</span> name="model"<span class="code">&gt;</span></li>
+      <a name="template"></a>
+      <li>
+        <span class="code">&lt;template&gt;</span>: the name of the R plot script template to use. The following templates are currently supported:
         <ul>
-          <li><span class="code">&lt;val</span> name="<span class="loc">first_model</span>" <span class="code">/&gt;</span></li>
-          <li><span class="code">&lt;val</span> name="<span class="loc">second_model</span>" <span class="code">/&gt;</span></li>
+          <li><span class="term">scorecard.R_tmpl</span></li>
         </ul>
-        <li><span class="code">&lt;/field&gt;</span></li>
-        <li><span class="code">&lt;field</span> name="fcst_valid_beg"<span class="code">&gt;</span></li>
-        <ul>
-          <li><span class="code">&lt;val</span> name="<span class="loc">start_date</span>" <span class="code">/&gt;</span></li>
-          <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>" <span class="code">/&gt;</span></li>
-        </ul>
-        <li><span class="code">&lt;/field&gt;</span></li>
-        <li><span class="code">&lt;field</span> name="init_hour"<span class="code">&gt;</span></li>
-        <ul>
-          <li><span class="code">&lt;val</span> name="<span class="loc">first_hour</span>" <span class="code">/&gt;</span></li>
-        </ul>
-        <li><span class="code">&lt;/field&gt;</span></li>
-      </ul>
-    </li>
-    <br/>
 
-    <a name="rows"></a>
-    <li><span class="code">&lt;rows&gt;</span>: describes an individual row in the scorecard table.<br/>
-      Contains one or more nested <span class="code">&lt;field&gt;</span> elements
-      <ul>
-        <li><span class="code">&lt;field&gt;</span>: describes an individual row or row group in the scorecard table. <b>Attributes:</b>
+      </li>
+      <br/>
 
-        </li>
+      <a name="plot_fix"></a>
+      <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range and init hour - that are constant.<br/>
+        Model field contains two values - first and second model names.<br/>
+        Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains two values - start and end dates<br/>
+        Init hour can contain one or more values<br/>
         <ul>
-          <ul style="list-style-image:url('att_bullet.gif')">
-            <li><span class="code">name</span>: database field name</li>
+          <li><span class="code">&lt;field</span> name="model"<span class="code">&gt;</span></li>
+          <ul>
+            <li><span class="code">&lt;val</span> name="<span class="loc">first_model</span>" <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name="<span class="loc">second_model</span>" <span class="code">/&gt;</span></li>
           </ul>
-          <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can have more than one value element. <b>Attributes:</b>
-            <ul style="list-style-image:url('att_bullet.gif')">
-              <li><span class="code">name</span>: database field name</li>
-              <li><span class="code">label</span>: the label that shows up on the image</li>
-            </ul>
-          </li>
-          <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
+          <li><span class="code">&lt;/field&gt;</span></li>
+          <li><span class="code">&lt;field</span> name="fcst_valid_beg"<span class="code">&gt;</span></li>
+          <ul>
+            <li><span class="code">&lt;val</span> name="<span class="loc">start_date</span>" <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>" <span class="code">/&gt;</span></li>
+          </ul>
+          <li><span class="code">&lt;/field&gt;</span></li>
+          <li><span class="code">&lt;field</span> name="init_hour"<span class="code">&gt;</span></li>
+          <ul>
+            <li><span class="code">&lt;val</span> name="<span class="loc">first_hour</span>" <span class="code">/&gt;</span></li>
+          </ul>
+          <li><span class="code">&lt;/field&gt;</span></li>
         </ul>
-        <br/>
-      </ul>
-    </li>
+      </li>
+      <br/>
 
-    <a name="columns"></a>
-    <li><span class="code">&lt;columns&gt;</span>: describes an individual column in the scorecard table.<br/>
-      Contains one or more nested <span class="code">&lt;field&gt;</span> elements
-      <ul>
-        <li><span class="code">&lt;field&gt;</span>: describes an individual column or column group in the scorecard table. <b>Attributes:</b>
+      <a name="rows"></a>
+      <li><span class="code">&lt;rows&gt;</span>: describes an individual row in the scorecard table.<br/>
+        Contains one or more nested <span class="code">&lt;field&gt;</span> elements
+        <ul>
+          <li><span class="code">&lt;field&gt;</span>: describes an individual row or row group in the scorecard table. <b>Attributes:</b>
+
+          </li>
           <ul>
             <ul style="list-style-image:url('att_bullet.gif')">
               <li><span class="code">name</span>: database field name</li>
@@ -144,41 +124,62 @@
             <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
           </ul>
           <br/>
+        </ul>
+      </li>
+
+      <a name="columns"></a>
+      <li><span class="code">&lt;columns&gt;</span>: describes an individual column in the scorecard table.<br/>
+        Contains one or more nested <span class="code">&lt;field&gt;</span> elements
+        <ul>
+          <li><span class="code">&lt;field&gt;</span>: describes an individual column or column group in the scorecard table. <b>Attributes:</b>
+            <ul>
+              <ul style="list-style-image:url('att_bullet.gif')">
+                <li><span class="code">name</span>: database field name</li>
+              </ul>
+              <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can have more than one value element. <b>Attributes:</b>
+                <ul style="list-style-image:url('att_bullet.gif')">
+                  <li><span class="code">name</span>: database field name</li>
+                  <li><span class="code">label</span>: the label that shows up on the image</li>
+                </ul>
+              </li>
+              <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
+            </ul>
+            <br/>
+        </ul>
+      </li>
+      <br/>
+      <li><a name="agg_stat"></a>
+        <span class="code">&lt;agg_stat&gt;</span>: <span class="code">TRUE</span>(bootstrapping) or <span class="code">FALSE</span>(student-T/normal),
+        indicating whether or not to create a scorecard
+        using aggregated statistics.<br/>The default value is TRUE (use bootstrapping )
+      </li>
+      <li><a name="boot_repl"></a>
+        <span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for no bootstrapping. Used when <span class="code">&lt;agg_stat&gt;</span>
+        is TRUE
+      </li>
+      <li><a name="boot_random_seed"></a>
+        <span class="code">&lt;boot_random_seed&gt;</span>: value of Random.seed for bootstrapping to get a reproducible random results.
+        Used when <span class="code">&lt;agg_stat&gt;</span> is TRUE
+      </li>
+
+      <a name="tmpl"></a>
+      <li><span class="code">&lt;tmpl&gt;</span>:</li>
+      <ul>
+        <li><span class="code">&lt;data_file&gt;</span>: name of the R data.frame data file, inside of the <span class="code">&lt;r_work&gt;</span> folder
+          specified above
+        </li>
+        <li><span class="code">&lt;plot_file&gt;</span>: name of the output image file, inside of the <span class="code">&lt;plots&gt;</span> folder specified
+          above
+        </li>
+        <li><span class="code">&lt;title&gt;</span>: title of the scorecard displayed on the image. Default value:
+          <span style="font-weight: bold;">Verification Scorecard</span></li>
       </ul>
-    </li>
-    <br/>
-    <li><a name="agg_stat"></a>
-      <span class="code">&lt;agg_stat&gt;</span>: <span class="code">TRUE</span>(bootstrapping) or <span class="code">FALSE</span>(student-T/normal),
-      indicating whether or not to create a scorecard
-      using aggregated statistics.<br/>The default value is TRUE (use bootstrapping )
-    </li>
-    <li><a name="boot_repl"></a>
-      <span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for no bootstrapping. Used when <span class="code">&lt;agg_stat&gt;</span>
-      is TRUE
-    </li>
-    <li><a name="boot_random_seed"></a>
-      <span class="code">&lt;boot_random_seed&gt;</span>: value of Random.seed for bootstrapping to get a reproducible random results.
-      Used when <span class="code">&lt;agg_stat&gt;</span> is TRUE
-    </li>
 
-    <a name="tmpl"></a>
-    <li><span class="code">&lt;tmpl&gt;</span>:</li>
-    <ul>
-      <li><span class="code">&lt;data_file&gt;</span>: name of the R data.frame data file, inside of the <span class="code">&lt;r_work&gt;</span> folder
-        specified above
+
       </li>
-      <li><span class="code">&lt;plot_file&gt;</span>: name of the output image file, inside of the <span class="code">&lt;plots&gt;</span> folder specified
-        above
-      </li>
-      <li><span class="code">&lt;title&gt;</span>: title of the scorecard displayed on the image. Default value:
-        <span style="font-weight: bold;">Verification Scorecard</span></li>
     </ul>
-
-
-    </li>
-  </ul>
-</li>
-
+  </li>
+</ul>
 </p>
 <br/>
 <p>
