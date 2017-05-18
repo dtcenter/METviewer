@@ -24,6 +24,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
+ * Creates scorecard image using configuration XML
+ *
  * @author : tatiana $
  * @version : 1.0 : 19/12/16 15:07 $
  */
@@ -34,14 +36,14 @@ public class Scorecard {
   private String user;
   private String pwd;
   private String host;
-  private WorkingFolders workingFolders;
-  private String rTemplate;
-  private String dataFile;
-  private String plotFile;
-  private String rScriptCommand;
-  private String title = "Verification Scorecard";
-  private List<Field> columns = new ArrayList<>();
-  private List<Field> rows = new ArrayList<>();
+  private WorkingFolders workingFolders; // rscript, data and output folders from XML file
+  private String rTemplate; // R template "scorecard.R_tmpl"
+  private String dataFile; // data file name from XML file
+  private String plotFile; // image file name from XML file
+  private String rScriptCommand; // Rscript command location
+  private String title = "Verification Scorecard"; //title of the scorecard
+  private List<Field> columns = new ArrayList<>(); // list of columns
+  private List<Field> rows = new ArrayList<>(); // list of rows
   private List<Field> fixedVars = new ArrayList<>();
   private Boolean aggStat = Boolean.TRUE;
   private Boolean viewValue = Boolean.FALSE;
@@ -232,15 +234,21 @@ public class Scorecard {
     } else {
       filename = args[0];
       XmlParser xmlParser = new XmlParser();
+      // parce XML and init parameters
       Scorecard scorecard = xmlParser.parseParameters(filename);
+      //remove previous output with similar names
       scorecard.cleanOldResults();
 
+      //TODO implement validation
       boolean isValid = scorecard.validate();
       if (isValid) {
 
         DatabaseManager scorecardDbManager;
         RscriptManager rscriptManager;
-        List<Map<String, Entry>> listRows = scorecard.getListOfEahRowWithDesc();
+        //create a list of each row with statistic as a key and columns
+        List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
+
+        //depending on stat type init mangers
         if (scorecard.getAggStat()) {
           scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
           rscriptManager = new AggRscriptManager(scorecard);
@@ -249,56 +257,30 @@ public class Scorecard {
           rscriptManager = new SumRscriptManager(scorecard);
         }
         int rowCounter = 1;
-        //List<Callable<String>> callables = new ArrayList<>();
-
-
-
+        //for each row calculate statistics in the individual cell
         for (Map<String, Entry> mapRow : listRows) {
           StringBuilder logMessage = new StringBuilder();
-          for(Map.Entry<String, Entry> column : mapRow.entrySet()){
+          for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
             logMessage.append(column.getKey()).append(": ").append(column.getValue().getName()).append(", ");
           }
           logger.info("---------------------------------------------------------------------------------------");
-          logger.info("Row #" + rowCounter + ": " +logMessage);
+          logger.info("Row #" + rowCounter + ": " + logMessage);
           logger.info("---------------------------------------------------------------------------------------");
 
+          //get data from db and save it into file
           scorecardDbManager.createDataFile(mapRow, "");
+
+          //use rscript and data from the db file to calculate stats and append them into the resulting file
           rscriptManager.calculateStatsForRow(mapRow, "");
           logger.info("---------------------------------------------------------------------------------------");
-         // callables.add(callable(scorecardDbManager, rscriptManager, mapRow, String.valueOf(rowCounter)));
           rowCounter++;
         }
-        /*ExecutorService executor = Executors.newWorkStealingPool();
-       executor.invokeAll(callables)
-          .stream()
-          .map(future -> {
-            try {
-              return future.get();
-            } catch (Exception e) {
-              throw new IllegalStateException(e);
-            }
-          })
-          .forEach(System.out::println);
-        try {
-          System.out.println("attempt to shutdown executor");
-          executor.shutdown();
-          executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          System.err.println("tasks interrupted");
-        } finally {
-          if (!executor.isTerminated()) {
-            System.err.println("cancel non-finished tasks");
-          }
-          executor.shutdownNow();
-          System.out.println("shutdown finished");
-        }
-*/
 
         File dataFile = new File(scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+        //if the resulting file exists - create an image and html file
         if (dataFile.exists()) {
           GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
           graphicalOutputManager.createGraphics();
-
 
         } else {
           throw new MissingFileException(dataFile.getAbsolutePath());
@@ -334,6 +316,9 @@ public class Scorecard {
     };
   }
 
+  /**
+   * removes previous output files
+   */
   private void cleanOldResults() {
     //TODO remove html and other data files
     File file = new File(getWorkingFolders().getDataDir() + this.getDataFile());
@@ -358,7 +343,10 @@ public class Scorecard {
     }
   }
 
-
+  /**
+   * Converts columns into map with key=field and values=all possible unique values
+   * @return
+   */
   public Map<String, List<Entry>> columnsStructure() {
     Map<String, List<Entry>> result = new LinkedHashMap<>();
     for (Field field : columns) {
@@ -368,7 +356,10 @@ public class Scorecard {
           if (!result.containsKey(entry.getKey())) {
             result.put(entry.getKey(), new LinkedList<>());
           }
-          result.get(entry.getKey()).add(entry.getValue());
+          //add only unique values
+          if( !result.get(entry.getKey()).contains(entry.getValue())) {
+            result.get(entry.getKey()).add(entry.getValue());
+          }
 
         }
       }
@@ -376,7 +367,7 @@ public class Scorecard {
     return result;
   }
 
-  public List<Map<String, Entry>> getListOfEahRowWithDesc() {
+  public List<Map<String, Entry>> getListOfEachRowWithDesc() {
     List<Map<String, Entry>> result = new ArrayList<>(numOfRows());
     for (Field field : rows) {
       result.addAll(getMaps(field, new LinkedHashMap<>()));
@@ -384,7 +375,7 @@ public class Scorecard {
     return result;
   }
 
-  public List<Map<String, Entry>> getListOfEahColumnWithDesc() {
+  public List<Map<String, Entry>> getListOfEachColumnWithDesc() {
     List<Map<String, Entry>> result = new ArrayList<>(numOfRows());
     for (Field field : columns) {
       result.addAll(getMaps(field, new LinkedHashMap<>()));
