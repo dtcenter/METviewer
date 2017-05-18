@@ -73,8 +73,8 @@ public class GraphicalOutputManager {
     //create range list
     initRangeList();
     dataFileStr = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
-    listRows = scorecard.getListOfEahRowWithDesc();
-    listColumns = scorecard.getListOfEahColumnWithDesc();
+    listRows = scorecard.getListOfEachRowWithDesc();
+    listColumns = scorecard.getListOfEachColumnWithDesc();
     title1.withText(scorecard.getTitle());
     viewSymbol = scorecard.getViewSymbol();
     viewValue = scorecard.getViewValue();
@@ -94,10 +94,9 @@ public class GraphicalOutputManager {
     title2.withText("for " + model1 + " and " + model2);
     title3.withText(range);
   }
-
+  //TODO use a config file to describe thresholds
   private void initRangeList() {
     rangeList = new ArrayList<>();
-
 
     LegendRange legendRange = new LegendRange();
     legendRange.setSymbol("&#9650;");//UP-POINTING TRIANGLE
