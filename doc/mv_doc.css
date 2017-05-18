@@ -50,7 +50,7 @@ b.tag  { color: #0066ff; }
 b.inst { color: #0066ff; font-size: 14px; }
 
 li {
-	list-style: circle inside;
+	list-style: none;
 	padding-top: 5px;
 }
 li.inst     { list-style-type: decimal;     }
@@ -87,6 +87,7 @@ td.header {
 	color: #7f7f7f;
 	font-family: verdana, serif;
 	font-size: 10px;
+	font-style: italic;
 }
 .opt {
 	color: #ddbb00;
