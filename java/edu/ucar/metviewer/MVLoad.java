@@ -1432,8 +1432,6 @@ public class MVLoad extends MVUtil {
         String strCovThresh = findValueInArray(listToken, headerNames, "COV_THRESH");
         if (_tableCovThreshLineTypes.containsKey(d._strLineType)) {
           strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
-        } else if (!strCovThresh.equals("NA")) {
-          System.out.println("  **  WARNING: unexpected cov_thresh value '" + strCovThresh + "' with line type '" + d._strLineType + "'\n        " + d._strFileLine);
         }
 
         //  if the line data requires an alpha value, add it
