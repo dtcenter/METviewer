@@ -209,7 +209,6 @@ if ( nrow(sampleData) > 0){
             ###--!!!!!!!!!!!!!--
             ##intvl = 1.960 * std / sqrt(nsz - 1);
             ###--!!!!!!!!!!!!!--
-            cat(mean(dfStatsIndy1$stat_value), " " ,mean(dfStatsIndy2$stat_value) , " ", intvl, '\n');
 
             if ( grepl('ME$',listDepPlot[[1]] ) || grepl('BIAS$',listDepPlot[[1]] )){ #bias
               ds = ( abs(mean(dfStatsIndy1$stat_value)) - abs(mean(dfStatsIndy2$stat_value)) )  / intvl;
@@ -222,7 +221,6 @@ if ( nrow(sampleData) > 0){
              ds95 = (-1) * ds;
              ds99 = (-1) * ds * alpha1 / alpha2;
              ds999 = (-1) * ds * alpha1 / alpha3;
-             cat(ds95, " " ,ds99 , " ", ds999, '\n\n');
 
              for (index in 1:length(ds)) {
                if (ds999[index] >= 1) {
