@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Constructs and runs Rscript
  * @author : tatiana $
  * @version : 1.0 : 07/02/17 09:22 $
  */
@@ -45,6 +46,9 @@ public abstract class RscriptManager {
 
   public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName);
 
+  /**
+   * Creates a list of comparing models
+   */
   protected void initModels() {
     for (Field fixedField : fixedVars) {
       if ("model".equals(fixedField.getName())) {
