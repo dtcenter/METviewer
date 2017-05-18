@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Constructs and runs Rscript for agg stats
+ *
  * @author : tatiana $
  * @version : 1.0 : 17/01/17 15:19 $
  */
@@ -75,7 +77,7 @@ public class AggRscriptManager extends RscriptManager {
       init(mapRow);
       initAggBool(tableAggStatInfo, Util.getAggTypeForStat(stat));
 
-
+      //create a template
       tableAggStatInfo.put("indy_var", indyVar);
       tableAggStatInfo.put("indy_list", "c(" + indyList + ")");
 
@@ -98,11 +100,11 @@ public class AggRscriptManager extends RscriptManager {
       }
       tableAggStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       int lastDot = aggStatDataFilePath.lastIndexOf('.');
-      String thredFileName = aggStatDataFilePath.substring(0,lastDot) + threadName + aggStatDataFilePath.substring(lastDot);
+      String thredFileName = aggStatDataFilePath.substring(0, lastDot) + threadName + aggStatDataFilePath.substring(lastDot);
       tableAggStatInfo.put("agg_stat_input", thredFileName);
 
       lastDot = strAggInfo.lastIndexOf('.');
-            String thredInfoFileName = strAggInfo.substring(0,lastDot) + threadName + strAggInfo.substring(lastDot);
+      String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo.substring(lastDot);
 
       try {
         MVUtil.populateTemplateFile(aggStatTemplFilePath, thredInfoFileName, tableAggStatInfo);
