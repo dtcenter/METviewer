@@ -356,10 +356,7 @@ public class Scorecard {
           if (!result.containsKey(entry.getKey())) {
             result.put(entry.getKey(), new LinkedList<>());
           }
-          //add only unique values
-          if( !result.get(entry.getKey()).contains(entry.getValue())) {
-            result.get(entry.getKey()).add(entry.getValue());
-          }
+         result.get(entry.getKey()).add(entry.getValue());
 
         }
       }
