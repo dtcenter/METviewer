@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -1907,12 +1906,11 @@ public class MVUtil {
 
     try {
       String jarPath = MVUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-
-      URI imgurl = new URI("file://" + jarPath + "/edu/ucar/metviewer/resources/log4j2.xml");
+      URI imgurl = new URI("jar:file:" + jarPath + "!/edu/ucar/metviewer/resources/log4j2.xml");
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
 
   }
