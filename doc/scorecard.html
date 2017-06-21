@@ -65,6 +65,9 @@
       <li><span class="code">&lt;stat_flag&gt;</span>: <span class="code">NCAR</span> or <span class="code">EMC</span>, which algorithm to use to calculate
         statistics.The default value is NCAR
       </li>
+      <li><span class="code">&lt;printSQL&gt;</span>: <span class="code">FALSE</span> or <span class="code">TRUE</span>, indicating whether or not to
+              print SQL queries. The default value is FALSE ( do not print)
+      </li>
       <br/>
 
       <a name="template"></a>
@@ -162,6 +165,11 @@
         Used when <span class="code">&lt;agg_stat&gt;</span> is TRUE
       </li>
 
+      <li><a name="plot_stat"></a>
+            <span class="code">&lt;plot_stat&gt;</span>: name of the aggregation statistic.<span class="code">median</span> or <span class="code">mean</span>
+           The default value is median.
+      </li>
+
       <a name="tmpl"></a>
       <li><span class="code">&lt;tmpl&gt;</span>:</li>
       <ul>
@@ -199,17 +207,17 @@
     <folders>
       <r_tmpl>path_to_R_tmpl</r_tmpl>
       <r_work>path_to_R_work/</r_work>
-      <plots>path_to_plots_foulder</plots>
-      <data>path_to_data_foulder</data>
-      <scripts>path_to_scripts_foulder</scripts>
+      <plots>path_to_plots_folder</plots>
+      <data>path_to_data_folder</data>
+      <scripts>path_to_scripts_folder</scripts>
     </folders>
     <plot>
       <view_value>false</view_value>
       <view_symbol>true</view_symbol>
       <view_legend>false</view_legend>
 
-      <!--stat_flag>NCAR</stat_flag-->
       <stat_flag>EMC</stat_flag>
+      <printSQL>FALSE</printSQL>
 
       <template>scorecard.R_tmpl</template>
 
