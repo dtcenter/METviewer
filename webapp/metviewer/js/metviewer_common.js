@@ -2708,6 +2708,7 @@ function createXMLPerf(plot) {
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
+        agg_stat.append($('<boot_random_seed />').text($('#boot_random_seed').val()));
         agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
@@ -2818,6 +2819,7 @@ function createXMLSeries(plot) {
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
+        agg_stat.append($('<boot_random_seed />').text($('#boot_random_seed').val()));
         agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
@@ -4651,6 +4653,7 @@ function loadXMLSeries() {
         } catch (e) {
         }
         $("#boot_repl").val($(initXML.find("plot").find("agg_stat").find("boot_repl")).text());
+        $("#boot_random_seed").val($(initXML.find("plot").find("agg_stat").find("boot_random_seed")).text());
         $("#boot_ci").val($(initXML.find("plot").find("agg_stat").find("boot_ci")).text());
         $('#cacheAggStat').prop('checked', $(initXML.find("plot").find("agg_stat").find("cache_agg_stat")).text() == "TRUE");
 
