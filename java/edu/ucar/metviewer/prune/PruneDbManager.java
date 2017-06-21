@@ -5,8 +5,10 @@
 
 package edu.ucar.metviewer.prune;
 
-import edu.ucar.metviewer.Datasource;
-import org.apache.log4j.Logger;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.sql.Connection;
@@ -21,13 +23,14 @@ import java.util.regex.Pattern;
  * @author : tatiana $
  * @version : 1.0 : 06/12/16 11:43 $
  */
-public class PruneDbManager {
+class PruneDbManager extends MysqlDatabaseManager {
 
-  private static final Logger logger = Logger.getLogger(PruneDbManager.class);
+  private static final Logger logger = LogManager.getLogger("PruneDbManager");
   private final List<Table> tables;
 
 
-  public PruneDbManager() {
+  public PruneDbManager(DatabaseInfo databaseInfo) throws SQLException {
+    super(databaseInfo);
     //init tables data
     tables = new ArrayList<>();
     tables.add(new Table("line_data_cnt", "stat_header", "stat_header_id"));
@@ -67,8 +70,8 @@ public class PruneDbManager {
 
   public void pruneData(MVPruneDB mvPruneDB) {
     int totalDeleted = 0;
-    Datasource datasource = Datasource.getInstance("mysql", "com.mysql.jdbc.Driver", mvPruneDB.getHost(), mvPruneDB.getUser(), mvPruneDB.getPwd());
-    try (Connection con = datasource.getConnection(mvPruneDB.getDatabaseName())) {
+
+    try (Connection con = getConnection(mvPruneDB.getDatabaseName())) {
       // get the list of tables in database
       List<String> allTables = getAllTables(con, mvPruneDB.getDatabaseName());
       StringBuilder whereStr = createWhere(con, mvPruneDB);
@@ -127,7 +130,7 @@ public class PruneDbManager {
       emptyHeaderIdSql.deleteCharAt(emptyHeaderIdSql.length() - 1);
     }
     //execute SQL and process result
-    try (PreparedStatement pstmt = con.prepareStatement(emptyHeaderIdSql.toString()); ResultSet r = pstmt.executeQuery();) {
+    try (PreparedStatement pstmt = con.prepareStatement(emptyHeaderIdSql.toString()); ResultSet r = pstmt.executeQuery()) {
       while (r.next()) {
         headerIdForDeletion.add(r.getInt(1));
       }
@@ -173,7 +176,7 @@ public class PruneDbManager {
 
       //optimize table
       String optimizeSql = "OPTIMIZE TABLE " + type + "_header";
-      try (PreparedStatement pstmt = con.prepareStatement(optimizeSql); ResultSet r = pstmt.executeQuery();) {
+      try (PreparedStatement pstmt = con.prepareStatement(optimizeSql); ResultSet r = pstmt.executeQuery()) {
         r.close();
         pstmt.close();
       } catch (SQLException e) {
@@ -224,14 +227,14 @@ public class PruneDbManager {
    */
   private void optimizeTable(Connection con, Table table) {
 
-    try (PreparedStatement pstmt = con.prepareStatement("OPTIMIZE TABLE " + table.getName()); ResultSet r = pstmt.executeQuery();) {
+    try (PreparedStatement pstmt = con.prepareStatement("OPTIMIZE TABLE " + table.getName()); ResultSet r = pstmt.executeQuery()) {
       r.close();
       pstmt.close();
     } catch (SQLException e) {
       logger.error(e);
     }
     if (table.getDependentTable() != null) {
-      try (PreparedStatement pstmt = con.prepareStatement("OPTIMIZE TABLE " + table.getDependentTable()); ResultSet r = pstmt.executeQuery();) {
+      try (PreparedStatement pstmt = con.prepareStatement("OPTIMIZE TABLE " + table.getDependentTable()); ResultSet r = pstmt.executeQuery()) {
         r.close();
         pstmt.close();
       } catch (SQLException e) {
@@ -339,7 +342,7 @@ public class PruneDbManager {
         "  AND " + whereStr;
 
     }
-    try (PreparedStatement pstmt = con.prepareStatement(sql); ResultSet res = pstmt.executeQuery();) {
+    try (PreparedStatement pstmt = con.prepareStatement(sql); ResultSet res = pstmt.executeQuery()) {
 
       while (res.next()) {
         total = res.getInt(1);
@@ -353,7 +356,7 @@ public class PruneDbManager {
     if (table.getHeaderTable() != null && table.getDependentTable() != null) {
       sql = "SELECT COUNT(*)  FROM " + table.getName() + "," + table.getHeaderTable() +
         " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table.getName() + "." + table.getHeaderKey() + "  AND " + whereStr;
-      try (PreparedStatement pstmt = con.prepareStatement(sql); ResultSet res = pstmt.executeQuery();) {
+      try (PreparedStatement pstmt = con.prepareStatement(sql); ResultSet res = pstmt.executeQuery()) {
 
         while (res.next()) {
           total = total + res.getInt(1);

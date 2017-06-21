@@ -5,9 +5,10 @@
 
 package edu.ucar.metviewer.prune;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -19,7 +20,7 @@ import java.util.*;
  */
 public class MVPruneDB {
 
-  private static final Logger logger = Logger.getLogger(MVPruneDB.class);
+  private static final Logger logger = LogManager.getLogger("MVPruneDB");
 
   private static final String USAGE = "USAGE:  mv_prune.sh <prune_db_spec_file>\n" +
     "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
@@ -51,11 +52,11 @@ public class MVPruneDB {
     this.pwd = pwd;
   }
 
-  public String getPwd() {
+  private String getPwd() {
     return pwd;
   }
 
-  public String getUser() {
+  private String getUser() {
     return user;
   }
 
@@ -63,7 +64,7 @@ public class MVPruneDB {
     this.user = user;
   }
 
-  public String getHost() {
+  private String getHost() {
     return host;
   }
 
@@ -95,7 +96,7 @@ public class MVPruneDB {
 
   public static void main(String[] args) throws Exception {
     String filename;
-    updateLog4jConfiguration();
+    MVUtil.updateLog4jConfiguration();
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
       logger.info(USAGE);
@@ -106,7 +107,8 @@ public class MVPruneDB {
       MVPruneDB mvPruneDB = pruneXmlParser.parseParameters(filename);
       boolean isValid = mvPruneDB.validate();
       if (isValid) {
-        PruneDbManager pruneDbManager = new PruneDbManager();
+        PruneDbManager pruneDbManager = new PruneDbManager(new DatabaseInfo(  mvPruneDB.getHost(), mvPruneDB.getUser(), mvPruneDB.getPwd()));
+
         pruneDbManager.pruneData(mvPruneDB);
       }
 
@@ -161,14 +163,6 @@ public class MVPruneDB {
   }
 
 
-  public static void updateLog4jConfiguration() {
 
-    PatternLayout layout = new PatternLayout("%m%n");
-    ConsoleAppender appender = new ConsoleAppender(layout);
-    appender.setName("stdout");
-    appender.activateOptions();
-    Logger.getRootLogger().addAppender(appender);
-
-  }
 
 }

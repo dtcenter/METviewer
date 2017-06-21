@@ -1,20 +1,21 @@
 package edu.ucar.metviewer;
 
-import org.apache.log4j.Logger;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MVPlotJobParser extends MVUtil {
 
   protected static final Map<String, Method> _tableFormatBoolean = new HashMap<>();
-  private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVPlotJobParser");
+  private static final Logger _logger = LogManager.getLogger("MVPlotJobParser");
   private static final Map<String, Method> _tableFormatString = new HashMap<>();
 
   static {
@@ -35,7 +36,7 @@ public class MVPlotJobParser extends MVUtil {
       _tableFormatBoolean.put("normalizedHistogram", MVPlotJob.class.getDeclaredMethod("setNormalizedHistogram", boolean.class));
       _tableFormatBoolean.put("cache_agg_stat", MVPlotJob.class.getDeclaredMethod("setCacheAggStat", boolean.class));
       _tableFormatBoolean.put("event_equal", MVPlotJob.class.getDeclaredMethod("setEventEqual", Boolean.class));
-      _tableFormatBoolean.put("taylor_voc", MVPlotJob.class.getDeclaredMethod("setTaylorVoc", Boolean.class));
+      _tableFormatBoolean.put("taylor_voc", MVPlotJob.class.getDeclaredMethod("setTaylorVoc", boolean.class));
       _tableFormatBoolean.put("taylor_show_gamma", MVPlotJob.class.getDeclaredMethod("setTaylorShowGamma", boolean.class));
 
     } catch (NoSuchMethodException e) {
@@ -147,23 +148,29 @@ public class MVPlotJobParser extends MVUtil {
   protected Document _doc = null;
   protected MVPlotJob[] _listJobs = {};
   protected MVNode _nodePlotSpec = null;
-  protected Connection _con = null;
   protected String _strRscript = "Rscript";
   protected String _strRtmplFolder = "";
   protected String _strRworkFolder = "";
   protected String _strPlotsFolder = "";
   protected String _strDataFolder = "";
   protected String _strScriptsFolder = "";
+  protected String strDBHost = "";
+  protected   String strDBUser = "";
+  protected   String strDBPassword = "";
+  protected   String strDBType = null;
+  protected   String strDBDriver = null;
+
+  public String getStrDBType() {
+    return strDBType;
+  }
 
   /**
    * Build a parser whose input source is the specified URI
    *
    * @param spec URI of the XML plot specification source
-   * @param con  Optional database connection to use in absense of plot_spec &lt;connection&gt;
    */
-  public MVPlotJobParser(String spec, Connection con) throws Exception {
+  public MVPlotJobParser(String spec) throws Exception {
     super();
-    _con = con;
     DocumentBuilder builder = getDocumentBuilder();
     //  parse the input document and build the MVNode data structure
     _doc = builder.parse(spec);
@@ -172,19 +179,15 @@ public class MVPlotJobParser extends MVUtil {
     parsePlotJobSpec();
   }
 
-  public MVPlotJobParser(String spec) throws Exception {
-    this(spec, null);
-  }
+
 
   /**
    * Build a parser whose input source is the specified InputStream
    *
    * @param in  Stream from which the plot specification will be drawn
-   * @param con Database connection for the plot data
    */
-  public MVPlotJobParser(InputStream in, Connection con) throws Exception {
+  public MVPlotJobParser(InputStream in,  String currentDBName) throws Exception {
     super();
-    _con = con;
     DocumentBuilder builder = getDocumentBuilder();
 
     //  parse the input document and build the MVNode data structure
@@ -198,9 +201,8 @@ public class MVPlotJobParser extends MVUtil {
    *
    * @param node plot_spec MVNode to parse
    */
-  public MVPlotJobParser(MVNode node, Connection con) throws Exception {
+  public MVPlotJobParser(MVNode node) throws Exception {
     super();
-    _con = con;
     _nodePlotSpec = node;
     parsePlotJobSpec();
   }
@@ -251,37 +253,6 @@ public class MVPlotJobParser extends MVUtil {
     return "";
   }
 
-  /**
-   * Build a list of String date representations, specified by the information in the input &lt;date_list&gt; node.  The input database connection is used to
-   * query for all dates of the specified field between the start and end date.
-   *
-   * @param nodeDateList XML plot specification node specifying the date list
-   * @param con          Database connection to query against
-   * @return List of String representations of specified dates
-   */
-  public static String[] parseDateList(MVNode nodeDateList, Connection con) {
-    String strField = "";
-    String strStart = "";
-    String strEnd = "";
-    String strHour = "";
-
-    for (int i = 0; i < nodeDateList._children.length; i++) {
-      MVNode nodeChild = nodeDateList._children[i];
-      if (nodeChild._tag.equals("field")) {
-        strField = nodeChild._name;
-      } else if (nodeChild._tag.equals("hour")) {
-        strHour = nodeChild._value;
-      } else if (nodeChild._tag.equals("start")) {
-        strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
-      } else if (nodeChild._tag.equals("end")) {
-        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
-      } else if (nodeChild._tag.equals("val")) {
-        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0]) : nodeChild._value);
-      }
-    }
-
-    return buildDateAggList(con, strField, strStart, strEnd, strHour);
-  }
 
   /**
    * Form a SQL between clause using the information in the input &lt;date_range&gt; node.
@@ -292,7 +263,7 @@ public class MVPlotJobParser extends MVUtil {
   public static String parseDateRange(MVNode nodeDateRange) {
     String strStart = "";
     String strEnd = "";
-    SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+    SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
                    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
     String strFormat = formatDB.toPattern();
     for (int j = 0; j < nodeDateRange._children.length; j++) {
@@ -316,9 +287,9 @@ public class MVPlotJobParser extends MVUtil {
    */
   public static String[][] parseIndyNode(MVNode node, String dep) {
     int intIndyNum = node._children.length;
-    ArrayList listIndyVal = new ArrayList();
-    ArrayList listIndyLabel = new ArrayList();
-    ArrayList listIndyPlotVal = new ArrayList();
+    List<String> listIndyVal = new ArrayList<>();
+    List<String> listIndyLabel = new ArrayList<>();
+    List<String> listIndyPlotVal = new ArrayList<>();
     for (int j = 0; j < intIndyNum; j++) {
       MVNode nodeIndyVal = node._children[j];
 
@@ -340,7 +311,7 @@ public class MVPlotJobParser extends MVUtil {
         String strStart = "";
         String strEnd = "";
         int intInc = 0;
-        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+        SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
                        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         String strFormat = formatDB.toPattern();
 
@@ -359,33 +330,31 @@ public class MVPlotJobParser extends MVUtil {
 
         SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat, Locale.US);
         formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String[] listDates = buildDateList(strStart, strEnd, intInc, formatDB.toPattern());
-        String[] listLabels = new String[listDates.length];
-        for (int k = 0; k < listDates.length; k++) {
+        List<String> listDates = buildDateList(strStart, strEnd, intInc, formatDB.toPattern(), System.out);
+        List<String> listLabels = new ArrayList<>();
+        for (String listDate : listDates) {
           try {
-            listLabels[k] = formatLabel.format(formatDB.parse(listDates[k]));
+            listLabels.add(formatLabel.format(formatDB.parse(listDate)));
           } catch (Exception e) {
           }
         }
 
-        listIndyVal.addAll(Arrays.asList(listDates));
-        listIndyLabel.addAll(Arrays.asList(listLabels));
+        listIndyVal.addAll(listDates);
+        listIndyLabel.addAll(listLabels);
       }
     }
 
     return new String[][]{toArray(listIndyVal), toArray(listIndyLabel), toArray(listIndyPlotVal)};
   }
 
-  public static StringBuilder serializeJob(MVPlotJob job) {
+  public static StringBuilder serializeJob(MVPlotJob job, DatabaseInfo databaseInfo) {
 
     //  database information
     StringBuilder strXML = new StringBuilder(
       "<plot_spec>" +
         "<connection>" +
-        "<management_system>" + job.getDBManagementSystem() + "</management_system>" +
-        "<driver>" + job.getDBDriver() + "</driver>" +
-        "<host>" + job.getDBHost() + "</host>" +
-        "<database>" + job.getDBName() + "</database>" +
+        "<host>" + databaseInfo.getHost() + "</host>" +
+        "<database>" + job.getCurrentDBName() + "</database>" +
         "<user>" + "******" + "</user>" +
         "<password>" + "******" + "</password>" +
         "</connection>" +
@@ -541,6 +510,7 @@ public class MVPlotJobParser extends MVUtil {
           "<agg_ssvar>" + (job.getAggSsvar() ? "TRUE" : "FALSE") + "</agg_ssvar>" +
           "<agg_vl1l2>" + (job.getAggVl1l2() ? "TRUE" : "FALSE") + "</agg_vl1l2>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
+          "<boot_random_seed>" + job.getAggBootRandomSeed() + "</boot_random_seed>" +
           "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
           "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
           "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE") + "</cache_agg_stat>" +
@@ -747,12 +717,7 @@ public class MVPlotJobParser extends MVUtil {
 
   protected void parsePlotJobSpec() throws Exception {
     ArrayList listJobs = new ArrayList();
-    String strDBHost = "";
     String strDBName = "";
-    String strDBUser = "";
-    String strDBPassword = "";
-    String strDBType = null;
-    String strDBDriver = null;
 
     for (int i = 0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++) {
       MVNode node = _nodePlotSpec._children[i];
@@ -775,11 +740,7 @@ public class MVPlotJobParser extends MVUtil {
           }
         }
 
-        if (_con == null) {
-          //batch mode
-          Datasource datasource = Datasource.getInstance(strDBType, strDBDriver, strDBHost, strDBUser, strDBPassword);
-          _con = datasource.getConnection(strDBType, strDBDriver, strDBHost, strDBName, strDBUser, strDBPassword);
-        }
+
 
       }
 
@@ -807,12 +768,8 @@ public class MVPlotJobParser extends MVUtil {
 
       //  <date_list>
       else if (node._tag.equals("date_list")) {
-        /*
-        String strName = node._name;
-				String[] listDates = parseDateList(node, _con);
-				_tableDateListDecl.put(strName, listDates);
-				*/
-        _tableDateListDecl.put(node._name, buildDateList(node));
+
+        _tableDateListDecl.put(node._name, buildDateList(node, System.out));
       }
 
       //  <date_range>
@@ -828,7 +785,7 @@ public class MVPlotJobParser extends MVUtil {
         String strRangeEnd = "";
         int intRangeLength = -1;
         int intInc = -1;
-        SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
+        SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
                        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         String strFormat = formatDB.toPattern();
         for (int l = 0; l < node._children.length; l++) {
@@ -868,10 +825,6 @@ public class MVPlotJobParser extends MVUtil {
       //  <plot>
       else if (node._tag.equals("plot")) {
 
-        //  make sure the database connection has been established
-        if (_con == null) {
-          throw new Exception("database connection missing for plot " + node._name);
-        }
 
         //  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs
         _tablePlotNode.put(node._name, node);
@@ -897,14 +850,8 @@ public class MVPlotJobParser extends MVUtil {
         }
 
         //  set the job database information
-        job.setConnection(_con);
         job.setRscript(_strRscript);
-        job.setDBManagementSystem(strDBType);
-        job.setDBDriver(strDBDriver);
-        job.setDBHost(strDBHost);
-        job.setDBName(strDBName);
-        job.setDBUser(strDBUser);
-        job.setDBPassword(strDBPassword);
+        job.setCurrentDBName(strDBName);
 
         //  check the job and add it to the jobs table and to the runnable jobs, if appropriate
         _tablePlotDecl.put(node._name, job);
@@ -1386,6 +1333,8 @@ public class MVPlotJobParser extends MVUtil {
             job.setAggVl1l2(val);
           } else if (nodeAggStat._tag.equals("boot_repl")) {
             job.setAggBootRepl(nodeAggStat._value);
+          } else if (nodeAggStat._tag.equals("boot_random_seed")) {
+            job.setAggBootRandomSeed(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_ci")) {
             job.setAggBootCI(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("eveq_dis")) {
@@ -1501,12 +1450,12 @@ public class MVPlotJobParser extends MVUtil {
       }
     }
     //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
-    for (String stat : _tableModeSingleStatField.getKeyList()) {
+    for (String stat : modeSingleStatField.keySet()) {
       if (node._value.indexOf(stat) > 0) {
         throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
       }
     }
-    for (String stat : _tableModePairStatField.getKeyList()) {
+    for (String stat : modePairStatField.keySet()) {
       if (node._value.indexOf(stat) > 0) {
         throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
       }
@@ -1561,4 +1510,13 @@ public class MVPlotJobParser extends MVUtil {
        }
     return result;
   }
+  public DatabaseInfo getDatabaseInfo(){
+    DatabaseInfo databaseInfo = null;
+    if(strDBHost != null  && strDBUser != null && strDBPassword != null){
+      databaseInfo = new DatabaseInfo(  strDBHost, strDBUser, strDBPassword);
+    }
+    return databaseInfo;
+  }
+
+
 }

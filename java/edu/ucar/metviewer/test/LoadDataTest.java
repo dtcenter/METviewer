@@ -5,8 +5,9 @@
 
 package edu.ucar.metviewer.test;
 
-import edu.ucar.metviewer.Datasource;
 import edu.ucar.metviewer.MVLoad;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.test.util.ScriptRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class LoadDataTest {
 
 
   private static final Map<String, Integer> TABLES_TO_ROWS = new HashMap<>();
-  private static Datasource datasource;
+  private static  MysqlDatabaseManager mysqlDatabaseManager;;
 
   @Before
   public void init() {
@@ -77,12 +78,13 @@ public class LoadDataTest {
     TABLES_TO_ROWS.put("stat_header", 6097);
     TABLES_TO_ROWS.put("line_data_enscnt", 1276);
     // recreate database
-    datasource = Datasource.getInstance(type, driver, host, USERNAME, PWD);
+
     Reader reader = null;
     Connection con = null;
     Statement statement = null;
     try {
-      con = datasource.getConnection();
+      mysqlDatabaseManager = new MysqlDatabaseManager(new DatabaseInfo( host, USERNAME, PWD));
+      con = mysqlDatabaseManager.getConnection();
       statement = con.createStatement();
       statement.executeUpdate("drop database " + database);
       statement.executeUpdate("create database " + database);
@@ -127,7 +129,7 @@ public class LoadDataTest {
     Connection con = null;
 
     try {
-      con = datasource.getConnection(database);
+      con = mysqlDatabaseManager.getConnection(database);
       for (Map.Entry<String, Integer> entry : TABLES_TO_ROWS.entrySet()) {
         Integer rows = getNumberOfRows(con, entry.getKey());
         assertEquals("Number of rows in table " + entry.getKey() + " should be " + entry.getValue() + " but it is not", entry.getValue(), rows);

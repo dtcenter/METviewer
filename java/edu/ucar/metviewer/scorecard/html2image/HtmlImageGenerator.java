@@ -5,7 +5,8 @@
 
 package edu.ucar.metviewer.scorecard.html2image;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,12 +21,11 @@ import java.io.IOException;
  */
 public class HtmlImageGenerator {
 
-  private static final Logger logger = Logger.getLogger(HtmlImageGenerator.class);
-  public static final String TEXT_HTML = "text/html";
+  private static final Logger logger = LogManager.getLogger("HtmlImageGenerator");
+  private static final String TEXT_HTML = "text/html";
 
-  private JEditorPane editorPane;
+  private final JEditorPane editorPane;
   private static final Dimension DEFAULT_SIZE = new Dimension(800, 800);
-  private static final Insets DEFAULT_INSETS = new Insets(0, 0, 20, 55);
 
   public HtmlImageGenerator() {
     editorPane = new JEditorPane();
@@ -33,7 +33,6 @@ public class HtmlImageGenerator {
     editorPane.setEditable(false);
     editorPane.setEditorKitForContentType(TEXT_HTML, new SynchronousHTMLEditorKit());
     editorPane.setContentType(TEXT_HTML);
-    //editorPane.setMargin(DEFAULT_INSETS);
     editorPane.putClientProperty(JEditorPane.W3C_LENGTH_UNITS, Boolean.FALSE);
     editorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
     editorPane.setOpaque(true);
@@ -49,7 +48,7 @@ public class HtmlImageGenerator {
     saveAsImage(new File(file));
   }
 
-  public void saveAsImage(File file) {
+  private void saveAsImage(File file) {
     final String formatName = FormatNameUtil.formatForFilename(file.getName());
 
     BufferedImage image = getInBufferedImage();
@@ -81,7 +80,7 @@ public class HtmlImageGenerator {
   }
 
 
-  public BufferedImage getInBufferedImage() {
+  private BufferedImage getInBufferedImage() {
     Dimension prefSize = editorPane.getPreferredSize();
     editorPane.setSize(prefSize);
     BufferedImage img = new BufferedImage(prefSize.width, prefSize.height, BufferedImage.TYPE_INT_ARGB);

@@ -9,7 +9,8 @@ import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,23 +23,23 @@ import java.util.Map;
  */
 public abstract class RscriptManager {
 
-  private static final Logger logger = Logger.getLogger(RscriptManager.class);
-  protected final Map<String, List<Entry>> listColumns;
-  protected final List<Field> fixedVars;
-  protected final String rScriptCommand;
-  protected String indyVar;
-  protected StringBuilder indyList;
-  protected StringBuilder seriesList;
-  protected StringBuilder seriesDiffList;
-  protected List<Entry> models;
-  protected StringBuilder diffVals;
-  protected String fcstVar;
-  protected List<String> diffSeries;
-  protected StringBuilder fixVars;
-  protected String stat;
+  private static final Logger logger = LogManager.getLogger("RscriptManager");
+  final Map<String, List<Entry>> listColumns;
+  final List<Field> fixedVars;
+  final String rScriptCommand;
+  String indyVar;
+  StringBuilder indyList;
+  StringBuilder seriesList;
+  StringBuilder seriesDiffList;
+  List<Entry> models;
+  private StringBuilder diffVals;
+  String fcstVar;
+  private List<String> diffSeries;
+  private StringBuilder fixVars;
+  String stat;
 
 
-  public RscriptManager(final Scorecard scorecard) {
+  RscriptManager(final Scorecard scorecard) {
     this.listColumns = scorecard.columnsStructure();
     fixedVars = scorecard.getFixedVars();
     rScriptCommand = scorecard.getrScriptCommand();
@@ -49,7 +50,7 @@ public abstract class RscriptManager {
   /**
    * Creates a list of comparing models
    */
-  protected void initModels() {
+  void initModels() {
     for (Field fixedField : fixedVars) {
       if ("model".equals(fixedField.getName())) {
         models = fixedField.getValues();
@@ -58,7 +59,7 @@ public abstract class RscriptManager {
     }
   }
 
-  protected void init(Map<String, Entry> mapRow) {
+  void init(Map<String, Entry> mapRow) {
     stat = Util.getStatForRow(mapRow);
 
     for (Map.Entry<String, Entry> entry : mapRow.entrySet()) {
@@ -135,7 +136,7 @@ public abstract class RscriptManager {
     seriesDiffList.append(")");
   }
 
-  protected void clean() {
+  void clean() {
     indyVar = "";
     indyList = new StringBuilder();
     seriesList = new StringBuilder("list(");

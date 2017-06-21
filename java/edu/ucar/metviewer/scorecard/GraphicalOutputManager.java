@@ -16,7 +16,8 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.LegendRange;
 import j2html.tags.ContainerTag;
 import j2html.tags.UnescapedText;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -29,12 +30,12 @@ import static j2html.TagCreator.*;
  * @author : tatiana $
  * @version : 1.0 : 19/12/16 15:23 $
  */
-public class GraphicalOutputManager {
+class GraphicalOutputManager {
 
-  public static final String WHITE_FFFFFF = "#FFFFFF";
-  public static final String BLACK_000000 = "#000000";
+  private static final String WHITE_FFFFFF = "#FFFFFF";
+  private static final String BLACK_000000 = "#000000";
 
-  private static final Logger logger = Logger.getLogger(GraphicalOutputManager.class);
+  private static final Logger logger = LogManager.getLogger("GraphicalOutputManager");
   private static final String CSS = "table {border-collapse: collapse;border-spacing: 0;}" +
     "table, th, td {border: 1px solid black;text-align:center;}" +
     "th {color: red;}" +

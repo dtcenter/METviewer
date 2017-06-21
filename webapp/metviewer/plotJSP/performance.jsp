@@ -462,17 +462,27 @@
                   </select>
                 </td>
 
-                    <td style="text-align:right;"><input type="text" value="1"
-                                                         size="4"
-                                                         id="boot_repl"></td>
-                    <td><label for="boot_repl">Bootstrapping
-                        replications</label></td>
+                  <td style="text-align:right;"><input type="text" value="1"
+                                                       size="4"
+                                                       id="boot_repl"></td>
+                  <td><label for="boot_repl">Bootstrapping
+                    replications</label></td>
                 </tr>
-                <tr>
-                    <td>&nbsp;</td>
+              <tr>
+                <td>&nbsp;</td>
 
-                    <td style="text-align:right;"><select id="boot_ci">
-                        <option selected value="perc">perc</option>
+
+                <td style="text-align:right;"><input type="text" value=""
+                                                     size="4"
+                                                     id="boot_random_seed"></td>
+                <td><label for="boot_random_seed">Bootstrapping
+                  seed</label></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+
+                <td style="text-align:right;"><select id="boot_ci">
+                  <option selected value="perc">perc</option>
                         <option value="norm">norm</option>
                         <option value="basic">basic</option>
                         <option value="stud">stud</option>

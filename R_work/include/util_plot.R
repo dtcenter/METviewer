@@ -146,7 +146,8 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
 
   #add independent variable if needed
   if(boolEqualizeByIndep && strIndyVar!= "" && strIndyVar != "fcst_valid_beg" && strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid'){
-    listVarsForEE[[strIndyVar]] = listIndyVal;
+    equalize_by = paste(dfStats$equalize,  dfStats[[strIndyVar]]);
+    dfStats$equalize = equalize_by;
   }
 
   #add fixed variables if present
@@ -218,6 +219,10 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
   if( nrow(dfStatsEq) != nrow(dfStats) ){
     cat("\n    WARNING: event equalization removed ", (nrow(dfStats) - nrow(dfStatsEq)), " rows\n", sep="");
   }
+  #convert date back to string
+  if( "fcst_valid_beg" %in% names(dfStatsEq) ){
+    dfStatsEq$fcst_valid_beg =  format(dfStatsEq$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
+  }
 
   return( dfStatsEq );
 }
@@ -259,6 +264,11 @@ eventEqualizeAgainstValues = function(dfStats, strIndyVar,   eeStatsEqualize){
     cat("\n    WARNING: event equalization removed ", (nrow(dfStats) - intEqRow), " rows", sep="");
   }
   dfStatsEq$equalize = NULL;
+
+  #convert date back to string
+  if( "fcst_valid_beg" %in% names(dfStatsEq) ){
+    dfStatsEq$fcst_valid_beg =  format(dfStatsEq$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
+  }
   return( dfStatsEq );
 }
 

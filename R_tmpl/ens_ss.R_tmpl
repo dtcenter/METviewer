@@ -43,7 +43,7 @@ dblY2Min = Inf;     dblY2Max = -Inf;
 listLegend = c();
 
 # build the skill curve for each series
-listSeries = list();
+series = list();
 for(intPermVal in 1:nrow(matPermVal)){
   listPermVal = matPermVal[intPermVal,];
   listLegendY1 = c(); listLegendY2 = c();
@@ -51,7 +51,7 @@ for(intPermVal in 1:nrow(matPermVal)){
   dfPerm = dfData;
   for(intVar in 1:length(listSeriesVar)){
     valPerm = listPermVal[intVar];
-    if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+    if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
     dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
   }
   listPermValStr = paste(listPermVal,collapse = '_');
@@ -115,9 +115,9 @@ for(intPermVal in 1:nrow(matPermVal)){
     }
 
 
-    listSeries[[paste(listPermValStr,"_var",sep="")]] = listVar;
-    listSeries[[paste(listPermValStr,"_mse",sep="")]] = listMse;
-    listSeries[[paste(listPermValStr,"_pts",sep="")]] = listPts;
+    series[[paste(listPermValStr,"_var",sep="")]] = listVar;
+    series[[paste(listPermValStr,"_mse",sep="")]] = listMse;
+    series[[paste(listPermValStr,"_pts",sep="")]] = listPts;
 
     # store series information
     dblMin = min(listVar); if( dblMin < dblXMin  ){ dblXMin  = dblMin; }
@@ -350,8 +350,8 @@ axis(
     intLwd		= listLwd[intFormatIndex];
 
     # get the lists of y2-series points
-    listX    = listSeries[[paste(listPermValStr,"_var",sep="")]];
-    listData = listSeries[[paste(listPermValStr,"_pts",sep="")]];
+    listX    = series[[paste(listPermValStr,"_var",sep="")]];
+    listData = series[[paste(listPermValStr,"_pts",sep="")]];
 
     # plot the series line
     lines(
@@ -409,8 +409,8 @@ for(intPermVal in 1:nrow(matPermVal)){
   intLwd		= listLwd[intFormatIndex];
 
   # get the lists of y2-series points
-  listX    = listSeries[[paste(listPermValStr,"_var",sep="")]];
-  listData = listSeries[[paste(listPermValStr,"_mse",sep="")]];
+  listX    = series[[paste(listPermValStr,"_var",sep="")]];
+  listData = series[[paste(listPermValStr,"_mse",sep="")]];
 
   # plot the series line
   lines(

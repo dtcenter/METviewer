@@ -6,6 +6,8 @@
 package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.MVServlet;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,11 +101,9 @@ public class CreatePlotServletTest {
       MVServlet._strRWork = RWORK_DIR;
       MVServlet._strPlots = PLOTS_DIR;
       MVServlet._strRscript = rscript;
-      MVServlet._strDBHost = host;
-      MVServlet._strDBUser = USERNAME;
-      MVServlet._strDBPassword = PWD;
       MVServlet._boolListValCache = true;
       MVServlet._boolListStatCache = true;
+      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo( host, USERNAME, PWD));
 
       new MVServlet().doPost(request, response);
 

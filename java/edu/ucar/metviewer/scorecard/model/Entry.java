@@ -35,17 +35,6 @@ public class Entry {
 
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) return true;
-    if (!(obj instanceof Entry)) {
-      return false;
-    }
-
-    Entry entry = (Entry) obj;
-    return entry.name.equals(name);
-  }
-
-  @Override
   public String toString() {
     return "Entry{" +
       "name='" + name + '\'' +

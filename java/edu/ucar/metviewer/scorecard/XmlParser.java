@@ -8,7 +8,8 @@ package edu.ucar.metviewer.scorecard;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -24,9 +25,9 @@ import java.util.List;
  * @author : tatiana $
  * @version : 1.0 : 19/12/16 15:13 $
  */
-public class XmlParser {
+class XmlParser {
 
-  private static final Logger logger = Logger.getLogger(XmlParser.class);
+  private static final Logger logger = LogManager.getLogger("XmlParser");
 
 
   public Scorecard parseParameters(String filename) {
@@ -86,6 +87,8 @@ public class XmlParser {
           } catch (NumberFormatException e) {
             logger.error("Incorrect value for <boot_random_seed> :" + plotNode.getTextContent() + ". Using default value NULL");
           }
+        } else if ("plot_stat".equals(plotNode.getNodeName())) {
+          scorecard.setPlotStat(plotNode.getTextContent());
         } else if ("tmpl".equals(plotNode.getNodeName())) {
           setTmpl(scorecard, plotNode);
         } else if ("view_value".equals(plotNode.getNodeName())) {
@@ -108,6 +111,12 @@ public class XmlParser {
           }
         } else if ("stat_flag".equals(plotNode.getNodeName())) {
           scorecard.setStatFlag(plotNode.getTextContent());
+        } else if ("printSQL".equals(plotNode.getNodeName())) {
+          if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
+            scorecard.setPrintSQL(Boolean.TRUE);
+          } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+            scorecard.setPrintSQL(Boolean.FALSE);
+          }
         }
 
       }

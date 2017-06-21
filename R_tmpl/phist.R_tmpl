@@ -43,7 +43,7 @@ if(length(listSeries1Val) > 0){
   intSeriesIndex=0;
 
 
-  listSeries = list();
+  series = list();
   listX = unique(dfPlot$i_value);
   suffixesInd=1;
   for(intPermVal in 1:nrow(matPermVal)){
@@ -53,7 +53,7 @@ if(length(listSeries1Val) > 0){
     dfPerm = dfPlot;
     for(intVar in 1:length(listSeriesVar)){
       valPerm = listPermVal[intVar];
-      if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+      if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
       dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
       seriesLegend = paste(seriesLegend,valPerm);
     }
