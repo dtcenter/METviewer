@@ -9,17 +9,17 @@ import java.util.ArrayList;
 public class MVNode {
 
   protected Node _node = null;
-  protected String _tag = "";
-  protected String _name = "";
+  public String _tag = "";
+  public String _name = "";
   protected String _label = "";
   protected String _inherits = "";
   protected String _id = "";
   protected String _run = "";
   protected String _depends = "";
   protected String _plotVal = "";
-  protected String _value = "";
+  public String _value = "";
   protected String _equalize = "";
-  protected MVNode[] _children = {};
+  public MVNode[] _children = {};
 
   public MVNode(Node node) {
     _node = node;

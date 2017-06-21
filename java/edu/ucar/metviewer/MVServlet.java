@@ -1,15 +1,16 @@
 package edu.ucar.metviewer;
 
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -25,10 +26,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -43,22 +40,19 @@ public class MVServlet extends HttpServlet {
   protected static final Map<String, String> _tableListValCache = new HashMap<>();
   protected static final Map<String, String> _tableListStatCache = new HashMap<>();
   private static final long serialVersionUID = 1L;
-  private static final Logger _logger = Logger.getLogger("edu.ucar.metviewer.MVServlet");
+  private static final Logger _logger = LogManager.getLogger("MVServlet");
   private static final FilenameFilter PNG_FILTER = new FilenameFilter() {
+    @Override
     public boolean accept(File dir, String name) {
       return name.toLowerCase(Locale.ENGLISH).endsWith(".png");
     }
   };
   private static final FilenameFilter XML_FILTER = new FilenameFilter() {
+    @Override
     public boolean accept(File dir, String name) {
       return name.toLowerCase(Locale.ENGLISH).endsWith(".xml");
     }
   };
-  public static String _strDBHost = "";
-  public static String _strDBUser = "";
-  public static String _strDBPassword = "";
-  public static String _strDBManagementSystem = "";
-  public static String _strDBDriver = "";
   public static String _strPlotXML = "";
   public static String _strRTmpl = "";
   public static String _strRWork = "";
@@ -70,19 +64,19 @@ public class MVServlet extends HttpServlet {
   public static String _strScripts = "";
   public static boolean _boolListValCache = false;
   public static boolean _boolListStatCache = false;
+  public static AppDatabaseManager databaseManager;
 
   /**
    * Clear cached <list_val> values for the input database
    *
-   * @param con
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleClearListValCache(Connection con) throws Exception {
+  public static String handleClearListValCache() throws Exception {
     if (!_boolListValCache) {
       return "<error>list_val caching not activated</error>";
     }
-    String strKeyPrefix = "<db>" + con.getMetaData().getURL() + "</db>";
+    String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
     int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
     return "<list_val_clear_cache>success: removed " + intNumRemoved + " entries</list_val_clear_cache>";
   }
@@ -90,18 +84,17 @@ public class MVServlet extends HttpServlet {
   /**
    * Dump out all the keys of the list_val cache to the log file.
    *
-   * @param con
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListValCacheKeys(Connection con) throws Exception {
+  public static String handleListValCacheKeys() throws Exception {
     if (!_boolListValCache) {
       return "<error>list_val caching not activated</error>";
     }
-    String strKeyPrefix = "<db>" + con.getMetaData().getURL() + "</db>";
+    String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
     String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
     String strXML = "";
-    String strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
+    String strMsg = "db url: " + databaseManager.getDatabaseInfo().getHost() + "  # keys: " + listKeys.length + "\n";
     for (String listKey : listKeys) {
       strMsg += "  " + listKey + "\n";
       strXML += "<key>" + listKey + "</key>";
@@ -113,15 +106,14 @@ public class MVServlet extends HttpServlet {
   /**
    * Clear cached <list_stat> values for the input database
    *
-   * @param con
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleClearListStatCache(Connection con) throws Exception {
+  public static String handleClearListStatCache() throws Exception {
     if (!_boolListStatCache) {
       return "<error>caching list_stat caching not activated</error>";
     }
-    String strKeyPrefix = "<db>" + con.getMetaData().getURL() + "</db>";
+    String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
     int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
     return "<list_stat_clear_cache>success: removed " + intNumRemoved + " entries</list_stat_clear_cache>";
   }
@@ -129,18 +121,17 @@ public class MVServlet extends HttpServlet {
   /**
    * Dump out all the keys of the list_stat cache to the log file.
    *
-   * @param con
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListStatCacheKeys(Connection con) throws Exception {
+  public static String handleListStatCacheKeys() throws Exception {
     if (!_boolListStatCache) {
       return "<error>list_stat caching not activated</error>";
     }
-    String strKeyPrefix = "<db>" + con.getMetaData().getURL() + "</db>";
+    String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
     String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
     String strXML = "";
-    String strMsg = "db url: " + con.getMetaData().getURL() + "  # keys: " + listKeys.length + "\n";
+    String strMsg = "db url: " + databaseManager.getDatabaseInfo().getHost() + "  # keys: " + listKeys.length + "\n";
     for (String listKey : listKeys) {
       strMsg += "  " + listKey + "\n";
       strXML += "<key>" + listKey + "</key>";
@@ -194,252 +185,67 @@ public class MVServlet extends HttpServlet {
    *
    * @param nodeCall    MVNode containing request information
    * @param requestBody the XML sent by the client which is used to cache the response
-   * @param con         Database connection to search against
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListVal(MVNode nodeCall, String requestBody, Connection con) throws Exception {
+  public static String handleListVal(MVNode nodeCall, String requestBody, String currentDBName) throws Exception {
     //  parse the input request, and initialize the response
     StringBuilder strResp = new StringBuilder("<list_val>");
     String strId = nodeCall._children[0]._value;
-    String strHeaderField = nodeCall._children[1]._value;
-    boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
-    boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
-    boolean boolPhist = nodeCall._children[1]._tag.equals("phist_field");
-    boolean boolROC = nodeCall._children[1]._tag.equals("roc_field");
-    boolean boolRely = nodeCall._children[1]._tag.equals("rely_field");
-    boolean boolEnsSS = nodeCall._children[1]._tag.equals("ensss_field");
-    boolean boolPerf = nodeCall._children[1]._tag.equals("perf_field");
-    boolean boolTaylor = nodeCall._children[1]._tag.equals("taylor_field");
-    String strHeaderTable = boolMode ? "mode_header" : "stat_header";
-    _logger.debug("handleListVal() - listing values for field " + strHeaderField + " and id " + strId);
+
     strResp.append("<id>").append(strId).append("</id>");
 
     //  check the list val cache for the request data
-    String strCacheKey = "<db>" + con.getMetaData().getURL() + "</db>" +
+    String strCacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>" +
       requestBody.replaceAll("<id>\\d+</id>", "").replaceAll("<date>\\d+</date>", "");
     if (_boolListValCache && _tableListValCache.containsKey(strCacheKey)) {
-      String strListVal = _tableListValCache.get(strCacheKey).toString().replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
-      _logger.debug("handleListVal() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListVal);
-      return strListVal;
+      return _tableListValCache.get(strCacheKey).replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
     }
+    String strField = nodeCall._children[1]._value.toLowerCase(Locale.ENGLISH);
 
-    //  determine if the requested field is n_rank and format accordingly
-    String strField = strHeaderField.toLowerCase(Locale.ENGLISH);
-    boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
-    boolean boolNBin = strField.equalsIgnoreCase("N_BIN");
-
-    //  parse the fcst_var/stat constraint to build a list of line_data tables and fcst_var values
-    Map<String, String> tableFcstVarStat = new HashMap<>();
-    Map<String, String> tableLineDataTables = new HashMap<>();
-    boolean boolFcstVar = false;
-    if (boolRhist) {
-      tableLineDataTables.put("line_data_rhist", "true");
-    } else if (boolPhist) {
-      tableLineDataTables.put("line_data_phist", "true");
-    } else if (boolROC) {
-      tableLineDataTables.put("line_data_pct", "true");
-      tableLineDataTables.put("line_data_ctc", "true");
-    } else if (boolRely) {
-      tableLineDataTables.put("line_data_pct", "true");
-    } else if (boolEnsSS) {
-      tableLineDataTables.put("line_data_ssvar", "true");
-    } else if (boolPerf) {
-      tableLineDataTables.put("line_data_cts", "true");
-    } else if (boolTaylor) {
-      tableLineDataTables.put("line_data_sl1l2", "true");
-    } else if (2 < nodeCall._children.length) {
-      boolFcstVar = true;
-      MVNode nodeFcstVarStat = nodeCall._children[2];
-      for (int i = 0; i < nodeFcstVarStat._children.length; i++) {
-        MVNode nodeFcstVar = nodeFcstVarStat._children[i];
-        tableFcstVarStat.put(nodeFcstVar._name, "true");
-        for (int j = 0; j < nodeFcstVar._children.length; j++) {
-          String strStat = nodeFcstVar._children[j]._value;
-          String strLineDataTable = MVUtil.getStatTable(strStat);
-          tableLineDataTables.put(strLineDataTable, "true");
-          if (strLineDataTable.equals("line_data_cnt")) {
-            tableLineDataTables.put("line_data_sl1l2", "true");
-            tableLineDataTables.put("line_data_sal1l2", "true");
-          } else if (strLineDataTable.equals("line_data_cts")) {
-            tableLineDataTables.put("line_data_ctc", "true");
-          }
-        }
-      }
+    List<String> listRes = databaseManager.getListValues(nodeCall, strField, currentDBName);
+    String[] listVal = listRes.toArray(new String[]{});
+    PrintStream printStream = IoBuilder.forLogger(MVServlet.class)
+                                                         .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                         .buildPrintStream();
+    //  sort and format the results, depending on the field
+    if (strField.equals("fcst_thresh") || strField.equals("fcst_thr") ||
+      strField.equals("obs_thresh") || strField.equals("obs_thr")) {
+      listVal = MVUtil.sortThresh(listVal, printStream);
+    } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
+      listVal = MVUtil.sortLev(listVal,printStream);
+    } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
+      listVal = MVUtil.sortFormatLead(listVal, true, false);
+    } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
+      listVal = MVUtil.sortHour(listVal, true);
+    } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals("obs_valid")) {
+      listVal = MVUtil.formatDates(listVal);
     }
+    printStream.close();
 
-    //  build a list of the line_data tables for all the stats
-    String[] listTables =  tableLineDataTables.keySet().toArray(new String[]{});
+    //  add the list of field values to the response
+    HashMap<String, String> tabProb = new HashMap<>();
+    for (String aListVal : listVal) {
 
-    //  build the where clause for the fcst_var values, if present
-    String strWhere = "";
-    if (boolFcstVar) {
-      String strFcstVarList = "";
-      String[] listFcstVar =  tableFcstVarStat.keySet().toArray(new String[]{});
-      boolean boolRegEx = false;
-      for (int i = 0; i < listFcstVar.length; i++) {
-        if (listFcstVar[i].contains("*")) {
-          boolRegEx = true;
-        }
-        if (listFcstVar[i].length() > 0 && !listFcstVar[i].equals("NA")) {
-          strFcstVarList += (0 < i ? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
-        }
-      }
-      if (strFcstVarList.length() > 0) {
-        strWhere += "WHERE h.fcst_var " + (boolRegEx ? "LIKE" : "IN") + " (" + strFcstVarList + ")";
-      }
-    }
+      //  add the database field value to the list
+      strResp.append("<val>").append(aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;")).append("</val>");
 
-    //  parse the list of constraints into a SQL where clause
-    String strWhereTime = "";
-    long intStart = 0;
-    for (int i = 2; i < nodeCall._children.length; i++) {
-      if (nodeCall._children[i]._tag.equals("stat")) {
+      //  if the database field value is probabilistic, add a wild card version
+      if (!strField.equals("fcst_var")) {
         continue;
       }
-
-      //  determine if the field should be used as criteria
-      MVNode nodeField = nodeCall._children[i];
-      String strFieldCrit = nodeField._name.toLowerCase(Locale.ENGLISH);
-      boolean boolTimeCritField = false;
-      boolean boolTimeCritCur = false;
-      if (strFieldCrit.contains("valid") || strFieldCrit.contains("init") || strFieldCrit.contains("lead")) {
-        boolTimeCritField = strField.equals(strFieldCrit) ||
-          (strField.contains("fcst_init") && strFieldCrit.equals("init_hour")) ||
-          (strField.contains("fcst_valid") && strFieldCrit.equals("valid_hour"));
-        boolTimeCritCur = true;
-      }
-      //  if so, build a where clause for the criteria
-      String strFieldDBCrit = MVUtil.formatField(strFieldCrit, boolMode, false);
-      if (strFieldDBCrit.contains("n_rank") || strFieldDBCrit.contains("n_bin")) {
-        continue;
-      }
-      String strSQLOp = "IN";
-      String strValList = "";
-      for (int j = 0; j < nodeField._children.length; j++) {
-        String strVal = nodeField._children[j]._value;
-        if (strVal.contains("*")) {
-          strSQLOp = "LIKE";
+      Matcher matProb = _patProbFcstVar.matcher(aListVal);
+      if (matProb.matches()) {
+        String strProbKey = matProb.group(1) + matProb.group(2);
+        String strProbFcstVar = "PROB(" + strProbKey + "*)";
+        if (!tabProb.containsKey(strProbKey)) {
+          strResp.append("<val>").append(strProbFcstVar).append("</val>");
+          tabProb.put(strProbKey, strProbFcstVar);
         }
-        strValList += (0 < j ? ", " : "") + "'" + strVal.replace("*", "%") + "'";
-      }
-
-      //  add the where clause to the criteria, if appropriate
-      if (boolTimeCritField) {
-        if (boolMode) {
-          strWhere += (strWhere.equals("") ? " WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
-        } else {
-          strWhereTime += (strWhereTime.equals("") ? " WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
-        }
-      } else if (!boolTimeCritCur) {
-        strWhere += (strWhere.equals("") ? "WHERE " : " AND ") + strFieldDBCrit + " " + strSQLOp + " (" + strValList + ")";
       }
     }
 
-    //  build a query for the values
-    String strSQL;
-    String strTmpTable = "";
-    if (boolNRank) {
-      strSQL = "SELECT DISTINCT ld.n_rank " +
-        "FROM stat_header h, line_data_rhist ld " +
-        strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
-        "ORDER BY n_rank;";
-    } else if (boolNBin) {
-      strSQL = "SELECT DISTINCT ld.n_bin " +
-        "FROM stat_header h, line_data_phist ld " +
-        strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
-        "ORDER BY ld.n_bin;";
-    } else if (!boolMode && (strField.equals("fcst_lead") || strField.contains("valid") || strField.contains("init"))) {
-      String strSelectField = MVUtil.formatField(strField, boolMode);
-      //  create a temp table for the list values from the different line_data tables
-      strTmpTable = "tmp_" + new Date().getTime();
-      try (Statement stmtTmp = con.createStatement();) {
-        String strTmpSQL = "CREATE TEMPORARY TABLE " + strTmpTable + " (" + strField + " TEXT);";
-        _logger.debug("handleListVal() - sql: " + strTmpSQL);
-        long intStartTmp = new Date().getTime();
-        stmtTmp.executeUpdate(strTmpSQL);
-        _logger.debug("handleListVal() - temp table " + strTmpTable + " query returned in " + MVUtil.formatTimeSpan(new Date().getTime() - intStartTmp));
-        //  add all distinct list field values to the temp table from each line_data table
-        for (int i = 0; i < listTables.length; i++) {
-          strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTables[i] + " ld" + strWhereTime;
-          _logger.debug("handleListVal() - sql: " + strTmpSQL);
-          if (0 == i) {
-            intStart = new Date().getTime();
-          }
-          stmtTmp.executeUpdate(strTmpSQL);
-        }
-      }
 
-      //  build a query to list all distinct, ordered values of the list field from the temp table
-      strSQL = "SELECT DISTINCT " + strField + " FROM " + strTmpTable + " ORDER BY " + strField + ";";
-    } else {
-      String strFieldDB = MVUtil.formatField(strField, boolMode).replaceAll("h\\.", "");
-      strWhere = strWhere.replaceAll("h\\.", "");
-      strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
-    }
-    //  execute the query
-    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery(strSQL)) {
-
-      _logger.debug("handleListVal() - sql: " + strSQL);
-      if (0 == intStart) {
-        intStart = new Date().getTime();
-      }
-
-      //  build a list of values from the query
-      int intNumVal = 0;
-      List<String> listRes = new ArrayList<>();
-
-      while (res.next()) {
-        listRes.add(res.getString(1));
-        intNumVal++;
-      }
-
-      _logger.debug("handleListVal() - returned " + intNumVal + " values in " + MVUtil.formatTimeSpan(new Date().getTime() - intStart));
-      String[] listVal = listRes.toArray(new String[]{});
-
-      //  drop the temp table, if present
-      if (!"".equals(strTmpTable)) {
-        stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
-      }
-
-      //  sort and format the results, depending on the field
-      if (strField.equals("fcst_thresh") || strField.equals("fcst_thr") ||
-        strField.equals("obs_thresh") || strField.equals("obs_thr")) {
-        listVal = MVUtil.sortThresh(listVal);
-      } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
-        listVal = MVUtil.sortLev(listVal);
-      } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
-        listVal = MVUtil.sortFormatLead(listVal, true, false);
-      } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
-        listVal = MVUtil.sortHour(listVal, true);
-      } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals("obs_valid")) {
-        listVal = MVUtil.formatDates(listVal);
-      }
-
-      //  add the list of field values to the response
-      HashMap<String, String> tabProb = new HashMap<>();
-      for (String aListVal : listVal) {
-
-        //  add the database field value to the list
-        strResp.append("<val>").append(aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;")).append("</val>");
-
-        //  if the database field value is probabilistic, add a wild card version
-        if (!strField.equals("fcst_var")) {
-          continue;
-        }
-        Matcher matProb = _patProbFcstVar.matcher(aListVal);
-        if (matProb.matches()) {
-          String strProbKey = matProb.group(1) + matProb.group(2);
-          String strProbFcstVar = "PROB(" + strProbKey + "*)";
-          if (!tabProb.containsKey(strProbKey)) {
-            strResp.append("<val>").append(strProbFcstVar).append("</val>");
-            tabProb.put(strProbKey, strProbFcstVar);
-          }
-        }
-      }
-
-    }
     strResp.append("</list_val>");
     _tableListValCache.put(strCacheKey, strResp.toString());
     return strResp.toString();
@@ -450,11 +256,10 @@ public class MVServlet extends HttpServlet {
    *
    * @param nodeCall    MVNode containing request information
    * @param requestBody the XML sent by the client which is used to cache the response
-   * @param con         Database connection to search against
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListStat(MVNode nodeCall, String requestBody, Connection con) throws Exception {
+  public static String handleListStat(MVNode nodeCall, String requestBody, String currentDBName) throws Exception {
     //  if the request is for the mode stats, return the static list
     String strId = nodeCall._children[0]._value;
     String strFcstVar = nodeCall._children[1]._value;
@@ -465,7 +270,7 @@ public class MVServlet extends HttpServlet {
     }
 
     //  check the list val cache for the request data
-    String strCacheKey = "<db>" + con.getMetaData().getURL() + "</db>" +
+    String strCacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>" +
       requestBody.replaceAll("<id>\\d+</id>", "").replaceAll("<date>\\d+</date>", "");
     if (_boolListStatCache) {
       _logger.debug("handleListStat() - checking cache for key " + strCacheKey + ": " + _tableListStatCache.containsKey(strCacheKey));
@@ -476,118 +281,22 @@ public class MVServlet extends HttpServlet {
       }
     }
 
-    //  build a query for the fcst_var stat counts
-    //this is a query for the local db
+    List<String> listStatName = databaseManager.getListStat(strFcstVar, currentDBName);
 
 
-    String strSQL = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n";
-    //  "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n";
-
-    //this is a query for the VSDB
-    /*String strSQL =
-         "(SELECT COUNT(*), 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-         "(SELECT COUNT(*), 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id) UNION " +
-         "(SELECT COUNT(*), 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id);";*/
-    _logger.debug("handleListStat() - gathering stat counts for fcst_var " + strFcstVar + "\n  sql: " + strSQL);
-    long intStart = new Date().getTime();
-    //  build a list of stat names using the stat ids returned by the query
     StringBuilder strResp = new StringBuilder("<list_stat><id>" + strId + "</id>");
-    List<String> listStatName = new ArrayList<>();
-    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery(strSQL)) {
-      int intStatIndex = 0;
-      boolean boolCnt = false;
-      boolean boolCts = false;
-      while (res.next()) {
-        int intStatCount = res.getInt(1);
-        if (-9999 != intStatCount) {
-          switch (intStatIndex) {
-            case 0:
-            case 1:
-            case 15:
-              if (!boolCnt) {
-                listStatName.addAll(Arrays.asList(MVUtil._tableStatsCnt.getKeyList()));
-              }
-              boolCnt = true;
-              break;
-            case 2:
-            case 3:
-              if (!boolCts) {
-                listStatName.addAll(Arrays.asList(MVUtil._tableStatsCts.getKeyList()));
-              }
-              boolCts = true;
-              break;
-            case 4:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsNbrcnt.getKeyList()));
-              break;
-            case 5:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsNbrcts.getKeyList()));
-              break;
-            case 6:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsPstd.getKeyList()));
-              break;
-            case 7:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsMcts.getKeyList()));
-              break;
-            case 8:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsRhist.getKeyList()));
-              break;
-            case 9:
-              //case 16:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsVl1l2.getKeyList()));
-              break;
-            case 10:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsPhist.getKeyList()));
-              break;
-            case 11:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsEnscnt.getKeyList()));
-              break;
-            case 12:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsMpr.getKeyList()));
-              break;
-            case 13:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsOrank.getKeyList()));
-              break;
-            case 14:
-              listStatName.addAll(Arrays.asList(MVUtil._tableStatsSsvar.getKeyList()));
-              break;
-            default:
 
-          }
-        }
-        intStatIndex++;
-      }
-      stmt.close();
-      res.close();
-    }
     //  sort and build the response string using the list of stat names
     String[] listStat = MVUtil.toArray(listStatName);
-    Arrays.sort(listStat, new Comparator() {
-      public int compare(Object o1, Object o2) {
-        return ((String) o1).compareTo((String) o2);
+    Arrays.sort(listStat, new Comparator<String>() {
+      @Override
+      public int compare(String o1, String o2) {
+        return o1.compareTo(o2);
       }
     });
-    int intNumStat = 0;
     for (String aListStat : listStat) {
       strResp.append("<val>").append(aListStat).append("</val>");
-      intNumStat++;
     }
-    _logger.debug("handleListStat() - returned " + intNumStat + " stats in " + MVUtil.formatTimeSpan(new Date().getTime() - intStart));
 
     //  clean up
     strResp.append("</list_stat>");
@@ -600,10 +309,9 @@ public class MVServlet extends HttpServlet {
    * the plot data was drawn.
    *
    * @param strRequest XML plot specification
-   * @param con        database connection
    * @return status message
    */
-  public static String handlePlot(String strRequest, Connection con, String currentDBName) throws Exception {
+  public static String handlePlot(String strRequest, String currentDBName) throws Exception {
 
     //  extract the plot xml from the request
     String strPlotXML = strRequest;
@@ -618,7 +326,7 @@ public class MVServlet extends HttpServlet {
     strPlotXML =
       "<plot_spec>" +
         "<connection>" +
-        "<host>" + _strDBHost + "</host>" +
+        "<host>" + databaseManager.getDatabaseInfo().getHost() + "</host>" +
         "<database>" + currentDBName + "</database>" +
         "<user>" + "******" + "</user>" +
         "<password>" + "******" + "</password>" +
@@ -670,7 +378,7 @@ public class MVServlet extends HttpServlet {
     ByteArrayInputStream byteArrayInputStream = null;
     try {
       byteArrayInputStream = new ByteArrayInputStream(strPlotXML.getBytes());
-      parser = new MVPlotJobParser(byteArrayInputStream, con);
+      parser = new MVPlotJobParser(byteArrayInputStream, currentDBName);
       MVPlotJob[] jobs = parser.getJobsList();
       if (1 != jobs.length) {
         throw new Exception("unexpected number of plot jobs generated: " + jobs.length);
@@ -689,14 +397,19 @@ public class MVServlet extends HttpServlet {
     ByteArrayOutputStream log = null;
     PrintStream printStream = null;
 
+    ByteArrayOutputStream logSql = null;
+    PrintStream printStreamSql = null;
+
 
     String strJobTmpl = job.getPlotTmpl();
     String strRErrorMsg = "";
     FileWriter writer = null;
     try {
       log = new ByteArrayOutputStream();
+      logSql = new ByteArrayOutputStream();
       printStream = new PrintStream(log);
-      MVBatch bat = new MVBatch(printStream);
+      printStreamSql = new PrintStream(logSql);
+      MVBatch bat = new MVBatch(printStream, printStreamSql, databaseManager);
       bat._intNumPlots = 1;
       //  configure the batch engine and run the job
       bat._intNumPlots = 1;
@@ -706,24 +419,18 @@ public class MVServlet extends HttpServlet {
       bat._strDataFolder = parser.getDataFolder();
       bat._strScriptsFolder = parser.getScriptsFolder();
 
-      //  build the job SQL using the batch engine
-      bat._boolSQLOnly = true;
-      bat._boolVerbose = true;
-      bat.setDbManagementSystem(_strDBManagementSystem);
+
+      //  run the job to generate the plot
       runTargetedJob(job, strJobTmpl, bat);
-      bat._boolSQLOnly = false;
-      bat._boolVerbose = false;
-      String strPlotSQL = log.toString();
+      //  build the job SQL using the batch engine
+      String strPlotSQL = logSql.toString();
 
       //  write the plot SQL to a file
       writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".sql");
       writer.write(strPlotSQL);
       writer.close();
-      log.reset();
+      logSql.reset();
 
-      //  run the job to generate the plot
-      //bat._boolVerbose = true;
-      runTargetedJob(job, strJobTmpl, bat);
       String strPlotterOutput = log.toString();
       writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".log");
       writer.write(strPlotterOutput);
@@ -752,6 +459,12 @@ public class MVServlet extends HttpServlet {
       }
       if (printStream != null) {
         printStream.close();
+      }
+      if (logSql != null) {
+        logSql.close();
+      }
+      if (printStreamSql != null) {
+        printStreamSql.close();
       }
       if (writer != null) {
         writer.close();
@@ -798,205 +511,6 @@ public class MVServlet extends HttpServlet {
         "</body></html>\n\n");
   }
 
-  /**
-   * Search the mv_rev table of the database under the input connection and serialize its contents into an XML string which is returned.
-   *
-   * @param con database connection to use
-   * @return serialized XML version of the mv_rev table
-   * @throws Exception
-   */
-  public static String handleListMVRev(Connection con) throws Exception {
-    StringBuilder strResp = new StringBuilder("<list_mv_rev>");
-
-    //  query the database for the contents of the mv_rev table
-    try (
-      Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      ResultSet res = stmt.executeQuery("SELECT * FROM mv_rev;");) {
-      while (res.next()) {
-        strResp.append("<val>");
-        strResp.append("<rev_id>").append(res.getString(1)).append("</rev_id>");
-        strResp.append("<rev_date>").append(res.getString(2)).append("</rev_date>");
-        strResp.append("<rev_name>").append(res.getString(3)).append("</rev_name>");
-        strResp.append("<rev_detail>").append(res.getString(4)).append("</rev_detail>");
-        strResp.append("</val>");
-      }
-    }
-    strResp.append("</list_mv_rev>");
-    return strResp.toString();
-  }
-
-  /**
-   * Search the instance_info table of the database under the input connection and serialize its contents into an XML string which is returned.
-   *
-   * @param con database connection to use
-   * @return serialized XML version of the instance_info table
-   * @throws Exception
-   */
-  public static String handleListInstInfo(Connection con) throws Exception {
-    StringBuilder strResp = new StringBuilder("<list_inst_info>");
-
-    //  query the database for the contents of the instance_info table
-    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery("SELECT * FROM instance_info;")) {
-      while (res.next()) {
-        strResp.append("<val>");
-        strResp.append("<info_id>").append(res.getString(1)).append("</info_id>");
-        strResp.append("<info_updater>").append(res.getString(2)).append("</info_updater>");
-        strResp.append("<info_date>").append(res.getString(3)).append("</info_date>");
-        strResp.append("<info_detail>").append(res.getString(4)).append("</info_detail>");
-        strResp.append("<info_xml>").append(!"".equals(res.getString(5))).append("</info_xml>");
-        strResp.append("</val>");
-      }
-    }
-    strResp.append("</list_inst_info>");
-    return strResp.toString();
-  }
-
-  /**
-   * Parse the input request XML and construct an insert statement for the instance_info table record with the input info_id.  Issue the insert and return a
-   * status, depending on success.
-   *
-   * @param con database connection to use
-   * @return status message indicating success or failure
-   * @throws Exception
-   */
-  public static String handleAddInstInfo(MVNode nodeCall, Connection con) throws Exception {
-
-    //  parse the components of the insert statment from the input XML
-    String strInfoId = nodeCall._children[0]._value;
-    String strInfoUpdater = nodeCall._children[1]._value;
-    String strInfoDate = nodeCall._children[2]._value;
-    String strInfoDetail = nodeCall._children[3]._value;
-    //  validate the input
-    if ("".equals(strInfoUpdater)) {
-      return "<error>updater must not be blank</error>";
-    }
-    if ("".equals(strInfoDetail)) {
-      return "<error>update_detail must not be blank</error>";
-    }
-    try {
-      SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-      formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-      formatDB.parse(strInfoDate);
-    } catch (Exception e) {
-      return "<error>could not parse update_date: '" + strInfoDate + "'</error>";
-    }
-    int intRes = 0;
-    //  construct the insert statement for the instance_info table
-    try (Statement stmt = con.createStatement();) {
-      intRes = stmt.executeUpdate("INSERT INTO instance_info VALUES (" +
-        strInfoId + ", " +
-        "'" + strInfoUpdater + "', " +
-        "'" + strInfoDate + "', " +
-        "'" + strInfoDetail + "', '');");
-    }
-    //  validate the returned number of updated records
-    if (1 != intRes) {
-      return "<error>unexpected number of records updated (" + intRes + ") for instance_info_id = " + strInfoId + "</error>";
-    }
-    return "<add_inst_info>success: updated 1 record</add_inst_info>";
-  }
-
-  /**
-   * Parse the input request XML and construct an update statement for the instance_info table record with the input info_id.  Issue the update and return a
-   * status, depending on success.
-   *
-   * @param con database connection to use
-   * @return status message indicating success or failure
-   * @throws Exception
-   */
-  public static String handleUpdateInstInfo(MVNode nodeCall, Connection con) throws Exception {
-
-    //  parse the components of the update statment from the input XML
-    String strInfoId = nodeCall._children[0]._value;
-    String strInfoUpdater = nodeCall._children[1]._value;
-    String strInfoDate = nodeCall._children[2]._value;
-    String strInfoDetail = nodeCall._children[3]._value;
-
-    //  validate the input
-    if ("".equals(strInfoUpdater)) {
-      return "<error>updater must not be blank</error>";
-    }
-    if ("".equals(strInfoDetail)) {
-      return "<error>update_detail must not be blank</error>";
-    }
-    try {
-      SimpleDateFormat formatDB = new SimpleDateFormat(MVUtil.DB_DATE, Locale.US);
-      formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-      formatDB.parse(strInfoDate);
-    } catch (Exception e) {
-      return "<error>could not parse update_date: '" + strInfoDate + "'</error>";
-    }
-    int intRes = 0;
-    //  construct the update statement for the instance_info table
-    try (Statement stmt = con.createStatement();) {
-      intRes = stmt.executeUpdate("UPDATE instance_info SET " +
-        "updater = '" + strInfoUpdater + "', " +
-        "update_date = '" + strInfoDate + "', " +
-        "update_detail = '" + strInfoDetail + "' " +
-        "WHERE instance_info_id = " + strInfoId + ";");
-    }
-
-    //  validate the returned number of updated records
-    if (1 != intRes) {
-      return "<error>unexpected number of records updated (" + intRes + ") for instance_info_id = " + strInfoId + "</error>";
-    }
-    return "<update_inst_info>success: updated 1 record</update_inst_info>";
-  }
-
-  /**
-   * Parse the instance_info_id from the input request XML and determine the name of the load XML file on the web server.  If the file already exists, return
-   * it's name.  If not, build it and return its name.
-   *
-   * @param nodeCall parsed request XML
-   * @param con      database connection that load xml will be queried against
-   * @return XML message containing the name of the load XML file
-   * @throws Exception
-   */
-  public static String handleViewLoadXML(MVNode nodeCall, Connection con) throws Exception {
-
-    //  parse the instance_info_id value from the input XML
-    String strInfoId = nodeCall._children[0]._value;
-
-    //  build the load XML file name
-    String strLoadPrefix = "load_" + MVUtil.getDBName(con) + "_id" + strInfoId;
-    String strLoadXMLFile = _strPlotXML + "/" + strLoadPrefix + ".xml";
-
-    //  if the file exists, return it's name
-    File fileLoadXML = new File(strLoadXMLFile);
-    if (fileLoadXML.exists()) {
-      return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
-    }
-
-    //  get the load XML for the specified instance_info_id
-    String strLoadXML = "";
-    try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery("SELECT load_xml FROM instance_info WHERE instance_info_id = " + strInfoId + ";");) {
-
-      while (res.next()) {
-        strLoadXML = res.getString(1);
-      }
-    }
-
-    //  put the load XML from the database into a file
-    Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strLoadXML.getBytes()));
-    //Begin write DOM to file
-    File f = new File(strLoadXMLFile);
-    try (FileOutputStream stream = new FileOutputStream(f);) {
-      DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-      DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-      LSSerializer serializer = impl.createLSSerializer();
-      LSOutput lso = impl.createLSOutput();
-      lso.setByteStream(stream);
-      serializer.write(doc, lso);
-      stream.flush();
-    } catch (Exception e) {
-      _logger.error("handleViewLoadXML() - ERROR: caught " + e.getClass() + " serializing load xml: " + e.getMessage());
-      return "<error>failed to serialize load xml - reason: " + e.getMessage() + "</error>";
-    }
-
-    return "<view_load_xml>" + strLoadPrefix + "</view_load_xml>";
-  }
 
   /**
    * Parse the input node as a plot spec node and select the first of the returned jobs.  Strip the plot_fix field values to create a single plot specification
@@ -1006,10 +520,10 @@ public class MVServlet extends HttpServlet {
    * @return serialized plot spec of a single plot from the input spec
    * @throws Exception
    */
-  public static StringBuilder handleXMLUpload(MVNode nodeCall, Connection con) throws Exception {
+  public static StringBuilder handleXMLUpload(MVNode nodeCall) throws Exception {
 
     //  run the parser to generate plot jobs
-    MVPlotJobParser par = new MVPlotJobParser(nodeCall._children[0], con);
+    MVPlotJobParser par = new MVPlotJobParser(nodeCall._children[0]);
     MVPlotJob[] listJobs = par.getJobsList();
     if (1 > listJobs.length) {
       throw new Exception("parsed XML contained no plot jobs");
@@ -1035,11 +549,10 @@ public class MVServlet extends HttpServlet {
         job.addPlotFixVal(aListFixField, mapFixSetSingle);
       }
     }
-    //  note the upload
-    _logger.debug("handleXMLUpload() - plot XML upload for database plot " + job.getDBName());
+
 
     //  return the serialized plot XML
-    return MVPlotJobParser.serializeJob(job);
+    return MVPlotJobParser.serializeJob(job, databaseManager.getDatabaseInfo());
   }
 
   public static String getAvailableResults(String showAll) {
@@ -1082,15 +595,18 @@ public class MVServlet extends HttpServlet {
   /**
    * Read the resource bundle containing database configuration information and initialize the global variables
    */
+  @Override
   public void init() throws ServletException {
     _logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
-      _strDBHost = bundle.getString("db.host");
-      _strDBUser = bundle.getString("db.user");
-      _strDBPassword = bundle.getString("db.password");
-      _strDBManagementSystem = bundle.getString("db.managementSystem");
-      _strDBDriver = bundle.getString("db.driver");
+      DatabaseInfo databaseInfo = new DatabaseInfo();
+      databaseInfo.setHost(bundle.getString("db.host"));
+      databaseInfo.setUser(bundle.getString("db.user"));
+      databaseInfo.setPassword(bundle.getString("db.password"));
+      if (bundle.getString("db.managementSystem").equals("mysql")) {
+        databaseManager = new MysqlAppDatabaseManager(databaseInfo);
+      }
 
       _boolListValCache = bundle.getString("cache.val").equals("true");
       _boolListStatCache = bundle.getString("cache.stat").equals("true");
@@ -1127,6 +643,7 @@ public class MVServlet extends HttpServlet {
    * @param request  Contains request information, including parameters
    * @param response Used to send information back to the requester
    */
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
     PrintWriter out = null;
@@ -1136,7 +653,7 @@ public class MVServlet extends HttpServlet {
       Matcher matDBLoad = _patDBLoad.matcher(strPath);
       if (matDBLoad.matches()) {
         String strDB = matDBLoad.group(1);
-        if (!Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).validate(strDB)) {
+        if (!databaseManager.validate(strDB)) {
           printErrorPage(response);
           return;
         }
@@ -1212,7 +729,7 @@ public class MVServlet extends HttpServlet {
               outStream.write(byteBuffer, 0, length);
             }
           } catch (Exception e) {
-            System.out.println(e.getMessage());
+            _logger.error(e.getMessage());
           }
           return;
         }
@@ -1237,6 +754,7 @@ public class MVServlet extends HttpServlet {
    * @param request  Contains request information, including parameters
    * @param response Used to send information back to the requester
    */
+  @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
     //  initialize the response writer and session
@@ -1244,7 +762,6 @@ public class MVServlet extends HttpServlet {
     response.setContentType("text/plain");
     ByteArrayOutputStream s = null;
     BufferedReader reader = null;
-    Connection con = null;
     String referer;
     try {
 
@@ -1275,7 +792,7 @@ public class MVServlet extends HttpServlet {
         strRequestBody = "<request><xml_upload>" + strUploadXML + "</xml_upload></request>";
         String[] refererArr = request.getHeader("referer").split("/");
         referer = refererArr[refererArr.length - 1];
-        System.out.println("referer " + referer);
+        _logger.debug("referer " + referer);
 
       }
       //  if the request is not a file upload, read it directly
@@ -1287,7 +804,7 @@ public class MVServlet extends HttpServlet {
             strRequestBody = strRequestBody + line;
           }
         } catch (Exception e) {
-          System.out.println(e.getMessage());
+          _logger.error(e.getMessage());
         }
 
       }
@@ -1309,11 +826,8 @@ public class MVServlet extends HttpServlet {
               xml_upload.appendChild(plot_spec);
               MVNode mv_xml_upload = new MVNode(xml_upload);
 
-              if (con == null) {
-                con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-              }
               try {
-                strResp = handleXMLUpload(mv_xml_upload, con);
+                strResp = handleXMLUpload(mv_xml_upload);
               } catch (Exception e) {
 
               }
@@ -1346,7 +860,7 @@ public class MVServlet extends HttpServlet {
           //  <list_db> request
           if (nodeCall._tag.equalsIgnoreCase("list_db")) {
             strResp.append("<list_db>");
-            databases = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getAllDatabases();
+            databases = databaseManager.getAllDatabases();
             for (String database : databases) {
               strResp.append("<val>").append(database).append("</val>");
             }
@@ -1355,18 +869,16 @@ public class MVServlet extends HttpServlet {
 
           } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
             strResp.append("<list_db>");
-            Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).initDBList();
-            databases = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getAllDatabases();
+            databaseManager.initDBList();
+            databases = databaseManager.getAllDatabases();
             for (String database : databases) {
               strResp.append("<val>").append(database).append("</val>");
             }
             strResp.append("</list_db>");
             strResp.append("<url_output><![CDATA[").append(_strURLOutput).append("]]></url_output>");
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
-            handleClearListValCache(con);
-            handleClearListStatCache(con);
+
+            handleClearListValCache();
+            handleClearListStatCache();
           }
 
           //  <date> tag, which is used to prevent caching
@@ -1375,93 +887,52 @@ public class MVServlet extends HttpServlet {
           }
           //  <db_con> node containing the database connection name
           else if (nodeCall._tag.equalsIgnoreCase("db_con")) {
-
-            //  check the connection pool
             currentDBName = nodeCall._value;
-            con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection(currentDBName);
-
           }
 
           //  <list_val>
           else if (nodeCall._tag.equalsIgnoreCase("list_val")) {
-            strResp.append(handleListVal(nodeCall, strRequestBody, con));
+            strResp.append(handleListVal(nodeCall, strRequestBody, currentDBName));
           }
 
           //  <list_stat>
           else if (nodeCall._tag.equalsIgnoreCase("list_stat")) {
-            strResp.append(handleListStat(nodeCall, strRequestBody, con));
+            strResp.append(handleListStat(nodeCall, strRequestBody, currentDBName));
           }
           //  <list_val_clear_cache>
           else if (nodeCall._tag.equalsIgnoreCase("list_val_clear_cache")) {
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
-            strResp.append(handleClearListValCache(con));
+
+            strResp.append(handleClearListValCache());
           }
 
           //  <list_val_cache_keys>
           else if (nodeCall._tag.equalsIgnoreCase("list_val_cache_keys")) {
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
-            strResp.append(handleListValCacheKeys(con));
+
+            strResp.append(handleListValCacheKeys());
           }
 
           //  <list_stat_clear_cache>
           else if (nodeCall._tag.equalsIgnoreCase("list_stat_clear_cache")) {
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
-            strResp.append(handleClearListStatCache(con));
+
+            strResp.append(handleClearListStatCache());
           }
 
           //  <list_stat_cache_keys>
           else if (nodeCall._tag.equalsIgnoreCase("list_stat_cache_keys")) {
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
-            strResp.append(handleListStatCacheKeys(con));
+            strResp.append(handleListStatCacheKeys());
           }
 
           //  <plot>
           else if (nodeCall._tag.equalsIgnoreCase("plot")) {
-            strResp.append(handlePlot(strRequestBody, con, currentDBName));
-          }
-          //  <list_mv_rev>
-          else if (nodeCall._tag.equalsIgnoreCase("list_mv_rev")) {
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
-            strResp.append(handleListMVRev(con));
+            strResp.append(handlePlot(strRequestBody, currentDBName));
           }
 
-          //  <list_inst_info>
-          else if (nodeCall._tag.equalsIgnoreCase("list_inst_info")) {
-            strResp.append(handleListInstInfo(con));
-          }
-
-          //  <add_inst_info>
-          else if (nodeCall._tag.equalsIgnoreCase("add_inst_info")) {
-            strResp.append(handleAddInstInfo(nodeCall, con));
-          }
-
-          //  <update_inst_info>
-          else if (nodeCall._tag.equalsIgnoreCase("update_inst_info")) {
-            strResp.append(handleUpdateInstInfo(nodeCall, con));
-          }
-
-          //  <view_load_xml>
-          else if (nodeCall._tag.equalsIgnoreCase("view_load_xml")) {
-            strResp.append(handleViewLoadXML(nodeCall, con));
-          }
 
           //  <xml_upload>
           else if (nodeCall._tag.equalsIgnoreCase("xml_upload")) {
-            if (con == null) {
-              con = Datasource.getInstance(_strDBManagementSystem, _strDBDriver, _strDBHost, _strDBUser, _strDBPassword).getConnection();
-            }
+
             try {
-              strResp.append(handleXMLUpload(nodeCall, con));
+              strResp.append(handleXMLUpload(nodeCall));
               request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
 
               request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
@@ -1506,13 +977,6 @@ public class MVServlet extends HttpServlet {
         reader.close();
       }
 
-      if (con != null) {
-        try {
-          con.close();
-        } catch (SQLException e) {
-          _logger.error(e.getMessage());
-        }
-      }
     }
   }
 

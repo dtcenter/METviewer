@@ -57,7 +57,7 @@ public class MVLoadJobParser extends MVUtil {
 
       //  <date_list>
       else if (node._tag.equals("date_list")) {
-        _tableDateListDecl.put(node._name, buildDateList(node));
+        _tableDateListDecl.put(node._name, buildDateList(node, System.out));
       }
 
       //  simple string fields
