@@ -5,7 +5,6 @@
 
 package edu.ucar.metviewer.prune;
 
-import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,7 +95,6 @@ public class MVPruneDB {
 
   public static void main(String[] args) throws Exception {
     String filename;
-    MVUtil.updateLog4jConfiguration();
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
       logger.info(USAGE);
