@@ -82,7 +82,7 @@ buildPermData = function(dfStats, listPerm){
 		strSeriesVar = listSeriesVar[intSeriesVal];
 		strSeriesVal = listPerm[intSeriesVal];
     vectValPerms= strsplit(strSeriesVal, ",")[[1]];
-    vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+    vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
     dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
 	}
 	return (dfStatsPerm);

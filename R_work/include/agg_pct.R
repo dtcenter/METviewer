@@ -222,11 +222,11 @@ if ( nrow(sampleData) > 0){
           strSeriesVar = listSeriesVar[intSeriesVal];
           strSeriesVal = listPerm[intSeriesVal];
           if( grepl("^[0-9]+$", strSeriesVal) ){
-            vectValPerms = as.numeric(strSeriesVal);
+            vectValPerms = as.integer(strSeriesVal);
           }else{
             vectValPerms= strsplit(strSeriesVal, ",")[[1]];
           }
-          vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.numeric(x); }else{x=x} })
+          vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
           dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
         }
         if( 1 > nrow(dfStatsPerm) ){ next; }
