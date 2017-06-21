@@ -84,7 +84,15 @@
 
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
-        <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}"/>
+        <mkdir dir="${build}/edu/ucar/metviewer/resourses"/>
+        <copy todir="${build}/edu/ucar/metviewer/resourses">
+            <fileset dir="${src}/edu/ucar/metviewer/resources">
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+        <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}">
+
+        </jar>
     </target>
 
     <target name="dist-test" depends="compile-all"
