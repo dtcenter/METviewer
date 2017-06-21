@@ -17,7 +17,7 @@ import javax.swing.text.html.ImageView;
  * @author : tatiana $
  * @version : 1.0 : 17/01/17 13:24 $
  */
-public class SynchronousHTMLEditorKit extends HTMLEditorKit {
+class SynchronousHTMLEditorKit extends HTMLEditorKit {
 
   @Override
   public Document createDefaultDocument() {

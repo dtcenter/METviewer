@@ -12,7 +12,7 @@ import java.util.Map;
  * @author : tatiana $
  * @version : 1.0 : 17/01/17 13:22 $
  */
-public class FormatNameUtil {
+class FormatNameUtil {
 
   private static final Map<String, String> types = new HashMap<>();
   private static final String DEFAULT_FORMAT = "png";
@@ -27,7 +27,7 @@ public class FormatNameUtil {
     types.put("png", "png");
   }
 
-  public static String formatForExtension(String extension) {
+  private static String formatForExtension(String extension) {
     final String type = types.get(extension);
     if (type == null) {
       return DEFAULT_FORMAT;

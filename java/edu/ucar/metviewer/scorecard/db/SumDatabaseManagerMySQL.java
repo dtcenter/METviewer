@@ -8,13 +8,15 @@ package edu.ucar.metviewer.scorecard.db;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 
+import java.sql.SQLException;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 07/02/17 11:38 $
  */
 public class SumDatabaseManagerMySQL extends DatabaseManagerMySQL {
 
-  public SumDatabaseManagerMySQL(Scorecard scorecard) {
+  public SumDatabaseManagerMySQL(Scorecard scorecard) throws SQLException {
     super(scorecard);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile().replaceAll(".data", ".dataFromDb");
 

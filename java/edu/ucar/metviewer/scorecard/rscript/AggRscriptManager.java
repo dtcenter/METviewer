@@ -9,9 +9,12 @@ import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,13 +26,13 @@ import java.util.Map;
  */
 public class AggRscriptManager extends RscriptManager {
 
-  private static final Logger logger = Logger.getLogger(AggRscriptManager.class);
+  private static final Logger logger = LogManager.getLogger("AggRscriptManager");
   private final String strAggInfo;
   private final String aggStatTemplFilePath;
   private final String aggStatTemplScript;
   private final String aggStatDataFilePath;
 
-  Map<String, String> tableAggStatInfoCommon;
+  private final Map<String, String> tableAggStatInfoCommon;
 
   private static final String SCRIPT_FILE_NAME = "/include/agg_stat.R";
 
@@ -106,11 +109,14 @@ public class AggRscriptManager extends RscriptManager {
       lastDot = strAggInfo.lastIndexOf('.');
       String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo.substring(lastDot);
 
-      try {
+      try(PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
+                                                     .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                     .buildPrintStream()) {
         MVUtil.populateTemplateFile(aggStatTemplFilePath, thredInfoFileName, tableAggStatInfo);
         //  run agg_stat/
         MVUtil mvUtil = new MVUtil();
-        mvUtil.runRscript(rScriptCommand, aggStatTemplScript, new String[]{thredInfoFileName}, false);
+
+        mvUtil.runRscript(rScriptCommand, aggStatTemplScript, new String[]{thredInfoFileName}, printStream);
       } catch (Exception e) {
         logger.error(e);
       }

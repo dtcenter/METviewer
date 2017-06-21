@@ -7,7 +7,10 @@ package edu.ucar.metviewer.scorecard.db;
 
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.sql.SQLException;
 
 /**
  * @author : tatiana $
@@ -15,10 +18,10 @@ import org.apache.log4j.Logger;
  */
 public class AggDatabaseManagerMySQL extends DatabaseManagerMySQL {
 
-  private static final Logger logger = Logger.getLogger(AggDatabaseManagerMySQL.class);
+  private static final Logger logger = LogManager.getLogger("AggDatabaseManagerMySQL");
 
 
-  public AggDatabaseManagerMySQL(final Scorecard scorecard) {
+  public AggDatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
     super(scorecard);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile();
 

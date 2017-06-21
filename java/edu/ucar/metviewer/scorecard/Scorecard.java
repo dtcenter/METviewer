@@ -5,6 +5,7 @@
 
 package edu.ucar.metviewer.scorecard;
 
+import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
@@ -15,13 +16,11 @@ import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import edu.ucar.metviewer.scorecard.rscript.AggRscriptManager;
 import edu.ucar.metviewer.scorecard.rscript.RscriptManager;
 import edu.ucar.metviewer.scorecard.rscript.SumRscriptManager;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 /**
  * Creates scorecard image using configuration XML
@@ -31,7 +30,7 @@ import java.util.concurrent.Callable;
  */
 public class Scorecard {
 
-  private static final Logger logger = Logger.getLogger(Scorecard.class);
+  private static final Logger logger = LogManager.getLogger("Scorecard");
   private String databaseName;
   private String user;
   private String pwd;
@@ -49,13 +48,22 @@ public class Scorecard {
   private Boolean viewValue = Boolean.FALSE;
   private Boolean viewSymbol = Boolean.TRUE;
   private Boolean viewLegend = Boolean.TRUE;
+  private Boolean printSQL = Boolean.FALSE;
   private int numBootReplicates = 1000;
   private Integer bootRandomSeed;
+  private String plotStat = "median";
   private String statFlag = "NCAR";
 
-  private static final String USAGE = "USAGE:  mv_scorecatd.sh <scorecard_spec_file>\n" +
+  private static final String USAGE = "USAGE:  mv_scorecard.sh <scorecard_spec_file>\n" +
     "                    where <scorecard_spec_file> specifies the XML scorecard specification document\n";
 
+  public Boolean getPrintSQL() {
+    return printSQL;
+  }
+
+  public void setPrintSQL(Boolean printSQL) {
+    this.printSQL = printSQL;
+  }
 
   public String getStatFlag() {
     return statFlag;
@@ -79,6 +87,14 @@ public class Scorecard {
 
   public void setBootRandomSeed(Integer bootRandomSeed) {
     this.bootRandomSeed = bootRandomSeed;
+  }
+
+  public String getPlotStat() {
+    return plotStat;
+  }
+
+  public void setPlotStat(String plotStat) {
+    this.plotStat = plotStat;
   }
 
   public int getNumBootReplicates() {
@@ -153,10 +169,6 @@ public class Scorecard {
     this.workingFolders = workingFolders;
   }
 
-  public String getrTemplate() {
-    return rTemplate;
-  }
-
   public void setrTemplate(String rTemplate) {
     this.rTemplate = rTemplate;
   }
@@ -169,23 +181,15 @@ public class Scorecard {
     this.fixedVars = fixedVars;
   }
 
-  public List<Field> getRows() {
-    return rows;
-  }
-
   public void setRows(List<Field> rows) {
     this.rows = rows;
-  }
-
-  public List<Field> getColumns() {
-    return columns;
   }
 
   public void setColumns(List<Field> columns) {
     this.columns = columns;
   }
 
-  public Boolean getAggStat() {
+  private Boolean getAggStat() {
     return aggStat;
   }
 
@@ -223,10 +227,9 @@ public class Scorecard {
   }
 
   public static void main(String[] args) throws Exception {
-    long begin = System.currentTimeMillis();
+    MVUtil.updateLog4jConfiguration();
     long nanos = System.nanoTime();
     String filename;
-    updateLog4jConfiguration();
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
       logger.info(USAGE);
@@ -295,26 +298,7 @@ public class Scorecard {
 
   }
 
-  private static Callable<String> callable(DatabaseManager scorecardDbManager, RscriptManager rscriptManager, Map<String, Entry> mapRow, String rowCounter) {
-    return () -> {
 
-      StringBuilder logMessage = new StringBuilder();
-      for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
-        logMessage.append(column.getKey()).append(": ").append(column.getValue().getName()).append(", ");
-      }
-      logger.info("---------------------------------------------------------------------------------------");
-      logger.info("Row #" + rowCounter + ": " + logMessage);
-      logger.info("---------------------------------------------------------------------------------------");
-
-      scorecardDbManager.createDataFile(mapRow, rowCounter);
-      logger.info("Row #" + rowCounter + ": " + "done database");
-      rscriptManager.calculateStatsForRow(mapRow, rowCounter);
-      logger.info("Row #" + rowCounter + ": " + "done Rscript");
-      logger.info("---------------------------------------------------------------------------------------");
-
-      return rowCounter + " done";
-    };
-  }
 
   /**
    * removes previous output files
@@ -345,6 +329,7 @@ public class Scorecard {
 
   /**
    * Converts columns into map with key=field and values=all possible unique values
+   *
    * @return
    */
   public Map<String, List<Entry>> columnsStructure() {
@@ -356,10 +341,7 @@ public class Scorecard {
           if (!result.containsKey(entry.getKey())) {
             result.put(entry.getKey(), new LinkedList<>());
           }
-          //add only unique values
-          if( !result.get(entry.getKey()).contains(entry.getValue())) {
-            result.get(entry.getKey()).add(entry.getValue());
-          }
+          result.get(entry.getKey()).add(entry.getValue());
 
         }
       }
@@ -400,7 +382,7 @@ public class Scorecard {
   }
 
 
-  public int numOfRows() {
+  private int numOfRows() {
     int total = 0;
     for (Field field : rows) {
       total = total + getRowsFromField(field);
@@ -408,13 +390,7 @@ public class Scorecard {
     return total;
   }
 
-  public int numOfColumns() {
-    int total = 0;
-    for (Field field : columns) {
-      total = total + getRowsFromField(field);
-    }
-    return total;
-  }
+
 
   private int getRowsFromField(Field field) {
     int total = 0;
@@ -430,16 +406,6 @@ public class Scorecard {
 
   private boolean validate() {
     return true;
-  }
-
-  public static void updateLog4jConfiguration() {
-
-    PatternLayout layout = new PatternLayout("%m%n");
-    ConsoleAppender appender = new ConsoleAppender(layout);
-    appender.setName("stdout");
-    appender.activateOptions();
-    Logger.getRootLogger().addAppender(appender);
-
   }
 
 }

@@ -10,8 +10,11 @@ import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,15 +26,15 @@ import java.util.Map;
  */
 public class CalcRscriptManager extends RscriptManager {
 
-  private static final Logger logger = Logger.getLogger(CalcRscriptManager.class);
+  private static final Logger logger = LogManager.getLogger("CalcRscriptManager");
 
-  Map<String, String> tableCalcStatInfoCommon;
+  private final Map<String, String> tableCalcStatInfoCommon;
   private final String calcStatTemplScript;
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
-  private String strRFile;
+  private final String strRFile;
 
 
-  public CalcRscriptManager(Scorecard scorecard) {
+  private CalcRscriptManager(Scorecard scorecard) {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
     strRFile = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
@@ -44,7 +47,7 @@ public class CalcRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("fix_val_list_eq", "list()");
     tableCalcStatInfoCommon.put("dep1_scale", "list()");
     tableCalcStatInfoCommon.put("indy_plot_val", "list()");
-    tableCalcStatInfoCommon.put("plot_stat", "median");
+    tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
     tableCalcStatInfoCommon.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
     tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
     tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
@@ -153,11 +156,15 @@ public class CalcRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("series1_diff_list", seriesDiffList.toString());
 
 
-      try {
+      try(PrintStream printStream = IoBuilder.forLogger(CalcRscriptManager.class)
+                                                     .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                     .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
         MVUtil mvUtil = new MVUtil();
-        mvUtil.runRscript(rScriptCommand, strRFile, false);
+
+
+        mvUtil.runRscript(rScriptCommand, strRFile, printStream);
       } catch (Exception e) {
         logger.error(e);
       }

@@ -5,12 +5,13 @@
 
 package edu.ucar.metviewer.scorecard;
 
-import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.model.Entry;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class Util {
 
-  private static final Logger logger = Logger.getLogger(Util.class);
+  private static final Logger logger = LogManager.getLogger("Util");
   private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2, MVUtil.VL1L2};
 
   private Util() {
@@ -41,21 +42,21 @@ public class Util {
   public static String getAggTypeForStat(final String stat) {
     String aggType = null;
 
-    MVOrderedMap orderedMap;
+    Map<String, String[]> orderedMap;
 
-    if (MVUtil._tableStatsCnt.containsKey(stat)) {
-      orderedMap = MVUtil._tableStatsCnt;
-    } else if (MVUtil._tableStatsSsvar.containsKey(stat)) {
-      orderedMap = MVUtil._tableStatsSsvar;
-    } else if (MVUtil._tableStatsCts.containsKey(stat)) {
-      orderedMap = MVUtil._tableStatsCts;
-    } else if (MVUtil._tableStatsVl1l2.containsKey(stat)) {
-      orderedMap = MVUtil._tableStatsVl1l2;
+    if (MVUtil.statsCnt.containsKey(stat)) {
+      orderedMap = MVUtil.statsCnt;
+    } else if (MVUtil.statsSsvar.containsKey(stat)) {
+      orderedMap = MVUtil.statsSsvar;
+    } else if (MVUtil.statsCts.containsKey(stat)) {
+      orderedMap = MVUtil.statsCts;
+    } else if (MVUtil.statsVl1l2.containsKey(stat)) {
+      orderedMap = MVUtil.statsVl1l2;
     } else {
-      orderedMap = new MVOrderedMap();
+      orderedMap = new HashMap<>();
     }
     try {
-      String[] entry = (String[]) orderedMap.get(stat);
+      String[] entry = orderedMap.get(stat);
       for (String st : entry) {
         if (Arrays.asList(aggTypes).contains(st.toLowerCase())) {
           aggType = st;

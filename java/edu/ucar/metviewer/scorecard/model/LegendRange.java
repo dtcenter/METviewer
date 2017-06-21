@@ -5,20 +5,21 @@
 
 package edu.ucar.metviewer.scorecard.model;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.math.BigDecimal;
 
 /**
- * Deskription how the threshold would be represented in the table and legend
+ * Description how the threshold would be represented in the table and legend
  *
  * @author : tatiana $
  * @version : 1.0 : 31/01/17 13:44 $
  */
 public class LegendRange {
 
-  private static final Logger logger = Logger.getLogger(LegendRange.class);
+  private static final Logger logger = LogManager.getLogger("LegendRange");
 
   private String symbol = ""; //HTML symbol
   private String color = "#000000"; // color of the symbol

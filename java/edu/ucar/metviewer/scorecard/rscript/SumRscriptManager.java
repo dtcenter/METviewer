@@ -8,9 +8,12 @@ package edu.ucar.metviewer.scorecard.rscript;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.model.Entry;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,21 +23,19 @@ import java.util.Map;
  */
 public class SumRscriptManager extends RscriptManager {
 
-  private static final Logger logger = Logger.getLogger(SumRscriptManager.class);
+  private static final Logger logger = LogManager.getLogger("SumRscriptManager");
 
-  Map<String, String> tableCalcStatInfoCommon;
+  private final Map<String, String> tableCalcStatInfoCommon;
   private final String calcStatTemplScript;
-  private final String dataFilePath;
 
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
-  private String strRFile;
+  private final String strRFile;
 
 
   public SumRscriptManager(Scorecard scorecard) {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
     strRFile = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
-    dataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
 
     tableCalcStatInfoCommon = new HashMap<>();
     tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
@@ -44,7 +45,7 @@ public class SumRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("fix_val_list_eq", "list()");
     tableCalcStatInfoCommon.put("dep1_scale", "list()");
     tableCalcStatInfoCommon.put("indy_plot_val", "list()");
-    tableCalcStatInfoCommon.put("plot_stat", "median");
+    tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
     tableCalcStatInfoCommon.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
     tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile().replaceAll(".data", ".dataFromDb"));
     tableCalcStatInfoCommon.put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
@@ -75,14 +76,14 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
 
 
-
-
-      try {
+      try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
         MVUtil mvUtil = new MVUtil();
-        mvUtil.runRscript(rScriptCommand, strRFile, false);
+
+        mvUtil.runRscript(rScriptCommand, strRFile, printStream);
       } catch (Exception e) {
+        logger.error(e);
         logger.error(e);
       }
 
