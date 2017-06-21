@@ -5,7 +5,8 @@
 
 package edu.ucar.metviewer.prune;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -20,9 +21,9 @@ import java.util.*;
  * @author : tatiana $
  * @version : 1.0 : 06/12/16 11:24 $
  */
-public class PruneXmlParser {
+class PruneXmlParser {
 
-  private static final Logger logger = Logger.getLogger(PruneXmlParser.class);
+  private static final Logger logger = LogManager.getLogger("PruneXmlParser");
 
 
   /**
@@ -97,7 +98,7 @@ public class PruneXmlParser {
 
       }
     }
-    if (!dateListToValues.isEmpty()) {
+    if (!dateListToValues.isEmpty() && fieldTOValue != null ) {
       for (Map.Entry<String, List<String>> fieldTOValueEntry : fieldTOValue.entrySet()) {
         for (Map.Entry<String, List<String>> dateListToValuesEntry : dateListToValues.entrySet()) {
           if (fieldTOValueEntry.getValue().size() == 1 && fieldTOValueEntry.getValue().get(0).equals(dateListToValuesEntry.getKey())) {

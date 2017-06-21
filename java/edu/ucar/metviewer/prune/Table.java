@@ -9,7 +9,7 @@ package edu.ucar.metviewer.prune;
  * @author : tatiana $
  * @version : 1.0 : 02/12/16 08:41 $
  */
-public class Table {
+class Table {
 
   private String name;
   private String dependentTable;

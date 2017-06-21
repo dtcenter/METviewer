@@ -14,7 +14,7 @@ import java.util.List;
  * @author : tatiana $
  * @version : 1.0 : 02/12/16 08:41 $
  */
-public class DateList {
+class DateList {
 
   private String name;
   private String startStr;
