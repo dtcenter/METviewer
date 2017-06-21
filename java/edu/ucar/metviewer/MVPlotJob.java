@@ -1,7 +1,6 @@
 package edu.ucar.metviewer;
 
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,13 +13,7 @@ public class MVPlotJob extends MVUtil {
 
   protected String _strJobName = "";
 
-  protected Connection _con = null;
-  protected String _strDBHost = "";
-  protected String _strDBName = "";
-  protected String _strDBUser = "";
-  protected String _strDBPassword = "";
-  protected String _strDBManagementSystem = null;
-  protected String _strDBDriver = null;
+  protected String currentDBName;
 
   protected String _strRscript = "";
 
@@ -153,6 +146,8 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolAggSsvar = false;
   protected boolean _boolAggVl1l2 = false;
   protected String _strAggBootRepl = "1";
+  protected String _strAggBootRandomSeed =  "NA";
+  ;
   protected String _strAggBootCI = "bca";
   protected boolean _boolEveqDis = false;
   protected boolean _equalizeByIndep = true;
@@ -198,13 +193,8 @@ public class MVPlotJob extends MVUtil {
     MVPlotJob job = new MVPlotJob();
 
     job._strJobName = _strJobName + "_copy";
-    job._con = _con;
-    job._strDBManagementSystem = _strDBManagementSystem;
-    job._strDBDriver = _strDBDriver;
-    job._strDBHost = _strDBHost;
-    job._strDBName = _strDBName;
-    job._strDBUser = _strDBUser;
-    job._strDBPassword = _strDBPassword;
+    job.currentDBName = currentDBName;
+
     job._strRscript = _strRscript;
     job._strPlotTmpl = _strPlotTmpl;
     job._strIndyVar = _strIndyVar;
@@ -329,6 +319,7 @@ public class MVPlotJob extends MVUtil {
     job._boolAggNbrCnt = _boolAggNbrCnt;
     job._boolAggSsvar = _boolAggSsvar;
     job._strAggBootRepl = _strAggBootRepl;
+    job._strAggBootRandomSeed = _strAggBootRandomSeed;
     job._strAggBootCI = _strAggBootCI;
     job._boolAggVl1l2 = _boolAggVl1l2;
     job._boolEveqDis = _boolEveqDis;
@@ -374,74 +365,6 @@ public class MVPlotJob extends MVUtil {
     _strJobName = jobName;
   }
 
-  public Connection getConnection() {
-    return _con;
-  }
-
-  public void setConnection(Connection con) {
-    _con = con;
-  }
-
-
-  public String getDBDriver() {
-    if (_strDBDriver == null) {
-      if (getDBManagementSystem().equals("mysql")) {
-        _strDBDriver = "com.mysql.jdbc.Driver";
-      } else if (getDBManagementSystem().equals("postgresql")) {
-        _strDBDriver = "org.postgresql.Driver";
-      }
-    }
-    return _strDBDriver;
-
-  }
-
-  public void setDBDriver(String dbDriver) {
-    _strDBDriver = dbDriver;
-  }
-
-  public String getDBManagementSystem() {
-    if (_strDBManagementSystem == null) {
-      return "mysql";
-    } else {
-      return _strDBManagementSystem;
-    }
-  }
-
-  public void setDBManagementSystem(String dbManagementSystem) {
-    _strDBManagementSystem = dbManagementSystem;
-  }
-
-  public String getDBHost() {
-    return _strDBHost;
-  }
-
-  public void setDBHost(String dbHost) {
-    _strDBHost = dbHost;
-  }
-
-  public String getDBName() {
-    return _strDBName;
-  }
-
-  public void setDBName(String dbName) {
-    _strDBName = dbName;
-  }
-
-  public String getDBUser() {
-    return _strDBUser;
-  }
-
-  public void setDBUser(String dbUser) {
-    _strDBUser = dbUser;
-  }
-
-  public String getDBPassword() {
-    return _strDBPassword;
-  }
-
-  public void setDBPassword(String dbPassword) {
-    _strDBPassword = dbPassword;
-  }
 
   public String getRscript() {
     return _strRscript;
@@ -1467,6 +1390,24 @@ public class MVPlotJob extends MVUtil {
     _strAggBootRepl = aggBootRepl;
   }
 
+  public String getAggBootRandomSeed() {
+    return _strAggBootRandomSeed;
+  }
+
+  public void setAggBootRandomSeed(String aggBootRandomSeed) {
+    if (aggBootRandomSeed.trim().length() == 0) {
+      _strAggBootRandomSeed = "NA";
+    } else {
+      try {
+        Integer.valueOf(aggBootRandomSeed.trim());
+        _strAggBootRandomSeed = aggBootRandomSeed;
+      } catch (Exception e) {
+        _strAggBootRandomSeed = "NA";
+      }
+
+    }
+  }
+
   public String getAggBootCI() {
     return _strAggBootCI;
   }
@@ -1512,12 +1453,12 @@ public class MVPlotJob extends MVUtil {
   }
 
   public void setAggVl1l2(boolean aggVl1l2) {
-      _boolAggVl1l2 = aggVl1l2;
-    }
+    _boolAggVl1l2 = aggVl1l2;
+  }
 
-    public boolean getAggVl1l2() {
-      return _boolAggVl1l2;
-    }
+  public boolean getAggVl1l2() {
+    return _boolAggVl1l2;
+  }
 
 
   public void setCalcSl1l2(boolean calcSl1l2) {
@@ -1780,6 +1721,15 @@ public class MVPlotJob extends MVUtil {
       result = result.substring(0, result.length() - 1);
     }
     return result + ")";
+  }
+
+
+  public String getCurrentDBName() {
+    return currentDBName;
+  }
+
+  public void setCurrentDBName(String currentDBName) {
+    this.currentDBName = currentDBName;
   }
 }
 
