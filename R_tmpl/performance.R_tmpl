@@ -73,7 +73,7 @@ if(length(listSeries1Val) > 0){
   listSeriesVar = names(listSeries1Val);
   matPermVal = permute(listSeries1Val);
   intSeriesIndex=0;
-  listSeries = list();
+  series = list();
 }
 
 # specify the output file
@@ -149,7 +149,7 @@ if(length(listSeries1Val) > 0){
      dfPerm = dfPlot;
      for(intVar in 1:length(listSeriesVar)){
        valPerm = listPermVal[intVar];
-       if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.numeric(valPerm); }
+       if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
        dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
        seriesLegend = paste(seriesLegend,valPerm);
      }
