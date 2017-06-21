@@ -48,8 +48,7 @@ public class MVBatch extends MVUtil {
   public static String getUsage() {
     return "Usage:  mv_batch\n" +
       "          [-list]\n" +
-      "          [-v]\n" +
-      "          [-sql]\n" +
+      "          [-printSql]\n" +
       "          plot_spec_file\n" +
       "          [job_name]\n" +
       "\n" +
