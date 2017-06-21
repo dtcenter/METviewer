@@ -194,11 +194,9 @@ public class TestUtil {
       argsList.add("-list");
     }
     if (verbose) {
-      argsList.add("-v");
+      argsList.add("-printSql");
     }
-    if (sql) {
-      argsList.add("-sql");
-    }
+
 
     argsList.add(testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml");
     if (job_name != null) {
