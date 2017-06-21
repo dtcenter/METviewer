@@ -84,8 +84,8 @@
 
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
-        <mkdir dir="${build}/edu/ucar/metviewer/resourses"/>
-        <copy todir="${build}/edu/ucar/metviewer/resourses">
+        <mkdir dir="${build}/edu/ucar/metviewer/resources"/>
+        <copy todir="${build}/edu/ucar/metviewer/resources">
             <fileset dir="${src}/edu/ucar/metviewer/resources">
                 <include name="**/*.xml"/>
             </fileset>
