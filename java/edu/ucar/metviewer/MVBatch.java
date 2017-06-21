@@ -31,7 +31,7 @@ public class MVBatch extends MVUtil {
 
   public MVBatch(PrintStream log, PrintStream printStreamSql, AppDatabaseManager manager) {
     super();
-    MVUtil.updateLog4jConfiguration();
+
     printStream = log;
     printStreamSQL = printStreamSql;
     databaseManager = manager;

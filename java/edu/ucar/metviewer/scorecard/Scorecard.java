@@ -5,7 +5,6 @@
 
 package edu.ucar.metviewer.scorecard;
 
-import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
@@ -227,7 +226,6 @@ public class Scorecard {
   }
 
   public static void main(String[] args) throws Exception {
-    MVUtil.updateLog4jConfiguration();
     long nanos = System.nanoTime();
     String filename;
     if (0 == args.length) {

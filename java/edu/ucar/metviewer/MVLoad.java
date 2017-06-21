@@ -64,7 +64,6 @@ public class MVLoad {
   }
 
   public static void main(String[] argv) {
-    MVUtil.updateLog4jConfiguration();
     logger.info("----  MVLoad  ----\n");
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
