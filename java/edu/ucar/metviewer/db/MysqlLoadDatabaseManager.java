@@ -58,7 +58,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
   public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
     super(databaseInfo);
-    MVUtil.updateLog4jConfiguration();
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
