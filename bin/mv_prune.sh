@@ -15,6 +15,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/guava-14.0.1.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.8.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.8.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.8.2.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
 $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.prune.MVPruneDB $@
