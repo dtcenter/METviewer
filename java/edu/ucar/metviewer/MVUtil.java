@@ -797,7 +797,7 @@ public class MVUtil {
   }
 
   public static String buildTemplateString(String tmpl, MVOrderedMap vals, PrintStream printStream) throws Exception {
-    return buildTemplateString(tmpl, vals, null);
+    return buildTemplateString(tmpl, vals, null,printStream);
   }
 
   /**
