@@ -517,9 +517,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
 
         //  add total and all of the stats on the rest of the line to the value list
-        for (int i = headerNames.size(); i < intLineDataMax; i++) {
+        for (int i = headerNames.indexOf("LINE_TYPE")+1; i < intLineDataMax; i++) {
           //  for the METv2.0 MPR line type, add the obs_sid
-          if (headerNames.size() + 2 == i && "MPR".equals(mvLoadStatInsertData.getLineType()) && "V2.0".equals(strMetVersion)) {
+          if (headerNames.indexOf("LINE_TYPE")+1 + 2 == i && "MPR".equals(mvLoadStatInsertData.getLineType()) && "V2.0".equals(strMetVersion)) {
             strLineDataValueList += ", 'NA'";
           }
           //  add the stats in order
