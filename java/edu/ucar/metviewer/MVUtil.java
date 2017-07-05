@@ -58,11 +58,11 @@ public class MVUtil {
   public static final Map<String, String[]> statsPhist = new HashMap<>();
   public static final Map<String, String[]> statsRhist = new HashMap<>();
   public static final Map<String, String[]> statsVl1l2 = new HashMap<>();
-  public static final Map<String, String[]> modeSingleStatField = new HashMap<>();
+  public static final Map<String, String> modeSingleStatField = new HashMap<>();
 
-  public static final Map<String, String[]> modePairStatField = new HashMap<>();
-  public static final Map<String, String[]> modeRatioField = new HashMap<>();
-  public static final Map<String, String[]> calcStatCTC = new HashMap<>();
+  public static final Map<String, String> modePairStatField = new HashMap<>();
+  public static final Map<String, String> modeRatioField = new HashMap<>();
+  public static final Map<String, String> calcStatCTC = new HashMap<>();
   public static final String DB_DATE_MS = "yyyy-MM-dd HH:mm:ss.S";
   public static final String DB_DATE_PLOT = "yyyyMMddHH";
   public static final String DB_DATE_STAT = "yyyyMMdd_HHmmss";
@@ -299,142 +299,142 @@ public class MVUtil {
   }
 
   static {
-    modeSingleStatField.put("ACOV", new String[]{"SUM(area)"});
-    modeSingleStatField.put("CNT", new String[]{"COUNT(object_id)"});
-    modeSingleStatField.put("CNTSUM", new String[]{"COUNT(object_id)"});
-    modeSingleStatField.put("CENTX", new String[]{"centroid_x"});
-    modeSingleStatField.put("CENTY", new String[]{"centroid_y"});
-    modeSingleStatField.put("CENTLAT", new String[]{"centroid_lat"});
-    modeSingleStatField.put("CENTLON", new String[]{"centroid_lon"});
-    modeSingleStatField.put("AXAVG", new String[]{"axis_avg"});
-    modeSingleStatField.put("LEN", new String[]{"length"});
-    modeSingleStatField.put("WID", new String[]{"width"});
-    modeSingleStatField.put("ASPECT", new String[]{"IF((length/width) < (width/length), length/width, width/length)"});
-    modeSingleStatField.put("AREA", new String[]{"area"});
-    modeSingleStatField.put("AREAFIL", new String[]{"area_filter"});
-    modeSingleStatField.put("AREATHR", new String[]{"area_thresh"});
-    modeSingleStatField.put("CURV", new String[]{"curvature"});
-    modeSingleStatField.put("CURVX", new String[]{"curvature_x"});
-    modeSingleStatField.put("CURVY", new String[]{"curvature_y"});
-    modeSingleStatField.put("CPLX", new String[]{"complexity"});
-    modeSingleStatField.put("INT10", new String[]{"intensity_10"});
-    modeSingleStatField.put("INT25", new String[]{"intensity_25"});
-    modeSingleStatField.put("INT50", new String[]{"intensity_50"});
-    modeSingleStatField.put("INT75", new String[]{"intensity_75"});
-    modeSingleStatField.put("INT90", new String[]{"intensity_90"});
-    modeSingleStatField.put("INTN", new String[]{"intensity_nn"});
-    modeSingleStatField.put("INTSUM", new String[]{"intensity_sum"});
+    modeSingleStatField.put("ACOV", "SUM(area)");
+    modeSingleStatField.put("CNT", "COUNT(object_id)");
+    modeSingleStatField.put("CNTSUM", "COUNT(object_id)");
+    modeSingleStatField.put("CENTX", "centroid_x");
+    modeSingleStatField.put("CENTY", "centroid_y");
+    modeSingleStatField.put("CENTLAT", "centroid_lat");
+    modeSingleStatField.put("CENTLON", "centroid_lon");
+    modeSingleStatField.put("AXAVG", "axis_avg");
+    modeSingleStatField.put("LEN", "length");
+    modeSingleStatField.put("WID", "width");
+    modeSingleStatField.put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
+    modeSingleStatField.put("AREA", "area");
+    modeSingleStatField.put("AREAFIL", "area_filter");
+    modeSingleStatField.put("AREATHR", "area_thresh");
+    modeSingleStatField.put("CURV", "curvature");
+    modeSingleStatField.put("CURVX", "curvature_x");
+    modeSingleStatField.put("CURVY", "curvature_y");
+    modeSingleStatField.put("CPLX", "complexity");
+    modeSingleStatField.put("INT10", "intensity_10");
+    modeSingleStatField.put("INT25", "intensity_25");
+    modeSingleStatField.put("INT50", "intensity_50");
+    modeSingleStatField.put("INT75", "intensity_75");
+    modeSingleStatField.put("INT90", "intensity_90");
+    modeSingleStatField.put("INTN", "intensity_nn");
+    modeSingleStatField.put("INTSUM", "intensity_sum");
   }
 
 
   static {
-    modePairStatField.put("CENTDIST", new String[]{"centroid_dist"});
-    modePairStatField.put("BOUNDDIST", new String[]{"boundary_dist"});
-    modePairStatField.put("HULLDIST", new String[]{"convex_hull_dist"});
-    modePairStatField.put("ANGLEDIFF", new String[]{"angle_diff"});
-    modePairStatField.put("AREARATIO", new String[]{"area_ratio"});
-    modePairStatField.put("INTAREA", new String[]{"intersection_area"});
-    modePairStatField.put("UNIONAREA", new String[]{"union_area"});
-    modePairStatField.put("SYMDIFF", new String[]{"symmetric_diff"});
-    modePairStatField.put("INTOVERAREA", new String[]{"intersection_over_area"});
-    modePairStatField.put("CMPLXRATIO", new String[]{"complexity_ratio"});
-    modePairStatField.put("PERCINTRATIO", new String[]{"percentile_intensity_ratio"});
-    modePairStatField.put("INT", new String[]{"interest"});
-    modePairStatField.put("MAXINT", new String[]{"MAX(interest)"});
-    modePairStatField.put("MAXINTF", new String[]{"MAX(interest)"});
-    modePairStatField.put("MAXINTO", new String[]{"MAX(interest)"});
+    modePairStatField.put("CENTDIST", "centroid_dist");
+    modePairStatField.put("BOUNDDIST", "boundary_dist");
+    modePairStatField.put("HULLDIST","convex_hull_dist");
+    modePairStatField.put("ANGLEDIFF", "angle_diff");
+    modePairStatField.put("AREARATIO", "area_ratio");
+    modePairStatField.put("INTAREA", "intersection_area");
+    modePairStatField.put("UNIONAREA", "union_area");
+    modePairStatField.put("SYMDIFF", "symmetric_diff");
+    modePairStatField.put("INTOVERAREA", "intersection_over_area");
+    modePairStatField.put("CMPLXRATIO", "complexity_ratio");
+    modePairStatField.put("PERCINTRATIO", "percentile_intensity_ratio");
+    modePairStatField.put("INT", "interest");
+    modePairStatField.put("MAXINT", "MAX(interest)");
+    modePairStatField.put("MAXINTF", "MAX(interest)");
+    modePairStatField.put("MAXINTO", "MAX(interest)");
   }
 
   static {
-    modeRatioField.put("RATIO_FSA_ASA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(simple_flag = 1)"});
-    modeRatioField.put("RATIO_OSA_ASA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(simple_flag = 1)"});
-    modeRatioField.put("RATIO_ASM_ASA", new String[]{"SUM(simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1)"});
-    modeRatioField.put("RATIO_ASU_ASA", new String[]{"SUM(simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1)"});
-    modeRatioField.put("RATIO_FSM_FSA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_FSU_FSA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_OSM_OSA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_OSU_OSA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_FSM_ASM", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)"});
-    modeRatioField.put("RATIO_OSM_ASM", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)"});
-    modeRatioField.put("RATIO_FSU_ASU", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)"});
-    modeRatioField.put("RATIO_OSU_ASU", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)"});
-    modeRatioField.put("RATIO_FSA_AAA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1) / count(object_id)"});
-    modeRatioField.put("RATIO_OSA_AAA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1) / count(object_id)"});
-    modeRatioField.put("RATIO_FSA_FAA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1)"});
-    modeRatioField.put("RATIO_FCA_FAA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1)"});
-    modeRatioField.put("RATIO_OSA_OAA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0)"});
-    modeRatioField.put("RATIO_OCA_OAA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0)"});
-    modeRatioField.put("RATIO_FCA_ACA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(simple_flag = 0)"});
-    modeRatioField.put("RATIO_OCA_ACA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(simple_flag = 0)"});
-    modeRatioField.put("RATIO_FSA_OSA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_OSA_FSA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_ACA_ASA", new String[]{"SUM(simple_flag = 0) / SUM(simple_flag = 1)"});
-    modeRatioField.put("RATIO_ASA_ACA", new String[]{"SUM(simple_flag = 1) / SUM(simple_flag = 0)"});
-    modeRatioField.put("RATIO_FCA_FSA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_FSA_FCA", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 0)"});
-    modeRatioField.put("RATIO_OCA_OSA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)"});
-    modeRatioField.put("RATIO_OSA_OCA", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 0)"});
+    modeRatioField.put("RATIO_FSA_ASA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(simple_flag = 1)");
+    modeRatioField.put("RATIO_OSA_ASA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(simple_flag = 1)");
+    modeRatioField.put("RATIO_ASM_ASA", "SUM(simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1)");
+    modeRatioField.put("RATIO_ASU_ASA", "SUM(simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1)");
+    modeRatioField.put("RATIO_FSM_FSA", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)");
+    modeRatioField.put("RATIO_FSU_FSA", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");
+    modeRatioField.put("RATIO_OSM_OSA", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)");
+    modeRatioField.put("RATIO_OSU_OSA", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
+    modeRatioField.put("RATIO_FSM_ASM", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)");
+    modeRatioField.put("RATIO_OSM_ASM", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)");
+    modeRatioField.put("RATIO_FSU_ASU", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)");
+    modeRatioField.put("RATIO_OSU_ASU", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)");
+    modeRatioField.put("RATIO_FSA_AAA", "SUM(fcst_flag = 1 && simple_flag = 1) / count(object_id)");
+    modeRatioField.put("RATIO_OSA_AAA", "SUM(fcst_flag = 0 && simple_flag = 1) / count(object_id)");
+    modeRatioField.put("RATIO_FSA_FAA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1)");
+    modeRatioField.put("RATIO_FCA_FAA", "SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1)");
+    modeRatioField.put("RATIO_OSA_OAA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0)");
+    modeRatioField.put("RATIO_OCA_OAA", "SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0)");
+    modeRatioField.put("RATIO_FCA_ACA", "SUM(fcst_flag = 1 && simple_flag = 0) / SUM(simple_flag = 0)");
+    modeRatioField.put("RATIO_OCA_ACA", "SUM(fcst_flag = 0 && simple_flag = 0) / SUM(simple_flag = 0)");
+    modeRatioField.put("RATIO_FSA_OSA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)");
+    modeRatioField.put("RATIO_OSA_FSA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)");
+    modeRatioField.put("RATIO_ACA_ASA", "SUM(simple_flag = 0) / SUM(simple_flag = 1)");
+    modeRatioField.put("RATIO_ASA_ACA", "SUM(simple_flag = 1) / SUM(simple_flag = 0)");
+    modeRatioField.put("RATIO_FCA_FSA", "SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");
+    modeRatioField.put("RATIO_FSA_FCA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 0)");
+    modeRatioField.put("RATIO_OCA_OSA", "SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
+    modeRatioField.put("RATIO_OSA_OCA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 0)");
 
-    modeRatioField.put("OBJHITS", new String[]{"SUM(simple_flag = 1 && matched_flag = 1) / 2"});
-    modeRatioField.put("OBJMISSES", new String[]{"SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0)"});
-    modeRatioField.put("OBJFAS", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0)"});
-    modeRatioField.put("OBJCSI", new String[]{"SUM(simple_flag = 1 && matched_flag = 1) / ( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(simple_flag = 1 && matched_flag = 0) )"});
-    modeRatioField.put("OBJPODY", new String[]{"SUM(simple_flag = 1 && matched_flag = 1) / " +
-      "( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) )"});
-    modeRatioField.put("OBJFAR", new String[]{"SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / " +
-      "( SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) + SUM(simple_flag = 1 && matched_flag = 1) / 2 )"});
+    modeRatioField.put("OBJHITS", "SUM(simple_flag = 1 && matched_flag = 1) / 2");
+    modeRatioField.put("OBJMISSES", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0)");
+    modeRatioField.put("OBJFAS", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0)");
+    modeRatioField.put("OBJCSI", "SUM(simple_flag = 1 && matched_flag = 1) / ( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(simple_flag = 1 && matched_flag = 0) )");
+    modeRatioField.put("OBJPODY", "SUM(simple_flag = 1 && matched_flag = 1) / " +
+      "( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) )");
+    modeRatioField.put("OBJFAR", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / " +
+      "( SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) + SUM(simple_flag = 1 && matched_flag = 1) / 2 )");
 
-    modeRatioField.put("AREARAT_FSA_ASA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSA_ASA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_ASM_ASA", new String[]{"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_ASU_ASA", new String[]{"SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_FSM_FSA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_FSU_FSA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSM_OSA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSU_OSA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_FSM_ASM", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSM_ASM", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_FSU_ASU", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_OSU_ASU", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_FSA_AAA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / count(object_id)"});
-    modeRatioField.put("AREARAT_OSA_AAA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / count(object_id)"});
-    modeRatioField.put("AREARAT_FSA_FAA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_FCA_FAA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSA_OAA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_OCA_OAA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_FCA_ACA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_OCA_ACA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_FSA_OSA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSA_FSA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_ACA_ASA", new String[]{"SUM( IF(simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_ASA_ACA", new String[]{"SUM( IF(simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_FCA_FSA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_FSA_FCA", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) )"});
-    modeRatioField.put("AREARAT_OCA_OSA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )"});
-    modeRatioField.put("AREARAT_OSA_OCA", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) )"});
+    modeRatioField.put("AREARAT_FSA_ASA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSA_ASA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_ASM_ASA", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_ASU_ASA", "SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_FSM_FSA", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_FSU_FSA", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSM_OSA", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSU_OSA", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_FSM_ASM", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSM_ASM", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_FSU_ASU", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_OSU_ASU", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_FSA_AAA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / count(object_id)");
+    modeRatioField.put("AREARAT_OSA_AAA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / count(object_id)");
+    modeRatioField.put("AREARAT_FSA_FAA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_FCA_FAA", "SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSA_OAA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_OCA_OAA", "SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_FCA_ACA", "SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_OCA_ACA", "SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_FSA_OSA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSA_FSA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_ACA_ASA", "SUM( IF(simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_ASA_ACA", "SUM( IF(simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_FCA_FSA", "SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_FSA_FCA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) )");
+    modeRatioField.put("AREARAT_OCA_OSA", "SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
+    modeRatioField.put("AREARAT_OSA_OCA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) )");
 
-    modeRatioField.put("OBJAHITS", new String[]{"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2"});
-    modeRatioField.put("OBJAMISSES", new String[]{"SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) )"});
-    modeRatioField.put("OBJAFAS", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) )"});
-    modeRatioField.put("OBJACSI", new String[]{"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
-      "( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) )"});
-    modeRatioField.put("OBJAPODY", new String[]{"SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
-      "( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) )"});
-    modeRatioField.put("OBJAFAR", new String[]{"SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / " +
-      "( SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) + SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2 )"});
+    modeRatioField.put("OBJAHITS", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2");
+    modeRatioField.put("OBJAMISSES", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) )");
+    modeRatioField.put("OBJAFAS", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) )");
+    modeRatioField.put("OBJACSI", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
+      "( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) )");
+    modeRatioField.put("OBJAPODY", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
+      "( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) )");
+    modeRatioField.put("OBJAFAR", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / " +
+      "( SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) + SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2 )");
   }
 
   static {
-    calcStatCTC.put("BASER", new String[]{"(d$fy_oy + d$fn_oy) / d$total"});
-    calcStatCTC.put("BASER", new String[]{"IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_oy) / d$total ))"});
-    calcStatCTC.put("ACC", new String[]{"IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_on) / d$total ))"});
-    calcStatCTC.put("FBIAS", new String[]{"IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ))"});
-    calcStatCTC.put("PODY", new String[]{"IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( d$fy_oy / (d$fy_oy + d$fn_oy) ))"});
-    calcStatCTC.put("POFD", new String[]{"IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fy_on / (d$fy_on + d$fn_on) ))"});
-    calcStatCTC.put("PODN", new String[]{"IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fn_on / (d$fy_on + d$fn_on) ))"});
-    calcStatCTC.put("FAR", new String[]{"IF(0 == (d$fy_oy + d$fy_on),			'NA', ( d$fy_on / (d$fy_oy + d$fy_on) ))"});
-    calcStatCTC.put("CSI", new String[]{"IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))"});
-    calcStatCTC.put("GSS", new String[]{"IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))"});
+    calcStatCTC.put("BASER", "(d$fy_oy + d$fn_oy) / d$total");
+    calcStatCTC.put("BASER", "IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_oy) / d$total ))");
+    calcStatCTC.put("ACC", "IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_on) / d$total ))");
+    calcStatCTC.put("FBIAS", "IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ))");
+    calcStatCTC.put("PODY", "IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( d$fy_oy / (d$fy_oy + d$fn_oy) ))");
+    calcStatCTC.put("POFD", "IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fy_on / (d$fy_on + d$fn_on) ))");
+    calcStatCTC.put("PODN", "IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fn_on / (d$fy_on + d$fn_on) ))");
+    calcStatCTC.put("FAR", "IF(0 == (d$fy_oy + d$fy_on),			'NA', ( d$fy_on / (d$fy_oy + d$fy_on) ))");
+    calcStatCTC.put("CSI", "IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
+    calcStatCTC.put("GSS", "IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
   }
 
   /**
