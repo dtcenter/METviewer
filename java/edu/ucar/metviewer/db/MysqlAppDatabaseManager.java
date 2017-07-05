@@ -418,7 +418,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listSQLLastSelect.size(); i++) {
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
              ResultSet resultSetLast = stmt.executeQuery(listSQLLastSelect.get(i));
-             FileWriter fstream = new FileWriter(new File(fileName), false);
+             FileWriter fstream = new FileWriter(new File(fileName), i != 0);
              BufferedWriter out = new BufferedWriter(fstream)) {
 
           printFormattedTable(resultSetLast, out, "\t", isCalc, i == 0);
@@ -1544,7 +1544,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
-    String strTableStat = Arrays.toString(MVUtil.modePairStatField.get(strStatName));
+    String strTableStat = MVUtil.modePairStatField.get(strStatName);
 
     //  build the query
     return
