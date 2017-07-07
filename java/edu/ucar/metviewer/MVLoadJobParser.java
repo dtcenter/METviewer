@@ -118,7 +118,11 @@ public class MVLoadJobParser extends MVUtil {
 
             //  <date_list>
             else if (nodeChild._tag.equals("date_list")) {
-              listVal.addAll(Arrays.asList((String[]) _tableDateListDecl.get(nodeChild._name)));
+              if (_tableDateListDecl.get(nodeChild._name) instanceof List) {
+                listVal.addAll((List) _tableDateListDecl.get(nodeChild._name));
+              } else {
+                listVal.addAll(Arrays.asList((String[]) _tableDateListDecl.get(nodeChild._name)));
+              }
             }
           }
           job.addLoadVal(strFieldName, toArray(listVal));
