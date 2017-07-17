@@ -884,6 +884,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             mvLoadStatInsertData.setLineType("ENSCNT");
           } else if (listToken[6].equals("RELI")) {
             mvLoadStatInsertData.setLineType("PCT");
+            int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+            thresh = "==1/" +String.valueOf(intGroupSize);
           } else if (listToken[6].startsWith("FHO")) {
             mvLoadStatInsertData.setLineType("CTC");
             String[] threshArr = listToken[6].split("FHO");
