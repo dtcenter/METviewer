@@ -12,9 +12,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MVBatch extends MVUtil {
+
   private static final Logger logger = LogManager.getLogger("MVBatch");
 
-  private PrintStream printStream ;
+  private PrintStream printStream;
   private PrintStream printStreamSQL;
 
 
@@ -27,6 +28,7 @@ public class MVBatch extends MVUtil {
   public int _intNumPlots = 0;
   private int _intNumPlotsRun = 0;
   private static AppDatabaseManager databaseManager;
+  private String dbType;
 
 
   public MVBatch(PrintStream log, PrintStream printStreamSql, AppDatabaseManager manager) {
@@ -49,11 +51,13 @@ public class MVBatch extends MVUtil {
     return "Usage:  mv_batch\n" +
       "          [-list]\n" +
       "          [-printSql]\n" +
+      "          db_type\n" +
       "          plot_spec_file\n" +
       "          [job_name]\n" +
       "\n" +
       "        where     \"-list\" indicates that the available plot jobs should be listed and no plots run\n" +
       "                  \"-printSql\" print SQL statements\n" +
+      "                  \"db_type\" specifies database type (available values : mysql)\n" +
       "                  \"plot_spec_file\" specifies the XML plot specification document\n" +
       "                  \"job_name\" specifies the name of the job from the plot specification to run\n";
   }
@@ -81,6 +85,8 @@ public class MVBatch extends MVUtil {
           boolList = true;
         } else if (argv[intArg].equals("-printSql")) {
           bat.setVerbose(true);
+        } else if (argv[intArg].equals("mysql")) {
+          bat.setDbType("mysql");
         } else {
           logger.error("  **  ERROR: unrecognized option '" + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
@@ -92,13 +98,13 @@ public class MVBatch extends MVUtil {
       bat.printStream.println("input file: " + strXMLInput + "\n");
 
       MVPlotJobParser parser = new MVPlotJobParser(strXMLInput);
-      if (parser.getStrDBType() == null || parser.getStrDBType().equals("mysql")) {
+      if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
         databaseManager = new MysqlAppDatabaseManager(parser.getDatabaseInfo());
       }
       MVOrderedMap mapJobs = parser.getJobsMap();
 
       //  build a list of jobs to run
-      ArrayList listJobNamesInput = new ArrayList();
+      List<String> listJobNamesInput = new ArrayList<>();
       for (; intArg < argv.length; intArg++) {
         listJobNamesInput.add(argv[intArg]);
       }
@@ -107,8 +113,8 @@ public class MVBatch extends MVUtil {
         listJobNames = toArray(listJobNamesInput);
       }
       bat.printStream.println((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
-      for (int i = 0; i < listJobNames.length; i++) {
-        bat.printStream.println("  " + listJobNames[i]);
+      for (String listJobName : listJobNames) {
+        bat.printStream.println("  " + listJobName);
       }
 
 
@@ -123,14 +129,14 @@ public class MVBatch extends MVUtil {
         jobs = parser.getJobsList();
       } else {
         ArrayList listJobs = new ArrayList();
-        for (int i = 0; i < listJobNames.length; i++) {
-          if (!mapJobs.containsKey(listJobNames[i])) {
-            bat.printStream.println("  **  WARNING: unrecognized job \"" + listJobNames[i] + "\"");
+        for (String listJobName : listJobNames) {
+          if (!mapJobs.containsKey(listJobName)) {
+            bat.printStream.println("  **  WARNING: unrecognized job \"" + listJobName + "\"");
             continue;
           }
-          listJobs.add(mapJobs.get(listJobNames[i]));
+          listJobs.add(mapJobs.get(listJobName));
         }
-        jobs = (MVPlotJob[]) listJobs.toArray(new MVPlotJob[]{});
+        jobs = (MVPlotJob[]) listJobs.toArray(new MVPlotJob[listJobs.size()]);
       }
 
       //  get the path information for the job
@@ -152,13 +158,13 @@ public class MVBatch extends MVUtil {
 
       //  calculate the number of plots
       bat._intNumPlots = 0;
-      for (int intJob = 0; intJob < jobs.length; intJob++) {
+      for (MVPlotJob job : jobs) {
 
         //  add a job for each permutation of plot fixed values
-        Map.Entry[] listPlotFix = jobs[intJob].getPlotFixVal().getOrderedEntries();
+        Map.Entry[] listPlotFix = job.getPlotFixVal().getOrderedEntries();
         int intNumJobPlots = 1;
-        for (int j = 0; j < listPlotFix.length; j++) {
-          Object objFixVal = listPlotFix[j].getValue();
+        for (Map.Entry aListPlotFix : listPlotFix) {
+          Object objFixVal = aListPlotFix.getValue();
           if (objFixVal instanceof String[]) {
             intNumJobPlots *= ((String[]) objFixVal).length;
           } else if (objFixVal instanceof MVOrderedMap) {
@@ -201,7 +207,7 @@ public class MVBatch extends MVUtil {
         padBegin("Avg plot time: ") + formatTimeSpan(intPlotAvg) + "\n");
 
     } catch (Exception e) {
-      logger.error("  **  ERROR:  "  + e.getMessage());
+      logger.error("  **  ERROR:  " + e.getMessage());
     }
 
     logger.info("----  MVBatch Done  ----");
@@ -400,13 +406,11 @@ public class MVBatch extends MVUtil {
       }
 
       //  build the SQL statements for the current plot
-      listQuery = databaseManager.buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal, verbose);
-      if(verbose){
-        for(String sql : listQuery){
+      listQuery = databaseManager.buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal,printStreamSQL);
+        for (String sql : listQuery) {
           printStreamSQL.println(sql);
           printStreamSQL.println("");
         }
-      }
 
       mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
       if (job.getIndyVar() != null) {
@@ -444,14 +448,14 @@ public class MVBatch extends MVUtil {
           if (mapDepY != null) {
             MVOrderedMap mapStat = new MVOrderedMap();
             String[][] listFcstVarStat = buildFcstVarStatList(mapDepY);
-            for (int i = 0; i < listFcstVarStat.length; i++) {
-              String strFcstVarCur = listFcstVarStat[i][0];
+            for (String[] aListFcstVarStat : listFcstVarStat) {
+              String strFcstVarCur = aListFcstVarStat[0];
               if (strFcstVar.isEmpty()) {
                 strFcstVar = strFcstVarCur;
               } else if (!strFcstVar.equals(strFcstVarCur)) {
                 throw new Exception("fcst_var must remain constant for MODE or when agg_stat/agg_pct/agg_stat_bootstrap is activated");
               }
-              mapStat.put(listFcstVarStat[i][1], listFcstVarStat[i][0]);
+              mapStat.put(aListFcstVarStat[1], aListFcstVarStat[0]);
             }
             if (1 == intY) {
               listAggStats1.addAll(Arrays.asList(mapStat.getKeyList()));
@@ -494,8 +498,8 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("fix_val_list_eq", mapPlotFixValEq.getRDecl());
         tableAggStatInfo.put("fix_val_list", mapPlotFixVal.getRDecl());
 
-        String diffSeries1 = buildTemplateString(job.getDiffSeries1(), mapTmplValsPlot, job.getTmplMaps(),printStream);
-        String diffSeries2 = buildTemplateString(job.getDiffSeries2(), mapTmplValsPlot, job.getTmplMaps(),printStream);
+        String diffSeries1 = buildTemplateString(job.getDiffSeries1(), mapTmplValsPlot, job.getTmplMaps(), printStream);
+        String diffSeries2 = buildTemplateString(job.getDiffSeries2(), mapTmplValsPlot, job.getTmplMaps(), printStream);
         tableAggStatInfo.put("series1_diff_list", diffSeries1);
         tableAggStatInfo.put("series2_diff_list", diffSeries2);
         tableAggStatInfo.put("dep1_plot", mapDep1Plot.getRDecl());
@@ -516,8 +520,6 @@ public class MVBatch extends MVUtil {
 
 
         String strDataFileEe = _strDataFolder + "/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps(), printStream);
-        List<String> queries = new ArrayList<>(1);
-        queries.add(eventEqualizeSql.get(eventEqualizeSql.size() - 1));
         boolean success = databaseManager.executeQueriesAndSaveToFile(eventEqualizeSql, strDataFileEe + "_ee_input", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
 
         if (success) {
@@ -528,7 +530,7 @@ public class MVBatch extends MVUtil {
 
 
           populateTemplateFile(_strRtmplFolder + "/" + tmplFileName, eeInfo, tableAggStatInfo);
-          runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo},printStream);
+          runRscript(job.getRscript(), _strRworkFolder + "/include/agg_stat_event_equalize.R", new String[]{eeInfo}, printStream);
         }
 
       }
@@ -541,7 +543,7 @@ public class MVBatch extends MVUtil {
       //  run the plot SQL against the database connection
       long intStartTime = new Date().getTime();
 
-      if(printStreamSQL != null) {
+      if (printStreamSQL != null) {
         for (String sql : listQuery) {
           printStreamSQL.println(sql + "\n");
         }
@@ -910,7 +912,7 @@ public class MVBatch extends MVUtil {
 			 */
 
 
-      boolean boolSuccess = runRscript(job.getRscript(), strRFile,printStream);
+      boolean boolSuccess = runRscript(job.getRscript(), strRFile, printStream);
       _intNumPlotsRun++;
       printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile);
 
@@ -980,7 +982,7 @@ public class MVBatch extends MVUtil {
       _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
       _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
       _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      if (_strDataFolder.length() ==0) {
+      if (_strDataFolder.length() == 0) {
         _strDataFolder = _strRworkFolder + "data/";
       } else {
         _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
@@ -1122,8 +1124,8 @@ public class MVBatch extends MVUtil {
       (new File(strRFile)).getParentFile().mkdirs();
       int intNumDepSeries = 1;
       Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSQLSeries();
-      for (int i = 0; i < listSeries1Val.length; i++) {
-        String[] listVal = (String[]) listSeries1Val[i].getValue();
+      for (Map.Entry aListSeries1Val : listSeries1Val) {
+        String[] listVal = (String[]) aListSeries1Val.getValue();
         intNumDepSeries *= listVal.length;
       }
 
@@ -1291,4 +1293,11 @@ public class MVBatch extends MVUtil {
 
   }
 
+  public void setDbType(String dbType) {
+    this.dbType = dbType;
+  }
+
+  public String getDbType() {
+    return dbType;
+  }
 }
