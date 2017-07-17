@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface AppDatabaseManager {
 
-  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal, boolean verbose) throws Exception;
+  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal,PrintStream printStreamSQL) throws Exception;
 
   List<String> buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception;
 
