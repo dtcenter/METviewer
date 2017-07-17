@@ -157,12 +157,8 @@ public class MVPlotJobParser extends MVUtil {
   protected String strDBHost = "";
   protected   String strDBUser = "";
   protected   String strDBPassword = "";
-  protected   String strDBType = null;
   protected   String strDBDriver = null;
 
-  public String getStrDBType() {
-    return strDBType;
-  }
 
   /**
    * Build a parser whose input source is the specified URI
@@ -243,10 +239,6 @@ public class MVPlotJobParser extends MVUtil {
       return "lacks plot_file";
     } else if (job.getDataFileTmpl().isEmpty()) {
       return "lacks data_file";
-    } else if (job.getXLabelTmpl().isEmpty()) {
-      return "lacks x_label";
-    } else if (job.getY1LabelTmpl().isEmpty()) {
-      return "lacks y1_label";
     } else if ((job.getAggCtc() || job.getAggSl1l2() || job.getAggSal1l2()) && (job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2())) {
       return "has both agg_stat and calc_stat";
     }
@@ -735,8 +727,7 @@ public class MVPlotJobParser extends MVUtil {
               strDBUser = node._children[j]._value;
             } else if (node._children[j]._tag.equals("password")) {
               strDBPassword = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("type")) {
-              strDBType = node._children[j]._value;
+
             } else if (node._children[j]._tag.equals("driver")) {
               strDBDriver = node._children[j]._value;
             }
@@ -1461,7 +1452,7 @@ public class MVPlotJobParser extends MVUtil {
       }
     }
     //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
-    for (String stat : modeSingleStatField.keySet()) {
+    for (String stat : modeSingleStatField) {
       if (node._value.indexOf(stat) > 0) {
         throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
       }
