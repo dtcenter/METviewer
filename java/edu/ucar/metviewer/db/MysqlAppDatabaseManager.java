@@ -794,7 +794,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @throws Exception
    */
   @Override
-  public List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal, boolean verbose) throws Exception {
+  public List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal,PrintStream printStreamSQL) throws Exception {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
 
     //  determine if the plot job is for stat data or MODE data
@@ -984,6 +984,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         //  validate and get the type and values for the independent variable
         String strIndyVarType = "";
         String strIndyVar = job.getIndyVar();
+        String strIndyVarFormatted = "";
         if (!strIndyVar.isEmpty()) {
           String[] listIndyVal = job.getIndyVal();
           if (!tableHeaderSQLType.containsKey(strIndyVar)) {
@@ -1000,7 +1001,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strSelectPlotList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
             strTempList += ",\n    " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
           }
-          String strIndyVarFormatted = formatField(strIndyVar, boolModePlot, false);
+          strIndyVarFormatted = formatField(strIndyVar, boolModePlot, false);
           if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
             strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , " + strIndyVarFormatted + " , " + strIndyVarFormatted + " + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) ";
           }
@@ -1024,22 +1025,40 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
 
         /*
-         *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists
+         *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
   			 */
         Map<String, Integer> pctThreshInfo = new HashMap<>();
         if (boolAggPct) {
-          String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" +
-            "WHERE\n" + strWhere + "  AND ld.stat_header_id = h.stat_header_id;";
-          if (verbose) {
-            logger.info(strSelPctThresh + "\n");
-          }
+          MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
+          MVOrderedMap[] forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY)).getRows();
+          for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
+            MVOrderedMap stats = forecastVars[forecastVarsInd];
+            String[] vars = stats.getKeyList();
+            for (int varsInd = 0; varsInd < vars.length; varsInd++) {
+              for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
+                MVOrderedMap ser = series[seriesInd];
+                String[] serName = ser.getKeyList();
+                for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
+                  String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" +
+                    "WHERE\n" + strIndyVarFormatted +
+                    " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n"
+                    + " AND " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd])
+                    + "' AND fcst_var='" + vars[varsInd]
+                    + "'  AND ld.stat_header_id = h.stat_header_id;";
+                    printStreamSQL.println(strSelPctThresh + "\n");
 
-          //  run the PCT thresh query
-          pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
-          if (1 != pctThreshInfo.get("numPctThresh")) {
-            throw new Exception("number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") not distinct for plot data");
-          } else if (1 > pctThreshInfo.get("numPctThresh")) {
-            throw new Exception("invalid number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") found");
+                  //  run the PCT thresh query
+                  pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
+                  if (1 != pctThreshInfo.get("numPctThresh")) {
+                    throw new Exception("number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") not distinct for" + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]) +
+                      "' AND fcst_var='" + vars[varsInd] + "'");
+                  } else if (1 > pctThreshInfo.get("numPctThresh")) {
+                    throw new Exception("invalid number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") found for" + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]) +
+                      "' AND fcst_var='" + vars[varsInd] + "'");
+                  }
+                }
+              }
+            }
           }
 
         } else {
@@ -1087,7 +1106,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               tableStats = modeSingleStatField;
             } else if (MVUtil.modePairStatField.containsKey(strStatMode)) {
               tableStats = modeSingleStatField;
-            } else if (MVUtil.modeRatioField.containsKey(strStat)) {
+            } else if (MVUtil.modeRatioField.contains(strStat)) {
               tableStats = modeSingleStatField;
             } else {
               throw new Exception("unrecognized mode stat: " + strStatMode);
