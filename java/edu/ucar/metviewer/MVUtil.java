@@ -1,10 +1,8 @@
 package edu.ucar.metviewer;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
@@ -13,14 +11,11 @@ import java.net.URI;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MVUtil {
 
-
-  public static final double INVALID_DATA = -9999;
 
   public static final Pattern _patProb = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
   public static final Pattern _patPlotTmpl = Pattern.compile("\\{((\\w+)(?:\\?[^}]*)?)\\}");
@@ -58,15 +53,16 @@ public class MVUtil {
   public static final Map<String, String[]> statsPhist = new HashMap<>();
   public static final Map<String, String[]> statsRhist = new HashMap<>();
   public static final Map<String, String[]> statsVl1l2 = new HashMap<>();
-  public static final Map<String, String> modeSingleStatField = new HashMap<>();
+  public static final List<String> modeSingleStatField = new ArrayList<>();
 
   public static final Map<String, String> modePairStatField = new HashMap<>();
-  public static final Map<String, String> modeRatioField = new HashMap<>();
-  public static final Map<String, String> calcStatCTC = new HashMap<>();
+  public static final List<String> modeRatioField = new ArrayList<>();
+  public static final List<String> calcStatCTC = new ArrayList<>();
   public static final String DB_DATE_MS = "yyyy-MM-dd HH:mm:ss.S";
   public static final String DB_DATE_PLOT = "yyyyMMddHH";
   public static final String DB_DATE_STAT = "yyyyMMdd_HHmmss";
-  public static final Pattern _patRTmpl = Pattern.compile("#<(\\w+)>#");
+
+  public static final Pattern patRTmpl = Pattern.compile("#<(\\w+)>#");
 
   public static final DecimalFormat formatPerf = new DecimalFormat("0.000");
 
@@ -299,38 +295,38 @@ public class MVUtil {
   }
 
   static {
-    modeSingleStatField.put("ACOV", "SUM(area)");
-    modeSingleStatField.put("CNT", "COUNT(object_id)");
-    modeSingleStatField.put("CNTSUM", "COUNT(object_id)");
-    modeSingleStatField.put("CENTX", "centroid_x");
-    modeSingleStatField.put("CENTY", "centroid_y");
-    modeSingleStatField.put("CENTLAT", "centroid_lat");
-    modeSingleStatField.put("CENTLON", "centroid_lon");
-    modeSingleStatField.put("AXAVG", "axis_avg");
-    modeSingleStatField.put("LEN", "length");
-    modeSingleStatField.put("WID", "width");
-    modeSingleStatField.put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
-    modeSingleStatField.put("AREA", "area");
-    modeSingleStatField.put("AREAFIL", "area_filter");
-    modeSingleStatField.put("AREATHR", "area_thresh");
-    modeSingleStatField.put("CURV", "curvature");
-    modeSingleStatField.put("CURVX", "curvature_x");
-    modeSingleStatField.put("CURVY", "curvature_y");
-    modeSingleStatField.put("CPLX", "complexity");
-    modeSingleStatField.put("INT10", "intensity_10");
-    modeSingleStatField.put("INT25", "intensity_25");
-    modeSingleStatField.put("INT50", "intensity_50");
-    modeSingleStatField.put("INT75", "intensity_75");
-    modeSingleStatField.put("INT90", "intensity_90");
-    modeSingleStatField.put("INTN", "intensity_nn");
-    modeSingleStatField.put("INTSUM", "intensity_sum");
+    modeSingleStatField.add("ACOV");
+    modeSingleStatField.add("CNT");
+    modeSingleStatField.add("CNTSUM");
+    modeSingleStatField.add("CENTX");
+    modeSingleStatField.add("CENTY");
+    modeSingleStatField.add("CENTLAT");
+    modeSingleStatField.add("CENTLON");
+    modeSingleStatField.add("AXAVG");
+    modeSingleStatField.add("LEN");
+    modeSingleStatField.add("WID");
+    modeSingleStatField.add("ASPECT");
+    modeSingleStatField.add("AREA");
+    modeSingleStatField.add("AREAFIL");
+    modeSingleStatField.add("AREATHR");
+    modeSingleStatField.add("CURV");
+    modeSingleStatField.add("CURVX");
+    modeSingleStatField.add("CURVY");
+    modeSingleStatField.add("CPLX");
+    modeSingleStatField.add("INT10");
+    modeSingleStatField.add("INT25");
+    modeSingleStatField.add("INT50");
+    modeSingleStatField.add("INT75");
+    modeSingleStatField.add("INT90");
+    modeSingleStatField.add("INTN");
+    modeSingleStatField.add("INTSUM");
   }
 
 
   static {
     modePairStatField.put("CENTDIST", "centroid_dist");
     modePairStatField.put("BOUNDDIST", "boundary_dist");
-    modePairStatField.put("HULLDIST","convex_hull_dist");
+    modePairStatField.put("HULLDIST", "convex_hull_dist");
     modePairStatField.put("ANGLEDIFF", "angle_diff");
     modePairStatField.put("AREARATIO", "area_ratio");
     modePairStatField.put("INTAREA", "intersection_area");
@@ -346,95 +342,90 @@ public class MVUtil {
   }
 
   static {
-    modeRatioField.put("RATIO_FSA_ASA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(simple_flag = 1)");
-    modeRatioField.put("RATIO_OSA_ASA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(simple_flag = 1)");
-    modeRatioField.put("RATIO_ASM_ASA", "SUM(simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1)");
-    modeRatioField.put("RATIO_ASU_ASA", "SUM(simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1)");
-    modeRatioField.put("RATIO_FSM_FSA", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)");
-    modeRatioField.put("RATIO_FSU_FSA", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");
-    modeRatioField.put("RATIO_OSM_OSA", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)");
-    modeRatioField.put("RATIO_OSU_OSA", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
-    modeRatioField.put("RATIO_FSM_ASM", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)");
-    modeRatioField.put("RATIO_OSM_ASM", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1) / SUM(simple_flag = 1 && matched_flag = 1)");
-    modeRatioField.put("RATIO_FSU_ASU", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)");
-    modeRatioField.put("RATIO_OSU_ASU", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) / SUM(simple_flag = 1 && matched_flag = 0)");
-    modeRatioField.put("RATIO_FSA_AAA", "SUM(fcst_flag = 1 && simple_flag = 1) / count(object_id)");
-    modeRatioField.put("RATIO_OSA_AAA", "SUM(fcst_flag = 0 && simple_flag = 1) / count(object_id)");
-    modeRatioField.put("RATIO_FSA_FAA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1)");
-    modeRatioField.put("RATIO_FCA_FAA", "SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1)");
-    modeRatioField.put("RATIO_OSA_OAA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0)");
-    modeRatioField.put("RATIO_OCA_OAA", "SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0)");
-    modeRatioField.put("RATIO_FCA_ACA", "SUM(fcst_flag = 1 && simple_flag = 0) / SUM(simple_flag = 0)");
-    modeRatioField.put("RATIO_OCA_ACA", "SUM(fcst_flag = 0 && simple_flag = 0) / SUM(simple_flag = 0)");
-    modeRatioField.put("RATIO_FSA_OSA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 1)");
-    modeRatioField.put("RATIO_OSA_FSA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 1)");
-    modeRatioField.put("RATIO_ACA_ASA", "SUM(simple_flag = 0) / SUM(simple_flag = 1)");
-    modeRatioField.put("RATIO_ASA_ACA", "SUM(simple_flag = 1) / SUM(simple_flag = 0)");
-    modeRatioField.put("RATIO_FCA_FSA", "SUM(fcst_flag = 1 && simple_flag = 0) / SUM(fcst_flag = 1 && simple_flag = 1)");
-    modeRatioField.put("RATIO_FSA_FCA", "SUM(fcst_flag = 1 && simple_flag = 1) / SUM(fcst_flag = 1 && simple_flag = 0)");
-    modeRatioField.put("RATIO_OCA_OSA", "SUM(fcst_flag = 0 && simple_flag = 0) / SUM(fcst_flag = 0 && simple_flag = 1)");
-    modeRatioField.put("RATIO_OSA_OCA", "SUM(fcst_flag = 0 && simple_flag = 1) / SUM(fcst_flag = 0 && simple_flag = 0)");
+    modeRatioField.add("RATIO_FSA_ASA");
+    modeRatioField.add("RATIO_OSA_ASA");
+    modeRatioField.add("RATIO_ASM_ASA");
+    modeRatioField.add("RATIO_ASU_ASA");
+    modeRatioField.add("RATIO_FSM_FSA");
+    modeRatioField.add("RATIO_FSU_FSA");
+    modeRatioField.add("RATIO_OSM_OSA");
+    modeRatioField.add("RATIO_OSU_OSA");
+    modeRatioField.add("RATIO_FSM_ASM");
+    modeRatioField.add("RATIO_OSM_ASM");
+    modeRatioField.add("RATIO_FSU_ASU");
+    modeRatioField.add("RATIO_OSU_ASU");
+    modeRatioField.add("RATIO_FSA_AAA");
+    modeRatioField.add("RATIO_OSA_AAA");
+    modeRatioField.add("RATIO_FSA_FAA");
+    modeRatioField.add("RATIO_FCA_FAA");
+    modeRatioField.add("RATIO_OSA_OAA");
+    modeRatioField.add("RATIO_OCA_OAA");
+    modeRatioField.add("RATIO_FCA_ACA");
+    modeRatioField.add("RATIO_OCA_ACA");
+    modeRatioField.add("RATIO_FSA_OSA");
+    modeRatioField.add("RATIO_OSA_FSA");
+    modeRatioField.add("RATIO_ACA_ASA");
+    modeRatioField.add("RATIO_ASA_ACA");
+    modeRatioField.add("RATIO_FCA_FSA");
+    modeRatioField.add("RATIO_FSA_FCA");
+    modeRatioField.add("RATIO_OCA_OSA");
+    modeRatioField.add("RATIO_OSA_OCA");
 
-    modeRatioField.put("OBJHITS", "SUM(simple_flag = 1 && matched_flag = 1) / 2");
-    modeRatioField.put("OBJMISSES", "SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0)");
-    modeRatioField.put("OBJFAS", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0)");
-    modeRatioField.put("OBJCSI", "SUM(simple_flag = 1 && matched_flag = 1) / ( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(simple_flag = 1 && matched_flag = 0) )");
-    modeRatioField.put("OBJPODY", "SUM(simple_flag = 1 && matched_flag = 1) / " +
-      "( SUM(simple_flag = 1 && matched_flag = 1) + 2 * SUM(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0) )");
-    modeRatioField.put("OBJFAR", "SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) / " +
-      "( SUM(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0) + SUM(simple_flag = 1 && matched_flag = 1) / 2 )");
+    modeRatioField.add("OBJHITS");
+    modeRatioField.add("OBJMISSES");
+    modeRatioField.add("OBJFAS");
+    modeRatioField.add("OBJCSI");
+    modeRatioField.add("OBJPODY");
+    modeRatioField.add("OBJFAR");
 
-    modeRatioField.put("AREARAT_FSA_ASA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSA_ASA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_ASM_ASA", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_ASU_ASA", "SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_FSM_FSA", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_FSU_FSA", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSM_OSA", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSU_OSA", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_FSM_ASM", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSM_ASM", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 1, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_FSU_ASU", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_OSU_ASU", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_FSA_AAA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / count(object_id)");
-    modeRatioField.put("AREARAT_OSA_AAA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / count(object_id)");
-    modeRatioField.put("AREARAT_FSA_FAA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_FCA_FAA", "SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSA_OAA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_OCA_OAA", "SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_FCA_ACA", "SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_OCA_ACA", "SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_FSA_OSA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSA_FSA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_ACA_ASA", "SUM( IF(simple_flag = 0, area, 0) ) / SUM( IF(simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_ASA_ACA", "SUM( IF(simple_flag = 1, area, 0) ) / SUM( IF(simple_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_FCA_FSA", "SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_FSA_FCA", "SUM( IF(fcst_flag = 1 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 1 && simple_flag = 0, area, 0) )");
-    modeRatioField.put("AREARAT_OCA_OSA", "SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) )");
-    modeRatioField.put("AREARAT_OSA_OCA", "SUM( IF(fcst_flag = 0 && simple_flag = 1, area, 0) ) / SUM( IF(fcst_flag = 0 && simple_flag = 0, area, 0) )");
+    modeRatioField.add("AREARAT_FSA_ASA");
+    modeRatioField.add("AREARAT_OSA_ASA");
+    modeRatioField.add("AREARAT_ASM_ASA");
+    modeRatioField.add("AREARAT_ASU_ASA");
+    modeRatioField.add("AREARAT_FSM_FSA");
+    modeRatioField.add("AREARAT_FSU_FSA");
+    modeRatioField.add("AREARAT_OSM_OSA");
+    modeRatioField.add("AREARAT_OSU_OSA");
+    modeRatioField.add("AREARAT_FSM_ASM");
+    modeRatioField.add("AREARAT_OSM_ASM");
+    modeRatioField.add("AREARAT_FSU_ASU");
+    modeRatioField.add("AREARAT_OSU_ASU");
+    modeRatioField.add("AREARAT_FSA_AAA");
+    modeRatioField.add("AREARAT_OSA_AAA");
+    modeRatioField.add("AREARAT_FSA_FAA");
+    modeRatioField.add("AREARAT_FCA_FAA");
+    modeRatioField.add("AREARAT_OSA_OAA");
+    modeRatioField.add("AREARAT_OCA_OAA");
+    modeRatioField.add("AREARAT_FCA_ACA");
+    modeRatioField.add("AREARAT_OCA_ACA");
+    modeRatioField.add("AREARAT_FSA_OSA");
+    modeRatioField.add("AREARAT_OSA_FSA");
+    modeRatioField.add("AREARAT_ACA_ASA");
+    modeRatioField.add("AREARAT_ASA_ACA");
+    modeRatioField.add("AREARAT_FCA_FSA");
+    modeRatioField.add("AREARAT_FSA_FCA");
+    modeRatioField.add("AREARAT_OCA_OSA");
+    modeRatioField.add("AREARAT_OSA_OCA");
 
-    modeRatioField.put("OBJAHITS", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2");
-    modeRatioField.put("OBJAMISSES", "SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) )");
-    modeRatioField.put("OBJAFAS", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) )");
-    modeRatioField.put("OBJACSI", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
-      "( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(simple_flag = 1 && matched_flag = 0, area, 0) ) )");
-    modeRatioField.put("OBJAPODY", "SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / " +
-      "( SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) + 2 * SUM( IF(fcst_flag = 0 && simple_flag = 1 && matched_flag = 0, area, 0) ) )");
-    modeRatioField.put("OBJAFAR", "SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) / " +
-      "( SUM( IF(fcst_flag = 1 && simple_flag = 1 && matched_flag = 0, area, 0) ) + SUM( IF(simple_flag = 1 && matched_flag = 1, area, 0) ) / 2 )");
+    modeRatioField.add("OBJAHITS");
+    modeRatioField.add("OBJAMISSES");
+    modeRatioField.add("OBJAFAS");
+    modeRatioField.add("OBJACSI");
+    modeRatioField.add("OBJAPODY");
+    modeRatioField.add("OBJAFAR");
   }
 
   static {
-    calcStatCTC.put("BASER", "(d$fy_oy + d$fn_oy) / d$total");
-    calcStatCTC.put("BASER", "IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_oy) / d$total ))");
-    calcStatCTC.put("ACC", "IF(0 == d$total,						'NA', ( (d$fy_oy + d$fn_on) / d$total ))");
-    calcStatCTC.put("FBIAS", "IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) ))");
-    calcStatCTC.put("PODY", "IF(0 == (d$fy_oy + d$fn_oy),			'NA', ( d$fy_oy / (d$fy_oy + d$fn_oy) ))");
-    calcStatCTC.put("POFD", "IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fy_on / (d$fy_on + d$fn_on) ))");
-    calcStatCTC.put("PODN", "IF(0 == (d$fy_on + d$fn_on),			'NA', ( d$fn_on / (d$fy_on + d$fn_on) ))");
-    calcStatCTC.put("FAR", "IF(0 == (d$fy_oy + d$fy_on),			'NA', ( d$fy_on / (d$fy_oy + d$fy_on) ))");
-    calcStatCTC.put("CSI", "IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
-    calcStatCTC.put("GSS", "IF(0 == (d$fy_oy + d$fy_on + d$fn_oy),	'NA', ( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) ))");
+    calcStatCTC.add("BASER");
+    calcStatCTC.add("BASER");
+    calcStatCTC.add("ACC");
+    calcStatCTC.add("FBIAS");
+    calcStatCTC.add("PODY");
+    calcStatCTC.add("POFD");
+    calcStatCTC.add("PODN");
+    calcStatCTC.add("FAR");
+    calcStatCTC.add("CSI");
+    calcStatCTC.add("GSS");
   }
 
   /**
@@ -447,7 +438,7 @@ public class MVUtil {
    * @param format Java date format string, describing input and output dates
    * @return List of date strings
    */
-  public static List<String> buildDateList(String start, String end, int incr, String format, PrintStream printStream) {
+  public static List<String> buildDateList(final String start, final String end, final int incr, final String format, final PrintStream printStream) {
     SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.US);
     formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     List<String> listDates = new ArrayList<>();
@@ -458,8 +449,8 @@ public class MVUtil {
       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       cal.setTime(dateStart);
 
-      while ((incr > 0 && cal.getTime().getTime() <= dateEnd.getTime()) ||
-        (incr < 0 && cal.getTime().getTime() >= dateEnd.getTime())) {
+      while ((incr > 0 && cal.getTime().getTime() <= dateEnd.getTime())
+        || (incr < 0 && cal.getTime().getTime() >= dateEnd.getTime())) {
         listDates.add(formatDate.format(cal.getTime()));
         cal.add(Calendar.SECOND, incr);
       }
@@ -477,7 +468,7 @@ public class MVUtil {
    * @param node MVNode to parse for the date list parameters
    * @return List of date strings
    */
-  public static List<String> buildDateList(MVNode node, PrintStream printStream) {
+  public static List<String> buildDateList(final MVNode node, final PrintStream printStream) {
     String strStart = "";
     String strEnd = "";
     int intInc = 0;
@@ -494,7 +485,11 @@ public class MVUtil {
     for (int j = 0; j < node._children.length; j++) {
       MVNode nodeChild = node._children[j];
       if (nodeChild._tag.equals("start")) {
-        strStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
+        if (0 < nodeChild._children.length) {
+          strStart = parseDateOffset(nodeChild._children[0], strFormat);
+        } else {
+          strStart = nodeChild._value;
+        }
       } else if (nodeChild._tag.equals("end")) {
         strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
       }
@@ -512,7 +507,7 @@ public class MVUtil {
    * @param date   (optional) String representation of the date from which to offset
    * @return String representation of the offset date
    */
-  public static String parseDateOffset(MVNode node, String format, String date) {
+  public static String parseDateOffset(final MVNode node, final String format, final String date) {
     int intOffset = 0;
     int intHour = 0;
 
@@ -540,42 +535,10 @@ public class MVUtil {
     return formatOffset.format(cal.getTime());
   }
 
-  public static String parseDateOffset(MVNode node, String format) {
+  public static String parseDateOffset(final MVNode node, final String format) {
     return parseDateOffset(node, format, null);
   }
 
-  public static String parseDateOffset(MVNode node) {
-    return parseDateOffset(node, "yyyy-MM-dd", null);
-  }
-
-  /**
-   * Returns the difference between the two dates in the specified units.  The acceptible units values are 0 (milliseconds), 1 (seconds), 2 (minutes), 3 (hours)
-   * or 4 (days).  The returned result is the truncated value (floor).
-   *
-   * @param date1 the date that will be subtracted from
-   * @param date2 the date that will be subtracted
-   * @param units specifies the units of the returned value (0-4), 0 is default
-   * @return difference between input dates in the specified units
-   */
-  public static long dateDiff(Date date1, Date date2, int units) {
-    int intDiv = 1;
-    switch (units) {
-      case 1:
-        intDiv = 1000;
-        break;
-      case 2:
-        intDiv = 60000;
-        break;
-      case 3:
-        intDiv = 3600000;
-        break;
-      case 4:
-        intDiv = 86400000;
-        break;
-      default:
-    }
-    return (date1.getTime() - date2.getTime()) / intDiv;
-  }
 
   /**
    * Concatenate the elements of the input list with surrounding ticks and separated by commas for use in the where clause of a SQL query.  For example, the
@@ -584,7 +547,7 @@ public class MVUtil {
    * @param values The list of values to be concatenated
    * @return The string of concatenated values for use in a SQL where clause
    */
-  public static String buildValueList(String[] values) {
+  public static String buildValueList(final String[] values) {
     String[] localValues;
     if (values != null && values.length > 0) {
       List<String> newValues = new ArrayList<>();
@@ -604,7 +567,11 @@ public class MVUtil {
     }
     String strValueList = "";
     for (int i = 0; null != localValues && i < localValues.length; i++) {
-      strValueList += (0 < i ? ", " : "") + "'" + localValues[i] + "'";
+      if (0 < i) {
+        strValueList += ", " + "'" + localValues[i] + "'";
+      } else {
+        strValueList += "" + "'" + localValues[i] + "'";
+      }
     }
     return strValueList;
   }
@@ -617,7 +584,7 @@ public class MVUtil {
    * @param table Contains key/value pairs of String/String[] which will be permuted
    * @return MVDataTable whose rows are the permutations
    */
-  public static MVDataTable permute(MVOrderedMap table) {
+  public static MVDataTable permute(final MVOrderedMap table) {
 
     if (null == table || 1 > table.size()) {
       return new MVDataTable();
@@ -704,8 +671,7 @@ public class MVUtil {
    * @param tmplMaps Map of value maps for each template field, used with map template parm (optional)
    * @return String built using the template and values
    */
-  public static String buildTemplateString(String tmpl, MVOrderedMap vals, MVOrderedMap tmplMaps, PrintStream printStream)
-    throws Exception {
+  public static String buildTemplateString(final String tmpl, final MVOrderedMap vals, final MVOrderedMap tmplMaps, final PrintStream printStream) throws Exception {
 
     String strRet = tmpl;
     Matcher matTmpl = _patPlotTmpl.matcher(tmpl);
@@ -737,7 +703,10 @@ public class MVUtil {
         if (null == mapTmplVal) {
           throw new Exception("template tag " + strTmplTagName + " does not have a val_map defined");
         }
-        strVal = mapTmplVal.containsKey(strVal) ? mapTmplVal.getStr(strVal) : strVal;
+        if (mapTmplVal.containsKey(strVal)) {
+          strVal = mapTmplVal.getStr(strVal);
+        }
+
       }
 
       //  if there is a format parameter, apply it to the value
@@ -771,23 +740,29 @@ public class MVUtil {
       }
 
       //  if the tag value is a date, format it accordingly
-      Date dateParse;
+
       try {
-        SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        formatDb.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat formatDBms = new SimpleDateFormat(DB_DATE_MS, Locale.US);
         formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat formatPlot = new SimpleDateFormat(DB_DATE_PLOT, Locale.US);
         formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
-        if (null != (dateParse = formatDB.parse(strVal)) || null != (dateParse = formatDBms.parse(strVal))) {
+        Date dateParse = formatDb.parse(strVal);
+        if (null != dateParse) {
           strVal = formatPlot.format(dateParse);
+        } else {
+          dateParse = formatDBms.parse(strVal);
+          if (null != dateParse) {
+            strVal = formatPlot.format(dateParse);
+          }
         }
       } catch (Exception e) {
       }
 
       //  if the tag is a threshold, format it accordingly
-      if (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr") ||
-        strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
+      if (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")
+        || strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
         strVal = formatThresh(strTmplTag, strVal, printStream);
       }
 
@@ -796,8 +771,8 @@ public class MVUtil {
     return strRet;
   }
 
-  public static String buildTemplateString(String tmpl, MVOrderedMap vals, PrintStream printStream) throws Exception {
-    return buildTemplateString(tmpl, vals, null,printStream);
+  public static String buildTemplateString(final String tmpl, final MVOrderedMap vals, final PrintStream printStream) throws Exception {
+    return buildTemplateString(tmpl, vals, null, printStream);
   }
 
   /**
@@ -810,7 +785,7 @@ public class MVUtil {
    * @param fcstThresh Template map value to be formatted
    * @return
    */
-  public static String formatThresh(String fcstTag, String fcstThresh, PrintStream printStream) {
+  public static String formatThresh(final String fcstTag, final String fcstThresh, final PrintStream printStream) {
     String strThreshRet = fcstThresh;
     MVOrderedMap mapParams = parseTagParams(fcstTag);
     DecimalFormat format = new DecimalFormat("0.000");
@@ -868,7 +843,7 @@ public class MVUtil {
    * @param thresh List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static String[] sortThresh(String[] thresh, PrintStream printStream) {
+  public static String[] sortThresh(final String[] thresh, final PrintStream printStream) {
     return sortVals(thresh, true, _patThresh, printStream);
   }
 
@@ -878,7 +853,7 @@ public class MVUtil {
    * @param lev List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static String[] sortLev(String[] lev, PrintStream printStream) {
+  public static String[] sortLev(final String[] lev, final PrintStream printStream) {
     return sortVals(lev, true, _patLev, printStream);
   }
 
@@ -891,7 +866,7 @@ public class MVUtil {
    * @param pat  Pattern used to parse the input values
    * @return Sorted list, by numerical value
    */
-  public static String[] sortVals(String[] vals, boolean asc, Pattern pat, PrintStream printStream) {
+  public static String[] sortVals(final String[] vals, final boolean asc, final Pattern pat, final PrintStream printStream) {
 
     //  parse the input values and store the numerical values in a sortable array
     double[] listVal = new double[vals.length];
@@ -955,17 +930,25 @@ public class MVUtil {
       //  if not, add the value(s) to the return list
       Object objValCur = tableVal.get(dblKey);
       if (objValCur instanceof String) {
-        listRet.add(asc ? listRet.size() : 0, objValCur);
+        if (asc) {
+          listRet.add(listRet.size(), objValCur);
+        } else {
+          listRet.add(0, objValCur);
+        }
       } else {
         ArrayList listValCur = (ArrayList) objValCur;
-        for (int j = 0; j < listValCur.size(); j++) {
-          listRet.add(asc ? listRet.size() : 0, listValCur.get(j));
+        for (Object valCur : listValCur) {
+          if (asc) {
+            listRet.add(listRet.size(), valCur);
+          } else {
+            listRet.add(0, valCur);
+          }
         }
       }
       tableAdded.put(dblKey, "true");
     }
 
-    return (String[]) listRet.toArray(new String[]{});
+    return (String[]) listRet.toArray(new String[listRet.size()]);
   }
 
   /**
@@ -976,7 +959,7 @@ public class MVUtil {
    * @param removeZeros true to remove the trailing 0000 from the lead time value
    * @return Sorted list of formatted lead times, by numerical value
    */
-  public static String[] sortFormatLead(String[] lead, boolean asc, boolean removeZeros) {
+  public static String[] sortFormatLead(final String[] lead, final boolean asc, final boolean removeZeros) {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.length];
@@ -1005,7 +988,7 @@ public class MVUtil {
    *
    * @return list of formatted  dates
    */
-  public static String[] formatDates(String[] dates) {
+  public static String[] formatDates(final String[] dates) {
     String[] listRet = new String[dates.length];
     for (int i = 0; i < dates.length; i++) {
       listRet[i] = dates[i].replace(".0", "");
@@ -1013,7 +996,7 @@ public class MVUtil {
     return listRet;
   }
 
-  public static String[] sortHour(String[] hour, boolean asc) {
+  public static String[] sortHour(final String[] hour, boolean asc) {
 
     //  parse and format the hours and store the numerical values in a sortable array
     double[] listVal = new double[hour.length];
@@ -1044,7 +1027,7 @@ public class MVUtil {
    * @param tag Formatted tag with param/value pairs to parse
    * @return Ordered map containing parsed param/value pairs
    */
-  public static MVOrderedMap parseTagParams(String tag) {
+  public static MVOrderedMap parseTagParams(final String tag) {
     MVOrderedMap mapRet = new MVOrderedMap();
     Matcher mat = _patTag.matcher(tag);
     if (mat.matches() && null != mat.group(2)) {
@@ -1065,20 +1048,17 @@ public class MVUtil {
    * @param width The minimum number of characters in the returned String
    * @return the padded version of the input str
    */
-  public static String padEnd(String str, String pad, int width) {
+  public static String padEnd(String str, final String pad, final int width) {
     while (width > str.length()) {
       str += pad;
     }
     return str;
   }
 
-  public static String padEnd(String str, int width) {
+  public static String padEnd(final String str, final int width) {
     return padEnd(str, " ", width);
   }
 
-  public static String padEnd(String str) {
-    return padEnd(str, 16);
-  }
 
   /**
    * Pads input str with spaces appended to the beginning so that the length of the returned String is at least width characters
@@ -1087,18 +1067,18 @@ public class MVUtil {
    * @param width The minimum number of characters in the returned String
    * @return the padded version of the input str
    */
-  public static String padBegin(String str, String pad, int width) {
+  public static String padBegin(String str, final String pad, final int width) {
     while (width > str.length()) {
       str = pad + str;
     }
     return str;
   }
 
-  public static String padBegin(String str, int width) {
+  public static String padBegin(final String str, final int width) {
     return padBegin(str, " ", width);
   }
 
-  public static String padBegin(String str) {
+  public static String padBegin(final String str) {
     return padBegin(str, 16);
   }
 
@@ -1110,84 +1090,21 @@ public class MVUtil {
    * @return Time span in format [days]d H:mm:ss.mmmm
    */
   public static String formatTimeSpan(long span) {
-    long intDay = span / (24l * 60l * 60l * 1000l);
-    span -= intDay * 24l * 60l * 60l * 1000l;
-    long intHr = span / (60l * 60l * 1000l);
-    span -= intHr * 60l * 60l * 1000l;
-    long intMin = span / (60l * 1000l);
-    span -= intMin * 60l * 1000l;
-    long intSec = span / 1000l;
-    span -= intSec * 1000l;
-    long intMS = span;
+    long intDay = span / (24L * 60L * 60L * 1000L);
+    span -= intDay * 24L * 60L * 60L * 1000L;
+    long intHr = span / (60L * 60L * 1000L);
+    span -= intHr * 60L * 60L * 1000L;
+    long intMin = span / (60L * 1000L);
+    span -= intMin * 60L * 1000L;
+    long intSec = span / 1000L;
+    span -= intSec * 1000L;
+    long intMs = span;
 
-    return (0 < intDay ? Long.toString(intDay) + "d " : "") + Long.toString(intHr) +
-      (10 > intMin ? ":0" : ":") + Long.toString(intMin) + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "." +
-      (100 > intMS ? "0" + (10 > intMS ? "0" : "") : "") + Long.toString(intMS);
+    return (0 < intDay ? Long.toString(intDay) + "d " : "") + Long.toString(intHr)
+      + (10 > intMin ? ":0" : ":") + Long.toString(intMin) + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "."
+      + (100 > intMs ? "0" + (10 > intMs ? "0" : "") : "") + Long.toString(intMs);
   }
 
-  /**
-   * Generate a list of ARGB hex color strings which sample the "rainbow" color continuum at the requested number of point in the direction of red to violet.
-   * Mimics the R function of the same name.
-   *
-   * @param num The number of samples on the rainbow continuum to generate
-   * @return The list of color hex strings
-   */
-  public static String[] rainbow(int num) {
-    if (1 > num) {
-      return new String[]{};
-    }
-    if (1 == num) {
-      return new String[]{"#FF0000FF"};
-    }
-
-    String[] listRet = new String[num];
-    double dblInc = 1.0 / (double) (num - 1);
-    double dblVal = 0;
-    for (int i = 0; i < num; i++, dblVal += dblInc) {
-      listRet[i] = Integer.toHexString(interpolateColor(dblVal).getRGB()).toUpperCase();
-      listRet[i] = "#" + listRet[i].substring(2) + "FF";
-    }
-    return listRet;
-  }
-
-  public static Color interpolateColor(double rel) {
-    if (rel < 0.0) {
-      return new Color(1f, 0f, 0f);
-    } else if (rel > 1.0) {
-      return new Color(1f, 0f, 1f);
-    }
-
-    float min = 0f;
-    float max = 1f;
-
-    switch ((int) (rel / 0.16667)) {
-      /*
-      case 0:				return new Color(max, max*(min + (1-min)*(float)(rel/.25)), min);
-			case 1:	rel -= .25;	return new Color(min + max*(1-min)*(float)(1 - rel/.25), max, max*(min + (1-min)*(float)(rel/.25)));
-			case 2:	rel -= .50;	return new Color(min, max*(min + (1-min)*(float)(1 - rel/.25)), max);
-			case 3:	rel -= .75;	return new Color(max*(min + (1-min)*(float)(rel/.25)), min, max);
-			*/
-      case 0:
-        return new Color(max, max * (min + (1 - min) * (float) (rel / .25)), min);
-      case 1:
-        rel -= .16667;
-        return new Color(min + max * (1 - min) * (float) (1 - rel / .25), max, min);
-      case 2:
-        rel -= .33333;
-        return new Color(min, max, max * (min + (1 - min) * (float) (rel / .25)));
-      case 3:
-        rel -= .50000;
-        return new Color(min, max * (1 - min) * (float) (1 - rel / .25), max);
-      case 4:
-        rel -= .66667;
-        return new Color(max * (min + (1 - min) * (float) (rel / .25)), min, max);
-      case 5:
-        rel -= .83333;
-        return new Color(max, min, max * (1 - min) * (float) (1 - rel / .25));
-      default:
-        return new Color(max, min, max);
-    }
-  }
 
   /**
    * Creates a list of length rep of copies of the input val.  Mimics the R function of the same name
@@ -1196,7 +1113,7 @@ public class MVUtil {
    * @param rep Number of time to repeat
    * @return List of repeated values, with length specified by input rep
    */
-  public static String[] rep(String val, int rep) {
+  public static String[] rep(final String val, final int rep) {
     if (1 > rep) {
       return new String[]{};
     }
@@ -1214,7 +1131,7 @@ public class MVUtil {
    * @param rep Number of time to repeat
    * @return List of repeated values, with length specified by input rep
    */
-  public static Integer[] rep(int val, int rep) {
+  public static Integer[] rep(final int val, final int rep) {
     if (1 > rep) {
       return new Integer[]{};
     }
@@ -1232,7 +1149,7 @@ public class MVUtil {
    * @param max The last number
    * @return List of  values
    */
-  public static Integer[] repPlusOne(int min, int max) {
+  public static Integer[] repPlusOne(final int min, final int max) {
 
     Integer[] listRet = new Integer[max - min + 1];
     int start = min;
@@ -1250,7 +1167,7 @@ public class MVUtil {
    * @param freq (optional) Frequency at which to remove members from the input list, defaults to 30
    * @return Decimated list
    */
-  public static String[] decimate(String[] list, int freq) {
+  public static String[] decimate(final String[] list, final int freq) {
     String[] ret = new String[list.length];
     for (int i = 0; i < list.length; i++) {
       ret[i] = (i % freq == 0 ? list[i] : "");
@@ -1266,31 +1183,31 @@ public class MVUtil {
    * @param l2 Array to append
    * @return The combined array
    */
-  public static Object[] append(Object[] l1, Object[] l2, Object[] cast) {
+  public static Object[] append(final Object[] l1, final Object[] l2, final Object[] cast) {
     List listRet = Arrays.asList(l1);
     listRet.addAll(Arrays.asList(l2));
     return listRet.toArray(cast);
 
   }
 
-  public static String[] append(String[] s1, String[] s2) {
+  public static String[] append(final String[] s1, final String[] s2) {
     return (String[]) append(s1, s2, new String[]{});
   }
 
-  public static String[] append(String s1, String[] s2) {
+  public static String[] append(final String s1, final String[] s2) {
     return append(new String[]{s1}, s2);
   }
 
-  public static String[] append(String[] s1, String s2) {
+  public static String[] append(final String[] s1, final String s2) {
     return append(s1, new String[]{s2});
   }
 
 
-  public static Map.Entry[] append(Map.Entry[] s1, Map.Entry[] s2) {
+  public static Map.Entry[] append(final Map.Entry[] s1, final Map.Entry[] s2) {
     return (Map.Entry[]) append(s1, s2, new Map.Entry[]{});
   }
 
-  public static MVPlotJob[] append(MVPlotJob[] s1, MVPlotJob[] s2) {
+  public static MVPlotJob[] append(final MVPlotJob[] s1, final MVPlotJob[] s2) {
     return (MVPlotJob[]) append(s1, s2, new MVPlotJob[]{});
   }
 
@@ -1312,23 +1229,24 @@ public class MVUtil {
     return ret;
   }
 
-  public static String[] unique(String[] data) {
+  public static String[] unique(final String[] dataArr) {
     Map<String, String> table = new HashMap<>();
-    for (String aData : data) {
-      if (!table.containsKey(aData)) {
-        table.put(aData, "true");
+    for (String data : dataArr) {
+      if (!table.containsKey(data)) {
+        table.put(data, "true");
       }
     }
-    return table.keySet().toArray(new String[]{});
+    Set<String> strings = table.keySet();
+    return strings.toArray(new String[strings.size()]);
   }
 
-  public static int sum(int[] data) {
-    if (1 > data.length) {
+  public static int sum(int[] dataArr) {
+    if (1 > dataArr.length) {
       return 0;
     }
     int intSum = 0;
-    for (int i = 0; i < data.length; i++) {
-      intSum += data[i];
+    for (int data : dataArr) {
+      intSum += data;
     }
     return intSum;
   }
@@ -1339,11 +1257,11 @@ public class MVUtil {
    * @param list ArrayList to convert
    * @return Converted list
    */
-  public static String[] toArray(List<String> list) {
-    return list.toArray(new String[]{});
+  public static String[] toArray(final List<String> list) {
+    return list.toArray(new String[list.size()]);
   }
 
-  public static List<String> toArrayList(String[] list) {
+  public static List<String> toArrayList(final String[] list) {
     List<String> ret = new ArrayList<>();
     ret.addAll(Arrays.asList(list));
     return ret;
@@ -1355,7 +1273,7 @@ public class MVUtil {
    * @param list List to copy
    * @return Copied list
    */
-  public static MVOrderedMap[] copyList(MVOrderedMap[] list) {
+  public static MVOrderedMap[] copyList(final MVOrderedMap[] list) {
     MVOrderedMap[] listRet = new MVOrderedMap[list.length];
     for (int i = 0; i < list.length; i++) {
       listRet[i] = new MVOrderedMap(list[i]);
@@ -1369,7 +1287,7 @@ public class MVUtil {
    * @param list List to copy
    * @return Copied list
    */
-  public static String[] copyList(String[] list) {
+  public static String[] copyList(final String[] list) {
     return list.clone();
   }
 
@@ -1380,7 +1298,7 @@ public class MVUtil {
    * @param ticks (optional) Print tickmarks around values, for when constituents are factors as opposed to numeric, defaults to true
    * @return String representation of the R collection
    */
-  public static String printRCol(Object[] val, boolean ticks) {
+  public static String printRCol(final Object[] val, final boolean ticks) {
     String strRet = "c(";
     for (int i = 0; i < val.length; i++) {
       if (0 < i) {
@@ -1399,7 +1317,7 @@ public class MVUtil {
     return strRet;
   }
 
-  public static String printRCol(Object[] val) {
+  public static String printRCol(final Object[] val) {
     return printRCol(val, true);
   }
 
@@ -1410,7 +1328,7 @@ public class MVUtil {
    * @param strRCol
    * @return list of String representations of each collection member
    */
-  public static String[] parseRCol(String strRCol) {
+  public static String[] parseRCol(final String strRCol) {
     if (strRCol.contains("\"")) {
       Matcher matRColStr = Pattern.compile("c\\(\\s*\"(.*)\"\\s*\\)").matcher(strRCol);
       if (!matRColStr.matches()) {
@@ -1440,9 +1358,10 @@ public class MVUtil {
    * @param map Data structure to convert to R list representation
    * @return The R-syntax representation of the input map
    */
-  public static String getRDecl(MVOrderedMap map) {
+  public static String getRDecl(final MVOrderedMap map) {
     String strRDecl = "list(\n";
-    String[] listKeys = (String[]) map._listKeys.toArray(new String[]{});
+    List keys = map.getListKeys();
+    String[] listKeys = (String[]) keys.toArray(new String[keys.size()]);
     for (int i = 0; i < listKeys.length; i++) {
       if (0 < i) {
         strRDecl += ",\n" + MVBatch.padBegin("`" + listKeys[i] + "`") + " = ";
@@ -1475,7 +1394,7 @@ public class MVUtil {
    * @param in String to format
    * @return Formatted String
    */
-  public static String formatR(String in) {
+  public static String formatR(final String in) {
 
     String strFormatR = in;
     Matcher matProb = _patProb.matcher(in);
@@ -1502,7 +1421,7 @@ public class MVUtil {
    * @param in String to format
    * @return Formatted String
    */
-  public static String formatDiffR(String in) {
+  public static String formatDiffR(final String in) {
     //list(c("rapcontrolens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER","rapstoch_V3ens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER"))
     String[] diffComponents = in.split("\",\"");
     if (diffComponents.length == 2) {
@@ -1533,7 +1452,7 @@ public class MVUtil {
     }
   }
 
-  public static String[] parseModeStat(String stat) {
+  public static String[] parseModeStat(final String stat) {
     Matcher mat = _patModeStat.matcher(stat);
     if (!mat.matches()) {
       return new String[]{stat};
@@ -1578,7 +1497,7 @@ public class MVUtil {
    * @param strStat stat name to look up
    * @return the name of the database line_data table which contains the stat
    */
-  public static String getStatTable(String strStat) {
+  public static String getStatTable(final String strStat) {
     String strStatMode = parseModeStat(strStat)[0];
 
     if (statsCnt.containsKey(strStat)) {
@@ -1597,11 +1516,11 @@ public class MVUtil {
       return "line_data_rhist";
     } else if (statsVl1l2.containsKey(strStat)) {
       return "line_data_vl1l2";
-    } else if (modeSingleStatField.containsKey(strStatMode)) {
+    } else if (modeSingleStatField.contains(strStatMode)) {
       return "mode_obj_single";
     } else if (modePairStatField.containsKey(strStatMode)) {
       return "mode_obj_pair";
-    } else if (modeRatioField.containsKey(strStat)) {
+    } else if (modeRatioField.contains(strStat)) {
       return "mode_obj_single";
     } else if (statsEnscnt.containsKey(strStat)) {
       return "line_data_enscnt";
@@ -1617,7 +1536,7 @@ public class MVUtil {
   }
 
 
-  public boolean runRscript(String rscript, String script, PrintStream printStream) throws Exception {
+  public boolean runRscript(final String rscript, final String script, final PrintStream printStream) throws Exception {
     return runRscript(rscript, script, new String[]{}, printStream);
   }
 
@@ -1630,7 +1549,7 @@ public class MVUtil {
    * @param args    (optional) Arguments to pass to the R script
    * @throws Exception
    */
-  public boolean runRscript(String rscript, String script, String[] args, PrintStream printStream) throws Exception {
+  public boolean runRscript(final String rscript, final String script, final String[] args, final PrintStream printStream) throws Exception {
 
     //  build a list of arguments
     StringBuilder strArgList = new StringBuilder();
@@ -1721,7 +1640,7 @@ public class MVUtil {
    * @param vals   Table containing values corresponding to tags in the input template
    * @throws Exception
    */
-  public static void populateTemplateFile(String tmpl, String output, Map<String, String> vals) throws Exception {
+  public static void populateTemplateFile(final String tmpl, final String output, final Map<String, String> vals) throws Exception {
     FileReader fileReader = null;
     BufferedReader reader = null;
     PrintStream writer = null;
@@ -1733,7 +1652,7 @@ public class MVUtil {
         String strTmplLine = reader.readLine();
         String strOutputLine = strTmplLine;
 
-        Matcher matRtmplLine = _patRTmpl.matcher(strTmplLine);
+        Matcher matRtmplLine = patRTmpl.matcher(strTmplLine);
         while (matRtmplLine.find()) {
           String strRtmplTag = matRtmplLine.group(1);
           if (!vals.containsKey(strRtmplTag)) {
@@ -1768,14 +1687,14 @@ public class MVUtil {
    * @param job job whose <dep1> is examined
    * @return true if the checked stat is a MODE stat, false otherwise
    */
-  public static boolean isModeJob(MVPlotJob job) {
+  public static boolean isModeJob(final MVPlotJob job) {
     MVOrderedMap[] listDep = job.getDepGroups();
     String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
     String strStat = parseModeStat(listFcstVarStat[0][1])[0];
 
-    return modeSingleStatField.containsKey(strStat) ||
-      modePairStatField.containsKey(strStat) ||
-      modeRatioField.containsKey(listFcstVarStat[0][1]);
+    return modeSingleStatField.contains(strStat)
+      || modePairStatField.containsKey(strStat)
+      || modeRatioField.contains(listFcstVarStat[0][1]);
   }
 
   /**
@@ -1784,12 +1703,12 @@ public class MVUtil {
    * @param job job whose <dep1> is examined
    * @return true if the checked stat is a MODE stat, false otherwise
    */
-  public static boolean isModeRatioJob(MVPlotJob job) {
+  public static boolean isModeRatioJob(final MVPlotJob job) {
     MVOrderedMap[] listDep = job.getDepGroups();
     if (listDep.length > 0) {
       String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
       if (listFcstVarStat.length > 0) {
-        return modeRatioField.containsKey(listFcstVarStat[0][1]);
+        return modeRatioField.contains(listFcstVarStat[0][1]);
       } else {
         return false;
       }
@@ -1805,7 +1724,7 @@ public class MVUtil {
    * @param mapDep <dep1> or <dep2> structure from a MVPlotJob
    * @return a list of fcst_var/stat pairs
    */
-  public static String[][] buildFcstVarStatList(MVOrderedMap mapDep) {
+  public static String[][] buildFcstVarStatList(final MVOrderedMap mapDep) {
     List listRet = new ArrayList();
     String[] listFcstVar = mapDep.getKeyList();
     String[] listStat;
@@ -1818,27 +1737,15 @@ public class MVUtil {
     return (String[][]) listRet.toArray(new String[][]{});
   }
 
-  /**
-   * Construct the template map for the specified permutation of plot_fix values, using the specified set values.
-   *
-   * @param job           job whose template values are used
-   * @param mapPlotFix    plot_fix field/value pairs to use in populating the template values
-   * @param mapPlotFixVal values used for sets
-   * @throws Exception
-   */
-  public static Map.Entry[] buildPlotFixTmplMap(MVPlotJob job, MVOrderedMap mapPlotFix, MVOrderedMap mapPlotFixVal)
-    throws Exception {
-    MVOrderedMap mapTmplVals = job.getTmplVal();
-    Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
+  public static void buildPlotFixTmplVal(final MVPlotJob job, final MVOrderedMap plotFixPerm) throws Exception {
     SimpleDateFormat formatPlot = new SimpleDateFormat(MVUtil.DB_DATE_PLOT);
     formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
     SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-    //  add the fixed values to the template value map, and insert set values for this permutation
-    for (Map.Entry aListPlotFixVal1 : listPlotFixVal) {
-      String strFixVar = aListPlotFixVal1.getKey().toString();
-      String strFixVal = aListPlotFixVal1.getValue().toString();
+    job.getTmplVal().clear();
+    for (Map.Entry fixValEntry : plotFixPerm.getOrderedEntries()) {
+      String strFixVar = fixValEntry.getKey().toString();
+      String strFixVal = fixValEntry.getValue().toString();
       MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
       if (null != mapTmpl && mapTmpl.containsKey(strFixVal)) {
         strFixVal = mapTmpl.getStr(strFixVal);
@@ -1848,10 +1755,39 @@ public class MVUtil {
           strFixVal = formatPlot.format(formatDB.parse(matDateRange.group(2)));
         }
       }
-      mapTmplVals.putStr(aListPlotFixVal1.getKey().toString(), strFixVal);
+      job.getTmplVal().putStr(strFixVar, strFixVal);
 
     }
+  }
 
+  /**
+   * Build the list of plot_fix field/value permutations for all jobs
+   *
+   * @param mapPlotFixVal map of field/value pairs to permute
+   * @return list of permutations
+   */
+  public static MVOrderedMap[] buildPlotFixValList(final MVOrderedMap mapPlotFixVal) {
+
+    //  build a list of fixed value permutations for all plots
+    MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
+    if (0 < mapPlotFixVal.size()) {
+      MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
+      listPlotFixPerm = tabPlotFixPerm.getRows();
+    }
+
+    return listPlotFixPerm;
+  }
+
+  /**
+   * Construct the template map for the specified permutation of plot_fix values, using the specified set values.
+   *
+   * @param mapPlotFix    plot_fix field/value pairs to use in populating the template values
+   * @param mapPlotFixVal values used for sets
+   * @throws Exception
+   */
+  public static Map.Entry[] buildPlotFixTmplMap(final MVOrderedMap mapPlotFix, final MVOrderedMap mapPlotFixVal)
+    throws Exception {
+    Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
     //  replace fixed value set names with their value maps
     ArrayList listPlotFixValAdj = new ArrayList();
     for (Map.Entry aListPlotFixVal : listPlotFixVal) {
@@ -1865,7 +1801,7 @@ public class MVUtil {
       MVOrderedMap mapFixSet = (MVOrderedMap) mapPlotFixVal.get(strFixVarAdj);
       listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet));
     }
-    listPlotFixVal = (Map.Entry[]) listPlotFixValAdj.toArray(new Map.Entry[]{});
+    listPlotFixVal = (Map.Entry[]) listPlotFixValAdj.toArray(new Map.Entry[listPlotFixValAdj.size()]);
 
     return listPlotFixVal;
   }
@@ -1878,7 +1814,7 @@ public class MVUtil {
    * @param aggType
    * @throws Exception
    */
-  public static void isAggTypeValid(Map<String, String[]> tableStats, String strStat, String aggType) throws Exception {
+  public static void isAggTypeValid(final Map<String, String[]> tableStats, final String strStat, final String aggType) throws Exception {
     //check if aggType is allowed for this stat
     String[] types = tableStats.get(strStat);
     boolean isFound = false;
@@ -1893,7 +1829,7 @@ public class MVUtil {
     }
   }
 
-  public static String findValueInArray(String[] listToken, List<String> headerNames, String header) {
+  public static String findValueInArray(final String[] listToken, final List<String> headerNames, final String header) {
     int pos = headerNames.indexOf(header);
     if (pos >= 0 && pos < listToken.length) {
       return listToken[pos];
@@ -1914,7 +1850,5 @@ public class MVUtil {
     }
 
   }
-
-
 
 }
