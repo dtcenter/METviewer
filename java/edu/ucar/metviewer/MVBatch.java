@@ -234,23 +234,7 @@ public class MVBatch extends MVUtil {
   }
 
 
-  /**
-   * Build the list of plot_fix field/value permutations for all jobs
-   *
-   * @param mapPlotFixVal map of field/value pairs to permute
-   * @return list of permutations
-   */
-  public static MVOrderedMap[] buildPlotFixValList(MVOrderedMap mapPlotFixVal) {
 
-    //  build a list of fixed value permutations for all plots
-    MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
-    if (0 < mapPlotFixVal.size()) {
-      MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
-      listPlotFixPerm = tabPlotFixPerm.getRows();
-    }
-
-    return listPlotFixPerm;
-  }
 
   /**
    * Populate the input table with the plot formatting tag values stored in the input job.
@@ -387,6 +371,8 @@ public class MVBatch extends MVUtil {
       if (0 < intPlotFix) {
         printStream.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
       }
+      //    insert set values for this permutation
+      MVUtil.buildPlotFixTmplVal(job, listPlotFixPerm[intPlotFix]);
 
       //  if the independent variable uses a dependency, populate the values
       MVPlotDep depIndy = job.getIndyDep();
@@ -406,11 +392,11 @@ public class MVBatch extends MVUtil {
       }
 
       //  build the SQL statements for the current plot
-      listQuery = databaseManager.buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal,printStreamSQL);
-        for (String sql : listQuery) {
-          printStreamSQL.println(sql);
-          printStreamSQL.println("");
-        }
+      listQuery = databaseManager.buildPlotSQL(job, listPlotFixPerm[intPlotFix], mapPlotFixVal, printStreamSQL);
+      for (String sql : listQuery) {
+        printStreamSQL.println(sql);
+        printStreamSQL.println("");
+      }
 
       mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
       if (job.getIndyVar() != null) {
@@ -738,8 +724,8 @@ public class MVBatch extends MVUtil {
       MVOrderedMap mapDep1Plot = (MVOrderedMap) mapDep.get("dep1");
       MVOrderedMap mapDep2Plot = (MVOrderedMap) mapDep.get("dep2");
 
-      Map.Entry[] listSeries1Val = mapSeries1ValPlot.getOrderedEntriesForSQLSeries();
-      Map.Entry[] listSeries2Val = null != job.getSeries2Val() ? mapSeries2ValPlot.getOrderedEntriesForSQLSeries() : new Map.Entry[]{};
+      Map.Entry[] listSeries1Val = mapSeries1ValPlot.getOrderedEntriesForSqlSeries();
+      Map.Entry[] listSeries2Val = null != job.getSeries2Val() ? mapSeries2ValPlot.getOrderedEntriesForSqlSeries() : new Map.Entry[]{};
       Map.Entry[] listDep1Plot = mapDep1Plot.getOrderedEntries();
       Map.Entry[] listDep2Plot = null != mapDep2Plot ? mapDep2Plot.getOrderedEntries() : new Map.Entry[]{};
 
@@ -962,20 +948,20 @@ public class MVBatch extends MVUtil {
    * @throws Exception
    */
   public void runRhistJob(MVPlotJob job) throws Exception {
-    MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
 
     //  build a list of fixed value permutations for all plots
-    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(mapPlotFixVal);
-
+    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
 
     //  run the plot jobs once for each permutation of plot fixed values
-    for (MVOrderedMap aListPlotFixPerm : listPlotFixPerm) {
+    for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
 
-
+      //    insert set values for this permutation
+      MVUtil.buildPlotFixTmplVal(job, plotFixPerm);
 
 			/*
        *  Print the data file in the R_work subfolder and file specified by the data file template
 			 */
+
 
       //  construct the file system paths for the files used to build the plot
       MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
@@ -995,7 +981,7 @@ public class MVBatch extends MVUtil {
       String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
       (new File(strDataFile)).getParentFile().mkdirs();
 
-      String strMsg = databaseManager.buildAndExecuteQueriesForRhistJob(job, strDataFile, aListPlotFixPerm, printStream, printStreamSQL);
+      String strMsg = databaseManager.buildAndExecuteQueriesForRhistJob(job, strDataFile, plotFixPerm, printStream, printStreamSQL);
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
@@ -1009,7 +995,7 @@ public class MVBatch extends MVUtil {
       (new File(strPlotFile)).getParentFile().mkdirs();
       (new File(strRFile)).getParentFile().mkdirs();
       int intNumDepSeries = 1;
-      Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSQLSeries();
+      Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
       for (Map.Entry aListSeries1Val : listSeries1Val) {
         String[] listVal = (String[]) aListSeries1Val.getValue();
         intNumDepSeries *= listVal.length;
@@ -1083,11 +1069,12 @@ public class MVBatch extends MVUtil {
   public void runPhistJob(MVPlotJob job) throws Exception {
 
     //  build a list of fixed value permutations for all plots
-    MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
-    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(mapPlotFixVal);
+    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
 
     //  run the plot jobs once for each permutation of plot fixed values
-    for (MVOrderedMap aListPlotFixPerm : listPlotFixPerm) {
+    for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
+      //    insert set values for this permutation
+      MVUtil.buildPlotFixTmplVal(job, plotFixPerm);
         /*
          *  Print the data file in the R_work subfolder and file specified by the data file template
   			 */
@@ -1109,7 +1096,7 @@ public class MVBatch extends MVUtil {
       }
       String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
       (new File(strDataFile)).getParentFile().mkdirs();
-      String strMsg = databaseManager.buildAndExecuteQueriesForPhistJob(job, strDataFile, aListPlotFixPerm, printStream, printStreamSQL);
+      String strMsg = databaseManager.buildAndExecuteQueriesForPhistJob(job, strDataFile, plotFixPerm, printStream, printStreamSQL);
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
@@ -1123,7 +1110,7 @@ public class MVBatch extends MVUtil {
       (new File(strPlotFile)).getParentFile().mkdirs();
       (new File(strRFile)).getParentFile().mkdirs();
       int intNumDepSeries = 1;
-      Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSQLSeries();
+      Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
       for (Map.Entry aListSeries1Val : listSeries1Val) {
         String[] listVal = (String[]) aListSeries1Val.getValue();
         intNumDepSeries *= listVal.length;
@@ -1201,11 +1188,12 @@ public class MVBatch extends MVUtil {
   public void runRocRelyJob(MVPlotJob job) throws Exception {
 
     //  build a list of fixed value permutations for all plots
-    MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
-    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(mapPlotFixVal);
+    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
 
     //  run the plot jobs once for each permutation of plot fixed values
-    for (MVOrderedMap aListPlotFixPerm : listPlotFixPerm) {
+    for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
+      //    insert set values for this permutation
+      MVUtil.buildPlotFixTmplVal(job, plotFixPerm);
 
       //  construct the file system paths for the files used to build the plot
       MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
@@ -1224,7 +1212,7 @@ public class MVBatch extends MVUtil {
       }
       String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
       (new File(strDataFile)).getParentFile().mkdirs();
-      int intNumDepSeries = databaseManager.buildAndExecuteQueriesForRocRelyJob(job, strDataFile, aListPlotFixPerm, printStream, printStreamSQL);
+      int intNumDepSeries = databaseManager.buildAndExecuteQueriesForRocRelyJob(job, strDataFile, plotFixPerm, printStream, printStreamSQL);
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
