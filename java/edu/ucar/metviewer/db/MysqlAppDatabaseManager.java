@@ -794,7 +794,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @throws Exception
    */
   @Override
-  public List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal,PrintStream printStreamSQL) throws Exception {
+  public List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal, PrintStream printStreamSQL) throws Exception {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
 
     //  determine if the plot job is for stat data or MODE data
@@ -808,7 +808,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  populate the plot template values with plot_fix values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
+    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(mapPlotFixPerm, mapPlotFixVal);
 
     //  build the sql where clauses for the current permutation of fixed variables and values
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
@@ -856,7 +856,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (mapDep != null) {
 
         //  establish lists of entires for each group of variables and values
-        Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSQLSeries();
+        Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSqlSeries();
         Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
         //  if there is a mis-match between the presence of series and dep values, bail
@@ -1045,7 +1045,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + " AND " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd])
                     + "' AND fcst_var='" + vars[varsInd]
                     + "'  AND ld.stat_header_id = h.stat_header_id;";
-                    printStreamSQL.println(strSelPctThresh + "\n");
+                  printStreamSQL.println(strSelPctThresh + "\n");
 
                   //  run the PCT thresh query
                   pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
@@ -1741,8 +1741,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       tableHeaderSQLType = statHeaderSQLType;
     }
 
+
     //  populate the plot template values with plot_fix values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(job, mapPlotFixPerm, mapPlotFixVal);
+    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(mapPlotFixPerm, mapPlotFixVal);
 
     //  build the sql where clauses for the current permutation of fixed variables and values
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, boolModePlot);
@@ -1772,7 +1773,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
 
       //  establish lists of entires for each group of variables and values
-      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSQLSeries();
+      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSqlSeries();
       Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
       //  if there is a mis-match between the presence of series and dep values, bail
@@ -1969,7 +1970,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSQLSeries();
+    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
 
 
     for (Map.Entry listSery : listSeries) {
@@ -1989,7 +1990,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  populate the template map with fixed values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(job, listPlotFixPerm, job.getPlotFixVal());
+    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
 
 
     //  build the stat_header where clauses of the sql
@@ -2070,7 +2071,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSQLSeries();
+    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
     for (Map.Entry listSery : listSeries) {
       //  get the current series field and values
       String strSeriesField = listSery.getKey().toString();
@@ -2086,7 +2087,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + MVUtil.padEnd(strSeriesField, 20) + statHeaderSQLType.get(strSeriesField);
 
     }
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(job, listPlotFixPerm, job.getPlotFixVal());
+    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap( listPlotFixPerm, job.getPlotFixVal());
 
 
     //  build the stat_header where clauses of the sql
@@ -2164,7 +2165,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strTempList = "";
     String strWhereSeries = "";
 
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSQLSeries();
+    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
 
     for (Map.Entry listSery : listSeries) {
       //  get the current series field and values
@@ -2184,7 +2185,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //  populate the template map with fixed values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(job, listPlotFixPerm, job.getPlotFixVal());
+    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
 
     boolean boolRelyPlot = job.getPlotTmpl().startsWith("rely");
 
@@ -2302,7 +2303,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  if the query does not return data from a expected obs_thresh, throw an error
     int intNumDepSeries = 1;
-    Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSQLSeries();
+    Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
     for (Map.Entry aListSeries1Val : listSeries1Val) {
       String[] listVal = (String[]) aListSeries1Val.getValue();
       intNumDepSeries *= listVal.length;
