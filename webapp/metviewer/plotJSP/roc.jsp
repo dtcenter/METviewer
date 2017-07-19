@@ -67,7 +67,7 @@
             text: false,
             disabled: true
         }).click(function () {
-                    removeFixedVarRhist($(this).attr('id'));
+                    removeFixedVarHist($(this).attr('id'));
                 });
 
 
@@ -76,7 +76,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-                    addSeriesVarRhist();
+                    addSeriesVarHist();
                 });
         $(".remove_var").button({
             icons: {
@@ -85,7 +85,7 @@
             text: false
         }).click(function () {
                     removeSeriesVarCommon($(this).attr('id'));
-                    updateSeriesRhist();
+                    updateSeriesHist();
                 });
 
         $("#fixed_var_1").multiselect({
@@ -131,7 +131,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-                    addFixedVarRhist();
+                    addFixedVarHist();
                 });
         getForecastVariablesHist();
         $('#roc_type').buttonset();
@@ -145,16 +145,16 @@
            $('#summary_curve').multiselect("uncheckAll");
          },
          click: function (event, ui) {
-           updateSeriesRhist();
+           updateSeriesHist();
          }
        });
         if (initXML != null) {
             loadXMLRoc();
-            updateSeriesRhist();
+            updateSeriesHist();
             initXML = null;
         } else {
-            updateSeriesVarValRhist(1, []);
-            updateSeriesRhist();
+            updateSeriesVarValHist(1, []);
+            updateSeriesHist();
             $("input[name=roc_type][value=pct]").prop('checked', true);
         }
 

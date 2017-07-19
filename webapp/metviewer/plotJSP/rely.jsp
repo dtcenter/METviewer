@@ -67,14 +67,14 @@
             text: false,
             disabled: true
         }).click(function () {
-                    removeFixedVarRhist($(this).attr('id'));
+                    removeFixedVarHist($(this).attr('id'));
                 });
         $('#add_series_var_y1').button({
                     icons: {
                         primary: "ui-icon-circle-plus"
                     }
                 }).click(function () {
-                            addSeriesVarRhist();
+                            addSeriesVarHist();
                         });
         $(".remove_var").button({
                    icons: {
@@ -83,7 +83,7 @@
                    text: false
                }).click(function () {
                            removeSeriesVarCommon($(this).attr('id'));
-                           updateSeriesRhist();
+                           updateSeriesHist();
                        });
 
         $("#fixed_var_1").multiselect({
@@ -129,14 +129,14 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-            addFixedVarRhist();
+            addFixedVarHist();
         });
       getForecastVariablesHist();
 
       $("input:radio[name='rely_event_hist']").change(function () {
-        updateSeriesRhist();
+        updateSeriesHist();
       });
-      updateSeriesRhist();
+      updateSeriesHist();
       $('#is_hist').buttonset();
       $('#summary_curve').val("none");
       $("#summary_curve").multiselect({
@@ -148,17 +148,17 @@
           $('#summary_curve').multiselect("uncheckAll");
         },
         click: function (event, ui) {
-          updateSeriesRhist();
+          updateSeriesHist();
         }
       });
 
       if (initXML != null) {
         loadXMLRely();
-        updateSeriesRhist();
+        updateSeriesHist();
         initXML = null;
         }else{
-            updateSeriesVarValRhist(1, []);
-            updateSeriesRhist();
+            updateSeriesVarValHist(1, []);
+            updateSeriesHist();
             $("input[name=rely_event_hist][value=false]").prop('checked', true);
             $('#is_hist').buttonset("refresh");
         }
