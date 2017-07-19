@@ -58,6 +58,7 @@ class PruneDbManager extends MysqlDatabaseManager {
     tables.add(new Table("line_data_prc", "stat_header", "stat_header_id", "line_data_prc_thresh", "line_data_id"));
     tables.add(new Table("line_data_pstd", "stat_header", "stat_header_id", "line_data_pstd_thresh", "line_data_id"));
     tables.add(new Table("line_data_rhist", "stat_header", "stat_header_id", "line_data_rhist_rank", "line_data_id"));
+    tables.add(new Table("line_data_relp", "stat_header", "stat_header_id", "line_data_relp_ens", "line_data_id"));
 
     tables.add(new Table("mode_cts", "mode_header", "mode_header_id"));
     tables.add(new Table("mode_obj_pair", "mode_header", "mode_header_id"));
