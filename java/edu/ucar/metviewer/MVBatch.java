@@ -185,9 +185,11 @@ public class MVBatch extends MVUtil {
           bat.printStream.println("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
         }
         if (jobs[intJob].getPlotTmpl().equals("rhist.R_tmpl")) {
-          bat.runRhistJob(jobs[intJob]);
+          bat.runHistJob(jobs[intJob]);
         } else if (jobs[intJob].getPlotTmpl().equals("phist.R_tmpl")) {
-          bat.runPhistJob(jobs[intJob]);
+          bat.runHistJob(jobs[intJob]);
+        } else if (jobs[intJob].getPlotTmpl().equals("relp.R_tmpl")) {
+          bat.runHistJob(jobs[intJob]);
         } else if (jobs[intJob].getPlotTmpl().equals("roc.R_tmpl") ||
           jobs[intJob].getPlotTmpl().equals("rely.R_tmpl")) {
           bat.runRocRelyJob(jobs[intJob]);
@@ -232,8 +234,6 @@ public class MVBatch extends MVUtil {
       }
     }
   }
-
-
 
 
   /**
@@ -947,7 +947,7 @@ public class MVBatch extends MVUtil {
    * @param job rank histogram plot job
    * @throws Exception
    */
-  public void runRhistJob(MVPlotJob job) throws Exception {
+  public void runHistJob(MVPlotJob job) throws Exception {
 
     //  build a list of fixed value permutations for all plots
     MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
@@ -981,7 +981,10 @@ public class MVBatch extends MVUtil {
       String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
       (new File(strDataFile)).getParentFile().mkdirs();
 
-      String strMsg = databaseManager.buildAndExecuteQueriesForRhistJob(job, strDataFile, plotFixPerm, printStream, printStreamSQL);
+      String strMsg = databaseManager.buildAndExecuteQueriesForHistJob(job, strDataFile, plotFixPerm, printStream, printStreamSQL);
+      if (strMsg.length() > 0) {
+        printStream.println("\n==== Start database error  ====\n" + strMsg + "\n====   End database error  ====");
+      }
 
       //  build the template strings using the current template values
       String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
@@ -1052,7 +1055,7 @@ public class MVBatch extends MVUtil {
 
 
       boolean boolSuccess = runRscript(job.getRscript(), strRFile, printStream);
-      printStream.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
+
 
       _intNumPlotsRun++;
       printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
@@ -1060,122 +1063,7 @@ public class MVBatch extends MVUtil {
 
   }
 
-  /**
-   * Build SQL for and gather data from the line_data_phist and line_data_phist_bink tables and use it to build a rank histogram plot.
-   *
-   * @param job histogram plot job
-   * @throws Exception
-   */
-  public void runPhistJob(MVPlotJob job) throws Exception {
 
-    //  build a list of fixed value permutations for all plots
-    MVOrderedMap[] listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
-
-    //  run the plot jobs once for each permutation of plot fixed values
-    for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
-      //    insert set values for this permutation
-      MVUtil.buildPlotFixTmplVal(job, plotFixPerm);
-        /*
-         *  Print the data file in the R_work subfolder and file specified by the data file template
-  			 */
-
-      //  construct the file system paths for the files used to build the plot
-      MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
-      _strRtmplFolder = _strRtmplFolder + (_strRtmplFolder.endsWith("/") ? "" : "/");
-      _strRworkFolder = _strRworkFolder + (_strRworkFolder.endsWith("/") ? "" : "/");
-      _strPlotsFolder = _strPlotsFolder + (_strPlotsFolder.endsWith("/") ? "" : "/");
-      if (_strDataFolder.length() == 0) {
-        _strDataFolder = _strRworkFolder + "data/";
-      } else {
-        _strDataFolder = _strDataFolder + (_strDataFolder.endsWith("/") ? "" : "/");
-      }
-      if (_strScriptsFolder.length() == 0) {
-        _strScriptsFolder = _strRworkFolder + "scripts/";
-      } else {
-        _strScriptsFolder = _strScriptsFolder + (_strScriptsFolder.endsWith("/") ? "" : "/");
-      }
-      String strDataFile = _strDataFolder + buildTemplateString(job.getDataFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-      (new File(strDataFile)).getParentFile().mkdirs();
-      String strMsg = databaseManager.buildAndExecuteQueriesForPhistJob(job, strDataFile, plotFixPerm, printStream, printStreamSQL);
-
-      //  build the template strings using the current template values
-      String strPlotFile = _strPlotsFolder + buildTemplateString(job.getPlotFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-      String strRFile = _strScriptsFolder + buildTemplateString(job.getRFileTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-      String strTitle = buildTemplateString(job.getTitleTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-      String strXLabel = buildTemplateString(job.getXLabelTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-      String strY1Label = buildTemplateString(job.getY1LabelTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-      String strCaption = buildTemplateString(job.getCaptionTmpl(), mapPlotTmplVals, job.getTmplMaps(), printStream);
-
-      //  create the plot and R script output folders, if necessary
-      (new File(strPlotFile)).getParentFile().mkdirs();
-      (new File(strRFile)).getParentFile().mkdirs();
-      int intNumDepSeries = 1;
-      Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
-      for (Map.Entry aListSeries1Val : listSeries1Val) {
-        String[] listVal = (String[]) aListSeries1Val.getValue();
-        intNumDepSeries *= listVal.length;
-      }
-
-      //  validate the number of formatting elements
-      if (intNumDepSeries != parseRCol(job.getPlotDisp()).length) {
-        throw new Exception("length of plot_disp differs from number of series (" + intNumDepSeries + ")");
-      }
-      if (job.getOrderSeries().length() > 0 && intNumDepSeries != parseRCol(job.getOrderSeries()).length) {
-        throw new Exception("length of order_series differs from number of series (" + intNumDepSeries + ")");
-      }
-      if (intNumDepSeries != parseRCol(job.getColors()).length) {
-        throw new Exception("length of colors differs from number of series (" + intNumDepSeries + ")");
-      }
-      if (!job.getLegend().isEmpty() &&
-        intNumDepSeries != parseRCol(job.getLegend()).length) {
-        throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")");
-      }
-
-      //  create a table containing all template values for populating the R_tmpl
-      HashMap<String, String> tableRTags = new HashMap<>();
-
-      tableRTags.put("r_work", _strRworkFolder);
-      tableRTags.put("plot_file", strPlotFile);
-      tableRTags.put("data_file", strDataFile);
-      tableRTags.put("plot_title", strTitle);
-      tableRTags.put("x_label", strXLabel);
-      tableRTags.put("y1_label", strY1Label);
-      tableRTags.put("plot_caption", strCaption);
-      tableRTags.put("plot_cmd", job.getPlotCmd());
-      tableRTags.put("grid_on", job.getGridOn() ? "TRUE" : "FALSE");
-      tableRTags.put("colors", job.getColors().length() == 0 ? "\"gray\"" : job.getColors());
-      tableRTags.put("y1_lim", job.getY1Lim().length() == 0 ? "c()" : job.getY1Lim());
-      tableRTags.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : "FALSE");
-      tableRTags.put("series1_list", job.getSeries1Val().getRDeclSeries());
-      tableRTags.put("legend_ncol", job.getLegendNcol());
-      tableRTags.put("legend_inset", job.getLegendInset());
-      tableRTags.put("legend", job.getLegend().length() == 0 ? "c()" : job.getLegend());
-      tableRTags.put("plot_disp", job.getPlotDisp().length() == 0 ? printRCol(rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
-      tableRTags.put("order_series", job.getOrderSeries().length() == 0 ? printRCol(repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
-
-
-      populatePlotFmtTmpl(tableRTags, job);
-
-      //  populate the R_tmpl with the template values
-      (new File(strRFile)).getParentFile().mkdirs();
-      (new File(strPlotFile)).getParentFile().mkdirs();
-      populateTemplateFile(_strRtmplFolder + job.getPlotTmpl(), strRFile, tableRTags);
-
-
-  			/*
-         *  Attempt to run the generated R script
-  			 */
-
-
-      boolean boolSuccess = runRscript(job.getRscript(), strRFile, printStream);
-      if (strMsg.length() > 0) {
-        printStream.println("\n==== Start Rscript error  ====\n" + strMsg + "\n====   End Rscript error  ====");
-      }
-      _intNumPlotsRun++;
-      printStream.println((boolSuccess ? "Created" : "Failed to create") + " plot " + strPlotFile + "\n\n");
-    }
-
-  }
 
 
   /**
