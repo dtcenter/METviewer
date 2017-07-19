@@ -1261,6 +1261,54 @@ CREATE TABLE line_data_rhist_rank
             REFERENCES line_data_rhist(line_data_id)
 ) ENGINE = MyISAM;
 
+
+-- line_data_relp contains stat data for a particular stat_header record, which it points
+--   at via the stat_header_id field.
+
+DROP TABLE IF EXISTS line_data_relp;
+CREATE TABLE line_data_relp
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    stat_header_id      INT UNSIGNED NOT NULL,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    fcst_lead           INT,
+    fcst_valid_beg      DATETIME,
+    fcst_valid_end      DATETIME,
+    fcst_init_beg       DATETIME,
+    obs_lead            INT UNSIGNED,
+    obs_valid_beg       DATETIME,
+    obs_valid_end       DATETIME,
+    total               INT UNSIGNED,
+    n_ens               INT UNSIGNED,
+
+    PRIMARY KEY (line_data_id),
+    CONSTRAINT line_data_relp_data_file_id_pk
+            FOREIGN KEY(data_file_id)
+            REFERENCES data_file(data_file_id),
+    CONSTRAINT line_data_relp_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
+
+
+-- line_data_relp_rank contains rank data for a particular line_data_relp record.  The
+--   number of ranks stored is given by the line_data_relp field n_rank.
+
+DROP TABLE IF EXISTS line_data_relp_ens;
+CREATE TABLE line_data_relp_ens
+(
+    line_data_id        INT UNSIGNED NOT NULL,
+    i_value             INT UNSIGNED NOT NULL,
+    ens_i              DOUBLE ,
+
+    PRIMARY KEY (line_data_id, i_value),
+    CONSTRAINT line_data_relp_id_pk
+            FOREIGN KEY(line_data_id)
+            REFERENCES line_data_relp(line_data_id)
+) ENGINE = MyISAM;
+
 -- line_data_phist contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
 
