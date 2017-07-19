@@ -408,8 +408,8 @@ public class MVPlotJobParser extends MVUtil {
 
 
     //  if there are dep,  and indep elements present, handle them
-    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc") &&
-      !job.getPlotTmpl().startsWith("rely")) {
+    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc")
+     &&  !job.getPlotTmpl().startsWith("rely") &&  !job.getPlotTmpl().startsWith("relp")) {
       int axis = 2;
       if (job.getPlotTmpl().startsWith("taylor")) {
         axis = 1;
@@ -898,7 +898,7 @@ public class MVPlotJobParser extends MVUtil {
               strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
             }
 
-          } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") && !job.getPlotTmpl().equals("phist.R_tmpl")) {
+          } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") && !job.getPlotTmpl().equals("phist.R_tmpl") && !job.getPlotTmpl().equals("relp.R_tmpl")) {
             strCompleteness = checkJobCompleteness(job);
           }
 
