@@ -477,9 +477,11 @@ public class MVServlet extends HttpServlet {
 
   private static void runTargetedJob(MVPlotJob job, String strJobTmpl, MVBatch bat) throws Exception {
     if (strJobTmpl.equals("rhist.R_tmpl")) {
-      bat.runRhistJob(job);
+      bat.runHistJob(job);
     } else if (strJobTmpl.equals("phist.R_tmpl")) {
-      bat.runPhistJob(job);
+      bat.runHistJob(job);
+    } else if (strJobTmpl.equals("relp.R_tmpl")) {
+      bat.runHistJob(job);
     } else if (strJobTmpl.equals("roc.R_tmpl") ||
       strJobTmpl.equals("rely.R_tmpl")) {
       bat.runRocRelyJob(job);
