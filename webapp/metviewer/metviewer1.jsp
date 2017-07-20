@@ -257,7 +257,7 @@
                             updateStats("y2", 1, []);
                             updateSeriesVarVal("y1", 1, []);
                             updateSeriesVarVal("y2", 1, []);
-                        } else if (currentTab == 'Roc' || currentTab == 'Rely') {
+                        } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist') {
                             updateSeriesVarValHist(1, []);
                             for (i = 0; i < fixed_var_indexes.length; i++) {
                                 values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
@@ -268,8 +268,6 @@
                             } else {
                                 updateSeriesHist();
                             }
-                        } else if (currentTab == 'Hist') {
-                            updateSeriesHist();
                         } else if (currentTab == 'Ens_ss') {
 
                             for (i = 0; i < series_var_y1_indexes.length; i++) {
