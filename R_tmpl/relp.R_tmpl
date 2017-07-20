@@ -58,7 +58,7 @@ if(length(listSeries1Val) > 0){
       dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
       seriesLegend = paste(seriesLegend,valPerm);
     }
-    seriesLegend = paste(seriesLegend,'Rank Histogram');
+    seriesLegend = paste(seriesLegend,'Relative Histogram');
     legend=append(legend, seriesLegend);
 
 

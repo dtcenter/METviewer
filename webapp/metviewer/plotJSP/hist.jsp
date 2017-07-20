@@ -143,7 +143,8 @@
     });
     getForecastVariablesHist();
     $("input[name='hist_line_type']").on("change", function () {
-          changeFixedVarHist(this.value);
+      changeFixedVarHist(this.value);
+      updateSeriesHist();
     });
     fixed_var_indexes.push(1);
     if (initXML != null) {

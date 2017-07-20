@@ -1447,8 +1447,15 @@ function updateSeriesHist() {
     var legend = [];
     var type = [];
     var stat_name;
-    if ( currentTab === 'Hist') {
-        stat_name = "Rank Histogram";
+    if (currentTab === 'Hist') {
+        var field_type = $("input:radio[name='hist_line_type']:checked").val();
+        if (field_type === 'rhist') {
+            stat_name = "Rank Histogram";
+        } else if (field_type === 'phist') {
+            stat_name = "Probability Histogram";
+        } else if (field_type === 'relp') {
+            stat_name = "Relative Histogram";
+        }
     } else if (currentTab === 'Roc') {
         stat_name = "ROC Curve";
     } else if (currentTab === 'Rely') {
