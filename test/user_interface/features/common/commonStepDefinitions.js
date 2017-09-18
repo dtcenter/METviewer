@@ -41,9 +41,13 @@ module.exports = function () {
     //--------------------------------------------------------------------------------------------------------
 
 
+    const menuIdNames = {
+        "Y1 Dependent" : "dependent_var_table_y1",
+        "Y1 Series" : "series_var_table_y1",
+        "Independent Variable" : "independent_var_table_x"
+    };
 
-    this.Given(/^I load the app$/, function () {
-        var url = "http://hwp-metvdev.gsd.esrl.noaa.gov:8080/metviewer/metviewer1.jsp";
+    this.Given(/^I load the app at "([^"]*)"$/, function (url) {
         browser.url(url);
         browser.waitForVisible('button*=Generate Plot', 10000);
 
@@ -68,27 +72,35 @@ module.exports = function () {
         browser.click('*=' + tabName);
     });
 
-    this.When(/^I click the "([^"]*)" menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.When(/^I click the "([^"]*)" variable menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
+        var menuName = menuIdNames[menuId];
+        browser.scroll('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        browser.click('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
     });
 
-    this.Then(/^the "([^"]*)" drop\-down menu appears$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.When(/^I click the "([^"]*)" attribute menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
+        var menuName = menuIdNames[menuId];
+        browser.scroll('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+        browser.click('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
     });
 
-    this.Then(/^I select the "([^"]*)" menu option and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Then(/^I select the "([^"]*)" variable menu option and wait up to (\d+) milliseconds$/, function (varName, millis) {
+        browser.click("span=" + varName);
     });
 
-    this.Then(/^the "([^"]*)" menu value is "([^"]*)"$/, function (arg1, arg2) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Then(/^the "([^"]*)" variable menu value is "([^"]*)"$/, function (menuId, menuValue) {
+        var menuName = menuIdNames[menuId];
+        var menuText = browser.getText('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
     });
 
-    this.Then(/^I check the "([^"]*)" menu option check box and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
+    this.Then(/^the "([^"]*)" attribute menu value is "([^"]*)"$/, function (menuId, menuValue) {
+        var menuName = menuIdNames[menuId];
+        var menuText = browser.getText('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+        assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
+    });
+
+    this.Then(/^I check the "([^"]*)" attribute menu option check box and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
         // Write code here that turns the phrase above into concrete actions
         return 'pending';
     });
@@ -98,12 +110,7 @@ module.exports = function () {
         return 'pending';
     });
 
-    this.Then(/^all "([^"]*)" menu values should be checked$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
-    });
-
-    this.Then(/^the "([^"]*)" drop\-down menu is not visible$/, function (arg1) {
+    this.Then(/^all "([^"]*)" attribute menu values should be checked$/, function (arg1) {
         // Write code here that turns the phrase above into concrete actions
         return 'pending';
     });
