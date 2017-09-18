@@ -43,11 +43,33 @@ module.exports = function () {
 
 
     this.Given(/^I load the app$/, function () {
+        var url = "http://hwp-metvdev.gsd.esrl.noaa.gov:8080/metviewer/metviewer1.jsp";
+        browser.url(url);
+        browser.waitForVisible('button*=Generate Plot', 10000);
+
+    });
+
+    this.Given(/^I select the "([^"]*)" database$/, function (arg1) {
         // Write code here that turns the phrase above into concrete actions
         return 'pending';
     });
 
-    this.When(/^I click the "([^"]*)" menu and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
+    this.Given(/^the selected database is "([^"]*)"$/, function (arg1) {
+        // Write code here that turns the phrase above into concrete actions
+        return 'pending';
+    });
+
+    this.Given(/^I choose the plot type "([^"]*)"$/, function (arg1) {
+        // Write code here that turns the phrase above into concrete actions
+        return 'pending';
+    });
+
+    this.Given(/^I click the "([^"]*)" tab$/, function (arg1) {
+        // Write code here that turns the phrase above into concrete actions
+        return 'pending';
+    });
+
+    this.When(/^I click the "([^"]*)" menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
         // Write code here that turns the phrase above into concrete actions
         return 'pending';
     });
@@ -100,5 +122,13 @@ module.exports = function () {
     this.Then(/^a plot should appear$/, function () {
         // Write code here that turns the phrase above into concrete actions
         return 'pending';
+    });
+
+    this.Then(/^debug$/, {timeout: 480 * 1000}, function () {
+        browser.debug();
+    });
+
+    this.Then(/^I pause for (\d+) milliseconds$/, function (millis) {
+        browser.pause(millis);
     });
 };
