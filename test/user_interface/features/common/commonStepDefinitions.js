@@ -44,7 +44,7 @@ module.exports = function () {
     const menuIdNames = {
         "Y1 Dependent" : "dependent_var_table_y1",
         "Y1 Series" : "series_var_table_y1",
-        "Independent Variable" : "independent_var_table_x"
+        "Independent Variable" : "indy_var_table"
     };
 
     this.Given(/^I load the app at "([^"]*)"$/, function (url) {
