@@ -35,13 +35,11 @@ Feature: Plot Timeseries
 
     When I click the "Independent Variable" attribute menu and wait up to 500 milliseconds
     Then I click the "Check all" button and wait up to 500 milliseconds
-    Then debug
-    And all "Independent Variable" attribute menu values should be checked
     And I click the x button and wait up to 500 milliseconds
 
-    When I click the "Aggregation statistics" radio button and wait up to 500 milliseconds
-    Then the "Aggregation statistics" radio button is selected
+    When I click the Aggregation Statistics radio button and wait up to 500 milliseconds
 
-    When I click the "Generate Plot" button and wait up to 5000 milliseconds
+    When I click the Generate Plot button and wait up to 5000 milliseconds
+#    Then debug
     Then a plot should appear
 

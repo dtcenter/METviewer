@@ -156,29 +156,29 @@ module.exports = function () {
         visElem.click();
     });
 
-    this.Then(/^I click the "([^"]*)" button and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Then(/^I click the "([^"]*)" button and wait up to (\d+) milliseconds$/, function (buttonName, millis) {
+        var visibles = browser.isVisible("span=" + buttonName);
+        var visIndex = visibles.findIndex(function(e){
+            return e==true
+        });
+        var elems = browser.elements("span=" + buttonName);
+        var visElem = elems.value[visIndex];
+        visElem.click();
     });
 
-    this.Then(/^all "([^"]*)" attribute menu values should be checked$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.When(/^I click the Aggregation Statistics radio button and wait up to (\d+) milliseconds$/, function (millis) {
+        browser.scroll("[id='aggregation_statistics_label']");
+        browser.click("[id='aggregation_statistics_label']");
     });
 
-    this.When(/^I click the "([^"]*)" radio button and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
-    });
-
-    this.Then(/^the "([^"]*)" radio button is selected$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.When(/^I click the Generate Plot button and wait up to (\d+) milliseconds$/, function (millis) {
+        browser.scroll("[id='generate_plot']");
+        browser.click("[id='generate_plot']");
     });
 
     this.Then(/^a plot should appear$/, function () {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+        browser.waitForVisible("[id='modal']", 1000);
+        browser.waitForVisible("[id='modal']", 20000, true);
     });
 
     this.Then(/^debug$/, {timeout: 480 * 1000}, function () {
