@@ -74,35 +74,86 @@ module.exports = function () {
 
     this.When(/^I click the "([^"]*)" variable menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
         var menuName = menuIdNames[menuId];
-        browser.scroll('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
-        browser.click('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        if (menuId === "Independent Variable") {
+            browser.scroll('table#' + menuName + ' td:nth-child(1) > button[type="button"]');
+            browser.click('table#' + menuName + ' td:nth-child(1) > button[type="button"]');
+        } else {
+            browser.scroll('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+            browser.click('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        }
     });
 
     this.When(/^I click the "([^"]*)" attribute menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
         var menuName = menuIdNames[menuId];
-        browser.scroll('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
-        browser.click('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+        if (menuId === "Independent Variable") {
+            browser.scroll('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+            browser.click('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        } else {
+            browser.scroll('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+            browser.click('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+        }
     });
 
     this.Then(/^I select the "([^"]*)" variable menu option and wait up to (\d+) milliseconds$/, function (varName, millis) {
-        browser.click("span=" + varName);
+        var visibles = browser.isVisible("span=" + varName);
+        if (visibles.length > 1) {
+            var visIndex = visibles.findIndex(function (e) {
+                return e == true
+            });
+            var elems = browser.elements("span=" + varName);
+            var visElem = elems.value[visIndex];
+            visElem.scroll();
+            visElem.click();
+        } else {
+            browser.scroll("span=" + varName);
+            browser.click("span=" + varName);
+        }
     });
 
     this.Then(/^the "([^"]*)" variable menu value is "([^"]*)"$/, function (menuId, menuValue) {
         var menuName = menuIdNames[menuId];
-        var menuText = browser.getText('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        if (menuId === "Independent Variable") {
+            var menuText = browser.getText('table#' + menuName + ' td:nth-child(1) > button[type="button"]');
+        } else {
+            var menuText = browser.getText('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        }
         assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
     });
 
     this.Then(/^the "([^"]*)" attribute menu value is "([^"]*)"$/, function (menuId, menuValue) {
         var menuName = menuIdNames[menuId];
-        var menuText = browser.getText('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+        if (menuId === "Independent Variable") {
+            var menuText = browser.getText('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+        } else {
+            var menuText = browser.getText('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+        }
         assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
     });
 
-    this.Then(/^I check the "([^"]*)" attribute menu option check box and wait up to (\d+) milliseconds$/, function (arg1, arg2) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Then(/^I check the "([^"]*)" attribute menu option check box and wait up to (\d+) milliseconds$/, function (varName, millis) {
+        var visibles = browser.isVisible("span=" + varName);
+        if (visibles.length > 1) {
+            var visIndex = visibles.findIndex(function (e) {
+                return e == true
+            });
+            var elems = browser.elements("span=" + varName);
+            var visElem = elems.value[visIndex];
+            visElem.scroll();
+            visElem.click();
+        } else {
+            browser.scroll("span=" + varName);
+            browser.click("span=" + varName);
+        }
+    });
+
+    this.Then(/^I click the x button and wait up to (\d+) milliseconds$/, function (millis) {
+        var visibles = browser.isVisible('.ui-icon.ui-icon-circle-close');
+        var visIndex = visibles.findIndex(function(e){
+            return e==true
+        });
+        var elems = browser.elements('.ui-icon.ui-icon-circle-close');
+        var visElem = elems.value[visIndex];
+        visElem.click();
     });
 
     this.Then(/^I click the "([^"]*)" button and wait up to (\d+) milliseconds$/, function (arg1, arg2) {

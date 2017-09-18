@@ -17,17 +17,16 @@ Feature: Plot Timeseries
 
     When I click the "Y1 Dependent" attribute menu and wait up to 500 milliseconds
     Then I check the "RMSE" attribute menu option check box and wait up to 2000 milliseconds
-    Then debug
-    And I click the "x" button and wait up to 500 milliseconds
+    And I click the x button and wait up to 500 milliseconds
     Then the "Y1 Dependent" attribute menu value is "RMSE"
 
     When I click the "Y1 Series" variable menu and wait up to 500 milliseconds
     Then I select the "MODEL" variable menu option and wait up to 2000 milliseconds
-    And the "Y1 Dependent" variable menu value is "MODEL"
+    And the "Y1 Series" variable menu value is "MODEL"
 
     When I click the "Y1 Series" attribute menu and wait up to 500 milliseconds
     Then I check the "GFS_global" attribute menu option check box and wait up to 2000 milliseconds
-    And I click the "x" button and wait up to 500 milliseconds
+    And I click the x button and wait up to 500 milliseconds
     Then the "Y1 Series" attribute menu value is "GFS_global"
 
     When I click the "Independent Variable" variable menu and wait up to 500 milliseconds
@@ -36,8 +35,9 @@ Feature: Plot Timeseries
 
     When I click the "Independent Variable" attribute menu and wait up to 500 milliseconds
     Then I click the "Check all" button and wait up to 500 milliseconds
+    Then debug
     And all "Independent Variable" attribute menu values should be checked
-    And I click the "x" button and wait up to 500 milliseconds
+    And I click the x button and wait up to 500 milliseconds
 
     When I click the "Aggregation statistics" radio button and wait up to 500 milliseconds
     Then the "Aggregation statistics" radio button is selected
