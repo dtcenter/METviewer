@@ -49,24 +49,23 @@ module.exports = function () {
 
     });
 
-    this.Given(/^I select the "([^"]*)" database$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Given(/^I select the "([^"]*)" database$/, function (databaseName) {
+        browser.click('.ui-layout-container .ui-layout-pane.ui-layout-pane-north .toolbar.ui-widget .ui-multiselect.ui-widget.ui-state-default.ui-corner-all');
+        browser.scroll("span=" + databaseName);
+        browser.click("span=" + databaseName);
     });
 
-    this.Given(/^the selected database is "([^"]*)"$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Given(/^the selected database is "([^"]*)"$/, function (databaseName) {
+        var datText = browser.getText('.ui-layout-container .ui-layout-pane.ui-layout-pane-north .toolbar.ui-widget .ui-multiselect.ui-widget.ui-state-default.ui-corner-all');
+        assert(datText === databaseName, "database " + databaseName + " does not appear to be selected.");
     });
 
-    this.Given(/^I choose the plot type "([^"]*)"$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Given(/^I choose the plot type "([^"]*)"$/, function (plotType) {
+        browser.click('*=' + plotType);
     });
 
-    this.Given(/^I click the "([^"]*)" tab$/, function (arg1) {
-        // Write code here that turns the phrase above into concrete actions
-        return 'pending';
+    this.Given(/^I click the "([^"]*)" tab$/, function (tabName) {
+        browser.click('*=' + tabName);
     });
 
     this.When(/^I click the "([^"]*)" menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {

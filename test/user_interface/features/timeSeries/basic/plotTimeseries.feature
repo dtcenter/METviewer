@@ -4,11 +4,11 @@ Feature: Plot Timeseries
 
   Background:
     Given I load the app
-    Then debug
     And I select the "mv_global_compare_klh2" database
     And the selected database is "mv_global_compare_klh2"
     And I choose the plot type "Series"
     And I click the "Y1 Axis variables" tab
+    Then debug
 
   @watch
   Scenario: plotTimeseries
