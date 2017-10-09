@@ -407,6 +407,15 @@ if ( nrow(sampleData) > 0){
     return( (dblHa - (dblO^2 / d$total)) / (2*dblO - dblHa - (dblO^2 / d$total)) );
   }
 
+calcECLV = function(d){
+    # Build list of X-axis points between 0 and 1
+    CL_PTS = seq(clStep, 1-clStep, clStep)
+    ECLV = value(c(d$fy_oy, d$fy_on, d$fn_oy, d$fn_on), cl = CL_PTS);
+    #find indexses of common steps
+    listInd =ECLV$cl %in% CL_PTS;
+    V = ECLV$V[listInd];
+    return (V);
+  }
 
 
   # NBR_CNT "calculations"
@@ -560,6 +569,30 @@ if ( nrow(sampleData) > 0){
 
   }
 
+
+
+calcPSTD_BRIER = function(d){
+    return ( d$reliability - d$resolution + d$uncertainty );
+  }
+calcPSTD_BSS_SMPL = function(d){
+    return ( ( d$resolution - d$reliability ) / d$uncertainty );
+  }
+ calcPSTD_BASER = function(d){
+   return ( d$baser );
+ }
+ calcPSTD_RELIABILITY = function(d){
+   return ( d$reliability );
+ }
+ calcPSTD_RESOLUTION = function(d){
+   return ( d$resolution );
+ }
+ calcPSTD_ROC_AUC = function(d){
+   return ( d$roc_auc );
+ }
+
+ calcPSTD_UNCERTAINTY = function(d){
+   return ( d$uncertainty );
+ }
   findIndexes = function(diffSeriesVec, listGroupToValue, matPerm){
     listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
     listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
@@ -722,8 +755,66 @@ if ( nrow(sampleData) > 0){
           f_rate = dblFRate,
           o_rate = dblORate
         );
-      }
+      } else if( boolAggPct ){
+        dfPerm = d[i,][substring(colnames(d[i,][1,]), 1, nchar(strPerm)) == strPerm];
+        dfAggPerm = dfPerm[1,];
+        #drop equalize column
+        if( paste(strPerm, "equalize", sep="_") %in% colnames(dfAggPerm) ){
+          dfAggPerm = dfAggPerm[ , -which(colnames(dfAggPerm) %in% c(paste(strPerm, "equalize", sep="_")))]
+        }
+        oy_i_index = which( colnames(dfAggPerm)== paste(strPerm, "oy_i", sep="_"));
+        on_i_index = which( colnames(dfAggPerm)== paste(strPerm, "on_i", sep="_") );
+        thresh_i_index = oy_i_index - 1;
 
+        for(oy_i in seq( oy_i_index , ncol(dfAggPerm), 3)){
+          dfAggPerm[1,oy_i] = sum(dfPerm[,oy_i], na.rm = TRUE);
+        }
+        for(on_i in seq( on_i_index, ncol(dfAggPerm), 3)){
+          dfAggPerm[1,on_i] = sum(dfPerm[,on_i], na.rm = TRUE);
+        }
+        dfPctPerm = data.frame(
+          thresh_i	= c( t( dfAggPerm[1,seq( thresh_i_index, ncol(dfAggPerm), 3)] ) ),
+          oy_i		= c( t( dfAggPerm[1,seq( oy_i_index, ncol(dfAggPerm), 3)] ) ),
+          on_i		= c( t( dfAggPerm[1,seq( on_i_index, ncol(dfAggPerm), 3)] ) )
+       );
+
+       # calculate vectors and constants to use below
+       dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
+       dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
+       T = sum(dfPctPerm$n_i);									# T
+       oy_total = sum(dfPctPerm$oy_i);							# n_.1
+       o_bar = oy_total / T;									# n_.1 / T
+       dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
+
+       # row-based calculations
+       dfPctPerm$oy_tp			= dfPctPerm$oy_i / T;
+       dfPctPerm$on_tp			= dfPctPerm$on_i / T;
+       dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
+       dfPctPerm$refinement	= dfPctPerm$n_i / T;
+       dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
+       dfPctPerm$baserate		= dfPctPerm$o_bar_i;
+
+       # table-based stat calculations
+       dfSeriesSums = list(
+         reliability	= sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
+         resolution	= sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
+         uncertainty	= o_bar * (1 - o_bar),
+         baser		= o_bar
+       );
+       #dfSeriesSums$b_ci	= calcBrierCI(dfPctPerm, dfSeriesSums$brier, dblAlpha);
+
+       # build the dataframe for calculating and use the trapezoidal method roc_auc
+       dfROC = calcPctROC(dfPctPerm);
+       dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
+       dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
+       dfSeriesSums$roc_auc = 0;
+       for(r in 2:nrow(dfAUC)){
+         dfSeriesSums$roc_auc = dfSeriesSums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
+       }
+
+
+
+      }
 
       # return a value for each statistic
       for(strStat in listStat){
@@ -939,7 +1030,7 @@ if ( nrow(sampleData) > 0){
               dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
             }
             dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-          };
+          }
 
           dfOut[listOutInd1,]$nstats = 0;
           strCIParm = strCIType;
