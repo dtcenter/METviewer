@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v2.2-dev</TITLE>
+<TITLE>METViewer v2.2</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -166,7 +166,7 @@
 <script type="text/javascript" src="js/jquery.actual.min.js"></script>
 <script type="text/javascript"
         src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-<script type="text/javascript" src="js/metviewer_common.js"></script>
+<script type="text/javascript" src="js/metviewer_common.min.js"></script>
 <script type="text/javascript" src="js/moment.min.js"></script>
 
 <script type="text/javascript">
@@ -257,7 +257,7 @@
                             updateStats("y2", 1, []);
                             updateSeriesVarVal("y1", 1, []);
                             updateSeriesVarVal("y2", 1, []);
-                        } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist') {
+                        } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist' || currentTab == 'Eclv') {
                             updateSeriesVarValHist(1, []);
                             for (i = 0; i < fixed_var_indexes.length; i++) {
                                 values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
@@ -302,7 +302,7 @@
 
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
-        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.2-dev<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
+        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.2<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
 
         </div>
         <label for="database">Database:</label><select id="database">
@@ -354,6 +354,7 @@
             <li><a href="plotJSP/performance.jsp">Perf</a></li>
             <li><a href="plotJSP/taylor.jsp">Taylor</a></li>
             <li><a href="plotJSP/hist.jsp">Hist</a></li>
+            <li><a href="plotJSP/eclv.jsp">Eclv</a></li>
         </ul>
 
 
