@@ -146,8 +146,10 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolAggSsvar = false;
   protected boolean _boolAggVl1l2 = false;
   protected String _strAggBootRepl = "1";
-  protected String _strAggBootRandomSeed =  "NA";
-  ;
+  protected String _strAggBootRandomSeed = "NA";
+
+  protected Float cl_step = 0.05F;
+
   protected String _strAggBootCI = "bca";
   protected boolean _boolEveqDis = false;
   protected boolean _equalizeByIndep = true;
@@ -320,6 +322,7 @@ public class MVPlotJob extends MVUtil {
     job._boolAggSsvar = _boolAggSsvar;
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootRandomSeed = _strAggBootRandomSeed;
+    job.cl_step = cl_step;
     job._strAggBootCI = _strAggBootCI;
     job._boolAggVl1l2 = _boolAggVl1l2;
     job._boolEveqDis = _boolEveqDis;
@@ -1405,6 +1408,22 @@ public class MVPlotJob extends MVUtil {
         _strAggBootRandomSeed = "NA";
       }
 
+    }
+  }
+
+  public Float getCl_step() {
+    return cl_step;
+  }
+
+  public void setCl_step(String cl_step) {
+    if (cl_step.trim().length() == 0) {
+      this.cl_step = 0.05F;
+    } else {
+      try {
+        this.cl_step = Float.valueOf(cl_step.trim());
+      } catch (Exception e) {
+        this.cl_step = 0.05F;
+      }
     }
   }
 
