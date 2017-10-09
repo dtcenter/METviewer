@@ -194,6 +194,8 @@ value_to_desc_map['INT'] = 'Interest';
 value_to_desc_map['MAXINT'] = 'Maximun interest';
 value_to_desc_map['MAXINTF'] = 'Maximun interest for forecast objects';
 value_to_desc_map['MAXINTO'] = 'Maximun interest for observation objects';
+value_to_desc_map['PSTD_BSS_SMPL'] = 'Sample Brier skill score';
+value_to_desc_map['PSTD_BSS'] = 'Brier skill score';
 
 var listStatModelRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
@@ -294,7 +296,7 @@ indy_var_value_to_title_mode_map['init_hour'] = 'INIT_HOUR';
 indy_var_value_to_title_mode_map['fcst_rad'] = 'FCST_RAD';
 indy_var_value_to_title_mode_map['vx_mask'] = 'VX_MASK';
 
-var phist_fixed_var_map={};
+var phist_fixed_var_map = {};
 phist_fixed_var_map['fcst_var'] = 'FCST_VAR';
 phist_fixed_var_map['model'] = 'MODEL';
 phist_fixed_var_map['fcst_lead'] = 'FCST_LEAD';
@@ -311,7 +313,7 @@ phist_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 phist_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 phist_fixed_var_map['n_bin'] = 'N_BIN';
 
-var rhist_fixed_var_map={};
+var rhist_fixed_var_map = {};
 rhist_fixed_var_map['fcst_var'] = 'FCST_VAR';
 rhist_fixed_var_map['model'] = 'MODEL';
 rhist_fixed_var_map['fcst_lead'] = 'FCST_LEAD';
@@ -328,7 +330,7 @@ rhist_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 rhist_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 rhist_fixed_var_map['n_rank'] = 'N_RANK';
 
-var relp_fixed_var_map={};
+var relp_fixed_var_map = {};
 relp_fixed_var_map['fcst_var'] = 'FCST_VAR';
 relp_fixed_var_map['model'] = 'MODEL';
 relp_fixed_var_map['fcst_lead'] = 'FCST_LEAD';
@@ -344,7 +346,6 @@ relp_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
 relp_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 relp_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 relp_fixed_var_map['n_ens'] = 'N_ENS';
-
 
 
 var fcst_var_y1_indexes = [1];
@@ -1042,6 +1043,8 @@ function updateFixedVarValHist(index, selectedVals) {
         field_type = $("input:radio[name='hist_line_type']:checked").val();
     } else if (currentTab === 'Roc') {
         field_type = "roc";
+    } else if (currentTab === 'Eclv') {
+        field_type = "eclv";
     } else if (currentTab === 'Rely') {
         field_type = "rely";
     } else if (currentTab === 'Ens_ss') {
@@ -1105,7 +1108,10 @@ function updateFixedVarVal(index, selectedVals, equalize) {
     var selected_mode, statst;
     if (currentTab == 'Perf') {
         selected_mode = 'stat';
-        statst = '<stat><fcst_var ><val>FAR</val></fcst_var></stat>';
+        statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
+    } else if (currentTab == 'Eclv') {
+        selected_mode = 'stat';
+        statst = '<stat><fcst_var><val>NA</val></fcst_var></stat>';
     } else if (currentTab == 'Taylor') {
         selected_mode = 'taylor';
         statst = convertVarsAndStatsToXml();
@@ -1462,6 +1468,8 @@ function updateSeriesHist() {
         stat_name = "Reliability Curve";
     } else if (currentTab === 'Taylor') {
         stat_name = $("#fcst_var_y1_1").val();
+    } else if (currentTab === 'Eclv') {
+        stat_name = "Economic value";
     }
 
     if (initXML != null) {
@@ -1506,7 +1514,7 @@ function updateSeriesHist() {
         series_perm[0] = "";
     }
 
-    if (currentTab == 'Roc' || currentTab == 'Rely') {
+    if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Eclv') {
         var selected_stats;
         try {
             selected_stats = $("#summary_curve").multiselect("getChecked");
@@ -1635,6 +1643,8 @@ function updateSeriesVarValHist(index, selectedVals) {
         field_type = "taylor";
     } else if (currentTab === 'Hist') {
         field_type = $("input:radio[name='hist_line_type']:checked").val();
+    } else if (currentTab === 'Eclv') {
+        field_type = "eclv";
     }
 
     $.ajax({
@@ -2543,6 +2553,10 @@ function sendXml() {
         plot.append(template);
         plot = createXMLTaylor(plot);
         plot = createXMLCommon(plot);
+    } else if (currentTab === 'Eclv') {
+        template = $('<template>eclv.R_tmpl</template>');
+        plot.append(template);
+        plot = createXMLEclv(plot);
     }
     result.append(plot);
     xml = $('<root />').append(result).html().replace(/label=\"</g, 'label="&lt;').replace(/label=\">/g, 'label="&gt;');
@@ -2625,6 +2639,38 @@ function createXMLRoc(plot) {
     }
     plot.append(summary_curve);
     plot = createXMLCommon(plot);
+    return plot;
+}
+function createXMLEclv(plot) {
+    try {
+        $("#listdt").saveCell(lastSelRow, lastSelCol);
+    } catch (err) {
+        console.log("Can't save row " + lastSelRow);
+    }
+    plot.append(createSeriesElementForAxis(1, series_var_y1_indexes));
+    plot = createXMLPlotFix(plot);
+    var statistic = $("input:radio[name ='statistics']:checked").val();
+
+        var calc_stat_val = $('#calc_stat').val();
+        var agg_stat_val = $('#agg_stat').val();
+    if (statistic === 'aggregation_statistics' && agg_stat_val !== "none") {
+            var agg_stat = $('<agg_stat />');
+            agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
+            agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
+            agg_stat.append($('<boot_random_seed />').text($('#boot_random_seed').val()));
+            agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
+            agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
+            agg_stat.append($('<cl_step />').text($('#cl_step').val()));
+            plot.append(agg_stat);
+        }
+        else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
+            var calc_stat = $('<calc_stat />');
+            calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
+            plot.append(calc_stat);
+        }
+        plot.append($('<plot_stat />').text($('#plot_stat').val()));
+    plot = createXMLCommon(plot);
+
     return plot;
 }
 function createXMLHist(plot) {
@@ -2751,7 +2797,7 @@ function createXMLPerf(plot) {
     var calc_stat_val = $('#calc_stat').val();
     var agg_stat_val = $('#agg_stat').val();
 
-    if (statistic === 'aggregation_statistics'  && agg_stat_val !== "none") {
+    if (statistic === 'aggregation_statistics' && agg_stat_val !== "none") {
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
@@ -2862,7 +2908,7 @@ function createXMLSeries(plot) {
     var calc_stat_val = $('#calc_stat').val();
     var agg_stat_val = $('#agg_stat').val();
 
-    if (statistic === 'aggregation_statistics'  && agg_stat_val !== "none") {
+    if (statistic === 'aggregation_statistics' && agg_stat_val !== "none") {
         var agg_stat = $('<agg_stat />');
         agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
         agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
@@ -3415,7 +3461,7 @@ function removeFixedVar(id) {
 
 
 function addFixedVarHist() {
-    var last_index ;
+    var last_index;
     if (fixed_var_indexes.length > 0) {
         last_index = parseInt(fixed_var_indexes[fixed_var_indexes.length - 1]);
     } else {
@@ -3463,7 +3509,6 @@ function addFixedVarHist() {
         }).click(function () {
             removeFixedVarHist("remove_fixed_var_" + new_index);
         });
-
 
 
         fixed_var_val = $("#fixed_var_val_" + last_index).clone(false);
@@ -3575,8 +3620,10 @@ function addFixedVar() {
     }
 
     if (!is_not_visible) {
-        remove_var = $("#remove_fixed_var_" + last_index).clone(true)
-                .prop("id", 'remove_fixed_var_' + new_index);
+       // remove_var = $("#remove_fixed_var_" + last_index).clone()
+       //         .prop("id", 'remove_fixed_var_' + new_index);
+        remove_var = $('<button id="remove_fixed_var_'+ new_index+'" class="remove_fixed_var">Remove</button>');
+
 
         fixed_var_val = $("#fixed_var_val_" + last_index).clone(false);
         fixed_var_val.prop("id", 'fixed_var_val_' + new_index);
@@ -3601,6 +3648,15 @@ function addFixedVar() {
 
         $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var)).append($('<td>')
                 .append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button)).append($('<td>').append(fix_var_event_equal).append(fix_var_event_equal_label)));
+
+        remove_var.button({
+                    icons: {
+                        primary: "ui-icon-trash"
+                    },
+                    text: false
+                }).click(function () {
+            removeFixedVar($(this).attr('id'));
+                });
     }
 
     createValDatePeriodDialog('fixed_var_val', new_index);
@@ -4281,6 +4337,124 @@ function addFcstVar(y_axis) {
     }
 }
 
+function loadXMLStatistics(){
+    if (initXML.find("plot").find("agg_stat").length > 0) {
+        $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
+        $('#calculations_statistics').hide();
+        $('#aggregation_statistics').show();
+
+        if ($(initXML.find("plot").find("agg_stat").find("agg_ctc")).text() === "TRUE") {
+            $('#agg_stat').val('ctc');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_sl1l2")).text() === "TRUE") {
+            $('#agg_stat').val('sl1l2');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_sal1l2")).text() === "TRUE") {
+            $('#agg_stat').val('sal1l2');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_pct")).text() === "TRUE") {
+            $('#agg_stat').val('pct');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_nbrcnt")).text() === "TRUE") {
+            $('#agg_stat').val('nbrcnt');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_ssvar")).text() === "TRUE") {
+            $('#agg_stat').val('ssvar');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_vl1l2")).text() === "TRUE") {
+            $('#agg_stat').val('vl1l2');
+        } else {
+            if (selected_mode === "mode" && listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
+                $('#agg_stat').val('mode');
+            }
+        }
+        try {
+            $('#agg_stat').multiselect('refresh');
+        } catch (e) {
+        }
+        $("#boot_repl").val($(initXML.find("plot").find("agg_stat").find("boot_repl")).text());
+        var seed = $(initXML.find("plot").find("agg_stat").find("boot_random_seed")).text();
+        if( Number.isInteger(seed)){
+            $("#boot_random_seed").val(seed);
+        }else{
+            $("#boot_random_seed").val("");
+        }
+        $("#boot_ci").val($(initXML.find("plot").find("agg_stat").find("boot_ci")).text());
+        $('#cacheAggStat').prop('checked', $(initXML.find("plot").find("agg_stat").find("cache_agg_stat")).text() == "TRUE");
+
+    } else if (initXML.find("plot").find("calc_stat").length > 0) {
+        $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+        $('#calculations_statistics').show();
+        if ($(initXML.find("plot").find("calc_stat").find("calc_ctc")).text() == "TRUE") {
+            $('#calc_stat').val('ctc');
+        } else if ($(initXML.find("plot").find("calc_stat").find("calc_sl1l2")).text() == "TRUE") {
+            $('#calc_stat').val('sl1l2');
+        } else if ($(initXML.find("plot").find("calc_stat").find("calc_sal1l2")).text() == "TRUE") {
+            $('#calc_stat').val('sal1l2');
+        } else if ($(initXML.find("plot").find("calc_stat").find("calc_vl1l2")).text() == "TRUE") {
+            $('#calc_stat').val('vl1l2');
+        }
+        try {
+            $('#calc_stat').multiselect('refresh');
+        } catch (e) {
+        }
+    } else {
+        if (selected_mode === "stat") {
+            $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+            $('#aggregation_statistics ').hide();
+            $('#none').show();
+        } else {
+            if (listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
+                $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
+                $('#agg_stat').val('mode');
+                try {
+                    $('#agg_stat').multiselect('refresh');
+                } catch (e) {
+                }
+                $('#aggregation_statistics ').show();
+                $('#calculations_statistics ').hide();
+            } else {
+                $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
+                $('#aggregation_statistics ').hide();
+                $('#none').show();
+            }
+
+        }
+
+    }
+}
+
+
+function loadXMLEclv() {
+    var series_var_val;
+    if (initXML.find("plot").find("series1").children().length > 0) {
+        var series_arr = initXML.find("plot").find("series1").children();
+        for (var i = 0; i < series_arr.length; i++) {
+            series_var_val = [];
+            addSeriesVarHist();
+
+            var value = $(series_arr[i]).attr('name');
+            try {
+                $("#series_var_y1_" + (i + 1)).val(value).multiselect("refresh");
+            } catch (err) {
+            }
+            $(series_arr[i]).find("val").each(function () {
+                series_var_val.push($(this).text());
+            });
+            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+                $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "block");
+            } else {
+                $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
+            }
+            updateSeriesVarValHist((i + 1), series_var_val);
+
+        }
+    } else {
+        series_var_val = $("#series_var_y1_1").first().val();
+        updateSeriesVarValHist(1, series_var_val);
+    }
+    try {
+        $("#plot_stat").val(initXML.find("plot").find("plot_stat").text()).multiselect("refresh");
+    } catch (e) {
+    }
+    loadXMLStatistics();
+    updatePlotFix();
+}
+
 function loadXMLRoc() {
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
@@ -4556,7 +4730,7 @@ function loadXMLSeries() {
         if (initXML.find("plot").find("dep").find("dep" + y_axis_index).children().length > 0) {
             var dep_arr = initXML.find("plot").find("dep").find("dep" + y_axis_index).children();
             for (var i = 0; i < dep_arr.length; i++) {
-                 fcst_stat = [];
+                fcst_stat = [];
                 value = $(dep_arr[i]).attr('name');
                 if (index === 0 && y_axis_index === 1) {
                     try {
@@ -4684,79 +4858,7 @@ function loadXMLSeries() {
         populateIndyVarVal(indy_var_vals);
     }
 
-    if (initXML.find("plot").find("agg_stat").length > 0) {
-        $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
-        $('#calculations_statistics').hide();
-        $('#aggregation_statistics').show();
-
-        if ($(initXML.find("plot").find("agg_stat").find("agg_ctc")).text() === "TRUE") {
-            $('#agg_stat').val('ctc');
-        } else if ($(initXML.find("plot").find("agg_stat").find("agg_sl1l2")).text() === "TRUE") {
-            $('#agg_stat').val('sl1l2');
-        } else if ($(initXML.find("plot").find("agg_stat").find("agg_sal1l2")).text() === "TRUE") {
-            $('#agg_stat').val('sal1l2');
-        } else if ($(initXML.find("plot").find("agg_stat").find("agg_pct")).text() === "TRUE") {
-            $('#agg_stat').val('pct');
-        } else if ($(initXML.find("plot").find("agg_stat").find("agg_nbrcnt")).text() === "TRUE") {
-            $('#agg_stat').val('nbrcnt');
-        } else if ($(initXML.find("plot").find("agg_stat").find("agg_ssvar")).text() === "TRUE") {
-            $('#agg_stat').val('ssvar');
-        } else if ($(initXML.find("plot").find("agg_stat").find("agg_vl1l2")).text() === "TRUE") {
-            $('#agg_stat').val('vl1l2');
-        } else  {
-            if(selected_mode === "mode" && listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
-                $('#agg_stat').val('mode');
-            }
-        }
-        try {
-            $('#agg_stat').multiselect('refresh');
-        } catch (e) {
-        }
-        $("#boot_repl").val($(initXML.find("plot").find("agg_stat").find("boot_repl")).text());
-        $("#boot_random_seed").val($(initXML.find("plot").find("agg_stat").find("boot_random_seed")).text());
-        $("#boot_ci").val($(initXML.find("plot").find("agg_stat").find("boot_ci")).text());
-        $('#cacheAggStat').prop('checked', $(initXML.find("plot").find("agg_stat").find("cache_agg_stat")).text() == "TRUE");
-
-    } else if (initXML.find("plot").find("calc_stat").length > 0) {
-        $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
-        $('#calculations_statistics').show();
-        if ($(initXML.find("plot").find("calc_stat").find("calc_ctc")).text() == "TRUE") {
-            $('#calc_stat').val('ctc');
-        } else if ($(initXML.find("plot").find("calc_stat").find("calc_sl1l2")).text() == "TRUE") {
-            $('#calc_stat').val('sl1l2');
-        } else if ($(initXML.find("plot").find("calc_stat").find("calc_sal1l2")).text() == "TRUE") {
-            $('#calc_stat').val('sal1l2');
-        } else if ($(initXML.find("plot").find("calc_stat").find("calc_vl1l2")).text() == "TRUE") {
-            $('#calc_stat').val('vl1l2');
-        }
-        try {
-            $('#calc_stat').multiselect('refresh');
-        } catch (e) {
-        }
-    } else {
-        if (selected_mode === "stat") {
-            $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
-            $('#aggregation_statistics ').hide();
-            $('#none').show();
-        } else {
-            if (listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
-                $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
-                $('#agg_stat').val('mode');
-                try {
-                    $('#agg_stat').multiselect('refresh');
-                } catch (e) {
-                }
-                $('#aggregation_statistics ').show();
-                $('#calculations_statistics ').hide();
-            } else {
-                $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
-                $('#aggregation_statistics ').hide();
-                $('#none').show();
-            }
-
-        }
-
-    }
+    loadXMLStatistics();
 
 
     var listdiffseries1 = $(initXML.find("plot").find("tmpl").find("listDiffSeries1")).text();
@@ -4965,7 +5067,7 @@ function createValDatePeriodDialog(prefix, var_index) {
                     if (prefix !== 'fixed_var_val') {
                         if (currentTab === "Series" || currentTab === "Box" || currentTab === "Bar") {
                             updateSeries();
-                        } else if ( currentTab === "Roc" || currentTab === "Rely" || currentTab === "Hist") {
+                        } else if (currentTab === "Roc" || currentTab === "Rely" || currentTab === "Hist" || currentTab === "Eclv") {
                             updateSeriesHist();
                         } else if (currentTab = "Ens_ss") {
                             updateSeriesEns();
@@ -5466,7 +5568,7 @@ function initPage() {
         title: "Add Derived Curve",
         buttonicon: "ui-icon-plus",
         onClickButton: function () {
-            if ( currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Ens_ss' || currentTab == 'Perf' || currentTab === "Hist") {
+            if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Ens_ss' || currentTab == 'Perf' || currentTab === "Hist" || currentTab === "Eclv") {
                 $("#unavailableDiffCurveDialogForm").dialog("open");
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
@@ -5846,6 +5948,8 @@ function initPage() {
             currentTab = "Hist";
         } else if (template === "roc.R_tmpl") {
             currentTab = "Roc";
+        } else if (template === "eclv.R_tmpl") {
+            currentTab = "Eclv";
         } else if (template === "rely.R_tmpl") {
             currentTab = "Rely";
         } else if (template === "ens_ss.R_tmpl") {
@@ -6034,9 +6138,9 @@ function changeFixedVarHist(value) {
         var selected = $('#fixed_var_' + fixed_var_indexes[i]).val();
         $('#fixed_var_' + fixed_var_indexes[i]).empty();
         $.each(optionsMap, function (key, value) {
-            if(key === selected){
+            if (key === selected) {
                 $('#fixed_var_' + fixed_var_indexes[i]).append($('<option value="' + key + '" selected>' + value + '</option>'));
-            }else {
+            } else {
                 $('#fixed_var_' + fixed_var_indexes[i]).append($('<option value="' + key + '">' + value + '</option>'));
             }
         });
