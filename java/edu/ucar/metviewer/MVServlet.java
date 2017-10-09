@@ -231,7 +231,7 @@ public class MVServlet extends HttpServlet {
       strResp.append("<val>").append(aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;")).append("</val>");
 
       //  if the database field value is probabilistic, add a wild card version
-      if (!strField.equals("fcst_var")) {
+/*      if (!strField.equals("fcst_var")) {
         continue;
       }
       Matcher matProb = _patProbFcstVar.matcher(aListVal);
@@ -242,7 +242,7 @@ public class MVServlet extends HttpServlet {
           strResp.append("<val>").append(strProbFcstVar).append("</val>");
           tabProb.put(strProbKey, strProbFcstVar);
         }
-      }
+      }*/
     }
 
 
@@ -487,6 +487,8 @@ public class MVServlet extends HttpServlet {
       bat.runRocRelyJob(job);
     } else if (strJobTmpl.equals("performance.R_tmpl")) {
       bat.runJob(job);
+    } else if (strJobTmpl.equals("eclv.R_tmpl")) {
+      bat.runEclvJob(job);
     } else {
       bat.runJob(job);
     }
