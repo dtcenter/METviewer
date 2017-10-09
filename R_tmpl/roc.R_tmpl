@@ -42,7 +42,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
   }else{
     dfROC=NA;
   }
-  if(!envir$isPlotCreated & !is.na(dfROC)){
+  if(!envir$isPlotCreated & !all(is.na(dfROC))) {
     # create a new plot with no axes
     plot(
       x=listPOFD, # series x data
@@ -146,7 +146,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
   actualInd = listPlotOrderSeries[intPermVal];
 
   #if do not show or no data - continue to the next
-  if(listPlotDisp[actualInd] & !is.na(dfROC)){
+  if(listPlotDisp[actualInd] & !all(is.na(dfROC))) {
 
     # plot the series line
     lines(
@@ -230,6 +230,8 @@ listType = #<type>#;
 listLty = #<lty>#;
 listLwd = #<lwd>#;
 
+intCurveNum = 0;
+
 if(length(listSeries1Val) > 0){
   for(intPermVal in 1:nrow(matPermVal)){
     seriesLegend="";
@@ -245,15 +247,17 @@ if(length(listSeries1Val) > 0){
     seriesLegend = paste(seriesLegend,'ROC Curve');
     legend=append(legend, seriesLegend);
     drawLine(dfPerm,envir=env, intPermVal);
+    intCurveNum = intPermVal;
   }
 }else{
   dfPerm = dfData;
   legend=append(legend, 'ROC Curve');
   drawLine(dfPerm,envir=env);
+  intCurveNum = 1;
 }
 #adding sum curevs
 if(length(listStatisticsCurvs) > 0){
-  intPermVal = intPermVal + 1;
+  intPermVal = intCurveNum + 1;
   if( TRUE == boolRocPct ){
     for(index in 1:length(listStatisticsCurvs)){
       groupStats_oy_i = aggregate(oy_i ~ thresh_i, data = dfData, FUN = listStatisticsCurvs[index]);
