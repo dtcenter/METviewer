@@ -14,31 +14,49 @@
 
 <h3>Revision History</h3>
 <ul>
+  <li>2017/10/09 - <b class="tag">mv 2.2</b></li>
+  <div>New features:</div>
+  <ul>Bootstrapping and CI are available for PCT line type statistics</ul>
+  <ul>PCT line type statistics can be used in the scorecard</ul>
+  <ul>ECLV (VSDB -> ECON) and RELP line types are available for loading and piloting</ul>
+  <ul>FCST_THRESH field for VSDB RELI line type can be loaded to the database</ul>
+  <ul>Restriction: All <span class="code">&lt;val&gt;</span> elements should be listed in alphabetical order in XML for the batch mode</ul>
+  <div>Fixes and improvements:</div>
+  <ul> User interface: Rank, Probability and Relative Histograms are combined into one tab "Hist"</ul>
+  <ul> User interface: allow empty strings in "X label" and "Y1 label" fields</ul>
+  <ul>Fixed the problem printing Unicode symbols to scorecard image using OpenJDK</ul>
+  <ul>PSTD_BSS statistic is renamed to PSTD_BSS_SMPL</ul>
+  <ul>Allow embedded "/" in the variable's values in the batch mode</ul>
+
+  <ul>Flag run="false" in batch script works again</ul>
+  <ul>New database connection libraries</ul>
+</ul>
+<ul>
   <li>2017/06/21 - <b class="tag">mv 2.1</b></li>
   <div>New features:</div>
-  <ul>New parameter "bootstrap seed" for series and performance plots </ul>
+  <ul>New parameter "bootstrap seed" for series and performance plots</ul>
   <ul>Added a plot statistic choice (mean or median) to scorecard</ul>
   <ul>Optional SQL queries output to batch and scorecard mode</ul>
 </ul>
 <ul>
   <li>2017/05/18 - <b class="tag">mv 2.0</b></li>
   <div>New features:</div>
-  <ul>Added a scorecard generation feature </ul>
-  <ul>Support for loading PAC field  from RMSE line type in VSDB files </ul>
+  <ul>Added a scorecard generation feature</ul>
+  <ul>Support for loading PAC field from RMSE line type in VSDB files</ul>
   <div>Fixes and improvements:</div>
   <ul>Fixed the order of series in Rely plot</ul>
 </ul>
 <ul>
   <li>2017/03/23 - <b class="tag">mv_1_12</b></li>
   <div>New features:</div>
-  <ul>SPREAD, ENS_SPREAD,COV_THRESH statistics added to comply with MET 6 output </ul>
-  <ul>PST statistic calculation supports multiple series variables  </ul>
+  <ul>SPREAD, ENS_SPREAD,COV_THRESH statistics added to comply with MET 6 output</ul>
+  <ul>PST statistic calculation supports multiple series variables</ul>
   <ul>FSS statistic for VSDB output is included</ul>
   <div>Fixes and improvements:</div>
   <ul>ANOM_CORR and PSTD_BSS calculation</ul>
   <ul>XML upload parses "escape" characters correctly</ul>
-  <ul>Creation of MODE plots with derive curves </ul>
-  <ul>Additional server side  series definition validation for MODE</ul>
+  <ul>Creation of MODE plots with derive curves</ul>
+  <ul>Additional server side series definition validation for MODE</ul>
 </ul>
 <ul>
   <li>2017/02/08 - <b class="tag">mv_1_11</b></li>
