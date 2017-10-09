@@ -123,7 +123,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n";
 
@@ -384,7 +384,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   @Override
-  public boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName) {
+  public boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName) throws Exception {
     boolean success = false;
 
     List<String> listSQLBeforeSelect = new ArrayList<>();
@@ -441,6 +441,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               }
             }
             logger.error(stat + " statistic can only be plotted as an aggregation of lines");
+
+            //rethrow the exception to be printed as a error popup on UI
+            throw new Exception(stat + " statistic can only be plotted as an aggregation of lines");
           }
 
         }
@@ -600,6 +603,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   public List<String> getAllDatabases() {
     return Collections.unmodifiableList(listDB);
   }
+
 
   /**
    * Use the input query components to build a series of MODE temp table SQL statements and return them in a list.
@@ -837,10 +841,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  remove multiple dep group capability
     MVOrderedMap[] listDep = job.getDepGroups();
-    if (1 != listDep.length) {
+    MVOrderedMap mapDepGroup;
+    if (1 != listDep.length && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
       throw new Exception("unexpected number of <dep> groups: " + listDep.length);
     }
-    MVOrderedMap mapDepGroup = listDep[0];
+    if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
+      mapDepGroup = new MVOrderedMap();
+    } else {
+      mapDepGroup = listDep[0];
+    }
 
 
   		/*
@@ -853,217 +862,255 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  get the dep values for the current dep group
       MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
-      if (mapDep != null) {
+      if (mapDep == null) {
+        mapDep = new MVOrderedMap();
+      }
 
-        //  establish lists of entires for each group of variables and values
-        Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSqlSeries();
-        Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
-        //  if there is a mis-match between the presence of series and dep values, bail
-        if (0 < listDepPlot.length && 1 > listSeries.length) {
-          throw new Exception("dep values present, but no series values for Y" + intY);
-        }
-        if (1 > listDepPlot.length && 0 < listSeries.length) {
-          throw new Exception("series values present, but no dep values for Y" + intY);
-        }
+      //  establish lists of entires for each group of variables and values
+      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val()).getOrderedEntriesForSqlSeries();
+      Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
-        //  there must be at least one y1 series and stat, but not for y2
-        if (1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-          throw new Exception("no Y1 series stat found");
-        }
-        if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-          continue;
-        }
+      //  if there is a mis-match between the presence of series and dep values, bail
+      if (0 < listDepPlot.length && 1 > listSeries.length) {
+        throw new Exception("dep values present, but no series values for Y" + intY);
+      }
+      if (1 > listDepPlot.length && 0 < listSeries.length && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
+        throw new Exception("series values present, but no dep values for Y" + intY);
+      }
+
+      //  there must be at least one y1 series and stat, but not for y2
+
+      if (!job.getPlotTmpl().equals("eclv.R_tmpl") && 1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
+        throw new Exception("no Y1 series stat found");
+      }
+      if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
+        continue;
+      }
 
 
   			/*
          *  Construct query components from the series variable/value pairs
   			 */
 
-        //  build the select list and where clauses for the series variables and values
-        String strSelectPlotList = "";
-        String strWhere = strPlotFixWhere;
-        BuildMysqlQueryStrings buildMysqlQueryStrings = build(boolModePlot, tableHeaderSQLType, listSeries, strWhere, true);
-        String strSelectList = buildMysqlQueryStrings.getSelectList();
-        String strTempList = buildMysqlQueryStrings.getTempList();
-        strWhere = buildMysqlQueryStrings.getWhere();
+      //  build the select list and where clauses for the series variables and values
+      String strSelectPlotList = "";
+      String strWhere = strPlotFixWhere;
+      BuildMysqlQueryStrings buildMysqlQueryStrings = build(boolModePlot, tableHeaderSQLType, listSeries, strWhere, true);
+      String strSelectList = buildMysqlQueryStrings.getSelectList();
+      String strTempList = buildMysqlQueryStrings.getTempList();
+      strWhere = buildMysqlQueryStrings.getWhere();
 
-        //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-        if (!strSelectList.contains("fcst_init")) {
-          if (boolModePlot) {
-            strSelectList += ",\n  h.fcst_init";
-            strTempList += ",\n    fcst_init           " + "DATETIME";
+      //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+      if (!strSelectList.contains("fcst_init")) {
+        if (boolModePlot) {
+          strSelectList += ",\n  h.fcst_init";
+          strTempList += ",\n    fcst_init           " + "DATETIME";
+        } else {
+          if(strSelectList.length() > 0) {
+            strSelectList += ",\n ";
+          }
+          strSelectList +=  " ld.fcst_init_beg";
+
+          if(strTempList.length() > 0){
+            strTempList += ",\n";
+          }
+          strTempList += "   fcst_init_beg       " + "DATETIME";
+        }
+      }
+      if (!strSelectList.contains("fcst_valid")) {
+        if (boolModePlot) {
+          strSelectList += ",\n  h.fcst_valid";
+          strTempList += ",\n    fcst_valid          " + "DATETIME";
+        } else {
+          if(strSelectList.length() > 0) {
+            strSelectList += ",\n ";
+          }
+          strSelectList += " ld.fcst_valid_beg";
+          if(strTempList.length() > 0){
+            strTempList += ",\n  ";
+          }
+          strTempList += "  fcst_valid_beg      " + "DATETIME";
+        }
+      }
+      BuildMysqlQueryStrings buildQueryPlotStrings = build(boolModePlot, tableHeaderSQLType, listSeries, strWhere, false);
+      strSelectPlotList = buildQueryPlotStrings.getSelectList();
+      //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
+      if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour")) {
+        if (boolModePlot) {
+          strSelectPlotList += ",\n  h.fcst_init";
+        } else {
+          strSelectPlotList += ",\n " + " ld.fcst_init_beg";
+        }
+      }
+      if (!strSelectPlotList.contains("fcst_valid")) {
+        if (boolModePlot) {
+          strSelectPlotList += ",\n  h.fcst_valid";
+        } else {
+          strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
+        }
+      }
+
+      if (!boolEnsSs && !strSelectList.contains("fcst_lead")) {
+        if (boolModePlot) {
+
+          if (job.getEventEqual()) {
+            strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
           } else {
-            strSelectList += ",\n " + " ld.fcst_init_beg";
-            strTempList += ",\n    fcst_init_beg       " + "DATETIME";
+            strSelectList += ",\n  h.fcst_lead";
           }
-        }
-        if (!strSelectList.contains("fcst_valid")) {
-          if (boolModePlot) {
-            strSelectList += ",\n  h.fcst_valid";
-            strTempList += ",\n    fcst_valid          " + "DATETIME";
+          strSelectPlotList += ",\n  h.fcst_lead";
+          strTempList += ",\n    fcst_lead          " + "INT ";
+        } else {
+          if (job.getEventEqual()) {
+            strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
           } else {
-            strSelectList += ",\n " + " ld.fcst_valid_beg";
-            strTempList += ",\n    fcst_valid_beg      " + "DATETIME";
+            strSelectList += ",\n " + " ld.fcst_lead";
           }
+          strSelectPlotList += ",\n  h.fcst_lead";
+          strTempList += ",\n    fcst_lead      " + "INT ";
         }
-        BuildMysqlQueryStrings buildQueryPlotStrings = build(boolModePlot, tableHeaderSQLType, listSeries, strWhere, false);
-        strSelectPlotList = buildQueryPlotStrings.getSelectList();
-        //  if the fcst_valid or fcst_init fields are not present in the select list and temp table list, add them
-        if (!strSelectPlotList.contains("fcst_init") && !strSelectPlotList.contains("init_hour")) {
-          if (boolModePlot) {
-            strSelectPlotList += ",\n  h.fcst_init";
-          } else {
-            strSelectPlotList += ",\n " + " ld.fcst_init_beg";
-          }
-        }
-        if (!strSelectPlotList.contains("fcst_valid")) {
-          if (boolModePlot) {
-            strSelectPlotList += ",\n  h.fcst_valid";
-          } else {
-            strSelectPlotList += ",\n " + " ld.fcst_valid_beg";
-          }
+      }
+
+
+      //  for MODE, build the group by list
+      String[] listGroupBy = new String[]{};
+      if (boolModePlot && !boolModeRatioPlot) {
+        ArrayList<String> listGroupFields = new ArrayList<>();
+        listGroupFields.add(job.getIndyVar());
+        for (Map.Entry listSery : listSeries) {
+          listGroupFields.add(listSery.getKey().toString());
         }
 
-        if (!boolEnsSs && !strSelectList.contains("fcst_lead")) {
-          if (boolModePlot) {
+        Collections.addAll(listGroupFields, job.getPlotFixVal().getKeyList());
+        listGroupBy = listGroupFields.toArray(new String[]{});
+      }
 
-            if (job.getEventEqual()) {
-              strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
-            } else {
-              strSelectList += ",\n  h.fcst_lead";
-            }
-            strSelectPlotList += ",\n  h.fcst_lead";
-            strTempList += ",\n    fcst_lead          " + "INT ";
-          } else {
-            if (job.getEventEqual()) {
-              strSelectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) fcst_lead";
-            } else {
-              strSelectList += ",\n " + " ld.fcst_lead";
-            }
-            strSelectPlotList += ",\n  h.fcst_lead";
-            strTempList += ",\n    fcst_lead      " + "INT ";
-          }
-        }
+      //  for ensemble spread/skill, add the ssvar line data and bail
+      if (boolEnsSs) {
 
+        listSQL.add("SELECT\n" +
+          strSelectPlotList + ",\n  h.fcst_var,\n" +
+          "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
+          "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar " +
+          "FROM\n" +
+          "  stat_header h,\n" +
+          "  line_data_ssvar ld\n" +
+          "WHERE\n" + strWhere +
+          "  AND h.stat_header_id = ld.stat_header_id;\n");
 
-        //  for MODE, build the group by list
-        String[] listGroupBy = new String[]{};
-        if (boolModePlot && !boolModeRatioPlot) {
-          ArrayList<String> listGroupFields = new ArrayList<>();
-          listGroupFields.add(job.getIndyVar());
-          for (Map.Entry listSery : listSeries) {
-            listGroupFields.add(listSery.getKey().toString());
-          }
-
-          Collections.addAll(listGroupFields, job.getPlotFixVal().getKeyList());
-          listGroupBy = listGroupFields.toArray(new String[]{});
-        }
-
-        //  for ensemble spread/skill, add the ssvar line data and bail
-        if (boolEnsSs) {
-
-          listSQL.add("SELECT\n" +
-            strSelectPlotList + ",\n  h.fcst_var,\n" +
-            "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
-            "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar " +
-            "FROM\n" +
-            "  stat_header h,\n" +
-            "  line_data_ssvar ld\n" +
-            "WHERE\n" + strWhere +
-            "  AND h.stat_header_id = ld.stat_header_id;\n");
-
-          return listSQL;
-        }
+        return listSQL;
+      }
 
 
   			/*
          *  Construct the query components for the independent variable and values
   			 */
 
-        //  validate and get the type and values for the independent variable
-        String strIndyVarType = "";
-        String strIndyVar = job.getIndyVar();
-        String strIndyVarFormatted = "";
-        if (!strIndyVar.isEmpty()) {
-          String[] listIndyVal = job.getIndyVal();
-          if (!tableHeaderSQLType.containsKey(strIndyVar)) {
-            throw new Exception("unrecognized indep " + (boolModePlot ? "mode" : "stat") + "_header field: " + strIndyVar);
-          }
-          strIndyVarType = tableHeaderSQLType.get(strIndyVar);
-          if (1 > listIndyVal.length) {
-            throw new Exception("no independent variable values specified");
-          }
-
-          //  construct the select list item, where clause and temp table entry for the independent variable
-          if (!strSelectList.contains(strIndyVar)) {
-            strSelectList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
-            strSelectPlotList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
-            strTempList += ",\n    " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
-          }
-          strIndyVarFormatted = formatField(strIndyVar, boolModePlot, false);
-          if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
-            strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , " + strIndyVarFormatted + " , " + strIndyVarFormatted + " + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) ";
-          }
-          strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted +
-            " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+      //  validate and get the type and values for the independent variable
+      String strIndyVarType = "";
+      String strIndyVar = job.getIndyVar();
+      String strIndyVarFormatted = "";
+      if (!strIndyVar.isEmpty()) {
+        String[] listIndyVal = job.getIndyVal();
+        if (!tableHeaderSQLType.containsKey(strIndyVar)) {
+          throw new Exception("unrecognized indep " + (boolModePlot ? "mode" : "stat") + "_header field: " + strIndyVar);
         }
-        //  add fcst_var to the select list and temp table entries
-        strSelectList += ",\n  h.fcst_var";
-        strSelectPlotList += ",\n  h.fcst_var";
-        strTempList += ",\n    fcst_var            VARCHAR(64)";
+        strIndyVarType = tableHeaderSQLType.get(strIndyVar);
+        if (1 > listIndyVal.length) {
+          throw new Exception("no independent variable values specified");
+        }
 
-        if (listPlotFixVal.length > 0) {
-          for (int i = 0; i < listPlotFixVal.length; i++) {
-            String strField = (String) listPlotFixVal[i].getKey();
-            if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
-              strSelectList += ",\n  " + formatField(strField, boolModePlot, true);
-              strSelectPlotList += ",\n  " + formatField(strField, boolModePlot, true);
-              strTempList += ",\n    " + strField + "            VARCHAR(64)";
-            }
+        //  construct the select list item, where clause and temp table entry for the independent variable
+        if (!strSelectList.contains(strIndyVar)) {
+          strSelectList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
+          strSelectPlotList += ",\n  " + formatField(strIndyVar, boolModePlot, true);
+          strTempList += ",\n    " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
+        }
+        strIndyVarFormatted = formatField(strIndyVar, boolModePlot, false);
+        if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
+          strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) is NULL , " + strIndyVarFormatted + " , " + strIndyVarFormatted + " + (select fcst_lead_offset FROM model_fcst_lead_offset WHERE model = h.model) ) ";
+        }
+        strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted +
+          " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+      }
+      //  add fcst_var to the select list and temp table entries
+      strSelectList += ",\n  h.fcst_var";
+      strSelectPlotList += ",\n  h.fcst_var";
+      strTempList += ",\n    fcst_var            VARCHAR(64)";
+
+      if (listPlotFixVal.length > 0) {
+        for (int i = 0; i < listPlotFixVal.length; i++) {
+          String strField = (String) listPlotFixVal[i].getKey();
+          if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+            strSelectList += ",\n  " + formatField(strField, boolModePlot, true);
+            strSelectPlotList += ",\n  " + formatField(strField, boolModePlot, true);
+            strTempList += ",\n    " + strField + "            VARCHAR(64)";
           }
         }
+      }
 
         /*
          *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
   			 */
-        Map<String, Integer> pctThreshInfo = new HashMap<>();
-        if (boolAggPct) {
-          MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
-          MVOrderedMap[] forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY)).getRows();
-          for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
-            MVOrderedMap stats = forecastVars[forecastVarsInd];
-            String[] vars = stats.getKeyList();
-            for (int varsInd = 0; varsInd < vars.length; varsInd++) {
-              for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
-                MVOrderedMap ser = series[seriesInd];
-                String[] serName = ser.getKeyList();
-                for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
-                  String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" +
-                    "WHERE\n" + strIndyVarFormatted +
-                    " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n"
-                    + " AND " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd])
-                    + "' AND fcst_var='" + vars[varsInd]
-                    + "'  AND ld.stat_header_id = h.stat_header_id;";
-                  printStreamSQL.println(strSelPctThresh + "\n");
+      Map<String, Integer> pctThreshInfo = new HashMap<>();
+      if (boolAggPct) {
+        MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
+        MVOrderedMap[] forecastVars;
+        if(job.getPlotTmpl().equals("eclv.R_tmpl") && job.getDepGroups().length == 0){
+          MVOrderedMap m = new MVOrderedMap();
+          m.put("NA", "ECLV");
+          forecastVars = new MVOrderedMap[]{m};
+        }else {
+          forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY)).getRows();
+        }
+        for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
+          MVOrderedMap stats = forecastVars[forecastVarsInd];
+          String[] vars = stats.getKeyList();
+          for (int varsInd = 0; varsInd < vars.length; varsInd++) {
+            for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
+              MVOrderedMap ser = series[seriesInd];
+              String[] serName = ser.getKeyList();
+              for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
+                String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" ;
+                strSelPctThresh = strSelPctThresh +"WHERE\n";
+                if(strIndyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
+                  strSelPctThresh = strSelPctThresh + strIndyVarFormatted;
+                  strSelPctThresh = strSelPctThresh + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n " + " AND ";
+                }
+                strSelPctThresh = strSelPctThresh   + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
+                if(!vars[varsInd].equals("NA")) {
+                  strSelPctThresh = strSelPctThresh + "' AND fcst_var='" + vars[varsInd] + "' ";
+                }
+                if(strPlotFixWhere.length() > 0){
+                  strSelPctThresh = strSelPctThresh   + "  AND  " + strPlotFixWhere;
+                }
+                strSelPctThresh = strSelPctThresh   + "  AND ld.stat_header_id = h.stat_header_id;";
+                printStreamSQL.println(strSelPctThresh + "\n");
 
-                  //  run the PCT thresh query
-                  pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
-                  if (1 != pctThreshInfo.get("numPctThresh")) {
-                    throw new Exception("number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") not distinct for" + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]) +
-                      "' AND fcst_var='" + vars[varsInd] + "'");
-                  } else if (1 > pctThreshInfo.get("numPctThresh")) {
-                    throw new Exception("invalid number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") found for" + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]) +
-                      "' AND fcst_var='" + vars[varsInd] + "'");
+                //  run the PCT thresh query
+                pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
+                if (1 != pctThreshInfo.get("numPctThresh")) {
+                  String error = "number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") not distinct for " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
+                  if( !vars[varsInd].equals("NA")){
+                    error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                   }
+                  throw new Exception(error);
+                } else if (1 > pctThreshInfo.get("numPctThresh")) {
+                  String error = "invalid number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") found for " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
+                  if( !vars[varsInd].equals("NA")){
+                    error = error +"' AND fcst_var='" + vars[varsInd] + "'";
+                  }
+                  throw new Exception(error);
                 }
               }
             }
           }
-
-        } else {
-          pctThreshInfo.put("pctThresh", -1);
         }
+
+      } else {
+        pctThreshInfo.put("pctThresh", -1);
+      }
 
 
 
@@ -1072,21 +1119,28 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
          *  Construct a query for each fcst_var/stat pair
   			 */
 
-        //  determine how many queries are needed to gather that stat information
-        int intNumQueries;
-        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDep);
-
+      //  determine how many queries are needed to gather that stat information
+      int intNumQueries;
+      String[][] listFcstVarStat;
+      if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
+        listFcstVarStat = MVUtil.buildFcstVarStatList(mapDep);
         intNumQueries = listFcstVarStat.length;
+      } else {
+        intNumQueries = 1;
+        listFcstVarStat = new String[0][0];
+      }
 
-        //  build a query for each fcst_var/stat pair or a just single query for contingency tables or partial sums
-        for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
-
+      //  build a query for each fcst_var/stat pair or a just single query for contingency tables or partial sums
+      for (int intFcstVarStat = 0; intFcstVarStat < intNumQueries; intFcstVarStat++) {
+        String strFcstVarClause = "";
+        String strStat = "";
+        if (listFcstVarStat.length > 0) {
           //  get the current fcst_var/stat pair
           String strFcstVar = listFcstVarStat[intFcstVarStat][0];
-          String strStat = listFcstVarStat[intFcstVarStat][1];
+          strStat = listFcstVarStat[intFcstVarStat][1];
 
           //  build the fcst_var where clause criteria
-          String strFcstVarClause = "= '" + strFcstVar + "'";
+          strFcstVarClause = "= '" + strFcstVar + "'";
           Matcher matProb = MVUtil._patProb.matcher(strFcstVar);
           if (matProb.matches() && strFcstVar.contains("*")) {
             Pattern patFcstVar = Pattern.compile(strFcstVar.replace("*", ".*").replace("(", "\\(").replace(")", "\\)"));
@@ -1095,162 +1149,177 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             }
             strFcstVarClause = "LIKE '" + strFcstVar.replace("*", "%") + "'";
           }
+        }else {
+          if( job.getPlotTmpl().equals("eclv.R_tmpl")) {
+            strStat = "ECLV";
+          }
+        }
 
-          //  determine the table containing the current stat
-          Map tableStats;
-          String strStatTable = "";
-          String strStatField = strStat.toLowerCase(Locale.US);
-          if (boolModePlot) {
-            String strStatMode = MVUtil.parseModeStat(strStat)[0];
-            if (modeSingleStatField.containsKey(strStatMode)) {
-              tableStats = modeSingleStatField;
-            } else if (MVUtil.modePairStatField.containsKey(strStatMode)) {
-              tableStats = modeSingleStatField;
-            } else if (MVUtil.modeRatioField.contains(strStat)) {
-              tableStats = modeSingleStatField;
-            } else {
-              throw new Exception("unrecognized mode stat: " + strStatMode);
-            }
+        //  determine the table containing the current stat
+        Map tableStats;
+        String strStatTable = "";
+        String strStatField = strStat.toLowerCase(Locale.US);
+        if (boolModePlot) {
+          String strStatMode = MVUtil.parseModeStat(strStat)[0];
+          if (modeSingleStatField.containsKey(strStatMode)) {
+            tableStats = modeSingleStatField;
+          } else if (MVUtil.modePairStatField.containsKey(strStatMode)) {
+            tableStats = modeSingleStatField;
+          } else if (MVUtil.modeRatioField.contains(strStat)) {
+            tableStats = modeSingleStatField;
           } else {
+            throw new Exception("unrecognized mode stat: " + strStatMode);
+          }
+        } else {
 
-            String aggType = null;
-            if (boolAggStat || boolCalcStat) {
-              if (boolCalcCtc || boolAggCtc) {
-                aggType = MVUtil.CTC;
-              } else if (boolCalcSl1l2 || boolAggSl1l2) {
-                aggType = MVUtil.SL1L2;
-              } else if (boolCalcSal1l2 || boolAggSal1l2) {
-                aggType = MVUtil.SAL1L2;
-              } else if (boolAggNbrCnt) {
-                aggType = MVUtil.NBR_CNT;
-              } else if (boolAggPct) {
-                aggType = MVUtil.PCT;
-              } else if (boolAggSsvar) {
-                aggType = MVUtil.SSVAR;
-              } else if (boolCalcVl1l2 || boolAggVl1l2) {
-                aggType = MVUtil.VL1L2;
-              }
-            }
-
-
-            if (MVUtil.statsCnt.containsKey(strStat)) {
-              tableStats = MVUtil.statsCnt;
-              if (boolAggStat || boolCalcStat) {
-                MVUtil.isAggTypeValid(MVUtil.statsCnt, strStat, aggType);
-                strStatTable = "line_data_" + aggType + " ld\n";
-              } else {
-                strStatTable = "line_data_cnt" + " ld\n";
-              }
-            } else if (MVUtil.statsSsvar.containsKey(strStat)) {
-              tableStats = MVUtil.statsSsvar;
-              if (boolAggStat) {
-                MVUtil.isAggTypeValid(MVUtil.statsSsvar, strStat, aggType);
-                strStatTable = "line_data_" + aggType + " ld\n";
-              } else {
-                strStatTable = "line_data_ssvar" + " ld\n";
-              }
-            } else if (MVUtil.statsCts.containsKey(strStat)) {
-              tableStats = MVUtil.statsCts;
-              if (boolAggStat || boolCalcStat) {
-                MVUtil.isAggTypeValid(MVUtil.statsCts, strStat, aggType);
-                strStatTable = "line_data_ctc" + " ld\n";
-              } else {
-                strStatTable = "line_data_cts" + " ld\n";
-              }
-            } else if (MVUtil.statsNbrcnt.containsKey(strStat)) {
-              tableStats = MVUtil.statsNbrcnt;
-              if (boolAggStat) {
-                MVUtil.isAggTypeValid(MVUtil.statsNbrcnt, strStat, aggType);
-              }
-              strStatTable = "line_data_nbrcnt ld\n";
-              strStatField = strStat.replace("NBR_", "").toLowerCase();
-            } else if (MVUtil.statsEnscnt.containsKey(strStat)) {
-              tableStats = MVUtil.statsEnscnt;
-              if (boolAggStat) {
-                MVUtil.isAggTypeValid(MVUtil.statsEnscnt, strStat, aggType);
-              }
-              strStatTable = "line_data_enscnt ld\n";
-              strStatField = strStat.replace("ENS_", "").toLowerCase();
-            } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
-              tableStats = MVUtil.statsNbrcts;
-              MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
-              strStatTable = "line_data_nbrcts ld\n";
-              strStatField = strStat.replace("NBR_", "").toLowerCase();
-            } else if (MVUtil.statsPstd.containsKey(strStat)) {
-              tableStats = MVUtil.statsPstd;
-              strStatTable = "line_data_pstd ld\n";
-              if (boolAggStat) {
-                strStatTable = "line_data_pct ld";
-                MVUtil.isAggTypeValid(MVUtil.statsPstd, strStat, aggType);
-                for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
-                  strStatTable += ",\n  line_data_pct_thresh ldt" + i;
-                }
-                strStatTable += "\n";
-              }
-              strStatField = strStat.replace("PSTD_", "").toLowerCase();
-            } else if (MVUtil.statsMcts.containsKey(strStat)) {
-              tableStats = MVUtil.statsMcts;
-              MVUtil.isAggTypeValid(MVUtil.statsMcts, strStat, aggType);
-              strStatTable = "line_data_mcts ld\n";
-              strStatField = strStat.replace("MCTS_", "").toLowerCase();
-            } else if (MVUtil.statsRhist.containsKey(strStat)) {
-              tableStats = MVUtil.statsRhist;
-              strStatTable = "line_data_rhist ld\n";
-              strStatField = strStat.replace("RHIST_", "").toLowerCase();
-            } else if (MVUtil.statsPhist.containsKey(strStat)) {
-              tableStats = MVUtil.statsPhist;
-              MVUtil.isAggTypeValid(MVUtil.statsPhist, strStat, aggType);
-              strStatTable = "line_data_phist ld\n";
-              strStatField = strStat.replace("PHIST_", "").toLowerCase();
-            } else if (MVUtil.statsVl1l2.containsKey(strStat)) {
-              if (boolAggStat || boolCalcStat) {
-                MVUtil.isAggTypeValid(MVUtil.statsVl1l2, strStat, aggType);
-              }
-              tableStats = MVUtil.statsVl1l2;
-              strStatTable = "line_data_vl1l2 ld\n";
-              strStatField = strStat.replace("VL1L2_", "").toLowerCase();
-            } else if (MVUtil.statsMpr.containsKey(strStat)) {
-              tableStats = MVUtil.statsMpr;
-              strStatTable = "line_data_mpr ld\n";
-            } else if (MVUtil.statsOrank.containsKey(strStat)) {
-              tableStats = MVUtil.statsOrank;
-              strStatTable = "line_data_orank ld\n";
-            } else {
-              throw new Exception("unrecognized stat: " + strStat);
+          String aggType = null;
+          if (boolAggStat || boolCalcStat) {
+            if (boolCalcCtc || boolAggCtc) {
+              aggType = MVUtil.CTC;
+            } else if (boolCalcSl1l2 || boolAggSl1l2) {
+              aggType = MVUtil.SL1L2;
+            } else if (boolCalcSal1l2 || boolAggSal1l2) {
+              aggType = MVUtil.SAL1L2;
+            } else if (boolAggNbrCnt) {
+              aggType = MVUtil.NBR_CNT;
+            } else if (boolAggPct) {
+              aggType = MVUtil.PCT;
+            } else if (boolAggSsvar) {
+              aggType = MVUtil.SSVAR;
+            } else if (boolCalcVl1l2 || boolAggVl1l2) {
+              aggType = MVUtil.VL1L2;
             }
           }
 
-          //  build the SQL for the current fcst_var and stat
-          if (boolModePlot) {
-            //  the single and pair temp tables only need to be built once
-            if (1 == intY) {
-              listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, strStat));
-            }
-            //  build the mode SQL
-            String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
-            listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy, job.getEventEqual()));
 
+          if (MVUtil.statsCnt.containsKey(strStat)) {
+            tableStats = MVUtil.statsCnt;
+            if (boolAggStat || boolCalcStat) {
+              MVUtil.isAggTypeValid(MVUtil.statsCnt, strStat, aggType);
+              strStatTable = "line_data_" + aggType + " ld\n";
+            } else {
+              strStatTable = "line_data_cnt" + " ld\n";
+            }
+          } else if (MVUtil.statsSsvar.containsKey(strStat)) {
+            tableStats = MVUtil.statsSsvar;
+            if (boolAggStat) {
+              MVUtil.isAggTypeValid(MVUtil.statsSsvar, strStat, aggType);
+              strStatTable = "line_data_" + aggType + " ld\n";
+            } else {
+              strStatTable = "line_data_ssvar" + " ld\n";
+            }
+          } else if (MVUtil.statsCts.containsKey(strStat)) {
+            tableStats = MVUtil.statsCts;
+            if (boolAggStat || boolCalcStat) {
+              MVUtil.isAggTypeValid(MVUtil.statsCts, strStat, aggType);
+              strStatTable = "line_data_ctc" + " ld\n";
+            } else {
+              strStatTable = "line_data_cts" + " ld\n";
+            }
+          } else if (MVUtil.statsNbrcnt.containsKey(strStat)) {
+            tableStats = MVUtil.statsNbrcnt;
+            if (boolAggStat) {
+              MVUtil.isAggTypeValid(MVUtil.statsNbrcnt, strStat, aggType);
+            }
+            strStatTable = "line_data_nbrcnt ld\n";
+            strStatField = strStat.replace("NBR_", "").toLowerCase();
+          } else if (MVUtil.statsEnscnt.containsKey(strStat)) {
+            tableStats = MVUtil.statsEnscnt;
+            if (boolAggStat) {
+              MVUtil.isAggTypeValid(MVUtil.statsEnscnt, strStat, aggType);
+            }
+            strStatTable = "line_data_enscnt ld\n";
+            strStatField = strStat.replace("ENS_", "").toLowerCase();
+          } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
+            tableStats = MVUtil.statsNbrcts;
+            MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
+            strStatTable = "line_data_nbrcts ld\n";
+            strStatField = strStat.replace("NBR_", "").toLowerCase();
+          } else if (MVUtil.statsPstd.containsKey(strStat)) {
+            tableStats = MVUtil.statsPstd;
+            strStatTable = "line_data_pstd ld\n";
+            if (boolAggStat) {
+              strStatTable = "line_data_pct ld";
+              MVUtil.isAggTypeValid(MVUtil.statsPstd, strStat, aggType);
+              for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
+                strStatTable += ",\n  line_data_pct_thresh ldt" + i;
+              }
+              strStatTable += "\n";
+            }
+            strStatField = strStat.replace("PSTD_", "").toLowerCase();
+          } else if (MVUtil.statsMcts.containsKey(strStat)) {
+            tableStats = MVUtil.statsMcts;
+            MVUtil.isAggTypeValid(MVUtil.statsMcts, strStat, aggType);
+            strStatTable = "line_data_mcts ld\n";
+            strStatField = strStat.replace("MCTS_", "").toLowerCase();
+          } else if (MVUtil.statsRhist.containsKey(strStat)) {
+            tableStats = MVUtil.statsRhist;
+            strStatTable = "line_data_rhist ld\n";
+            strStatField = strStat.replace("RHIST_", "").toLowerCase();
+          } else if (MVUtil.statsPhist.containsKey(strStat)) {
+            tableStats = MVUtil.statsPhist;
+            MVUtil.isAggTypeValid(MVUtil.statsPhist, strStat, aggType);
+            strStatTable = "line_data_phist ld\n";
+            strStatField = strStat.replace("PHIST_", "").toLowerCase();
+          } else if (MVUtil.statsVl1l2.containsKey(strStat)) {
+            if (boolAggStat || boolCalcStat) {
+              MVUtil.isAggTypeValid(MVUtil.statsVl1l2, strStat, aggType);
+            }
+            tableStats = MVUtil.statsVl1l2;
+            strStatTable = "line_data_vl1l2 ld\n";
+            strStatField = strStat.replace("VL1L2_", "").toLowerCase();
+          } else if (MVUtil.statsMpr.containsKey(strStat)) {
+            tableStats = MVUtil.statsMpr;
+            strStatTable = "line_data_mpr ld\n";
+          } else if (MVUtil.statsOrank.containsKey(strStat)) {
+            tableStats = MVUtil.statsOrank;
+            strStatTable = "line_data_orank ld\n";
+          } else if (strStat.equals("ECLV") && job.getPlotTmpl().equals("eclv.R_tmpl")) {
+            if (boolAggCtc) {
+              tableStats = MVUtil.statsCts;
+              strStatTable = "line_data_ctc" + " ld\n";
+            } else {
+              tableStats = MVUtil.statsPstd;
+              strStatTable = "line_data_pct ld, line_data_pct_thresh ldt\n";
+
+            }
           } else {
-            boolean boolBCRMSE = false;
-            String strSelectStat = strSelectList;
+            throw new Exception("unrecognized stat: " + strStat);
+          }
+        }
 
-            //  build the select list and temp table elements for the stat and CIs
-            if (strStat.equals("BCRMSE")) {
-              boolBCRMSE = true;
-              strStatField = "bcmse";
-            }
+        //  build the SQL for the current fcst_var and stat
+        if (boolModePlot) {
+          //  the single and pair temp tables only need to be built once
+          if (1 == intY) {
+            listSQL.addAll(buildModeTempSQL(strTempList, strSelectList, strWhere, strStat));
+          }
+          //  build the mode SQL
+          String strWhereFcstVar = "  fcst_var " + strFcstVarClause;
+          listSQL.addAll(buildModeStatSQL(strSelectList, strWhereFcstVar, strStat, listGroupBy, job.getEventEqual()));
+
+        } else {
+          boolean boolBCRMSE = false;
+          String strSelectStat = strSelectList;
+
+          //  build the select list and temp table elements for the stat and CIs
+          if (strStat.equals("BCRMSE")) {
+            boolBCRMSE = true;
+            strStatField = "bcmse";
+          }
             strSelectStat += ",\n  '" + strStat + "' stat_name";
 
-            //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
-            if (boolAggCtc) {
-              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
-            } else if (boolAggSl1l2) {
-              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
-            } else if (boolAggSsvar) {
-              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  ld.var_mean, \n  ld.bin_n";
-            } else if (boolAggSal1l2) {
-              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
-            } else if (boolAggPct) {
+          //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
+          if (boolAggCtc) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
+          } else if (boolAggSl1l2) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
+          } else if (boolAggSsvar) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  ld.var_mean, \n  ld.bin_n";
+          } else if (boolAggSal1l2) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
+          } else if (boolAggPct) {
+            if(!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strSelectStat += ",\n";
@@ -1262,91 +1331,99 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 strSelectStat += "  ldt" + i + ".oy_i,\n" +
                   "  ldt" + i + ".on_i";
               }
-            } else if (boolAggNbrCnt) {
-              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
-            } else if (boolAggVl1l2) {
-              strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar";
+            }else {
+              strSelectStat += ",\n  0 stat_value,\n  ld.n_thresh,\n ldt.thresh_i,\n ldt.oy_i\n, ldt.on_i";
+            }
+          } else if (boolAggNbrCnt) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
+          } else if (boolAggVl1l2) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar";
 
-            } else if (boolCalcCtc) {
-              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
-                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-            } else if (boolCalcSl1l2) {
-              if (strStat.equalsIgnoreCase("mae")) {
-                strSelectStat += ",\n  calc" + strStat + "( ld.mae) stat_value,\n" +
-                  "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-              } else {
-                strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
-                  "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-              }
-            } else if (boolCalcSal1l2) {
-              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
-                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-            } else if (boolCalcVl1l2) {
-              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, ld.uvfobar, ld.uvffbar, ld.uvoobar) stat_value,\n" +
+          } else if (boolCalcCtc) {
+            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
+              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+          } else if (boolCalcSl1l2) {
+            if (strStat.equalsIgnoreCase("mae")) {
+              strSelectStat += ",\n  calc" + strStat + "( ld.mae) stat_value,\n" +
                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
             } else {
+              strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
+                "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+            }
+          } else if (boolCalcSal1l2) {
+            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
+              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+          } else if (boolCalcVl1l2) {
+            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, ld.uvfobar, ld.uvffbar, ld.uvoobar) stat_value,\n" +
+              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
+          } else {
+            if (boolBCRMSE) {
+              strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
+
+            } else {
+              strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',ld." + strStatField + " ) stat_value";
+
+            }
+
+            //  determine if the current stat has normal or bootstrap CIs
+            String[] listStatCI = (String[]) tableStats.get(strStat);
+            boolean boolHasNorm = false;
+            boolean boolHasBoot = false;
+            for (String aListStatCI : listStatCI) {
+              if (aListStatCI.equals("nc")) {
+                boolHasNorm = true;
+              } else if (aListStatCI.equals("bc")) {
+                boolHasBoot = true;
+              }
+            }
+
+            //  add the CIs to the select list, if present, otherwise, invalid data
+            if (boolHasNorm) {
+              strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',ld." + strStatField + "_ncl  ) stat_ncl" +
+                ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',ld." + strStatField + "_ncu  ) stat_ncu";
+            } else {
+              strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
+            }
+
+            if (boolHasBoot && !boolAggStat) {
               if (boolBCRMSE) {
-                strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld." + strStatField + ") as DECIMAL(30, 5))) stat_value";
-
+                strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
+                  ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
               } else {
-                strSelectStat += ",\n  IF(ld." + strStatField + "=-9999,'NA',ld." + strStatField + " ) stat_value";
-
+                strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',ld." + strStatField + "_bcl) stat_bcl" +
+                  ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',ld." + strStatField + "_bcu ) stat_bcu";
               }
-
-              //  determine if the current stat has normal or bootstrap CIs
-              String[] listStatCI = (String[]) tableStats.get(strStat);
-              boolean boolHasNorm = false;
-              boolean boolHasBoot = false;
-              for (String aListStatCI : listStatCI) {
-                if (aListStatCI.equals("nc")) {
-                  boolHasNorm = true;
-                } else if (aListStatCI.equals("bc")) {
-                  boolHasBoot = true;
-                }
-              }
-
-              //  add the CIs to the select list, if present, otherwise, invalid data
-              if (boolHasNorm) {
-                strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',ld." + strStatField + "_ncl  ) stat_ncl" +
-                  ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',ld." + strStatField + "_ncu  ) stat_ncu";
-              } else {
-                strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
-              }
-
-              if (boolHasBoot && !boolAggStat) {
-                if (boolBCRMSE) {
-                  strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
-                    ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld." + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
-                } else {
-                  strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',ld." + strStatField + "_bcl) stat_bcl" +
-                    ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',ld." + strStatField + "_bcu ) stat_bcu";
-                }
-              } else {
-                strSelectStat += ",\n  'NA' stat_bcl,\n  'NA' stat_bcu";
-              }
+            } else {
+              strSelectStat += ",\n  'NA' stat_bcl,\n  'NA' stat_bcu";
             }
+          }
 
-            String strStatNaClause = "";
-            if (!boolAggStat && !boolCalcStat) {
-              strStatNaClause = "\n  AND ld." + strStatField + " != -9999";
-            }
-            if (boolAggPct) {
+          String strStatNaClause = "";
+          if (!boolAggStat && !boolCalcStat) {
+            strStatNaClause = "\n  AND ld." + strStatField + " != -9999";
+          }
+          if (boolAggPct) {
+            if(!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n" +
                   "  AND ldt" + i + ".i_value = " + i;
               }
+            }else {
+              strStatNaClause =  "\n  AND ld.line_data_id = ldt.line_data_id\n";
             }
-
-            //  build the query
-            strSelectSQL += (strSelectSQL.isEmpty() ? "" : "\nUNION\n") +
-              "SELECT\n" + strSelectStat + "\n" +
-              "FROM\n  stat_header h,\n  " + strStatTable +
-              "WHERE\n" + strWhere +
-              "  AND h.fcst_var " + strFcstVarClause + "\n" +
-              "  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;
           }
 
+          //  build the query
+          strSelectSQL += (strSelectSQL.isEmpty() ? "" : "\nUNION\n") +
+            "SELECT\n" + strSelectStat + "\n" +
+            "FROM\n  stat_header h,\n  " + strStatTable;
+          strSelectSQL +="WHERE\n" + strWhere;
+          if(strFcstVarClause.length() > 0) {
+            strSelectSQL += "  AND h.fcst_var " + strFcstVarClause + "\n";
+          }
+          strSelectSQL +=  "  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;
         }
+
       }
 
     }
@@ -1785,7 +1862,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
       //  there must be at least one y1 series and stat, but not for y2
-      if (1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
+      if (!job.getPlotTmpl().equals("eclv.R_tmpl") && 1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
         throw new Exception("no Y1 series stat found");
       }
       if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
@@ -1966,7 +2043,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   @Override
-  public String buildAndExecuteQueriesForRhistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm, PrintStream printStream, PrintStream printStreamSql) throws Exception {
+  public String buildAndExecuteQueriesForHistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm, PrintStream printStream, PrintStream printStreamSql) throws Exception {
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
@@ -1995,37 +2072,51 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the stat_header where clauses of the sql
     String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
-
-    //  if the n_rank is present, replace the table
-    strWhere = strWhere.replaceAll("h\\.n_rank", "ld.n_rank");
-
-
-    //  build a query for the number of ranks among selected rhist records
-    String strRankNumSelect =
+    String strNumSelect = "";
+    String type = "";
+    String table = "";
+    String tableBins = "";
+    if (job.getPlotTmpl().startsWith("relp")) {
+      type = "ens";
+      table = "line_data_relp";
+      tableBins = "line_data_relp_ens";
+    } else if (job.getPlotTmpl().startsWith("rhist")) {
+      type = "rank";
+      table = "line_data_rhist";
+      tableBins = "line_data_rhist_rank";
+    } else if (job.getPlotTmpl().startsWith("phist")) {
+      type = "bin";
+      table = "line_data_phist";
+      strWhere = strWhere.replaceAll("h\\.n_bin", "ld.n_bin");
+      tableBins = "line_data_phist_bin";
+    }
+    strWhere = strWhere.replaceAll("h\\.n_" + type, "ld.n_" + type);
+    strNumSelect =
       "SELECT DISTINCT\n" +
-        "  ld.n_rank\n" +
+        "  ld.n_" + type + "\n" +
         "FROM\n" +
         "  stat_header h,\n" +
-        "  line_data_rhist ld\n" +
+        "  " + table + " ld\n" +
         "WHERE\n" +
         strWhere +
         "  AND h.stat_header_id = ld.stat_header_id;";
+
     if (printStreamSql != null) {
-      printStreamSql.println(strRankNumSelect + "\n");
+      printStreamSql.println(strNumSelect + "\n");
     }
 
 
     //  run the rank number query and warn, if necessary
     String strMsg = "";
-    List<String> listRankNum = getNumbers(strRankNumSelect, job.getCurrentDBName());
+    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName());
 
 
-    if (listRankNum.isEmpty()) {
-      throw new Exception("no rank data found");
-    } else if (1 < listRankNum.size()) {
-      strMsg = "  **  WARNING: multiple n_rank values found for search criteria: ";
-      for (int i = 0; i < listRankNum.size(); i++) {
-        strMsg += (0 < i ? ", " : "") + listRankNum.get(i);
+    if (listNum.isEmpty()) {
+      throw new Exception("no " + type + "  data found");
+    } else if (1 < listNum.size()) {
+      strMsg = "  **  WARNING: multiple n_" + type + " values found for search criteria: ";
+      for (int i = 0; i < listNum.size(); i++) {
+        strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
       printStream.println(strMsg);
     }
@@ -2040,11 +2131,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
     }
 
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr.rank_i) stat_value\n" +
+    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value\n" +
       "FROM\n" +
       "  stat_header h,\n" +
-      "  line_data_rhist ld,\n" +
-      "  line_data_rhist_rank ldr\n" +
+      "  " + table + " ld,\n" +
+      "  " + tableBins + " ldr\n" +
       "WHERE\n" +
       strWhere +
       "  AND h.stat_header_id = ld.stat_header_id\n" +
@@ -2063,101 +2154,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     queries.add(strPlotDataSelect);
     boolean success = executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
     return strMsg;
-
   }
 
-  @Override
-  public String buildAndExecuteQueriesForPhistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm, PrintStream printStream, PrintStream printStreamSql) throws Exception {
-    String strSelectList = "";
-    String strTempList = "";
-    String strWhereSeries = "";
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
-    for (Map.Entry listSery : listSeries) {
-      //  get the current series field and values
-      String strSeriesField = listSery.getKey().toString();
-      String[] listSeriesVal = (String[]) listSery.getValue();
-      //  validate the series field and get its type
-      if (!statHeaderSQLType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
-      }
-      //  build the select list element, where clause and temp table list element
-      strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
-      strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
-        " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + MVUtil.padEnd(strSeriesField, 20) + statHeaderSQLType.get(strSeriesField);
-
-    }
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap( listPlotFixPerm, job.getPlotFixVal());
-
-
-    //  build the stat_header where clauses of the sql
-    String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
-
-    //  if the n_rank is present, replace the table
-    strWhere = strWhere.replaceAll("h\\.n_bin", "ld.n_bin");
-
-    //  build a query for the number of bins among selected phist records
-    String strBinNumSelect =
-      "SELECT DISTINCT\n" +
-        "  ld.n_bin\n" +
-        "FROM\n" +
-        "  stat_header h,\n" +
-        "  line_data_phist ld\n" +
-        "WHERE\n" +
-        strWhere +
-        "  AND h.stat_header_id = ld.stat_header_id;";
-    if (printStreamSql != null) {
-      printStreamSql.println(strBinNumSelect + "\n");
-    }
-
-    String strMsg = "";
-    //  run the rank number query and warn, if necessary
-    List<String> listBinNum = getNumbers(strBinNumSelect, job.getCurrentDBName());
-
-    if (listBinNum.isEmpty()) {
-      throw new Exception("no bin data found");
-    } else if (1 < listBinNum.size()) {
-      strMsg = "  **  WARNING: multiple n_bin values found for search criteria: ";
-      for (int i = 0; i < listBinNum.size(); i++) {
-        strMsg += (0 < i ? ", " : "") + listBinNum.get(i);
-      }
-      printStream.println(strMsg);
-    }
-
-    //  build a query for the bin data
-    strWhere = strWhere + strWhereSeries;
-    String strPlotDataSelect =
-      "SELECT\n" +
-        "  ldr.i_value,\n";
-    if (listSeries.length > 0) {
-      strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
-    }
-
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr.bin_i) stat_value\n" +
-      "FROM\n" +
-      "  stat_header h,\n" +
-      "  line_data_phist ld,\n" +
-      "  line_data_phist_bin ldr\n" +
-      "WHERE\n" +
-      strWhere +
-      "  AND h.stat_header_id = ld.stat_header_id\n" +
-      "  AND ld.line_data_id = ldr.line_data_id\n" +
-      "GROUP BY i_value";
-    if (listSeries.length > 0) {
-      strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
-    }
-    strPlotDataSelect = strPlotDataSelect + ";";
-
-    if (printStreamSql != null) {
-      printStreamSql.println(strPlotDataSelect + "\n");
-    }
-
-    List<String> queries = new ArrayList<>(1);
-    queries.add(strPlotDataSelect);
-    boolean success = executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
-
-    return strMsg;
-  }
 
   @Override
   public int buildAndExecuteQueriesForRocRelyJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm, PrintStream printStream, PrintStream printStreamSql) throws Exception {
@@ -2335,6 +2333,153 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String strObsThreshMsg = "ROC/Reliability plots must contain data from at least one obs_thresh ";
       throw new Exception(strObsThreshMsg);
     }
+
+    //  get the data for the current plot from the plot_data temp table and write it to a data file
+    List<String> queries = new ArrayList<>(1);
+    queries.add(strPlotDataSelect);
+    boolean success = executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
+
+    return intNumDepSeries;
+  }
+
+  @Override
+  public int buildAndExecuteQueriesForEclvJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm, PrintStream printStream, PrintStream printStreamSql) throws Exception {
+    String strSelectList = "";
+    String strTempList = "";
+    String strWhereSeries = "";
+
+    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+
+    for (Map.Entry listSery : listSeries) {
+      //  get the current series field and values
+      String strSeriesField = listSery.getKey().toString();
+      String[] listSeriesVal = (String[]) listSery.getValue();
+      //  validate the series field and get its type
+      if (!statHeaderSQLType.containsKey(strSeriesField)) {
+        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+      }
+      //  build the select list element, where clause and temp table list element
+      strSelectList += (strSelectList.isEmpty() ? "" : ",") + "  " + formatField(strSeriesField, false, true);
+      strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
+        " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
+      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    " + MVUtil.padEnd(strSeriesField, 20) + statHeaderSQLType.get(strSeriesField);
+
+    }
+    if (!strSelectList.contains("fcst_valid")) {
+      strSelectList += ",\n " + " ld.fcst_valid_beg";
+    }
+    if (!strSelectList.contains("fcst_lead")) {
+      strSelectList += ",\n " + " ld.fcst_lead";
+    }
+
+
+    //  populate the template map with fixed values
+    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
+
+
+    //  build the stat_header where clauses of the sql
+    String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
+
+    strWhere = strWhere.replaceAll("h\\.n_pnt", "ld.n_pnt");
+    String strNumSelect =
+      "SELECT DISTINCT\n" +
+        "  ld.n_pnt\n" +
+        "FROM\n" +
+        "  stat_header h,\n" +
+        "  line_data_eclv ld\n" +
+        "WHERE\n" +
+        strWhere +
+        "  AND h.stat_header_id = ld.stat_header_id;";
+
+    if (printStreamSql != null) {
+      printStreamSql.println(strNumSelect + "\n");
+    }
+    //  run the rank number query and warn, if necessary
+    String strMsg = "";
+    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName());
+
+
+    if (listNum.isEmpty()) {
+      throw new Exception("no pnt  data found");
+    } else if (1 < listNum.size()) {
+      strMsg = "  **  WARNING: multiple n_pnt values found for search criteria: ";
+      for (int i = 0; i < listNum.size(); i++) {
+        strMsg += (0 < i ? ", " : "") + listNum.get(i);
+      }
+      printStream.println(strMsg);
+    }
+
+
+    Map<String, Integer> pctThreshInfo;
+    MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
+    for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
+      MVOrderedMap ser = series[seriesInd];
+      String[] serName = ser.getKeyList();
+      for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
+        String strSelPctThresh = "SELECT DISTINCT ld.n_pnt\nFROM\n  stat_header h,\n  line_data_eclv ld\n" +
+          "WHERE\n"
+          + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]) + "' AND " + strWhere
+          + "  AND ld.stat_header_id = h.stat_header_id;";
+        printStreamSql.println(strSelPctThresh + "\n");
+
+        //  run the PCT thresh query
+        pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
+        if (1 != pctThreshInfo.get("numPctThresh")) {
+          throw new Exception("number of ECLV pnts (" + pctThreshInfo.get("numPctThresh") + ") not distinct for " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]));
+        } else if (1 > pctThreshInfo.get("numPctThresh")) {
+          throw new Exception("invalid number of ECLV pnts (" + pctThreshInfo.get("numPctThresh") + ") found for" + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]) +
+            "'");
+        }
+      }
+    }
+    strWhere = strWhere + strWhereSeries;
+
+    //  build the query depending on the type of data requested
+    String strPlotDataSelect = "";
+
+    //  build the plot data sql
+    strPlotDataSelect =
+      "SELECT\n";
+    if (listSeries.length > 0) {
+      strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
+    }
+    if (listPlotFixVal.length > 0) {
+      for (Map.Entry aListPlotFixVal : listPlotFixVal) {
+        String strField = (String) aListPlotFixVal.getKey();
+        strPlotDataSelect = strPlotDataSelect + strField + ",\n";
+      }
+    }
+
+    strPlotDataSelect = strPlotDataSelect +
+
+      "  ldt.x_pnt_i,\n" +
+      "  ldt.y_pnt_i \n";
+
+    strPlotDataSelect = strPlotDataSelect + "FROM\n" +
+      "  stat_header h,\n" +
+      "  line_data_eclv ld,\n" +
+      "  line_data_eclv_pnt ldt\n" +
+      "WHERE\n" +
+      strWhere +
+      "  AND h.stat_header_id = ld.stat_header_id\n" +
+      "  AND ld.line_data_id = ldt.line_data_id";
+
+    strPlotDataSelect = strPlotDataSelect + ";";
+
+
+    if (printStreamSql != null) {
+      printStreamSql.println(strPlotDataSelect + "\n");
+    }
+
+
+    //  if the query does not return data from a expected obs_thresh, throw an error
+    int intNumDepSeries = 1;
+    Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    for (Map.Entry aListSeries1Val : listSeries1Val) {
+      String[] listVal = (String[]) aListSeries1Val.getValue();
+      intNumDepSeries *= listVal.length;
+    }
+
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
     List<String> queries = new ArrayList<>(1);
