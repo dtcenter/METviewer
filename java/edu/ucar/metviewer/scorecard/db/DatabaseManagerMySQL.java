@@ -27,7 +27,7 @@ import java.util.*;
  * @author : tatiana $
  * @version : 1.0 : 07/02/17 11:32 $
  */
-public abstract class DatabaseManagerMySQL  extends MysqlDatabaseManager implements DatabaseManager{
+public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implements DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("DatabaseManagerMySQL");
 
@@ -39,36 +39,38 @@ public abstract class DatabaseManagerMySQL  extends MysqlDatabaseManager impleme
 
 
   DatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
-    super(new DatabaseInfo( scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()));
+    super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()));
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
     databaseName = scorecard.getDatabaseName();
     printSQL = scorecard.getPrintSQL();
   }
 
-  protected abstract String getSelectFields(String table);
+  protected abstract String getSelectFields(String table, Integer thresh);
 
   protected abstract String getStatValue(String table, String stat);
 
   @Override
   public void createDataFile(Map<String, Entry> map, String threadName) {
     String mysql = getQueryForRow(map);
-    if(printSQL) {
-      logger.info("MySQL query: ");
-      logger.info(mysql);
-    }
-    int lastDot = aggStatDataFilePath.lastIndexOf('.');
-    String thredFileName = aggStatDataFilePath.substring(0,lastDot) + threadName + aggStatDataFilePath.substring(lastDot);
-    try (Connection con = getConnection(databaseName);
-         PreparedStatement pstmt = con.prepareStatement(mysql); ResultSet res = pstmt.executeQuery();
-         FileWriter fstream = new FileWriter(new File(thredFileName), false);
-         BufferedWriter out = new BufferedWriter(fstream)) {
-      printFormattedTable(res, out, "\t", false, true);// isCalc=false,  isHeader=true
-      out.flush();
-      out.close();
-      con.close();
-    } catch (Exception e) {
-      logger.error(e.getMessage());
+    if(mysql != null) {
+      if (printSQL) {
+        logger.info("MySQL query: ");
+        logger.info(mysql);
+      }
+      int lastDot = aggStatDataFilePath.lastIndexOf('.');
+      String thredFileName = aggStatDataFilePath.substring(0, lastDot) + threadName + aggStatDataFilePath.substring(lastDot);
+      try (Connection con = getConnection(databaseName);
+           PreparedStatement pstmt = con.prepareStatement(mysql); ResultSet res = pstmt.executeQuery();
+           FileWriter fstream = new FileWriter(new File(thredFileName), false);
+           BufferedWriter out = new BufferedWriter(fstream)) {
+        printFormattedTable(res, out, "\t", false, true);// isCalc=false,  isHeader=true
+        out.flush();
+        out.close();
+        con.close();
+      } catch (Exception e) {
+        logger.error(e.getMessage());
+      }
     }
   }
 
@@ -148,17 +150,61 @@ public abstract class DatabaseManagerMySQL  extends MysqlDatabaseManager impleme
       selectFields.append("fcst_lead,");
     }
 
+    Integer thresh = 0;
+    Integer numThresh = 1;
+    if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
+      Map<String, Integer> pctThreshInfo = new HashMap<>();
 
-    selectFields.append(getSelectFields(table));
-    //make sure that selectFields doesn't have "," as the last element
-    if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
-        selectFields.deleteCharAt(selectFields.length() - 1);
+      String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
+      try (Connection con = getConnection(databaseName);
+           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet resultSet = stmt.executeQuery(mysql);
+      ) {
+        int numPctThresh = 0;
+        int pctThresh = -1;
+        //  validate and save the number of thresholds
+        while (resultSet.next()) {
+          pctThresh = resultSet.getInt(1);
+          numPctThresh++;
+        }
+        pctThreshInfo.put("numPctThresh", numPctThresh);
+        pctThreshInfo.put("pctThresh", pctThresh);
+        resultSet.close();
+        stmt.close();
+        con.close();
+      } catch (Exception e) {
+        logger.error(e.getMessage());
+      }
+      thresh = pctThreshInfo.get("pctThresh");
+      numThresh = pctThreshInfo.get("numPctThresh");
     }
+    if(1 == numThresh) {
+      selectFields.append(getSelectFields(table, thresh));
+      //make sure that selectFields doesn't have "," as the last element
+      if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
+        selectFields.deleteCharAt(selectFields.length() - 1);
+      }
 
-    whereFields.append("stat_header.stat_header_id = ").append(table).append(".stat_header_id;");
 
-
-    return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
+      if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
+        for (int i = 1; i < thresh; i++) {
+          table += ",  line_data_pct_thresh ldt" + i;
+        }
+        for (int i = 1; i < thresh; i++) {
+          if (i != 1) {
+            whereFields.append("  AND");
+          }
+          whereFields.append(" line_data_pct.line_data_id = ldt").append(i).append(".line_data_id  AND ldt").append(i).append(".i_value = ").append(i);
+        }
+        whereFields.append(" AND stat_header.stat_header_id = line_data_pct.stat_header_id");
+      } else {
+        whereFields.append("stat_header.stat_header_id = ").append(table).append(".stat_header_id;");
+      }
+      return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
+    }else {
+      logger.error("number of  pnts (" + numThresh + ") not distinct for " + whereFields);
+      return null;
+    }
   }
 
   private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
@@ -242,6 +288,5 @@ public abstract class DatabaseManagerMySQL  extends MysqlDatabaseManager impleme
       logger.error("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
-
 
 }
