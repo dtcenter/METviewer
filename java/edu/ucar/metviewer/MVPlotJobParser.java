@@ -155,9 +155,9 @@ public class MVPlotJobParser extends MVUtil {
   protected String _strDataFolder = "";
   protected String _strScriptsFolder = "";
   protected String strDBHost = "";
-  protected   String strDBUser = "";
-  protected   String strDBPassword = "";
-  protected   String strDBDriver = null;
+  protected String strDBUser = "";
+  protected String strDBPassword = "";
+  protected String strDBDriver = null;
 
 
   /**
@@ -176,13 +176,12 @@ public class MVPlotJobParser extends MVUtil {
   }
 
 
-
   /**
    * Build a parser whose input source is the specified InputStream
    *
-   * @param in  Stream from which the plot specification will be drawn
+   * @param in Stream from which the plot specification will be drawn
    */
-  public MVPlotJobParser(InputStream in,  String currentDBName) throws Exception {
+  public MVPlotJobParser(InputStream in, String currentDBName) throws Exception {
     super();
     DocumentBuilder builder = getDocumentBuilder();
 
@@ -224,12 +223,11 @@ public class MVPlotJobParser extends MVUtil {
   public static String checkJobCompleteness(MVPlotJob job) {
     if (job.getPlotTmpl().isEmpty()) {
       return "lacks template";
-    } else if (job.getIndyVar().isEmpty() && !job.getPlotTmpl().contains("taylor")) {
+    } else if (job.getIndyVar().isEmpty() && !job.getPlotTmpl().contains("taylor") && !job.getPlotTmpl().contains("eclv")) {
       return "lacks indep";
-    } else if (1 > job.getIndyVal().length &&
-      null == job.getIndyDep() && !job.getPlotTmpl().contains("taylor")) {
+    } else if (1 > job.getIndyVal().length && null == job.getIndyDep() && !job.getPlotTmpl().contains("taylor") && !job.getPlotTmpl().contains("eclv")) {
       return "lacks indep";
-    } else if (1 > job.getDepGroups().length) {
+    } else if (1 > job.getDepGroups().length && !job.getPlotTmpl().contains("eclv")) {
       return "lacks dep";
     } else if (1 > job.getSeries1Val().size()) {
       return "lacks series1";
@@ -245,6 +243,57 @@ public class MVPlotJobParser extends MVUtil {
     return "";
   }
 
+  /**
+   * Determine if the input plot job fields have been introduced in the alphabetical order . If not, return the structure name that has been found to be
+   * incorrect.
+   *
+   * @param job plot job to inspect
+   * @return name of missing structure, or an empty string if the job is ok
+   */
+  public static String checkJobFieldsOrder(MVPlotJob job) {
+    String result = "";
+    Map.Entry[] mapValues = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    result = result + checkOrder(mapValues);
+
+    mapValues = job.getSeries2Val().getOrderedEntriesForSqlSeries();
+    result = result + checkOrder(mapValues);
+
+    mapValues = job.getPlotFixVal().getOrderedEntries();
+    result = result + checkOrder(mapValues);
+
+    for (int i = 0; i < job.getDepGroups().length; i++) {
+      mapValues = job.getDepGroups()[i].getOrderedEntries();
+      result = result + checkOrder(mapValues);
+    }
+
+    String[] indyVals = job.getIndyVal();
+    String[] indyValsSorted = Arrays.copyOf(indyVals, indyVals.length);
+    if (!Arrays.equals(indyVals, indyValsSorted)) {
+      result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
+    }
+    return result;
+  }
+
+  private static String checkOrder(Map.Entry[] mapValues) {
+    for (Map.Entry entry : mapValues) {
+
+      Object valuesObj = entry.getValue();
+
+      if (valuesObj instanceof String[]) {
+        String[] values = (String[]) entry.getValue();
+        String[] valuesSorted = Arrays.copyOf(values, values.length);
+        Arrays.sort(valuesSorted);
+        if (!Arrays.equals(values, valuesSorted)) {
+          return "Values for variable " + entry.getKey().toString() + " are not sorted";
+        }
+      } else if (valuesObj instanceof MVOrderedMap) {
+        MVOrderedMap values = (MVOrderedMap) entry.getValue();
+        return checkOrder(values.getOrderedEntries());
+      }
+    }
+    return "";
+  }
+
 
   /**
    * Form a SQL between clause using the information in the input &lt;date_range&gt; node.
@@ -256,7 +305,7 @@ public class MVPlotJobParser extends MVUtil {
     String strStart = "";
     String strEnd = "";
     SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-                   formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
     String strFormat = formatDB.toPattern();
     for (int j = 0; j < nodeDateRange._children.length; j++) {
       MVNode nodeChild = nodeDateRange._children[j];
@@ -304,7 +353,7 @@ public class MVPlotJobParser extends MVUtil {
         String strEnd = "";
         int intInc = 0;
         SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-                       formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         String strFormat = formatDB.toPattern();
 
         for (int k = 0; k < nodeIndyVal._children.length; k++) {
@@ -409,7 +458,7 @@ public class MVPlotJobParser extends MVUtil {
 
     //  if there are dep,  and indep elements present, handle them
     if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl().startsWith("phist") && !job.getPlotTmpl().startsWith("roc")
-     &&  !job.getPlotTmpl().startsWith("rely") &&  !job.getPlotTmpl().startsWith("relp")) {
+      && !job.getPlotTmpl().startsWith("rely") && !job.getPlotTmpl().startsWith("relp") && !job.getPlotTmpl().startsWith("eclv")) {
       int axis = 2;
       if (job.getPlotTmpl().startsWith("taylor")) {
         axis = 1;
@@ -503,6 +552,7 @@ public class MVPlotJobParser extends MVUtil {
           "<agg_vl1l2>" + (job.getAggVl1l2() ? "TRUE" : "FALSE") + "</agg_vl1l2>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
           "<boot_random_seed>" + job.getAggBootRandomSeed() + "</boot_random_seed>" +
+          "<cl_step>" + job.getCl_step() + "</cl_step>" +
           "<boot_ci>" + job.getAggBootCI() + "</boot_ci>" +
           "<eveq_dis>" + (job.getEveqDis() ? "TRUE" : "FALSE") + "</eveq_dis>" +
           "<cache_agg_stat>" + (job.getCacheAggStat() ? "TRUE" : "FALSE") + "</cache_agg_stat>" +
@@ -713,208 +763,210 @@ public class MVPlotJobParser extends MVUtil {
 
     for (int i = 0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++) {
 
-      try {
-        MVNode node = _nodePlotSpec._children[i];
 
-        //  <connection>
-        if (node._tag.equals("connection")) {
-          for (int j = 0; j < node._children.length; j++) {
-            if (node._children[j]._tag.equals("host")) {
-              strDBHost = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("database")) {
-              strDBName = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("user")) {
-              strDBUser = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("password")) {
-              strDBPassword = node._children[j]._value;
+      MVNode node = _nodePlotSpec._children[i];
 
-            } else if (node._children[j]._tag.equals("driver")) {
-              strDBDriver = node._children[j]._value;
-            }
-          }
+      //  <connection>
+      if (node._tag.equals("connection")) {
+        for (int j = 0; j < node._children.length; j++) {
+          if (node._children[j]._tag.equals("host")) {
+            strDBHost = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("database")) {
+            strDBName = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("user")) {
+            strDBUser = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("password")) {
+            strDBPassword = node._children[j]._value;
 
-        }
-
-        //  <rscript>
-        else if (node._tag.equals("rscript")) {
-          _strRscript = node._value;
-        }
-
-        //  <folders>
-        else if (node._tag.equals("folders")) {
-          for (int j = 0; j < node._children.length; j++) {
-            if (node._children[j]._tag.equals("r_tmpl")) {
-              _strRtmplFolder = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("r_work")) {
-              _strRworkFolder = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("plots")) {
-              _strPlotsFolder = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("data")) {
-              _strDataFolder = node._children[j]._value;
-            } else if (node._children[j]._tag.equals("scripts")) {
-              _strScriptsFolder = node._children[j]._value;
-            }
+          } else if (node._children[j]._tag.equals("driver")) {
+            strDBDriver = node._children[j]._value;
           }
         }
 
-        //  <date_list>
-        else if (node._tag.equals("date_list")) {
-
-          _tableDateListDecl.put(node._name, buildDateList(node, System.out));
-        }
-
-        //  <date_range>
-        else if (node._tag.equals("date_range")) {
-          _tableDateRangeDecl.put(node._name, parseDateRange(node));
-        }
-
-        //  <date_range_list>
-        else if (node._tag.equals("date_range_list")) {
-
-          //  gather the elements of the range list
-          String strRangeStart = "";
-          String strRangeEnd = "";
-          int intRangeLength = -1;
-          int intInc = -1;
-          SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-          formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-          String strFormat = formatDB.toPattern();
-          for (int l = 0; l < node._children.length; l++) {
-            MVNode nodeChild = node._children[l];
-            if (nodeChild._tag.equals("range_start")) {
-              strRangeStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
-            } else if (nodeChild._tag.equals("range_end")) {
-              strRangeEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
-            } else if (nodeChild._tag.equalsIgnoreCase("range_length")) {
-              intRangeLength = Integer.parseInt(nodeChild._value);
-            } else if (nodeChild._tag.equalsIgnoreCase("inc")) {
-              intInc = Integer.parseInt(nodeChild._value);
-            }
-          }
-
-          //  parse the begin and end times
-          Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-          long intEndTime = -1;
-          try {
-            cal.setTime(formatDB.parse(strRangeStart));
-            intEndTime = formatDB.parse(strRangeEnd).getTime();
-          } catch (Exception e) {
-          }
-
-          //  build the list
-          ArrayList listDateRange = new ArrayList();
-          while (cal.getTime().getTime() <= intEndTime) {
-            String strStartCur = formatDB.format(cal.getTime());
-            cal.add(Calendar.MINUTE, intRangeLength);
-            String strEndCur = formatDB.format(cal.getTime());
-            listDateRange.add("BETWEEN '" + strStartCur + "' AND '" + strEndCur + "'");
-            cal.add(Calendar.MINUTE, intInc - intRangeLength);
-          }
-          _tableDateRangeListDecl.put(node._name, toArray(listDateRange));
-        }
-
-        //  <plot>
-        else if (node._tag.equals("plot")) {
-
-
-          //  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs
-          _tablePlotNode.put(node._name, node);
-          String strInherits = node._inherits.trim();
-          MVPlotJob job;
-
-          if ("".equals(strInherits)) {
-            job = parsePlotJob(node, null);
-          } else {
-            String[] listInherits = strInherits.split("\\s*,\\s*");
-            if (!_tablePlotDecl.containsKey(listInherits[0])) {
-              throw new Exception("inherited plot job " + listInherits[0] + " not found");
-            }
-            MVPlotJob jobBase = (MVPlotJob) _tablePlotDecl.get(listInherits[0]);
-            for (int j = 1; j < listInherits.length; j++) {
-              if (!_tablePlotNode.containsKey(listInherits[j])) {
-                throw new Exception("multiple inherited plot job " + listInherits[j] + " not found");
-              }
-              MVNode nodeInherit = (MVNode) _tablePlotNode.get(listInherits[j]);
-              jobBase = parsePlotJob(nodeInherit, jobBase);
-            }
-            job = parsePlotJob(node, jobBase);
-          }
-
-          //  set the job database information
-          job.setRscript(_strRscript);
-          job.setCurrentDBName(strDBName);
-
-          //  check the job and add it to the jobs table and to the runnable jobs, if appropriate
-          _tablePlotDecl.put(node._name, job);
-          String strCompleteness = "";
-          boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
-
-          if (job.getPlotTmpl().equals("roc.R_tmpl")) {
-
-            //  ROC jobs must have an aggregation method selected
-            if (!job.getRocPct() && !job.getRocCtc()) {
-              strCompleteness = "if ROC template is selected, one of roc_pct or roc_ctc must be true";
-            }
-
-          } else if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
-
-            //  ensemble spread/skill must have a fcst_var selected
-            if (job.getPlotFixVal().containsKey("fcst_var")) {
-              MVOrderedMap mapDep = new MVOrderedMap();
-              MVOrderedMap mapMse = new MVOrderedMap();
-              Object objFcstVar = job.getPlotFixVal().get("fcst_var");
-              String[] listFcstVar;
-              if (objFcstVar instanceof String[]) {
-                listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
-              } else {
-                MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
-                listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
-              }
-              mapMse.put(listFcstVar[0], new String[]{"MSE"});
-              mapDep.put("dep1", mapMse);
-              mapDep.put("dep2", new MVOrderedMap());
-              job.addDepGroup(mapDep);
-            } else if (boolPlotRun) {
-              strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
-            }
-          } else if (job.getPlotTmpl().equals("performance.R_tmpl")) {
-            //  performance plot must have a fcst_var selected
-            if (job.getPlotFixVal().containsKey("fcst_var")) {
-              MVOrderedMap mapDep = new MVOrderedMap();
-              MVOrderedMap mapFarPody = new MVOrderedMap();
-              Object objFcstVar = job.getPlotFixVal().get("fcst_var");
-              String[] listFcstVar;
-              if (objFcstVar instanceof String[]) {
-                listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
-              } else {
-                MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
-                listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
-              }
-              mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
-              mapDep.put("dep1", mapFarPody);
-              mapDep.put("dep2", new MVOrderedMap());
-              job.addDepGroup(mapDep);
-            } else if (boolPlotRun) {
-              strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
-            }
-
-          } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") && !job.getPlotTmpl().equals("phist.R_tmpl") && !job.getPlotTmpl().equals("relp.R_tmpl")) {
-            strCompleteness = checkJobCompleteness(job);
-          }
-
-          //  add runnable jobs to the run table if complete, complain otherwise
-          if (strCompleteness.isEmpty()) {
-            if (boolPlotRun) {
-              _mapJobs.put(node._name, job);
-            }
-            listJobs.add(job);
-          } else if (boolPlotRun) {
-            throw new Exception("plot " + node._name + ": " + strCompleteness);
-          }
-        }
-      }catch (Exception e){
-        System.out.println(e.getMessage());
       }
+
+      //  <rscript>
+      else if (node._tag.equals("rscript")) {
+        _strRscript = node._value;
+      }
+
+      //  <folders>
+      else if (node._tag.equals("folders")) {
+        for (int j = 0; j < node._children.length; j++) {
+          if (node._children[j]._tag.equals("r_tmpl")) {
+            _strRtmplFolder = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("r_work")) {
+            _strRworkFolder = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("plots")) {
+            _strPlotsFolder = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("data")) {
+            _strDataFolder = node._children[j]._value;
+          } else if (node._children[j]._tag.equals("scripts")) {
+            _strScriptsFolder = node._children[j]._value;
+          }
+        }
+      }
+
+      //  <date_list>
+      else if (node._tag.equals("date_list")) {
+
+        _tableDateListDecl.put(node._name, buildDateList(node, System.out));
+      }
+
+      //  <date_range>
+      else if (node._tag.equals("date_range")) {
+        _tableDateRangeDecl.put(node._name, parseDateRange(node));
+      }
+
+      //  <date_range_list>
+      else if (node._tag.equals("date_range_list")) {
+
+        //  gather the elements of the range list
+        String strRangeStart = "";
+        String strRangeEnd = "";
+        int intRangeLength = -1;
+        int intInc = -1;
+        SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String strFormat = formatDB.toPattern();
+        for (int l = 0; l < node._children.length; l++) {
+          MVNode nodeChild = node._children[l];
+          if (nodeChild._tag.equals("range_start")) {
+            strRangeStart = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
+          } else if (nodeChild._tag.equals("range_end")) {
+            strRangeEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
+          } else if (nodeChild._tag.equalsIgnoreCase("range_length")) {
+            intRangeLength = Integer.parseInt(nodeChild._value);
+          } else if (nodeChild._tag.equalsIgnoreCase("inc")) {
+            intInc = Integer.parseInt(nodeChild._value);
+          }
+        }
+
+        //  parse the begin and end times
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        long intEndTime = -1;
+        try {
+          cal.setTime(formatDB.parse(strRangeStart));
+          intEndTime = formatDB.parse(strRangeEnd).getTime();
+        } catch (Exception e) {
+        }
+
+        //  build the list
+        ArrayList listDateRange = new ArrayList();
+        while (cal.getTime().getTime() <= intEndTime) {
+          String strStartCur = formatDB.format(cal.getTime());
+          cal.add(Calendar.MINUTE, intRangeLength);
+          String strEndCur = formatDB.format(cal.getTime());
+          listDateRange.add("BETWEEN '" + strStartCur + "' AND '" + strEndCur + "'");
+          cal.add(Calendar.MINUTE, intInc - intRangeLength);
+        }
+        _tableDateRangeListDecl.put(node._name, toArray(listDateRange));
+      }
+
+      //  <plot>
+      else if (node._tag.equals("plot")) {
+
+
+        //  parse the plot and add it to the job table and, if appropriate, the list of runnable jobs
+        _tablePlotNode.put(node._name, node);
+        String strInherits = node._inherits.trim();
+        MVPlotJob job;
+
+        if ("".equals(strInherits)) {
+          job = parsePlotJob(node, null);
+        } else {
+          String[] listInherits = strInherits.split("\\s*,\\s*");
+          if (!_tablePlotDecl.containsKey(listInherits[0])) {
+            throw new Exception("inherited plot job " + listInherits[0] + " not found");
+          }
+          MVPlotJob jobBase = (MVPlotJob) _tablePlotDecl.get(listInherits[0]);
+          for (int j = 1; j < listInherits.length; j++) {
+            if (!_tablePlotNode.containsKey(listInherits[j])) {
+              throw new Exception("multiple inherited plot job " + listInherits[j] + " not found");
+            }
+            MVNode nodeInherit = (MVNode) _tablePlotNode.get(listInherits[j]);
+            jobBase = parsePlotJob(nodeInherit, jobBase);
+          }
+          job = parsePlotJob(node, jobBase);
+        }
+
+        //  set the job database information
+        job.setRscript(_strRscript);
+        job.setCurrentDBName(strDBName);
+
+        //  check the job and add it to the jobs table and to the runnable jobs, if appropriate
+        _tablePlotDecl.put(node._name, job);
+        String strCompleteness = "";
+        boolean boolPlotRun = !node._run.equalsIgnoreCase("false");
+
+        if (job.getPlotTmpl().equals("roc.R_tmpl")) {
+
+          //  ROC jobs must have an aggregation method selected
+          if (!job.getRocPct() && !job.getRocCtc()) {
+            strCompleteness = "if ROC template is selected, one of roc_pct or roc_ctc must be true";
+          }
+
+        } else if (job.getPlotTmpl().equals("ens_ss.R_tmpl")) {
+
+          //  ensemble spread/skill must have a fcst_var selected
+          if (job.getPlotFixVal().containsKey("fcst_var")) {
+            MVOrderedMap mapDep = new MVOrderedMap();
+            MVOrderedMap mapMse = new MVOrderedMap();
+            Object objFcstVar = job.getPlotFixVal().get("fcst_var");
+            String[] listFcstVar;
+            if (objFcstVar instanceof String[]) {
+              listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
+            } else {
+              MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
+              listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
+            }
+            mapMse.put(listFcstVar[0], new String[]{"MSE"});
+            mapDep.put("dep1", mapMse);
+            mapDep.put("dep2", new MVOrderedMap());
+            job.addDepGroup(mapDep);
+          } else if (boolPlotRun) {
+            strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
+          }
+        } else if (job.getPlotTmpl().equals("performance.R_tmpl")) {
+          //  performance plot must have a fcst_var selected
+          if (job.getPlotFixVal().containsKey("fcst_var")) {
+            MVOrderedMap mapDep = new MVOrderedMap();
+            MVOrderedMap mapFarPody = new MVOrderedMap();
+            Object objFcstVar = job.getPlotFixVal().get("fcst_var");
+            String[] listFcstVar;
+            if (objFcstVar instanceof String[]) {
+              listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
+            } else {
+              MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
+              listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
+            }
+            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            mapDep.put("dep1", mapFarPody);
+            mapDep.put("dep2", new MVOrderedMap());
+            job.addDepGroup(mapDep);
+          } else if (boolPlotRun) {
+            strCompleteness = "if ens_ss template is selected, a FCST_VAR must be specified in plot_fix";
+          }
+
+        } else if (!job.getPlotTmpl().equals("rhist.R_tmpl") && !job.getPlotTmpl().equals("rely.R_tmpl") && !job.getPlotTmpl().equals("phist.R_tmpl") && !job.getPlotTmpl().equals("relp.R_tmpl") && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
+          strCompleteness = checkJobCompleteness(job);
+        }
+        if (strCompleteness.isEmpty()) {
+          strCompleteness = checkJobFieldsOrder(job);
+        }
+
+
+        //  add runnable jobs to the run table if complete, complain otherwise
+        if (strCompleteness.isEmpty()) {
+          if (boolPlotRun) {
+            _mapJobs.put(node._name, job);
+          }
+          listJobs.add(job);
+        } else if (boolPlotRun) {
+          throw new Exception("plot " + node._name + ": " + strCompleteness);
+        }
+      }
+
     }
 
     _listJobs = (MVPlotJob[]) listJobs.toArray(new MVPlotJob[]{});
@@ -1026,9 +1078,9 @@ public class MVPlotJobParser extends MVUtil {
 
             //  <date_list>
             else if (nodeFixVal._tag.equals("date_list")) {
-              if(_tableDateListDecl.get(nodeFixVal._name) instanceof List) {
+              if (_tableDateListDecl.get(nodeFixVal._name) instanceof List) {
                 listFixVal.addAll((List) _tableDateListDecl.get(nodeFixVal._name));
-              }else {
+              } else {
                 listFixVal.addAll(Arrays.asList((String[]) _tableDateListDecl.get(nodeFixVal._name)));
               }
             }
@@ -1337,6 +1389,8 @@ public class MVPlotJobParser extends MVUtil {
             job.setAggBootRepl(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_random_seed")) {
             job.setAggBootRandomSeed(nodeAggStat._value);
+          } else if (nodeAggStat._tag.equals("cl_step")) {
+            job.setCl_step(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_ci")) {
             job.setAggBootCI(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("eveq_dis")) {
@@ -1364,7 +1418,7 @@ public class MVPlotJobParser extends MVUtil {
           }
         }
 
-        if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2() &&  job.getCalcVl1l2()) {
+        if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2() && job.getCalcVl1l2()) {
           throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 and calc_sal1l2 and calc_vl1l2 are true");
         }
       }
@@ -1447,7 +1501,7 @@ public class MVPlotJobParser extends MVUtil {
       if (diffSeriesParametersArray.length > 2) {
         String variableStat = diffSeriesParametersArray[diffSeriesParametersArray.length - 2] + " " + diffSeriesParametersArray[diffSeriesParametersArray.length - 1];
         if (diffSeriesArray.length > 2 && diffSeriesArray[2].equals("DIFF") && !diffSeriesArray[1].endsWith(variableStat)) {
-          throw new Exception("Difference curve " + diffSeries[k] + " wants to be calculated using different variable and/or statistic. It isn't supported by Image Viewer.");
+          throw new Exception("Difference curve " + diffSeries[k] + " configured to be calculated using different variable and/or statistic. It isn't supported by Image Viewer.");
         }
       }
     }
@@ -1505,20 +1559,21 @@ public class MVPlotJobParser extends MVUtil {
     }
     return result;
   }
-  private static String preserveBackslash(String str){
+
+  private static String preserveBackslash(String str) {
     String result = str;
-       if(str.contains("\\")){
-         result = str.replaceAll("\\\\", "\\\\\\\\");
-       }
+    if (str.contains("\\")) {
+      result = str.replaceAll("\\\\", "\\\\\\\\");
+    }
     return result;
   }
-  public DatabaseInfo getDatabaseInfo(){
+
+  public DatabaseInfo getDatabaseInfo() {
     DatabaseInfo databaseInfo = null;
-    if(strDBHost != null  && strDBUser != null && strDBPassword != null){
-      databaseInfo = new DatabaseInfo(  strDBHost, strDBUser, strDBPassword);
+    if (strDBHost != null && strDBUser != null && strDBPassword != null) {
+      databaseInfo = new DatabaseInfo(strDBHost, strDBUser, strDBPassword);
     }
     return databaseInfo;
   }
-
 
 }
