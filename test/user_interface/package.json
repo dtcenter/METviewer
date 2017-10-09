@@ -1,0 +1,20 @@
+{
+  "name": "METViewer-testing",
+  "version": "1.0.0",
+  "description": "Cucumber testing for METViewer",
+  "main": "chimp.js",
+  "scripts": {
+    "test": "chimp.js --test --chai features/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NCAR/METViewer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-runtime": "^6.23.0",
+    "chimp": "^0.49.0",
+    "node-inspector": "^1.1.1"
+  }
+}
