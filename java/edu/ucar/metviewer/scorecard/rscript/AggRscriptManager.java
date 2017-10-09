@@ -117,13 +117,10 @@ public class AggRscriptManager extends RscriptManager {
 
         String aggStatTemplScript;
         String aggStatTemplFile;
-       // if (Util.getAggTypeForStat(stat).equals(MVUtil.PCT)) {
-        //  aggStatTemplScript = aggStatTemplScriptDir + PCT_SCRIPT_FILE_NAME;
-       //   aggStatTemplFile = aggStatTemplFilePath + "/agg_pct.info_tmpl";
-        //} else {
-          aggStatTemplScript = aggStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
-          aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
-       // }
+
+        aggStatTemplScript = aggStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
+        aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
+
         MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
         //  run agg_stat/
         MVUtil mvUtil = new MVUtil();
@@ -158,10 +155,10 @@ public class AggRscriptManager extends RscriptManager {
       tableAggStatInfo.put("agg_vl1l2", String.valueOf(Boolean.FALSE).toUpperCase());
     }
     if (stat.equals(MVUtil.PCT)) {
-          tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.TRUE).toUpperCase());
-        } else {
-          tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.FALSE).toUpperCase());
-        }
+      tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.TRUE).toUpperCase());
+    } else {
+      tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.FALSE).toUpperCase());
+    }
 
   }
 
