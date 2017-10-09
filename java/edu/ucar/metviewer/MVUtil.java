@@ -107,6 +107,7 @@ public class MVUtil {
     lengthGroupIndices.put("PHIST", new int[]{24, 25, 1});
     lengthGroupIndices.put("RELP", new int[]{23, 24, 1});
     lengthGroupIndices.put("ORANK", new int[]{33, 33, 1});
+    lengthGroupIndices.put("ECLV", new int[]{25, 26, 2});
   }
 
   static {
@@ -239,7 +240,7 @@ public class MVUtil {
     statsPstd.put("PSTD_BRIER", new String[]{"nc", PCT});
     statsPstd.put("PSTD_BRIERCL", new String[]{"nc", PCT});
     statsPstd.put("PSTD_INF", new String[]{"nc", PCT});
-    statsPstd.put("PSTD_BSS", new String[]{"nc", PCT});
+    statsPstd.put("PSTD_BSS", new String[]{});
     statsPstd.put("PSTD_BRIER10", new String[]{"nc", PCT});
     statsPstd.put("PSTD_BRIER90", new String[]{"nc", PCT});
     statsPstd.put("PSTD_BSS_SMPL", new String[]{PCT});
@@ -766,6 +767,8 @@ public class MVUtil {
         || strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
         strVal = formatThresh(strTmplTag, strVal, printStream);
       }
+      //replace "/" with "_"  - file names can't have "/"!!!!!
+      strVal = strVal.replace("/", "_");
 
       strRet = strRet.replace("{" + strTmplTag + "}", strVal);
     }
@@ -801,7 +804,7 @@ public class MVUtil {
       strThresh = matFcstThresh.group(2);
       dblThresh = Double.parseDouble(strThresh);
     } else {
-      printStream.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
+     // printStream.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
       return strThreshRet;
     }
 
@@ -895,7 +898,6 @@ public class MVUtil {
       else {
         dblVal = dblInvalid;
         dblInvalid -= .00001;
-        printStream.println("  **  WARNING: sortVals() could not parse value " + vals[i]);
       }
 
       //  verify and store the numerical value and the value pair
@@ -1690,12 +1692,16 @@ public class MVUtil {
    */
   public static boolean isModeJob(final MVPlotJob job) {
     MVOrderedMap[] listDep = job.getDepGroups();
+    if(listDep.length > 0){
     String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
     String strStat = parseModeStat(listFcstVarStat[0][1])[0];
 
     return modeSingleStatField.contains(strStat)
       || modePairStatField.containsKey(strStat)
       || modeRatioField.contains(listFcstVarStat[0][1]);
+    }else {
+      return false;
+    }
   }
 
   /**
