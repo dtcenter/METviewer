@@ -1345,7 +1345,7 @@ CREATE TABLE line_data_eclv
 -- line_data_relp_rank contains rank data for a particular line_data_eclv record.  The
 --   number of ranks stored is given by the line_data_eclv field n_pnt.
 
-DROP TABLE IF EXISTS line_data_eclv_ens;
+DROP TABLE IF EXISTS line_data_eclv_pnt;
 CREATE TABLE line_data_eclv_pnt
 (
     line_data_id        INT UNSIGNED NOT NULL,
