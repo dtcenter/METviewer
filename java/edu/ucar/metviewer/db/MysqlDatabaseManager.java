@@ -6,10 +6,11 @@
 package edu.ucar.metviewer.db;
 
 
-import com.jolbox.bonecp.BoneCP;
-import com.jolbox.bonecp.BoneCPConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolConfiguration;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -26,44 +27,64 @@ import java.util.List;
 public class MysqlDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
-  private static BoneCP connectionPool;
+  //private static BoneCP connectionPool;
   protected static final String DB_PREFIX_MV = "mv_";
   protected DatabaseInfo databaseInfo;
-  protected static List<String> listDB=new ArrayList<>();
+  protected static List<String> listDB = new ArrayList<>();
+  private DataSource dataSource;
 
 
   public MysqlDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
-    try {
-      Class.forName("com.mysql.jdbc.Driver");
-    } catch (ClassNotFoundException e) {
-      logger.error(e.getMessage());
-    }
-    // setup the connection pool
-    BoneCPConfig config = new BoneCPConfig();
+
+
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
       jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
     }
     jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
-    config.setJdbcUrl(jdbcUrl);
-    config.setUsername(databaseInfo.getUser());
-    config.setPassword(databaseInfo.getPassword());
-    config.setMinConnectionsPerPartition(10);
-    config.setMaxConnectionsPerPartition(50);
-    config.setPartitionCount(1);
-    config.setIdleConnectionTestPeriodInSeconds(1);
-    config.setIdleMaxAgeInSeconds(240);
-    config.setStatementsCacheSize(100);
-    config.setReleaseHelperThreads(3);
-    connectionPool = new BoneCP(config); // setup the connection pool
+
     this.databaseInfo = databaseInfo;
+    PoolConfiguration configurationToUse = new PoolProperties();
+    configurationToUse.setUrl(jdbcUrl);
+    configurationToUse.setUsername(databaseInfo.getUser());
+    configurationToUse.setPassword(databaseInfo.getPassword());
+    configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
+    configurationToUse.setInitialSize(10);
+    configurationToUse.setMaxActive(50);
+    configurationToUse.setMaxIdle(15);
+    configurationToUse.setMaxWait(10000);
+    configurationToUse.setValidationQuery("select 1");
+    configurationToUse.setTestOnBorrow(Boolean.TRUE);
+    configurationToUse.setTestOnReturn(Boolean.FALSE);
+    configurationToUse.setTestWhileIdle(Boolean.FALSE);
+    configurationToUse.setMinEvictableIdleTimeMillis(1800000);
+    configurationToUse.setTimeBetweenEvictionRunsMillis(1200000);
+    configurationToUse.setRemoveAbandoned(Boolean.TRUE);
+    configurationToUse.setRemoveAbandonedTimeout(60);
+    configurationToUse.setValidationInterval(30000);
+    configurationToUse.setRemoveAbandonedTimeout(60);
+    configurationToUse.setMinIdle(10);
+    configurationToUse.setRemoveAbandoned(true);
+    configurationToUse.setJdbcInterceptors(
+      "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;" +
+        "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+    try {
+      dataSource = new DataSource();
+      dataSource.setPoolProperties(configurationToUse);
+    } catch (Exception e) {
+      logger.debug(e);
+      logger.error("Database connection  for a primary database was not initialised.");
+      logger.error(e.getMessage());
+      dataSource = null;
+    }
+
     initDBList();
   }
 
 
   public void initDBList() {
     listDB.clear();
-    try (Connection testConnection = connectionPool.getConnection();
+    try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
          ResultSet resultSet = testStatement.executeQuery("show databases")
 
@@ -122,7 +143,7 @@ public class MysqlDatabaseManager {
     ResultSet rs = null;
     if (validDB) {
       try {
-        con = connectionPool.getConnection();
+        con = dataSource.getConnection();
         statement = con.createStatement();
         rs = statement.executeQuery("use " + db);
 
@@ -149,7 +170,7 @@ public class MysqlDatabaseManager {
   public Connection getConnection() {
     Connection con = null;
     try {
-      con = connectionPool.getConnection();
+      con = dataSource.getConnection();
     } catch (SQLException e) {
       logger.error(e.getMessage());
     }

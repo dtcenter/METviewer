@@ -654,14 +654,18 @@ listPlotCI, dblAlpha=.05, boolVarianceInflationFactor=TRUE, strPlotStat="median"
     dblLoCI = dblMed - dblStdErr;
     dblUpCI  = dblMed + dblStdErr;
     } else if( "norm" == strPlotCI ){
-      if( !is.na(dfStatsVal$stat_ncl) & !is.na(dfStatsVal$stat_ncu) &-9999 != dfStatsVal$stat_ncl & -9999 != dfStatsVal$stat_ncu ){
-        dblLoCI = dfStatsVal$stat_ncl;
-        dblUpCI = dfStatsVal$stat_ncu;
+       if( !is.null(dfStatsVal$stat_ncl) & !is.null(dfStatsVal$stat_ncu)){
+         if(!is.na(dfStatsVal$stat_ncl) & !is.na(dfStatsVal$stat_ncu) &-9999 != dfStatsVal$stat_ncl & -9999 != dfStatsVal$stat_ncu ){
+          dblLoCI = dfStatsVal$stat_ncl;
+          dblUpCI = dfStatsVal$stat_ncu;
+          }
       }
     } else if( "boot" == strPlotCI | "brier" == strPlotCI ){
-      if( !is.na(dfStatsVal$stat_bcl) & !is.na(dfStatsVal$stat_bcu) & -9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
-        dblLoCI = dfStatsVal$stat_bcl;
-        dblUpCI = dfStatsVal$stat_bcu;
+      if( !is.null(dfStatsVal$stat_bcl) & !is.null(dfStatsVal$stat_bcu)){
+        if( !is.na(dfStatsVal$stat_bcl) & !is.na(dfStatsVal$stat_bcu) & -9999 != dfStatsVal$stat_bcl & -9999 != dfStatsVal$stat_bcu ){
+          dblLoCI = dfStatsVal$stat_bcl;
+         dblUpCI = dfStatsVal$stat_bcu;
+        }
       }
     } else if( "q98" == strPlotCI & 0 < sum(listStats != 0, na.rm = TRUE) ){
       q = quantile(listStats, probs=c(0.01, 0.99));
@@ -746,13 +750,15 @@ sameElements <- function (a,b){
 
 perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   na_perf_score_stats <- c('BASER','FMEAN','FBAR','FSTDEV', 'OBAR', 'OSTDEV', 'FRANK_TIES', 'ORANK_TIES',
-    'FBAR',  'FSTDEV', 'OBAR', 'OSTDEV', 'RANKS', 'FRANK_TIES', 'ORANK_TIES','VL1L2_FBAR', 'VL1L2_OBAR','VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV' );
+    'FBAR',  'FSTDEV', 'OBAR', 'OSTDEV', 'RANKS', 'FRANK_TIES', 'ORANK_TIES','VL1L2_FBAR', 'VL1L2_OBAR',
+    'VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV', 'PSTD_BASER','PSTD_RESOLUTION', 'PSTD_UNCERTAINTY','PSTD_ROC_AUC' );
 
   zero_perf_score_stats <- c('POFD','FAR','ESTDEV','MAE', 'MSE', 'BCMSE', 'RMSE', 'E10', 'E25', 'E50', 'E75',
-    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE'  );
+    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE', 'PSTD_BRIER', 'PSTD_RELIABILITY'  );
 
   one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
-    'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR');
+    'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR',
+    'PSTD_BSS', 'PSTD_BSS_SMPL');
 
   if( statistic %in% na_perf_score_stats ){
     result = NA;
@@ -766,3 +772,139 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   return(result);
 }
 
+
+
+value <- function (obs, pred = NULL, baseline = NULL, cl = seq(0.05, 0.95,0.05), plot = TRUE,
+                    all = FALSE, thresholds = seq(0.05, 0.95, 0.05), ylim = c(-0.05, 1), xlim = c(0, 1), ...)
+{
+    if (!is.null(pred)) {
+        id <- is.finite(obs) & is.finite(pred)
+        obs <- obs[id]
+        pred <- pred[id]
+    }
+    else {
+        obs <- obs[is.finite(obs)]
+    }
+    if (is.null(pred) & length(obs) == 4) {
+        #print(" Assume data entered as c(n11, n01, n10, n00) Obs*Forecast")
+        n <- sum(obs)
+        a <- obs[1]
+        b <- obs[2]
+        c <- obs[3]
+        d <- obs[4]
+        F <- b/(b + d)
+        H <- a/(a + c)
+        if (is.null(baseline)) {
+            s <- (a + c)/n
+            baseline.tf <- FALSE
+        }
+        else {
+            s <- baseline
+            baseline.tf <- TRUE
+        }
+        cl <- sort(c(cl, s))
+        V1 <- (1 - F) - s/(1 - s) * (1 - cl)/cl * (1 - H)
+        V2 <- H - (1 - s)/s * cl/(1 - cl) * F
+        V <- numeric(length(cl))
+        V[cl < s] <- V1[cl < s]
+        V[cl >= s] <- V2[cl >= s]
+        V <- matrix(V, ncol = 1)
+        Vmax <- H - F
+        positive <- c(c/(c + d), a/(a + b))
+        type <- "binary"
+    }
+    else {
+        if (prod(unique(pred) %in% c(0, 1))) {
+            if (is.null(baseline)) {
+                s <- mean(obs)
+                baseline.tf <- FALSE
+            }
+            else {
+                s <- baseline
+                baseline.tf <- TRUE
+            }
+            cl <- sort(c(cl, s))
+            F <- numeric()
+            H <- numeric()
+            Vmax <- numeric()
+            V <- matrix(nrow = length(cl), ncol = 1)
+            A <- table(data.frame(obs = obs, pred = pred))
+            a <- A[2, 2]
+            b <- A[1, 2]
+            c <- A[2, 1]
+            d <- A[1, 1]
+            n <- a + b + c + d
+            F[1] <- b/(b + d)
+            H[1] <- a/(a + c)
+            V1 <- (1 - F[1]) - s/(1 - s) * (1 - cl)/cl * (1 -
+                H[1])
+            V2 <- H[1] - (1 - s)/s * cl/(1 - cl) * F[1]
+            VV <- numeric(length(cl))
+            VV[cl < s] <- V1[cl < s]
+            VV[cl >= s] <- V2[cl >= s]
+            V[, 1] <- VV
+            Vmax[1] <- H[1] - F[1]
+            positive <- c(c/(c + d), a/(a + b))
+        }
+        else {
+            if (max(pred) > 1 | min(pred) < 0) {
+                stop("Predictions outside [0,1] range.  \n I am a bit confused. \n")
+            }
+            if (is.null(baseline)) {
+                s <- mean(obs)
+                baseline.tf <- FALSE
+            }
+            else {
+                s <- baseline
+                baseline.tf <- TRUE
+            }
+            cl <- sort(c(cl, s))
+            NCOL <- length(thresholds)
+            PRED <- matrix(NA, nrow = length(pred), ncol = NCOL)
+            for (i in 1:NCOL) PRED[, i] <- pred > thresholds[i]
+            F <- numeric()
+            H <- numeric()
+            Vmax <- numeric()
+            V <- matrix(nrow = length(cl), ncol = ncol(PRED))
+            n <- length(pred)
+            for (i in 1:ncol(PRED)) {
+                A <- table(data.frame(obs, PRED[, i]))
+                a <- try(A[2, 2], silent = TRUE)
+                b <- try(A[1, 2], silent = TRUE)
+                c <- try(A[2, 1], silent = TRUE)
+                d <- try(A[1, 1], silent = TRUE)
+                if (class(a) == "try-error")
+                  a <- NA
+                if (class(b) == "try-error")
+                  b <- NA
+                if (class(c) == "try-error")
+                  c <- NA
+                if (class(d) == "try-error")
+                  d <- NA
+                F[i] <- b/(b + d)
+                H[i] <- a/(a + c)
+                V1 <- (1 - F[i]) - s/(1 - s) * (1 - cl)/cl *
+                  (1 - H[i])
+                V2 <- H[i] - (1 - s)/s * cl/(1 - cl) * F[i]
+                VV <- numeric(length(cl))
+                VV[cl < s] <- V1[cl < s]
+                VV[cl >= s] <- V2[cl >= s]
+                V[, i] <- VV
+                Vmax[i] <- H[i] - F[i]
+            }
+        }
+    }
+    if (plot) {
+        if (!all)
+            V <- apply(V, 1, max)
+        matplot(cl, V, type = "l", ylim = ylim, xlim = xlim,
+            ...)
+        if (all)
+            lines(cl, apply(V, 1, max), lwd = 2)
+        abline(h = 0)
+        abline(v = s, lty = 2, lwd = 0.4)
+    }
+    (aa <- list(vmax = Vmax, V = V, F = F, H = H, cl = cl, s = s,
+        n = n))
+    invisible(aa)
+}

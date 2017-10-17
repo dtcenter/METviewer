@@ -64,7 +64,7 @@
           primary: "ui-icon-circle-plus"
         }
       }).click(function () {
-        addFixedVarRhist();
+        addFixedVarHist();
       });
 
       $("#plot_data").multiselect({
@@ -135,13 +135,13 @@
         selectedList: 100, // 0-based index
         noneSelectedText: "Select value",
         click: function () {
-          updateSeriesRhist();
+          updateSeriesHist();
         },
         checkAll: function () {
-          updateSeriesRhist();
+          updateSeriesHist();
         },
         uncheckAll: function () {
-          updateSeriesRhist();
+          updateSeriesHist();
         }
       });
 
@@ -164,7 +164,7 @@
           primary: "ui-icon-circle-plus"
         }
       }).click(function () {
-        addSeriesVarRhist();
+        addSeriesVarHist();
       });
 
 
@@ -176,7 +176,7 @@
         disabled: true
       }).click(function () {
         removeSeriesVarCommon($(this).attr('id'));
-        updateSeriesRhist();
+        updateSeriesHist();
       });
       $(".remove_fixed_var").button({
         icons: {
@@ -205,7 +205,7 @@
 
       } else {
         updateForecastVariables();
-        updateSeriesVarValRhist(1, []);
+        updateSeriesVarValHist(1, []);
         $.each(fix_var_value_to_title_stat_map, function (key, val) {
           $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
         });

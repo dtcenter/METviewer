@@ -56,6 +56,7 @@ public class MVLoad {
   private static int modeCtsRecords = 0;
   private static int modeObjSingleRecords = 0;
   private static int modeObjPairRecords = 0;
+  private static String dbType= "mysql";
 
 
 
@@ -69,24 +70,25 @@ public class MVLoad {
 
     try {
 
-      String strXML;
-
       //  parse the input arguments
-      if (1 > argv.length || 2 < argv.length) {
+      if (1 > argv.length ) {
         logger.info(getUsage() + "\n\n----  MVLoad Done  ----");
         return;
       }
-      if (2 == argv.length) {
+
+      int intArg = 0;
+      for (; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++) {
         if ("-index".equalsIgnoreCase(argv[0])) {
-          indexOnly = true;
+                  indexOnly = true;
+
+        } else if (argv[intArg].equals("mysql")) {
+          dbType = "mysql";
         } else {
-          logger.error("ERROR: unrecognized argument \"" + argv[1] + "\"\n" + getUsage() + "\n\n----  MVLoad Done  ----");
+          logger.error("  **  ERROR: unrecognized option '" + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
-        strXML = argv[1];
-      } else {
-        strXML = argv[0];
       }
+      String strXML = argv[intArg];
 
       //  parse the plot job
       logger.info("Begin time: " + format.format(new Date()));
@@ -95,7 +97,9 @@ public class MVLoad {
       MVLoadJob job = parser.getLoadJob();
       DatabaseInfo databaseInfo = new DatabaseInfo( job.getDBHost(), job.getDBUser(), job.getDBPassword());
       databaseInfo.setDbName(job.getDBName());
-      mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo);
+      if(dbType.equals("mysql")) {
+        mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo);
+      }
 
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();

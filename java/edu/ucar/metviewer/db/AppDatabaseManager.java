@@ -18,17 +18,16 @@ import java.util.List;
  */
 public interface AppDatabaseManager {
 
-  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal, boolean verbose) throws Exception;
+  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal,PrintStream printStreamSQL) throws Exception;
 
   List<String> buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception;
 
-  boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName);
+  boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName) throws Exception;
 
-  String buildAndExecuteQueriesForRhistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm, PrintStream printStream, PrintStream printStreamSql) throws Exception;
-
-  String buildAndExecuteQueriesForPhistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
+  String buildAndExecuteQueriesForHistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
 
   int buildAndExecuteQueriesForRocRelyJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
+  int buildAndExecuteQueriesForEclvJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
 
   DatabaseInfo getDatabaseInfo();
 

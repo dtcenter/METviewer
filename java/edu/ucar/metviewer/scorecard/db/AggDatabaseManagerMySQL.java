@@ -28,7 +28,7 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerMySQL {
   }
 
   @Override
-  protected String getSelectFields(String table) {
+  protected String getSelectFields(String table, Integer thresh) {
     String result = "";
     if (table.endsWith(MVUtil.CTC)) {
       result = "total, fy_oy,fy_on,fn_oy,fn_on";
@@ -36,8 +36,21 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerMySQL {
       result = "total,fbar,obar,fobar,ffbar,oobar,mae";
     } else if (table.endsWith(MVUtil.SAL1L2)) {
       result = "total,fabar,oabar,foabar,ffabar,ooabar,mae";
-    }else if (table.endsWith(MVUtil.VL1L2)){
+    } else if (table.endsWith(MVUtil.VL1L2)) {
       result = "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar";
+    } else if (table.endsWith(MVUtil.PCT)) {
+
+      result = "total,(line_data_pct.n_thresh - 1)";
+      for (int i = 1; i < thresh; i++) {
+        result += ",";
+        if (i < thresh - 1) {
+          result += "  FORMAT((ldt" + i + ".thresh_i + ldt" + (i + 1) + ".thresh_i)/2, 3),";
+        } else {
+          result += "  FORMAT((ldt" + i + ".thresh_i + 1)/2, 3),";
+        }
+        result += "  ldt" + i + ".oy_i," +
+          "  ldt" + i + ".on_i";
+      }
     }
     return result;
   }

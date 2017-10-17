@@ -66,7 +66,7 @@
             text: false,
             disabled: true
         }).click(function () {
-            removeFixedVarRhist($(this).attr('id'));
+            removeFixedVarHist($(this).attr('id'));
         });
 
         $("#fixed_var_1").multiselect({
@@ -111,7 +111,7 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-            addFixedVarRhist();
+            addFixedVarHist();
         });
 
         $("#series_var_y1_1").multiselect({

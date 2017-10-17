@@ -11,17 +11,17 @@
 Compute_STDerr_from_median_no_variance_inflation_factor <- function ( data, method )
 {
 
-   if ( IQR(data) > 0.0 & length(data) > 2 ) {
+   if ( IQR(data, na.rm = TRUE) > 0.0 &  (length(data) - sum(is.na(data))) > 2 ) {
 
       ## Compute the Standard Error using the variance inflation factor.
-      STDerr_data <- ( IQR(data) * sqrt(pi/2.) ) / ( 1.349 * sqrt( length(data) ) )
+      STDerr_data <- ( IQR(data, na.rm = TRUE) * sqrt(pi/2.) ) / ( 1.349 * sqrt( length(data) - sum(is.na(data)) ) )
 
    } else {
 
       STDerr_data = 0.0;
    }
 
-   return ( c(STDerr_data, 0, 0, length(data)) );
+   return ( c(STDerr_data, 0, 0, length(data) - sum(is.na(data)) ) );
 
 }
 
@@ -30,7 +30,7 @@ Compute_STDerr_from_median_variance_inflation_factor <- function ( data, method 
 
    RATIO_flag = 0;     ## Problem computing the vif ratio?
 
-   if ( IQR(data) > 0.0 & length(data) > 2 ) {
+   if ( IQR(data , na.rm = TRUE) > 0.0 & (length(data) - sum(is.na(data))) > 2 ) {
 
       ## Compute the first order auto-correlation coefficient
       ## using a vector that is the same size as "data", but represents
@@ -102,7 +102,7 @@ Compute_STDerr_from_mean <- function ( data, method )
 
    RATIO_flag = 0;     ## Problem computing the vif ratio?
 
-   if ( var(data) > 0.0 & length(data) > 2 ) {
+   if ( var(data, na.rm = TRUE) > 0.0 & (length(data) - sum(is.na(data))) > 2 ) {
 
       ## Compute the first order auto-correlation coefficient.
       data.arima <- arima( data, order=c(1,0,0), method=method )

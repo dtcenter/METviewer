@@ -478,4 +478,4 @@ mtext(
 
 #<plot_cmd>#
 
-dev.off();
+invisible(dev.off());

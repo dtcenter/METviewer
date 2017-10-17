@@ -53,8 +53,8 @@ public class Scorecard {
   private String plotStat = "median";
   private String statFlag = "NCAR";
 
-  private static final String USAGE = "USAGE:  mv_scorecard.sh <scorecard_spec_file>\n" +
-    "                    where <scorecard_spec_file> specifies the XML scorecard specification document\n";
+  private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
+    "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
 
   public Boolean getPrintSQL() {
     return printSQL;
@@ -228,12 +228,21 @@ public class Scorecard {
   public static void main(String[] args) throws Exception {
     long nanos = System.nanoTime();
     String filename;
+    String dbType = "mysql";
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
       logger.info(USAGE);
 
     } else {
-      filename = args[0];
+
+      int intArg = 0;
+           for (; intArg < args.length && !args[intArg].matches(".*\\.xml$"); intArg++) {
+              if (args[intArg].equals("mysql")) {
+                dbType = "mysql";
+             }
+           }
+
+      filename = args[intArg];
       XmlParser xmlParser = new XmlParser();
       // parce XML and init parameters
       Scorecard scorecard = xmlParser.parseParameters(filename);
@@ -244,18 +253,22 @@ public class Scorecard {
       boolean isValid = scorecard.validate();
       if (isValid) {
 
-        DatabaseManager scorecardDbManager;
-        RscriptManager rscriptManager;
+        DatabaseManager scorecardDbManager = null;
+        RscriptManager rscriptManager = null;
         //create a list of each row with statistic as a key and columns
         List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
 
         //depending on stat type init mangers
         if (scorecard.getAggStat()) {
-          scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
-          rscriptManager = new AggRscriptManager(scorecard);
+          if(dbType.equals("mysql")) {
+            scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
+            rscriptManager = new AggRscriptManager(scorecard);
+          }
         } else {
-          scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
-          rscriptManager = new SumRscriptManager(scorecard);
+          if(dbType.equals("mysql")) {
+            scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
+            rscriptManager = new SumRscriptManager(scorecard);
+          }
         }
         int rowCounter = 1;
         //for each row calculate statistics in the individual cell

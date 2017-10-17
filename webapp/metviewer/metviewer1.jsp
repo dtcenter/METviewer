@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v2.1</TITLE>
+<TITLE>METViewer v2.2</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -257,8 +257,8 @@
                             updateStats("y2", 1, []);
                             updateSeriesVarVal("y1", 1, []);
                             updateSeriesVarVal("y2", 1, []);
-                        } else if (currentTab == 'Rhist' || currentTab == 'Phist' || currentTab == 'Roc' || currentTab == 'Rely' ) {
-                            updateSeriesVarValRhist(1, []);
+                        } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist' || currentTab == 'Eclv') {
+                            updateSeriesVarValHist(1, []);
                             for (i = 0; i < fixed_var_indexes.length; i++) {
                                 values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
                                 updateFixedVarValHist(fixed_var_indexes[i], values);
@@ -266,9 +266,8 @@
                             if (currentTab == 'Rely') {
                                 updateSeriesRely();
                             } else {
-                                updateSeriesRhist();
+                                updateSeriesHist();
                             }
-
                         } else if (currentTab == 'Ens_ss') {
 
                             for (i = 0; i < series_var_y1_indexes.length; i++) {
@@ -303,7 +302,7 @@
 
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
-        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.1<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
+        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.2<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
 
         </div>
         <label for="database">Database:</label><select id="database">
@@ -349,13 +348,13 @@
             <li><a href="plotJSP/series.jsp">Series</a></li>
             <li><a href="plotJSP/box.jsp">Box</a></li>
             <li><a href="plotJSP/bar.jsp">Bar</a></li>
-            <li><a href="plotJSP/rhist.jsp">Rhist</a></li>
-            <li><a href="plotJSP/phist.jsp">Phist</a></li>
             <li><a href="plotJSP/roc.jsp">Roc</a></li>
             <li><a href="plotJSP/rely.jsp">Rely</a></li>
             <li><a href="plotJSP/ens_ssl.jsp">Ens_ss</a></li>
             <li><a href="plotJSP/performance.jsp">Perf</a></li>
             <li><a href="plotJSP/taylor.jsp">Taylor</a></li>
+            <li><a href="plotJSP/hist.jsp">Hist</a></li>
+            <li><a href="plotJSP/eclv.jsp">Eclv</a></li>
         </ul>
 
 

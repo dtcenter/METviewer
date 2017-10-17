@@ -23,7 +23,7 @@ public class SumDatabaseManagerMySQL extends DatabaseManagerMySQL {
   }
 
   @Override
-  protected String getSelectFields(String table) {
+  protected String getSelectFields(String table, Integer thresh) {
     return "'NA' stat_ncl,'NA' stat_ncu,'NA' stat_bcl,'NA' stat_bcu";
   }
 

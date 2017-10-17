@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author : tatiana $
@@ -36,6 +37,15 @@ public class HtmlImageGenerator {
     editorPane.putClientProperty(JEditorPane.W3C_LENGTH_UNITS, Boolean.FALSE);
     editorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
     editorPane.setOpaque(true);
+    Font font;
+    try {
+      InputStream is = getClass().getResourceAsStream("l_10646.ttf");
+      font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 14);
+    } catch (FontFormatException | IOException e) {
+      font = new Font("SansSerif", Font.PLAIN, 14);
+      logger.error(e.getMessage());
+    }
+    editorPane.setFont(font);
   }
 
 

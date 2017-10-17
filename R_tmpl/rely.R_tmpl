@@ -238,6 +238,8 @@ env$listCal=list();
 env$dblNoSkillB=list();
 env$o_bar=list();
 
+intCurveNum = 0;
+
 if(length(listSeries1Val) > 0){
   for(intPermVal in 1:nrow(matPermVal)){
     seriesLegend="";
@@ -253,15 +255,17 @@ if(length(listSeries1Val) > 0){
     seriesLegend = paste(seriesLegend,'Reliability Curve');
     legend=append(legend, seriesLegend);
     initSeries(dfPerm,envir=env, intPermVal);
+    intCurveNum = intPermVal;
   }
 }else{
   dfPerm = dfPct;
   legend=append(legend, 'Reliability Curve');
   initSeries(dfPerm,envir=env);
+  intCurveNum = 1;
 }
 
 if(length(listStatisticsCurvs) > 0){
-  intPermVal = intPermVal + 1;
+  intPermVal = intCurveNum + 1;
     for(index in 1:length(listStatisticsCurvs)){
       groupStats_oy_i = aggregate(oy_i ~ thresh_i, data = dfPct, FUN = listStatisticsCurvs[index]);
       groupStats_on_i = aggregate(on_i ~ thresh_i, data = dfPct, FUN = listStatisticsCurvs[index]);
@@ -469,4 +473,4 @@ mtext(
 
 #<plot_cmd>#
 
-dev.off();
+invisible(dev.off());

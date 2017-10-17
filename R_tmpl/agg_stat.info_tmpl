@@ -6,6 +6,7 @@ boolAggSal1l2 = #<agg_sal1l2>#;
 boolAggNbrCnt = #<agg_nbrcnt>#;
 boolAggSsvar = #<agg_ssvar>#;
 boolAggVl1l2 = #<agg_vl1l2>#;
+boolAggPct = #<agg_pct>#;
 boolEventEqual = #<event_equal>#;
 boolEveqDis = #<eveq_dis>#;
 intNumReplicates = #<boot_repl>#;
@@ -43,3 +44,5 @@ listDiffSeries2=#<series2_diff_list>#;
 listDep1Plot = #<dep1_plot>#;
 
 listDep2Plot = #<dep2_plot>#;
+
+clStep = #<cl_step>#;

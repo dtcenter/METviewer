@@ -29,19 +29,19 @@ public class AggRscriptManager extends RscriptManager {
   private static final Logger logger = LogManager.getLogger("AggRscriptManager");
   private final String strAggInfo;
   private final String aggStatTemplFilePath;
-  private final String aggStatTemplScript;
+  private final String aggStatTemplScriptDir;
   private final String aggStatDataFilePath;
 
   private final Map<String, String> tableAggStatInfoCommon;
 
-  private static final String SCRIPT_FILE_NAME = "/include/agg_stat.R";
+  private static final String STAT_SCRIPT_FILE_NAME = "/include/agg_stat.R";
 
 
   public AggRscriptManager(final Scorecard scorecard) {
     super(scorecard);
     strAggInfo = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile().replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
-    aggStatTemplFilePath = scorecard.getWorkingFolders().getrTemplateDir() + "/agg_stat.info_tmpl";
-    aggStatTemplScript = scorecard.getWorkingFolders().getrWorkDir() + SCRIPT_FILE_NAME;
+    aggStatTemplFilePath = scorecard.getWorkingFolders().getrTemplateDir();
+    aggStatTemplScriptDir = scorecard.getWorkingFolders().getrWorkDir();
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile();
 
 
@@ -57,9 +57,11 @@ public class AggRscriptManager extends RscriptManager {
     tableAggStatInfoCommon.put("agg_stat2", "c()");
     tableAggStatInfoCommon.put("series2_list", "list()");
     tableAggStatInfoCommon.put("fix_val_list_eq", "list()");
+    tableAggStatInfoCommon.put("fix_val_list", "list()");
     tableAggStatInfoCommon.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
     tableAggStatInfoCommon.put("series2_diff_list", "list()");
     tableAggStatInfoCommon.put("dep2_plot", "c()");
+    tableAggStatInfoCommon.put("cl_step", "0.05");
 
     tableAggStatInfoCommon.put("agg_stat_output", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
     String seed = "NA";
@@ -109,12 +111,20 @@ public class AggRscriptManager extends RscriptManager {
       lastDot = strAggInfo.lastIndexOf('.');
       String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo.substring(lastDot);
 
-      try(PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
-                                                     .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                     .buildPrintStream()) {
-        MVUtil.populateTemplateFile(aggStatTemplFilePath, thredInfoFileName, tableAggStatInfo);
+      try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
+        .setLevel(org.apache.logging.log4j.Level.INFO)
+        .buildPrintStream()) {
+
+        String aggStatTemplScript;
+        String aggStatTemplFile;
+
+        aggStatTemplScript = aggStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
+        aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
+
+        MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
         //  run agg_stat/
         MVUtil mvUtil = new MVUtil();
+
 
         mvUtil.runRscript(rScriptCommand, aggStatTemplScript, new String[]{thredInfoFileName}, printStream);
       } catch (Exception e) {
@@ -144,6 +154,12 @@ public class AggRscriptManager extends RscriptManager {
     } else {
       tableAggStatInfo.put("agg_vl1l2", String.valueOf(Boolean.FALSE).toUpperCase());
     }
+    if (stat.equals(MVUtil.PCT)) {
+      tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.TRUE).toUpperCase());
+    } else {
+      tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.FALSE).toUpperCase());
+    }
+
   }
 
 }
