@@ -178,7 +178,8 @@ module.exports = function () {
 
     this.Then(/^a plot should appear$/, function () {
         browser.waitForVisible("[id='modal']", 1000);
-        browser.waitForVisible("[id='modal']", 20000, true);
+        browser.waitForVisible("[id='modal']", 30000, true);
+        browser.pause(15000);
     });
 
     this.Then(/^debug$/, {timeout: 480 * 1000}, function () {

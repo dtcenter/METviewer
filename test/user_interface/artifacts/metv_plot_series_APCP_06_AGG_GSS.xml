@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <plot_spec>
     <connection>
-        <host>dakota.rap.ucar.edu:3306</host>
+        <host>hwp-vdbdev.pwx.noaa.gov</host>
         <database>mv_scorecard</database>
-        <user>******</user>
-        <password>******</password>
+        <user>metviewer</user>
+        <password>M3tV1eW3r2015!</password>
     </connection>
-    <rscript>/usr/local/bin/Rscript</rscript>
+    <rscript>/bin/Rscript</rscript>
     <folders>
-        <r_tmpl>/opt/vxwww/tomcat/webapps/metviewer_dev/R_tmpl</r_tmpl>
-        <r_work>/opt/vxwww/tomcat/webapps/metviewer_dev/R_work</r_work>
-        <plots>/opt/vxwww/tomcat/webapps/metviewer_output_dev/plots</plots>
-        <data>/opt/vxwww/tomcat/webapps/metviewer_output_dev/data</data>
-        <scripts>/opt/vxwww/tomcat/webapps/metviewer_output_dev/scripts</scripts>
+        <r_tmpl>/usr/share/tomcat/webapps/metviewer/R_tmpl</r_tmpl>
+        <r_work>/usr/share/tomcat/webapps/metviewer/R_work</r_work>
+        <plots>/usr/share/tomcat/webapps/metviewer_output/plots</plots>
+        <data>/usr/share/tomcat/webapps/metviewer_output/data</data>
+        <scripts>/usr/share/tomcat/webapps/metviewer_output/scripts</scripts>
     </folders>
     <plot>
         <template>series_plot.R_tmpl</template>
