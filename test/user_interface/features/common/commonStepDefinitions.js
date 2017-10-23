@@ -35,11 +35,28 @@ module.exports = function () {
         browser.click("a=" + text);
     });
 
+    this.Then(/^I scroll the plot div to the bottom$/, function () {
+        browser.execute(function () {
+            var plotDiv = document.getElementById('plot_config');
+            plotDiv.scrollTop = plotDiv.scrollHeight;
+        });
+    });
 
+    this.Then(/^I scroll the plot div to the top$/, function () {
+        browser.execute(function () {
+            var plotDiv = document.getElementById('plot_config');
+            plotDiv.scrollTop = 0;
+        });
+    });
 
+    this.Then(/^I scroll the plot div to the middle$/, function () {
+        browser.execute(function () {
+            var plotDiv = document.getElementById('plot_config');
+            plotDiv.scrollTop = plotDiv.scrollHeight / 2;
+        });
+    });
 
     //--------------------------------------------------------------------------------------------------------
-
 
     const menuIdNames = {
         "Y1 Dependent" : "dependent_var_table_y1",
