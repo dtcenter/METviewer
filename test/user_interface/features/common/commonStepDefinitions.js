@@ -127,8 +127,6 @@ module.exports = function () {
         } else {
             target = 'table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(2) > button[type="button"]';
         }
-        console.log('scrolling to bottom');
-        browser.scroll('#ui-id-19 > div',0,0);
         browser.scroll(target);
         browser.click(target);
     });
