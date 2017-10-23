@@ -44,7 +44,16 @@ module.exports = function () {
     const menuIdNames = {
         "Y1 Dependent" : "dependent_var_table_y1",
         "Y1 Series" : "series_var_table_y1",
-        "Independent Variable" : "indy_var_table"
+        "Independent Variable" : "indy_var_table",
+        "Fixed Value" : "fixed_var_table",
+        "Statistics" : "aggregation_statistics"
+    };
+
+    /* translate literal names to CSS selectors.
+        CSS selectors can b determined with the debugger. Rigth click an element and copy the CSS path.
+     */
+    const menuCSS = {
+        "Statistics Button":"#calculations_statistics > table > tbody > tr > td:nth-child(1) > button"
     };
 
     this.Given(/^I load the app at "([^"]*)"$/, function (url) {
@@ -72,31 +81,69 @@ module.exports = function () {
         browser.click('*=' + tabName);
     });
 
+    this.When(/^I click the "([^"]*)" element by CSS selector and wait up to (\d+) milliseconds$/, function (menuCSSReference, millis) {
+        browser.click(menuCSS[menuCSSReference]);
+    });
+
+    this.Then(/^the "([^"]*)" element value by CSS selector is "([^"]*)"$/, function (menuCSSReference, value) {
+        var text = browser.getText(menuCSS[menuCSSReference]);
+        assert(text === value, "value " + value + " does not appear to be selected.");
+    });
+
     this.When(/^I click the "([^"]*)" variable menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
         var menuName = menuIdNames[menuId];
+        var target = "";
         if (menuId === "Independent Variable") {
-            browser.scroll('table#' + menuName + ' td:nth-child(1) > button[type="button"]');
-            browser.click('table#' + menuName + ' td:nth-child(1) > button[type="button"]');
+            target = 'table#' + menuName + ' td:nth-child(1) > button[type="button"]';
         } else {
-            browser.scroll('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
-            browser.click('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+            target = 'table#' + menuName + ' td:nth-child(2) > button[type="button"]';
         }
+        browser.scroll(target);
+        browser.click(target);
+    });
+
+    this.When(/^I click the "([^"]*)" (\d+) variable menu and wait up to (\d+) milliseconds$/, function (menuId, itemNumber, millis) {
+        var menuName = menuIdNames[menuId];
+        var target = "";
+        if (menuId === "Independent Variable") {
+            target = 'table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(1) > button[type="button"]';
+        } else {
+            target = 'table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(2) > button[type="button"]';
+        }
+        browser.scroll(target);
+        browser.click(target);
     });
 
     this.When(/^I click the "([^"]*)" attribute menu and wait up to (\d+) milliseconds$/, function (menuId, millis) {
         var menuName = menuIdNames[menuId];
+        var target = "";
         if (menuId === "Independent Variable") {
-            browser.scroll('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
-            browser.click('table#' + menuName + ' td:nth-child(2) > button[type="button"]');
+            target = 'table#' + menuName + ' td:nth-child(2) > button[type="button"]';
         } else {
-            browser.scroll('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
-            browser.click('table#' + menuName + ' td:nth-child(3) > button[type="button"]');
+            target = 'table#' + menuName + ' td:nth-child(3) > button[type="button"]';
         }
+        browser.scroll(target);
+        browser.click(target);
+    });
+
+    this.When(/^I click the "([^"]*)" (\d+) attribute menu and wait up to (\d+) milliseconds$/, function (menuId, itemNumber, millis) {
+        var menuName = menuIdNames[menuId];
+        var target = "";
+        if (menuId === "Independent Variable") {
+            target = 'table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(2) > button[type="button"]';
+        } else {
+            target = 'table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(3) > button[type="button"]';
+        }
+        browser.scroll(target);
+        browser.click(target);
     });
 
     this.Then(/^I select the "([^"]*)" variable menu option and wait up to (\d+) milliseconds$/, function (varName, millis) {
+        varName = varName.trim();
         var visibles = browser.isVisible("span=" + varName);
-        if (visibles.length > 1) {
+        if (! (visibles instanceof Array)) {visibles = [visibles];}
+        var trueVisibles = visibles.filter(function(e){return e === true;});
+        if (visibles.length > 1 && trueVisibles.length > 0) {
             var visIndex = visibles.findIndex(function (e) {
                 return e == true
             });
@@ -120,6 +167,16 @@ module.exports = function () {
         assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
     });
 
+    this.Then(/^the "([^"]*)" (\d+) variable menu value is "([^"]*)"$/, function (menuId, itemNumber, menuValue) {
+        var menuName = menuIdNames[menuId];
+        if (menuId === "Independent Variable") {
+            var menuText = browser.getText('table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(1) > button[type="button"]');
+        } else {
+            var menuText = browser.getText('table#' + menuName +   ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(2) > button[type="button"]');
+        }
+        assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
+    });
+
     this.Then(/^the "([^"]*)" attribute menu value is "([^"]*)"$/, function (menuId, menuValue) {
         var menuName = menuIdNames[menuId];
         if (menuId === "Independent Variable") {
@@ -130,13 +187,26 @@ module.exports = function () {
         assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
     });
 
+    this.Then(/^the "([^"]*)" (\d+) attribute menu value is "([^"]*)"$/, function (menuId, itemNumber, menuValue) {
+        var menuName = menuIdNames[menuId];
+        if (menuId === "Independent Variable") {
+            var menuText = browser.getText('table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(2) > button[type="button"]');
+        } else {
+            var menuText = browser.getText('table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(3) > button[type="button"]');
+        }
+        assert(menuText === menuValue, "menu text " + menuValue + " does not appear to be selected.");
+    });
+
     this.Then(/^I check the "([^"]*)" attribute menu option check box and wait up to (\d+) milliseconds$/, function (varName, millis) {
+        varName = varName.trim();
         var visibles = browser.isVisible("span=" + varName);
-        if (visibles.length > 1) {
+        if (! (visibles instanceof Array)) {visibles = [visibles];}
+        var trueVisibles = visibles.filter(function(e){return e === true;});
+        if (visibles.length > 1 && trueVisibles.length > 0) {
             var visIndex = visibles.findIndex(function (e) {
                 return e == true
             });
-            var elems = browser.elements("span=" + varName);
+            var elems = browser.elements("span*=" + varName);
             var visElem = elems.value[visIndex];
             visElem.scroll();
             visElem.click();
@@ -157,13 +227,8 @@ module.exports = function () {
     });
 
     this.Then(/^I click the "([^"]*)" button and wait up to (\d+) milliseconds$/, function (buttonName, millis) {
-        var visibles = browser.isVisible("span=" + buttonName);
-        var visIndex = visibles.findIndex(function(e){
-            return e==true
-        });
-        var elems = browser.elements("span=" + buttonName);
-        var visElem = elems.value[visIndex];
-        visElem.click();
+        browser.scroll("span=" + buttonName);
+        browser.click("span=" + buttonName);
     });
 
     this.When(/^I click the Aggregation Statistics radio button and wait up to (\d+) milliseconds$/, function (millis) {
