@@ -11,7 +11,7 @@ progress: appends one '.' for each feature as they run - gives a summary.\n
 snippets:  prints only the code snippets for undefined steps.\n
 summary: prints summary after all the scenarios are executed."
 
-export metViewerUrl="http://hwp-metvdev.gsd.esrl.noaa.gov:8080/metviewer/metviewer1.jsp"
+export metViewerUrl="http://www.dtcenter.org/met/metviewer/metviewer1.jsp"
 export feature="all"
 export outputFormat="summary"
 export browser="chrome"
