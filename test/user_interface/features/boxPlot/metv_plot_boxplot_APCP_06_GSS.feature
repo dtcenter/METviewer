@@ -1,12 +1,12 @@
-Feature: Plot Timeseries APCP_06 over CONUS
+Feature: Plot Box Plot APCP_06 over CONUS
 
-  This scenario plots a timeseries APCP_06 over CONUS.
+  This scenario plots a boxplot APCP_06 over CONUS.
 
   Background:
     Given I load the app at "http://www.dtcenter.org/met/metviewer/metviewer1.jsp"
     And I select the "mv_scorecard" database
     And the selected database is "mv_scorecard"
-    And I choose the plot type "Series"
+    And I choose the plot type "Box"
     And I click the "Y1 Axis variables" tab
 
   @watch
@@ -67,11 +67,9 @@ Feature: Plot Timeseries APCP_06 over CONUS
     Then I check the "360000" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
     Then the "Independent Variable" attribute menu value is "60000, 120000, 180000, 240000, 300000, 360000"
-
-    When I click the Summary radio button and wait up to 500 milliseconds
     When I click the "Summary Statistics Button" element by CSS selector and wait up to 500 milliseconds
-    Then I click the "Contingency table count (CTC)" button and wait up to 500 milliseconds
-    And the "Summary Statistics Button" element value by CSS selector is "Contingency table count (CTC)"
+    Then I click the "None" button and wait up to 500 milliseconds
+    And the "Summary Statistics Button" element value by CSS selector is "None"
 
     When I click the Generate Plot button and wait up to 5000 milliseconds
 #    Then debug

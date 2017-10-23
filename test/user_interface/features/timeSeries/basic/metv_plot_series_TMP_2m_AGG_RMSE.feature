@@ -1,6 +1,6 @@
-Feature: Plot Timeseries APCP_06 over CONUS
+Feature: Plot Timeseries TMP 2m AGG RMSE
 
-  This scenario plots a timeseries APCP_06 over CONUS.
+  This scenario plots a timeseries 2 meter temperature aggregate RMSE over CONUS.
 
   Background:
     Given I load the app at "http://www.dtcenter.org/met/metviewer/metviewer1.jsp"
@@ -12,13 +12,13 @@ Feature: Plot Timeseries APCP_06 over CONUS
   @watch
   Scenario: plotTimeseries
     When I click the "Y1 Dependent" variable menu and wait up to 500 milliseconds
-    Then I select the "APCP_06" variable menu option and wait up to 2000 milliseconds
-    And the "Y1 Dependent" variable menu value is "APCP_06"
+    Then I select the "TMP" variable menu option and wait up to 2000 milliseconds
+    And the "Y1 Dependent" variable menu value is "TMP"
 
     When I click the "Y1 Dependent" attribute menu and wait up to 500 milliseconds
-    Then I check the "GSS" attribute menu option check box and wait up to 2000 milliseconds
+    Then I check the "RMSE" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
-    Then the "Y1 Dependent" attribute menu value is "GSS"
+    Then the "Y1 Dependent" attribute menu value is "RMSE"
 
     When I click the "Y1 Series" 1 variable menu and wait up to 500 milliseconds
     Then I select the "MODEL" variable menu option and wait up to 2000 milliseconds
@@ -28,20 +28,6 @@ Feature: Plot Timeseries APCP_06 over CONUS
     Then I check the "sasctrl_0p25_G218" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
     Then the "Y1 Series" 1 attribute menu value is "sasctrl_0p25_G218"
-
-    Then I click the "Series Variable" button and wait up to 500 milliseconds
-
-    When I click the "Y1 Series" 2 variable menu and wait up to 500 milliseconds
-    Then I select the "FCST_THRESH" variable menu option and wait up to 2000 milliseconds
-
-    And the "Y1 Series" 2 variable menu value is "FCST_THRESH"
-
-    When I click the "Y1 Series" 2 attribute menu and wait up to 500 milliseconds
-    Then I check the ">0.254" attribute menu option check box and wait up to 2000 milliseconds
-    Then I check the ">2.540" attribute menu option check box and wait up to 2000 milliseconds
-    Then I check the ">6.350" attribute menu option check box and wait up to 2000 milliseconds
-    And I click the x button and wait up to 500 milliseconds
-    Then the "Y1 Series" 2 attribute menu value is ">0.254, >2.540, >6.350"
 
     Then I click the "Fixed Value" button and wait up to 500 milliseconds
     Then I scroll the plot div to the bottom
@@ -53,6 +39,28 @@ Feature: Plot Timeseries APCP_06 over CONUS
     Then I check the "CONUS" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
     Then the "Fixed Value" 1 attribute menu value is "CONUS"
+
+    Then I click the "Fixed Value" button and wait up to 500 milliseconds
+    Then I scroll the plot div to the bottom
+    Then I click the "Fixed Value" 2 variable menu and wait up to 500 milliseconds
+    Then I select the "FCST_LEV" variable menu option and wait up to 2000 milliseconds
+    And the "Fixed Value" 2 variable menu value is "FCST_LEV"
+    Then I scroll the plot div to the middle
+    When I click the "Fixed Value" 2 attribute menu and wait up to 500 milliseconds
+    Then I check the "Z2" attribute menu option check box and wait up to 2000 milliseconds
+    And I click the x button and wait up to 500 milliseconds
+    Then the "Fixed Value" 2 attribute menu value is "Z2"
+
+    Then I click the "Fixed Value" button and wait up to 500 milliseconds
+    Then I scroll the plot div to the bottom
+    Then I click the "Fixed Value" 3 variable menu and wait up to 500 milliseconds
+    Then I select the "INIT_HOUR" variable menu option and wait up to 2000 milliseconds
+    And the "Fixed Value" 3 variable menu value is "INIT_HOUR"
+    Then I scroll the plot div to the middle
+    When I click the "Fixed Value" 3 attribute menu and wait up to 500 milliseconds
+    Then I check the "00" attribute menu option check box and wait up to 2000 milliseconds
+    And I click the x button and wait up to 500 milliseconds
+    Then the "Fixed Value" 3 attribute menu value is "00"
 
     When I click the "Independent Variable" variable menu and wait up to 500 milliseconds
     Then I click the "FCST_LEAD" button and wait up to 500 milliseconds
@@ -68,10 +76,11 @@ Feature: Plot Timeseries APCP_06 over CONUS
     And I click the x button and wait up to 500 milliseconds
     Then the "Independent Variable" attribute menu value is "60000, 120000, 180000, 240000, 300000, 360000"
 
-    When I click the Summary radio button and wait up to 500 milliseconds
-    When I click the "Summary Statistics Button" element by CSS selector and wait up to 500 milliseconds
-    Then I click the "Contingency table count (CTC)" button and wait up to 500 milliseconds
-    And the "Summary Statistics Button" element value by CSS selector is "Contingency table count (CTC)"
+    When I click the Aggregation Statistics radio button and wait up to 500 milliseconds
+    Then I scroll the plot div to the bottom
+    Then I click the "Aggregation Statistics Button" element by CSS selector and wait up to 500 milliseconds
+    Then I click the "Scalar partial sums (SL1L2)" button and wait up to 500 milliseconds
+    And the "Aggregation Statistics Button" element value by CSS selector is "Scalar partial sums (SL1L2)"
 
     When I click the Generate Plot button and wait up to 5000 milliseconds
 #    Then debug
