@@ -45,7 +45,7 @@ Feature: Plot Timeseries APCP_06 over CONUS
 
     Then I click the "Fixed Value" button and wait up to 500 milliseconds
     Then I click the "Fixed Value" 1 variable menu and wait up to 500 milliseconds
-
+Then debug
     Then I select the "VX_MASK" variable menu option and wait up to 2000 milliseconds
     And the "Fixed Value" 1 variable menu value is "VX_MASK"
 

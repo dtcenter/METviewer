@@ -110,6 +110,8 @@ module.exports = function () {
         } else {
             target = 'table#' + menuName +  ' tr:nth-child(' + itemNumber + ')' + ' td:nth-child(2) > button[type="button"]';
         }
+        console.log('scrolling to bottom');
+        browser.scroll('#ui-id-19 > div',0,0);
         browser.scroll(target);
         browser.click(target);
     });
@@ -227,7 +229,7 @@ module.exports = function () {
     });
 
     this.Then(/^I click the "([^"]*)" button and wait up to (\d+) milliseconds$/, function (buttonName, millis) {
-        browser.scroll("span=" + buttonName);
+        browser.scroll("span=" + buttonName,0,-10);
         browser.click("span=" + buttonName);
     });
 
