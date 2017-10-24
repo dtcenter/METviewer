@@ -119,6 +119,7 @@ module.exports = function () {
 
     this.Given(/^I choose the plot type "([^"]*)"$/, function (plotType) {
         browser.click('*=' + plotType);
+        browser.pause(2000);
         stepIt();
     });
 
