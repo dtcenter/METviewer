@@ -13,7 +13,7 @@ summary: prints summary after all the scenarios are executed."
 
 export metViewerUrl="http://www.dtcenter.org/met/metviewer/metviewer1.jsp"
 export feature="all"
-export outputFormat="summary"
+export outputFormat="pretty"
 export browser="chrome"
 export name=""
 while getopts "u:f:o:b:n:s:p:" o; do

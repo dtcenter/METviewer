@@ -34,7 +34,7 @@ Feature: Plot Box Plot TMP 2m  RMSE
     Then I click the "Fixed Value" 1 variable menu and wait up to 500 milliseconds
     Then I select the "VX_MASK" variable menu option and wait up to 2000 milliseconds
     And the "Fixed Value" 1 variable menu value is "VX_MASK"
-    Then I scroll the plot div to the middle
+    Then I scroll the plot div to the top
     When I click the "Fixed Value" 1 attribute menu and wait up to 500 milliseconds
     Then I check the "CONUS" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
@@ -45,7 +45,7 @@ Feature: Plot Box Plot TMP 2m  RMSE
     Then I click the "Fixed Value" 2 variable menu and wait up to 500 milliseconds
     Then I select the "FCST_LEV" variable menu option and wait up to 2000 milliseconds
     And the "Fixed Value" 2 variable menu value is "FCST_LEV"
-    Then I scroll the plot div to the middle
+    Then I scroll the plot div to the top
     When I click the "Fixed Value" 2 attribute menu and wait up to 500 milliseconds
     Then I check the "Z2" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
@@ -56,7 +56,7 @@ Feature: Plot Box Plot TMP 2m  RMSE
     Then I click the "Fixed Value" 3 variable menu and wait up to 500 milliseconds
     Then I select the "INIT_HOUR" variable menu option and wait up to 2000 milliseconds
     And the "Fixed Value" 3 variable menu value is "INIT_HOUR"
-    Then I scroll the plot div to the middle
+    Then I scroll the plot div to the top
     When I click the "Fixed Value" 3 attribute menu and wait up to 500 milliseconds
     Then I check the "00" attribute menu option check box and wait up to 2000 milliseconds
     And I click the x button and wait up to 500 milliseconds
