@@ -460,6 +460,15 @@ function getForecastVariablesHist() {
         }
     });
 }
+function getSelectedDatabases() {
+    var selectedDatabase = $("#database").multiselect("getChecked");
+    var databases = "";
+    for (var i = 0; i < selectedDatabase.length; i++) {
+        databases = databases + selectedDatabase[i].value + ",";
+    }
+    databases = databases.slice(0, -1);
+    return databases;
+}
 
 function updateForecastVariables() {
     var i;
@@ -511,14 +520,15 @@ function updateForecastVariables() {
 
 
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var databases = getSelectedDatabases();
+
     $.ajax({
         async: false,
         url: "servlet",
         type: "POST",
         dataType: 'xml',
         processData: false,
-        data: '<request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>FCST_VAR</' + selected_mode + '_field></list_val></request>',
+        data: '<request><db_con>' + databases + '</db_con><list_val><id>0</id><' + selected_mode + '_field>FCST_VAR</' + selected_mode + '_field></list_val></request>',
         error: function () {
         },
         success: function (data) {
@@ -526,15 +536,34 @@ function updateForecastVariables() {
 
             var opt;
             if (values.length > 0) {
+                var options = [];
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
-                    opt = $('<option />', {
-                        value: t.text(),
-                        text: t.text(),
-                        title: value_to_desc_map[t.text()]
-                    });
-                    opt.appendTo(select_y1);
-                    opt.clone().appendTo(select_y2);
+                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        opt = $('<option />', {
+                            value: t.text(),
+                            text: t.text(),
+                            title: value_to_desc_map[t.text()]
+                        });
+                        options.push(opt);
+                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        options[options.length - 1].text(options[options.length - 1].text() + '*');
+                    }
+
+                }
+                var length;
+                var databaseNumbers = $("#database").multiselect("getChecked").length-1;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].text() !== options[i][0].value) {
+                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                        if (length === databaseNumbers) {
+                            options[i].text(options[i][0].value + "*");
+                        } else {
+                            options[i].text(options[i][0].value);
+                        }
+                    }
+                    options[i].appendTo(select_y1);
+                    options[i].clone().appendTo(select_y2);
                 }
                 try {
                     select_y1.multiselect('refresh');
@@ -791,7 +820,8 @@ function updateStats(y_axis, index, selectedVals) {
     //get value of database
 
 
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var databases = getSelectedDatabases();
+
     var selectedVariable;
     try {
         selectedVariable = $("#fcst_var_" + y_axis + "_" + index).multiselect("getChecked").val();
@@ -842,25 +872,42 @@ function updateStats(y_axis, index, selectedVals) {
             url: "servlet",
             type: "POST",
             dataType: 'xml',
-            data: '<request><db_con>' + selectedDatabase + '</db_con><list_stat><id>0</id><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
+            data: '<request><db_con>' + databases + '</db_con><list_stat><id>0</id><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
             error: function () {
             },
             success: function (data) {
                 var values = $(data).find("val");
                 var opt, selected;
+                var options = [];
                 if (values.length > 0) {
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
                         selected = $.inArray(t.text(), selectedVals) >= 0;
-                        opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
-                            title: value_to_desc_map[t.text()],
-                            selected: selected
-                        });
-                        opt.appendTo(fcst_stat_select);
+                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                            opt = $('<option />', {
+                                value: t.text(),
+                                text: t.text(),
+                                title: value_to_desc_map[t.text()],
+                                selected: selected
+                            });
+                            options.push(opt);
+                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                            options[options.length - 1].text(options[options.length - 1].text() + '*');
+                        }
                     }
-
+                    var length;
+                    var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].text() !== options[i][0].value) {
+                            length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                            if (length === databaseNumbers) {
+                                options[i].text(options[i][0].value + "*");
+                            } else {
+                                options[i].text(options[i][0].value);
+                            }
+                        }
+                        options[i].appendTo(fcst_stat_select);
+                    }
                 } else {
                     opt = $('<option />', {
                         value: "N/A",
@@ -897,7 +944,8 @@ function updateSeriesVarValEns(index, selectedVals) {
     var select = $("#series_var_val_y1_" + index);
     select.empty();
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var selectedDatabase = getSelectedDatabases();
+    ;
 
     var selectedSeriesVariable;
     try {
@@ -917,16 +965,35 @@ function updateSeriesVarValEns(index, selectedVals) {
             seriesY1VarValResponse[index] = data;
             var values = $($.parseXML(data)).find("val");
             var opt, selected;
+            var options = [];
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
-                    opt = $('<option />', {
-                        value: t.text(),
-                        text: t.text(),
-                        selected: selected
-                    });
-                    opt.appendTo(select);
+                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        opt = $('<option />', {
+                            value: t.text(),
+                            text: t.text(),
+                            selected: selected
+                        });
+                        options.push(opt);
+                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        options[options.length - 1].text(options[options.length - 1].text() + '*');
+                    }
+                }
+                var length;
+                var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
+
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].text() !== options[i][0].value) {
+                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                        if (length === databaseNumbers) {
+                            options[i].text(options[i][0].value + "*");
+                        } else {
+                            options[i].text(options[i][0].value);
+                        }
+                    }
+                    options[i].appendTo(select);
                 }
                 try {
                     select.multiselect('refresh');
@@ -951,7 +1018,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     var select = $("#series_var_val_" + y_axis + "_" + index);
     select.empty();
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var selectedDatabase = getSelectedDatabases();
     var selected_mode, statst;
     if (currentTab == 'Perf') {
         selected_mode = 'stat';
@@ -987,6 +1054,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
 
             var values = $($.parseXML(data)).find("val");
             var opt, selected;
+            var options = [];
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
@@ -995,13 +1063,30 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
                     } else {
                         selected = $.inArray(t.text(), selectedVals) >= 0;
                     }
+                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        opt = $('<option />', {
+                            value: t.text(),
+                            text: t.text(),
+                            selected: selected
+                        });
+                        options.push(opt);
+                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        options[options.length - 1].text(options[options.length - 1].text() + '*');
+                    }
+                }
+                var length;
+                var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
 
-                    opt = $('<option />', {
-                        value: t.text(),
-                        text: t.text(),
-                        selected: selected
-                    });
-                    opt.appendTo(select);
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].text() !== options[i][0].value) {
+                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                        if (length === databaseNumbers) {
+                            options[i].text(options[i][0].value + "*");
+                        } else {
+                            options[i].text(options[i][0].value);
+                        }
+                    }
+                    options[i].appendTo(select);
                 }
                 try {
                     select.multiselect('refresh');
@@ -1031,7 +1116,7 @@ function updateFixedVarValHist(index, selectedVals) {
     var fixed_var_val = $("#fixed_var_val_" + index);
     fixed_var_val.empty();
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var selectedDatabase = getSelectedDatabases();
     var selectedFixedVariable;
     try {
         selectedFixedVariable = $("#fixed_var_" + index).multiselect("getChecked").val();
@@ -1067,15 +1152,34 @@ function updateFixedVarValHist(index, selectedVals) {
             var values = $(data).find("val");
             var opt, selected;
             if (values.length > 0) {
+                var options = [];
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
-                    opt = $('<option />', {
-                        value: t.text(),
-                        text: t.text(),
-                        selected: selected
-                    });
-                    opt.appendTo(fixed_var_val);
+                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        opt = $('<option />', {
+                            value: t.text(),
+                            text: t.text(),
+                            selected: selected
+                        });
+                        options.push(opt);
+                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        options[options.length - 1].text(options[options.length - 1].text() + '*');
+                    }
+                }
+                var length;
+                var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
+
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].text() !== options[i][0].value) {
+                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                        if (length === databaseNumbers) {
+                            options[i].text(options[i][0].value + "*");
+                        } else {
+                            options[i].text(options[i][0].value);
+                        }
+                    }
+                    options[i].appendTo(fixed_var_val);
                 }
                 try {
                     fixed_var_val.multiselect('refresh');
@@ -1103,7 +1207,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
     var select = $("#fixed_var_val_" + index);
     select.empty();
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var selectedDatabase = getSelectedDatabases();
     var selectedFixedVariable;
     var selected_mode, statst;
     if (currentTab == 'Perf') {
@@ -1141,17 +1245,37 @@ function updateFixedVarVal(index, selectedVals, equalize) {
             var values = $(data).find("val");
 
             var opt, selected;
+            var options = [];
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
-                    opt = $('<option />', {
-                        value: t.text(),
-                        text: t.text(),
-                        selected: selected
-                    });
-                    opt.appendTo(select);
+                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        opt = $('<option />', {
+                            value: t.text(),
+                            text: t.text(),
+                            selected: selected
+                        });
+                        options.push(opt);
+                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        options[options.length - 1].text(options[options.length - 1].text() + '*');
+                    }
                 }
+                var length;
+                var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
+
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].text() !== options[i][0].value) {
+                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                        if (length === databaseNumbers) {
+                            options[i].text(options[i][0].value + "*");
+                        } else {
+                            options[i].text(options[i][0].value);
+                        }
+                    }
+                    options[i].appendTo(select);
+                }
+
                 try {
                     select.multiselect('refresh');
                 } catch (err) {
@@ -1174,7 +1298,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
 
 function populateIndyVarVal(selectedVals) {
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var selectedDatabase = getSelectedDatabases();
     var selectedFixedVariable;
     var selected_mode, statst;
     if (currentTab == 'Perf') {
@@ -1218,17 +1342,36 @@ function populateIndyVarVal(selectedVals) {
                 $("#indy_var_val").multiselect("option", "indy_var_vals_to_attr", indy_var_vals_to_attr);
                 select.empty();
                 var opt, selected;
+                var options = [];
                 if (values.length > 0) {
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
                         selected = $.inArray(t.text(), selectedVals) >= 0;
-                        opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
-                            selected: selected,
-                            class: "indy-var-option"
-                        });
-                        opt.appendTo(select);
+                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                            opt = $('<option />', {
+                                value: t.text(),
+                                text: t.text(),
+                                selected: selected,
+                                class: "indy-var-option"
+                            });
+                            options.push(opt);
+                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                            options[options.length - 1].text(options[options.length - 1].text() + '*');
+                        }
+                    }
+                    var length;
+                    var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
+
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].text() !== options[i][0].value) {
+                            length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                            if (length === databaseNumbers) {
+                                options[i].text(options[i][0].value + "*");
+                            }else{
+                                options[i].text(options[i][0].value);
+                            }
+                        }
+                        options[i].appendTo(select);
                     }
                     try {
                         select.multiselect('refresh');
@@ -1618,7 +1761,7 @@ function updateSeriesVarValHist(index, selectedVals) {
     var select = $("#series_var_val_y1_" + index);
     select.empty();
     //get value of database
-    var selectedDatabase = $("#database").multiselect("getChecked").val();
+    var selectedDatabase = getSelectedDatabases();
 
     var selectedSeriesVariable;
     try {
@@ -1659,16 +1802,35 @@ function updateSeriesVarValHist(index, selectedVals) {
             seriesY1VarValResponse[index] = data;
             var values = $($.parseXML(data)).find("val");
             var opt, selected;
+            var options = [];
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
-                    opt = $('<option />', {
-                        value: t.text(),
-                        text: t.text(),
-                        selected: selected
-                    });
-                    opt.appendTo(select);
+                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        opt = $('<option />', {
+                            value: t.text(),
+                            text: t.text(),
+                            selected: selected
+                        });
+                        options.push(opt);
+                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        options[options.length - 1].text(options[options.length - 1].text() + '*');
+                    }
+                }
+                var length;
+                var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
+
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].text() !== options[i][0].value) {
+                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                        if (length === databaseNumbers) {
+                            options[i].text(options[i][0].value + "*");
+                        } else {
+                            options[i].text(options[i][0].value);
+                        }
+                    }
+                    options[i].appendTo(select);
                 }
                 try {
                     select.multiselect('refresh');
@@ -2505,7 +2667,7 @@ function sendXml() {
     var xml;
     var template;
     var result = $('<request />');
-    result.append($('<db_con />').text($("#database").multiselect("getChecked").val()));
+    result.append($('<db_con />').text(getSelectedDatabases()));
     var plot = $('<plot />');
     if (currentTab === 'Series') {
         template = $('<template>series_plot.R_tmpl</template>');
