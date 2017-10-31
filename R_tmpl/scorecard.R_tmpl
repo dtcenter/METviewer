@@ -217,29 +217,32 @@ if ( nrow(sampleData) > 0){
             }else {
               ds= ( mean(dfStatsIndy2$stat_value) - mean(dfStatsIndy1$stat_value) ) / intvl;
             }
+             if(!is.na(ds)){
+               ds95 = (-1) * ds;
+               ds99 = (-1) * ds * alpha1 / alpha2;
+               ds999 = (-1) * ds * alpha1 / alpha3;
 
-             ds95 = (-1) * ds;
-             ds99 = (-1) * ds * alpha1 / alpha2;
-             ds999 = (-1) * ds * alpha1 / alpha3;
-
-             for (index in 1:length(ds)) {
-               if (ds999[index] >= 1) {
-                 derived_stat[index] = 1;
-               } else if (ds999[index] < 1 && ds99[index] >= 1) {
-                 derived_stat[index] = 0.99;
-               } else if (ds99[index] < 1 && ds95[index] >= 1) {
-                 derived_stat[index] = 0.95;
-               } else if (ds95[index] > -1 && ds95[index] < 1) {
-                 derived_stat[index] = 0;
-               } else if (ds95[index] <= -1 && ds99[index] > -1) {
-                 derived_stat[index] = -0.95;
-               } else if (ds99[index] <= -1 && ds999[index] > -1) {
-                 derived_stat[index] = -0.99;
-               } else if (ds999[index] <= -1 && ds999[index] > -100.0) {
-                 derived_stat[index] = -1;
-               } else if (ds999[index] < -100.0) {
-                 derived_stat[index] = -1;
+               for (index in 1:length(ds)) {
+                 if (ds999[index] >= 1) {
+                   derived_stat[index] = 1;
+                 } else if (ds999[index] < 1 && ds99[index] >= 1) {
+                   derived_stat[index] = 0.99;
+                 } else if (ds99[index] < 1 && ds95[index] >= 1) {
+                   derived_stat[index] = 0.95;
+                 } else if (ds95[index] > -1 && ds95[index] < 1) {
+                   derived_stat[index] = 0;
+                 } else if (ds95[index] <= -1 && ds99[index] > -1) {
+                   derived_stat[index] = -0.95;
+                 } else if (ds99[index] <= -1 && ds999[index] > -1) {
+                   derived_stat[index] = -0.99;
+                 } else if (ds999[index] <= -1 && ds999[index] > -100.0) {
+                   derived_stat[index] = -1;
+                 } else if (ds999[index] < -100.0) {
+                   derived_stat[index] = -1;
+                 }
                }
+             }else{
+               derived_stat[0] = NA;
              }
 
           }else{
