@@ -510,7 +510,10 @@ public class MVBatch extends MVUtil {
 
 
         String strDataFileEe = _strDataFolder + "/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps(), printStream);
-        boolean success = databaseManager.executeQueriesAndSaveToFile(eventEqualizeSql, strDataFileEe + "_ee_input", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
+        boolean success=false;
+        for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+          success = databaseManager.executeQueriesAndSaveToFile(listQuery, strDataFileEe + "_ee_input", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+        }
 
         if (success) {
           String tmplFileName = "agg_stat_event_equalize.info_tmpl";
@@ -580,8 +583,9 @@ public class MVBatch extends MVUtil {
       }
       (new File(strDataFile)).getParentFile().mkdirs();
 
-      databaseManager.executeQueriesAndSaveToFile(listQuery, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
-
+      for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+        databaseManager.executeQueriesAndSaveToFile(listQuery, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+      }
       printStream.println("Query returned  plot_data rows in " + formatTimeSpan(new Date().getTime() - intStartTime));
 
 
@@ -1253,13 +1257,7 @@ public class MVBatch extends MVUtil {
       tableAggStatInfo.put("dep2_plot", "c()");
       tableAggStatInfo.put("cl_step", String.valueOf(job.getCl_step()));
 
-
-     // if (boolAggCtc) {
-        strDataFile = strDataFile + ".agg_stat";
-    //  }
-    //  if (boolAggPct) {
-     //   strDataFile = strDataFile + ".agg_pct";
-     // }
+      strDataFile = strDataFile + ".agg_stat";
 
     }
 
@@ -1279,14 +1277,15 @@ public class MVBatch extends MVUtil {
           printStreamSQL.println(sql);
           printStreamSQL.println("");
         }
-        databaseManager.executeQueriesAndSaveToFile(listQuery, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
-        MVOrderedMap mapSeries1ValPlot = job.getSeries1Val();
+        for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+          databaseManager.executeQueriesAndSaveToFile(listQuery, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+        }
         String strAggInfo;
         String strAggOutput;
         String tmplFileName;
-          strAggInfo = strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
-          strAggOutput = strDataFile.replaceFirst("\\.agg_stat$", "");
-          tmplFileName = "agg_stat.info_tmpl";
+        strAggInfo = strDataFile.replaceFirst("\\.data.agg_stat$", ".agg_stat.info");
+        strAggOutput = strDataFile.replaceFirst("\\.agg_stat$", "");
+        tmplFileName = "agg_stat.info_tmpl";
 
         File fileAggOutput = new File(strAggOutput);
         tableAggStatInfo.put("agg_stat_input", strDataFile);
@@ -1298,7 +1297,7 @@ public class MVBatch extends MVUtil {
           String scriptFileName;
 
 
-            scriptFileName = "include/agg_eclv.R";
+          scriptFileName = "include/agg_eclv.R";
 
 
           runRscript(job.getRscript(), _strRworkFolder + scriptFileName, new String[]{strAggInfo}, printStream);
@@ -1390,7 +1389,6 @@ public class MVBatch extends MVUtil {
       tableRTags.put("fix_val_list_eq", mapPlotFixValEq.getRDecl());
       tableRTags.put("plot_ci", job.getPlotCI().isEmpty() ? printRCol(rep("none", intNumDepSeries), false) : job.getPlotCI());
       tableRTags.put("ci_alpha", job.getCIAlpha());
-
 
 
       populatePlotFmtTmpl(tableRTags, job);
