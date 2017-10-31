@@ -188,7 +188,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListVal(MVNode nodeCall, String requestBody, String currentDBName) throws Exception {
+  public static String handleListVal(MVNode nodeCall, String requestBody, String[] currentDBName) throws Exception {
     //  parse the input request, and initialize the response
     StringBuilder strResp = new StringBuilder("<list_val>");
     String strId = nodeCall._children[0]._value;
@@ -259,7 +259,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListStat(MVNode nodeCall, String requestBody, String currentDBName) throws Exception {
+  public static String handleListStat(MVNode nodeCall, String requestBody, String[] currentDBName) throws Exception {
     //  if the request is for the mode stats, return the static list
     String strId = nodeCall._children[0]._value;
     String strFcstVar = nodeCall._children[1]._value;
@@ -282,7 +282,6 @@ public class MVServlet extends HttpServlet {
     }
 
     List<String> listStatName = databaseManager.getListStat(strFcstVar, currentDBName);
-
 
     StringBuilder strResp = new StringBuilder("<list_stat><id>" + strId + "</id>");
 
@@ -311,7 +310,7 @@ public class MVServlet extends HttpServlet {
    * @param strRequest XML plot specification
    * @return status message
    */
-  public static String handlePlot(String strRequest, String currentDBName) throws Exception {
+  public static String handlePlot(String strRequest, String[] currentDBName) throws Exception {
 
     //  extract the plot xml from the request
     String strPlotXML = strRequest;
@@ -319,15 +318,18 @@ public class MVServlet extends HttpServlet {
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
     String strPlotPrefix;
     SimpleDateFormat formatPlot = new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
-
     strPlotPrefix = "plot_" + formatPlot.format(new Date());
-
+    String databases = "";
+    for(String database : currentDBName){
+      databases = databases + database +",";
+    }
+    databases = databases.substring(0, databases.length() - 1);
     //  add plot file information to the plot spec
     strPlotXML =
       "<plot_spec>" +
         "<connection>" +
         "<host>" + databaseManager.getDatabaseInfo().getHost() + "</host>" +
-        "<database>" + currentDBName + "</database>" +
+        "<database>" + databases + "</database>" +
         "<user>" + "******" + "</user>" +
         "<password>" + "******" + "</password>" +
         "</connection>" +
@@ -378,7 +380,7 @@ public class MVServlet extends HttpServlet {
     ByteArrayInputStream byteArrayInputStream = null;
     try {
       byteArrayInputStream = new ByteArrayInputStream(strPlotXML.getBytes());
-      parser = new MVPlotJobParser(byteArrayInputStream, currentDBName);
+      parser = new MVPlotJobParser(byteArrayInputStream);
       MVPlotJob[] jobs = parser.getJobsList();
       if (1 != jobs.length) {
         throw new Exception("unexpected number of plot jobs generated: " + jobs.length);
@@ -854,7 +856,7 @@ public class MVServlet extends HttpServlet {
 
         MVNode nodeReq = new MVNode(doc.getFirstChild());
 
-        String currentDBName = "";
+        String[] currentDBName = null;
         List<String> databases;
 
 
@@ -891,7 +893,7 @@ public class MVServlet extends HttpServlet {
           }
           //  <db_con> node containing the database connection name
           else if (nodeCall._tag.equalsIgnoreCase("db_con")) {
-            currentDBName = nodeCall._value;
+            currentDBName = nodeCall._value.split(",");
           }
 
           //  <list_val>
