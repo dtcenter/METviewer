@@ -223,6 +223,10 @@
           if (label_old != null && label_old != description ){
             description = label_old;
           }
+          if(description.match(/\*$/)){
+            description = description.slice(0, -1);
+          }
+
           var plot_val="";
           if (plot_val_old ) {
             plot_val = plot_val_old;
