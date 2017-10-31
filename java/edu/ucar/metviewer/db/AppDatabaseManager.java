@@ -22,7 +22,7 @@ public interface AppDatabaseManager {
 
   List<String> buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception;
 
-  boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName) throws Exception;
+  boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName, boolean isNewFile) throws Exception;
 
   String buildAndExecuteQueriesForHistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
 
@@ -31,9 +31,9 @@ public interface AppDatabaseManager {
 
   DatabaseInfo getDatabaseInfo();
 
-  List<String> getListValues(MVNode nodeCall, String strField, String currentDBName);
+  List<String> getListValues(MVNode nodeCall, String strField, String[] currentDBName);
 
-  List<String> getListStat(String strFcstVar, String currentDBName);
+  List<String> getListStat(String strFcstVar, String[] currentDBName);
 
   boolean validate(String db);
 
