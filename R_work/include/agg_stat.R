@@ -1,4 +1,5 @@
-#.libPaths("/common/data/web/metviewer/dev/r-lib");
+#web .libPaths("/common/data/web/metviewer/dev/r-lib");
+#batch .libPaths("/common/data/apps/metviewer/dev/web/r-lib");
 library(boot);
 library(gsl);
 library(stats);
@@ -448,11 +449,11 @@ calcECLV = function(d){
 
 
   calcVL1L2_FVAR = function(d){
-    fvar = d$total * (d$uvffbar - d$ufbar^2 - d$vfbar^2 )/ d$total;
+    fvar = d$uvffbar - d$ufbar^2 - d$vfbar^2 ;
     return ( round(fvar, digits=5)) ;
   }
   calcVL1L2_OVAR = function(d){
-    ovar = d$total * ( d$uvoobar - d$uobar^2 - d$vobar^2 )/ d$total;
+    ovar =  d$uvoobar - d$uobar^2 - d$vobar^2 ;
     return ( round(ovar, digits=5)) ;
   }
   calcVL1L2_FSTDEV = function(d){
@@ -464,23 +465,35 @@ calcECLV = function(d){
     return ( round(ostdev, digits=5)) ;
   }
   calcVL1L2_FOSTDEV = function(d){
-    ostdev =  sqrt( d$total * (d$uvffbar - d$ufba^2 +d$uvoobar-d$uobar^2-d$vobar^2 -2*(d$uvfobar-d$ufbar*d$uobar - d$vfbar*d$vobar))/d$total);
+    ostdev =  sqrt( d$uvffbar - d$ufbar^2 - d$vfbar^2 + d$uvoobar - d$uobar^2 - d$vobar^2 -
+      2*(d$uvfobar - d$ufbar*d$uobar - d$vfbar*d$vobar));
     return ( round(ostdev, digits=5)) ;
   }
   calcVL1L2_COV = function(d){
-    cov =    d$total * (d$uvfobar -d$ufbar*d$uobar - d$vfbar * d$vobar) / (d$total-0.);
-
-    return ( round(cov, digits=5)) ;
+    if(  is.na(d$uvfobar) || is.na(d$ufbar) || is.na(d$uobar) || is.na(d$vfbar) || is.na(d$vobar) ){
+     return(NA);
+    } else{
+      cov =    d$uvfobar -d$ufbar*d$uobar - d$vfbar * d$vobar;
+      return ( round(cov, digits=5)) ;
+    }
   }
   calcVL1L2_CORR = function(d){
-    corr = (d$total * (d$uvfobar - d$ufbar * d$uobar - d$vfbar * d$vobar) / d$total) /
-      (sqrt(d$total*(d$uvffbar-d$ufbar*d$ufbar-d$vfbar*d$vfbar)/d$total) *
-         sqrt( d$total*(d$uvoobar-d$uobar*d$uobar-d$vobar*d$vobar)/d$total))
+    if(  is.na(d$uvfobar) || is.na(d$ufbar) || is.na(d$uobar) || is.na(d$vfbar) || is.na(d$vobar) ){
+     return(NA);
+   } else{
+    corr = (d$uvfobar - d$ufbar * d$uobar - d$vfbar * d$vobar) /
+      (sqrt(d$uvffbar-d$ufbar*d$ufbar-d$vfbar*d$vfbar) *
+         sqrt( d$uvoobar-d$uobar*d$uobar-d$vobar*d$vobar)
     return ( round(corr, digits=5)) ;
+}
   }
 
   calc_spd = function(u,v){
-    return ( sqrt( u^2 + v^2 ) );
+    if( is.na(u) || is.na(v) ) {
+      return (NA);
+    }else{
+      return ( sqrt( u^2 + v^2 ) );
+    }
   }
 
   calc_dir = function(u,v){
@@ -549,17 +562,21 @@ calcECLV = function(d){
 
   calcVL1L2_DIR_ERR = function(d){
     f_len = calcVL1L2_FSPD(d);
-    uf = d$ufbar / f_len;
-    vf = d$vfbar / f_len;
+    if( !is.na(f_len) && f_len != 0){
+      uf = d$ufbar / f_len;
+      vf = d$vfbar / f_len;
 
-    o_len = calcVL1L2_OSPD(d);
-    uo = d$uobar / o_len;
-    vo = d$vobar / o_len;
+      o_len = calcVL1L2_OSPD(d);
+      uo = d$uobar / o_len;
+      vo = d$vobar / o_len;
 
-    a = vo*uf - uo*vf;
-    b = uo*uf + vo*vf;
+      a = vo*uf - uo*vf;
+      b = uo*uf + vo*vf;
 
-    dir_err = calc_dir(a, b);
+      dir_err = calc_dir(a, b);
+    } else{
+      dir_err = NA;
+    }
 
     if(is.na(dir_err)){
       return (NA);
