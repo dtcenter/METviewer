@@ -107,7 +107,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   @Override
-  public List<String> getListStat(String strFcstVar, String currentDBName) {
+  public List<String> getListStat(String strFcstVar, String[] currentDBName) {
     List<String> listStatName = new ArrayList<>();
 
     String strSQL = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n" +
@@ -126,84 +126,87 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n";
+    for (String database : currentDBName) {
+      try (Connection con = getConnection(database);
+           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           ResultSet res = stmt.executeQuery(strSQL)) {
+        int intStatIndex = 0;
+        boolean boolCnt = false;
+        boolean boolCts = false;
+        while (res.next()) {
+          int intStatCount = res.getInt(1);
+          if (-9999 != intStatCount) {
+            switch (intStatIndex) {
+              case 0:
+              case 1:
+              case 15:
+                if (!boolCnt) {
+                  listStatName.addAll(MVUtil.statsCnt.keySet());
+                }
+                boolCnt = true;
+                break;
+              case 2:
+              case 3:
+                if (!boolCts) {
+                  listStatName.addAll(MVUtil.statsCts.keySet());
+                }
+                boolCts = true;
+                break;
+              case 4:
+                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
+                break;
+              case 5:
+                listStatName.addAll(MVUtil.statsNbrcts.keySet());
+                break;
+              case 6:
+                listStatName.addAll(MVUtil.statsPstd.keySet());
+                break;
+              case 7:
+                listStatName.addAll(MVUtil.statsMcts.keySet());
+                break;
+              case 8:
+                listStatName.addAll(MVUtil.statsRhist.keySet());
+                break;
+              case 9:
+                //case 16:
+                listStatName.addAll(MVUtil.statsVl1l2.keySet());
+                break;
+              case 10:
+                listStatName.addAll(MVUtil.statsPhist.keySet());
+                break;
+              case 11:
+                listStatName.addAll(MVUtil.statsEnscnt.keySet());
+                break;
+              case 12:
+                listStatName.addAll(MVUtil.statsMpr.keySet());
+                break;
+              case 13:
+                listStatName.addAll(MVUtil.statsOrank.keySet());
+                break;
+              case 14:
+                listStatName.addAll(MVUtil.statsSsvar.keySet());
+                break;
+              default:
 
-    try (Connection con = getConnection(currentDBName);
-         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery(strSQL)) {
-      int intStatIndex = 0;
-      boolean boolCnt = false;
-      boolean boolCts = false;
-      while (res.next()) {
-        int intStatCount = res.getInt(1);
-        if (-9999 != intStatCount) {
-          switch (intStatIndex) {
-            case 0:
-            case 1:
-            case 15:
-              if (!boolCnt) {
-                listStatName.addAll(MVUtil.statsCnt.keySet());
-              }
-              boolCnt = true;
-              break;
-            case 2:
-            case 3:
-              if (!boolCts) {
-                listStatName.addAll(MVUtil.statsCts.keySet());
-              }
-              boolCts = true;
-              break;
-            case 4:
-              listStatName.addAll(MVUtil.statsNbrcnt.keySet());
-              break;
-            case 5:
-              listStatName.addAll(MVUtil.statsNbrcts.keySet());
-              break;
-            case 6:
-              listStatName.addAll(MVUtil.statsPstd.keySet());
-              break;
-            case 7:
-              listStatName.addAll(MVUtil.statsMcts.keySet());
-              break;
-            case 8:
-              listStatName.addAll(MVUtil.statsRhist.keySet());
-              break;
-            case 9:
-              //case 16:
-              listStatName.addAll(MVUtil.statsVl1l2.keySet());
-              break;
-            case 10:
-              listStatName.addAll(MVUtil.statsPhist.keySet());
-              break;
-            case 11:
-              listStatName.addAll(MVUtil.statsEnscnt.keySet());
-              break;
-            case 12:
-              listStatName.addAll(MVUtil.statsMpr.keySet());
-              break;
-            case 13:
-              listStatName.addAll(MVUtil.statsOrank.keySet());
-              break;
-            case 14:
-              listStatName.addAll(MVUtil.statsSsvar.keySet());
-              break;
-            default:
-
+            }
           }
+          intStatIndex++;
         }
-        intStatIndex++;
+        stmt.close();
+        res.close();
+        con.close();
+      } catch (SQLException e) {
+        logger.error(e.getMessage());
       }
-      stmt.close();
-      res.close();
-      con.close();
-    } catch (SQLException e) {
-      logger.error(e.getMessage());
     }
+    Collections.sort(listStatName);
+    //Set<String> set = new LinkedHashSet<>(listStatName);
+    //return new ArrayList<>(set);
     return listStatName;
-
   }
 
   @Override
-  public List<String> getListValues(MVNode nodeCall, String strField, String currentDBName) {
+  public List<String> getListValues(MVNode nodeCall, String strField, String[] currentDBName) {
     List<String> listRes = new ArrayList<>();
     boolean boolMode = nodeCall._children[1]._tag.equals("mode_field");
     boolean boolRhist = nodeCall._children[1]._tag.equals("rhist_field");
@@ -322,69 +325,73 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  build a query for the values
     String strSQL;
     String strTmpTable = null;
-    try (Connection con = getConnection(currentDBName)) {
-      if (boolNRank) {
-        strSQL = "SELECT DISTINCT ld.n_rank " +
-          "FROM stat_header h, line_data_rhist ld " +
-          strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
-          "ORDER BY n_rank;";
-      } else if (boolNBin) {
-        strSQL = "SELECT DISTINCT ld.n_bin " +
-          "FROM stat_header h, line_data_phist ld " +
-          strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
-          "ORDER BY ld.n_bin;";
-      } else if (!boolMode && (strField.equals("fcst_lead") || strField.contains("valid") || strField.contains("init"))) {
-        String strSelectField = formatField(strField, boolMode);
-        //  create a temp table for the list values from the different line_data tables
-        strTmpTable = "tmp_" + new Date().getTime();
-        try (Statement stmtTmp = con.createStatement()) {
-          String strTmpSQL = "CREATE TEMPORARY TABLE " + strTmpTable + " (" + strField + " TEXT);";
-          stmtTmp.executeUpdate(strTmpSQL);
-          //  add all distinct list field values to the temp table from each line_data table
-          for (String listTable : listTables) {
-            strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTable + " ld" + strWhereTime;
+    for (String database : currentDBName) {
+      try (Connection con = getConnection(database)) {
+        if (boolNRank) {
+          strSQL = "SELECT DISTINCT ld.n_rank " +
+            "FROM stat_header h, line_data_rhist ld " +
+            strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
+            "ORDER BY n_rank;";
+        } else if (boolNBin) {
+          strSQL = "SELECT DISTINCT ld.n_bin " +
+            "FROM stat_header h, line_data_phist ld " +
+            strWhere + (strWhere.equals("") ? "WHERE" : " AND") + " ld.stat_header_id = h.stat_header_id " +
+            "ORDER BY ld.n_bin;";
+        } else if (!boolMode && (strField.equals("fcst_lead") || strField.contains("valid") || strField.contains("init"))) {
+          String strSelectField = formatField(strField, boolMode);
+          //  create a temp table for the list values from the different line_data tables
+          strTmpTable = "tmp_" + new Date().getTime();
+          try (Statement stmtTmp = con.createStatement()) {
+            String strTmpSQL = "CREATE TEMPORARY TABLE " + strTmpTable + " (" + strField + " TEXT);";
             stmtTmp.executeUpdate(strTmpSQL);
+            //  add all distinct list field values to the temp table from each line_data table
+            for (String listTable : listTables) {
+              strTmpSQL = "INSERT INTO " + strTmpTable + " SELECT DISTINCT " + strSelectField + " FROM " + listTable + " ld" + strWhereTime;
+              stmtTmp.executeUpdate(strTmpSQL);
+            }
+            stmtTmp.close();
+          } catch (SQLException e) {
+            logger.error(e.getMessage());
           }
-          stmtTmp.close();
+
+          //  build a query to list all distinct, ordered values of the list field from the temp table
+          strSQL = "SELECT DISTINCT " + strField + " FROM " + strTmpTable + " ORDER BY " + strField + ";";
+        } else {
+          String strFieldDB = formatField(strField, boolMode).replaceAll("h\\.", "");
+          strWhere = strWhere.replaceAll("h\\.", "");
+          strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
+        }
+        //  execute the query
+        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+             ResultSet res = stmt.executeQuery(strSQL)) {
+
+          while (res.next()) {
+            listRes.add(res.getString(1));
+          }
+          //  drop the temp table, if present
+          if (strTmpTable != null) {
+            stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
+          }
+          res.close();
+          stmt.close();
+
         } catch (SQLException e) {
           logger.error(e.getMessage());
         }
-
-        //  build a query to list all distinct, ordered values of the list field from the temp table
-        strSQL = "SELECT DISTINCT " + strField + " FROM " + strTmpTable + " ORDER BY " + strField + ";";
-      } else {
-        String strFieldDB = formatField(strField, boolMode).replaceAll("h\\.", "");
-        strWhere = strWhere.replaceAll("h\\.", "");
-        strSQL = "SELECT DISTINCT " + strFieldDB + " FROM " + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
-      }
-      //  execute the query
-      try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-           ResultSet res = stmt.executeQuery(strSQL)) {
-
-        while (res.next()) {
-          listRes.add(res.getString(1));
-        }
-        //  drop the temp table, if present
-        if (strTmpTable != null) {
-          stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
-        }
-        res.close();
-        stmt.close();
-
+        con.close();
       } catch (SQLException e) {
         logger.error(e.getMessage());
       }
-      con.close();
-    } catch (SQLException e) {
-      logger.error(e.getMessage());
     }
-
+    Collections.sort(listRes);
+    //Set<String> set = new LinkedHashSet<>(listRes);
+    //return new ArrayList<>(set);
     return listRes;
   }
 
 
   @Override
-  public boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName) throws Exception {
+  public boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName, boolean isNewFile) throws Exception {
     boolean success = false;
 
     List<String> listSQLBeforeSelect = new ArrayList<>();
@@ -416,14 +423,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
       for (int i = 0; i < listSQLLastSelect.size(); i++) {
+        boolean append = !isNewFile || i != 0;
+        boolean printHeader = !append;
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
              ResultSet resultSetLast = stmt.executeQuery(listSQLLastSelect.get(i));
-             FileWriter fstream = new FileWriter(new File(fileName), i != 0);
+             FileWriter fstream = new FileWriter(new File(fileName), append);
              BufferedWriter out = new BufferedWriter(fstream)) {
 
-          printFormattedTable(resultSetLast, out, "\t", isCalc, i == 0);
+          printFormattedTable(resultSetLast, out, "\t", isCalc, printHeader);
           out.flush();
-          success = true;
           resultSetLast.close();
           stmt.close();
           success = true;
@@ -907,12 +915,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           strSelectList += ",\n  h.fcst_init";
           strTempList += ",\n    fcst_init           " + "DATETIME";
         } else {
-          if(strSelectList.length() > 0) {
+          if (strSelectList.length() > 0) {
             strSelectList += ",\n ";
           }
-          strSelectList +=  " ld.fcst_init_beg";
+          strSelectList += " ld.fcst_init_beg";
 
-          if(strTempList.length() > 0){
+          if (strTempList.length() > 0) {
             strTempList += ",\n";
           }
           strTempList += "   fcst_init_beg       " + "DATETIME";
@@ -923,11 +931,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           strSelectList += ",\n  h.fcst_valid";
           strTempList += ",\n    fcst_valid          " + "DATETIME";
         } else {
-          if(strSelectList.length() > 0) {
+          if (strSelectList.length() > 0) {
             strSelectList += ",\n ";
           }
           strSelectList += " ld.fcst_valid_beg";
-          if(strTempList.length() > 0){
+          if (strTempList.length() > 0) {
             strTempList += ",\n  ";
           }
           strTempList += "  fcst_valid_beg      " + "DATETIME";
@@ -1057,11 +1065,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (boolAggPct) {
         MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
         MVOrderedMap[] forecastVars;
-        if(job.getPlotTmpl().equals("eclv.R_tmpl") && job.getDepGroups().length == 0){
+        if (job.getPlotTmpl().equals("eclv.R_tmpl") && job.getDepGroups().length == 0) {
           MVOrderedMap m = new MVOrderedMap();
           m.put("NA", "ECLV");
           forecastVars = new MVOrderedMap[]{m};
-        }else {
+        } else {
           forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY)).getRows();
         }
         for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
@@ -1072,34 +1080,34 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               MVOrderedMap ser = series[seriesInd];
               String[] serName = ser.getKeyList();
               for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
-                String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n" ;
-                strSelPctThresh = strSelPctThresh +"WHERE\n";
-                if(strIndyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
+                String strSelPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  stat_header h,\n  line_data_pct ld\n";
+                strSelPctThresh = strSelPctThresh + "WHERE\n";
+                if (strIndyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
                   strSelPctThresh = strSelPctThresh + strIndyVarFormatted;
                   strSelPctThresh = strSelPctThresh + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n " + " AND ";
                 }
-                strSelPctThresh = strSelPctThresh   + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
-                if(!vars[varsInd].equals("NA")) {
+                strSelPctThresh = strSelPctThresh + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
+                if (!vars[varsInd].equals("NA")) {
                   strSelPctThresh = strSelPctThresh + "' AND fcst_var='" + vars[varsInd] + "' ";
                 }
-                if(strPlotFixWhere.length() > 0){
-                  strSelPctThresh = strSelPctThresh   + "  AND  " + strPlotFixWhere;
+                if (strPlotFixWhere.length() > 0) {
+                  strSelPctThresh = strSelPctThresh + "  AND  " + strPlotFixWhere;
                 }
-                strSelPctThresh = strSelPctThresh   + "  AND ld.stat_header_id = h.stat_header_id;";
+                strSelPctThresh = strSelPctThresh + "  AND ld.stat_header_id = h.stat_header_id;";
                 printStreamSQL.println(strSelPctThresh + "\n");
 
                 //  run the PCT thresh query
-                pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
+                pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));
                 if (1 != pctThreshInfo.get("numPctThresh")) {
                   String error = "number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") not distinct for " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
-                  if( !vars[varsInd].equals("NA")){
+                  if (!vars[varsInd].equals("NA")) {
                     error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                   }
                   throw new Exception(error);
                 } else if (1 > pctThreshInfo.get("numPctThresh")) {
                   String error = "invalid number of PCT thresholds (" + pctThreshInfo.get("numPctThresh") + ") found for " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]);
-                  if( !vars[varsInd].equals("NA")){
-                    error = error +"' AND fcst_var='" + vars[varsInd] + "'";
+                  if (!vars[varsInd].equals("NA")) {
+                    error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                   }
                   throw new Exception(error);
                 }
@@ -1149,8 +1157,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             }
             strFcstVarClause = "LIKE '" + strFcstVar.replace("*", "%") + "'";
           }
-        }else {
-          if( job.getPlotTmpl().equals("eclv.R_tmpl")) {
+        } else {
+          if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
             strStat = "ECLV";
           }
         }
@@ -1307,7 +1315,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             boolBCRMSE = true;
             strStatField = "bcmse";
           }
-            strSelectStat += ",\n  '" + strStat + "' stat_name";
+          strSelectStat += ",\n  '" + strStat + "' stat_name";
 
           //  add the appropriate stat table members, depending on the use of aggregation and stat calculation
           if (boolAggCtc) {
@@ -1319,7 +1327,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (boolAggSal1l2) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
           } else if (boolAggPct) {
-            if(!job.getPlotTmpl().equals("eclv.R_tmpl")) {
+            if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strSelectStat += ",\n";
@@ -1331,7 +1339,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 strSelectStat += "  ldt" + i + ".oy_i,\n" +
                   "  ldt" + i + ".on_i";
               }
-            }else {
+            } else {
               strSelectStat += ",\n  0 stat_value,\n  ld.n_thresh,\n ldt.thresh_i,\n ldt.oy_i\n, ldt.on_i";
             }
           } else if (boolAggNbrCnt) {
@@ -1403,13 +1411,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strStatNaClause = "\n  AND ld." + strStatField + " != -9999";
           }
           if (boolAggPct) {
-            if(!job.getPlotTmpl().equals("eclv.R_tmpl")) {
+            if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n" +
                   "  AND ldt" + i + ".i_value = " + i;
               }
-            }else {
-              strStatNaClause =  "\n  AND ld.line_data_id = ldt.line_data_id\n";
+            } else {
+              strStatNaClause = "\n  AND ld.line_data_id = ldt.line_data_id\n";
             }
           }
 
@@ -1417,11 +1425,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           strSelectSQL += (strSelectSQL.isEmpty() ? "" : "\nUNION\n") +
             "SELECT\n" + strSelectStat + "\n" +
             "FROM\n  stat_header h,\n  " + strStatTable;
-          strSelectSQL +="WHERE\n" + strWhere;
-          if(strFcstVarClause.length() > 0) {
+          strSelectSQL += "WHERE\n" + strWhere;
+          if (strFcstVarClause.length() > 0) {
             strSelectSQL += "  AND h.fcst_var " + strFcstVarClause + "\n";
           }
-          strSelectSQL +=  "  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;
+          strSelectSQL += "  AND ld.stat_header_id = h.stat_header_id" + strStatNaClause;
         }
 
       }
@@ -2108,7 +2116,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  run the rank number query and warn, if necessary
     String strMsg = "";
-    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName());
+    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
 
 
     if (listNum.isEmpty()) {
@@ -2152,7 +2160,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  get the data for the current plot from the plot_data temp table and write it to a data file
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
-    boolean success = executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
+    for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+    }
     return strMsg;
   }
 
@@ -2208,7 +2218,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       printStreamSql.println(strObsThreshSelect + "\n");
     }
 
-    List<String> listObsThresh = getNumbers(strObsThreshSelect, job.getCurrentDBName());
+    List<String> listObsThresh = getNumbers(strObsThreshSelect, job.getCurrentDBName().get(0));
 
     //  build the query depending on the type of data requested
     String strPlotDataSelect = "";
@@ -2234,7 +2244,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         printStreamSql.println(strFcstThreshSelect + "\n");
       }
 
-      listFcstThresh = getNumbers(strFcstThreshSelect, job.getCurrentDBName());
+      listFcstThresh = getNumbers(strFcstThreshSelect, job.getCurrentDBName().get(0));
 
 
       //  build the plot data sql
@@ -2337,7 +2347,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  get the data for the current plot from the plot_data temp table and write it to a data file
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
-    boolean success = executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
+    for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+    }
 
     return intNumDepSeries;
   }
@@ -2396,7 +2408,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     //  run the rank number query and warn, if necessary
     String strMsg = "";
-    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName());
+    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
 
 
     if (listNum.isEmpty()) {
@@ -2423,7 +2435,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         printStreamSql.println(strSelPctThresh + "\n");
 
         //  run the PCT thresh query
-        pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName());
+        pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));
         if (1 != pctThreshInfo.get("numPctThresh")) {
           throw new Exception("number of ECLV pnts (" + pctThreshInfo.get("numPctThresh") + ") not distinct for " + serName[serNameInd] + " = '" + ser.getStr(serName[serNameInd]));
         } else if (1 > pctThreshInfo.get("numPctThresh")) {
@@ -2484,7 +2496,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  get the data for the current plot from the plot_data temp table and write it to a data file
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
-    boolean success = executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName());
+    for (int i = 0; i < job.getCurrentDBName().size(); i++) {
+      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+    }
 
     return intNumDepSeries;
   }
