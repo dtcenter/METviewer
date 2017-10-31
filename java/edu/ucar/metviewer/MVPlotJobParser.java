@@ -181,7 +181,7 @@ public class MVPlotJobParser extends MVUtil {
    *
    * @param in Stream from which the plot specification will be drawn
    */
-  public MVPlotJobParser(InputStream in, String currentDBName) throws Exception {
+  public MVPlotJobParser(InputStream in) throws Exception {
     super();
     DocumentBuilder builder = getDocumentBuilder();
 
@@ -391,11 +391,16 @@ public class MVPlotJobParser extends MVUtil {
   public static StringBuilder serializeJob(MVPlotJob job, DatabaseInfo databaseInfo) {
 
     //  database information
+    String databases = "";
+    for(String db : job.getCurrentDBName()){
+      databases = databases + "," + db;
+    }
+    databases = databases.substring(0, databases.length() - 1);
     StringBuilder strXML = new StringBuilder(
       "<plot_spec>" +
         "<connection>" +
         "<host>" + databaseInfo.getHost() + "</host>" +
-        "<database>" + job.getCurrentDBName() + "</database>" +
+        "<database>" + databases + "</database>" +
         "<user>" + "******" + "</user>" +
         "<password>" + "******" + "</password>" +
         "</connection>" +
@@ -892,7 +897,13 @@ public class MVPlotJobParser extends MVUtil {
 
         //  set the job database information
         job.setRscript(_strRscript);
-        job.setCurrentDBName(strDBName);
+        List<String> databases = new ArrayList<>();
+        String[] databasesArray = strDBName.split(",");
+        for(String db : databasesArray){
+          databases.add(db.trim());
+        }
+
+        job.setCurrentDBName(databases);
 
         //  check the job and add it to the jobs table and to the runnable jobs, if appropriate
         _tablePlotDecl.put(node._name, job);
