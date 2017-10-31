@@ -13,7 +13,7 @@ public class MVPlotJob extends MVUtil {
 
   protected String _strJobName = "";
 
-  protected String currentDBName;
+  protected List<String> currentDBName;
 
   protected String _strRscript = "";
 
@@ -1743,11 +1743,11 @@ public class MVPlotJob extends MVUtil {
   }
 
 
-  public String getCurrentDBName() {
+  public List<String> getCurrentDBName() {
     return currentDBName;
   }
 
-  public void setCurrentDBName(String currentDBName) {
+  public void setCurrentDBName(List<String> currentDBName) {
     this.currentDBName = currentDBName;
   }
 }
