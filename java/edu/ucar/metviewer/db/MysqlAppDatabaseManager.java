@@ -125,7 +125,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n";
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n";
     for (String database : currentDBName) {
       try (Connection con = getConnection(database);
            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
@@ -185,6 +186,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 14:
                 listStatName.addAll(MVUtil.statsSsvar.keySet());
+                break;
+              case 16:
+                listStatName.addAll(MVUtil.statsVal1l2.keySet());
                 break;
               default:
 
@@ -838,7 +842,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
     boolean boolAggVl1l2 = job.getAggVl1l2();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2;
+    boolean boolAggVal1l2 = job.getAggVal1l2();
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2 || boolAggVal1l2;
     boolean boolCalcCtc = job.getCalcCtc();
     boolean boolCalcSl1l2 = job.getCalcSl1l2();
     boolean boolCalcSal1l2 = job.getCalcSal1l2();
@@ -1164,7 +1169,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
 
         //  determine the table containing the current stat
-        Map tableStats;
+        Map tableStats = null;
         String strStatTable = "";
         String strStatField = strStat.toLowerCase(Locale.US);
         if (boolModePlot) {
@@ -1196,6 +1201,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               aggType = MVUtil.SSVAR;
             } else if (boolCalcVl1l2 || boolAggVl1l2) {
               aggType = MVUtil.VL1L2;
+            } else if (boolAggVal1l2) {
+              aggType = MVUtil.VAL1L2;
             }
           }
 
@@ -1276,6 +1283,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             tableStats = MVUtil.statsVl1l2;
             strStatTable = "line_data_vl1l2 ld\n";
             strStatField = strStat.replace("VL1L2_", "").toLowerCase();
+          } else if (MVUtil.statsVal1l2.containsKey(strStat)) {
+            MVUtil.isAggTypeValid(MVUtil.statsVal1l2, strStat, aggType);
+            tableStats = MVUtil.statsVal1l2;
+            strStatTable = "line_data_val1l2 ld\n";
+            strStatField = strStat.replace("VAL1L2_", "").toLowerCase();
           } else if (MVUtil.statsMpr.containsKey(strStat)) {
             tableStats = MVUtil.statsMpr;
             strStatTable = "line_data_mpr ld\n";
@@ -1289,7 +1301,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             } else {
               tableStats = MVUtil.statsPstd;
               strStatTable = "line_data_pct ld, line_data_pct_thresh ldt\n";
-
             }
           } else {
             throw new Exception("unrecognized stat: " + strStat);
@@ -1346,7 +1357,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
           } else if (boolAggVl1l2) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar";
-
+          } else if (boolAggVal1l2) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n ld.uoabar,\n ld.voabar,\n ld.uvfoabar,\n ld.uvffabar,\n ld.uvooabar";
           } else if (boolCalcCtc) {
             strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on) stat_value,\n" +
               "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
@@ -1471,6 +1483,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param boolModePlot      specifies MODE plot
    * @return generated SQL where clauses
    */
+
   private String buildPlotFixWhere(Map.Entry[] listPlotFixFields, MVPlotJob job, boolean boolModePlot) {
     String strWhere = "";
 

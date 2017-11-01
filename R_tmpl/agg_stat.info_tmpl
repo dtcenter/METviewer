@@ -6,6 +6,7 @@ boolAggSal1l2 = #<agg_sal1l2>#;
 boolAggNbrCnt = #<agg_nbrcnt>#;
 boolAggSsvar = #<agg_ssvar>#;
 boolAggVl1l2 = #<agg_vl1l2>#;
+boolAggVal1l2 = #<agg_val1l2>#;
 boolAggPct = #<agg_pct>#;
 boolEventEqual = #<event_equal>#;
 boolEveqDis = #<eveq_dis>#;

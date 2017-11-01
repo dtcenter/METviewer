@@ -349,7 +349,8 @@ public class MVBatch extends MVUtil {
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
     boolean boolAggVl1l2 = job.getAggVl1l2();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2;
+    boolean boolAggVal1l2 = job.getAggVal1l2();
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2 || boolAggVal1l2;
 
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
@@ -464,6 +465,7 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : "FALSE");
+        tableAggStatInfo.put("agg_val1l2", job.getAggVal1l2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_pct", job.getAggPct() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("event_equal", String.valueOf(job.getEventEqual()));
         tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
@@ -1226,6 +1228,7 @@ public class MVBatch extends MVUtil {
       tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : "FALSE");
+      tableAggStatInfo.put("agg_val1l2", job.getAggVal1l2() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_pct", job.getAggPct() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("event_equal", String.valueOf(job.getEventEqual()));
       tableAggStatInfo.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");

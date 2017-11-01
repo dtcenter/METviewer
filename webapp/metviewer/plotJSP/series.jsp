@@ -820,6 +820,7 @@
                       <option value="nbrcnt">Nbrhood method count (NBR_CNT)</option>
                       <option value="ssvar">Spread/Skill Variance (SSVAR)</option>
                       <option value="vl1l2">Vector partial sums (VL1L2)</option>
+                      <option value="val1l2">Vector anomaly partial sums (VAL1L2)</option>
                       <option value="mode">MODE-ratio</option>
                     </select>
                   </td>

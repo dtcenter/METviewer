@@ -40,6 +40,7 @@ public class MVUtil {
   public static final String PCT = "pct";
   public static final String NBR_CNT = "nbr_cnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
+  public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
@@ -53,6 +54,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsPhist = new HashMap<>();
   public static final Map<String, String[]> statsRhist = new HashMap<>();
   public static final Map<String, String[]> statsVl1l2 = new HashMap<>();
+  public static final Map<String, String[]> statsVal1l2 = new HashMap<>();
   public static final List<String> modeSingleStatField = new ArrayList<>();
 
   public static final Map<String, String> modePairStatField = new HashMap<>();
@@ -258,6 +260,9 @@ public class MVUtil {
     statsRhist.put("RHIST_CRPSS", new String[]{});
     statsRhist.put("RHIST_IGN", new String[]{});
     statsRhist.put("RHIST_SPREAD", new String[]{});
+  }
+  static {
+    statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
   }
 
   static {
@@ -1519,6 +1524,8 @@ public class MVUtil {
       return "line_data_rhist";
     } else if (statsVl1l2.containsKey(strStat)) {
       return "line_data_vl1l2";
+    } else if (statsVal1l2.containsKey(strStat)) {
+      return "line_data_val1l2";
     } else if (modeSingleStatField.contains(strStatMode)) {
       return "mode_obj_single";
     } else if (modePairStatField.containsKey(strStatMode)) {

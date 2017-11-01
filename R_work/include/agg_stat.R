@@ -478,14 +478,7 @@ calcECLV = function(d){
     }
   }
   calcVL1L2_CORR = function(d){
-    if(  is.na(d$uvfobar) || is.na(d$ufbar) || is.na(d$uobar) || is.na(d$vfbar) || is.na(d$vobar) ){
-     return(NA);
-   } else{
-    corr = (d$uvfobar - d$ufbar * d$uobar - d$vfbar * d$vobar) /
-      (sqrt(d$uvffbar-d$ufbar*d$ufbar-d$vfbar*d$vfbar) *
-         sqrt( d$uvoobar-d$uobar*d$uobar-d$vobar*d$vobar)
-    return ( round(corr, digits=5)) ;
-}
+    return ( calc_wind_corr(d$total, d$ufbar, d$vfbar, d$uobar, d$vobar, d$uvfobar, d$uvffbar, d$uvoobar) );
   }
 
   calc_spd = function(u,v){
@@ -583,33 +576,46 @@ calcECLV = function(d){
     } else {
       return ( round(dir_err, digits=5)) ;
     }
+  }
 
+  #VAL1L2 "calculations"
+  calcVAL1L2_ANOM_CORR = function(d){
+    return ( calc_wind_corr(d$total, d$ufabar, d$vfabar, d$uoabar, d$voabar, d$uvfoabar, d$uvffabar, d$uvooabar) );
+  }
+
+  calc_wind_corr = function( total, uf, vf, uo, vo, uvfo, uvff, uvoo ){
+    if(  is.na(uvfo) || is.na(uf) || is.na(uo) || is.na(vf) || is.na(vo) ){
+         return(NA);
+    } else{
+      corr = ( uvfo - uf * uo - vf * vo ) /
+            ( sqrt( uvff - uf * uf - vf * vf ) * sqrt( uvoo - uo * uo - vo * vo) )
+      return ( round(corr, digits=5)) ;
+    }
   }
 
 
-
-calcPSTD_BRIER = function(d){
+  calcPSTD_BRIER = function(d){
     return ( d$reliability - d$resolution + d$uncertainty );
   }
-calcPSTD_BSS_SMPL = function(d){
+  calcPSTD_BSS_SMPL = function(d){
     return ( ( d$resolution - d$reliability ) / d$uncertainty );
   }
- calcPSTD_BASER = function(d){
-   return ( d$baser );
- }
- calcPSTD_RELIABILITY = function(d){
-   return ( d$reliability );
- }
- calcPSTD_RESOLUTION = function(d){
-   return ( d$resolution );
- }
- calcPSTD_ROC_AUC = function(d){
-   return ( d$roc_auc );
- }
+  calcPSTD_BASER = function(d){
+    return ( d$baser );
+  }
+  calcPSTD_RELIABILITY = function(d){
+    return ( d$reliability );
+  }
+  calcPSTD_RESOLUTION = function(d){
+    return ( d$resolution );
+  }
+  calcPSTD_ROC_AUC = function(d){
+    return ( d$roc_auc );
+  }
 
- calcPSTD_UNCERTAINTY = function(d){
-   return ( d$uncertainty );
- }
+  calcPSTD_UNCERTAINTY = function(d){
+    return ( d$uncertainty );
+  }
   findIndexes = function(diffSeriesVec, listGroupToValue, matPerm){
     listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
     listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
@@ -709,6 +715,19 @@ calcPSTD_BSS_SMPL = function(d){
           uvfobar  = sum( as.numeric( d[i,][[ paste(strPerm, "uvfobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           uvffbar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvffbar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
           uvoobar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+        );
+      }  else if ( boolAggVal1l2 ){ # perform the aggregation of the sampled VAL1L2 lines
+        listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
+        total    = sum(listTotal, na.rm=TRUE);
+        dfSeriesSums = data.frame(
+          total  = total,
+          ufabar  = sum( as.numeric( d[i,][[ paste(strPerm, "ufabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          vfabar  = sum( as.numeric( d[i,][[ paste(strPerm, "vfabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uoabar  = sum( as.numeric( d[i,][[ paste(strPerm, "uoabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          voabar  = sum( as.numeric( d[i,][[ paste(strPerm, "voabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uvfoabar  = sum( as.numeric( d[i,][[ paste(strPerm, "uvfoabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uvffabar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvffabar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
+          uvooabar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvooabar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
         listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
@@ -919,6 +938,8 @@ calcPSTD_BSS_SMPL = function(d){
           listFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
         } else if( boolAggVl1l2  ){
           listFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar");
+        } else if( boolAggVal1l2  ){
+          listFields = c("total", "ufabar", "vfabar", "uoabar", "voabar", "uvfoabar", "uvffabar","uvooabar");
         } else if( boolAggSsvar  ){
           listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
         } else if( boolAggNbrCnt ){

@@ -145,6 +145,7 @@ public class MVPlotJob extends MVUtil {
   protected boolean _boolAggNbrCnt = false;
   protected boolean _boolAggSsvar = false;
   protected boolean _boolAggVl1l2 = false;
+  protected boolean _boolAggVal1l2 = false;
   protected String _strAggBootRepl = "1";
   protected String _strAggBootRandomSeed = "NA";
 
@@ -325,6 +326,7 @@ public class MVPlotJob extends MVUtil {
     job.cl_step = cl_step;
     job._strAggBootCI = _strAggBootCI;
     job._boolAggVl1l2 = _boolAggVl1l2;
+    job._boolAggVal1l2 = _boolAggVal1l2;
     job._boolEveqDis = _boolEveqDis;
     job._equalizeByIndep = _equalizeByIndep;
 
@@ -1479,6 +1481,14 @@ public class MVPlotJob extends MVUtil {
     return _boolAggVl1l2;
   }
 
+  public void setAggVal1l2(boolean aggVal1l2) {
+    _boolAggVal1l2 = aggVal1l2;
+  }
+
+  public boolean getAggVal1l2() {
+    return _boolAggVal1l2;
+  }
+
 
   public void setCalcSl1l2(boolean calcSl1l2) {
     _boolCalcSl1l2 = calcSl1l2;
@@ -1750,5 +1760,6 @@ public class MVPlotJob extends MVUtil {
   public void setCurrentDBName(List<String> currentDBName) {
     this.currentDBName = currentDBName;
   }
+
 }
 

@@ -4519,6 +4519,8 @@ function loadXMLStatistics(){
             $('#agg_stat').val('ssvar');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_vl1l2")).text() === "TRUE") {
             $('#agg_stat').val('vl1l2');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_val1l2")).text() === "TRUE") {
+            $('#agg_stat').val('val1l2');
         } else {
             if (selected_mode === "mode" && listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
                 $('#agg_stat').val('mode');
@@ -5082,14 +5084,17 @@ function requestDBUpdate() {
             var values = $(data).find("val");
             var databaseEl = $("#database");
             databaseEl.empty();
-            var selected, selectedDatabase;
+            var selected;
+            var selectedDatabase=[];
             if (initXML != null) {
-                selectedDatabase = initXML.find("database").text();
+                var sd = initXML.find("database").text();
+                selectedDatabase = sd.split(",");
+
             }
             for (var i = 0; i < values.length; i++) {
                 var t = $(values[i]);
-                if (selectedDatabase != null) {
-                    selected = t.text() == selectedDatabase;
+                if (selectedDatabase.length > 0) {
+                    selected = (selectedDatabase.indexOf(t.text()) > -1);
                 } else {
                     selected = i == 0;
                 }

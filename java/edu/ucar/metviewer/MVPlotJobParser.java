@@ -392,8 +392,8 @@ public class MVPlotJobParser extends MVUtil {
 
     //  database information
     String databases = "";
-    for(String db : job.getCurrentDBName()){
-      databases = databases + "," + db;
+    for (String db : job.getCurrentDBName()) {
+      databases = databases  + db + ",";
     }
     databases = databases.substring(0, databases.length() - 1);
     StringBuilder strXML = new StringBuilder(
@@ -555,6 +555,7 @@ public class MVPlotJobParser extends MVUtil {
           "<agg_nbrcnt>" + (job.getAggNbrCnt() ? "TRUE" : "FALSE") + "</agg_nbrcnt>" +
           "<agg_ssvar>" + (job.getAggSsvar() ? "TRUE" : "FALSE") + "</agg_ssvar>" +
           "<agg_vl1l2>" + (job.getAggVl1l2() ? "TRUE" : "FALSE") + "</agg_vl1l2>" +
+          "<agg_val1l2>" + (job.getAggVal1l2() ? "TRUE" : "FALSE") + "</agg_val1l2>" +
           "<boot_repl>" + job.getAggBootRepl() + "</boot_repl>" +
           "<boot_random_seed>" + job.getAggBootRandomSeed() + "</boot_random_seed>" +
           "<cl_step>" + job.getCl_step() + "</cl_step>" +
@@ -899,7 +900,7 @@ public class MVPlotJobParser extends MVUtil {
         job.setRscript(_strRscript);
         List<String> databases = new ArrayList<>();
         String[] databasesArray = strDBName.split(",");
-        for(String db : databasesArray){
+        for (String db : databasesArray) {
           databases.add(db.trim());
         }
 
@@ -1396,6 +1397,8 @@ public class MVPlotJobParser extends MVUtil {
             job.setAggSsvar(val);
           } else if (nodeAggStat._tag.equals("agg_vl1l2")) {
             job.setAggVl1l2(val);
+          } else if (nodeAggStat._tag.equals("agg_val1l2")) {
+            job.setAggVal1l2(val);
           } else if (nodeAggStat._tag.equals("boot_repl")) {
             job.setAggBootRepl(nodeAggStat._value);
           } else if (nodeAggStat._tag.equals("boot_random_seed")) {

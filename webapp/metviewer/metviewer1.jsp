@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v2.2</TITLE>
+<TITLE>METViewer v2.3-dev</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -162,11 +162,11 @@
 <script type="text/javascript" src="js/grid.locale-en.js"></script>
 <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="js/jquery.colorpicker.min.js"></script>
-<script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
+<script type="text/javascript" src="js/jquery.multiselect.js"></script>
 <script type="text/javascript" src="js/jquery.actual.min.js"></script>
 <script type="text/javascript"
         src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-<script type="text/javascript" src="js/metviewer_common.min.js"></script>
+<script type="text/javascript" src="js/metviewer_common.js"></script>
 <script type="text/javascript" src="js/moment.min.js"></script>
 
 <script type="text/javascript">
@@ -218,16 +218,17 @@
                 }
                 var values = $(data).find("val");
                 var databaseEl = $("#database");
-                var selected, selectedDatabase;
+                var selected;
+                var selectedDatabase=[];
                 if (initXML != null) {
-                    selectedDatabase = initXML.find("database").text();
-                } else {
-                    selectedDatabase = querySt("db");
+                    var sd = initXML.find("database").text();
+                    selectedDatabase = sd.split(",");
+
                 }
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
-                    if (selectedDatabase != null) {
-                        selected = t.text() == selectedDatabase;
+                    if (selectedDatabase.length > 0) {
+                        selected = (selectedDatabase.indexOf(t.text()) > -1);
                     } else {
                         selected = i == 0;
                     }
@@ -240,13 +241,12 @@
                     opt.appendTo(databaseEl);
                 }
                 $("#database").multiselect({
-                    multiple: false,
-                    header: false,
+                    multiple: true,
+                    header: true,
                     minWidth: 'auto',
                     height: 300,
                     selectedList: 1, // 0-based index
                     click: function (event, ui) {
-
                         seriesDiffY1 = [];
                         seriesDiffY2 = [];
                         var values, i;
@@ -302,10 +302,10 @@
 
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
-        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.2<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
+        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.3-dev<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
 
         </div>
-        <label for="database">Database:</label><select id="database">
+        <label for="database">Database:</label><select id="database" multiple="multiple">
     </select>
         <span style="margin-left:20px;"><button id="generate_plot">Generate Plot</button></span>
         <button id="load_xml" style="float: right">Load XML</button>
