@@ -382,6 +382,12 @@ CREATE TABLE line_data_cnt
     msess               DOUBLE DEFAULT -9999,
     msess_bcl           DOUBLE DEFAULT -9999,
     msess_bcu           DOUBLE DEFAULT -9999,
+    rmsfa               DOUBLE DEFAULT -9999,
+    rmsfa_bcl           DOUBLE DEFAULT -9999,
+    rmsfa_bcu           DOUBLE DEFAULT -9999,
+    rmsoa               DOUBLE DEFAULT -9999,
+    rmsoa_bcl           DOUBLE DEFAULT -9999,
+    rmsoa_bcu           DOUBLE DEFAULT -9999,
 
     
     CONSTRAINT line_data_cnt_data_file_id_pk
