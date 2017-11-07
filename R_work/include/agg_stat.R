@@ -305,13 +305,29 @@ if ( nrow(sampleData) > 0){
       return(NA);
     } else{
       v =  (d$total^2 * d$ffbar - d$total^2 * d$fbar^2) * (d$total^2 * d$oobar - d$total^2 * d$obar^2);
+      if( 0 >= v){
+        return(NA);
+      }
       anom_corr = (d$total^2 * d$fobar - d$total^2 * d$fbar * d$obar) / sqrt(v);
-      if( 0 >= v || 1 < anom_corr ){
+      if(  1 < anom_corr ){
         return(NA);
       } else {
         return( anom_corr );
       }
     }
+  }
+  calcRMSFA		= function(d){
+    if (is.na(d$ffbar) ||  0 > d$ffbar ){
+      return (NA);
+    }
+    return ( sqrt(d$ffbar) );
+  }
+
+  calcRMSOA		= function(d){
+    if (is.na(d$oobar) ||  0 > d$oobar ){
+      return (NA);
+    }
+    return ( sqrt(d$oobar) );
   }
   calcME			= function(d){ return( d$fbar - d$obar ); }
   calcME2			= function(d){
