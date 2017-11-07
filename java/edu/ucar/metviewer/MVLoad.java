@@ -289,7 +289,7 @@ public class MVLoad {
     info._boolLoadMpr = loadMpr;
     info._boolLoadOrank = loadOrank;
     info._boolStatHeaderDBCheck = statHeaderDBCheck;
-    info._boolStatHeaderDBCheck = modeHeaderDBCheck;
+    info._boolModeHeaderDBCheck = modeHeaderDBCheck;
     info._boolVerbose = verbose;
     info._intInsertSize = insertSize;
     long intProcessDataFileTime = new Date().getTime() - intProcessDataFileBegin;
