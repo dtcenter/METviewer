@@ -267,30 +267,32 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     String[] indyVals = job.getIndyVal();
-    if(job.getIndyVar().startsWith("fcst_lead")|| job.getIndyVar().startsWith("valid_hour") || job.getIndyVar().startsWith("init_hour")){
-      Integer[] valuesSortedInt = new Integer[indyVals.length];
-      for (int i = 0; i < indyVals.length; i++) {
-        try {
-          valuesSortedInt[i] = Integer.valueOf(indyVals[i]);
-        } catch (Exception e) {
-          _logger.error(e.getMessage());
-        }
-      }
-      Arrays.sort(valuesSortedInt);
-      for (int i = 0; i < indyVals.length; i++) {
-        try {
-          if (!Integer.valueOf(indyVals[i]).equals(valuesSortedInt[i])) {
-            result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
+    if (!job.getIndyVar().startsWith("fcst_thresh") && !job.getIndyVar().startsWith("obs_thresh")) {
+      if (job.getIndyVar().startsWith("fcst_lead") || job.getIndyVar().startsWith("valid_hour") || job.getIndyVar().startsWith("init_hour")) {
+        Integer[] valuesSortedInt = new Integer[indyVals.length];
+        for (int i = 0; i < indyVals.length; i++) {
+          try {
+            valuesSortedInt[i] = Integer.valueOf(indyVals[i]);
+          } catch (Exception e) {
+            _logger.error(e.getMessage());
           }
-        } catch (Exception e) {
-          _logger.error(e.getMessage());
         }
-      }
-    }else {
-      String[] indyValsSorted = Arrays.copyOf(indyVals, indyVals.length);
-      Arrays.sort(indyValsSorted);
-      if (!Arrays.equals(indyVals, indyValsSorted)) {
-        result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
+        Arrays.sort(valuesSortedInt);
+        for (int i = 0; i < indyVals.length; i++) {
+          try {
+            if (!Integer.valueOf(indyVals[i]).equals(valuesSortedInt[i])) {
+              result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
+            }
+          } catch (Exception e) {
+            _logger.error(e.getMessage());
+          }
+        }
+      } else {
+        String[] indyValsSorted = Arrays.copyOf(indyVals, indyVals.length);
+        Arrays.sort(indyValsSorted);
+        if (!Arrays.equals(indyVals, indyValsSorted)) {
+          result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
+        }
       }
     }
     return result;
@@ -303,30 +305,32 @@ public class MVPlotJobParser extends MVUtil {
 
       if (valuesObj instanceof String[]) {
         String[] values = (String[]) entry.getValue();
-        if (String.valueOf(entry.getKey()).startsWith("fcst_lead") || String.valueOf(entry.getKey()).startsWith("valid_hour") || String.valueOf(entry.getKey()).startsWith("init_hour")) {
-          Integer[] valuesSortedInt = new Integer[values.length];
-          for (int i = 0; i < values.length; i++) {
-            try {
-              valuesSortedInt[i] = Integer.valueOf(values[i]);
-            } catch (Exception e) {
-              _logger.error(e.getMessage());
-            }
-          }
-          Arrays.sort(valuesSortedInt);
-          for (int i = 0; i < values.length; i++) {
-            try {
-              if (!Integer.valueOf(values[i]).equals(valuesSortedInt[i])) {
-                return "Values for variable " + entry.getKey().toString() + " are not sorted";
+        if (!String.valueOf(entry.getKey()).startsWith("fcst_thresh") && !String.valueOf(entry.getKey()).startsWith("obs_thresh")) {
+          if (String.valueOf(entry.getKey()).startsWith("fcst_lead") || String.valueOf(entry.getKey()).startsWith("valid_hour") || String.valueOf(entry.getKey()).startsWith("init_hour")) {
+            Integer[] valuesSortedInt = new Integer[values.length];
+            for (int i = 0; i < values.length; i++) {
+              try {
+                valuesSortedInt[i] = Integer.valueOf(values[i]);
+              } catch (Exception e) {
+                _logger.error(e.getMessage());
               }
-            } catch (Exception e) {
-              _logger.error(e.getMessage());
             }
-          }
-        } else {
-          String[] valuesSorted = Arrays.copyOf(values, values.length);
-          Arrays.sort(valuesSorted);
-          if (!Arrays.equals(values, valuesSorted)) {
-            return "Values for variable " + entry.getKey().toString() + " are not sorted";
+            Arrays.sort(valuesSortedInt);
+            for (int i = 0; i < values.length; i++) {
+              try {
+                if (!Integer.valueOf(values[i]).equals(valuesSortedInt[i])) {
+                  return "Values for variable " + entry.getKey().toString() + " are not sorted";
+                }
+              } catch (Exception e) {
+                _logger.error(e.getMessage());
+              }
+            }
+          } else {
+            String[] valuesSorted = Arrays.copyOf(values, values.length);
+            Arrays.sort(valuesSorted);
+            if (!Arrays.equals(values, valuesSorted)) {
+              return "Values for variable " + entry.getKey().toString() + " are not sorted";
+            }
           }
         }
       } else if (valuesObj instanceof MVOrderedMap) {
