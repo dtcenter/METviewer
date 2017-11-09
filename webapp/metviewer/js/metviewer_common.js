@@ -4499,7 +4499,7 @@ function addFcstVar(y_axis) {
     }
 }
 
-function loadXMLStatistics(){
+function loadXMLStatistics(fcst_stat){
     if (initXML.find("plot").find("agg_stat").length > 0) {
         $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
         $('#calculations_statistics').hide();
@@ -5022,7 +5022,7 @@ function loadXMLSeries() {
         populateIndyVarVal(indy_var_vals);
     }
 
-    loadXMLStatistics();
+    loadXMLStatistics(fcst_stat);
 
 
     var listdiffseries1 = $(initXML.find("plot").find("tmpl").find("listDiffSeries1")).text();
