@@ -267,7 +267,7 @@ public class MVPlotJobParser extends MVUtil {
     }
 
     String[] indyVals = job.getIndyVal();
-    if (!job.getIndyVar().startsWith("fcst_thresh") && !job.getIndyVar().startsWith("obs_thresh")) {
+    if (!job.getIndyVar().startsWith("fcst_thresh") && !job.getIndyVar().startsWith("obs_thresh") && !job.getIndyVar().startsWith("fcst_lev")) {
       if (job.getIndyVar().startsWith("fcst_lead") || job.getIndyVar().startsWith("valid_hour") || job.getIndyVar().startsWith("init_hour")) {
         Integer[] valuesSortedInt = new Integer[indyVals.length];
         for (int i = 0; i < indyVals.length; i++) {
@@ -305,7 +305,7 @@ public class MVPlotJobParser extends MVUtil {
 
       if (valuesObj instanceof String[]) {
         String[] values = (String[]) entry.getValue();
-        if (!String.valueOf(entry.getKey()).startsWith("fcst_thresh") && !String.valueOf(entry.getKey()).startsWith("obs_thresh")) {
+        if (!String.valueOf(entry.getKey()).startsWith("fcst_thresh") && !String.valueOf(entry.getKey()).startsWith("obs_thresh") && !String.valueOf(entry.getKey()).startsWith("fcst_lev")) {
           if (String.valueOf(entry.getKey()).startsWith("fcst_lead") || String.valueOf(entry.getKey()).startsWith("valid_hour") || String.valueOf(entry.getKey()).startsWith("init_hour")) {
             Integer[] valuesSortedInt = new Integer[values.length];
             for (int i = 0; i < values.length; i++) {
