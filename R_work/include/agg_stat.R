@@ -632,6 +632,47 @@ calcECLV = function(d){
   calcPSTD_UNCERTAINTY = function(d){
     return ( d$uncertainty );
   }
+
+  calcFGBAR = function(d){
+    return  (d$fgbar);
+  }
+
+  calcOGBAR = function(d){
+    return  (d$ogbar);
+  }
+
+  calcMGBAR = function(d){
+    return  (d$mgbar);
+  }
+
+  calcEGBAR = function(d){
+    return  (d$egbar);
+  }
+
+  calcS1 = function(d){
+    if(is.na(d$egbar) || is.na(d$mgbar) || d$mgbar == 0)
+      return ( NA );
+    s1 = 100 * d$egbar / d$mgbar ;
+    return ( round(s1, digits=5) ) ;
+  }
+
+  calcS1_OG = function(d){
+    if(is.na(d$egbar) || is.na(d$ogbar) || d$ogbar == 0)
+      return ( NA );
+    s1_og = 100 * d$egbar / d$ogbar ;
+    return ( round(s1_og, digits=5) ) ;
+  }
+
+  calcFGOG_RATIO = function(d){
+    if(is.na(d$fgbar) || is.na(d$ogbar) || d$ogbar == 0)
+      return ( NA );
+    fgog_ratio = 100 * d$fgbar / d$ogbar ;
+    return ( round(fgog_ratio, digits=5) ) ;
+  }
+
+
+
+
   findIndexes = function(diffSeriesVec, listGroupToValue, matPerm){
     listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
     listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
@@ -718,6 +759,17 @@ calcECLV = function(d){
           ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           mae   = sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+        );
+      }  else if ( boolAggGrad ){ # perform the aggregation of the sampled grad lines
+        listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
+        total		= sum(listTotal, na.rm=TRUE);
+
+        dfSeriesSums = data.frame(
+          total	= total,
+          fgbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fgbar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total,
+          ogbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ogbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          mgbar	= sum( as.numeric( d[i,][[ paste(strPerm, "mgbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          egbar	= sum( as.numeric( d[i,][[ paste(strPerm, "egbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggVl1l2 ){ # perform the aggregation of the sampled VL1L2 lines
         listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
@@ -950,6 +1002,8 @@ calcECLV = function(d){
           listFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");
         } else if( boolAggSl1l2  ){
           listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
+        } else if( boolAggGrad  ){
+          listFields = c("total", "fgbar", "ogbar", "mgbar", "egbar");
         } else if( boolAggSal1l2  ){
           listFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
         } else if( boolAggVl1l2  ){
