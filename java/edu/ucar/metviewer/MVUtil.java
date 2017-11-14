@@ -35,7 +35,7 @@ public class MVUtil {
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
-  public static final String GRAD = "grad";
+  public static final String GRAD = "grad"; //Gradient partial sums
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
   public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
   public static final String PCT = "pct";
