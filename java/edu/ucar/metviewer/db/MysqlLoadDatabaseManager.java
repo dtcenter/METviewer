@@ -44,7 +44,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     "line_data_pstd", "line_data_pjc", "line_data_prc", "line_data_sl1l2", "line_data_sal1l2",
     "line_data_vl1l2", "line_data_val1l2", "line_data_mpr", "line_data_nbrctc", "line_data_nbrcts",
     "line_data_nbrcnt", "line_data_isc", "line_data_mctc", "line_data_rhist", "line_data_orank", "line_data_relp", "line_data_eclv",
-    "line_data_ssvar", "line_data_enscnt"
+    "line_data_ssvar", "line_data_enscnt", "line_data_grad"
   };
   private MVOrderedMap mapIndexes;
   /*
@@ -577,6 +577,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             case "SL1L2":
               maxSize = 17;
               break;
+            case "GRAD":
+              maxSize = 18;
+              break;
             case "PSTD":
               maxSize = 29;
               break;
@@ -883,6 +886,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             mvLoadStatInsertData.setLineType("RELP");
           } else if (listToken[6].equals("SL1L2")) {
             mvLoadStatInsertData.setLineType("SL1L2");
+          } else if (listToken[6].equals("GRAD")) {
+            mvLoadStatInsertData.setLineType("GRAD");
           } else if (listToken[6].equals("SAL1L2")) {
             mvLoadStatInsertData.setLineType("SAL1L2");
           } else if (listToken[6].equals("VL1L2")) {
@@ -1299,7 +1304,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 }
               }
             }
-            if (listToken[6].equals("VL1L2") || listToken[6].equals("VAL1L2")) {//VL1L2,VAL1L2 line type
+            if (listToken[6].equals("VL1L2") || listToken[6].equals("VAL1L2") || listToken[6].equals("GRAD")) {//VL1L2,VAL1L2,GRAD line type
               for (int i = 0; i < 8; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
