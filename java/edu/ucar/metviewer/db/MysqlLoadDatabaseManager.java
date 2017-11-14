@@ -37,6 +37,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   private static final int INDEX_VAR_LENGTH = 3;
 
   private final Map<String, Integer> modeHeaders = new HashMap<>();
+  private final String[] modeObjSingleColumns = new String[]{
+    "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT", "CENTROID_LON", "AXIS_ANG", "LENGTH", "WIDTH", "AREA", "AREA_THRESH", "CURVATURE", "CURVATURE_X", "CURVATURE_Y", "COMPLEXITY", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90", "INTENSITY_50", "INTENSITY_SUM"};
 
 
   private final String[] listLineDataTables = {
@@ -1661,10 +1663,22 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         String strModeHeaderValueList =
           "'" + MVUtil.findValueInArray(listToken, headerNames, "VERSION") + "', " +      //  version
-            "'" + MVUtil.findValueInArray(listToken, headerNames, "MODEL") + "', " +      //  model
-            "'" + MVUtil.findValueInArray(listToken, headerNames, "DESC") + "', " +      //  descr
-            "'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD") + "', " +      //  fcst_lead
-            "'" + strFcstValidBeg + "', ";      //  fcst_valid
+            "'" + MVUtil.findValueInArray(listToken, headerNames, "MODEL") + "', ";       //  model
+
+        if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "N_VALID"))) {
+          strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  N_VALID
+        } else {
+          strModeHeaderValueList = strModeHeaderValueList + MVUtil.findValueInArray(listToken, headerNames, "N_VALID") + ", ";      //  N_VALID
+        }
+        if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "GRID_RES"))) {
+          strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  GRID_RES
+        } else {
+          strModeHeaderValueList = strModeHeaderValueList + MVUtil.findValueInArray(listToken, headerNames, "GRID_RES") + ", ";      //  GRID_RES
+        }
+
+        strModeHeaderValueList = strModeHeaderValueList + "'" + MVUtil.findValueInArray(listToken, headerNames, "DESC") + "', " +      //  GRID_RES
+          "'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD") + "', " +      //  fcst_lead
+          "'" + strFcstValidBeg + "', ";      //  fcst_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "FCST_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  fcst_accum
         } else {
@@ -1690,6 +1704,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         String strModeHeaderWhereClause =
           "  version = '" + MVUtil.findValueInArray(listToken, headerNames, "VERSION") + "'\n" +
             "  AND model = '" + MVUtil.findValueInArray(listToken, headerNames, "MODEL") + "'\n" +
+            "  AND n_valid = '" + MVUtil.findValueInArray(listToken, headerNames, "N_VALID") + "'\n" +
+            "  AND grid_res = '" + MVUtil.findValueInArray(listToken, headerNames, "GRID_RES") + "'\n" +
             "  AND descr = '" + MVUtil.findValueInArray(listToken, headerNames, "DESC") + "'\n" +
             "  AND fcst_lead = '" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD") + "'\n" +
             "  AND fcst_valid = '" + strFcstValidBeg + "'\n" +
@@ -1797,10 +1813,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  build the value list for the mode_cts insert
           int intModeObjId = intModeObjIdNext++;
-          String strSingleValueList = intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "', '" + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT") + "'";
-          int centroidxIndex = headerNames.indexOf("CENTROID_X");
-          for (int i = 0; i < 21; i++) {
-            strSingleValueList += ", " + replaceInvalidValues(listToken[centroidxIndex + i]);
+          String strSingleValueList = intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "'";
+          for (String header : modeObjSingleColumns) {
+            strSingleValueList += ", '" + replaceInvalidValues(MVUtil.findValueInArray(listToken, headerNames, header)) + "'";
           }
 
           //  insert the record into the mode_obj_single database table
