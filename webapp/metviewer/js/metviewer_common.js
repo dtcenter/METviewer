@@ -552,7 +552,7 @@ function updateForecastVariables() {
 
                 }
                 var length;
-                var databaseNumbers = $("#database").multiselect("getChecked").length-1;
+                var databaseNumbers = $("#database").multiselect("getChecked").length - 1;
                 for (var i = 0; i < options.length; i++) {
                     if (options[i].text() !== options[i][0].value) {
                         length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
@@ -1367,7 +1367,7 @@ function populateIndyVarVal(selectedVals) {
                             length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
                             if (length === databaseNumbers) {
                                 options[i].text(options[i][0].value + "*");
-                            }else{
+                            } else {
                                 options[i].text(options[i][0].value);
                             }
                         }
@@ -2813,24 +2813,24 @@ function createXMLEclv(plot) {
     plot = createXMLPlotFix(plot);
     var statistic = $("input:radio[name ='statistics']:checked").val();
 
-        var calc_stat_val = $('#calc_stat').val();
-        var agg_stat_val = $('#agg_stat').val();
+    var calc_stat_val = $('#calc_stat').val();
+    var agg_stat_val = $('#agg_stat').val();
     if (statistic === 'aggregation_statistics' && agg_stat_val !== "none") {
-            var agg_stat = $('<agg_stat />');
-            agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
-            agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
-            agg_stat.append($('<boot_random_seed />').text($('#boot_random_seed').val()));
-            agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
-            agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
-            agg_stat.append($('<cl_step />').text($('#cl_step').val()));
-            plot.append(agg_stat);
-        }
-        else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
-            var calc_stat = $('<calc_stat />');
-            calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
-            plot.append(calc_stat);
-        }
-        plot.append($('<plot_stat />').text($('#plot_stat').val()));
+        var agg_stat = $('<agg_stat />');
+        agg_stat.append($('<agg_' + agg_stat_val + ' />').text("true"));
+        agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
+        agg_stat.append($('<boot_random_seed />').text($('#boot_random_seed').val()));
+        agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
+        agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
+        agg_stat.append($('<cl_step />').text($('#cl_step').val()));
+        plot.append(agg_stat);
+    }
+    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
+        var calc_stat = $('<calc_stat />');
+        calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
+        plot.append(calc_stat);
+    }
+    plot.append($('<plot_stat />').text($('#plot_stat').val()));
     plot = createXMLCommon(plot);
 
     return plot;
@@ -3782,9 +3782,9 @@ function addFixedVar() {
     }
 
     if (!is_not_visible) {
-       // remove_var = $("#remove_fixed_var_" + last_index).clone()
-       //         .prop("id", 'remove_fixed_var_' + new_index);
-        remove_var = $('<button id="remove_fixed_var_'+ new_index+'" class="remove_fixed_var">Remove</button>');
+        // remove_var = $("#remove_fixed_var_" + last_index).clone()
+        //         .prop("id", 'remove_fixed_var_' + new_index);
+        remove_var = $('<button id="remove_fixed_var_' + new_index + '" class="remove_fixed_var">Remove</button>');
 
 
         fixed_var_val = $("#fixed_var_val_" + last_index).clone(false);
@@ -3812,13 +3812,13 @@ function addFixedVar() {
                 .append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button)).append($('<td>').append(fix_var_event_equal).append(fix_var_event_equal_label)));
 
         remove_var.button({
-                    icons: {
-                        primary: "ui-icon-trash"
-                    },
-                    text: false
-                }).click(function () {
+            icons: {
+                primary: "ui-icon-trash"
+            },
+            text: false
+        }).click(function () {
             removeFixedVar($(this).attr('id'));
-                });
+        });
     }
 
     createValDatePeriodDialog('fixed_var_val', new_index);
@@ -4499,7 +4499,7 @@ function addFcstVar(y_axis) {
     }
 }
 
-function loadXMLStatistics(fcst_stat){
+function loadXMLStatistics(fcst_stat) {
     if (initXML.find("plot").find("agg_stat").length > 0) {
         $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
         $('#calculations_statistics').hide();
@@ -4509,6 +4509,8 @@ function loadXMLStatistics(fcst_stat){
             $('#agg_stat').val('ctc');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_sl1l2")).text() === "TRUE") {
             $('#agg_stat').val('sl1l2');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_grad")).text() === "TRUE") {
+            $('#agg_stat').val('grad');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_sal1l2")).text() === "TRUE") {
             $('#agg_stat').val('sal1l2');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_pct")).text() === "TRUE") {
@@ -4532,9 +4534,9 @@ function loadXMLStatistics(fcst_stat){
         }
         $("#boot_repl").val($(initXML.find("plot").find("agg_stat").find("boot_repl")).text());
         var seed = $(initXML.find("plot").find("agg_stat").find("boot_random_seed")).text();
-        if( Number.isInteger(seed)){
+        if (Number.isInteger(seed)) {
             $("#boot_random_seed").val(seed);
-        }else{
+        } else {
             $("#boot_random_seed").val("");
         }
         $("#boot_ci").val($(initXML.find("plot").find("agg_stat").find("boot_ci")).text());
@@ -4547,6 +4549,8 @@ function loadXMLStatistics(fcst_stat){
             $('#calc_stat').val('ctc');
         } else if ($(initXML.find("plot").find("calc_stat").find("calc_sl1l2")).text() == "TRUE") {
             $('#calc_stat').val('sl1l2');
+        } else if ($(initXML.find("plot").find("calc_stat").find("calc_grad")).text() == "TRUE") {
+            $('#calc_stat').val('grad');
         } else if ($(initXML.find("plot").find("calc_stat").find("calc_sal1l2")).text() == "TRUE") {
             $('#calc_stat').val('sal1l2');
         } else if ($(initXML.find("plot").find("calc_stat").find("calc_vl1l2")).text() == "TRUE") {
@@ -5085,7 +5089,7 @@ function requestDBUpdate() {
             var databaseEl = $("#database");
             databaseEl.empty();
             var selected;
-            var selectedDatabase=[];
+            var selectedDatabase = [];
             if (initXML != null) {
                 var sd = initXML.find("database").text();
                 selectedDatabase = sd.split(",");
