@@ -821,6 +821,7 @@
                       <option value="ssvar">Spread/Skill Variance (SSVAR)</option>
                       <option value="vl1l2">Vector partial sums (VL1L2)</option>
                       <option value="val1l2">Vector anomaly partial sums (VAL1L2)</option>
+                      <option value="grad">(GRAD)</option>
                       <option value="mode">MODE-ratio</option>
                     </select>
                   </td>
@@ -881,6 +882,7 @@
                     <option value="sl1l2">Scalar partial sums (SL1L2)</option>
                     <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
                     <option value="vl1l2">Vector partial sums (VL1L2)</option>
+                    <option value="grad">(GRAD)</option>
                   </select>
                   </td>
                   <td><span><label for="plot_stat">Plot
