@@ -344,13 +344,14 @@ public class MVBatch extends MVUtil {
     //  determine if the plots require data aggregation
     boolean boolAggCtc = job.getAggCtc();
     boolean boolAggSl1l2 = job.getAggSl1l2();
+    boolean boolAggGrad = job.getAggGrad();
     boolean boolAggSal1l2 = job.getAggSal1l2();
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
     boolean boolAggVl1l2 = job.getAggVl1l2();
     boolean boolAggVal1l2 = job.getAggVal1l2();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2 || boolAggVal1l2;
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2 || boolAggVal1l2 || boolAggGrad;
 
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
@@ -462,6 +463,7 @@ public class MVBatch extends MVUtil {
         tableAggStatInfo.put("agg_ctc", job.getAggCtc() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_sl1l2", job.getAggSl1l2() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
+        tableAggStatInfo.put("agg_grad", job.getAggGrad() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
         tableAggStatInfo.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : "FALSE");
@@ -512,7 +514,7 @@ public class MVBatch extends MVUtil {
 
 
         String strDataFileEe = _strDataFolder + "/" + buildTemplateString(job.getDataFileTmpl(), mapTmplValsPlot, job.getTmplMaps(), printStream);
-        boolean success=false;
+        boolean success = false;
         for (int i = 0; i < job.getCurrentDBName().size(); i++) {
           success = databaseManager.executeQueriesAndSaveToFile(listQuery, strDataFileEe + "_ee_input", job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
         }
@@ -1224,6 +1226,7 @@ public class MVBatch extends MVUtil {
       mapAggStatStatic.put("fcst_var", strFcstVar);
       tableAggStatInfo.put("agg_ctc", job.getAggCtc() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_sl1l2", job.getAggSl1l2() ? "TRUE" : "FALSE");
+      tableAggStatInfo.put("agg_grad", job.getAggGrad() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_sal1l2", job.getAggSal1l2() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_nbrcnt", job.getAggNbrCnt() ? "TRUE" : "FALSE");
       tableAggStatInfo.put("agg_ssvar", job.getAggSsvar() ? "TRUE" : "FALSE");
