@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements AppDatabaseManager {
 
 
-  private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
   public static final String INSERT_INTO_MODE_SINGLE = "INSERT INTO mode_single";
+  private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
   private final Map<String, String> statHeaderSQLType = new HashMap<>();
   private final Map<String, String> modeHeaderSQLType = new HashMap<>();
   private final Map<String, String> modeSingleStatField = new HashMap<>();
@@ -106,6 +106,36 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   }
 
+  private static List<String> buildModeEventEqualizeTempSQL(String strTempList, String strSelectList, String strWhere) {
+
+    List<String> listQuery = new ArrayList<>();
+
+
+    //  build the MODE single object stat tables
+    listQuery.add("\nDROP  TABLE IF EXISTS mode_single;");
+    listQuery.add(
+      "CREATE TEMPORARY TABLE mode_single\n" +
+        "(\n" +
+        strTempList + ",\n" +
+        "    total               INT \n" +
+        ");");
+
+    //  insert information from mode_obj_single into the temp tables with header data
+    listQuery.add(
+      INSERT_INTO_MODE_SINGLE + "\n" +
+        "SELECT  \n" + strSelectList + ",\n" +
+        "  mc.total \n" +
+        "FROM\n" +
+        "  mode_header h,\n" +
+        "  mode_cts mc\n" +
+        "WHERE\n" + strWhere +
+        "  AND mc.mode_header_id = h.mode_header_id\n" +
+        "  AND mc.field = 'OBJECT' ;");
+
+
+    return listQuery;
+  }
+
   @Override
   public List<String> getListStat(String strFcstVar, String[] currentDBName) {
     List<String> listStatName = new ArrayList<>();
@@ -126,7 +156,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
       "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n" +
-      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n";
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n" +
+      "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n";
+
     for (String database : currentDBName) {
       try (Connection con = getConnection(database);
            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
@@ -141,6 +173,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               case 0:
               case 1:
               case 15:
+              case 17:
                 if (!boolCnt) {
                   listStatName.addAll(MVUtil.statsCnt.keySet());
                 }
@@ -393,7 +426,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return listRes;
   }
 
-
   @Override
   public boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName, boolean isNewFile) throws Exception {
     boolean success = false;
@@ -616,7 +648,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return Collections.unmodifiableList(listDB);
   }
 
-
   /**
    * Use the input query components to build a series of MODE temp table SQL statements and return them in a list.
    *
@@ -769,36 +800,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return listQuery;
   }
 
-  private static List<String> buildModeEventEqualizeTempSQL(String strTempList, String strSelectList, String strWhere) {
-
-    List<String> listQuery = new ArrayList<>();
-
-
-    //  build the MODE single object stat tables
-    listQuery.add("\nDROP  TABLE IF EXISTS mode_single;");
-    listQuery.add(
-      "CREATE TEMPORARY TABLE mode_single\n" +
-        "(\n" +
-        strTempList + ",\n" +
-        "    total               INT \n" +
-        ");");
-
-    //  insert information from mode_obj_single into the temp tables with header data
-    listQuery.add(
-      INSERT_INTO_MODE_SINGLE + "\n" +
-        "SELECT  \n" + strSelectList + ",\n" +
-        "  mc.total \n" +
-        "FROM\n" +
-        "  mode_header h,\n" +
-        "  mode_cts mc\n" +
-        "WHERE\n" + strWhere +
-        "  AND mc.mode_header_id = h.mode_header_id\n" +
-        "  AND mc.field = 'OBJECT' ;");
-
-
-    return listQuery;
-  }
-
   /**
    * The input job and plot_fix information is used to build a list of SQL queries that result in the temp table plot_data being filled with formatted plot data
    * for a single plot.  Several job validation checks are performed, and an Exception is thrown in case of error.
@@ -837,19 +838,21 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  determine if the plot requires data aggregation or calculations
     boolean boolAggCtc = job.getAggCtc();
     boolean boolAggSl1l2 = job.getAggSl1l2();
+    boolean boolAggGrad = job.getAggGrad();
     boolean boolAggSal1l2 = job.getAggSal1l2();
     boolean boolAggPct = job.getAggPct();
     boolean boolAggNbrCnt = job.getAggNbrCnt();
     boolean boolAggSsvar = job.getAggSsvar();
     boolean boolAggVl1l2 = job.getAggVl1l2();
     boolean boolAggVal1l2 = job.getAggVal1l2();
-    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2 || boolAggVal1l2;
+    boolean boolAggStat = boolAggCtc || boolAggSl1l2 || boolAggSal1l2 || boolAggPct || boolAggNbrCnt || boolAggSsvar || boolAggVl1l2 || boolAggVal1l2 || boolAggGrad;
     boolean boolCalcCtc = job.getCalcCtc();
     boolean boolCalcSl1l2 = job.getCalcSl1l2();
+    boolean boolCalcGrad = job.getCalcGrad();
     boolean boolCalcSal1l2 = job.getCalcSal1l2();
     boolean boolCalcVl1l2 = job.getCalcVl1l2();
     boolean boolCalcStat;
-    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2 || boolCalcVl1l2;
+    boolCalcStat = boolModeRatioPlot || boolCalcCtc || boolCalcSl1l2 || boolCalcSal1l2 || boolCalcVl1l2 || boolCalcGrad;
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -1191,6 +1194,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               aggType = MVUtil.CTC;
             } else if (boolCalcSl1l2 || boolAggSl1l2) {
               aggType = MVUtil.SL1L2;
+            } else if (boolCalcGrad || boolAggGrad) {
+              aggType = MVUtil.GRAD;
             } else if (boolCalcSal1l2 || boolAggSal1l2) {
               aggType = MVUtil.SAL1L2;
             } else if (boolAggNbrCnt) {
@@ -1333,6 +1338,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fy_oy,\n  ld.fy_on,\n  ld.fn_oy,\n  ld.fn_on";
           } else if (boolAggSl1l2) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n ld.mae";
+          } else if (boolAggGrad) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fgbar,\n  ld.ogbar,\n  ld.mgbar,\n  ld.egbar,\n  ld.s1,\n ld.s1_og, \n ld.fgog_ratio";
           } else if (boolAggSsvar) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar,\n  ld.var_mean, \n  ld.bin_n";
           } else if (boolAggSal1l2) {
@@ -1370,6 +1377,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar) stat_value,\n" +
                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
             }
+          } else if (boolCalcGrad) {
+            strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fgbar, ld.ogbar, ld.mgbar, ld.egbar) stat_value,\n" +
+              "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else if (boolCalcSal1l2) {
             strSelectStat += ",\n  calc" + strStat + "(ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar) stat_value,\n" +
               "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
@@ -2174,7 +2184,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() || job.getCalcGrad(), job.getCurrentDBName().get(i), i == 0);
     }
     return strMsg;
   }
@@ -2361,7 +2371,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() || job.getCalcGrad(), job.getCurrentDBName().get(i), i == 0);
     }
 
     return intNumDepSeries;
@@ -2510,7 +2520,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(), job.getCurrentDBName().get(i), i == 0);
+      executeQueriesAndSaveToFile(queries, strDataFile, job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2() || job.getCalcGrad(), job.getCurrentDBName().get(i), i == 0);
     }
 
     return intNumDepSeries;
