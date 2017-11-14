@@ -753,6 +753,39 @@ CREATE TABLE line_data_sl1l2
                 INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM;
 
+DROP TABLE IF EXISTS line_data_grad;
+CREATE TABLE line_data_grad
+(
+    stat_header_id      INT UNSIGNED NOT NULL,
+    data_file_id        INT UNSIGNED NOT NULL,
+    line_num            INT UNSIGNED,
+    fcst_lead           INT,
+    fcst_valid_beg      DATETIME,
+    fcst_valid_end      DATETIME,
+    fcst_init_beg       DATETIME,
+    obs_lead            INT UNSIGNED,
+    obs_valid_beg       DATETIME,
+    obs_valid_end       DATETIME,
+    total               INT UNSIGNED,
+
+    fgbar               DOUBLE,
+    ogbar               DOUBLE,
+    mgbar               DOUBLE,
+    egbar               DOUBLE,
+    s1                  DOUBLE,
+    s1_og               DOUBLE DEFAULT -9999,
+    fgog_ratio          DOUBLE DEFAULT -9999,
+
+    CONSTRAINT line_data_grad_data_file_id_pk
+            FOREIGN KEY(data_file_id)
+            REFERENCES data_file(data_file_id),
+    CONSTRAINT line_data_grad_stat_header_id_pk
+            FOREIGN KEY(stat_header_id)
+            REFERENCES stat_header(stat_header_id),
+                INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
+
+
 
 -- line_data_sal1l2 contains stat data for a particular stat_header record, which it points 
 --   at via the stat_header_id field.
@@ -2316,6 +2349,47 @@ CREATE FUNCTION calcVL1L2_DIR_ABSERR(total INT, ufbar REAL, vfbar REAL, uobar RE
         SET result = ABS( calcVL1L2_VDIFF_DIR(total , ufbar , vfbar , uobar , vobar , uvfobar , uvffbar ,uvoobar ));
         RETURN IFNULL(result, 'NA');
     END |
+
+DROP FUNCTION IF EXISTS calcFGBAR |
+CREATE FUNCTION calcFGBAR (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN RETURN  IFNULL(fgbar, 'NA'); END |
+
+DROP FUNCTION IF EXISTS calcOGBAR |
+CREATE FUNCTION calcOGBAR (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN RETURN  IFNULL(ogbar, 'NA'); END |
+
+DROP FUNCTION IF EXISTS calcMGBAR |
+CREATE FUNCTION calcMGBAR (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN RETURN  IFNULL(mgbar, 'NA'); END |
+
+DROP FUNCTION IF EXISTS calcEGBAR |
+CREATE FUNCTION calcEGBAR (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN RETURN  IFNULL(egbar, 'NA'); END |
+
+DROP FUNCTION IF EXISTS calcS1 |
+CREATE FUNCTION calcS1 (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN
+    DECLARE result DECIMAL(12, 6);
+    IF mgbar = 0 THEN RETURN 'NA'; END IF;
+    SET result = 100.0 * egbar / mgbar;
+    RETURN  IFNULL(result, 'NA'); END |
+
+DROP FUNCTION IF EXISTS calcS1_OG |
+CREATE FUNCTION calcS1_OG (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN
+    DECLARE result DECIMAL(12, 6);
+    IF ogbar = 0 THEN RETURN 'NA'; END IF;
+    SET result = 100.0 * egbar / ogbar ;
+    RETURN  IFNULL(result, 'NA'); END |
+
+DROP FUNCTION IF EXISTS calcFGOG_RATIO |
+CREATE FUNCTION calcFGOG_RATIO (total INT, fgbar REAL, ogbar REAL, mgbar REAL, egbar REAL) RETURNS CHAR(16) DETERMINISTIC
+BEGIN
+    DECLARE result DECIMAL(12, 6);
+    IF ogbar = 0 THEN RETURN 'NA'; END IF;
+    SET result = fgbar / ogbar  ;
+    RETURN  IFNULL(result, 'NA'); END |
+
 
 DELIMITER ;
 
