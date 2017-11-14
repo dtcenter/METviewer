@@ -35,6 +35,7 @@ public class MVUtil {
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
   public static final String SL1L2 = "sl1l2"; //Scalar partial sums
+  public static final String GRAD = "grad";
   public static final String SAL1L2 = "sal1l2"; //  Scalar anomaly  partial sums
   public static final String SSVAR = "ssvar"; //  Spread/Skill Variance
   public static final String PCT = "pct";
@@ -152,6 +153,13 @@ public class MVUtil {
     statsCnt.put("BCMSE", new String[]{"bc", SL1L2});
     statsCnt.put("BCRMSE", new String[]{"bc", SL1L2});
     statsCnt.put("RMSE", new String[]{"bc", SL1L2});
+    statsCnt.put("FGBAR", new String[]{"bc", GRAD});
+    statsCnt.put("OGBAR", new String[]{"bc", GRAD});
+    statsCnt.put("MGBAR", new String[]{"bc", GRAD});
+    statsCnt.put("EGBAR", new String[]{"bc", GRAD});
+    statsCnt.put("S1", new String[]{"bc", GRAD});
+    statsCnt.put("S1_OG", new String[]{"bc", GRAD});
+    statsCnt.put("FGOG_RATIO", new String[]{"bc", GRAD});
     statsCnt.put("E10", new String[]{"bc"});
     statsCnt.put("E25", new String[]{"bc"});
     statsCnt.put("E50", new String[]{"bc"});
@@ -263,6 +271,7 @@ public class MVUtil {
     statsRhist.put("RHIST_IGN", new String[]{});
     statsRhist.put("RHIST_SPREAD", new String[]{});
   }
+
   static {
     statsVal1l2.put("VAL1L2_ANOM_CORR", new String[]{VAL1L2});
   }
@@ -811,7 +820,7 @@ public class MVUtil {
       strThresh = matFcstThresh.group(2);
       dblThresh = Double.parseDouble(strThresh);
     } else {
-     // printStream.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
+      // printStream.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
       return strThreshRet;
     }
 
@@ -1701,14 +1710,14 @@ public class MVUtil {
    */
   public static boolean isModeJob(final MVPlotJob job) {
     MVOrderedMap[] listDep = job.getDepGroups();
-    if(listDep.length > 0){
-    String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
-    String strStat = parseModeStat(listFcstVarStat[0][1])[0];
+    if (listDep.length > 0) {
+      String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
+      String strStat = parseModeStat(listFcstVarStat[0][1])[0];
 
-    return modeSingleStatField.contains(strStat)
-      || modePairStatField.containsKey(strStat)
-      || modeRatioField.contains(listFcstVarStat[0][1]);
-    }else {
+      return modeSingleStatField.contains(strStat)
+        || modePairStatField.containsKey(strStat)
+        || modeRatioField.contains(listFcstVarStat[0][1]);
+    } else {
       return false;
     }
   }
