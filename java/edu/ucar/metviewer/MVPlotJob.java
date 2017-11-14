@@ -140,6 +140,7 @@ public class MVPlotJob extends MVUtil {
 
   protected boolean _boolAggCtc = false;
   protected boolean _boolAggSl1l2 = false;
+  protected boolean _boolAggGrad = false;
   protected boolean _boolAggSal1l2 = false;
   protected boolean _boolAggPct = false;
   protected boolean _boolAggNbrCnt = false;
@@ -157,6 +158,7 @@ public class MVPlotJob extends MVUtil {
 
   protected boolean _boolCalcCtc = false;
   protected boolean _boolCalcSl1l2 = false;
+  protected boolean _boolCalcGrad = false;
   protected boolean _boolCalcSal1l2 = false;
   protected boolean _boolCalcVl1l2 = false;
 
@@ -317,6 +319,7 @@ public class MVPlotJob extends MVUtil {
 
     job._boolAggCtc = _boolAggCtc;
     job._boolAggSl1l2 = _boolAggSl1l2;
+    job._boolAggGrad = _boolAggGrad;
     job._boolAggSal1l2 = _boolAggSal1l2;
     job._boolAggPct = _boolAggPct;
     job._boolAggNbrCnt = _boolAggNbrCnt;
@@ -332,6 +335,7 @@ public class MVPlotJob extends MVUtil {
 
     job._boolCalcCtc = _boolCalcCtc;
     job._boolCalcSl1l2 = _boolCalcSl1l2;
+    job._boolCalcGrad = _boolCalcGrad;
     job._boolCalcSal1l2 = _boolCalcSal1l2;
     job._boolCalcVl1l2 = _boolCalcVl1l2;
 
@@ -1355,6 +1359,14 @@ public class MVPlotJob extends MVUtil {
     _boolAggSl1l2 = aggSl1l2;
   }
 
+  public boolean getAggGrad() {
+    return _boolAggGrad;
+  }
+
+  public void setAggGrad(boolean aggGrad) {
+    _boolAggGrad = aggGrad;
+  }
+
   public boolean getAggSal1l2() {
     return _boolAggSal1l2;
   }
@@ -1457,6 +1469,10 @@ public class MVPlotJob extends MVUtil {
     return _boolCalcSl1l2;
   }
 
+  public boolean getCalcGrad() {
+    return _boolCalcGrad;
+  }
+
   public void setCalcSal1l2(boolean calcSal1l2) {
     _boolCalcSal1l2 = calcSal1l2;
   }
@@ -1492,6 +1508,10 @@ public class MVPlotJob extends MVUtil {
 
   public void setCalcSl1l2(boolean calcSl1l2) {
     _boolCalcSl1l2 = calcSl1l2;
+  }
+
+  public void setCalcGrad(boolean calcGrad) {
+    _boolCalcGrad = calcGrad;
   }
 
   public boolean getRocPct() {
