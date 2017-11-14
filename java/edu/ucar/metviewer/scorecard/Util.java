@@ -21,7 +21,7 @@ import java.util.Map;
 public class Util {
 
   private static final Logger logger = LogManager.getLogger("Util");
-  private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2, MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT};
+  private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2, MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD};
 
   private Util() {
 

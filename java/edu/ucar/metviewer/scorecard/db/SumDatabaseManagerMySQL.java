@@ -38,6 +38,8 @@ public class SumDatabaseManagerMySQL extends DatabaseManagerMySQL {
       } else {
         result = "calc" + stat + "(total, fbar, obar, fobar, ffbar, oobar)";
       }
+    } else if (table.endsWith(MVUtil.GRAD)) {
+      result = "calc" + stat + "(total, fgbar, ogbar, mgbar, egbar)";
     } else if (table.endsWith(MVUtil.SAL1L2)) {
       result = "calc" + stat + "(total, fabar, oabar, foabar, ffabar, ooabar)";
     } else if (table.endsWith(MVUtil.VL1L2)) {

@@ -34,6 +34,8 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerMySQL {
       result = "total, fy_oy,fy_on,fn_oy,fn_on";
     } else if (table.endsWith(MVUtil.SL1L2)) {
       result = "total,fbar,obar,fobar,ffbar,oobar,mae";
+    } else if (table.endsWith(MVUtil.GRAD)) {
+      result = "total,fgbar,ogbar,mgbar,egbar";
     } else if (table.endsWith(MVUtil.SAL1L2)) {
       result = "total,fabar,oabar,foabar,ffabar,ooabar,mae";
     } else if (table.endsWith(MVUtil.VL1L2)) {
