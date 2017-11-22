@@ -1084,6 +1084,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           MVOrderedMap stats = forecastVars[forecastVarsInd];
           String[] vars = stats.getKeyList();
           for (int varsInd = 0; varsInd < vars.length; varsInd++) {
+            int[] seriesNthresh = new int[series.length];
             for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
               MVOrderedMap ser = series[seriesInd];
               String[] serName = ser.getKeyList();
@@ -1119,7 +1120,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   }
                   throw new Exception(error);
                 }
+                seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
               }
+
+            }
+            boolean allEqual = true;
+            for (Integer s : seriesNthresh) {
+              if (!s.equals(seriesNthresh[0])) {
+                allEqual = false;
+                break;
+              }
+            }
+            if (!allEqual) {
+              String error = "Different value for PCT thresholds   for individual series!";
+              throw new Exception(error);
             }
           }
         }
