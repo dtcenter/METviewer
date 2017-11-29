@@ -169,6 +169,11 @@ public class AggRscriptManager extends RscriptManager {
     } else {
       tableAggStatInfo.put("agg_pct", String.valueOf(Boolean.FALSE).toUpperCase());
     }
+    if (stat.equals(MVUtil.NBR_CNT)) {
+      tableAggStatInfo.put("agg_nbrcnt", String.valueOf(Boolean.TRUE).toUpperCase());
+    } else {
+      tableAggStatInfo.put("agg_nbrcnt", String.valueOf(Boolean.FALSE).toUpperCase());
+    }
 
   }
 
