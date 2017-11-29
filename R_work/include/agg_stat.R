@@ -824,7 +824,7 @@ calcECLV = function(d){
         );
       } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
         listTotal = d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total = sum(listTotal, na.rm=TRUE);
+        total = sum( as.numeric(listTotal), na.rm=TRUE);
         listFbs = d[i,][[ paste(strPerm, "fbs", sep="_") ]];
         listFss = d[i,][[ paste(strPerm, "fss", sep="_") ]];
         listAFss = d[i,][[ paste(strPerm, "afss", sep="_") ]];
