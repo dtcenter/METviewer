@@ -1514,6 +1514,8 @@ public class MVPlotJobParser extends MVUtil {
             job.addSummaryCurve(nodeVal._value);
           }
         }
+      } else if (node._tag.equals("add_point_thresholds")) {
+        job.setAddPointThresholds(node._value.equalsIgnoreCase("true"));
       }
       //  <normalized_histogram>
       else if (node._tag.equals("normalized_histogram")) {
