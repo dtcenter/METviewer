@@ -196,6 +196,12 @@ value_to_desc_map['MAXINTF'] = 'Maximun interest for forecast objects';
 value_to_desc_map['MAXINTO'] = 'Maximun interest for observation objects';
 value_to_desc_map['PSTD_BSS_SMPL'] = 'Sample Brier skill score';
 value_to_desc_map['PSTD_BSS'] = 'Brier skill score';
+value_to_desc_map['FGBAR'] = 'Mean of absolute value of forecast gradients';
+value_to_desc_map['MGBAR'] = 'Mean of maximum of absolute values of forecast and observed gradients';
+value_to_desc_map['EGBAR'] = 'Mean of absolute value of forecast minus observed gradients';
+value_to_desc_map['S1'] = 'S1 score';
+value_to_desc_map['S1_OG'] = 'S1 score with respect to observed gradient';
+value_to_desc_map['FGOG_RATIO'] = 'Ratio of forecast and observed gradients';
 
 var listStatModelRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
@@ -574,20 +580,27 @@ function updateForecastVariables() {
                 } catch (err) {
                 }
             } else {
-                opt = $('<option />', {
-                    value: "N/A",
-                    text: "N/A"
-                });
-                opt.appendTo(select_y1);
-                opt.clone().appendTo(select_y2);
-                try {
-                    select_y1.multiselect('refresh');
-                } catch (err) {
+                if (selected_mode === 'stat') {
+                    $('#plot_data').val("mode");
+                    $("#plot_data").multiselect('refresh');
+                    updateForecastVariables();
+                    updateMode("y1", 1, []);
+                    updateMode("y2", 1, []);
+                    updateFixVar("mode");
+                    updateIndyVar("mode");
+                } else {
+                    $('#plot_data').val("stat");
+                    $("#plot_data").multiselect('refresh');
+                    updateForecastVariables();
+
+                    updateStats("y1", 1, []);
+                    updateStats("y2", 1, []);
+                    updateFixVar("stat");
+                    updateIndyVar("stat");
+                    $("#agg_none").prop('checked', 'checked');
                 }
-                try {
-                    select_y2.multiselect('refresh');
-                } catch (err) {
-                }
+                updateSeriesVarVal("y1", 1, []);
+                updateSeriesVarVal("y2", 1, []);
 
             }
         }
@@ -2799,7 +2812,10 @@ function createXMLRoc(plot) {
             summary_curve.append($('<val />').text(selected_stats[i].value));
         }
     }
+    var add_point_thresholds = $('<add_point_thresholds />');
+    add_point_thresholds.text($('#add_point_thresholds').prop( "checked" ));
     plot.append(summary_curve);
+    plot.append(add_point_thresholds);
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -4667,6 +4683,11 @@ function loadXMLRoc() {
         } catch (err) {
         }
     }
+    var is_check = true;
+    if (initXML.find("plot").find("add_point_thresholds")){
+        is_check = initXML.find("plot").find("add_point_thresholds").text();
+    }
+    $('#add_point_thresholds').prop('checked', is_check);
 
 }
 function loadXMLHist() {
