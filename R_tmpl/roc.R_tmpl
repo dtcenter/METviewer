@@ -18,6 +18,8 @@ listPlotOrderSeries	= #<order_series>#;
 
 listStatisticsCurvs	= #<summary_curves>#;
 
+addPointThresholds = #<add_point_thresholds>#;
+
 
 drawLine <- function(dfPerm,envir, intPermVal=1) {
 
@@ -164,12 +166,14 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     );
 
     # add point thresholds
-    text(
-      x=listPOFD, # x coordinates
-      y=listPODY, # y coordinates
-      labels=listThresh, # point thresholds
-      adj=c(-.2,1) # relative position adjustment
-    );
+    if(addPointThresholds){
+      text(
+        x=listPOFD, # x coordinates
+        y=listPODY, # y coordinates
+        labels=listThresh, # point thresholds
+        adj=c(-.2,1) # relative position adjustment
+      );
+    }
   }
 }
 
