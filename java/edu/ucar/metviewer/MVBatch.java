@@ -1162,6 +1162,7 @@ public class MVBatch extends MVUtil {
       tableRTags.put("legend_ncol", job.getLegendNcol());
       tableRTags.put("plot_type", job.getPlotType());
       tableRTags.put("summary_curves", job.getSummaryCurveRformat());
+      tableRTags.put("add_point_thresholds", job.getAddPointThresholds() ? "TRUE" : "FALSE");
 
       populatePlotFmtTmpl(tableRTags, job);
 
