@@ -21,7 +21,8 @@ import java.util.Map;
 public class Util {
 
   private static final Logger logger = LogManager.getLogger("Util");
-  private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2, MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD};
+  private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2,
+    MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT};
 
   private Util() {
 
@@ -56,6 +57,8 @@ public class Util {
       orderedMap = MVUtil.statsVal1l2;
     } else if (MVUtil.statsPstd.containsKey(stat)) {
       orderedMap = MVUtil.statsPstd;
+    } else if (MVUtil.statsNbrcnt.containsKey(stat)) {
+      orderedMap = MVUtil.statsNbrcnt;
     } else {
       orderedMap = new HashMap<>();
     }
