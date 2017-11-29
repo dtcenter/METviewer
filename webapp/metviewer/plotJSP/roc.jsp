@@ -136,6 +136,7 @@
         getForecastVariablesHist();
         $('#roc_type').buttonset();
         $('#summary_curve').val("none");
+        $('#add_point_thresholds').prop('checked', true);
         $("#summary_curve").multiselect({
          multiple: false,
          header: false,
@@ -259,20 +260,21 @@
         <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">
 </div>
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
-    <div class="ui-widget-header-plot">ROC Calculations
-            <button class="help-button" style="float: right;" alt="roc_calc">Help
-            </button>
-        </div>
+  <div class="ui-widget-header-plot">ROC Calculations
+    <button class="help-button" style="float: right;" alt="roc_calc">Help
+    </button>
+  </div>
 
-    <div id="roc_type">
-        <input type="radio" name="roc_type" id="pct_roc_pct" value="pct" checked/>
-        <label for="pct_roc_pct">PCT</label>
+  <div id="roc_type">
+    <input type="radio" name="roc_type" id="pct_roc_pct" value="pct" checked/>
+    <label for="pct_roc_pct">PCT</label>
 
 
-        <input type="radio" name="roc_type"  id="ctc_roc_pct" value="ctc"/>
-        <label for="ctc_roc_pct">CTC</label>
-    </div>
-    </div>
+    <input type="radio" name="roc_type" id="ctc_roc_pct" value="ctc"/>
+    <label for="ctc_roc_pct">CTC</label>
+  </div>
+  <div style="float: right;"><input type="checkbox" id="add_point_thresholds"><label for="add_point_thresholds">Add point thresholds</label> </div>
+</div>
 
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
   <div class="ui-widget-header-plot">Summary Curve
