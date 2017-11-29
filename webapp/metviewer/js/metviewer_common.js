@@ -2886,6 +2886,12 @@ function createXMLRely(plot) {
         }
     }
     plot.append(summary_curve);
+    var add_skill_line = $('<add_skill_line />');
+    add_skill_line.text($('#add_skill_line').prop( "checked" ));
+    plot.append(add_skill_line);
+    var add_reference_line = $('<add_reference_line />');
+    add_reference_line.text($('#add_reference_line').prop( "checked" ));
+    plot.append(add_reference_line);
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -4783,6 +4789,16 @@ function loadXMLRely() {
         } catch (err) {
         }
     }
+    var is_check = true;
+    if (initXML.find("plot").find("add_skill_line")) {
+        is_check = initXML.find("plot").find("add_skill_line").text();
+    }
+    $('#add_skill_line').prop('checked', is_check);
+    is_check = true;
+    if (initXML.find("plot").find("add_reference_line")) {
+        is_check = initXML.find("plot").find("add_reference_line").text();
+    }
+    $('#add_reference_line').prop('checked', is_check);
 }
 function loadXMLEns() {
     var series_var_val;

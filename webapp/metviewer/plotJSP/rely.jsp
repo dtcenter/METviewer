@@ -139,6 +139,9 @@
       updateSeriesHist();
       $('#is_hist').buttonset();
       $('#summary_curve').val("none");
+      $('#add_skill_line').prop('checked', true);
+      $('#add_reference_line').prop('checked', true);
+
       $("#summary_curve").multiselect({
         multiple: false,
         header: false,
@@ -270,21 +273,28 @@
         <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">
 </div>
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
-    <div class="ui-widget-header-plot">Reliability Event Histogram
+  <div class="ui-widget-header-plot">Reliability Event Histogram
 
+  </div>
+  <table style="width: 95%">
+    <tr>
+      <td>
+        <div id="is_hist">
+          <input type="radio" name="rely_event_hist" value="true"
+                 id="true_is_hist" checked="checked"/>
+          <label for="true_is_hist">Yes</label>
+          <input type="radio" name="rely_event_hist" value="false"
+                 id="false_is_hist"/>
+          <label for="false_is_hist">No</label>
         </div>
-
-    <div id="is_hist">
-        <input type="radio" name="rely_event_hist" value="true"
-               id="true_is_hist" checked="checked"/>
-        <label for="true_is_hist">Yes</label>
-
-
-        <input type="radio" name="rely_event_hist" value="false"
-               id="false_is_hist"/>
-        <label for="false_is_hist">No</label>
-    </div>
-    </div>
+      </td>
+      <td style="text-align: right;">
+        <input type="checkbox" id="add_skill_line"><label for="add_skill_line">Add skill line</label>
+        <input type="checkbox" id="add_reference_line"><label for="add_reference_line">Add reference line</label>
+      </td>
+    </tr>
+  </table>
+</div>
 
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
   <div class="ui-widget-header-plot">Summary Curve

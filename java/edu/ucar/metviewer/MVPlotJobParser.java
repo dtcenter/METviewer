@@ -1516,7 +1516,12 @@ public class MVPlotJobParser extends MVUtil {
         }
       } else if (node._tag.equals("add_point_thresholds")) {
         job.setAddPointThresholds(node._value.equalsIgnoreCase("true"));
+      } else if (node._tag.equals("add_skill_line")) {
+        job.setAddSkillLine(node._value.equalsIgnoreCase("true"));
+      } else if (node._tag.equals("add_reference_line")) {
+        job.setAddReferenceLine(node._value.equalsIgnoreCase("true"));
       }
+
       //  <normalized_histogram>
       else if (node._tag.equals("normalized_histogram")) {
         job.setNormalizedHistogram(node._value.equalsIgnoreCase("true"));

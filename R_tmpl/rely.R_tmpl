@@ -27,6 +27,11 @@ listLwd = #<lwd>#;
 
 listStatisticsCurvs	= #<summary_curves>#;
 
+addReferenceLine = #<add_reference_line>#;
+
+addSkillLine = #<add_skill_line>#;
+
+
 
 legend=c();
 
@@ -379,31 +384,34 @@ par(
   xpd=NA # plot clipping - FALSE: plot, TRUE: figure, NA: device
 );
 
-
-# draw the max-skill line
-abline(
-  a=0, # intercept
-  b=1, # slope
-  lty=1, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-  col="gray", # line color
-  lend=1, # line end style - 0: rounded, 1: butt, 2: square
-  cex=1, # line magnification
-  lwd=1.5, # line width
-  xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
-);
-
-# draw the no-resolution line
-for (i in 1:length(env$o_bar)){
+if(addSkillLine){
+  # draw the max-skill line
   abline(
-    a=env$o_bar[i][[1]], # intercept
-    b=0, # slope
-    lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-    col=listColorsDisp[i], # line color
+    a=0, # intercept
+    b=1, # slope
+    lty=1, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+    col="gray", # line color
     lend=1, # line end style - 0: rounded, 1: butt, 2: square
     cex=1, # line magnification
     lwd=1.5, # line width
     xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
   );
+}
+
+if(addReferenceLine){
+  # draw the no-resolution line
+  for (i in 1:length(env$o_bar)){
+    abline(
+      a=env$o_bar[i][[1]], # intercept
+      b=0, # slope
+      lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+      col=listColorsDisp[i], # line color
+      lend=1, # line end style - 0: rounded, 1: butt, 2: square
+      cex=1, # line magnification
+      lwd=1.5, # line width
+      xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
+    );
+  }
 }
 
 # draw the no-skill line

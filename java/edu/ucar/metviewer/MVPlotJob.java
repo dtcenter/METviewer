@@ -188,6 +188,8 @@ public class MVPlotJob extends MVUtil {
   protected String _strShowSignif = "";
   protected List<String> summaryCurve = new ArrayList<>();
   protected boolean addPointThresholds = Boolean.TRUE;
+  protected boolean addSkillLine = Boolean.TRUE;
+  protected boolean addReferenceLine = Boolean.TRUE;
 
 
   /**
@@ -362,6 +364,8 @@ public class MVPlotJob extends MVUtil {
     job._strY2Bufr = _strY2Bufr;
     job._plotStat = _plotStat;
     job.addPointThresholds = addPointThresholds;
+    job.addSkillLine = addSkillLine;
+    job.addReferenceLine = addReferenceLine;
     job.summaryCurve.addAll(summaryCurve);
 
     return job;
@@ -1769,6 +1773,22 @@ public class MVPlotJob extends MVUtil {
 
   public void setAddPointThresholds(boolean addPointThresholds) {
     this.addPointThresholds = addPointThresholds;
+  }
+
+  public boolean getAddReferenceLine() {
+    return addReferenceLine;
+  }
+
+  public void setAddReferenceLine(boolean addReferenceLine) {
+    this.addReferenceLine = addReferenceLine;
+  }
+
+  public boolean getAddSkillLine() {
+    return addSkillLine;
+  }
+
+  public void setAddSkillLine(boolean addSkillLine) {
+    this.addSkillLine = addSkillLine;
   }
 
   public String getSummaryCurveRformat() {
