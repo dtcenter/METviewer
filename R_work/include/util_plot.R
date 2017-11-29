@@ -751,14 +751,14 @@ sameElements <- function (a,b){
 perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   na_perf_score_stats <- c('BASER','FMEAN','FBAR','FSTDEV', 'OBAR', 'OSTDEV', 'FRANK_TIES', 'ORANK_TIES',
     'FBAR',  'FSTDEV', 'OBAR', 'OSTDEV', 'RANKS', 'FRANK_TIES', 'ORANK_TIES','VL1L2_FBAR', 'VL1L2_OBAR',
-    'VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV', 'PSTD_BASER','PSTD_RESOLUTION', 'PSTD_UNCERTAINTY','PSTD_ROC_AUC' );
+    'VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV', 'PSTD_BASER','PSTD_RESOLUTION', 'PSTD_UNCERTAINTY','PSTD_ROC_AUC',  'NBR_UFSS', 'NBR_F_RATE', 'NBR_O_RATE');
 
   zero_perf_score_stats <- c('POFD','FAR','ESTDEV','MAE', 'MSE', 'BCMSE', 'RMSE', 'E10', 'E25', 'E50', 'E75',
-    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE', 'PSTD_BRIER', 'PSTD_RELIABILITY'  );
+    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE', 'PSTD_BRIER', 'PSTD_RELIABILITY', 'NBR_FBS'  );
 
   one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
     'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR',
-    'PSTD_BSS', 'PSTD_BSS_SMPL');
+    'PSTD_BSS', 'PSTD_BSS_SMPL', 'NBR_FSS', 'NBR_AFSS');
 
   if( statistic %in% na_perf_score_stats ){
     result = NA;
@@ -771,7 +771,6 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
   }
   return(result);
 }
-
 
 
 value <- function (obs, pred = NULL, baseline = NULL, cl = seq(0.05, 0.95,0.05), plot = TRUE,
