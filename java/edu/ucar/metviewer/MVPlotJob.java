@@ -187,6 +187,7 @@ public class MVPlotJob extends MVUtil {
   protected String _strDiffSeries2 = "list()";
   protected String _strShowSignif = "";
   protected List<String> summaryCurve = new ArrayList<>();
+  protected boolean addPointThresholds = Boolean.TRUE;
 
 
   /**
@@ -360,6 +361,7 @@ public class MVPlotJob extends MVUtil {
     job._strY2Lim = _strY2Lim;
     job._strY2Bufr = _strY2Bufr;
     job._plotStat = _plotStat;
+    job.addPointThresholds = addPointThresholds;
     job.summaryCurve.addAll(summaryCurve);
 
     return job;
@@ -1759,6 +1761,14 @@ public class MVPlotJob extends MVUtil {
 
   public List<String> getSummaryCurve() {
     return this.summaryCurve;
+  }
+
+  public boolean getAddPointThresholds() {
+    return addPointThresholds;
+  }
+
+  public void setAddPointThresholds(boolean addPointThresholds) {
+    this.addPointThresholds = addPointThresholds;
   }
 
   public String getSummaryCurveRformat() {
