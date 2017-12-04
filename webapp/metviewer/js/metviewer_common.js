@@ -4583,7 +4583,7 @@ function loadXMLStatistics(fcst_stat) {
         } catch (e) {
         }
     } else {
-        if (selected_mode === "stat") {
+        if (typeof selected_mode === 'undefined' || selected_mode === "stat") {
             $("input[name=statistics][value=calculations_statistics]").prop('checked', true);
             $('#aggregation_statistics ').hide();
             $('#none').show();
