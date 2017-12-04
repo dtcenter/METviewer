@@ -53,7 +53,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
   @Override
   public void createDataFile(Map<String, Entry> map, String threadName) {
     String mysql = getQueryForRow(map);
-    if(mysql != null) {
+    if (mysql != null) {
       if (printSQL) {
         logger.info("MySQL query: ");
         logger.info(mysql);
@@ -79,7 +79,12 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     StringBuilder selectFields = new StringBuilder();
     StringBuilder whereFields = new StringBuilder();
 
-    String table = "line_data_" + Util.getAggTypeForStat(Util.getStatForRow(map));
+    String aggType = Util.getAggTypeForStat(Util.getStatForRow(map));
+    if (aggType.contains("nbr")) {
+      aggType = aggType.replace("_", "");
+    }
+    String table = "line_data_" + aggType;
+
 
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
@@ -178,7 +183,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       thresh = pctThreshInfo.get("pctThresh");
       numThresh = pctThreshInfo.get("numPctThresh");
     }
-    if(1 == numThresh) {
+    if (1 == numThresh) {
       selectFields.append(getSelectFields(table, thresh));
       //make sure that selectFields doesn't have "," as the last element
       if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
@@ -201,7 +206,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         whereFields.append("stat_header.stat_header_id = ").append(table).append(".stat_header_id;");
       }
       return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
-    }else {
+    } else {
       logger.error("number of  pnts (" + numThresh + ") not distinct for " + whereFields);
       return null;
     }
