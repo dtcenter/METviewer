@@ -36,6 +36,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   private static final int INDEX_LINE_DATA = 1;
   private static final int INDEX_VAR_LENGTH = 3;
 
+  private static final double[] X_POINTS_FOR_ECON = new double[]{
+    0.952380952, 0.909090909, 0.800000000, 0.666666667, 0.500000000, 0.333333333,
+    0.200000000, 0.125000000, 0.100000000, 0.055555556, 0.037037037, 0.025000000,
+    0.016666667, 0.011111111, 0.007142857, 0.004761905, 0.002857143, 0.002000000
+  };
+
   private final Map<String, Integer> modeHeaders = new HashMap<>();
   private final String[] modeObjSingleColumns = new String[]{
     "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT", "CENTROID_LON", "AXIS_ANG", "LENGTH", "WIDTH", "AREA", "AREA_THRESH", "CURVATURE", "CURVATURE_X", "CURVATURE_Y", "COMPLEXITY", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90", "INTENSITY_50", "INTENSITY_SUM"};
@@ -1261,7 +1267,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]);
               strLineDataValueList += ", '" + intGroupSize + "'";
             }
-            if (listToken[6].equals("ECON")) {  // RELP line type
+            if (listToken[6].equals("ECON")) {  // ECLV line type
               strLineDataValueList += ", 0, -9999, -9999";
               int intGroupSize = 18;
               strLineDataValueList += ", '" + intGroupSize + "'";
@@ -1411,7 +1417,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   intNumGroups = 0;
                 }
                 intGroupSize = 1;
-              } else if (listToken[6].equals("ECON")) {//RELP line type)
+              } else if (listToken[6].equals("ECON")) {//ECLV line type)
                 intGroupIndex = 9;
                 intNumGroups = 18;
                 intGroupSize = 1;
@@ -1488,13 +1494,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("ECON")) {
+
                 for (int i = 0; i < intNumGroups; i++) {
                   StringBuilder strThreshValues = new StringBuilder("(");
                   strThreshValues.append(strLineDataId).append(i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append("0, ").append(res);
+                      strThreshValues.append(", ").append(X_POINTS_FOR_ECON[i]).append(",").append(res);
                     }
 
                   }
