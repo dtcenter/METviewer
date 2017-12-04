@@ -253,6 +253,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     boolean boolEnsSS = nodeCall._children[1]._tag.equals("ensss_field");
     boolean boolPerf = nodeCall._children[1]._tag.equals("perf_field");
     boolean boolTaylor = nodeCall._children[1]._tag.equals("taylor_field");
+    boolean boolEclv = nodeCall._children[1]._tag.equals("eclv_field");
     String strHeaderTable = boolMode ? "mode_header" : "stat_header";
     boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
     boolean boolNBin = strField.equalsIgnoreCase("N_BIN");
@@ -276,6 +277,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       tableLineDataTables.put("line_data_cts", "true");
     } else if (boolTaylor) {
       tableLineDataTables.put("line_data_sl1l2", "true");
+    } else if (boolEclv) {
+      tableLineDataTables.put("line_data_eclv", "true");
     } else if (2 < nodeCall._children.length) {
       boolFcstVar = true;
       MVNode nodeFcstVarStat = nodeCall._children[2];
