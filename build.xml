@@ -158,7 +158,7 @@
         <mkdir dir="${dist}/metviewer/doc"/>
         <copy todir="${dist}/metviewer/doc">
             <fileset dir="doc">
-                <include name="*"/>
+                <include name="**"/>
             </fileset>
         </copy>
 
