@@ -90,7 +90,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     modeSingleStatField.put("WID", "width");
     modeSingleStatField.put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
     modeSingleStatField.put("AREA", "area");
-    modeSingleStatField.put("AREAFIL", "area_filter");
     modeSingleStatField.put("AREATHR", "area_thresh");
     modeSingleStatField.put("CURV", "curvature");
     modeSingleStatField.put("CURVX", "curvature_x");
@@ -737,7 +736,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           "    length              DOUBLE,\n" +
           "    width               DOUBLE,\n" +
           "    area                INT ,\n" +
-          "    area_filter         INT ,\n" +
           "    area_thresh         INT ,\n" +
           "    curvature           DOUBLE,\n" +
           "    curvature_x         DOUBLE,\n" +
@@ -773,7 +771,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           "  mos.length,\n" +
           "  mos.width,\n" +
           "  mos.area,\n" +
-          "  mos.area_filter,\n" +
           "  mos.area_thresh,\n" +
           "  mos.curvature,\n" +
           "  mos.curvature_x,\n" +
