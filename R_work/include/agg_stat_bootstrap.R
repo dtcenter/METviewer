@@ -119,7 +119,7 @@ calcRATIO_FSU_FSA=function(d){
 
 calcRATIO_OSM_OSA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 1, ]) /
-                 			nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) ) ;
+           nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) ) ;
 }
 
 calcRATIO_OSU_OSA=function(d){
@@ -190,7 +190,7 @@ calcRATIO_OCA_ACA=function(d){
 }
 calcRATIO_FSA_OSA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) /
-                             			nrow(d[ d$simple_flag == 1, ]) ) ;
+           nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) ) ;
 }
 calcRATIO_OSA_FSA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) /
@@ -312,15 +312,13 @@ calcAREARAT_OSU_ASU=function(d){
 }
 
 calcAREARAT_FSA_AAA=function(d){
-#!!!!!!!! This is the division by the count of all object_id
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) /
-                       nrow(d) ) ;
+           sum(d$area) ) ;
 }
 
 calcAREARAT_OSA_AAA=function(d){
-#!!!!!!!! This is the division by the count of all object_id
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) /
-                   nrow(d) ) ;
+           sum(d$area) ) ;
 }
 
 calcAREARAT_FSA_FAA=function(d){
@@ -561,7 +559,10 @@ cat("PROCESSING:", strIndyVal, "\n");
 				}
 				listOutPerm[[strIndyVar]]	= strIndyVal;
 				listOutPerm$stat_name		= strStat;
-				listOutPerm$stat_value		= bootStat$t0[intBootIndex];
+        listOutPerm$stat_value		=  try(bootStat$t0[intBootIndex],silent=TRUE);
+        if(is.null(listOutPerm$stat_value)){
+          listOutPerm$stat_value=NA;
+        }
 
 				# calculate the bootstrap CIs, if appropriate
 				if( 1 < intNumReplicates ){
