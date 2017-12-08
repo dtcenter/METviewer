@@ -84,9 +84,10 @@ public class MysqlDatabaseManager {
 
   public void initDBList() {
     listDB.clear();
+    String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where table_name in ('mode_header', 'stat_header') and TABLE_ROWS > 0 and TABLE_SCHEMA like 'mv_%'";
     try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
-         ResultSet resultSet = testStatement.executeQuery("show databases")
+         ResultSet resultSet = testStatement.executeQuery(sql)
 
     ) {
 
@@ -94,10 +95,8 @@ public class MysqlDatabaseManager {
 
 
       while (resultSet.next()) {
-        database = resultSet.getString("Database");
-        if (database.startsWith(DB_PREFIX_MV)) {
-          listDB.add(database);
-        }
+        database = resultSet.getString("TABLE_SCHEMA");
+        listDB.add(database);
       }
 
       Collections.sort(listDB);
