@@ -1,15 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn">
+<Configuration status="info">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss} %-5level %msg%n"/>
+            <PatternLayout>
+                <MarkerPatternSelector defaultPattern="%msg%n">
+                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                </MarkerPatternSelector>
+            </PatternLayout>
         </Console>
+
+        <File name="RollingFile" fileName="/Users/tatiana/mvservlet.log" append="true">
+            <PatternLayout>
+                <MarkerPatternSelector defaultPattern="%msg%n">
+                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                </MarkerPatternSelector>
+            </PatternLayout>
+        </File>
+
+
     </Appenders>
 
     <Loggers>
 
-        <Root level="trace">
+
+        <Root level="info">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>
