@@ -1,5 +1,5 @@
 setwd("#<r_work>#");
-.libPaths("/common/data/web/metviewer/dev/r-lib");
+#.libPaths("/common/data/web/metviewer/dev/r-lib");
 source("include/util_plot.R");
 suppressMessages( library(verification) )
 
@@ -9,7 +9,6 @@ strPlotFile = "#<plot_file>#";
 
 
 boolEventEqual	= #<event_equal>#;
-boolEventEqualM	= #<event_equal_m>#;
 boolDumpPoints1	= #<dump_points1>#;
 
 
