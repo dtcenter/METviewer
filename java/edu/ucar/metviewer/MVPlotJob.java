@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Storage class for a xml plot specification, implementing the java bean interface.  Instances are populated by the MVPlotJobParser and handled by MVBatch.
+ * Storage class for a xml plot specification, implementing the java bean interface.  Instances are
+ * populated by the MVPlotJobParser and handled by MVBatch.
  */
 public class MVPlotJob extends MVUtil {
 
@@ -190,6 +191,8 @@ public class MVPlotJob extends MVUtil {
   protected boolean addPointThresholds = Boolean.TRUE;
   protected boolean addSkillLine = Boolean.TRUE;
   protected boolean addReferenceLine = Boolean.TRUE;
+  protected Boolean isModeRatio = null;
+  protected Boolean isMode = null;
 
 
   /**
@@ -615,7 +618,11 @@ public class MVPlotJob extends MVUtil {
   }
 
   public MVOrderedMap getTmplMap(String field) {
-    return (_mapTmplMaps.containsKey(field) ? (MVOrderedMap) _mapTmplMaps.get(field) : null);
+    if (_mapTmplMaps.containsKey(field)) {
+      return (MVOrderedMap) _mapTmplMaps.get(field);
+    } else {
+      return null;
+    }
   }
 
   public void addTmplMap(String field, MVOrderedMap map, int index) {
@@ -629,6 +636,10 @@ public class MVPlotJob extends MVUtil {
 
   public MVOrderedMap getTmplVal() {
     return _mapTmplVal;
+  }
+
+  public void setTmplVal(MVOrderedMap _mapTmplVal) {
+    this._mapTmplVal = _mapTmplVal;
   }
 
   public void addTmplVal(String id, String name) {
@@ -1809,6 +1820,49 @@ public class MVPlotJob extends MVUtil {
 
   public void setCurrentDBName(List<String> currentDBName) {
     this.currentDBName = currentDBName;
+  }
+
+  /**
+   * Examine the first statistic in the first <dep1> structure to determine if the job is MODE ratio
+   * statistics
+   *
+   * @return true if the checked stat is a MODE stat, false otherwise
+   */
+  public boolean isModeRatioJob() {
+    if (isModeRatio == null) {
+      MVOrderedMap[] listDep = getDepGroups();
+      if (listDep.length > 0) {
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get
+                                                                                               ("dep1"));
+        isModeRatio = listFcstVarStat.length > 0
+                          && MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
+      } else {
+        isModeRatio = false;
+      }
+    }
+    return isModeRatio;
+  }
+
+  /**
+   * Examine the first statistic in the first <dep1> structure to determine if the job is plotting stat statistics or MODE statisticss
+   *
+   * @return true if the checked stat is a MODE stat, false otherwise
+   */
+  public  boolean isModeJob() {
+    if(isMode == null) {
+      MVOrderedMap[] listDep = getDepGroups();
+      if (listDep.length > 0) {
+        String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
+        String strStat = parseModeStat(listFcstVarStat[0][1])[0];
+
+        isMode = modeSingleStatField.contains(strStat)
+                     || modePairStatField.containsKey(strStat)
+                     || modeRatioField.contains(listFcstVarStat[0][1]);
+      } else {
+        isMode = false;
+      }
+    }
+    return isMode;
   }
 
 }
