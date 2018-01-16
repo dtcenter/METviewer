@@ -5,12 +5,15 @@
 
 package edu.ucar.metviewer.db;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
-
-import java.io.PrintStream;
-import java.util.List;
 
 /**
  * @author : tatiana $
@@ -18,16 +21,16 @@ import java.util.List;
  */
 public interface AppDatabaseManager {
 
-  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal,PrintStream printStreamSQL) throws Exception;
+  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm,PrintWriter printStreamSQL) throws Exception;
 
   List<String> buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception;
 
   boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName, boolean isNewFile) throws Exception;
 
-  String buildAndExecuteQueriesForHistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
+  String buildAndExecuteQueriesForHistJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintWriter printStreamSql) throws Exception;
 
-  int buildAndExecuteQueriesForRocRelyJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
-  int buildAndExecuteQueriesForEclvJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintStream printStreamSql) throws Exception;
+  int buildAndExecuteQueriesForRocRelyJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintWriter printStreamSql) throws Exception;
+  int buildAndExecuteQueriesForEclvJob(MVPlotJob job, String strDataFile, MVOrderedMap listPlotFixPerm,  PrintStream printStream, PrintWriter printStreamSql) throws Exception;
 
   DatabaseInfo getDatabaseInfo();
 
@@ -40,5 +43,9 @@ public interface AppDatabaseManager {
   List<String> getAllDatabases();
 
   void initDBList();
+  public SimpleDateFormat getDateFormat();
+
+  public abstract Pattern getDateRangePattern();
+
 
 }
