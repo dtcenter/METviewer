@@ -1,19 +1,18 @@
 package edu.ucar.metviewer;
 
+import java.io.File;
+import java.io.PrintStream;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
 import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 public class MVLoad {
   private static final Logger logger = LogManager.getLogger("MVLoad");
@@ -66,7 +65,6 @@ public class MVLoad {
 
   public static void main(String[] argv) {
     logger.info("----  MVLoad  ----\n");
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
     try {
 
@@ -91,14 +89,17 @@ public class MVLoad {
       String strXML = argv[intArg];
 
       //  parse the plot job
-      logger.info("Begin time: " + format.format(new Date()));
+      logger.info("Begin time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
       logger.info("Parsing: " + strXML + "\n" + (indexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
       MVLoadJob job = parser.getLoadJob();
       DatabaseInfo databaseInfo = new DatabaseInfo( job.getDBHost(), job.getDBUser(), job.getDBPassword());
       databaseInfo.setDbName(job.getDBName());
       if(dbType.equals("mysql")) {
-        mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo);
+        mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
+                                                                IoBuilder.forLogger(MysqlLoadDatabaseManager.class)
+                                                                    .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                                    .buildPrintWriter());
       }
 
       verbose = job.getVerbose();
@@ -252,7 +253,7 @@ public class MVLoad {
 
       }
 
-      logger.info("End time: " + format.format(new Date()));
+      logger.info("End time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
       logger.info("Load total: " + MVUtil.formatTimeSpan(intLoadTime) + "\n");
     } catch (Exception e) {
       logger.error("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
