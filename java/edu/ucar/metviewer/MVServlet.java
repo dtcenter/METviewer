@@ -1,17 +1,5 @@
 package edu.ucar.metviewer;
 
-import edu.ucar.metviewer.db.AppDatabaseManager;
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -25,17 +13,69 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
+import edu.ucar.metviewer.jobManager.EclvJobManager;
+import edu.ucar.metviewer.jobManager.EnsSsJobManager;
+import edu.ucar.metviewer.jobManager.JobManager;
+import edu.ucar.metviewer.jobManager.PerformanceJobManager;
+import edu.ucar.metviewer.jobManager.RelpJobManager;
+import edu.ucar.metviewer.jobManager.RelyJobManager;
+import edu.ucar.metviewer.jobManager.RhistJobManager;
+import edu.ucar.metviewer.jobManager.RocJobManager;
+import edu.ucar.metviewer.jobManager.SeriesJobManager;
+import edu.ucar.metviewer.jobManager.TaylorJobManager;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.io.IoBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 public class MVServlet extends HttpServlet {
+
+  public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache
+                                                                                            .logging.log4j.Level.INFO)
+                     .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+                     .buildPrintStream();
 
   public static final Pattern _patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
   public static final Pattern _patDownload = Pattern.compile(".*/download");
-  public static final Pattern _patProbFcstVar = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]{1,2})([^\\)]+)\\)");
+  public static final Pattern _patProbFcstVar = Pattern.compile(
+      "PROB\\(([\\w\\d]+)([<>=]{1,2})([^\\)]+)\\)");
   private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
   protected static final Map<String, String> _tableListValCache = new HashMap<>();
   protected static final Map<String, String> _tableListStatCache = new HashMap<>();
@@ -94,7 +134,8 @@ public class MVServlet extends HttpServlet {
     String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
     String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListValCache);
     String strXML = "";
-    String strMsg = "db url: " + databaseManager.getDatabaseInfo().getHost() + "  # keys: " + listKeys.length + "\n";
+    String strMsg = "db url: " + databaseManager.getDatabaseInfo()
+                                     .getHost() + "  # keys: " + listKeys.length + "\n";
     for (String listKey : listKeys) {
       strMsg += "  " + listKey + "\n";
       strXML += "<key>" + listKey + "</key>";
@@ -131,7 +172,8 @@ public class MVServlet extends HttpServlet {
     String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
     String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, _tableListStatCache);
     String strXML = "";
-    String strMsg = "db url: " + databaseManager.getDatabaseInfo().getHost() + "  # keys: " + listKeys.length + "\n";
+    String strMsg = "db url: " + databaseManager.getDatabaseInfo()
+                                     .getHost() + "  # keys: " + listKeys.length + "\n";
     for (String listKey : listKeys) {
       strMsg += "  " + listKey + "\n";
       strXML += "<key>" + listKey + "</key>";
@@ -141,7 +183,8 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * Searches all key values of the input table, which are assumed to be Strings, and removes any entry whose key matches the specified prefix
+   * Searches all key values of the input table, which are assumed to be Strings, and removes any
+   * entry whose key matches the specified prefix
    *
    * @param prefix String key prefix to match
    * @param table  Table from which matching entries will be removed
@@ -162,7 +205,8 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * Searches all key values of the input table, which are assumed to be Strings, and removes any entry whose key matches the specified prefix
+   * Searches all key values of the input table, which are assumed to be Strings, and removes any
+   * entry whose key matches the specified prefix
    *
    * @param prefix String key prefix to match
    * @param table  Table from which matching entries will be removed
@@ -181,44 +225,50 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * List database values for the specified field with the specified constraints, using cached data if appropriate, and return it in serialized XML
+   * List database values for the specified field with the specified constraints, using cached data
+   * if appropriate, and return it in serialized XML
    *
    * @param nodeCall    MVNode containing request information
    * @param requestBody the XML sent by the client which is used to cache the response
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListVal(MVNode nodeCall, String requestBody, String[] currentDBName) throws Exception {
+  public static String handleListVal(
+                                        MVNode nodeCall, String requestBody,
+                                        String[] currentDBName) throws Exception {
     //  parse the input request, and initialize the response
-    StringBuilder strResp = new StringBuilder("<list_val>");
+    StringBuilder strResp = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><list_val>");
     String strId = nodeCall._children[0]._value;
 
     strResp.append("<id>").append(strId).append("</id>");
 
     //  check the list val cache for the request data
     String strCacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>" +
-      requestBody.replaceAll("<id>\\d+</id>", "").replaceAll("<date>\\d+</date>", "");
+                             requestBody.replaceAll("<id>\\d+</id>", "")
+                                 .replaceAll("<date>\\d+</date>", "");
     if (_boolListValCache && _tableListValCache.containsKey(strCacheKey)) {
-      return _tableListValCache.get(strCacheKey).replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
+      return _tableListValCache.get(strCacheKey)
+                 .replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
     }
     String strField = nodeCall._children[1]._value.toLowerCase(Locale.ENGLISH);
 
     List<String> listRes = databaseManager.getListValues(nodeCall, strField, currentDBName);
     String[] listVal = listRes.toArray(new String[]{});
     PrintStream printStream = IoBuilder.forLogger(MVServlet.class)
-                                                         .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                         .buildPrintStream();
+                                  .setLevel(org.apache.logging.log4j.Level.INFO)
+                                  .buildPrintStream();
     //  sort and format the results, depending on the field
     if (strField.equals("fcst_thresh") || strField.equals("fcst_thr") ||
-      strField.equals("obs_thresh") || strField.equals("obs_thr")) {
+            strField.equals("obs_thresh") || strField.equals("obs_thr")) {
       listVal = MVUtil.sortThresh(listVal, printStream);
     } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
-      listVal = MVUtil.sortLev(listVal,printStream);
+      listVal = MVUtil.sortLev(listVal, printStream);
     } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
       listVal = MVUtil.sortFormatLead(listVal, true, false);
     } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
       listVal = MVUtil.sortHour(listVal, true);
-    } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals("obs_valid")) {
+    } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals(
+        "obs_valid")) {
       listVal = MVUtil.formatDates(listVal);
     }
     printStream.close();
@@ -228,7 +278,9 @@ public class MVServlet extends HttpServlet {
     for (String aListVal : listVal) {
 
       //  add the database field value to the list
-      strResp.append("<val>").append(aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;")).append("</val>");
+      strResp.append("<val>")
+          .append(aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;"))
+          .append("</val>");
 
       //  if the database field value is probabilistic, add a wild card version
 /*      if (!strField.equals("fcst_var")) {
@@ -252,38 +304,47 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * List statistics for the specified fcst_var, using cached data if appropriate, and return it in serialized XML
+   * List statistics for the specified fcst_var, using cached data if appropriate, and return it in
+   * serialized XML
    *
    * @param nodeCall    MVNode containing request information
    * @param requestBody the XML sent by the client which is used to cache the response
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListStat(MVNode nodeCall, String requestBody, String[] currentDBName) throws Exception {
+  public static String handleListStat(
+                                         MVNode nodeCall, String requestBody,
+                                         String[] currentDBName) throws Exception {
     //  if the request is for the mode stats, return the static list
     String strId = nodeCall._children[0]._value;
     String strFcstVar = nodeCall._children[1]._value;
     if (nodeCall._children[0]._tag.equals("mode_fcst_var")) {
-      String strResp = "<list_stat><id>" + strId + "</id></list_stat>";
+      String strResp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><list_stat><id>" + strId + "</id></list_stat>";
       _logger.debug("handleListStat() - returning mode stats: " + strResp);
       return strResp;
     }
 
     //  check the list val cache for the request data
     String strCacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>" +
-      requestBody.replaceAll("<id>\\d+</id>", "").replaceAll("<date>\\d+</date>", "");
+                             requestBody.replaceAll("<id>\\d+</id>", "")
+                                 .replaceAll("<date>\\d+</date>", "");
     if (_boolListStatCache) {
-      _logger.debug("handleListStat() - checking cache for key " + strCacheKey + ": " + _tableListStatCache.containsKey(strCacheKey));
+      _logger.debug(
+          "handleListStat() - checking cache for key " + strCacheKey + ": " + _tableListStatCache
+                                                                                  .containsKey(
+                                                                                      strCacheKey));
       if (_tableListStatCache.containsKey(strCacheKey)) {
-        String strListStat = _tableListStatCache.get(strCacheKey).replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
-        _logger.debug("handleListStat() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListStat);
+        String strListStat = _tableListStatCache.get(strCacheKey)
+                                 .replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
+        _logger.debug(
+            "handleListStat() - returning cached value\n  key: " + strCacheKey + "\n  val: " + strListStat);
         return strListStat;
       }
     }
 
     List<String> listStatName = databaseManager.getListStat(strFcstVar, currentDBName);
 
-    StringBuilder strResp = new StringBuilder("<list_stat><id>" + strId + "</id>");
+    StringBuilder strResp = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><list_stat><id>" + strId + "</id>");
 
     //  sort and build the response string using the list of stat names
     String[] listStat = MVUtil.toArray(listStatName);
@@ -304,8 +365,8 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * Save and parse the plot request XML, then generate the requested plot and return information about it. Update the web_plot table in the database from which
-   * the plot data was drawn.
+   * Save and parse the plot request XML, then generate the requested plot and return information
+   * about it. Update the web_plot table in the database from which the plot data was drawn.
    *
    * @param strRequest XML plot specification
    * @return status message
@@ -320,38 +381,39 @@ public class MVServlet extends HttpServlet {
     SimpleDateFormat formatPlot = new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
     strPlotPrefix = "plot_" + formatPlot.format(new Date());
     String databases = "";
-    for(String database : currentDBName){
-      databases = databases + database +",";
+    for (String database : currentDBName) {
+      databases = databases + database + ",";
     }
     databases = databases.substring(0, databases.length() - 1);
     //  add plot file information to the plot spec
     strPlotXML =
-      "<plot_spec>" +
-        "<connection>" +
-        "<host>" + databaseManager.getDatabaseInfo().getHost() + "</host>" +
-        "<database>" + databases + "</database>" +
-        "<user>" + "******" + "</user>" +
-        "<password>" + "******" + "</password>" +
-        "</connection>" +
-        (_strRscript.equals("") ? "" : "<rscript>" + _strRscript + "</rscript>") +
-        "<folders>" +
-        "<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
-        "<r_work>" + _strRWork + "</r_work>" +
-        "<plots>" + _strPlots + "</plots>" +
-        "<data>" + _strData + "</data>" +
-        "<scripts>" + _strScripts + "</scripts>" +
-        "</folders>" +
-        strPlotXML +
-        "</plot_spec>";
+        "<plot_spec>" +
+            "<connection>" +
+            "<host>" + databaseManager.getDatabaseInfo().getHost() + "</host>" +
+            "<database>" + databases + "</database>" +
+            "<user>" + "******" + "</user>" +
+            "<password>" + "******" + "</password>" +
+            "</connection>" +
+            (_strRscript.equals("") ? "" : "<rscript>" + _strRscript + "</rscript>") +
+            "<folders>" +
+            "<r_tmpl>" + _strRTmpl + "</r_tmpl>" +
+            "<r_work>" + _strRWork + "</r_work>" +
+            "<plots>" + _strPlots + "</plots>" +
+            "<data>" + _strData + "</data>" +
+            "<scripts>" + _strScripts + "</scripts>" +
+            "</folders>" +
+            strPlotXML +
+            "</plot_spec>";
 
     strPlotXML = strPlotXML.replace("<tmpl>",
-      "<tmpl>" +
-        "<data_file>" + strPlotPrefix + ".data" + "</data_file>" +
-        "<plot_file>" + strPlotPrefix + ".png" + "</plot_file>" +
-        "<r_file>" + strPlotPrefix + ".R" + "</r_file>");
+                                    "<tmpl>" +
+                                        "<data_file>" + strPlotPrefix + ".data" + "</data_file>" +
+                                        "<plot_file>" + strPlotPrefix + ".png" + "</plot_file>" +
+                                        "<r_file>" + strPlotPrefix + ".R" + "</r_file>");
 
     //  parse the input document and build the MVNode data structure
-    Document doc = MVPlotJobParser.getDocumentBuilder().parse(new ByteArrayInputStream(strPlotXML.getBytes()));
+    Document doc = MVPlotJobParser.getDocumentBuilder()
+                       .parse(new ByteArrayInputStream(strPlotXML.getBytes()));
     StreamResult streamResult;
     File f = new File(_strPlotXML + "/" + strPlotPrefix + ".xml");
     try (FileOutputStream stream = new FileOutputStream(f);
@@ -370,7 +432,8 @@ public class MVServlet extends HttpServlet {
       transformer.transform(new DOMSource(doc), streamResult);
       stream.flush();
     } catch (Exception e) {
-      _logger.error("handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
+      _logger.error(
+          "handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: " + e.getMessage());
       return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
     }
 
@@ -387,7 +450,10 @@ public class MVServlet extends HttpServlet {
       }
       job = jobs[0];
     } catch (Exception e) {
-      _logger.error("handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
+     // _logger.error(
+     //     "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage
+      // ());
+      errorStream.print("handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
       return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
     } finally {
       if (byteArrayInputStream != null) {
@@ -400,30 +466,31 @@ public class MVServlet extends HttpServlet {
     PrintStream printStream = null;
 
     ByteArrayOutputStream logSql = null;
-    PrintStream printStreamSql = null;
+    ByteArrayOutputStream logError = null;
+    PrintWriter printStreamSql = null;
+    PrintStream printStreamError = null;
 
 
-    String strJobTmpl = job.getPlotTmpl();
     String strRErrorMsg = "";
     FileWriter writer = null;
     try {
       log = new ByteArrayOutputStream();
       logSql = new ByteArrayOutputStream();
+      logError = new ByteArrayOutputStream();
       printStream = new PrintStream(log);
-      printStreamSql = new PrintStream(logSql);
-      MVBatch bat = new MVBatch(printStream, printStreamSql, databaseManager);
-      bat._intNumPlots = 1;
+      printStreamSql = new PrintWriter(logSql);
+      printStreamError = new PrintStream(logError);
+      MVBatch mvBatch = new MVBatch(printStream, printStreamSql,printStreamError, databaseManager);
       //  configure the batch engine and run the job
-      bat._intNumPlots = 1;
-      bat._strRtmplFolder = parser.getRtmplFolder();
-      bat._strRworkFolder = parser.getRworkFolder();
-      bat._strPlotsFolder = parser.getPlotsFolder();
-      bat._strDataFolder = parser.getDataFolder();
-      bat._strScriptsFolder = parser.getScriptsFolder();
+      mvBatch.setRtmplFolder(parser.getRtmplFolder());
+      mvBatch.setRworkFolder(parser.getRworkFolder());
+      mvBatch.setPlotsFolder(parser.getPlotsFolder());
+      mvBatch.setDataFolder(parser.getDataFolder());
+      mvBatch.setScriptsFolder(parser.getScriptsFolder());
 
 
       //  run the job to generate the plot
-      runTargetedJob(job, strJobTmpl, bat);
+      runTargetedJob(job,  mvBatch);
       //  build the job SQL using the batch engine
       String strPlotSQL = logSql.toString();
 
@@ -438,7 +505,9 @@ public class MVServlet extends HttpServlet {
       writer.write(strPlotterOutput);
       writer.close();
       //  parse out R error messages, if present, throwing an exception if the error was fatal
-      Matcher matOutput = Pattern.compile("(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)").matcher(strPlotterOutput);
+      Matcher matOutput = Pattern.compile(
+          "(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)")
+                              .matcher(strPlotterOutput);
       if (matOutput.find()) {
         strRErrorMsg = matOutput.group(1);
       }
@@ -450,11 +519,14 @@ public class MVServlet extends HttpServlet {
       }
 
     } catch (Exception e) {
-      _logger.debug("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
+     // _logger.debug(
+      //    "handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() +
+      //         "\nbatch output:\n" + log.toString());
+      errorStream.print("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
       return "<response><error>" +
-        "failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage() +
-        (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "") +
-        "</error><plot>" + strPlotPrefix + "</plot></response>";
+                 "failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage() +
+                 (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "") +
+                 "</error><plot>" + strPlotPrefix + "</plot></response>";
     } finally {
       if (log != null) {
         log.close();
@@ -468,32 +540,58 @@ public class MVServlet extends HttpServlet {
       if (printStreamSql != null) {
         printStreamSql.close();
       }
+      if (printStreamError != null) {
+        printStreamError.close();
+           }
       if (writer != null) {
         writer.close();
       }
     }
     _logger.debug("handlePlot() - batch output:\n" + log.toString());
 
-    return "<response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals("") ? "<r_error>" + strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") + "</r_error></response>" : "</response>");
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals(
+        "") ? "<r_error>" + strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
+                                .replace(">", "&gt;") + "</r_error></response>" : "</response>");
   }
 
-  private static void runTargetedJob(MVPlotJob job, String strJobTmpl, MVBatch bat) throws Exception {
-    if (strJobTmpl.equals("rhist.R_tmpl")) {
-      bat.runHistJob(job);
-    } else if (strJobTmpl.equals("phist.R_tmpl")) {
-      bat.runHistJob(job);
-    } else if (strJobTmpl.equals("relp.R_tmpl")) {
-      bat.runHistJob(job);
-    } else if (strJobTmpl.equals("roc.R_tmpl") ||
-      strJobTmpl.equals("rely.R_tmpl")) {
-      bat.runRocRelyJob(job);
-    } else if (strJobTmpl.equals("performance.R_tmpl")) {
-      bat.runJob(job);
-    } else if (strJobTmpl.equals("eclv.R_tmpl")) {
-      bat.runEclvJob(job);
-    } else {
-      bat.runJob(job);
+  private static void runTargetedJob(
+                                        MVPlotJob job,
+                                        MVBatch bat) throws Exception {
+    JobManager jobManager;
+    switch (job.getPlotTmpl()) {
+      case "rhist.R_tmpl":
+        jobManager = new RhistJobManager(bat);
+        break;
+      case "phist.R_tmpl":
+        jobManager = new RhistJobManager(bat);
+        break;
+      case "relp.R_tmpl":
+        jobManager = new RelpJobManager(bat);
+        break;
+      case "roc.R_tmpl":
+        jobManager = new RocJobManager(bat);
+        break;
+      case "rely.R_tmpl":
+        jobManager = new RelyJobManager(bat);
+        break;
+      case "eclv.R_tmpl":
+        jobManager = new EclvJobManager(bat);
+        break;
+      case "taylor_plot.R_tmpl":
+        jobManager = new TaylorJobManager(bat);
+        break;
+      case "performance.R_tmpl":
+        jobManager = new PerformanceJobManager(bat);
+        break;
+      case "ens_ss.R_tmpl":
+        jobManager = new EnsSsJobManager(bat);
+        break;
+      default:
+        jobManager = new SeriesJobManager(bat);
+        break;
     }
+    jobManager.runJob(job);
+
   }
 
   /**
@@ -505,22 +603,22 @@ public class MVServlet extends HttpServlet {
     PrintWriter out = response.getWriter();
     response.setContentType("text/html");
     out.print(
-      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n\n" +
-        "<html>\n" +
-        "<head>\n" +
-        "<title>METViewer Error</title>\n" +
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + _strRedirect + "/include/metviewer.css\"/>\n" +
-        "<link rel=\"shortcut icon\" href=\"" + _strRedirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
-        "</head>\n" +
-        "<body style=\"padding-left:20px; padding-top:20px\">\n" +
-        "<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
-        "</body></html>\n\n");
+        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n\n" +
+            "<html>\n" +
+            "<head>\n" +
+            "<title>METViewer Error</title>\n" +
+            "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + _strRedirect + "/include/metviewer.css\"/>\n" +
+            "<link rel=\"shortcut icon\" href=\"" + _strRedirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n" +
+            "</head>\n" +
+            "<body style=\"padding-left:20px; padding-top:20px\">\n" +
+            "<span class=\"bold\">An error has occurred in METViewer.  Please contact your system administrator</span>\n" +
+            "</body></html>\n\n");
   }
 
 
   /**
-   * Parse the input node as a plot spec node and select the first of the returned jobs.  Strip the plot_fix field values to create a single plot specification
-   * and return the serialized version.
+   * Parse the input node as a plot spec node and select the first of the returned jobs.  Strip the
+   * plot_fix field values to create a single plot specification and return the serialized version.
    *
    * @param nodeCall plot spec node to parse
    * @return serialized plot spec of a single plot from the input spec
@@ -590,7 +688,8 @@ public class MVServlet extends HttpServlet {
           success = "false";
         }
       }
-      fileXML = "<file name=\"" + name.replace(extension, "").replace("plot_", "") + "\" success=\"" + success + "\" />";
+      fileXML = "<file name=\"" + name.replace(extension, "")
+                                      .replace("plot_", "") + "\" success=\"" + success + "\" />";
       result.append(fileXML);
     }
 
@@ -599,7 +698,8 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * Read the resource bundle containing database configuration information and initialize the global variables
+   * Read the resource bundle containing database configuration information and initialize the
+   * global variables
    */
   @Override
   public void init() throws ServletException {
@@ -610,8 +710,13 @@ public class MVServlet extends HttpServlet {
       databaseInfo.setHost(bundle.getString("db.host"));
       databaseInfo.setUser(bundle.getString("db.user"));
       databaseInfo.setPassword(bundle.getString("db.password"));
+      PrintWriter printStreamSql = null;
+      ByteArrayOutputStream logSql = null;
+      logSql = new ByteArrayOutputStream();
+      printStreamSql = new PrintWriter(logSql);
+
       if (bundle.getString("db.managementSystem").equals("mysql")) {
-        databaseManager = new MysqlAppDatabaseManager(databaseInfo);
+        databaseManager = new MysqlAppDatabaseManager(databaseInfo, printStreamSql);
       }
 
       _boolListValCache = bundle.getString("cache.val").equals("true");
@@ -638,7 +743,9 @@ public class MVServlet extends HttpServlet {
       }
 
     } catch (Exception e) {
-      _logger.error("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
+      errorStream.print("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
+      //_logger.error(
+      //    "init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
     }
     _logger.debug("init() - done loading properties");
   }
@@ -651,7 +758,7 @@ public class MVServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws IOException, ServletException {
+      throws IOException, ServletException {
     PrintWriter out = null;
     try {
       //  if the request specifies a database to load, redirect with the appropriate parameter
@@ -664,7 +771,8 @@ public class MVServlet extends HttpServlet {
           return;
         }
         //  redirect the user to the web app
-        request.getRequestDispatcher(_strRedirect + "/metviewer1.jsp?db=" + matDBLoad.group(1)).forward(request, response);
+        request.getRequestDispatcher(_strRedirect + "/metviewer1.jsp?db=" + matDBLoad.group(1))
+            .forward(request, response);
         return;
       } else {
         Matcher matDownload = _patDownload.matcher(strPath);
@@ -735,7 +843,8 @@ public class MVServlet extends HttpServlet {
               outStream.write(byteBuffer, 0, length);
             }
           } catch (Exception e) {
-            _logger.error(e.getMessage());
+            //_logger.error(e.getMessage());
+            errorStream.print(e.getMessage());
           }
           return;
         }
@@ -754,18 +863,19 @@ public class MVServlet extends HttpServlet {
   }
 
   /**
-   * Override the parent's doPost() method with an implementation that reads XML from the body of the request and parses it into one of several commands.  The
-   * XML request command is carried out and an XML response is constructed and sent back to the requester.
+   * Override the parent's doPost() method with an implementation that reads XML from the body of
+   * the request and parses it into one of several commands.  The XML request command is carried out
+   * and an XML response is constructed and sent back to the requester.
    *
    * @param request  Contains request information, including parameters
    * @param response Used to send information back to the requester
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws IOException, ServletException {
+      throws IOException, ServletException {
     //  initialize the response writer and session
     PrintWriter out = null;
-    response.setContentType("text/plain");
+
     ByteArrayOutputStream s = null;
     BufferedReader reader = null;
     String referer;
@@ -796,6 +906,7 @@ public class MVServlet extends HttpServlet {
 
         //  scrub non-xml from the file contents
         strRequestBody = "<request><xml_upload>" + strUploadXML + "</xml_upload></request>";
+        response.setContentType("application/xml");
         String[] refererArr = request.getHeader("referer").split("/");
         referer = refererArr[refererArr.length - 1];
         _logger.debug("referer " + referer);
@@ -809,8 +920,10 @@ public class MVServlet extends HttpServlet {
           while ((line = reader.readLine()) != null) {
             strRequestBody = strRequestBody + line;
           }
+          response.setContentType("application/xml");
         } catch (Exception e) {
-          _logger.error(e.getMessage());
+          //_logger.error(e.getMessage());
+          errorStream.print(e.getMessage());
         }
 
       }
@@ -835,7 +948,7 @@ public class MVServlet extends HttpServlet {
               try {
                 strResp = handleXMLUpload(mv_xml_upload);
               } catch (Exception e) {
-
+                errorStream.print(e.getMessage());
               }
             }
             request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
@@ -850,7 +963,8 @@ public class MVServlet extends HttpServlet {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         Document doc;
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(strRequestBody.getBytes());) {
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(strRequestBody
+                                                                                      .getBytes());) {
           doc = dbf.newDocumentBuilder().parse(byteArrayInputStream);
         }
 
@@ -870,7 +984,8 @@ public class MVServlet extends HttpServlet {
             for (String database : databases) {
               strResp.append("<val>").append(database).append("</val>");
             }
-            strResp.append("<url_output><![CDATA[").append(_strURLOutput).append("]]></url_output>");
+            strResp.append("<url_output><![CDATA[").append(_strURLOutput)
+                .append("]]></url_output>");
             strResp.append("</list_db>");
 
           } else if (nodeCall._tag.equalsIgnoreCase("list_db_update")) {
@@ -881,7 +996,8 @@ public class MVServlet extends HttpServlet {
               strResp.append("<val>").append(database).append("</val>");
             }
             strResp.append("</list_db>");
-            strResp.append("<url_output><![CDATA[").append(_strURLOutput).append("]]></url_output>");
+            strResp.append("<url_output><![CDATA[").append(_strURLOutput)
+                .append("]]></url_output>");
 
             handleClearListValCache();
             handleClearListStatCache();
@@ -956,7 +1072,8 @@ public class MVServlet extends HttpServlet {
 
           //  not handled
           else {
-            strResp.append("<error>unexpected request type: ").append(nodeCall._tag).append("</error>");
+            strResp.append("<error>unexpected request type: ").append(nodeCall._tag)
+                .append("</error>");
           }
         }
       }
@@ -965,12 +1082,18 @@ public class MVServlet extends HttpServlet {
       }
 
       _logger.debug("doPost() - response: " + strResp);
+      response.setContentType("application/xml");
       out = response.getWriter();
       out.println(strResp);
 
     } catch (Exception e) {
-      _logger.error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString());
+      //_logger
+      //    .error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString
+      //                                                                                       ());
+      errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString
+                                                                                                  ());
       out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
+      response.setContentType("application/xml");
     } finally {
       if (out != null) {
         out.close();
