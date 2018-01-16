@@ -6,19 +6,22 @@
 package edu.ucar.metviewer.db;
 
 
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author : tatiana $
@@ -34,7 +37,11 @@ public class MysqlDatabaseManager {
   private DataSource dataSource;
 
 
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
+  protected static final SimpleDateFormat DATE_FORMAT
+      = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+
+
+  public MysqlDatabaseManager(DatabaseInfo databaseInfo, PrintWriter printStreamSql) throws SQLException {
 
 
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
@@ -71,6 +78,7 @@ public class MysqlDatabaseManager {
     try {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
+      dataSource.setLogWriter(printStreamSql);
     } catch (Exception e) {
       logger.debug(e);
       logger.error("Database connection  for a primary database was not initialised.");
