@@ -5,20 +5,38 @@
 
 package edu.ucar.metviewer.db;
 
-import edu.ucar.metviewer.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.sql.*;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+
+import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.MVLoadJob;
+import edu.ucar.metviewer.MVLoadStatInsertData;
+import edu.ucar.metviewer.MVOrderedMap;
+import edu.ucar.metviewer.MVUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author : tatiana $
@@ -27,7 +45,7 @@ import java.util.stream.IntStream;
 public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
-
+  SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
@@ -64,8 +82,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo, PrintWriter printStreamSql) throws Exception {
+    super(databaseInfo, printStreamSql);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
@@ -300,23 +318,19 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         mvLoadStatInsertData.setFileLine(strFilename + ":" + intLine);
 
-        SimpleDateFormat formatStat = new SimpleDateFormat(MVUtil.DB_DATE_STAT, Locale.US);
-        formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         //  parse the valid times
-        Date dateFcstValidBeg = formatStat.parse(MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_BEG"));
-        Date dateFcstValidEnd = formatStat.parse(MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_END"));
-        Date dateObsValidBeg = formatStat.parse(MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_BEG"));
-        Date dateObsValidEnd = formatStat.parse(MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"));
+        Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_BEG"));
+        Date dateFcstValidEnd = DB_DATE_STAT_FORMAT.parse(MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_END"));
+        Date dateObsValidBeg = DB_DATE_STAT_FORMAT.parse(MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_BEG"));
+        Date dateObsValidEnd = DB_DATE_STAT_FORMAT.parse(MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
-        String strFcstValidEnd = formatDB.format(dateFcstValidEnd);
-        String strObsValidBeg = formatDB.format(dateObsValidBeg);
-        String strObsValidEnd = formatDB.format(dateObsValidEnd);
+        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+        String strFcstValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidEnd);
+        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String strObsValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -330,7 +344,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInitBeg = formatDB.format(dateFcstInitBeg);
+        String strFcstInitBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
         String strInterpPnts = MVUtil.findValueInArray(listToken, headerNames, "INTERP_PNTS");
@@ -850,8 +864,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     int intLine = 0;
     try (FileReader fileReader = new FileReader(strFilename); BufferedReader reader = new BufferedReader(fileReader)) {
       List<String> allMatches;
-      SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-      formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
       SimpleDateFormat formatStatVsdb = new SimpleDateFormat("yyyyMMddHH", Locale.US);
       formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -937,7 +949,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           Date dateFcstValidBeg = formatStatVsdb.parse(listToken[3]);
 
           //  format the valid times for the database insert
-          String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
+          String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
 
 
           //  calculate the number of seconds corresponding to fcst_lead
@@ -949,10 +961,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           calFcstInitBeg.setTime(dateFcstValidBeg);
           calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
           Date dateFcstInitBeg = calFcstInitBeg.getTime();
-          String strFcstInitBeg = formatDB.format(dateFcstInitBeg);
-          String strObsValidBeg = formatDB.format(dateFcstValidBeg);
-          String strFcstValidEnd = formatDB.format(dateFcstValidBeg);
-          String strObsValidEnd = formatDB.format(dateFcstValidBeg);
+          String strFcstInitBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+          String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strObsValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
 
           //  ensure that the interp_pnts field value is a reasonable integer
           String strInterpPnts = "0";
@@ -1639,17 +1651,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
        * * * *  mode_header insert  * * * *
 			 */
 
-        SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-        formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-        SimpleDateFormat formatStat = new SimpleDateFormat(MVUtil.DB_DATE_STAT, Locale.US);
-        formatStat.setTimeZone(TimeZone.getTimeZone("UTC"));
         //  parse the valid times
-        Date dateFcstValidBeg = formatStat.parse(MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"));
-        Date dateObsValidBeg = formatStat.parse(MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
+        Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"));
+        Date dateObsValidBeg = DB_DATE_STAT_FORMAT.parse(MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = formatDB.format(dateFcstValidBeg);
-        String strObsValidBeg = formatDB.format(dateObsValidBeg);
+        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -1663,7 +1671,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = formatDB.format(dateFcstInitBeg);
+        String strFcstInit = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
 
         //  build a value list from the header information
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
@@ -1976,13 +1984,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     if (file.length() == 0) {
       return null;
     }
-    SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    String strLoadDate = formatDB.format(cal.getTime());
+    String strLoadDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
     cal.setTimeInMillis(file.lastModified());
-    String strModDate = formatDB.format(cal.getTime());
+    String strModDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
 
     // determine the type of the input data file by parsing the filename
     if (strFile.matches("\\S+\\.stat$")) {
@@ -2097,9 +2103,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
     }
     strUpdater = strUpdater.trim();
-    SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-    String strUpdateDate = formatDB.format(new Date());
+    String strUpdateDate = MysqlDatabaseManager.DATE_FORMAT.format(new Date());
     String strUpdateDetail = job.getLoadNote();
 
     //  read the load xml into a string, if requested
