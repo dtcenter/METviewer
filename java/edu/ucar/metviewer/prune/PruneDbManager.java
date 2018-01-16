@@ -5,19 +5,24 @@
 
 package edu.ucar.metviewer.prune;
 
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $
@@ -30,7 +35,9 @@ class PruneDbManager extends MysqlDatabaseManager {
 
 
   public PruneDbManager(DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo);
+    super(databaseInfo, IoBuilder.forLogger(PruneDbManager.class)
+                                                              .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                                       .buildPrintWriter());
     //init tables data
     tables = new ArrayList<>();
     tables.add(new Table("line_data_cnt", "stat_header", "stat_header_id"));
