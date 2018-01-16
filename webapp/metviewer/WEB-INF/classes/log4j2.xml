@@ -2,21 +2,28 @@
 <Configuration status="info">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss} %-5level %msg%n"/>
-        </Console>
-        <RollingFile name="RollingFile" fileName="/opt/vxwww/tomcat/logs/mvservlet.log"
-                     filePattern="/opt/vxwww/tomcat/logs/mvservlet-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout>
-                <pattern>%p %c{1} %d{MM-dd-yyyy HH:mm} - %m%n</pattern>
+                <MarkerPatternSelector defaultPattern="%msg%n">
+                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                </MarkerPatternSelector>
             </PatternLayout>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="1 KB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="4"/>
-        </RollingFile>
+        </Console>
+
+        <File name="RollingFile" fileName="/Users/tatiana/mvservlet.log" append="true">
+            <PatternLayout>
+                <MarkerPatternSelector defaultPattern="%msg%n">
+                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
+                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
+                </MarkerPatternSelector>
+            </PatternLayout>
+        </File>
+
+
     </Appenders>
 
     <Loggers>
+
 
         <Root level="info">
             <AppenderRef ref="Console"/>
