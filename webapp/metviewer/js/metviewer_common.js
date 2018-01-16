@@ -958,7 +958,7 @@ function updateSeriesVarValEns(index, selectedVals) {
     select.empty();
     //get value of database
     var selectedDatabase = getSelectedDatabases();
-    ;
+
 
     var selectedSeriesVariable;
     try {
@@ -976,7 +976,7 @@ function updateSeriesVarValEns(index, selectedVals) {
         },
         success: function (data) {
             seriesY1VarValResponse[index] = data;
-            var values = $($.parseXML(data)).find("val");
+            var values = $(data).find("val");
             var opt, selected;
             var options = [];
             if (values.length > 0) {
@@ -1065,7 +1065,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
                 seriesY2VarValResponse[index] = data;
             }
 
-            var values = $($.parseXML(data)).find("val");
+            var values = $(data).find("val");
             var opt, selected;
             var options = [];
             if (values.length > 0) {
@@ -1813,7 +1813,7 @@ function updateSeriesVarValHist(index, selectedVals) {
         },
         success: function (data) {
             seriesY1VarValResponse[index] = data;
-            var values = $($.parseXML(data)).find("val");
+            var values = $(data).find("val");
             var opt, selected;
             var options = [];
             if (values.length > 0) {
@@ -2743,10 +2743,8 @@ function sendXml() {
         type: "POST",  // type should be POST
         data: xml, // send the string directly
         success: function (response) {
-            var xmlDoc;
             try {
-                xmlDoc = $.parseXML(response);
-                var xml = $(xmlDoc);
+                var xml = $(response);
                 var plot = xml.find("plot");
                 var error = xml.find("error");
                 if (error.length == 0) {
@@ -5532,7 +5530,6 @@ function updateResult(result) {
         url: urlOutput + "xml/" + resultName + ".xml",
         dataType: "xml",
         success: function (data) {
-            //var xmlDoc = $.parseXML(data);
             var xmlString;
             if (jQuery.browser == "msie") {
                 xmlString = data.xml;
