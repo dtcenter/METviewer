@@ -201,7 +201,7 @@ if( "jpeg" == strPlotType ){
   		res=#<plot_res>#,		    # resolution, in dots per inch
   		units="#<plot_units>#",	# units for height and width
   		pointsize = 12,
-  		quality = 100,
+  		quality = 100
   		#bg = "white",
   		#type = c("cairo", "Xlib", "quartz"),
   		#antialias
