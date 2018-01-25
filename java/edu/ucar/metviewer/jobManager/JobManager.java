@@ -40,18 +40,14 @@ public abstract class JobManager {
     try {
       //  build a list of fixed value permutations for all plots
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
-
-      prepareRscript(job);
-
+      run(job);
     } catch (Exception e) {
       mvBatch.print("Failed to create" + " plot " + plotFile);
-
       throw e;
     }
-
   }
 
-  protected abstract void prepareRscript(MVPlotJob job) throws Exception;
+  protected abstract void run(MVPlotJob job) throws Exception;
 
 
   /**
@@ -157,7 +153,7 @@ public abstract class JobManager {
     return intNumDep1Series + intNumDep2Series;
   }
 
-  public Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws Exception {
+  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws Exception {
     MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
     MVOrderedMap mapSeries1ValPlot = job.getSeries1Val();
     MVOrderedMap mapSeries2ValPlot = job.getSeries2Val();
@@ -388,8 +384,8 @@ public abstract class JobManager {
     info.put("boot_ci", job.getAggBootCI());
     info.put("ci_alpha", job.getCIAlpha());
     info.put("agg_stat1",
-                    MVUtil.printRCol(listAggStats1.toArray(new String[listAggStats1.size()]),
-                                     true));
+             MVUtil.printRCol(listAggStats1.toArray(new String[listAggStats1.size()]),
+                              true));
     info.put("agg_stat2", MVUtil.printRCol(listAggStats2.toArray(new
                                                                      String[listAggStats2
                                                                                 .size()]),

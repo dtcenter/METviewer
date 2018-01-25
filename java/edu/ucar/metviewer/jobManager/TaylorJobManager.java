@@ -23,7 +23,7 @@ public class TaylorJobManager extends SeriesJobManager {
   }
 
   @Override
-  protected void prepareRscript(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws Exception {
     job.setEventEqual(Boolean.TRUE);
     job.setEqualizeByIndep(Boolean.TRUE);
     job.setAggSl1l2(Boolean.TRUE);
@@ -32,7 +32,7 @@ public class TaylorJobManager extends SeriesJobManager {
     for (String var : ((MVOrderedMap) job.getDepGroups()[0].get("dep1")).getKeyList()) {
       ((MVOrderedMap) job.getDepGroups()[0].get("dep1")).put(var, stats);
     }
-    super.prepareRscript(job);
+    super.run(job);
   }
 
   @Override

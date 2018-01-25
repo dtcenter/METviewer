@@ -28,25 +28,24 @@ public class RelyJobManager extends JobManager {
   }
 
   @Override
-  protected void prepareRscript(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws Exception {
 
 
     //  run the plot jobs once for each permutation of plot fixed values
     for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
       //    insert set values for this permutation
-      MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(), plotFixPerm, mvBatch
-                                                                                        .getDatabaseManager()
-                                                                                        .getDateFormat());
+      MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
+                                                    plotFixPerm,
+                                                    mvBatch.getDatabaseManager().getDateFormat());
       job.setTmplVal(fixTmplVal);
       //  construct the file system paths for the files used to build the plot
       MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
 
-      String dataFile = mvBatch.getDataFolder() + MVUtil.buildTemplateString(job
-                                                                                    .getDataFileTmpl(),
-                                                                                mapPlotTmplVals,
-                                                                                job.getTmplMaps(),
-                                                                                mvBatch
-                                                                                    .getPrintStream());
+      String dataFile = mvBatch.getDataFolder()
+                            + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+                                                         mapPlotTmplVals,
+                                                         job.getTmplMaps(),
+                                                         mvBatch.getPrintStream());
       (new File(dataFile)).getParentFile().mkdirs();
       int intNumDepSeries = mvBatch.getDatabaseManager()
                                 .buildAndExecuteQueriesForRocRelyJob(job, dataFile, plotFixPerm,

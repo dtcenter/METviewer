@@ -30,12 +30,9 @@ public class EclvJobManager extends JobManager {
   }
 
   @Override
-  protected void prepareRscript(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws Exception {
 
-
-    MVOrderedMap mapTmplVals = job.getTmplVal();
-
-    MVOrderedMap mapTmplValsPlot = new MVOrderedMap(mapTmplVals);
+    MVOrderedMap mapTmplValsPlot = new MVOrderedMap(job.getTmplVal());
     if (job.getIndyVar() != null) {
       mapTmplValsPlot.put("indy_var", job.getIndyVar());
       job.setTmplVal(mapTmplValsPlot);
@@ -58,11 +55,11 @@ public class EclvJobManager extends JobManager {
     //  run the plot jobs once for each permutation of plot fixed values
     for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
       //    insert set values for this permutation
-      MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(), plotFixPerm, mvBatch
-                                                                                        .getDatabaseManager()
-                                                                                        .getDateFormat());
+      MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
+                                                    plotFixPerm,
+                                                    mvBatch.getDatabaseManager().getDateFormat());
       job.setTmplVal(fixTmplVal);
-      Map<String, String> info = null;
+      Map<String, String> info ;
       RscriptStatManager rscriptStatManager;
       if (job.getAggCtc() || job.getAggPct()) {
         intNumDepSeries = 1;

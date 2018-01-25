@@ -28,16 +28,16 @@ public class RhistJobManager extends JobManager {
   }
 
   @Override
-  protected void prepareRscript(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws Exception {
 
 
     //  run the plot jobs once for each permutation of plot fixed values
     for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
 
       //    insert set values for this permutation
-      MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(), plotFixPerm, mvBatch
-                                                                                        .getDatabaseManager()
-                                                                                        .getDateFormat());
+      MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
+                                                    plotFixPerm,
+                                                    mvBatch.getDatabaseManager().getDateFormat());
       job.setTmplVal(fixTmplVal);
 
   			/*
@@ -48,12 +48,11 @@ public class RhistJobManager extends JobManager {
       //  construct the file system paths for the files used to build the plot
       MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
 
-      String dataFile = mvBatch.getDataFolder() + MVUtil
-                                                         .buildTemplateString(job.getDataFileTmpl(),
-                                                                              mapPlotTmplVals,
-                                                                              job.getTmplMaps(),
-                                                                              mvBatch
-                                                                                  .getPrintStream());
+      String dataFile = mvBatch.getDataFolder()
+                            + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+                                                         mapPlotTmplVals,
+                                                         job.getTmplMaps(),
+                                                         mvBatch.getPrintStream());
       (new File(dataFile)).getParentFile().mkdirs();
 
       String strMsg = mvBatch.getDatabaseManager()
@@ -76,18 +75,22 @@ public class RhistJobManager extends JobManager {
 
       //  validate the number of formatting elements
       if (intNumDepSeries != MVUtil.parseRCol(job.getPlotDisp()).length) {
-        throw new Exception("length of plot_disp differs from number of series (" + intNumDepSeries + ")");
+        throw new Exception("length of plot_disp differs from number of series ("
+                                + intNumDepSeries + ")");
       }
       if (job.getOrderSeries().length() > 0 && intNumDepSeries != MVUtil.parseRCol(
           job.getOrderSeries()).length) {
-        throw new Exception("length of order_series differs from number of series (" + intNumDepSeries + ")");
+        throw new Exception("length of order_series differs from number of series ("
+                                + intNumDepSeries + ")");
       }
       if (intNumDepSeries != MVUtil.parseRCol(job.getColors()).length) {
-        throw new Exception("length of colors differs from number of series (" + intNumDepSeries + ")");
+        throw new Exception("length of colors differs from number of series ("
+                                + intNumDepSeries + ")");
       }
       if (!job.getLegend().isEmpty() &&
               intNumDepSeries != MVUtil.parseRCol(job.getLegend()).length) {
-        throw new Exception("length of legend differs from number of series (" + intNumDepSeries + ")");
+        throw new Exception("length of legend differs from number of series ("
+                                + intNumDepSeries + ")");
       }
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
       RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
