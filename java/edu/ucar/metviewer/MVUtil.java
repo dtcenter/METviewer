@@ -31,6 +31,7 @@ public class MVUtil {
 
   public static final Pattern thresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
   public static final Pattern lev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
+  public static final Pattern interpPnts = Pattern.compile("\\d+?");
   public static final Pattern modeSingle = Pattern.compile("\\s+h\\.([^,]+),");
   public static final Pattern prob = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
   private static final Pattern plotTmpl = Pattern.compile("\\{((\\w+)(?:\\?[^}]*)?)\\}");
@@ -726,8 +727,8 @@ public class MVUtil {
    * @param thresh List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static String[] sortThresh(final String[] thresh, final PrintStream printStream) {
-    return sortVals(thresh, true, MVUtil.thresh, printStream);
+  public static List<String> sortThresh(final List<String> thresh) {
+    return sortVals(thresh, true, MVUtil.thresh);
   }
 
   /**
@@ -736,8 +737,17 @@ public class MVUtil {
    * @param lev List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static String[] sortLev(final String[] lev, final PrintStream printStream) {
-    return sortVals(lev, true, MVUtil.lev, printStream);
+  public static List<String> sortLev(final List<String> lev) {
+    return sortVals(lev, true, MVUtil.lev);
+  }
+  /**
+   * Sort the list of Interp Pnts, according to the first numeric level value.
+   *
+   * @param lev List of Interp Pnts
+   * @return Sorted Inter Pnts list, by value
+   */
+  public static List<String> sortInterpPnts(final List<String> lev) {
+    return sortVals(lev, true, MVUtil.interpPnts);
   }
 
   /**
@@ -749,29 +759,34 @@ public class MVUtil {
    * @param pat  Pattern used to parse the input values
    * @return Sorted list, by numerical value
    */
-  public static String[] sortVals(
-                                     final String[] vals, final boolean asc, final Pattern pat,
-                                     final PrintStream printStream) {
+  public static List<String> sortVals(
+                                     final List<String> vals, final boolean asc, final Pattern pat) {
 
+    List<String> result = new ArrayList<>();
     //  parse the input values and store the numerical values in a sortable array
-    double[] listVal = new double[vals.length];
+    double[] listVal = new double[vals.size()];
     Map tableVal = new HashMap<>();
     double dblInvalid = -.00001;
-    for (int i = 0; i < vals.length; i++) {
+    for (int i = 0; i < vals.size(); i++) {
+      String val = vals.get(i);
 
       //  apply the pattern to the value
       double dblVal;
       //if value is double and ends with '.' - remove '.' to match the pattern
-      if (vals[i].endsWith(".")) {
-        vals[i] = vals[i].substring(0, vals[i].length() - 1);
+      if (val.endsWith(".")) {
+        val = val.substring(0, val.length() - 1);
       }
-      Matcher mat = pat.matcher(vals[i]);
+      Matcher mat = pat.matcher(val);
 
       //  if the value matches, parse out the numerical value
       if (mat.matches()) {
-        dblVal = Double.parseDouble(mat.group(2));
-        if (3 == mat.groupCount() && null != mat.group(3)) {
-          dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+        if(mat.groupCount() == 0){
+          dblVal = Double.parseDouble(val);
+        }else {
+          dblVal = Double.parseDouble(mat.group(2));
+          if (3 == mat.groupCount() && null != mat.group(3)) {
+            dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+          }
         }
       }
 
@@ -784,15 +799,15 @@ public class MVUtil {
       //  verify and store the numerical value and the value pair
       listVal[i] = dblVal;
       Double dblKey = listVal[i];
-      Object objVal = vals[i];
+      Object objVal = val;
       if (tableVal.containsKey(dblKey)) {
         Object objValCur = tableVal.get(dblKey);
         ArrayList listValCur = new ArrayList();
         if (objValCur instanceof String) {
           listValCur.add(objValCur);
-          listValCur.add(vals[i]);
+          listValCur.add(val);
         } else {
-          ((ArrayList) objValCur).add(vals[i]);
+          ((ArrayList) objValCur).add(val);
         }
         objVal = listValCur;
       }
@@ -832,7 +847,7 @@ public class MVUtil {
       tableAdded.put(dblKey, "true");
     }
 
-    return (String[]) listRet.toArray(new String[listRet.size()]);
+    return listRet;
   }
 
   /**
@@ -843,16 +858,16 @@ public class MVUtil {
    * @param removeZeros true to remove the trailing 0000 from the lead time value
    * @return Sorted list of formatted lead times, by numerical value
    */
-  public static String[] sortFormatLead(
-                                           final String[] lead, final boolean asc,
+  public static List<String> sortFormatLead(
+                                           final List<String> lead, final boolean asc,
                                            final boolean removeZeros) {
 
     //  parse and format the leads and store the numerical values in a sortable array
-    double[] listVal = new double[lead.length];
+    double[] listVal = new double[lead.size()];
     Map<Double, String> tableVal = new HashMap<>();
-    for (int i = 0; i < lead.length; i++) {
-      listVal[i] = Double.parseDouble(lead[i]);
-      String strLead = lead[i];
+    for (int i = 0; i < lead.size(); i++) {
+      listVal[i] = Double.parseDouble(lead.get(i));
+      String strLead = lead.get(i);
       if (removeZeros && strLead.endsWith("0000")) {
         strLead = strLead.replaceAll("0000$", "");
       }
@@ -861,9 +876,9 @@ public class MVUtil {
 
     //  sort the lead numerical values and build a sorted list of leads
     Arrays.sort(listVal);
-    String[] listRet = new String[lead.length];
+    List<String> listRet = new ArrayList<>(lead.size());
     for (int i = 0; i < listVal.length; i++) {
-      listRet[asc ? i : listVal.length - 1 - i] = tableVal.get(listVal[i]);
+      listRet.add(asc ? i : listVal.length - 1 - i, tableVal.get(listVal[i]));
     }
 
     return listRet;
@@ -874,22 +889,22 @@ public class MVUtil {
    *
    * @return list of formatted  dates
    */
-  public static String[] formatDates(final String[] dates) {
-    String[] listRet = new String[dates.length];
-    for (int i = 0; i < dates.length; i++) {
-      listRet[i] = dates[i].replace(".0", "");
+  public static List<String> formatDates(final List<String> dates) {
+    List<String> listRet = new ArrayList<>(dates.size());
+    for (int i = 0; i < dates.size(); i++) {
+      listRet.add(i,dates.get(i).replace(".0", ""));
     }
     return listRet;
   }
 
-  public static String[] sortHour(final String[] hour, boolean asc) {
+  public static List<String> sortHour(final List<String> hour, boolean asc) {
 
     //  parse and format the hours and store the numerical values in a sortable array
-    double[] listVal = new double[hour.length];
+    double[] listVal = new double[hour.size()];
     Map<Double, String> tableVal = new HashMap<>();
-    for (int i = 0; i < hour.length; i++) {
-      listVal[i] = Double.parseDouble(hour[i]);
-      String strHour = hour[i];
+    for (int i = 0; i < hour.size(); i++) {
+      listVal[i] = Double.parseDouble(hour.get(i));
+      String strHour = hour.get(i);
       while (strHour.length() < 2) {
         strHour = "0" + strHour;
       }
@@ -898,9 +913,9 @@ public class MVUtil {
 
     //  sort the lead numerical values and build a sorted list of leads
     Arrays.sort(listVal);
-    String[] listRet = new String[hour.length];
+    List<String> listRet = new ArrayList<>(hour.size());
     for (int i = 0; i < listVal.length; i++) {
-      listRet[asc ? i : listVal.length - 1 - i] = tableVal.get(listVal[i]);
+      listRet.set(asc ? i : listVal.length - 1 - i, tableVal.get(listVal[i]));
     }
 
     return listRet;

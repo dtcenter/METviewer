@@ -253,29 +253,30 @@ public class MVServlet extends HttpServlet {
     String strField = nodeCall._children[1]._value.toLowerCase(Locale.ENGLISH);
 
     List<String> listRes = databaseManager.getListValues(nodeCall, strField, currentDBName);
-    String[] listVal = listRes.toArray(new String[]{});
-    PrintStream printStream = IoBuilder.forLogger(MVServlet.class)
-                                  .setLevel(org.apache.logging.log4j.Level.INFO)
-                                  .buildPrintStream();
+
+
+
     //  sort and format the results, depending on the field
     if (strField.equals("fcst_thresh") || strField.equals("fcst_thr") ||
             strField.equals("obs_thresh") || strField.equals("obs_thr")) {
-      listVal = MVUtil.sortThresh(listVal, printStream);
+      listRes = MVUtil.sortThresh(listRes);
     } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
-      listVal = MVUtil.sortLev(listVal, printStream);
+      listRes = MVUtil.sortLev(listRes);
+    } else if (strField.equals("interp_pnts")) {
+      listRes = MVUtil.sortInterpPnts(listRes);
     } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
-      listVal = MVUtil.sortFormatLead(listVal, true, false);
+      listRes = MVUtil.sortFormatLead(listRes, true, false);
     } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
-      listVal = MVUtil.sortHour(listVal, true);
+      listRes = MVUtil.sortHour(listRes, true);
     } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals(
         "obs_valid")) {
-      listVal = MVUtil.formatDates(listVal);
+      listRes = MVUtil.formatDates(listRes);
     }
-    printStream.close();
+
 
     //  add the list of field values to the response
     HashMap<String, String> tabProb = new HashMap<>();
-    for (String aListVal : listVal) {
+    for (String aListVal : listRes) {
 
       //  add the database field value to the list
       strResp.append("<val>")
