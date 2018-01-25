@@ -67,8 +67,8 @@ import org.w3c.dom.Node;
 
 public class MVServlet extends HttpServlet {
 
-  public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache
-                                                                                            .logging.log4j.Level.INFO)
+  public static final PrintStream errorStream
+      = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache.logging.log4j.Level.INFO)
                      .setMarker(new MarkerManager.Log4jMarker("ERROR"))
                      .buildPrintStream();
 

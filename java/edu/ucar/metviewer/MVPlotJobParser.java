@@ -3,6 +3,7 @@ package edu.ucar.metviewer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1708,8 +1709,14 @@ public class MVPlotJobParser extends MVUtil {
         try {
           m.invoke(job, node._value);
         } catch (Exception e) {
-          System.out.println(
-              "  **  ERROR: caught " + e.getClass() + " parsing format string '" + node._tag + "': " + e.getMessage());
+          if(e instanceof InvocationTargetException){
+            Throwable ex = ((InvocationTargetException) e).getTargetException();
+            throw new Exception(ex);
+          }else {
+            System.out.println(
+                "  **  ERROR: caught " + e.getClass() + " parsing format string '" + node._tag + "': " + e.getMessage());
+            throw new Exception(e);
+          }
         }
 
       }

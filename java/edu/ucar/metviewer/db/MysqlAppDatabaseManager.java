@@ -886,7 +886,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job, job.isModeJob());
 
     //  add the user-specified condition clause, if present
-    if (null != job.getPlotCond() && job.getPlotCond().length() > 0) {
+    if (null != job.getPlotCond() && !job.getPlotCond().isEmpty()) {
       strPlotFixWhere += "  AND " + job.getPlotCond() + "\n";
     }
 

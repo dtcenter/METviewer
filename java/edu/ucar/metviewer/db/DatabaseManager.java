@@ -17,6 +17,9 @@ public abstract class DatabaseManager {
   protected static final String DB_PREFIX_MV = "mv_";
   protected DatabaseInfo databaseInfo;
   protected static List<String> listDB;
+  public static final String[] SQL_INJECTION_WORDS= new String[]{
+        " AND ", "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
+  };
 
 
   public DatabaseManager(DatabaseInfo databaseInfo) {

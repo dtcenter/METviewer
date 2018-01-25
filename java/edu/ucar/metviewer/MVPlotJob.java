@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import edu.ucar.metviewer.db.DatabaseManager;
+
 /**
  * Storage class for a xml plot specification, implementing the java bean interface.  Instances are
  * populated by the MVPlotJobParser and handled by MVBatch.
@@ -52,8 +54,8 @@ public class MVPlotJob extends MVUtil {
   protected String _strY1LabelTmpl = "";
   protected String _strY2LabelTmpl = "";
   protected String _strCaptionTmpl = "";
-  protected String _strPlotCmd = "";
-  protected String _strPlotCond = "";
+  protected String _strPlotCmd = ""; // inserted and executed in Rscript
+  protected String _strPlotCond = ""; // insert and execute in database queries
 
   protected boolean _boolEventEqual = false;
   protected boolean _boolVertPlot = false;
@@ -404,7 +406,8 @@ public class MVPlotJob extends MVUtil {
     return _strIndyVar;
   }
 
-  public void setIndyVar(String indyVar) {
+  public void setIndyVar(String indyVar) throws Exception {
+    validateSQL(indyVar);
     _strIndyVar = indyVar;
   }
 
@@ -412,7 +415,10 @@ public class MVPlotJob extends MVUtil {
     return Arrays.copyOf(_listIndyVal, _listIndyVal.length);
   }
 
-  public void setIndyVal(String[] indyVal) {
+  public void setIndyVal(String[] indyVal) throws Exception {
+    for (String ind : indyVal) {
+      validateSQL(ind);
+    }
     _listIndyVal = Arrays.copyOf(indyVal, indyVal.length);
   }
 
@@ -420,7 +426,10 @@ public class MVPlotJob extends MVUtil {
     return Arrays.copyOf(_listIndyPlotVal, _listIndyPlotVal.length);
   }
 
-  public void setIndyPlotVal(String[] indyPlotVal) {
+  public void setIndyPlotVal(String[] indyPlotVal) throws Exception {
+    for (String ind : indyPlotVal) {
+      validateSQL(ind);
+    }
     _listIndyPlotVal = Arrays.copyOf(indyPlotVal, indyPlotVal.length);
   }
 
@@ -449,7 +458,10 @@ public class MVPlotJob extends MVUtil {
     return _mapPlotFixValEq;
   }
 
-  public void addPlotFixVal(String field, String[] vals, int index) {
+  public void addPlotFixVal(String field, String[] vals, int index) throws Exception {
+    for (String ind : vals) {
+      validateSQL(ind);
+    }
     _mapPlotFixVal.put(field, vals, index);
   }
 
@@ -457,11 +469,14 @@ public class MVPlotJob extends MVUtil {
     _mapPlotFixValEq.put(field, vals, index);
   }
 
-  public void addPlotFixVal(String field, String[] vals) {
+  public void addPlotFixVal(String field, String[] vals) throws Exception {
     addPlotFixVal(field, vals, _mapPlotFixVal.size());
   }
 
-  public void addPlotFixValEq(String field, String[] vals) {
+  public void addPlotFixValEq(String field, String[] vals) throws Exception {
+    for (String ind : vals) {
+      validateSQL(ind);
+    }
     addPlotFixValEq(field, vals, _mapPlotFixValEq.size());
   }
 
@@ -513,12 +528,15 @@ public class MVPlotJob extends MVUtil {
   }
 
 
-  public void addSeries1Val(String field, String[] vals, int index) {
+  public void addSeries1Val(String field, String[] vals, int index) throws Exception {
+    for (String ind : vals) {
+      validateSQL(ind);
+    }
     _mapSeries1Val.putSeries(field, vals, index);
   }
 
 
-  public void addSeries1Val(String field, String[] vals) {
+  public void addSeries1Val(String field, String[] vals) throws Exception {
     if (field.equals("valid_hour") || field.equals("init_hour")) {
       String[] newVals = new String[vals.length];
       for (int i = 0; i < vals.length; i++) {
@@ -545,17 +563,17 @@ public class MVPlotJob extends MVUtil {
     return _mapSeries2Val;
   }
 
-  public void addSeries2Val(String field, String[] vals, int index) {
+  public void addSeries2Val(String field, String[] vals, int index) throws Exception {
+    for (String ind : vals) {
+      validateSQL(ind);
+    }
     _mapSeries2Val.putSeries(field, vals, index);
   }
 
-  public void addSeries2Val(String field, String[] vals) {
+  public void addSeries2Val(String field, String[] vals) throws Exception {
     addSeries2Val(field, vals, _mapSeries2Val.size());
   }
 
-  public void removeSeries2Val(String field) {
-    _mapSeries2Val.remove(field);
-  }
 
   public void clearSeries2Val() {
     _mapSeries2Val = new MVOrderedMap();
@@ -565,11 +583,13 @@ public class MVPlotJob extends MVUtil {
     return _mapSeriesNobs;
   }
 
-  public void addSeriesNobs(String field, String val, int index) {
+  public void addSeriesNobs(String field, String val, int index) throws Exception {
+    validateSQL(val);
+
     _mapSeriesNobs.put(field, val, index);
   }
 
-  public void addSeriesNobs(String field, String val) {
+  public void addSeriesNobs(String field, String val) throws Exception {
     addSeriesNobs(field, val, _mapSeriesNobs.size());
   }
 
@@ -722,7 +742,9 @@ public class MVPlotJob extends MVUtil {
     return _strPlotCond;
   }
 
-  public void setPlotCond(String plotCond) {
+  public void setPlotCond(String plotCond) throws Exception {
+    validateSQL(plotCond);
+
     _strPlotCond = plotCond;
   }
 
@@ -1844,12 +1866,13 @@ public class MVPlotJob extends MVUtil {
   }
 
   /**
-   * Examine the first statistic in the first <dep1> structure to determine if the job is plotting stat statistics or MODE statisticss
+   * Examine the first statistic in the first <dep1> structure to determine if the job is plotting
+   * stat statistics or MODE statisticss
    *
    * @return true if the checked stat is a MODE stat, false otherwise
    */
-  public  boolean isModeJob() {
-    if(isMode == null) {
+  public boolean isModeJob() {
+    if (isMode == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
         String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
@@ -1863,6 +1886,14 @@ public class MVPlotJob extends MVUtil {
       }
     }
     return isMode;
+  }
+
+  private void validateSQL(String str) throws Exception {
+    for (String noSQL : DatabaseManager.SQL_INJECTION_WORDS) {
+      if (str.contains(noSQL.toLowerCase()) || str.contains(noSQL.toUpperCase())) {
+        throw new Exception("String " + str + " includes SQL unsafe word " + noSQL);
+      }
+    }
   }
 
 }
