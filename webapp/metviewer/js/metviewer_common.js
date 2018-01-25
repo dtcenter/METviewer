@@ -1316,7 +1316,7 @@ function populateIndyVarVal(selectedVals) {
     var selected_mode, statst;
     if (currentTab == 'Perf') {
         selected_mode = 'stat';
-        statst = '<stat><fcst_var ><val>FAR</val></fcst_var></stat>';
+        statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
     } else {
         selected_mode = $("#plot_data").multiselect("getChecked").val();
         statst = convertVarsAndStatsToXml();
@@ -1430,6 +1430,7 @@ function convertVarAndStatsForAxisToXml(y_axis, index) {
     } catch (err) {
         selectedVariable = $("#fcst_var_" + y_axis + "_" + index + ' option:first-child').val();
     }
+    selectedVariable = selectedVariable.replace( "&","&amp;").replace( ">","&gt;").replace( "<","&lt;");
     var fcst_var = '<fcst_var name="' + selectedVariable + '" >';
     var fcst_stats = $("#fcst_stat_" + y_axis + "_" + index).val();
     if (fcst_stats) {
