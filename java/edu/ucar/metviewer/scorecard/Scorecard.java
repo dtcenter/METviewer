@@ -5,6 +5,13 @@
 
 package edu.ucar.metviewer.scorecard;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
@@ -17,9 +24,6 @@ import edu.ucar.metviewer.scorecard.rscript.RscriptManager;
 import edu.ucar.metviewer.scorecard.rscript.SumRscriptManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.util.*;
 
 /**
  * Creates scorecard image using configuration XML
@@ -262,13 +266,13 @@ public class Scorecard {
         if (scorecard.getAggStat()) {
           if(dbType.equals("mysql")) {
             scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
-            rscriptManager = new AggRscriptManager(scorecard);
           }
+          rscriptManager = new AggRscriptManager(scorecard);
         } else {
           if(dbType.equals("mysql")) {
             scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
-            rscriptManager = new SumRscriptManager(scorecard);
           }
+          rscriptManager = new SumRscriptManager(scorecard);
         }
         int rowCounter = 1;
         //for each row calculate statistics in the individual cell
