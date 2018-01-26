@@ -5,25 +5,45 @@
 
 package edu.ucar.metviewer.test;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import edu.ucar.metviewer.MVServlet;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static edu.ucar.metviewer.test.util.TestUtil.*;
+import static edu.ucar.metviewer.test.util.TestUtil.DIRECTORY_FILTER;
+import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
+import static edu.ucar.metviewer.test.util.TestUtil.PLOTS_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.PWD;
+import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.RWORK_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.TEMPLATE_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
+import static edu.ucar.metviewer.test.util.TestUtil.comparePlotFilesWithoutNames;
+import static edu.ucar.metviewer.test.util.TestUtil.comparePointsFilesWithoutNames;
+import static edu.ucar.metviewer.test.util.TestUtil.host;
+import static edu.ucar.metviewer.test.util.TestUtil.readFileToString;
+import static edu.ucar.metviewer.test.util.TestUtil.rscript;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Run web mode tests The config files and expected result for the regression
@@ -103,7 +123,10 @@ public class CreatePlotServletTest {
       MVServlet._strRscript = rscript;
       MVServlet._boolListValCache = true;
       MVServlet._boolListStatCache = true;
-      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo( host, USERNAME, PWD));
+      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo( host, USERNAME, PWD),
+                                                              IoBuilder.forLogger(MysqlAppDatabaseManager.class)
+                                                                  .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                                                     .buildPrintWriter());
 
       new MVServlet().doPost(request, response);
 

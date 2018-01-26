@@ -5,13 +5,6 @@
 
 package edu.ucar.metviewer.test;
 
-import edu.ucar.metviewer.MVLoad;
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
-import edu.ucar.metviewer.test.util.ScriptRunner;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -22,7 +15,20 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import static edu.ucar.metviewer.test.util.TestUtil.*;
+import edu.ucar.metviewer.MVLoad;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.test.util.ScriptRunner;
+import org.apache.logging.log4j.io.IoBuilder;
+import org.junit.Before;
+import org.junit.Test;
+
+import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
+import static edu.ucar.metviewer.test.util.TestUtil.LOAD_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.PWD;
+import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
+import static edu.ucar.metviewer.test.util.TestUtil.database;
+import static edu.ucar.metviewer.test.util.TestUtil.host;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -83,7 +89,10 @@ public class LoadDataTest {
     Connection con = null;
     Statement statement = null;
     try {
-      mysqlDatabaseManager = new MysqlDatabaseManager(new DatabaseInfo( host, USERNAME, PWD));
+      mysqlDatabaseManager = new MysqlDatabaseManager(new DatabaseInfo( host, USERNAME, PWD),
+                                                      IoBuilder.forLogger(MysqlDatabaseManager.class)
+                                                          .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                                   .buildPrintWriter());
       con = mysqlDatabaseManager.getConnection();
       statement = con.createStatement();
       statement.executeUpdate("drop database " + database);
