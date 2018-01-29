@@ -521,14 +521,24 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
         } catch (Exception e) {
           logger.error(e.getMessage());
+          String stat = "This";
           if (e.getMessage().contains("Unknown column")) {
-            Pattern pattern = Pattern.compile("'(.*?)'");
-            Matcher matcher = pattern.matcher(e.getMessage());
-            String stat = "This";
-            if (matcher.find()) {
-              stat = matcher.group(1);
-              if (stat.contains(".")) {
-                stat = stat.split("\\.")[1];
+           String[] queryArr =  listSQLLastSelect.get(i).split(",");
+            for(String str : queryArr){
+              if(str.contains("stat_name")){
+                stat = str.replaceAll("stat_name", "").trim();
+                break;
+              }
+            }
+            if(stat.equals("This")) {
+              Pattern pattern = Pattern.compile("'(.*?)'");
+              Matcher matcher = pattern.matcher(e.getMessage());
+
+              if (matcher.find()) {
+                stat = matcher.group(1);
+                if (stat.contains(".")) {
+                  stat = stat.split("\\.")[1];
+                }
               }
             }
             logger.error(stat + " statistic can only be plotted as an aggregation of lines");
