@@ -325,7 +325,6 @@ public class MVUtil {
     modeSingleStatField.add("WID");
     modeSingleStatField.add("ASPECT");
     modeSingleStatField.add("AREA");
-    modeSingleStatField.add("AREAFIL");
     modeSingleStatField.add("AREATHR");
     modeSingleStatField.add("CURV");
     modeSingleStatField.add("CURVX");
