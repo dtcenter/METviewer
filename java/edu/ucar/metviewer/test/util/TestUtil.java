@@ -5,12 +5,13 @@
 
 package edu.ucar.metviewer.test.util;
 
-import edu.ucar.metviewer.MVBatch;
-import org.apache.commons.io.FileUtils;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -18,6 +19,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import edu.ucar.metviewer.MVBatch;
+import org.apache.commons.io.FileUtils;
 
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
@@ -35,7 +39,7 @@ public class TestUtil {
       return o1.getName().compareTo(o2.getName());
     }
   };
-  public static final String ROOT_DIR;
+  public static  String ROOT_DIR = "/d3/projects/METViewer/test_data";
   public static final String RWORK_DIR;
   public static final String PLOTS_DIR;
   private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
@@ -162,7 +166,7 @@ public class TestUtil {
   public static String driver = null;
 
   static {
-    ROOT_DIR = "/d3/projects/METViewer/test_data";
+
     FILE_SEPARATOR = System.getProperty("file.separator");
 
     RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";

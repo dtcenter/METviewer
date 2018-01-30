@@ -5,11 +5,12 @@
 
 package edu.ucar.metviewer.test;
 
+import java.util.List;
+
+import edu.ucar.metviewer.test.util.TestUtil;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
-
-import java.util.List;
 
 import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 
@@ -23,7 +24,10 @@ public class AllTestRunner {
     cleanWorkingDirs();
     Result result;
     List<Failure> failureListLoadDataTest = null;
-    if (args.length > 0 && args[0].equals("all")) {
+    if (args.length > 0 ) {
+      TestUtil.ROOT_DIR = args[0];
+    }
+    if (args.length > 1 && args[1].equals("all")) {
       result = JUnitCore.runClasses(LoadDataTest.class);
       failureListLoadDataTest = result.getFailures();
 
