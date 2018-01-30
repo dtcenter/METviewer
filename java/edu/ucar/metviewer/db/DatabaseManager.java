@@ -18,7 +18,7 @@ public abstract class DatabaseManager {
   protected DatabaseInfo databaseInfo;
   protected static List<String> listDB;
   public static final String[] SQL_INJECTION_WORDS= new String[]{
-        " AND ", "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
+         "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
   };
 
 
