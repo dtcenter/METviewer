@@ -1889,6 +1889,9 @@ public class MVPlotJob extends MVUtil {
   }
 
   private void validateSQL(String str) throws Exception {
+    if(str.toLowerCase().contains("and") && !str.toLowerCase().contains("between")){
+      throw new Exception("String " + str + " includes SQL unsafe word AND");
+    }
     for (String noSQL : DatabaseManager.SQL_INJECTION_WORDS) {
       if (str.contains(noSQL.toLowerCase()) || str.contains(noSQL.toUpperCase())) {
         throw new Exception("String " + str + " includes SQL unsafe word " + noSQL);
