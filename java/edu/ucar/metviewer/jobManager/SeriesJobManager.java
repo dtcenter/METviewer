@@ -198,6 +198,7 @@ public class SeriesJobManager extends JobManager {
         boolean success = rscriptStatManager.runRscript(job, info);
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
+        info.put("event_equal",  "FALSE");
         listQuery.clear();
       }
 
@@ -225,6 +226,8 @@ public class SeriesJobManager extends JobManager {
 
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFileName);
+
+
 
       boolean success = rscriptStatManager.runRscript(job, info);
       if (success) {

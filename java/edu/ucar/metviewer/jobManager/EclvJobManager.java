@@ -81,6 +81,7 @@ public class EclvJobManager extends JobManager {
         boolean success = rscriptStatManager.runRscript(job, info);
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
+        info.put("event_equal",  "FALSE");
         listQuery.clear();
 
       } else {
