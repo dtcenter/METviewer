@@ -43,7 +43,11 @@ public class RscriptNoneStatManager extends RscriptStatManager {
                                                   job.getTmplMaps(),
                                                   mvBatch.getPrintStream());
     plotFile = mvBatch.getPlotsFolder() +fileName;
-    rScriptFile = mvBatch.getScriptsFolder()+ job.getRFileTmpl();
+    fileName =  MVUtil.buildTemplateString(job.getRFileTmpl(),
+                                                      MVUtil.addTmplValDep(job),
+                                                      job.getTmplMaps(),
+                                                      mvBatch.getPrintStream());
+    rScriptFile = mvBatch.getScriptsFolder()+ fileName;
 
 
 
@@ -75,7 +79,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
     boolean success = false;
     try {
       info.put("plot_file", plotFile);
-
+      mvBatch.print("Populating " + mvBatch.getRtmplFolder() + job.getPlotTmpl() + " " + rScriptFile);
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + job.getPlotTmpl(), rScriptFile,
                                   info);
       success = MVUtil
