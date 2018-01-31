@@ -18,6 +18,7 @@ public class MVLoadJob {
 
   protected boolean _boolLoadStat = true;
   protected boolean _boolLoadMode = true;
+  protected boolean _boolLoadMtd = true;
 
   protected boolean _boolLoadMpr = false;
   protected boolean _boolLoadOrank = false;
@@ -27,6 +28,7 @@ public class MVLoadJob {
   protected boolean _boolVerbose = false;
   protected int _intInsertSize = 1;
   protected boolean _boolModeHeaderDBCheck = true;
+  protected boolean _boolMtdHeaderDBCheck = true;
   protected boolean _boolStatHeaderDBCheck = true;
   protected boolean _boolDropIndexes = false;
   protected boolean _boolApplyIndexes = true;
@@ -148,6 +150,14 @@ public class MVLoadJob {
     _boolLoadMode = loadMode;
   }
 
+  public boolean getLoadMtd() {
+      return _boolLoadMtd;
+    }
+
+    public void setLoadMtd(boolean loadMtd) {
+      _boolLoadMtd = loadMtd;
+    }
+
   public boolean getLoadMpr() {
     return _boolLoadMpr;
   }
@@ -195,6 +205,14 @@ public class MVLoadJob {
   public void setModeHeaderDBCheck(boolean modeHeaderDBCheck) {
     _boolModeHeaderDBCheck = modeHeaderDBCheck;
   }
+
+  public boolean getMtdHeaderDBCheck() {
+      return _boolMtdHeaderDBCheck;
+    }
+
+    public void setMtdHeaderDBCheck(boolean mtdHeaderDBCheck) {
+      _boolMtdHeaderDBCheck = mtdHeaderDBCheck;
+    }
 
   public boolean getStatHeaderDBCheck() {
     return _boolStatHeaderDBCheck;

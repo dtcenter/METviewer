@@ -26,6 +26,7 @@ public class DataFileInfo {
   public boolean _boolLoadOrank;
   public boolean _boolStatHeaderDBCheck;
   public boolean _boolModeHeaderDBCheck;
+  public boolean _boolMtdHeaderDBCheck;
   public boolean _boolVerbose;
   public int _intInsertSize;
 

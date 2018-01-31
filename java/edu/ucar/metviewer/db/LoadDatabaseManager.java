@@ -5,11 +5,11 @@
 
 package edu.ucar.metviewer.db;
 
-import edu.ucar.metviewer.DataFileInfo;
-import edu.ucar.metviewer.MVLoadJob;
-
 import java.io.File;
 import java.util.Map;
+
+import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.MVLoadJob;
 
 /**
  * @author : tatiana $
@@ -30,5 +30,7 @@ public interface LoadDatabaseManager {
   Map<String, Long> loadModeFile(DataFileInfo info) throws Exception;
 
   Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception;
+
+   Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception;
 
 }

@@ -30,17 +30,20 @@ public class MVLoad {
   private static boolean verbose = false;
   private static int insertSize = 1;
   private static boolean modeHeaderDBCheck = false;
+  private static boolean mtdHeaderDBCheck = false;
   private static boolean statHeaderDBCheck = false;
   private static boolean indexOnly = false;
   private static boolean lineTypeLoad = false;
   private static Map tableLineTypeLoad = new HashMap<>();
   private static boolean loadStat = true;
   private static boolean loadMode = true;
+  private static boolean loadMtd = true;
   private static boolean loadMpr = false;
   private static boolean loadOrank = false;
   private static boolean forceDupFile = false;
   private static long statHeaderSearchTime = 0;
   private static long modeHeaderSearchTime = 0;
+  private static long mtdHeaderSearchTime = 0;
   private static int numStatFiles = 0;
   private static int statLinesTotal = 0;
   private static int statHeaderRecords = 0;
@@ -50,11 +53,16 @@ public class MVLoad {
   private static int lengthRecords = 0;
   private static int lengthInserts = 0;
   private static int numModeFiles = 0;
+  private static int numMtdFiles = 0;
   private static int modeLinesTotal = 0;
+  private static int mtdLinesTotal = 0;
   private static int modeHeaderRecords = 0;
+  private static int mtdHeaderRecords = 0;
   private static int modeCtsRecords = 0;
   private static int modeObjSingleRecords = 0;
+  private static int mtdObjSingleRecords = 0;
   private static int modeObjPairRecords = 0;
+  private static int mtdObjPairRecords = 0;
   private static String dbType= "mysql";
 
 
@@ -105,6 +113,7 @@ public class MVLoad {
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();
       modeHeaderDBCheck = job.getModeHeaderDBCheck();
+      mtdHeaderDBCheck = job.getMtdHeaderDBCheck();
       statHeaderDBCheck = job.getStatHeaderDBCheck();
       boolean dropIndexes = job.getDropIndexes();
       boolean applyIndexes = job.getApplyIndexes();
@@ -114,6 +123,7 @@ public class MVLoad {
 
       loadStat = job.getLoadStat();
       loadMode = job.getLoadMode();
+      loadMtd = job.getLoadMtd();
 
       loadMpr = job.getLoadMpr();
       loadOrank = job.getLoadOrank();
@@ -164,6 +174,7 @@ public class MVLoad {
       if (!indexOnly && null != job.getFolderTmpl() && !(job.getFolderTmpl().length() == 0)) {
         int intStatLinesPrev = 0;
         int intModeLinesPrev = 0;
+        int intMtdLinesPrev = 0;
 
         //  build a folder with each permutation of load values and load the data therein
         MVOrderedMap[] listPerm = MVUtil.permute(job.getLoadVal()).getRows();
@@ -203,11 +214,14 @@ public class MVLoad {
             //  bookkeeping
             int intStatLinesPerm = statLinesTotal - intStatLinesPrev;
             int intModeLinesPerm = modeLinesTotal - intModeLinesPrev;
+            int intMtdLinesPerm = mtdLinesTotal - intMtdLinesPrev;
             intStatLinesPrev = statLinesTotal;
             intModeLinesPrev = modeLinesTotal;
+            intMtdLinesPrev = mtdLinesTotal;
             logger.info("Permutation " + (intPerm + 1) + " of " + listPerm.length + " complete - insert time: " +
               MVUtil.formatTimeSpan(new Date().getTime() - intPermStart) + "  stat lines: " + intStatLinesPerm +
-              "  mode lines: " + intModeLinesPerm + "\n");
+              "  mode lines: " + intModeLinesPerm + "\n" + "  mtd lines: " + intMtdLinesPerm +
+                            "\n");
           }
         }
       }
@@ -233,13 +247,23 @@ public class MVLoad {
           MVUtil.padBegin("num files: ", 36) + numStatFiles + "\n\n" +
           "    ==== mode ====\n\n" +
           (modeHeaderDBCheck ? MVUtil.padBegin("mode_header search time total: ", 36) + MVUtil.formatTimeSpan(modeHeaderSearchTime) + "\n" : "") +
+          (mtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time total: ", 36) + MVUtil
+                                                                                          .formatTimeSpan(mtdHeaderSearchTime) + "\n" : "") +
           (statHeaderDBCheck ? MVUtil.padBegin("stat_header search time total: ", 36) + MVUtil.formatTimeSpan(statHeaderSearchTime) + "\n" : "") +
           MVUtil.padBegin("mode_header inserts: ", 36) + modeHeaderRecords + "\n" +
           MVUtil.padBegin("mode_cts inserts: ", 36) + modeCtsRecords + "\n" +
           MVUtil.padBegin("mode_obj_single inserts: ", 36) + modeObjSingleRecords + "\n" +
           MVUtil.padBegin("mode_obj_pair inserts: ", 36) + modeObjPairRecords + "\n" +
+                        "    ==== mtd ====\n\n" +
+                        MVUtil.padBegin("mtd_header inserts: ", 36) + mtdHeaderRecords + "\n" +
+                                 MVUtil.padBegin("mtd_obj_single inserts: ", 36) +
+                        mtdObjSingleRecords + "\n" +
+                                 MVUtil.padBegin("mtd_obj_pair inserts: ", 36) +
+                        mtdObjPairRecords + "\n" +
           MVUtil.padBegin("total lines: ", 36) + modeLinesTotal + "\n" +
-          MVUtil.padBegin("num files: ", 36) + numModeFiles + "\n");
+          MVUtil.padBegin("num files: ", 36) + numModeFiles + "\n"+
+          MVUtil.padBegin("num files: ", 36) + numMtdFiles + "\n"
+        );
       }
 
       //  apply the indexes, if requested
@@ -291,6 +315,7 @@ public class MVLoad {
     info._boolLoadOrank = loadOrank;
     info._boolStatHeaderDBCheck = statHeaderDBCheck;
     info._boolModeHeaderDBCheck = modeHeaderDBCheck;
+    info._boolMtdHeaderDBCheck = mtdHeaderDBCheck;
     info._boolVerbose = verbose;
     info._intInsertSize = insertSize;
     long intProcessDataFileTime = new Date().getTime() - intProcessDataFileBegin;
@@ -323,6 +348,22 @@ public class MVLoad {
 
       modeLinesTotal += timeStats.get("linesTotal");
       numModeFiles++;
+    } else if (("mtd_2d".equals(info._dataFileLuTypeName)
+                    || "mtd_3d_pc".equals(info._dataFileLuTypeName)
+                    || "mtd_3d_ps".equals(info._dataFileLuTypeName)
+                    || "mtd_3d_sc".equals(info._dataFileLuTypeName)
+                    || "mtd_3d_ss".equals(info._dataFileLuTypeName)) &&
+                   loadMtd) {
+      logger.info(strFileMsg);
+      Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadMtdFile(info);
+      mtdHeaderSearchTime += timeStats.get("headerSearchTime");
+      mtdHeaderRecords += timeStats.get("headerInserts");
+      mtdObjSingleRecords += timeStats.get("objSingleInserts");
+      mtdObjPairRecords += timeStats.get("objPairInserts");
+
+
+      mtdLinesTotal += timeStats.get("linesTotal");
+      numMtdFiles++;
     } else if ("vsdb_point_stat".equals(info._dataFileLuTypeName) && loadStat) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFileVSDB(info);

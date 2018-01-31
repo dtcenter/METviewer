@@ -1,9 +1,13 @@
 package edu.ucar.metviewer;
 
-import org.w3c.dom.Document;
-
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Document;
 
 public class MVLoadJobParser extends MVUtil {
 
@@ -14,7 +18,7 @@ public class MVLoadJobParser extends MVUtil {
 
   public MVLoadJobParser(String spec) throws Exception {
 
-  super();
+    super();
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setNamespaceAware(true);
     Document doc = dbf.newDocumentBuilder().parse(spec);
@@ -67,6 +71,8 @@ public class MVLoadJobParser extends MVUtil {
         job.setLoadStat(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("load_mode")) {
         job.setLoadMode(node._value.equalsIgnoreCase("true"));
+      } else if (node._tag.equals("load_mtd")) {
+        job.setLoadMtd(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("load_mpr")) {
         job.setLoadMpr(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("load_orank")) {
@@ -79,6 +85,8 @@ public class MVLoadJobParser extends MVUtil {
         job.setVerbose(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("mode_header_db_check")) {
         job.setModeHeaderDBCheck(node._value.equalsIgnoreCase("true"));
+      } else if (node._tag.equals("mtd_header_db_check")) {
+        job.setMtdHeaderDBCheck(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("stat_header_db_check")) {
         job.setStatHeaderDBCheck(node._value.equalsIgnoreCase("true"));
       } else if (node._tag.equals("drop_indexes")) {
@@ -95,7 +103,7 @@ public class MVLoadJobParser extends MVUtil {
 
       //  <load_files>
       else if (node._tag.equals("load_files")) {
-         listLoadFiles = new ArrayList<>();
+        listLoadFiles = new ArrayList<>();
         for (int j = 0; j < node._children.length; j++) {
           listLoadFiles.add(node._children[j]._value);
         }
@@ -105,11 +113,11 @@ public class MVLoadJobParser extends MVUtil {
       //  <load_val>
       else if (node._tag.equals("load_val")) {
         for (int j = 0; j < node._children.length; j++) {
-           nodeField = node._children[j];
-           strFieldName = nodeField._name;
-           listVal = new ArrayList<>();
+          nodeField = node._children[j];
+          strFieldName = nodeField._name;
+          listVal = new ArrayList<>();
           for (int k = 0; k < nodeField._children.length; k++) {
-             nodeChild = nodeField._children[k];
+            nodeChild = nodeField._children[k];
 
             //  <val>
             if (nodeChild._tag.equals("val")) {
@@ -142,7 +150,7 @@ public class MVLoadJobParser extends MVUtil {
 
     //check if all load values are present in folder_tmpl
     String[] loadVals = job.getLoadVal().getKeyList();
-    if(loadVals != null) {
+    if (loadVals != null) {
       for (String val : loadVals) {
         if (!job.getFolderTmpl().contains("{" + val + "}")) {
           //remove value
