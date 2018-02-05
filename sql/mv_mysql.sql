@@ -583,7 +583,7 @@ CREATE TABLE line_data_pstd
     briercl_ncl        DOUBLE DEFAULT -9999,
     briercl_ncu        DOUBLE DEFAULT -9999,
     bss                 DOUBLE DEFAULT -9999,
-
+    bss_smpl DOUBLE DEFAULT -9999,
 
     PRIMARY KEY (line_data_id),
     CONSTRAINT line_data_pstd_data_file_id_pk
