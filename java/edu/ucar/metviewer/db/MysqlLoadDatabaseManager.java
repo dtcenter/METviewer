@@ -589,7 +589,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 18;
               break;
             case "PSTD":
-              maxSize = 29;
+              maxSize = 30;
               break;
             case "SSVAR":
               maxSize = 46;
