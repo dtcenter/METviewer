@@ -5,6 +5,21 @@
 
 package edu.ucar.metviewer.scorecard;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.FormatFlagsConversionMismatchException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -19,11 +34,18 @@ import j2html.tags.UnescapedText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.math.BigDecimal;
-import java.util.*;
-
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.head;
+import static j2html.TagCreator.html;
+import static j2html.TagCreator.style;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.text;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
 
 
 /**
@@ -340,9 +362,14 @@ class GraphicalOutputManager {
       } else {
         name = entry.getKey();
       }
-      if (!node.findValue(name).asText().equals(entry.getValue().getName())) {
-        isMatch = false;
-        break;
+      try {
+        if ( node.findValue(name)!= null
+                 &&  !node.findValue(name).asText().equals(entry.getValue().getName())) {
+          isMatch = false;
+          break;
+        }
+      }catch (Exception e){
+        logger.error(e.getMessage());
       }
     }
     return isMatch;
@@ -430,7 +457,7 @@ class GraphicalOutputManager {
           valueCombination.add(fieldValue);
           //remove rows that don't have this field value
           for (Map<String, Entry> aRow : listRows) {
-            if (!aRow.get(fieldFromRow).equals(fieldValue)) {
+            if (aRow.containsKey(fieldFromRow) && !aRow.get(fieldFromRow).equals(fieldValue)) {
               copyOfAllOriginalRows.remove(aRow);
             }
           }
