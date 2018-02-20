@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v2.3</TITLE>
+<TITLE>METViewer v2.4-dev</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -166,7 +166,7 @@
 <script type="text/javascript" src="js/jquery.actual.min.js"></script>
 <script type="text/javascript"
         src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-<script type="text/javascript" src="js/metviewer_common.min.js"></script>
+<script type="text/javascript" src="js/metviewer_common.js"></script>
 <script type="text/javascript" src="js/moment.min.js"></script>
 
 <script type="text/javascript">
@@ -252,9 +252,33 @@
                         var values, i;
                         if (currentTab == 'Series' || currentTab == 'Box' || currentTab == 'Bar') {
                             $('#listdt').jqGrid('clearGridData');
+                            var mode = $('#plot_data').multiselect('getChecked')[0].value;
                             updateForecastVariables();
-                            updateStats("y1", 1, []);
-                            updateStats("y2", 1, []);
+                            if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
+                                mode = $('#plot_data').multiselect('getChecked')[0].value;
+                                updateForecastVariables();
+                                if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
+                                    updateForecastVariables();
+                                }
+                            }
+                            mode = $('#plot_data').multiselect('getChecked')[0].value;
+                            if (mode == 'stat') {
+                                updateStats("y1", 1, []);
+                                updateStats("y2", 1, []);
+                                updateFixVar("stat");
+                                updateIndyVar("stat");
+                                $("#agg_none").prop('checked', 'checked');
+                            } else if (mode == 'mode') {
+                                updateMode("y1", 1, []);
+                                updateMode("y2", 1, []);
+                                updateFixVar("mode");
+                                updateIndyVar("mode");
+                            } else if (mode == 'mtd') {
+                                updateMtd("y1", 1, []);
+                                updateMtd("y2", 1, []);
+                                updateFixVar("mtd");
+                                updateIndyVar("mtd");
+                            }
                             updateSeriesVarVal("y1", 1, []);
                             updateSeriesVarVal("y2", 1, []);
                         } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist' || currentTab == 'Eclv') {
@@ -302,7 +326,9 @@
 
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
-        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;" id="release">METViewer 2.3<span class="ui-icon ui-icon-info " style="float: right;  margin-left: .4em;" ></span>
+        <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
+             id="release">METViewer 2.4-dev<span class="ui-icon ui-icon-info " style="float: right;
+              margin-left: .4em;" ></span>
 
         </div>
         <label for="database">Database:</label><select id="database" multiple="multiple">
@@ -378,7 +404,7 @@
         <li><a href="#plot_xml" id="plot_xml_url">XML</a></li>
         <li><a href="#plot_log" id="plot_log_url">Log</a></li>
         <li><a href="#r_script" id="r_script_url">R script</a></li>
-        <li><a id="r_data_url" href="R_work/data/.data">R data</a></li>
+        <li><a id="r_data_url" href="R_work/data/.data" onerror="alert(1)">R data</a></li>
         <li><a href="#plot_sql" id="plot_sql_url">SQL</a></li>
         <li><a id="y1_points_url" href="R_work/data/.points1">Y1 Points</a></li>
         <li><a id="y2_points_url" href="R_work/data/.points2">Y2 Points</a></li>
