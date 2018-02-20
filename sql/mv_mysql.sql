@@ -571,6 +571,7 @@ CREATE TABLE line_data_pstd
   briercl_ncl DOUBLE DEFAULT -9999,
   briercl_ncu DOUBLE DEFAULT -9999,
   bss DOUBLE DEFAULT -9999,
+  bss_smpl DOUBLE DEFAULT -9999,
 
 
   PRIMARY KEY (line_data_id),
@@ -1657,6 +1658,9 @@ CREATE TABLE mode_obj_single
   intensity_90 DOUBLE,
   intensity_nn DOUBLE,
   intensity_sum DOUBLE,
+  fcst_flag TINYINT(1),
+  simple_flag TINYINT(1),
+  matched_flag TINYINT(1),
   PRIMARY KEY (mode_obj_id),
   CONSTRAINT mode_obj_single_mode_header_id_pk
   FOREIGN KEY (mode_header_id)
@@ -1689,6 +1693,8 @@ CREATE TABLE mode_obj_pair
   complexity_ratio DOUBLE,
   percentile_intensity_ratio DOUBLE,
   interest DOUBLE,
+  simple_flag TINYINT(1),
+  matched_flag TINYINT(1),
   CONSTRAINT mode_obj_pair_mode_header_id_pk
   FOREIGN KEY (mode_header_id)
   REFERENCES mode_header (mode_header_id),
@@ -1722,7 +1728,6 @@ INSERT INTO data_file_lu VALUES (9, 'mtd_3d_pc', 'Pair attributes for 3D composi
 INSERT INTO data_file_lu VALUES (10, 'mtd_3d_ps', 'Pair attributes for 3D simple objects');
 INSERT INTO data_file_lu VALUES (11, 'mtd_3d_sc', 'Single attributes for 3D composite objects');
 INSERT INTO data_file_lu VALUES (12, 'mtd_3d_ss', 'Single attributes for 3D simple objects');
-
 
 -- mv_rev contains information about metvdb revisions, and provides an indicator of
 --   the changes made in the current revision
@@ -1818,8 +1823,8 @@ CREATE TABLE mtd_header
   )
 ) ENGINE = MyISAM;
 
-DROP TABLE IF EXISTS mtd_obj_single;
-CREATE TABLE mtd_obj_single
+DROP TABLE IF EXISTS mtd_2d_obj;
+CREATE TABLE mtd_2d_obj
 (
   mtd_header_id INT UNSIGNED NOT NULL,
   object_id VARCHAR(128),
@@ -1828,6 +1833,26 @@ CREATE TABLE mtd_obj_single
   area DOUBLE,
   centroid_x DOUBLE,
   centroid_y DOUBLE,
+  centroid_lat DOUBLE,
+  centroid_lon DOUBLE,
+  axis_ang DOUBLE,
+  fcst_flag TINYINT(1) NOT NULL,
+  simple_flag TINYINT(1) NOT NULL,
+  matched_flag TINYINT(1) NOT NULL,
+  CONSTRAINT mtd_2d_obj_mtd_header_id_pk
+  FOREIGN KEY (mtd_header_id)
+  REFERENCES mtd_header (mtd_header_id)
+) ENGINE = MyISAM;
+
+DROP TABLE IF EXISTS mtd_3d_obj_single;
+CREATE TABLE mtd_3d_obj_single
+(
+  mtd_header_id INT UNSIGNED NOT NULL,
+  object_id VARCHAR(128),
+  cluster_id VARCHAR(128),
+  centroid_x DOUBLE,
+  centroid_y DOUBLE,
+  centroid_t DOUBLE,
   centroid_lat DOUBLE,
   centroid_lon DOUBLE,
   x_dot DOUBLE,
@@ -1842,13 +1867,16 @@ CREATE TABLE mtd_obj_single
   intensity_50 DOUBLE,
   intensity_75 DOUBLE,
   intensity_90 DOUBLE,
-  CONSTRAINT mtd_obj_single_mtd_header_id_pk
+  fcst_flag TINYINT(1) NOT NULL,
+  simple_flag TINYINT(1) NOT NULL,
+  matched_flag TINYINT(1) NOT NULL,
+  CONSTRAINT mtd_3d_obj_single_mtd_header_id_pk
   FOREIGN KEY (mtd_header_id)
   REFERENCES mtd_header (mtd_header_id)
 ) ENGINE = MyISAM;
 
-DROP TABLE IF EXISTS mtd_obj_pair;
-CREATE TABLE mtd_obj_pair
+DROP TABLE IF EXISTS mtd_3d_obj_pair;
+CREATE TABLE mtd_3d_obj_pair
 (
   mtd_header_id INT UNSIGNED NOT NULL,
   object_id VARCHAR(128),
@@ -1864,7 +1892,9 @@ CREATE TABLE mtd_obj_pair
   intersection_volume DOUBLE,
   duration_diff DOUBLE,
   interest DOUBLE,
-  CONSTRAINT mtd_obj_pair_mtd_header_id_pk
+  simple_flag TINYINT(1) NOT NULL,
+  matched_flag TINYINT(1) NOT NULL,
+  CONSTRAINT mtd_3d_obj_pair_mtd_header_id_pk
   FOREIGN KEY (mtd_header_id)
   REFERENCES mtd_header (mtd_header_id)
 ) ENGINE = MyISAM;
