@@ -24,10 +24,13 @@ import org.apache.logging.log4j.io.IoBuilder;
  * @version : 1.0 : 22/12/17 10:15 $
  */
 public class RscriptAggStatManager extends RscriptStatManager {
-  private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache
-                                                                                               .logging.log4j.Level.INFO)
-                        .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-                        .buildPrintStream();
+
+  private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
+                                                     .setLevel(org.apache
+                                                                   .logging.log4j.Level.INFO)
+                                                     .setMarker(
+                                                         new MarkerManager.Log4jMarker("ERROR"))
+                                                     .buildPrintStream();
 
   public RscriptAggStatManager(MVBatch mvBatch) {
     super(mvBatch);
@@ -35,19 +38,18 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-                                           MVPlotJob job,MVOrderedMap mvMap,
+                                           MVPlotJob job, MVOrderedMap mvMap,
                                            Map<String, String> info,
                                            List<String> listQuery) throws Exception {
 
 
-
     String fileName = MVUtil.buildTemplateString(job.getDataFileTmpl(),
                                                  MVUtil.addTmplValDep(job),
-                                                                  job.getTmplMaps(),
-                                                                  mvBatch.getPrintStream());
+                                                 job.getTmplMaps(),
+                                                 mvBatch.getPrintStream());
 
     dataFile = mvBatch.getDataFolder() + fileName;
-    if (job.isModeJob() && job.getEventEqual()) {
+    if ((job.isModeJob() || job.isMtdJob()) && job.getEventEqual()) {
       //run ee first
       //create sql query
       MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
@@ -89,7 +91,6 @@ public class RscriptAggStatManager extends RscriptStatManager {
     long intStartTime = new Date().getTime();
 
 
-
     String scriptFileName = null;
 
     if (job.isModeJob()) {
@@ -102,12 +103,22 @@ public class RscriptAggStatManager extends RscriptStatManager {
         //perform event equalisation against previously calculated cases
         scriptFileName = "include/agg_stat_eqz.R";
       }
+    } else if (job.isMtdJob()) {
+      if (job.isMtdRatioJob()) {
+        dataFile = dataFile + ".agg_stat_bootstrap";
+        //perform event equalisation against previously calculated cases, ratio statistic calculation and bootstrapping
+        scriptFileName = "include/agg_stat_bootstrap.R";
+      } else {
+        dataFile = dataFile + ".agg_stat_eqz";
+        //perform event equalisation against previously calculated cases
+        scriptFileName = "include/agg_stat_eqz.R";
+      }
     } else {
       dataFile = dataFile + ".agg_stat";
       //perform event equalisation , statistic calculation and bootstrapping
-      if(job.getPlotTmpl().contains("eclv")){
+      if (job.getPlotTmpl().contains("eclv")) {
         scriptFileName = "include/agg_eclv.R";
-      }else {
+      } else {
         scriptFileName = "include/agg_stat.R";
       }
     }
@@ -135,13 +146,13 @@ public class RscriptAggStatManager extends RscriptStatManager {
     String aggOutput;
     boolean success = false;
     String tmplFileName = null;
-    if (job.isModeJob()) {
-      if (job.isModeRatioJob()) {
+    if (job.isModeJob() || job.isMtdJob()) {
+      if (job.isModeRatioJob() || job.isMtdRatioJob()) {
         aggInfo = dataFile.replaceFirst("\\.data.agg_stat_bootstrap$",
                                         ".agg_stat_bootstrap.info");
         aggOutput = dataFile.replaceFirst("\\.agg_stat_bootstrap$", "");
         info.put("agg_stat_input_ee",
-                     dataFile.replaceFirst("\\.agg_stat_bootstrap$", ".ee"));
+                 dataFile.replaceFirst("\\.agg_stat_bootstrap$", ".ee"));
         tmplFileName = "agg_stat_bootstrap.info_tmpl";
       } else {
         aggInfo = dataFile.replaceFirst("\\.data.agg_stat_eqz$", ".agg_stat_eqz.info");
