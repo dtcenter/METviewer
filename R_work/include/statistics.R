@@ -187,11 +187,14 @@ calcVL1L2_OBAR = function(d){ return ( sqrt(d$uvoobar) ); }
 
 calcVL1L2_BIAS = function(d){
   bias = sqrt(d$uvffbar) - sqrt(d$uvoobar);
+  if ( is.na(bias) ){
+    return (NA);
+  }
   return ( round(bias, digits=5)) ;
 }
 calcVL1L2_MSE = function(d){
   mse = d$uvffbar -2 * d$uvfobar + d$uvoobar;
-  if (mse < 0 ){
+  if ( is.na(mse) || mse < 0 ){
     return (NA);
   }
   return ( round(mse, digits=5)) ;
