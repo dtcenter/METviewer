@@ -1746,7 +1746,7 @@ public class MVPlotJobParser extends MVUtil {
       }
     }
     //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
-    for (String stat : modeSingleStatField) {
+    for (String stat : modeSingleStatField.keySet()) {
       if (node._value.indexOf(stat) > 0) {
         throw new Exception("MODE Attribute stats " + stat + " can't be a part of difference curve.");
       }
