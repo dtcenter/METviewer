@@ -92,9 +92,26 @@ calcRATIO_FSA_ASA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) / nrow(d[ d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_FSA_ASA=function(d){
+  return ( calcRATIO_FSA_ASA(d) ) ;
+}
+
+calc3d_RATIO_FSA_ASA=function(d){
+  return ( calcRATIO_FSA_ASA(d) ) ;
+}
+
+
 calcRATIO_OSA_ASA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) /
                			nrow(d[ d$simple_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_OSA_ASA=function(d){
+  return ( calcRATIO_OSA_ASA(d) ) ;
+}
+
+calc3d_RATIO_OSA_ASA=function(d){
+  return ( calcRATIO_OSA_ASA(d) ) ;
 }
 
 calcRATIO_ASM_ASA=function(d){
@@ -102,9 +119,25 @@ calcRATIO_ASM_ASA=function(d){
                			nrow(d[ d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_ASM_ASA=function(d){
+  return ( calcRATIO_ASM_ASA(d) ) ;
+}
+
+calc3d_RATIO_ASM_ASA=function(d){
+  return ( calcRATIO_ASM_ASA(d) ) ;
+}
+
 calcRATIO_ASU_ASA=function(d){
   return ( nrow(d[ d$simple_flag == 1 & d$matched_flag == 0, ]) /
                			nrow(d[ d$simple_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_ASU_ASA=function(d){
+  return ( calcRATIO_ASU_ASA(d) ) ;
+}
+
+calc3d_RATIO_ASU_ASA=function(d){
+  return ( calcRATIO_ASU_ASA(d) ) ;
 }
 
 calcRATIO_FSM_FSA=function(d){
@@ -112,9 +145,25 @@ calcRATIO_FSM_FSA=function(d){
                			nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_FSM_FSA=function(d){
+  return ( calcRATIO_FSM_FSA(d) ) ;
+}
+
+calc3d_RATIO_FSM_FSA=function(d){
+  return ( calcRATIO_FSM_FSA(d) ) ;
+}
+
 calcRATIO_FSU_FSA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ]) /
                			nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_FSU_FSA=function(d){
+  return ( calcRATIO_FSU_FSA(d) ) ;
+}
+
+calc3d_RATIO_FSU_FSA=function(d){
+  return ( calcRATIO_FSU_FSA(d) ) ;
 }
 
 calcRATIO_OSM_OSA=function(d){
@@ -122,9 +171,25 @@ calcRATIO_OSM_OSA=function(d){
            nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_OSM_OSA=function(d){
+  return ( calcRATIO_OSM_OSA(d) ) ;
+}
+
+calc3d_RATIO_OSM_OSA=function(d){
+  return ( calcRATIO_OSM_OSA(d) ) ;
+}
+
 calcRATIO_OSU_OSA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ]) /
                  			nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_OSU_OSA=function(d){
+  return ( calcRATIO_OSU_OSA(d) ) ;
+}
+
+calc3d_RATIO_OSU_OSA=function(d){
+  return ( calcRATIO_OSU_OSA(d) ) ;
 }
 
 calcRATIO_FSM_ASM=function(d){
@@ -132,9 +197,25 @@ calcRATIO_FSM_ASM=function(d){
                  			nrow(d[ d$matched_flag == 1 & d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_FSM_ASM=function(d){
+  return ( calcRATIO_FSM_ASM(d) ) ;
+}
+
+calc3d_RATIO_FSM_ASM=function(d){
+  return ( calcRATIO_FSM_ASM(d) ) ;
+}
+
 calcRATIO_OSM_ASM=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 1, ]) /
                     			nrow(d[ d$matched_flag == 1 & d$simple_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_OSM_ASM=function(d){
+  return ( calcRATIO_OSM_ASM(d) ) ;
+}
+
+calc3d_RATIO_OSM_ASM=function(d){
+  return ( calcRATIO_OSM_ASM(d) ) ;
 }
 
 calcRATIO_FSU_ASU=function(d){
@@ -142,9 +223,25 @@ calcRATIO_FSU_ASU=function(d){
                         			nrow(d[ d$matched_flag == 0 & d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_FSU_ASU=function(d){
+  return ( calcRATIO_FSU_ASU(d) ) ;
+}
+
+calc3d_RATIO_FSU_ASU=function(d){
+  return ( calcRATIO_FSU_ASU(d) ) ;
+}
+
 calcRATIO_OSU_ASU=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ]) /
                            			nrow(d[ d$matched_flag == 0 & d$simple_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_OSU_ASU=function(d){
+  return ( calcRATIO_OSU_ASU(d) ) ;
+}
+
+calc3d_RATIO_OSU_ASU=function(d){
+  return ( calcRATIO_OSU_ASU(d) ) ;
 }
 
 calcRATIO_FSA_AAA=function(d){
@@ -153,10 +250,26 @@ calcRATIO_FSA_AAA=function(d){
                          nrow(d) ) ;
 }
 
+calc2d_RATIO_FSA_AAA=function(d){
+  return ( calcRATIO_FSA_AAA(d) ) ;
+}
+
+calc3d_RATIO_FSA_AAA=function(d){
+  return ( calcRATIO_FSA_AAA(d) ) ;
+}
+
 calcRATIO_OSA_AAA=function(d){
 ##!!!!!!!! This is the division by the count of all object_id
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) /
                          nrow(d) ) ;
+}
+
+calc2d_RATIO_OSA_AAA=function(d){
+  return ( calcRATIO_OSA_AAA(d) ) ;
+}
+
+calc3d_RATIO_OSA_AAA=function(d){
+  return ( calcRATIO_OSA_AAA(d) ) ;
 }
 
 calcRATIO_FSA_FAA=function(d){
@@ -164,9 +277,25 @@ calcRATIO_FSA_FAA=function(d){
                              			nrow(d[ d$fcst_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_FSA_FAA=function(d){
+  return ( calcRATIO_FSA_FAA(d) ) ;
+}
+
+calc3d_RATIO_FSA_FAA=function(d){
+  return ( calcRATIO_FSA_FAA(d) ) ;
+}
+
 calcRATIO_FCA_FAA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 0, ]) /
                               			nrow(d[ d$fcst_flag == 1, ]) ) ;
+}
+
+calc2d_RATIO_FCA_FAA=function(d){
+  return ( calcRATIO_FCA_FAA(d) ) ;
+}
+
+calc3d_RATIO_FCA_FAA=function(d){
+  return ( calcRATIO_FCA_FAA(d) ) ;
 }
 
 calcRATIO_OSA_OAA=function(d){
@@ -174,9 +303,25 @@ calcRATIO_OSA_OAA=function(d){
                              			nrow(d[ d$fcst_flag == 0, ]) ) ;
 }
 
+calc2d_RATIO_OSA_OAA=function(d){
+  return ( calcRATIO_OSA_OAA(d) ) ;
+}
+
+calc3d_RATIO_OSA_OAA=function(d){
+  return ( calcRATIO_OSA_OAA(d) ) ;
+}
+
 calcRATIO_OCA_OAA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 0, ]) /
                              			nrow(d[ d$fcst_flag == 0, ]) ) ;
+}
+
+calc2d_RATIO_OCA_OAA=function(d){
+  return ( calcRATIO_OCA_OAA(d) ) ;
+}
+
+calc3d_RATIO_OCA_OAA=function(d){
+  return ( calcRATIO_OCA_OAA(d) ) ;
 }
 
 calcRATIO_FCA_ACA=function(d){
@@ -184,33 +329,103 @@ calcRATIO_FCA_ACA=function(d){
                              			nrow(d[ d$simple_flag == 0, ]) ) ;
 }
 
+calc2d_RATIO_FCA_ACA=function(d){
+  return ( calcRATIO_FCA_ACA(d) ) ;
+}
+
+calc3d_RATIO_FCA_ACA=function(d){
+  return ( calcRATIO_FCA_ACA(d) ) ;
+}
+
 calcRATIO_OCA_ACA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 0, ]) /
                              			nrow(d[ d$simple_flag == 0, ]) ) ;
 }
+
+calc2d_RATIO_OCA_ACA=function(d){
+  return ( calcRATIO_OCA_ACA(d) ) ;
+}
+
+calc3d_RATIO_OCA_ACA=function(d){
+  return ( calcRATIO_OCA_ACA(d) ) ;
+}
+
 calcRATIO_FSA_OSA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) /
            nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) ) ;
 }
+
+calc2d_RATIO_FSA_OSA=function(d){
+  return ( calcRATIO_FSA_OSA(d) ) ;
+}
+
+calc3d_RATIO_FSA_OSA=function(d){
+  return ( calcRATIO_FSA_OSA(d) ) ;
+}
+
 calcRATIO_OSA_FSA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) /
                              			nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) ) ;
 }
+
+calc2d_RATIO_OSA_FSA=function(d){
+  return ( calcRATIO_OSA_FSA(d) ) ;
+}
+
+calc3d_RATIO_OSA_FSA=function(d){
+  return ( calcRATIO_OSA_FSA(d) ) ;
+}
+
+
 calcRATIO_ACA_ASA=function(d){
   return ( nrow(d[ d$simple_flag == 0, ]) /
                              			nrow(d[ d$simple_flag == 1, ]) ) ;
 }
+
+calc2d_RATIO_ACA_ASA=function(d){
+  return ( calcRATIO_ACA_ASA(d) ) ;
+}
+
+calc3d_RATIO_ACA_ASA=function(d){
+  return ( calcRATIO_ACA_ASA(d) ) ;
+}
+
 calcRATIO_ASA_ACA=function(d){
   return ( nrow(d[ d$simple_flag == 1, ]) /
                              			nrow(d[ d$simple_flag == 0, ]) ) ;
 }
+
+calc2d_RATIO_ASA_ACA=function(d){
+  return ( calcRATIO_ASA_ACA(d) ) ;
+}
+
+calc3d_RATIO_ASA_ACA=function(d){
+  return ( calcRATIO_ASA_ACA(d) ) ;
+}
+
 calcRATIO_FCA_FSA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 0, ]) /
                              			nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) ) ;
 }
+
+calc2d_RATIO_FCA_FSA=function(d){
+  return ( calcRATIO_FCA_FSA(d) ) ;
+}
+
+calc3d_RATIO_FCA_FSA=function(d){
+  return ( calcRATIO_FCA_FSA(d) ) ;
+}
 calcRATIO_FSA_FCA=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1, ]) /
                              			nrow(d[ d$fcst_flag == 1 & d$simple_flag == 0, ]) ) ;
+}
+
+calc2d_RATIO_FSA_FCA=function(d){
+  return ( calcRATIO_FSA_FCA(d) ) ;
+}
+
+calc3d_RATIO_FSA_FCA=function(d){
+  return ( calcRATIO_FSA_FCA(d) ) ;
 }
 
 calcRATIO_OCA_OSA=function(d){
@@ -218,20 +433,60 @@ calcRATIO_OCA_OSA=function(d){
                              			nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) ) ;
 }
 
+calc2d_RATIO_OCA_OSA=function(d){
+  return ( calcRATIO_OCA_OSA(d) ) ;
+}
+calc3d_RATIO_OCA_OSA=function(d){
+  return ( calcRATIO_OCA_OSA(d) ) ;
+}
+
 calcRATIO_OSA_OCA=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1, ]) /
                              			nrow(d[ d$fcst_flag == 0 & d$simple_flag == 0, ]) ) ;
 }
 
+calc2d_RATIO_OSA_OCA=function(d){
+  return ( calcRATIO_OSA_OCA(d) ) ;
+}
+
+calc3d_RATIO_OSA_OCA=function(d){
+  return ( calcRATIO_OSA_OCA(d) ) ;
+}
+
 calcOBJHITS=function(d){
   return ( nrow(d[ d$simple_flag == 1 & d$matched_flag == 1, ]) / 2 ) ;
 }
+
+calc2d_OBJHITS=function(d){
+  return ( calcOBJHITS(d) ) ;
+}
+
+calc3d_OBJHITS=function(d){
+  return ( calcOBJHITS(d) ) ;
+}
+
 calcOBJMISSES=function(d){
   return ( nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ])  ) ;
 }
 
+calc2d_OBJMISSES=function(d){
+  return ( calcOBJMISSES(d)  ) ;
+}
+
+calc3d_OBJMISSES=function(d){
+  return ( calcOBJMISSES(d)  ) ;
+}
+
 calcOBJFAS=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ])  ) ;
+}
+
+calc2d_OBJFAS=function(d){
+  return ( alcOBJFAS(d)  ) ;
+}
+
+calc3d_OBJFAS=function(d){
+  return ( alcOBJFAS(d)  ) ;
 }
 
 calcOBJCSI=function(d){
@@ -240,20 +495,54 @@ calcOBJCSI=function(d){
                  nrow(d[ d$simple_flag == 1 & d$matched_flag == 0, ]) ) ) ;
 }
 
+calc2d_OBJCSI=function(d){
+  return ( calcOBJCSI(d) ) ;
+}
+
+calc3d_OBJCSI=function(d){
+  return ( calcOBJCSI(d) ) ;
+}
+
 calcOBJPODY=function(d){
   return ( nrow(d[ d$simple_flag == 1 & d$matched_flag == 1, ]) /
                   (nrow(d[ d$simple_flag == 1 & d$matched_flag == 1, ]) + 2 *
                  nrow(d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ]) ) ) ;
 }
+
+calc2d_OBJPODY=function(d){
+  return ( calcOBJPODY(d) ) ;
+}
+
+calc3d_OBJPODY=function(d){
+  return ( calcOBJPODY(d) ) ;
+}
+
 calcOBJFAR=function(d){
   return ( nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ]) /
                   (nrow(d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ]) +
                  nrow(d[  d$simple_flag == 1 & d$matched_flag == 1, ]) / 2) ) ;
 }
 
+calc2d_OBJFAR=function(d){
+  return ( calcOBJFAR(d) ) ;
+}
+
+calc3d_OBJFAR=function(d){
+  return ( calcOBJFAR(d) ) ;
+}
+
 calcAREARAT_FSA_ASA=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) /
              					  sum( d[ d$simple_flag == 1, ]$area ) ) ;
+}
+
+calc2d_AREARAT_FSA_ASA=function(d){
+  return ( calcAREARAT_FSA_ASA(d) ) ;
+}
+
+calc3d_VOLRAT_FSA_ASA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSA_ASA(d) ) ;
 }
 
 calcAREARAT_OSA_ASA=function(d){
@@ -262,14 +551,42 @@ calcAREARAT_OSA_ASA=function(d){
 
 }
 
+calc2d_AREARAT_OSA_ASA=function(d){
+  return ( calcAREARAT_OSA_ASA(d) ) ;
+}
+
+calc3d_VOLRAT_OSA_ASA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSA_ASA(d) ) ;
+}
+
 calcAREARAT_ASM_ASA=function(d){
   return ( sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) /
          					  sum( d[ d$simple_flag == 1, ]$area ) ) ;
 
 }
+
+calc2d_AREARAT_ASM_ASA=function(d){
+  return ( calcAREARAT_ASM_ASA(d) ) ;
+}
+
+calc3d_VOLRAT_ASM_ASA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_ASM_ASA(d) ) ;
+}
+
 calcAREARAT_ASU_ASA=function(d){
   return ( sum( d[ d$simple_flag == 1 & d$matched_flag == 0, ]$area ) /
          					  sum( d[ d$simple_flag == 1, ]$area ) ) ;
+}
+
+calc2d_AREARAT_ASU_ASA=function(d){
+  return ( calcAREARAT_ASU_ASA(d) ) ;
+}
+
+calc3d_VOLRAT_ASU_ASA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_ASU_ASA(d) ) ;
 }
 
 calcAREARAT_FSM_FSA=function(d){
@@ -277,22 +594,73 @@ calcAREARAT_FSM_FSA=function(d){
                      sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_FSM_FSA=function(d){
+  return ( calcAREARAT_FSM_FSA(d) ) ;
+}
+
+calc3d_VOLRAT_FSM_FSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSM_FSA(d) ) ;
+}
+
 calcAREARAT_FSU_FSA=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ]$area ) /
                      sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) ) ;
+}
+
+calc2d_AREARAT_FSU_FSA=function(d){
+  return ( calcAREARAT_FSU_FSA(d) ) ;
+}
+
+calc3d_VOLRAT_FSU_FSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSU_FSA(d) ) ;
 }
 
 calcAREARAT_OSM_OSA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 1, ]$area ) /
                      sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) ) ;
 }
+
+calc2d_AREARAT_OSM_OSA=function(d){
+  return ( calcAREARAT_OSM_OSA(d) ) ;
+}
+
+calc3d_VOLRAT_OSM_OSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSM_OSA(d) ) ;
+}
+
 calcAREARAT_OSU_OSA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ]$area ) /
                        sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_OSU_OSA=function(d){
+  return ( calcAREARAT_OSU_OSA(d)) ;
+}
+
+calc3d_VOLRAT_OSU_OSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSU_OSA(d)) ;
+}
+
 calcAREARAT_FSM_ASM=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 1, ]$area ) /
+                      sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) ) ;
+}
+
+calc2d_AREARAT_FSM_ASM=function(d){
+  return ( calcAREARAT_FSM_ASM(d) ) ;
+}
+
+calc3d_VOLRAT_FSM_ASM=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSM_ASM(d) ) ;
+}
+
+calcAREARAT_OSM_ASM=function(d){
+  return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 1, ]$area ) /
                       sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) ) ;
 }
 
@@ -301,9 +669,13 @@ calcAREARAT_OSM_ASM=function(d){
                       sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) ) ;
 }
 
-calcAREARAT_FSU_ASU=function(d){
-  return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ]$area ) /
-                      sum( d[ d$simple_flag == 1 & d$matched_flag == 0, ]$area ) ) ;
+calc2d_AREARAT_FSU_ASU=function(d){
+  return ( calcAREARAT_OSM_ASM(d) ) ;
+}
+
+calc3d_VOLRAT_FSU_ASU=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSM_ASM(d) ) ;
 }
 
 calcAREARAT_OSU_ASU=function(d){
@@ -316,9 +688,27 @@ calcAREARAT_FSA_AAA=function(d){
            sum(d$area) ) ;
 }
 
+calc2d_AREARAT_FSA_AAA=function(d){
+  return ( calcAREARAT_FSA_AAA(d)) ;
+}
+
+calc3d_VOLRAT_FSA_AAA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSA_AAA(d)) ;
+}
+
 calcAREARAT_OSA_AAA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) /
            sum(d$area) ) ;
+}
+
+calc2d_AREARAT_OSA_AAA=function(d){
+  return ( calcAREARAT_OSA_AAA(d) ) ;
+}
+
+calc3d_VOLRAT_OSA_AAA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSA_AAA(d) ) ;
 }
 
 calcAREARAT_FSA_FAA=function(d){
@@ -326,9 +716,27 @@ calcAREARAT_FSA_FAA=function(d){
                       sum( d[ d$fcst_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_FSA_FAA=function(d){
+  return ( calcAREARAT_FSA_FAA(d) ) ;
+}
+
+calc3d_VOLRAT_FSA_FAA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSA_FAA(d) ) ;
+}
+
 calcAREARAT_FCA_FAA=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 0, ]$area ) /
                          sum( d[ d$fcst_flag == 1, ]$area ) ) ;
+}
+
+calc2d_AREARAT_FCA_FAA=function(d){
+  return ( calcAREARAT_FCA_FAA(d)) ;
+}
+
+calc3d_VOLRAT_FCA_FAA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FCA_FAA(d)) ;
 }
 
 calcAREARAT_OSA_OAA=function(d){
@@ -336,18 +744,55 @@ calcAREARAT_OSA_OAA=function(d){
                            sum( d[ d$fcst_flag == 0, ]$area ) ) ;
 }
 
+calc2d_AREARAT_OSA_OAA=function(d){
+  return ( calcAREARAT_OSA_OAA(d) ) ;
+}
+
+calc3d_VOLRAT_OSA_OAA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSA_OAA(d) ) ;
+}
+
 calcAREARAT_OCA_OAA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 0, ]$area ) /
                              sum( d[ d$fcst_flag == 0, ]$area ) ) ;
+}
+
+calc2d_AREARAT_OCA_OAA=function(d){
+  return ( calcAREARAT_OCA_OAA(d) ) ;
+}
+
+calc3d_VOLRAT_OCA_OAA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OCA_OAA(d) ) ;
 }
 
 calcAREARAT_FCA_ACA=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 0, ]$area ) /
                                sum( d[ d$simple_flag == 0, ]$area ) ) ;
 }
+
+calc2d_AREARAT_FCA_ACA=function(d){
+  return ( calcAREARAT_FCA_ACA(d) ) ;
+}
+
+calc3d_VOLRAT_FCA_ACA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FCA_ACA(d) ) ;
+}
+
 calcAREARAT_OCA_ACA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 0, ]$area ) /
                                  sum( d[ d$simple_flag == 0, ]$area ) ) ;
+}
+
+calc2d_AREARAT_OCA_ACA=function(d){
+  return ( calcAREARAT_OCA_ACA(d) ) ;
+}
+
+calc3d_VOLRAT_OCA_ACA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OCA_ACA(d) ) ;
 }
 
 calcAREARAT_FSA_OSA=function(d){
@@ -355,9 +800,27 @@ calcAREARAT_FSA_OSA=function(d){
          					  sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_FSA_OSA=function(d){
+  return ( calcAREARAT_FSA_OSA(d) ) ;
+}
+
+calc3d_VOLRAT_FSA_OSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSA_OSA(d) ) ;
+}
+
 calcAREARAT_OSA_FSA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) /
          					  sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) ) ;
+}
+
+calc2d_AREARAT_OSA_FSA=function(d){
+  return ( calcAREARAT_OSA_FSA(d) ) ;
+}
+
+calc3d_VOLRAT_OSA_FSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSA_FSA(d) ) ;
 }
 
 calcAREARAT_ACA_ASA=function(d){
@@ -365,9 +828,27 @@ calcAREARAT_ACA_ASA=function(d){
          					  sum( d[ d$simple_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_ACA_ASA=function(d){
+  return ( calcAREARAT_ACA_ASA(d) ) ;
+}
+
+calc3d_VOLRAT_ACA_ASA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_ACA_ASA(d) ) ;
+}
+
 calcAREARAT_ASA_ACA=function(d){
   return ( sum( d[ d$simple_flag == 1, ]$area ) /
          					  sum( d[ d$simple_flag == 0, ]$area ) ) ;
+}
+
+calc2d_AREARAT_ASA_ACA=function(d){
+  return ( calcAREARAT_ASA_ACA(d) ) ;
+}
+
+calc3d_VOLRAT_ASA_ACA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_ASA_ACA(d) ) ;
 }
 
 calcAREARAT_FCA_FSA=function(d){
@@ -375,9 +856,27 @@ calcAREARAT_FCA_FSA=function(d){
          					  sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_FCA_FSA=function(d){
+  return ( calcAREARAT_FCA_FSA(d) ) ;
+}
+
+calc3d_VOLRAT_FCA_FSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FCA_FSA(d) ) ;
+}
+
 calcAREARAT_FSA_FCA=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1, ]$area ) /
          					  sum( d[ d$fcst_flag == 1 & d$simple_flag == 0, ]$area ) ) ;
+}
+
+calc2d_AREARAT_FSA_FCA=function(d){
+  return ( calcAREARAT_FSA_FCA(d) ) ;
+}
+
+calc3d_VOLRAT_FSA_FCA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_FSA_FCA(d) ) ;
 }
 
 calcAREARAT_OCA_OSA=function(d){
@@ -385,21 +884,75 @@ calcAREARAT_OCA_OSA=function(d){
            					  sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) ) ;
 }
 
+calc2d_AREARAT_OCA_OSA=function(d){
+  return ( calcAREARAT_OCA_OSA(d) ) ;
+}
+
+calc3d_VOLRAT_OCA_OSA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OCA_OSA(d) ) ;
+}
+
 calcAREARAT_OSA_OCA=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1, ]$area ) /
              					  sum( d[ d$fcst_flag == 0 & d$simple_flag == 0, ]$area ) ) ;
+}
+
+calc2d_AREARAT_OSA_OCA=function(d){
+  return ( calcAREARAT_OSA_OCA(d) ) ;
+}
+
+calc3d_VOLRAT_OSA_OCA=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcAREARAT_OSA_OCA(d) ) ;
 }
 
 calcOBJAHITS=function(d){
   return ( sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) / 2 ) ;
 }
 
+calc2d_OBJAHITS=function(d){
+  return ( calcOBJAHITS(d) ) ;
+}
+
+calc3d_OBJVHITS=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJAHITS(d) ) ;
+}
+
 calcOBJAMISSES=function(d){
   return ( sum( d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ]$area )  ) ;
 }
 
+calc2d_OBJAMISSES=function(d){
+  return ( calcOBJAMISSES(d)  ) ;
+}
+
+calc3d_OBJVMISSES=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJAMISSES(d)  ) ;
+}
+
+calc2d_OBJAMISSES=function(d){
+  return ( calcOBJAMISSES(d)  ) ;
+}
+
+calc3d_OBJVMISSES=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJAMISSES(d)  ) ;
+}
+
 calcOBJAFAS=function(d){
   return ( sum( d[ d$fcst_flag == 1 & d$simple_flag == 1 & d$matched_flag == 0, ]$area )  ) ;
+}
+
+calc2d_OBJAFAS=function(d){
+  return ( calcOBJAFAS(d)  ) ;
+}
+
+calc3d_OBJVFAS=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJAFAS(d)  ) ;
 }
 
 calcOBJACSI=function(d){
@@ -408,10 +961,30 @@ calcOBJACSI=function(d){
              			 sum( d[ d$simple_flag == 1 & d$matched_flag == 0, ]$area )) ) ;
 }
 
+calc2d_OBJACSI=function(d){
+  return ( calcOBJACSI(d) ) ;
+}
+
+calc3d_OBJVCSI=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJACSI(d) ) ;
+}
+
 calcOBJAPODY=function(d){
   return ( sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) /
              			(sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area ) + 2 *
              			 sum( d[ d$fcst_flag == 0 & d$simple_flag == 1 & d$matched_flag == 0, ]$area )) ) ;
+
+}
+
+calc2d_OBJAPODY=function(d){
+  return ( calcOBJAPODY(d) ) ;
+
+}
+
+calc3d_OBJVPODY=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJAPODY(d) ) ;
 
 }
 calcOBJAFAR=function(d){
@@ -420,7 +993,14 @@ calcOBJAFAR=function(d){
              			 sum( d[ d$simple_flag == 1 & d$matched_flag == 1, ]$area )) ) ;
 }
 
+calc2d_OBJAFAR=function(d){
+  return ( calcOBJAFAR(d) ) ;
+}
 
+calc3d_OBJVFAR=function(d){
+  names(d)[names(d) == 'volume'] <- 'area'
+  return ( calcOBJAFAR(d) ) ;
+}
 
 booter.iid = function(d, i){
 
@@ -446,7 +1026,7 @@ booter.iid = function(d, i){
 		
 		# calculate the stat and add it to the list
 		for(strStat in listStat){
-        dblStat=do.call( paste("calc", strStat, sep=""), list(d=dfStatsPerm) );	
+        dblStat=do.call( paste("calc", strStat, sep=""), list(d=dfStatsPerm) );
 		  	listStatVal = append(listStatVal, dblStat);
 		  	listRet[[strStat]] = append(listRet[[strStat]], dblStat);
         listRetTest[[strStat]] = append(listRetTest[[strStat]], dblStat);
@@ -500,8 +1080,7 @@ dfOut = data.frame();
 # run the bootstrap flow for each independent variable value
 for(strIndyVal in listIndyVal){
 	
-cat("PROCESSING:", strIndyVal, "\n");
-	stBoot = Sys.time();	
+	stBoot = Sys.time();
 
 	# extract the records for the current indy value
 	dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
@@ -642,5 +1221,5 @@ write.table( dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t" )
 
 
 # clean up
-cat("agg_arearat.R done\n");
+cat("agg_stat_bootstrap.R done\n");
 
