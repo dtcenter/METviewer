@@ -66,8 +66,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   private final String[] modeObjSingleColumns = new String[]{
       "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT", "CENTROID_LON", "AXIS_ANG", "LENGTH", "WIDTH", "AREA", "AREA_THRESH", "CURVATURE", "CURVATURE_X", "CURVATURE_Y", "COMPLEXITY", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90", "INTENSITY_50", "INTENSITY_SUM"};
 
-  private final String[] mtdObjSingleColumns = new String[]{
+  private final String[] mtdObj2dColumns = new String[]{
       "CLUSTER_ID", "TIME_INDEX", "AREA", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT",
+      "CENTROID_LON", "AXIS_ANG"
+  };
+  private final String[] mtdObj3dSingleColumns = new String[]{
+      "CLUSTER_ID", "CENTROID_X", "CENTROID_Y", "CENTROID_T", "CENTROID_LAT",
       "CENTROID_LON", "X_DOT", "Y_DOT ", "AXIS_ANG", "VOLUME", "START_TIME", "END_TIME", "CDIST_TRAVELLED", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90"
   };
   private final String[] listLineDataTables = {
@@ -109,6 +113,16 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     mapIndexes.put("#mode_header#_fcst_thr_idx", "fcst_thr");
     mapIndexes.put("#mode_header#_fcst_var_idx", "fcst_var");
     mapIndexes.put("#mode_header#_fcst_lev_idx", "fcst_lev");
+
+    mapIndexes.put("#mtd_header#_model_idx", "model");
+    mapIndexes.put("#mtd_header#_fcst_lead_idx", "fcst_lead");
+    mapIndexes.put("#mtd_header#_fcst_valid_idx", "fcst_valid");
+    mapIndexes.put("#mtd_header#_fcst_init_idx", "fcst_init");
+    mapIndexes.put("#mtd_header#_fcst_rad_idx", "fcst_rad");
+    mapIndexes.put("#mtd_header#_fcst_thr_idx", "fcst_thr");
+    mapIndexes.put("#mtd_header#_fcst_var_idx", "fcst_var");
+    mapIndexes.put("#mtd_header#_fcst_lev_idx", "fcst_lev");
+
 
     for (String listLineDataTable : listLineDataTables) {
       mapIndexes.put("#" + listLineDataTable + "#_fcst_lead_idx", "fcst_lead");
@@ -657,7 +671,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 18;
               break;
             case "PSTD":
-              maxSize = 29;
+              maxSize = 30;
               break;
             case "SSVAR":
               maxSize = 46;
@@ -713,9 +727,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             int intGroupSize = listVarLengthGroupIndices[2];
             int intNumGroups = Integer.parseInt(listToken[intGroupCntIndex]);
 
-            if (mvLoadStatInsertData.getLineType().equals("PCT") || mvLoadStatInsertData
-                                                                        .getLineType().equals(
-                    "PJC") || mvLoadStatInsertData.getLineType().equals("PRC")) {
+            if (mvLoadStatInsertData.getLineType().equals("PCT")
+                    || mvLoadStatInsertData.getLineType().equals("PJC")
+                    || mvLoadStatInsertData.getLineType().equals("PRC")) {
               intNumGroups -= 1;
             }
             List<String> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
@@ -734,9 +748,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 }
               }
             } else {
-              if (mvLoadStatInsertData.getLineType().equals("RHIST") || mvLoadStatInsertData
-                                                                            .getLineType()
-                                                                            .equals("PSTD")) {
+              if (mvLoadStatInsertData.getLineType().equals("RHIST")
+                      || mvLoadStatInsertData.getLineType().equals("PSTD")) {
                 intGroupIndex = intLineDataMax;
               }
               for (int i = 0; i < intNumGroups; i++) {
@@ -1999,6 +2012,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 MVUtil.findValueInArray(listToken, headerNames, header)) + "'";
           }
 
+          //set flags
+          Integer simpleFlag = 1;
+          Integer fcstFlag = 0;
+          if (strObjectId.startsWith("C")) {
+            simpleFlag = 0;
+          }
+          if (strObjectId.startsWith("CF") || strObjectId.startsWith("F")) {
+            fcstFlag = 1;
+          }
+          Integer matchedFlag = 0;
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT").split
+                                                                                                 ("_");
+          if (objCatArr.length == 1 && !objCatArr[0].substring(2).equals("000")) {
+            matchedFlag = 1;
+          }
+          strSingleValueList = strSingleValueList +  "," +fcstFlag + "," + simpleFlag + "," + matchedFlag;
+
           //  insert the record into the mode_obj_single database table
           String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strSingleValueList + ");";
           int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert);
@@ -2031,6 +2061,22 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           for (int i = 0; i < 12; i++) {
             strPairValueList += ", " + replaceInvalidValues(listToken[centroiddistIndex + i]);
           }
+
+          //set flags
+          Integer simpleFlag = 1;
+          String[] objIdArr = strObjectId.split("_");
+          if (objIdArr.length == 2 && objIdArr[0].startsWith("C") && objIdArr[1].startsWith("C")) {
+            simpleFlag = 0;
+          }
+
+          Integer matchedFlag = 0;
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT").split
+                                                                                                 ("_");
+          if (objCatArr.length == 2 && objCatArr[0].substring(2).equals(objCatArr[1].substring(2))
+                  && !objCatArr[0].substring(2).equals("000")) {
+            matchedFlag = 1;
+          }
+          strPairValueList = strPairValueList  +  "," +simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mode_obj_pair database table
           String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strPairValueList + ");";
@@ -2094,8 +2140,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     long intMtdHeaderLoadStart = new Date().getTime();
     timeStats.put("headerSearchTime", 0L);
     long headerInserts = 0;
-    long objSingleInserts = 0;
-    long objPairInserts = 0;
+    long obj3dSingleInserts = 0;
+    long obj3dPairInserts = 0;
+    long obj2dInserts = 0;
 
     //  get the next mode record ids from the database
     int intMtdHeaderIdNext = getNextId("mtd_header", "mtd_header_id");
@@ -2125,22 +2172,19 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         int intLineTypeLuId;
         int intDataFileLuId = info._dataFileLuId;
         String strObjectId = MVUtil.findValueInArray(listToken, headerNames, "OBJ_ID");
-        int mtdSingle = 17;
-        int mtdPair = 18;
-        if (8 == intDataFileLuId || 11 == intDataFileLuId || 12 == intDataFileLuId) {
-          intLineTypeLuId = mtdSingle;
+        int mtd3dSingle = 17;
+        int mtd3dPair = 18;
+        int mtd2d = 19;
+        if (11 == intDataFileLuId || 12 == intDataFileLuId) {
+          intLineTypeLuId = mtd3dSingle;
         } else if (9 == intDataFileLuId || 10 == intDataFileLuId) {
-          intLineTypeLuId = mtdPair;
+          intLineTypeLuId = mtd3dPair;
+        } else if (8 == intDataFileLuId) {
+          intLineTypeLuId = mtd2d;
         } else {
           throw new Exception("METViewer load error: loadModeFile() unable to determine line type"
                                   + " " + strFileLine);
         }
-
-
-			/*
-       * * * *  mode_header insert  * * * *
-			 */
-
         //  parse the valid times
         Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(
             MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"));
@@ -2330,55 +2374,129 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
 
 
-			/*
-       * * * *  mode_cts insert  * * * *
-			 */
-
-        if (mtdSingle == intLineTypeLuId) {
-          String strSingleValueList =  mtdHeaderId + ", '" + strObjectId + "'";
-          for (String header : mtdObjSingleColumns) {
-            strSingleValueList += ", '" + replaceInvalidValues(
+        if (mtd3dSingle == intLineTypeLuId) {
+          String str3dSingleValueList = mtdHeaderId + ", '" + strObjectId + "'";
+          for (String header : mtdObj3dSingleColumns) {
+            str3dSingleValueList += ", '" + replaceInvalidValues(
                 MVUtil.findValueInArray(listToken, headerNames, header)) + "'";
           }
 
-          //  insert the record into the mtd_obj_single database table
-          String strMtdObjSingleInsert = "INSERT INTO mtd_obj_single VALUES (" +
-                                             strSingleValueList + ");";
-          int intMtdObjSingleInsert = executeUpdate(strMtdObjSingleInsert);
-          if (1 != intMtdObjSingleInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mode_obj_single INSERT: " + intMtdObjSingleInsert + "\n        " + strFileLine);
+          //set flags
+          Integer simpleFlag = 1;
+          Integer fcstFlag = 0;
+          if (strObjectId.startsWith("C")) {
+            simpleFlag = 0;
           }
-          objSingleInserts++;
+          if (strObjectId.startsWith("CF") || strObjectId.startsWith("F")) {
+            fcstFlag = 1;
+          }
+          Integer matchedFlag = 0;
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "CLUSTER_ID").split
+                                                                                                 ("_");
+          Integer num = null;
+          try {
+            num = Integer.valueOf(objCatArr[1]);
+          } catch (Exception e) {
+          }
+          if (num != null) {
+            matchedFlag = 1;
+          }
+          str3dSingleValueList = str3dSingleValueList + ","+fcstFlag + "," + simpleFlag + "," +
+                                     matchedFlag;
 
-        }
+          //  insert the record into the mtd_obj_single database table
+          int mtd3dObjSingleInsert = executeUpdate("INSERT INTO mtd_3d_obj_single VALUES ("
+                                                       + str3dSingleValueList + ");");
+          if (1 != mtd3dObjSingleInsert) {
+            logger.warn(
+                "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
+                    + mtd3dObjSingleInsert + "\n        " + strFileLine);
+          }
+          obj3dSingleInserts++;
+        } else if (mtd2d == intLineTypeLuId) {
+          String str2dValueList = mtdHeaderId + ", '" + strObjectId + "'";
+          for (String header : mtdObj2dColumns) {
+            str2dValueList += ", '" + replaceInvalidValues(
+                MVUtil.findValueInArray(listToken, headerNames, header)) + "'";
+          }
 
-			/*
-       * * * *  mode_obj_pair insert  * * * *
-			 */
+          //set flags
+          Integer simpleFlag = 1;
+          Integer fcstFlag = 0;
+          if (strObjectId.startsWith("C")) {
+            simpleFlag = 0;
+          }
+          if (strObjectId.startsWith("CF") || strObjectId.startsWith("F")) {
+            fcstFlag = 1;
+          }
+          Integer matchedFlag = 0;
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "CLUSTER_ID").split
+                                                                                                 ("_");
+          Integer num = null;
+          try {
+            num = Integer.valueOf(objCatArr[1]);
+          } catch (Exception e) {
+          }
+          if (num != null) {
+            matchedFlag = 1;
+          }
+          str2dValueList = str2dValueList +","+ fcstFlag + "," + simpleFlag + "," + matchedFlag;
 
-        else if (mtdPair == intLineTypeLuId) {
+          //  insert the record into the mtd_obj_single database table
+          int mtd2dObjInsert = executeUpdate("INSERT INTO mtd_2d_obj VALUES ("
+                                                 + str2dValueList + ");");
+          if (1 != mtd2dObjInsert) {
+            logger.warn(
+                "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
+                    + mtd2dObjInsert + "\n        " + strFileLine);
+          }
+          obj2dInserts++;
+        } else if (mtd3dPair == intLineTypeLuId) {
 
           //  build the value list for the mode_cts insert
-          String strPairValueList = mtdHeaderId + ", " + "'" + strObjectId + "', '"
-                                        + MVUtil.findValueInArray(listToken, headerNames,
-                                                                  "CLUSTER_ID") +
-                                        "'";
+          String str3dPairValueList = mtdHeaderId + ", "
+                                          + "'"
+                                          + strObjectId
+                                          + "', '"
+                                          + MVUtil.findValueInArray(listToken, headerNames,
+                                                                    "CLUSTER_ID")
+                                          + "'";
           int spaceCentroidDistIndex = headerNames.indexOf("SPACE_CENTROID_DIST");
           for (int i = 0; i < 11; i++) {
-            strPairValueList += ", " + replaceInvalidValues(listToken[spaceCentroidDistIndex + i]);
+            str3dPairValueList += ", " + replaceInvalidValues(
+                listToken[spaceCentroidDistIndex + i]);
           }
 
-          //  insert the record into the mtd_obj_pair database table
-          String strMtdObjPairInsert = "INSERT INTO mtd_obj_pair VALUES ("
-                                           + strPairValueList + ");";
-          int intMtdObjPairInsert = executeUpdate(strMtdObjPairInsert);
-          if (1 != intMtdObjPairInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mtd_obj_pair INSERT: " +
-                    intMtdObjPairInsert + "\n        " + strFileLine);
+          //set flags
+          Integer simpleFlag = 1;
+          String[] objIdArr = strObjectId.split("_");
+          if (objIdArr.length == 4 && objIdArr[0].startsWith("C") && objIdArr[2].startsWith("C")) {
+            simpleFlag = 0;
           }
-          objPairInserts++;
+
+          Integer matchedFlag = 0;
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "CLUSTER_ID").split
+                                                                                                 ("_");
+          Integer num1 = null;
+          Integer num2 = null;
+          try {
+            num1 = Integer.valueOf(objCatArr[1]);
+            num2 = Integer.valueOf(objCatArr[3]);
+          } catch (Exception e) {
+          }
+          if (num1.equals(num2) && num1 != 0) {
+            matchedFlag = 1;
+          }
+          str3dPairValueList = str3dPairValueList + "," +simpleFlag + "," + matchedFlag;
+
+          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
+                                                     + str3dPairValueList + ");");
+          if (1 != mtd3dObjPairInsert) {
+            logger.warn(
+                "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
+                    mtd3dObjPairInsert + "\n        " + strFileLine);
+          }
+          obj3dPairInserts++;
 
         }
 
@@ -2393,16 +2511,19 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     //  increment the global mode counters
     timeStats.put("linesTotal", (long) (intLine - 1));
     timeStats.put("headerInserts", headerInserts);
-    timeStats.put("objSingleInserts", objSingleInserts);
-    timeStats.put("objPairInserts", objPairInserts);
+    timeStats.put("obj3dSingleInserts", obj3dSingleInserts);
+    timeStats.put("obj3dPairInserts", obj3dPairInserts);
+    timeStats.put("obj2dInserts", obj2dInserts);
 
 
     //  print a performance report
     if (info._boolVerbose) {
       long intMtdHeaderLoadTime = new Date().getTime() - intMtdHeaderLoadStart;
       logger.info(MVUtil.padBegin("mtd_header inserts: ", 36) + headerInserts + "\n" +
-                      MVUtil.padBegin("mtd_obj_single inserts: ", 36) + objSingleInserts + "\n" +
-                      MVUtil.padBegin("mtd_obj_pair inserts: ", 36) + objPairInserts + "\n" +
+                      MVUtil
+                          .padBegin("mtd_3d_obj_single inserts: ", 36) + obj3dSingleInserts + "\n" +
+                      MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36) + obj3dPairInserts + "\n" +
+                      MVUtil.padBegin("mtd_2d_obj inserts: ", 36) + obj2dInserts + "\n" +
                       (info._boolMtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time: ",
                                                                     36) + MVUtil.formatTimeSpan(
                           timeStats.get("headerSearchTime")) + "\n" : "") +
@@ -2442,7 +2563,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         ps.addBatch();
 
         //execute and commit batch of 20000 queries
-        if (i % 20000 == 0) {
+        if (i != 0 && i % 20000 == 0) {
           int[] updateCounts = ps.executeBatch();
           intStream = IntStream.of(updateCounts);
           intResLineDataInsert = intResLineDataInsert + intStream.sum();
