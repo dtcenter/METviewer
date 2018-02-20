@@ -194,7 +194,9 @@ public class MVPlotJob extends MVUtil {
   protected boolean addSkillLine = Boolean.TRUE;
   protected boolean addReferenceLine = Boolean.TRUE;
   protected Boolean isModeRatio = null;
+  protected Boolean isMtdRatio = null;
   protected Boolean isMode = null;
+  protected Boolean isMtd = null;
 
 
   /**
@@ -1866,6 +1868,27 @@ public class MVPlotJob extends MVUtil {
   }
 
   /**
+   * Examine the first statistic in the first <dep1> structure to determine if the job is MODE ratio
+   * statistics
+   *
+   * @return true if the checked stat is a MODE stat, false otherwise
+   */
+  public boolean isMtdRatioJob() {
+    if (isMtdRatio == null) {
+      MVOrderedMap[] listDep = getDepGroups();
+      if (listDep.length > 0) {
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get
+                                                                                               ("dep1"));
+        isMtdRatio = listFcstVarStat.length > 0
+                         && MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
+      } else {
+        isMtdRatio = false;
+      }
+    }
+    return isMtdRatio;
+  }
+
+  /**
    * Examine the first statistic in the first <dep1> structure to determine if the job is plotting
    * stat statistics or MODE statisticss
    *
@@ -1878,7 +1901,7 @@ public class MVPlotJob extends MVUtil {
         String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
         String strStat = parseModeStat(listFcstVarStat[0][1])[0];
 
-        isMode = modeSingleStatField.contains(strStat)
+        isMode = modeSingleStatField.containsKey(strStat)
                      || modePairStatField.containsKey(strStat)
                      || modeRatioField.contains(listFcstVarStat[0][1]);
       } else {
@@ -1888,8 +1911,28 @@ public class MVPlotJob extends MVUtil {
     return isMode;
   }
 
+  public boolean isMtdJob() {
+    if (isMtd == null) {
+      MVOrderedMap[] listDep = getDepGroups();
+      if (listDep.length > 0) {
+        String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
+
+        String[] listStatComp = listFcstVarStat[0][1].split("_");
+        String stat = listFcstVarStat[0][1].replace("_"+listStatComp[listStatComp.length-1], "");
+
+        isMtd = mtd3dSingleStatField.containsKey(stat)
+                    || mtd3dPairStatField.containsKey(stat)
+                    || mtd2dStatField.containsKey(stat)
+                    || mtdRatioField.contains(listFcstVarStat[0][1]);
+      } else {
+        isMtd = false;
+      }
+    }
+    return isMtd;
+  }
+
   private void validateSQL(String str) throws Exception {
-    if(str.toLowerCase().contains("and") && !str.toLowerCase().contains("between")){
+    if (str.toLowerCase().contains("and") && !str.toLowerCase().contains("between")) {
       throw new Exception("String " + str + " includes SQL unsafe word AND");
     }
     for (String noSQL : DatabaseManager.SQL_INJECTION_WORDS) {
