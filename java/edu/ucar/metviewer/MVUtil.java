@@ -74,12 +74,16 @@ public class MVUtil {
   public static final Map<String, String[]> statsRhist = new HashMap<>();
   public static final Map<String, String[]> statsVl1l2 = new HashMap<>();
   public static final Map<String, String[]> statsVal1l2 = new HashMap<>();
-  public static final List<String> modeSingleStatField = new ArrayList<>();
+  public static final Map<String, String> modeSingleStatField = new HashMap<>();
+  public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
+  public static final Map<String, String> mtd2dStatField = new HashMap<>();
 
   public static final List<String> modeRatioField = new ArrayList<>();
+  public static final List<String> mtdRatioField = new ArrayList<>();
 
 
   public static final Map<String, String> modePairStatField = new HashMap<>();
+  public static final Map<String, String> mtd3dPairStatField = new HashMap<>();
   public static final List<String> calcStatCTC = new ArrayList<>();
   public static final String DB_DATE_MS = "yyyy-MM-dd HH:mm:ss.S";
   public static final SimpleDateFormat PLOT_FORMAT = new SimpleDateFormat("yyyyMMddHH");
@@ -100,10 +104,12 @@ public class MVUtil {
 
   public static final Map<String, Boolean> covThreshLineTypes = new HashMap<>();
 
-  public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache
-                                                                                          .logging.log4j.Level.INFO)
-                   .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-                   .buildPrintStream();
+  public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
+                                                    .setLevel(org.apache
+                                                                  .logging.log4j.Level.INFO)
+                                                    .setMarker(
+                                                        new MarkerManager.Log4jMarker("ERROR"))
+                                                    .buildPrintStream();
 
   static {
 
@@ -178,6 +184,153 @@ public class MVUtil {
     modeRatioField.add("OBJACSI");
     modeRatioField.add("OBJAPODY");
     modeRatioField.add("OBJAFAR");
+  }
+
+
+  static {
+
+    mtdRatioField.add("2d_RATIO_FSA_ASA");
+    mtdRatioField.add("2d_RATIO_OSA_ASA");
+    mtdRatioField.add("2d_RATIO_ASM_ASA");
+    mtdRatioField.add("2d_RATIO_ASU_ASA");
+    mtdRatioField.add("2d_RATIO_FSM_FSA");
+    mtdRatioField.add("2d_RATIO_FSU_FSA");
+    mtdRatioField.add("2d_RATIO_OSM_OSA");
+    mtdRatioField.add("2d_RATIO_OSU_OSA");
+    mtdRatioField.add("2d_RATIO_FSM_ASM");
+    mtdRatioField.add("2d_RATIO_OSM_ASM");
+    mtdRatioField.add("2d_RATIO_FSU_ASU");
+    mtdRatioField.add("2d_RATIO_OSU_ASU");
+    mtdRatioField.add("2d_RATIO_FSA_AAA");
+    mtdRatioField.add("2d_RATIO_OSA_AAA");
+    mtdRatioField.add("2d_RATIO_FSA_FAA");
+    mtdRatioField.add("2d_RATIO_FCA_FAA");
+    mtdRatioField.add("2d_RATIO_OSA_OAA");
+    mtdRatioField.add("2d_RATIO_OCA_OAA");
+    mtdRatioField.add("2d_RATIO_FCA_ACA");
+    mtdRatioField.add("2d_RATIO_OCA_ACA");
+    mtdRatioField.add("2d_RATIO_FSA_OSA");
+    mtdRatioField.add("2d_RATIO_OSA_FSA");
+    mtdRatioField.add("2d_RATIO_ACA_ASA");
+    mtdRatioField.add("2d_RATIO_ASA_ACA");
+    mtdRatioField.add("2d_RATIO_FCA_FSA");
+    mtdRatioField.add("2d_RATIO_FSA_FCA");
+    mtdRatioField.add("2d_RATIO_OCA_OSA");
+    mtdRatioField.add("2d_RATIO_OSA_OCA");
+
+
+    mtdRatioField.add("3d_RATIO_FSA_ASA");
+    mtdRatioField.add("3d_RATIO_OSA_ASA");
+    mtdRatioField.add("3d_RATIO_ASM_ASA");
+    mtdRatioField.add("3d_RATIO_ASU_ASA");
+    mtdRatioField.add("3d_RATIO_FSM_FSA");
+    mtdRatioField.add("3d_RATIO_FSU_FSA");
+    mtdRatioField.add("3d_RATIO_OSM_OSA");
+    mtdRatioField.add("3d_RATIO_OSU_OSA");
+    mtdRatioField.add("3d_RATIO_FSM_ASM");
+    mtdRatioField.add("3d_RATIO_OSM_ASM");
+    mtdRatioField.add("3d_RATIO_FSU_ASU");
+    mtdRatioField.add("3d_RATIO_OSU_ASU");
+    mtdRatioField.add("3d_RATIO_FSA_AAA");
+    mtdRatioField.add("3d_RATIO_OSA_AAA");
+    mtdRatioField.add("3d_RATIO_FSA_FAA");
+    mtdRatioField.add("3d_RATIO_FCA_FAA");
+    mtdRatioField.add("3d_RATIO_OSA_OAA");
+    mtdRatioField.add("3d_RATIO_OCA_OAA");
+    mtdRatioField.add("3d_RATIO_FCA_ACA");
+    mtdRatioField.add("3d_RATIO_OCA_ACA");
+    mtdRatioField.add("3d_RATIO_FSA_OSA");
+    mtdRatioField.add("3d_RATIO_OSA_FSA");
+    mtdRatioField.add("3d_RATIO_ACA_ASA");
+    mtdRatioField.add("3d_RATIO_ASA_ACA");
+    mtdRatioField.add("3d_RATIO_FCA_FSA");
+    mtdRatioField.add("3d_RATIO_FSA_FCA");
+    mtdRatioField.add("3d_RATIO_OCA_OSA");
+    mtdRatioField.add("3d_RATIO_OSA_OCA");
+
+    mtdRatioField.add("2d_OBJHITS");
+    mtdRatioField.add("2d_OBJMISSES");
+    mtdRatioField.add("2d_OBJFAS");
+    mtdRatioField.add("2d_OBJCSI");
+    mtdRatioField.add("2d_OBJPODY");
+    mtdRatioField.add("2d_OBJFAR");
+    mtdRatioField.add("3d_OBJHITS");
+    mtdRatioField.add("3d_OBJMISSES");
+    mtdRatioField.add("3d_OBJFAS");
+    mtdRatioField.add("3d_OBJCSI");
+    mtdRatioField.add("3d_OBJPODY");
+    mtdRatioField.add("3d_OBJFAR");
+
+    mtdRatioField.add("3d_VOLRAT_FSA_ASA");
+    mtdRatioField.add("3d_VOLRAT_OSA_ASA");
+    mtdRatioField.add("3d_VOLRAT_ASM_ASA");
+    mtdRatioField.add("3d_VOLRAT_ASU_ASA");
+    mtdRatioField.add("3d_VOLRAT_FSM_FSA");
+    mtdRatioField.add("3d_VOLRAT_FSU_FSA");
+    mtdRatioField.add("3d_VOLRAT_OSM_OSA");
+    mtdRatioField.add("3d_VOLRAT_OSU_OSA");
+    mtdRatioField.add("3d_VOLRAT_FSM_ASM");
+    mtdRatioField.add("3d_VOLRAT_OSM_ASM");
+    mtdRatioField.add("3d_VOLRAT_FSU_ASU");
+    mtdRatioField.add("3d_VOLRAT_OSU_ASU");
+    mtdRatioField.add("3d_VOLRAT_FSA_AAA");
+    mtdRatioField.add("3d_VOLRAT_OSA_AAA");
+    mtdRatioField.add("3d_VOLRAT_FSA_FAA");
+    mtdRatioField.add("3d_VOLRAT_FCA_FAA");
+    mtdRatioField.add("3d_VOLRAT_OSA_OAA");
+    mtdRatioField.add("3d_VOLRAT_OCA_OAA");
+    mtdRatioField.add("3d_VOLRAT_FCA_ACA");
+    mtdRatioField.add("3d_VOLRAT_OCA_ACA");
+    mtdRatioField.add("3d_VOLRAT_FSA_OSA");
+    mtdRatioField.add("3d_VOLRAT_OSA_FSA");
+    mtdRatioField.add("3d_VOLRAT_ACA_ASA");
+    mtdRatioField.add("3d_VOLRAT_ASA_ACA");
+    mtdRatioField.add("3d_VOLRAT_FCA_FSA");
+    mtdRatioField.add("3d_VOLRAT_FSA_FCA");
+    mtdRatioField.add("3d_VOLRAT_OCA_OSA");
+    mtdRatioField.add("3d_VOLRAT_OSA_OCA");
+
+    mtdRatioField.add("2d_AREARAT_FSA_ASA");
+    mtdRatioField.add("2d_AREARAT_OSA_ASA");
+    mtdRatioField.add("2d_AREARAT_ASM_ASA");
+    mtdRatioField.add("2d_AREARAT_ASU_ASA");
+    mtdRatioField.add("2d_AREARAT_FSM_FSA");
+    mtdRatioField.add("2d_AREARAT_FSU_FSA");
+    mtdRatioField.add("2d_AREARAT_OSM_OSA");
+    mtdRatioField.add("2d_AREARAT_OSU_OSA");
+    mtdRatioField.add("2d_AREARAT_FSM_ASM");
+    mtdRatioField.add("2d_AREARAT_OSM_ASM");
+    mtdRatioField.add("2d_AREARAT_FSU_ASU");
+    mtdRatioField.add("2d_AREARAT_OSU_ASU");
+    mtdRatioField.add("2d_AREARAT_FSA_AAA");
+    mtdRatioField.add("2d_AREARAT_OSA_AAA");
+    mtdRatioField.add("2d_AREARAT_FSA_FAA");
+    mtdRatioField.add("2d_AREARAT_FCA_FAA");
+    mtdRatioField.add("2d_AREARAT_OSA_OAA");
+    mtdRatioField.add("2d_AREARAT_OCA_OAA");
+    mtdRatioField.add("2d_AREARAT_FCA_ACA");
+    mtdRatioField.add("2d_AREARAT_OCA_ACA");
+    mtdRatioField.add("2d_AREARAT_FSA_OSA");
+    mtdRatioField.add("2d_AREARAT_OSA_FSA");
+    mtdRatioField.add("2d_AREARAT_ACA_ASA");
+    mtdRatioField.add("2d_AREARAT_ASA_ACA");
+    mtdRatioField.add("2d_AREARAT_FCA_FSA");
+    mtdRatioField.add("2d_AREARAT_FSA_FCA");
+    mtdRatioField.add("2d_AREARAT_OCA_OSA");
+    mtdRatioField.add("2d_AREARAT_OSA_OCA");
+
+    mtdRatioField.add("3d_OBJVHITS");
+    mtdRatioField.add("3d_OBJVMISSES");
+    mtdRatioField.add("3d_OBJVFAS");
+    mtdRatioField.add("3d_OBJVCSI");
+    mtdRatioField.add("3d_OBJVPODY");
+    mtdRatioField.add("3d_OBJVFAR");
+    mtdRatioField.add("3d_OBJVHITS");
+    mtdRatioField.add("2d_OBJAMISSES");
+    mtdRatioField.add("2d_OBJAFAS");
+    mtdRatioField.add("2d_OBJACSI");
+    mtdRatioField.add("2d_OBJAPODY");
+    mtdRatioField.add("2d_OBJAFAR");
   }
 
 
@@ -414,30 +567,32 @@ public class MVUtil {
   }
 
   static {
-    modeSingleStatField.add("ACOV");
-    modeSingleStatField.add("CNT");
-    modeSingleStatField.add("CNTSUM");
-    modeSingleStatField.add("CENTX");
-    modeSingleStatField.add("CENTY");
-    modeSingleStatField.add("CENTLAT");
-    modeSingleStatField.add("CENTLON");
-    modeSingleStatField.add("AXAVG");
-    modeSingleStatField.add("LEN");
-    modeSingleStatField.add("WID");
-    modeSingleStatField.add("ASPECT");
-    modeSingleStatField.add("AREA");
-    modeSingleStatField.add("AREATHR");
-    modeSingleStatField.add("CURV");
-    modeSingleStatField.add("CURVX");
-    modeSingleStatField.add("CURVY");
-    modeSingleStatField.add("CPLX");
-    modeSingleStatField.add("INT10");
-    modeSingleStatField.add("INT25");
-    modeSingleStatField.add("INT50");
-    modeSingleStatField.add("INT75");
-    modeSingleStatField.add("INT90");
-    modeSingleStatField.add("INTN");
-    modeSingleStatField.add("INTSUM");
+    modeSingleStatField.put("ACOV", "SUM(area)");
+    modeSingleStatField.put("CNT", "COUNT(object_id)");
+    modeSingleStatField.put("CNTSUM", "COUNT(object_id)");
+    modeSingleStatField.put("CENTX", "centroid_x");
+    modeSingleStatField.put("CENTY", "centroid_y");
+    modeSingleStatField.put("CENTLAT", "centroid_lat");
+    modeSingleStatField.put("CENTLON", "centroid_lon");
+    modeSingleStatField.put("AXAVG", "axis_avg");
+    modeSingleStatField.put("LEN", "length");
+    modeSingleStatField.put("WID", "width");
+    modeSingleStatField
+        .put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
+    modeSingleStatField.put("AREA", "area");
+    modeSingleStatField.put("AREATHR", "area_thresh");
+    modeSingleStatField.put("CURV", "curvature");
+    modeSingleStatField.put("CURVX", "curvature_x");
+    modeSingleStatField.put("CURVY", "curvature_y");
+    modeSingleStatField.put("CPLX", "complexity");
+    modeSingleStatField.put("INT10", "intensity_10");
+    modeSingleStatField.put("INT25", "intensity_25");
+    modeSingleStatField.put("INT50", "intensity_50");
+    modeSingleStatField.put("INT75", "intensity_75");
+    modeSingleStatField.put("INT90", "intensity_90");
+    modeSingleStatField.put("INTN", "intensity_nn");
+    modeSingleStatField.put("INTSUM", "intensity_sum");
+
   }
 
 
@@ -457,6 +612,50 @@ public class MVUtil {
     modePairStatField.put("MAXINT", "MAX(interest)");
     modePairStatField.put("MAXINTF", "MAX(interest)");
     modePairStatField.put("MAXINTO", "MAX(interest)");
+  }
+
+  static {
+    mtd2dStatField.put("2D_AREA", "area");
+    mtd2dStatField.put("2D_CENTROID_X", "centroid_x");
+    mtd2dStatField.put("2D_CENTROID_Y", "centroid_y");
+    mtd2dStatField.put("2D_CENTROID_LAT", "centroid_lat");
+    mtd2dStatField.put("2D_CENTROID_LON", "centroid_lon");
+    mtd2dStatField.put("2D_AXIS_ANG", "axis_ang");
+  }
+
+  static {
+    mtd3dSingleStatField.put("3D_CENTROID_X", "centroid_x");
+    mtd3dSingleStatField.put("3D_CENTROID_Y", "centroid_y");
+    mtd3dSingleStatField.put("3D_CENTROID_T", "centroid_t");
+    mtd3dSingleStatField.put("3D_CENTROID_LAT", "centroid_lat");
+    mtd3dSingleStatField.put("3D_CENTROID_LON", "centroid_lon");
+    mtd3dSingleStatField.put("3D_X_DOT", "x_dot");
+    mtd3dSingleStatField.put("3D_Y_DOT", "y_dot");
+    mtd3dSingleStatField.put("3D_AXIS_ANG", "axis_ang");
+    mtd3dSingleStatField.put("3D_VOLUME", "volume");
+    mtd3dSingleStatField.put("3D_START_TIME", "start_time");
+    mtd3dSingleStatField.put("3D_END_TIME", "end_time");
+    mtd3dSingleStatField.put("3D_DURATION", "end_time-start_time");
+    mtd3dSingleStatField.put("3D_CDIST_TRAVELLED", "cdist_travelled");
+    mtd3dSingleStatField.put("3D_INTENSITY_10", "intensity_10");
+    mtd3dSingleStatField.put("3D_INTENSITY_25", "intensity_25");
+    mtd3dSingleStatField.put("3D_INTENSITY_50", "intensity_50");
+    mtd3dSingleStatField.put("3D_INTENSITY_75", "intensity_75");
+    mtd3dSingleStatField.put("3D_INTENSITY_90", "intensity_90");
+  }
+
+  static {
+    mtd3dPairStatField.put("3D_SPACE_CENTROID_DIST", "space_centroid_dist");
+    mtd3dPairStatField.put("3D_TIME_CENTROID_DELTA", "time_centroid_delta");
+    mtd3dPairStatField.put("3D_AXIS_DIFF", "axis_diff");
+    mtd3dPairStatField.put("3D_SPEED_DELTA", "speed_delta");
+    mtd3dPairStatField.put("3D_DIRECTION_DIFF", "direction_diff");
+    mtd3dPairStatField.put("3D_VOLUME_RATIO", "volume_ratio");
+    mtd3dPairStatField.put("3D_START_TIME_DELTA", "start_time_delta");
+    mtd3dPairStatField.put("3D_END_TIME_DELTA", "end_time_delta");
+    mtd3dPairStatField.put("3D_INTERSECTION_VOLUME", "intersection_volume");
+    mtd3dPairStatField.put("3D_DURATION_DIFF", "duration_diff");
+    mtd3dPairStatField.put("3D_INTEREST", "interest");
   }
 
 
@@ -504,7 +703,8 @@ public class MVUtil {
       }
 
     } catch (Exception e) {
-      errorStream.print( "  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+      errorStream
+          .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
       //printStream.println(
       //    "  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
       //e.printStackTrace(printStream);
@@ -739,6 +939,7 @@ public class MVUtil {
   public static List<String> sortLev(final List<String> lev) {
     return sortVals(lev, true, MVUtil.lev);
   }
+
   /**
    * Sort the list of Interp Pnts, according to the first numeric level value.
    *
@@ -759,7 +960,8 @@ public class MVUtil {
    * @return Sorted list, by numerical value
    */
   public static List<String> sortVals(
-                                     final List<String> vals, final boolean asc, final Pattern pat) {
+                                         final List<String> vals, final boolean asc,
+                                         final Pattern pat) {
 
     List<String> result = new ArrayList<>();
     //  parse the input values and store the numerical values in a sortable array
@@ -779,9 +981,9 @@ public class MVUtil {
 
       //  if the value matches, parse out the numerical value
       if (mat.matches()) {
-        if(mat.groupCount() == 0){
+        if (mat.groupCount() == 0) {
           dblVal = Double.parseDouble(val);
-        }else {
+        } else {
           dblVal = Double.parseDouble(mat.group(2));
           if (3 == mat.groupCount() && null != mat.group(3)) {
             dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
@@ -858,8 +1060,8 @@ public class MVUtil {
    * @return Sorted list of formatted lead times, by numerical value
    */
   public static List<String> sortFormatLead(
-                                           final List<String> lead, final boolean asc,
-                                           final boolean removeZeros) {
+                                               final List<String> lead, final boolean asc,
+                                               final boolean removeZeros) {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.size()];
@@ -891,7 +1093,7 @@ public class MVUtil {
   public static List<String> formatDates(final List<String> dates) {
     List<String> listRet = new ArrayList<>(dates.size());
     for (int i = 0; i < dates.size(); i++) {
-      listRet.add(i,dates.get(i).replace(".0", ""));
+      listRet.add(i, dates.get(i).replace(".0", ""));
     }
     return listRet;
   }
@@ -1152,6 +1354,7 @@ public class MVUtil {
     return new String[]{mat.group(1), mat.group(2)};
   }
 
+
   /**
    * Run the system command and return the output
    */
@@ -1192,6 +1395,13 @@ public class MVUtil {
    */
   public static String getStatTable(final String strStat) {
     String strStatMode = parseModeStat(strStat)[0];
+    String strStatMrd = "";
+    if (strStatMode.equals(strStat)) {
+      String[] listStatComp = strStat.split("_");
+      strStatMrd = strStat.replace("_" + listStatComp[listStatComp.length - 1], "");
+    }
+
+    //TODO mtdRatioField and modeRatioField contain the same fields
 
     if (statsCnt.containsKey(strStat)) {
       return "line_data_cnt";
@@ -1211,7 +1421,7 @@ public class MVUtil {
       return "line_data_vl1l2";
     } else if (statsVal1l2.containsKey(strStat)) {
       return "line_data_val1l2";
-    } else if (modeSingleStatField.contains(strStatMode)) {
+    } else if (modeSingleStatField.containsKey(strStatMode)) {
       return "mode_obj_single";
     } else if (modePairStatField.containsKey(strStatMode)) {
       return "mode_obj_pair";
@@ -1225,6 +1435,14 @@ public class MVUtil {
       return "line_data_orank";
     } else if (statsSsvar.containsKey(strStat)) {
       return "line_data_ssvar";
+    } else if (mtd3dSingleStatField.containsKey(strStatMrd)) {
+      return "mtd_3d_obj_single";
+    } else if (mtd3dPairStatField.containsKey(strStatMrd)) {
+      return "mtd_3d_obj_pair";
+    } else if (mtd2dStatField.containsKey(strStatMrd)) {
+      return "mtd_2d_obj";
+    } else if (mtdRatioField.contains(strStat)) {
+      return "mtd_3d_obj_single";
     } else {
       return "";
     }
@@ -1550,7 +1768,7 @@ public class MVUtil {
 
       if (!vals.containsKey(strTmplTagName)) {
         printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
-                               + " perm");
+                                + " perm");
         continue;
       }
 
