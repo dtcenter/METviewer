@@ -69,8 +69,8 @@ public class MVServlet extends HttpServlet {
 
   public static final PrintStream errorStream
       = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                     .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-                     .buildPrintStream();
+            .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+            .buildPrintStream();
 
   public static final Pattern _patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
   public static final Pattern _patDownload = Pattern.compile(".*/download");
@@ -253,7 +253,6 @@ public class MVServlet extends HttpServlet {
     String strField = nodeCall._children[1]._value.toLowerCase(Locale.ENGLISH);
 
     List<String> listRes = databaseManager.getListValues(nodeCall, strField, currentDBName);
-
 
 
     //  sort and format the results, depending on the field
@@ -451,10 +450,11 @@ public class MVServlet extends HttpServlet {
       }
       job = jobs[0];
     } catch (Exception e) {
-     // _logger.error(
-     //     "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage
+      // _logger.error(
+      //     "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage
       // ());
-      errorStream.print("handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
+      errorStream.print(
+          "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
       return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
     } finally {
       if (byteArrayInputStream != null) {
@@ -481,7 +481,7 @@ public class MVServlet extends HttpServlet {
       printStream = new PrintStream(log);
       printStreamSql = new PrintWriter(logSql);
       printStreamError = new PrintStream(logError);
-      MVBatch mvBatch = new MVBatch(printStream, printStreamSql,printStreamError, databaseManager);
+      MVBatch mvBatch = new MVBatch(printStream, printStreamSql, printStreamError, databaseManager);
       //  configure the batch engine and run the job
       mvBatch.setRtmplFolder(parser.getRtmplFolder());
       mvBatch.setRworkFolder(parser.getRworkFolder());
@@ -491,7 +491,7 @@ public class MVServlet extends HttpServlet {
 
 
       //  run the job to generate the plot
-      runTargetedJob(job,  mvBatch);
+      runTargetedJob(job, mvBatch);
       //  build the job SQL using the batch engine
       String strPlotSQL = logSql.toString();
 
@@ -520,10 +520,15 @@ public class MVServlet extends HttpServlet {
       }
 
     } catch (Exception e) {
-     // _logger.debug(
+      // _logger.debug(
       //    "handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() +
       //         "\nbatch output:\n" + log.toString());
-      errorStream.print("handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
+      errorStream.print(
+          "handlePlot() - ERROR: caught " + e.getClass() + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
+      String strPlotterOutput = log.toString();
+      writer = new FileWriter(_strPlotXML + "/" + strPlotPrefix + ".log");
+      writer.write(strPlotterOutput);
+      writer.close();
       return "<response><error>" +
                  "failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage() +
                  (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "") +
@@ -543,16 +548,25 @@ public class MVServlet extends HttpServlet {
       }
       if (printStreamError != null) {
         printStreamError.close();
-           }
+      }
       if (writer != null) {
         writer.close();
       }
     }
     _logger.debug("handlePlot() - batch output:\n" + log.toString());
 
-    return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg.equals(
-        "") ? "<r_error>" + strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
-                                .replace(">", "&gt;") + "</r_error></response>" : "</response>");
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><response><plot>" + strPlotPrefix + "</plot>" + (!strRErrorMsg
+                                                                                                            .equals(
+                                                                                                                "") ? "<r_error>" + strRErrorMsg
+                                                                                                                                        .replace(
+                                                                                                                                            "&",
+                                                                                                                                            "&amp;")
+                                                                                                                                        .replace(
+                                                                                                                                            "<",
+                                                                                                                                            "&lt;")
+                                                                                                                                        .replace(
+                                                                                                                                            ">",
+                                                                                                                                            "&gt;") + "</r_error></response>" : "</response>");
   }
 
   private static void runTargetedJob(
@@ -744,7 +758,8 @@ public class MVServlet extends HttpServlet {
       }
 
     } catch (Exception e) {
-      errorStream.print("init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
+      errorStream.print(
+          "init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
       //_logger.error(
       //    "init() - ERROR: caught " + e.getClass() + " loading properties: " + e.getMessage());
     }
@@ -1091,8 +1106,9 @@ public class MVServlet extends HttpServlet {
       //_logger
       //    .error("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString
       //                                                                                       ());
-      errorStream.print("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString
-                                                                                                  ());
+      errorStream
+          .print("doPost() - caught " + e.getClass() + ": " + e.getMessage() + "\n" + s.toString
+                                                                                            ());
       out.println("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
       response.setContentType("application/xml");
     } finally {
