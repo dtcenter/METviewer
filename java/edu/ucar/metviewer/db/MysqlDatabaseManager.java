@@ -92,7 +92,10 @@ public class MysqlDatabaseManager {
 
   public void initDBList() {
     listDB.clear();
-    String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where table_name in ('mode_header', 'stat_header') and TABLE_ROWS > 0 and TABLE_SCHEMA like 'mv_%'";
+    String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
+                     + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
+                     + "> 0 and "
+                     + "TABLE_SCHEMA like 'mv_%'";
     try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
          ResultSet resultSet = testStatement.executeQuery(sql)
