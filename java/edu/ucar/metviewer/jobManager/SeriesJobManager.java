@@ -88,7 +88,8 @@ public class SeriesJobManager extends JobManager {
       }
 
       //if it is a model job with attribute stat  - validate
-      if (job.isModeJob() && !job.isModeRatioJob()) {
+      if ((job.isModeJob() && !job.isModeRatioJob())
+          || (job.isMtdJob() && !job.isMtdRatioJob())) {
         validateModeSeriesDefinition(job);
       }
 
@@ -186,7 +187,7 @@ public class SeriesJobManager extends JobManager {
 
 
       RscriptStatManager rscriptStatManager = null;
-      if (job.isModeJob() || isAggStat) {
+      if (job.isModeJob() || job.isMtdJob() || isAggStat) {
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
       } else if (isCalcStat) {
         rscriptStatManager = new RscriptSumStatManager(mvBatch);
