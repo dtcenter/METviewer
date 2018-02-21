@@ -24,24 +24,31 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.8.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.8.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
-dir="$1"
-mode="$2"
 
-if [[ 1 -eq $# ]]
+
+if [ $# -eq 0 ]
 then
   echo "Running plots scripts"
-  $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"
-
+  $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner
 else
-  if [[ (2 -eq $#) &&  ($2 == "all") ]];
+  dir="$1"
+  mode="$2"
+  if [[ 1 -eq $# ]]
   then
-    echo "Running all scripts"
-    $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"  all
+    echo "Running plots scripts"
+    $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"
+
   else
-    if [[ (2 -eq $#) && ($2 == "plots") ]];
+    if [[ (2 -eq $#) &&  ($2 == "all") ]];
     then
-      echo "Running plots scripts"
-      $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"
+      echo "Running all scripts"
+      $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"  all
+    else
+      if [[ (2 -eq $#) && ($2 == "plots") ]];
+      then
+        echo "Running plots scripts"
+        $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner
+      fi
     fi
   fi
 fi
