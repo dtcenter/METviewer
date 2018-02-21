@@ -103,8 +103,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     modeHeaderSQLType.put("obs_lev", "VARCHAR(16)");
 
 
-
-
     mtd3dSingleStatField.put("3D_CENTROID_X", "centroid_x");
     mtd3dSingleStatField.put("3D_CENTROID_Y", "centroid_y");
     mtd3dSingleStatField.put("3D_CENTROID_T", "centroid_t");
@@ -123,7 +121,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     mtd3dSingleStatField.put("3D_INTENSITY_50", "intensity_50");
     mtd3dSingleStatField.put("3D_INTENSITY_75", "intensity_75");
     mtd3dSingleStatField.put("3D_INTENSITY_90", "intensity_90");
-
 
 
     mtdHeaderSQLType.put("model", "VARCHAR(64)");
@@ -1541,7 +1538,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
     } else if ((listStatComp[0].equals("RATIO")
                     || listStatComp[0].equals("AREARAT")
-                    || strStat.startsWith("OBJ")) ) {
+                    || strStat.startsWith("OBJ"))) {
       listQuery.add(buildModeSingleStatRatioTable(strSelectList, strWhere));
     }
     return listQuery;
@@ -1597,11 +1594,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
     } else if (MVUtil.mtd3dPairStatField.containsKey(stat)) {
       listQuery.add(buildMtd3dPairStatTable(strSelectList, strWhere, strStat));
-    } else  {
+    } else {
       strWhere = strWhere.replace("h.", "");
-      if(stat.startsWith("2d")) {
+      if (stat.startsWith("2d")) {
         listQuery.add(buildMtdSingleStatRatio2dTable(strSelectList, strWhere));
-      }else if(stat.startsWith("3d")){
+      } else if (stat.startsWith("3d")) {
         listQuery.add(buildMtdSingleStatRatio3dTable(strSelectList, strWhere));
       }
     }
@@ -1949,7 +1946,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             "  mode_header ,\n" +
             "  mode_obj_single ,\n" +
             "  mode_cts \n" +
-            "WHERE\n" + strWhere + ";";
+            "WHERE\n" + strWhere +
+            "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n" +
+            "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id" +
+            "  AND mode_cts.field = 'OBJECT'";
   }
 
   private String buildMtdSingleStatRatio2dTable(String selectList, String strWhere) {
@@ -1974,23 +1974,23 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   private String buildMtdSingleStatRatio3dTable(String selectList, String strWhere) {
 
-      //  build the list of fields involved in the computations
-      String strSelectListStat = selectList.replaceAll("h\\.", "");
+    //  build the list of fields involved in the computations
+    String strSelectListStat = selectList.replaceAll("h\\.", "");
 
 
-      return
-          "SELECT\n" + strSelectListStat + ",\n" +
-              "  object_id,\n" +
-              "  cluster_id,\n" +
-              "  volume,\n" +
-              "  fcst_flag,\n" +
-              "  simple_flag,\n" +
-              "  matched_flag\n" +
-              "FROM mtd_header, mtd_3d_obj_single\n" +
-              "WHERE\n" + strWhere
-              + "  AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
+    return
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  object_id,\n" +
+            "  cluster_id,\n" +
+            "  volume,\n" +
+            "  fcst_flag,\n" +
+            "  simple_flag,\n" +
+            "  matched_flag\n" +
+            "FROM mtd_header, mtd_3d_obj_single\n" +
+            "WHERE\n" + strWhere
+            + "  AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
 
-    }
+  }
 
   private String buildModeSingleStatDiffTable(
                                                  String strSelectList, String strWhere, String stat,
