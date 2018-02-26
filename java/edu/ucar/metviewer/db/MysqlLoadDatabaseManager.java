@@ -67,11 +67,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT", "CENTROID_LON", "AXIS_ANG", "LENGTH", "WIDTH", "AREA", "AREA_THRESH", "CURVATURE", "CURVATURE_X", "CURVATURE_Y", "COMPLEXITY", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90", "INTENSITY_50", "INTENSITY_SUM"};
 
   private final String[] mtdObj2dColumns = new String[]{
-      "CLUSTER_ID", "TIME_INDEX", "AREA", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT",
+      "OBJECT_CAT", "TIME_INDEX", "AREA", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT",
       "CENTROID_LON", "AXIS_ANG"
   };
   private final String[] mtdObj3dSingleColumns = new String[]{
-      "CLUSTER_ID", "CENTROID_X", "CENTROID_Y", "CENTROID_T", "CENTROID_LAT",
+      "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_T", "CENTROID_LAT",
       "CENTROID_LON", "X_DOT", "Y_DOT ", "AXIS_ANG", "VOLUME", "START_TIME", "END_TIME", "CDIST_TRAVELLED", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90"
   };
   private final String[] listLineDataTables = {
@@ -345,6 +345,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //  if the line type load selector is activated, check that the current line type is on the list
         mvLoadStatInsertData
             .setLineType(MVUtil.findValueInArray(listToken, headerNames, "LINE_TYPE"));
+        if(!MVUtil.isValidLineType(mvLoadStatInsertData.getLineType())){
+          logger.warn(
+                             "  **  WARNING: unexpected line type: " + mvLoadStatInsertData.getLineType()
+                                 + "  the line will be ignored     ");
+          continue;
+        }
+
         if (info._boolLineTypeLoad && !info._tableLineTypeLoad
                                            .containsKey(mvLoadStatInsertData.getLineType())) {
           continue;
@@ -394,10 +401,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         String strLineType = mvLoadStatInsertData.getLineType();
 
         //  do not load matched pair lines or orank lines
-        if ((!info._boolLoadMpr && strLineType
-                                       .equals("MPR")) || (!info._boolLoadOrank && strLineType
-                                                                                       .equals(
-                                                                                           "ORANK"))) {
+        if ((!info._boolLoadMpr && strLineType.equals("MPR"))
+                || (!info._boolLoadOrank && strLineType.equals("ORANK"))) {
           continue;
         }
 
@@ -2022,8 +2027,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             fcstFlag = 1;
           }
           Integer matchedFlag = 0;
-          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT").split
-                                                                                                 ("_");
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT")
+                                   .split("_");
           if (objCatArr.length == 1 && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
           }
@@ -2070,8 +2075,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
           Integer matchedFlag = 0;
-          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT").split
-                                                                                                 ("_");
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT")
+                                   .split("_");
           if (objCatArr.length == 2 && objCatArr[0].substring(2).equals(objCatArr[1].substring(2))
                   && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
@@ -2171,7 +2176,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //  determine the line type
         int intLineTypeLuId;
         int intDataFileLuId = info._dataFileLuId;
-        String strObjectId = MVUtil.findValueInArray(listToken, headerNames, "OBJ_ID");
+        String strObjectId = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_ID");
         int mtd3dSingle = 17;
         int mtd3dPair = 18;
         int mtd2d = 19;
@@ -2391,18 +2396,17 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             fcstFlag = 1;
           }
           Integer matchedFlag = 0;
-          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "CLUSTER_ID").split
-                                                                                                 ("_");
+          String objCat = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT");
           Integer num = null;
           try {
-            num = Integer.valueOf(objCatArr[1]);
+            num = Integer.valueOf(objCat.substring(objCat.length() - 3));
           } catch (Exception e) {
           }
-          if (num != null) {
+          if (num != null && num != 0) {
             matchedFlag = 1;
           }
-          str3dSingleValueList = str3dSingleValueList + ","+fcstFlag + "," + simpleFlag + "," +
-                                     matchedFlag;
+          str3dSingleValueList = str3dSingleValueList + ","+fcstFlag + "," + simpleFlag + ","
+                                     + matchedFlag;
 
           //  insert the record into the mtd_obj_single database table
           int mtd3dObjSingleInsert = executeUpdate("INSERT INTO mtd_3d_obj_single VALUES ("
@@ -2430,14 +2434,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             fcstFlag = 1;
           }
           Integer matchedFlag = 0;
-          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "CLUSTER_ID").split
-                                                                                                 ("_");
+          String objCat = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT");
+
           Integer num = null;
           try {
-            num = Integer.valueOf(objCatArr[1]);
+            num = Integer.valueOf(objCat.substring(objCat.length() - 3));
           } catch (Exception e) {
           }
-          if (num != null) {
+          if (num != null && num != 0) {
             matchedFlag = 1;
           }
           str2dValueList = str2dValueList +","+ fcstFlag + "," + simpleFlag + "," + matchedFlag;
@@ -2459,7 +2463,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                           + strObjectId
                                           + "', '"
                                           + MVUtil.findValueInArray(listToken, headerNames,
-                                                                    "CLUSTER_ID")
+                                                                    "OBJECT_CAT")
                                           + "'";
           int spaceCentroidDistIndex = headerNames.indexOf("SPACE_CENTROID_DIST");
           for (int i = 0; i < 11; i++) {
@@ -2470,18 +2474,18 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           //set flags
           Integer simpleFlag = 1;
           String[] objIdArr = strObjectId.split("_");
-          if (objIdArr.length == 4 && objIdArr[0].startsWith("C") && objIdArr[2].startsWith("C")) {
+          if (objIdArr.length == 2 && objIdArr[0].startsWith("C") && objIdArr[1].startsWith("C")) {
             simpleFlag = 0;
           }
 
           Integer matchedFlag = 0;
-          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "CLUSTER_ID").split
-                                                                                                 ("_");
+          String[] objCatArr = MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT")
+                                   .split("_");
           Integer num1 = null;
           Integer num2 = null;
           try {
-            num1 = Integer.valueOf(objCatArr[1]);
-            num2 = Integer.valueOf(objCatArr[3]);
+            num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
+            num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
           } catch (Exception e) {
           }
           if (num1.equals(num2) && num1 != 0) {
@@ -2633,13 +2637,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       strDataFileLuTypeName = "vsdb_point_stat";
     } else if (strFile.matches("\\S+2d.txt$")) {
       strDataFileLuTypeName = "mtd_2d";
-    } else if (strFile.matches("\\S+3d_pc.txt$")) {
+    } else if (strFile.matches("\\S+3d_pair_cluster.txt$")) {
       strDataFileLuTypeName = "mtd_3d_pc";
-    } else if (strFile.matches("\\S+3d_ps.txt$")) {
+    } else if (strFile.matches("\\S+3d_pair_simple.txt$")) {
       strDataFileLuTypeName = "mtd_3d_ps";
-    } else if (strFile.matches("\\S+3d_sc.txt$")) {
+    } else if (strFile.matches("\\S+3d_single_cluster.txt$")) {
       strDataFileLuTypeName = "mtd_3d_sc";
-    } else if (strFile.matches("\\S+3d_ss.txt$")) {
+    } else if (strFile.matches("\\S+3d_single_simple.txt$")) {
       strDataFileLuTypeName = "mtd_3d_ss";
     } else {
       return null;

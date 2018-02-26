@@ -105,11 +105,37 @@ public class MVUtil {
   public static final Map<String, Boolean> covThreshLineTypes = new HashMap<>();
 
   public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
-                                                    .setLevel(org.apache
-                                                                  .logging.log4j.Level.INFO)
-                                                    .setMarker(
-                                                        new MarkerManager.Log4jMarker("ERROR"))
+                                                    .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                    .setMarker(new MarkerManager.Log4jMarker("ERROR"))
                                                     .buildPrintStream();
+
+  public static final String[] lineTypes= new String[]{
+      "fho",
+      "ctc",
+      "cts",
+      "mctc",
+      "mcts",
+      "cnt",
+      "sl1l2",
+      "sal1l2",
+      "vl1l2",
+      "val1l2",
+      "pct",
+      "pstd",
+      "pjc",
+      "prc",
+      "eclv",
+      "mpr",
+      "nbrctc",
+      "nbrcts",
+      "nbrcnt",
+      "isc",
+      "rhist",
+      "phist",
+      "orank",
+      "ssvar",
+      "grad"
+  };
 
   static {
 
@@ -2183,6 +2209,17 @@ public class MVUtil {
       start++;
     }
     return listRet;
+  }
+
+  public static boolean isValidLineType(final String lineType){
+    boolean result = false;
+    for(String type: lineTypes){
+      if(type.equalsIgnoreCase(lineType)){
+        result = true;
+        break;
+      }
+    }
+    return result;
   }
 
 }
