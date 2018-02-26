@@ -437,7 +437,8 @@ for (i in 1:length(env$listThresh)){
     # b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
     pch=listPchDisp[i], # point symbol - see example(points)
     font=5, # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-    lty=listLtyDisp[], # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+    lty=listLtyDisp[i], # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5:
+# longdash, 6: twodash
     col=listColorsDisp[i], # line color
     lend=1, # line end style - 0: rounded, 1: butt, 2: square
     cex=1, # line magnification
