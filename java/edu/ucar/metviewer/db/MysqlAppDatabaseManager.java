@@ -162,7 +162,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                         "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
                         "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n" +
                         "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n";
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar +"' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n";
 
     for (String database : currentDBName) {
       try (Connection con = getConnection(database);
@@ -172,6 +173,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         int intStatIndex = 0;
         boolean boolCnt = false;
         boolean boolCts = false;
+        boolean boolVcnt = false;
         while (res.next()) {
           int intStatCount = res.getInt(1);
           if (-9999 != intStatCount) {
@@ -210,6 +212,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               case 9:
                 //case 16:
                 listStatName.addAll(MVUtil.statsVl1l2.keySet());
+                listStatName.addAll(MVUtil.statsVcnt.keySet());
+                boolVcnt=true;
                 break;
               case 10:
                 listStatName.addAll(MVUtil.statsPhist.keySet());
@@ -228,6 +232,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 break;
               case 16:
                 listStatName.addAll(MVUtil.statsVal1l2.keySet());
+                break;
+              case 18:
+                if(!boolVcnt) {
+                  listStatName.addAll(MVUtil.statsVcnt.keySet());
+                }
                 break;
               default:
 
@@ -1259,6 +1268,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             strStatTable = "line_data_orank ld\n";
+          } else if (MVUtil.statsVcnt.containsKey(strStat)) {
+            tableStats = MVUtil.statsVcnt;
+            strStatField = strStat.replace("VCNT_", "").toLowerCase();
+            if (aggType != null) {
+              MVUtil.isAggTypeValid(MVUtil.statsVcnt, strStat, aggType);
+              strStatTable = "line_data_" + aggType + " ld\n";
+            } else {
+              strStatTable = "line_data_vcnt" + " ld\n";
+            }
           } else if (strStat.equals("ECLV") && job.getPlotTmpl().equals("eclv.R_tmpl")) {
             if (aggType != null && aggType.equals(MVUtil.CTC)) {
               tableStats = MVUtil.statsCts;
@@ -1329,8 +1347,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             }
           } else if (job.getAggNbrCnt()) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fbs,\n  ld.fss";
-          } else if (job.getAggVal1l2()) {
-            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar";
+          } else if (job.getAggVl1l2()) {
+            strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufbar,\n ld.vfbar,\n ld.uobar,"
+                                 + "\n ld.vobar,\n ld.uvfobar,\n ld.uvffbar,\n ld.uvoobar,"
+                                 + " \n ld.f_speed_bar, \n ld.o_speed_bar";
           } else if (job.getAggVal1l2()) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n ld.ufabar,\n ld.vfabar,\n ld.uoabar,\n ld.voabar,\n ld.uvfoabar,\n ld.uvffabar,\n ld.uvooabar";
           } else if (job.getCalcCtc()) {
@@ -1351,7 +1371,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strSelectStat += ",\n  ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, ld.ooabar,  'NA' stat_value,\n" +
                                  "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else if (job.getCalcVl1l2()) {
-            strSelectStat += ",\n  ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, ld.uvfobar, ld.uvffbar, ld.uvoobar, 'NA' stat_value,\n" +
+            strSelectStat += ",\n  ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, ld.uvfobar, ld.uvffbar, ld.uvoobar,"
+                                 + " ld.f_speed_bar, ld.o_speed_bar, 'NA' stat_value,\n" +
                                  "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  'NA' stat_bcu";
           } else {
             if (boolBCRMSE) {
@@ -1411,7 +1432,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
           //  build the query
-          strSelectSQL += (strSelectSQL.isEmpty() ? "" : "\nUNION\n") +
+          strSelectSQL += (strSelectSQL.isEmpty() ? "" : "\nUNION ALL\n") +
                               "SELECT\n" + strSelectStat + "\n" +
                               "FROM\n  stat_header h,\n  " + strStatTable;
           strSelectSQL += "WHERE\n" + strWhere;
