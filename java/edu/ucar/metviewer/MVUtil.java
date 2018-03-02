@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsMpr = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
   public static final Map<String, String[]> statsCnt = new HashMap<>();
+  public static final Map<String, String[]> statsVcnt = new HashMap<>();
   public static final Map<String, String[]> statsSsvar = new HashMap<>();
   public static final Map<String, String[]> statsCts = new HashMap<>();
   public static final Map<String, String[]> statsNbrcts = new HashMap<>();
@@ -134,7 +136,8 @@ public class MVUtil {
       "phist",
       "orank",
       "ssvar",
-      "grad"
+      "grad",
+      "vcnt"
   };
 
   static {
@@ -377,6 +380,7 @@ public class MVUtil {
     alphaLineTypes.put("NBRCNT", Boolean.TRUE);
     alphaLineTypes.put("MCTS", Boolean.TRUE);
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
+    alphaLineTypes.put("VCNT", Boolean.TRUE);
   }
 
 
@@ -453,6 +457,27 @@ public class MVUtil {
     statsCnt.put("MSESS", new String[]{"bc", SL1L2});
     statsCnt.put("RMSFA", new String[]{"bc", SAL1L2});
     statsCnt.put("RMSOA", new String[]{"bc", SAL1L2});
+  }
+
+  static {
+    statsVcnt.put("VCNT_FBAR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OBAR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FS_RMS",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OS_RMS",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_MSVE",  new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_RMSVE",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FSTDEV",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OSTDEV",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FDIR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_ODIR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FBAR_SPEED",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OBAR_SPEED",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_VDIFF_SPEED",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_VDIFF_DIR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_SPEED_ERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_SPEED_ABSERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_DIR_ERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_DIR_ABSERR",  new String[]{"bc",VL1L2});
   }
 
   static {
@@ -561,35 +586,9 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_VFBAR", new String[]{});
     statsVl1l2.put("VL1L2_UOBAR", new String[]{});
     statsVl1l2.put("VL1L2_VOBAR", new String[]{});
-    statsVl1l2.put("VL1L2_FBAR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_OBAR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_BIAS", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_MSE", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_RMSE", new String[]{VL1L2});
-
     statsVl1l2.put("VL1L2_FVAR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_OVAR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_FSTDEV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_OSTDEV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_FOSTDEV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_COV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_CORR", new String[]{VL1L2});
-
-
-    statsVl1l2.put("VL1L2_FSPD", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_OSPD", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_FDIR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_ODIR", new String[]{VL1L2});
-
-    statsVl1l2.put("VL1L2_VDIFF_SPD", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_VDIFF_DIR", new String[]{VL1L2});
-
-    statsVl1l2.put("VL1L2_SPD_ERR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_SPD_ABSERR", new String[]{VL1L2});
-
-    statsVl1l2.put("VL1L2_DIR_ABSERR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_DIR_ERR", new String[]{VL1L2});
-
   }
 
   static {
@@ -973,7 +972,19 @@ public class MVUtil {
    * @return Sorted Inter Pnts list, by value
    */
   public static List<String> sortInterpPnts(final List<String> lev) {
-    return sortVals(lev, true, MVUtil.interpPnts);
+    List<Integer> resultInt = new ArrayList<>(lev.size());
+    for(String interpPnt: lev ){
+      try {
+        resultInt.add(Integer.valueOf(interpPnt));
+      }catch (Exception e){
+      }
+    }
+    Collections.sort(resultInt);
+    List<String> resultStr = new ArrayList<>(resultInt.size());
+    for(Integer interpPnt :resultInt ){
+      resultStr.add(String.valueOf(interpPnt));
+    }
+    return resultStr;
   }
 
   /**
@@ -1469,6 +1480,8 @@ public class MVUtil {
       return "mtd_2d_obj";
     } else if (mtdRatioField.contains(strStat)) {
       return "mtd_3d_obj_single";
+    } else if (statsVcnt.containsKey(strStat)) {
+      return "line_data_vcnt";
     } else {
       return "";
     }
