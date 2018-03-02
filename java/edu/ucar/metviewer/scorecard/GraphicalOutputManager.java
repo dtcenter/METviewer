@@ -1,6 +1,7 @@
 /**
- * GraphicalOutputManager.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
+ * GraphicalOutputManager.java Copyright UCAR (c) 2016. University Corporation for Atmospheric
+ * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
+ * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
  */
 
 package edu.ucar.metviewer.scorecard;
@@ -8,6 +9,7 @@ package edu.ucar.metviewer.scorecard;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,13 +61,13 @@ class GraphicalOutputManager {
 
   private static final Logger logger = LogManager.getLogger("GraphicalOutputManager");
   private static final String CSS = "table {border-collapse: collapse;border-spacing: 0;}" +
-    "table, th, td {border: 1px solid black;text-align:center;}" +
-    "th {color: red;}" +
-    "#thside {color: blue;}" +
-    ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}" +
-    ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}" +
-    ".legendTable {margin-top:15px;margin-bottom:10px;}" +
-    ".legendText {text-align:left;}";
+                                        "table, th, td {border: 1px solid black;text-align:center;}" +
+                                        "th {color: red;}" +
+                                        "#thside {color: blue;}" +
+                                        ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}" +
+                                        ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}" +
+                                        ".legendTable {margin-top:15px;margin-bottom:10px;}" +
+                                        ".legendText {text-align:left;}";
 
   private final ContainerTag html;
   private final ContainerTag title1;
@@ -107,8 +109,10 @@ class GraphicalOutputManager {
     String range = "";
 
     for (Field fixField : scorecard.getFixedVars()) {
-      if ("fcst_init_beg".equals(fixField.getName()) || "fcst_valid_beg".equals(fixField.getName())) {
-        range = fixField.getValues().get(0).getLabel() + " - " + fixField.getValues().get(1).getLabel();
+      if ("fcst_init_beg".equals(fixField.getName()) || "fcst_valid_beg"
+                                                            .equals(fixField.getName())) {
+        range = fixField.getValues().get(0).getLabel() + " - " + fixField.getValues().get(1)
+                                                                     .getLabel();
       } else if ("model".equals(fixField.getName())) {
         model1 = fixField.getValues().get(0).getLabel();
         model2 = fixField.getValues().get(1).getLabel();
@@ -117,6 +121,7 @@ class GraphicalOutputManager {
     title2.withText("for " + model1 + " and " + model2);
     title3.withText(range);
   }
+
   //TODO use a config file to describe thresholds
   private void initRangeList() {
     rangeList = new ArrayList<>();
@@ -250,7 +255,6 @@ class GraphicalOutputManager {
         imageGenerator.loadHtml(htmlPageStr);
         imageGenerator.saveAsImage(plotFileStr);
 
-
       } catch (Exception e) {
         logger.error(e);
         logger.info("Image was not  saved");
@@ -264,7 +268,10 @@ class GraphicalOutputManager {
   private ContainerTag createHtmlLegend() {
     ContainerTag legendTable = table().attr("class", "legendTable");
     for (LegendRange range : rangeList) {
-      ContainerTag td1 = td().attr("style", "color:" + range.getColor() + ";" + "background:" + range.getBackground() + ";").with(new UnescapedText(range.getSymbol()));
+      ContainerTag td1 = td().attr("style",
+                                   "color:" + range.getColor() + ";" + "background:" + range
+                                                                                           .getBackground() + ";")
+                             .with(new UnescapedText(range.getSymbol()));
       ContainerTag td2 = td().attr("class", "legendText");
 
       try {
@@ -363,12 +370,12 @@ class GraphicalOutputManager {
         name = entry.getKey();
       }
       try {
-        if ( node.findValue(name)!= null
-                 &&  !node.findValue(name).asText().equals(entry.getValue().getName())) {
+        if (node.findValue(name) != null
+                && !node.findValue(name).asText().equals(entry.getValue().getName())) {
           isMatch = false;
           break;
         }
-      }catch (Exception e){
+      } catch (Exception e) {
         logger.error(e.getMessage());
       }
     }
@@ -384,7 +391,8 @@ class GraphicalOutputManager {
           //add color for the first column
           td.withId("thside");
         }
-        htmlTr.with(td.attr("rowspan", String.valueOf(rowFieldToCountMap.get(rowCounter).get(entry.getKey()))));
+        htmlTr.with(td.attr("rowspan", String.valueOf(
+            rowFieldToCountMap.get(rowCounter).get(entry.getKey()))));
       }
       columnNumber++;
     }
@@ -431,7 +439,8 @@ class GraphicalOutputManager {
       }
     }
 
-    return td().attr("style", "color:" + color + ";background-color:" + background + ";").attr("title", title).with(new UnescapedText(text));
+    return td().attr("style", "color:" + color + ";background-color:" + background + ";")
+               .attr("title", title).with(new UnescapedText(text));
   }
 
   private List<Map<String, Integer>> getRowspansForRowHeader() {
@@ -561,5 +570,33 @@ class GraphicalOutputManager {
       }
     }
     return row;
+  }
+
+  public static void main(String[] arg) {
+    String htmlPageStr = "";
+    String line = null;
+    try (FileReader fileReader = new FileReader
+                                     ("/d3/projects/METViewer/src_dev/apps/METViewer/scorecard_cam_cts"
+                                                    + ".html");
+         BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+      while ((line = bufferedReader.readLine()) != null) {
+        htmlPageStr = htmlPageStr + line;
+      }
+    } catch (Exception e) {
+
+      logger.error(e);
+    }
+
+    try {
+      System.setProperty("java.awt.headless", "true");
+      HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
+      imageGenerator.loadHtml(htmlPageStr);
+      imageGenerator.saveAsImage
+                         ("/d3/projects/METViewer/src_dev/apps/METViewer/scorecard_cam_cts_2.png");
+
+    } catch (Exception e) {
+      logger.error(e);
+      logger.info("Image was not  saved");
+    }
   }
 }
