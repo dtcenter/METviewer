@@ -735,6 +735,7 @@ calcDerivedCurveValue = function(val1, val2, derivedCurveName){
 
 
 atan2d <- function (y, x) {
+  #returns a range [-180, 180]
   if (nargs() != 2) {
     stop("There should only be two arguments.")
   }
