@@ -203,7 +203,7 @@ value_to_desc_map['S1'] = 'S1 score';
 value_to_desc_map['S1_OG'] = 'S1 score with respect to observed gradient';
 value_to_desc_map['FGOG_RATIO'] = 'Ratio of forecast and observed gradients';
 
-var listStatModelRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
+var listStatModeRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
     "RATIO_FSU_ASU", "RATIO_OSU_ASU", "RATIO_FSA_AAA", "RATIO_OSA_AAA", "RATIO_FSA_FAA",
     "RATIO_FCA_FAA", "RATIO_OSA_OAA", "RATIO_OCA_OAA", "RATIO_FCA_ACA", "RATIO_OCA_ACA",
@@ -593,7 +593,7 @@ function cleanUp() {
  * false otherwise.
  */
 function isModeStat(stat) {
-    if ($.inArray(stat, listStatModelRatio) >= 0) {
+    if ($.inArray(stat, listStatModeRatio) >= 0) {
         return true;
     } else {
         var statArr = stat.split("_");
@@ -606,6 +606,23 @@ function isModeStat(stat) {
         } else {
             return false;
         }
+    }
+}
+
+function isMtdStat(stat) {
+    if ($.inArray(stat, listStatMtdRatio) >= 0) {
+        return true;
+    } else {
+        var statArr = stat.split("_");
+        var stat1="";
+        for (var i = 0; i < statArr.length - 1; i++) {
+            stat1 = stat1 + statArr[i];
+            if (i != statArr.length - 2) {
+                stat1 = stat1 + '_';
+            }
+        }
+        return $.inArray(stat1, listStatMtd) >= 0;
+
     }
 }
 function getForecastVariablesHist() {
@@ -722,8 +739,6 @@ function updateForecastVariables() {
         },
         success: function (data) {
             var values = $(data).find("val");
-            console.log(values);
-            console.log(values.length);
             var opt;
             if (values.length > 0) {
                 var options = [];
@@ -764,34 +779,19 @@ function updateForecastVariables() {
                 } catch (err) {
                 }
             } else {
-                console.log("changing from " + selected_mode);
                 if (selected_mode === 'stat') {
                     $('#plot_data').val("mode");
                     $("#plot_data").multiselect('refresh');
-                    //updateForecastVariables();
-                    // updateMode("y1", 1, []);
-                    //updateMode("y2", 1, []);
-                    //updateFixVar("mode");
-                    //updateIndyVar("mode");
+
                 } else if (selected_mode === 'mode') {
                     $('#plot_data').val("mtd");
                     $("#plot_data").multiselect('refresh');
-                    // updateForecastVariables();
-                    // updateMtd("y1", 1, []);
-                    // updateMtd("y2", 1, []);
-                    // updateFixVar("mtd");
-                    // updateIndyVar("mtd");
+
                 } else if (selected_mode === 'mtd') {
                     $('#plot_data').val("stat");
                     $("#plot_data").multiselect('refresh');
-                    // updateForecastVariables();
-                    // updateStats("y1", 1, []);
-                    // updateStats("y2", 1, []);
-                    // updateFixVar("stat");
-                    // updateIndyVar("stat");
+
                 }
-                //updateSeriesVarVal("y1", 1, []);
-                //updateSeriesVarVal("y2", 1, []);
 
             }
         }
@@ -811,8 +811,8 @@ function updateMode(y_axis, index, selectedVals) {
 
 
     var opt, selected;
-    for (i = 0; i < listStatModelRatio.length; i++) {
-        t = listStatModelRatio[i];
+    for (i = 0; i < listStatModeRatio.length; i++) {
+        t = listStatModeRatio[i];
         if ($.isArray(selectedVals)) {
             selected = $.inArray(t, selectedVals) >= 0;
         } else {
@@ -1045,10 +1045,15 @@ function updateMtd(y_axis, index, selectedVals) {
     var fcst_stat_mode = $("#fcst_stat_mode_" + y_axis + "_" + index);
     var selectedModeStat = "";
     var selectedModeStatCode = "";
-    if (selectedVals.length > 0 && selectedVals.split("_").length == 2) {
-        selectedModeStat = selectedVals.split("_")[0];
-        selectedModeStatCode = selectedVals.split("_")[1]
+
+    var statArr = selectedVals.split("_");
+    for (var i = 0; i < statArr.length - 1; i++) {
+        selectedModeStat = selectedModeStat + statArr[i];
+        if (i != statArr.length - 2) {
+            selectedModeStat = selectedModeStat + '_';
+        }
     }
+    selectedModeStatCode = statArr[statArr.length - 1];
 
     var is_fcst_stat_mode = false;
     fcst_stat_mode.empty();
@@ -1904,7 +1909,7 @@ function createMapForForecastVar(y_axis, fcst_var_indexes, selected_mode) {
         var statsArr = $("#fcst_stat_y" + y_axis + "_" + fcst_var_indexes[i]).val();
         if (statsArr != null) {
             for (var j = 0; j < statsArr.length; j++) {
-                if ((selected_mode === "mode" && listStatModelRatio.indexOf(statsArr[j]) === -1)
+                if ((selected_mode === "mode" && listStatModeRatio.indexOf(statsArr[j]) === -1)
                         || (selected_mode === "mtd" && listStatMtdRatio.indexOf(statsArr[j]) === -1)) {
                     stat = createStatNameForModeArrt(statsArr[j], "y" + y_axis, fcst_var_indexes[i]);
                 } else {
@@ -2697,7 +2702,7 @@ function updateSeries(isCheckAll) {
 
                 for (var series_perm_index = 0; series_perm_index < series_perm.length; series_perm_index++) {
                     var stat_name = list_stats[list_stats_index];
-                    if ((selected_mode == "mode" && listStatModelRatio.indexOf(stat_name) == -1)
+                    if ((selected_mode == "mode" && listStatModeRatio.indexOf(stat_name) == -1)
                             || selected_mode == "mtd" && listStatMtdRatio.indexOf(stat_name) == -1) {
                         stat_name = createStatNameForModeArrt(stat_name, y_axis, fcst_var_indexes[fcst_var_index]);
                     }
@@ -4947,7 +4952,7 @@ function loadXMLStatistics(fcst_stat) {
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_val1l2")).text() === "TRUE") {
             $('#agg_stat').val('val1l2');
         } else {
-            if (selected_mode === "mode" && listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
+            if (selected_mode === "mode" && listStatModeRatio.indexOf(fcst_stat[0]) !== -1) {
                 $('#agg_stat').val('mode');
             }
         }
@@ -4989,7 +4994,7 @@ function loadXMLStatistics(fcst_stat) {
             $('#aggregation_statistics ').hide();
             $('#none').show();
         } else {
-            if (listStatModelRatio.indexOf(fcst_stat[0]) !== -1) {
+            if (listStatModeRatio.indexOf(fcst_stat[0]) !== -1) {
                 $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
                 $('#agg_stat').val('mode');
                 try {
@@ -5301,7 +5306,15 @@ function loadXMLSeries() {
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true");
 
     var stat = $(initXML.find("plot").find("dep").find("dep1").find("stat")[0]).text();
-    var selected_mode = isModeStat(stat) ? "mode" : "stat";
+    var selected_mode;
+    if(isModeStat(stat)){
+        selected_mode = "mode";
+    }else if(isMtdStat(stat)){
+        selected_mode = "mtd";
+    }else{
+        selected_mode = "stat";
+    }
+
     try {
         $("#plot_data").val(selected_mode).multiselect("refresh");
     } catch (e) {
@@ -5368,11 +5381,19 @@ function loadXMLSeries() {
                                 } catch (e) {
                                 }
                             }
-                            updateMode(y_axis, index + 1, fcst_stat[fcst_stat_ind]);
+                            if (selected_mode === 'mode') {
+                                updateMode(y_axis, index + 1, fcst_stat[fcst_stat_ind]);
+                            } else {
+                                updateMtd(y_axis, index + 1, fcst_stat[fcst_stat_ind]);
+                            }
                             index++;
                         }
                     } else {
-                        updateMode(y_axis, index + 1, fcst_stat);
+                        if (selected_mode === 'mode') {
+                            updateMode(y_axis, index + 1, fcst_stat);
+                        } else {
+                            updateMtd(y_axis, index + 1, fcst_stat);
+                        }
                         index++;
                     }
                 }
@@ -5380,8 +5401,10 @@ function loadXMLSeries() {
         } else {
             if (selected_mode === 'stat') {
                 updateStats(y_axis, 1, "");
-            } else {
+            } else if (selected_mode === 'mode'){
                 updateMode(y_axis, 1, "");
+            }else {
+                updateMtd(y_axis, 1, "");
             }
         }
         var series_var_val, isGroup;
@@ -6395,7 +6418,7 @@ function initPage() {
                     // curve can be included ONLY if it is MODE Ratio stat or any of Stat stats
                     if (selected_mode == "mode") {
                         var desc = allSeries[i].title.split(" ");
-                        if (listStatModelRatio.indexOf(desc[desc.length - 1]) > -1) {
+                        if (listStatModeRatio.indexOf(desc[desc.length - 1]) > -1) {
                             isInclude = true;
                         }
                     } else {
