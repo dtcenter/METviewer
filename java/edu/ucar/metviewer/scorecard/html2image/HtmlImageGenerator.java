@@ -5,16 +5,20 @@
 
 package edu.ucar.metviewer.scorecard.html2image;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author : tatiana $
@@ -30,16 +34,16 @@ public class HtmlImageGenerator {
 
   public HtmlImageGenerator() {
     editorPane = new JEditorPane();
-    editorPane.setSize(DEFAULT_SIZE);
+
     editorPane.setEditable(false);
     editorPane.setEditorKitForContentType(TEXT_HTML, new SynchronousHTMLEditorKit());
     editorPane.setContentType(TEXT_HTML);
     editorPane.putClientProperty(JEditorPane.W3C_LENGTH_UNITS, Boolean.FALSE);
     editorPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
     editorPane.setOpaque(true);
+    //editorPane.setSize(DEFAULT_SIZE);
     Font font;
-    try {
-      InputStream is = getClass().getResourceAsStream("l_10646.ttf");
+    try(InputStream is = getClass().getResourceAsStream("l_10646.ttf")) {
       font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 14);
     } catch (FontFormatException | IOException e) {
       font = new Font("SansSerif", Font.PLAIN, 14);
@@ -50,7 +54,7 @@ public class HtmlImageGenerator {
 
 
   public void loadHtml(final String html) {
-    editorPane.setText(html);
+    editorPane.setText(html.trim());
   }
 
 
