@@ -21,14 +21,16 @@ prepareCalc = function(d){
   dblStat = do.call( paste("calc", row$stat_name, sep=""), list(d=lapply(row[statFields], as.numeric)) );
   if(!is.na(dblStat)){
     row$stat_value = round(dblStat, 6);
-    for(field in  statFields){
-      row[[field]] = NULL;
-    }
-    if( !is.null(row$equalize) ){
-      row$equalize = NULL;
-    }
-    fwrite(row, file=strOutputFile,append=TRUE,quote=FALSE,sep="\t",row.names=FALSE,col.names=FALSE, na = "NA");
+  }else{
+    row$stat_value = dblStat
   }
+  for(field in  statFields){
+      row[[field]] = NULL;
+  }
+  if( !is.null(row$equalize) ){
+    row$equalize = NULL;
+  }
+  fwrite(row, file=strOutputFile,append=TRUE,quote=FALSE,sep="\t",row.names=FALSE,col.names=FALSE, na = "NA");
 }
 
 # variables for performance bookkeeping
@@ -43,7 +45,7 @@ if ( boolSumCtc    ){
 } else if( boolSumSal1l2  ){
   statFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
 } else if( boolSumVl1l2  ){
-  statFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar");
+  statFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar","f_speed_bar","o_speed_bar");
 }
 
 # read the input data file into a data frame
