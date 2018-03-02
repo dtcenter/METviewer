@@ -827,6 +827,8 @@ CREATE TABLE line_data_vl1l2
   uvfobar DOUBLE,
   uvffbar DOUBLE,
   uvoobar DOUBLE,
+  f_speed_bar DOUBLE,
+  o_speed_bar DOUBLE,
 
   CONSTRAINT line_data_vl1l2_data_file_id_pk
   FOREIGN KEY (data_file_id)
@@ -836,6 +838,10 @@ CREATE TABLE line_data_vl1l2
   REFERENCES stat_header (stat_header_id),
   INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM;
+
+
+
+
 
 -- line_data_val1l2 contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
@@ -900,6 +906,9 @@ CREATE TABLE line_data_mpr
   mpr_obs DOUBLE,
   mpr_climo DOUBLE,
   obs_qc DOUBLE DEFAULT -9999,
+  climo_mean DOUBLE,
+  climo_stdev DOUBLE,
+  climo_cdf DOUBLE,
 
   CONSTRAINT line_data_mpr_data_file_id_pk
   FOREIGN KEY (data_file_id)
@@ -1534,6 +1543,87 @@ CREATE TABLE line_data_ssvar
   INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM;
 
+
+
+DROP TABLE IF EXISTS line_data_vcnt;
+CREATE TABLE line_data_vcnt
+(
+  stat_header_id INT UNSIGNED NOT NULL,
+  data_file_id INT UNSIGNED NOT NULL,
+  line_num INT UNSIGNED,
+  fcst_lead INT,
+  fcst_valid_beg DATETIME,
+  fcst_valid_end DATETIME,
+  fcst_init_beg DATETIME,
+  obs_lead INT UNSIGNED,
+  obs_valid_beg DATETIME,
+  obs_valid_end DATETIME,
+  alpha DOUBLE,
+  total INT UNSIGNED,
+  fbar DOUBLE,
+  fbar_bcl DOUBLE,
+  fbar_bcu DOUBLE,
+  obar DOUBLE,
+  obar_bcl DOUBLE,
+  obar_bcu DOUBLE,
+  fs_rms DOUBLE,
+  fs_rms_bcl DOUBLE,
+  fs_rms_bcu DOUBLE,
+  os_rms DOUBLE,
+  os_rms_bcl DOUBLE,
+  os_rms_bcu DOUBLE,
+  msve DOUBLE,
+  msve_bcl DOUBLE,
+  msve_bcu DOUBLE,
+  rmsve DOUBLE,
+  rmsve_bcl DOUBLE,
+  rmsve_bcu DOUBLE,
+  fstdev DOUBLE,
+  fstdev_bcl DOUBLE,
+  fstdev_bcu DOUBLE,
+  ostdev DOUBLE,
+  ostdev_bcl DOUBLE,
+  ostdev_bcu DOUBLE,
+  fdir DOUBLE,
+  fdir_bcl DOUBLE,
+  fdir_bcu DOUBLE,
+  odir DOUBLE,
+  odir_bcl DOUBLE,
+  odir_bcu DOUBLE,
+  fbar_speed DOUBLE,
+  fbar_speed_bcl DOUBLE,
+  fbar_speed_bcu DOUBLE,
+  obar_speed DOUBLE,
+  obar_speed_bcl DOUBLE,
+  obar_speed_bcu DOUBLE,
+  vdiff_speed DOUBLE,
+  vdiff_speed_bcl DOUBLE,
+  vdiff_speed_bcu DOUBLE,
+  vdiff_dir DOUBLE,
+  vdiff_dir_bcl DOUBLE,
+  vdiff_dir_bcu DOUBLE,
+  speed_err DOUBLE,
+  speed_err_bcl DOUBLE,
+  speed_err_bcu DOUBLE,
+  speed_abserr DOUBLE,
+  speed_abserr_bcl DOUBLE,
+  speed_abserr_bcu DOUBLE,
+  dir_err DOUBLE,
+  dir_err_bcl DOUBLE,
+  dir_err_bcu DOUBLE,
+  dir_abserr DOUBLE,
+  dir_abserr_bcl DOUBLE,
+  dir_abserr_bcu DOUBLE,
+
+  CONSTRAINT line_data_vcnt_data_file_id_pk
+  FOREIGN KEY (data_file_id)
+  REFERENCES data_file (data_file_id),
+  CONSTRAINT line_data_vcnt_stat_header_id_pk
+  FOREIGN KEY (stat_header_id)
+  REFERENCES stat_header (stat_header_id),
+  INDEX stat_header_id_idx (stat_header_id)
+) ENGINE = MyISAM;
+
 -- mode_header represents a line in a mode file and contains the header information for
 --   that line.  The line-dependent information is stored in specific tables for each line
 --   type, each of which point at the line they are associated with, via the mode_header_id
@@ -1828,7 +1918,7 @@ CREATE TABLE mtd_2d_obj
 (
   mtd_header_id INT UNSIGNED NOT NULL,
   object_id VARCHAR(128),
-  cluster_id VARCHAR(128),
+  object_cat VARCHAR(128),
   time_index DOUBLE,
   area DOUBLE,
   centroid_x DOUBLE,
@@ -1849,7 +1939,7 @@ CREATE TABLE mtd_3d_obj_single
 (
   mtd_header_id INT UNSIGNED NOT NULL,
   object_id VARCHAR(128),
-  cluster_id VARCHAR(128),
+  object_cat VARCHAR(128),
   centroid_x DOUBLE,
   centroid_y DOUBLE,
   centroid_t DOUBLE,
@@ -1880,7 +1970,7 @@ CREATE TABLE mtd_3d_obj_pair
 (
   mtd_header_id INT UNSIGNED NOT NULL,
   object_id VARCHAR(128),
-  cluster_id VARCHAR(128),
+  object_cat VARCHAR(128),
   space_centroid_dist DOUBLE,
   time_centroid_delta DOUBLE,
   axis_diff DOUBLE,
