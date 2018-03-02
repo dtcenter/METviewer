@@ -378,7 +378,9 @@ if ( nrow(sampleData) > 0){
           vobar  = sum( as.numeric( d[i,][[ paste(strPerm, "vobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           uvfobar  = sum( as.numeric( d[i,][[ paste(strPerm, "uvfobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           uvffbar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvffbar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
-          uvoobar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+          uvoobar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  *listTotal, na.rm=TRUE ) / total,
+          f_speed_bar   = sum( as.numeric( d[i,][[ paste(strPerm, "f_speed_bar", sep="_") ]] )*listTotal, na.rm=TRUE ) / total,
+          o_speed_bar   = sum( as.numeric( d[i,][[ paste(strPerm, "o_speed_bar", sep="_") ]] )*listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggVal1l2 ){ # perform the aggregation of the sampled VAL1L2 lines
         listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
@@ -613,7 +615,7 @@ if ( nrow(sampleData) > 0){
         } else if( boolAggSal1l2  ){
           listFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
         } else if( boolAggVl1l2  ){
-          listFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar");
+          listFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar", "f_speed_bar", "o_speed_bar");
         } else if( boolAggVal1l2  ){
           listFields = c("total", "ufabar", "vfabar", "uoabar", "voabar", "uvfoabar", "uvffabar","uvooabar");
         } else if( boolAggSsvar  ){
