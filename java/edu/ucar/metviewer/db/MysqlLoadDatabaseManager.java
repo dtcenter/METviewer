@@ -345,10 +345,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //  if the line type load selector is activated, check that the current line type is on the list
         mvLoadStatInsertData
             .setLineType(MVUtil.findValueInArray(listToken, headerNames, "LINE_TYPE"));
-        if(!MVUtil.isValidLineType(mvLoadStatInsertData.getLineType())){
+        if (!MVUtil.isValidLineType(mvLoadStatInsertData.getLineType())) {
           logger.warn(
-                             "  **  WARNING: unexpected line type: " + mvLoadStatInsertData.getLineType()
-                                 + "  the line will be ignored     ");
+              "  **  WARNING: unexpected line type: " + mvLoadStatInsertData.getLineType()
+                  + "  the line will be ignored     ");
           continue;
         }
 
@@ -652,7 +652,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 105;
               break;
             case "MPR":
-              maxSize = 21;
+              maxSize = 24;
               break;
             case "ORANK":
               maxSize = 27;
@@ -683,6 +683,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               break;
             case "RHIST":
               maxSize = 17;
+              break;
+            case "VL1L2":
+              maxSize = 20;
               break;
 
             default:
@@ -2032,7 +2035,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (objCatArr.length == 1 && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
           }
-          strSingleValueList = strSingleValueList +  "," +fcstFlag + "," + simpleFlag + "," + matchedFlag;
+          strSingleValueList = strSingleValueList + "," + fcstFlag + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mode_obj_single database table
           String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strSingleValueList + ");";
@@ -2081,7 +2084,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
           }
-          strPairValueList = strPairValueList  +  "," +simpleFlag + "," + matchedFlag;
+          strPairValueList = strPairValueList + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mode_obj_pair database table
           String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strPairValueList + ");";
@@ -2405,7 +2408,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (num != null && num != 0) {
             matchedFlag = 1;
           }
-          str3dSingleValueList = str3dSingleValueList + ","+fcstFlag + "," + simpleFlag + ","
+          str3dSingleValueList = str3dSingleValueList + "," + fcstFlag + "," + simpleFlag + ","
                                      + matchedFlag;
 
           //  insert the record into the mtd_obj_single database table
@@ -2444,7 +2447,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (num != null && num != 0) {
             matchedFlag = 1;
           }
-          str2dValueList = str2dValueList +","+ fcstFlag + "," + simpleFlag + "," + matchedFlag;
+          str2dValueList = str2dValueList + "," + fcstFlag + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mtd_obj_single database table
           int mtd2dObjInsert = executeUpdate("INSERT INTO mtd_2d_obj VALUES ("
@@ -2491,7 +2494,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (num1.equals(num2) && num1 != 0) {
             matchedFlag = 1;
           }
-          str3dPairValueList = str3dPairValueList + "," +simpleFlag + "," + matchedFlag;
+          str3dPairValueList = str3dPairValueList + "," + simpleFlag + "," + matchedFlag;
 
           int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
                                                      + str3dPairValueList + ");");
