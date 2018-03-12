@@ -688,15 +688,34 @@ if ( nrow(sampleData) > 0){
           # store the bootstrapped stat value and CI values in the output dataframe
           dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
           dfOut[listOutInd,]$nstats = nrow(dfStatsPerm[dfStatsPerm$stat_name == strStat,]);
-          strCIParm = strCIType;
-          if( strCIType == "perc" ){ strCIParm = "percent"; }
           if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-            dfOut[listOutInd,]$stat_bcl = bootCI[[strCIParm]][4];
-            dfOut[listOutInd,]$stat_bcu = bootCI[[strCIParm]][5];
-          } else {
-            dfOut[listOutInd,]$stat_bcl = NA;
-            dfOut[listOutInd,]$stat_bcu = NA;
-          }
+            if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
+             dfOut[listOutInd,]$stat_bcl = bootCI[["percent"]][4];
+             dfOut[listOutInd,]$stat_bcu = bootCI[["percent"]][5];
+
+            }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
+             dfOut[listOutInd,]$stat_bcl = bootCI[["normal"]][2];
+             dfOut[listOutInd,]$stat_bcu = bootCI[["normal"]][3];
+
+            }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
+              dfOut[listOutInd,]$stat_bcl = bootCI[["basic"]][4];
+              dfOut[listOutInd,]$stat_bcu = bootCI[["basic"]][5];
+
+            }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
+              dfOut[listOutInd,]$stat_bcl = bootCI[["bca"]][4];
+              dfOut[listOutInd,]$stat_bcu = bootCI[["bca"]][5];
+
+            }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
+              dfOut[listOutInd,]$stat_bcl = bootCI[["student"]][4];
+              dfOut[listOutInd,]$stat_bcu = bootCI[["student"]][5];
+            }else{
+              dfOut[listOutInd,]$stat_bcl = NA;
+              dfOut[listOutInd,]$stat_bcu = NA;
+            }
+         } else {
+           dfOut[listOutInd,]$stat_bcl = NA;
+           dfOut[listOutInd,]$stat_bcu = NA;
+         }
           intBootIndex = intBootIndex + 1;
         }
       }
@@ -749,15 +768,34 @@ if ( nrow(sampleData) > 0){
           }
 
           dfOut[listOutInd1,]$nstats = 0;
-          strCIParm = strCIType;
-          if( strCIType == "perc" ){ strCIParm = "percent"; }
-          if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
-            dfOut[listOutInd1,]$stat_bcl = bootCI[[strCIParm]][4];
-            dfOut[listOutInd1,]$stat_bcu = bootCI[[strCIParm]][5];
-          } else {
-            dfOut[listOutInd1,]$stat_bcl = NA;
-            dfOut[listOutInd1,]$stat_bcu = NA;
-          }
+          if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
+            if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
+             dfOut[listOutInd,]$stat_bcl = bootCI[["percent"]][4];
+             dfOut[listOutInd,]$stat_bcu = bootCI[["percent"]][5];
+
+            }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
+             dfOut[listOutInd,]$stat_bcl = bootCI[["normal"]][2];
+             dfOut[listOutInd,]$stat_bcu = bootCI[["normal"]][3];
+
+            }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
+              dfOut[listOutInd,]$stat_bcl = bootCI[["basic"]][4];
+              dfOut[listOutInd,]$stat_bcu = bootCI[["basic"]][5];
+
+            }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
+              dfOut[listOutInd,]$stat_bcl = bootCI[["bca"]][4];
+              dfOut[listOutInd,]$stat_bcu = bootCI[["bca"]][5];
+
+            }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
+              dfOut[listOutInd,]$stat_bcl = bootCI[["student"]][4];
+              dfOut[listOutInd,]$stat_bcu = bootCI[["student"]][5];
+            }else{
+              dfOut[listOutInd,]$stat_bcl = NA;
+              dfOut[listOutInd,]$stat_bcu = NA;
+            }
+         } else {
+           dfOut[listOutInd,]$stat_bcl = NA;
+           dfOut[listOutInd,]$stat_bcu = NA;
+         }
 
           intBootIndex = intBootIndex + 1;
         }
