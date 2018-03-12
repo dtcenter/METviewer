@@ -496,7 +496,6 @@ public class MVUtil {
     statsSsvar.put("SSVAR_ANOM_CORR", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_ME2", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_MSESS", new String[]{"bc", SSVAR});
-    statsSsvar.put("SSVAR_Spread", new String[]{"bc", SSVAR});
   }
 
 
