@@ -321,14 +321,17 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 					<li><span class="code">&lt;agg_sal1l2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate SAL1L2s</li>
 					<li><span class="code">&lt;agg_pct&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate PCTs</li>
 					<li><span class="code">&lt;agg_nbrcnt&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate NBR_CNTs</li>
-					<li><span class="code">&lt;agg_ssvar&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate VL1L2s</li>
-					<li><span class="code">&lt;agg_vl1l2&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate SSVARs</li>
+					<li><span class="code">&lt;agg_ssvar&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate SSVARs</li>
+					<li><span class="code">&lt;agg_vl1l2&gt;</span>: <span class="code">TRUE</span> or
+						<span class="code">FALSE</span>, indicating whether or not to aggregate  VL1L2s</li>
+					<li><span class="code">&lt;agg_val1l2&gt;</span>: <span class="code">TRUE</span> or
+						<span class="code">FALSE</span>, indicating whether or not to aggregate Vector
+						Anomaly Partial Sums</li>
 					<li><span class="code">&lt;agg_grad&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to aggregate GRADs</li>
 					<li><span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for no bootstrapping</li>
+					<li><span class="code">&lt;boot_random_seed"&gt;</span>: bootstrapping seed</li>
 					<li><span class="code">&lt;boot_ci&gt;</span>: type of confidence interval to calculate, passed to boot.ci() R function (e.g. bca)</li>
 
-               <li><span class="code">&lt;eveq_dis&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, disables the automatic event equalization
-               that occurs when bootstrap confidence intervals are requested</li>
                     <li><span class="code">&lt;cache_agg_stat&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, turns on/off the prevention the reuse of existing bootstrapping output data</li>
 				</ul><br/>
 				<span style="padding-left:30px">When using <span class="code">&lt;agg_stat&gt;</span>, the following constraints and conditions apply:</span>
