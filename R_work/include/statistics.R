@@ -99,10 +99,6 @@ calcSSVAR_ESTDEV    = function(d){ return( calcESTDEV(d) ); }
 calcSSVAR_BCMSE    = function(d){ return( calcBCMSE(d)); }
 calcSSVAR_BCRMSE    = function(d){ return( calcBCRMSE(d) ); }
 
-calcSSVAR_Spread = function(d){
-  if( length( d$varmean ) < 1 ){ return (NA); }
-  return( sqrt(weighted.mean(d$varmean, d$binn)) );
-}
 
 
 # CTC stat calculations
