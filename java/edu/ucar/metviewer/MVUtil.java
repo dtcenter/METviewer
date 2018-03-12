@@ -60,7 +60,7 @@ public class MVUtil {
   public static final String PCT = "pct";
   public static final String NBR_CNT = "nbr_cnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
-  public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial
+  public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
