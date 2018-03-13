@@ -7,9 +7,11 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,25 +23,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVUtil {
 
 
-  public static final Pattern _patProb = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
-  public static final Pattern _patPlotTmpl = Pattern.compile("\\{((\\w+)(?:\\?[^}]*)?)\\}");
-  public static final Pattern _patThresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
-  public static final Pattern _patLev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
-  public static final Pattern _patTag = Pattern.compile("([\\w\\d]+)(?:\\s*\\?(.*))?");
-  public static final Pattern _patDateRange = Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
-  public static final Pattern _patModeSingle = Pattern.compile("\\s+h\\.([^,]+),");
+  public static final Pattern thresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
+  public static final Pattern lev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
+  public static final Pattern interpPnts = Pattern.compile("\\d+?");
+  public static final Pattern modeSingle = Pattern.compile("\\s+h\\.([^,]+),");
+  public static final Pattern prob = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
+  private static final Pattern plotTmpl = Pattern.compile("\\{((\\w+)(?:\\?[^}]*)?)\\}");
+  private static final Pattern tag = Pattern.compile("([\\w\\d]+)(?:\\s*\\?(.*))?");
+
 
   public static final Pattern patModeSingleObjectId = Pattern.compile("^(C?[FO]\\d{3})$");
   public static final Pattern patModePairObjectId = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
 
+  public static final DateTimeFormatter APP_DATE_FORMATTER
+      = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+
   /**
-   * Parse the input mode statistic, which is assume to have the form SSSS_FFF, where SSSS is the name of a mode statistic with arbitrary lenght and FFF is a
-   * three character flag indicator string.
+   * Parse the input mode statistic, which is assume to have the form SSSS_FFF, where SSSS is the
+   * name of a mode statistic with arbitrary lenght and FFF is a three character flag indicator
+   * string.
    */
   public static final Pattern _patModeStat = Pattern.compile("([^_]+)(?:_\\w{3})?_(\\w{2,3})");
   public static final String CTC = "ctc"; //Contingency Table Statistics
@@ -50,11 +60,12 @@ public class MVUtil {
   public static final String PCT = "pct";
   public static final String NBR_CNT = "nbr_cnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
-  public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial
+  public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
   public static final Map<String, String[]> statsCnt = new HashMap<>();
+  public static final Map<String, String[]> statsVcnt = new HashMap<>();
   public static final Map<String, String[]> statsSsvar = new HashMap<>();
   public static final Map<String, String[]> statsCts = new HashMap<>();
   public static final Map<String, String[]> statsNbrcts = new HashMap<>();
@@ -65,14 +76,20 @@ public class MVUtil {
   public static final Map<String, String[]> statsRhist = new HashMap<>();
   public static final Map<String, String[]> statsVl1l2 = new HashMap<>();
   public static final Map<String, String[]> statsVal1l2 = new HashMap<>();
-  public static final List<String> modeSingleStatField = new ArrayList<>();
+  public static final Map<String, String> modeSingleStatField = new HashMap<>();
+  public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
+  public static final Map<String, String> mtd2dStatField = new HashMap<>();
+
+  public static final List<String> modeRatioField = new ArrayList<>();
+  public static final List<String> mtdRatioField = new ArrayList<>();
+
 
   public static final Map<String, String> modePairStatField = new HashMap<>();
-  public static final List<String> modeRatioField = new ArrayList<>();
+  public static final Map<String, String> mtd3dPairStatField = new HashMap<>();
   public static final List<String> calcStatCTC = new ArrayList<>();
   public static final String DB_DATE_MS = "yyyy-MM-dd HH:mm:ss.S";
-  public static final String DB_DATE_PLOT = "yyyyMMddHH";
-  public static final String DB_DATE_STAT = "yyyyMMdd_HHmmss";
+  public static final SimpleDateFormat PLOT_FORMAT = new SimpleDateFormat("yyyyMMddHH");
+
 
   public static final Pattern patRTmpl = Pattern.compile("#<(\\w+)>#");
 
@@ -88,6 +105,263 @@ public class MVUtil {
   public static final Map<String, Boolean> alphaLineTypes = new HashMap<>();
 
   public static final Map<String, Boolean> covThreshLineTypes = new HashMap<>();
+
+  public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
+                                                    .setLevel(org.apache.logging.log4j.Level.INFO)
+                                                    .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+                                                    .buildPrintStream();
+
+  public static final String[] lineTypes= new String[]{
+      "fho",
+      "ctc",
+      "cts",
+      "mctc",
+      "mcts",
+      "cnt",
+      "sl1l2",
+      "sal1l2",
+      "vl1l2",
+      "val1l2",
+      "pct",
+      "pstd",
+      "pjc",
+      "prc",
+      "eclv",
+      "mpr",
+      "nbrctc",
+      "nbrcts",
+      "nbrcnt",
+      "isc",
+      "rhist",
+      "phist",
+      "orank",
+      "ssvar",
+      "grad",
+      "vcnt"
+  };
+
+  static {
+
+    modeRatioField.add("RATIO_FSA_ASA");
+    modeRatioField.add("RATIO_OSA_ASA");
+    modeRatioField.add("RATIO_ASM_ASA");
+    modeRatioField.add("RATIO_ASU_ASA");
+    modeRatioField.add("RATIO_FSM_FSA");
+    modeRatioField.add("RATIO_FSU_FSA");
+    modeRatioField.add("RATIO_OSM_OSA");
+    modeRatioField.add("RATIO_OSU_OSA");
+    modeRatioField.add("RATIO_FSM_ASM");
+    modeRatioField.add("RATIO_OSM_ASM");
+    modeRatioField.add("RATIO_FSU_ASU");
+    modeRatioField.add("RATIO_OSU_ASU");
+    modeRatioField.add("RATIO_FSA_AAA");
+    modeRatioField.add("RATIO_OSA_AAA");
+    modeRatioField.add("RATIO_FSA_FAA");
+    modeRatioField.add("RATIO_FCA_FAA");
+    modeRatioField.add("RATIO_OSA_OAA");
+    modeRatioField.add("RATIO_OCA_OAA");
+    modeRatioField.add("RATIO_FCA_ACA");
+    modeRatioField.add("RATIO_OCA_ACA");
+    modeRatioField.add("RATIO_FSA_OSA");
+    modeRatioField.add("RATIO_OSA_FSA");
+    modeRatioField.add("RATIO_ACA_ASA");
+    modeRatioField.add("RATIO_ASA_ACA");
+    modeRatioField.add("RATIO_FCA_FSA");
+    modeRatioField.add("RATIO_FSA_FCA");
+    modeRatioField.add("RATIO_OCA_OSA");
+    modeRatioField.add("RATIO_OSA_OCA");
+
+    modeRatioField.add("OBJHITS");
+    modeRatioField.add("OBJMISSES");
+    modeRatioField.add("OBJFAS");
+    modeRatioField.add("OBJCSI");
+    modeRatioField.add("OBJPODY");
+    modeRatioField.add("OBJFAR");
+
+    modeRatioField.add("AREARAT_FSA_ASA");
+    modeRatioField.add("AREARAT_OSA_ASA");
+    modeRatioField.add("AREARAT_ASM_ASA");
+    modeRatioField.add("AREARAT_ASU_ASA");
+    modeRatioField.add("AREARAT_FSM_FSA");
+    modeRatioField.add("AREARAT_FSU_FSA");
+    modeRatioField.add("AREARAT_OSM_OSA");
+    modeRatioField.add("AREARAT_OSU_OSA");
+    modeRatioField.add("AREARAT_FSM_ASM");
+    modeRatioField.add("AREARAT_OSM_ASM");
+    modeRatioField.add("AREARAT_FSU_ASU");
+    modeRatioField.add("AREARAT_OSU_ASU");
+    modeRatioField.add("AREARAT_FSA_AAA");
+    modeRatioField.add("AREARAT_OSA_AAA");
+    modeRatioField.add("AREARAT_FSA_FAA");
+    modeRatioField.add("AREARAT_FCA_FAA");
+    modeRatioField.add("AREARAT_OSA_OAA");
+    modeRatioField.add("AREARAT_OCA_OAA");
+    modeRatioField.add("AREARAT_FCA_ACA");
+    modeRatioField.add("AREARAT_OCA_ACA");
+    modeRatioField.add("AREARAT_FSA_OSA");
+    modeRatioField.add("AREARAT_OSA_FSA");
+    modeRatioField.add("AREARAT_ACA_ASA");
+    modeRatioField.add("AREARAT_ASA_ACA");
+    modeRatioField.add("AREARAT_FCA_FSA");
+    modeRatioField.add("AREARAT_FSA_FCA");
+    modeRatioField.add("AREARAT_OCA_OSA");
+    modeRatioField.add("AREARAT_OSA_OCA");
+
+    modeRatioField.add("OBJAHITS");
+    modeRatioField.add("OBJAMISSES");
+    modeRatioField.add("OBJAFAS");
+    modeRatioField.add("OBJACSI");
+    modeRatioField.add("OBJAPODY");
+    modeRatioField.add("OBJAFAR");
+  }
+
+
+  static {
+
+    mtdRatioField.add("2d_RATIO_FSA_ASA");
+    mtdRatioField.add("2d_RATIO_OSA_ASA");
+    mtdRatioField.add("2d_RATIO_ASM_ASA");
+    mtdRatioField.add("2d_RATIO_ASU_ASA");
+    mtdRatioField.add("2d_RATIO_FSM_FSA");
+    mtdRatioField.add("2d_RATIO_FSU_FSA");
+    mtdRatioField.add("2d_RATIO_OSM_OSA");
+    mtdRatioField.add("2d_RATIO_OSU_OSA");
+    mtdRatioField.add("2d_RATIO_FSM_ASM");
+    mtdRatioField.add("2d_RATIO_OSM_ASM");
+    mtdRatioField.add("2d_RATIO_FSU_ASU");
+    mtdRatioField.add("2d_RATIO_OSU_ASU");
+    mtdRatioField.add("2d_RATIO_FSA_AAA");
+    mtdRatioField.add("2d_RATIO_OSA_AAA");
+    mtdRatioField.add("2d_RATIO_FSA_FAA");
+    mtdRatioField.add("2d_RATIO_FCA_FAA");
+    mtdRatioField.add("2d_RATIO_OSA_OAA");
+    mtdRatioField.add("2d_RATIO_OCA_OAA");
+    mtdRatioField.add("2d_RATIO_FCA_ACA");
+    mtdRatioField.add("2d_RATIO_OCA_ACA");
+    mtdRatioField.add("2d_RATIO_FSA_OSA");
+    mtdRatioField.add("2d_RATIO_OSA_FSA");
+    mtdRatioField.add("2d_RATIO_ACA_ASA");
+    mtdRatioField.add("2d_RATIO_ASA_ACA");
+    mtdRatioField.add("2d_RATIO_FCA_FSA");
+    mtdRatioField.add("2d_RATIO_FSA_FCA");
+    mtdRatioField.add("2d_RATIO_OCA_OSA");
+    mtdRatioField.add("2d_RATIO_OSA_OCA");
+
+
+    mtdRatioField.add("3d_RATIO_FSA_ASA");
+    mtdRatioField.add("3d_RATIO_OSA_ASA");
+    mtdRatioField.add("3d_RATIO_ASM_ASA");
+    mtdRatioField.add("3d_RATIO_ASU_ASA");
+    mtdRatioField.add("3d_RATIO_FSM_FSA");
+    mtdRatioField.add("3d_RATIO_FSU_FSA");
+    mtdRatioField.add("3d_RATIO_OSM_OSA");
+    mtdRatioField.add("3d_RATIO_OSU_OSA");
+    mtdRatioField.add("3d_RATIO_FSM_ASM");
+    mtdRatioField.add("3d_RATIO_OSM_ASM");
+    mtdRatioField.add("3d_RATIO_FSU_ASU");
+    mtdRatioField.add("3d_RATIO_OSU_ASU");
+    mtdRatioField.add("3d_RATIO_FSA_AAA");
+    mtdRatioField.add("3d_RATIO_OSA_AAA");
+    mtdRatioField.add("3d_RATIO_FSA_FAA");
+    mtdRatioField.add("3d_RATIO_FCA_FAA");
+    mtdRatioField.add("3d_RATIO_OSA_OAA");
+    mtdRatioField.add("3d_RATIO_OCA_OAA");
+    mtdRatioField.add("3d_RATIO_FCA_ACA");
+    mtdRatioField.add("3d_RATIO_OCA_ACA");
+    mtdRatioField.add("3d_RATIO_FSA_OSA");
+    mtdRatioField.add("3d_RATIO_OSA_FSA");
+    mtdRatioField.add("3d_RATIO_ACA_ASA");
+    mtdRatioField.add("3d_RATIO_ASA_ACA");
+    mtdRatioField.add("3d_RATIO_FCA_FSA");
+    mtdRatioField.add("3d_RATIO_FSA_FCA");
+    mtdRatioField.add("3d_RATIO_OCA_OSA");
+    mtdRatioField.add("3d_RATIO_OSA_OCA");
+
+    mtdRatioField.add("2d_OBJHITS");
+    mtdRatioField.add("2d_OBJMISSES");
+    mtdRatioField.add("2d_OBJFAS");
+    mtdRatioField.add("2d_OBJCSI");
+    mtdRatioField.add("2d_OBJPODY");
+    mtdRatioField.add("2d_OBJFAR");
+    mtdRatioField.add("3d_OBJHITS");
+    mtdRatioField.add("3d_OBJMISSES");
+    mtdRatioField.add("3d_OBJFAS");
+    mtdRatioField.add("3d_OBJCSI");
+    mtdRatioField.add("3d_OBJPODY");
+    mtdRatioField.add("3d_OBJFAR");
+
+    mtdRatioField.add("3d_VOLRAT_FSA_ASA");
+    mtdRatioField.add("3d_VOLRAT_OSA_ASA");
+    mtdRatioField.add("3d_VOLRAT_ASM_ASA");
+    mtdRatioField.add("3d_VOLRAT_ASU_ASA");
+    mtdRatioField.add("3d_VOLRAT_FSM_FSA");
+    mtdRatioField.add("3d_VOLRAT_FSU_FSA");
+    mtdRatioField.add("3d_VOLRAT_OSM_OSA");
+    mtdRatioField.add("3d_VOLRAT_OSU_OSA");
+    mtdRatioField.add("3d_VOLRAT_FSM_ASM");
+    mtdRatioField.add("3d_VOLRAT_OSM_ASM");
+    mtdRatioField.add("3d_VOLRAT_FSU_ASU");
+    mtdRatioField.add("3d_VOLRAT_OSU_ASU");
+    mtdRatioField.add("3d_VOLRAT_FSA_AAA");
+    mtdRatioField.add("3d_VOLRAT_OSA_AAA");
+    mtdRatioField.add("3d_VOLRAT_FSA_FAA");
+    mtdRatioField.add("3d_VOLRAT_FCA_FAA");
+    mtdRatioField.add("3d_VOLRAT_OSA_OAA");
+    mtdRatioField.add("3d_VOLRAT_OCA_OAA");
+    mtdRatioField.add("3d_VOLRAT_FCA_ACA");
+    mtdRatioField.add("3d_VOLRAT_OCA_ACA");
+    mtdRatioField.add("3d_VOLRAT_FSA_OSA");
+    mtdRatioField.add("3d_VOLRAT_OSA_FSA");
+    mtdRatioField.add("3d_VOLRAT_ACA_ASA");
+    mtdRatioField.add("3d_VOLRAT_ASA_ACA");
+    mtdRatioField.add("3d_VOLRAT_FCA_FSA");
+    mtdRatioField.add("3d_VOLRAT_FSA_FCA");
+    mtdRatioField.add("3d_VOLRAT_OCA_OSA");
+    mtdRatioField.add("3d_VOLRAT_OSA_OCA");
+
+    mtdRatioField.add("2d_AREARAT_FSA_ASA");
+    mtdRatioField.add("2d_AREARAT_OSA_ASA");
+    mtdRatioField.add("2d_AREARAT_ASM_ASA");
+    mtdRatioField.add("2d_AREARAT_ASU_ASA");
+    mtdRatioField.add("2d_AREARAT_FSM_FSA");
+    mtdRatioField.add("2d_AREARAT_FSU_FSA");
+    mtdRatioField.add("2d_AREARAT_OSM_OSA");
+    mtdRatioField.add("2d_AREARAT_OSU_OSA");
+    mtdRatioField.add("2d_AREARAT_FSM_ASM");
+    mtdRatioField.add("2d_AREARAT_OSM_ASM");
+    mtdRatioField.add("2d_AREARAT_FSU_ASU");
+    mtdRatioField.add("2d_AREARAT_OSU_ASU");
+    mtdRatioField.add("2d_AREARAT_FSA_AAA");
+    mtdRatioField.add("2d_AREARAT_OSA_AAA");
+    mtdRatioField.add("2d_AREARAT_FSA_FAA");
+    mtdRatioField.add("2d_AREARAT_FCA_FAA");
+    mtdRatioField.add("2d_AREARAT_OSA_OAA");
+    mtdRatioField.add("2d_AREARAT_OCA_OAA");
+    mtdRatioField.add("2d_AREARAT_FCA_ACA");
+    mtdRatioField.add("2d_AREARAT_OCA_ACA");
+    mtdRatioField.add("2d_AREARAT_FSA_OSA");
+    mtdRatioField.add("2d_AREARAT_OSA_FSA");
+    mtdRatioField.add("2d_AREARAT_ACA_ASA");
+    mtdRatioField.add("2d_AREARAT_ASA_ACA");
+    mtdRatioField.add("2d_AREARAT_FCA_FSA");
+    mtdRatioField.add("2d_AREARAT_FSA_FCA");
+    mtdRatioField.add("2d_AREARAT_OCA_OSA");
+    mtdRatioField.add("2d_AREARAT_OSA_OCA");
+
+    mtdRatioField.add("3d_OBJVHITS");
+    mtdRatioField.add("3d_OBJVMISSES");
+    mtdRatioField.add("3d_OBJVFAS");
+    mtdRatioField.add("3d_OBJVCSI");
+    mtdRatioField.add("3d_OBJVPODY");
+    mtdRatioField.add("3d_OBJVFAR");
+    mtdRatioField.add("3d_OBJVHITS");
+    mtdRatioField.add("2d_OBJAMISSES");
+    mtdRatioField.add("2d_OBJAFAS");
+    mtdRatioField.add("2d_OBJACSI");
+    mtdRatioField.add("2d_OBJAPODY");
+    mtdRatioField.add("2d_OBJAFAR");
+  }
+
 
   static {
     covThreshLineTypes.put("NBRCTC", Boolean.TRUE);
@@ -106,6 +380,7 @@ public class MVUtil {
     alphaLineTypes.put("NBRCNT", Boolean.TRUE);
     alphaLineTypes.put("MCTS", Boolean.TRUE);
     alphaLineTypes.put("SSVAR", Boolean.TRUE);
+    alphaLineTypes.put("VCNT", Boolean.TRUE);
   }
 
 
@@ -185,6 +460,27 @@ public class MVUtil {
   }
 
   static {
+    statsVcnt.put("VCNT_FBAR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OBAR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FS_RMS",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OS_RMS",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_MSVE",  new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_RMSVE",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FSTDEV",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OSTDEV",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FDIR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_ODIR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FBAR_SPEED",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_OBAR_SPEED",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_VDIFF_SPEED",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_VDIFF_DIR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_SPEED_ERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_SPEED_ABSERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_DIR_ERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_DIR_ABSERR",  new String[]{"bc",VL1L2});
+  }
+
+  static {
     statsSsvar.put("SSVAR_FBAR", new String[]{"nc", "bc", SSVAR});
     statsSsvar.put("SSVAR_FSTDEV", new String[]{"nc", "bc", SSVAR});
     statsSsvar.put("SSVAR_OBAR", new String[]{"nc", "bc", SSVAR});
@@ -200,7 +496,6 @@ public class MVUtil {
     statsSsvar.put("SSVAR_ANOM_CORR", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_ME2", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_MSESS", new String[]{"bc", SSVAR});
-    statsSsvar.put("SSVAR_Spread", new String[]{"bc", SSVAR});
   }
 
 
@@ -290,62 +585,38 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_VFBAR", new String[]{});
     statsVl1l2.put("VL1L2_UOBAR", new String[]{});
     statsVl1l2.put("VL1L2_VOBAR", new String[]{});
-    statsVl1l2.put("VL1L2_FBAR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_OBAR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_BIAS", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_MSE", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_RMSE", new String[]{VL1L2});
-
     statsVl1l2.put("VL1L2_FVAR", new String[]{VL1L2});
     statsVl1l2.put("VL1L2_OVAR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_FSTDEV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_OSTDEV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_FOSTDEV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_COV", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_CORR", new String[]{VL1L2});
-
-
-    statsVl1l2.put("VL1L2_FSPD", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_OSPD", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_FDIR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_ODIR", new String[]{VL1L2});
-
-    statsVl1l2.put("VL1L2_VDIFF_SPD", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_VDIFF_DIR", new String[]{VL1L2});
-
-    statsVl1l2.put("VL1L2_SPD_ERR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_SPD_ABSERR", new String[]{VL1L2});
-
-    statsVl1l2.put("VL1L2_DIR_ABSERR", new String[]{VL1L2});
-    statsVl1l2.put("VL1L2_DIR_ERR", new String[]{VL1L2});
-
   }
 
   static {
-    modeSingleStatField.add("ACOV");
-    modeSingleStatField.add("CNT");
-    modeSingleStatField.add("CNTSUM");
-    modeSingleStatField.add("CENTX");
-    modeSingleStatField.add("CENTY");
-    modeSingleStatField.add("CENTLAT");
-    modeSingleStatField.add("CENTLON");
-    modeSingleStatField.add("AXAVG");
-    modeSingleStatField.add("LEN");
-    modeSingleStatField.add("WID");
-    modeSingleStatField.add("ASPECT");
-    modeSingleStatField.add("AREA");
-    modeSingleStatField.add("AREATHR");
-    modeSingleStatField.add("CURV");
-    modeSingleStatField.add("CURVX");
-    modeSingleStatField.add("CURVY");
-    modeSingleStatField.add("CPLX");
-    modeSingleStatField.add("INT10");
-    modeSingleStatField.add("INT25");
-    modeSingleStatField.add("INT50");
-    modeSingleStatField.add("INT75");
-    modeSingleStatField.add("INT90");
-    modeSingleStatField.add("INTN");
-    modeSingleStatField.add("INTSUM");
+    modeSingleStatField.put("ACOV", "SUM(area)");
+    modeSingleStatField.put("CNT", "COUNT(object_id)");
+    modeSingleStatField.put("CNTSUM", "COUNT(object_id)");
+    modeSingleStatField.put("CENTX", "centroid_x");
+    modeSingleStatField.put("CENTY", "centroid_y");
+    modeSingleStatField.put("CENTLAT", "centroid_lat");
+    modeSingleStatField.put("CENTLON", "centroid_lon");
+    modeSingleStatField.put("AXAVG", "axis_avg");
+    modeSingleStatField.put("LEN", "length");
+    modeSingleStatField.put("WID", "width");
+    modeSingleStatField
+        .put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
+    modeSingleStatField.put("AREA", "area");
+    modeSingleStatField.put("AREATHR", "area_thresh");
+    modeSingleStatField.put("CURV", "curvature");
+    modeSingleStatField.put("CURVX", "curvature_x");
+    modeSingleStatField.put("CURVY", "curvature_y");
+    modeSingleStatField.put("CPLX", "complexity");
+    modeSingleStatField.put("INT10", "intensity_10");
+    modeSingleStatField.put("INT25", "intensity_25");
+    modeSingleStatField.put("INT50", "intensity_50");
+    modeSingleStatField.put("INT75", "intensity_75");
+    modeSingleStatField.put("INT90", "intensity_90");
+    modeSingleStatField.put("INTN", "intensity_nn");
+    modeSingleStatField.put("INTSUM", "intensity_sum");
+
   }
 
 
@@ -368,78 +639,49 @@ public class MVUtil {
   }
 
   static {
-    modeRatioField.add("RATIO_FSA_ASA");
-    modeRatioField.add("RATIO_OSA_ASA");
-    modeRatioField.add("RATIO_ASM_ASA");
-    modeRatioField.add("RATIO_ASU_ASA");
-    modeRatioField.add("RATIO_FSM_FSA");
-    modeRatioField.add("RATIO_FSU_FSA");
-    modeRatioField.add("RATIO_OSM_OSA");
-    modeRatioField.add("RATIO_OSU_OSA");
-    modeRatioField.add("RATIO_FSM_ASM");
-    modeRatioField.add("RATIO_OSM_ASM");
-    modeRatioField.add("RATIO_FSU_ASU");
-    modeRatioField.add("RATIO_OSU_ASU");
-    modeRatioField.add("RATIO_FSA_AAA");
-    modeRatioField.add("RATIO_OSA_AAA");
-    modeRatioField.add("RATIO_FSA_FAA");
-    modeRatioField.add("RATIO_FCA_FAA");
-    modeRatioField.add("RATIO_OSA_OAA");
-    modeRatioField.add("RATIO_OCA_OAA");
-    modeRatioField.add("RATIO_FCA_ACA");
-    modeRatioField.add("RATIO_OCA_ACA");
-    modeRatioField.add("RATIO_FSA_OSA");
-    modeRatioField.add("RATIO_OSA_FSA");
-    modeRatioField.add("RATIO_ACA_ASA");
-    modeRatioField.add("RATIO_ASA_ACA");
-    modeRatioField.add("RATIO_FCA_FSA");
-    modeRatioField.add("RATIO_FSA_FCA");
-    modeRatioField.add("RATIO_OCA_OSA");
-    modeRatioField.add("RATIO_OSA_OCA");
-
-    modeRatioField.add("OBJHITS");
-    modeRatioField.add("OBJMISSES");
-    modeRatioField.add("OBJFAS");
-    modeRatioField.add("OBJCSI");
-    modeRatioField.add("OBJPODY");
-    modeRatioField.add("OBJFAR");
-
-    modeRatioField.add("AREARAT_FSA_ASA");
-    modeRatioField.add("AREARAT_OSA_ASA");
-    modeRatioField.add("AREARAT_ASM_ASA");
-    modeRatioField.add("AREARAT_ASU_ASA");
-    modeRatioField.add("AREARAT_FSM_FSA");
-    modeRatioField.add("AREARAT_FSU_FSA");
-    modeRatioField.add("AREARAT_OSM_OSA");
-    modeRatioField.add("AREARAT_OSU_OSA");
-    modeRatioField.add("AREARAT_FSM_ASM");
-    modeRatioField.add("AREARAT_OSM_ASM");
-    modeRatioField.add("AREARAT_FSU_ASU");
-    modeRatioField.add("AREARAT_OSU_ASU");
-    modeRatioField.add("AREARAT_FSA_AAA");
-    modeRatioField.add("AREARAT_OSA_AAA");
-    modeRatioField.add("AREARAT_FSA_FAA");
-    modeRatioField.add("AREARAT_FCA_FAA");
-    modeRatioField.add("AREARAT_OSA_OAA");
-    modeRatioField.add("AREARAT_OCA_OAA");
-    modeRatioField.add("AREARAT_FCA_ACA");
-    modeRatioField.add("AREARAT_OCA_ACA");
-    modeRatioField.add("AREARAT_FSA_OSA");
-    modeRatioField.add("AREARAT_OSA_FSA");
-    modeRatioField.add("AREARAT_ACA_ASA");
-    modeRatioField.add("AREARAT_ASA_ACA");
-    modeRatioField.add("AREARAT_FCA_FSA");
-    modeRatioField.add("AREARAT_FSA_FCA");
-    modeRatioField.add("AREARAT_OCA_OSA");
-    modeRatioField.add("AREARAT_OSA_OCA");
-
-    modeRatioField.add("OBJAHITS");
-    modeRatioField.add("OBJAMISSES");
-    modeRatioField.add("OBJAFAS");
-    modeRatioField.add("OBJACSI");
-    modeRatioField.add("OBJAPODY");
-    modeRatioField.add("OBJAFAR");
+    mtd2dStatField.put("2D_AREA", "area");
+    mtd2dStatField.put("2D_CENTROID_X", "centroid_x");
+    mtd2dStatField.put("2D_CENTROID_Y", "centroid_y");
+    mtd2dStatField.put("2D_CENTROID_LAT", "centroid_lat");
+    mtd2dStatField.put("2D_CENTROID_LON", "centroid_lon");
+    mtd2dStatField.put("2D_AXIS_ANG", "axis_ang");
   }
+
+  static {
+    mtd3dSingleStatField.put("3D_CENTROID_X", "centroid_x");
+    mtd3dSingleStatField.put("3D_CENTROID_Y", "centroid_y");
+    mtd3dSingleStatField.put("3D_CENTROID_T", "centroid_t");
+    mtd3dSingleStatField.put("3D_CENTROID_LAT", "centroid_lat");
+    mtd3dSingleStatField.put("3D_CENTROID_LON", "centroid_lon");
+    mtd3dSingleStatField.put("3D_X_DOT", "x_dot");
+    mtd3dSingleStatField.put("3D_Y_DOT", "y_dot");
+    mtd3dSingleStatField.put("3D_AXIS_ANG", "axis_ang");
+    mtd3dSingleStatField.put("3D_VOLUME", "volume");
+    mtd3dSingleStatField.put("3D_START_TIME", "start_time");
+    mtd3dSingleStatField.put("3D_END_TIME", "end_time");
+    mtd3dSingleStatField.put("3D_DURATION", "end_time-start_time");
+    mtd3dSingleStatField.put("3D_CDIST_TRAVELLED", "cdist_travelled");
+    mtd3dSingleStatField.put("3D_INTENSITY_10", "intensity_10");
+    mtd3dSingleStatField.put("3D_INTENSITY_25", "intensity_25");
+    mtd3dSingleStatField.put("3D_INTENSITY_50", "intensity_50");
+    mtd3dSingleStatField.put("3D_INTENSITY_75", "intensity_75");
+    mtd3dSingleStatField.put("3D_INTENSITY_90", "intensity_90");
+  }
+
+  static {
+    mtd3dPairStatField.put("3D_SPACE_CENTROID_DIST", "space_centroid_dist");
+    mtd3dPairStatField.put("3D_TIME_CENTROID_DELTA", "time_centroid_delta");
+    mtd3dPairStatField.put("3D_AXIS_DIFF", "axis_diff");
+    mtd3dPairStatField.put("3D_SPEED_DELTA", "speed_delta");
+    mtd3dPairStatField.put("3D_DIRECTION_DIFF", "direction_diff");
+    mtd3dPairStatField.put("3D_VOLUME_RATIO", "volume_ratio");
+    mtd3dPairStatField.put("3D_START_TIME_DELTA", "start_time_delta");
+    mtd3dPairStatField.put("3D_END_TIME_DELTA", "end_time_delta");
+    mtd3dPairStatField.put("3D_INTERSECTION_VOLUME", "intersection_volume");
+    mtd3dPairStatField.put("3D_DURATION_DIFF", "duration_diff");
+    mtd3dPairStatField.put("3D_INTEREST", "interest");
+  }
+
 
   static {
     calcStatCTC.add("BASER");
@@ -455,8 +697,9 @@ public class MVUtil {
   }
 
   /**
-   * Build a list of strings representing consecutive dates between the input dates start and end, incrementing by incr number of seconds.  It is assumed that
-   * the format of start and end is given by the java date format string format.  The output dates will have the same format.
+   * Build a list of strings representing consecutive dates between the input dates start and end,
+   * incrementing by incr number of seconds.  It is assumed that the format of start and end is
+   * given by the java date format string format.  The output dates will have the same format.
    *
    * @param start  Beginning date, given in the format specified by the format input
    * @param end    End date, given in the format specified by the format input
@@ -482,14 +725,18 @@ public class MVUtil {
       }
 
     } catch (Exception e) {
-      printStream.println("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
-      e.printStackTrace(printStream);
+      errorStream
+          .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+      //printStream.println(
+      //    "  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+      //e.printStackTrace(printStream);
     }
     return listDates;
   }
 
   /**
-   * Wrap the buildDateList implementation above, by parsing the specified node for start, end, incr and format and then returning the list of dates.
+   * Wrap the buildDateList implementation above, by parsing the specified node for start, end, incr
+   * and format and then returning the list of dates.
    *
    * @param node MVNode to parse for the date list parameters
    * @return List of date strings
@@ -525,8 +772,9 @@ public class MVUtil {
   }
 
   /**
-   * Build a String representation of the date specified by the input <date_offset> {@link MVNode}.  The offset is taken either from the current date (default)
-   * or from the date specified by the input date.
+   * Build a String representation of the date specified by the input <date_offset> {@link MVNode}.
+   * The offset is taken either from the current date (default) or from the date specified by the
+   * input date.
    *
    * @param node   MVNode structure specifying the offset
    * @param format (optional) String representation of the input/output date formats
@@ -567,8 +815,10 @@ public class MVUtil {
 
 
   /**
-   * Concatenate the elements of the input list with surrounding ticks and separated by commas for use in the where clause of a SQL query.  For example, the
-   * function call <code>buildValueList(new String[]{"a", "bb", "c"})</code> will return the string "'a', 'bb', 'c'".
+   * Concatenate the elements of the input list with surrounding ticks and separated by commas for
+   * use in the where clause of a SQL query.  For example, the function call
+   * <code>buildValueList(new String[]{"a", "bb", "c"})</code> will return the string "'a', 'bb',
+   * 'c'".
    *
    * @param values The list of values to be concatenated
    * @return The string of concatenated values for use in a SQL where clause
@@ -603,9 +853,11 @@ public class MVUtil {
   }
 
   /**
-   * Create a {@link MVDataTable} whose fields are the keys of the input table and whose rows represent every permutation of the values stored in the input
-   * table.  It is assumed that the table contains a mapping from String to String[].  If the input table is an {@link MVOrderedMap}, the fields of the output
-   * MVDataTable are ordered in the same order as the keys of the input.
+   * Create a {@link MVDataTable} whose fields are the keys of the input table and whose rows
+   * represent every permutation of the values stored in the input table.  It is assumed that the
+   * table contains a mapping from String to String[].  If the input table is an {@link
+   * MVOrderedMap}, the fields of the output MVDataTable are ordered in the same order as the keys
+   * of the input.
    *
    * @param table Contains key/value pairs of String/String[] which will be permuted
    * @return MVDataTable whose rows are the permutations
@@ -688,182 +940,6 @@ public class MVUtil {
     return dtRet;
   }
 
-  /**
-   * Populate a template string, specified by tmpl, with values specified in the input map vals.  If a template tag is not found in the input vals table, a
-   * warning is printed and the tag is passed through to the output.
-   *
-   * @param tmpl     Template String containing tags with format <tag_name>
-   * @param vals     Contains a mapping from tag names to values
-   * @param tmplMaps Map of value maps for each template field, used with map template parm (optional)
-   * @return String built using the template and values
-   */
-  public static String buildTemplateString(final String tmpl, final MVOrderedMap vals, final MVOrderedMap tmplMaps, final PrintStream printStream) throws Exception {
-
-    String strRet = tmpl;
-    Matcher matTmpl = _patPlotTmpl.matcher(tmpl);
-    SimpleDateFormat formatDate = new SimpleDateFormat("yyyyMMdd", Locale.US);
-    formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
-    while (matTmpl.find()) {
-      String strTmplTag = matTmpl.group(1);
-      String strTmplTagName = matTmpl.group(2);
-
-      MVOrderedMap mapParms = parseTagParams(strTmplTag);
-      if (strTmplTagName.equals("date")) {
-        vals.put("date", formatDate.format(new Date()));
-      }
-
-      if (!vals.containsKey(strTmplTagName)) {
-        printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg perm");
-        continue;
-      }
-
-      String strVal = (String) vals.get(strTmplTagName);
-
-      //  if there is a corresponding tag value map, use the map value
-      if (mapParms.containsKey("map")) {
-        String strMapName = mapParms.get("map").toString();
-        if (strMapName.equalsIgnoreCase("true")) {
-          strMapName = strTmplTagName;
-        }
-        MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
-        if (null == mapTmplVal) {
-          throw new Exception("template tag " + strTmplTagName + " does not have a val_map defined");
-        }
-        if (mapTmplVal.containsKey(strVal)) {
-          strVal = mapTmplVal.getStr(strVal);
-        }
-
-      }
-
-      //  if there is a format parameter, apply it to the value
-      if (mapParms.containsKey("format")) {
-        String strFormat = mapParms.getStr("format");
-
-        if (strTmplTagName.equals("fcst_lead")) {
-          if (strVal.equals("0")) {
-            strVal = "00000";
-          }
-          if (strFormat.equals("HH")) {
-            strVal = strVal.substring(0, strVal.length() - 4);
-          }
-          if (strFormat.equals("HHmm")) {
-            strVal = strVal.substring(0, strVal.length() - 2);
-          }
-          while (strFormat.length() > strVal.length()) {
-            strVal = "0" + strVal;
-          }
-
-        } else if (strTmplTagName.equals("init_hour") || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
-          while (2 > strVal.length()) {
-            strVal = "0" + strVal;
-          }
-        }
-
-
-        if (mapParms.getStr("format").equalsIgnoreCase("R")) {
-          strVal = formatR(strVal);
-        }
-      }
-
-      //  if the tag value is a date, format it accordingly
-
-      try {
-        SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-        formatDb.setTimeZone(TimeZone.getTimeZone("UTC"));
-        SimpleDateFormat formatDBms = new SimpleDateFormat(DB_DATE_MS, Locale.US);
-        formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
-        SimpleDateFormat formatPlot = new SimpleDateFormat(DB_DATE_PLOT, Locale.US);
-        formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date dateParse = formatDb.parse(strVal);
-        if (null != dateParse) {
-          strVal = formatPlot.format(dateParse);
-        } else {
-          dateParse = formatDBms.parse(strVal);
-          if (null != dateParse) {
-            strVal = formatPlot.format(dateParse);
-          }
-        }
-      } catch (Exception e) {
-      }
-
-      //  if the tag is a threshold, format it accordingly
-      if (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")
-        || strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
-        strVal = formatThresh(strTmplTag, strVal, printStream);
-      }
-      //replace "/" with "_"  - file names can't have "/"!!!!!
-      strVal = strVal.replace("/", "_");
-
-      strRet = strRet.replace("{" + strTmplTag + "}", strVal);
-    }
-    return strRet;
-  }
-
-  public static String buildTemplateString(final String tmpl, final MVOrderedMap vals, final PrintStream printStream) throws Exception {
-    return buildTemplateString(tmpl, vals, null, printStream);
-  }
-
-  /**
-   * Reformat the fcst_thresh value using the directions provided in the body of the template tag.  It is assumed that the input template tag has the
-   * parameterized tag format: <i>fcst_thresh?param1=val1;param2=val2[;...]  where the params can be the following:</i> <ul> <li><b>units</b> set to either mm
-   * or in (input assumed to be in mm) <li><b>format</b> set to the java formatting string to apply, for example 0.00# <li><b>symbol</b> set to either letters
-   * or math, for example ge or >=, respectively </ul>
-   *
-   * @param fcstTag    Template tag name (including params) for fcst_thresh
-   * @param fcstThresh Template map value to be formatted
-   * @return
-   */
-  public static String formatThresh(final String fcstTag, final String fcstThresh, final PrintStream printStream) {
-    String strThreshRet = fcstThresh;
-    MVOrderedMap mapParams = parseTagParams(fcstTag);
-    DecimalFormat format = new DecimalFormat("0.000");
-
-    //  attempt to parse the input threshold
-    String strSymbol;
-    String strThresh;
-    double dblThresh;
-    Matcher matFcstThresh = _patThresh.matcher(fcstThresh);
-    if (matFcstThresh.matches()) {
-      strSymbol = matFcstThresh.group(1);
-      strThresh = matFcstThresh.group(2);
-      dblThresh = Double.parseDouble(strThresh);
-    } else {
-      // printStream.println("  **  WARNING: threshhold " + fcstThresh + " not matched");
-      return strThreshRet;
-    }
-
-    //  change the units, if requested
-    if (mapParams.containsKey("units")) {
-      String strUnits = mapParams.get("units").toString();
-      if (strUnits.equals("in")) {
-        strThresh = format.format(dblThresh /= 25.4);
-        strThreshRet = strSymbol + strThresh;
-      }
-    }
-
-    //  change the format, if requested
-    if (mapParams.containsKey("format")) {
-      String strFormat = mapParams.get("format").toString();
-      strThresh = new DecimalFormat(strFormat).format(dblThresh);
-      strThreshRet = strSymbol + strThresh;
-    }
-
-    //  change the logic symbol, if requested
-    if (mapParams.containsKey("symbol")) {
-      String strSymbolType = mapParams.get("symbol").toString();
-      if (strSymbolType.equals("letters")) {
-        strSymbol = strSymbol.replace("==", "eq")
-          .replace("!=", "ne")
-          .replace("<=", "le")
-          .replace(">=", "ge")
-          .replace("<", "lt")
-          .replace(">", "gt");
-        strThreshRet = strSymbol + strThresh;
-      }
-    }
-
-    return strThreshRet;
-  }
 
   /**
    * Sort the list of input thresholds, according to the numeric threshold value.
@@ -871,8 +947,8 @@ public class MVUtil {
    * @param thresh List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static String[] sortThresh(final String[] thresh, final PrintStream printStream) {
-    return sortVals(thresh, true, _patThresh, printStream);
+  public static List<String> sortThresh(final List<String> thresh) {
+    return sortVals(thresh, true, MVUtil.thresh);
   }
 
   /**
@@ -881,41 +957,71 @@ public class MVUtil {
    * @param lev List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static String[] sortLev(final String[] lev, final PrintStream printStream) {
-    return sortVals(lev, true, _patLev, printStream);
+  public static List<String> sortLev(final List<String> lev) {
+    return sortVals(lev, true, MVUtil.lev);
   }
 
   /**
-   * Sort the input list of values by parsing them with the input pattern and sort them according to the numerical portion (assumed to be group 2 of the matched
-   * pattern).
+   * Sort the list of Interp Pnts, according to the first numeric level value.
+   *
+   * @param lev List of Interp Pnts
+   * @return Sorted Inter Pnts list, by value
+   */
+  public static List<String> sortInterpPnts(final List<String> lev) {
+    List<Integer> resultInt = new ArrayList<>(lev.size());
+    for(String interpPnt: lev ){
+      try {
+        resultInt.add(Integer.valueOf(interpPnt));
+      }catch (Exception e){
+      }
+    }
+    Collections.sort(resultInt);
+    List<String> resultStr = new ArrayList<>(resultInt.size());
+    for(Integer interpPnt :resultInt ){
+      resultStr.add(String.valueOf(interpPnt));
+    }
+    return resultStr;
+  }
+
+  /**
+   * Sort the input list of values by parsing them with the input pattern and sort them according to
+   * the numerical portion (assumed to be group 2 of the matched pattern).
    *
    * @param vals List of String representations of the values
    * @param asc  true for ascending order
    * @param pat  Pattern used to parse the input values
    * @return Sorted list, by numerical value
    */
-  public static String[] sortVals(final String[] vals, final boolean asc, final Pattern pat, final PrintStream printStream) {
+  public static List<String> sortVals(
+                                         final List<String> vals, final boolean asc,
+                                         final Pattern pat) {
 
+    List<String> result = new ArrayList<>();
     //  parse the input values and store the numerical values in a sortable array
-    double[] listVal = new double[vals.length];
+    double[] listVal = new double[vals.size()];
     Map tableVal = new HashMap<>();
     double dblInvalid = -.00001;
-    for (int i = 0; i < vals.length; i++) {
+    for (int i = 0; i < vals.size(); i++) {
+      String val = vals.get(i);
 
       //  apply the pattern to the value
       double dblVal;
       //if value is double and ends with '.' - remove '.' to match the pattern
-      if (vals[i].endsWith(".")) {
-        vals[i] = vals[i].substring(0, vals[i].length() - 1);
+      if (val.endsWith(".")) {
+        val = val.substring(0, val.length() - 1);
       }
-      Matcher mat = pat.matcher(vals[i]);
+      Matcher mat = pat.matcher(val);
 
       //  if the value matches, parse out the numerical value
       if (mat.matches()) {
+        if (mat.groupCount() == 0) {
+          dblVal = Double.parseDouble(val);
+        } else {
         dblVal = Double.parseDouble(mat.group(2));
         if (3 == mat.groupCount() && null != mat.group(3)) {
           dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
         }
+      }
       }
 
       //  otherwise, use the literal value with a default numerical value
@@ -927,15 +1033,15 @@ public class MVUtil {
       //  verify and store the numerical value and the value pair
       listVal[i] = dblVal;
       Double dblKey = listVal[i];
-      Object objVal = vals[i];
+      Object objVal = val;
       if (tableVal.containsKey(dblKey)) {
         Object objValCur = tableVal.get(dblKey);
         ArrayList listValCur = new ArrayList();
         if (objValCur instanceof String) {
           listValCur.add(objValCur);
-          listValCur.add(vals[i]);
+          listValCur.add(val);
         } else {
-          ((ArrayList) objValCur).add(vals[i]);
+          ((ArrayList) objValCur).add(val);
         }
         objVal = listValCur;
       }
@@ -975,7 +1081,7 @@ public class MVUtil {
       tableAdded.put(dblKey, "true");
     }
 
-    return (String[]) listRet.toArray(new String[listRet.size()]);
+    return listRet;
   }
 
   /**
@@ -986,14 +1092,16 @@ public class MVUtil {
    * @param removeZeros true to remove the trailing 0000 from the lead time value
    * @return Sorted list of formatted lead times, by numerical value
    */
-  public static String[] sortFormatLead(final String[] lead, final boolean asc, final boolean removeZeros) {
+  public static List<String> sortFormatLead(
+                                               final List<String> lead, final boolean asc,
+                                               final boolean removeZeros) {
 
     //  parse and format the leads and store the numerical values in a sortable array
-    double[] listVal = new double[lead.length];
+    double[] listVal = new double[lead.size()];
     Map<Double, String> tableVal = new HashMap<>();
-    for (int i = 0; i < lead.length; i++) {
-      listVal[i] = Double.parseDouble(lead[i]);
-      String strLead = lead[i];
+    for (int i = 0; i < lead.size(); i++) {
+      listVal[i] = Double.parseDouble(lead.get(i));
+      String strLead = lead.get(i);
       if (removeZeros && strLead.endsWith("0000")) {
         strLead = strLead.replaceAll("0000$", "");
       }
@@ -1002,9 +1110,9 @@ public class MVUtil {
 
     //  sort the lead numerical values and build a sorted list of leads
     Arrays.sort(listVal);
-    String[] listRet = new String[lead.length];
+    List<String> listRet = new ArrayList<>(lead.size());
     for (int i = 0; i < listVal.length; i++) {
-      listRet[asc ? i : listVal.length - 1 - i] = tableVal.get(listVal[i]);
+      listRet.add(asc ? i : listVal.length - 1 - i, tableVal.get(listVal[i]));
     }
 
     return listRet;
@@ -1015,22 +1123,22 @@ public class MVUtil {
    *
    * @return list of formatted  dates
    */
-  public static String[] formatDates(final String[] dates) {
-    String[] listRet = new String[dates.length];
-    for (int i = 0; i < dates.length; i++) {
-      listRet[i] = dates[i].replace(".0", "");
+  public static List<String> formatDates(final List<String> dates) {
+    List<String> listRet = new ArrayList<>(dates.size());
+    for (int i = 0; i < dates.size(); i++) {
+      listRet.add(i, dates.get(i).replace(".0", ""));
     }
     return listRet;
   }
 
-  public static String[] sortHour(final String[] hour, boolean asc) {
+  public static List<String> sortHour(final List<String> hour, boolean asc) {
 
     //  parse and format the hours and store the numerical values in a sortable array
-    double[] listVal = new double[hour.length];
+    double[] listVal = new double[hour.size()];
     Map<Double, String> tableVal = new HashMap<>();
-    for (int i = 0; i < hour.length; i++) {
-      listVal[i] = Double.parseDouble(hour[i]);
-      String strHour = hour[i];
+    for (int i = 0; i < hour.size(); i++) {
+      listVal[i] = Double.parseDouble(hour.get(i));
+      String strHour = hour.get(i);
       while (strHour.length() < 2) {
         strHour = "0" + strHour;
       }
@@ -1039,37 +1147,18 @@ public class MVUtil {
 
     //  sort the lead numerical values and build a sorted list of leads
     Arrays.sort(listVal);
-    String[] listRet = new String[hour.length];
+    List<String> listRet = new ArrayList<>(hour.size());
     for (int i = 0; i < listVal.length; i++) {
-      listRet[asc ? i : listVal.length - 1 - i] = tableVal.get(listVal[i]);
+      listRet.set(asc ? i : listVal.length - 1 - i, tableVal.get(listVal[i]));
     }
 
     return listRet;
   }
 
-  /**
-   * Parse template tag parameter pairs and return them in an ordered map.  For example, <i>parseTagParams("tag_name?param1=val1;param2=val2")</i> returns a map
-   * with two members, param1 and param2 with their values set accordingly.
-   *
-   * @param tag Formatted tag with param/value pairs to parse
-   * @return Ordered map containing parsed param/value pairs
-   */
-  public static MVOrderedMap parseTagParams(final String tag) {
-    MVOrderedMap mapRet = new MVOrderedMap();
-    Matcher mat = _patTag.matcher(tag);
-    if (mat.matches() && null != mat.group(2)) {
-      String[] listPairs = mat.group(2).split("\\s*&\\s*");
-      for (int i = 0; i < listPairs.length; i++) {
-        String[] listPair = listPairs[i].split("\\s*=\\s*");
-        mapRet.put(listPair[0], listPair[1]);
-      }
-    }
-
-    return mapRet;
-  }
 
   /**
-   * Pads input str with spaces appended to the end so that the length of the returned String is at least width characters
+   * Pads input str with spaces appended to the end so that the length of the returned String is at
+   * least width characters
    *
    * @param str   The string to pad
    * @param width The minimum number of characters in the returned String
@@ -1088,7 +1177,8 @@ public class MVUtil {
 
 
   /**
-   * Pads input str with spaces appended to the beginning so that the length of the returned String is at least width characters
+   * Pads input str with spaces appended to the beginning so that the length of the returned String
+   * is at least width characters
    *
    * @param str   The string to pad
    * @param width The minimum number of characters in the returned String
@@ -1110,8 +1200,9 @@ public class MVUtil {
   }
 
   /**
-   * Create a string representation for the input time span, which should represent milliseconds between events.  For example, a time span message can be
-   * generated as follows: <code>formatTimeStamp(dateEnd.getTime() - dateStart.getTime())</code>
+   * Create a string representation for the input time span, which should represent milliseconds
+   * between events.  For example, a time span message can be generated as follows:
+   * <code>formatTimeStamp(dateEnd.getTime() - dateStart.getTime())</code>
    *
    * @param span Time span, in milliseconds
    * @return Time span in format [days]d H:mm:ss.mmmm
@@ -1130,76 +1221,6 @@ public class MVUtil {
     return (0 < intDay ? Long.toString(intDay) + "d " : "") + Long.toString(intHr)
       + (10 > intMin ? ":0" : ":") + Long.toString(intMin) + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "."
       + (100 > intMs ? "0" + (10 > intMs ? "0" : "") : "") + Long.toString(intMs);
-  }
-
-
-  /**
-   * Creates a list of length rep of copies of the input val.  Mimics the R function of the same name
-   *
-   * @param val Value to repeat
-   * @param rep Number of time to repeat
-   * @return List of repeated values, with length specified by input rep
-   */
-  public static String[] rep(final String val, final int rep) {
-    if (1 > rep) {
-      return new String[]{};
-    }
-    String[] listRet = new String[rep];
-    for (int i = 0; i < rep; i++) {
-      listRet[i] = val;
-    }
-    return listRet;
-  }
-
-  /**
-   * Creates a list of length rep of copies of the input val.  Mimics the R function of the same name
-   *
-   * @param val Value to repeat
-   * @param rep Number of time to repeat
-   * @return List of repeated values, with length specified by input rep
-   */
-  public static Integer[] rep(final int val, final int rep) {
-    if (1 > rep) {
-      return new Integer[]{};
-    }
-    Integer[] listRet = new Integer[rep];
-    for (int i = 0; i < rep; i++) {
-      listRet[i] = val;
-    }
-    return listRet;
-  }
-
-  /**
-   * Creates a list of integers where the first element is min, the second is min+1 .... the last is max name
-   *
-   * @param min The first value
-   * @param max The last number
-   * @return List of  values
-   */
-  public static Integer[] repPlusOne(final int min, final int max) {
-
-    Integer[] listRet = new Integer[max - min + 1];
-    int start = min;
-    for (int i = 0; i < (max - min + 1); i++) {
-      listRet[i] = start;
-      start++;
-    }
-    return listRet;
-  }
-
-  /**
-   * Build a list by removing elements of the input list at the specified frequency.
-   *
-   * @param list List to decimate
-   * @param freq (optional) Frequency at which to remove members from the input list, defaults to 30
-   * @return Decimated list
-   */
-  public static String[] decimate(final String[] list, final int freq) {
-    String[] ret = new String[list.length];
-    for (int i = 0; i < list.length; i++) {
-      ret[i] = (i % freq == 0 ? list[i] : "");
-    }
-    return ret;
   }
 
 
@@ -1279,7 +1300,8 @@ public class MVUtil {
   }
 
   /**
-   * Attempt to convert the input ArrayList, which is assumed to contain all Strings, to a String[].
+   * Attempt to convert the input ArrayList, which is assumed to contain all Strings, to a
+   * String[].
    *
    * @param list ArrayList to convert
    * @return Converted list
@@ -1318,66 +1340,6 @@ public class MVUtil {
     return list.clone();
   }
 
-  /**
-   * Creates a string representation of an R collection containing the list of values in the input list, val.
-   *
-   * @param val   List of values to print in the R collection
-   * @param ticks (optional) Print tickmarks around values, for when constituents are factors as opposed to numeric, defaults to true
-   * @return String representation of the R collection
-   */
-  public static String printRCol(final Object[] val, final boolean ticks) {
-    String strRet = "c(";
-    for (int i = 0; i < val.length; i++) {
-      if (0 < i) {
-        strRet += ", ";
-      } else {
-        strRet += "";
-      }
-      String value = val[i].toString().replace("&#38;", "&").replace("&gt;", ">").replace("&lt;", "<");
-      if (ticks) {
-        strRet += "\"" + value + "\"";
-      } else {
-        strRet += value;
-      }
-    }
-    strRet += ")";
-    return strRet;
-  }
-
-  public static String printRCol(final Object[] val) {
-    return printRCol(val, true);
-  }
-
-  /**
-   * Parses an R collection string representation and returns a list of the values in the collection. An R collection has syntax c(1, 2, 3) or c("a", "bb",
-   * "ccc")
-   *
-   * @param strRCol
-   * @return list of String representations of each collection member
-   */
-  public static String[] parseRCol(final String strRCol) {
-    if (strRCol.contains("\"")) {
-      Matcher matRColStr = Pattern.compile("c\\(\\s*\"(.*)\"\\s*\\)").matcher(strRCol);
-      if (!matRColStr.matches()) {
-        return new String[]{};
-      }
-      String strList = matRColStr.group(1);
-      List<String> list = new ArrayList<>();
-      while (strList.matches(".*\"\\s*,\\s*\".*")) {
-        list.add(strList.replaceFirst("\"\\s*,\\s*\".*", ""));
-        strList = strList.replaceFirst(".*?\"\\s*,\\s*\"", "");
-      }
-      list.add(strList.replaceFirst("\"\\s*,\\s*\".*", ""));
-      return toArray(list);
-    } else {
-      Matcher matRColNum = Pattern.compile("c\\(\\s*(.*)\\s*\\)").matcher(strRCol);
-      if (!matRColNum.matches()) {
-        return new String[]{};
-      }
-      String strList = matRColNum.group(1);
-      return strList.split("\\s*,\\s*");
-    }
-  }
 
   /**
    * Returns a string representation of the MVOrderedMap in R declaration syntax
@@ -1415,69 +1377,6 @@ public class MVUtil {
     return strRDecl;
   }
 
-  /**
-   * Format the input String so that it conforms to R variable name standards
-   *
-   * @param in String to format
-   * @return Formatted String
-   */
-  public static String formatR(final String in) {
-
-    String strFormatR = in;
-    Matcher matProb = _patProb.matcher(in);
-    if (matProb.matches()) {
-      if (!in.contains("*")) {
-        strFormatR = "PROB_" + matProb.group(1) + matProb.group(2) + matProb.group(3);
-      } else {
-        strFormatR = "PROB_" + matProb.group(1);
-      }
-    }
-
-    return strFormatR.replace("(", "")
-      .replace(")", "")
-      .replace("<=", "le")
-      .replace(">=", "ge")
-      .replace("=", "eq")
-      .replace("<", "lt")
-      .replace(">", "gt");
-  }
-
-  /**
-   * Format the input String so that it conforms to R variable name standards
-   *
-   * @param in String to format
-   * @return Formatted String
-   */
-  public static String formatDiffR(final String in) {
-    //list(c("rapcontrolens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER","rapstoch_V3ens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER"))
-    String[] diffComponents = in.split("\",\"");
-    if (diffComponents.length == 2) {
-      diffComponents[0] = diffComponents[0].replace("list(c(\"", "");
-      diffComponents[1] = diffComponents[1].replace("\"))", "");
-      for (int i = 0; i < 2; i++) {
-        String strFormatR = diffComponents[i];
-        Matcher matProb = _patProb.matcher(diffComponents[i]);
-        if (matProb.matches()) {
-          if (!diffComponents[i].contains("*")) {
-            strFormatR = "PROB_" + matProb.group(1) + matProb.group(2) + matProb.group(3);
-          } else {
-            strFormatR = "PROB_" + matProb.group(1);
-          }
-        }
-        diffComponents[i] = strFormatR.replace("(", "")
-          .replace(")", "")
-          .replace("<=", "le")
-          .replace(">=", "ge")
-          .replace("=", "eq")
-          .replace("<", "lt")
-          .replace(">", "gt");
-      }
-
-      return "list(c(\"" + diffComponents[0] + "\",\"" + diffComponents[1] + "\"))";
-    } else {
-      return in;
-    }
-  }
 
   public static String[] parseModeStat(final String stat) {
     Matcher mat = _patModeStat.matcher(stat);
@@ -1518,14 +1417,22 @@ public class MVUtil {
   }
 
   /**
-   * Determine the database line_data table in which the input statistic is stored.  For mode stats, consider only the first portion of the stat name.  If the
-   * stat is not found in any table, return an empty string.
+   * Determine the database line_data table in which the input statistic is stored.  For mode stats,
+   * consider only the first portion of the stat name.  If the stat is not found in any table,
+   * return an empty string.
    *
    * @param strStat stat name to look up
    * @return the name of the database line_data table which contains the stat
    */
   public static String getStatTable(final String strStat) {
     String strStatMode = parseModeStat(strStat)[0];
+    String strStatMrd = "";
+    if (strStatMode.equals(strStat)) {
+      String[] listStatComp = strStat.split("_");
+      strStatMrd = strStat.replace("_" + listStatComp[listStatComp.length - 1], "");
+    }
+
+    //TODO mtdRatioField and modeRatioField contain the same fields
 
     if (statsCnt.containsKey(strStat)) {
       return "line_data_cnt";
@@ -1545,7 +1452,7 @@ public class MVUtil {
       return "line_data_vl1l2";
     } else if (statsVal1l2.containsKey(strStat)) {
       return "line_data_val1l2";
-    } else if (modeSingleStatField.contains(strStatMode)) {
+    } else if (modeSingleStatField.containsKey(strStatMode)) {
       return "mode_obj_single";
     } else if (modePairStatField.containsKey(strStatMode)) {
       return "mode_obj_pair";
@@ -1559,26 +1466,42 @@ public class MVUtil {
       return "line_data_orank";
     } else if (statsSsvar.containsKey(strStat)) {
       return "line_data_ssvar";
+    } else if (mtd3dSingleStatField.containsKey(strStatMrd)) {
+      return "mtd_3d_obj_single";
+    } else if (mtd3dPairStatField.containsKey(strStatMrd)) {
+      return "mtd_3d_obj_pair";
+    } else if (mtd2dStatField.containsKey(strStatMrd)) {
+      return "mtd_2d_obj";
+    } else if (mtdRatioField.contains(strStat)) {
+      return "mtd_3d_obj_single";
+    } else if (statsVcnt.containsKey(strStat)) {
+      return "line_data_vcnt";
     } else {
       return "";
     }
   }
 
 
-  public boolean runRscript(final String rscript, final String script, final PrintStream printStream) throws Exception {
+  public static boolean runRscript(
+                                      final String rscript, final String script, final PrintStream
+                                                                                     printStream) throws Exception {
     return runRscript(rscript, script, new String[]{}, printStream);
   }
 
 
   /**
-   * Run the input R script named r using the Rscript command.  The output and error output will be written to standard output.
+   * Run the input R script named r using the Rscript command.  The output and error output will be
+   * written to standard output.
    *
    * @param rscript Rscript command
    * @param script  R script to run
    * @param args    (optional) Arguments to pass to the R script
    * @throws Exception
    */
-  public boolean runRscript(final String rscript, final String script, final String[] args, final PrintStream printStream) throws Exception {
+  public static boolean runRscript(
+                                      final String rscript, final String script,
+                                      final String[] args,
+                                      final PrintStream printStream) throws Exception {
 
     //  build a list of arguments
     StringBuilder strArgList = new StringBuilder();
@@ -1661,8 +1584,8 @@ public class MVUtil {
   }
 
   /**
-   * Populate the template tags in the input template file named tmpl with values from the input table vals and write the result to the output file named
-   * output.
+   * Populate the template tags in the input template file named tmpl with values from the input
+   * table vals and write the result to the output file named output.
    *
    * @param tmpl   Template file to populate
    * @param output Output file to write
@@ -1694,7 +1617,7 @@ public class MVUtil {
         writer.println(strOutputLine);
       }
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      throw e;
     } finally {
       if (reader != null) {
         reader.close();
@@ -1710,49 +1633,11 @@ public class MVUtil {
 
   }
 
-  /**
-   * Examine the first statistic in the first <dep1> structure to determine if the job is plotting stat statistics or MODE statisticss
-   *
-   * @param job job whose <dep1> is examined
-   * @return true if the checked stat is a MODE stat, false otherwise
-   */
-  public static boolean isModeJob(final MVPlotJob job) {
-    MVOrderedMap[] listDep = job.getDepGroups();
-    if (listDep.length > 0) {
-      String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
-      String strStat = parseModeStat(listFcstVarStat[0][1])[0];
-
-      return modeSingleStatField.contains(strStat)
-        || modePairStatField.containsKey(strStat)
-        || modeRatioField.contains(listFcstVarStat[0][1]);
-    } else {
-      return false;
-    }
-  }
 
   /**
-   * Examine the first statistic in the first <dep1> structure to determine if the job is MODE ratio statistics
-   *
-   * @param job job whose <dep1> is examined
-   * @return true if the checked stat is a MODE stat, false otherwise
-   */
-  public static boolean isModeRatioJob(final MVPlotJob job) {
-    MVOrderedMap[] listDep = job.getDepGroups();
-    if (listDep.length > 0) {
-      String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
-      if (listFcstVarStat.length > 0) {
-        return modeRatioField.contains(listFcstVarStat[0][1]);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Build a list of the fcst_var/stat combinations stored in the input <dep> structure.  The output list is structured as a list of pairs of Strings, with the
-   * first element storing the fcst_var and the second element storing the associated statistic.
+   * Build a list of the fcst_var/stat combinations stored in the input <dep> structure.  The output
+   * list is structured as a list of pairs of Strings, with the first element storing the fcst_var
+   * and the second element storing the associated statistic.
    *
    * @param mapDep <dep1> or <dep2> structure from a MVPlotJob
    * @return a list of fcst_var/stat pairs
@@ -1770,49 +1655,10 @@ public class MVUtil {
     return (String[][]) listRet.toArray(new String[][]{});
   }
 
-  public static void buildPlotFixTmplVal(final MVPlotJob job, final MVOrderedMap plotFixPerm) throws Exception {
-    SimpleDateFormat formatPlot = new SimpleDateFormat(MVUtil.DB_DATE_PLOT);
-    formatPlot.setTimeZone(TimeZone.getTimeZone("UTC"));
-    SimpleDateFormat formatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    formatDB.setTimeZone(TimeZone.getTimeZone("UTC"));
-    job.getTmplVal().clear();
-    for (Map.Entry fixValEntry : plotFixPerm.getOrderedEntries()) {
-      String strFixVar = fixValEntry.getKey().toString();
-      String strFixVal = fixValEntry.getValue().toString();
-      MVOrderedMap mapTmpl = job.getTmplMap(strFixVar);
-      if (null != mapTmpl && mapTmpl.containsKey(strFixVal)) {
-        strFixVal = mapTmpl.getStr(strFixVal);
-      } else {
-        Matcher matDateRange = _patDateRange.matcher(strFixVal);
-        if (matDateRange.matches()) {
-          strFixVal = formatPlot.format(formatDB.parse(matDateRange.group(2)));
-        }
-      }
-      job.getTmplVal().putStr(strFixVar, strFixVal);
-
-    }
-  }
 
   /**
-   * Build the list of plot_fix field/value permutations for all jobs
-   *
-   * @param mapPlotFixVal map of field/value pairs to permute
-   * @return list of permutations
-   */
-  public static MVOrderedMap[] buildPlotFixValList(final MVOrderedMap mapPlotFixVal) {
-
-    //  build a list of fixed value permutations for all plots
-    MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
-    if (0 < mapPlotFixVal.size()) {
-      MVDataTable tabPlotFixPerm = permute(mapPlotFixVal);
-      listPlotFixPerm = tabPlotFixPerm.getRows();
-    }
-
-    return listPlotFixPerm;
-  }
-
-  /**
-   * Construct the template map for the specified permutation of plot_fix values, using the specified set values.
+   * Construct the template map for the specified permutation of plot_fix values, using the
+   * specified set values.
    *
    * @param mapPlotFix    plot_fix field/value pairs to use in populating the template values
    * @param mapPlotFixVal values used for sets
@@ -1840,7 +1686,8 @@ public class MVUtil {
   }
 
   /**
-   * check if the aggregation type is compatible with the statistic We're currently only aggregating SL1L2 -> CNT and CTC -> CTS
+   * check if the aggregation type is compatible with the statistic We're currently only aggregating
+   * SL1L2 -> CNT and CTC -> CTS
    *
    * @param tableStats
    * @param strStat
@@ -1882,6 +1729,493 @@ public class MVUtil {
       System.out.println(e.getMessage());
     }
 
+  }
+
+  /**
+   * Format the input String so that it conforms to R variable name standards
+   *
+   * @param in String to format
+   * @return Formatted String
+   */
+  public static String replaceSpecialChars(final String in) {
+
+    String strFormatR = in;
+    Matcher matProb = MVUtil.prob.matcher(in);
+    if (matProb.matches()) {
+      if (!in.contains("*")) {
+        strFormatR = "PROB_" + matProb.group(1) + matProb.group(2) + matProb.group(3);
+      } else {
+        strFormatR = "PROB_" + matProb.group(1);
+      }
+    }
+
+    return strFormatR.replace("(", "")
+               .replace(")", "")
+               .replace("<=", "le")
+               .replace(">=", "ge")
+               .replace("=", "eq")
+               .replace("<", "lt")
+               .replace(">", "gt");
+  }
+
+  /**
+   * Populate a template string, specified by tmpl, with values specified in the input map vals.  If
+   * a template tag is not found in the input vals table, a warning is printed and the tag is passed
+   * through to the output.
+   *
+   * @param tmpl     Template String containing tags with format <tag_name>
+   * @param vals     Contains a mapping from tag names to values
+   * @param tmplMaps Map of value maps for each template field, used with map template parm
+   *                 (optional)
+   * @return String built using the template and values
+   */
+  public static String buildTemplateString(
+                                              final String tmpl, final MVOrderedMap vals,
+                                              final MVOrderedMap tmplMaps,
+                                              final PrintStream printStream) throws Exception {
+
+
+    String strRet = tmpl;
+    Matcher matTmpl = plotTmpl.matcher(tmpl);
+    SimpleDateFormat formatDate = new SimpleDateFormat("yyyyMMdd", Locale.US);
+    formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+    while (matTmpl.find()) {
+      String strTmplTag = matTmpl.group(1);
+      String strTmplTagName = matTmpl.group(2);
+
+      MVOrderedMap mapParms = parseTagParams(strTmplTag);
+      if (strTmplTagName.equals("date")) {
+        vals.put("date", formatDate.format(new Date()));
+      }
+
+      if (!vals.containsKey(strTmplTagName)) {
+        printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
+                                + " perm");
+        continue;
+      }
+
+      String strVal = (String) vals.get(strTmplTagName);
+
+      //  if there is a corresponding tag value map, use the map value
+      if (mapParms.containsKey("map")) {
+        String strMapName = mapParms.get("map").toString();
+        if (strMapName.equalsIgnoreCase("true")) {
+          strMapName = strTmplTagName;
+        }
+        MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
+        if (null == mapTmplVal) {
+          throw new Exception("template tag " + strTmplTagName + " does not have a val_map defined");
+        }
+        if (mapTmplVal.containsKey(strVal)) {
+          strVal = mapTmplVal.getStr(strVal);
+        }
+
+      }
+
+      //  if there is a format parameter, apply it to the value
+      if (mapParms.containsKey("format")) {
+        String strFormat = mapParms.getStr("format");
+
+        if (strTmplTagName.equals("fcst_lead")) {
+          if (strVal.equals("0")) {
+            strVal = "00000";
+          }
+          if (strFormat.equals("HH")) {
+            strVal = strVal.substring(0, strVal.length() - 4);
+          }
+          if (strFormat.equals("HHmm")) {
+            strVal = strVal.substring(0, strVal.length() - 2);
+          }
+          while (strFormat.length() > strVal.length()) {
+            strVal = "0" + strVal;
+          }
+
+        } else if (strTmplTagName.equals("init_hour") || strTmplTagName
+                                                             .equals("valid_hour") && strFormat
+                                                                                          .equals(
+                                                                                              "HH")) {
+          while (2 > strVal.length()) {
+            strVal = "0" + strVal;
+          }
+        }
+
+
+        if (mapParms.getStr("format").equalsIgnoreCase("R")) {
+          strVal = MVUtil.replaceSpecialChars(strVal);
+        }
+      }
+
+      //  if the tag value is a date, format it accordingly
+
+      try {
+        SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        formatDb.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat formatDBms = new SimpleDateFormat(MVUtil.DB_DATE_MS, Locale.US);
+        formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date dateParse = formatDb.parse(strVal);
+        if (null != dateParse) {
+          strVal = PLOT_FORMAT.format(dateParse);
+        } else {
+          dateParse = formatDBms.parse(strVal);
+          if (null != dateParse) {
+            strVal = PLOT_FORMAT.format(dateParse);
+          }
+        }
+      } catch (Exception e) {
+      }
+
+      //  if the tag is a threshold, format it accordingly
+      if (strTmplTagName.equals("fcst_thresh") || strTmplTagName.equals("fcst_thr")
+              || strTmplTagName.equals("obs_thresh") || strTmplTagName.equals("obs_thr")) {
+        strVal = formatThresh(strTmplTag, strVal);
+      }
+      //replace "/" with "_"  - file names can't have "/"!!!!!
+      strVal = strVal.replace("/", "_");
+
+      strRet = strRet.replace("{" + strTmplTag + "}", strVal);
+    }
+    return strRet;
+  }
+
+  /**
+   * Parse template tag parameter pairs and return them in an ordered map.  For example,
+   * <i>parseTagParams("tag_name?param1=val1;param2=val2")</i> returns a map with two members,
+   * param1 and param2 with their values set accordingly.
+   *
+   * @param tag Formatted tag with param/value pairs to parse
+   * @return Ordered map containing parsed param/value pairs
+   */
+  public static MVOrderedMap parseTagParams(final String tag) {
+    MVOrderedMap mapRet = new MVOrderedMap();
+    Matcher mat = MVUtil.tag.matcher(tag);
+    if (mat.matches() && null != mat.group(2)) {
+      String[] listPairs = mat.group(2).split("\\s*&\\s*");
+      for (int i = 0; i < listPairs.length; i++) {
+        String[] listPair = listPairs[i].split("\\s*=\\s*");
+        mapRet.put(listPair[0], listPair[1]);
+      }
+    }
+
+    return mapRet;
+  }
+
+  /**
+   * Reformat the fcst_thresh value using the directions provided in the body of the template tag.
+   * It is assumed that the input template tag has the parameterized tag format:
+   * <i>fcst_thresh?param1=val1;param2=val2[;...]  where the params can be the following:</i> <ul>
+   * <li><b>units</b> set to either mm or in (input assumed to be in mm) <li><b>format</b> set to
+   * the java formatting string to apply, for example 0.00# <li><b>symbol</b> set to either letters
+   * or math, for example ge or >=, respectively </ul>
+   *
+   * @param fcstTag    Template tag name (including params) for fcst_thresh
+   * @param fcstThresh Template map value to be formatted
+   * @return
+   */
+  public static String formatThresh(final String fcstTag, final String fcstThresh) {
+    String strThreshRet = fcstThresh;
+    MVOrderedMap mapParams = parseTagParams(fcstTag);
+    DecimalFormat format = new DecimalFormat("0.000");
+
+    //  attempt to parse the input threshold
+    String strSymbol;
+    String strThresh;
+    double dblThresh;
+    Matcher matFcstThresh = MVUtil.thresh.matcher(fcstThresh);
+    if (matFcstThresh.matches()) {
+      strSymbol = matFcstThresh.group(1);
+      strThresh = matFcstThresh.group(2);
+      dblThresh = Double.parseDouble(strThresh);
+    } else {
+      return strThreshRet;
+    }
+
+    //  change the units, if requested
+    if (mapParams.containsKey("units")) {
+      String strUnits = mapParams.get("units").toString();
+      if (strUnits.equals("in")) {
+        strThresh = format.format(dblThresh /= 25.4);
+        strThreshRet = strSymbol + strThresh;
+      }
+    }
+
+    //  change the format, if requested
+    if (mapParams.containsKey("format")) {
+      String strFormat = mapParams.get("format").toString();
+      strThresh = new DecimalFormat(strFormat).format(dblThresh);
+      strThreshRet = strSymbol + strThresh;
+    }
+
+    //  change the logic symbol, if requested
+    if (mapParams.containsKey("symbol")) {
+      String strSymbolType = mapParams.get("symbol").toString();
+      if (strSymbolType.equals("letters")) {
+        strSymbol = strSymbol.replace("==", "eq")
+                        .replace("!=", "ne")
+                        .replace("<=", "le")
+                        .replace(">=", "ge")
+                        .replace("<", "lt")
+                        .replace(">", "gt");
+        strThreshRet = strSymbol + strThresh;
+      }
+    }
+
+    return strThreshRet;
+  }
+
+  public static String buildTemplateString(
+                                              final String tmpl, final MVOrderedMap vals,
+                                              final PrintStream printStream) throws Exception {
+    return buildTemplateString(tmpl, vals, null, printStream);
+  }
+
+  /**
+   * Add the fcst_var and stat names from the dep structure of the input job to the input list of
+   * tmpl map values.
+   *
+   * @param job MVPlotJob whose dep structure will be processed
+   */
+  public static MVOrderedMap addTmplValDep(MVPlotJob job) {
+    MVOrderedMap mapTmplValsPlot = new MVOrderedMap(job.getTmplVal());
+    if (job.getIndyVar() != null) {
+      mapTmplValsPlot.put("indy_var", job.getIndyVar());
+    }
+    for (int intY = 1; intY <= 2; intY++) {
+
+      //  get a list of dep groups
+      MVOrderedMap[] listDepGroup = job.getDepGroups();
+      MVOrderedMap mapDep = null;
+      if (listDepGroup.length > 0) {
+        mapDep = (MVOrderedMap) listDepGroup[0].get("dep" + intY);
+      }
+      if (mapDep != null) {
+        Map.Entry[] listDep = mapDep.getOrderedEntries();
+
+        //  build tmpl map values for each fcst_var
+        String strDep = "dep" + intY;
+        for (int i = 0; i < listDep.length; i++) {
+
+          //  resolve the fcst_var and stats for the current dep
+          String strFcstVar = listDep[i].getKey().toString();
+          String[] listStat = (String[]) listDep[i].getValue();
+
+          //  build and add the fcst_var to the tmpl value map
+          String strDepFcstVar = strDep + "_" + (i + 1);
+          mapTmplValsPlot.put(strDepFcstVar, strFcstVar);
+          for (int j = 0; j < listStat.length; j++) {
+            mapTmplValsPlot.put(strDepFcstVar + "_stat" + (j + 1), listStat[j]);
+          }
+        }
+      }
+    }
+    return mapTmplValsPlot;
+  }
+
+  /**
+   * Creates a string representation of an R collection containing the list of values in the input
+   * list, val.
+   *
+   * @param val   List of values to print in the R collection
+   * @param ticks (optional) Print tickmarks around values, for when constituents are factors as
+   *              opposed to numeric, defaults to true
+   * @return String representation of the R collection
+   */
+  public static String printRCol(final Object[] val, final boolean ticks) {
+    String strRet = "c(";
+    for (int i = 0; i < val.length; i++) {
+      if (0 < i) {
+        strRet += ", ";
+      } else {
+        strRet += "";
+      }
+      String value = val[i].toString().replace("&#38;", "&").replace("&gt;", ">")
+                         .replace("&lt;", "<");
+      if (ticks) {
+        strRet += "\"" + value + "\"";
+      } else {
+        strRet += value;
+      }
+    }
+    strRet += ")";
+    return strRet;
+  }
+
+  public static String printRCol(final Object[] val) {
+    return printRCol(val, true);
+  }
+
+  /**
+   * Parses an R collection string representation and returns a list of the values in the
+   * collection. An R collection has syntax c(1, 2, 3) or c("a", "bb", "ccc")
+   *
+   * @param strRCol
+   * @return list of String representations of each collection member
+   */
+  public static String[] parseRCol(final String strRCol) {
+    if (strRCol.contains("\"")) {
+      Matcher matRColStr = Pattern.compile("c\\(\\s*\"(.*)\"\\s*\\)").matcher(strRCol);
+      if (!matRColStr.matches()) {
+        return new String[]{};
+      }
+      String strList = matRColStr.group(1);
+      List<String> list = new ArrayList<>();
+      while (strList.matches(".*\"\\s*,\\s*\".*")) {
+        list.add(strList.replaceFirst("\"\\s*,\\s*\".*", ""));
+        strList = strList.replaceFirst(".*?\"\\s*,\\s*\"", "");
+      }
+      list.add(strList.replaceFirst("\"\\s*,\\s*\".*", ""));
+      return list.toArray(new String[list.size()]);
+    } else {
+      Matcher matRColNum = Pattern.compile("c\\(\\s*(.*)\\s*\\)").matcher(strRCol);
+      if (!matRColNum.matches()) {
+        return new String[]{};
+      }
+      String strList = matRColNum.group(1);
+      return strList.split("\\s*,\\s*");
+    }
+  }
+
+  /**
+   * Populate the input table with the plot formatting tag values stored in the input job.
+   *
+   * @param tableRTags template value table to receive plot formatting values
+   * @param job        source for plot formatting values
+   */
+  public static void populatePlotFmtTmpl(Map<String, String> tableRTags, MVPlotJob job) {
+    tableRTags.put("plot_type", job.getPlotType());
+    tableRTags.put("plot_width", job.getPlotWidth());
+    tableRTags.put("plot_height", job.getPlotHeight());
+    tableRTags.put("plot_res", job.getPlotRes());
+    tableRTags.put("plot_units", job.getPlotUnits());
+    tableRTags.put("mar", job.getMar());
+    tableRTags.put("mgp", job.getMgp());
+    tableRTags.put("cex", job.getCex());
+    tableRTags.put("title_weight", job.getTitleWeight());
+    tableRTags.put("title_size", job.getTitleSize());
+    tableRTags.put("title_offset", job.getTitleOffset());
+    tableRTags.put("title_align", job.getTitleAlign());
+    tableRTags.put("xtlab_orient", job.getXtlabOrient());
+    tableRTags.put("xtlab_perp", job.getXtlabPerp());
+    tableRTags.put("xtlab_horiz", job.getXtlabHoriz());
+    tableRTags.put("xtlab_decim", job.getXtlabFreq());
+    tableRTags.put("xtlab_size", job.getXtlabSize());
+    tableRTags.put("xlab_weight", job.getXlabWeight());
+    tableRTags.put("xlab_size", job.getXlabSize());
+    tableRTags.put("xlab_offset", job.getXlabOffset());
+    tableRTags.put("xlab_align", job.getXlabAlign());
+    tableRTags.put("ytlab_orient", job.getYtlabOrient());
+    tableRTags.put("ytlab_perp", job.getYtlabPerp());
+    tableRTags.put("ytlab_horiz", job.getYtlabHoriz());
+    tableRTags.put("ytlab_size", job.getYtlabSize());
+    tableRTags.put("ylab_weight", job.getYlabWeight());
+    tableRTags.put("ylab_size", job.getYlabSize());
+    tableRTags.put("ylab_offset", job.getYlabOffset());
+    tableRTags.put("ylab_align", job.getYlabAlign());
+    tableRTags.put("grid_lty", job.getGridLty());
+    tableRTags.put("grid_col", job.getGridCol());
+    tableRTags.put("grid_lwd", job.getGridLwd());
+    tableRTags.put("grid_x", job.getGridX());
+    tableRTags.put("x2tlab_orient", job.getX2tlabOrient());
+    tableRTags.put("x2tlab_perp", job.getX2tlabPerp());
+    tableRTags.put("x2tlab_horiz", job.getX2tlabHoriz());
+    tableRTags.put("x2tlab_size", job.getX2tlabSize());
+    tableRTags.put("x2lab_weight", job.getX2labWeight());
+    tableRTags.put("x2lab_size", job.getX2labSize());
+    tableRTags.put("x2lab_offset", job.getX2labOffset());
+    tableRTags.put("x2lab_align", job.getX2labAlign());
+    tableRTags.put("y2tlab_orient", job.getY2tlabOrient());
+    tableRTags.put("y2tlab_perp", job.getY2tlabPerp());
+    tableRTags.put("y2tlab_horiz", job.getY2tlabHoriz());
+    tableRTags.put("y2tlab_size", job.getY2tlabSize());
+    tableRTags.put("y2lab_weight", job.getY2labWeight());
+    tableRTags.put("y2lab_size", job.getY2labSize());
+    tableRTags.put("y2lab_offset", job.getY2labOffset());
+    tableRTags.put("y2lab_align", job.getY2labAlign());
+    tableRTags.put("legend_size", job.getLegendSize());
+    tableRTags.put("legend_box", job.getLegendBox());
+    tableRTags.put("legend_inset", job.getLegendInset());
+    tableRTags.put("legend_ncol", job.getLegendNcol());
+    tableRTags.put("caption_weight", job.getCaptionWeight());
+    tableRTags.put("caption_col", job.getCaptionCol());
+    tableRTags.put("caption_size", job.getCaptionSize());
+    tableRTags.put("caption_offset", job.getCaptionOffset());
+    tableRTags.put("caption_align", job.getCaptionAlign());
+    tableRTags.put("box_pts", job.getBoxPts());
+    tableRTags.put("box_outline", job.getBoxOutline());
+    tableRTags.put("box_boxwex", job.getBoxBoxwex());
+    tableRTags.put("box_notch", job.getBoxNotch());
+    tableRTags.put("box_avg", job.getBoxAvg());
+    tableRTags.put("rely_event_hist", job.getRelyEventHist());
+    tableRTags.put("ci_alpha", job.getCIAlpha());
+    tableRTags.put("ensss_pts", job.getEnsSsPts());
+    tableRTags.put("ensss_pts_disp", job.getEnsSsPtsDisp());
+  }
+
+  /**
+   * Creates a list of length rep of copies of the input val.  Mimics the R function of the same
+   * name
+   *
+   * @param val Value to repeat
+   * @param rep Number of time to repeat
+   * @return List of repeated values, with length specified by input rep
+   */
+  public static String[] rep(final String val, final int rep) {
+    if (1 > rep) {
+      return new String[]{};
+    }
+    String[] listRet = new String[rep];
+    for (int i = 0; i < rep; i++) {
+      listRet[i] = val;
+    }
+    return listRet;
+  }
+
+  /**
+   * Creates a list of length rep of copies of the input val.  Mimics the R function of the same
+   * name
+   *
+   * @param val Value to repeat
+   * @param rep Number of time to repeat
+   * @return List of repeated values, with length specified by input rep
+   */
+  public static Integer[] rep(final int val, final int rep) {
+    if (1 > rep) {
+      return new Integer[]{};
+    }
+    Integer[] listRet = new Integer[rep];
+    for (int i = 0; i < rep; i++) {
+      listRet[i] = val;
+    }
+    return listRet;
+  }
+
+  /**
+   * Creates a list of integers where the first element is min, the second is min+1 .... the last is
+   * max name
+   *
+   * @param min The first value
+   * @param max The last number
+   * @return List of  values
+   */
+  public static Integer[] repPlusOne(final int min, final int max) {
+
+    Integer[] listRet = new Integer[max - min + 1];
+    int start = min;
+    for (int i = 0; i < (max - min + 1); i++) {
+      listRet[i] = start;
+      start++;
+    }
+    return listRet;
+  }
+
+  public static boolean isValidLineType(final String lineType){
+    boolean result = false;
+    for(String type: lineTypes){
+      if(type.equalsIgnoreCase(lineType)){
+        result = true;
+        break;
+      }
+    }
+    return result;
   }
 
 }
