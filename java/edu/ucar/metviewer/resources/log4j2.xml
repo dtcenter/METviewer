@@ -10,7 +10,7 @@
             </PatternLayout>
         </Console>
 
-        <File name="RollingFile" fileName="/Users/tatiana/mvservlet.log" append="true">
+        <File name="RollingFile" fileName="mvservlet.log" append="true">
             <PatternLayout>
                 <MarkerPatternSelector defaultPattern="%msg%n">
                     <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
