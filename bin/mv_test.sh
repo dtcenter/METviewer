@@ -19,9 +19,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-io-2.4.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mockito-all-1.9.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-fileupload-1.3.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.8.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.8.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.8.2.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.10.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.10.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
 
