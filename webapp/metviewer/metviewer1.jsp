@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-<TITLE>METViewer v2.4-dev</TITLE>
+<TITLE>METViewer v2.4</TITLE>
 <link rel="shortcut icon" href="./favicon.ico">
 
 <link rel="stylesheet"
@@ -166,7 +166,7 @@
 <script type="text/javascript" src="js/jquery.actual.min.js"></script>
 <script type="text/javascript"
         src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-<script type="text/javascript" src="js/metviewer_common.js"></script>
+<script type="text/javascript" src="js/metviewer_common.min.js"></script>
 <script type="text/javascript" src="js/moment.min.js"></script>
 
 <script type="text/javascript">
@@ -327,7 +327,7 @@
 <div id="header">
     <div class="toolbar ui-widget" id="toolbar ">
         <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-             id="release">METViewer 2.4-dev<span class="ui-icon ui-icon-info " style="float: right;
+             id="release">METViewer 2.4<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;" ></span>
 
         </div>
