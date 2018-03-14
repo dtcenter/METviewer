@@ -969,7 +969,7 @@ function updateMode(y_axis, index, selectedVals) {
                 config_table.find('[name="mode_stat_unmatched"]').prop('checked', true);
             }
         }
-        if (listStatModePair.indexOf(selectedModeStat) > -1 || listStatMtd3dPair.indexOf(ui.value) > -1) {
+        if (listStatModePair.indexOf(selectedModeStat) > -1 ) {
             config_table.find(".non-pair").attr("disabled", true);
         } else {
             config_table.find(".non-pair").removeAttr("disabled");
@@ -1099,6 +1099,7 @@ function updateMtd(y_axis, index, selectedVals) {
             var config_table = $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]);
             config_table.css("display", "block");
             config_table.find(".non-acov").removeAttr("disabled");
+            console.log(ui);
 
             if (listStatModePair.indexOf(ui.value) > -1 || listStatMtd3dPair.indexOf(ui.value) > -1) {
                 config_table.find(".non-pair").attr("disabled", true);
