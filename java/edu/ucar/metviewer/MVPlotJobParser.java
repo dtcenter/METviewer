@@ -400,8 +400,14 @@ public class MVPlotJobParser extends MVUtil {
           }
         }
       } else {
-        String[] indyValsSorted = Arrays.copyOf(indyVals, indyVals.length);
-        Arrays.sort(indyValsSorted);
+        String[] indyValsSorted;
+        if (job.getIndyVar().equals("interp_pnts")) {
+          List<String> sorted = MVUtil.sortInterpPnts(Arrays.asList(indyVals));
+          indyValsSorted = sorted.toArray(new String[sorted.size()]);
+        } else {
+          indyValsSorted = Arrays.copyOf(indyVals, indyVals.length);
+          Arrays.sort(indyValsSorted);
+        }
         if (!Arrays.equals(indyVals, indyValsSorted)) {
           result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
         }
@@ -1709,10 +1715,10 @@ public class MVPlotJobParser extends MVUtil {
         try {
           m.invoke(job, node._value);
         } catch (Exception e) {
-          if(e instanceof InvocationTargetException){
+          if (e instanceof InvocationTargetException) {
             Throwable ex = ((InvocationTargetException) e).getTargetException();
             throw new Exception(ex);
-          }else {
+          } else {
             System.out.println(
                 "  **  ERROR: caught " + e.getClass() + " parsing format string '" + node._tag + "': " + e.getMessage());
             throw new Exception(e);
