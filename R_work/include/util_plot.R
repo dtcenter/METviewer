@@ -728,6 +728,8 @@ calcDerivedCurveValue = function(val1, val2, derivedCurveName){
     result = as.numeric(val1)  / as.numeric(val2);
   }else if( grepl('^SS', derivedCurveName) ){
     result = ( as.numeric(val1)  - as.numeric(val2) ) / as.numeric(val1);
+  }else if( grepl('^SINGLE', derivedCurveName) ){
+    result = as.numeric(val1);
   }
   result[result == Inf ] = NA;
   return( result );
