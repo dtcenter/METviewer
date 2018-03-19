@@ -1,3 +1,5 @@
+#web .libPaths("/common/data/web/metviewer/dev/r-lib");
+#batch .libPaths("/common/data/apps/metviewer/dev/web/r-lib");
 library(parallel)
 library(data.table)
 
@@ -14,7 +16,6 @@ source(strInputInfoFile);
 setwd(strWorkingDir);
 source("util_plot.R");
 source("statistics.R");
-
 
 prepareCalc = function(d){
   row = setNames(as.list(d), names(dfStatsRec));
@@ -179,8 +180,8 @@ if ( nrow(sampleData) > 0){
       dfStatsRec = dfPlot1;
     }
     strAfrerEqualizeFile = sub("\\.agg_stat", ".dataAfterEq", strInputDataFile, perl=TRUE);
-    fwrite(dfStatsRec, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE,
-    sep = "\t", fwrite);
+    #fwrite(dfStatsRec, append=FALSE,file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col
+  # .names=TRUE,sep = "\t", fwrite);
   }
 
 
