@@ -1076,7 +1076,8 @@
                         <select name="series1Y2" id="series1Y2" disabled
                                      onchange=" createNewDerivedSeriesName(2)">
                         </select></div>
-                        <div class="diffSelect header" style="font-size:12px;text-align:center;">minus </div>
+                        <div class="diffSelect header"
+                             style="font-size:12px;text-align:center;">and </div>
                         <div class="diffSelect">
 
                         <select name="series2Y2" id="series2Y2" disabled
