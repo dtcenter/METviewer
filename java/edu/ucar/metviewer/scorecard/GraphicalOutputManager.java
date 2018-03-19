@@ -403,9 +403,11 @@ class GraphicalOutputManager {
     String background = BLACK_000000;
     String title = "";
     String text = "&nbsp;";
+    boolean checkLowLimit = false;
+    boolean checkUpperLimit = false;
+    StringBuilder textStr = new StringBuilder();
     for (LegendRange legendRange : rangeList) {
-      boolean checkLowLimit = false;
-      boolean checkUpperLimit = false;
+
       //check if the low limit works
       if (legendRange.getLowerLimit() != null) {
         if (legendRange.isIncludeLowerLimit()) {
@@ -422,9 +424,9 @@ class GraphicalOutputManager {
           checkUpperLimit = value.compareTo(legendRange.getUpperLimit()) < 0;
         }
       }
+
       //if inside of limits
       if (checkLowLimit && checkUpperLimit) {
-        StringBuilder textStr = new StringBuilder();
         if (viewSymbol) {
           textStr.append(legendRange.getSymbol());
         }
@@ -437,6 +439,16 @@ class GraphicalOutputManager {
         text = textStr.toString();
         break;
       }
+
+    }
+    if (!checkLowLimit || !checkUpperLimit) {
+      if (viewValue) {
+        textStr.append(String.valueOf(value));
+      }
+      color = "#000000";//black
+      background = "#FFFFFF";//white
+      title = String.valueOf(value);
+      text = textStr.toString();
     }
 
     return td().attr("style", "color:" + color + ";background-color:" + background + ";")
@@ -551,7 +563,8 @@ class GraphicalOutputManager {
         String[] values = line.split("\\t");
         //only use lines with full set of data
         //ignore rows with original values  - not derived curves
-        if (values.length == headers.length && line.contains("DIFF")) {
+        if (values.length == headers.length
+                && (line.contains("DIFF") || line.contains("SINGLE"))) {
           table.add(addJsonRow(headers, values));
         }
         line = buf.readLine();
@@ -577,7 +590,7 @@ class GraphicalOutputManager {
     String line = null;
     try (FileReader fileReader = new FileReader
                                      ("/d3/projects/METViewer/src_dev/apps/METViewer/scorecard_cam_cts"
-                                                    + ".html");
+                                          + ".html");
          BufferedReader bufferedReader = new BufferedReader(fileReader)) {
       while ((line = bufferedReader.readLine()) != null) {
         htmlPageStr = htmlPageStr + line;
