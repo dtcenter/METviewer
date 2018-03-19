@@ -1,9 +1,16 @@
 /**
- * XmlParser.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
+ * XmlParser.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR),
+ * National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL), P.O. Box
+ * 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
  */
 
 package edu.ucar.metviewer.scorecard;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
@@ -14,12 +21,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author : tatiana $
@@ -42,13 +43,17 @@ class XmlParser {
       for (int i = 0; i < scorecardSpecNodes.getLength(); i++) {
         Node scorecardSpecNode = scorecardSpecNodes.item(i);
         //for each node
-        if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "connection".equals(scorecardSpecNode.getNodeName())) {
+        if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "connection".equals(
+            scorecardSpecNode.getNodeName())) {
           setDbConnection(scorecard, scorecardSpecNode);
-        } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "folders".equals(scorecardSpecNode.getNodeName())) {
+        } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "folders".equals(
+            scorecardSpecNode.getNodeName())) {
           setFolders(scorecard, scorecardSpecNode);
-        } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "plot".equals(scorecardSpecNode.getNodeName())) {
+        } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "plot".equals(
+            scorecardSpecNode.getNodeName())) {
           setPlot(scorecard, scorecardSpecNode);
-        } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "rscript".equals(scorecardSpecNode.getNodeName())) {
+        } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "rscript".equals(
+            scorecardSpecNode.getNodeName())) {
           scorecard.setrScriptCommand(scorecardSpecNode.getTextContent());
         }
 
@@ -79,13 +84,15 @@ class XmlParser {
           try {
             scorecard.setNumBootReplicates(Integer.valueOf(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
-            logger.error("Incorrect value for <boot_repl> :" + plotNode.getTextContent() + ". Using default value 1000");
+            logger.error("Incorrect value for <boot_repl> :" + plotNode
+                                                                   .getTextContent() + ". Using default value 1000");
           }
         } else if ("boot_random_seed".equals(plotNode.getNodeName())) {
           try {
             scorecard.setBootRandomSeed(Integer.valueOf(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
-            logger.error("Incorrect value for <boot_random_seed> :" + plotNode.getTextContent() + ". Using default value NULL");
+            logger.error("Incorrect value for <boot_random_seed> :" + plotNode
+                                                                          .getTextContent() + ". Using default value NULL");
           }
         } else if ("plot_stat".equals(plotNode.getNodeName())) {
           scorecard.setPlotStat(plotNode.getTextContent());
@@ -111,6 +118,13 @@ class XmlParser {
           }
         } else if ("stat_flag".equals(plotNode.getNodeName())) {
           scorecard.setStatFlag(plotNode.getTextContent());
+
+        } else if ("stat".equals(plotNode.getNodeName())) {
+          if(plotNode.getTextContent().equals("DIFF")
+                 || plotNode.getTextContent().equals("DIFF_SIG")
+                 || plotNode.getTextContent().equals("SINGLE")) {
+            scorecard.setStat(plotNode.getTextContent());
+          }
         } else if ("printSQL".equals(plotNode.getNodeName())) {
           if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
             scorecard.setPrintSQL(Boolean.TRUE);
