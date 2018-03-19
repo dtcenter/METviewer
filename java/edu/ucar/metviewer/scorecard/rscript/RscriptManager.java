@@ -5,16 +5,16 @@
 
 package edu.ucar.metviewer.scorecard.rscript;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Constructs and runs Rscript
@@ -37,12 +37,14 @@ public abstract class RscriptManager {
   private List<String> diffSeries;
   private StringBuilder fixVars;
   String stat;
+  String diffStat;
 
 
   RscriptManager(final Scorecard scorecard) {
     this.listColumns = scorecard.columnsStructure();
     fixedVars = scorecard.getFixedVars();
     rScriptCommand = scorecard.getrScriptCommand();
+    diffStat = scorecard.getStat();
   }
 
   public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName);
@@ -93,7 +95,8 @@ public abstract class RscriptManager {
             difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
           }
 
-          difStr.append("\"DIFF_SIG\"").append("),");
+          //difStr.append("\"DIFF_SIG\"").append("),");
+          difStr.append("\"").append(diffStat).append("\"),");
           diffSeries.add(difStr.toString().trim());
         }
         if (seriesList.length() > 0) {
