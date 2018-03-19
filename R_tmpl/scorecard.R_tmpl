@@ -103,6 +103,9 @@ if ( nrow(sampleData) > 0){
   }
 
 
+
+
+
   # build the y1 plot series using information in the plot dataframe
   listSeries1 = list();
   listAllStats=list();
@@ -254,12 +257,16 @@ if ( nrow(sampleData) > 0){
 
             derived_stat = perfectScoreAdjustment( mean( dfStatsIndy1$stat_value, na.rm = TRUE ), mean( dfStatsIndy2$stat_value, na.rm = TRUE ), listDepPlot[[1]], pval);
           }
+        } else if( grepl('^DIFF', derivedCurveName) ){
+            derived_stat = mean( derived_stat_list, na.rm = TRUE );
+        }else if(grepl('^SINGLE', derivedCurveName)){
+            derived_stat = mean( dfStatsIndy1$stat_value, na.rm = TRUE );
         }
 
 
 
         dfStatsIndy1$stat_value = derived_stat;
-        if( grepl('^DIFF_SIG', derivedCurveName) ){
+       # if( grepl('^DIFF_SIG', derivedCurveName) ){
           dfStatsIndy1 = dfStatsIndy1[1,];
           # get correct fcst_lead
           fcst_leads = listSeriesVal$fcst_lead;
@@ -282,7 +289,7 @@ if ( nrow(sampleData) > 0){
           if( "fcst_init_beg"  %in% listFields ){
             dfStatsIndy1$fcst_init_beg = NULL;
           }
-        }
+        #}
 
         if(length(names(plotDataDiff)) == 0){
           plotDataDiff = dfStatsIndy1;
