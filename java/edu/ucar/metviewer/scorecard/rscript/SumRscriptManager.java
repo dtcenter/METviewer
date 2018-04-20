@@ -139,11 +139,8 @@ public class SumRscriptManager extends RscriptManager {
         sumStatTemplScript = sumStatTemplScriptDir + STAT_SCRIPT_FILE_NAME;
         sumStatTemplFile = sumStatTemplFilePath + "/sum_stat.info_tmpl";
         MVUtil.populateTemplateFile(sumStatTemplFile, thredInfoFileName, tableCalcStatInfo);
-        //  run sum stat/
-        MVUtil mvUtil = new MVUtil();
 
-
-        mvUtil.runRscript(rScriptCommand, sumStatTemplScript,
+        MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
                           new String[]{thredInfoFileName},
                           printStream);
       } catch (Exception e) {
@@ -168,10 +165,8 @@ public class SumRscriptManager extends RscriptManager {
                                          .setLevel(org.apache.logging.log4j.Level.INFO)
                                          .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
-        //  run agg_stat/
-        MVUtil mvUtil = new MVUtil();
 
-        mvUtil.runRscript(rScriptCommand, strRFile, printStream);
+        MVUtil.runRscript(rScriptCommand, strRFile, printStream);
       } catch (Exception e) {
         logger.error(e);
         logger.error(e);

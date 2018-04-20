@@ -163,10 +163,7 @@ public class CalcRscriptManager extends RscriptManager {
                                                      .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
-        MVUtil mvUtil = new MVUtil();
-
-
-        mvUtil.runRscript(rScriptCommand, strRFile, printStream);
+        MVUtil.runRscript(rScriptCommand, strRFile, printStream);
       } catch (Exception e) {
         logger.error(e);
       }
