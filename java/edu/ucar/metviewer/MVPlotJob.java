@@ -14,48 +14,48 @@ import edu.ucar.metviewer.db.DatabaseManager;
  */
 public class MVPlotJob extends MVUtil {
 
-  protected String _strJobName = "";
+  protected String jobName = "";
 
   protected List<String> currentDBName;
 
-  protected String _strRscript = "";
+  protected String rscript = "";
 
-  protected String _strPlotTmpl = "";
+  protected String plotTmpl = "";
 
-  protected String _strIndyVar = "";
-  protected String[] _listIndyVal = {};
-  protected String[] _listIndyPlotVal = {};
-  protected String[] _listIndyLabel = {};
+  protected String indyVar = "";
+  protected String[] indyVal = {};
+  protected String[] indyPlotVal = {};
+  protected String[] indyLabel = {};
 
 
-  protected MVPlotDep _depIndy = null;
+  protected MVPlotDep depIndy = null;
 
-  protected MVOrderedMap _mapPlotFixVal = new MVOrderedMap();
-  protected MVOrderedMap _mapPlotFixValEq = new MVOrderedMap();
+  protected MVOrderedMap plotFixVal = new MVOrderedMap();
+  protected MVOrderedMap plotFixValEq = new MVOrderedMap();
 
-  protected MVOrderedMap[] _listDepGroup = {};
+  protected MVOrderedMap[] depGroup = {};
 
-  protected MVOrderedMap _mapSeries1Val = new MVOrderedMap();
-  protected MVOrderedMap _mapSeries2Val = new MVOrderedMap();
+  protected MVOrderedMap series1Val = new MVOrderedMap();
+  protected MVOrderedMap series2Val = new MVOrderedMap();
 
-  protected MVOrderedMap _mapSeriesNobs = new MVOrderedMap();
+  protected MVOrderedMap seriesNobs = new MVOrderedMap();
 
-  protected MVOrderedMap _mapDep1Scale = new MVOrderedMap();
-  protected MVOrderedMap _mapDep2Scale = new MVOrderedMap();
+  protected MVOrderedMap dep1Scale = new MVOrderedMap();
+  protected MVOrderedMap dep2Scale = new MVOrderedMap();
 
-  protected MVOrderedMap _mapTmplMaps = new MVOrderedMap();
-  protected MVOrderedMap _mapTmplVal = new MVOrderedMap();
+  protected MVOrderedMap tmplMaps = new MVOrderedMap();
+  protected MVOrderedMap tmplVal = new MVOrderedMap();
 
-  protected String _strDataFileTmpl = "";
-  protected String _strPlotFileTmpl = "";
-  protected String _strRFileTmpl = "";
-  protected String _strTitleTmpl = "";
-  protected String _strXLabelTmpl = "";
-  protected String _strY1LabelTmpl = "";
-  protected String _strY2LabelTmpl = "";
-  protected String _strCaptionTmpl = "";
-  protected String _strPlotCmd = ""; // inserted and executed in Rscript
-  protected String _strPlotCond = ""; // insert and execute in database queries
+  protected String dataFileTmpl = "";
+  protected String plotFileTmpl = "";
+  protected String rFileTmpl = "";
+  protected String titleTmpl = "";
+  protected String xLabelTmpl = "";
+  protected String y1LabelTmpl = "";
+  protected String y2LabelTmpl = "";
+  protected String captionTmpl = "";
+  protected String plotCmd = ""; // inserted and executed in Rscript
+  protected String plotCond = ""; // insert and execute in database queries
 
   protected boolean _boolEventEqual = false;
   protected boolean _boolVertPlot = false;
@@ -197,6 +197,12 @@ public class MVPlotJob extends MVUtil {
   protected Boolean isMtdRatio = null;
   protected Boolean isMode = null;
   protected Boolean isMtd = null;
+  protected Boolean isAddColorBar = Boolean.TRUE;
+  protected Boolean isReverseY = Boolean.FALSE;
+  protected Boolean isReverseX = Boolean.FALSE;
+  protected Boolean isAddContourOverlay = Boolean.TRUE;
+  protected Integer contourIntervals = 10;
+  protected String colorPalette = "cm.colors";
 
 
   /**
@@ -207,39 +213,39 @@ public class MVPlotJob extends MVUtil {
   public MVPlotJob copy() {
     MVPlotJob job = new MVPlotJob();
 
-    job._strJobName = _strJobName + "_copy";
+    job.jobName = jobName + "_copy";
     job.currentDBName = currentDBName;
 
-    job._strRscript = _strRscript;
-    job._strPlotTmpl = _strPlotTmpl;
-    job._strIndyVar = _strIndyVar;
-    job._listIndyVal = copyList(_listIndyVal);
-    job._listIndyPlotVal = copyList(_listIndyPlotVal);
-    job._listIndyLabel = copyList(_listIndyLabel);
-    job._depIndy = _depIndy;
-    job._mapPlotFixVal = new MVOrderedMap(_mapPlotFixVal);
-    job._mapPlotFixValEq = new MVOrderedMap(_mapPlotFixValEq);
-    job._listDepGroup = copyList(_listDepGroup);
-    job._mapSeries1Val = new MVOrderedMap(_mapSeries1Val, "s");
-    job._mapSeries2Val = new MVOrderedMap(_mapSeries2Val, "s");
+    job.rscript = rscript;
+    job.plotTmpl = plotTmpl;
+    job.indyVar = indyVar;
+    job.indyVal = copyList(indyVal);
+    job.indyPlotVal = copyList(indyPlotVal);
+    job.indyLabel = copyList(indyLabel);
+    job.depIndy = depIndy;
+    job.plotFixVal = new MVOrderedMap(plotFixVal);
+    job.plotFixValEq = new MVOrderedMap(plotFixValEq);
+    job.depGroup = copyList(depGroup);
+    job.series1Val = new MVOrderedMap(series1Val, "s");
+    job.series2Val = new MVOrderedMap(series2Val, "s");
 
 
-    job._mapSeriesNobs = new MVOrderedMap(_mapSeriesNobs);
-    job._mapDep1Scale = new MVOrderedMap(_mapDep1Scale);
-    job._mapDep2Scale = new MVOrderedMap(_mapDep2Scale);
-    job._mapTmplMaps = new MVOrderedMap(_mapTmplMaps);
-    job._mapTmplVal = new MVOrderedMap(_mapTmplVal);
+    job.seriesNobs = new MVOrderedMap(seriesNobs);
+    job.dep1Scale = new MVOrderedMap(dep1Scale);
+    job.dep2Scale = new MVOrderedMap(dep2Scale);
+    job.tmplMaps = new MVOrderedMap(tmplMaps);
+    job.tmplVal = new MVOrderedMap(tmplVal);
 
-    job._strDataFileTmpl = _strDataFileTmpl;
-    job._strPlotFileTmpl = _strPlotFileTmpl;
-    job._strRFileTmpl = _strRFileTmpl;
-    job._strTitleTmpl = _strTitleTmpl;
-    job._strXLabelTmpl = _strXLabelTmpl;
-    job._strY1LabelTmpl = _strY1LabelTmpl;
-    job._strY2LabelTmpl = _strY2LabelTmpl;
-    job._strCaptionTmpl = _strCaptionTmpl;
-    job._strPlotCmd = _strPlotCmd;
-    job._strPlotCond = _strPlotCond;
+    job.dataFileTmpl = dataFileTmpl;
+    job.plotFileTmpl = plotFileTmpl;
+    job.rFileTmpl = rFileTmpl;
+    job.titleTmpl = titleTmpl;
+    job.xLabelTmpl = xLabelTmpl;
+    job.y1LabelTmpl = y1LabelTmpl;
+    job.y2LabelTmpl = y2LabelTmpl;
+    job.captionTmpl = captionTmpl;
+    job.plotCmd = plotCmd;
+    job.plotCond = plotCond;
 
     job._boolEventEqual = _boolEventEqual;
     job._boolVertPlot = _boolVertPlot;
@@ -375,158 +381,164 @@ public class MVPlotJob extends MVUtil {
     job.addReferenceLine = addReferenceLine;
     job.summaryCurve.addAll(summaryCurve);
 
+    job.isAddColorBar = isAddColorBar;
+    job.isReverseY = isReverseY;
+    job.isAddContourOverlay = isAddContourOverlay;
+    job.isReverseX = isReverseX;
+    job.contourIntervals = contourIntervals;
+    job.colorPalette = colorPalette;
     return job;
   }
 
 
   public String getJobName() {
-    return _strJobName;
+    return jobName;
   }
 
   public void setJobName(String jobName) {
-    _strJobName = jobName;
+    this.jobName = jobName;
   }
 
 
   public String getRscript() {
-    return _strRscript;
+    return rscript;
   }
 
   public void setRscript(String Rscript) {
-    _strRscript = Rscript;
+    rscript = Rscript;
   }
 
   public String getPlotTmpl() {
-    return _strPlotTmpl;
+    return plotTmpl;
   }
 
   public void setPlotTmpl(String plotTmpl) {
-    _strPlotTmpl = plotTmpl;
+    this.plotTmpl = plotTmpl;
   }
 
   public String getIndyVar() {
-    return _strIndyVar;
+    return indyVar;
   }
 
   public void setIndyVar(String indyVar) throws Exception {
     validateSQL(indyVar);
-    _strIndyVar = indyVar;
+    this.indyVar = indyVar;
   }
 
   public String[] getIndyVal() {
-    return Arrays.copyOf(_listIndyVal, _listIndyVal.length);
+    return Arrays.copyOf(indyVal, indyVal.length);
   }
 
   public void setIndyVal(String[] indyVal) throws Exception {
     for (String ind : indyVal) {
       validateSQL(ind);
     }
-    _listIndyVal = Arrays.copyOf(indyVal, indyVal.length);
+    this.indyVal = Arrays.copyOf(indyVal, indyVal.length);
   }
 
   public String[] getIndyPlotVal() {
-    return Arrays.copyOf(_listIndyPlotVal, _listIndyPlotVal.length);
+    return Arrays.copyOf(indyPlotVal, indyPlotVal.length);
   }
 
   public void setIndyPlotVal(String[] indyPlotVal) throws Exception {
     for (String ind : indyPlotVal) {
       validateSQL(ind);
     }
-    _listIndyPlotVal = Arrays.copyOf(indyPlotVal, indyPlotVal.length);
+    this.indyPlotVal = Arrays.copyOf(indyPlotVal, indyPlotVal.length);
   }
 
   public String[] getIndyLabel() {
-    return Arrays.copyOf(_listIndyLabel, _listIndyLabel.length);
+    return Arrays.copyOf(indyLabel, indyLabel.length);
   }
 
   public void setIndyLabel(String[] indyLabel) {
-    _listIndyLabel = Arrays.copyOf(indyLabel, indyLabel.length);
+    this.indyLabel = Arrays.copyOf(indyLabel, indyLabel.length);
   }
 
 
   public MVPlotDep getIndyDep() {
-    return _depIndy;
+    return depIndy;
   }
 
   public void setIndyDep(MVPlotDep dep) {
-    _depIndy = dep;
+    depIndy = dep;
   }
 
   public MVOrderedMap getPlotFixVal() {
-    return _mapPlotFixVal;
+    return plotFixVal;
   }
 
   public MVOrderedMap getPlotFixValEq() {
-    return _mapPlotFixValEq;
+    return plotFixValEq;
   }
 
   public void addPlotFixVal(String field, String[] vals, int index) throws Exception {
     for (String ind : vals) {
       validateSQL(ind);
     }
-    _mapPlotFixVal.put(field, vals, index);
+    plotFixVal.put(field, vals, index);
   }
 
   public void addPlotFixValEq(String field, String[] vals, int index) {
-    _mapPlotFixValEq.put(field, vals, index);
+    plotFixValEq.put(field, vals, index);
   }
 
   public void addPlotFixVal(String field, String[] vals) throws Exception {
-    addPlotFixVal(field, vals, _mapPlotFixVal.size());
+    addPlotFixVal(field, vals, plotFixVal.size());
   }
 
   public void addPlotFixValEq(String field, String[] vals) throws Exception {
     for (String ind : vals) {
       validateSQL(ind);
     }
-    addPlotFixValEq(field, vals, _mapPlotFixValEq.size());
+    addPlotFixValEq(field, vals, plotFixValEq.size());
   }
 
   public void addPlotFixVal(String field, MVOrderedMap sets, int index) {
-    _mapPlotFixVal.put(field, sets, index);
+    plotFixVal.put(field, sets, index);
   }
 
   public void addPlotFixValEq(String field, MVOrderedMap sets, int index) {
-    _mapPlotFixValEq.put(field, sets, index);
+    plotFixValEq.put(field, sets, index);
   }
 
   public void addPlotFixVal(String field, MVOrderedMap sets) {
-    addPlotFixVal(field, sets, _mapPlotFixVal.size());
+    addPlotFixVal(field, sets, plotFixVal.size());
   }
 
   public void addPlotFixValEq(String field, MVOrderedMap sets) {
-    addPlotFixValEq(field, sets, _mapPlotFixValEq.size());
+    addPlotFixValEq(field, sets, plotFixValEq.size());
   }
 
   public void setPlotFixValEq(MVOrderedMap plotFixValEq) {
-    _mapPlotFixValEq = plotFixValEq;
+    this.plotFixValEq = plotFixValEq;
   }
 
   public void removePlotFixVal(String field) {
-    _mapPlotFixVal.remove(field);
+    plotFixVal.remove(field);
   }
 
 
   public void clearPlotFixVal() {
-    _mapPlotFixVal = new MVOrderedMap();
+    plotFixVal = new MVOrderedMap();
   }
 
   public MVOrderedMap[] getDepGroups() {
-    return Arrays.copyOf(_listDepGroup, _listDepGroup.length);
+    return Arrays.copyOf(depGroup, depGroup.length);
   }
 
   public void addDepGroup(MVOrderedMap depGroup) {
-    ArrayList listDepGroup = new ArrayList(Arrays.asList(_listDepGroup));
+    ArrayList listDepGroup = new ArrayList(Arrays.asList(this.depGroup));
     listDepGroup.add(depGroup);
-    _listDepGroup = (MVOrderedMap[]) listDepGroup.toArray(new MVOrderedMap[]{});
+    this.depGroup = (MVOrderedMap[]) listDepGroup.toArray(new MVOrderedMap[]{});
   }
 
   public void clearDepGroups() {
-    _listDepGroup = new MVOrderedMap[]{};
+    depGroup = new MVOrderedMap[]{};
   }
 
   public MVOrderedMap getSeries1Val() {
-    return _mapSeries1Val;
+    return series1Val;
   }
 
 
@@ -534,7 +546,7 @@ public class MVPlotJob extends MVUtil {
     for (String ind : vals) {
       validateSQL(ind);
     }
-    _mapSeries1Val.putSeries(field, vals, index);
+    series1Val.putSeries(field, vals, index);
   }
 
 
@@ -546,208 +558,208 @@ public class MVPlotJob extends MVUtil {
       }
       vals = newVals;
     }
-    addSeries1Val(field, vals, _mapSeries1Val.size());
+    addSeries1Val(field, vals, series1Val.size());
 
   }
 
 
   public void removeSeries1Val(String field) {
-    _mapSeries1Val.remove(field);
+    series1Val.remove(field);
   }
 
 
   public void clearSeries1Val() {
-    _mapSeries1Val = new MVOrderedMap();
+    series1Val = new MVOrderedMap();
   }
 
 
   public MVOrderedMap getSeries2Val() {
-    return _mapSeries2Val;
+    return series2Val;
   }
 
   public void addSeries2Val(String field, String[] vals, int index) throws Exception {
     for (String ind : vals) {
       validateSQL(ind);
     }
-    _mapSeries2Val.putSeries(field, vals, index);
+    series2Val.putSeries(field, vals, index);
   }
 
   public void addSeries2Val(String field, String[] vals) throws Exception {
-    addSeries2Val(field, vals, _mapSeries2Val.size());
+    addSeries2Val(field, vals, series2Val.size());
   }
 
 
   public void clearSeries2Val() {
-    _mapSeries2Val = new MVOrderedMap();
+    series2Val = new MVOrderedMap();
   }
 
   public MVOrderedMap getSeriesNobs() {
-    return _mapSeriesNobs;
+    return seriesNobs;
   }
 
   public void addSeriesNobs(String field, String val, int index) throws Exception {
     validateSQL(val);
 
-    _mapSeriesNobs.put(field, val, index);
+    seriesNobs.put(field, val, index);
   }
 
   public void addSeriesNobs(String field, String val) throws Exception {
-    addSeriesNobs(field, val, _mapSeriesNobs.size());
+    addSeriesNobs(field, val, seriesNobs.size());
   }
 
   public void removeSeriesNobs(String field) {
-    _mapSeriesNobs.remove(field);
+    seriesNobs.remove(field);
   }
 
   public void clearSeriesNobs() {
-    _mapSeriesNobs = new MVOrderedMap();
+    seriesNobs = new MVOrderedMap();
   }
 
   public MVOrderedMap getDep1Scale() {
-    return _mapDep1Scale;
+    return dep1Scale;
   }
 
   public void addDep1Scale(String field, String val) {
-    _mapDep1Scale.put(field, val);
+    dep1Scale.put(field, val);
   }
 
   public void removeDep1Scale(String field) {
-    _mapDep1Scale.remove(field);
+    dep1Scale.remove(field);
   }
 
   public void clearDep1Scale() {
-    _mapDep1Scale = new MVOrderedMap();
+    dep1Scale = new MVOrderedMap();
   }
 
   public MVOrderedMap getDep2Scale() {
-    return _mapDep2Scale;
+    return dep2Scale;
   }
 
   public void addDep2Scale(String field, String val) {
-    _mapDep2Scale.put(field, val);
+    dep2Scale.put(field, val);
   }
 
   public void removeDep2Scale(String field) {
-    _mapDep2Scale.remove(field);
+    dep2Scale.remove(field);
   }
 
   public void clearDep2Scale() {
-    _mapDep2Scale = new MVOrderedMap();
+    dep2Scale = new MVOrderedMap();
   }
 
   public MVOrderedMap getTmplMaps() {
-    return _mapTmplMaps;
+    return tmplMaps;
   }
 
   public MVOrderedMap getTmplMap(String field) {
-    if (_mapTmplMaps.containsKey(field)) {
-      return (MVOrderedMap) _mapTmplMaps.get(field);
+    if (tmplMaps.containsKey(field)) {
+      return (MVOrderedMap) tmplMaps.get(field);
     } else {
       return null;
     }
   }
 
   public void addTmplMap(String field, MVOrderedMap map, int index) {
-    _mapTmplMaps.put(field, map, index);
+    tmplMaps.put(field, map, index);
   }
 
   public void addTmplMap(String field, MVOrderedMap map) {
-    addTmplMap(field, map, _mapTmplMaps.size());
+    addTmplMap(field, map, tmplMaps.size());
   }
 
 
   public MVOrderedMap getTmplVal() {
-    return _mapTmplVal;
+    return tmplVal;
   }
 
   public void setTmplVal(MVOrderedMap _mapTmplVal) {
-    this._mapTmplVal = _mapTmplVal;
+    this.tmplVal = _mapTmplVal;
   }
 
   public void addTmplVal(String id, String name) {
-    _mapTmplVal.put(id, name);
+    tmplVal.put(id, name);
   }
 
   public String getDataFileTmpl() {
-    return _strDataFileTmpl;
+    return dataFileTmpl;
   }
 
   public void setDataFileTmpl(String dataFileTmpl) {
-    _strDataFileTmpl = dataFileTmpl;
+    this.dataFileTmpl = dataFileTmpl;
   }
 
   public String getPlotFileTmpl() {
-    return _strPlotFileTmpl;
+    return plotFileTmpl;
   }
 
   public void setPlotFileTmpl(String plotFileTmpl) {
-    _strPlotFileTmpl = plotFileTmpl;
+    this.plotFileTmpl = plotFileTmpl;
   }
 
   public String getRFileTmpl() {
-    return _strRFileTmpl;
+    return rFileTmpl;
   }
 
   public void setRFileTmpl(String rFileTmpl) {
-    _strRFileTmpl = rFileTmpl;
+    this.rFileTmpl = rFileTmpl;
   }
 
   public String getTitleTmpl() {
-    return _strTitleTmpl;
+    return titleTmpl;
   }
 
   public void setTitleTmpl(String titleTmpl) {
-    _strTitleTmpl = titleTmpl;
+    this.titleTmpl = titleTmpl;
   }
 
   public String getXLabelTmpl() {
-    return _strXLabelTmpl;
+    return xLabelTmpl;
   }
 
   public void setXLabelTmpl(String xLabelTmpl) {
-    _strXLabelTmpl = xLabelTmpl;
+    this.xLabelTmpl = xLabelTmpl;
   }
 
   public String getY1LabelTmpl() {
-    return _strY1LabelTmpl;
+    return y1LabelTmpl;
   }
 
   public void setY1LabelTmpl(String Y1LabelTmpl) {
-    _strY1LabelTmpl = Y1LabelTmpl;
+    y1LabelTmpl = Y1LabelTmpl;
   }
 
   public String getY2LabelTmpl() {
-    return _strY2LabelTmpl;
+    return y2LabelTmpl;
   }
 
   public void setY2LabelTmpl(String Y2LabelTmpl) {
-    _strY2LabelTmpl = Y2LabelTmpl;
+    y2LabelTmpl = Y2LabelTmpl;
   }
 
   public String getCaptionTmpl() {
-    return _strCaptionTmpl;
+    return captionTmpl;
   }
 
   public void setCaptionTmpl(String captionTmpl) {
-    _strCaptionTmpl = captionTmpl;
+    this.captionTmpl = captionTmpl;
   }
 
   public String getPlotCmd() {
-    return _strPlotCmd;
+    return plotCmd;
   }
 
   public void setPlotCmd(String plotCmd) {
-    _strPlotCmd = plotCmd;
+    this.plotCmd = plotCmd;
   }
 
   public String getPlotCond() {
-    return _strPlotCond;
+    return plotCond;
   }
 
   public void setPlotCond(String plotCond) throws Exception {
     validateSQL(plotCond);
 
-    _strPlotCond = plotCond;
+    this.plotCond = plotCond;
   }
 
   public boolean getEventEqual() {
@@ -1918,7 +1930,8 @@ public class MVPlotJob extends MVUtil {
         String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
 
         String[] listStatComp = listFcstVarStat[0][1].split("_");
-        String stat = listFcstVarStat[0][1].replace("_"+listStatComp[listStatComp.length-1], "");
+        String stat = listFcstVarStat[0][1]
+                          .replace("_" + listStatComp[listStatComp.length - 1], "");
 
         isMtd = mtd3dSingleStatField.containsKey(stat)
                     || mtd3dPairStatField.containsKey(stat)
@@ -1942,5 +1955,55 @@ public class MVPlotJob extends MVUtil {
     }
   }
 
+  public Integer getContourIntervals() {
+    return contourIntervals;
+  }
+
+  public void setContourIntervals(String contourIntervals) {
+    try {
+      this.contourIntervals = Integer.valueOf(contourIntervals);
+    } catch (Exception e) {
+    }
+  }
+
+  public String getColorPalette() {
+    return colorPalette;
+  }
+
+  public void setColorPalette(String colorPalette) {
+    this.colorPalette = colorPalette;
+  }
+
+  public Boolean getAddColorBar() {
+    return isAddColorBar;
+  }
+
+  public void setAddColorBar(Boolean addColorBar) {
+    isAddColorBar = addColorBar;
+  }
+
+  public Boolean getAddContourOverlay() {
+    return isAddContourOverlay;
+  }
+
+  public void setAddContourOverlay(Boolean addContourOverlay) {
+    isAddContourOverlay = addContourOverlay;
+  }
+
+  public Boolean getReverseX() {
+    return isReverseX;
+  }
+
+  public void setReverseX(Boolean reverseX) {
+    isReverseX = reverseX;
+  }
+
+  public Boolean getReverseY() {
+    return isReverseY;
+  }
+
+  public void setReverseY(Boolean reverseY) {
+    isReverseY = reverseY;
+  }
 }
 
