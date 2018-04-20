@@ -20,9 +20,9 @@ public class EnsSsJobManager extends SeriesJobManager {
   }
 
   @Override
-  protected int getNumDepSeries(int intNumDep1Series, int intNumDep2Series, String pstDisp) {
+  protected int getNumDepSeries(int intNumDep1Series, int intNumDep2Series, MVPlotJob job) {
     int intNumDepSeries = intNumDep1Series + intNumDep2Series;
-    if (pstDisp.equalsIgnoreCase("TRUE")) {
+    if (job.getEnsSsPtsDisp().equalsIgnoreCase("TRUE")) {
       intNumDepSeries *= 2;
     }
     return intNumDepSeries;
