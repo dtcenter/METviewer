@@ -175,9 +175,36 @@ if ( nrow(sampleData) > 0){
 
     # add the series variables and values, including a difference series if appropriate
     listOut = listSeriesVal;
+    if( isContourDiff ){
+      diffSeriesVec = unlist(listDiffSeries1[1]);
+      derivedCurveName = getDerivedCurveName(diffSeriesVec);
+      #check if the input frame already has diff series  ( from calculation agg stats )
+      listSeriesVar = names(listFixedValEx);
+      derivedVar1=''
+      derivedVar2=''
+      derivedVarVal1=tail(unlist(strsplit(diffSeriesVec[1], ' ')), n=1)
+      derivedVarVal2=tail(unlist(strsplit(diffSeriesVec[2], ' ')), n=1)
+      for ( index in 1:length(listFixedValEx)) {
+        name =names(listFixedValEx[index])
+        if(derivedVarVal1 %in%  unlist(permute(listFixedValEx[index]))){
+          derivedVar1 = name;
+        }
+        if(derivedVarVal2 %in%  unlist(permute(listFixedValEx[index]))){
+          derivedVar2 = name;
+        }
+      }
+      listOut[[derivedVar1]] = listFixedValEx[[derivedVar1]][[names(listFixedValEx[[derivedVar1]])]];
+      if( derivedVar1 != derivedVar2){
+        listOut[[derivedVar2]] = listFixedValEx[[derivedVar2]][[names(listFixedValEx[[derivedVar2]])]];
+      }
+    }
     listSeriesVar = names(listSeriesVal);
     if( length(listDiffSeries) >0){
-      strDiffVar = listSeriesVar[length(listSeriesVar)];
+      if(isContourDiff){
+        strDiffVar=derivedVar1;
+      }else{
+        strDiffVar = listSeriesVar[length(listSeriesVar)];
+      }
     }
 
     # store the CI permutations for each series group
@@ -200,12 +227,17 @@ if ( nrow(sampleData) > 0){
         diffSeriesVec = listDiffSeries[[diffSeriesName]];
         listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
         listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+        if(isContourDiff){
+          strStat1 = listSeriesDiff1[length(listSeriesDiff1) - 1];
+          strStat2 = listSeriesDiff2[length(listSeriesDiff2) - 1];
+        }else{
+          strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
+          strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
 
-        strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
-        strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
-        for(var in listSeriesVar){
-          if( !is.null(listDiffVal[[var]]) && intersect(listDiffVal[[var]], listSeriesDiff1) == intersect(listDiffVal[[var]], listSeriesDiff2) ){
-            listDiffVal[[var]] = intersect(listDiffVal[[var]], listSeriesDiff1);
+          for(var in listSeriesVar){
+            if( !is.null(listDiffVal[[var]]) && intersect(listDiffVal[[var]], listSeriesDiff1) == intersect(listDiffVal[[var]], listSeriesDiff2) ){
+              listDiffVal[[var]] = intersect(listDiffVal[[var]], listSeriesDiff1);
+            }
           }
         }
         derivedCurveName = getDerivedCurveName(diffSeriesVec);
@@ -243,7 +275,11 @@ if ( nrow(sampleData) > 0){
   if(strIndyVar != ""){
     for(intOutCol in 1:ncol(matOut)){
       if ( intOutCol <  ncol(matOut) - 1 ){
-        listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
+        if(isContourDiff){
+          listOutPerm[[ names(listOut)[intOutCol] ]] = matOut[,intOutCol];
+        }else{
+          listOutPerm[[ listSeriesVar[intOutCol] ]] = matOut[,intOutCol];
+        }
       } else if ( intOutCol == ncol(matOut) - 1 ){
         listOutPerm[[ strIndyVar ]] = matOut[,intOutCol];
       } else {
@@ -273,8 +309,8 @@ if ( nrow(sampleData) > 0){
 
 
   findIndexes = function(diffSeriesVec, listGroupToValue, matPerm){
-    listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-    listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
+    listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
+    listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
 
     strStat1 = listSeriesDiff1[length(listSeriesDiff1)];
     strStat2 = listSeriesDiff2[length(listSeriesDiff2)];
@@ -317,6 +353,34 @@ if ( nrow(sampleData) > 0){
     return ( c(indPerm1, indPerm2));
 
   }
+  findIndexesContourDiff = function(diffSeriesVec, var, matPerm){
+    listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
+    listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
+
+
+    strSeriesDiff1Short = tail(listSeriesDiff1, n=1);
+    strSeriesDiff2Short = tail(listSeriesDiff2, n=1);
+    listSeriesDiff1Short = c(var, strSeriesDiff1Short);
+    listSeriesDiff2Short = c(var, strSeriesDiff2Short);
+    indPerm1=0;
+    indPerm2=0;
+
+
+    for(intPerm in 1:nrow(matPerm)){
+      d1 = listSeriesDiff1Short %in% matPerm[intPerm,];
+      d2 = listSeriesDiff2Short %in% matPerm[intPerm,];
+      if( all(d1) ){
+        indPerm1=intPerm;
+      }
+      if( all(d2) ){
+        indPerm2=intPerm;
+      }
+      if(indPerm1 != 0 && indPerm2 != 0)
+        break;
+    }
+    return ( c(indPerm1, indPerm2));
+
+  }
 
 
   # booter function
@@ -330,6 +394,7 @@ if ( nrow(sampleData) > 0){
     }
 
     # for each series permutation, build a combined table and calculate statistics
+
     for(intPerm in 1:nrow(matPerm)){
 
       # create the permutation column name string
@@ -485,39 +550,39 @@ if ( nrow(sampleData) > 0){
             on_i		= c( t( dfAggPerm[1, on_i_index] ) )
           );
 
-           # calculate vectors and constants to use below
-           dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
-           dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
-           T = sum(dfPctPerm$n_i);									# T
-           oy_total = sum(dfPctPerm$oy_i);							# n_.1
-           o_bar = oy_total / T;									# n_.1 / T
-           dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
+          # calculate vectors and constants to use below
+          dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
+          dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
+          T = sum(dfPctPerm$n_i);									# T
+          oy_total = sum(dfPctPerm$oy_i);							# n_.1
+          o_bar = oy_total / T;									# n_.1 / T
+          dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
 
-           # row-based calculations
-           dfPctPerm$oy_tp			= dfPctPerm$oy_i / T;
-           dfPctPerm$on_tp			= dfPctPerm$on_i / T;
-           dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
-           dfPctPerm$refinement	= dfPctPerm$n_i / T;
-           dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
-           dfPctPerm$baserate		= dfPctPerm$o_bar_i;
+          # row-based calculations
+          dfPctPerm$oy_tp			= dfPctPerm$oy_i / T;
+          dfPctPerm$on_tp			= dfPctPerm$on_i / T;
+          dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
+          dfPctPerm$refinement	= dfPctPerm$n_i / T;
+          dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
+          dfPctPerm$baserate		= dfPctPerm$o_bar_i;
 
-           # table-based stat calculations
-           dfSeriesSums = list(
-             reliability	= sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
-             resolution	= sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
-             uncertainty	= o_bar * (1 - o_bar),
-             baser		= o_bar
-           );
-           #dfSeriesSums$b_ci	= calcBrierCI(dfPctPerm, dfSeriesSums$brier, dblAlpha);
+          # table-based stat calculations
+          dfSeriesSums = list(
+            reliability	= sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
+            resolution	= sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
+            uncertainty	= o_bar * (1 - o_bar),
+            baser		= o_bar
+          );
+          #dfSeriesSums$b_ci	= calcBrierCI(dfPctPerm, dfSeriesSums$brier, dblAlpha);
 
-           # build the dataframe for calculating and use the trapezoidal method roc_auc
-           dfROC = calcPctROC(dfPctPerm);
-           dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
-           dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
-           dfSeriesSums$roc_auc = 0;
-           for(r in 2:nrow(dfAUC)){
-             dfSeriesSums$roc_auc = dfSeriesSums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
-           }
+          # build the dataframe for calculating and use the trapezoidal method roc_auc
+          dfROC = calcPctROC(dfPctPerm);
+          dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
+          dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
+          dfSeriesSums$roc_auc = 0;
+          for(r in 2:nrow(dfAUC)){
+            dfSeriesSums$roc_auc = dfSeriesSums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
+          }
 
         }else{
           dfSeriesSums = list(
@@ -543,10 +608,20 @@ if ( nrow(sampleData) > 0){
         #get  names of DIFF series
         diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
 
-        indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
-        if(indexes[1] != 0 && indexes[2] !=0){
-          listRet[[paste(strStat1,strStat2, indexes[1], indexes[2],diffSeriesVec[length(diffSeriesVec)],sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indexes[1]],listRet[[strStat2]][indexes[2]], derivedCurveName);
+        if(isContourDiff){
+          for(var in unique(matPerm[,1])){
+            indexes = findIndexesContourDiff(diffSeriesVec, var, matPerm);
+            if(indexes[1] != 0 && indexes[2] != 0){
+              listRet[[paste(strStat1,strStat2, indexes[1], indexes[2],diffSeriesVec[length(diffSeriesVec)],sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indexes[1]],listRet[[strStat2]][indexes[2]], derivedCurveName);
+            }
+          }
+        }else{
+          indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
+          if(indexes[1] != 0 && indexes[2] != 0){
+            listRet[[paste(strStat1,strStat2, indexes[1], indexes[2],diffSeriesVec[length(diffSeriesVec)],sep = "_")]] = calcDerivedCurveValue(listRet[[strStat1]][indexes[1]],listRet[[strStat2]][indexes[2]], derivedCurveName);
+          }
         }
+
       }
     }
     return( unlist(listRet) );
@@ -574,7 +649,33 @@ if ( nrow(sampleData) > 0){
 
       # build permutations for each plot series
       if( 1 == intY ){
-        matPerm = permute(listSeries1Val);
+        if(isContourDiff ){
+          diffSeriesVec = unlist(listDiffSeries1[1]);
+          derivedCurveName = getDerivedCurveName(diffSeriesVec);
+          #check if the input frame already has diff series  ( from calculation agg stats )
+          derivedVar1=''
+          derivedVar2=''
+          derivedVarVal1=tail(unlist(strsplit(diffSeriesVec[1], ' ')), n=1)
+          derivedVarVal2=tail(unlist(strsplit(diffSeriesVec[2], ' ')), n=1)
+          for ( index in 1:length(listFixedValEx)) {
+            name =names(listFixedValEx[index])
+            if(derivedVarVal1 %in%  unlist(permute(listFixedValEx[index]))){
+              derivedVar1 = name;
+            }
+            if(derivedVarVal2 %in%  unlist(permute(listFixedValEx[index]))){
+              derivedVar2 = name;
+            }
+          }
+          listSeriesVal = listSeries1Val;
+          listSeriesVal[[derivedVar1]] = listFixedValEx[[derivedVar1]][[names(listFixedValEx[[derivedVar1]])]];
+          if( derivedVar1 != derivedVar2){
+            listSeriesVal[[derivedVar2]] = listFixedValEx[[derivedVar2]][[names(listFixedValEx[[derivedVar2]])]];
+          }
+          matPerm = permute(listSeriesVal);
+          listSeriesVar = names(listSeriesVal);
+        }else{
+          matPerm = permute(listSeries1Val);
+        }
         listStat = listStat1;
         matCIPerm = matCIPerm1;
         listDiffSeries = listDiffSeries1;
@@ -593,6 +694,7 @@ if ( nrow(sampleData) > 0){
 
         # build the data set pertinent to this series permutation
         dfStatsPerm = dfStatsIndy;
+
         for(intSeriesVal in 1:length(listSeriesVar)){
           strSeriesVar = listSeriesVar[intSeriesVal];
           strSeriesVal = listPerm[intSeriesVal];
@@ -679,58 +781,95 @@ if ( nrow(sampleData) > 0){
           }else{
             listOutInd = listOutInd & (dfOut$stat_name == strStat) & (dfOut[[strIndyVar]] == strIndyVal);
           }
-          if( 1 < intNumReplicates ){
+          if( !isContourDiff ){
+            if( 1 < intNumReplicates ){
 
-            # calculate the confidence interval for the current stat and series permutation
-            stBootCI = Sys.time();
-            bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-            dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+              # calculate the confidence interval for the current stat and series permutation
+              stBootCI = Sys.time();
+              bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+              dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+            }
 
-          }
+            # store the bootstrapped stat value and CI values in the output dataframe
+            dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
+            dfOut[listOutInd,]$nstats = nrow(dfStatsPerm[dfStatsPerm$stat_name == strStat,]);
+            if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
+              if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
+                dfOut[listOutInd,]$stat_bcl = bootCI[["percent"]][4];
+                dfOut[listOutInd,]$stat_bcu = bootCI[["percent"]][5];
 
-          # store the bootstrapped stat value and CI values in the output dataframe
-          dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
-          dfOut[listOutInd,]$nstats = nrow(dfStatsPerm[dfStatsPerm$stat_name == strStat,]);
-          if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
-            if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
-             dfOut[listOutInd,]$stat_bcl = bootCI[["percent"]][4];
-             dfOut[listOutInd,]$stat_bcu = bootCI[["percent"]][5];
+              }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
+                dfOut[listOutInd,]$stat_bcl = bootCI[["normal"]][2];
+                dfOut[listOutInd,]$stat_bcu = bootCI[["normal"]][3];
 
-            }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
-             dfOut[listOutInd,]$stat_bcl = bootCI[["normal"]][2];
-             dfOut[listOutInd,]$stat_bcu = bootCI[["normal"]][3];
+              }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
+                dfOut[listOutInd,]$stat_bcl = bootCI[["basic"]][4];
+                dfOut[listOutInd,]$stat_bcu = bootCI[["basic"]][5];
 
-            }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
-              dfOut[listOutInd,]$stat_bcl = bootCI[["basic"]][4];
-              dfOut[listOutInd,]$stat_bcu = bootCI[["basic"]][5];
+              }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
+                dfOut[listOutInd,]$stat_bcl = bootCI[["bca"]][4];
+                dfOut[listOutInd,]$stat_bcu = bootCI[["bca"]][5];
 
-            }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
-              dfOut[listOutInd,]$stat_bcl = bootCI[["bca"]][4];
-              dfOut[listOutInd,]$stat_bcu = bootCI[["bca"]][5];
-
-            }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
-              dfOut[listOutInd,]$stat_bcl = bootCI[["student"]][4];
-              dfOut[listOutInd,]$stat_bcu = bootCI[["student"]][5];
-            }else{
+              }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
+                dfOut[listOutInd,]$stat_bcl = bootCI[["student"]][4];
+                dfOut[listOutInd,]$stat_bcu = bootCI[["student"]][5];
+              }else{
+                dfOut[listOutInd,]$stat_bcl = NA;
+                dfOut[listOutInd,]$stat_bcu = NA;
+              }
+            } else {
               dfOut[listOutInd,]$stat_bcl = NA;
               dfOut[listOutInd,]$stat_bcu = NA;
             }
-         } else {
-           dfOut[listOutInd,]$stat_bcl = NA;
-           dfOut[listOutInd,]$stat_bcu = NA;
-         }
+          } else{
+            dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
+          }
           intBootIndex = intBootIndex + 1;
         }
       }
       if(length(listDiffSeries) > 0){
+        if(isContourDiff){
+          for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+            for(var in unique(matPerm[,1])){
+              diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+              listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
+              listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
+
+                strStat1= listSeriesDiff1[2];
+                strStat2= listSeriesDiff2[2];
+
+
+              derivedCurveName = getDerivedCurveName(diffSeriesVec);
+
+              # build a indicator list for the pertinent rows in the output dataframe
+              listOutInd = rep(TRUE, nrow(dfOut));
+              strDiffVar = listSeriesVar[length(listSeriesVar)];
+              listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
+
+              if(strStat1 == strStat2){
+                stat_name = strStat1;
+              }else{
+                stat_name = paste(strStat1,strStat2,collapse = "", sep=",");
+              }
+              listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal) & (dfOut[[listSeriesVar[1]]] == var);
+              dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
+              dfOut[listOutInd1,]$nstats = 0;
+              dfOut[listOutInd1,]$stat_bcl = NA;
+              dfOut[listOutInd1,]$stat_bcu = NA;
+              intBootIndex = intBootIndex + 1;
+            }
+          }
+        } else{
         for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
 
 
           diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
-          listSeriesDiff1 <- strsplit(diffSeriesVec[1], " ")[[1]];
-          listSeriesDiff2 <- strsplit(diffSeriesVec[2], " ")[[1]];
-          strStat1= listSeriesDiff1[length(listSeriesDiff1)];
-          strStat2= listSeriesDiff2[length(listSeriesDiff2)];
+          listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
+          listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
+
+            strStat1= listSeriesDiff1[length(listSeriesDiff1)];
+            strStat2= listSeriesDiff2[length(listSeriesDiff2)];
+
 
           derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
@@ -773,12 +912,12 @@ if ( nrow(sampleData) > 0){
           dfOut[listOutInd1,]$nstats = 0;
           if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
             if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
-             dfOut[listOutInd1,]$stat_bcl = bootCI[["percent"]][4];
-             dfOut[listOutInd1,]$stat_bcu = bootCI[["percent"]][5];
+              dfOut[listOutInd1,]$stat_bcl = bootCI[["percent"]][4];
+              dfOut[listOutInd1,]$stat_bcu = bootCI[["percent"]][5];
 
             }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
-             dfOut[listOutInd1,]$stat_bcl = bootCI[["normal"]][2];
-             dfOut[listOutInd1,]$stat_bcu = bootCI[["normal"]][3];
+              dfOut[listOutInd1,]$stat_bcl = bootCI[["normal"]][2];
+              dfOut[listOutInd1,]$stat_bcu = bootCI[["normal"]][3];
 
             }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
               dfOut[listOutInd1,]$stat_bcl = bootCI[["basic"]][4];
@@ -795,12 +934,13 @@ if ( nrow(sampleData) > 0){
               dfOut[listOutInd1,]$stat_bcl = NA;
               dfOut[listOutInd1,]$stat_bcu = NA;
             }
-         } else {
-           dfOut[listOutInd1,]$stat_bcl = NA;
-           dfOut[listOutInd1,]$stat_bcu = NA;
-         }
+          } else {
+            dfOut[listOutInd1,]$stat_bcl = NA;
+            dfOut[listOutInd1,]$stat_bcu = NA;
+          }
 
           intBootIndex = intBootIndex + 1;
+        }
         }
       }
 
