@@ -92,7 +92,7 @@ public class SeriesJobManager extends JobManager {
       }
 
       //  build the SQL statements for the current plot
-      listQuery = appDatabaseManager.buildPlotSQL(job, plotFixPerm, mvBatch.getPrintStreamSql());
+      listQuery = appDatabaseManager.buildPlotSql(job, plotFixPerm, mvBatch.getPrintStreamSql());
       for (String sql : listQuery) {
         mvBatch.printSql(sql + "\n");
       }
