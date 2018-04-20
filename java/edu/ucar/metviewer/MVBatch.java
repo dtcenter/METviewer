@@ -11,6 +11,7 @@ import java.util.Map;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
+import edu.ucar.metviewer.jobManager.ContourJobManager;
 import edu.ucar.metviewer.jobManager.EclvJobManager;
 import edu.ucar.metviewer.jobManager.EnsSsJobManager;
 import edu.ucar.metviewer.jobManager.JobManager;
@@ -44,8 +45,9 @@ public class MVBatch extends MVUtil {
   private String dbType;
 
 
-  public MVBatch(PrintStream log, PrintWriter printStreamSql,PrintStream printStreamEr,
-                 AppDatabaseManager manager) {
+  public MVBatch(
+                    PrintStream log, PrintWriter printStreamSql, PrintStream printStreamEr,
+                    AppDatabaseManager manager) {
     super();
 
     this.printStream = log;
@@ -62,7 +64,7 @@ public class MVBatch extends MVUtil {
              .buildPrintWriter(),
          IoBuilder.forLogger().setLevel(org.apache.logging.log4j.Level.INFO)
              .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-             .buildPrintStream(),null);
+             .buildPrintStream(), null);
   }
 
   public void print(String message) {
@@ -78,16 +80,17 @@ public class MVBatch extends MVUtil {
       this.printStreamSql.flush();
     }
   }
+
   public void printError(String message) {
-      if (this.printStreamEr != null) {
-        this.printStreamEr.print(message);
-        this.printStreamEr.flush();
-      }
+    if (this.printStreamEr != null) {
+      this.printStreamEr.print(message);
+      this.printStreamEr.flush();
     }
+  }
 
   public String getDataFolder() {
-    if(!dataFolder.endsWith(File.separator)){
-      dataFolder = dataFolder+ File.separator;
+    if (!dataFolder.endsWith(File.separator)) {
+      dataFolder = dataFolder + File.separator;
     }
     return dataFolder;
   }
@@ -121,7 +124,7 @@ public class MVBatch extends MVUtil {
   }
 
   public String getPlotsFolder() {
-    if(!plotsFolder.endsWith(File.separator)){
+    if (!plotsFolder.endsWith(File.separator)) {
       plotsFolder = plotsFolder + File.separator;
     }
     return plotsFolder;
@@ -137,7 +140,7 @@ public class MVBatch extends MVUtil {
 
 
   public String getRworkFolder() {
-    if(!rworkFolder.endsWith(File.separator)){
+    if (!rworkFolder.endsWith(File.separator)) {
       rworkFolder = rworkFolder + File.separator;
     }
     return rworkFolder;
@@ -153,7 +156,7 @@ public class MVBatch extends MVUtil {
 
 
   public String getRtmplFolder() {
-    if(!rtmplFolder.endsWith(File.separator)){
+    if (!rtmplFolder.endsWith(File.separator)) {
       rtmplFolder = rtmplFolder + File.separator;
     }
     return rtmplFolder;
@@ -164,7 +167,7 @@ public class MVBatch extends MVUtil {
   }
 
   public String getScriptsFolder() {
-    if(!scriptsFolder.endsWith(File.separator)){
+    if (!scriptsFolder.endsWith(File.separator)) {
       scriptsFolder = scriptsFolder + File.separator;
     }
     return scriptsFolder;
@@ -191,18 +194,22 @@ public class MVBatch extends MVUtil {
   }
 
   public static String getUsage() {
-    return "Usage:  mv_batch\n" +
-               "          [-list]\n" +
-               "          [-printSql]\n" +
-               "          db_type\n" +
-               "          plot_spec_file\n" +
-               "          [job_name]\n" +
-               "\n" +
-               "        where     \"-list\" indicates that the available plot jobs should be listed and no plots run\n" +
-               "                  \"-printSql\" print SQL statements\n" +
-               "                  \"db_type\" specifies database type (available values : mysql)\n" +
-               "                  \"plot_spec_file\" specifies the XML plot specification document\n" +
-               "                  \"job_name\" specifies the name of the job from the plot specification to run\n";
+    return "Usage:  mv_batch\n"
+               + "          [-list]\n"
+               + "          [-printSql]\n"
+               + "          db_type\n"
+               + "          plot_spec_file\n"
+               + "          [job_name]\n"
+               + "\n"
+               + "        where     \"-list\" indicates that the available plot jobs should be "
+               + "listed and no plots run\n"
+               + "                  \"-printSql\" print SQL statements\n"
+               + "                  \"db_type\" specifies database type (available values : mysql)"
+               + "\n"
+               + "                  \"plot_spec_file\" specifies the XML plot specification "
+               + "document\n"
+               + "                  \"job_name\" specifies the name of the job from the plot "
+               + "specification to run\n";
   }
 
   public static void main(String[] argv) {
@@ -232,18 +239,20 @@ public class MVBatch extends MVUtil {
           bat.setDbType("mysql");
         } else {
           bat.print(
-              "  **  ERROR: unrecognized option '" + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
+              "  **  ERROR: unrecognized option '"
+                  + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
       }
 
       //  parse the input file
-      String strXMLInput = argv[intArg++];
-      bat.print("input file: " + strXMLInput + "\n");
+      String xmlInput = argv[intArg++];
+      bat.print("input file: " + xmlInput + "\n");
 
-      MVPlotJobParser parser = new MVPlotJobParser(strXMLInput);
+      MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
       if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
-        bat.setDatabaseManager(new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
+        bat.setDatabaseManager(
+            new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
       }
       MVOrderedMap mapJobs = parser.getJobsMap();
 
@@ -284,11 +293,14 @@ public class MVBatch extends MVUtil {
       }
 
       bat.setRtmplFolder(parser.getRtmplFolder()
-                             + (parser.getRtmplFolder().endsWith(File.separator) ? "" : File.separator));
+                             + (parser.getRtmplFolder()
+                                    .endsWith(File.separator) ? "" : File.separator));
       bat.setRworkFolder(parser.getRworkFolder()
-                             + (parser.getRworkFolder().endsWith(File.separator) ? "" : File.separator));
+                             + (parser.getRworkFolder()
+                                    .endsWith(File.separator) ? "" : File.separator));
       bat.setPlotsFolder(parser.getPlotsFolder()
-                             + (parser.getPlotsFolder().endsWith(File.separator) ? "" : File.separator));
+                             + (parser.getPlotsFolder()
+                                    .endsWith(File.separator) ? "" : File.separator));
       bat.setDataFolder(parser.getDataFolder());
 
 
@@ -301,10 +313,10 @@ public class MVBatch extends MVUtil {
       for (MVPlotJob job : jobs) {
 
         //  add a job for each permutation of plot fixed values
-        Map.Entry[] listPlotFix = job.getPlotFixVal().getOrderedEntries();
+        Map.Entry[] plotFix = job.getPlotFixVal().getOrderedEntries();
         int intNumJobPlots = 1;
-        for (Map.Entry aListPlotFix : listPlotFix) {
-          Object objFixVal = aListPlotFix.getValue();
+        for (Map.Entry plotFixEntry : plotFix) {
+          Object objFixVal = plotFixEntry.getValue();
           if (objFixVal instanceof String[]) {
             intNumJobPlots *= ((String[]) objFixVal).length;
           } else if (objFixVal instanceof MVOrderedMap) {
@@ -353,6 +365,9 @@ public class MVBatch extends MVUtil {
           case "ens_ss.R_tmpl":
             jobManager = new EnsSsJobManager(bat);
             break;
+          case "contour_plot.R_tmpl":
+            jobManager = new ContourJobManager(bat);
+            break;
           default:
             jobManager = new SeriesJobManager(bat);
             break;
@@ -364,10 +379,10 @@ public class MVBatch extends MVUtil {
       }
 
       LocalDateTime dateEnd = LocalDateTime.now();
-      long plotTime =dateStart.until(dateEnd, ChronoUnit.MILLIS);
+      long plotTime = dateStart.until(dateEnd, ChronoUnit.MILLIS);
       long plotAvg = 0 < bat.numPlots ? plotTime / (long) bat.numPlots : 0;
-      bat.print("\n" +
-                    padBegin("End time: ") + MVUtil.APP_DATE_FORMATTER.format(dateEnd) + "\n"
+      bat.print("\n"
+                    + padBegin("End time: ") + MVUtil.APP_DATE_FORMATTER.format(dateEnd) + "\n"
                     + padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
                     + "\n"
                     + padBegin("Total time: ") + formatTimeSpan(plotTime) + "\n"
