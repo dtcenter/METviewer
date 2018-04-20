@@ -108,10 +108,11 @@ public class MVUtil {
 
   public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
                                                     .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                    .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+                                                    .setMarker(
+                                                        new MarkerManager.Log4jMarker("ERROR"))
                                                     .buildPrintStream();
 
-  public static final String[] lineTypes= new String[]{
+  public static final String[] lineTypes = new String[]{
       "fho",
       "ctc",
       "cts",
@@ -137,7 +138,8 @@ public class MVUtil {
       "orank",
       "ssvar",
       "grad",
-      "vcnt"
+      "vcnt",
+      "relp"
   };
 
   static {
@@ -460,24 +462,24 @@ public class MVUtil {
   }
 
   static {
-    statsVcnt.put("VCNT_FBAR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_OBAR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_FS_RMS",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_OS_RMS",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_MSVE",  new String[]{"bc", VL1L2});
-    statsVcnt.put("VCNT_RMSVE",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_FSTDEV",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_OSTDEV",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_FDIR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_ODIR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_FBAR_SPEED",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_OBAR_SPEED",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_VDIFF_SPEED",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_VDIFF_DIR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_SPEED_ERR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_SPEED_ABSERR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_DIR_ERR",  new String[]{"bc",VL1L2});
-    statsVcnt.put("VCNT_DIR_ABSERR",  new String[]{"bc",VL1L2});
+    statsVcnt.put("VCNT_FBAR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_OBAR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_FS_RMS", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_OS_RMS", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_MSVE", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_RMSVE", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_FSTDEV", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_OSTDEV", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_FDIR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_ODIR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_FBAR_SPEED", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_OBAR_SPEED", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_VDIFF_SPEED", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_VDIFF_DIR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_SPEED_ERR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VL1L2});
+    statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
   }
 
   static {
@@ -696,6 +698,10 @@ public class MVUtil {
     calcStatCTC.add("GSS");
   }
 
+  private MVUtil() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /**
    * Build a list of strings representing consecutive dates between the input dates start and end,
    * incrementing by incr number of seconds.  It is assumed that the format of start and end is
@@ -707,7 +713,9 @@ public class MVUtil {
    * @param format Java date format string, describing input and output dates
    * @return List of date strings
    */
-  public static List<String> buildDateList(final String start, final String end, final int incr, final String format, final PrintStream printStream) {
+  public static List<String> buildDateList(
+                                              final String start, final String end, final int incr,
+                                              final String format) {
     SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.US);
     formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     List<String> listDates = new ArrayList<>();
@@ -719,7 +727,7 @@ public class MVUtil {
       cal.setTime(dateStart);
 
       while ((incr > 0 && cal.getTime().getTime() <= dateEnd.getTime())
-        || (incr < 0 && cal.getTime().getTime() >= dateEnd.getTime())) {
+                 || (incr < 0 && cal.getTime().getTime() >= dateEnd.getTime())) {
         listDates.add(formatDate.format(cal.getTime()));
         cal.add(Calendar.SECOND, incr);
       }
@@ -727,9 +735,7 @@ public class MVUtil {
     } catch (Exception e) {
       errorStream
           .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
-      //printStream.println(
-      //    "  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
-      //e.printStackTrace(printStream);
+
     }
     return listDates;
   }
@@ -747,28 +753,29 @@ public class MVUtil {
     int intInc = 0;
     String strFormat = "";
 
-    for (int j = 0; j < node._children.length; j++) {
-      MVNode nodeChild = node._children[j];
-      if (nodeChild._tag.equals("inc")) {
-        intInc = Integer.parseInt(nodeChild._value);
-      } else if (nodeChild._tag.equals("format")) {
-        strFormat = nodeChild._value;
+    for (int j = 0; j < node.children.length; j++) {
+      MVNode nodeChild = node.children[j];
+      if (nodeChild.tag.equals("inc")) {
+        intInc = Integer.parseInt(nodeChild.value);
+      } else if (nodeChild.tag.equals("format")) {
+        strFormat = nodeChild.value;
       }
     }
-    for (int j = 0; j < node._children.length; j++) {
-      MVNode nodeChild = node._children[j];
-      if (nodeChild._tag.equals("start")) {
-        if (0 < nodeChild._children.length) {
-          strStart = parseDateOffset(nodeChild._children[0], strFormat);
+    for (int j = 0; j < node.children.length; j++) {
+      MVNode nodeChild = node.children[j];
+      if (nodeChild.tag.equals("start")) {
+        if (0 < nodeChild.children.length) {
+          strStart = parseDateOffset(nodeChild.children[0], strFormat);
         } else {
-          strStart = nodeChild._value;
+          strStart = nodeChild.value;
         }
-      } else if (nodeChild._tag.equals("end")) {
-        strEnd = (0 < nodeChild._children.length ? parseDateOffset(nodeChild._children[0], strFormat) : nodeChild._value);
+      } else if (nodeChild.tag.equals("end")) {
+        strEnd = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
+                                                                  strFormat) : nodeChild.value);
       }
     }
 
-    return buildDateList(strStart, strEnd, intInc, strFormat, printStream);
+    return buildDateList(strStart, strEnd, intInc, strFormat);
   }
 
   /**
@@ -785,12 +792,12 @@ public class MVUtil {
     int intOffset = 0;
     int intHour = 0;
 
-    for (int i = 0; i < node._children.length; i++) {
-      MVNode nodeChild = node._children[i];
-      if (nodeChild._tag.equals("day_offset")) {
-        intOffset = Integer.parseInt(nodeChild._value);
-      } else if (nodeChild._tag.equals("hour")) {
-        intHour = Integer.parseInt(nodeChild._value);
+    for (int i = 0; i < node.children.length; i++) {
+      MVNode nodeChild = node.children[i];
+      if (nodeChild.tag.equals("day_offset")) {
+        intOffset = Integer.parseInt(nodeChild.value);
+      } else if (nodeChild.tag.equals("hour")) {
+        intHour = Integer.parseInt(nodeChild.value);
       }
     }
 
@@ -969,15 +976,15 @@ public class MVUtil {
    */
   public static List<String> sortInterpPnts(final List<String> lev) {
     List<Integer> resultInt = new ArrayList<>(lev.size());
-    for(String interpPnt: lev ){
+    for (String interpPnt : lev) {
       try {
         resultInt.add(Integer.valueOf(interpPnt));
-      }catch (Exception e){
+      } catch (Exception e) {
       }
     }
     Collections.sort(resultInt);
     List<String> resultStr = new ArrayList<>(resultInt.size());
-    for(Integer interpPnt :resultInt ){
+    for (Integer interpPnt : resultInt) {
       resultStr.add(String.valueOf(interpPnt));
     }
     return resultStr;
@@ -996,7 +1003,6 @@ public class MVUtil {
                                          final List<String> vals, final boolean asc,
                                          final Pattern pat) {
 
-    List<String> result = new ArrayList<>();
     //  parse the input values and store the numerical values in a sortable array
     double[] listVal = new double[vals.size()];
     Map tableVal = new HashMap<>();
@@ -1017,11 +1023,11 @@ public class MVUtil {
         if (mat.groupCount() == 0) {
           dblVal = Double.parseDouble(val);
         } else {
-        dblVal = Double.parseDouble(mat.group(2));
-        if (3 == mat.groupCount() && null != mat.group(3)) {
-          dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+          dblVal = Double.parseDouble(mat.group(2));
+          if (3 == mat.groupCount() && null != mat.group(3)) {
+            dblVal = (dblVal + Double.parseDouble(mat.group(3))) / 2;
+          }
         }
-      }
       }
 
       //  otherwise, use the literal value with a default numerical value
@@ -1133,26 +1139,25 @@ public class MVUtil {
 
   public static List<String> sortHour(final List<String> hour, boolean asc) {
 
-    //  parse and format the hours and store the numerical values in a sortable array
-    double[] listVal = new double[hour.size()];
-    Map<Double, String> tableVal = new HashMap<>();
-    for (int i = 0; i < hour.size(); i++) {
-      listVal[i] = Double.parseDouble(hour.get(i));
-      String strHour = hour.get(i);
-      while (strHour.length() < 2) {
-        strHour = "0" + strHour;
+    List<Integer> hoursInt = new ArrayList<>();
+    for (String hourStr : hour) {
+      try {
+        hoursInt.add(Integer.valueOf(hourStr));
+      } catch (Exception e) {
+
       }
-      tableVal.put(listVal[i], strHour);
     }
-
-    //  sort the lead numerical values and build a sorted list of leads
-    Arrays.sort(listVal);
-    List<String> listRet = new ArrayList<>(hour.size());
-    for (int i = 0; i < listVal.length; i++) {
-      listRet.set(asc ? i : listVal.length - 1 - i, tableVal.get(listVal[i]));
+    if (asc) {
+      Collections.sort(hoursInt);
+    } else {
+      Collections.sort(hoursInt, Collections.reverseOrder());
     }
+    List<String> result = new ArrayList<>();
+    for (Integer hourInt : hoursInt) {
+      result.add(String.format("%02d", hourInt));
+    }
+    return result;
 
-    return listRet;
   }
 
 
@@ -1219,8 +1224,9 @@ public class MVUtil {
     long intMs = span;
 
     return (0 < intDay ? Long.toString(intDay) + "d " : "") + Long.toString(intHr)
-      + (10 > intMin ? ":0" : ":") + Long.toString(intMin) + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "."
-      + (100 > intMs ? "0" + (10 > intMs ? "0" : "") : "") + Long.toString(intMs);
+               + (10 > intMin ? ":0" : ":") + Long.toString(intMin)
+               + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "."
+               + (100 > intMs ? "0" + (10 > intMs ? "0" : "") : "") + Long.toString(intMs);
   }
 
 
@@ -1483,8 +1489,9 @@ public class MVUtil {
 
 
   public static boolean runRscript(
-                                      final String rscript, final String script, final PrintStream
-                                                                                     printStream) throws Exception {
+                                      final String rscript,
+                                      final String script,
+                                      final PrintStream printStream) throws Exception {
     return runRscript(rscript, script, new String[]{}, printStream);
   }
 
@@ -1572,11 +1579,13 @@ public class MVUtil {
 
 
     if (strProcStd.length() > 0) {
-      printStream.println("\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
+      printStream.println(
+          "\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
     }
 
     if (strProcErr.length() > 0) {
-      printStream.println("\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
+      printStream.println(
+          "\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
     }
 
     //  return the success flag
@@ -1592,14 +1601,12 @@ public class MVUtil {
    * @param vals   Table containing values corresponding to tags in the input template
    * @throws Exception
    */
-  public static void populateTemplateFile(final String tmpl, final String output, final Map<String, String> vals) throws Exception {
-    FileReader fileReader = null;
-    BufferedReader reader = null;
-    PrintStream writer = null;
-    try {
-      fileReader = new FileReader(tmpl);
-      reader = new BufferedReader(fileReader);
-      writer = new PrintStream(output);
+  public static void populateTemplateFile(
+                                             final String tmpl, final String output,
+                                             final Map<String, String> vals) throws Exception {
+    try (FileReader fileReader = new FileReader(tmpl);
+         BufferedReader reader = new BufferedReader(fileReader);
+         PrintStream writer = new PrintStream(output)) {
       while (reader.ready()) {
         String strTmplLine = reader.readLine();
         String strOutputLine = strTmplLine;
@@ -1616,19 +1623,6 @@ public class MVUtil {
 
         writer.println(strOutputLine);
       }
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-      if (writer != null) {
-        writer.close();
-      }
-      if (fileReader != null) {
-        fileReader.close();
-      }
-
     }
 
   }
@@ -1664,8 +1658,9 @@ public class MVUtil {
    * @param mapPlotFixVal values used for sets
    * @throws Exception
    */
-  public static Map.Entry[] buildPlotFixTmplMap(final MVOrderedMap mapPlotFix, final MVOrderedMap mapPlotFixVal)
-    throws Exception {
+  public static Map.Entry[] buildPlotFixTmplMap(
+                                                   final MVOrderedMap mapPlotFix,
+                                                   final MVOrderedMap mapPlotFixVal) {
     Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
     //  replace fixed value set names with their value maps
     ArrayList listPlotFixValAdj = new ArrayList();
@@ -1680,7 +1675,8 @@ public class MVUtil {
       MVOrderedMap mapFixSet = (MVOrderedMap) mapPlotFixVal.get(strFixVarAdj);
       listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet));
     }
-    listPlotFixVal = (Map.Entry[]) listPlotFixValAdj.toArray(new Map.Entry[listPlotFixValAdj.size()]);
+    listPlotFixVal = (Map.Entry[]) listPlotFixValAdj
+                                       .toArray(new Map.Entry[listPlotFixValAdj.size()]);
 
     return listPlotFixVal;
   }
@@ -1694,7 +1690,9 @@ public class MVUtil {
    * @param aggType
    * @throws Exception
    */
-  public static void isAggTypeValid(final Map<String, String[]> tableStats, final String strStat, final String aggType) throws Exception {
+  public static void isAggTypeValid(
+                                       final Map<String, String[]> tableStats, final String strStat,
+                                       final String aggType) throws Exception {
     //check if aggType is allowed for this stat
     String[] types = tableStats.get(strStat);
     boolean isFound = false;
@@ -1709,7 +1707,9 @@ public class MVUtil {
     }
   }
 
-  public static String findValueInArray(final String[] listToken, final List<String> headerNames, final String header) {
+  public static String findValueInArray(
+                                           final String[] listToken, final List<String> headerNames,
+                                           final String header) {
     int pos = headerNames.indexOf(header);
     if (pos >= 0 && pos < listToken.length) {
       return listToken[pos];
@@ -1721,7 +1721,8 @@ public class MVUtil {
   public static void updateLog4jConfiguration() {
 
     try {
-      String jarPath = MVUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+      String jarPath = MVUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+                           .getPath();
       URI imgurl = new URI("jar:file:" + jarPath + "!/edu/ucar/metviewer/resources/log4j2.xml");
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
@@ -2207,10 +2208,10 @@ public class MVUtil {
     return listRet;
   }
 
-  public static boolean isValidLineType(final String lineType){
+  public static boolean isValidLineType(final String lineType) {
     boolean result = false;
-    for(String type: lineTypes){
-      if(type.equalsIgnoreCase(lineType)){
+    for (String type : lineTypes) {
+      if (type.equalsIgnoreCase(lineType)) {
         result = true;
         break;
       }
