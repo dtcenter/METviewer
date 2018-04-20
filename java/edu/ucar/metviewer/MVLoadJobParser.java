@@ -9,11 +9,11 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-public class MVLoadJobParser extends MVUtil {
+public class MVLoadJobParser  {
 
-  protected final Map _tableDateListDecl = new HashMap();
-  protected MVNode _nodeLoadSpec = null;
-  protected MVLoadJob _job = null;
+  protected final Map dateListDecl = new HashMap();
+  protected MVNode loadSpec = null;
+  protected MVLoadJob job = null;
 
 
   public MVLoadJobParser(String spec) throws Exception {
@@ -23,143 +23,143 @@ public class MVLoadJobParser extends MVUtil {
     dbf.setNamespaceAware(true);
     Document doc = dbf.newDocumentBuilder().parse(spec);
 
-    _nodeLoadSpec = new MVNode(doc.getFirstChild());
+    loadSpec = new MVNode(doc.getFirstChild());
 
     parseLoadJobSpec();
   }
 
   public MVLoadJob getLoadJob() {
-    return _job;
+    return job;
   }
 
   private void parseLoadJobSpec() {
-    MVLoadJob job = new MVLoadJob();
+    MVLoadJob loadJob = new MVLoadJob();
     List<String> listLoadFiles;
     List<String> listVal;
     String strFieldName;
     MVNode nodeChild;
     MVNode nodeField;
-    for (int i = 0; null != _nodeLoadSpec && i < _nodeLoadSpec._children.length; i++) {
-      MVNode node = _nodeLoadSpec._children[i];
+    for (int i = 0; null != loadSpec && i < loadSpec.children.length; i++) {
+      MVNode node = loadSpec.children[i];
 
       //  <connection>
-      if (node._tag.equals("connection")) {
-        for (int j = 0; j < node._children.length; j++) {
-          if (node._children[j]._tag.equals("host")) {
-            job.setDBHost(node._children[j]._value);
-          } else if (node._children[j]._tag.equals("database")) {
-            job.setDBName(node._children[j]._value);
-          } else if (node._children[j]._tag.equals("user")) {
-            job.setDBUser(node._children[j]._value);
-          } else if (node._children[j]._tag.equals("password")) {
-            job.setDBPassword(node._children[j]._value);
-          } else if (node._children[j]._tag.equals("management_system")) {
-            job.setDBManagementSystem(node._children[j]._value);
+      if (node.tag.equals("connection")) {
+        for (int j = 0; j < node.children.length; j++) {
+          if (node.children[j].tag.equals("host")) {
+            loadJob.setDBHost(node.children[j].value);
+          } else if (node.children[j].tag.equals("database")) {
+            loadJob.setDBName(node.children[j].value);
+          } else if (node.children[j].tag.equals("user")) {
+            loadJob.setDBUser(node.children[j].value);
+          } else if (node.children[j].tag.equals("password")) {
+            loadJob.setDBPassword(node.children[j].value);
+          } else if (node.children[j].tag.equals("management_system")) {
+            loadJob.setDBManagementSystem(node.children[j].value);
           }
         }
       }
 
       //  <date_list>
-      else if (node._tag.equals("date_list")) {
-        _tableDateListDecl.put(node._name, buildDateList(node, System.out));
+      else if (node.tag.equals("date_list")) {
+        dateListDecl.put(node.name, MVUtil.buildDateList(node, System.out));
       }
 
       //  simple string fields
-      else if (node._tag.equals("mod_schema")) {
-        job.setModSchema(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("load_stat")) {
-        job.setLoadStat(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("load_mode")) {
-        job.setLoadMode(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("load_mtd")) {
-        job.setLoadMtd(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("load_mpr")) {
-        job.setLoadMpr(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("load_orank")) {
-        job.setLoadOrank(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("force_dup_file")) {
-        job.setForceDupFile(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("insert_size")) {
-        job.setInsertSize(Integer.parseInt(node._value));
-      } else if (node._tag.equals("verbose")) {
-        job.setVerbose(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("mode_header_db_check")) {
-        job.setModeHeaderDBCheck(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("mtd_header_db_check")) {
-        job.setMtdHeaderDBCheck(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("stat_header_db_check")) {
-        job.setStatHeaderDBCheck(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("drop_indexes")) {
-        job.setDropIndexes(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("apply_indexes")) {
-        job.setApplyIndexes(node._value.equalsIgnoreCase("true"));
-      } else if (node._tag.equals("folder_tmpl")) {
-        job.setFolderTmpl(node._value);
-      } else if (node._tag.equals("load_note")) {
-        job.setLoadNote(node._value);
-      } else if (node._tag.equals("load_xml")) {
-        job.setLoadXML(node._value.equalsIgnoreCase("true"));
+      else if (node.tag.equals("mod_schema")) {
+        loadJob.setModSchema(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("load_stat")) {
+        loadJob.setLoadStat(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("load_mode")) {
+        loadJob.setLoadMode(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("load_mtd")) {
+        loadJob.setLoadMtd(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("load_mpr")) {
+        loadJob.setLoadMpr(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("load_orank")) {
+        loadJob.setLoadOrank(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("force_dup_file")) {
+        loadJob.setForceDupFile(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("insert_size")) {
+        loadJob.setInsertSize(Integer.parseInt(node.value));
+      } else if (node.tag.equals("verbose")) {
+        loadJob.setVerbose(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("mode_header_db_check")) {
+        loadJob.setModeHeaderDBCheck(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("mtd_header_db_check")) {
+        loadJob.setMtdHeaderDBCheck(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("stat_header_db_check")) {
+        loadJob.setStatHeaderDBCheck(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("drop_indexes")) {
+        loadJob.setDropIndexes(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("apply_indexes")) {
+        loadJob.setApplyIndexes(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("folder_tmpl")) {
+        loadJob.setFolderTmpl(node.value);
+      } else if (node.tag.equals("load_note")) {
+        loadJob.setLoadNote(node.value);
+      } else if (node.tag.equals("load_xml")) {
+        loadJob.setLoadXML(node.value.equalsIgnoreCase("true"));
       }
 
       //  <load_files>
-      else if (node._tag.equals("load_files")) {
+      else if (node.tag.equals("load_files")) {
         listLoadFiles = new ArrayList<>();
-        for (int j = 0; j < node._children.length; j++) {
-          listLoadFiles.add(node._children[j]._value);
+        for (int j = 0; j < node.children.length; j++) {
+          listLoadFiles.add(node.children[j].value);
         }
-        job.setLoadFiles(toArray(listLoadFiles));
+        loadJob.setLoadFiles(MVUtil.toArray(listLoadFiles));
       }
 
       //  <load_val>
-      else if (node._tag.equals("load_val")) {
-        for (int j = 0; j < node._children.length; j++) {
-          nodeField = node._children[j];
-          strFieldName = nodeField._name;
+      else if (node.tag.equals("load_val")) {
+        for (int j = 0; j < node.children.length; j++) {
+          nodeField = node.children[j];
+          strFieldName = nodeField.name;
           listVal = new ArrayList<>();
-          for (int k = 0; k < nodeField._children.length; k++) {
-            nodeChild = nodeField._children[k];
+          for (int k = 0; k < nodeField.children.length; k++) {
+            nodeChild = nodeField.children[k];
 
             //  <val>
-            if (nodeChild._tag.equals("val")) {
-              listVal.add(nodeChild._value);
+            if (nodeChild.tag.equals("val")) {
+              listVal.add(nodeChild.value);
             }
 
             //  <date_list>
-            else if (nodeChild._tag.equals("date_list")) {
-              if (_tableDateListDecl.get(nodeChild._name) instanceof List) {
-                listVal.addAll((List) _tableDateListDecl.get(nodeChild._name));
+            else if (nodeChild.tag.equals("date_list")) {
+              if (dateListDecl.get(nodeChild.name) instanceof List) {
+                listVal.addAll((List) dateListDecl.get(nodeChild.name));
               } else {
-                listVal.addAll(Arrays.asList((String[]) _tableDateListDecl.get(nodeChild._name)));
+                listVal.addAll(Arrays.asList((String[]) dateListDecl.get(nodeChild.name)));
               }
             }
           }
-          job.addLoadVal(strFieldName, toArray(listVal));
+          loadJob.addLoadVal(strFieldName, MVUtil.toArray(listVal));
         }
       }
 
       //  <line_type>
-      else if (node._tag.equals("line_type")) {
-        for (int j = 0; j < node._children.length; j++) {
-          job.addLineTypeLoad(node._children[j]._value);
+      else if (node.tag.equals("line_type")) {
+        for (int j = 0; j < node.children.length; j++) {
+          loadJob.addLineTypeLoad(node.children[j].value);
         }
-        if (0 < job.getLineTypeLoadMap().size()) {
-          job.setLineTypeLoad(true);
+        if (0 < loadJob.getLineTypeLoadMap().size()) {
+          loadJob.setLineTypeLoad(true);
         }
       }
     }
 
     //check if all load values are present in folder_tmpl
-    String[] loadVals = job.getLoadVal().getKeyList();
+    String[] loadVals = loadJob.getLoadVal().getKeyList();
     if (loadVals != null) {
       for (String val : loadVals) {
-        if (!job.getFolderTmpl().contains("{" + val + "}")) {
+        if (!loadJob.getFolderTmpl().contains("{" + val + "}")) {
           //remove value
-          job.getLoadVal().remove(val);
+          loadJob.getLoadVal().remove(val);
         }
       }
     }
 
-    _job = job;
+    this.job = loadJob;
   }
 
 }
