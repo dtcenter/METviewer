@@ -12,7 +12,7 @@ import edu.ucar.metviewer.db.DatabaseManager;
  * Storage class for a xml plot specification, implementing the java bean interface.  Instances are
  * populated by the MVPlotJobParser and handled by MVBatch.
  */
-public class MVPlotJob extends MVUtil {
+public class MVPlotJob  {
 
   protected String jobName = "";
 
@@ -219,13 +219,13 @@ public class MVPlotJob extends MVUtil {
     job.rscript = rscript;
     job.plotTmpl = plotTmpl;
     job.indyVar = indyVar;
-    job.indyVal = copyList(indyVal);
-    job.indyPlotVal = copyList(indyPlotVal);
-    job.indyLabel = copyList(indyLabel);
+    job.indyVal = MVUtil.copyList(indyVal);
+    job.indyPlotVal = MVUtil.copyList(indyPlotVal);
+    job.indyLabel = MVUtil.copyList(indyLabel);
     job.depIndy = depIndy;
     job.plotFixVal = new MVOrderedMap(plotFixVal);
     job.plotFixValEq = new MVOrderedMap(plotFixValEq);
-    job.depGroup = copyList(depGroup);
+    job.depGroup = MVUtil.copyList(depGroup);
     job.series1Val = new MVOrderedMap(series1Val, "s");
     job.series2Val = new MVOrderedMap(series2Val, "s");
 
@@ -1910,12 +1910,12 @@ public class MVPlotJob extends MVUtil {
     if (isMode == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
-        String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
-        String strStat = parseModeStat(listFcstVarStat[0][1])[0];
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
+        String strStat = MVUtil.parseModeStat(listFcstVarStat[0][1])[0];
 
-        isMode = modeSingleStatField.containsKey(strStat)
-                     || modePairStatField.containsKey(strStat)
-                     || modeRatioField.contains(listFcstVarStat[0][1]);
+        isMode = MVUtil.modeSingleStatField.containsKey(strStat)
+                     || MVUtil.modePairStatField.containsKey(strStat)
+                     || MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
       } else {
         isMode = false;
       }
@@ -1927,16 +1927,17 @@ public class MVPlotJob extends MVUtil {
     if (isMtd == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
-        String[][] listFcstVarStat = buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get
+                                                                                               ("dep1"));
 
         String[] listStatComp = listFcstVarStat[0][1].split("_");
         String stat = listFcstVarStat[0][1]
                           .replace("_" + listStatComp[listStatComp.length - 1], "");
 
-        isMtd = mtd3dSingleStatField.containsKey(stat)
-                    || mtd3dPairStatField.containsKey(stat)
-                    || mtd2dStatField.containsKey(stat)
-                    || mtdRatioField.contains(listFcstVarStat[0][1]);
+        isMtd = MVUtil.mtd3dSingleStatField.containsKey(stat)
+                    || MVUtil.mtd3dPairStatField.containsKey(stat)
+                    || MVUtil.mtd2dStatField.containsKey(stat)
+                    || MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
       } else {
         isMtd = false;
       }

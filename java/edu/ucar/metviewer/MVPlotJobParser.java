@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-public class MVPlotJobParser extends MVUtil {
+public class MVPlotJobParser  {
 
   protected static final Map<String, Method> formatToBoolValues = new HashMap<>();
   private static final Logger logger = LogManager.getLogger("MVPlotJobParser");
@@ -299,7 +299,6 @@ public class MVPlotJobParser extends MVUtil {
    * @param in Stream from which the plot specification will be drawn
    */
   public MVPlotJobParser(InputStream in) throws Exception {
-    super();
     DocumentBuilder builder = getDocumentBuilder();
 
     //  parse the input document and build the MVNode data structure
@@ -505,10 +504,10 @@ public class MVPlotJobParser extends MVUtil {
     for (int j = 0; j < nodeDateRange.children.length; j++) {
       MVNode nodeChild = nodeDateRange.children[j];
       if (nodeChild.tag.equals("start")) {
-        strStart = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
+        strStart = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
                                                                     strFormat) : nodeChild.value);
       } else if (nodeChild.tag.equals("end")) {
-        strEnd = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
+        strEnd = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
                                                                   strFormat) : nodeChild.value);
       }
     }
@@ -557,11 +556,11 @@ public class MVPlotJobParser extends MVUtil {
         for (int k = 0; k < nodeIndyVal.children.length; k++) {
           MVNode nodeChild = nodeIndyVal.children[k];
           if (nodeChild.tag.equals("start")) {
-            strStart = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
+            strStart = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
                                                                         strFormat,
                                                                         dep) : nodeChild.value);
           } else if (nodeChild.tag.equals("end")) {
-            strEnd = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
+            strEnd = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
                                                                       strFormat,
                                                                       dep) : nodeChild.value);
           } else if (nodeChild.tag.equals("inc")) {
@@ -573,8 +572,8 @@ public class MVPlotJobParser extends MVUtil {
 
         SimpleDateFormat formatLabel = new SimpleDateFormat(strFormat, Locale.US);
         formatLabel.setTimeZone(TimeZone.getTimeZone("UTC"));
-        List<String> listDates = buildDateList(strStart, strEnd, intInc, formatDb.toPattern(),
-                                               System.out);
+        List<String> listDates = MVUtil.buildDateList(strStart, strEnd, intInc, formatDb
+                                                                                    .toPattern());
         List<String> listLabels = new ArrayList<>();
         for (String listDate : listDates) {
           try {
@@ -588,7 +587,8 @@ public class MVPlotJobParser extends MVUtil {
       }
     }
 
-    return new String[][]{toArray(listIndyVal), toArray(listIndyLabel), toArray(listIndyPlotVal)};
+    return new String[][]{MVUtil.toArray(listIndyVal),
+        MVUtil.toArray(listIndyLabel), MVUtil.toArray(listIndyPlotVal)};
   }
 
   public static StringBuilder serializeJob(MVPlotJob job, DatabaseInfo databaseInfo) {
@@ -1050,7 +1050,7 @@ public class MVPlotJobParser extends MVUtil {
       //  <date_list>
       else if (node.tag.equals("date_list")) {
 
-        dateListDecl.put(node.name, buildDateList(node, System.out));
+        dateListDecl.put(node.name, MVUtil.buildDateList(node, System.out));
       }
 
       //  <date_range>
@@ -1072,11 +1072,11 @@ public class MVPlotJobParser extends MVUtil {
         for (int l = 0; l < node.children.length; l++) {
           MVNode nodeChild = node.children[l];
           if (nodeChild.tag.equals("range_start")) {
-            rangeStart = (0 < nodeChild.children.length ? parseDateOffset(
+            rangeStart = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(
                 nodeChild.children[0], format) : nodeChild.value);
           } else if (nodeChild.tag.equals("range_end")) {
             rangeEnd = (0 < nodeChild.children.length
-                               ? parseDateOffset(nodeChild.children[0], format) : nodeChild.value);
+                               ? MVUtil.parseDateOffset(nodeChild.children[0], format) : nodeChild.value);
           } else if (nodeChild.tag.equalsIgnoreCase("range_length")) {
             rangeLength = Integer.parseInt(nodeChild.value);
           } else if (nodeChild.tag.equalsIgnoreCase("inc")) {
@@ -1102,7 +1102,7 @@ public class MVPlotJobParser extends MVUtil {
           dateRange.add("BETWEEN '" + strStartCur + "' AND '" + strEndCur + "'");
           cal.add(Calendar.MINUTE, inc - rangeLength);
         }
-        dateRangeListDecl.put(node.name, toArray(dateRange));
+        dateRangeListDecl.put(node.name, MVUtil.toArray(dateRange));
       }
 
       //  <plot>
@@ -1280,7 +1280,7 @@ public class MVPlotJobParser extends MVUtil {
           ArrayList listFixVal;
           if (job.getPlotFixVal().containsKey(nodeFix.name)
                   && job.getPlotFixVal().get(nodeFix.name) instanceof String[]) {
-            listFixVal = (ArrayList) toArrayList((String[]) job.getPlotFixVal().get(nodeFix.name));
+            listFixVal = (ArrayList) MVUtil.toArrayList((String[]) job.getPlotFixVal().get(nodeFix.name));
           } else {
             listFixVal = new ArrayList();
           }
@@ -1326,7 +1326,7 @@ public class MVPlotJobParser extends MVUtil {
                   throw new Exception("sets of date_range_list structures not supported");
                 }
               }
-              mapFixVal.put(nodeFixVal.name, toArray(listFixSet));
+              mapFixVal.put(nodeFixVal.name, MVUtil.toArray(listFixSet));
             }
 
             //  <date_list>
@@ -1360,9 +1360,9 @@ public class MVPlotJobParser extends MVUtil {
 
           }
           if (!listFixVal.isEmpty()) {
-            job.addPlotFixVal(nodeFix.name, toArray(listFixVal));
+            job.addPlotFixVal(nodeFix.name, MVUtil.toArray(listFixVal));
             if ("true".equals(equalize)) {
-              job.addPlotFixValEq(nodeFix.name, toArray(listFixVal));
+              job.addPlotFixValEq(nodeFix.name, MVUtil.toArray(listFixVal));
             }
           } else if (0 < mapFixVal.size()) {
             job.addPlotFixVal(nodeFix.name, mapFixVal);
@@ -1795,13 +1795,13 @@ public class MVPlotJobParser extends MVUtil {
       }
     }
     //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
-    for (String stat : modeSingleStatField.keySet()) {
+    for (String stat : MVUtil.modeSingleStatField.keySet()) {
       if (node.value.indexOf(stat) > 0) {
         throw new Exception("MODE Attribute stats " + stat
                                 + " can't be a part of difference curve.");
       }
     }
-    for (String stat : modePairStatField.keySet()) {
+    for (String stat : MVUtil.modePairStatField.keySet()) {
       if (node.value.indexOf(stat) > 0) {
         throw new Exception("MODE Attribute stats " + stat
                                 + " can't be a part of difference curve.");
@@ -1817,7 +1817,7 @@ public class MVPlotJobParser extends MVUtil {
    * @return true if valid, false otherwise
    */
   public boolean isStatValid(String strStat) {
-    return !getStatTable(strStat).equals("");
+    return !MVUtil.getStatTable(strStat).equals("");
   }
 
   /**

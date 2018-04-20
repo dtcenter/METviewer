@@ -1359,9 +1359,9 @@ public class MVUtil {
     String[] listKeys = (String[]) keys.toArray(new String[keys.size()]);
     for (int i = 0; i < listKeys.length; i++) {
       if (0 < i) {
-        strRDecl += ",\n" + MVBatch.padBegin("`" + listKeys[i] + "`") + " = ";
+        strRDecl += ",\n" + MVUtil.padBegin("`" + listKeys[i] + "`") + " = ";
       } else {
-        strRDecl += "" + MVBatch.padBegin("`" + listKeys[i] + "`") + " = ";
+        strRDecl += "" + MVUtil.padBegin("`" + listKeys[i] + "`") + " = ";
       }
       Object objVal = map.get(listKeys[i]);
       if (objVal instanceof String) {

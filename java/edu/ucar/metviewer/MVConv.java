@@ -8,7 +8,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 
-public class MVConv extends MVUtil {
+public class MVConv  {
 
   public static final String _strDBHost = "orval.rap.ucar.edu";
   public static final String _strDBUser = "pgoldenb";
@@ -193,8 +193,8 @@ public class MVConv extends MVUtil {
       int intNumDest = getTableSize(_conDest, "stat_header");
 
       //  print out a report line for the stat_header table
-      System.out.println("  " + padEnd("table", 18) + padEnd("source", 12) + "dest\n  " +
-        padEnd("stat_header", 18) + padEnd(padBegin("" + intNumSrc, 10), 12) + padBegin("" + intNumDest, 10));
+      System.out.println("  " + MVUtil.padEnd("table", 18) + MVUtil.padEnd("source", 12) + "dest\n  " +
+                             MVUtil.padEnd("stat_header", 18) + MVUtil.padEnd(MVUtil.padBegin("" + intNumSrc, 10), 12) + MVUtil.padBegin("" + intNumDest, 10));
 
       //  print out a report of the number of lines moved for all line_data tables
       for (String _listLineDataTable : _listLineDataTables) {
@@ -204,26 +204,27 @@ public class MVConv extends MVUtil {
         intNumDest = getTableSize(_conDest, _listLineDataTable);
 
         //  print the report line for the table
-        System.out.println("  " + padEnd(_listLineDataTable, 18) + padEnd(padBegin("" + intNumSrc, 10), 12) + padBegin("" + intNumDest, 10));
+        System.out.println("  " + MVUtil.padEnd(_listLineDataTable, 18) + MVUtil.padEnd(MVUtil.padBegin("" +
+                                                                                        intNumSrc, 10), 12) + MVUtil.padBegin("" + intNumDest, 10));
       }
 
       //  report the mode table sizes
-      System.out.println("  " + padEnd("mode_header", 18) +
-        padEnd(padBegin("" + getTableSize(_conSrc, "mode_header"), 10), 12) +
-        padBegin("" + getTableSize(_conDest, "mode_header"), 10));
-      System.out.println("  " + padEnd("mode_cts", 18) +
-        padEnd(padBegin("" + getTableSize(_conSrc, "mode_cts"), 10), 12) +
-        padBegin("" + getTableSize(_conDest, "mode_cts"), 10));
-      System.out.println("  " + padEnd("mode_obj_single", 18) +
-        padEnd(padBegin("" + getTableSize(_conSrc, "mode_obj_single"), 10), 12) +
-        padBegin("" + getTableSize(_conDest, "mode_obj_single"), 10));
-      System.out.println("  " + padEnd("mode_obj_pair", 18) +
-        padEnd(padBegin("" + getTableSize(_conSrc, "mode_obj_pair"), 10), 12) +
-        padBegin("" + getTableSize(_conDest, "mode_obj_pair"), 10));
+      System.out.println("  " + MVUtil.padEnd("mode_header", 18) +
+                             MVUtil.padEnd(MVUtil.padBegin("" + getTableSize(_conSrc, "mode_header"), 10), 12) +
+                             MVUtil.padBegin("" + getTableSize(_conDest, "mode_header"), 10));
+      System.out.println("  " + MVUtil.padEnd("mode_cts", 18) +
+                             MVUtil.padEnd(MVUtil.padBegin("" + getTableSize(_conSrc, "mode_cts"), 10), 12) +
+                             MVUtil.padBegin("" + getTableSize(_conDest, "mode_cts"), 10));
+      System.out.println("  " + MVUtil.padEnd("mode_obj_single", 18) +
+                             MVUtil.padEnd(MVUtil.padBegin("" + getTableSize(_conSrc, "mode_obj_single"), 10), 12) +
+                             MVUtil.padBegin("" + getTableSize(_conDest, "mode_obj_single"), 10));
+      System.out.println("  " + MVUtil.padEnd("mode_obj_pair", 18) +
+                             MVUtil.padEnd(MVUtil.padBegin("" + getTableSize(_conSrc, "mode_obj_pair"), 10), 12) +
+                             MVUtil.padBegin("" + getTableSize(_conDest, "mode_obj_pair"), 10));
 
       System.out.println("\n\n" +
         "      end time: " + _formatDB.format(new java.util.Date()) + "\n" +
-        "  time elapsed: " + formatTimeSpan((new java.util.Date()).getTime() - intStartTime) + "\n");
+        "  time elapsed: " + MVUtil.formatTimeSpan((new java.util.Date()).getTime() - intStartTime) + "\n");
 
       //  copy all mode information
 

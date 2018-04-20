@@ -25,7 +25,7 @@ import edu.ucar.metviewer.jobManager.TaylorJobManager;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
-public class MVBatch extends MVUtil {
+public class MVBatch  {
 
 
   private PrintStream printStream;
@@ -263,7 +263,7 @@ public class MVBatch extends MVUtil {
       }
       String[] listJobNames = mapJobs.getKeyList();
       if (!listJobNamesInput.isEmpty()) {
-        listJobNames = toArray(listJobNamesInput);
+        listJobNames = MVUtil.toArray(listJobNamesInput);
       }
       bat.print((boolList ? "" : "processing ") + listJobNames.length + " jobs:");
       for (String listJobName : listJobNames) {
@@ -382,11 +382,11 @@ public class MVBatch extends MVUtil {
       long plotTime = dateStart.until(dateEnd, ChronoUnit.MILLIS);
       long plotAvg = 0 < bat.numPlots ? plotTime / (long) bat.numPlots : 0;
       bat.print("\n"
-                    + padBegin("End time: ") + MVUtil.APP_DATE_FORMATTER.format(dateEnd) + "\n"
-                    + padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
+                    + MVUtil.padBegin("End time: ") + MVUtil.APP_DATE_FORMATTER.format(dateEnd) + "\n"
+                    + MVUtil.padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
                     + "\n"
-                    + padBegin("Total time: ") + formatTimeSpan(plotTime) + "\n"
-                    + padBegin("Avg plot time: ") + formatTimeSpan(plotAvg) + "\n");
+                    + MVUtil.padBegin("Total time: ") + MVUtil.formatTimeSpan(plotTime) + "\n"
+                    + MVUtil.padBegin("Avg plot time: ") + MVUtil.formatTimeSpan(plotAvg) + "\n");
 
     } catch (Exception e) {
       bat.print("  **  ERROR:  " + e.getMessage());
