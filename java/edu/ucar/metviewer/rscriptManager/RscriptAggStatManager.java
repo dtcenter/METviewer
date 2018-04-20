@@ -54,7 +54,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
       //create sql query
       MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
       List<String> eventEqualizeSql = mvBatch.getDatabaseManager()
-                                          .buildPlotModeEventEqualizeSQL(job,
+                                          .buildPlotModeEventEqualizeSql(job,
                                                                          mvMap,
                                                                          mapPlotFixVal);
 
