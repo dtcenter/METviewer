@@ -910,3 +910,141 @@ value <- function (obs, pred = NULL, baseline = NULL, cl = seq(0.05, 0.95,0.05),
         n = n))
     invisible(aa)
 }
+
+filled.contour3 <-
+  function (x = seq(0, 1, length.out = nrow(z)),
+            y = seq(0, 1, length.out = ncol(z)), z, xlim = range(x, finite = TRUE),
+            ylim = range(y, finite = TRUE), zlim = range(z, finite = TRUE),
+            levels = pretty(zlim, nlevels), nlevels = 20, color.palette = cm.colors,
+            col = color.palette(length(levels) - 1), plot.title, plot.axes,
+            key.title, key.axes, asp = NA, xaxs = "i", yaxs = "i", las = 1,
+            axes = TRUE, frame.plot = axes,mar, ...)
+  {
+    # modification by Ian Taylor of the filled.contour function
+    # to remove the key and facilitate overplotting with contour()
+    # further modified by Carey McGilliard and Bridget Ferris
+    # to allow multiple plots on one page
+
+    if (missing(z)) {
+      if (!missing(x)) {
+        if (is.list(x)) {
+          z <- x$z
+          y <- x$y
+          x <- x$x
+        }
+        else {
+          z <- x
+          x <- seq.int(0, 1, length.out = nrow(z))
+        }
+      }
+      else stop("no 'z' matrix specified")
+    }
+    else if (is.list(x)) {
+      y <- x$y
+      x <- x$x
+    }
+    
+    #!!!! COMMENTED THIS because some x or values can be strings or in reverse order
+    if (any(diff(x) <= 0) || any(diff(y) <= 0))
+      stop("increasing 'x' and 'y' values expected")
+    
+    
+    
+    
+    # mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+    # on.exit(par(par.orig))
+    # w <- (3 + mar.orig[2]) * par("csi") * 2.54
+    # par(las = las)
+    # mar <- mar.orig
+    plot.new()
+    # par(mar=mar)
+    plot.window(xlim, ylim, "", xaxs = xaxs, yaxs = yaxs, asp = asp)
+    if(!is.matrix(z))
+      stop("no proper 'z' matrix specified")
+    if(nrow(z) <= 1)
+      stop("X axis should have more than one value")
+    if(ncol(z) <= 1)
+      stop("Y axis should have more than one value")
+
+    if (!is.double(z))
+      storage.mode(z) <- "double"
+    .filled.contour(as.double(x), as.double(y), z, as.double(levels),
+                            col = col)
+    if (missing(plot.axes)) {
+      if (axes) {
+        title(main = "", xlab = "", ylab = "")
+        Axis(x, side = 1)
+        Axis(y, side = 2)
+      }
+    }
+    else plot.axes
+    if (frame.plot)
+      box()
+    if (missing(plot.title))
+      title(...)
+    else plot.title
+    invisible()
+  }
+
+
+filled.legend <-
+   function (x = seq(0, 1, length.out = nrow(z)), y = seq(0, 1,
+                                                          length.out = ncol(z)), z, xlim = range(x, finite = TRUE),
+             ylim = range(y, finite = TRUE), zlim = range(z, finite = TRUE),
+             levels = pretty(zlim, nlevels), nlevels = 20, color.palette = cm.colors,
+             col = color.palette(length(levels) - 1), plot.title, plot.axes,
+             key.title, key.axes, asp = NA, xaxs = "i", yaxs = "i", las = 1,
+             axes = TRUE, frame.plot = axes, ...)
+   {
+     # modification of filled.contour by Carey McGilliard and Bridget Ferris
+     # designed to just plot the legend
+     if (missing(z)) {
+       if (!missing(x)) {
+         if (is.list(x)) {
+           z <- x$z
+           y <- x$y
+           x <- x$x
+         }
+         else {
+           z <- x
+           x <- seq.int(0, 1, length.out = nrow(z))
+         }
+       }
+       else stop("no 'z' matrix specified")
+     }
+     else if (is.list(x)) {
+       y <- x$y
+       x <- x$x
+     }
+     if (any(diff(x) <= 0) || any(diff(y) <= 0))
+       stop("increasing 'x' and 'y' values expected")
+     #  mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+     #  on.exit(par(par.orig))
+     #  w <- (3 + mar.orig[2L]) * par("csi") * 2.54
+     #layout(matrix(c(2, 1), ncol = 2L), widths = c(1, lcm(w)))
+     #  par(las = las)
+     #  mar <- mar.orig
+     #  mar[4L] <- mar[2L]
+     #  mar[2L] <- 1
+     #  par(mar = mar)
+     # plot.new()
+     plot.window(xlim = c(0, 1), ylim = range(levels), xaxs = "i",
+                 yaxs = "i")
+     rect(0, levels[-length(levels)], 1, levels[-1L], col = col)
+     if (missing(key.axes)) {
+       if (axes)
+         axis(4)
+     }
+     else key.axes
+     box()
+   }
+
+# returns string w/o leading or trailing whitespace
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+green.red<-colorRampPalette(c("#E6FFE2","#B3FAAD", "#74F578", "#30D244", "#00A01E", "#F6A1A2", "#E26667", "#C93F41", "#A42526"),
+                            interpolate="linear")
+
+blue.white.brown<-colorRampPalette(c("#1962CF", "#3E94F2","#B4F0F9", "#00A01E", "#4AF058",
+                                         "#C7FFC0", "#FFFFFF", "#FFE97F", "#FF3A20", "#A50C0F", "#E1BFB5",
+                                         "#A0786F", "#643D34"), interpolate="linear")
