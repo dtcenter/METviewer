@@ -5,12 +5,12 @@
 
 package edu.ucar.metviewer.scorecard.db;
 
+import java.sql.SQLException;
+
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.sql.SQLException;
 
 /**
  * @author : tatiana $
@@ -62,7 +62,7 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerMySQL {
 
   @Override
   protected String getStatValue(String table, String stat) {
-    return "0";
+    return "";
   }
 
 }
