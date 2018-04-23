@@ -73,7 +73,15 @@ if ( nrow(sampleData) > 0){
   }
 
   dfStatsRec = fread(strInputDataFile,colClasses = classes,data.table=FALSE);
-
+  #change names for sal1l2
+  if( boolSumSal1l2  ){
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="fabar"] <- "fbar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="oabar"] <- "obar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="foabar"] <- "fobar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="ffabar"] <- "ffbar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="ooabar"] <- "oobar";
+    statFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
+  }
   intYMax = 1;
   if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 
@@ -194,8 +202,8 @@ if ( nrow(sampleData) > 0){
   }
 
   dfStatsRecTranspose=data.frame(t(dfStatsRec),stringsAsFactors = FALSE);
-  a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
-  #a=lapply( dfStatsRecTranspose,prepareCalc);
+  #a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
+  a=lapply( dfStatsRecTranspose,prepareCalc);
 
 
 
