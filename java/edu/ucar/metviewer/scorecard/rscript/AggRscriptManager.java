@@ -87,6 +87,7 @@ public class AggRscriptManager extends RscriptManager {
       tableAggStatInfo.put("indy_list", "c(" + indyList + ")");
 
       tableAggStatInfo.put("agg_stat1", "c(\"" + stat + "\")");
+      tableAggStatInfo.put("contour_diff", "FALSE");
 
 
       tableAggStatInfo.put("series1_list", seriesList.toString());
