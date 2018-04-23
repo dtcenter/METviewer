@@ -5,14 +5,14 @@
 
 package edu.ucar.metviewer.scorecard;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author : tatiana $
@@ -71,7 +71,7 @@ public class Util {
         }
       }
     } catch (NullPointerException e) {
-      logger.error(e);
+      logger.error("Error during assigning a table name and line type for the stat : " + stat);
       aggType = "";
     }
     return aggType;
