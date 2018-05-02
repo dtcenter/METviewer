@@ -23,32 +23,40 @@ import org.apache.logging.log4j.io.IoBuilder;
  * @version : 1.0 : 28/12/17 13:44 $
  */
 public class RscriptNoneStatManager extends RscriptStatManager {
-  private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache
-                                                                                               .logging.log4j.Level.INFO)
-                        .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-                        .buildPrintStream();
+
+  private static final PrintStream errorStream
+      = IoBuilder.forLogger(MVUtil.class)
+            .setLevel(org.apache.logging.log4j.Level.INFO)
+            .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+            .buildPrintStream();
 
   public RscriptNoneStatManager(MVBatch mvBatch) {
     super(mvBatch);
   }
 
   @Override
-  public void prepareDataFileAndRscript(MVPlotJob job,MVOrderedMap mvMap,
-                                        Map<String, String> info,
-                                        List<String> listQuery) throws Exception {
+  public void prepareDataFileAndRscript(
+                                           MVPlotJob job, MVOrderedMap mvMap,
+                                           Map<String, String> info,
+                                           List<String> listQuery) throws Exception {
 
     //  use the map of all plot values to populate the template strings
-    String fileName =  MVUtil.buildTemplateString(job.getPlotFileTmpl(),
-                                                  MVUtil.addTmplValDep(job),
-                                                  job.getTmplMaps(),
-                                                  mvBatch.getPrintStream());
-    plotFile = mvBatch.getPlotsFolder() +fileName;
-    fileName =  MVUtil.buildTemplateString(job.getRFileTmpl(),
-                                                      MVUtil.addTmplValDep(job),
-                                                      job.getTmplMaps(),
-                                                      mvBatch.getPrintStream());
-    rScriptFile = mvBatch.getScriptsFolder()+ fileName;
+    String fileName = MVUtil.buildTemplateString(job.getPlotFileTmpl(),
+                                                 MVUtil.addTmplValDep(job),
+                                                 job.getTmplMaps(),
+                                                 mvBatch.getPrintStream());
+    plotFile = mvBatch.getPlotsFolder() + fileName;
 
+    //validate file name - should be less than 256 chars
+    if (plotFile.length() >= 256) {
+      throw new Exception("The plot filename is longer than the limit 255 characters");
+    }
+
+    fileName = MVUtil.buildTemplateString(job.getRFileTmpl(),
+                                          MVUtil.addTmplValDep(job),
+                                          job.getTmplMaps(),
+                                          mvBatch.getPrintStream());
+    rScriptFile = mvBatch.getScriptsFolder() + fileName;
 
 
     //  create the plot and R script output folders, if necessary
@@ -71,7 +79,6 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       }
     }
 
-
   }
 
   @Override
@@ -79,40 +86,15 @@ public class RscriptNoneStatManager extends RscriptStatManager {
     boolean success = false;
     try {
       info.put("plot_file", plotFile);
-      mvBatch.print("Populating " + mvBatch.getRtmplFolder() + job.getPlotTmpl() + " " + rScriptFile);
-      MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + job.getPlotTmpl(), rScriptFile,
-                                  info);
-      success = MVUtil
-                        .runRscript(job.getRscript(), rScriptFile,
-                                    mvBatch.getPrintStream());
+      mvBatch.print("Populating " + mvBatch.getRtmplFolder()
+                        + job.getPlotTmpl() + " " + rScriptFile);
+      MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + job.getPlotTmpl(), rScriptFile, info);
+      success = MVUtil.runRscript(job.getRscript(), rScriptFile, mvBatch.getPrintStream());
     } catch (Exception e) {
       errorStream.print(e.getMessage());
     }
 
     return success;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
