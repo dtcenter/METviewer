@@ -27,7 +27,6 @@ import edu.ucar.metviewer.MVUtil;
 public abstract class JobManager {
 
   protected MVBatch mvBatch;
-  protected String plotFile;
   protected MVOrderedMap[] listPlotFixPerm;
 
 
@@ -42,7 +41,7 @@ public abstract class JobManager {
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
       run(job);
     } catch (Exception e) {
-      mvBatch.print("Failed to create" + " plot " + plotFile);
+      mvBatch.print("Failed to create" + "a plot. " + e.getMessage());
       throw e;
     }
   }
@@ -168,8 +167,20 @@ public abstract class JobManager {
           if (strFcstVar.isEmpty()) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
-            throw new Exception("fcst_var must remain constant for MODE or"
-                                    + " when agg_stat/agg_pct/agg_stat_bootstrap is activated");
+            //check if this is a mode/mtd/agg/sum stat job
+            boolean isAggStat = job.getAggCtc()
+                                    || job.getAggSl1l2()
+                                    || job.getAggSal1l2()
+                                    || job.getAggNbrCnt()
+                                    || job.getAggSsvar()
+                                    || job.getAggVl1l2()
+                                    || job.getAggVal1l2()
+                                    || job.getAggGrad()
+                                    || job.getAggPct();
+            if(job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
+              throw new Exception("fcst_var must remain constant for MODE, MTD, Aggregation "
+                                      + "statistics, Event Equalizer");
+            }
           }
           mapStat.put(aListFcstVarStat[1], aListFcstVarStat[0]);
         }
@@ -224,7 +235,6 @@ public abstract class JobManager {
     info.put("series_nobs", job.getSeriesNobs().getRDecl());
     info.put("dep1_scale", job.getDep1Scale().getRDecl());
     info.put("dep2_scale", job.getDep2Scale().getRDecl());
-    info.put("plot_file", plotFile);
 
     info.put("plot_title", strTitle);
     info.put("x_label", strXLabel);
@@ -312,7 +322,6 @@ public abstract class JobManager {
     info.put("sum_grad", job.getCalcGrad() ? "TRUE" : "FALSE");
     info.put("sum_vl1l2", job.getCalcVl1l2() ? "TRUE" : "FALSE");
     info.put("sum_sal1l2", job.getCalcSal1l2() ? "TRUE" : "FALSE");
-    info.put("event_equal", String.valueOf(job.getEventEqual()));
     info.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
     info.put("indy_var", job.getIndyVar());
     info
