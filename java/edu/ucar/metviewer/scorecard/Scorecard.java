@@ -58,6 +58,7 @@ public class Scorecard {
   private String plotStat = "median";
   private String statFlag = "NCAR";
   private String stat = "DIFF_SIG";
+  private String thresholdFile = null;
 
   private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
                                           "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
@@ -238,9 +239,19 @@ public class Scorecard {
     return stat;
   }
 
+  public String getThresholdFile() {
+    return thresholdFile;
+  }
+
+  public void setThresholdFile(String thresholdFile) {
+    this.thresholdFile = thresholdFile;
+  }
+
   public void setStat(String stat) {
     this.stat = stat;
   }
+
+
 
   public static void main(String[] args) throws Exception {
     long nanos = System.nanoTime();
@@ -305,18 +316,22 @@ public class Scorecard {
           logger.info(
               "---------------------------------------------------------------------------------------");
 
-          //get data from db and save it into file
-          scorecardDbManager.createDataFile(mapRow, "");
+          try {
+            //get data from db and save it into file
+            scorecardDbManager.createDataFile(mapRow, "");
 
-          //use rscript and data from the db file to calculate stats and append them into the resulting file
-          rscriptManager.calculateStatsForRow(mapRow, "");
-          logger.info(
-              "---------------------------------------------------------------------------------------");
-          rowCounter++;
+            //use rscript and data from the db file to calculate stats and append them into the resulting file
+            rscriptManager.calculateStatsForRow(mapRow, "");
+            logger.info(
+                "---------------------------------------------------------------------------------------");
+            rowCounter++;
+          }catch (Exception e){
+            logger.error(e.getMessage());
+          }
         }
 
-        File dataFile = new File(scorecard.getWorkingFolders().getDataDir() + scorecard
-                                                                                  .getDataFile());
+        File dataFile = new File(scorecard.getWorkingFolders().getDataDir()
+                                     + scorecard.getDataFile());
         //if the resulting file exists - create an image and html file
         if (dataFile.exists()) {
           GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
