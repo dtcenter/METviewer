@@ -188,12 +188,12 @@ if(length(listDiffSeries1) > 0){
           dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy & plotData2[[names(listSeries1Val)]] == seriesVal , ];
 
           #sort data
-          if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy1$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
-          if( "fcst_valid"     %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy1$fcst_valid),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid),];   }
-          if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
-          if( "fcst_init"      %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
+          if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
+          if( "fcst_valid"     %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_valid),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid),];   }
+          if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
+          if( "fcst_init"      %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
 
-          dfStatsIndy1$stat_value = calcDerivedCurveValue(dfStatsIndy1$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
+          dfStatsIndy$stat_value = calcDerivedCurveValue(dfStatsIndy$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
 
 
           if(length(names(plotDataDiff)) == 0){
@@ -213,7 +213,7 @@ if(length(listDiffSeries1) > 0){
 
 
 if( reverseX){
-  x_real = rev(indyLabel)
+  x_real = rev(listIndy)
   indyLabel = rev(indyLabel)
 }else{
   x_real = listIndy;
