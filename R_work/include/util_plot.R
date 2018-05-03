@@ -108,32 +108,46 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
 #                  for example with MODE objects
 #
 eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFixVars, listFixVarVals, boolEqualizeByIndep ,boolMulti){
-
+  
+  dateTimeVars = c("", "fcst_valid_beg", 'fcst_lead', 'fcst_valid', 'fcst_init', 'fcst_init_beg');
+  
   # convert the dates from strings to POSIXct, and create a unique member to use for equalization
-  if( "fcst_valid_beg" %in% names(dfStats) ){
+  
+  if( "fcst_valid_beg" %in% names(dfStats)  ){
     dfStats$fcst_valid_beg = as.POSIXct(dfStats$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
-
+    
     #always use fcst_valid_beg and fcst_lead for equalization
     equalize_by = paste(dfStats$fcst_valid_beg, dfStats$fcst_lead);
+    
+    
     dfStats$equalize = equalize_by;
   } else if( "fcst_valid" %in% names(dfStats) ) {
     dfStats$fcst_valid = as.POSIXct(dfStats$fcst_valid, format="%Y-%m-%d %H:%M:%S", tz="GMT");
-
+    
+    
     #always use fcst_valid_beg and fcst_lead for equalization
     equalize_by = paste(dfStats$fcst_valid, dfStats$fcst_lead);
+    
     dfStats$equalize = equalize_by;
-
+    
   } else {
     cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
     return( dfStats );
   }
-
+  
+  #add independent variable if needed
+  if(boolEqualizeByIndep && !(strIndyVar %in% dateTimeVars) ) {
+    equalize_by = paste(dfStats$equalize,  dfStats[[strIndyVar]]);
+    dfStats$equalize = equalize_by;
+  }
+  
+  
   listVarsForEE=list();
 
   #remove groups from the series vars
   for(strSeriesVar in names(listSeriesVal)){
     #do not include case members
-    if(strSeriesVar != "fcst_valid_beg" && strSeriesVar != 'fcst_lead' && strSeriesVar != 'fcst_valid'){
+    if( !(strSeriesVar %in% dateTimeVars) ){
       valSeries = listSeriesVal[[strSeriesVar]];
       valSeriesNew = c();
       for(strVar in valSeries){
@@ -144,16 +158,12 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     }
   }
 
-  #add independent variable if needed
-  if(boolEqualizeByIndep && strIndyVar!= "" && strIndyVar != "fcst_valid_beg" && strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid'){
-    equalize_by = paste(dfStats$equalize,  dfStats[[strIndyVar]]);
-    dfStats$equalize = equalize_by;
-  }
+  
 
   #add fixed variables if present
   if(length(listFixVars) > 0){
     for( index in 1:length(listFixVars) ){
-      if(listFixVars[index] != "fcst_valid_beg" && listFixVars[index] != 'fcst_lead'  && listFixVars[index] != 'fcst_valid'){
+      if( !(listFixVars[index] %in% dateTimeVars) ){
         listVarsForEE[[ listFixVars[index] ]] = listFixVarVals[[index]];
       }
     }
@@ -162,7 +172,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
 
   # create a list of permutations representing the all variables for EE
   dfVarsForEEPerm =  permute(listVarsForEE );
-
+  
   dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 
   listEqualize = vector();
@@ -171,17 +181,17 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     dfComp = dfStats;
     for(strVarIndex in 1:ncol(dfVarsForEEPerm)){
       if(names(listVarsForEE)[strVarIndex] == 'fcst_init_beg'){
-       dfComp = dfComp[as.character(dfComp[[names(listVarsForEE)[strVarIndex]]]) == dfVarsForEEPerm[index,strVarIndex],];
-     }else{
-       if(is.na( strtoi(dfVarsForEEPerm[index,strVarIndex]))){
-         #for strings
-         dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
-       }else{
-         #for integer string
-         dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == strtoi(dfVarsForEEPerm[index,strVarIndex]) ,];
-       }
+        dfComp = dfComp[as.character(dfComp[[names(listVarsForEE)[strVarIndex]]]) == dfVarsForEEPerm[index,strVarIndex],];
+      }else{
+        if(is.na( strtoi(dfVarsForEEPerm[index,strVarIndex]))){
+          #for strings
+          dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
+        }else{
+          #for integer string
+          dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == strtoi(dfVarsForEEPerm[index,strVarIndex]) ,];
+        }
+      }
     }
-  }
 
     # if the list contains repetetive values, show a warning
     if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
@@ -191,7 +201,6 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     #if(  0 < sum(is.na(listEqualize) ) || length(listEqualize) == 0 ){
     if(  index == 1 ){
       #init the equalization list
-
       listEqualize = unique(dfComp$equalize);
     } else {
       # if there is an equalization list, equalize the current series data
