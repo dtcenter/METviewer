@@ -79,20 +79,24 @@ class XmlParser {
         } else if ("columns".equals(plotNode.getNodeName())) {
           scorecard.setColumns(constructFields(plotNode));
         } else if ("agg_stat".equals(plotNode.getNodeName())) {
-          scorecard.setAggStat(Boolean.valueOf(plotNode.getTextContent()));
+          if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
+            scorecard.setAggStat(Boolean.TRUE);
+          } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+            scorecard.setAggStat(Boolean.FALSE);
+          }
         } else if ("boot_repl".equals(plotNode.getNodeName())) {
           try {
             scorecard.setNumBootReplicates(Integer.valueOf(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
-            logger.error("Incorrect value for <boot_repl> :" + plotNode
-                                                                   .getTextContent() + ". Using default value 1000");
+            logger.error("Incorrect value for <boot_repl> :"
+                             + plotNode.getTextContent() + ". Using default value 1000");
           }
         } else if ("boot_random_seed".equals(plotNode.getNodeName())) {
           try {
             scorecard.setBootRandomSeed(Integer.valueOf(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
-            logger.error("Incorrect value for <boot_random_seed> :" + plotNode
-                                                                          .getTextContent() + ". Using default value NULL");
+            logger.error("Incorrect value for <boot_random_seed> :"
+                             + plotNode.getTextContent() + ". Using default value NULL");
           }
         } else if ("plot_stat".equals(plotNode.getNodeName())) {
           scorecard.setPlotStat(plotNode.getTextContent());
@@ -120,11 +124,13 @@ class XmlParser {
           scorecard.setStatFlag(plotNode.getTextContent());
 
         } else if ("stat".equals(plotNode.getNodeName())) {
-          if(plotNode.getTextContent().equals("DIFF")
-                 || plotNode.getTextContent().equals("DIFF_SIG")
-                 || plotNode.getTextContent().equals("SINGLE")) {
+          if (plotNode.getTextContent().equals("DIFF")
+                  || plotNode.getTextContent().equals("DIFF_SIG")
+                  || plotNode.getTextContent().equals("SINGLE")) {
             scorecard.setStat(plotNode.getTextContent());
           }
+        } else if ("threshold_file".equals(plotNode.getNodeName())) {
+          scorecard.setThresholdFile(plotNode.getTextContent());
         } else if ("printSQL".equals(plotNode.getNodeName())) {
           if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
             scorecard.setPrintSQL(Boolean.TRUE);
@@ -136,6 +142,7 @@ class XmlParser {
       }
 
     }
+
   }
 
   private void setTmpl(Scorecard scorecard, Node node) {
