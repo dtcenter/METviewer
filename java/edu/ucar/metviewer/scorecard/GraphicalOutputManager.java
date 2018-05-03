@@ -6,6 +6,8 @@
 
 package edu.ucar.metviewer.scorecard;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +37,9 @@ import j2html.tags.ContainerTag;
 import j2html.tags.UnescapedText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
@@ -60,14 +65,17 @@ class GraphicalOutputManager {
   private static final String BLACK_000000 = "#000000";
 
   private static final Logger logger = LogManager.getLogger("GraphicalOutputManager");
-  private static final String CSS = "table {border-collapse: collapse;border-spacing: 0;}" +
-                                        "table, th, td {border: 1px solid black;text-align:center;}" +
-                                        "th {color: red;}" +
-                                        "#thside {color: blue;}" +
-                                        ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}" +
-                                        ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}" +
-                                        ".legendTable {margin-top:15px;margin-bottom:10px;}" +
-                                        ".legendText {text-align:left;}";
+  private static final String CSS
+      = "table {border-collapse: collapse;border-spacing: 0;}"
+            + "table, th, td {border: 1px solid black;text-align:center;}"
+            + "th {color: red;}"
+            + "#thside {color: blue;}"
+            + ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}"
+            + ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}"
+            + ".legendTable {margin-top:15px;margin-bottom:10px;}"
+            + ".legendText {text-align:left;}";
+  public static final String CLASS = "class";
+  public static final String STYLE = "style";
 
   private final ContainerTag html;
   private final ContainerTag title1;
@@ -89,14 +97,14 @@ class GraphicalOutputManager {
 
   public GraphicalOutputManager(final Scorecard scorecard) {
     html = html();
-    title1 = div().attr("class", "title1");
-    title2 = div().attr("class", "title2");
-    title3 = div().attr("class", "title2");
+    title1 = div().attr(CLASS, "title1");
+    title2 = div().attr(CLASS, "title2");
+    title3 = div().attr(CLASS, "title2");
     //add head
     html.with(head().with(style().attr("type", "text/css").with(text(CSS))));
 
     //create range list
-    initRangeList();
+    initRangeList(scorecard.getThresholdFile());
     dataFileStr = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile();
     listRows = scorecard.getListOfEachRowWithDesc();
     listColumns = scorecard.getListOfEachColumnWithDesc();
@@ -109,10 +117,10 @@ class GraphicalOutputManager {
     String range = "";
 
     for (Field fixField : scorecard.getFixedVars()) {
-      if ("fcst_init_beg".equals(fixField.getName()) || "fcst_valid_beg"
-                                                            .equals(fixField.getName())) {
-        range = fixField.getValues().get(0).getLabel() + " - " + fixField.getValues().get(1)
-                                                                     .getLabel();
+      if ("fcst_init_beg".equals(fixField.getName())
+              || "fcst_valid_beg".equals(fixField.getName())) {
+        range = fixField.getValues().get(0).getLabel()
+                    + " - " + fixField.getValues().get(1).getLabel();
       } else if ("model".equals(fixField.getName())) {
         model1 = fixField.getValues().get(0).getLabel();
         model2 = fixField.getValues().get(1).getLabel();
@@ -122,92 +130,157 @@ class GraphicalOutputManager {
     title3.withText(range);
   }
 
-  //TODO use a config file to describe thresholds
-  private void initRangeList() {
+  private void initRangeList(final String thresholdFile) {
     rangeList = new ArrayList<>();
+    if (thresholdFile != null) {
 
-    LegendRange legendRange = new LegendRange();
-    legendRange.setSymbol("&#9650;");//UP-POINTING TRIANGLE
-    legendRange.setColor("#009120");//green
-    legendRange.setBackground(WHITE_FFFFFF);//white
-    legendRange.setLowerLimit(BigDecimal.valueOf(0.999));
-    legendRange.setUpperLimit(BigDecimal.valueOf(1));
-    legendRange.setIncludeLowerLimit(Boolean.TRUE);
-    legendRange.setIncludeUpperLimit(Boolean.TRUE);
-    legendRange.setFormatString("%s is better than %s at the 99.9%% significance level");
-    rangeList.add(legendRange);
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db;
 
-    legendRange = new LegendRange();
-    legendRange.setSymbol("&#9652;");//UP-POINTING SMALL TRIANGLE
-    legendRange.setColor("#009120");//green
-    legendRange.setBackground(WHITE_FFFFFF);//white
-    legendRange.setLowerLimit(BigDecimal.valueOf(0.99));
-    legendRange.setUpperLimit(BigDecimal.valueOf(0.999));
-    legendRange.setIncludeLowerLimit(Boolean.TRUE);
-    legendRange.setIncludeUpperLimit(Boolean.FALSE);
-    legendRange.setFormatString("%s is better than %s at the 99%% significance level");
-    rangeList.add(legendRange);
+      try {
+        db = dbf.newDocumentBuilder();
+        Document doc = db.parse(new File(thresholdFile));
+        Node pruneSpec = doc.getFirstChild();
+        NodeList ranges = pruneSpec.getChildNodes();
+        for (int i = 0; i < ranges.getLength(); i++) {
+          Node node = ranges.item(i);
 
-    legendRange = new LegendRange();
-    legendRange.setColor(BLACK_000000);//black
-    legendRange.setBackground("#A9F5A9");//green
-    legendRange.setLowerLimit(BigDecimal.valueOf(0.95));
-    legendRange.setUpperLimit(BigDecimal.valueOf(0.99));
-    legendRange.setIncludeLowerLimit(Boolean.TRUE);
-    legendRange.setIncludeUpperLimit(Boolean.FALSE);
-    legendRange.setFormatString("%s is better than %s at the 95%% significance level");
-    rangeList.add(legendRange);
+          if (node.getNodeType() == Node.ELEMENT_NODE) {
+            NodeList legendRangeProperties = node.getChildNodes();
+            LegendRange legendRange = new LegendRange();
 
-    legendRange = new LegendRange();
-    legendRange.setColor(BLACK_000000);//black
-    legendRange.setBackground("#BDBDBD");//grey
-    legendRange.setLowerLimit(BigDecimal.valueOf(-0.95));
-    legendRange.setUpperLimit(BigDecimal.valueOf(0.95));
-    legendRange.setIncludeLowerLimit(Boolean.FALSE);
-    legendRange.setIncludeUpperLimit(Boolean.FALSE);
-    legendRange.setFormatString("No statistically significant difference between %s and %s");
-    rangeList.add(legendRange);
+            for (int j = 0; j < legendRangeProperties.getLength(); j++) {
+              Node propertyNode = legendRangeProperties.item(j);
+
+              if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                if ("symbol".equals(propertyNode.getNodeName())) {
+                  legendRange.setSymbol(propertyNode.getTextContent());
+                } else if ("color".equals(propertyNode.getNodeName())) {
+                  legendRange.setColor(propertyNode.getTextContent());
+                } else if ("background".equals(propertyNode.getNodeName())) {
+                  legendRange.setBackground(propertyNode.getTextContent());
+                } else if ("lower_limit".equals(propertyNode.getNodeName())) {
+                  legendRange.setLowerLimit(new BigDecimal(propertyNode.getTextContent()));
+                } else if ("upper_limit".equals(propertyNode.getNodeName())) {
+                  legendRange.setUpperLimit(new BigDecimal(propertyNode.getTextContent()));
+                } else if ("include_lower_limit".equals(propertyNode.getNodeName())) {
+                  if (propertyNode.getTextContent()
+                          .equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
+                    legendRange.setIncludeLowerLimit(Boolean.TRUE);
+                  } else if (propertyNode.getTextContent()
+                                 .equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+                    legendRange.setIncludeLowerLimit(Boolean.FALSE);
+                  }
+                } else if ("include_upper_limit".equals(propertyNode.getNodeName())) {
+                  if (propertyNode.getTextContent()
+                          .equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
+                    legendRange.setIncludeUpperLimit(Boolean.TRUE);
+                  } else if (propertyNode.getTextContent()
+                                 .equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+                    legendRange.setIncludeUpperLimit(Boolean.FALSE);
+                  }
+                } else if ("format_string".equals(propertyNode.getNodeName())) {
+                  legendRange.setFormatString(propertyNode.getTextContent());
+                }
+              }
+
+            }
+            rangeList.add(legendRange);
+
+          }
+        }
+      } catch (Exception e) {
+        logger.error("ERROR during reading threshold XML file : " + e.getMessage());
+        logger.error("Default threshold configurations will be used");
+        logger.debug(e);
+        rangeList.clear();
+      }
+    }
+    if (rangeList.isEmpty()) {
+      LegendRange legendRange = new LegendRange();
+      legendRange.setSymbol("&#9650;");//UP-POINTING TRIANGLE
+      legendRange.setColor("#009120");//green
+      legendRange.setBackground(WHITE_FFFFFF);//white
+      legendRange.setLowerLimit(BigDecimal.valueOf(0.999));
+      legendRange.setUpperLimit(BigDecimal.valueOf(1));
+      legendRange.setIncludeLowerLimit(Boolean.TRUE);
+      legendRange.setIncludeUpperLimit(Boolean.TRUE);
+      legendRange.setFormatString("%s is better than %s at the 99.9%% significance level");
+      rangeList.add(legendRange);
+
+      legendRange = new LegendRange();
+      legendRange.setSymbol("&#9652;");//UP-POINTING SMALL TRIANGLE
+      legendRange.setColor("#009120");//green
+      legendRange.setBackground(WHITE_FFFFFF);//white
+      legendRange.setLowerLimit(BigDecimal.valueOf(0.99));
+      legendRange.setUpperLimit(BigDecimal.valueOf(0.999));
+      legendRange.setIncludeLowerLimit(Boolean.TRUE);
+      legendRange.setIncludeUpperLimit(Boolean.FALSE);
+      legendRange.setFormatString("%s is better than %s at the 99%% significance level");
+      rangeList.add(legendRange);
+
+      legendRange = new LegendRange();
+      legendRange.setColor(BLACK_000000);//black
+      legendRange.setBackground("#A9F5A9");//green
+      legendRange.setLowerLimit(BigDecimal.valueOf(0.95));
+      legendRange.setUpperLimit(BigDecimal.valueOf(0.99));
+      legendRange.setIncludeLowerLimit(Boolean.TRUE);
+      legendRange.setIncludeUpperLimit(Boolean.FALSE);
+      legendRange.setFormatString("%s is better than %s at the 95%% significance level");
+      rangeList.add(legendRange);
+
+      legendRange = new LegendRange();
+      legendRange.setColor(BLACK_000000);//black
+      legendRange.setBackground("#BDBDBD");//grey
+      legendRange.setLowerLimit(BigDecimal.valueOf(-0.95));
+      legendRange.setUpperLimit(BigDecimal.valueOf(0.95));
+      legendRange.setIncludeLowerLimit(Boolean.FALSE);
+      legendRange.setIncludeUpperLimit(Boolean.FALSE);
+      legendRange.setFormatString("No statistically significant difference between %s and %s");
+      rangeList.add(legendRange);
 
 
-    legendRange = new LegendRange();
-    legendRange.setColor(BLACK_000000);//black
-    legendRange.setBackground("#F5A9BC");//pink
-    legendRange.setLowerLimit(BigDecimal.valueOf(-0.99));
-    legendRange.setUpperLimit(BigDecimal.valueOf(-0.95));
-    legendRange.setIncludeLowerLimit(Boolean.FALSE);
-    legendRange.setIncludeUpperLimit(Boolean.TRUE);
-    legendRange.setFormatString("%s is worse than %s at the 95%% significance level");
-    rangeList.add(legendRange);
+      legendRange = new LegendRange();
+      legendRange.setColor(BLACK_000000);//black
+      legendRange.setBackground("#F5A9BC");//pink
+      legendRange.setLowerLimit(BigDecimal.valueOf(-0.99));
+      legendRange.setUpperLimit(BigDecimal.valueOf(-0.95));
+      legendRange.setIncludeLowerLimit(Boolean.FALSE);
+      legendRange.setIncludeUpperLimit(Boolean.TRUE);
+      legendRange.setFormatString("%s is worse than %s at the 95%% significance level");
+      rangeList.add(legendRange);
 
-    legendRange = new LegendRange();
-    legendRange.setSymbol("&#9662;");//DOWN-POINTING SMALL TRIANGLE
-    legendRange.setColor("#FF0000");//red
-    legendRange.setBackground(WHITE_FFFFFF);//white
-    legendRange.setLowerLimit(BigDecimal.valueOf(-0.999));
-    legendRange.setUpperLimit(BigDecimal.valueOf(-0.99));
-    legendRange.setIncludeLowerLimit(Boolean.FALSE);
-    legendRange.setIncludeUpperLimit(Boolean.TRUE);
-    legendRange.setFormatString("%s is worse than %s at the 99%% significance level");
-    rangeList.add(legendRange);
+      legendRange = new LegendRange();
+      legendRange.setSymbol("&#9662;");//DOWN-POINTING SMALL TRIANGLE
+      legendRange.setColor("#FF0000");//red
+      legendRange.setBackground(WHITE_FFFFFF);//white
+      legendRange.setLowerLimit(BigDecimal.valueOf(-0.999));
+      legendRange.setUpperLimit(BigDecimal.valueOf(-0.99));
+      legendRange.setIncludeLowerLimit(Boolean.FALSE);
+      legendRange.setIncludeUpperLimit(Boolean.TRUE);
+      legendRange.setFormatString("%s is worse than %s at the 99%% significance level");
+      rangeList.add(legendRange);
 
-    legendRange = new LegendRange();
-    legendRange.setSymbol("&#9660;");//DOWN-POINTING  TRIANGLE
-    legendRange.setColor("#FF0000");//red
-    legendRange.setBackground(WHITE_FFFFFF);//white
-    legendRange.setLowerLimit(BigDecimal.valueOf(-1));
-    legendRange.setUpperLimit(BigDecimal.valueOf(-0.999));
-    legendRange.setIncludeLowerLimit(Boolean.TRUE);
-    legendRange.setIncludeUpperLimit(Boolean.TRUE);
-    legendRange.setFormatString("%s is worse than %s at the 99.9%% significance level");
-    rangeList.add(legendRange);
+      legendRange = new LegendRange();
+      legendRange.setSymbol("&#9660;");//DOWN-POINTING  TRIANGLE
+      legendRange.setColor("#FF0000");//red
+      legendRange.setBackground(WHITE_FFFFFF);//white
+      legendRange.setLowerLimit(BigDecimal.valueOf(-1));
+      legendRange.setUpperLimit(BigDecimal.valueOf(-0.999));
+      legendRange.setIncludeLowerLimit(Boolean.TRUE);
+      legendRange.setIncludeUpperLimit(Boolean.TRUE);
+      legendRange.setFormatString("%s is worse than %s at the 99.9%% significance level");
+      rangeList.add(legendRange);
 
-    legendRange = new LegendRange();
-    legendRange.setColor(BLACK_000000);//black
-    legendRange.setBackground("#58ACFA");//blue
-    legendRange.setIncludeLowerLimit(Boolean.FALSE);
-    legendRange.setIncludeUpperLimit(Boolean.FALSE);
-    legendRange.setFormatString("Not statistically relevant");
-    rangeList.add(legendRange);
+      legendRange = new LegendRange();
+      legendRange.setColor(BLACK_000000);//black
+      legendRange.setBackground("#58ACFA");//blue
+      legendRange.setIncludeLowerLimit(Boolean.FALSE);
+      legendRange.setIncludeUpperLimit(Boolean.FALSE);
+      legendRange.setFormatString("Not statistically relevant");
+      rangeList.add(legendRange);
+    }
 
   }
 
@@ -240,7 +313,6 @@ class GraphicalOutputManager {
       try (PrintWriter out = new PrintWriter(htmlFileName)) {
         out.println(htmlPageStr);
         out.flush();
-        out.close();
       } catch (Exception e) {
         logger.error("Could not save HTML to file " + htmlFileName);
         logger.error(e);
@@ -266,13 +338,12 @@ class GraphicalOutputManager {
   }
 
   private ContainerTag createHtmlLegend() {
-    ContainerTag legendTable = table().attr("class", "legendTable");
+    ContainerTag legendTable = table().attr(CLASS, "legendTable");
     for (LegendRange range : rangeList) {
-      ContainerTag td1 = td().attr("style",
-                                   "color:" + range.getColor() + ";" + "background:" + range
-                                                                                           .getBackground() + ";")
+      ContainerTag td1 = td().attr(STYLE, "color:" + range.getColor() + ";"
+                                              + "background:" + range.getBackground() + ";")
                              .with(new UnescapedText(range.getSymbol()));
-      ContainerTag td2 = td().attr("class", "legendText");
+      ContainerTag td2 = td().attr(CLASS, "legendText");
 
       try {
         td2.with(new UnescapedText(String.format(range.getFormatString(), model1, model2)));
@@ -357,7 +428,7 @@ class GraphicalOutputManager {
         break;
       }
     }
-    return td().attr("style", "background-color: " + background);
+    return td().attr(STYLE, "background-color: " + background);
   }
 
   private boolean isJsonRowMatch(Map<String, Entry> cellFieldsValues, JsonNode node) {
@@ -445,13 +516,13 @@ class GraphicalOutputManager {
       if (viewValue) {
         textStr.append(String.valueOf(value));
       }
-      color = "#000000";//black
-      background = "#FFFFFF";//white
+      color = BLACK_000000;//black
+      background = WHITE_FFFFFF;//white
       title = String.valueOf(value);
       text = textStr.toString();
     }
 
-    return td().attr("style", "color:" + color + ";background-color:" + background + ";")
+    return td().attr(STYLE, "color:" + color + ";background-color:" + background + ";")
                .attr("title", title).with(new UnescapedText(text));
   }
 
@@ -500,7 +571,8 @@ class GraphicalOutputManager {
 
   private ContainerTag createTableHead() {
     ContainerTag thead = thead();
-    //total number of rows in the thead - the number of keys in each column (for example vx_mask and  fsct_lead
+    //total number of rows in the thead - the number of keys in each column
+    // (for example vx_mask and  fsct_lead)
     for (String field : listColumns.get(0).keySet()) {
       ContainerTag htmlTrH = tr();
       //empty cells that are above roe headers
@@ -586,14 +658,13 @@ class GraphicalOutputManager {
   }
 
   public static void main(String[] arg) {
-    String htmlPageStr = "";
+    StringBuilder htmlPageStr = new StringBuilder();
     String line = null;
-    try (FileReader fileReader = new FileReader
-                                     ("/d3/projects/METViewer/src_dev/apps/METViewer/scorecard_cam_cts"
-                                          + ".html");
+    try (FileReader fileReader = new FileReader("/d3/projects/METViewer/src_dev/apps/"
+                                                    + "METViewer/scorecard_cam_cts.html");
          BufferedReader bufferedReader = new BufferedReader(fileReader)) {
       while ((line = bufferedReader.readLine()) != null) {
-        htmlPageStr = htmlPageStr + line;
+        htmlPageStr.append(htmlPageStr).append(line);
       }
     } catch (Exception e) {
 
@@ -603,9 +674,9 @@ class GraphicalOutputManager {
     try {
       System.setProperty("java.awt.headless", "true");
       HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
-      imageGenerator.loadHtml(htmlPageStr);
-      imageGenerator.saveAsImage
-                         ("/d3/projects/METViewer/src_dev/apps/METViewer/scorecard_cam_cts_2.png");
+      imageGenerator.loadHtml(htmlPageStr.toString());
+      imageGenerator.saveAsImage("/d3/projects/METViewer/src_dev/apps/METViewer/"
+                                     + "scorecard_cam_cts_2.png");
 
     } catch (Exception e) {
       logger.error(e);
