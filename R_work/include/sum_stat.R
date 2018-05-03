@@ -202,8 +202,8 @@ if ( nrow(sampleData) > 0){
   }
 
   dfStatsRecTranspose=data.frame(t(dfStatsRec),stringsAsFactors = FALSE);
-  #a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
-  a=lapply( dfStatsRecTranspose,prepareCalc);
+  a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
+  #a=lapply( dfStatsRecTranspose,prepareCalc);
 
 
 
