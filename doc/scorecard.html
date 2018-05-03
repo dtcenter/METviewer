@@ -11,6 +11,7 @@
       tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
     });
 
+
   </script>
   <script type="text/javascript" src="MathJax.js?config=TeX-AMS_HTML-full"></script>
 
@@ -22,69 +23,98 @@
 </p>
 <hr/>
 <h2>EMC vs. NCAR method of determining p-values for Aggregation statistics </h2>
-<p>In statistics, the p-value represents the probability of a statistic having a value at least as extreme as observed, in this case a difference between two
-  models, given the null hypothesis that the two models come from the same distribution. When the p-values are large, there is evidence to reject this null
+<p>In statistics, the p-value represents the probability of a statistic having a value at least as
+  extreme as observed, in this case a difference between two
+  models, given the null hypothesis that the two models come from the same distribution. When the
+  p-values are large, there is evidence to reject this null
   hypothesis.
 </p>
 <p>
-  The EMC and NCAR methods of determining p-values are largely the same, though the output is quite different. Both are based on estimates of the mean and
-  standard deviation of the statistic. Along with the sample size, the standard Student's t value is calculated.\[\overline{x} \pm t_{\alpha/2} \bigl(s /
+  The EMC and NCAR methods of determining p-values are largely the same, though the output is quite
+  different. Both are based on estimates of the mean and
+  standard deviation of the statistic. Along with the sample size, the standard Student's t value is
+  calculated.\[\overline{x} \pm t_{\alpha/2} \bigl(s /
   \sqrt{n} \bigr)\] When this value is
-  compared with the known Student's t distribution, the significance level (i.e. p-value) is determined. The first difference between the two methods is the
-  identification of the appropriate \[t_{\alpha/2} \] value. In the NCAR version, this value is determined exactly using the statistic and the appropriate
+  compared with the known Student's t distribution, the significance level (i.e. p-value) is
+  determined. The first difference between the two methods is the
+  identification of the appropriate \[t_{\alpha/2} \] value. In the NCAR version, this value is
+  determined exactly using the statistic and the appropriate
   sample size.
-  In the EMC version, an approximate lookup table for the Student's t distribution is hard coded. Sample sizes are in four groups: &#60; 20 cases, 20-40 cases,
-  40-80 cases, and &#62; 80 cases. NCAR output contains the actual probability, while EMC output is grouped. Any non-significant differences are denoted by NA,
-  significant differences fall into categories of 0.95, 0.99, and 1. Both systems use negative signs to denote a better statistic from the second model.
+  In the EMC version, an approximate lookup table for the Student's t distribution is hard coded.
+  Sample sizes are in four groups: &#60; 20 cases, 20-40 cases,
+  40-80 cases, and &#62; 80 cases. NCAR output contains the actual probability, while EMC output is
+  grouped. Any non-significant differences are denoted by NA,
+  significant differences fall into categories of 0.95, 0.99, and 1. Both systems use negative signs
+  to denote a better statistic from the second model.
 </p>
 <p>
-  P-values can also be determined by bootstrapping using the percentile method. Cases (e.g. days) are randomly selected with replacement, then the difference
-  between the statistics for two models is determined based on that sample. This process is repeated a large number of times, resulting in an empirical
-  distribution of the differences. To find the p-value, the total percent of the bootstrap differences that are more extreme than the observed difference are
-  calculated. This is the estimated p-value. The only difference here is that the difference is compared to a resampled distribution rather than a known,
+  P-values can also be determined by bootstrapping using the percentile method. Cases (e.g. days)
+  are randomly selected with replacement, then the difference
+  between the statistics for two models is determined based on that sample. This process is repeated
+  a large number of times, resulting in an empirical
+  distribution of the differences. To find the p-value, the total percent of the bootstrap
+  differences that are more extreme than the observed difference are
+  calculated. This is the estimated p-value. The only difference here is that the difference is
+  compared to a resampled distribution rather than a known,
   theoretical distribution.
 </p>
 
 <p>Some of statistics do not have p-values:<br/>
   BASER,FMEAN,FBAR,FSTDEV, OBAR, OSTDEV, FRANK_TIES, ORANK_TIES,
   FBAR, FSTDEV, OBAR, OSTDEV, RANKS, FRANK_TIES, ORANK_TIES,VL1L2_FBAR, VL1L2_OBAR,
-  VL1L2_FSTDEV,VL1L2_OSTDEV,VL1L2_FOSTDEV, PSTD_BASER,PSTD_RESOLUTION, PSTD_UNCERTAINTY,PSTD_ROC_AUC</p>
+  VL1L2_FSTDEV,VL1L2_OSTDEV,VL1L2_FOSTDEV, PSTD_BASER,PSTD_RESOLUTION, PSTD_UNCERTAINTY,PSTD_ROC_AUC
+</p>
 
 <h2>METViewer Documentation - Scorecard Module</h2>
 
-<p>The scorecard Module is used to generate a scorecard image and HTML table using data in the METViewer database. The usage statement:</p>
+<p>The scorecard Module is used to generate a scorecard image and HTML table using data in the
+  METViewer database. The usage statement:</p>
 
 <p class="term">
   USAGE: mv_scorecard.sh scorecard_spec_file<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"scorecard_spec_file" specifies the XML plot specification
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"scorecard_spec_file"
+  specifies the XML plot specification
   document<br/>
   ---- Scorecard Done ----<br/>
 </p>
 
 <p>
-  The <span class="term">scorecard_spec_file</span> passed to the scorecard module contains information about the scorecard that will be generated. It is an XML
+  The <span class="term">scorecard_spec_file</span> passed to the scorecard module contains
+  information about the scorecard that will be generated. It is an XML
   file whose
-  top-level tag is <span class="code">&lt;plot_spec&gt;</span> which contains the following elements, divided into functional sections:
+  top-level tag is <span class="code">&lt;plot_spec&gt;</span> which contains the following
+  elements, divided into functional sections:
 
 </p>
 <ul>
   <li><span class="code">&lt;connection&gt;</span> see <a href="common_xml.html">common xml</a></li>
   <br/>
 
-  <li><span class="code">&lt;rscript&gt;</span> specifies the Rscript instance to use, for example <span class="term">/usr/local/bin/Rscript</span>,</li>
+  <li><span class="code">&lt;rscript&gt;</span> specifies the Rscript instance to use, for example
+    <span class="term">/usr/local/bin/Rscript</span>,
+  </li>
   <br/>
 
   <li>
-    <span class="code">&lt;folders&gt;</span>: a structure that specifies the input and output file system folders
+    <span class="code">&lt;folders&gt;</span>: a structure that specifies the input and output file
+    system folders
     <ul>
-      <li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used by METViewer, typically <span class="term">R_tmpl/</span>
+      <li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used by
+        METViewer, typically <span class="term">R_tmpl/</span>
         from the metviewer
         CVS source tree
-      <li><span class="code">&lt;r_work&gt;</span>: the folder that will contain the data and generated R scripts, must contain the sub-folder
+      <li><span class="code">&lt;r_work&gt;</span>: the folder that will contain the data and
+        generated R scripts, must contain the sub-folder
         <span class="term">include/</span>
-      <li><span class="code">&lt;plots&gt;</span>: the output folder that will contain generated image and HTML files</li>
-      <li><span class="code">&lt;data&gt;</span>: the output folder that will contain generated data files</li>
-      <li><span class="code">&lt;scripts&gt;</span>: the output folder that will contain scripts files</li>
+      <li><span class="code">&lt;plots&gt;</span>: the output folder that will contain generated
+        image and HTML files
+      </li>
+      <li><span class="code">&lt;data&gt;</span>: the output folder that will contain generated data
+        files
+      </li>
+      <li><span class="code">&lt;scripts&gt;</span>: the output folder that will contain scripts
+        files
+      </li>
     </ul>
   </li>
   <br/>
@@ -92,26 +122,43 @@
   <li>
     <span class="code">&lt;plot&gt;</span>: a structure that specifies scorecard characteristics
     <ul>
-      <li><span class="code">&lt;view_value&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
-        display statistical values in the scorecard cells. The default value is FALSE (do not display)
+      <li><span class="code">&lt;view_value&gt;</span>: <span class="code">TRUE</span> or
+        <span class="code">FALSE</span>, indicating whether or not to
+        display statistical values in the scorecard cells. The default value is FALSE (do not
+        display)
       </li>
-      <li><span class="code">&lt;view_symbol&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+      <li><span class="code">&lt;view_symbol&gt;</span>: <span class="code">TRUE</span> or
+        <span class="code">FALSE</span>, indicating whether or not to
         display a symbol in the scorecard cells. The default value is TRUE ( display)
       </li>
-      <li><span class="code">&lt;view_legend&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to
+      <li><span class="code">&lt;view_legend&gt;</span>: <span class="code">TRUE</span> or
+        <span class="code">FALSE</span>, indicating whether or not to
         display a legend for the scorecard. The default value is TRUE ( display)
       </li>
-      <li><span class="code">&lt;stat_flag&gt;</span>: <span class="code">NCAR</span> or <span class="code">EMC</span>, which algorithm to use to calculate
+      <li><span class="code">&lt;stat_flag&gt;</span>: <span class="code">NCAR</span> or
+        <span class="code">EMC</span>, which algorithm to use to calculate
         statistics.The default value is NCAR
       </li>
-      <li><span class="code">&lt;printSQL&gt;</span>: <span class="code">FALSE</span> or <span class="code">TRUE</span>, indicating whether or not to
+      <li><span class="code">&lt;printSQL&gt;</span>: <span class="code">FALSE</span> or
+        <span class="code">TRUE</span>, indicating whether or not to
         print SQL queries. The default value is FALSE ( do not print)
+      </li>
+      <li><span class="code">&lt;stat&gt;</span>: <span class="code">DIFF</span> (display a difference between models)
+        or <span
+            class="code">DIFF_SIG</span> ( display p_value ) or <span class="code">SINGLE </span>(display
+        a value of statistic for the 1st model. In this case the value of the 2nd model is optional ),
+        indicating what value
+        to show in the cell. The default value is DIFF_SIG ( display p_value )
+      </li>
+      <li><span class="code">&lt;threshold_file&gt;</span>: full path to the XML file describing
+        configurations for thresholds, colors and symbols
       </li>
       <br/>
 
       <a name="template"></a>
       <li>
-        <span class="code">&lt;template&gt;</span>: the name of the R plot script template to use. The following templates are currently supported:
+        <span class="code">&lt;template&gt;</span>: the name of the R plot script template to use.
+        The following templates are currently supported:
         <ul>
           <li><span class="term">scorecard.R_tmpl</span></li>
         </ul>
@@ -120,26 +167,35 @@
       <br/>
 
       <a name="plot_fix"></a>
-      <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range and init hour - that are constant.<br/>
+      <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range
+        and init hour - that are constant.<br/>
         Model field contains two values - first and second model names.<br/>
-        Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains two values - start and end dates<br/>
+        Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains two
+        values - start and end dates<br/>
         Init hour can contain one or more values<br/>
         <ul>
           <li><span class="code">&lt;field</span> name="model"<span class="code">&gt;</span></li>
           <ul>
-            <li><span class="code">&lt;val</span> name="<span class="loc">first_model</span>" <span class="code">/&gt;</span></li>
-            <li><span class="code">&lt;val</span> name="<span class="loc">second_model</span>" <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name="<span class="loc">first_model</span>"
+              <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name="<span class="loc">second_model</span>"
+              <span class="code">/&gt;</span></li>
           </ul>
           <li><span class="code">&lt;/field&gt;</span></li>
-          <li><span class="code">&lt;field</span> name="fcst_valid_beg"<span class="code">&gt;</span></li>
+          <li><span class="code">&lt;field</span>
+            name="fcst_valid_beg"<span class="code">&gt;</span></li>
           <ul>
-            <li><span class="code">&lt;val</span> name="<span class="loc">start_date</span>" <span class="code">/&gt;</span></li>
-            <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>" <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name="<span class="loc">start_date</span>"
+              <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>"
+              <span class="code">/&gt;</span></li>
           </ul>
           <li><span class="code">&lt;/field&gt;</span></li>
-          <li><span class="code">&lt;field</span> name="init_hour"<span class="code">&gt;</span></li>
+          <li><span class="code">&lt;field</span> name="init_hour"<span class="code">&gt;</span>
+          </li>
           <ul>
-            <li><span class="code">&lt;val</span> name="<span class="loc">first_hour</span>" <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name="<span class="loc">first_hour</span>"
+              <span class="code">/&gt;</span></li>
           </ul>
           <li><span class="code">&lt;/field&gt;</span></li>
         </ul>
@@ -147,78 +203,95 @@
       <br/>
 
       <a name="rows"></a>
-      <li><span class="code">&lt;rows&gt;</span>: describes an individual row in the scorecard table.<br/>
+      <li><span class="code">&lt;rows&gt;</span>: describes an individual row in the scorecard
+        table.<br/>
         Contains one or more nested <span class="code">&lt;field&gt;</span> elements
         <ul>
-          <li><span class="code">&lt;field&gt;</span>: describes an individual row or row group in the scorecard table. <b>Attributes:</b>
+          <li><span class="code">&lt;field&gt;</span>: describes an individual row or row group in
+            the scorecard table. <b>Attributes:</b>
 
           </li>
           <ul>
             <ul style="list-style-image:url('att_bullet.gif')">
               <li><span class="code">name</span>: database field name</li>
             </ul>
-            <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can have more than one value element. <b>Attributes:</b>
+            <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can
+              have more than one value element. <b>Attributes:</b>
               <ul style="list-style-image:url('att_bullet.gif')">
                 <li><span class="code">name</span>: database field name</li>
                 <li><span class="code">label</span>: the label that shows up on the image</li>
               </ul>
             </li>
-            <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
+            <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can
+              have more than one field element
+            </li>
           </ul>
           <br/>
         </ul>
       </li>
 
       <a name="columns"></a>
-      <li><span class="code">&lt;columns&gt;</span>: describes an individual column in the scorecard table.<br/>
+      <li><span class="code">&lt;columns&gt;</span>: describes an individual column in the scorecard
+        table.<br/>
         Contains one or more nested <span class="code">&lt;field&gt;</span> elements
         <ul>
-          <li><span class="code">&lt;field&gt;</span>: describes an individual column or column group in the scorecard table. <b>Attributes:</b>
+          <li><span class="code">&lt;field&gt;</span>: describes an individual column or column
+            group in the scorecard table. <b>Attributes:</b>
             <ul>
               <ul style="list-style-image:url('att_bullet.gif')">
                 <li><span class="code">name</span>: database field name</li>
               </ul>
-              <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can have more than one value element. <b>Attributes:</b>
+              <li><span class="code">&lt;val&gt;</span>: describes a value of the field. Field can
+                have more than one value element. <b>Attributes:</b>
                 <ul style="list-style-image:url('att_bullet.gif')">
                   <li><span class="code">name</span>: database field name</li>
                   <li><span class="code">label</span>: the label that shows up on the image</li>
                 </ul>
               </li>
-              <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can have more than one field element</li>
+              <li><span class="code">&lt;field&gt;</span>: next level database field name. Field can
+                have more than one field element
+              </li>
             </ul>
             <br/>
         </ul>
       </li>
       <br/>
       <li><a name="agg_stat"></a>
-        <span class="code">&lt;agg_stat&gt;</span>: <span class="code">TRUE</span>(bootstrapping) or <span class="code">FALSE</span>(student-T/normal),
+        <span class="code">&lt;agg_stat&gt;</span>: <span class="code">TRUE</span>(bootstrapping) or
+        <span class="code">FALSE</span>(student-T/normal),
         indicating whether or not to create a scorecard
         using aggregated statistics.<br/>The default value is TRUE (use bootstrapping )
       </li>
       <li><a name="boot_repl"></a>
-        <span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for no bootstrapping. Used when <span class="code">&lt;agg_stat&gt;</span>
+        <span class="code">&lt;boot_repl&gt;</span>: number of bootstrapping replications, use 1 for
+        no bootstrapping. Used when <span class="code">&lt;agg_stat&gt;</span>
         is TRUE
       </li>
       <li><a name="boot_random_seed"></a>
-        <span class="code">&lt;boot_random_seed&gt;</span>: value of Random.seed for bootstrapping to get a reproducible random results.
+        <span class="code">&lt;boot_random_seed&gt;</span>: value of Random.seed for bootstrapping
+        to get a reproducible random results.
         Used when <span class="code">&lt;agg_stat&gt;</span> is TRUE
       </li>
 
       <li><a name="plot_stat"></a>
-        <span class="code">&lt;plot_stat&gt;</span>: name of the aggregation statistic.<span class="code">median</span> or <span class="code">mean</span>
+        <span class="code">&lt;plot_stat&gt;</span>: name of the aggregation
+        statistic.<span class="code">median</span> or <span class="code">mean</span>
         The default value is median.
       </li>
 
       <a name="tmpl"></a>
       <li><span class="code">&lt;tmpl&gt;</span>:</li>
       <ul>
-        <li><span class="code">&lt;data_file&gt;</span>: name of the R data.frame data file, inside of the <span class="code">&lt;r_work&gt;</span> folder
+        <li><span class="code">&lt;data_file&gt;</span>: name of the R data.frame data file, inside
+          of the <span class="code">&lt;r_work&gt;</span> folder
           specified above
         </li>
-        <li><span class="code">&lt;plot_file&gt;</span>: name of the output image file, inside of the <span class="code">&lt;plots&gt;</span> folder specified
+        <li><span class="code">&lt;plot_file&gt;</span>: name of the output image file, inside of
+          the <span class="code">&lt;plots&gt;</span> folder specified
           above
         </li>
-        <li><span class="code">&lt;title&gt;</span>: title of the scorecard displayed on the image. Default value:
+        <li><span class="code">&lt;title&gt;</span>: title of the scorecard displayed on the image.
+          Default value:
           <span style="font-weight: bold;">Verification Scorecard</span></li>
       </ul>
 
@@ -227,7 +300,8 @@
 </ul>
 <br/>
 <p>
-  Here is a simple example. It produces <a class="loc" href="scorecard_sum_emc.html">this</a> scorecard :
+  Here is a simple example. It produces <a class="loc" href="scorecard_sum_emc.html">this</a>
+  scorecard :
   <br/><br/>
 <textarea rows="40" cols="100" style="border:none; font-size: 12px;">
   <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -254,6 +328,9 @@
 
       <stat_flag>EMC</stat_flag>
       <printSQL>FALSE</printSQL>
+
+      <stat>DIFF_SIG</stat>
+      <threshold_file>path_to_threshold_file</threshold_file>
 
       <template>scorecard.R_tmpl</template>
 
@@ -497,5 +574,87 @@
   </textarea>
 </p>
 
+<br/>
+<p>
+  Here is an example of threshold configuration XML file that is used in <a
+    class="loc" href="scorecard_sum_emc.html"> this </a>scorecard. Use Unicode characters as
+  symbols (&amp;#9650; - &#9650;triangle) :
+  <br/><br/>
+ <textarea rows="40" cols="100" style="border:none; font-size: 12px;">
+   <ranges>
+     <legend_range>
+       <symbol>&#9650;</symbol>
+       <color>#009120</color>
+       <background>#FFFFFF</background>
+       <lower_limit>0.999</lower_limit>
+       <upper_limit>1</upper_limit>
+       <include_lower_limit>TRUE</include_lower_limit>
+       <include_upper_limit>TRUE</include_upper_limit>
+       <format_string>%s is better than %s at the 99.9%% significance level</format_string>
+     </legend_range>
+
+     <legend_range>
+       <symbol>&#9652;</symbol>
+       <color>#009120</color>
+       <background>#FFFFFF</background>
+       <lower_limit>0.99</lower_limit>
+       <upper_limit>0.999</upper_limit>
+       <include_lower_limit>TRUE</include_lower_limit>
+       <include_upper_limit>FALSE</include_upper_limit>
+       <format_string>%s is better than %s at the 99%% significance level</format_string>
+     </legend_range>
+
+     <legend_range>
+       <color>#000000</color>
+       <background>#A9F5A9</background>
+       <lower_limit>0.95</lower_limit>
+       <upper_limit>0.99</upper_limit>
+       <include_lower_limit>TRUE</include_lower_limit>
+       <include_upper_limit>FALSE</include_upper_limit>
+       <format_string>%s is better than %s at the 95%% significance level</format_string>
+     </legend_range>
+
+     <legend_range>
+       <color>#000000</color>
+       <background>#BDBDBD</background>
+       <lower_limit>-0.95</lower_limit>
+       <upper_limit>0.95</upper_limit>
+       <include_lower_limit>FALSE</include_lower_limit>
+       <include_upper_limit>TRUE</include_upper_limit>
+       <format_string>%s is worse than %s at the 95%% significance level</format_string>
+     </legend_range>
+
+     <legend_range>
+       <symbol>&#9662;</symbol>
+       <color>#FF0000</color>
+       <background>#FFFFFF</background>
+       <lower_limit>-0.999</lower_limit>
+       <upper_limit>-0.99</upper_limit>
+       <include_lower_limit>FALSE</include_lower_limit>
+       <include_upper_limit>TRUE</include_upper_limit>
+       <format_string>%s is worse than %s at the 99%% significance level</format_string>
+     </legend_range>
+
+     <legend_range>
+       <symbol>&#9660;</symbol>
+       <color>#FF0000</color>
+       <background>#FFFFFF</background>
+       <lower_limit>-1</lower_limit>
+       <upper_limit>-0.999</upper_limit>
+       <include_lower_limit>TRUE</include_lower_limit>
+       <include_upper_limit>TRUE</include_upper_limit>
+       <format_string>%s is worse than %s at the 99.9%% significance level</format_string>
+     </legend_range>
+
+     <legend_range>
+       <color>#000000</color>
+       <background>#58ACFA</background>
+       <include_lower_limit>FALSE</include_lower_limit>
+       <include_upper_limit>FALSE</include_upper_limit>
+       <format_string>Not statistically relevant</format_string>
+     </legend_range>
+
+   </ranges>
+   </textarea>
 </body>
 </html>
