@@ -247,8 +247,8 @@ public class MVServlet extends HttpServlet {
 
     //  check the list val cache for the request data
     String strCacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>"
-                            + requestBody.replaceAll("<id>\\d+</id>", "")
-                                 .replaceAll("<date>\\d+</date>", "");
+                             + requestBody.replaceAll("<id>\\d+</id>", "")
+                                   .replaceAll("<date>\\d+</date>", "");
     if (isValCache && valCache.containsKey(strCacheKey)) {
       return valCache.get(strCacheKey)
                  .replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
@@ -517,8 +517,12 @@ public class MVServlet extends HttpServlet {
       try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + strPlotPrefix + ".log")) {
         fileWriter.write(strPlotterOutput);
       }
+      strRErrorMsg = strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
+                         .replace(">", "&gt;");
+      String message = e.getMessage().replace("&", "&amp;").replace("<", "&lt;")
+                           .replace(">", "&gt;");
       return "<response><error>"
-                 + "failed to run plot " + strPlotPrefix + " - reason: " + e.getMessage()
+                 + "failed to run plot " + strPlotPrefix + " - reason: " + message
                  + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "")
                  + "</error><plot>" + strPlotPrefix + "</plot></response>";
     } finally {
@@ -910,9 +914,8 @@ public class MVServlet extends HttpServlet {
         referer = refererArr[refererArr.length - 1];
         logger.debug("referer " + referer);
 
-      }
-      //  if the request is not a file upload, read it directly
-      else {
+      } else {
+        //  if the request is not a file upload, read it directly
         String line;
         try {
           reader = request.getReader();
