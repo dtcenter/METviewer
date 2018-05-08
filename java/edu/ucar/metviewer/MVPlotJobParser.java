@@ -953,7 +953,7 @@ public class MVPlotJobParser  {
             "<color_palette>" + job.getColorPalette() + "</color_palette>" +
             "<add_color_bar>" + job.getAddColorBar() + "</add_color_bar>" +
             "<reverse_y>" + job.getReverseY() + "</reverse_y>" +
-            "<reverse_x>" + job.getReverseY() + "</reverse_x>" +
+            "<reverse_x>" + job.getReverseX() + "</reverse_x>" +
             "<add_contour_overlay>" + job.getAddContourOverlay() + "</add_contour_overlay>" +
             "<plot_stat>" + job.getPlotStat() + "</plot_stat>");
     if (job.getContourIntervals() != null) {
