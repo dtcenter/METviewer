@@ -51,29 +51,25 @@ if ( nrow(sampleData) > 0){
   listFields = names(dfStatsRec);
 
   listGroupToValue=c();
-  ind=1;
   if(length(names(listSeries1Val)) > 0){
     for (index  in 1: length(names(listSeries1Val)) ){
       strSeriesVar=names(listSeries1Val)[[index]];
       valSeries = listSeries1Val[[strSeriesVar]];
       for(strVar in valSeries){
         if( grepl(',', strVar)) {
-          newName = paste('Group_y1_',ind,sep = "");
-          ind = ind+1;
+          newName = paste('Group_y1_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
       }
     }
   }
-  ind=1;
   if(length(names(listSeries2Val)) > 0){
     for (index  in 1: length(names(listSeries2Val)) ){
       strSeriesVar=names(listSeries2Val)[[index]];
       valSeries = listSeries2Val[[strSeriesVar]];
       for(strVar in valSeries){
         if( grepl(',', strVar)) {
-          newName = paste('Group_y2_',ind,sep = "");
-          ind = ind+1;
+          newName = paste('Group_y2_',index,sep = "");
           listGroupToValue[[newName]]= strVar;
         }
       }
