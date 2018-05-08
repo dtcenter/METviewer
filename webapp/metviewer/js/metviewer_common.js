@@ -1181,7 +1181,6 @@ function updateMtd(y_axis, index, selectedVals) {
             var config_table = $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]);
             config_table.css("display", "block");
             config_table.find(".non-acov").removeAttr("disabled");
-            console.log(ui);
 
             if (listStatModePair.indexOf(ui.value) > -1 || listStatMtd3dPair.indexOf(ui.value) > -1) {
                 config_table.find(".non-pair").attr("disabled", true);
@@ -1361,7 +1360,7 @@ function updateStatVal(){
                       try {
                         stat_select.multiselect('refresh');
                       } catch (err) {
-console.log(err);
+                        console.log(err);
                       }
                         updateSeries();
                     }
@@ -6833,7 +6832,6 @@ function initPage() {
                         $("#listdt").jqGrid('setCell', allSeries[i].id, 'order', i + 1);
                         $("#listdt").jqGrid('getLocalRow', allSeries[i].id).order = i + 1;
                     }
-                    console.log(seriesDiffY1);
 
                 } else {
                     var idSelector = "#alertmod_" + this.p.id;
@@ -7144,7 +7142,6 @@ function initPage() {
     var tabIndex = 0;
     if (initXML != null) {
         var template = initXML.find("plot").find("template")[0].innerHTML;
-        console.log(template);
         if (template === "series_plot.R_tmpl") {
             currentTab = "Series";
         } else if (template === "box_plot.R_tmpl") {
