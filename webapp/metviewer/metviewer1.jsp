@@ -174,7 +174,7 @@
   <script type="text/javascript" src="js/jquery.actual.min.js"></script>
   <script type="text/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  <script type="text/javascript" src="js/metviewer_common.js"></script>
+  <script type="text/javascript" src="js/metviewer_common.min.js"></script>
   <script type="text/javascript" src="js/moment.min.js"></script>
 
   <script type="text/javascript">
