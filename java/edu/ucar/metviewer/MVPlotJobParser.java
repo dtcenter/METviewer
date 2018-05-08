@@ -1560,7 +1560,7 @@ public class MVPlotJobParser  {
           } else if (nodeTmpl.tag.equals("r_file")) {
             job.setRFileTmpl(nodeTmpl.value);
           } else if (nodeTmpl.tag.equals("title")) {
-            job.setTitleTmpl(nodeTmpl.value);
+            job.setTitleTmpl(nodeTmpl.value.replaceAll("\"", "'"));
           } else if (nodeTmpl.tag.equals("x_label")) {
             job.setXLabelTmpl(nodeTmpl.value);
           } else if (nodeTmpl.tag.equals("y1_label")) {
