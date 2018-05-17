@@ -1,7 +1,26 @@
 #!/bin/bash
 
-JAVA=/usr/local/jdk/bin/java
-MV_HOME=/d3/projects/METViewer/src_dev/apps/METViewer
+#JAVA=/usr/local/jdk/bin/java
+JAVA=$(which java)
+$($JAVA)
+if [ "$?" -ne "0" ]; then
+   echo "You do not have a java executible in your path";
+   exit;
+fi
+
+JAVAC=$(which javac)
+$(javac -version)
+if [ "$?" -ne "0" ]; then
+   echo "You do not have a jdk (java development kit) installed";
+   exit;
+fi
+if [ -z ${MV_HOME+x} ]; then 
+	echo "MV_HOME is unset"
+	echo "setting it to /d3/projects/METViewer/src_dev/apps/METViewer"
+	MV_HOME=/d3/projects/METViewer/src_dev/apps/METViewer
+else
+	echo "MV_HOME is set to '$MV_HOME'"
+fi
 
 # construct the classpath for MVLoad
 CLASSPATH=$MV_HOME/lib/log4j-1.2.15.jar
