@@ -21,12 +21,12 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 public class AllTestRunner {
 
   public static void main(String[] args) {
-    cleanWorkingDirs();
     Result result;
     List<Failure> failureListLoadDataTest = null;
     if (args.length > 0 ) {
       TestUtil.ROOT_DIR = args[0];
     }
+    cleanWorkingDirs();
     if (args.length > 1 && args[1].equals("all")) {
       result = JUnitCore.runClasses(LoadDataTest.class);
       failureListLoadDataTest = result.getFailures();

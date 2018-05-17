@@ -5,13 +5,12 @@
 
 package edu.ucar.metviewer.test.util;
 
+import edu.ucar.metviewer.MVBatch;
+import org.apache.commons.io.FileUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,10 +18,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
-import edu.ucar.metviewer.MVBatch;
-import org.apache.commons.io.FileUtils;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
 
@@ -39,9 +46,7 @@ public class TestUtil {
       return o1.getName().compareTo(o2.getName());
     }
   };
-  public static  String ROOT_DIR = "/d3/projects/METViewer/test_data";
-  public static final String RWORK_DIR;
-  public static final String PLOTS_DIR;
+
   private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
     @Override
     public String getFileExtension() {
@@ -151,33 +156,64 @@ public class TestUtil {
       return SCRIPTS_DIR;
     }
   };
-  public static final String LOAD_DIR;
-  public static  final String database;
-  public static  final String USERNAME;
-  public static  final String PWD;
-  public static  final String host;
-  public static final  String rscript;
-  public static  final String TEMPLATE_DIR;
-  public static boolean list = false;
-  public static boolean verbose = false;
-  public static boolean sql = false;
-  public static String job_name = null;
-  public static String type = null;
-  public static String driver = null;
+    public static final String LOAD_DIR;
+    public static final String database;
+    public static final String USERNAME;
+    public static final String PWD;
+    public static final String HOST_NAME;
+    public static final String PORT;
+    public static final String host;
+    public static final  String rscript;
+    public static final String TEMPLATE_DIR;
+    public static boolean list = false;
+    public static boolean verbose = false;
+    public static boolean sql = false;
+    public static String job_name = null;
+    public static String type = null;
+    public static String driver = null;
+    public static  String ROOT_DIR;
+    public static final String RWORK_DIR;
+    public static final String PLOTS_DIR;
+
 
   static {
-
+    if (System.getProperty("mv_root_dir") == null) {
+      ROOT_DIR = "/d3/projects/METViewer/test_data";
+    } else {
+      ROOT_DIR = System.getProperty("mv_root_dir");
+    }
     FILE_SEPARATOR = System.getProperty("file.separator");
-
+    if (System.getProperty("mv_host") == null) {
+      HOST_NAME = "dakota.rap.ucar.edu";
+    } else {
+      HOST_NAME = System.getProperty("mv_host");
+    }
+    if (System.getProperty("mv_port") == null) {
+      PORT = "3306";
+    } else {
+      PORT = System.getProperty("mv_port");
+    }
+    host = HOST_NAME + ":" + PORT;
     RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
     PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
     DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
     SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
-    database = "mv_test";
-    USERNAME = "mvuser";
-    PWD = "mvuser";
-    host = "dakota.rap.ucar.edu:3306";
+    if (System.getProperty("mv_database") == null) {
+      database = "mv_test";
+    } else {
+      database = System.getProperty("mv_database");
+    }
+    if (System.getProperty("mv_user") == null) {
+      USERNAME = "mvuser";
+    } else {
+      USERNAME = System.getProperty("mv_user");
+    }
+    if (System.getProperty("mv_pwd") == null) {
+      PWD = "mvuser";
+    } else {
+      PWD = System.getProperty("mv_pwd");
+    }
     rscript = "Rscript";
     TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
     list = false;
@@ -201,14 +237,36 @@ public class TestUtil {
       argsList.add("-printSql");
     }
 
-
-    argsList.add(testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml");
+    String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
+    argsList.add(fpath);
     if (job_name != null) {
       argsList.add(job_name);
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-
+    try {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory
+                .newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse(fpath);
+        Node data = doc.getFirstChild();
+        doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
+        doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.database);
+        doc.getElementsByTagName("user").item(0).setTextContent(TestUtil.USERNAME);
+        doc.getElementsByTagName("password").item(0).setTextContent(TestUtil.PWD);
+        doc.getElementsByTagName("r_tmpl").item(0).setTextContent(TestUtil.TEMPLATE_DIR);
+        doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);
+        doc.getElementsByTagName("data").item(0).setTextContent(TestUtil.DATA_DIR);
+        doc.getElementsByTagName("scripts").item(0).setTextContent(TestUtil.SCRIPTS_DIR);
+        doc.getElementsByTagName("plots").item(0).setTextContent(TestUtil.PLOTS_DIR);
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(new File(fpath));
+        transformer.transform(source, result);
+    } catch (Exception e){
+        System.out.println("Exception translating file " + fpath + ":" + e.getMessage());
+    }
     MVBatch.main(args);
 
   }
