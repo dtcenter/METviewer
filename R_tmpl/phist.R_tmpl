@@ -92,7 +92,9 @@ if( 0 < length(listLegendUsr) ){
 listHistData=vector();
 listVisibleLegend=vector();
 listVisibleColors=vector();
-for(n in 2:length(names(res))){
+
+#ignore the last colunm - bin_size
+for(n in 2: (length(names(res))-1)  ){
   actualInd = listPlotOrderSeries[n-1];
   if(listPlotDisp[actualInd]){
     listHistData=rbind(listHistData,res[[actualInd+1]]);
@@ -108,8 +110,9 @@ if( boolNormalizedHistogram ){
   }
 }
 
-if( nrow(listHistData)>0) {
-  listX = 1:length(listHistData[1,]);
+if( nrow(listHistData)>0 && "bin_size" %in% colnames(res) && length(res$bin_size)>0) {
+	bin_size = res$bin_size[1]
+  listX = 1:(1/bin_size) * bin_size;
 }else{
   listX=vector();
 }
