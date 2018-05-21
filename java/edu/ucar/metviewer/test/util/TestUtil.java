@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author : tatiana $
@@ -157,7 +158,7 @@ public class TestUtil {
     }
   };
     public static final String LOAD_DIR;
-    public static final String database;
+    public static final String DATABASE;
     public static final String USERNAME;
     public static final String PWD;
     public static final String HOST_NAME;
@@ -200,9 +201,9 @@ public class TestUtil {
     SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
     if (System.getProperty("mv_database") == null) {
-      database = "mv_test";
+      DATABASE = "mv_test";
     } else {
-      database = System.getProperty("mv_database");
+      DATABASE = System.getProperty("mv_database");
     }
     if (System.getProperty("mv_user") == null) {
       USERNAME = "mvuser";
@@ -239,40 +240,38 @@ public class TestUtil {
 
     String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
     argsList.add(fpath);
-    if (job_name != null) {
+      xlateTestSpec(fpath);
+      if (job_name != null) {
       argsList.add(job_name);
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-    try {
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory
-                .newInstance();
-        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(fpath);
-        Node data = doc.getFirstChild();
-        doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
-        doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.database);
-        doc.getElementsByTagName("user").item(0).setTextContent(TestUtil.USERNAME);
-        doc.getElementsByTagName("password").item(0).setTextContent(TestUtil.PWD);
-        doc.getElementsByTagName("r_tmpl").item(0).setTextContent(TestUtil.TEMPLATE_DIR);
-        doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);
-        doc.getElementsByTagName("data").item(0).setTextContent(TestUtil.DATA_DIR);
-        doc.getElementsByTagName("scripts").item(0).setTextContent(TestUtil.SCRIPTS_DIR);
-        doc.getElementsByTagName("plots").item(0).setTextContent(TestUtil.PLOTS_DIR);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File(fpath));
-        transformer.transform(source, result);
-    } catch (Exception e){
-        System.out.println("Exception translating file " + fpath + ":" + e.getMessage());
-    }
     MVBatch.main(args);
-
   }
 
+    public static void xlateTestSpec(String fpath) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            Document doc = dbf.newDocumentBuilder().parse(fpath);
+            doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
+            doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.DATABASE);
+            doc.getElementsByTagName("user").item(0).setTextContent(TestUtil.USERNAME);
+            doc.getElementsByTagName("password").item(0).setTextContent(TestUtil.PWD);
+            doc.getElementsByTagName("r_tmpl").item(0).setTextContent(TestUtil.TEMPLATE_DIR);
+            doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);
+            doc.getElementsByTagName("data").item(0).setTextContent(TestUtil.DATA_DIR);
+            doc.getElementsByTagName("scripts").item(0).setTextContent(TestUtil.SCRIPTS_DIR);
+            doc.getElementsByTagName("plots").item(0).setTextContent(TestUtil.PLOTS_DIR);
+            doc.getElementsByTagName("rscript").item(0).setTextContent("Rscript");
+            TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(new File(fpath)));
+        } catch (Exception e){
+            System.out.println("Exception translating file " + fpath + ":" + e.getMessage());
+        }
+    }
 
-  public static void cleanWorkingDirs() {
+
+    public static void cleanWorkingDirs() {
     boolean doClean = true;
     if (doClean) {
       try {
@@ -324,7 +323,9 @@ public class TestUtil {
     compareBinaryFiles(testDataDir, plotType, false, false, PLOT_FILES_FILTER);
 
   }
-
+  public static void compareBinaryFilesBySize(String testDataDir, String plotType) {
+      compareBinaryFilesBySize(testDataDir, plotType, PLOT_FILES_FILTER);
+  }
 
   /**
    * Compare the number of files, names (if requested) and contents
@@ -386,6 +387,17 @@ public class TestUtil {
 
   }
 
+  private static void compareBinaryFilesBySize(String testDataDir, String plotType, CustomFilenameFilter filter) {
+      File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
+      File[] expectedFiles = dir.listFiles(filter);
+      for (int i = 0; i < expectedFiles.length; i++) {
+          File actualFile = new File(filter.getActualDir() + "/" + expectedFiles[i].getName());
+          boolean areTheSameSize = actualFile.length() == expectedFiles[i].length();
+          assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+          assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be the same size but they are not", areTheSameSize);
+      }
+  }
+
   private static void compareBinaryFiles(String testDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
     //get all test results datafiles
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
@@ -396,8 +408,6 @@ public class TestUtil {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
       if (isCompareContent) {
-
-
         BufferedImage expectedImg = null;
         BufferedImage actualImg = null;
         boolean areTheSame = false;
@@ -407,8 +417,17 @@ public class TestUtil {
           areTheSame = bufferedImagesEqual(expectedImg, actualImg);
         } catch (IOException e) {
         }
+        if (System.getProperty("captureCreatedImages") != null) {
+            if (!areTheSame) {
+                out.println ("copying image " + actualFile.getAbsolutePath() + " to " + expectedFiles[i].getAbsolutePath());
+                try {
+                    FileUtils.copyFile(actualFile, expectedFiles[i]);
+                } catch (Exception e) {
+                    fail("Failed to capture image : " + actualFile.getAbsolutePath() + " with error: " + e.getMessage());
+                }
+            }
+        }
         assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be identical but they are not", areTheSame);
-
       }
     }
 

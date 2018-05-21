@@ -77,14 +77,14 @@ public class CreatePlotBatchTest {
       comparePointsFilesWithNames(testDataDir, "2", plotType);
     }
     comparePlotFilesWithNames(testDataDir, plotType);
-
-
   }
 
 
   @After
   public void cleanup() {
-    cleanWorkingDirs();
+    if (System.getProperty("noClean") == null) {
+      cleanWorkingDirs();
+    }
   }
 
 }

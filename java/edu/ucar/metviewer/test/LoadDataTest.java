@@ -27,7 +27,7 @@ import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
 import static edu.ucar.metviewer.test.util.TestUtil.LOAD_DIR;
 import static edu.ucar.metviewer.test.util.TestUtil.PWD;
 import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
-import static edu.ucar.metviewer.test.util.TestUtil.database;
+import static edu.ucar.metviewer.test.util.TestUtil.DATABASE;
 import static edu.ucar.metviewer.test.util.TestUtil.host;
 import static org.junit.Assert.assertEquals;
 
@@ -95,9 +95,9 @@ public class LoadDataTest {
                                                                    .buildPrintWriter());
       con = mysqlDatabaseManager.getConnection();
       statement = con.createStatement();
-      statement.executeUpdate("drop database " + database);
-      statement.executeUpdate("create database " + database);
-      statement.executeUpdate("use " + database);
+      statement.executeUpdate("drop database " + DATABASE);
+      statement.executeUpdate("create database " + DATABASE);
+      statement.executeUpdate("use " + DATABASE);
       ScriptRunner scriptRunner = new ScriptRunner(con, false, true);
       reader = new FileReader(LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql");
       scriptRunner.runScript(reader);
@@ -138,7 +138,7 @@ public class LoadDataTest {
     Connection con = null;
 
     try {
-      con = mysqlDatabaseManager.getConnection(database);
+      con = mysqlDatabaseManager.getConnection(DATABASE);
       for (Map.Entry<String, Integer> entry : TABLES_TO_ROWS.entrySet()) {
         Integer rows = getNumberOfRows(con, entry.getKey());
         assertEquals("Number of rows in table " + entry.getKey() + " should be " + entry.getValue() + " but it is not", entry.getValue(), rows);
