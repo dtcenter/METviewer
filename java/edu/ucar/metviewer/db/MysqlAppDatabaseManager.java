@@ -512,11 +512,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         boolean printHeader = !append;
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                   ResultSet.CONCUR_READ_ONLY);
-             ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
              FileWriter fstream = new FileWriter(new File(fileName), append);
-             BufferedWriter out = new BufferedWriter(fstream)) {
+             BufferedWriter out = new BufferedWriter(fstream);) {
 
-          printFormattedTable(resultSetLast, out, "\t", isCalc, printHeader);
+          //TODO investigate implications of adding the Fetch Size
+          //stmt.setFetchSize(Integer.MIN_VALUE);
+
+          ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
+          printFormattedTable(resultSetLast, out, printHeader);
           out.flush();
           resultSetLast.close();
           stmt.close();
@@ -566,35 +569,25 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    *
    * @param res            The ResultSet to print
    * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
-   * @param delim          The delimiter to insert between field headers and values (defaults to '
-   *                       ')
    */
 
-  private void printFormattedTable(
-                                      ResultSet res, BufferedWriter bufferedWriter, String delim,
-                                      boolean isCalc, boolean isHeader) {
+  private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter,boolean isHeader) {
 
+    char delim='\t';
     try {
       ResultSetMetaData met = res.getMetaData();
-      //  get the column display widths
-      int[] intFieldWidths = new int[met.getColumnCount()];
-      for (int i = 1; i <= met.getColumnCount(); i++) {
-        intFieldWidths[i - 1] = met.getColumnDisplaySize(i) + 2;
-      }
 
       //  print out the column headers
       if (isHeader) {
         for (int i = 1; i <= met.getColumnCount(); i++) {
-          if (delim.equals(" ")) {
-            bufferedWriter.write(MVUtil.padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
-          } else {
+
             if (1 == i) {
               bufferedWriter.write(met.getColumnLabel(i));
             } else {
               bufferedWriter.write(delim + met.getColumnLabel(i));
             }
           }
-        }
+
         bufferedWriter.write(System.getProperty("line.separator"));
       }
 
@@ -621,15 +614,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
 
-          if (delim.equals(" ")) {
-            line = line + (MVUtil.padEnd(strVal, intFieldWidths[i - 1]));
-          } else {
+
             if (1 == i) {
               line = line + (strVal);
             } else {
               line = line + (delim + strVal);
             }
-          }
+
         }
         bufferedWriter.write(line);
         bufferedWriter.write(System.getProperty("line.separator"));
@@ -1049,26 +1040,48 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 printStreamSql.println(strSelPctThresh + "\n");
 
                 //  run the PCT thresh query
-                pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));
-                if (1 != pctThreshInfo.get("numPctThresh")) {
-                  String error = "number of PCT thresholds (" + pctThreshInfo.get(
-                      "numPctThresh") + ") not distinct for " + serName[serNameInd]
-                                     + " = '" + ser.getStr(serName[serNameInd]);
-                  if (!vars[varsInd].equals("NA")) {
-                    error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                List<String> errors = new ArrayList<>();
+                for(int i=0; i< job.getCurrentDBName().size(); i++ ) {
+                  pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(i));
+                  if (1 != pctThreshInfo.get("numPctThresh")) {
+                    String error = "number of PCT thresholds (" + pctThreshInfo.get(
+                        "numPctThresh") + ") not distinct for " + serName[serNameInd]
+                                       + " = '" + ser.getStr(serName[serNameInd])
+                        + "' AND database  " + job.getCurrentDBName().get(i) + "'";
+                    if (!vars[varsInd].equals("NA")) {
+                      error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                    }
+                    errors.add(error);
+                  } else if (1 > pctThreshInfo.get("numPctThresh")) {
+                    String error = "invalid number of PCT thresholds ("
+                                       + pctThreshInfo.get("numPctThresh") + ") found for "
+                                       + serName[serNameInd] + " = '"
+                                       + ser.getStr(serName[serNameInd])
+                        + "' AND database " + job.getCurrentDBName().get(i) + "'";
+                    if (!vars[varsInd].equals("NA")) {
+                      error = error + "' AND fcst_var='" + vars[varsInd] + "'";
+                    }
+                    errors.add(error);
+                  }else {
+                    errors.add(null);
+                    seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
                   }
-                  throw new Exception(error);
-                } else if (1 > pctThreshInfo.get("numPctThresh")) {
-                  String error = "invalid number of PCT thresholds ("
-                                     + pctThreshInfo.get("numPctThresh") + ") found for "
-                                     + serName[serNameInd] + " = '" + ser.getStr(
-                      serName[serNameInd]);
-                  if (!vars[varsInd].equals("NA")) {
-                    error = error + "' AND fcst_var='" + vars[varsInd] + "'";
-                  }
-                  throw new Exception(error);
                 }
-                seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
+                boolean noErrors = false;
+                for(String error : errors){
+                  if(error == null){
+                    noErrors = true;
+                    break;
+                  }
+                }
+                if(!noErrors){
+                  for(String error : errors){
+                    if(error != null){
+                      throw new Exception(error);
+                    }
+                  }
+                }
+                //seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
               }
 
             }
@@ -1082,6 +1095,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             if (!allEqual) {
               String error = "Different value for PCT thresholds   for individual series!";
               throw new Exception(error);
+            }else {
+              pctThreshInfo.put("pctThresh", seriesNthresh[0]);
             }
           }
         }
@@ -1301,7 +1316,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strWhereFcstVar = strWhere + " AND  fcst_var " + strFcstVarClause;
 
           listSql.addAll(buildModeStatSql(strSelectList, strWhereFcstVar, strStat, listGroupBy,
-                                          job.getEventEqual()));
+                                          job.getEventEqual(),  listSeries));
         } else if (job.isMtdJob()) {
 
           //  build the mtd SQL
@@ -1546,11 +1561,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param strWhere      list of where clauses
    * @param strStat       MODE stat
    * @param listGroupBy   list of fields to group by
+   * @param listSeries
    * @return list of SQL queries for gathering plot data
    */
   private List<String> buildModeStatSql(
                                            String strSelectList, String strWhere, String strStat,
-                                           String[] listGroupBy, boolean isEventEqualization) {
+                                           String[] listGroupBy, boolean isEventEqualization,
+                                           Map.Entry[] listSeries) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1577,7 +1594,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                                  isEventEqualization);
         strWhere = strWhere.replace("h.", "s.");
         listQuery
-            .add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat, query1, query2));
+            .add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat, query1, query2,  listSeries));
       }
     } else if (MVUtil.modePairStatField.containsKey(listStatComp[0])) {
 
@@ -2045,7 +2062,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   private String buildModeSingleStatDiffTable(
                                                  String strSelectList, String strWhere, String stat,
-                                                 String table1, String table2) {
+                                                 String table1, String table2,
+                                                 Map.Entry[] listSeries) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -2089,8 +2107,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strWhere + "\n" +
             " AND SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3)\n";
     if (!strTableStat.contains("object_id")) {
-      result = result + "  AND " + "s.stat_value" + " != -9999 AND " + "s2.stat_value" + " != "
-                   + "-9999;";
+      result = result + "  AND " + "s.stat_value" + " != -9999"
+                   + " AND " + "s2.stat_value" + " != -9999"
+                   + " AND s.fcst_valid = s2.fcst_valid "
+                   + " AND s.fcst_lead = s2.fcst_lead";
+      for(int i=0; i<  listSeries.length; i++){
+        result = result + " AND s." + listSeries[i].getKey()
+            + " = s2." + listSeries[i].getKey();
+      }
+      result = result +";";
     }
     return result;
   }
@@ -2520,16 +2545,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     strWhere = strWhere.replaceAll("h\\.n_" + type, "ld.n_" + type);
     strNumSelect =
         "SELECT DISTINCT\n" +
-            "  ld.n_" + type + "\n" +
-            "FROM\n" +
-            "  stat_header h,\n" +
-            "  " + table + " ld\n" +
-            "WHERE\n" +
-            strWhere +
-            "  AND h.stat_header_id = ld.stat_header_id;";
+            "  ld.n_" + type + " \n"
+            + "FROM\n" +
+            "  stat_header h,\n"
+            + "  " + table + " ld\n"
+            + "WHERE\n"
+            + strWhere
+            + "  AND h.stat_header_id = ld.stat_header_id;";
 
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + "\n");
+      printStreamSql.flush();
     }
 
 
@@ -2558,22 +2584,24 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
     }
 
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value\n" +
-                            "FROM\n" +
-                            "  stat_header h,\n" +
-                            "  " + table + " ld,\n" +
-                            "  " + tableBins + " ldr\n" +
-                            "WHERE\n" +
-                            strWhere +
-                            "  AND h.stat_header_id = ld.stat_header_id\n" +
-                            "  AND ld.line_data_id = ldr.line_data_id\n" +
-                            "GROUP BY i_value";
+    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value,\n"
+                            + " ld."  + type + "_size \n"
+                            + "FROM\n" +
+                            "  stat_header h,\n"
+                            + "  " + table + " ld,\n"
+                            + "  " + tableBins + " ldr\n"
+                            + "WHERE\n"
+                            + strWhere
+                            + "  AND h.stat_header_id = ld.stat_header_id\n"
+                            + "  AND ld.line_data_id = ldr.line_data_id\n"
+                            + "GROUP BY i_value";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
+      printStreamSql.flush();
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
