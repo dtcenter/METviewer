@@ -41,7 +41,7 @@ public abstract class JobManager {
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
       run(job);
     } catch (Exception e) {
-      mvBatch.print("Failed to create" + "a plot. " + e.getMessage());
+      mvBatch.print("Failed to create a plot. " + e.getMessage());
       throw e;
     }
   }
