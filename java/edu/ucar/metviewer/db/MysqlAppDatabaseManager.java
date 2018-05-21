@@ -571,9 +571,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
    */
 
-  private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter,boolean isHeader) {
+  private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, boolean isHeader) {
 
-    char delim='\t';
+    char delim = '\t';
     try {
       ResultSetMetaData met = res.getMetaData();
 
@@ -581,12 +581,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (isHeader) {
         for (int i = 1; i <= met.getColumnCount(); i++) {
 
-            if (1 == i) {
-              bufferedWriter.write(met.getColumnLabel(i));
-            } else {
-              bufferedWriter.write(delim + met.getColumnLabel(i));
-            }
+          if (1 == i) {
+            bufferedWriter.write(met.getColumnLabel(i));
+          } else {
+            bufferedWriter.write(delim + met.getColumnLabel(i));
           }
+        }
 
         bufferedWriter.write(System.getProperty("line.separator"));
       }
@@ -614,12 +614,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
 
-
-            if (1 == i) {
-              line = line + (strVal);
-            } else {
-              line = line + (delim + strVal);
-            }
+          if (1 == i) {
+            line = line + (strVal);
+          } else {
+            line = line + (delim + strVal);
+          }
 
         }
         bufferedWriter.write(line);
@@ -1041,13 +1040,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
                 //  run the PCT thresh query
                 List<String> errors = new ArrayList<>();
-                for(int i=0; i< job.getCurrentDBName().size(); i++ ) {
+                for (int i = 0; i < job.getCurrentDBName().size(); i++) {
                   pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(i));
                   if (1 != pctThreshInfo.get("numPctThresh")) {
                     String error = "number of PCT thresholds (" + pctThreshInfo.get(
                         "numPctThresh") + ") not distinct for " + serName[serNameInd]
                                        + " = '" + ser.getStr(serName[serNameInd])
-                        + "' AND database  " + job.getCurrentDBName().get(i) + "'";
+                                       + "' AND database  " + job.getCurrentDBName().get(i) + "'";
                     if (!vars[varsInd].equals("NA")) {
                       error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                     }
@@ -1057,26 +1056,26 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                        + pctThreshInfo.get("numPctThresh") + ") found for "
                                        + serName[serNameInd] + " = '"
                                        + ser.getStr(serName[serNameInd])
-                        + "' AND database " + job.getCurrentDBName().get(i) + "'";
+                                       + "' AND database " + job.getCurrentDBName().get(i) + "'";
                     if (!vars[varsInd].equals("NA")) {
                       error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                     }
                     errors.add(error);
-                  }else {
+                  } else {
                     errors.add(null);
                     seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
                   }
                 }
                 boolean noErrors = false;
-                for(String error : errors){
-                  if(error == null){
+                for (String error : errors) {
+                  if (error == null) {
                     noErrors = true;
                     break;
                   }
                 }
-                if(!noErrors){
-                  for(String error : errors){
-                    if(error != null){
+                if (!noErrors) {
+                  for (String error : errors) {
+                    if (error != null) {
                       throw new Exception(error);
                     }
                   }
@@ -1095,7 +1094,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             if (!allEqual) {
               String error = "Different value for PCT thresholds   for individual series!";
               throw new Exception(error);
-            }else {
+            } else {
               pctThreshInfo.put("pctThresh", seriesNthresh[0]);
             }
           }
@@ -1316,7 +1315,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strWhereFcstVar = strWhere + " AND  fcst_var " + strFcstVarClause;
 
           listSql.addAll(buildModeStatSql(strSelectList, strWhereFcstVar, strStat, listGroupBy,
-                                          job.getEventEqual(),  listSeries));
+                                          job.getEventEqual(), listSeries));
         } else if (job.isMtdJob()) {
 
           //  build the mtd SQL
@@ -1594,7 +1593,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                                  isEventEqualization);
         strWhere = strWhere.replace("h.", "s.");
         listQuery
-            .add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat, query1, query2,  listSeries));
+            .add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat, query1, query2,
+                                              listSeries));
       }
     } else if (MVUtil.modePairStatField.containsKey(listStatComp[0])) {
 
@@ -2111,11 +2111,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                    + " AND " + "s2.stat_value" + " != -9999"
                    + " AND s.fcst_valid = s2.fcst_valid "
                    + " AND s.fcst_lead = s2.fcst_lead";
-      for(int i=0; i<  listSeries.length; i++){
+      for (int i = 0; i < listSeries.length; i++) {
         result = result + " AND s." + listSeries[i].getKey()
-            + " = s2." + listSeries[i].getKey();
+                     + " = s2." + listSeries[i].getKey();
       }
-      result = result +";";
+      result = result + ";";
     }
     return result;
   }
@@ -2528,6 +2528,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String type = "";
     String table = "";
     String tableBins = "";
+    String binColumnName = null;
+
     if (job.getPlotTmpl().startsWith("relp")) {
       type = "ens";
       table = "line_data_relp";
@@ -2541,6 +2543,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       table = "line_data_phist";
       strWhere = strWhere.replaceAll("h\\.n_bin", "ld.n_bin");
       tableBins = "line_data_phist_bin";
+      binColumnName = "bin_size";
     }
     strWhere = strWhere.replaceAll("h\\.n_" + type, "ld.n_" + type);
     strNumSelect =
@@ -2584,9 +2587,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
     }
 
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value,\n"
-                            + " ld."  + type + "_size \n"
-                            + "FROM\n" +
+
+    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value\n";
+
+    if (binColumnName != null) {
+      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + "\n";
+    }
+    strPlotDataSelect = strPlotDataSelect + "FROM\n" +
                             "  stat_header h,\n"
                             + "  " + table + " ld,\n"
                             + "  " + tableBins + " ldr\n"
