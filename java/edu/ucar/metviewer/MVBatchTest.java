@@ -204,7 +204,7 @@ public class MVBatchTest {
     @Test
     public void seriesStat() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "series_stat";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -230,7 +230,7 @@ public class MVBatchTest {
     @Test
     public void seriesDiffGrouping() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "diff_grouping";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -256,7 +256,7 @@ public class MVBatchTest {
     @Test
     public void seriesModeRatio() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "series_mode_ratio";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -269,7 +269,7 @@ public class MVBatchTest {
     @Test
     public void tyler() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "tylor";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -282,7 +282,7 @@ public class MVBatchTest {
     @Test
     public void rhist() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "rhist";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -295,7 +295,7 @@ public class MVBatchTest {
     @Test
     public void phist() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "phist";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -308,7 +308,7 @@ public class MVBatchTest {
     @Test
     public void servlet() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "servlet";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -321,7 +321,7 @@ public class MVBatchTest {
     @Test
     public void rely() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "rely";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -334,7 +334,7 @@ public class MVBatchTest {
     @Test
     public void series_sum_stat() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "series_sum_stat";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
@@ -347,7 +347,7 @@ public class MVBatchTest {
     @Test
     public void plot_afwa_thresh() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
+        //argsList.add("-list");
         argsList.add("-printSql");
         String plotType = "plot_afwa_thresh";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";

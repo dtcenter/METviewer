@@ -13,7 +13,7 @@
     <option name="MAIN_CLASS_NAME" value="edu.ucar.metviewer.MVBatchTest" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
-    <option name="VM_PARAMETERS" value="-ea -Dmv_root_dir=$USER_HOME$/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes" />
+    <option name="VM_PARAMETERS" value="-ea -Dmv_root_dir=$USER_HOME$/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes -Dlog4j2.debug" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://%MODULE_WORKING_DIR%" />
     <option name="PASS_PARENT_ENVS" value="true" />
