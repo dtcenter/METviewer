@@ -250,23 +250,52 @@ public class TestUtil {
   }
 
     public static void xlateTestSpec(String fpath) {
+      String tag = "";
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             Document doc = dbf.newDocumentBuilder().parse(fpath);
-            doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
-            doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.DATABASE);
-            doc.getElementsByTagName("user").item(0).setTextContent(TestUtil.USERNAME);
-            doc.getElementsByTagName("password").item(0).setTextContent(TestUtil.PWD);
-            doc.getElementsByTagName("r_tmpl").item(0).setTextContent(TestUtil.TEMPLATE_DIR);
-            doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);
-            doc.getElementsByTagName("data").item(0).setTextContent(TestUtil.DATA_DIR);
-            doc.getElementsByTagName("scripts").item(0).setTextContent(TestUtil.SCRIPTS_DIR);
-            doc.getElementsByTagName("plots").item(0).setTextContent(TestUtil.PLOTS_DIR);
-            doc.getElementsByTagName("rscript").item(0).setTextContent("Rscript");
+            tag = "host";
+            if (doc.getElementsByTagName("host").item(0) != null) {
+                doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
+            }
+            tag = "database";
+            if (doc.getElementsByTagName("database").item(0) != null) {
+                doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.DATABASE);
+            }
+            tag = "user";
+            if (doc.getElementsByTagName("user").item(0) != null) {
+                doc.getElementsByTagName("user").item(0).setTextContent(TestUtil.USERNAME);
+            }
+            tag = "password";
+            if (doc.getElementsByTagName("password").item(0) != null) {
+                doc.getElementsByTagName("password").item(0).setTextContent(TestUtil.PWD);
+            }
+            tag = "r_tmpl";
+            if (doc.getElementsByTagName("r_tmpl").item(0) != null) {
+                doc.getElementsByTagName("r_tmpl").item(0).setTextContent(TestUtil.TEMPLATE_DIR);
+            }
+            tag = "r_work";
+            if (doc.getElementsByTagName("r_work").item(0) != null) {
+                doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);}
+            tag = "data";
+            if (doc.getElementsByTagName("data").item(0) != null) {doc.getElementsByTagName("data").item(0).setTextContent(TestUtil.DATA_DIR);
+            }
+            tag = "scripts";
+            if (doc.getElementsByTagName("scripts").item(0) != null) {
+                doc.getElementsByTagName("scripts").item(0).setTextContent(TestUtil.SCRIPTS_DIR);
+            }
+            tag = "plots";
+            if (doc.getElementsByTagName("plots").item(0) != null) {
+                doc.getElementsByTagName("plots").item(0).setTextContent(TestUtil.PLOTS_DIR);
+            }
+            tag = "rscript";
+            if (doc.getElementsByTagName("rscript").item(0) != null) {
+                doc.getElementsByTagName("rscript").item(0).setTextContent("Rscript");
+            }
             TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(new File(fpath)));
         } catch (Exception e){
-            System.out.println("Exception translating file " + fpath + ":" + e.getMessage());
+            System.out.println("Exception translating tag " + tag + " for file " + fpath + ":" + e.getMessage());
         }
     }
 
@@ -393,6 +422,15 @@ public class TestUtil {
       for (int i = 0; i < expectedFiles.length; i++) {
           File actualFile = new File(filter.getActualDir() + "/" + expectedFiles[i].getName());
           boolean areTheSameSize = actualFile.length() == expectedFiles[i].length();
+          if ((!actualFile.exists() || !areTheSameSize) && (System.getProperty("captureCreatedImages") != null)) {
+              out.println ("copying image " + actualFile.getAbsolutePath() + " to " + expectedFiles[i].getAbsolutePath());
+              areTheSameSize = actualFile.length() == expectedFiles[i].length();
+              try {
+                  FileUtils.copyFile(actualFile, expectedFiles[i]);
+              } catch (Exception e) {
+                  fail("Failed to capture image : " + actualFile.getAbsolutePath() + " with error: " + e.getMessage());
+              }
+          }
           assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
           assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be the same size but they are not", areTheSameSize);
       }
