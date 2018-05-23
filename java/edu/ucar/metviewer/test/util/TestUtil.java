@@ -29,6 +29,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
@@ -255,6 +256,7 @@ public class TestUtil {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             Document doc = dbf.newDocumentBuilder().parse(fpath);
+            // these should only have one element
             tag = "host";
             if (doc.getElementsByTagName("host").item(0) != null) {
                 doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
@@ -278,20 +280,27 @@ public class TestUtil {
             tag = "r_work";
             if (doc.getElementsByTagName("r_work").item(0) != null) {
                 doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);}
+
+            // these could potentially have more than one element
             tag = "data";
-            if (doc.getElementsByTagName("data").item(0) != null) {doc.getElementsByTagName("data").item(0).setTextContent(TestUtil.DATA_DIR);
+            NodeList nodeList = doc.getElementsByTagName("data");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent(TestUtil.DATA_DIR);
             }
             tag = "scripts";
-            if (doc.getElementsByTagName("scripts").item(0) != null) {
-                doc.getElementsByTagName("scripts").item(0).setTextContent(TestUtil.SCRIPTS_DIR);
+            nodeList = doc.getElementsByTagName("scripts");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent(TestUtil.SCRIPTS_DIR);
             }
             tag = "plots";
-            if (doc.getElementsByTagName("plots").item(0) != null) {
-                doc.getElementsByTagName("plots").item(0).setTextContent(TestUtil.PLOTS_DIR);
+            nodeList = doc.getElementsByTagName("plots");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent(TestUtil.PLOTS_DIR);
             }
             tag = "rscript";
-            if (doc.getElementsByTagName("rscript").item(0) != null) {
-                doc.getElementsByTagName("rscript").item(0).setTextContent("Rscript");
+            nodeList = doc.getElementsByTagName("rscript");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent("Rscript");
             }
             TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(new File(fpath)));
         } catch (Exception e){

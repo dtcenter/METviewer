@@ -1,15 +1,15 @@
 #!/bin/bash
 
-#JAVA=/usr/local/jdk/bin/java
+JAVA=/usr/local/jdk/bin/java
 JAVA=$(which java)
-$($JAVA)
+$JAVA -version
 if [ "$?" -ne "0" ]; then
    echo "You do not have a java executible in your path";
    exit;
 fi
 
 JAVAC=$(which javac)
-$(javac -version)
+$JAVAC -version
 if [ "$?" -ne "0" ]; then
    echo "You do not have a jdk (java development kit) installed";
    exit;
@@ -43,30 +43,30 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.8.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.8.2.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
-
+VM_OPTIONS="-ea -Dmv_root_dir=/Users/pierce/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes"
 
 if [ $# -eq 0 ]
 then
   echo "Running plots scripts"
-  $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner
+  $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner $VM_OPTIONS
 else
   dir="$1"
   mode="$2"
   if [[ 1 -eq $# ]]
   then
     echo "Running plots scripts"
-    $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"
+    $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir" $VM_OPTIONS
 
   else
     if [[ (2 -eq $#) &&  ($2 == "all") ]];
     then
       echo "Running all scripts"
-      $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"  all
+      $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"  $VM_OPTIONS all
     else
       if [[ (2 -eq $#) && ($2 == "plots") ]];
       then
         echo "Running plots scripts"
-        $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner
+        $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner $VM_OPTIONS
       fi
     fi
   fi
