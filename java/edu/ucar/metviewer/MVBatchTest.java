@@ -221,7 +221,6 @@ public class MVBatchTest {
     @Test
     public void seriesStat() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "series_stat";
@@ -235,7 +234,6 @@ public class MVBatchTest {
     @Test
     public void seriesModeAttr() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "series_mode_attr";
@@ -249,7 +247,6 @@ public class MVBatchTest {
     @Test
     public void seriesDiffGrouping() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "diff_grouping";
@@ -263,7 +260,6 @@ public class MVBatchTest {
     @Test
     public void handSelectedDates() {
         List<String> argsList = new ArrayList<>();
-        argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "hand_selected_dates";
@@ -277,7 +273,6 @@ public class MVBatchTest {
     @Test
     public void seriesModeRatio() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "series_mode_ratio";
@@ -289,9 +284,8 @@ public class MVBatchTest {
     }
 
     @Test
-    public void tyler() {
+    public void tylor() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "tylor";
@@ -305,7 +299,6 @@ public class MVBatchTest {
     @Test
     public void rhist() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "rhist";
@@ -319,7 +312,6 @@ public class MVBatchTest {
     @Test
     public void phist() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "phist";
@@ -333,7 +325,6 @@ public class MVBatchTest {
     @Test
     public void servlet() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "servlet";
@@ -347,7 +338,6 @@ public class MVBatchTest {
     @Test
     public void rely() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "rely";
@@ -361,7 +351,6 @@ public class MVBatchTest {
     @Test
     public void series_sum_stat() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "series_sum_stat";
@@ -375,7 +364,6 @@ public class MVBatchTest {
     @Test
     public void plot_afwa_thresh() {
         List<String> argsList = new ArrayList<>();
-        //argsList.add("-list");
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "plot_afwa_thresh";
