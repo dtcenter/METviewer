@@ -33,6 +33,7 @@ public class MVBatchTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+
         log = new ByteArrayOutputStream();
         printStream = new PrintStream(log);
         logSql = new ByteArrayOutputStream();
@@ -48,6 +49,7 @@ public class MVBatchTest {
         databaseInfo.setDbName(TestUtil.DATABASE);
         AppDatabaseManager databaseManager = new MysqlAppDatabaseManager(databaseInfo, printStreamSql);
         mvBatch = new MVBatch(printStream, printStreamSql, printStreamError, databaseManager);
+        MVUtil.updateLog4jConfiguration();
     }
 
     @Before
