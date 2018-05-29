@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AllTestRunner All Load" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="edu.ucar.metviewer.test.AllTestRunner" />
+    <module name="METViewer" />
+    <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/test_data all" />
+    <option name="VM_PARAMETERS" value="-ea -Dmv_root_dir=$USER_HOME$/test_data -Dmv_database=mv_test_al -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="edu.ucar.metviewer.test.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method />
+  </configuration>
+</component>
