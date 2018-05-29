@@ -260,6 +260,7 @@ public class MVPlotJobParser extends MVUtil {
   protected String strDBHost = "";
   protected String strDBUser = "";
   protected String strDBPassword = "";
+  protected String strDBName = "";
   protected String strDBDriver = null;
 
 
@@ -962,8 +963,6 @@ public class MVPlotJobParser extends MVUtil {
 
   protected void parsePlotJobSpec() throws Exception {
     ArrayList listJobs = new ArrayList();
-    String strDBName = "";
-
     for (int i = 0; null != _nodePlotSpec && i < _nodePlotSpec._children.length; i++) {
 
 
@@ -980,14 +979,11 @@ public class MVPlotJobParser extends MVUtil {
             strDBUser = node._children[j]._value;
           } else if (node._children[j]._tag.equals("password")) {
             strDBPassword = node._children[j]._value;
-
           } else if (node._children[j]._tag.equals("driver")) {
             strDBDriver = node._children[j]._value;
           }
         }
-
       }
-
       //  <rscript>
       else if (node._tag.equals("rscript")) {
         _strRscript = node._value;

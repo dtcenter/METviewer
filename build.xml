@@ -46,6 +46,8 @@
                 <pathelement location="${lib}/commons-lang3-3.5.jar"/>
                 <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
                 <pathelement location="${lib}/juli-6.0.53.jar"/>
+                <pathelement location="${lib}/junit-4.11.jar"/>
+
 
             </classpath>
             <exclude name="**/test/**"/>

@@ -55,8 +55,7 @@ public class MVBatch extends MVUtil {
   }
 
   public MVBatch() {
-
-    this(IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
+      this(IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
              .buildPrintStream(),
          IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
              .buildPrintWriter(),
@@ -207,13 +206,9 @@ public class MVBatch extends MVUtil {
 
   public static void main(String[] argv) {
     MVBatch bat = new MVBatch();
-
     bat.print("----  MVBatch  ----\n");
-
     try {
-
       MVPlotJob[] jobs;
-
       //  if no input file is present, bail
       if (1 > argv.length) {
         bat.print(getUsage() + "\n----  MVBatch Done  ----");
@@ -240,13 +235,11 @@ public class MVBatch extends MVUtil {
       //  parse the input file
       String strXMLInput = argv[intArg++];
       bat.print("input file: " + strXMLInput + "\n");
-
       MVPlotJobParser parser = new MVPlotJobParser(strXMLInput);
       if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
         bat.setDatabaseManager(new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
       }
       MVOrderedMap mapJobs = parser.getJobsMap();
-
       //  build a list of jobs to run
       List<String> listJobNamesInput = new ArrayList<>();
       for (; intArg < argv.length; intArg++) {
@@ -358,9 +351,7 @@ public class MVBatch extends MVUtil {
             break;
         }
         jobManager.runJob(jobs[intJob]);
-
         bat.numPlotsRun++;
-
       }
 
       LocalDateTime dateEnd = LocalDateTime.now();

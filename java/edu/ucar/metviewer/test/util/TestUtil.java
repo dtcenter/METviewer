@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -240,14 +241,14 @@ public class TestUtil {
     }
 
     String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
-    argsList.add(fpath);
-      xlateTestSpec(fpath);
-      if (job_name != null) {
-      argsList.add(job_name);
+        argsList.add(fpath);
+        xlateTestSpec(fpath);
+        if (job_name != null) {
+        argsList.add(job_name);
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-    MVBatch.main(args);
+      MVBatch.main(args);
   }
 
     public static void xlateTestSpec(String fpath) {

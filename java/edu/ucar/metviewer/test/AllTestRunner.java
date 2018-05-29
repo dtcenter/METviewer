@@ -21,6 +21,7 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 public class AllTestRunner {
 
   public static void main(String[] args) {
+
     Result result;
     List<Failure> failureListLoadDataTest = null;
     if (args.length > 0 ) {
@@ -39,7 +40,6 @@ public class AllTestRunner {
 
     result = JUnitCore.runClasses(TestMVServlet.class);
     List<Failure> failureListTestMVServlet = result.getFailures();
-
 
     System.out.println("*************************************************");
     if (failureListLoadDataTest != null) {

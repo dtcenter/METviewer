@@ -32,7 +32,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   private final Map<String, String> mtdHeaderSQLType = new HashMap<>();
-
   public MysqlAppDatabaseManager(
                                     DatabaseInfo databaseInfo,
                                     PrintWriter printStreamSql) throws SQLException {

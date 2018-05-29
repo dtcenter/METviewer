@@ -38,35 +38,37 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-io-2.4.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mockito-all-1.9.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-fileupload-1.3.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.8.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.8.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.8.2.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.10.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.10.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
-VM_OPTIONS="-ea -Dmv_root_dir=/Users/pierce/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes"
 
+#JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=5005 -Xmx2048M -ea -Dmv_root_dir=/Users/pierce/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=/Users/pierce/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306"
 if [ $# -eq 0 ]
 then
-  echo "Running plots scripts"
-  $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner $VM_OPTIONS
+  echo "Running plots scripts - no params - $*"
+    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
 else
   dir="$1"
   mode="$2"
   if [[ 1 -eq $# ]]
   then
-    echo "Running plots scripts"
-    $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir" $VM_OPTIONS
+    echo "Running plots scripts - 1 param - $*"
+    echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir"
+    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir"
 
   else
     if [[ (2 -eq $#) &&  ($2 == "all") ]];
     then
-      echo "Running all scripts"
-      $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner "$dir"  $VM_OPTIONS all
+      echo "Running all scripts - 2 params $dir (all) - $*"
+      $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" all
     else
       if [[ (2 -eq $#) && ($2 == "plots") ]];
       then
-        echo "Running plots scripts"
-        $JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.test.AllTestRunner $VM_OPTIONS
+        echo "Running plots scripts - 2 params (plots) - $*"
+        $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
       fi
     fi
   fi
