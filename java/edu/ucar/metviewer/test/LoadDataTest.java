@@ -23,12 +23,7 @@ import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
-import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
-import static edu.ucar.metviewer.test.util.TestUtil.LOAD_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.PWD;
-import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
-import static edu.ucar.metviewer.test.util.TestUtil.DATABASE;
-import static edu.ucar.metviewer.test.util.TestUtil.host;
+import static edu.ucar.metviewer.test.util.TestUtil.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -127,6 +122,9 @@ public class LoadDataTest {
         }
       }
       String[] args = new String[]{LOAD_DIR + FILE_SEPARATOR + "load/load_test.xml"};
+
+      // replace credentials from system properties
+      xlateTestSpec(args[0]);
 
       MVLoad.main(args);
     }

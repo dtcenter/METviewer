@@ -241,6 +241,7 @@ public class TestUtil {
 
     String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
     argsList.add(fpath);
+
       xlateTestSpec(fpath);
       if (job_name != null) {
       argsList.add(job_name);
@@ -251,6 +252,8 @@ public class TestUtil {
   }
 
     public static void xlateTestSpec(String fpath) {
+      // replace credentials from system properties
+
       String tag = "";
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
