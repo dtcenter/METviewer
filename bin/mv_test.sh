@@ -44,7 +44,6 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
 
-#JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=5005 -Xmx2048M -ea -Dmv_root_dir=/Users/pierce/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306"
 JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=/Users/pierce/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306"
 if [ $# -eq 0 ]
 then
