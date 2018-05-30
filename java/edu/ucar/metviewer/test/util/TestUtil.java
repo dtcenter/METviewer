@@ -160,6 +160,7 @@ public class TestUtil {
     }
   };
     public static final String LOAD_DIR;
+    public static final String MET_DATA_DIR;
     public static final String DATABASE;
     public static final String USERNAME;
     public static final String PWD;
@@ -202,6 +203,7 @@ public class TestUtil {
     DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
     SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
+    MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
     if (System.getProperty("mv_database") == null) {
       DATABASE = "mv_test";
     } else {
@@ -305,6 +307,12 @@ public class TestUtil {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 nodeList.item(i).setTextContent("Rscript");
             }
+            tag = "folder_tmpl";
+            nodeList = doc.getElementsByTagName("folder_tmpl");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+              nodeList.item(i).setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
+            }
+
             TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(new File(fpath)));
         } catch (Exception e){
             System.out.println("Exception translating tag " + tag + " for file " + fpath + ":" + e.getMessage());
