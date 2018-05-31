@@ -209,6 +209,23 @@ filename "Installation/METViewer_Users_Guide_Installation.lyx"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "Installation/METViewer_Users_Guide_SeriesPlot.lyx"
+
+\end_inset
+
+
 \begin_inset Newpage pagebreak
 \end_inset
 
