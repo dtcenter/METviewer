@@ -612,6 +612,8 @@
                     <option value="interp_pnts">INTERP_PNTS</option>
                     <option value="fcst_thresh">FCST_THRESH</option>
                     <option value="obs_thresh">OBS_THRESH</option>
+                    <option value="descr">DESC</option>
+
                 </select>
             </td>
             <td>
