@@ -470,12 +470,12 @@ Mason
  J., 2004: On Using “Climatology” as a Reference Strategy in the Brier and
  Ranked Probability Skill Scores.
  
+\series medium
 \emph on
-Mon.
- Wea.
- Rev
+Monthly Weather Review
+\series default
 \emph default
-., 132, 1891–1895.
+, 132, 1891–1895.
  
 \end_layout
 
@@ -549,12 +549,10 @@ Saetra O., H.
 
 \series default
 \emph on
- Mon.
- Weather Rev
+ Monthly Weather Rev
 \series medium
 \emph default
-.
- 132: 1487–1501.
+iew 132: 1487–1501.
 \end_layout
 
 \begin_layout Description
@@ -620,6 +618,22 @@ Meteor.
 15
 \series medium
 , 41-50.
+\end_layout
+
+\begin_layout Description
+
+\series medium
+Taylor, K.
+ E., 2001: Summarizing multiple aspects of model performance in a single
+ diagram, 
+\series default
+\emph on
+J.
+ Geophys.
+ Res
+\series medium
+\emph default
+., 106, 7183– 7192.
 \end_layout
 
 \begin_layout Description
