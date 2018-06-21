@@ -8,12 +8,6 @@ if [ "$?" -ne "0" ]; then
    exit;
 fi
 
-JAVAC=$(which javac)
-$JAVAC -version
-if [ "$?" -ne "0" ]; then
-   echo "You do not have a jdk (java development kit) installed";
-   exit;
-fi
 if [ -z ${MV_HOME+x} ]; then 
 	echo "MV_HOME is unset"
 	echo "setting it to /d3/projects/METViewer/src_dev/apps/METViewer"
