@@ -1057,3 +1057,104 @@ green.red<-colorRampPalette(c("#E6FFE2","#B3FAAD", "#74F578", "#30D244", "#00A01
 blue.white.brown<-colorRampPalette(c("#1962CF", "#3E94F2","#B4F0F9", "#00A01E", "#4AF058",
                                          "#C7FFC0", "#FFFFFF", "#FFE97F", "#FF3A20", "#A50C0F", "#E1BFB5",
                                          "#A0786F", "#643D34"), interpolate="linear")
+
+
+# Wald-Wolfowitz Runs Test
+# Performs the Wald-Wolfowitz runs test of randomness for continuous data.
+#
+#x	- a numeric vector containing the observations
+#alternative	- a character string with the alternative hypothesis. Must be one of "two.sided" (default), "left.sided" or "right.sided". You can specify just the initial letter.
+#threshold	- the cut-point to transform the data into a dichotomous vector
+#pvalue	- a character string specifying the method used to compute the p-value. Must be one of normal (default), or exact.
+#plot	- a logic value to select whether a plot should be created. If 'TRUE', then the graph will be plotted.
+runs.test = function (x, alternative = "two.sided", threshold = median(x), 
+          pvalue = "normal", plot = FALSE) 
+{
+  dname <- deparse(substitute(x))
+  if (alternative == "t") {
+    alternative <- "two.sided"
+  }
+  if (alternative == "l") {
+    alternative <- "left.sided"
+  }
+  if (alternative == "r") {
+    alternative <- "right.sided"
+  }
+  if (alternative != "two.sided" & alternative != "left.sided" & 
+      alternative != "right.sided") {
+    stop("must give a valid alternative")
+  }
+  x <- na.omit(x)
+  stopifnot(is.numeric(x))
+  x <- x[x != threshold]
+  s <- sign(x - threshold)
+  n1 <- length(s[s > 0])
+  n2 <- length(s[s < 0])
+  runs <- rle(s)
+  r1 <- length(runs$lengths[runs$values == 1])
+  r2 <- length(runs$lengths[runs$values == -1])
+  n <- n1 + n2
+  mu <- 1 + 2 * n1 * n2/(n1 + n2)
+  vr <- 2 * n1 * n2 * (2 * n1 * n2 - n1 - n2)/(n^2 * (n - 1))
+  rr <- r1 + r2
+  if (plot) {
+    plot((1:n)[s > 0], x[s > 0], xlim = c(1, n), ylim = c(min(x), 
+                                                          max(x)), xlab = "", ylab = dname)
+    points((1:n)[s < 0], x[s < 0], col = "red")
+    abline(h = threshold, col = gray(0.4))
+    for (i in 1:(n - 1)) {
+      if (s[i] * s[i + 1] < 0) {
+        abline(v = i + 0.5, lty = 2)
+      }
+    }
+  }
+  pv <- 0
+  if (pvalue == "exact") {
+    if (alternative == "two.sided") {
+      pv1 <- sum(druns(1:rr, n1, n2))
+      pv2 <- sum(druns(rr:(n1 + n2), n1, n2))
+      pv <- 2 * min(pv1, pv2)
+    }
+    if (alternative == "left.sided") {
+      pv <- sum(druns(2:rr, n1, n2))
+    }
+    if (alternative == "right.sided") {
+      pv <- sum(druns(rr:(n1 + n2), n1, n2))
+    }
+  }
+  if (pvalue == "normal") {
+    pv0 <- pnorm((rr - mu)/sqrt(vr))
+    if (alternative == "two.sided") {
+      pv <- 2 * min(pv0, 1 - pv0)
+    }
+    if (alternative == "left.sided") {
+      pv <- pv0
+    }
+    if (alternative == "right.sided") {
+      pv <- 1 - pv0
+    }
+  }
+  if (alternative == "two.sided") {
+    alternative <- "nonrandomness"
+  }
+  if (alternative == "left.sided") {
+    alternative <- "trend"
+  }
+  if (alternative == "right.sided") {
+    alternative <- "first-order negative autocorrelation"
+  }
+  rval <- list(statistic = c(statistic = (rr - mu)/sqrt(vr)), 
+               p.value = pv, runs = rr, mu = mu, var = vr, method = "Runs Test", 
+               data.name = dname, parameter = c(runs = rr, n1 = n1, 
+                                                n2 = n2, n = n), alternative = alternative)
+  class(rval) <- "htest"
+  return(rval)
+}
+
+custom_sum = function(input, na.rm = FALSE){
+  # if all elements are NA - return 0
+  if( sum(is.na(input)) == length(input) ){
+    return (NA)
+  }
+  return( sum(input, na.rm) )
+}
