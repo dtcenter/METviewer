@@ -1427,7 +1427,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
                     strLineDataValueList += ", '"
-                                                + (Double.valueOf(listToken[i + 9])).intValue() + "'";
+                                                + (Double.valueOf(listToken[i + 9]))
+                                                      .intValue() + "'";
                   } else {
                     strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
                   }
@@ -1788,7 +1789,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           intLineTypeLuId = modePair;
         } else {
           throw new Exception("METViewer load error: loadModeFile() unable to determine line type "
-                                  + MVUtil.findValueInArray(listToken,headerNames,"OBJECT_ID")
+                                  + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_ID")
                                   + "\n        " + strFileLine);
         }
 
@@ -1836,21 +1837,22 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  N_VALID
         } else {
           strModeHeaderValueList = strModeHeaderValueList
-                                       + MVUtil.findValueInArray(listToken,headerNames,"N_VALID")
+                                       + MVUtil.findValueInArray(listToken, headerNames, "N_VALID")
                                        + ", ";      //  N_VALID
         }
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "GRID_RES"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  GRID_RES
         } else {
           strModeHeaderValueList = strModeHeaderValueList
-                                       + MVUtil.findValueInArray(listToken,headerNames,"GRID_RES")
+                                       + MVUtil.findValueInArray(listToken, headerNames, "GRID_RES")
                                        + ", ";      //  GRID_RES
         }
 
         strModeHeaderValueList = strModeHeaderValueList
-                                     + "'" + MVUtil.findValueInArray(listToken,headerNames,"DESC")
+                                     + "'" + MVUtil.findValueInArray(listToken, headerNames, "DESC")
                                      + "', " +      //  GRID_RES
-                                     "'" + MVUtil.findValueInArray(listToken, headerNames,"FCST_LEAD")
+                                     "'" + MVUtil.findValueInArray(listToken, headerNames,
+                                                                   "FCST_LEAD")
                                      + "', " +      //  fcst_lead
                                      "'" + strFcstValidBeg + "', ";      //  fcst_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "FCST_ACCUM"))) {
@@ -1858,12 +1860,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else {
           strModeHeaderValueList = strModeHeaderValueList
                                        + "'"
-                                       + MVUtil.findValueInArray(listToken,headerNames,"FCST_ACCUM")
+                                       + MVUtil
+                                             .findValueInArray(listToken, headerNames, "FCST_ACCUM")
                                        + "', ";      //  fcst_accum
         }
         strModeHeaderValueList = strModeHeaderValueList + "'" + strFcstInit + "', " +        //  fcst_init
                                      "'"
-                                     + MVUtil.findValueInArray(listToken, headerNames,"OBS_LEAD")
+                                     + MVUtil.findValueInArray(listToken, headerNames, "OBS_LEAD")
                                      + "', " +      //  obs_lead
                                      "'" + strObsValidBeg + "', ";      //  obs_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "OBS_ACCUM"))) {
@@ -1871,12 +1874,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else {
           strModeHeaderValueList = strModeHeaderValueList
                                        + "'"
-                                       + MVUtil.findValueInArray(listToken,headerNames,"OBS_ACCUM")
+                                       + MVUtil
+                                             .findValueInArray(listToken, headerNames, "OBS_ACCUM")
                                        + "', ";      //  obs_accum
         }
         strModeHeaderValueList = strModeHeaderValueList
                                      + "'"
-                                     + MVUtil.findValueInArray(listToken,headerNames,"FCST_RAD")
+                                     + MVUtil.findValueInArray(listToken, headerNames, "FCST_RAD")
                                      + "', " +      //  fcst_rad
                                      "'" + MVUtil.findValueInArray(listToken, headerNames,
                                                                    "FCST_THR") + "', " +      //  fcst_thr
@@ -2007,7 +2011,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  build the value list for the mode_cts insert
           String strCTSValueList = intModeHeaderId + ", '"
-                                       + MVUtil.findValueInArray(listToken,headerNames,"FIELD")
+                                       + MVUtil.findValueInArray(listToken, headerNames, "FIELD")
                                        + "'";
           int totalIndex = headerNames.indexOf("TOTAL");
           for (int i = 0; i < 18; i++) {
@@ -2089,7 +2093,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           String strPairValueList = intModeObjectIdObs + ", " + intModeObjectIdFcst
                                         + ", " + intModeHeaderId + ", " +
                                         "'" + strObjectId + "', '"
-                                        + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT")
+                                        + MVUtil.findValueInArray(listToken, headerNames,
+                                                                  "OBJECT_CAT")
                                         + "'";
           int centroiddistIndex = headerNames.indexOf("CENTROID_DIST");
           for (int i = 0; i < 12; i++) {
@@ -2554,18 +2559,82 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     //  print a performance report
     if (info._boolVerbose) {
       long intMtdHeaderLoadTime = new Date().getTime() - intMtdHeaderLoadStart;
-      logger.info(MVUtil.padBegin("mtd_header inserts: ", 36) + headerInserts + "\n" +
-                      MVUtil
-                          .padBegin("mtd_3d_obj_single inserts: ", 36) + obj3dSingleInserts + "\n" +
-                      MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36) + obj3dPairInserts + "\n" +
-                      MVUtil.padBegin("mtd_2d_obj inserts: ", 36) + obj2dInserts + "\n" +
-                      (info._boolMtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time: ",
-                                                                    36) + MVUtil.formatTimeSpan(
-                          timeStats.get("headerSearchTime")) + "\n" : "") +
-                      MVUtil.padBegin("total load time: ", 36) + MVUtil.formatTimeSpan(
-          intMtdHeaderLoadTime) + "\n\n");
+      logger.info(
+          MVUtil.padBegin("mtd_header inserts: ", 36)
+              + headerInserts + "\n"
+              + MVUtil.padBegin("mtd_3d_obj_single inserts: ", 36)
+              + obj3dSingleInserts + "\n"
+              + MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36)
+              + obj3dPairInserts + "\n"
+              + MVUtil.padBegin("mtd_2d_obj inserts: ", 36) + obj2dInserts + "\n"
+              + (info._boolMtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time: ", 36)
+                                                  + MVUtil.formatTimeSpan(
+              timeStats.get("headerSearchTime"))
+                                                  + "\n" : "")
+              + MVUtil.padBegin("total load time: ", 36)
+              + MVUtil.formatTimeSpan(intMtdHeaderLoadTime) + "\n\n");
     }
     return timeStats;
+  }
+
+  @Override
+  public void updateGroup(String group) throws Exception {
+    String sql = "SELECT  category FROM metadata";
+    String currentCategory = "";
+    int nrows = 0;
+
+    try (Connection con = getConnection();
+         Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                              java.sql.ResultSet.CONCUR_READ_ONLY);
+         ResultSet res = stmt.executeQuery(sql)) {
+
+      while (res.next()) {
+        currentCategory = res.getString(1);
+        nrows = nrows + 1;
+      }
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    if (!currentCategory.equals(group)) {
+      if (nrows == 0) {
+        sql = "INSERT INTO metadata VALUES ('" + group + "','')";
+      } else {
+        sql = "UPDATE metadata SET category = '" + group
+                  + "' WHERE category = '" + currentCategory + "'";
+      }
+      executeUpdate(sql);
+    }
+  }
+
+  @Override
+  public void updateDescription(String description) throws Exception {
+    String sql = "SELECT  description FROM metadata";
+    String currentDescription = "";
+    int nrows = 0;
+
+    try (Connection con = getConnection();
+         Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                              java.sql.ResultSet.CONCUR_READ_ONLY);
+         ResultSet res = stmt.executeQuery(sql)) {
+
+      while (res.next()) {
+        currentDescription = res.getString(1);
+        nrows = nrows + 1;
+      }
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    if (!currentDescription.equals(description)) {
+      if (nrows == 0) {
+        sql = "INSERT INTO metadata VALUES (''," + description + "')";
+      } else {
+        sql = "UPDATE metadata SET description = '" + description
+                  + "' WHERE description = '" + currentDescription + "'";
+      }
+      executeUpdate(sql);
+    }
   }
 
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
