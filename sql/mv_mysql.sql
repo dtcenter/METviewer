@@ -1852,25 +1852,6 @@ INSERT INTO data_file_lu VALUES (10, 'mtd_3d_ps', 'Pair attributes for 3D simple
 INSERT INTO data_file_lu VALUES (11, 'mtd_3d_sc', 'Single attributes for 3D composite objects');
 INSERT INTO data_file_lu VALUES (12, 'mtd_3d_ss', 'Single attributes for 3D simple objects');
 
--- mv_rev contains information about metvdb revisions, and provides an indicator of
---   the changes made in the current revision
-
-DROP TABLE IF EXISTS mv_rev;
-CREATE TABLE mv_rev
-(
-    rev_id              INT UNSIGNED NOT NULL,
-    rev_date            DATETIME,
-    rev_name            VARCHAR(16),
-    rev_detail          VARCHAR(2048),
-    PRIMARY KEY (rev_id)    
-) ENGINE = MyISAM;
-
-INSERT INTO mv_rev VALUES (0, '2010-07-29 12:00:00', '0.1',   'Initial revision, includes metvdb_rev, instance_info and web_plot tables');
-INSERT INTO mv_rev VALUES (1, '2010-10-14 12:00:00', '0.1',   'Increased web_plot.plot_xml field width to 65536');
-INSERT INTO mv_rev VALUES (2, '2010-11-15 12:00:00', '0.3',   'METViewer changes to support out from METv3.0');
-INSERT INTO mv_rev VALUES (3, '2011-01-13 12:00:00', '0.5',   'Major refactoring of schema, compatible with METv3.0');
-INSERT INTO mv_rev VALUES (4, '2011-03-18 12:00:00', '0.5',   'Added instance_info table');
-INSERT INTO mv_rev VALUES (5, '2012-09-25 12:00:00', '0.5.6', 'Added line_data_ssvar table');
 
 
 -- instance_info contains information about the particular instance of metvdb, including 
@@ -2019,3 +2000,11 @@ CREATE TABLE mtd_3d_obj_pair
   REFERENCES mtd_header (mtd_header_id)
 ) ENGINE = MyISAM;
 
+
+DROP TABLE  IF EXISTS metadata;
+CREATE TABLE metadata
+(
+    category VARCHAR(30) NOT NULL DEFAULT '' ,
+    description VARCHAR(300) NOT NULL DEFAULT ''
+
+)ENGINE = MyISAM;
