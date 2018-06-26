@@ -696,8 +696,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    */
   @Override
   public List<String> getAllDatabases() {
-    return Collections.unmodifiableList(listDB);
+    return new ArrayList<>(listDB.keySet());
   }
+
+  @Override
+  public Map<String, String> getAllDatabasesWithDescription() {
+    return  Collections.unmodifiableMap(listDB);
+  }
+
+  @Override
+  public Map<String, List<String>> getAllGroups() {
+    return Collections.unmodifiableMap(groupToDatabases);
+  }
+
+
 
   @Override
   public SimpleDateFormat getDateFormat() {
