@@ -255,16 +255,18 @@
                 removeFixedVar($(this).attr('id'));
             });
 
-            if (initXML != null) {
-                loadXMLSeries();
-                initXML = null;
-
-            }else{
-                updateSeriesVarVal("y1", 1, []);
-
+          if (initXML != null) {
+            var sd = initXML.find("database").text();
+            var selectedDatabase = sd.split(",");
+            for (var i = 0; i < selectedDatabase.length; i++) {
+              $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
+                      .prop("checked", true).change();
             }
-
-
+            loadXMLSeries();
+            initXML = null;
+          } else {
+            updateSeriesVarVal("y1", 1, []);
+          }
         });
 
 
