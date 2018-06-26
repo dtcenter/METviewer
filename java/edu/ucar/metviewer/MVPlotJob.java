@@ -165,6 +165,10 @@ public class MVPlotJob  {
   protected boolean _boolCalcSal1l2 = false;
   protected boolean _boolCalcVl1l2 = false;
 
+  protected boolean revisionStat = false;
+  protected boolean revisionAc = false;
+  protected boolean revisionRun = false;
+
   protected boolean _boolRocPct = false;
   protected boolean _boolRocCtc = false;
 
@@ -354,6 +358,10 @@ public class MVPlotJob  {
     job._boolCalcGrad = _boolCalcGrad;
     job._boolCalcSal1l2 = _boolCalcSal1l2;
     job._boolCalcVl1l2 = _boolCalcVl1l2;
+
+    job.revisionStat = revisionStat;
+    job.revisionAc = revisionAc;
+    job.revisionRun = revisionRun;
 
     job._boolRocPct = _boolRocPct;
     job._boolRocCtc = _boolRocCtc;
@@ -1716,6 +1724,30 @@ public class MVPlotJob  {
 
   public boolean getVarianceInflationFactor() {
     return _boolVarianceInflationFactor;
+  }
+
+  public boolean getRevisionAc() {
+    return revisionAc;
+  }
+
+  public void setRevisionAc(boolean revisionAc) {
+    this.revisionAc = revisionAc;
+  }
+
+  public boolean getRevisionRun() {
+    return revisionRun;
+  }
+
+  public void setRevisionRun(boolean revisionRun) {
+    this.revisionRun = revisionRun;
+  }
+
+  public boolean getRevisionStat() {
+    return revisionStat;
+  }
+
+  public void setRevisionStat(boolean revisionStat) {
+    this.revisionStat = revisionStat;
   }
 
   public void setVarianceInflationFactor(boolean varianceInflationFactor) {
