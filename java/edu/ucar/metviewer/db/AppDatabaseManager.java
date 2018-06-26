@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.ucar.metviewer.MVNode;
@@ -58,8 +59,11 @@ public interface AppDatabaseManager {
   boolean validate(String db);
 
   List<String> getAllDatabases();
+  Map<String, String> getAllDatabasesWithDescription();
 
-  void initDBList();
+  Map<String, List<String>> getAllGroups();
+
+  void initDBList(boolean updateGroups);
 
   public SimpleDateFormat getDateFormat();
 
