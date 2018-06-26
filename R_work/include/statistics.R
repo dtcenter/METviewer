@@ -408,3 +408,8 @@ calcFGOG_RATIO = function(d){
   fgog_ratio = 100 * d$fgbar / d$ogbar ;
   return ( round(fgog_ratio, digits=5) ) ;
 }
+
+calcSSVAR_Spread = function(d){
+  if( length( d$varmean ) < 1 ){ return (NA); }
+    return( sqrt(weighted.mean(d$varmean, d$binn)) );
+}
