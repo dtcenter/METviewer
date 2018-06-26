@@ -1,6 +1,7 @@
 /**
- * MysqlDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * MysqlDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
+ * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.db;
@@ -13,10 +14,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
+import edu.ucar.metviewer.MVUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -30,10 +34,11 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 public class MysqlDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
-  //private static BoneCP connectionPool;
   protected static final String DB_PREFIX_MV = "mv_";
   protected DatabaseInfo databaseInfo;
-  protected static List<String> listDB = new ArrayList<>();
+  protected static Map<String, String> listDB = new TreeMap<>();
+  protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
+
   private DataSource dataSource;
 
 
@@ -41,7 +46,9 @@ public class MysqlDatabaseManager {
       = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo, PrintWriter printStreamSql) throws SQLException {
+  public MysqlDatabaseManager(
+                                 DatabaseInfo databaseInfo,
+                                 PrintWriter printStreamSql) throws SQLException {
 
 
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
@@ -73,8 +80,8 @@ public class MysqlDatabaseManager {
     configurationToUse.setMinIdle(10);
     configurationToUse.setRemoveAbandoned(true);
     configurationToUse.setJdbcInterceptors(
-      "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;" +
-        "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+        "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
+            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
     try {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
@@ -86,11 +93,14 @@ public class MysqlDatabaseManager {
       dataSource = null;
     }
 
-    initDBList();
+    boolean updateGroups = false;
+    if (databaseInfo.getDbName() == null) {
+      updateGroups = true;
+    }
+    initDBList(updateGroups);
   }
 
-
-  public void initDBList() {
+  public void initDBList(boolean updateGroups) {
     listDB.clear();
     String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
                      + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
@@ -101,24 +111,57 @@ public class MysqlDatabaseManager {
          ResultSet resultSet = testStatement.executeQuery(sql)
 
     ) {
-
       String database;
-
-
       while (resultSet.next()) {
         database = resultSet.getString("TABLE_SCHEMA");
-        listDB.add(database);
+        listDB.put(database, "");
       }
-
-      Collections.sort(listDB);
-      resultSet.close();
-      testStatement.close();
-      testConnection.close();
-
     } catch (SQLException e) {
       logger.error(e.getMessage());
 
     }
+
+    if (updateGroups) {
+
+      //init groups
+      groupToDatabases.clear();
+
+      //for each database find a group
+      for (Map.Entry<String, String> database : listDB.entrySet()) {
+        String[] metadata = getDatabaseMetadata(database.getKey());
+        database.setValue(metadata[1]);
+
+        if (!groupToDatabases.containsKey(metadata[0])) {
+          groupToDatabases.put(metadata[0], new ArrayList<>());
+        }
+
+        groupToDatabases.get(metadata[0]).add(database.getKey());
+      }
+
+    }
+  }
+
+  private String[] getDatabaseMetadata(String database) {
+    String group = "";
+    String description = "";
+    String sql = "SELECT * from metadata";
+    try (Connection con = getConnection(database);
+         Statement statement = con.createStatement();
+         ResultSet rs = statement.executeQuery(sql)
+    ) {
+      while (rs.next()) {
+        group = rs.getString("category");
+        description = rs.getString("description");
+      }
+
+    } catch (SQLException e) {
+      logger.error("Can't get groups for database " + database);
+    }
+    if (group.isEmpty()) {
+      group = MVUtil.DEFAULT_DATABASE_GROUP;
+    }
+
+    return new String[]{group, description};
   }
 
 
@@ -130,7 +173,7 @@ public class MysqlDatabaseManager {
    */
   public boolean validate(String db) {
     boolean result = false;
-    for (String availableDB : listDB) {
+    for (String availableDB : listDB.keySet()) {
       if (availableDB.equals(db)) {
         result = true;
         break;
