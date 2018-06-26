@@ -172,6 +172,7 @@
             }
             $('#aggregation_statistics ').show();
             $('#calculations_statistics ').hide();
+            $('#revision_statistics ').hide();
           }
 
           updateSeries();
@@ -307,6 +308,7 @@
 
       $('#aggregation_statistics ').hide();
       $('#calculations_statistics ').hide();
+      $('#revision_statistics ').hide();
 
       $('#event_equal').prop("checked", false);
 
@@ -341,6 +343,27 @@
           if (ui.value !== "none") {
             $("#agg_stat").val("none");
             $("#agg_stat").multiselect("refresh");
+            $("#revis_stat").val("none");
+            $("#revis_stat").multiselect("refresh");
+          }
+        }
+      });
+      $("#revis_stat").multiselect({
+        multiple: false,
+        selectedList: 1,
+        header: false,
+        minWidth: 'auto',
+        height: 'auto',
+        position: {
+          my: 'left bottom',
+          at: 'left top'
+        },
+        click: function (event, ui) {
+          if (ui.value !== "none") {
+            $("#agg_stat").val("none");
+            $("#agg_stat").multiselect("refresh");
+            $("#calc_stat").val("none");
+            $("#calc_stat").multiselect("refresh");
           }
         }
       });
@@ -358,15 +381,22 @@
           if (ui.value !== "none") {
             $("#calc_stat").val("none");
             $("#calc_stat").multiselect("refresh");
+            $("#revis_stat").val("none");
+            $("#revis_stat").multiselect("refresh");
           }
         }
       });
 
       $(' input[name="statistics"]').click(function () {
-        $('#aggregation_statistics ').hide();
-        $('#calculations_statistics ').hide();
+        $('#aggregation_statistics').hide();
+        $('#calculations_statistics').hide();
+        $('#revision_statistics').hide();
         $(this).prop("checked", true);
         $('#' + $(this).val()).show();
+        if($(this).val() === "revision_statistics"){
+          $('#indy_var').val("fcst_valid_beg");
+          $("#indy_var").multiselect("refresh");
+        }
       });
       $('#calculations_statistics').show();
 
@@ -835,6 +865,12 @@
                id="aggregation_statistics_label"/>
         <label for="aggregation_statistics_label">Aggregation
           statistics</label>
+        <input type="radio" name="statistics"
+                      value="revision_statistics"
+                      id="revision_statistics_label"/>
+               <label for="revision_statistics_label">Revision
+                 statistics</label>
+
 
 
       </div>
@@ -899,7 +935,6 @@
 
         </table>
 
-
       </div>
 
       <div id="calculations_statistics">
@@ -923,9 +958,34 @@
               <option selected="selected" value="median">Median</option>
               <option value="mean">Mean</option>
               <option value="sum">Sum</option>
-              <option value="revision_series_ac">Revision series AC</option>
-              <option value="revision_series_runs">Revision series runs</option>
             </select></span></td>
+
+          </tr>
+
+        </table>
+
+      </div>
+
+      <div id="revision_statistics">
+
+        <button class="help-button" style="float: right;bottom: 40px;"
+                alt="revis_stat">Help
+        </button>
+        <table style="width:100%">
+          <tr>
+            <td><select id="revis_stat">
+              <option value="none">None</option>
+              <option value="ctc">Contingency table count (CTC)</option>
+              <option value="sl1l2">Scalar partial sums (SL1L2)</option>
+              <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
+              <option value="vl1l2">Vector partial sums (VL1L2)</option>
+              <option value="grad">Gradient partial sums (GRAD)</option>
+            </select>
+            </td>
+            <td><input id="revision_ac" type="checkbox"><label
+                    for="revision_ac">Add Auto-Correlation</label></td>
+            <td><input id="revision_run" type="checkbox"><label
+                    for="revision_run">Add Wald-Wolfowitz Runs Test</label></td>
 
           </tr>
 
