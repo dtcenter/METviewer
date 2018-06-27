@@ -72,9 +72,9 @@ public class AllTestRunner {
     if (failureListTestMVServlet.isEmpty()) {
       System.out.println("***** Servlet tests finished successfully... *****");
     }
+    int exitCode = failureListLoadDataTest.size() + failureListCreatePlotBatchTest.size() + failureListTestMVServlet.size();
     System.out.println("*************************************************");
-    System.out.println();
-
+    System.out.println("There were " + exitCode + " failures");
+    System.exit( exitCode);
   }
-
 }

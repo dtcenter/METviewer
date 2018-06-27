@@ -143,7 +143,7 @@ else
       if [[ (2 -eq $#) && ($2 == "plots") ]]; then
         echo "Running plots scripts - 2 params \(plots\) - $*"
         echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
-        $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
+        $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" plots
       fi
     fi
   fi
