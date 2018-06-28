@@ -63,7 +63,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
   protected abstract String getStatValue(String table, String stat);
 
   @Override
-  public void createDataFile(Map<String, Entry> map, String threadName) {
+  public void createDataFile(Map<String, Entry> map, String threadName) throws Exception {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -86,12 +86,15 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     }
   }
 
-  private String getQueryForRow(Map<String, Entry> map) {
+  private String getQueryForRow(Map<String, Entry> map) throws Exception {
     //get fcst_var
     StringBuilder selectFields = new StringBuilder();
     StringBuilder whereFields = new StringBuilder();
 
     String aggType = Util.getAggTypeForStat(Util.getStatForRow(map));
+    if(aggType.isEmpty()){
+      throw new Exception ("Can't find a line type for stat " + Util.getStatForRow(map));
+    }
     if (aggType.contains("nbr")) {
       aggType = aggType.replace("_", "");
     }
@@ -100,7 +103,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
-        selectFields.append("'").append(entry.getValue().getName()).append("' stat_name,").append(getStatValue(table, entry.getValue().getName())).append(" stat_value,");
+        selectFields.append("'").append(entry.getValue().getName()).append("' stat_name,").append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
       } else {
         if (selectFields.indexOf(entry.getKey()) == -1) {
           selectFields.append(entry.getKey()).append(",");
@@ -268,10 +271,11 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
           } else {
 
             strVal = res.getString(i);
-            strVal = strVal.equalsIgnoreCase("null") ? "NA" : strVal;
+            if (strVal == null || strVal.equalsIgnoreCase("null")) {
+              strVal = "NA";
+            }
             strVal = strVal.equalsIgnoreCase("-9999") ? "NA" : strVal;
           }
-          String columnName = met.getColumnName(i);
 
           if (delim.equals(" ")) {
             line = line + (MVUtil.padEnd(strVal, intFieldWidths[i - 1]));

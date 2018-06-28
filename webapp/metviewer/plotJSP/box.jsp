@@ -315,7 +315,7 @@
             $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
             $("#fix_var_event_equal_1").prop('checked', false).prop('disabled', true);
 
-            $('#event_equal').on("click", function () {
+            $('#event_equal').change(function(){
                 if ($(this).prop("checked")) {
                     for (var i = 0; i < fixed_var_indexes.length; i++) {
                         $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', true).prop('disabled', false);

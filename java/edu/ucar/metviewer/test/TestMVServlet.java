@@ -112,13 +112,13 @@ public class TestMVServlet {
       when(request.getSession()).thenReturn(httpSession);
       when(response.getWriter()).thenReturn(printWriter);
 
-      MVServlet._strPlotXML = PLOTS_DIR;
-      MVServlet._strRTmpl = TEMPLATE_DIR;
-      MVServlet._strRWork = RWORK_DIR;
-      MVServlet._strPlots = PLOTS_DIR;
-      MVServlet._strRscript = rscript;
-      MVServlet._boolListValCache = true;
-      MVServlet._boolListStatCache = true;
+      MVServlet.plotXml = PLOTS_DIR;
+      MVServlet.rTmpl = TEMPLATE_DIR;
+      MVServlet.rWork = RWORK_DIR;
+      MVServlet.plots = PLOTS_DIR;
+      MVServlet.rscript = rscript;
+      MVServlet.isValCache = true;
+      MVServlet.isStatCache = true;
       MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD),
                                                               IoBuilder.forLogger(MysqlAppDatabaseManager.class)
                                                                   .setLevel(org.apache.logging.log4j.Level.INFO)

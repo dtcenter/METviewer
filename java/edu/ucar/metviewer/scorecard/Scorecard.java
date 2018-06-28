@@ -1,6 +1,7 @@
 /**
- * Scorecard.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
+ * Scorecard.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR),
+ * National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL), P.O. Box
+ * 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
  */
 
 package edu.ucar.metviewer.scorecard;
@@ -56,9 +57,11 @@ public class Scorecard {
   private Integer bootRandomSeed;
   private String plotStat = "median";
   private String statFlag = "NCAR";
+  private String stat = "DIFF_SIG";
+  private String thresholdFile = null;
 
   private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
-    "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
+                                          "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
 
   public Boolean getPrintSQL() {
     return printSQL;
@@ -215,6 +218,9 @@ public class Scorecard {
   public String getAggStatDataFile() {
     return dataFile + ".agg_stat";
   }
+  public String getSumStatDataFile() {
+    return dataFile + ".sum_stat";
+  }
 
   public void setDataFile(String dataFile) {
     this.dataFile = dataFile;
@@ -229,6 +235,24 @@ public class Scorecard {
     this.title = title;
   }
 
+  public String getStat() {
+    return stat;
+  }
+
+  public String getThresholdFile() {
+    return thresholdFile;
+  }
+
+  public void setThresholdFile(String thresholdFile) {
+    this.thresholdFile = thresholdFile;
+  }
+
+  public void setStat(String stat) {
+    this.stat = stat;
+  }
+
+
+
   public static void main(String[] args) throws Exception {
     long nanos = System.nanoTime();
     String filename;
@@ -240,16 +264,20 @@ public class Scorecard {
     } else {
 
       int intArg = 0;
-           for (; intArg < args.length && !args[intArg].matches(".*\\.xml$"); intArg++) {
-              if (args[intArg].equals("mysql")) {
-                dbType = "mysql";
-             }
-           }
+      for (; intArg < args.length && !args[intArg].matches(".*\\.xml$"); intArg++) {
+        if (args[intArg].equals("mysql")) {
+          dbType = "mysql";
+        }
+      }
 
       filename = args[intArg];
       XmlParser xmlParser = new XmlParser();
       // parce XML and init parameters
       Scorecard scorecard = xmlParser.parseParameters(filename);
+
+      //add a second model ( the same as the first one) if only one is selected
+      scorecard.fillValues();
+
       //remove previous output with similar names
       scorecard.cleanOldResults();
 
@@ -264,12 +292,12 @@ public class Scorecard {
 
         //depending on stat type init mangers
         if (scorecard.getAggStat()) {
-          if(dbType.equals("mysql")) {
+          if (dbType.equals("mysql")) {
             scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
           }
           rscriptManager = new AggRscriptManager(scorecard);
         } else {
-          if(dbType.equals("mysql")) {
+          if (dbType.equals("mysql")) {
             scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
           }
           rscriptManager = new SumRscriptManager(scorecard);
@@ -279,22 +307,31 @@ public class Scorecard {
         for (Map<String, Entry> mapRow : listRows) {
           StringBuilder logMessage = new StringBuilder();
           for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
-            logMessage.append(column.getKey()).append(": ").append(column.getValue().getName()).append(", ");
+            logMessage.append(column.getKey()).append(": ").append(column.getValue().getName())
+                .append(", ");
           }
-          logger.info("---------------------------------------------------------------------------------------");
+          logger.info(
+              "---------------------------------------------------------------------------------------");
           logger.info("Row #" + rowCounter + ": " + logMessage);
-          logger.info("---------------------------------------------------------------------------------------");
+          logger.info(
+              "---------------------------------------------------------------------------------------");
 
-          //get data from db and save it into file
-          scorecardDbManager.createDataFile(mapRow, "");
+          try {
+            //get data from db and save it into file
+            scorecardDbManager.createDataFile(mapRow, "");
 
-          //use rscript and data from the db file to calculate stats and append them into the resulting file
-          rscriptManager.calculateStatsForRow(mapRow, "");
-          logger.info("---------------------------------------------------------------------------------------");
-          rowCounter++;
+            //use rscript and data from the db file to calculate stats and append them into the resulting file
+            rscriptManager.calculateStatsForRow(mapRow, "");
+            logger.info(
+                "---------------------------------------------------------------------------------------");
+            rowCounter++;
+          }catch (Exception e){
+            logger.error(e.getMessage());
+          }
         }
 
-        File dataFile = new File(scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+        File dataFile = new File(scorecard.getWorkingFolders().getDataDir()
+                                     + scorecard.getDataFile());
         //if the resulting file exists - create an image and html file
         if (dataFile.exists()) {
           GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
@@ -313,6 +350,19 @@ public class Scorecard {
 
   }
 
+  /**
+   * Checks if XML included only one model.
+   * If it does - add the second model that is the same as the first one
+   */
+  private void fillValues() {
+    for (Field fixedVar : fixedVars) {
+      if (fixedVar.getName().equals("model") && fixedVar.getValues().size() == 1) {
+        logger.info("XML has only one model. Adding the second model that is the same as the first "
+                        + "one");
+        fixedVar.getValues().add(new Entry(fixedVar.getValues().get(0)));
+      }
+    }
+  }
 
 
   /**
@@ -404,7 +454,6 @@ public class Scorecard {
     }
     return total;
   }
-
 
 
   private int getRowsFromField(Field field) {

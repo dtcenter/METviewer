@@ -108,32 +108,46 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
 #                  for example with MODE objects
 #
 eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFixVars, listFixVarVals, boolEqualizeByIndep ,boolMulti){
-
+  
+  dateTimeVars = c("", "fcst_valid_beg", 'fcst_lead', 'fcst_valid', 'fcst_init', 'fcst_init_beg');
+  
   # convert the dates from strings to POSIXct, and create a unique member to use for equalization
-  if( "fcst_valid_beg" %in% names(dfStats) ){
+  
+  if( "fcst_valid_beg" %in% names(dfStats)  ){
     dfStats$fcst_valid_beg = as.POSIXct(dfStats$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT");
-
+    
     #always use fcst_valid_beg and fcst_lead for equalization
     equalize_by = paste(dfStats$fcst_valid_beg, dfStats$fcst_lead);
+    
+    
     dfStats$equalize = equalize_by;
   } else if( "fcst_valid" %in% names(dfStats) ) {
     dfStats$fcst_valid = as.POSIXct(dfStats$fcst_valid, format="%Y-%m-%d %H:%M:%S", tz="GMT");
-
+    
+    
     #always use fcst_valid_beg and fcst_lead for equalization
     equalize_by = paste(dfStats$fcst_valid, dfStats$fcst_lead);
+    
     dfStats$equalize = equalize_by;
-
+    
   } else {
     cat("  WARNING: eventEqualize() did not run due to lack of valid time field\n");
     return( dfStats );
   }
-
+  
+  #add independent variable if needed
+  if(boolEqualizeByIndep && !(strIndyVar %in% dateTimeVars) ) {
+    equalize_by = paste(dfStats$equalize,  dfStats[[strIndyVar]]);
+    dfStats$equalize = equalize_by;
+  }
+  
+  
   listVarsForEE=list();
 
   #remove groups from the series vars
   for(strSeriesVar in names(listSeriesVal)){
     #do not include case members
-    if(strSeriesVar != "fcst_valid_beg" && strSeriesVar != 'fcst_lead' && strSeriesVar != 'fcst_valid'){
+    if( !(strSeriesVar %in% dateTimeVars) ){
       valSeries = listSeriesVal[[strSeriesVar]];
       valSeriesNew = c();
       for(strVar in valSeries){
@@ -144,16 +158,12 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     }
   }
 
-  #add independent variable if needed
-  if(boolEqualizeByIndep && strIndyVar!= "" && strIndyVar != "fcst_valid_beg" && strIndyVar != 'fcst_lead' && strIndyVar != 'fcst_valid'){
-    equalize_by = paste(dfStats$equalize,  dfStats[[strIndyVar]]);
-    dfStats$equalize = equalize_by;
-  }
+  
 
   #add fixed variables if present
   if(length(listFixVars) > 0){
     for( index in 1:length(listFixVars) ){
-      if(listFixVars[index] != "fcst_valid_beg" && listFixVars[index] != 'fcst_lead'  && listFixVars[index] != 'fcst_valid'){
+      if( !(listFixVars[index] %in% dateTimeVars) ){
         listVarsForEE[[ listFixVars[index] ]] = listFixVarVals[[index]];
       }
     }
@@ -162,7 +172,7 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
 
   # create a list of permutations representing the all variables for EE
   dfVarsForEEPerm =  permute(listVarsForEE );
-
+  
   dfStatsEq = dfStats[array(FALSE,nrow(dfStats)),];
 
   listEqualize = vector();
@@ -171,17 +181,17 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     dfComp = dfStats;
     for(strVarIndex in 1:ncol(dfVarsForEEPerm)){
       if(names(listVarsForEE)[strVarIndex] == 'fcst_init_beg'){
-       dfComp = dfComp[as.character(dfComp[[names(listVarsForEE)[strVarIndex]]]) == dfVarsForEEPerm[index,strVarIndex],];
-     }else{
-       if(is.na( strtoi(dfVarsForEEPerm[index,strVarIndex]))){
-         #for strings
-         dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
-       }else{
-         #for integer string
-         dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == strtoi(dfVarsForEEPerm[index,strVarIndex]) ,];
-       }
+        dfComp = dfComp[as.character(dfComp[[names(listVarsForEE)[strVarIndex]]]) == dfVarsForEEPerm[index,strVarIndex],];
+      }else{
+        if(is.na( strtoi(dfVarsForEEPerm[index,strVarIndex]))){
+          #for strings
+          dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == dfVarsForEEPerm[index,strVarIndex],];
+        }else{
+          #for integer string
+          dfComp = dfComp[dfComp[[names(listVarsForEE)[strVarIndex]]] == strtoi(dfVarsForEEPerm[index,strVarIndex]) ,];
+        }
+      }
     }
-  }
 
     # if the list contains repetetive values, show a warning
     if( FALSE == boolMulti &  length(dfComp$equalize) != length(unique(dfComp$equalize)) ){
@@ -191,7 +201,6 @@ eventEqualize = function(dfStats, strIndyVar, listIndyVal, listSeriesVal,listFix
     #if(  0 < sum(is.na(listEqualize) ) || length(listEqualize) == 0 ){
     if(  index == 1 ){
       #init the equalization list
-
       listEqualize = unique(dfComp$equalize);
     } else {
       # if there is an equalization list, equalize the current series data
@@ -728,6 +737,8 @@ calcDerivedCurveValue = function(val1, val2, derivedCurveName){
     result = as.numeric(val1)  / as.numeric(val2);
   }else if( grepl('^SS', derivedCurveName) ){
     result = ( as.numeric(val1)  - as.numeric(val2) ) / as.numeric(val1);
+  }else if( grepl('^SINGLE', derivedCurveName) ){
+    result = as.numeric(val1);
   }
   result[result == Inf ] = NA;
   return( result );
@@ -908,3 +919,141 @@ value <- function (obs, pred = NULL, baseline = NULL, cl = seq(0.05, 0.95,0.05),
         n = n))
     invisible(aa)
 }
+
+filled.contour3 <-
+  function (x = seq(0, 1, length.out = nrow(z)),
+            y = seq(0, 1, length.out = ncol(z)), z, xlim = range(x, finite = TRUE),
+            ylim = range(y, finite = TRUE), zlim = range(z, finite = TRUE),
+            levels = pretty(zlim, nlevels), nlevels = 20, color.palette = cm.colors,
+            col = color.palette(length(levels) - 1), plot.title, plot.axes,
+            key.title, key.axes, asp = NA, xaxs = "i", yaxs = "i", las = 1,
+            axes = TRUE, frame.plot = axes,mar, ...)
+  {
+    # modification by Ian Taylor of the filled.contour function
+    # to remove the key and facilitate overplotting with contour()
+    # further modified by Carey McGilliard and Bridget Ferris
+    # to allow multiple plots on one page
+
+    if (missing(z)) {
+      if (!missing(x)) {
+        if (is.list(x)) {
+          z <- x$z
+          y <- x$y
+          x <- x$x
+        }
+        else {
+          z <- x
+          x <- seq.int(0, 1, length.out = nrow(z))
+        }
+      }
+      else stop("no 'z' matrix specified")
+    }
+    else if (is.list(x)) {
+      y <- x$y
+      x <- x$x
+    }
+    
+    #!!!! COMMENTED THIS because some x or values can be strings or in reverse order
+    if (any(diff(x) <= 0) || any(diff(y) <= 0))
+      stop("increasing 'x' and 'y' values expected")
+    
+    
+    
+    
+    # mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+    # on.exit(par(par.orig))
+    # w <- (3 + mar.orig[2]) * par("csi") * 2.54
+    # par(las = las)
+    # mar <- mar.orig
+    plot.new()
+    # par(mar=mar)
+    plot.window(xlim, ylim, "", xaxs = xaxs, yaxs = yaxs, asp = asp)
+    if(!is.matrix(z))
+      stop("no proper 'z' matrix specified")
+    if(nrow(z) <= 1)
+      stop("X axis should have more than one value")
+    if(ncol(z) <= 1)
+      stop("Y axis should have more than one value")
+
+    if (!is.double(z))
+      storage.mode(z) <- "double"
+    .filled.contour(as.double(x), as.double(y), z, as.double(levels),
+                            col = col)
+    if (missing(plot.axes)) {
+      if (axes) {
+        title(main = "", xlab = "", ylab = "")
+        Axis(x, side = 1)
+        Axis(y, side = 2)
+      }
+    }
+    else plot.axes
+    if (frame.plot)
+      box()
+    if (missing(plot.title))
+      title(...)
+    else plot.title
+    invisible()
+  }
+
+
+filled.legend <-
+   function (x = seq(0, 1, length.out = nrow(z)), y = seq(0, 1,
+                                                          length.out = ncol(z)), z, xlim = range(x, finite = TRUE),
+             ylim = range(y, finite = TRUE), zlim = range(z, finite = TRUE),
+             levels = pretty(zlim, nlevels), nlevels = 20, color.palette = cm.colors,
+             col = color.palette(length(levels) - 1), plot.title, plot.axes,
+             key.title, key.axes, asp = NA, xaxs = "i", yaxs = "i", las = 1,
+             axes = TRUE, frame.plot = axes, ...)
+   {
+     # modification of filled.contour by Carey McGilliard and Bridget Ferris
+     # designed to just plot the legend
+     if (missing(z)) {
+       if (!missing(x)) {
+         if (is.list(x)) {
+           z <- x$z
+           y <- x$y
+           x <- x$x
+         }
+         else {
+           z <- x
+           x <- seq.int(0, 1, length.out = nrow(z))
+         }
+       }
+       else stop("no 'z' matrix specified")
+     }
+     else if (is.list(x)) {
+       y <- x$y
+       x <- x$x
+     }
+     if (any(diff(x) <= 0) || any(diff(y) <= 0))
+       stop("increasing 'x' and 'y' values expected")
+     #  mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+     #  on.exit(par(par.orig))
+     #  w <- (3 + mar.orig[2L]) * par("csi") * 2.54
+     #layout(matrix(c(2, 1), ncol = 2L), widths = c(1, lcm(w)))
+     #  par(las = las)
+     #  mar <- mar.orig
+     #  mar[4L] <- mar[2L]
+     #  mar[2L] <- 1
+     #  par(mar = mar)
+     # plot.new()
+     plot.window(xlim = c(0, 1), ylim = range(levels), xaxs = "i",
+                 yaxs = "i")
+     rect(0, levels[-length(levels)], 1, levels[-1L], col = col)
+     if (missing(key.axes)) {
+       if (axes)
+         axis(4)
+     }
+     else key.axes
+     box()
+   }
+
+# returns string w/o leading or trailing whitespace
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+green.red<-colorRampPalette(c("#E6FFE2","#B3FAAD", "#74F578", "#30D244", "#00A01E", "#F6A1A2", "#E26667", "#C93F41", "#A42526"),
+                            interpolate="linear")
+
+blue.white.brown<-colorRampPalette(c("#1962CF", "#3E94F2","#B4F0F9", "#00A01E", "#4AF058",
+                                         "#C7FFC0", "#FFFFFF", "#FFE97F", "#FF3A20", "#A50C0F", "#E1BFB5",
+                                         "#A0786F", "#643D34"), interpolate="linear")

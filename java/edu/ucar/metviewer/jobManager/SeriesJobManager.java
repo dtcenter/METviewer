@@ -54,11 +54,9 @@ public class SeriesJobManager extends JobManager {
                              || job.getCalcVl1l2()
                              || job.getCalcGrad();
 
-
-
-  		/*
-       *  Build a plot for each permutation of <plot_fix> values
-  		 */
+    /*
+     *  Build a plot for each permutation of <plot_fix> values
+    */
 
     List<String> listQuery;
     AppDatabaseManager appDatabaseManager = mvBatch.getDatabaseManager();
@@ -89,12 +87,12 @@ public class SeriesJobManager extends JobManager {
 
       //if it is a model job with attribute stat  - validate
       if ((job.isModeJob() && !job.isModeRatioJob())
-          || (job.isMtdJob() && !job.isMtdRatioJob())) {
+              || (job.isMtdJob() && !job.isMtdRatioJob())) {
         validateModeSeriesDefinition(job);
       }
 
       //  build the SQL statements for the current plot
-      listQuery = appDatabaseManager.buildPlotSQL(job, plotFixPerm, mvBatch.getPrintStreamSql());
+      listQuery = appDatabaseManager.buildPlotSql(job, plotFixPerm, mvBatch.getPrintStreamSql());
       for (String sql : listQuery) {
         mvBatch.printSql(sql + "\n");
       }
@@ -106,7 +104,7 @@ public class SeriesJobManager extends JobManager {
       } else {
         listSeries2Val = new Map.Entry[]{};
       }
-      Map.Entry[] listDep1Plot = ((MVOrderedMap) job.getDepGroups()[0].get("dep1")).getOrderedEntries();
+
       MVOrderedMap mapDep2Plot = (MVOrderedMap) job.getDepGroups()[0].get("dep2");
       Map.Entry[] listDep2Plot;
       if (null != mapDep2Plot) {
@@ -116,7 +114,7 @@ public class SeriesJobManager extends JobManager {
       }
 
       // calculate the number of plot curves
-      int intNumDep1 = getNumberPlotCurves(listDep1Plot);
+
       int intNumDep2 = 0;
       for (Map.Entry aListDep2Plot : listDep2Plot) {
         intNumDep2 += ((String[]) aListDep2Plot.getValue()).length;
@@ -131,57 +129,57 @@ public class SeriesJobManager extends JobManager {
       for (Map.Entry aListSeries2Val : listSeries2Val) {
         intNumSeries2Perm *= ((String[]) aListSeries2Val.getValue()).length;
       }
-
+      Map.Entry[] listDep1Plot = ((MVOrderedMap) job.getDepGroups()[0].get("dep1"))
+                                     .getOrderedEntries();
+      int intNumDep1 = getNumberPlotCurves(listDep1Plot);
       int intNumDep1Series = intNumDep1 * intNumSeries1Perm;
       int intNumDep2Series = intNumDep2 * intNumSeries2Perm;
-      int intNumDepSeries = getNumDepSeries(intNumDep1Series, intNumDep2Series,
-                                            job.getEnsSsPtsDisp());
+      int intNumDepSeries = getNumDepSeries(intNumDep1Series, intNumDep2Series, job);
       intNumDepSeries = intNumDepSeries + job.getDiffSeries1Count();
       intNumDepSeries = intNumDepSeries + job.getDiffSeries2Count();
 
 
       //  validate the number of formatting elements
-      if (intNumDepSeries != MVUtil.parseRCol(job.getPlotDisp()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getPlotDisp()).length) {
         throw new Exception("length of plot_disp differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (job.getOrderSeries().length() > 0 && intNumDepSeries != MVUtil.parseRCol(
-          job.getOrderSeries()).length) {
+      if (job.getOrderSeries().length() > 0
+              && intNumDepSeries > MVUtil.parseRCol(job.getOrderSeries()).length) {
         throw new Exception("length of order_series differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (intNumDepSeries != MVUtil.parseRCol(job.getColors()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getColors()).length) {
         throw new Exception("length of colors differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (intNumDepSeries != MVUtil.parseRCol(job.getPch()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getPch()).length) {
         throw new Exception("length of pch differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (intNumDepSeries != MVUtil.parseRCol(job.getType()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getType()).length) {
         throw new Exception("length of type differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (intNumDepSeries != MVUtil.parseRCol(job.getLty()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getLty()).length) {
         throw new Exception("length of lty differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (intNumDepSeries != MVUtil.parseRCol(job.getLwd()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getLwd()).length) {
         throw new Exception("length of lwd differs from number of series ("
                                 + intNumDepSeries + ")");
       }
-      if (!job.getLegend().isEmpty() &&
-              intNumDepSeries != MVUtil.parseRCol(job.getLegend()).length) {
+      if (!job.getLegend().isEmpty()
+              && intNumDepSeries > MVUtil.parseRCol(job.getLegend()).length) {
         throw new Exception("length of legend differs from number of series ("
                                 + intNumDepSeries + ")");
       }
 
-      if (intNumDepSeries != MVUtil.parseRCol(job.getShowSignif()).length) {
+      if (intNumDepSeries > MVUtil.parseRCol(job.getShowSignif()).length) {
         throw new Exception("length of show_signif differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       validateNumDepSeries(job, intNumDepSeries);
-      MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
 
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
 
@@ -196,10 +194,10 @@ public class SeriesJobManager extends JobManager {
       //run summary or agg stats Rscripts - if needed
       if (rscriptStatManager != null) {
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
-        boolean success = rscriptStatManager.runRscript(job, info);
+        rscriptStatManager.runRscript(job, info);
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
-        info.put("event_equal",  "FALSE");
+        info.put("event_equal", "FALSE");
         listQuery.clear();
       }
 
@@ -207,7 +205,7 @@ public class SeriesJobManager extends JobManager {
       rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       String dataFileName = mvBatch.getDataFolder()
                                 + MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                             mapTmplValsPlot,
+                                                             MVUtil.addTmplValDep(job),
                                                              job.getTmplMaps(),
                                                              mvBatch.getPrintStream());
       File dataFile = new File(dataFileName);
@@ -215,8 +213,10 @@ public class SeriesJobManager extends JobManager {
         long intStartTime = new Date().getTime();
         dataFile.getParentFile().mkdirs();
         for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-          appDatabaseManager.executeQueriesAndSaveToFile(listQuery, dataFileName,
-                                                         job.getCalcCtc() || job.getCalcSl1l2()
+          appDatabaseManager.executeQueriesAndSaveToFile(listQuery,
+                                                         dataFileName,
+                                                         job.getCalcCtc()
+                                                             || job.getCalcSl1l2()
                                                              || job.getCalcSal1l2(),
                                                          job.getCurrentDBName().get(i),
                                                          i == 0);
@@ -227,7 +227,6 @@ public class SeriesJobManager extends JobManager {
 
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFileName);
-
 
 
       boolean success = rscriptStatManager.runRscript(job, info);
@@ -251,12 +250,16 @@ public class SeriesJobManager extends JobManager {
         String stat = aListFcstVarStat[1].split("_")[0];
         String type = aListFcstVarStat[1].split("_")[1];
         //validate for all attr stats except for those
-        if (!stat.equals("CNT") && !stat.equals("CNTSUM") && !stat.equals("MAXINT") && !stat.equals(
-            "MAXINTF") && !stat.equals("MAXINTO") && type.startsWith("D")) {
+        if (!stat.equals("CNT")
+                && !stat.equals("CNTSUM")
+                && !stat.equals("MAXINT")
+                && !stat.equals("MAXINTF")
+                && !stat.equals("MAXINTO")
+                && type.startsWith("D")) {
 
           if (!type.equals("DCM")) {
-            throw new Exception("Incorrect series definition. Stat " +
-                                    stat + " can only have Cluster and Matched for Diff type");
+            throw new Exception("Incorrect series definition. Stat "
+                                    + stat + " can only have Cluster and Matched for Diff type");
           }
         }
       }

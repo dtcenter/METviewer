@@ -71,7 +71,7 @@ public class EclvJobManager extends JobManager {
         info = createInfoMap(job, intNumDepSeries);
         rscriptStatManager = new RscriptAggStatManager(mvBatch);
         //  build the SQL statements for the current plot
-        listQuery = mvBatch.getDatabaseManager().buildPlotSQL(job, plotFixPerm,
+        listQuery = mvBatch.getDatabaseManager().buildPlotSql(job, plotFixPerm,
                                                               mvBatch.getPrintStreamSql());
         rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
         List<String> listAggStats1 = new ArrayList<>();

@@ -21,9 +21,9 @@ import edu.ucar.metviewer.MVPlotJob;
  */
 public interface AppDatabaseManager {
 
-  List<String> buildPlotSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm,PrintWriter printStreamSQL) throws Exception;
+  List<String> buildPlotSql(MVPlotJob job, MVOrderedMap mapPlotFixPerm,PrintWriter printStreamSql) throws Exception;
 
-  List<String> buildPlotModeEventEqualizeSQL(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception;
+  List<String> buildPlotModeEventEqualizeSql(MVPlotJob job, MVOrderedMap mapPlotFixPerm, MVOrderedMap mapPlotFixVal) throws Exception;
 
   boolean executeQueriesAndSaveToFile(List<String> queries, String fileName, boolean isCalc, String currentDBName, boolean isNewFile) throws Exception;
 

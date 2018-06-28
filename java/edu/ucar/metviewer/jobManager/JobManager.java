@@ -27,7 +27,6 @@ import edu.ucar.metviewer.MVUtil;
 public abstract class JobManager {
 
   protected MVBatch mvBatch;
-  protected String plotFile;
   protected MVOrderedMap[] listPlotFixPerm;
 
 
@@ -42,7 +41,7 @@ public abstract class JobManager {
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
       run(job);
     } catch (Exception e) {
-      mvBatch.print("Failed to create" + " plot " + plotFile);
+      mvBatch.print("Failed to create" + "a plot. " + e.getMessage());
       throw e;
     }
   }
@@ -59,57 +58,20 @@ public abstract class JobManager {
   protected MVOrderedMap[] buildPlotFixValList(final MVOrderedMap mapPlotFixVal) {
 
     //  build a list of fixed value permutations for all plots
-    MVOrderedMap[] listPlotFixPerm = {new MVOrderedMap()};
+    MVOrderedMap[] list = {new MVOrderedMap()};
     if (0 < mapPlotFixVal.size()) {
       MVDataTable tabPlotFixPerm = MVUtil.permute(mapPlotFixVal);
-      listPlotFixPerm = tabPlotFixPerm.getRows();
+      list = tabPlotFixPerm.getRows();
     }
 
-    return listPlotFixPerm;
+    return list;
   }
 
-
-  /**
-   * Format the input String so that it conforms to R variable name standards
-   *
-   * @param in String to format
-   * @return Formatted String
-   */
-  private String formatDiffR(final String in) {
-    //list(c("rapcontrolens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER","rapstoch_V3ens APCP_03_ENS_FREQ_ge0.254 PSTD_BRIER"))
-    String[] diffComponents = in.split("\",\"");
-    if (diffComponents.length == 2) {
-      diffComponents[0] = diffComponents[0].replace("list(c(\"", "");
-      diffComponents[1] = diffComponents[1].replace("\"))", "");
-      for (int i = 0; i < 2; i++) {
-        String strFormatR = diffComponents[i];
-        Matcher matProb = MVUtil.prob.matcher(diffComponents[i]);
-        if (matProb.matches()) {
-          if (!diffComponents[i].contains("*")) {
-            strFormatR = "PROB_" + matProb.group(1) + matProb.group(2) + matProb.group(3);
-          } else {
-            strFormatR = "PROB_" + matProb.group(1);
-          }
-        }
-        diffComponents[i] = strFormatR.replace("(", "")
-                                .replace(")", "")
-                                .replace("<=", "le")
-                                .replace(">=", "ge")
-                                .replace("=", "eq")
-                                .replace("<", "lt")
-                                .replace(">", "gt");
-      }
-
-      return "list(c(\"" + diffComponents[0] + "\",\"" + diffComponents[1] + "\"))";
-    } else {
-      return in;
-    }
-  }
 
 
   protected MVOrderedMap buildPlotFixTmplVal(
-                                                final MVOrderedMap tmplMaps, final MVOrderedMap
-                                                                                 plotFixPerm,
+                                                final MVOrderedMap tmplMaps,
+                                                final MVOrderedMap plotFixPerm,
                                                 final SimpleDateFormat dbFormat)
       throws Exception {
     MVOrderedMap result = new MVOrderedMap();
@@ -142,21 +104,21 @@ public abstract class JobManager {
 
   protected void validateNumDepSeries(MVPlotJob job, int intNumDepSeries) throws Exception {
     if (intNumDepSeries != MVUtil.parseRCol(job.getPlotCI()).length) {
-      throw new Exception("length of plot_ci differs from number of series (" + intNumDepSeries + ")");
+      throw new Exception("length of plot_ci differs from number of series ("
+                              + intNumDepSeries + ")");
     }
     if (intNumDepSeries != MVUtil.parseRCol(job.getConSeries()).length) {
-      throw new Exception("length of con_series differs from number of series (" + intNumDepSeries + ")");
+      throw new Exception("length of con_series differs from number of series ("
+                              + intNumDepSeries + ")");
     }
   }
 
-  protected int getNumDepSeries(int intNumDep1Series, int intNumDep2Series, String ptsDisp) {
+  protected int getNumDepSeries(int intNumDep1Series, int intNumDep2Series, MVPlotJob job) {
     return intNumDep1Series + intNumDep2Series;
   }
 
   protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws Exception {
-    MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
-    MVOrderedMap mapSeries1ValPlot = job.getSeries1Val();
-    MVOrderedMap mapSeries2ValPlot = job.getSeries2Val();
+
 
     MVOrderedMap mapDep;
     if (job.getDepGroups().length > 0) {
@@ -164,8 +126,6 @@ public abstract class JobManager {
     } else {
       mapDep = new MVOrderedMap();
     }
-    MVOrderedMap mapPlotFixValEq = job.getPlotFixValEq();
-    MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
 
     // format the indy values, if fcst_hour or valid_hour is being used
     String[] listIndyValFmt = job.getIndyVal();
@@ -207,7 +167,20 @@ public abstract class JobManager {
           if (strFcstVar.isEmpty()) {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
-            throw new Exception("fcst_var must remain constant for MODE or when agg_stat/agg_pct/agg_stat_bootstrap is activated");
+            //check if this is a mode/mtd/agg/sum stat job
+            boolean isAggStat = job.getAggCtc()
+                                    || job.getAggSl1l2()
+                                    || job.getAggSal1l2()
+                                    || job.getAggNbrCnt()
+                                    || job.getAggSsvar()
+                                    || job.getAggVl1l2()
+                                    || job.getAggVal1l2()
+                                    || job.getAggGrad()
+                                    || job.getAggPct();
+            if(job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
+              throw new Exception("fcst_var must remain constant for MODE, MTD, Aggregation "
+                                      + "statistics, Event Equalizer");
+            }
           }
           mapStat.put(aListFcstVarStat[1], aListFcstVarStat[0]);
         }
@@ -220,11 +193,10 @@ public abstract class JobManager {
     }
 
     mapAggStatStatic.put("fcst_var", strFcstVar);
-
+    MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
 
     String strTitle = MVUtil.buildTemplateString(job.getTitleTmpl(), mapTmplValsPlot,
-                                                 job.getTmplMaps
-                                                         (), mvBatch.getPrintStream());
+                                                 job.getTmplMaps(), mvBatch.getPrintStream());
     String strXLabel = MVUtil.buildTemplateString(job.getXLabelTmpl(), mapTmplValsPlot,
                                                   job.getTmplMaps(), mvBatch.getPrintStream());
     String strY1Label = MVUtil.buildTemplateString(job.getY1LabelTmpl(), mapTmplValsPlot,
@@ -246,24 +218,23 @@ public abstract class JobManager {
     //  populate the plot settings in the R script template
     info.put("r_work", mvBatch.getRworkFolder());
     info.put("indy_var", job.getIndyVar());
-    info
-        .put("indy_list", 0 < job.getIndyVal().length ? MVUtil.printRCol(listIndyValFmt, true)
-                              : "c()");
-    info
-        .put("indy_label", 0 < listIndyLabel.length ? MVUtil.printRCol(listIndyLabel, true) :
-                               "c()");
+    info.put("indy_list",
+             0 < job.getIndyVal().length ? MVUtil.printRCol(listIndyValFmt, true) : "c()"
+    );
+    info.put("indy_label",
+             0 < listIndyLabel.length ? MVUtil.printRCol(listIndyLabel, true) : "c()"
+    );
     info.put("indy_plot_val",
              0 < job.getIndyPlotVal().length ? MVUtil.printRCol(job.getIndyPlotVal(),
                                                                 false) : "c()");
     info.put("dep1_plot", null != mapDep1Plot ? mapDep1Plot.getRDecl() : "c()");
     info.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
     info.put("agg_list", new MVOrderedMap().getRDecl());
-    info.put("series1_list", mapSeries1ValPlot.getRDeclSeries());
-    info.put("series2_list", mapSeries2ValPlot.getRDeclSeries());
+    info.put("series1_list", job.getSeries1Val().getRDeclSeries());
+    info.put("series2_list", job.getSeries2Val().getRDeclSeries());
     info.put("series_nobs", job.getSeriesNobs().getRDecl());
     info.put("dep1_scale", job.getDep1Scale().getRDecl());
     info.put("dep2_scale", job.getDep2Scale().getRDecl());
-    info.put("plot_file", plotFile);
 
     info.put("plot_title", strTitle);
     info.put("x_label", strXLabel);
@@ -289,25 +260,29 @@ public abstract class JobManager {
     info.put("plot_stat", job.getPlotStat());
     info.put("series1_diff_list", diffSeries1);
     info.put("series2_diff_list", diffSeries2);
-    info.put("fix_val_list_eq", mapPlotFixValEq.getRDecl());
-    info.put("fix_val_list", mapPlotFixVal.getRDecl());
+    info.put("fix_val_list_eq", job.getPlotFixValEq().getRDecl());
+    info.put("fix_val_list", job.getPlotFixVal().getRDecl());
 
     //  populate the formatting information in the R script template
     MVUtil.populatePlotFmtTmpl(info, job);
 
 
     //  replace the template tags with the template values for the current plot
-    info.put("plot_ci", job.getPlotCI().isEmpty() ? MVUtil.printRCol(MVUtil.rep("none",
-                                                                                intNumDepSeries),
-                                                                     false) : job.getPlotCI());
+    info.put("plot_ci",
+             job.getPlotCI().isEmpty()
+                 ? MVUtil.printRCol(MVUtil.rep("none", intNumDepSeries), false) : job.getPlotCI()
+    );
     info.put("plot_disp", job.getPlotDisp().isEmpty() ? MVUtil.printRCol(
         MVUtil.rep("TRUE", intNumDepSeries)) : job.getPlotDisp());
     info.put("show_signif", job.getShowSignif().isEmpty() ? MVUtil.printRCol(
         MVUtil.rep("TRUE", intNumDepSeries)) : job.getShowSignif());
-    info.put("order_series", job.getOrderSeries().isEmpty() ? MVUtil.printRCol(
-        MVUtil.repPlusOne(1, intNumDepSeries)) : job.getOrderSeries());
-    info.put("colors", job.getColors()
-                           .isEmpty() ? "rainbow(" + intNumDepSeries + ")" : job.getColors());
+    info.put("order_series",
+             job.getOrderSeries().isEmpty()
+                 ? MVUtil.printRCol(MVUtil.repPlusOne(1, intNumDepSeries)) : job.getOrderSeries()
+    );
+    info.put("colors",
+             job.getColors().isEmpty() ? "rainbow(" + intNumDepSeries + ")" : job.getColors()
+    );
     info
         .put("pch",
              job.getPch().isEmpty() ? MVUtil.printRCol(
@@ -339,8 +314,6 @@ public abstract class JobManager {
     info.put("legend_size", job.getLegendSize());
     info.put("legend_box", job.getLegendBox());
     info.put("legend_inset", job.getLegendInset());
-    info.put("legend_ncol", job.getLegendNcol());
-    info.put("plot_type", job.getPlotType());
     info.put("summary_curves", job.getSummaryCurveRformat());
     info.put("roc_pct", job.getRocPct() ? "TRUE" : "FALSE");
     info.put("roc_ctc", job.getRocCtc() ? "TRUE" : "FALSE");
@@ -349,7 +322,6 @@ public abstract class JobManager {
     info.put("sum_grad", job.getCalcGrad() ? "TRUE" : "FALSE");
     info.put("sum_vl1l2", job.getCalcVl1l2() ? "TRUE" : "FALSE");
     info.put("sum_sal1l2", job.getCalcSal1l2() ? "TRUE" : "FALSE");
-    info.put("event_equal", String.valueOf(job.getEventEqual()));
     info.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
     info.put("indy_var", job.getIndyVar());
     info
@@ -361,7 +333,6 @@ public abstract class JobManager {
     info.put("append_to_file", "FALSE");
 
     info.put("working_dir", mvBatch.getRworkFolder() + "/include");
-    info.put("event_equal", job.getEventEqual() ? "TRUE" : "FALSE");
     info.put("equalize_by_indep", job.getEqualizeByIndep() ? "TRUE" : "FALSE");
     info.put("fix_val_list_eq", job.getPlotFixValEq().getRDecl());
     info.put("fix_val_list", job.getPlotFixVal().getRDecl());
@@ -384,16 +355,21 @@ public abstract class JobManager {
     info.put("boot_ci", job.getAggBootCI());
     info.put("ci_alpha", job.getCIAlpha());
     info.put("agg_stat1",
-             MVUtil.printRCol(listAggStats1.toArray(new String[listAggStats1.size()]),
-                              true));
-    info.put("agg_stat2", MVUtil.printRCol(listAggStats2.toArray(new
-                                                                     String[listAggStats2
-                                                                                .size()]),
-                                           true));
+             MVUtil.printRCol(
+                 listAggStats1.toArray(new String[listAggStats1.size()]), true));
+    info.put("agg_stat2", MVUtil.printRCol(
+        listAggStats2.toArray(new String[listAggStats2.size()]),
+        true));
     info.put("agg_stat_static", mapAggStatStatic.getRDecl());
-    info.put("append_to_file", "FALSE");
     info.put("cl_step", "0.05");
     info.put("normalized_histogram", job.getNormalizedHistogram() ? "TRUE" : "FALSE");
+    info.put("color_palette", job.getColorPalette());
+    info.put("contour_intervals", String.valueOf(job.getContourIntervals()));
+    info.put("reverse_x", job.getReverseX() ? "TRUE" : "FALSE");
+    info.put("reverse_y", job.getReverseY() ? "TRUE" : "FALSE");
+    info.put("add_color_bar", job.getAddColorBar() ? "TRUE" : "FALSE");
+    info.put("add_contour_overlay", job.getAddContourOverlay() ? "TRUE" : "FALSE");
+    info.put("contour_diff", "FALSE");
 
 
     return info;

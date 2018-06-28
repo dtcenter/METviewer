@@ -4,7 +4,6 @@ JAVA=/usr/local/jdk/bin/java
 MV_HOME=/d3/projects/METViewer/src/apps/METViewer
 
 # construct the classpath for MVBatch
-CLASSPATH=$MV_HOME/lib/log4j-1.2.15.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mysql-connector-java-5.1.6.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
@@ -17,9 +16,9 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-0.7.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.8.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.8.5.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.8.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.8.2.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.8.2.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-api-2.10.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.10.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 

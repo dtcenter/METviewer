@@ -5,9 +5,9 @@
 
 package edu.ucar.metviewer.scorecard.db;
 
-import edu.ucar.metviewer.scorecard.model.Entry;
-
 import java.util.Map;
+
+import edu.ucar.metviewer.scorecard.model.Entry;
 
 /**
  * @author : tatiana $
@@ -15,5 +15,5 @@ import java.util.Map;
  */
 @FunctionalInterface
 public interface DatabaseManager {
-   void createDataFile(Map<String, Entry> map, String threadName) ;
+   void createDataFile(Map<String, Entry> map, String threadName) throws Exception;
 }

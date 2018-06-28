@@ -5,10 +5,10 @@
 
 package edu.ucar.metviewer.scorecard.db;
 
+import java.sql.SQLException;
+
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
-
-import java.sql.SQLException;
 
 /**
  * @author : tatiana $
@@ -31,23 +31,25 @@ public class SumDatabaseManagerMySQL extends DatabaseManagerMySQL {
   protected String getStatValue(String table, String stat) {
     String result = "";
     if (table.endsWith(MVUtil.CTC)) {
-      result = "calc" + stat + "(total, fy_oy, fy_on, fn_oy, fn_on)";
+      result = "total, fy_oy, fy_on, fn_oy, fn_on, ";
     } else if (table.endsWith(MVUtil.SL1L2)) {
-      if (stat.equalsIgnoreCase("mae")) {
-        result = "calc" + stat + "( mae) ";
+      if (stat.equalsIgnoreCase("mae, ")) {
+        result = " mae ";
       } else {
-        result = "calc" + stat + "(total, fbar, obar, fobar, ffbar, oobar)";
+        result = "total, fbar, obar, fobar, ffbar, oobar, ";
       }
     } else if (table.endsWith(MVUtil.GRAD)) {
-      result = "calc" + stat + "(total, fgbar, ogbar, mgbar, egbar)";
+      result = "total, fgbar, ogbar, mgbar, egbar, ";
     } else if (table.endsWith(MVUtil.SAL1L2)) {
-      result = "calc" + stat + "(total, fabar, oabar, foabar, ffabar, ooabar)";
+      result = "total, fabar, oabar, foabar, ffabar, ooabar, ";
     } else if (table.endsWith(MVUtil.VL1L2)) {
-      result = "calc" + stat + "(total, ufbar, vfbar, uobar, vobar, uvfobar, uvffbar, uvoobar)";
+      result = "total, ufbar, vfbar, uobar, vobar, uvfobar, uvffbar, uvoobar, f_speed_bar,  "
+                   + "o_speed_bar,";
     } else if (table.endsWith(MVUtil.VAL1L2)) {
-      result = "calc" + stat + "(total, ufabar, vfabar, uoabar, voabar, uvfoabar, uvffabar, uvooabar)";
+      result = "total, ufabar, vfabar, uoabar, voabar, uvfoabar, uvffabar, uvooabar, ";
     } else if (table.endsWith(MVUtil.NBR_CNT)) {
-      result = "calc" + stat + "(total,fbs,fss)";
+      //result = "calc" + stat + "(total,fbs,fss)";
+      result = "total,fbs,fss, ";
     }
 
 

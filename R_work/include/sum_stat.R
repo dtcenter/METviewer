@@ -1,3 +1,5 @@
+#web .libPaths("/common/data/web/metviewer/dev/r-lib");
+#batch .libPaths("/common/data/apps/metviewer/dev/web/r-lib");
 library(parallel)
 library(data.table)
 
@@ -14,7 +16,6 @@ source(strInputInfoFile);
 setwd(strWorkingDir);
 source("util_plot.R");
 source("statistics.R");
-
 
 prepareCalc = function(d){
   row = setNames(as.list(d), names(dfStatsRec));
@@ -72,7 +73,15 @@ if ( nrow(sampleData) > 0){
   }
 
   dfStatsRec = fread(strInputDataFile,colClasses = classes,data.table=FALSE);
-
+  #change names for sal1l2
+  if( boolSumSal1l2  ){
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="fabar"] <- "fbar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="oabar"] <- "obar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="foabar"] <- "fobar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="ffabar"] <- "ffbar";
+    colnames(dfStatsRec)[colnames(dfStatsRec)=="ooabar"] <- "oobar";
+    statFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "mae");
+  }
   intYMax = 1;
   if( 0 < length(listSeries2Val) ){ intYMax = 2; }
 
@@ -179,8 +188,8 @@ if ( nrow(sampleData) > 0){
       dfStatsRec = dfPlot1;
     }
     strAfrerEqualizeFile = sub("\\.agg_stat", ".dataAfterEq", strInputDataFile, perl=TRUE);
-    fwrite(dfStatsRec, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE,
-    sep = "\t", fwrite);
+    #fwrite(dfStatsRec, append=FALSE,file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col
+  # .names=TRUE,sep = "\t", fwrite);
   }
 
 

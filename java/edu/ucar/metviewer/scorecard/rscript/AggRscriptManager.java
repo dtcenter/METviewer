@@ -5,6 +5,11 @@
 
 package edu.ucar.metviewer.scorecard.rscript;
 
+import java.io.File;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -12,11 +17,6 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Constructs and runs Rscript for agg stats
@@ -87,6 +87,7 @@ public class AggRscriptManager extends RscriptManager {
       tableAggStatInfo.put("indy_list", "c(" + indyList + ")");
 
       tableAggStatInfo.put("agg_stat1", "c(\"" + stat + "\")");
+      tableAggStatInfo.put("contour_diff", "FALSE");
 
 
       tableAggStatInfo.put("series1_list", seriesList.toString());
@@ -122,11 +123,8 @@ public class AggRscriptManager extends RscriptManager {
         aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
 
         MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
-        //  run agg_stat/
-        MVUtil mvUtil = new MVUtil();
 
-
-        mvUtil.runRscript(rScriptCommand, aggStatTemplScript, new String[]{thredInfoFileName}, printStream);
+        MVUtil.runRscript(rScriptCommand, aggStatTemplScript, new String[]{thredInfoFileName}, printStream);
       } catch (Exception e) {
         logger.error(e);
       }

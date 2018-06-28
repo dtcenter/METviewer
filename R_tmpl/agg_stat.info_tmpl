@@ -48,3 +48,5 @@ listDep1Plot = #<dep1_plot>#;
 listDep2Plot = #<dep2_plot>#;
 
 clStep = #<cl_step>#;
+
+isContourDiff = #<contour_diff>#;

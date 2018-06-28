@@ -5,6 +5,12 @@
 
 package edu.ucar.metviewer.scorecard.rscript;
 
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -13,12 +19,6 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author : tatiana $
@@ -105,7 +105,9 @@ public class CalcRscriptManager extends RscriptManager {
               difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
             }
 
-            difStr.append("\"DIFF_SIG\"").append("),");
+            //difStr.append("\"DIFF_SIG\"").append("),");
+            difStr.append("\"").append(diffStat).append("\"),");
+
             diffSeries.add(difStr.toString().trim());
           }
           if (seriesList.length() > 0) {
@@ -161,10 +163,7 @@ public class CalcRscriptManager extends RscriptManager {
                                                      .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
-        MVUtil mvUtil = new MVUtil();
-
-
-        mvUtil.runRscript(rScriptCommand, strRFile, printStream);
+        MVUtil.runRscript(rScriptCommand, strRFile, printStream);
       } catch (Exception e) {
         logger.error(e);
       }

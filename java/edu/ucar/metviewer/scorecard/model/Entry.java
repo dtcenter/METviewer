@@ -1,6 +1,7 @@
 /**
- * Entry.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * Entry.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR),
+ * National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL), P.O. Box
+ * 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.scorecard.model;
@@ -13,6 +14,15 @@ public class Entry {
 
   private String name;
   private String label;
+
+  public Entry() {
+  }
+
+  // copy constructor
+  public Entry(Entry e) {
+    name = e.getName();
+    label = e.getLabel();
+  }
 
   public String getName() {
     return name;
@@ -37,8 +47,8 @@ public class Entry {
   @Override
   public String toString() {
     return "Entry{" +
-      "name='" + name + '\'' +
-      ", label='" + label + '\'' +
-      '}';
+               "name='" + name + '\'' +
+               ", label='" + label + '\'' +
+               '}';
   }
 }
