@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
  */
-public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadDatabaseManager {
+public class CBLoadDatabaseManager extends MysqlDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
   SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
@@ -200,9 +200,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   private int executeUpdate(String update) throws Exception {
 
     int intRes;
-    try (
-            Connection con = getConnection();
-            Statement stmt = con.createStatement()) {
+    try (Connection con = getConnection();
+         Statement stmt = con.createStatement()) {
       intRes = stmt.executeUpdate(update);
       stmt.close();
       con.close();
@@ -973,13 +972,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           String thresh = "NA";
           String modelName = listToken[1];
 
-          if (listToken[6].equals("BSS") || listToken[6].equals("ECON") || listToken[6]
-                                                                               .equals("HIST")
-                  || listToken[6].equals("RELI") || listToken[6].equals("RELP") || listToken[6]
-                                                                                       .equals(
-                                                                                           "RMSE") || listToken[6]
-                                                                                                          .equals(
-                                                                                                              "RPS")) {
+          if (listToken[6].equals("BSS") || listToken[6].equals("ECON")
+                  || listToken[6].equals("HIST") || listToken[6].equals("RELI")
+                  || listToken[6].equals("RELP") || listToken[6].equals("RMSE")
+                  || listToken[6].equals("RPS")) {
             modelName = modelName.split("\\/")[0] + ensValue;
           }
 
@@ -1254,7 +1250,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
 
             if (listToken[6].equals("BSS")) {//PSTD line type
-              for (int i = 0; i < 16; i++) {
+              for (int i = 0; i < 17; i++) {
                 switch (i) {
                   case 0:
                   case 1:
@@ -1268,6 +1264,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   case 4:
                   case 13:
                   case 14:
+                  case 16:
                     strLineDataValueList += ", '-9999'";
                     break;
                   case 5:
@@ -1407,13 +1404,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               strLineDataValueList += ", " + total + ", " + intGroupSize;
             }
 
-            if (listToken[6].equals("SL1L2") || listToken[6]
-                                                    .equals("SAL1L2")) {//SL1L2,SAL1L2 line types
+            if (listToken[6].equals("SL1L2")
+                    || listToken[6].equals("SAL1L2")) {//SL1L2,SAL1L2 line types
               for (int i = 0; i < 7; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9]))
-                                                        .intValue() + "'";
+                    strLineDataValueList += ", '"
+                                                + (Double.valueOf(listToken[i + 9])).intValue() + "'";
                   } else {
                     strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
                   }
@@ -1423,14 +1420,30 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 }
               }
             }
-            if (listToken[6].equals("VL1L2") || listToken[6].equals("VAL1L2") || listToken[6]
-                                                                                     .equals(
-                                                                                         "GRAD")) {//VL1L2,VAL1L2,GRAD line type
+            if (listToken[6].equals("VAL1L2")
+                    || listToken[6].equals("GRAD")) {//VAL1L2,GRAD line type
               for (int i = 0; i < 8; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    strLineDataValueList += ", '" + (Double.valueOf(listToken[i + 9]))
-                                                        .intValue() + "'";
+                    strLineDataValueList += ", '"
+                                                + (Double.valueOf(listToken[i + 9])).intValue()
+                                                + "'";
+                  } else {
+                    strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                  }
+                } else {
+                  strLineDataValueList += ", '-9999'";
+                }
+
+              }
+            }
+            if (listToken[6].equals("VL1L2")) {//VL1L2
+              for (int i = 0; i < 10; i++) {
+                if (i + 9 < listToken.length) {
+                  if (i == 0) {
+                    strLineDataValueList += ", '"
+                                                + (Double.valueOf(listToken[i + 9])).intValue()
+                                                + "'";
                   } else {
                     strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
                   }
@@ -1479,9 +1492,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             if (listToken[6].startsWith("FSS")) {//NBRCNT line type
               double fss = -9999;
               if (listToken.length > 11) {
-                fss = 1 - Double.valueOf(listToken[10]) / (Double.valueOf(listToken[11]) + Double
-                                                                                               .valueOf(
-                                                                                                   listToken[12]));
+                fss = 1 - Double.valueOf(listToken[10])
+                              / (Double.valueOf(listToken[11]) + Double.valueOf(listToken[12]));
               }
               for (int i = 0; i < 19; i++) {
                 if (i == 0) {//total,
@@ -1758,11 +1770,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         } else if (matModePair.matches()) {
           intLineTypeLuId = modePair;
         } else {
-          throw new Exception("METViewer load error: loadModeFile() unable to determine line type " + MVUtil
-                                                                                                          .findValueInArray(
-                                                                                                              listToken,
-                                                                                                              headerNames,
-                                                                                                              "OBJECT_ID") + "\n        " + strFileLine);
+          throw new Exception("METViewer load error: loadModeFile() unable to determine line type "
+                                  + MVUtil.findValueInArray(listToken,headerNames,"OBJECT_ID")
+                                  + "\n        " + strFileLine);
         }
 
 
@@ -1808,45 +1818,49 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "N_VALID"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  N_VALID
         } else {
-          strModeHeaderValueList = strModeHeaderValueList + MVUtil.findValueInArray(listToken,
-                                                                                    headerNames,
-                                                                                    "N_VALID") + ", ";      //  N_VALID
+          strModeHeaderValueList = strModeHeaderValueList
+                                       + MVUtil.findValueInArray(listToken,headerNames,"N_VALID")
+                                       + ", ";      //  N_VALID
         }
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "GRID_RES"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  GRID_RES
         } else {
-          strModeHeaderValueList = strModeHeaderValueList + MVUtil.findValueInArray(listToken,
-                                                                                    headerNames,
-                                                                                    "GRID_RES") + ", ";      //  GRID_RES
+          strModeHeaderValueList = strModeHeaderValueList
+                                       + MVUtil.findValueInArray(listToken,headerNames,"GRID_RES")
+                                       + ", ";      //  GRID_RES
         }
 
-        strModeHeaderValueList = strModeHeaderValueList + "'" + MVUtil.findValueInArray(listToken,
-                                                                                        headerNames,
-                                                                                        "DESC") + "', " +      //  GRID_RES
-                                     "'" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                   "FCST_LEAD") + "', " +      //  fcst_lead
+        strModeHeaderValueList = strModeHeaderValueList
+                                     + "'" + MVUtil.findValueInArray(listToken,headerNames,"DESC")
+                                     + "', " +      //  GRID_RES
+                                     "'" + MVUtil.findValueInArray(listToken, headerNames,"FCST_LEAD")
+                                     + "', " +      //  fcst_lead
                                      "'" + strFcstValidBeg + "', ";      //  fcst_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "FCST_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  fcst_accum
         } else {
-          strModeHeaderValueList = strModeHeaderValueList + "'" + MVUtil.findValueInArray(listToken,
-                                                                                          headerNames,
-                                                                                          "FCST_ACCUM") + "', ";      //  fcst_accum
+          strModeHeaderValueList = strModeHeaderValueList
+                                       + "'"
+                                       + MVUtil.findValueInArray(listToken,headerNames,"FCST_ACCUM")
+                                       + "', ";      //  fcst_accum
         }
         strModeHeaderValueList = strModeHeaderValueList + "'" + strFcstInit + "', " +        //  fcst_init
-                                     "'" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                   "OBS_LEAD") + "', " +      //  obs_lead
+                                     "'"
+                                     + MVUtil.findValueInArray(listToken, headerNames,"OBS_LEAD")
+                                     + "', " +      //  obs_lead
                                      "'" + strObsValidBeg + "', ";      //  obs_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "OBS_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  obs_accum
         } else {
-          strModeHeaderValueList = strModeHeaderValueList + "'" + MVUtil.findValueInArray(listToken,
-                                                                                          headerNames,
-                                                                                          "OBS_ACCUM") + "', ";      //  obs_accum
+          strModeHeaderValueList = strModeHeaderValueList
+                                       + "'"
+                                       + MVUtil.findValueInArray(listToken,headerNames,"OBS_ACCUM")
+                                       + "', ";      //  obs_accum
         }
-        strModeHeaderValueList = strModeHeaderValueList + "'" + MVUtil.findValueInArray(listToken,
-                                                                                        headerNames,
-                                                                                        "FCST_RAD") + "', " +      //  fcst_rad
+        strModeHeaderValueList = strModeHeaderValueList
+                                     + "'"
+                                     + MVUtil.findValueInArray(listToken,headerNames,"FCST_RAD")
+                                     + "', " +      //  fcst_rad
                                      "'" + MVUtil.findValueInArray(listToken, headerNames,
                                                                    "FCST_THR") + "', " +      //  fcst_thr
                                      "'" + MVUtil.findValueInArray(listToken, headerNames,
@@ -1913,7 +1927,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           boolean boolFoundModeHeader = false;
           long intModeHeaderSearchBegin = new Date().getTime();
           if (info._boolModeHeaderDBCheck) {
-            String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n" + strModeHeaderWhereClause;
+            String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n"
+                                             + strModeHeaderWhereClause;
             try (Connection con = getConnection();
                  Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                       ResultSet.CONCUR_READ_ONLY);
@@ -1923,7 +1938,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 intModeHeaderId = Integer.parseInt(strModeHeaderIdDup);
                 boolFoundModeHeader = true;
                 logger.warn(
-                    "  **  WARNING: found duplicate mode_header record with id " + strModeHeaderIdDup + "\n        " + strFileLine);
+                    "  **  WARNING: found duplicate mode_header record with id "
+
+                        + strModeHeaderIdDup + "\n        " + strFileLine);
               }
               res.close();
               stmt.close();
@@ -1933,8 +1950,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             }
 
           }
-          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
-                                                                                    .getTime() - intModeHeaderSearchBegin);
+          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
+                                                + new Date().getTime() - intModeHeaderSearchBegin);
 
 
           //  if the mode_header was not found, add it to the table
@@ -1952,11 +1969,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strModeHeaderValueList;
 
             //  insert the record into the mode_header database table
-            String strModeHeaderInsert = "INSERT INTO mode_header VALUES (" + strModeHeaderValueList + ");";
+            String strModeHeaderInsert = "INSERT INTO mode_header VALUES ("
+                                             + strModeHeaderValueList + ");";
             int intModeHeaderInsert = executeUpdate(strModeHeaderInsert);
             if (1 != intModeHeaderInsert) {
               logger.warn(
-                  "  **  WARNING: unexpected result from mode_header INSERT: " + intModeHeaderInsert + "\n        " + strFileLine);
+                  "  **  WARNING: unexpected result from mode_header INSERT: "
+                      + intModeHeaderInsert + "\n        " + strFileLine);
             }
             headerInserts++;
           }
@@ -1970,9 +1989,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         if (modeCts == intLineTypeLuId) {
 
           //  build the value list for the mode_cts insert
-          String strCTSValueList = intModeHeaderId + ", '" + MVUtil.findValueInArray(listToken,
-                                                                                     headerNames,
-                                                                                     "FIELD") + "'";
+          String strCTSValueList = intModeHeaderId + ", '"
+                                       + MVUtil.findValueInArray(listToken,headerNames,"FIELD")
+                                       + "'";
           int totalIndex = headerNames.indexOf("TOTAL");
           for (int i = 0; i < 18; i++) {
             strCTSValueList += ", " + replaceInvalidValues(listToken[totalIndex + i]);
@@ -1983,7 +2002,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           int intModeCtsInsert = executeUpdate(strModeCtsInsert);
           if (1 != intModeCtsInsert) {
             logger.warn(
-                "  **  WARNING: unexpected result from mode_cts INSERT: " + intModeCtsInsert + "\n        " + strFileLine);
+                "  **  WARNING: unexpected result from mode_cts INSERT: "
+                    + intModeCtsInsert + "\n        " + strFileLine);
           }
           ctsInserts++;
 
@@ -1997,7 +2017,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
           //  build the value list for the mode_cts insert
           int intModeObjId = intModeObjIdNext++;
-          String strSingleValueList = intModeObjId + ", " + intModeHeaderId + ", '" + strObjectId + "'";
+          String strSingleValueList = intModeObjId + ", " + intModeHeaderId + ", '"
+                                          + strObjectId + "'";
           for (String header : modeObjSingleColumns) {
             strSingleValueList += ", '" + replaceInvalidValues(
                 MVUtil.findValueInArray(listToken, headerNames, header)) + "'";
@@ -2018,14 +2039,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (objCatArr.length == 1 && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
           }
-          strSingleValueList = strSingleValueList + "," + fcstFlag + "," + simpleFlag + "," + matchedFlag;
+          strSingleValueList = strSingleValueList + "," + fcstFlag + "," + simpleFlag + ","
+                                   + matchedFlag;
 
           //  insert the record into the mode_obj_single database table
-          String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES (" + strSingleValueList + ");";
+          String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES ("
+                                              + strSingleValueList + ");";
           int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert);
           if (1 != intModeObjSingleInsert) {
             logger.warn(
-                "  **  WARNING: unexpected result from mode_obj_single INSERT: " + intModeObjSingleInsert + "\n        " + strFileLine);
+                "  **  WARNING: unexpected result from mode_obj_single INSERT: "
+                    + intModeObjSingleInsert + "\n        " + strFileLine);
           }
           objSingleInserts++;
 
@@ -2045,9 +2069,11 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           int intModeObjectIdObs = tableModeObjectId.get(matModePair.group(2));
 
           //  build the value list for the mode_cts insert
-          String strPairValueList = intModeObjectIdObs + ", " + intModeObjectIdFcst + ", " + intModeHeaderId + ", " +
-                                        "'" + strObjectId + "', '" + MVUtil.findValueInArray(
-              listToken, headerNames, "OBJECT_CAT") + "'";
+          String strPairValueList = intModeObjectIdObs + ", " + intModeObjectIdFcst
+                                        + ", " + intModeHeaderId + ", " +
+                                        "'" + strObjectId + "', '"
+                                        + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT")
+                                        + "'";
           int centroiddistIndex = headerNames.indexOf("CENTROID_DIST");
           for (int i = 0; i < 12; i++) {
             strPairValueList += ", " + replaceInvalidValues(listToken[centroiddistIndex + i]);
@@ -2070,11 +2096,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           strPairValueList = strPairValueList + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mode_obj_pair database table
-          String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES (" + strPairValueList + ");";
+          String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES ("
+                                            + strPairValueList + ");";
           int intModeObjPairInsert = executeUpdate(strModeObjPairInsert);
           if (1 != intModeObjPairInsert) {
             logger.warn(
-                "  **  WARNING: unexpected result from mode_obj_pair INSERT: " + intModeObjPairInsert + "\n        " + strFileLine);
+                "  **  WARNING: unexpected result from mode_obj_pair INSERT: "
+                    + intModeObjPairInsert + "\n        " + strFileLine);
           }
           objPairInserts++;
 
@@ -2333,8 +2361,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             }
 
           }
-          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
-                                                                                    .getTime() - mtdHeaderSearchBegin);
+          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
+                                                + new Date().getTime() - mtdHeaderSearchBegin);
 
 
           //  if the mtd_header was not found, add it to the table
