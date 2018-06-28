@@ -125,6 +125,7 @@ then
   echo "Running plots scripts - no params - $*"
     echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
     $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
+    ret=$?
 else
   dir="$1"
   mode="$2"
@@ -133,22 +134,24 @@ else
     echo "Running plots scripts - 1 param - $*"
     echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir"
     $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir"
-
+    ret=$?
   else
     if [[ (2 -eq $#) &&  ($2 == "all") ]]; then
       echo "Running all scripts - 2 params $dir \(all\) - $*"
       echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" all
       $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" all
+      ret=$?
     else
       if [[ (2 -eq $#) && ($2 == "plots") ]]; then
         echo "Running plots scripts - 2 params \(plots\) - $*"
         echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
         $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" plots
+        ret=$?
       fi
     fi
   fi
 fi
-
-
+echo "$0 result is $ret"
+exit $ret
 
 
