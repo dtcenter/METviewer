@@ -11,7 +11,6 @@ import org.apache.commons.io.FileUtils;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,19 +18,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.xml.parsers.DocumentBuilder;
+
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -161,7 +155,7 @@ public class TestUtil {
   };
     public static final String LOAD_DIR;
     public static final String MET_DATA_DIR;
-    public static final String DATABASE;
+    public static final String database;
     public static final String USERNAME;
     public static final String PWD;
     public static final String HOST_NAME;
@@ -205,9 +199,9 @@ public class TestUtil {
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
     MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
     if (System.getProperty("mv_database") == null) {
-      DATABASE = "mv_test";
+      database = "mv_test";
     } else {
-      DATABASE = System.getProperty("mv_database");
+      database = System.getProperty("mv_database");
     }
     if (System.getProperty("mv_user") == null) {
       USERNAME = "mvuser";
@@ -268,7 +262,7 @@ public class TestUtil {
             }
             tag = "database";
             if (doc.getElementsByTagName("database").item(0) != null) {
-                doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.DATABASE);
+                doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.database);
             }
             tag = "user";
             if (doc.getElementsByTagName("user").item(0) != null) {

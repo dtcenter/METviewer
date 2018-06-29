@@ -276,20 +276,21 @@ public class MVPlotJobParser  {
   protected String dbPass = "";
   protected String dbDriver = null;
 
-    /**
-     * Build a parser whose input source is the specified URI
-     *
-     * @param spec URI of the XML plot specification source
-     */
-    public MVPlotJobParser(String spec) throws Exception {
-        super();
-        DocumentBuilder builder = getDocumentBuilder();
-        //  parse the input document and build the MVNode data structure
-        doc = builder.parse(spec);
-        plotSpec = new MVNode(doc.getFirstChild());
 
-        parsePlotJobSpec();
-    }
+  /**
+   * Build a parser whose input source is the specified URI
+   *
+   * @param spec URI of the XML plot specification source
+   */
+  public MVPlotJobParser(String spec) throws Exception {
+    super();
+    DocumentBuilder builder = getDocumentBuilder();
+    //  parse the input document and build the MVNode data structure
+    doc = builder.parse(spec);
+    plotSpec = new MVNode(doc.getFirstChild());
+
+    parsePlotJobSpec();
+  }
 
 
   /**
