@@ -5,7 +5,6 @@ export mv_database="mv_test"
 export mv_user="mvuser"
 export mv_pwd="mvuser"
 export mv_host="dakota.rap.ucar.edu"
-#export mv_host="model-vxtest.gsd.esrl.noaa.gov"
 export mv_port=3306
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
@@ -113,7 +112,6 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-core-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
-#-Dmv_root_dir=${HOME}/test_data -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dlog4j.configurationFile=file:${HOME}/IdeaProjects/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes
 #/Users/pierce/test_data all
 JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN"
 #echo "JAVA_OPTS ARE ... $JAVA_OPTS"
