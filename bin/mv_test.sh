@@ -53,10 +53,10 @@ while getopts "m:t:d:u:p:P:h:j:cn?" o; do
 			fi
             ;;
         c)
-            CAPTURE_CREATED_IMAGES="yes"
+            CAPTURE_CREATED_IMAGES="-DcaptureCreatedImages=yes"
             ;;
         n)
-            NOCLEAN="yes"
+            NOCLEAN="-DnoClean"
             ;;
 		?) 
 		usage
@@ -115,8 +115,8 @@ CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
 #-Dmv_root_dir=${HOME}/test_data -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dlog4j.configurationFile=file:${HOME}/IdeaProjects/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes
 #/Users/pierce/test_data all
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT"
-echo "JAVA_OPTS ARE ... $JAVA_OPTS"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN"
+#echo "JAVA_OPTS ARE ... $JAVA_OPTS"
 echo "---------"
 
 cd $MV_HOME
@@ -144,8 +144,8 @@ else
     else
       if [[ (2 -eq $#) && ($2 == "plots") ]]; then
         echo "Running plots scripts - 2 params \(plots\) - $*"
-        echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
-        $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" plots
+        echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" plots
+        $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunnery "$dir" plots
         ret=$?
       fi
     fi
