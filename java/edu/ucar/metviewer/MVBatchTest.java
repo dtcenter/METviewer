@@ -221,32 +221,6 @@ public class MVBatchTest {
     **/
 
     @Test
-    public void seriesStat() {
-        List<String> argsList = new ArrayList<>();
-        argsList.add("-printSql");
-        argsList.add("mysql");
-        String plotType = "series_stat";
-        String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
-        argsList.add(fpath);
-        xlateTestSpec(fpath);
-        MVBatch.main(argsList.toArray(new String[argsList.size()]));
-        compareBinaryFilesBySize(testDataDir, plotType);
-    }
-
-    @Test
-    public void seriesModeAttr() {
-        List<String> argsList = new ArrayList<>();
-        argsList.add("-printSql");
-        argsList.add("mysql");
-        String plotType = "series_mode_attr";
-        String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
-        argsList.add(fpath);
-        xlateTestSpec(fpath);
-        MVBatch.main(argsList.toArray(new String[argsList.size()]));
-        compareBinaryFilesBySize(testDataDir, plotType);
-    }
-
-    @Test
     public void seriesDiffGrouping() {
         List<String> argsList = new ArrayList<>();
         argsList.add("-printSql");
@@ -265,19 +239,6 @@ public class MVBatchTest {
         argsList.add("-printSql");
         argsList.add("mysql");
         String plotType = "hand_selected_dates";
-        String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
-        argsList.add(fpath);
-        xlateTestSpec(fpath);
-        MVBatch.main(argsList.toArray(new String[argsList.size()]));
-        compareBinaryFilesBySize(testDataDir, plotType);
-    }
-
-    @Test
-    public void seriesModeRatio() {
-        List<String> argsList = new ArrayList<>();
-        argsList.add("-printSql");
-        argsList.add("mysql");
-        String plotType = "series_mode_ratio";
         String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
         argsList.add(fpath);
         xlateTestSpec(fpath);
