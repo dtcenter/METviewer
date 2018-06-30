@@ -1,5 +1,7 @@
-package edu.ucar.metviewer;
+package edu.ucar.metviewer.test;
 
+import edu.ucar.metviewer.MVBatch;
+import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
@@ -46,7 +48,7 @@ public class MVBatchTest {
         databaseInfo.setHost(TestUtil.host);
         databaseInfo.setUser(TestUtil.USERNAME);
         databaseInfo.setPassword(TestUtil.PWD);
-        databaseInfo.setDbName(TestUtil.DATABASE);
+        databaseInfo.setDbName(TestUtil.database);
         AppDatabaseManager databaseManager = new MysqlAppDatabaseManager(databaseInfo, printStreamSql);
         mvBatch = new MVBatch(printStream, printStreamSql, printStreamError, databaseManager);
         MVUtil.updateLog4jConfiguration();
