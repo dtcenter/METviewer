@@ -5,13 +5,12 @@
 
 package edu.ucar.metviewer.test.util;
 
+import edu.ucar.metviewer.MVBatch;
+import org.apache.commons.io.FileUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,11 +19,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.ucar.metviewer.MVBatch;
-import org.apache.commons.io.FileUtils;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import static java.lang.System.out;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author : tatiana $
@@ -39,9 +43,7 @@ public class TestUtil {
       return o1.getName().compareTo(o2.getName());
     }
   };
-  public static  String ROOT_DIR = "/d3/projects/METViewer/test_data";
-  public static final String RWORK_DIR;
-  public static final String PLOTS_DIR;
+
   private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
     @Override
     public String getFileExtension() {
@@ -151,33 +153,66 @@ public class TestUtil {
       return SCRIPTS_DIR;
     }
   };
-  public static final String LOAD_DIR;
-  public static  final String database;
-  public static  final String USERNAME;
-  public static  final String PWD;
-  public static  final String host;
-  public static final  String rscript;
-  public static  final String TEMPLATE_DIR;
-  public static boolean list = false;
-  public static boolean verbose = false;
-  public static boolean sql = false;
-  public static String job_name = null;
-  public static String type = null;
-  public static String driver = null;
+    public static final String LOAD_DIR;
+    public static final String MET_DATA_DIR;
+    public static final String database;
+    public static final String USERNAME;
+    public static final String PWD;
+    public static final String HOST_NAME;
+    public static final String PORT;
+    public static final String host;
+    public static final  String rscript;
+    public static final String TEMPLATE_DIR;
+    public static boolean list = false;
+    public static boolean verbose = false;
+    public static boolean sql = false;
+    public static String job_name = null;
+    public static String type = null;
+    public static String driver = null;
+    public static  String ROOT_DIR;
+    public static final String RWORK_DIR;
+    public static final String PLOTS_DIR;
+
 
   static {
-
+    if (System.getProperty("mv_root_dir") == null) {
+      ROOT_DIR = "/d3/projects/METViewer/test_data";
+    } else {
+      ROOT_DIR = System.getProperty("mv_root_dir");
+    }
     FILE_SEPARATOR = System.getProperty("file.separator");
-
+    if (System.getProperty("mv_host") == null) {
+      HOST_NAME = "dakota.rap.ucar.edu";
+    } else {
+      HOST_NAME = System.getProperty("mv_host");
+    }
+    if (System.getProperty("mv_port") == null) {
+      PORT = "3306";
+    } else {
+      PORT = System.getProperty("mv_port");
+    }
+    host = HOST_NAME + ":" + PORT;
     RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
     PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
     DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
     SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
-    database = "mv_test";
-    USERNAME = "mvuser";
-    PWD = "mvuser";
-    host = "dakota.rap.ucar.edu:3306";
+    MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
+    if (System.getProperty("mv_database") == null) {
+      database = "mv_test";
+    } else {
+      database = System.getProperty("mv_database");
+    }
+    if (System.getProperty("mv_user") == null) {
+      USERNAME = "mvuser";
+    } else {
+      USERNAME = System.getProperty("mv_user");
+    }
+    if (System.getProperty("mv_pwd") == null) {
+      PWD = "mvuser";
+    } else {
+      PWD = System.getProperty("mv_pwd");
+    }
     rscript = "Rscript";
     TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
     list = false;
@@ -201,20 +236,85 @@ public class TestUtil {
       argsList.add("-printSql");
     }
 
-
-    argsList.add(testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml");
-    if (job_name != null) {
-      argsList.add(job_name);
+    String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
+        argsList.add(fpath);
+        xlateTestSpec(fpath);
+        if (job_name != null) {
+        argsList.add(job_name);
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-
     MVBatch.main(args);
-
   }
 
+    public static void xlateTestSpec(String fpath) {
+      // replace credentials from system properties
 
-  public static void cleanWorkingDirs() {
+      String tag = "";
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            Document doc = dbf.newDocumentBuilder().parse(fpath);
+            // these should only have one element
+            tag = "host";
+            if (doc.getElementsByTagName("host").item(0) != null) {
+                doc.getElementsByTagName("host").item(0).setTextContent(TestUtil.host);
+            }
+            tag = "database";
+            if (doc.getElementsByTagName("database").item(0) != null) {
+                doc.getElementsByTagName("database").item(0).setTextContent(TestUtil.database);
+            }
+            tag = "user";
+            if (doc.getElementsByTagName("user").item(0) != null) {
+                doc.getElementsByTagName("user").item(0).setTextContent(TestUtil.USERNAME);
+            }
+            tag = "password";
+            if (doc.getElementsByTagName("password").item(0) != null) {
+                doc.getElementsByTagName("password").item(0).setTextContent(TestUtil.PWD);
+            }
+            tag = "r_tmpl";
+            if (doc.getElementsByTagName("r_tmpl").item(0) != null) {
+                doc.getElementsByTagName("r_tmpl").item(0).setTextContent(TestUtil.TEMPLATE_DIR);
+            }
+            tag = "r_work";
+            if (doc.getElementsByTagName("r_work").item(0) != null) {
+                doc.getElementsByTagName("r_work").item(0).setTextContent(TestUtil.RWORK_DIR);}
+
+            // these could potentially have more than one element
+            tag = "data";
+            NodeList nodeList = doc.getElementsByTagName("data");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent(TestUtil.DATA_DIR);
+            }
+            tag = "scripts";
+            nodeList = doc.getElementsByTagName("scripts");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent(TestUtil.SCRIPTS_DIR);
+            }
+            tag = "plots";
+            nodeList = doc.getElementsByTagName("plots");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent(TestUtil.PLOTS_DIR);
+            }
+            tag = "rscript";
+            nodeList = doc.getElementsByTagName("rscript");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                nodeList.item(i).setTextContent("Rscript");
+            }
+            tag = "folder_tmpl";
+            nodeList = doc.getElementsByTagName("folder_tmpl");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+              nodeList.item(i).setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
+            }
+
+            TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(new File(fpath)));
+        } catch (Exception e){
+            System.out.println("Exception translating tag " + tag + " for file " + fpath + ":" + e.getMessage());
+        }
+    }
+
+
+    public static void cleanWorkingDirs() {
     boolean doClean = true;
     if (doClean) {
       try {
@@ -266,7 +366,9 @@ public class TestUtil {
     compareBinaryFiles(testDataDir, plotType, false, false, PLOT_FILES_FILTER);
 
   }
-
+  public static void compareBinaryFilesBySize(String testDataDir, String plotType) {
+      compareBinaryFilesBySize(testDataDir, plotType, PLOT_FILES_FILTER);
+  }
 
   /**
    * Compare the number of files, names (if requested) and contents
@@ -328,6 +430,26 @@ public class TestUtil {
 
   }
 
+  private static void compareBinaryFilesBySize(String testDataDir, String plotType, CustomFilenameFilter filter) {
+      File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
+      File[] expectedFiles = dir.listFiles(filter);
+      for (int i = 0; i < expectedFiles.length; i++) {
+          File actualFile = new File(filter.getActualDir() + "/" + expectedFiles[i].getName());
+          boolean areTheSameSize = actualFile.length() == expectedFiles[i].length();
+          if ((!actualFile.exists() || !areTheSameSize) && (System.getProperty("captureCreatedImages") != null)) {
+              out.println ("copying image " + actualFile.getAbsolutePath() + " to " + expectedFiles[i].getAbsolutePath());
+              areTheSameSize = actualFile.length() == expectedFiles[i].length();
+              try {
+                  FileUtils.copyFile(actualFile, expectedFiles[i]);
+              } catch (Exception e) {
+                  fail("Failed to capture image : " + actualFile.getAbsolutePath() + " with error: " + e.getMessage());
+              }
+          }
+          assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+          assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be the same size but they are not", areTheSameSize);
+      }
+  }
+
   private static void compareBinaryFiles(String testDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
     //get all test results datafiles
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
@@ -338,8 +460,6 @@ public class TestUtil {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
       if (isCompareContent) {
-
-
         BufferedImage expectedImg = null;
         BufferedImage actualImg = null;
         boolean areTheSame = false;
@@ -349,8 +469,17 @@ public class TestUtil {
           areTheSame = bufferedImagesEqual(expectedImg, actualImg);
         } catch (IOException e) {
         }
+        if (System.getProperty("captureCreatedImages") != null) {
+            if (!areTheSame) {
+                out.println ("copying image " + actualFile.getAbsolutePath() + " to " + expectedFiles[i].getAbsolutePath());
+                try {
+                    FileUtils.copyFile(actualFile, expectedFiles[i]);
+                } catch (Exception e) {
+                    fail("Failed to capture image : " + actualFile.getAbsolutePath() + " with error: " + e.getMessage());
+                }
+            }
+        }
         assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be identical but they are not", areTheSame);
-
       }
     }
 

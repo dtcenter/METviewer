@@ -21,12 +21,13 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 public class AllTestRunner {
 
   public static void main(String[] args) {
-    cleanWorkingDirs();
+
     Result result;
     List<Failure> failureListLoadDataTest = null;
     if (args.length > 0 ) {
       TestUtil.ROOT_DIR = args[0];
     }
+    cleanWorkingDirs();
     if (args.length > 1 && args[1].equals("all")) {
       result = JUnitCore.runClasses(LoadDataTest.class);
       failureListLoadDataTest = result.getFailures();
@@ -39,7 +40,6 @@ public class AllTestRunner {
 
     result = JUnitCore.runClasses(TestMVServlet.class);
     List<Failure> failureListTestMVServlet = result.getFailures();
-
 
     System.out.println("*************************************************");
     if (failureListLoadDataTest != null) {
@@ -72,9 +72,12 @@ public class AllTestRunner {
     if (failureListTestMVServlet.isEmpty()) {
       System.out.println("***** Servlet tests finished successfully... *****");
     }
+    int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0: failureListLoadDataTest.size();
+    int failureListCreatePlotBatchTestCount = failureListCreatePlotBatchTest == null ? 0: failureListCreatePlotBatchTest.size();
+    int failureListTestMVServletCount = failureListTestMVServlet == null ? 0: failureListTestMVServlet.size();
+    int exitCode = failureListLoadDataTestCount + failureListCreatePlotBatchTestCount + failureListTestMVServletCount;
     System.out.println("*************************************************");
-    System.out.println();
-
+    System.out.println("There were " + exitCode + " failures");
+    System.exit( exitCode);
   }
-
 }

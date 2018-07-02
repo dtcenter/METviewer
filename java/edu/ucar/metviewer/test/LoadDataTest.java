@@ -29,6 +29,7 @@ import static edu.ucar.metviewer.test.util.TestUtil.PWD;
 import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
 import static edu.ucar.metviewer.test.util.TestUtil.database;
 import static edu.ucar.metviewer.test.util.TestUtil.host;
+import static edu.ucar.metviewer.test.util.TestUtil.xlateTestSpec;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -127,6 +128,9 @@ public class LoadDataTest {
         }
       }
       String[] args = new String[]{LOAD_DIR + FILE_SEPARATOR + "load/load_test.xml"};
+
+      // replace credentials from system properties
+      xlateTestSpec(args[0]);
 
       MVLoad.main(args);
     }
