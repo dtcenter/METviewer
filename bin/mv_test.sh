@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-m <path to METViewer home>] [-t <path to METViewer test directory>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [test_directory [all|plots]]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-m <path to METViewer home>] [-t <path to METViewer test directory>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-a(all)] [test_directory]" 1>&2; exit 1; }
 export mv_database="mv_test"
 export mv_user="mvuser"
 export mv_pwd="mvuser"
@@ -8,7 +8,8 @@ export mv_host="dakota.rap.ucar.edu"
 export mv_port=3306
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
-while getopts "m:t:d:u:p:P:h:j:cn?" o; do
+all=""
+while getopts "m:t:d:u:p:P:h:j:cnia?" o; do
     case "${o}" in
         m)
 			if [ ! -d "${OPTARG}" ]; then
@@ -56,6 +57,9 @@ while getopts "m:t:d:u:p:P:h:j:cn?" o; do
             ;;
         n)
             NOCLEAN="-DnoClean"
+            ;;
+        a)
+            all=" all"
             ;;
 		?) 
 		usage
@@ -122,7 +126,7 @@ if [ $# -eq 0 ]
 then
   echo "Running plots scripts - no params - $*"
     echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
-    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
+    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner $all
     ret=$?
 else
   dir="$1"
