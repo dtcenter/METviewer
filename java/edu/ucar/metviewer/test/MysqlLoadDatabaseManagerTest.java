@@ -1,8 +1,10 @@
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
 import edu.ucar.metviewer.MVLoadJobParser;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.Test;
 

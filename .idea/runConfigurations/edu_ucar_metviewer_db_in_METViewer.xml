@@ -3,7 +3,7 @@
     <module name="METViewer" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="edu.ucar.metviewer.db.*" />
+        <option name="PATTERN" value="edu.ucar.metviewer.test.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
