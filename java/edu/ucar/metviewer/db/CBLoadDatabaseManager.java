@@ -2573,6 +2573,16 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     return timeStats;
   }
 
+  @Override
+  public void updateGroup(String group) throws Exception {
+
+  }
+
+  @Override
+  public void updateDescription(String description) throws Exception {
+
+  }
+
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
 
     String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + "(";

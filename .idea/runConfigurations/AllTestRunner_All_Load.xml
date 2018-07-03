@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AllTestRunner All Load" type="Application" factoryName="Application" singleton="true">
+  <configuration default="false" name="AllTestRunner" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="edu.ucar.metviewer.test.AllTestRunner" />
     <module name="METViewer" />
-    <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/test_data all" />
-    <option name="VM_PARAMETERS" value="-ea -Dmv_root_dir=${HOME}/test_data -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dlog4j.configurationFile=file:${HOME}/IdeaProjects/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -Dmv_port=3306 -DnoClean -DcaptureCreatedImages=yes" />
+    <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/test_data" />
+    <option name="VM_PARAMETERS" value="-Xmx2048M -ea -Dmv_root_dir=$USER_HOME$/test_data -Dmv_database=mv_test -Dmv_user=mvuser -Dmv_pwd=mvuser-P@$$2018 -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <extension name="coverage">
       <pattern>

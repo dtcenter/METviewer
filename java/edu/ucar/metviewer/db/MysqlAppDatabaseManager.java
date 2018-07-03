@@ -6,46 +6,23 @@
 
 package edu.ucar.metviewer.db;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import edu.ucar.metviewer.BuildMysqlQueryStrings;
-import edu.ucar.metviewer.EmptyResultSetException;
-import edu.ucar.metviewer.MVNode;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.*;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author : tatiana $
  * @version : 1.0 : 19/05/17 12:42 $
  */
-public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements AppDatabaseManager {
+public class CBAppDatabaseManager extends MysqlDatabaseManager implements AppDatabaseManager {
 
 
   private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
@@ -56,7 +33,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public MysqlAppDatabaseManager(
+  public CBAppDatabaseManager(
                                     DatabaseInfo databaseInfo,
                                     PrintWriter printStreamSql) throws SQLException {
     super(databaseInfo, printStreamSql);
@@ -145,25 +122,25 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   public List<String> getListStat(String strFcstVar, String[] currentDBName) {
     List<String> listStatName = new ArrayList<>();
 
-    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n";
+    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n" +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n";
 
     for (String database : currentDBName) {
       try (Connection con = getConnection(database);
@@ -244,11 +221,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
           intStatIndex++;
         }
+        stmt.close();
+        res.close();
+        con.close();
       } catch (SQLException e) {
         logger.error(e.getMessage());
       }
     }
     Collections.sort(listStatName);
+    //Set<String> set = new LinkedHashSet<>(listStatName);
+    //return new ArrayList<>(set);
     return listStatName;
   }
 
@@ -318,10 +300,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     String[] listTables = tableLineDataTables.keySet().toArray(new String[]{});
     String strWhere = "";
-    //we need to get all values of obs_var for all variables
-    if (strField.equalsIgnoreCase("obs_var")) {
-      boolFcstVar = false;
-    }
     if (boolFcstVar) {
       String strFcstVarList = "";
       String[] listFcstVar = tableFcstVarStat.keySet().toArray(new String[]{});
@@ -426,6 +404,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                               + " FROM " + listTable + " ld" + strWhereTime;
               stmtTmp.executeUpdate(strTmpSql);
             }
+            stmtTmp.close();
           } catch (SQLException e) {
             logger.error(e.getMessage());
           }
@@ -452,15 +431,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           if (strTmpTable != null) {
             stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
           }
+          res.close();
+          stmt.close();
 
         } catch (SQLException e) {
           logger.error(e.getMessage());
         }
+        con.close();
       } catch (SQLException e) {
         logger.error(e.getMessage());
       }
     }
     Collections.sort(listRes);
+    //Set<String> set = new LinkedHashSet<>(listRes);
+    //return new ArrayList<>(set);
     return listRes;
   }
 
@@ -494,6 +478,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                   ResultSet.CONCUR_READ_ONLY)) {
           stmt.execute(aListSqlBeforeSelect);
+          stmt.close();
         } catch (Exception e) {
           logger.error(e.getMessage());
         }
@@ -504,16 +489,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         boolean printHeader = !append;
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                   ResultSet.CONCUR_READ_ONLY);
+             ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
              FileWriter fstream = new FileWriter(new File(fileName), append);
-             BufferedWriter out = new BufferedWriter(fstream);) {
+             BufferedWriter out = new BufferedWriter(fstream)) {
 
-          //TODO investigate implications of adding the Fetch Size
-          //stmt.setFetchSize(Integer.MIN_VALUE);
-
-          ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
-          printFormattedTable(resultSetLast, out, printHeader);
+          printFormattedTable(resultSetLast, out, "\t", isCalc, printHeader);
           out.flush();
           resultSetLast.close();
+          stmt.close();
           success = true;
 
         } catch (Exception e) {
@@ -546,6 +529,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
         }
       }
+      con.close();
 
     } catch (SQLException e) {
       logger.error(e.getMessage());
@@ -559,25 +543,35 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    *
    * @param res            The ResultSet to print
    * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
+   * @param delim          The delimiter to insert between field headers and values (defaults to '
+   *                       ')
    */
 
-  private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, boolean isHeader) {
+  private void printFormattedTable(
+                                      ResultSet res, BufferedWriter bufferedWriter, String delim,
+                                      boolean isCalc, boolean isHeader) {
 
-    char delim = '\t';
     try {
       ResultSetMetaData met = res.getMetaData();
+      //  get the column display widths
+      int[] intFieldWidths = new int[met.getColumnCount()];
+      for (int i = 1; i <= met.getColumnCount(); i++) {
+        intFieldWidths[i - 1] = met.getColumnDisplaySize(i) + 2;
+      }
 
       //  print out the column headers
       if (isHeader) {
         for (int i = 1; i <= met.getColumnCount(); i++) {
-
-          if (1 == i) {
-            bufferedWriter.write(met.getColumnLabel(i));
+          if (delim.equals(" ")) {
+            bufferedWriter.write(MVUtil.padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
           } else {
-            bufferedWriter.write(delim + met.getColumnLabel(i));
+            if (1 == i) {
+              bufferedWriter.write(met.getColumnLabel(i));
+            } else {
+              bufferedWriter.write(delim + met.getColumnLabel(i));
+            }
           }
         }
-
         bufferedWriter.write(System.getProperty("line.separator"));
       }
 
@@ -604,12 +598,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
 
-          if (1 == i) {
-            line = line + (strVal);
+          if (delim.equals(" ")) {
+            line = line + (MVUtil.padEnd(strVal, intFieldWidths[i - 1]));
           } else {
-            line = line + (delim + strVal);
+            if (1 == i) {
+              line = line + (strVal);
+            } else {
+              line = line + (delim + strVal);
+            }
           }
-
         }
         bufferedWriter.write(line);
         bufferedWriter.write(System.getProperty("line.separator"));
@@ -644,7 +641,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         pctThresh = resultSet.getInt(1);
         numPctThresh++;
       }
-
+      resultSet.close();
+      stmt.close();
+      con.close();
 
     } catch (SQLException e) {
       logger.error(e.getMessage());
@@ -667,7 +666,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       while (resultSet.next()) {
         result.add(resultSet.getString(1));
       }
-
+      resultSet.close();
+      stmt.close();
+      con.close();
 
     } catch (SQLException e) {
       logger.error(e.getMessage());
@@ -681,20 +682,23 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @return list of database names
    */
   @Override
+
+  //UNIMPLEMENTED FIX THIS
   public List<String> getAllDatabases() {
-    return new ArrayList<>(listDB.keySet());
+    List dbs = new ArrayList();
+    return Collections.unmodifiableList(dbs);
+
   }
 
   @Override
   public Map<String, String> getAllDatabasesWithDescription() {
-    return Collections.unmodifiableMap(listDB);
+    return null;
   }
 
   @Override
   public Map<String, List<String>> getAllGroups() {
-    return Collections.unmodifiableMap(groupToDatabases);
+    return null;
   }
-
 
   @Override
   public SimpleDateFormat getDateFormat() {
@@ -923,15 +927,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  for ensemble spread/skill, add the ssvar line data and bail
       if (boolEnsSs) {
 
-        listSql.add("SELECT\n"
-                        + selectPlotList + ",\n  h.fcst_var,\n"
-                        + "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n"
-                        + "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar "
-                        + "FROM\n"
-                        + "  stat_header h,\n"
-                        + "  line_data_ssvar ld\n"
-                        + "WHERE\n" + strWhere
-                        + "  AND h.stat_header_id = ld.stat_header_id;\n");
+        listSql.add("SELECT\n" +
+                        selectPlotList + ",\n  h.fcst_var,\n" +
+                        "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n" +
+                        "  ld.fbar,\n  ld.obar,\n  ld.fobar,\n  ld.ffbar,\n  ld.oobar " +
+                        "FROM\n" +
+                        "  stat_header h,\n" +
+                        "  line_data_ssvar ld\n" +
+                        "WHERE\n" + strWhere +
+                        "  AND h.stat_header_id = ld.stat_header_id;\n");
 
         return listSql;
       }
@@ -1036,48 +1040,26 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 printStreamSql.println(strSelPctThresh + "\n");
 
                 //  run the PCT thresh query
-                List<String> errors = new ArrayList<>();
-                for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-                  pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(i));
-                  if (1 != pctThreshInfo.get("numPctThresh")) {
-                    String error = "number of PCT thresholds (" + pctThreshInfo.get(
-                        "numPctThresh") + ") not distinct for " + serName[serNameInd]
-                                       + " = '" + ser.getStr(serName[serNameInd])
-                                       + "' AND database  " + job.getCurrentDBName().get(i) + "'";
-                    if (!vars[varsInd].equals("NA")) {
-                      error = error + "' AND fcst_var='" + vars[varsInd] + "'";
-                    }
-                    errors.add(error);
-                  } else if (1 > pctThreshInfo.get("numPctThresh")) {
-                    String error = "invalid number of PCT thresholds ("
-                                       + pctThreshInfo.get("numPctThresh") + ") found for "
-                                       + serName[serNameInd] + " = '"
-                                       + ser.getStr(serName[serNameInd])
-                                       + "' AND database " + job.getCurrentDBName().get(i) + "'";
-                    if (!vars[varsInd].equals("NA")) {
-                      error = error + "' AND fcst_var='" + vars[varsInd] + "'";
-                    }
-                    errors.add(error);
-                  } else {
-                    errors.add(null);
-                    seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
+                pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));
+                if (1 != pctThreshInfo.get("numPctThresh")) {
+                  String error = "number of PCT thresholds (" + pctThreshInfo.get(
+                      "numPctThresh") + ") not distinct for " + serName[serNameInd]
+                                     + " = '" + ser.getStr(serName[serNameInd]);
+                  if (!vars[varsInd].equals("NA")) {
+                    error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                   }
-                }
-                boolean noErrors = false;
-                for (String error : errors) {
-                  if (error == null) {
-                    noErrors = true;
-                    break;
+                  throw new Exception(error);
+                } else if (1 > pctThreshInfo.get("numPctThresh")) {
+                  String error = "invalid number of PCT thresholds ("
+                                     + pctThreshInfo.get("numPctThresh") + ") found for "
+                                     + serName[serNameInd] + " = '" + ser.getStr(
+                      serName[serNameInd]);
+                  if (!vars[varsInd].equals("NA")) {
+                    error = error + "' AND fcst_var='" + vars[varsInd] + "'";
                   }
+                  throw new Exception(error);
                 }
-                if (!noErrors) {
-                  for (String error : errors) {
-                    if (error != null) {
-                      throw new Exception(error);
-                    }
-                  }
-                }
-                //seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
+                seriesNthresh[seriesInd] = pctThreshInfo.get("pctThresh");
               }
 
             }
@@ -1091,8 +1073,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             if (!allEqual) {
               String error = "Different value for PCT thresholds   for individual series!";
               throw new Exception(error);
-            } else {
-              pctThreshInfo.put("pctThresh", seriesNthresh[0]);
             }
           }
         }
@@ -1312,12 +1292,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strWhereFcstVar = strWhere + " AND  fcst_var " + strFcstVarClause;
 
           listSql.addAll(buildModeStatSql(strSelectList, strWhereFcstVar, strStat, listGroupBy,
-                                          job.getEventEqual(), listSeries));
+                                          job.getEventEqual()));
         } else if (job.isMtdJob()) {
 
           //  build the mtd SQL
           String strWhereFcstVar = strWhere + " AND  fcst_var " + strFcstVarClause;
-          listSql.addAll(buildMtdStatSql(strSelectList, strWhereFcstVar, strStat));
+          listSql.addAll(buildMtdStatSql(strSelectList, strWhereFcstVar, strStat,
+                                         listGroupBy,
+                                         job.getEventEqual()));
         } else {
           boolean boolBCRMSE = false;
           String strSelectStat = strSelectList;
@@ -1377,35 +1359,35 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                  + " ld.uvooabar";
           } else if (job.getCalcCtc()) {
             strSelectStat += ",\n  ld.total, ld.fy_oy, ld.fy_on, ld.fn_oy, ld.fn_on, "
-                                 + "'NA' stat_value,\n"
-                                 + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  "
+                                 + "'NA' stat_value,\n" +
+                                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  "
                                  + "'NA' stat_bcl,\n  'NA' stat_bcu";
           } else if (job.getCalcSl1l2()) {
             if (strStat.equalsIgnoreCase("mae")) {
-              strSelectStat += ",\n   ld.mae,  'NA' stat_value,\n"
-                                   + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n "
+              strSelectStat += ",\n   ld.mae,  'NA' stat_value,\n" +
+                                   "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                                    + "'NA' stat_bcu";
             } else {
               strSelectStat += ",\n  ld.total, ld.fbar, ld.obar, ld.fobar, ld.ffbar, ld.oobar,"
-                                   + " 'NA' stat_value,\n"
-                                   + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
+                                   + " 'NA' stat_value,\n" +
+                                   "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                                    + "'NA' stat_bcu";
             }
           } else if (job.getCalcGrad()) {
             strSelectStat += ",\n  ld.total, ld.fgbar, ld.ogbar, ld.mgbar, ld.egbar,  "
-                                 + "'NA' stat_value,\n"
-                                 + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
+                                 + "'NA' stat_value,\n" +
+                                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                                  + "'NA' stat_bcu";
           } else if (job.getCalcSal1l2()) {
             strSelectStat += ",\n  ld.total, ld.fabar, ld.oabar, ld.foabar, ld.ffabar, "
-                                 + "ld.ooabar,  'NA' stat_value,\n"
-                                 + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
+                                 + "ld.ooabar,  'NA' stat_value,\n" +
+                                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                                  + "'NA' stat_bcu";
           } else if (job.getCalcVl1l2()) {
             strSelectStat += ",\n  ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, "
                                  + "ld.uvfobar, ld.uvffbar, ld.uvoobar,"
-                                 + " ld.f_speed_bar, ld.o_speed_bar, 'NA' stat_value,\n"
-                                 + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
+                                 + " ld.f_speed_bar, ld.o_speed_bar, 'NA' stat_value,\n" +
+                                 "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                                  + "'NA' stat_bcu";
           } else {
             if (boolBCRMSE) {
@@ -1433,8 +1415,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             //  add the CIs to the select list, if present, otherwise, invalid data
             if (boolHasNorm) {
               strSelectStat += ",\n  IF(ld." + strStatField + "_ncl=-9999,'NA',ld."
-                                   + strStatField + "_ncl  ) stat_ncl"
-                                   + ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',ld."
+                                   + strStatField + "_ncl  ) stat_ncl" +
+                                   ",\n  IF(ld." + strStatField + "_ncu=-9999,'NA',ld."
                                    + strStatField + "_ncu  ) stat_ncu";
             } else {
               strSelectStat += ",\n  'NA' stat_ncl,\n  'NA' stat_ncu";
@@ -1443,13 +1425,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             if (boolHasBoot && !boolAggStat) {
               if (boolBCRMSE) {
                 strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',CAST(sqrt(ld."
-                                     + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl"
-                                     + ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld."
+                                     + strStatField + "_bcl) as DECIMAL(30, 5))) stat_bcl" +
+                                     ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',CAST(sqrt(ld."
                                      + strStatField + "_bcu) as DECIMAL(30, 5))) stat_bcu";
               } else {
                 strSelectStat += ",\n  IF(ld." + strStatField + "_bcl=-9999,'NA',ld."
-                                     + strStatField + "_bcl) stat_bcl"
-                                     + ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',ld."
+                                     + strStatField + "_bcl) stat_bcl" +
+                                     ",\n  IF(ld." + strStatField + "_bcu=-9999,'NA',ld."
                                      + strStatField + "_bcu ) stat_bcu";
               }
             } else {
@@ -1464,8 +1446,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           if (job.getAggPct()) {
             if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
-                strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n"
-                                       + "  AND ldt" + i + ".i_value = " + i;
+                strStatNaClause += "\n  AND ld.line_data_id = ldt" + i + ".line_data_id\n" +
+                                       "  AND ldt" + i + ".i_value = " + i;
               }
             } else {
               strStatNaClause = "\n  AND ld.line_data_id = ldt.line_data_id\n";
@@ -1473,9 +1455,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
           //  build the query
-          strSelectSql += (strSelectSql.isEmpty() ? "" : "\nUNION ALL\n")
-                              + "SELECT\n" + strSelectStat + "\n"
-                              + "FROM\n  stat_header h,\n  " + strStatTable;
+          strSelectSql += (strSelectSql.isEmpty() ? "" : "\nUNION ALL\n") +
+                              "SELECT\n" + strSelectStat + "\n" +
+                              "FROM\n  stat_header h,\n  " + strStatTable;
           strSelectSql += "WHERE\n" + strWhere;
           if (strFcstVarClause.length() > 0) {
             strSelectSql += "  AND h.fcst_var " + strFcstVarClause + "\n";
@@ -1555,13 +1537,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param strWhere      list of where clauses
    * @param strStat       MODE stat
    * @param listGroupBy   list of fields to group by
-   * @param listSeries
    * @return list of SQL queries for gathering plot data
    */
   private List<String> buildModeStatSql(
                                            String strSelectList, String strWhere, String strStat,
-                                           String[] listGroupBy, boolean isEventEqualization,
-                                           Map.Entry[] listSeries) {
+                                           String[] listGroupBy, boolean isEventEqualization) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1588,8 +1568,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                                  isEventEqualization);
         strWhere = strWhere.replace("h.", "s.");
         listQuery
-            .add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat, query1, query2,
-                                              listSeries));
+            .add(buildModeSingleStatDiffTable(strSelectList, strWhere, strStat, query1, query2));
       }
     } else if (MVUtil.modePairStatField.containsKey(listStatComp[0])) {
 
@@ -1621,10 +1600,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param strSelectList list of select fields
    * @param strWhere      list of where clauses
    * @param strStat       MTD stat
+   * @param listGroupBy   list of fields to group by
    * @return list of SQL queries for gathering plot data
    */
   private List<String> buildMtdStatSql(
-                                          String strSelectList, String strWhere, String strStat) {
+                                          String strSelectList, String strWhere, String strStat,
+                                          String[] listGroupBy, boolean isEventEqualization) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1716,20 +1697,21 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the query
     return
-        "SELECT\n" + selectListStat + ",\n"
-            + "  '' object_id,\n"
-            + "  '' object_cat,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strStat + " stat_value\n"
-            + "FROM\n"
-            + "  mode_header ,\n"
-            + "  mode_obj_single ,\n"
-            + "  mode_cts\n"
-            + "WHERE\n" + strWhere + "\n"
-            + "  AND simple_flag = 1\n"
-            + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
-            + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n"
-            + "  AND mode_cts.field = 'OBJECT' "
+        "SELECT\n" + selectListStat + ",\n" +
+            "  '' object_id,\n" +
+            "  '' object_cat,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + strStat + " stat_value\n" +
+            "FROM\n" +
+            "  mode_header ,\n" +
+            "  mode_obj_single ,\n" +
+            "  mode_cts\n" +
+            "WHERE\n" +
+            strWhere + "\n" +
+            "  AND simple_flag = 1\n" +
+            "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n" +
+            "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n" +
+            "  AND mode_cts.field = 'OBJECT' "
             + strGroupBy + ";";
   }
 
@@ -1783,15 +1765,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     strWhere = strWhere.replace("h.", "");
     //  build the query
     return
-        "SELECT\n" + selectListStat + ",\n"
-            + "  " + objectId + ",\n"
-            + "  object_cat,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strTableStat + " stat_value\n"
-            + "FROM\n"
-            + "  mode_header,\n"
-            + "  mode_obj_pair\n"
-            + "WHERE\n" + strWhere
+        // "INSERT INTO plot_data\n" +
+        "SELECT\n" + selectListStat + ",\n" +
+            "  " + objectId + ",\n" +
+            "  object_cat,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + strTableStat + " stat_value\n" +
+            "FROM\n" +
+            "  mode_header,\n" +
+            "  mode_obj_pair\n" +
+            "WHERE\n" +
+            strWhere
             + "  AND mode_header.mode_header_id = mode_obj_pair.mode_header_id "
             + strGroupBy + ";";
   }
@@ -1821,6 +1805,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  build the list of fields involved in the computations
     String strSelectListStat = strSelectList.replaceAll("h\\.", "");
     String strGroupListMMI = strSelectListStat.replaceAll("HOUR\\([^\\)]+\\) ", "");
+    strGroupListMMI = strGroupListMMI.replaceAll("if\\D+fcst_lead", "fcst_lead");
     //  set the object_id field, depending on the stat
     String objectId = "object_id";
     String statName = stat.replace("_" + listStatParse[listStatParse.length - 1], "");
@@ -1830,14 +1815,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the query
     return
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  " + objectId + ",\n"
-            + "  cluster_id,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strTableStat + " stat_value\n"
-            + "FROM mtd_header, mtd_3d_obj_pair \n"
-            + "WHERE\n" + strWhere
-            + " AND mtd_header.mtd_header_id = mtd_3d_obj_pair.mtd_header_id";
+        // "INSERT INTO plot_data\n" +
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  " + objectId + ",\n" +
+            "  cluster_id,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + strTableStat + " stat_value\n" +
+            "FROM mtd_header, mtd_3d_obj_pair \n" +
+            "WHERE\n" + strWhere +
+            " AND mtd_header.mtd_header_id = mtd_3d_obj_pair.mtd_header_id";
   }
 
   private String buildModeSingleStatTable(
@@ -1898,16 +1884,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String selectListStat = selectList.replaceAll("h\\.", "");
     //  build the query
     return
-        "SELECT\n" + selectListStat + ",\n"
-            + "  object_id,\n"
-            + "  object_cat,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + MVUtil.modeSingleStatField.get(statName) + " stat_value\n"
-            + "FROM\n"
-            + "  mode_header ,\n"
-            + "  mode_obj_single ,\n"
-            + "  mode_cts \n"
-            + "WHERE\n" + strWhere
+        "SELECT\n" + selectListStat + ",\n" +
+            "  object_id,\n" +
+            "  object_cat,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + MVUtil.modeSingleStatField.get(statName) + " stat_value\n" +
+            "FROM\n" +
+            "  mode_header ,\n" +
+            "  mode_obj_single ,\n" +
+            "  mode_cts \n" +
+            "WHERE\n" + strWhere
             + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
             + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n"
             + "  AND mode_cts.field = 'OBJECT'"
@@ -1940,14 +1926,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the query
     return
-        "SELECT\n" + selectListStat + ",\n"
-            + "  object_id,\n"
-            + "  cluster_id,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + mtd3dSingleStatField.get(statName) + " stat_value\n"
-            + "FROM mtd_header, mtd_3d_obj_single \n"
-            + "WHERE\n" + strWhere
-            + " AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
+        "SELECT\n" + selectListStat + ",\n" +
+            "  object_id,\n" +
+            "  cluster_id,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + mtd3dSingleStatField.get(statName) + " stat_value\n" +
+            "FROM mtd_header, mtd_3d_obj_single \n" +
+            "WHERE\n" + strWhere +
+            " AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
   }
 
 
@@ -1973,14 +1959,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strSelectListStat = selectList.replaceAll("h\\.", "");
     //  build the query
     return
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  object_id,\n"
-            + "  cluster_id,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n"
-            + "FROM mtd_header, mtd_2d_obj \n"
-            + "WHERE\n" + strWhere
-            + " AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  object_id,\n" +
+            "  cluster_id,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n" +
+            "FROM mtd_header, mtd_2d_obj \n" +
+            "WHERE\n" + strWhere +
+            " AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
   }
 
   private String buildModeSingleStatRatioTable(String selectList, String strWhere) {
@@ -1990,22 +1976,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     strWhere = strWhere.replaceAll("h\\.", "");
 
     return
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  object_id,\n"
-            + "  object_cat,\n"
-            + "  area,\n"
-            + "  total,\n"
-            + "  fcst_flag,\n"
-            + "  simple_flag,\n"
-            + "  matched_flag\n"
-            + "FROM\n"
-            + "  mode_header ,\n"
-            + "  mode_obj_single ,\n"
-            + "  mode_cts \n"
-            + "WHERE\n" + strWhere
-            + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
-            + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id"
-            + "  AND mode_cts.field = 'OBJECT'";
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  object_id,\n" +
+            "  object_cat,\n" +
+            "  area,\n" +
+            "  total,\n" +
+            "  fcst_flag,\n" +
+            "  simple_flag,\n" +
+            "  matched_flag\n" +
+            "FROM\n" +
+            "  mode_header ,\n" +
+            "  mode_obj_single ,\n" +
+            "  mode_cts \n" +
+            "WHERE\n" + strWhere +
+            "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n" +
+            "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id" +
+            "  AND mode_cts.field = 'OBJECT'";
   }
 
   private String buildMtdSingleStatRatio2dTable(String selectList, String strWhere) {
@@ -2015,15 +2001,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     return
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  object_id,\n"
-            + "  cluster_id,\n"
-            + "  area,\n"
-            + "  fcst_flag,\n"
-            + "  simple_flag,\n"
-            + "  matched_flag\n"
-            + "FROM mtd_header, mtd_2d_obj\n"
-            + "WHERE\n" + strWhere
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  object_id,\n" +
+            "  cluster_id,\n" +
+            "  area,\n" +
+            "  fcst_flag,\n" +
+            "  simple_flag,\n" +
+            "  matched_flag\n" +
+            "FROM mtd_header, mtd_2d_obj\n" +
+            "WHERE\n" + strWhere
             + "  AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
 
   }
@@ -2035,23 +2021,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     return
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  object_id,\n"
-            + "  cluster_id,\n"
-            + "  volume,\n"
-            + "  fcst_flag,\n"
-            + "  simple_flag,\n"
-            + "  matched_flag\n"
-            + "FROM mtd_header, mtd_3d_obj_single\n"
-            + "WHERE\n" + strWhere
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  object_id,\n" +
+            "  cluster_id,\n" +
+            "  volume,\n" +
+            "  fcst_flag,\n" +
+            "  simple_flag,\n" +
+            "  matched_flag\n" +
+            "FROM mtd_header, mtd_3d_obj_single\n" +
+            "WHERE\n" + strWhere
             + "  AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
 
   }
 
   private String buildModeSingleStatDiffTable(
                                                  String strSelectList, String strWhere, String stat,
-                                                 String table1, String table2,
-                                                 Map.Entry[] listSeries) {
+                                                 String table1, String table2) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -2059,6 +2044,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       return "";
     }
     String strStatName = listStatParse[0];
+    String strStatFlag = listStatParse[1];
 
     //  build the list of fields involved in the computations
     String strSelectListStat = strSelectList.replaceAll("h\\.", "s.");
@@ -2082,27 +2068,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the query COUNT(object_id)
     String result =
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  s.object_id,\n"
-            + "  s.object_cat,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
-            + "FROM ("
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  s.object_id,\n" +
+            "  s.object_cat,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n" +
+            "FROM ("
             + table1
-            + " ) s, ( " + table2 + " ) s2\n"
-            + "WHERE\n"
-            + strWhere + "\n"
-            + " AND SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3)\n";
+            + " ) s, ( " + table2 + " ) s2\n" +
+            "WHERE\n" +
+            strWhere + "\n" +
+            " AND SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3)\n";
     if (!strTableStat.contains("object_id")) {
-      result = result + "  AND " + "s.stat_value" + " != -9999"
-                   + " AND " + "s2.stat_value" + " != -9999"
-                   + " AND s.fcst_valid = s2.fcst_valid "
-                   + " AND s.fcst_lead = s2.fcst_lead";
-      for (int i = 0; i < listSeries.length; i++) {
-        result = result + " AND s." + listSeries[i].getKey()
-                     + " = s2." + listSeries[i].getKey();
-      }
-      result = result + ";";
+      result = result + "  AND " + "s.stat_value" + " != -9999 AND " + "s2.stat_value" + " != "
+                   + "-9999;";
     }
     return result;
   }
@@ -2116,6 +2095,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
     String strStatName = stat.replace("_" + listStatParse[listStatParse.length - 1], "");
+    String strStatFlag = listStatParse[listStatParse.length - 1];
 
     //  build the list of fields involved in the computations
     String strSelectListStat = strSelectList.replaceAll("h\\.", "s.");
@@ -2138,17 +2118,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     String result =
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  s.object_id,\n"
-            + "  s.cluster_id,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
-            + "FROM ("
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  s.object_id,\n" +
+            "  s.cluster_id,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n" +
+            "FROM ("
             + table1
-            + " ) s, ( " + table2 + " ) s2\n"
-            + "WHERE\n"
-            + strWhere + "\n"
-            + "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) = SUBSTRING(s2.object_id,  "
+            + " ) s, ( " + table2 + " ) s2\n" +
+            "WHERE\n" +
+            strWhere + "\n" +
+            "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) = SUBSTRING(s2.object_id,  "
             + "LOCATE('_', s\n"
             + ".object_id)+1)\n";
     if (!strTableStat.contains("object_id")) {
@@ -2165,6 +2145,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
     String strStatName = stat.replace("_" + listStatParse[listStatParse.length - 1], "");
+    String strStatFlag = listStatParse[listStatParse.length - 1];
 
     //  build the list of fields involved in the computations
     String strSelectListStat = strSelectList.replaceAll("h\\.", "s.");
@@ -2187,17 +2168,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     String result =
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  s.object_id,\n"
-            + "  s.cluster_id,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
-            + "FROM ("
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  s.object_id,\n" +
+            "  s.cluster_id,\n" +
+            "  '" + stat + "' stat_name,\n" +
+            "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n" +
+            "FROM ("
             + table1
-            + " ) s, ( " + table2 + " ) s2\n"
-            + "WHERE\n"
-            + strWhere + "\n"
-            + "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) "
+            + " ) s, ( " + table2 + " ) s2\n" +
+            "WHERE\n" +
+            strWhere + "\n" +
+            "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) "
             + "= SUBSTRING(s2.object_id,  LOCATE('_', s.object_id)+1)\n";
     if (!strTableStat.contains("object_id")) {
       result = result + "  AND " + strTableStats[0]
@@ -2369,8 +2350,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                   + " +  (select fcst_lead_offset FROM model_fcst_lead_offset "
                                   + "WHERE model = h.model) ) ";
       }
-      strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted
-                      + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+      strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted +
+                      " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
 
       //  add fcst_var to the select list and temp table entries
       selectList += ",\n  h.fcst_var";
@@ -2454,22 +2435,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     return
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  object_id,\n"
-            + "  object_cat,\n"
-            + "  area,\n"
-            + "  total,\n"
-            + "  fcst_flag,\n"
-            + "  simple_flag,\n"
-            + "  matched_flag\n"
-            + "FROM\n"
+        "SELECT\n" + strSelectListStat + ",\n" +
+            "  object_id,\n" +
+            "  object_cat,\n" +
+            "  area,\n" +
+            "  total,\n" +
+            "  fcst_flag,\n" +
+            "  simple_flag,\n" +
+            "  matched_flag\n" +
+            "FROM\n"
             + " mode_header ,\n"
             + " mode_obj_single,\n"
-            + " mode_cts \n"
-            + "WHERE\n" + strWhere
-            + " AND mode_obj_single.mode_header_id = mode_header.mode_header_id"
-            + " AND mode_cts.mode_header_id = mode_obj_single.mode_header_id"
-            + " AND mode_cts.field = 'OBJECT'";
+            + " mode_cts \n" +
+            "WHERE\n" + strWhere +
+            " AND mode_obj_single.mode_header_id = mode_header.mode_header_id" +
+            " AND mode_cts.mode_header_id = mode_obj_single.mode_header_id" +
+            " AND mode_cts.field = 'OBJECT'";
   }
 
   @Override
@@ -2495,8 +2476,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
                            + "  " + formatField(strSeriesField, false, true);
-      strWhereSeries += "  AND " + formatField(strSeriesField, false, false)
-                            + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
+      strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
+                            " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
       strTempList += (strTempList.isEmpty() ? "" : ",\n")
                          + "    " + MVUtil.padEnd(strSeriesField, 20)
                          + statHeaderSqlType.get(strSeriesField);
@@ -2513,8 +2494,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String type = "";
     String table = "";
     String tableBins = "";
-    String binColumnName = null;
-
     if (job.getPlotTmpl().startsWith("relp")) {
       type = "ens";
       table = "line_data_relp";
@@ -2528,22 +2507,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       table = "line_data_phist";
       strWhere = strWhere.replaceAll("h\\.n_bin", "ld.n_bin");
       tableBins = "line_data_phist_bin";
-      binColumnName = "bin_size";
     }
     strWhere = strWhere.replaceAll("h\\.n_" + type, "ld.n_" + type);
     strNumSelect =
-        "SELECT DISTINCT\n"
-            + "  ld.n_" + type + " \n"
-            + "FROM\n"
-            + "  stat_header h,\n"
-            + "  " + table + " ld\n"
-            + "WHERE\n"
-            + strWhere
-            + "  AND h.stat_header_id = ld.stat_header_id;";
+        "SELECT DISTINCT\n" +
+            "  ld.n_" + type + "\n" +
+            "FROM\n" +
+            "  stat_header h,\n" +
+            "  " + table + " ld\n" +
+            "WHERE\n" +
+            strWhere +
+            "  AND h.stat_header_id = ld.stat_header_id;";
 
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + "\n");
-      printStreamSql.flush();
     }
 
 
@@ -2566,33 +2543,28 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  build a query for the rank data
     strWhere = strWhere + strWhereSeries;
     String strPlotDataSelect =
-        "SELECT\n  ldr.i_value,\n";
+        "SELECT\n" +
+            "  ldr.i_value,\n";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
     }
 
-
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value\n";
-
-    if (binColumnName != null) {
-      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + "\n";
-    }
-    strPlotDataSelect = strPlotDataSelect + "FROM\n"
-                            + "  stat_header h,\n"
-                            + "  " + table + " ld,\n"
-                            + "  " + tableBins + " ldr\n"
-                            + "WHERE\n"
-                            + strWhere
-                            + "  AND h.stat_header_id = ld.stat_header_id\n"
-                            + "  AND ld.line_data_id = ldr.line_data_id\n"
-                            + "GROUP BY i_value";
+    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value\n" +
+                            "FROM\n" +
+                            "  stat_header h,\n" +
+                            "  " + table + " ld,\n" +
+                            "  " + tableBins + " ldr\n" +
+                            "WHERE\n" +
+                            strWhere +
+                            "  AND h.stat_header_id = ld.stat_header_id\n" +
+                            "  AND ld.line_data_id = ldr.line_data_id\n" +
+                            "GROUP BY i_value";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
-      printStreamSql.flush();
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -2652,16 +2624,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  check to ensure only a single obs_thresh is used
     String strObsThreshSelect =
-        "SELECT\n  DISTINCT(h.obs_thresh)\n"
-            + "FROM\n"
-            + "  stat_header h,\n"
-            + "  " + (boolRelyPlot || job.getRocPct() ? "line_data_pct" : "line_data_ctc")
-            + " ld\n"
-            + "WHERE\n"
-            + strWhere
-            + "  AND h.stat_header_id = ld.stat_header_id\n"
-            + "ORDER BY h.obs_thresh;";
-
+        "SELECT\n" +
+            "  DISTINCT(h.obs_thresh)\n" +
+            "FROM\n" +
+            "  stat_header h,\n" +
+            "  " + (boolRelyPlot || job.getRocPct() ? "line_data_pct" : "line_data_ctc") + " ld\n" +
+            "WHERE\n" +
+            strWhere +
+            "  AND h.stat_header_id = ld.stat_header_id\n" +
+            "ORDER BY h.obs_thresh;";
 
     if (printStreamSql != null) {
       printStreamSql.println(strObsThreshSelect + "\n");
@@ -2679,14 +2650,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       strFcstThreshSelect = strFcstThreshSelect + "  DISTINCT(h.fcst_thresh) thresh\n";
 
-      strFcstThreshSelect = strFcstThreshSelect
-                                + "FROM\n"
-                                + "  stat_header h,\n"
-                                + "  line_data_pct ld\n"
-                                + "WHERE\n"
-                                + strWhere
-                                + "  AND h.stat_header_id = ld.stat_header_id\n"
-                                + "ORDER BY h.fcst_thresh;";
+      strFcstThreshSelect = strFcstThreshSelect + "FROM\n" +
+                                "  stat_header h,\n" +
+                                "  line_data_pct ld\n" +
+                                "WHERE\n" +
+                                strWhere +
+                                "  AND h.stat_header_id = ld.stat_header_id\n" +
+                                "ORDER BY h.fcst_thresh;";
 
 
       if (printStreamSql != null) {
@@ -2698,69 +2668,54 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  build the plot data sql
       strPlotDataSelect =
-          "SELECT\n  ld.total,\n";
+          "SELECT\n" +
+              "  ld.total,\n";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
-      if (boolRelyPlot) {
-        strPlotDataSelect = strPlotDataSelect
-                                + "  ldt.i_value,\n"
-                                + "  ldt.thresh_i,\n"
-                                + "  ldt.oy_i oy_i,\n"
-                                + "  ldt.on_i on_i\n";
+      strPlotDataSelect = strPlotDataSelect +
 
-        strPlotDataSelect = strPlotDataSelect + "FROM\n"
-                                + "  stat_header h,\n"
-                                + "  line_data_pct ld,\n"
-                                + "  line_data_pct_thresh ldt\n"
-                                + "WHERE\n"
-                                + strWhere
-                                + "  AND h.stat_header_id = ld.stat_header_id\n"
-                                + "  AND ld.line_data_id = ldt.line_data_id;";
+                              "  ldt.i_value,\n" +
+                              "  ldt.thresh_i,\n" +
+                              "  SUM(ldt.oy_i) oy_i,\n" +
+                              "  SUM(ldt.on_i) on_i\n";
 
-      } else {
-        strPlotDataSelect = strPlotDataSelect
-                                + "  ldt.i_value,\n"
-                                + "  ldt.thresh_i,\n"
-                                + "  SUM(ldt.oy_i) oy_i,\n"
-                                + "  SUM(ldt.on_i) on_i\n";
-
-        strPlotDataSelect = strPlotDataSelect + "FROM\n"
-                                + "  stat_header h,\n"
-                                + "  line_data_pct ld,\n"
-                                + "  line_data_pct_thresh ldt\n"
-                                + "WHERE\n"
-                                + strWhere
-                                + "  AND h.stat_header_id = ld.stat_header_id\n"
-                                + "  AND ld.line_data_id = ldt.line_data_id\n"
-                                + "GROUP BY\n"
-                                + "  ldt.thresh_i";
-        if (listSeries.length > 0) {
-          strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
-        }
-        strPlotDataSelect = strPlotDataSelect + ";";
+      strPlotDataSelect = strPlotDataSelect + "FROM\n" +
+                              "  stat_header h,\n" +
+                              "  line_data_pct ld,\n" +
+                              "  line_data_pct_thresh ldt\n" +
+                              "WHERE\n" +
+                              strWhere +
+                              "  AND h.stat_header_id = ld.stat_header_id\n" +
+                              "  AND ld.line_data_id = ldt.line_data_id\n" +
+                              "GROUP BY\n" +
+                              "  ldt.thresh_i";
+      if (listSeries.length > 0) {
+        strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }
+      strPlotDataSelect = strPlotDataSelect + ";";
 
     } else if (job.getRocCtc()) {
 
       strPlotDataSelect =
-          "SELECT\n  h.fcst_thresh thresh,\n";
+          "SELECT\n" +
+              "  h.fcst_thresh thresh,\n";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
-      strPlotDataSelect = strPlotDataSelect + "  ld.total,\n"
-                              + "  SUM(ld.fy_oy) fy_oy,\n"
-                              + "  SUM(ld.fy_on) fy_on,\n"
-                              + "  SUM(ld.fn_oy) fn_oy,\n"
-                              + "  SUM(ld.fn_on) fn_on\n"
-                              + "FROM\n"
-                              + "  stat_header h,\n"
-                              + "  line_data_ctc ld\n"
-                              + "WHERE\n"
-                              + strWhere
-                              + "  AND h.stat_header_id = ld.stat_header_id\n"
-                              + "GROUP BY\n"
-                              + "  h.fcst_thresh";
+      strPlotDataSelect = strPlotDataSelect + "  ld.total,\n" +
+                              "  SUM(ld.fy_oy) fy_oy,\n" +
+                              "  SUM(ld.fy_on) fy_on,\n" +
+                              "  SUM(ld.fn_oy) fn_oy,\n" +
+                              "  SUM(ld.fn_on) fn_on\n" +
+                              "FROM\n" +
+                              "  stat_header h,\n" +
+                              "  line_data_ctc ld\n" +
+                              "WHERE\n" +
+                              strWhere +
+                              "  AND h.stat_header_id = ld.stat_header_id\n" +
+                              "GROUP BY\n" +
+                              "  h.fcst_thresh";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }
@@ -2848,8 +2803,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
                            + "  " + formatField(strSeriesField, false, true);
-      strWhereSeries += "  AND " + formatField(strSeriesField, false, false)
-                            + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
+      strWhereSeries += "  AND " + formatField(strSeriesField, false, false) +
+                            " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
       strTempList += (strTempList.isEmpty() ? "" : ",\n")
                          + "    " + MVUtil.padEnd(strSeriesField, 20)
                          + statHeaderSqlType.get(strSeriesField);
@@ -2872,14 +2827,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     strWhere = strWhere.replaceAll("h\\.n_pnt", "ld.n_pnt");
     String strNumSelect =
-        "SELECT DISTINCT\n"
-            + "  ld.n_pnt\n"
-            + "FROM\n"
-            + "  stat_header h,\n"
-            + "  line_data_eclv ld\n"
-            + "WHERE\n"
-            + strWhere
-            + "  AND h.stat_header_id = ld.stat_header_id;";
+        "SELECT DISTINCT\n" +
+            "  ld.n_pnt\n" +
+            "FROM\n" +
+            "  stat_header h,\n" +
+            "  line_data_eclv ld\n" +
+            "WHERE\n" +
+            strWhere +
+            "  AND h.stat_header_id = ld.stat_header_id;";
 
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + "\n");
@@ -2923,8 +2878,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               serName[serNameInd]));
         } else if (1 > pctThreshInfo.get("numPctThresh")) {
           throw new Exception("invalid number of ECLV pnts (" + pctThreshInfo.get(
-              "numPctThresh") + ") found for" + serName[serNameInd]
-                                  + " = '" + ser.getStr(serName[serNameInd]) + "'");
+              "numPctThresh") + ") found for" + serName[serNameInd] + " = '" + ser.getStr(
+              serName[serNameInd]) +
+                                  "'");
         }
       }
     }
@@ -2946,18 +2902,19 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
     }
 
-    strPlotDataSelect = strPlotDataSelect
-                            + "  ldt.x_pnt_i,\n"
-                            + "  ldt.y_pnt_i \n";
+    strPlotDataSelect = strPlotDataSelect +
 
-    strPlotDataSelect = strPlotDataSelect + "FROM\n"
-                            + "  stat_header h,\n"
-                            + "  line_data_eclv ld,\n"
-                            + "  line_data_eclv_pnt ldt\n"
-                            + "WHERE\n"
-                            + strWhere
-                            + "  AND h.stat_header_id = ld.stat_header_id\n"
-                            + "  AND ld.line_data_id = ldt.line_data_id";
+                            "  ldt.x_pnt_i,\n" +
+                            "  ldt.y_pnt_i \n";
+
+    strPlotDataSelect = strPlotDataSelect + "FROM\n" +
+                            "  stat_header h,\n" +
+                            "  line_data_eclv ld,\n" +
+                            "  line_data_eclv_pnt ldt\n" +
+                            "WHERE\n" +
+                            strWhere +
+                            "  AND h.stat_header_id = ld.stat_header_id\n" +
+                            "  AND ld.line_data_id = ldt.line_data_id";
 
     strPlotDataSelect = strPlotDataSelect + ";";
 
