@@ -682,8 +682,22 @@ public class CBAppDatabaseManager extends MysqlDatabaseManager implements AppDat
    * @return list of database names
    */
   @Override
+
+  //UNIMPLEMENTED FIX THIS
   public List<String> getAllDatabases() {
-    return Collections.unmodifiableList(listDB);
+    List dbs = new ArrayList();
+    return Collections.unmodifiableList(dbs);
+
+  }
+
+  @Override
+  public Map<String, String> getAllDatabasesWithDescription() {
+    return null;
+  }
+
+  @Override
+  public Map<String, List<String>> getAllGroups() {
+    return null;
   }
 
   @Override
