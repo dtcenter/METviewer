@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-m <path to METViewer home>] [-t <path to METViewer test directory>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-a(all)] [test_directory]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-m <path to METViewer home>] [-t <path to METViewer test directory>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [test_directory] [all|plots]" 1>&2; exit 1; }
 export mv_database="mv_test"
 export mv_user="mvuser"
 export mv_pwd="mvuser"
@@ -8,8 +8,8 @@ export mv_host="dakota.rap.ucar.edu"
 export mv_port=3306
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
-all=""
-while getopts "m:t:d:u:p:P:h:j:cnia?" o; do
+param=""
+while getopts "m:t:d:u:p:P:h:j:cn?" o; do
     case "${o}" in
         m)
 			if [ ! -d "${OPTARG}" ]; then
@@ -57,9 +57,6 @@ while getopts "m:t:d:u:p:P:h:j:cnia?" o; do
             ;;
         n)
             NOCLEAN="-DnoClean"
-            ;;
-        a)
-            all=" all"
             ;;
 		?) 
 		usage
@@ -122,35 +119,24 @@ JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE 
 echo "---------"
 
 cd $MV_HOME
-if [ $# -eq 0 ]
-then
+if [ $# -eq 0 ]; then
   echo "Running plots scripts - no params - $*"
     echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
-    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner $all
+    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner 
     ret=$?
 else
   dir="$1"
   mode="$2"
-  if [[ 1 -eq $# ]]
-  then
-    echo "Running plots scripts - 1 param - $*"
+  if [[ $# -eq 1 ]]; then
+    echo "Running with test dir - 1 dir - $dir"
     echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir"
     $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir"
     ret=$?
   else
-    if [[ (2 -eq $#) &&  ($2 == "all") ]]; then
-      echo "Running all scripts - 2 params $dir \(all\) - $*"
-      echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" all
-      $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" all
+      echo "Running test dir and mode $dir $mode"
+      echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" $mode
+      $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" $mode
       ret=$?
-    else
-      if [[ (2 -eq $#) && ($2 == "plots") ]]; then
-        echo "Running plots scripts - 2 params \(plots\) - $*"
-        echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" plots
-        $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunnery "$dir" plots
-        ret=$?
-      fi
-    fi
   fi
 fi
 echo "$0 result is $ret"
