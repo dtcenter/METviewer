@@ -170,17 +170,29 @@ public class TestUtil {
     public static String type = null;
     public static String driver = null;
     public static  String ROOT_DIR;
+    public static  String MV_BRANCH_TAG;
     public static final String RWORK_DIR;
     public static final String PLOTS_DIR;
 
 
+
   static {
+    FILE_SEPARATOR = System.getProperty("file.separator");
+    if (System.getProperty("mv_branch") == null) {
+      MV_BRANCH_TAG = "";
+    } else {
+      if (System.getProperty("mv_tag") == null) {
+        MV_BRANCH_TAG = FILE_SEPARATOR + System.getProperty("mv_branch");
+      } else {
+        MV_BRANCH_TAG = FILE_SEPARATOR + System.getProperty("mv_branch") + FILE_SEPARATOR + System.getProperty("mv_tag");
+      }
+    }
     if (System.getProperty("mv_root_dir") == null) {
       ROOT_DIR = "/d3/projects/METViewer/test_data";
     } else {
-      ROOT_DIR = System.getProperty("mv_root_dir");
+      ROOT_DIR = System.getProperty("mv_root_dir") + MV_BRANCH_TAG;
     }
-    FILE_SEPARATOR = System.getProperty("file.separator");
+
     if (System.getProperty("mv_host") == null) {
       HOST_NAME = "dakota.rap.ucar.edu";
     } else {
