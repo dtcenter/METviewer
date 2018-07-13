@@ -260,6 +260,40 @@ filename "Installation/METViewer_Users_Guide_ROCPlot.lyx"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "Contour/METViewer_Users_Guide_ContourPlot.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "SpreadSkill/METViewer_Users_Guide_SpreadSkillPlot.lyx"
+
+\end_inset
+
+
 \begin_inset Newpage pagebreak
 \end_inset
 

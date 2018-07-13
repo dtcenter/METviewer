@@ -224,11 +224,23 @@ The METViewer tool reads MET verification statistics output from a database
  and creates plots using the R statistical package.
  The tool includes a web application that can be accessed from a web browser
  to create a single plot.
- The specification for each plot is built using a series of controls and
- then serialized into XML.
- For each plot, METViewer generates a SQL query, an R script to create the
- plot, a flat file containing the data that will be plotted and the plot
- itself.
+ The specification for each plot is built using a series of controls which
+ are then serialized into XML.
+ The controls are found in the left half, lower panel, and lower right quadrant
+ of the METViewer browser.
+ Details about these controls are found in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:METViewer User Specifications"
+
+\end_inset
+
+.
+ For each plot, METViewer generates output in the form of a SQL query, an
+ R script to create the plot, a flat file containing the data that will
+ be plotted and the plot itself.
+ This output populates the upper right quadrant of the METViewer database.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -255,11 +267,13 @@ name "sec:METViewer Requirements"
 \begin_layout Standard
 
 \series medium
-Metviewer requires installation of Java, Apache / Tomcat, MySQL, and R statistic
-s .
- 
-\series bold
+METViewer requires installation of Java, Apache / Tomcat, MySQL, and R statistic
+s.
+\end_layout
 
+\begin_layout Standard
+
+\series bold
 \begin_inset Float figure
 placement t
 wide false
@@ -271,7 +285,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename MV_flowchart.png
-	scale 60
+	scale 40
 
 \end_inset
 
@@ -300,6 +314,17 @@ name "Fig_Overview_MET_Overview_Flowchart"
 
 
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+METViewer User Specifications 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:METViewer User Specifications"
 
 \end_inset
 
@@ -364,6 +389,88 @@ Aggregate statistics – accumulates SL1L2 lines or CTC counts prior to calculat
 g the statistics.
 \end_layout
 
+\begin_layout Standard
+Revision statistics - Creates a revision series (e.g.
+ the temporal change in a statistic) 
+\end_layout
+
+\begin_layout Standard
+Series Formatting
+\end_layout
+
+\begin_layout Section
+METViewer Output 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:METViewer Output"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+METViewer output all appears in the tabbed boxes at the top right quadrant
+ of the web browser.
+ The plot will show by default, but the user can click any of the tabs along
+ the top to see the other windows.
+ The tabs include:
+\end_layout
+
+\begin_layout Standard
+XML - This window contains all the code to reproduce the plot.
+ It is recommended that the user save it.
+ It can be reloaded using the 'Load XML' button at the top right of the
+ METViewer web page.
+\end_layout
+
+\begin_layout Standard
+Log - Contains some runtime information regarding input data, run time,
+ and which scripts were called.
+\end_layout
+
+\begin_layout Standard
+R script - Contains the R code used to organize the data and create the
+ plot.
+ This can be easily modified directly by the user to create slightly different
+ plots for alternate purposes.
+\end_layout
+
+\begin_layout Standard
+R data - It is essential that all users look at the contents of this tab.
+ Contained here is the data used to create the plot.
+ Users should check to see if it is correct.
+ Often, a user with limited knowledge of the database may select data in
+ such a way as to combine information in an unintended way.
+ For example, statistics for different event thresholds should not be combined,
+ but if the user fails to select the threshold(s) correctly in the 'fixed
+ values' section of METViewer, the plot will show statistics for the combined
+ data.
+ 
+\end_layout
+
+\begin_layout Standard
+SQL - This tab contains the SQL code used to gather the data for the plot.
+\end_layout
+
+\begin_layout Standard
+Y1 Points - This tab will be blank for several of the plot types.
+ 
+\end_layout
+
+\begin_layout Standard
+Y2 Points - See above.
+\end_layout
+
+\begin_layout Standard
+The rightmost tab is a small square.
+ Clicking here will save the contents of the current window to yoru default
+ (usually 'Downloads') folder.
+ It is recommended that the user click through at least the plot and xml
+ windows and save this output.
+ 
+\end_layout
+
 \begin_layout Section
 Future development plans
 \begin_inset CommandInset label
@@ -378,98 +485,16 @@ name "sec:Future-development-plans"
 \begin_layout Standard
 
 \series medium
-MET is an evolving verification software package.
+METViewer is an evolving verification database and display software package.
  New capabilities are planned in controlled, successive version releases.
- Bug fixes and user-identified problems will be addressed as they are found
- and posted to the known issues section of the MET Users web page (
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-www.dtcenter.org/met/users/support
-\end_layout
-
-\end_inset
-
-).
+ Bug fixes and user-identified problems will be addressed as they are found.
  Plans are also in place to incorporate many new capabilities and options
- in future releases of MET.
- Some of the planned additions are listed below.
+ in future releases of METViewer.
+ Additionally, updates to accommodate new features of the MET software are
+ often required.
+ 
 \end_layout
 
-\begin_layout Standard
-Additional analysis capabilities and plotting routines
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Post to the MET website sample analysis and plotting routines that may include
-\series default
-
-\begin_inset Separator latexpar
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-
-\series medium
-Boxplots
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Discrimination plots
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Reliability diagrams
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Scatter/density plots
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Color-fill/contour maps of statistics
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Height series
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Histograms
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Taylor diagrams
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Performance diagrams
-\end_layout
-
-\end_deeper
 \begin_layout Section
 Code support
 \begin_inset CommandInset label
