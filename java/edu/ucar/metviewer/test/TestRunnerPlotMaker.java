@@ -24,14 +24,10 @@ public class TestRunnerPlotMaker {
 
         Result result;
         List<Failure> failureListLoadDataTest = null;
-//    if (args.length > 0 ) {
-//      TestUtil.ROOT_DIR = args[0];
-//    }
         cleanWorkingDirs();
-        if (args.length > 1 && args[1].equals("all")) {
+        if (System.getProperty("load_data") != null) {
             result = JUnitCore.runClasses(LoadDataTest.class);
             failureListLoadDataTest = result.getFailures();
-
         }
 
         result = JUnitCore.runClasses(CreatePlotBatchTest.class);

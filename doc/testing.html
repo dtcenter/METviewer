@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="mv_doc.css"/>
     <link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 </head>
-<body>
+<p>
 
 <p class="loc" style="padding-top:10px">
     <b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Database
@@ -13,28 +13,188 @@
 <hr/>
 
 <h2>METViewer Documentation - Testing Module</h2>
+<h3>Testing - capture</h3>
+<p>The testing modual is used to execute the regression testing of a specified
+    version of METViewer. The capture tool is invoked by using the mv_test script.
+    During test capture, system or processing errors will be reported but images and data are not verified.
+    Verification of data or images is performed by the mv_compare script.
+</p>
+<p>
+    Capture and Verification are performed against a specified metviewer branch and tag. It is expected that the proper branch or tag has been
+    previously fetched or cloned and checked out into the METViewer home directory that is specified with -m (the auto test script does check out specific code
+    and then runs test capture and compare - see below). The METViewer test directory should also be a subdirectory that corresponds to the proper branch and
+    tag, with an output directory that will contain the captured images, scripts and data for a given test run,
+    along with the corresponding test_data (use case xml files) and load data (load specification xml files). The actual load data files are not
+    yet source controlled and so they are linked from the path to the met data that is specified with the -l option. The auto_test script takes branch
+    and tag parameters and creates the proper test subdirectory and reconciles properly with the remote repository. All the mv_test script needs is the
+    proper test subdirectory.
+</p>
+<h5>NOTE ABOUT GIT TAGS</h5>
+<p>
+    A short discussion of METViewer git tags is appropriate here. Git tags are not directly related to any git branches. They are different things. A git tag simply refers to a
+    specific commit to the git repository. The branches that existed at the time of the tagging could all be deleted (except for the master) and the tag would still
+    be a vlaid tag. For our purposes we name tags after our branches, i.e. MV_2_6_tagname or something like that. This creates an mnemonic
+    relationship to a branch. Furthermore we only create tags after a commit to a specific branch that we then reference in the tag name. That tagged commit is
+    a special point in the history of the repository, a point that we wanted to capture with a name on behalf of a branch. Specifying the tag and branch here
+    allows us to set the repository pointer to the specific commit that we wanted to capture for a given branch. Including a branch name is only a mnemonic that
+    reminds us which branch we were setting the tag on behalf of. The mnemonic allows us to organize our tests for regression checking against special times in
+    the repository commit history.
+</p>
+<p>
+    NOTE that since we want to do binary comparisons on captured test data the test data is saved in a directory structure that
+    is mnemonically tied to the product branches or tags. The METViewer code under test is only ever checked out to one specific branch HEAD, or to a tag point, at a time.
+    Its produced data and images may be compared, however, to data that was captured by a different version or tag point of METViewer code.
 
-<p>The testing modual is used to execute the regression testing of the current
-    version of METViewer. The tool is invoked by using the mv_test script. The
-    usage statement:</p>
+    This test directory structure might look like this, for example...
+    <pre>
+        METVIEWER_TEST_DIR/
+            MV_2_5/
+                HEAD/
+                    test_data/
+                        test_cases
+                            diff_grouping
+                                xml plot specification file
+                            ens_ss
+                                xml plot specification file
+                            loading
+                                xml plot specification file
+                            phist
+                                xml plot specification file
+                            plot_afwa_thresh
+                                xml plot specification file
+                            rely
+                                xml plot specification file
+                            rhist
+                                xml plot specification file
+                            series_sum_stat
+                                xml plot specification file
+                    met_data
+                        ens_vsdb
+                            data dirs
+                        noahmp
+                            data dirs
+                        precip_vsdb
+                            data dirs
+                        meso_vsdb
+                            data dirs
+                        grid_stat
+                            data dirs
+                        afwaoc
+                            data dirs
+                        point_stat
+                            data dirs
+                        ensemble_stat
+                            data dirs
+                    load_data
+                        load
+                            mv_mysql.sql
+                            load_test.xml
+                    output
+                        data/
+                            generated data files
+                        plots/
+                            generated image files
+                        scripts/
+                            generated script files
+                        sql/
+                            generated sql files
+                        xml/
+                            generated xml files
+                    R_work/
+                            generated R scripts
+                    R_tmpl   (link to METViewer R_tmpl)
+                TAG1/
+                    ....
+                TAG2/
+                    ....
+            MV_2_6/
+                ....
+    </pre>
+</p>
+<h3>Testing - verify</h3>
+<p>
+    The mv_compare script accepts a branch and a tag that it uses to identify a test subdirectory and a second "expected" branch and
+    tag that it uses to identify a comparison test directory. If tags are ommited the HEAD is used.
+    The compare script looks for corresponding image files in the corresponding plots directories and does a binary comparison of
+    the corresponding files. Differences will be reported as errors.
+</p>
+<h3>auto test</h3>
+<p>
+    The auto_test script defines the branch, optionally a tag, directories, and database credentials for a version under test
+    and a comparison version. It performs the following steps...
+    <ul>
+        <li>Remove any METViewer directory and METViewerTestSource directory</li>
+        <li>Do a git clone into the METViewer home directory and checkout the corresponding branch or tag</li>
+        <li>Do a git clone of the METViewer testing repository into the METViewerTestSource directory (this is not the test directory)</li>
+        <li>If needed create a METVIEWER_TEST_DIR subdirectory for the specified branch and load common data from the METViewerTestSource into it</li>
+        <li>Run the testing capture program to capture test data for the specified branch, and copy the data to the corresponding test subdirectory</li>
+        <li>Run the testing verify program to verify the images in the two corresponding test subdirectories</li>
+    </ul>
+</p>
+<p class="term">
+    ---- Auto Test ----<br/><br/>
+    Usage: auto_test.sh  -U &#60git user&#62 -t&#60path to METViewer test directory&#62 -b&#60git branch&#62 -B&#60compare git branch&#62 -l&#60path to met data&#62 -d&#60mv_database&#62 -m&#60path to METViewer home&#62  [-a address list] [-g&#60git tag&#62] [-G&#60compare git tag&#62] [-u&#60mv_user&#62] [-p&#60mv_passwd&#62] [-h&#60mv_host&#62] [-P&#60mv_port&#62] [-j&#60path to java executible&#62]<br/><br/>
+    Where:<br/>
+    -U &#60git user with access to github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git&#62 <br/>
+    -t &#60path to METViewer test directory&#62 <br/>
+    -b &#60git branch&#62 <br/>
+    -B &#60compare git branch&#62 <br/>
+    -l &#60path to met data&#62 causes the LoadDataTest submodule to be executed, gets met data from specified path </br>
+    -d &#60mv_database&#62 <br/>
+    -m &#60path to METViewer home&#62<br/>
+    [-a &#60address list&#62] commas separated email addresses - default sends output to console<br/>
+    [-g &#60git tag&#62] default is HEAD<br/>
+    [-G &#60compare git tag&#62] default is HEAD<br/>
+    [-u &#60mv_user&#62] default is mvuser<br/>
+    [-p &#60mv_passwd&#62] default is mvuser<br/>
+    [-h &#60mv_host&#62] default is dakota.rap.ucar.edu<br/>
+    [-P &#60mv_port&#62] default is 3306<br/>
+    [-j &#60path to an alternate java executible&#62] default is found in PATH environment <br/>
+    ---- Auto Test Done ----<br/>
+</p>
 
 <p class="term">
-    ---- Testing ----<br/><br/>
-    Usage: mv_test&nbsp;[all]<br/>
-    &nbsp;&nbsp;"all" indicates that LoadDataTest submodual will be executed in
-    addition to the plot creation testing (takes longer)<br/><br/>
-    ---- Testing Done ----<br/>
+    ---- Capture ----<br/><br/>
+    Usage: mv_test.sh  -t&#60path to METViewer test directory&#62 -b&#60git branch&#62 [-g&#60git tag&#62] [-m&#60path to METViewer home&#62] [-d&#60mv_database&#62] [-u&#60mv_user&#62] [-p&#60mv_passwd&#62] [-h&#60mv_host&#62] [-P&#60mv_port&#62] [-j&#60path to java executible&#62] [-c] [-n] [-l]<br/><br/>
+    Where:<br/>
+    -t &#60path to METViewer test directory&#62 <br/>
+    [-m &#60path to METViewer home&#62] default is /d3/projects/METViewer/src_dev/apps/METViewer<br/>
+    [-d &#60mv_database&#62] default is mv_test<br/>
+    [-u &#60mv_user&#62] default is mvuser<br/>
+    [-p &#60mv_passwd&#62] default is mvuser<br/>
+    [-h &#60mv_host&#62] default is dakota.rap.ucar.edu<br/>
+    [-P &#60mv_port&#62] default is 3306<br/>
+    [-j &#60path to an alternate java executible&#62] default is found in PATH environment <br/>
+    [-n] causes no clean - i.e. test created data and plots will remain after the test completes, default is to clean prior to and after running<br/>
+    [-l] causes the LoadDataTest submodule to be executed, default is to not load data, gets met data from METViewer test directory meta_data<br/>
+    [-c] Captures created output data and copies it into the test directory. Prior to doing this the compare will fail
+    [-X] Do not compare output automatically - only create images
+    <br/><br/>
+    ---- capture Done ----<br/>
+</p>
+
+<p class="term">
+    ---- Verify ----<br/><br/>
+    Usage: mv_compare.sh [-b&#60git branch&#62] [-g&#60git tag&#62] [-B&#60compare git branch&#62] [-G&#60expected git tag&#62] [-m&#60path to METViewer home&#62] [-t&#60path to METViewer test directory&#62]  [-j&#60path to java executible&#62]<br/>
+    Where:<br/>
+    -t &#60path to METViewer test directory&#62 <br/>
+    -b &#60git branch&#62 <br/>
+    -B &#60compare git branch&#62 <br/>
+    [-g &#60git tag&#62] default is HEAD<br/>
+    [-G &#60expected git tag&#62] default is HEAD<br/>
+    [-m &#60path to METViewer home&#62] default is /d3/projects/METViewer/src_dev/apps/METViewer<br/>
+    [-j &#60path to an alternate java executible&#62] default is found in PATH environment <br/>
+    <br/><br/>
+    ---- Verify Done ----<br/>
 </p>
 
 <p>
-    Testing module produces output files (images, points, XML, data) and
-    compare them with the expected output. In order to test be passes, produced
-    and expected files should be identical.<br/>
-    <b style="color:#666666">NOTE:</b> R script makes visually identical but
+    The testing and compare modules produce output files (images, points, XML, data) and
+    compares them with the expected output. In order for tests to pass, produced
+    and expected files should be byte identical.<br/>
+    <b style="color:#666666">NOTE:</b> R scripts create visually similar results but
     bitwise different image files on different platforms.<br/><br/>
-
     Testing submoduals:
-
 
 <ul>
     <li><span class="code">LoadDataTest</span> recreates and refills mv_test
@@ -44,10 +204,18 @@
                 class="code">&lt;test_dir&gt;</span>/load_data directory
     </li>
     <br/>
-
     <li><span class="code">CreatePlotBatchTest</span> runs MVBatch with testing
-        plot specification files and compare produces output files with the
-        expected output.<br/>
+        plot specification files and creates output files with the
+        expected output. Any errors encountered with creating plots will be reported. Images are not compared<br/>
+        &nbsp;&nbsp;plot specification files and expected output are located in
+        <span class="code">&lt;test_dir&gt;</span>/plots_batch/&lt;test_type&gt;
+        directory
+    </li>
+    <br/>
+    <li><span class="code">ComparePlotBatchTest</span> Produces output files with the
+        expected output in the testdir/branch_actual/tag_actual directory and compares them with the
+        output in the testdir/branch_expected/tag_expected directory.<br/>
+        These directories are specified by the testdir, branch, tag, expected_branch, and expected_tag options.
         &nbsp;&nbsp;plot specification files and expected output are located in
         <span class="code">&lt;test_dir&gt;</span>/plots_batch/&lt;test_type&gt;
         directory

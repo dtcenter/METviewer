@@ -63,14 +63,30 @@ public class TestUtil {
 
     @Override
     public String getActualDir() {
-      return PLOTS_DIR;
+      return ROOT_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
     }
+  };
+  private static final CustomFilenameFilter COMPARE_XML_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".xml";
+    }
+
+    @Override
+    public String getActualDir() { return ROOT_COMPARE_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases"; }
   };
   public static final FilenameFilter DIRECTORY_FILTER = new FilenameFilter() {
     @Override
     public boolean accept(File current, String name) {
       File f = new File(current, name);
       return f.isDirectory() && f.list(XML_FILES_FILTER).length > 0;
+    }
+  };
+  public static final FilenameFilter COMPARE_DIRECTORY_FILTER = new FilenameFilter() {
+    @Override
+    public boolean accept(File current, String name) {
+      File f = new File(current, name);
+      return f.isDirectory() && f.list(COMPARE_XML_FILES_FILTER).length > 0;
     }
   };
   private static final CustomFilenameFilter SQL_FILES_FILTER = new CustomFilenameFilter() {
@@ -170,17 +186,21 @@ public class TestUtil {
     public static String type = null;
     public static String driver = null;
     public static  String ROOT_DIR;
+    public static  String ROOT_COMPARE_DIR;
+    public static  String MV_BRANCH_TAG;
     public static final String RWORK_DIR;
     public static final String PLOTS_DIR;
 
 
   static {
+    FILE_SEPARATOR = System.getProperty("file.separator");
     if (System.getProperty("mv_root_dir") == null) {
       ROOT_DIR = "/d3/projects/METViewer/test_data";
     } else {
-      ROOT_DIR = System.getProperty("mv_root_dir");
+      ROOT_DIR = System.getProperty("mv_root_dir");  // This is the test dir/branch/tag
     }
-    FILE_SEPARATOR = System.getProperty("file.separator");
+    ROOT_COMPARE_DIR = System.getProperty("mv_root_compare_dir"); // used for comparing test results to previous captured data
+
     if (System.getProperty("mv_host") == null) {
       HOST_NAME = "dakota.rap.ucar.edu";
     } else {
@@ -193,9 +213,12 @@ public class TestUtil {
     }
     host = HOST_NAME + ":" + PORT;
     RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
-    PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
-    DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
-    SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
+    //PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
+    PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR +  "plots";
+    //DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
+    DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data";
+    //SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
+    SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts";
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
     MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
     if (System.getProperty("mv_database") == null) {
