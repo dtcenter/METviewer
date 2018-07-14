@@ -39,7 +39,7 @@ if [ $# -ne 0 ]; then
 fi
 addressList=$1 # who to notify with results
 METViewerDir=~/METViewer # your directory to hold metviewer code
-METViewerBranch=mv_2_5_dev  # branch under test
+METViewerBranch=mv_2_6_dev  # branch under test
 METViewerTestDir=~/METViewerTest # directory to hold test code
 MET_DATA_DIR=/home/someuser/METViewerTestData/met_data # directory that holds the met data for the load test
 mv_test_db=mv_test  # metviewer test directory
