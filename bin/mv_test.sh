@@ -122,7 +122,7 @@ cd $MV_HOME
 if [ $# -eq 0 ]; then
   echo "Running plots scripts - no params - $*"
     echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
-    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner
+    $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner 
     ret=$?
 else
   dir="$1"
@@ -136,9 +136,9 @@ else
       echo "Running test dir and mode $dir $mode"
       echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" $mode
       $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner "$dir" $mode
-        ret=$?
-      fi
-    fi
+      ret=$?
+  fi
+fi
 echo "$0 result is $ret"
 exit $ret
 
