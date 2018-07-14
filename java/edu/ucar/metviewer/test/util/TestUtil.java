@@ -379,6 +379,21 @@ public class TestUtil {
 
   }
 
+  public static void captureCreatedImages(String testDataDir, String plotType) {
+    //get all test results datafiles
+    File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
+    File actualFileDir = new File(PLOT_FILES_FILTER.getActualDir());
+    File[] newGeneratedFiles = actualFileDir.listFiles(PLOT_FILES_FILTER);   // this assumes that the PLOTS directory was cleaned each time
+    for (int i = 0; i < newGeneratedFiles.length; i++) {
+      out.println("copying image " + newGeneratedFiles[i].getAbsolutePath() + " to " + dir.getAbsolutePath());
+      try {
+        FileUtils.copyFileToDirectory(newGeneratedFiles[i], dir);
+      } catch (Exception e) {
+        fail("Failed to capture image : " + newGeneratedFiles[i].getAbsolutePath() + " with error: " + e.getMessage());
+      }
+    }
+  }
+
 
   public static void comparePlotFilesWithNames(String testDataDir, String plotType) {
     compareBinaryFiles(testDataDir, plotType, true, true, PLOT_FILES_FILTER);
@@ -393,14 +408,17 @@ public class TestUtil {
       compareBinaryFilesBySize(testDataDir, plotType, PLOT_FILES_FILTER);
   }
 
-  /**
-   * Compare the number of files, names (if requested) and contents
-   *
-   * @param testDataDir    - expected files root dir
-   * @param plotType       - use case
-   * @param isCompareNames - should the name comparison be executed
-   * @param filter         - custom file filter to use
-   */
+  public static void compareBinaryTestFiles(String testDataDir, String compareDataDir, String plotType) {
+    compareBinaryTestFiles(testDataDir, compareDataDir, plotType,true, true, PLOT_FILES_FILTER);
+  }
+    /**
+     * Compare the number of files, names (if requested) and contents
+     *
+     * @param testDataDir    - expected files root dir
+     * @param plotType       - use case
+     * @param isCompareNames - should the name comparison be executed
+     * @param filter         - custom file filter to use
+     */
   private static void compareTextFiles(String testDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
     //get all test results datafiles
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
@@ -492,21 +510,37 @@ public class TestUtil {
           areTheSame = bufferedImagesEqual(expectedImg, actualImg);
         } catch (IOException e) {
         }
-        if (System.getProperty("captureCreatedImages") != null) {
-            if (!areTheSame) {
-                out.println ("copying image " + actualFile.getAbsolutePath() + " to " + expectedFiles[i].getAbsolutePath());
-                try {
-                    FileUtils.copyFile(actualFile, expectedFiles[i]);
-                } catch (Exception e) {
-                    fail("Failed to capture image : " + actualFile.getAbsolutePath() + " with error: " + e.getMessage());
-                }
-            }
-        }
         assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " must be identical but they are not", areTheSame);
       }
     }
-
   }
+
+  private static void compareBinaryTestFiles(String testDataDir, String compareDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
+    //get all test results datafiles
+    File testDir = new File(testDataDir + FILE_SEPARATOR + plotType);
+    File compDir = new File(compareDataDir + FILE_SEPARATOR + plotType);
+    File[] expectedFiles = compDir.listFiles(filter);
+    for (int i = 0; i < expectedFiles.length; i++) {
+      File actualFile = new File(testDir + "/" + expectedFiles[i].getName());
+      if (isCompareNames) {
+        assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
+      }
+      if (isCompareContent) {
+        BufferedImage expectedImg = null;
+        BufferedImage actualImg = null;
+        boolean areTheSame = false;
+        try {
+          expectedImg = ImageIO.read(expectedFiles[i]);
+          actualImg = ImageIO.read(actualFile);
+          areTheSame = bufferedImagesEqual(expectedImg, actualImg);
+        } catch (IOException e) {
+        }
+        assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " in dir " + testDir.getAbsolutePath() + " must be identical to a file in " + compDir.getAbsolutePath() + " but is not", areTheSame);
+      }
+    }
+  }
+
+
 
   /**
    * Reads the content of the file to a string

@@ -46,33 +46,29 @@ public class ComparePlotBatchTest {
     if (!file.exists()) {
       throw new Exception(testDataDir + " doesn't exist.");
     }
-    // does the testCompareDataDir directory exist and does it have any files and are any of them .xml files?
+    // does the testDataDir directory exist and does it have any files and are any of them .xml files?
     String[] directories = file.list(DIRECTORY_FILTER);
-    Collection<String[]> plots = new ArrayList<>();
+    Collection<String[]> testPlots = new ArrayList<>();
     for (String directory : directories) {
-      plots.add(new String[]{directory});
+      testPlots.add(new String[]{directory});
     }
-    if (plots.isEmpty()) {
+    if (testPlots.isEmpty()) {
       throw new Exception(testDataDir + " doesn't have any test cases.");
     }
-    // does the testDataDir directory exist and does it have any files and are any of them .xml files?
-    String[] comparerDirectories = file.list(COMPARE_DIRECTORY_FILTER);
+    // does the testCompareDataDir directory exist and does it have any files and are any of them .xml files?
+    String[] compareDirectories = file.list(COMPARE_DIRECTORY_FILTER);
     Collection<String[]> comparePlots = new ArrayList<>();
-    for (String directory : directories) {
+    for (String directory : compareDirectories) {
       comparePlots.add(new String[]{directory});
     }
     if (comparePlots.isEmpty()) {
       throw new Exception(testDataDir + " doesn't have any test cases.");
     }
-    return plots;
+    return testPlots;
   }
 
   @Test
   public void compareOutputFiles() {
-      if (!"ens_ss".equals(plotType)) {
-        comparePointsFilesWithNames(testDataDir, "1", plotType);
-        comparePointsFilesWithNames(testDataDir, "2", plotType);
-      }
-      comparePlotFilesWithNames(testDataDir, plotType);
+    compareBinaryTestFiles(testDataDir, testCompareDataDir,plotType);
   }
 }

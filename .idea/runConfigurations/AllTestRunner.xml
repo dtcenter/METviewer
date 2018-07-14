@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="edu.ucar.metviewer.test.AllTestRunner" />
     <module name="METViewer" />
     <option name="PROGRAM_PARAMETERS" value="/tmp/" />
-    <option name="VM_PARAMETERS" value="-ea -Dmv_root_dir=/tmp/METViewerTest/mv_2_5/HEAD -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dlog4j.configurationFile=file:${HOME}/IdeaProjects/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -Dmv_port=3306 -DnoClean -DnoCompare -DcaptureCreatedImages=yes" />
+    <option name="VM_PARAMETERS" value="-ea -Dmv_root_dir=/tmp/METViewerTest/mv_2_5/HEAD -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dlog4j.configurationFile=file:${HOME}/IdeaProjects/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -Dmv_port=3306 -DcaptureCreatedImages=yes" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <extension name="coverage">
       <pattern>

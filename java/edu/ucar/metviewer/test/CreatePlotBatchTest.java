@@ -22,6 +22,9 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 import static edu.ucar.metviewer.test.util.TestUtil.comparePlotFilesWithNames;
 import static edu.ucar.metviewer.test.util.TestUtil.comparePointsFilesWithNames;
 import static edu.ucar.metviewer.test.util.TestUtil.runBatch;
+import static edu.ucar.metviewer.test.util.TestUtil.captureCreatedImages;
+
+
 
 /**
  * Run batch mode tests
@@ -68,17 +71,29 @@ public class CreatePlotBatchTest {
 
   @Before
   public void runScript() {
+    if (System.getProperty("captureCreatedImages") != null) {
+      // if we are capturing images we have to clean the working dir each run
+      // because there are potentially multiple images created for each plotType
+      // i.e. a test case can cause some number of images to be created
+      // and we don't know how many.
+      // METViewer doesn't create multiple output plot directories so
+      // all of the generated plots are in the same output directory.
+      // we have to take them all if we are capturing images.
+      cleanWorkingDirs();
+    }
     runBatch(testDataDir, plotType);
   }
 
   @Test
   public void compareOutputFiles() {
-    if (System.getProperty("noCompare") == null) {
+    if (System.getProperty("captureCreatedImages") == null) {
       if (!"ens_ss".equals(plotType)) {
         comparePointsFilesWithNames(testDataDir, "1", plotType);
         comparePointsFilesWithNames(testDataDir, "2", plotType);
       }
       comparePlotFilesWithNames(testDataDir, plotType);
+    } else {
+        captureCreatedImages(testDataDir, plotType);
     }
   }
 

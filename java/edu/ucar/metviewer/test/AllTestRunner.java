@@ -24,6 +24,8 @@ public class AllTestRunner {
 
     Result result;
     List<Failure> failureListLoadDataTest = null;
+    List<Failure> failureListCreatePlotBatchTest = null;
+    List<Failure> compareListCreatePlotBatchTest = null;
 
     cleanWorkingDirs();
     if (System.getProperty("loadData") != null) {
@@ -31,9 +33,15 @@ public class AllTestRunner {
       failureListLoadDataTest = result.getFailures();
     }
 
-    result = JUnitCore.runClasses(CreatePlotBatchTest.class);
-    List<Failure> failureListCreatePlotBatchTest = result.getFailures();
-
+    if (System.getProperty("compareOnly") == null) {
+      // really test
+      result = JUnitCore.runClasses(CreatePlotBatchTest.class);
+      failureListCreatePlotBatchTest = result.getFailures();
+    } else {
+      // compare only - ROOT_DIR and ROOT_COMPARE_DIR specify what to compare
+      result = JUnitCore.runClasses(ComparePlotBatchTest.class);
+      compareListCreatePlotBatchTest = result.getFailures();
+    }
 
     result = JUnitCore.runClasses(TestMVServlet.class);
     List<Failure> failureListTestMVServlet = result.getFailures();
