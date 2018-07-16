@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The METViewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
-usage() { echo "Usage: $0 -t <path to METViewer test directory> [-m <path to METViewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)] [-X do not compare]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -t <path to METViewer test directory> [-m <path to METViewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)]" 1>&2; exit 1; }
 export MV_DATABASE="mv_test"
 export MV_USER="mvuser"
 export MV_PASSWD="mvuser"
@@ -10,8 +10,7 @@ export MV_PORT=3306
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
-export NOCOMPARE=""
-while getopts "t:m:d:u:p:P:h:j:cnlX?" o; do
+while getopts "t:m:d:u:p:P:h:j:cnl?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -62,9 +61,6 @@ while getopts "t:m:d:u:p:P:h:j:cnlX?" o; do
             ;;
         l)
             LOADDATA="-DloadData"
-            ;;
-        X)
-            NOCOMPARE="-DnoCompare"
             ;;
 		?)
 		usage
