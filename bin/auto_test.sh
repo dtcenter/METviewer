@@ -214,7 +214,7 @@ cd $cdir
 # and the mv_mysql.sql is delivered in the METViewer code
 # and the mv_load.xml is checked into the test cases and must be moved here for the load test. It is needed for the load test but causes failures in mv_test where it is currently checked in
 # This should probably all be straightened out a little but for now we fix it up here.
-ln -sf ${MET_DATA_DIR} ${METViewerBranchTestDir}
+ln -sf ${MET_DATA_DIR}/met_data ${METViewerBranchTestDir}
 mkdir -p ${METViewerBranchTestDir}/load_data/load/
 cp ${METViewerDir}/sql/mv_mysql.sql  ${METViewerBranchTestDir}/load_data/load
 cp ${METViewerBranchTestDir}/test_data/test_cases/loading/load_test.xml ${METViewerBranchTestDir}/load_data/load
