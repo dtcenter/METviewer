@@ -17,17 +17,18 @@
 <p>The testing modual is used to execute the regression testing of a specified
     version of METViewer. The capture tool is invoked by using the mv_test script.
     During test capture, system or processing errors will be reported but images and data are not verified.
-    Verification of data or images is performed by the mv_compare script.
+    Verification of data or images is performed by the mv_compare script. The mv_test script essentially generates output files and
+    copies them from the output directory to the appropriate directory test_cases directory.
 </p>
 <p>
     Capture and Verification are performed against a specified metviewer branch and tag. It is expected that the proper branch or tag has been
     previously fetched or cloned and checked out into the METViewer home directory that is specified with -m (the auto test script does check out specific code
     and then runs test capture and compare - see below). The METViewer test directory should also be a subdirectory that corresponds to the proper branch and
-    tag, with an output directory that will contain the captured images, scripts and data for a given test run,
+    tag, with an output directory that will contain the generated images, scripts and data for a given test run,
     along with the corresponding test_data (use case xml files) and load data (load specification xml files). The actual load data files are not
     yet source controlled and so they are linked from the path to the met data that is specified with the -l option. The auto_test script takes branch
     and tag parameters and creates the proper test subdirectory and reconciles properly with the remote repository. All the mv_test script needs is the
-    proper test subdirectory.
+    proper test subdirectory. Successfully generated output images will be copied to the appropriate test_cases directory.
 </p>
 <h5>NOTE ABOUT GIT TAGS</h5>
 <p>
@@ -53,21 +54,29 @@
                     test_data/
                         test_cases
                             diff_grouping
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             ens_ss
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             loading
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             phist
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             plot_afwa_thresh
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             rely
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             rhist
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                             series_sum_stat
-                                xml plot specification file
+                                xml plot specification files
+                                expected .png files
                     met_data
                         ens_vsdb
                             data dirs
@@ -93,7 +102,7 @@
                         data/
                             generated data files
                         plots/
-                            generated image files
+                            generated .png files
                         scripts/
                             generated script files
                         sql/
@@ -212,13 +221,11 @@
         directory
     </li>
     <br/>
-    <li><span class="code">ComparePlotBatchTest</span> Produces output files with the
-        expected output in the testdir/branch_actual/tag_actual directory and compares them with the
-        output in the testdir/branch_expected/tag_expected directory.<br/>
-        These directories are specified by the testdir, branch, tag, expected_branch, and expected_tag options.
+    <li><span class="code">ComparePlotBatchTest</span> \compares a test ROOT_DIR with a test COMPARE+DIR <br/>
+        These directories are specified by the testdir and compare dir.
         &nbsp;&nbsp;plot specification files and expected output are located in
-        <span class="code">&lt;test_dir&gt;</span>/plots_batch/&lt;test_type&gt;
-        directory
+        <span class="code">&lt;test_dir&gt;</span>/test_data_test_cases/&lt;test_type&gt;
+        directories.
     </li>
     <br/>
     </li>
