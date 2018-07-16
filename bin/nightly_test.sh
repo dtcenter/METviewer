@@ -13,7 +13,7 @@
 #met_data/ensemble_stat
 # your met_data directory might be named something else so you have to set it in the "modify these" variables section.
 
-# The two directories named in 
+# The two directories named in
 # METViewerDir=~/METViewer
 # and METViewerTestDir=~\METViewerTest
 # WILL BE ERASED AND REBUILT from the github source
@@ -23,9 +23,9 @@
 # or with an ssh key or something. You won't be there to type the password...
 
 # How to use this...
-# 1) Make sure that you have a credentialed user for access to 
+# 1) Make sure that you have a credentialed user for access to
 # 	github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git
-#	and that you put the credentials into a git store for your user. Alternatively you could use ssh keys, 
+#	and that you put the credentials into a git store for your user. Alternatively you could use ssh keys,
 #	which might require a few modifications here.
 # 2) modify the "modify these" variables below as necessary - remember these directories WILL BE OVERWRITTEN.
 # 3) modify the "mv_test" parameters per the usage in mv_test.sh
@@ -97,7 +97,7 @@ if [ $ret -ne 0 ]; then
 	#send a note
 	if [ "X$addressList" != "X" ]; then
 		cat $logfile | mail -s "nightly_${METViewerBranch} ant clean failed with ret code $ret - here is the log file" $addressList
-	else 
+	else
 		echo "nightly_${METViewerBranch} ant clean failed with return code $ret logfile $(hostname):$logfile"
 		cat $logFile
 	fi
@@ -109,7 +109,7 @@ if [ $ret -ne 0 ]; then
 	#send a note
 	if [ "X$addressList" != "X" ]; then
 		cat $logfile | mail -s "nightly_${METViewerBranch} ant all failed with ret code $ret - here is the log file" $addressList
-	else 
+	else
 		echo "nightly_${METViewerBranch} ant all failed with return code $ret logfile $(hostname):$logfile"
 		cat $logFile
 	fi
@@ -120,11 +120,11 @@ fi
 #send a note
 if [ "X$addressList" != "X" ]; then
 	echo "running /bin/sh ${METViewerDir}/bin/mv_test.sh -m ${METViewerDir} -t ${METViewerTestDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port}  ${METViewerTestDir} all"
-	/bin/sh ${METViewerDir}/bin/mv_test.sh -m ${METViewerDir} -t ${METViewerTestDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port}  ${METViewerTestDir} all > ${logfile} 
+	/bin/sh ${METViewerDir}/bin/mv_test.sh -m ${METViewerDir} -t ${METViewerTestDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port}  ${METViewerTestDir} all > ${logfile}
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METViewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
-else 
+else
 	echo "running /bin/sh ${METViewerDir}/bin/mv_test.sh -m ${METViewerDir} -t ${METViewerTestDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port}  ${METViewerTestDir} all"
 	/bin/sh ${METViewerDir}/bin/mv_test.sh -m ${METViewerDir} -t ${METViewerTestDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port}  ${METViewerTestDir} all
 	ret=$?
@@ -132,4 +132,4 @@ else
 fi
 exit $ret
 
-	
+
