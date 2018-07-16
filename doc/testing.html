@@ -139,6 +139,16 @@
         <li>Run the testing capture program to capture test data for the specified branch, and copy the data to the corresponding test subdirectory</li>
         <li>Run the testing verify program to verify the images in the two corresponding test subdirectories</li>
     </ul>
+<p>
+    auto_test example:  ./bin/auto_test.sh -Usomegituser -t/myhomedir/METViewerTest -bmv_2_5_dev -Bmv_2_5_dev -l/myhomedir/METViewerTestData -dmydb -umet_admin -m/myhomedir/METViewer -pdppassword -hdphost -P3306
+</p>
+<p>
+    mv_test example:
+    /bin/sh ./bin/mv_test.sh -t/myhomedir/METViewerTest/mv_2_5_dev/HEAD -m/myhomedir/METViewer -dmydb -umet_admin -pdppassword -hdphost -P3306 -l -c
+</p>
+<p>
+    mv_compare example:
+    /bin/sh ./bin/mv_compare.sh  -m /myhomedir/METViewer -t /myhomedir/METViewerTest/mv_2_5_dev/HEAD -c /myhomedir/METViewerTest/mv_2_5_dev/HEAD
 </p>
 <p class="term">
     ---- Auto Test ----<br/><br/>

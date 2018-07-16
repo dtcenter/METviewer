@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The METViewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
-usage() { echo "Usage: $0 -t <path to METViewer test directory> -c <path to METViewer test compare directory>" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -t <path to METViewer test directory> -m <path to METViewer home> -c <path to METViewer test compare directory>" 1>&2; exit 1; }
 while getopts "t:c:m:j:?" o; do
     case "${o}" in
         t)
@@ -51,6 +51,20 @@ $JAVA -version
 if [ "$?" -ne "0" ]; then
    echo "You do not have a java executible in your path";
    exit 1;
+fi
+
+if [ -z ${MV_HOME+x} ]; then
+	echo "MV_HOME is unset"
+	usage
+fi
+if [ -z ${MV_TEST_HOME+x} ]; then
+	echo "MV_TEST_HOME is unset"
+	usage
+fi
+
+if [ -z ${MV_TEST_COMPARE_HOME+x} ]; then
+	echo "MV_TEST_COMPARE_HOME is unset"
+	usage
 fi
 
 # construct the classpath for MVLoad

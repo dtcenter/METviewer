@@ -167,32 +167,37 @@ logfile=${logdir}/${seconds}
 touch $logfile
 rm -rf ${METViewerDir}
 rm -rf ${METViewerTestDirTestCases}
+echo "clone the METViewer repo"
 git clone https://${gituser}@github.com/NCAR/METViewer.git ${METViewerDir}
-git fetch --all --tags --prune
+#echo git fetch --all
+#git fetch --all
 # checkout code to proper branch and use -test for local copy
+cdir=$(pwd)
 cd ${METViewerDir}
 if [ ${METViewerTag} = "HEAD" ]; then
     # check to see if branch exists
-    git rev-parse --verify --quiet ${METViewerBranch}
+    echo "git rev-parse --verify --quiet \"remotes/origin/${METViewerBranch}\""
+    git rev-parse --verify --quiet "remotes/origin/${METViewerBranch}"
     if [ $? -ne 0 ]; then
-        echo "branch ${METViewerBranch} does not exist in METViewer repository"
+        echo "branch \"remotes/origin/${METViewerBranch}\" does not exist in METViewer repository"
         usage
     fi
     git checkout remotes/origin/${METViewerBranch} -b "${METViewerBranch}-test"
 else
     # check to see if tag exists
+    echo git rev-parse --verify --quiet ${METViewerTag}
     git rev-parse --verify --quiet ${METViewerTag}
     if [ $? -ne 0 ]; then
-        echo "branch ${METViewerTag} does not exist in METViewer repository"
+        echo "tag ${METViewerTag} does not exist in METViewer repository"
         usage
     fi
     git checkout tags/${METViewerTag} -b "${METViewerBranch}-test"
 fi
 
-cd ..
+cd $cdir
 mkdir -p ${METViewerTestDir}
 
-# clone the test cases repo
+echo "clone the test cases repo"
 if [ ! -d "${METViewerBranchTestDir}" ]; then
     mkdir -p ${METViewerBranchTestDir}
 else
@@ -202,14 +207,14 @@ git clone https://${gituser}@github.com/NCAR/METViewer-test.git ${METViewerBranc
 # the test cases are on the unversioned master branch for now. checkout a local called test - just to be safe
 cd ${METViewerBranchTestDir}/test_data
 git checkout remotes/origin/master -b test
-cd ../..
+cd $cdir
 
 # Fix up the test directory
 #NOTE: The met load data 'met_data' is stored locally for now in $MET_DATA_DIR. Eventually this should also come from some common data repository
 # and the mv_mysql.sql is delivered in the METViewer code
 # and the mv_load.xml is checked into the test cases and must be moved here for the load test. It is needed for the load test but causes failures in mv_test where it is currently checked in
 # This should probably all be straightened out a little but for now we fix it up here.
-ln -sf ${MET_DATA_DIR} ${METViewerBranchTestDir}/met_data
+ln -sf ${MET_DATA_DIR} ${METViewerBranchTestDir}
 mkdir -p ${METViewerBranchTestDir}/load_data/load/
 cp ${METViewerDir}/sql/mv_mysql.sql  ${METViewerBranchTestDir}/load_data/load
 cp ${METViewerBranchTestDir}/test_data/test_cases/loading/load_test.xml ${METViewerBranchTestDir}/load_data/load
@@ -252,28 +257,28 @@ fi
 # run the mv_test
 #send a note
 if [ "X$addressList" != "X" ]; then
-	echo "running /bin/sh ${METViewerDir}/bin/mv_test.sh -t ${METViewerBranchTestDir} -m ${METViewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -l -c -X> ${logfile}"
-	/bin/sh -x ${METViewerDir}/bin/mv_test.sh -m${METViewerDir} -t${METViewerTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port}  -l -c -X > ${logfile}
+	echo "running /bin/sh ./bin/mv_test.sh -t ${METViewerBranchTestDir} -m ${METViewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -l -c> ${logfile}"
+	/bin/sh ./bin/mv_test.sh -m${METViewerDir} -t${METViewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port}  -l -c > ${logfile}
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METViewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
 else
-	echo "running /bin/sh ${METViewerDir}/bin/mv_test.sh -t${METViewerBranchTestDir} -m${METViewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c -X"
-    /bin/sh -x ${METViewerDir}/bin/mv_test.sh -m${METViewerDir} -t${METViewerTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c -X
+	echo "running /bin/sh ./bin/mv_test.sh -t${METViewerBranchTestDir} -m${METViewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c"
+    /bin/sh  ./bin/mv_test.sh -m${METViewerDir} -t${METViewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c
 	ret=$?
 	echo mv_test ret is $ret
 fi
 
 # run the mv_compare
 if [ "X$addressList" != "X" ]; then
-	echo "running /bin/sh ${METViewerDir}/bin/mv_compare.sh -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir} > ${logfile}"
-	/bin/sh -x ${METViewerDir}/bin/mv_compare.sh -t${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir} > ${logfile}
+	echo "running /bin/sh ./bin/mv_compare.sh  -m ${METViewerDir}  -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir} > ${logfile}"
+	/bin/sh  ./bin/mv_compare.sh  -m ${METViewerDir} -t${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir} > ${logfile}
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METViewerBranch} mv_compare failed with $ret failures - here is the log file" $addressList
 else
-	echo "running /bin/sh ${METViewerDir}/bin/mv_compare.sh -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir}"
-    /bin/sh -x ${METViewerDir}/bin/mv_compare.sh -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir}
+	echo "running /bin/sh ./bin/mv_compare.sh  -m ${METViewerDir} -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir}"
+    /bin/sh  ./bin/mv_compare.sh  -m ${METViewerDir} -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir}
 	ret=$?
 	echo mv_test ret is $ret
 fi
