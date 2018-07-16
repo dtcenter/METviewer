@@ -76,7 +76,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer_all.jar
 
 echo "Running allRestRunner"
 #/Users/pierce/test_data all
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_root_compare_dir=$MV_TEST_COMPARE_HOME -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml"
+JAVA_OPTS="-Xmx2048M -ea  -DcompareOnly  -Dmv_root_dir=$MV_TEST_HOME -Dmv_root_compare_dir=$MV_TEST_COMPARE_HOME -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml"
 echo "---------"
 cd $MV_HOME
 echo $JAVA -classpath $CLASSPATH $JAVA_OPTS edu.ucar.metviewer.test.AllTestRunner

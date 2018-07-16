@@ -530,6 +530,7 @@ public class TestUtil {
         BufferedImage actualImg = null;
         boolean areTheSame = false;
         try {
+          out.println ("comparing files " + expectedFiles[i].getAbsolutePath() + " to " + actualFile.getAbsolutePath());
           expectedImg = ImageIO.read(expectedFiles[i]);
           actualImg = ImageIO.read(actualFile);
           areTheSame = bufferedImagesEqual(expectedImg, actualImg);
