@@ -24,8 +24,7 @@ public class AllTestRunner {
 
     Result result;
     List<Failure> failureListLoadDataTest = null;
-    List<Failure> failureListCreatePlotBatchTest = null;
-    List<Failure> compareListCreatePlotBatchTest = null;
+    List<Failure> failureListPlotBatchTest = null;
 
     cleanWorkingDirs();
     if (System.getProperty("loadData") != null) {
@@ -36,51 +35,37 @@ public class AllTestRunner {
     if (System.getProperty("compareOnly") == null) {
       // really test
       result = JUnitCore.runClasses(CreatePlotBatchTest.class);
-      failureListCreatePlotBatchTest = result.getFailures();
     } else {
-      // compare only - ROOT_DIR and ROOT_COMPARE_DIR specify what to compare
       result = JUnitCore.runClasses(ComparePlotBatchTest.class);
-      compareListCreatePlotBatchTest = result.getFailures();
     }
-
-    result = JUnitCore.runClasses(TestMVServlet.class);
-    List<Failure> failureListTestMVServlet = result.getFailures();
+    failureListPlotBatchTest = result.getFailures();
 
     System.out.println("*************************************************");
     if (failureListLoadDataTest != null) {
-
       for (Failure failure : failureListLoadDataTest) {
         System.out.println(failure.toString());
       }
       if (failureListLoadDataTest.isEmpty()) {
         System.out.println("***** Database loading tests finished successfully... *****");
       }
-
     } else {
       System.out.println("***** Database loading tests was ignored... *****");
     }
     System.out.println("*************************************************");
     System.out.println();
     System.out.println("*************************************************");
-    for (Failure failure : failureListCreatePlotBatchTest) {
+    for (Failure failure : failureListPlotBatchTest) {
       System.out.println(failure.toString());
     }
-    if (failureListCreatePlotBatchTest.isEmpty()) {
+    if (failureListPlotBatchTest.isEmpty()) {
       System.out.println("***** Plot making tests finished successfully... *****");
     }
     System.out.println("*************************************************");
     System.out.println();
     System.out.println("*************************************************");
-    for (Failure failure : failureListTestMVServlet) {
-      System.out.println(failure.toString());
-    }
-    if (failureListTestMVServlet.isEmpty()) {
-      System.out.println("***** Servlet tests finished successfully... *****");
-    }
     int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0: failureListLoadDataTest.size();
-    int failureListCreatePlotBatchTestCount = failureListCreatePlotBatchTest == null ? 0: failureListCreatePlotBatchTest.size();
-    int failureListTestMVServletCount = failureListTestMVServlet == null ? 0: failureListTestMVServlet.size();
-    int exitCode = failureListLoadDataTestCount + failureListCreatePlotBatchTestCount + failureListTestMVServletCount;
+    int failureListPlotBatchTestCount = failureListPlotBatchTest == null ? 0: failureListPlotBatchTest.size();
+    int exitCode = failureListLoadDataTestCount + failureListPlotBatchTestCount;
     System.out.println("*************************************************");
     System.out.println("There were " + exitCode + " failures");
     System.exit( exitCode);
