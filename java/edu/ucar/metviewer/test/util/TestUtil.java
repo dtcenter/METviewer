@@ -192,7 +192,6 @@ public class TestUtil {
     public static final String PLOTS_DIR;
 
 
-
   static {
     FILE_SEPARATOR = System.getProperty("file.separator");
     if (System.getProperty("mv_root_dir") == null) {
@@ -412,14 +411,14 @@ public class TestUtil {
   public static void compareBinaryTestFiles(String testDataDir, String compareDataDir, String plotType) {
     compareBinaryTestFiles(testDataDir, compareDataDir, plotType,true, true, PLOT_FILES_FILTER);
   }
-  /**
-   * Compare the number of files, names (if requested) and contents
-   *
-   * @param testDataDir    - expected files root dir
-   * @param plotType       - use case
-   * @param isCompareNames - should the name comparison be executed
-   * @param filter         - custom file filter to use
-   */
+    /**
+     * Compare the number of files, names (if requested) and contents
+     *
+     * @param testDataDir    - expected files root dir
+     * @param plotType       - use case
+     * @param isCompareNames - should the name comparison be executed
+     * @param filter         - custom file filter to use
+     */
   private static void compareTextFiles(String testDataDir, String plotType, boolean isCompareNames, boolean isCompareContent, CustomFilenameFilter filter) {
     //get all test results datafiles
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
@@ -530,16 +529,16 @@ public class TestUtil {
         BufferedImage expectedImg = null;
         BufferedImage actualImg = null;
         boolean areTheSame = false;
-                try {
+        try {
           expectedImg = ImageIO.read(expectedFiles[i]);
           actualImg = ImageIO.read(actualFile);
           areTheSame = bufferedImagesEqual(expectedImg, actualImg);
         } catch (IOException e) {
-            }
-        assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " in dir " + testDir.getAbsolutePath() + " must be identical to a file in " + compDir.getAbsolutePath() + " but is not", areTheSame);
         }
+        assertTrue("Files for " + plotType + " " + filter.getFileExtension() + " with name " + actualFile.getName() + " in dir " + testDir.getAbsolutePath() + " must be identical to a file in " + compDir.getAbsolutePath() + " but is not", areTheSame);
       }
     }
+  }
 
 
 
