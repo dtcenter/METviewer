@@ -40,8 +40,8 @@ public class ComparePlotBatchTest {
    */
   @Parameterized.Parameters
   public static Collection<String[]> data() throws Exception {
-    testDataDir = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots";
-    testCompareDataDir = ROOT_COMPARE_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots";
+    testDataDir = ROOT_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
+    testCompareDataDir = ROOT_COMPARE_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
     File file = new File(testDataDir);
     if (!file.exists()) {
       throw new Exception(testDataDir + " doesn't exist.");
@@ -50,6 +50,7 @@ public class ComparePlotBatchTest {
     String[] directories = file.list(DIRECTORY_FILTER);
     Collection<String[]> testPlots = new ArrayList<>();
     for (String directory : directories) {
+      File dir = new File(directory);
       testPlots.add(new String[]{directory});
     }
     if (testPlots.isEmpty()) {
