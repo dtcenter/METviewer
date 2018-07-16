@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 # NOTE:
 # Currently the met test load data files are not controlled so this script assumes that they are local.
 # This script assumes a directory structure like this...
