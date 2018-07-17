@@ -101,25 +101,18 @@ name "sec:Series-Plot-Description"
 \begin_layout Standard
 
 \series medium
-The goal of this User's Guide is to provide basic information for users
- of the Model Evaluation Tools (MET) to enable users to apply MET to their
- datasets and evaluation studies.
- MET has been specifically designed for application to the Weather Research
- and Forecasting (WRF) model (see 
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-http://www.wrf-model.org/index.php
-\end_layout
-
-\end_inset
-
- for more information about the WRF).
- However, MET may also be used for the evaluation of forecasts from other
- models or applications if certain file format definitions (described in
- this document) are followed.
+The series plot is the most general of all the METViewer plotting options.
+ A series plot is really just a special case of a scatter plot, where the
+ dependent variable (i.e.
+ Y-axis value) is related from one value to the next of the independent
+ variable (X-axis value).
+ Thus, points are placed into the graphic as on a scatter plot, but the
+ Y-axis values are shown with connecting lines across the X-axis.
+ Examples of data appropriate for this type of plot include verification
+ statistics (on the Y-axis) for different lead times or thresholds (X-axis).
+ The tremendous flexibility of this plot means that the user must specify
+ more options.
+ 
 \end_layout
 
 \begin_layout Section
@@ -213,57 +206,12 @@ name "sec:Series-Plot-Examples"
 \begin_layout Standard
 
 \series medium
-The primary goal of MET development is to provide a state-of-the-art verificatio
-n package to the NWP community.
- By "state-of-the-art" we mean that MET will incorporate newly developed
- and advanced verification methodologies, including new methods for diagnostic
- and spatial verification and new techniques provided by the verification
- and modeling communities.
- MET also utilizes and replicates the capabilities of existing systems for
- verification of NWP forecasts.
- For example, the MET package replicates existing National Center for Environmen
-tal Prediction (NCEP) operational verification capabilities (e.g., I/O, methods,
- statistics, data types).
- MET development will take into account the needs of the NWP community -
- including operational centers and the research and development community.
- Some of the MET capabilities include traditional verification approaches
- for standard surface and upper air variables (e.g., Equitable Threat Score,
- Mean Squared Error), confidence intervals for verification measures, and
- spatial forecast verification methods.
- In the future, MET will include additional state-of-the-art and new methodologi
-es.
+The primary goal 
 \end_layout
 
 \begin_layout Standard
 
-\series medium
-The MET package has been designed to be modular and adaptable.
- For example, individual modules can be applied without running the entire
- set of tools.
- New tools can easily be added to the MET package due to this modular design.
- In addition, the tools can readily be incorporated into a larger "system"
- that may include a database as well as more sophisticated input/output
- and user interfaces.
- Currently, the MET package is a set of tools that can easily be applied
- by any user on their own computer platform.
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-The MET code and documentation is maintained by the DTC in Boulder, Colorado.
- The MET package is freely available to the modeling, verification, and
- operational communities, including universities, governments, the private
- sector, and operational modeling and prediction centers.
-\end_layout
-
-\begin_layout Standard
-
-\series medium
- histogram and probability integral transform information is produced.
- 
 \series bold
-
 \begin_inset Float figure
 placement t
 wide false
@@ -274,7 +222,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /d1/johnhg/MET/MET_development/svn-met-dev.cgd.ucar.edu/trunk/met/doc/MET_Users_Guide/Flowchart/MET_flowchart_v7.0.png
+	filename SeriesPlot_MV_Capture.png
 	scale 60
 
 \end_inset
@@ -288,9 +236,8 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Basic representation of current MET structure and modules.
- Colored areas represent software and modules included in MET, and gray
- areas represent input and output files.
+Screen capture of METViewer configured to produce a series plot of frequency
+ bias by lead time for 3 hour accumulated precipitation for 7 ensemble members.
 \end_layout
 
 \end_inset
@@ -298,7 +245,7 @@ Basic representation of current MET structure and modules.
 
 \begin_inset CommandInset label
 LatexCommand label
-name "Fig_Overview_MET_Overview_Flowchart"
+name "Fig_Series_Plot_MV_Configuration"
 
 \end_inset
 
@@ -319,146 +266,8 @@ Several optional plotting utilities are provided to assist users in checking
  observations.
  This can be quite useful for assessing whether the latitude and longitude
  of observation stations was specified correctly.
- Plot data plane produces a similar plot for gridded data.
- For users of the MODE object based verification methods, the plot_mode_field
- utility will create graphics of the MODE object output.
- Finally, WWMCA plot produces a plot of the raw WWMCA data file.
  
 \end_layout
 
-\begin_layout Section
-Future development plans
-\begin_inset CommandInset label
-LatexCommand label
-name "sec:Future-development-plans"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-MET is an evolving verification software package.
- New capabilities are planned in controlled, successive version releases.
- Bug fixes and user-identified problems will be addressed as they are found
- and posted to the known issues section of the MET Users web page (
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-www.dtcenter.org/met/users/support
-\end_layout
-
-\end_inset
-
-).
- Plans are also in place to incorporate many new capabilities and options
- in future releases of MET.
- Some of the planned additions are listed below.
-\end_layout
-
-\begin_layout Standard
-Additional statistical capabilities
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Additional spatial forecast verification methods 
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Additional hurricane verification fields and methods
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Enhanced support for time series verification
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Additional methods for verification of climate and seasonal forecasts
-\end_layout
-
-\begin_layout Standard
-Additional analysis capabilities and plotting routines
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Post to the MET website sample analysis and plotting routines that may include
-\series default
-
-\begin_inset Separator latexpar
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-
-\series medium
-Boxplots
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Discrimination plots
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Reliability diagrams
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Scatter/density plots
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Color-fill/contour maps of statistics
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Height series
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Histograms
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Taylor diagrams
-\end_layout
-
-\begin_layout Itemize
-
-\series medium
-Performance diagrams
-\end_layout
-
-\end_deeper
 \end_body
 \end_document

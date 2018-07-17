@@ -452,7 +452,7 @@ The METViewer User’s Guide.
 
 Available at: http://www.dtcenter.org/met/users/docs/users_guide/METViewer_Users_G
 uide_v2.5.pdf.
- 100 pp.
+ 80 pp.
 \end_layout
 
 \begin_layout Chapter*
@@ -477,11 +477,10 @@ s within the National Oceanic and Atmospheric Administration (NOAA): 1)
  System project (NGGPS); and 3) United State Weather Research Program (USWRP),
  the United States Air Force (USAF), and the United States Department of
  Energy (DOE) for their support of this work.
- Funding for the expansion of capability to address many methods pertinent
- to global and climate simulations was provided by NOAA's Next Generation
- Global Prediction System (NGGPS) and NSF Earth System Model 2 (EaSM2) projects.
  Thanks also go to the staff at the Developmental Testbed Center for their
  help, advice, and many types of support.
+ We would also like to thank users at the National Center for Environmental
+ Prediction (NCEP) for their feedback and suggestions regarding METViewer.
  
 \end_layout
 
