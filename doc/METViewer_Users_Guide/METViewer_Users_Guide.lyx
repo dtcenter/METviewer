@@ -221,7 +221,7 @@ filename "Installation/METViewer_Users_Guide_Installation.lyx"
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand include
-filename "Installation/METViewer_Users_Guide_SeriesPlot.lyx"
+filename "SeriesPlot/METViewer_Users_Guide_SeriesPlot.lyx"
 
 \end_inset
 
@@ -238,7 +238,7 @@ filename "Installation/METViewer_Users_Guide_SeriesPlot.lyx"
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand include
-filename "Installation/METViewer_Users_Guide_BoxPlot.lyx"
+filename "BoxPlot/METViewer_Users_Guide_BoxPlot.lyx"
 
 \end_inset
 
@@ -255,7 +255,7 @@ filename "Installation/METViewer_Users_Guide_BoxPlot.lyx"
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand include
-filename "Installation/METViewer_Users_Guide_ROCPlot.lyx"
+filename "ROCPlot/METViewer_Users_Guide_ROCPlot.lyx"
 
 \end_inset
 
