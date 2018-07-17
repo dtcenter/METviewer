@@ -77,10 +77,10 @@
 \begin_body
 
 \begin_layout Chapter
-Series Plots in METViewer
+Box Plots in METViewer
 \begin_inset CommandInset label
 LatexCommand label
-name "chap:METViewer-Series-Plot"
+name "chap:METViewer-Box-Plot"
 
 \end_inset
 
@@ -91,7 +91,7 @@ name "chap:METViewer-Series-Plot"
 Description
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:Series-Plot-Description"
+name "sec:Box-Plot-Description"
 
 \end_inset
 
@@ -101,32 +101,27 @@ name "sec:Series-Plot-Description"
 \begin_layout Standard
 
 \series medium
-The goal of this User's Guide is to provide basic information for users
- of the Model Evaluation Tools (MET) to enable users to apply MET to their
- datasets and evaluation studies.
- MET has been specifically designed for application to the Weather Research
- and Forecasting (WRF) model (see 
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-http://www.wrf-model.org/index.php
-\end_layout
-
-\end_inset
-
- for more information about the WRF).
- However, MET may also be used for the evaluation of forecasts from other
- models or applications if certain file format definitions (described in
- this document) are followed.
+Boxplots, or box and whisker plots, are a way to summarize a distribution
+ of values using Tukey's 5-number summary (Hoaglin et al, 1983).
+ The dark line in the middle of the boxes (sometimes called the 'waist')
+ is the median of data.
+ Half of the data values have a value greater than the median, and half
+ have a value lower.
+ The actual box (i.e.
+ the central rectangle) spans the first quartile to the third quartile (or
+ the interquartile range).
+ The whiskers extend to 1.5 times the height of the box or, if closer, the
+ minimum or maximum values of the data.
+ The points represent outliers.
+ These are defined as values that do not fall inside the whiskers.
+ Outliers are extreme values.
 \end_layout
 
 \begin_layout Section
 Details
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:Series-Plot-Details"
+name "sec:Box-Plot-Details"
 
 \end_inset
 
@@ -203,7 +198,7 @@ Generate Plot button at top of METViewer window with the red text.
 Examples
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:Series-Plot-Examples"
+name "sec:Box-Plot-Examples"
 
 \end_inset
 
@@ -213,57 +208,14 @@ name "sec:Series-Plot-Examples"
 \begin_layout Standard
 
 \series medium
-The primary goal of MET development is to provide a state-of-the-art verificatio
-n package to the NWP community.
- By "state-of-the-art" we mean that MET will incorporate newly developed
- and advanced verification methodologies, including new methods for diagnostic
- and spatial verification and new techniques provided by the verification
- and modeling communities.
- MET also utilizes and replicates the capabilities of existing systems for
- verification of NWP forecasts.
- For example, the MET package replicates existing National Center for Environmen
-tal Prediction (NCEP) operational verification capabilities (e.g., I/O, methods,
- statistics, data types).
- MET development will take into account the needs of the NWP community -
- including operational centers and the research and development community.
- Some of the MET capabilities include traditional verification approaches
- for standard surface and upper air variables (e.g., Equitable Threat Score,
- Mean Squared Error), confidence intervals for verification measures, and
- spatial forecast verification methods.
- In the future, MET will include additional state-of-the-art and new methodologi
-es.
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-The MET package has been designed to be modular and adaptable.
- For example, individual modules can be applied without running the entire
- set of tools.
- New tools can easily be added to the MET package due to this modular design.
- In addition, the tools can readily be incorporated into a larger "system"
- that may include a database as well as more sophisticated input/output
- and user interfaces.
- Currently, the MET package is a set of tools that can easily be applied
- by any user on their own computer platform.
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-The MET code and documentation is maintained by the DTC in Boulder, Colorado.
- The MET package is freely available to the modeling, verification, and
- operational communities, including universities, governments, the private
- sector, and operational modeling and prediction centers.
-\end_layout
-
-\begin_layout Standard
-
-\series medium
- histogram and probability integral transform information is produced.
+The example below shows a boxplot of the RMSE for 2m temperature over the
+ CONUS.
  
-\series bold
+\end_layout
 
+\begin_layout Standard
+
+\series bold
 \begin_inset Float figure
 placement t
 wide false
@@ -274,7 +226,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /d1/johnhg/MET/MET_development/svn-met-dev.cgd.ucar.edu/trunk/met/doc/MET_Users_Guide/Flowchart/MET_flowchart_v7.0.png
+	filename boxplot.png
 	scale 60
 
 \end_inset
@@ -298,7 +250,7 @@ Basic representation of current MET structure and modules.
 
 \begin_inset CommandInset label
 LatexCommand label
-name "Fig_Overview_MET_Overview_Flowchart"
+name "Fig_Boxplot_MV_Example"
 
 \end_inset
 
@@ -313,17 +265,7 @@ name "Fig_Overview_MET_Overview_Flowchart"
 \begin_layout Standard
 
 \series medium
-Several optional plotting utilities are provided to assist users in checking
- their output from the data preprocessing step.
- Plot point obs will create a postscript plot showing the locations of point
- observations.
- This can be quite useful for assessing whether the latitude and longitude
- of observation stations was specified correctly.
- Plot data plane produces a similar plot for gridded data.
- For users of the MODE object based verification methods, the plot_mode_field
- utility will create graphics of the MODE object output.
- Finally, WWMCA plot produces a plot of the raw WWMCA data file.
- 
+Several optional 
 \end_layout
 
 \end_body
