@@ -928,7 +928,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
   @Override
-  public Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception {
+  public Map<String, Long> loadStatFileVSDB(DataFileInfo info, DatabaseInfo databaseInfo) throws Exception {
 
     Map<String, Long> timeStats = new HashMap<>();
 
@@ -2640,7 +2640,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    * @return data structure containing information about the input file
    */
   @Override
-  public DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception {
+  public DataFileInfo processDataFile(File file, boolean forceDupFile, DatabaseInfo databaseInfo) throws Exception {
     String strPath = file.getParent().replace("\\", "/");
     String strFile = file.getName();
     int strDataFileLuId = -1;
@@ -2715,7 +2715,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         if (forceDupFile) {
           DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
-                                               strModDate, strDataFileLuId, strDataFileLuTypeName);
+                                               strModDate, strDataFileLuId, strDataFileLuTypeName, "");
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
         } else {
@@ -2767,7 +2767,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
 
     return new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
-                            strDataFileLuTypeName);
+                            strDataFileLuTypeName, "");
   }
 
   @Override
