@@ -1,56 +1,51 @@
 /**
- * MysqlLoadDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * CBLoadDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.db;
 
+import edu.ucar.metviewer.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.*;
+import com.couchbase.client.java.env.*;
+import com.couchbase.client.java.document.*;
+import com.couchbase.client.java.document.json.*;
+import com.couchbase.client.java.query.*;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-
-import edu.ucar.metviewer.DataFileInfo;
-import edu.ucar.metviewer.MVLoadJob;
-import edu.ucar.metviewer.MVLoadStatInsertData;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
  */
-public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements LoadDatabaseManager {
+public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadDatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
+  private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
   SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
-  private final Map<String, Integer> statHeaders = new HashMap<>();
+  private final Map<String, String> statHeaders = new HashMap<>();
 
   private static final int INDEX_LINE_DATA = 1;
   private static final int INDEX_VAR_LENGTH = 3;
@@ -91,7 +86,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public MysqlLoadDatabaseManager(
+  public CBLoadDatabaseManager(
                                      DatabaseInfo databaseInfo,
                                      PrintWriter printStreamSql) throws Exception {
     super(databaseInfo, printStreamSql);
@@ -212,21 +207,22 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    *
    * @param update SQL UPDATE statement to execute
    * @return Number of records affected (output of Statement.executeUpdate() call)
-   * @throws SQLException
+   * @throws Exception
    */
   private int executeUpdate(String update) throws Exception {
 
     int intRes;
-    try (Connection con = getConnection();
-         Statement stmt = con.createStatement()) {
-      intRes = stmt.executeUpdate(update);
-      stmt.close();
-      con.close();
-    } catch (SQLException se) {
-      logger.error(update);
-      throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
-    }
+   /* try (
+            Connection con = getConnection();
+            Statement stmt = con.createStatement()  ) {
+       intRes = stmt.executeUpdate(update);
 
+    } catch (Exception e) {
+      logger.error(update);
+      throw new Exception("caught Exception calling executeUpdate: " + e.getMessage());
+    }
+  */
+    intRes = -1;
     return intRes;
   }
 
@@ -258,7 +254,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    */
   private int getNextId(String table, String field) throws Exception {
     int intId = -1;
-    PreparedStatement pstmt = null;
+ /*   PreparedStatement pstmt = null;
     ResultSet res = null;
     try (Connection con = getConnection()) {
       pstmt = con.prepareStatement("SELECT MAX(" + field + ") FROM " + table);
@@ -283,7 +279,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         res.close();
       }
     }
-
+*/
     return intId;
   }
 
@@ -314,6 +310,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     long intLineDataSkipped = 0;
     long lengthRecords = 0;
     long lengthInserts = 0;
+    N1qlQueryResult queryResult;
+    queryResult = null;
+    List<N1qlQueryRow> queryList;
+    queryList = null;
+    String headerIdString;
+    headerIdString = null;
     timeStats.put("headerSearchTime", 0L);
 
     //  get the next stat_header_id
@@ -370,10 +372,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strFcstValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidEnd);
-        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
-        String strObsValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidEnd);
+        String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+        String strFcstValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidEnd);
+        String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String strObsValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateObsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -389,7 +391,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInitBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        String strFcstInitBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
         String strInterpPnts = MVUtil.findValueInArray(listToken, headerNames, "INTERP_PNTS");
@@ -463,7 +465,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //  look for the header key in the table
         Integer intStatHeaderId = -1;
         if (statHeaders.containsKey(strStatHeaderValueList)) {
-          intStatHeaderId = statHeaders.get(strStatHeaderValueList);
+          headerIdString = statHeaders.get(strStatHeaderValueList);
         }
 
         //  if the stat_header does not yet exist, create one
@@ -474,13 +476,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           long intStatHeaderSearchBegin = new Date().getTime();
           if (info._boolStatHeaderDBCheck) {
             String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-            Connection con = null;
+    /*        Connection con = null;
             Statement stmt = null;
             ResultSet res = null;
             try {
               con = getConnection();
-              stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                         java.sql.ResultSet.CONCUR_READ_ONLY);
+              stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                                         ResultSet.CONCUR_READ_ONLY);
               res = stmt.executeQuery(strStatHeaderSelect);
               if (res.next()) {
                 String strStatHeaderIdDup = res.getString(1);
@@ -492,14 +494,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             } finally {
               try {
                 res.close();
-              } catch (Exception e) { /* ignored */ }
+              } catch (Exception e) {  }
               try {
                 stmt.close();
-              } catch (Exception e) { /* ignored */ }
+              } catch (Exception e) {  }
               try {
                 con.close();
-              } catch (Exception e) { /* ignored */ }
-            }
+              } catch (Exception e) {  }
+            }  */
           }
 
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
@@ -510,7 +512,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (!boolFoundStatHeader) {
 
             intStatHeaderId = intStatHeaderIdNext++;
-            statHeaders.put(strStatHeaderValueList, intStatHeaderId);
+            statHeaders.put(strStatHeaderValueList, headerIdString);
 
             //  build an insert statement for the mode header
             strStatHeaderValueList =
@@ -535,7 +537,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
           } else {
-            statHeaders.put(strStatHeaderValueList, intStatHeaderId);
+            statHeaders.put(strStatHeaderValueList, headerIdString);
           }
         }
         if (intStatHeaderId != null) {
@@ -946,10 +948,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     long lengthRecords = 0;
     long lengthInserts = 0;
     timeStats.put("headerSearchTime", 0L);
-
-
-    //  get the next stat_header_id
-    int intStatHeaderIdNext = getNextId("stat_header", "stat_header_id");
+    long nextIdNumber;
+    nextIdNumber = 0;
+    String nextIdString;
+    nextIdString = "";
+    String headerIdString;
+    headerIdString = "";
+    JsonObject headerFile;
+    JsonDocument response;
+    JsonDocument doc;
+    N1qlQueryResult queryResult;
+    queryResult = null;
+    List<N1qlQueryRow> queryList;
+    queryList = null;
+    N1qlQueryRow firstRow;
+    firstRow = null;
+    JsonObject firstRowObject;
+    firstRowObject = null;
 
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
@@ -971,7 +986,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         String line = reader.readLine();
         try {
-          line = line.replaceAll("\\s=\\s", " "); // remove " = "
+          line = line.replaceAll("=\\s", " "); // remove "= "
           Matcher m = Pattern.compile("\\d-0\\.").matcher(
               line); // some records do not have a space between columns if the value in column starts with "-"
 
@@ -1052,7 +1067,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           Date dateFcstValidBeg = formatStatVsdb.parse(listToken[3]);
 
           //  format the valid times for the database insert
-          String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
 
 
           //  calculate the number of seconds corresponding to fcst_lead
@@ -1064,10 +1079,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           calFcstInitBeg.setTime(dateFcstValidBeg);
           calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
           Date dateFcstInitBeg = calFcstInitBeg.getTime();
-          String strFcstInitBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
-          String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-          String strFcstValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-          String strObsValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstInitBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+          String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strObsValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
 
           //  ensure that the interp_pnts field value is a reasonable integer
           String strInterpPnts = "0";
@@ -1075,130 +1090,122 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           String strLineType = mvLoadStatInsertData.getLineType();
 
 
-
 			/*
        * * * *  stat_header insert  * * * *
 			 */
           headerRecords++;
 
-          //  build the stat_header value list for this line
-          String[] listStatHeaderValue = {
-              listToken[0],    //  version
-              modelName,      //  model
-              "NA",           //  descr
-              listToken[7],    //  fcst_var
-              listToken[8],    //  fcst_lev
-              listToken[7],    //  obs_var
-              listToken[8],    //  obs_lev
-              listToken[4],    //  obtype
-              listToken[5],    //  vx_mask
-              "NA",    //  interp_mthd
-              strInterpPnts,    //  interp_pnts
-              thresh,    //  fcst_thresh
-              thresh    //  obs_thresh
-          };
-
-          //  build a where clause for searching for duplicate stat_header records
-          String strStatHeaderWhereClause =
-              "  model = '" + modelName + "'\n" +
-                  "  AND descr = '" + "NA" + "'\n" +
-                  "  AND fcst_var = '" + listToken[7] + "'\n" +
-                  "  AND fcst_lev = '" + listToken[8] + "'\n" +
-                  "  AND obtype = '" + listToken[4] + "'\n" +
-                  "  AND vx_mask = '" + listToken[5] + "'\n" +
-                  "  AND interp_mthd = '" + "NA" + "'\n" +
-                  "  AND interp_pnts = " + strInterpPnts + "\n" +
-                  "  AND fcst_thresh = '" + thresh + "'\n" +
-                  "  AND obs_thresh = '" + thresh + "'";
-
-          //  build the value list for the stat_header insert
-          String strStatHeaderValueList = "";
-          for (int i = 0; i < listStatHeaderValue.length; i++) {
-            strStatHeaderValueList += (0 < i ? ", " : "") + "'" + listStatHeaderValue[i] + "'";
-          }
-
-
-          String strFileLine = strFilename + ":" + intLine;
+          //  build the value list for the stat_header search
+          String strStatHeaderValueList = modelName + listToken[7] + listToken[8] +
+                                          listToken[4] +listToken[5] + thresh;
+          headerIdString = "";
 
           //  look for the header key in the table
-          Integer intStatHeaderId = -1;
           if (statHeaders.containsKey(strStatHeaderValueList)) {
-            intStatHeaderId = statHeaders.get(strStatHeaderValueList);
+            headerIdString = statHeaders.get(strStatHeaderValueList);
           }
 
-          //  if the stat_header does not yet exist, create one
+          //  if the stat_header is not in the table
           else {
 
             //  look for an existing stat_header record with the same information
             boolean boolFoundStatHeader = false;
             long intStatHeaderSearchBegin = new Date().getTime();
             if (info._boolStatHeaderDBCheck) {
-              String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-              Connection con = null;
-              Statement stmt = null;
-              ResultSet res = null;
+              // build a Couchbase query to look for duplicate stat_header records
+              String strDataFileQuery =  "SELECT " +
+                      "meta().id as headerFileId, " +
+                      "type, " +
+                      "header_type, " +
+                      "data_type, " +
+                      "data_id " +
+                      "FROM `" +
+                      bucket.name() +
+                      "` WHERE " +
+                      "type = \'header\' AND " +
+                      "`header_type` = \'stat\' AND " +
+                      "`data_type` = \'vsdb_point_stat\' AND " +
+                      "model = \'" + modelName + "\' AND " +
+                      "`fcst_var` = \'" + listToken[7] + "\' AND " +
+                      "`fcst_lev` = \'" + listToken[8] + "\' AND " +
+                      "obtype = \'" + listToken[4] + "\' AND " +
+                      "`vx_mask` = \'" + listToken[5] + "\' AND " +
+                      "`fcst_thresh` = \'" + thresh + "\';";
+
               try {
-                con = getConnection();
-                stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                           java.sql.ResultSet.CONCUR_READ_ONLY);
-                res = stmt.executeQuery(strStatHeaderSelect);
-                if (res.next()) {
-                  String strStatHeaderIdDup = res.getString(1);
-                  intStatHeaderId = Integer.parseInt(strStatHeaderIdDup);
+                queryResult = bucket.query(N1qlQuery.simple(strDataFileQuery));
+                queryList = queryResult.allRows();
+
+                // if the header document is already present in the database, print a warning and return the id
+                if (queryList.size() > 0) {
+                  firstRow = queryList.get(0);
+                  firstRowObject = firstRow.value();
+                  // set dupIdString to id of existing data file document
+                  headerIdString = firstRowObject.get("headerFileId").toString();
                   boolFoundStatHeader = true;
+                  logger.warn("  **  WARNING: header document already present in database");
                 }
-              } catch (Exception e) {
-                logger.error(e.getMessage());
-              } finally {
-                try {
-                  res.close();
-                } catch (Exception e) { /* ignored */ }
-                try {
-                  stmt.close();
-                } catch (Exception e) { /* ignored */ }
-                try {
-                  con.close();
-                } catch (Exception e) { /* ignored */ }
+                timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date().getTime() -
+                                                  intStatHeaderSearchBegin);
+
+              } catch (CouchbaseException e) {
+                throw new Exception(e.getMessage());
               }
-            }
-            timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
-                                                                                      .getTime() - intStatHeaderSearchBegin);
+            }  //if (info._boolStatHeaderDBCheck)
 
-
-            //  if the stat_header was not found, add it to the table
+            //  if the stat_header was not found, add it to the database and table
             if (!boolFoundStatHeader) {
 
-              intStatHeaderId = intStatHeaderIdNext++;
-              statHeaders.put(strStatHeaderValueList, intStatHeaderId);
-
-              //  build an insert statement for the mode header
-              strStatHeaderValueList = Integer.toString(
-                  intStatHeaderId) + ", " +        //  stat_header_id
-                                           strStatHeaderValueList;
-
-              //  insert the record into the stat_header database table
-              String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
-
-              int intStatHeaderInsert;
+              //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
               try {
-                intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
-                if (1 != intStatHeaderInsert) {
-                  logger.warn(
-                      "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
-                  intStatHeaderId = null;
-                } else {
-                  headerInserts++;
+                nextIdNumber = bucket.counter("HDCounter", 1, 1).content();
+                // unique id must be a string
+                headerIdString = databaseInfo.getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
+
+                if (0 > nextIdNumber) {
+                  throw new Exception("METViewer load error: loadStatFileVSDB() unable to get header file counter");
                 }
-              } catch (Exception e) {
-                logger.error(e.getMessage());
-                intStatHeaderId = null;
+
+              } catch (CouchbaseException e) {
+                throw new Exception(e.getMessage());
               }
 
-            } else {
-              statHeaders.put(strStatHeaderValueList, intStatHeaderId);
-            }
-          }
-          if (intStatHeaderId != null) {
+              try {
+                headerFile = JsonObject.empty()
+                        .put("type", "header")
+                        .put("header_type", "stat")
+                        .put("data_type", info._dataFileLuTypeName)
+                        .put("data_id", info._fileDataId)
+                        .put("version", listToken[0])
+                        .put("model", modelName)
+                        .put("descr", "NA")
+                        .put("fcst_var", listToken[7])
+                        .put("fcst_lev", listToken[8])
+                        .put("obs_var", listToken[7])
+                        .put("obs_lev", listToken[8])
+                        .put("obtype", listToken[4])
+                        .put("vx_mask", listToken[5])
+                        .put("interp_mthd", "NA")
+                        .put("interp_pnts", strInterpPnts)
+                        .put("fcst_thresh", thresh)
+                        .put("obs_thresh", thresh);
+
+                doc = JsonDocument.create(headerIdString, headerFile);
+                response = bucket.upsert(doc);
+                if (response.content().isEmpty()) {
+                  logger.warn("  **  WARNING: unexpected result from header INSERT");
+                }
+              } catch (Exception e) {
+                throw new Exception(e.getMessage());
+              }
+
+              // add header to table
+              statHeaders.put(strStatHeaderValueList, headerIdString);
+
+            } // if (!boolFoundStatHeader)
+          }  //else stat_header is not in table
+
+          if (headerIdString != null) {
 
             String strLineDataId = "";
             dataRecords++;
@@ -1217,7 +1224,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             //  build the value list for the insert statment
             String strLineDataValueList =
                 strLineDataId +            //  line_data_id (if present)
-                    intStatHeaderId + ", " +      //  stat_header_id
+                        headerIdString + ", " +      //  stat_header_id
                     info._dataFileId + ", " +      //  data_file_id
                     intLine + ", " +          //  line_num
                     strFcstLead + ", " +        //  fcst_lead
@@ -1427,8 +1434,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
                     strLineDataValueList += ", '"
-                                                + (Double.valueOf(listToken[i + 9]))
-                                                      .intValue() + "'";
+                                                + (Double.valueOf(listToken[i + 9])).intValue() + "'";
                   } else {
                     strLineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
                   }
@@ -1789,7 +1795,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           intLineTypeLuId = modePair;
         } else {
           throw new Exception("METViewer load error: loadModeFile() unable to determine line type "
-                                  + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_ID")
+                                  + MVUtil.findValueInArray(listToken,headerNames,"OBJECT_ID")
                                   + "\n        " + strFileLine);
         }
 
@@ -1805,8 +1811,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+        String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -1822,7 +1828,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        String strFcstInit = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
 
         //  build a value list from the header information
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
@@ -1837,22 +1843,21 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  N_VALID
         } else {
           strModeHeaderValueList = strModeHeaderValueList
-                                       + MVUtil.findValueInArray(listToken, headerNames, "N_VALID")
+                                       + MVUtil.findValueInArray(listToken,headerNames,"N_VALID")
                                        + ", ";      //  N_VALID
         }
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "GRID_RES"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  GRID_RES
         } else {
           strModeHeaderValueList = strModeHeaderValueList
-                                       + MVUtil.findValueInArray(listToken, headerNames, "GRID_RES")
+                                       + MVUtil.findValueInArray(listToken,headerNames,"GRID_RES")
                                        + ", ";      //  GRID_RES
         }
 
         strModeHeaderValueList = strModeHeaderValueList
-                                     + "'" + MVUtil.findValueInArray(listToken, headerNames, "DESC")
+                                     + "'" + MVUtil.findValueInArray(listToken,headerNames,"DESC")
                                      + "', " +      //  GRID_RES
-                                     "'" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                   "FCST_LEAD")
+                                     "'" + MVUtil.findValueInArray(listToken, headerNames,"FCST_LEAD")
                                      + "', " +      //  fcst_lead
                                      "'" + strFcstValidBeg + "', ";      //  fcst_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "FCST_ACCUM"))) {
@@ -1860,13 +1865,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else {
           strModeHeaderValueList = strModeHeaderValueList
                                        + "'"
-                                       + MVUtil
-                                             .findValueInArray(listToken, headerNames, "FCST_ACCUM")
+                                       + MVUtil.findValueInArray(listToken,headerNames,"FCST_ACCUM")
                                        + "', ";      //  fcst_accum
         }
         strModeHeaderValueList = strModeHeaderValueList + "'" + strFcstInit + "', " +        //  fcst_init
                                      "'"
-                                     + MVUtil.findValueInArray(listToken, headerNames, "OBS_LEAD")
+                                     + MVUtil.findValueInArray(listToken, headerNames,"OBS_LEAD")
                                      + "', " +      //  obs_lead
                                      "'" + strObsValidBeg + "', ";      //  obs_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "OBS_ACCUM"))) {
@@ -1874,13 +1878,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else {
           strModeHeaderValueList = strModeHeaderValueList
                                        + "'"
-                                       + MVUtil
-                                             .findValueInArray(listToken, headerNames, "OBS_ACCUM")
+                                       + MVUtil.findValueInArray(listToken,headerNames,"OBS_ACCUM")
                                        + "', ";      //  obs_accum
         }
         strModeHeaderValueList = strModeHeaderValueList
                                      + "'"
-                                     + MVUtil.findValueInArray(listToken, headerNames, "FCST_RAD")
+                                     + MVUtil.findValueInArray(listToken,headerNames,"FCST_RAD")
                                      + "', " +      //  fcst_rad
                                      "'" + MVUtil.findValueInArray(listToken, headerNames,
                                                                    "FCST_THR") + "', " +      //  fcst_thr
@@ -1950,25 +1953,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (info._boolModeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n"
                                              + strModeHeaderWhereClause;
-            try (Connection con = getConnection();
-                 Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                                      java.sql.ResultSet.CONCUR_READ_ONLY);
+      /*      try (Connection con = getConnection();
+                 Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                                                      ResultSet.CONCUR_READ_ONLY);
                  ResultSet res = stmt.executeQuery(strModeHeaderSelect)) {
               if (res.next()) {
                 String strModeHeaderIdDup = res.getString(1);
                 intModeHeaderId = Integer.parseInt(strModeHeaderIdDup);
                 boolFoundModeHeader = true;
                 logger.warn(
-                    "  **  WARNING: found duplicate mode_header record with id "
-
-                        + strModeHeaderIdDup + "\n        " + strFileLine);
+                    "  **  WARNING: found duplicate mode_header record with id " + strModeHeaderIdDup + "\n        " + strFileLine);
               }
               res.close();
               stmt.close();
               con.close();
             } catch (Exception e) {
               logger.error(e.getMessage());
-            }
+            }  */
 
           }
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
@@ -2011,7 +2012,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  build the value list for the mode_cts insert
           String strCTSValueList = intModeHeaderId + ", '"
-                                       + MVUtil.findValueInArray(listToken, headerNames, "FIELD")
+                                       + MVUtil.findValueInArray(listToken,headerNames,"FIELD")
                                        + "'";
           int totalIndex = headerNames.indexOf("TOTAL");
           for (int i = 0; i < 18; i++) {
@@ -2093,8 +2094,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           String strPairValueList = intModeObjectIdObs + ", " + intModeObjectIdFcst
                                         + ", " + intModeHeaderId + ", " +
                                         "'" + strObjectId + "', '"
-                                        + MVUtil.findValueInArray(listToken, headerNames,
-                                                                  "OBJECT_CAT")
+                                        + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_CAT")
                                         + "'";
           int centroiddistIndex = headerNames.indexOf("CENTROID_DIST");
           for (int i = 0; i < 12; i++) {
@@ -2233,8 +2233,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+        String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -2272,7 +2272,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        String strFcstInit = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
 
 
         String mtdHeaderValueList = "'" + MVUtil.findValueInArray(listToken, headerNames, "VERSION")
@@ -2363,9 +2363,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (info._boolMtdHeaderDBCheck) {
             String strMtdHeaderSelect = "SELECT\n  mtd_header_id\nFROM\n  mtd_header\nWHERE\n" +
                                             mtdHeaderWhereClause;
-            try (Connection con = getConnection();
-                 Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                                      java.sql.ResultSet.CONCUR_READ_ONLY);
+    /*        try (Connection con = getConnection();
+                 Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                                                      ResultSet.CONCUR_READ_ONLY);
                  ResultSet res = stmt.executeQuery(strMtdHeaderSelect)) {
               if (res.next()) {
                 String strMtdHeaderIdDup = res.getString(1);
@@ -2380,7 +2380,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               con.close();
             } catch (Exception e) {
               logger.error(e.getMessage());
-            }
+            }  */
 
           }
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
@@ -2559,82 +2559,18 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     //  print a performance report
     if (info._boolVerbose) {
       long intMtdHeaderLoadTime = new Date().getTime() - intMtdHeaderLoadStart;
-      logger.info(
-          MVUtil.padBegin("mtd_header inserts: ", 36)
-              + headerInserts + "\n"
-              + MVUtil.padBegin("mtd_3d_obj_single inserts: ", 36)
-              + obj3dSingleInserts + "\n"
-              + MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36)
-              + obj3dPairInserts + "\n"
-              + MVUtil.padBegin("mtd_2d_obj inserts: ", 36) + obj2dInserts + "\n"
-              + (info._boolMtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time: ", 36)
-                                                  + MVUtil.formatTimeSpan(
-              timeStats.get("headerSearchTime"))
-                                                  + "\n" : "")
-              + MVUtil.padBegin("total load time: ", 36)
-              + MVUtil.formatTimeSpan(intMtdHeaderLoadTime) + "\n\n");
+      logger.info(MVUtil.padBegin("mtd_header inserts: ", 36) + headerInserts + "\n" +
+                      MVUtil
+                          .padBegin("mtd_3d_obj_single inserts: ", 36) + obj3dSingleInserts + "\n" +
+                      MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36) + obj3dPairInserts + "\n" +
+                      MVUtil.padBegin("mtd_2d_obj inserts: ", 36) + obj2dInserts + "\n" +
+                      (info._boolMtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time: ",
+                                                                    36) + MVUtil.formatTimeSpan(
+                          timeStats.get("headerSearchTime")) + "\n" : "") +
+                      MVUtil.padBegin("total load time: ", 36) + MVUtil.formatTimeSpan(
+          intMtdHeaderLoadTime) + "\n\n");
     }
     return timeStats;
-  }
-
-  @Override
-  public void updateGroup(String group) throws Exception {
-    String sql = "SELECT  category FROM metadata";
-    String currentCategory = "";
-    int nrows = 0;
-
-    try (Connection con = getConnection();
-         Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                              java.sql.ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery(sql)) {
-
-      while (res.next()) {
-        currentCategory = res.getString(1);
-        nrows = nrows + 1;
-      }
-
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
-    if (!currentCategory.equals(group)) {
-      if (nrows == 0) {
-        sql = "INSERT INTO metadata VALUES ('" + group + "','')";
-      } else {
-        sql = "UPDATE metadata SET category = '" + group
-                  + "' WHERE category = '" + currentCategory + "'";
-      }
-      executeUpdate(sql);
-    }
-  }
-
-  @Override
-  public void updateDescription(String description) throws Exception {
-    String sql = "SELECT  description FROM metadata";
-    String currentDescription = "";
-    int nrows = 0;
-
-    try (Connection con = getConnection();
-         Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                              java.sql.ResultSet.CONCUR_READ_ONLY);
-         ResultSet res = stmt.executeQuery(sql)) {
-
-      while (res.next()) {
-        currentDescription = res.getString(1);
-        nrows = nrows + 1;
-      }
-
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
-    if (!currentDescription.equals(description)) {
-      if (nrows == 0) {
-        sql = "INSERT INTO metadata VALUES (''," + description + "')";
-      } else {
-        sql = "UPDATE metadata SET description = '" + description
-                  + "' WHERE description = '" + currentDescription + "'";
-      }
-      executeUpdate(sql);
-    }
   }
 
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
@@ -2647,8 +2583,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     strLineDataInsert = strLineDataInsert.substring(0, strLineDataInsert.length() - 1);
     strLineDataInsert = strLineDataInsert + ")";
     int intResLineDataInsert = 0;
-    Connection con = null;
-    Statement stmt = null;
+/*
     PreparedStatement ps = null;
     IntStream intStream = null;
     try {
@@ -2681,8 +2616,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       intResLineDataInsert = intResLineDataInsert + IntStream.of(updateCounts).sum();
       intStream.close();
 
-    } catch (SQLException se) {
-      throw new Exception("caught SQLException calling executeBatch: " + se.getMessage());
+    } catch (Exception e) {
+      throw new Exception("caught Exception calling executeBatch: " + se.getMessage());
     } finally {
       if (ps != null) {
         ps.close();
@@ -2696,7 +2631,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       if (intStream != null) {
         intStream.close();
       }
-    }
+    }  */
     return intResLineDataInsert;
   }
 
@@ -2715,6 +2650,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     int strDataFileLuId = -1;
     String strDataFileLuTypeName;
     Integer dataFileId;
+    JsonDocument doc;
+    N1qlQueryResult queryResult;
+    queryResult = null;
+    List<N1qlQueryRow> queryList;
+    queryList = null;
+    N1qlQueryRow firstRow;
+    firstRow = null;
+    JsonObject firstRowObject;
+    firstRowObject = null;
+    long nextIdNumber;
+    nextIdNumber = 0;
+    String nextIdString;
+    String dupIdString;
+    nextIdString = "";
+    dupIdString = "";
+    JsonObject dataFile;
+    JsonDocument response;
 
     //check file size and return if it  is 0
     if (file.length() == 0) {
@@ -2722,9 +2674,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    String strLoadDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
+    String strLoadDate = CBDatabaseManager.DATE_FORMAT.format(cal.getTime());
     cal.setTimeInMillis(file.lastModified());
-    String strModDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
+    String strModDate = CBDatabaseManager.DATE_FORMAT.format(cal.getTime());
 
     // determine the type of the input data file by parsing the filename
     if (strFile.matches("\\S+\\.stat$")) {
@@ -2752,91 +2704,79 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     if (!"".equals(strDataFileLuTypeName)) {
       strDataFileLuId = tableDataFileLU.get(strDataFileLuTypeName);
     }
+    // for compile. remove when CB fully in
+    dataFileId = 0;
 
-    // build a query to look for the file and path in the data_file table
-    String strDataFileQuery =
-        "SELECT " +
-            "  dfl.type_name, " +
-            "  df.data_file_id, " +
-            "  df.load_date, " +
-            "  df.mod_date " +
-            "FROM " +
-            "  data_file_lu dfl, " +
-            "  data_file df " +
-            "WHERE " +
-            "  dfl.data_file_lu_id = df.data_file_lu_id " +
-            "  AND df.filename = \'" + strFile + "\' " +
-            "  AND df.path = \'" + strPath + "\';";
+    // build a Couchbase query to look for the file and path in the data_file table
+    String strDataFileQuery =  "SELECT " +
+            "meta().id as dataFileId, " +
+            "type, " +
+            "data_type, " +
+            "load_date, " +
+            "mod_date " +
+            "FROM `" +
+            bucket.name() +
+            "` WHERE " +
+            "type = \'file\' AND " +
+            "`data_type` = \'" + strDataFileLuTypeName + "\' AND " +
+            "filename = \'" + strFile + "\' AND " +
+            "`path` = \'" + strPath + "\';";
 
-
-    try (
-            Connection con = getConnection();
-            Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                                 java.sql.ResultSet.CONCUR_READ_ONLY);
-            ResultSet res = stmt.executeQuery(strDataFileQuery)) {
+    try {
+      queryResult = bucket.query(N1qlQuery.simple(strDataFileQuery));
+      queryList = queryResult.allRows();
 
       // if the data file is already present in the database, print a warning and return the id
-      if (res.next()) {
-        strDataFileLuTypeName = res.getString(1);
-        dataFileId = res.getInt(2);
-        strLoadDate = res.getString(3);
-        strModDate = res.getString(4);
-
+      if (queryList.size() > 0) {
         if (forceDupFile) {
+          firstRow = queryList.get(0);
+          firstRowObject = firstRow.value();
+          // set dupIdString to id of existing data file document
+          dupIdString = firstRowObject.get("dataFileId").toString();
+          strLoadDate = firstRowObject.get("load_date").toString();
+          strModDate = firstRowObject.get("mod_date").toString();
           DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
-                                               strModDate, strDataFileLuId, strDataFileLuTypeName, "");
+                                               strModDate, strDataFileLuId, strDataFileLuTypeName, dupIdString);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
         } else {
           throw new Exception("file already present in table data_file, use force_dup_file setting to override");
         }
       }
-      res.close();
-      stmt.close();
-      con.close();
-    } catch (Exception e) {
+
+    } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
-    // if the file is not present in the data_file table, query for the largest data_file_id
-    try (
-            Connection con = getConnection();
-            Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                                 java.sql.ResultSet.CONCUR_READ_ONLY);
-            ResultSet res = stmt.executeQuery("SELECT MAX(data_file_id) FROM data_file;")) {
-
-      if (!res.next()) {
-        throw new Exception("METViewer load error: processDataFile() unable to find max data_file_id");
+    //  create a unique string data_file id from a Couchbase counter, starting at 1 the first time
+    try {
+      nextIdNumber = bucket.counter("DFCounter", 1, 1).content();
+      if (0 > nextIdNumber) {
+        throw new Exception("METViewer load error: processDataFile() unable to get counter");
       }
-      dataFileId = res.getInt(1);
-      if (res.wasNull()) {
-        dataFileId = 0;
-      }
-      dataFileId = dataFileId + 1;
-      res.close();
-      stmt.close();
-      con.close();
 
-    } catch (Exception e) {
+    } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
+    nextIdString = databaseInfo.getDbName() + "::file::" + strDataFileLuTypeName + "::" + String.valueOf(nextIdNumber);
+    try {
+      dataFile = JsonObject.empty()
+              .put("type", "file")
+              .put("data_type", strDataFileLuTypeName)
+              .put("filename", strFile)
+              .put("path", strPath)
+              .put("load_date", strLoadDate)
+              .put("mod_date", strModDate);
 
-
-    // add the input file to the data_file table
-    String strDataFileInsert =
-        "INSERT INTO data_file VALUES (" +
-            dataFileId + ", " +      // data_file_id
-            strDataFileLuId + ", " +    // data_file_lu_id
-            "'" + strFile + "', " +      // filename
-            "'" + strPath + "', " +      // path
-            "'" + strLoadDate + "', " +    // load_date
-            "'" + strModDate + "');";    // mod_date
-    int intRes = executeUpdate(strDataFileInsert);
-    if (1 != intRes) {
-      logger.warn("  **  WARNING: unexpected result from data_file INSERT: " + intRes);
-    }
-
+      doc = JsonDocument.create(nextIdString, dataFile);
+      response = bucket.upsert(doc);
+      if (response.content().isEmpty()) {
+        logger.warn("  **  WARNING: unexpected result from data_file INSERT");
+      }
+    } catch (Exception e) {
+      throw new Exception(e.getMessage());
+      }
     return new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
-                            strDataFileLuTypeName, "");
+                            strDataFileLuTypeName, nextIdString);
   }
 
   @Override
@@ -2853,7 +2793,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
     }
     strUpdater = strUpdater.trim();
-    String strUpdateDate = MysqlDatabaseManager.DATE_FORMAT.format(new Date());
+    String strUpdateDate = CBDatabaseManager.DATE_FORMAT.format(new Date());
     String strUpdateDetail = job.getLoadNote();
 
     //  read the load xml into a string, if requested

@@ -40,8 +40,8 @@ public class MysqlLoadDatabaseManagerTest {
                             .buildPrintWriter());
             File file = new File("a data file path");
             boolean forceDupFile = job.getForceDupFile();
-            DataFileInfo info = mysqlLoadDatabaseManager.processDataFile(file, forceDupFile);
-            Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFileVSDB(info);
+            DataFileInfo info = mysqlLoadDatabaseManager.processDataFile(file, forceDupFile, databaseInfo);
+            Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFileVSDB(info, databaseInfo);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception caught: " + e.getMessage());
