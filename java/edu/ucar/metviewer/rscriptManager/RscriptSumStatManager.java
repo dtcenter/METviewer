@@ -32,7 +32,6 @@ public class RscriptSumStatManager extends RscriptStatManager {
                                                          new MarkerManager.Log4jMarker("ERROR"))
                                                      .buildPrintStream();
 
-
   public RscriptSumStatManager(MVBatch mvBatch) {
     super(mvBatch);
   }
@@ -41,9 +40,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
   public void prepareDataFileAndRscript(
                                            MVPlotJob job, MVOrderedMap mvMap,
                                            Map<String, String> info,
-
-                                           List<String> listQuery) throws
-      Exception {
+                                           List<String> listQuery) throws Exception {
 
     //  run the plot SQL against the database connection
     long intStartTime = new Date().getTime();
@@ -53,8 +50,6 @@ public class RscriptSumStatManager extends RscriptStatManager {
                                                 MVUtil.addTmplValDep(job),
                                                 job.getTmplMaps(),
                                                 mvBatch.getPrintStream());
-
-
     dataFile = dataFile + ".sum_stat";
 
     rScriptFile = mvBatch.getRworkFolder() + "include/sum_stat.R";
