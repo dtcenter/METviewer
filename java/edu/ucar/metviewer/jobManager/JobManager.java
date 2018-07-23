@@ -225,8 +225,7 @@ public abstract class JobManager {
              0 < listIndyLabel.length ? MVUtil.printRCol(listIndyLabel, true) : "c()"
     );
     info.put("indy_plot_val",
-             0 < job.getIndyPlotVal().length ? MVUtil.printRCol(job.getIndyPlotVal(),
-                                                                false) : "c()");
+             0 < job.getIndyPlotVal().length ? MVUtil.printRCol(job.getIndyPlotVal(), false) : "c()");
     info.put("dep1_plot", null != mapDep1Plot ? mapDep1Plot.getRDecl() : "c()");
     info.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
     info.put("agg_list", new MVOrderedMap().getRDecl());
@@ -324,9 +323,8 @@ public abstract class JobManager {
     info.put("sum_sal1l2", job.getCalcSal1l2() ? "TRUE" : "FALSE");
     info.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
     info.put("indy_var", job.getIndyVar());
-    info
-        .put("indy_list", 0 < listIndyValFmt.length ? MVUtil.printRCol(listIndyValFmt, true)
-                              : "c()");
+    info.put("indy_list",
+             0 < listIndyValFmt.length ? MVUtil.printRCol(listIndyValFmt, true) : "c()");
     info.put("series1_list", job.getSeries1Val().getRDeclSeries());
     info.put("series2_list", job.getSeries2Val().getRDeclSeries());
     info.put("sum_stat_static", mapAggStatStatic.getRDecl());
@@ -355,8 +353,7 @@ public abstract class JobManager {
     info.put("boot_ci", job.getAggBootCI());
     info.put("ci_alpha", job.getCIAlpha());
     info.put("agg_stat1",
-             MVUtil.printRCol(
-                 listAggStats1.toArray(new String[listAggStats1.size()]), true));
+             MVUtil.printRCol(listAggStats1.toArray(new String[listAggStats1.size()]), true));
     info.put("agg_stat2", MVUtil.printRCol(
         listAggStats2.toArray(new String[listAggStats2.size()]),
         true));
@@ -370,6 +367,8 @@ public abstract class JobManager {
     info.put("add_color_bar", job.getAddColorBar() ? "TRUE" : "FALSE");
     info.put("add_contour_overlay", job.getAddContourOverlay() ? "TRUE" : "FALSE");
     info.put("contour_diff", "FALSE");
+    info.put("revision_run", job.getRevisionRun() ? "TRUE" : "FALSE");
+    info.put("revision_ac", job.getRevisionAc() ? "TRUE" : "FALSE");
 
 
     return info;
