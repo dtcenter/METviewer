@@ -430,6 +430,7 @@ series_var_value_to_title_stat_map['interp_mthd'] = 'INTERP_MTHD';
 series_var_value_to_title_stat_map['interp_pnts'] = 'INTERP_PNTS';
 series_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
 series_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
+series_var_value_to_title_stat_map['obs_var'] = 'OBS_VAR';
 
 var fix_var_value_to_title_stat_map = {};
 fix_var_value_to_title_stat_map['fcst_lead'] = 'FCST_LEAD';
@@ -446,6 +447,7 @@ fix_var_value_to_title_stat_map['interp_mthd'] = 'INTERP_MTHD';
 fix_var_value_to_title_stat_map['interp_pnts'] = 'INTERP_PNTS';
 fix_var_value_to_title_stat_map['fcst_thresh'] = 'FCST_THRESH';
 fix_var_value_to_title_stat_map['obs_thresh'] = 'OBS_THRESH';
+fix_var_value_to_title_stat_map['obs_var'] = 'OBS_VAR';
 
 var fix_var_value_to_title_mode_map = {};
 fix_var_value_to_title_mode_map['fcst_lead'] = 'FCST_LEAD';
@@ -3690,6 +3692,14 @@ function createXMLRely(plot) {
     var add_reference_line = $('<add_reference_line />');
     add_reference_line.text($('#add_reference_line').prop("checked"));
     plot.append(add_reference_line);
+    var agg_stat = $('<agg_stat />');
+    agg_stat.append($('<agg_pct />').text("true"));
+    agg_stat.append($('<boot_repl />').text($('#boot_repl').val()));
+    agg_stat.append($('<boot_random_seed />').text($('#boot_random_seed').val()));
+    agg_stat.append($('<boot_ci />').text($('#boot_ci').val()));
+    agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
+    agg_stat.append($('<cl_step />').text($('#cl_step').val()));
+    plot.append(agg_stat);
     plot = createXMLCommon(plot);
     return plot;
 }
@@ -6132,7 +6142,6 @@ function requestDBUpdate() {
 
 }
 function updateFixVar(selected_mode) {
-    //remove fixed values
     //remove fixed values
     var fixed_var_indexes_copy = fixed_var_indexes.slice();
     for (var i = 0; i < fixed_var_indexes_copy.length; i++) {
