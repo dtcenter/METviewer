@@ -375,9 +375,7 @@
         updateStats("y2", 1, []);
         updateSeriesVarVal("y1", 1, []);
         updateSeriesVarVal("y2", 1, []);
-        $.each(fix_var_value_to_title_stat_map, function (key, val) {
-          $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
-        });
+
       }
 
 
