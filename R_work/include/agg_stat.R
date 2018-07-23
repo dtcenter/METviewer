@@ -539,6 +539,8 @@ if ( nrow(sampleData) > 0){
           dfAggPerm[1,on_i] = custom_sum(dfPerm[,on_i], na.rm = TRUE);
         }
 
+
+
         if(!is.na(dfAggPerm[1,thresh_i_index][[1]])){
           dfPctPerm = data.frame(
             thresh_i	= c( t( dfAggPerm[1,thresh_i_index] ) ),
@@ -549,9 +551,7 @@ if ( nrow(sampleData) > 0){
           # calculate vectors and constants to use below
           dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
           dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
-          T = custom_sum(dfPctPerm$n_i);									# T
-          oy_total = custom_sum(dfPctPerm$oy_i);							# n_.1
-          o_bar = oy_total / T;									# n_.1 / T
+
           dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
 
           # row-based calculations
@@ -562,12 +562,15 @@ if ( nrow(sampleData) > 0){
           dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
           dfPctPerm$baserate		= dfPctPerm$o_bar_i;
 
+
           # table-based stat calculations
           dfSeriescustom_sums = list(
             reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
             resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
             uncertainty	= o_bar * (1 - o_bar),
-            baser		= o_bar
+            baser		= o_bar,
+            calibration = dfPctPerm$calibration,
+            n_i = dfPctPerm$n_i
           );
           #dfSeriescustom_sums$b_ci	= calcBrierCI(dfPctPerm, dfSeriescustom_sums$brier, dblAlpha);
 
@@ -690,6 +693,7 @@ if ( nrow(sampleData) > 0){
 
         # build the data set pertinent to this series permutation
         dfStatsPerm = dfStatsIndy;
+        dfStatsPermAllIndy = NaN;
 
         for(intSeriesVal in 1:length(listSeriesVar)){
           strSeriesVar = listSeriesVar[intSeriesVal];
@@ -702,8 +706,16 @@ if ( nrow(sampleData) > 0){
           }
           vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
           dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+          if( boolAggPct ){
+            if( is.nan(dfStatsPermAllIndy) ){
+              dfStatsPermAllIndy = dfStatsRec;
+            }
+            dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
+          }
         }
         if( 1 > nrow(dfStatsPerm) ){ next; }
+
+
 
         # add the contingency table constituents for this series permutation to the boot list
         strPerm = escapeStr(paste(listPerm, sep="_"));
@@ -723,6 +735,12 @@ if ( nrow(sampleData) > 0){
           listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
         } else if( boolAggNbrCnt ){
           listFields = c("total", "fbs", "fss");
+        }else if( boolAggPct ){
+          #calc T abd o_bar for pct
+          n_i = dfStatsPermAllIndy$oy_i + dfStatsPermAllIndy$on_i;
+          T = custom_sum(n_i);									# T
+          oy_total = custom_sum(dfStatsPermAllIndy$oy_i);							# n_.1
+          o_bar = oy_total / T;
         }
         for(strCount in listFields){
           listCounts = dfStatsPerm[[strCount]];
@@ -831,8 +849,8 @@ if ( nrow(sampleData) > 0){
               listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
               listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
 
-                strStat1= listSeriesDiff1[2];
-                strStat2= listSeriesDiff2[2];
+              strStat1= listSeriesDiff1[2];
+              strStat2= listSeriesDiff2[2];
 
 
               derivedCurveName = getDerivedCurveName(diffSeriesVec);
@@ -856,87 +874,87 @@ if ( nrow(sampleData) > 0){
             }
           }
         } else{
-        for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+          for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
 
 
-          diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
-          listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
-          listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
+            diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+            listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
+            listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
 
             strStat1= listSeriesDiff1[length(listSeriesDiff1)];
             strStat2= listSeriesDiff2[length(listSeriesDiff2)];
 
 
-          derivedCurveName = getDerivedCurveName(diffSeriesVec);
+            derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
-          # build a indicator list for the pertinent rows in the output dataframe
-          listOutInd = rep(TRUE, nrow(dfOut));
-          strDiffVar = listSeriesVar[length(listSeriesVar)];
-          listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
+            # build a indicator list for the pertinent rows in the output dataframe
+            listOutInd = rep(TRUE, nrow(dfOut));
+            strDiffVar = listSeriesVar[length(listSeriesVar)];
+            listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
 
-          if(strStat1 == strStat2){
-            stat_name = strStat1;
-          }else{
-            stat_name = paste(strStat1,strStat2,collapse = "", sep=",");
-          }
-
-          listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
-
-          diff_sig = NA;
-          # Use the empirical distribution and just compute the ratio of differences < 0 if needed
-          if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
-            if( !all(is.na(bootStat$t[,intBootIndex])) ){
-              indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
-
-              mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
-              bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
-
-              pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
-              diff_sig = perfectScoreAdjustment(bootStat$t0[indexes[1]], bootStat$t0[indexes[2]], listDep1Plot[[1]], pval);
-
-            }
-            dfOut[listOutInd1,]$stat_value = diff_sig;
-          }else{
-            if( 1 < intNumReplicates ){
-              stBootCI = Sys.time();
-              bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-              dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-            }
-            dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-          }
-
-          dfOut[listOutInd1,]$nstats = 0;
-          if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
-            if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["percent"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["percent"]][5];
-
-            }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["normal"]][2];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["normal"]][3];
-
-            }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["basic"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["basic"]][5];
-
-            }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["bca"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["bca"]][5];
-
-            }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["student"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["student"]][5];
+            if(strStat1 == strStat2){
+              stat_name = strStat1;
             }else{
+              stat_name = paste(strStat1,strStat2,collapse = "", sep=",");
+            }
+
+            listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
+
+            diff_sig = NA;
+            # Use the empirical distribution and just compute the ratio of differences < 0 if needed
+            if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
+              if( !all(is.na(bootStat$t[,intBootIndex])) ){
+                indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
+
+                mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
+                bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
+
+                pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
+                diff_sig = perfectScoreAdjustment(bootStat$t0[indexes[1]], bootStat$t0[indexes[2]], listDep1Plot[[1]], pval);
+
+              }
+              dfOut[listOutInd1,]$stat_value = diff_sig;
+            }else{
+              if( 1 < intNumReplicates ){
+                stBootCI = Sys.time();
+                bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+                dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+              }
+              dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
+            }
+
+            dfOut[listOutInd1,]$nstats = 0;
+            if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
+              if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["percent"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["percent"]][5];
+
+              }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["normal"]][2];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["normal"]][3];
+
+              }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["basic"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["basic"]][5];
+
+              }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["bca"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["bca"]][5];
+
+              }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["student"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["student"]][5];
+              }else{
+                dfOut[listOutInd1,]$stat_bcl = NA;
+                dfOut[listOutInd1,]$stat_bcu = NA;
+              }
+            } else {
               dfOut[listOutInd1,]$stat_bcl = NA;
               dfOut[listOutInd1,]$stat_bcu = NA;
             }
-          } else {
-            dfOut[listOutInd1,]$stat_bcl = NA;
-            dfOut[listOutInd1,]$stat_bcu = NA;
-          }
 
-          intBootIndex = intBootIndex + 1;
-        }
+            intBootIndex = intBootIndex + 1;
+          }
         }
       }
 
