@@ -55,7 +55,8 @@ top-level tag is <span class="code">&lt;load_spec&gt;</load_spec></span> which c
 	<li><span class="code">&lt;drop_indexes&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether database indexes should be dropped
 		prior to loading new data</li>
 	<li><span class="code">&lt;load_indexes&gt;</span>: <span class="code">true</span> or <span class="code">false</span>, indicating whether database indexes should be created
-		after loading new data</li><br/>
+		after loading new data</li>
+	<li><span class="code">&lt;group&gt;</span>: The name of the group for the user interface</li><br/>
 
 	<li>
 		<span class="code">&lt;load_files&gt;</span>: a list structure containing individual MET output files to load into the database
@@ -118,6 +119,7 @@ Here is a simple example:
 &nbsp;&nbsp;&lt;mode_header_db_check&gt;<span class="term">true</span>&lt;/mode_header_db_check&gt;<br/>
 &nbsp;&nbsp;&lt;drop_indexes&gt;<span class="term">false</span>&lt;/drop_indexes&gt;<br/>
 &nbsp;&nbsp;&lt;apply_indexes&gt;<span class="term">true</span>&lt;/apply_indexes&gt;<br/>	
+&nbsp;&nbsp;&lt;group&gt;<span class="term">Group name</span>&lt;/group&gt;<br/>
 &nbsp;&nbsp;&lt;load_stat&gt;<span class="term">true</span>&lt;/load_stat&gt;<br/>
 &nbsp;&nbsp;&lt;load_mode&gt;<span class="term">true</span>&lt;/load_mode&gt;<br/>	
 &nbsp;&nbsp;&lt;load_mtd&gt;<span class="term">true</span>&lt;/load_mtd&gt;<br/>
