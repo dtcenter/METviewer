@@ -323,6 +323,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     String[] listTables = tableLineDataTables.keySet().toArray(new String[]{});
     String strWhere = "";
+    //we need to get all values of obs_var for all variables
+    if (strField.equalsIgnoreCase("obs_var")) {
+      boolFcstVar = false;
+    }
     if (boolFcstVar) {
       String strFcstVarList = "";
       String[] listFcstVar = tableFcstVarStat.keySet().toArray(new String[]{});
@@ -701,14 +705,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public Map<String, String> getAllDatabasesWithDescription() {
-    return  Collections.unmodifiableMap(listDB);
+    return Collections.unmodifiableMap(listDB);
   }
 
   @Override
   public Map<String, List<String>> getAllGroups() {
     return Collections.unmodifiableMap(groupToDatabases);
   }
-
 
 
   @Override
@@ -2690,6 +2693,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             "  AND h.stat_header_id = ld.stat_header_id\n" +
             "ORDER BY h.obs_thresh;";
 
+
     if (printStreamSql != null) {
       printStreamSql.println(strObsThreshSelect + "\n");
     }
@@ -2729,27 +2733,46 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
-      strPlotDataSelect = strPlotDataSelect +
+      if (boolRelyPlot) {
+        strPlotDataSelect = strPlotDataSelect +
 
-                              "  ldt.i_value,\n" +
-                              "  ldt.thresh_i,\n" +
-                              "  SUM(ldt.oy_i) oy_i,\n" +
-                              "  SUM(ldt.on_i) on_i\n";
+                                "  ldt.i_value,\n" +
+                                "  ldt.thresh_i,\n" +
+                                "  ldt.oy_i oy_i,\n" +
+                                "  ldt.on_i on_i\n";
 
-      strPlotDataSelect = strPlotDataSelect + "FROM\n" +
-                              "  stat_header h,\n" +
-                              "  line_data_pct ld,\n" +
-                              "  line_data_pct_thresh ldt\n" +
-                              "WHERE\n" +
-                              strWhere +
-                              "  AND h.stat_header_id = ld.stat_header_id\n" +
-                              "  AND ld.line_data_id = ldt.line_data_id\n" +
-                              "GROUP BY\n" +
-                              "  ldt.thresh_i";
-      if (listSeries.length > 0) {
-        strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
+        strPlotDataSelect = strPlotDataSelect + "FROM\n" +
+                                "  stat_header h,\n" +
+                                "  line_data_pct ld,\n" +
+                                "  line_data_pct_thresh ldt\n" +
+                                "WHERE\n" +
+                                strWhere +
+                                "  AND h.stat_header_id = ld.stat_header_id\n" +
+                                "  AND ld.line_data_id = ldt.line_data_id;";
+
+      } else {
+        strPlotDataSelect = strPlotDataSelect +
+
+                                "  ldt.i_value,\n" +
+                                "  ldt.thresh_i,\n" +
+                                "  SUM(ldt.oy_i) oy_i,\n" +
+                                "  SUM(ldt.on_i) on_i\n";
+
+        strPlotDataSelect = strPlotDataSelect + "FROM\n" +
+                                "  stat_header h,\n" +
+                                "  line_data_pct ld,\n" +
+                                "  line_data_pct_thresh ldt\n" +
+                                "WHERE\n" +
+                                strWhere +
+                                "  AND h.stat_header_id = ld.stat_header_id\n" +
+                                "  AND ld.line_data_id = ldt.line_data_id\n" +
+                                "GROUP BY\n" +
+                                "  ldt.thresh_i";
+        if (listSeries.length > 0) {
+          strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
+        }
+        strPlotDataSelect = strPlotDataSelect + ";";
       }
-      strPlotDataSelect = strPlotDataSelect + ";";
 
     } else if (job.getRocCtc()) {
 
