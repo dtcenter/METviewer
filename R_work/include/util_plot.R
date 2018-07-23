@@ -1156,5 +1156,5 @@ custom_sum = function(input, na.rm = FALSE){
   if( sum(is.na(input)) == length(input) ){
     return (NA)
   }
-  return( sum(input, na.rm) )
+  return( sum(input, na.rm=na.rm) )
 }
