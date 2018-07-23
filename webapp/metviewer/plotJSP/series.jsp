@@ -443,9 +443,7 @@
         updateStats("y2", 1, []);
         updateSeriesVarVal("y1", 1, []);
         updateSeriesVarVal("y2", 1, []);
-        $.each(fix_var_value_to_title_stat_map, function (key, val) {
-          $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
-        });
+
       }
 
 
@@ -573,23 +571,18 @@
               <select id="series_var_y1_1">
                 <option value="model">MODEL</option>
                 <option value="fcst_lead">FCST_LEAD</option>
-                <option value="fcst_valid_beg">FCST_VALID_BEG
-                </option>
+                <option value="fcst_valid_beg">FCST_VALID_BEG</option>
                 <option value="valid_hour">VALID_HOUR</option>
-                <option value="fcst_init_beg">FCST_INIT_BEG
-                </option>
+                <option value="fcst_init_beg">FCST_INIT_BEG</option>
                 <option value="init_hour">INIT_HOUR</option>
                 <option value="fcst_lev">FCST_LEV</option>
                 <option value="obtype">OBTYPE</option>
                 <option value="vx_mask">VX_MASK</option>
-                <option value="interp_mthd">INTERP_MTHD
-                </option>
-                <option value="interp_pnts">INTERP_PNTS
-                </option>
-                <option value="fcst_thresh">FCST_THRESH
-                </option>
-                <option value="obs_thresh">OBS_THRESH
-                                </option>
+                <option value="interp_mthd">INTERP_MTHD</option>
+                <option value="interp_pnts">INTERP_PNTS</option>
+                <option value="fcst_thresh">FCST_THRESH</option>
+                <option value="obs_thresh">OBS_THRESH</option>
+                <option value="obs_var">OBS_VAR</option>
               </select>
             </td>
             <td>
@@ -712,23 +705,18 @@
               <select id="series_var_y2_1">
                 <option value="model">MODEL</option>
                 <option value="fcst_lead">FCST_LEAD</option>
-                <option value="fcst_valid_beg">FCST_VALID_BEG
-                </option>
+                <option value="fcst_valid_beg">FCST_VALID_BEG</option>
                 <option value="valid_hour">VALID_HOUR</option>
-                <option value="fcst_init_beg">FCST_INIT_BEG
-                </option>
+                <option value="fcst_init_beg">FCST_INIT_BEG</option>
                 <option value="init_hour">INIT_HOUR</option>
                 <option value="fcst_lev">FCST_LEV</option>
                 <option value="obtype">OBTYPE</option>
                 <option value="vx_mask">VX_MASK</option>
-                <option value="interp_mthd">INTERP_MTHD
-                </option>
-                <option value="interp_pnts">INTERP_PNTS
-                </option>
-                <option value="fcst_thresh">FCST_THRESH
-                </option>
-                <option value="obs_thresh">OBS_THRESH
-                                               </option>
+                <option value="interp_mthd">INTERP_MTHD</option>
+                <option value="interp_pnts">INTERP_PNTS</option>
+                <option value="fcst_thresh">FCST_THRESH</option>
+                <option value="obs_thresh">OBS_THRESH</option>
+                <option value="obs_var">OBS_VAR</option>
               </select>
             </td>
             <td>
