@@ -25,12 +25,15 @@ listLty = #<lty>#;
 
 listLwd = #<lwd>#;
 
+listPlotCI = #<plot_ci>#;
+
 listStatisticsCurvs	= #<summary_curves>#;
 
 addReferenceLine = #<add_reference_line>#;
 
 addSkillLine = #<add_skill_line>#;
 
+boolIndyStagger= #<indy1_stagger>#;
 
 
 legend=c();
@@ -79,32 +82,43 @@ par(
 initSeries <- function(dfPerm,envir, intPermVal=1) {
   # adjust the percentile thresholds to the midpoints
   if(nrow(dfPerm) > 0){
+    dfPerm_obar = dfPerm[dfPerm$stat_name == 'PSTD_BASER',]
+    dfPerm_calibration = dfPerm[dfPerm$stat_name == 'PSTD_CALIBRATION',]
+    dfPerm_n_i = dfPerm[dfPerm$stat_name == 'PSTD_NI',]
+
+    dfPerm = dfPerm_calibration;
     dfPerm$thresh_ii = dfPerm$thresh_i;
+    dfPerm$n_i = dfPerm_n_i$stat_value
     for(i in 2:nrow(dfPerm)){
       dfPerm[i-1,]$thresh_i = 0.5*(dfPerm[i,]$thresh_ii + dfPerm[i-1,]$thresh_ii);
     }
     dfPerm[i,]$thresh_i = 0.5*(1 + dfPerm[i,]$thresh_ii);
     
     # calculate vectors and constants to use below
-    dfPerm$n_i = dfPerm$oy_i + dfPerm$on_i; # n_j.
-    dfPerm = dfPerm[0 != dfPerm$n_i,];
-    T = sum( as.numeric(dfPerm$n_i) ); # T
-    oy_total = sum( as.numeric(dfPerm$oy_i) ); # n_.1
-    o_bar = oy_total / T; # n_.1 / T
-    dfPerm$o_bar_i = dfPerm$oy_i / dfPerm$n_i; # o_bar_i
+    #dfPerm$n_i = dfPerm$oy_i + dfPerm$on_i; # n_j.
+    #dfPerm = dfPerm[0 != dfPerm$n_i,];
+    #T = sum( as.numeric(dfPerm$n_i) ); # T
+    #oy_total = sum( as.numeric(dfPerm$oy_i) ); # n_.1
+    #o_bar = oy_total / T; # n_.1 / T
+    #dfPerm$o_bar_i = dfPerm$oy_i / dfPerm$n_i; # o_bar_i
     
     # row-based calculations
-    dfPerm$oy_tp = dfPerm$oy_i / T;
-    dfPerm$on_tp = dfPerm$on_i / T;
-    dfPerm$calibration = dfPerm$oy_i / dfPerm$n_i;
-    dfPerm$refinement = dfPerm$n_i / T;
-    dfPerm$likelihood = dfPerm$oy_i / oy_total;
-    dfPerm$baserate = dfPerm$o_bar_i;
-    dfPerm$no_skill = 0.5*(dfPerm$thresh_i + o_bar);
+    #dfPerm$oy_tp = dfPerm$oy_i / T;
+    #dfPerm$on_tp = dfPerm$on_i / T;
+    #dfPerm$calibration = dfPerm$oy_i / dfPerm$n_i;
+    #dfPerm$refinement = dfPerm$n_i / T;
+    #dfPerm$likelihood = dfPerm$oy_i / oy_total;
+    #dfPerm$baserate = dfPerm$o_bar_i;
+    #dfPerm$no_skill = 0.5*(dfPerm$thresh_i + o_bar);
+    dfPerm$no_skill = 0.5*(dfPerm$thresh_i + dfPerm_obar$stat_value);
     
     # initialize the plot data
-    listCal = dfPerm$calibration;
+    #listCal = dfPerm$calibration;
+    listCal = dfPerm$stat_value;
+
     listThresh = dfPerm$thresh_i;
+    listBcl = dfPerm$stat_bcl;
+    listBcu = dfPerm$stat_bcu;
   }else{
     dfPerm=NA;
     dfPermHist=data.frame(thresh_i=envir$listX, stat_value=rep(0, length(envir$listX)) );
@@ -219,9 +233,11 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
       }
     }
   
-    envir$o_bar[[actualInd]] = o_bar;
+    envir$o_bar[[actualInd]] = dfPerm_obar$stat_value[1];
     envir$listThresh[[actualInd]] = listThresh;
     envir$listCal[[actualInd]] = listCal;
+    envir$listBcl[[actualInd]] = listBcl;
+    envir$listBcu[[actualInd]] = listBcu;
     dblNoSkillM = (dfPerm[2,]$no_skill - dfPerm[1,]$no_skill) / (dfPerm[2,]$thresh_i - dfPerm[1,]$thresh_i);
     dblNoSkillB = dfPerm[1,]$no_skill - dblNoSkillM * dfPerm[1,]$thresh_i;
     envir$dblNoSkillB[[actualInd]] = dblNoSkillB;
@@ -240,6 +256,8 @@ env$suffixesInd = 1;
 env$listX = unique(dfPct$thresh_i);
 env$listThresh=list();
 env$listCal=list();
+env$listBcl=list();
+env$listBcu=list();
 env$dblNoSkillB=list();
 env$o_bar=list();
 
@@ -271,14 +289,19 @@ if(length(listSeries1Val) > 0){
 
 if(length(listStatisticsCurvs) > 0){
   intPermVal = intCurveNum + 1;
-    for(index in 1:length(listStatisticsCurvs)){
-      groupStats_oy_i = aggregate(oy_i ~ thresh_i, data = dfPct, FUN = listStatisticsCurvs[index]);
-      groupStats_on_i = aggregate(on_i ~ thresh_i, data = dfPct, FUN = listStatisticsCurvs[index]);
-      dfPerm= merge(groupStats_oy_i, groupStats_on_i,by="thresh_i");
-      seriesLegend = paste(listStatisticsCurvs[index],'Reliability Curve');
-      legend=append(legend, seriesLegend);
-      initSeries(dfPerm,envir=env, intPermVal);
+  for(index in 1:length(listStatisticsCurvs)){
+    groupStats = aggregate(stat_value ~ thresh_i, data = dfPct[dfPct$stat_name == 'PSTD_CALIBRATION',], FUN = listStatisticsCurvs[index]);
+    groupStats$thresh_ii = groupStats$thresh_i;
+    for(i in 2:nrow(groupStats)){
+      groupStats[i-1,]$thresh_i = 0.5*(groupStats[i,]$thresh_ii + groupStats[i-1,]$thresh_ii);
     }
+    groupStats[i,]$thresh_i = 0.5*(1 + groupStats[i,]$thresh_ii);
+    seriesLegend = paste(listStatisticsCurvs[index],'Reliability Curve');
+    legend=append(legend, seriesLegend);
+
+    env$listThresh[[length(env$listThresh)+1]] = groupStats$thresh_i;
+    env$listCal[[length(env$listCal)+1]] = groupStats$stat_value;
+  }
 }
 
 #replace with user's legends
@@ -294,11 +317,13 @@ listColorsOrdered=c();
 listLegendOrdered=c();
 listLtyOrdered=c();
 listLwdOrdered=c();
+listCiOrdered=c();
 listPchOrdered=c();
 listTypeOrdered=c();
 listPlotDispOrdered=c();
 for(index in 1:length(listPlotOrderSeries)){
   listLwdOrdered[listPlotOrderSeries[index]]=listLwd[index];
+  listCiOrdered[listPlotOrderSeries[index]]=listPlotCI[index];
   listColorsOrdered[listPlotOrderSeries[index]]=listColors[index];
   listLegendOrdered[listPlotOrderSeries[index]]=legend[index];
   listLtyOrdered[listPlotOrderSeries[index]]=listLty[index];
@@ -316,6 +341,7 @@ listColorsDisp = listColorsOrdered[listPlotDispOrdered];
 listLtyDisp    = listLtyOrdered[listPlotDispOrdered];
 listPchDisp    = listPchOrdered[listPlotDispOrdered];
 listTypeDisp    = listTypeOrdered[listPlotDispOrdered];
+
 
 
 if(boolEventHist == TRUE){
@@ -428,10 +454,19 @@ for (i in 1:length(env$dblNoSkillB)){
   );
 }
 
+# build the x-adjustment increments, if requested
+dblAdjScale = (tail(env$listThresh[[length(env$listThresh)]], n=1) - head(env$listThresh[[length(env$listThresh)]], n=1)) / 150;
+# build the x-adjustment increments, if requested
+intNumStag = length(env$listThresh);
+listX1Stag = rep(0, intNumStag + 1);
+if( TRUE == boolIndyStagger ){
+  listX1Stag = seq( -(intNumStag/2)*dblAdjScale, (intNumStag/2)*dblAdjScale, length=intNumStag + 1 ) + ( dblAdjScale/2 );
+}
+
 # plot the series line
 for (i in 1:length(env$listThresh)){
   lines(
-    x=env$listThresh[i][[1]], # x coordinates
+    x=env$listThresh[i][[1]]+ listX1Stag[i], # x coordinates
     y=env$listCal[i][[1]], # y coordinates
     type=listTypeDisp[i], # series line type - p: points, l: lines, o: overplotted points and lines,
     # b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
@@ -444,6 +479,33 @@ for (i in 1:length(env$listThresh)){
     cex=1, # line magnification
     lwd=listLwdLeg[i] # line width
   );
+  # add arrows to the line, if requested
+  if( "none" != listPlotCI[i] ) {
+    listXFr  = env$listThresh[i][[1]] + listX1Stag[i];
+    listYFr  = env$listBcl[i][[1]];
+    listYTo  = env$listBcu[i][[1]];
+
+    listXTo  = listXFr;
+
+    for(ind in 1: length( listXFr) ){
+
+      arrows(
+        listXFr[ind],                      # x coordinate from which to draw
+        listYFr[ind],                      # y coordinate from which to draw
+        listXTo[ind],                      # x coordinate to which to draw
+        listYTo[ind],                      # y coordinate to which to draw
+        length=.02,                    # length of the edges of the arrow head (in inches)
+        angle=90,                      # angle from the shaft of the arrow to the edge of the arrow head
+        code=3,                        # arrow type - 1: up, 2: down and 3: both
+        lwd=listLwd[i],              # line width
+        col=listColorsDisp[i],      # line color
+        ljoin=1,                      # line join style - 0: round, 1: mitre and 2: bevel
+        lmitre=1,                      # line mitre limit, range 1-10
+        lend=2                        # line end style - 0: round, 1: butt and 2: square
+      );
+    }
+  }
+
 }
 
 
