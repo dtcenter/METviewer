@@ -372,6 +372,16 @@ calcPSTD_UNCERTAINTY = function(d){
   return ( d$uncertainty );
 }
 
+
+calcPSTD_CALIBRATION = function(d){
+  return ( d$calibration );
+}
+
+calcPSTD_NI = function(d){
+  return ( d$n_i );
+}
+
+
 calcFGBAR = function(d){
   return  (d$fgbar);
 }
