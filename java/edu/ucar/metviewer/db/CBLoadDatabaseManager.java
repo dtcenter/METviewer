@@ -2623,7 +2623,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 .put("obs_valid_beg", listValuesArr[11])
                 .put("obs_valid_end", listValuesArr[12]);
 
-        // listFieldsArr = tableLineDataFieldsTable
+        listFieldsArr = tableLineDataFieldsTable.get(listValuesArr[1]).split(",");
+        // for (int j = 0; j < listFieldsArr.size(); j++)
 
 
         doc = JsonDocument.create(lineDataIdString, lineDataFile);
