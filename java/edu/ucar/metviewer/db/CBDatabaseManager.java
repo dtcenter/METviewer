@@ -12,6 +12,12 @@ import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.*;
+import com.couchbase.client.java.env.*;
+import com.couchbase.client.java.document.*;
+import com.couchbase.client.java.document.json.*;
+
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,73 +35,64 @@ import java.util.Locale;
  */
 public class CBDatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
+  private static final Logger logger = LogManager.getLogger("CBDatabaseManager");
   //private static BoneCP connectionPool;
   protected static final String DB_PREFIX_MV = "mv_";
   protected DatabaseInfo databaseInfo;
   protected static List<String> listDB = new ArrayList<>();
   private DataSource dataSource;
-
+  static CouchbaseEnvironment env;
+  static Cluster cluster;
+  static Bucket bucket;
 
   protected static final SimpleDateFormat DATE_FORMAT
       = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 
-  public CBDatabaseManager(DatabaseInfo databaseInfo, PrintWriter printStreamSql) throws SQLException {
+  public CBDatabaseManager(DatabaseInfo databaseInfo, PrintWriter printStreamSql) throws CouchbaseException {
 
+    env = DefaultCouchbaseEnvironment.builder()
+            .connectTimeout(40000) //20000ms = 20s, default is 5s
+            .build();
 
-    String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
-    if (databaseInfo.getDbName() != null) {
-      jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
-    }
-    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+    // hardcoded bucket for now - change to command line option? XML tag?
+    String bucketName = "testvsdb";
+    cluster = null;
+    bucket = null;
 
-    this.databaseInfo = databaseInfo;
-    PoolConfiguration configurationToUse = new PoolProperties();
-    configurationToUse.setUrl(jdbcUrl);
-    configurationToUse.setUsername(databaseInfo.getUser());
-    configurationToUse.setPassword(databaseInfo.getPassword());
-    configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
-    configurationToUse.setInitialSize(10);
-    configurationToUse.setMaxActive(50);
-    configurationToUse.setMaxIdle(15);
-    configurationToUse.setMaxWait(10000);
-    configurationToUse.setValidationQuery("select 1");
-    configurationToUse.setTestOnBorrow(Boolean.TRUE);
-    configurationToUse.setTestOnReturn(Boolean.FALSE);
-    configurationToUse.setTestWhileIdle(Boolean.FALSE);
-    configurationToUse.setMinEvictableIdleTimeMillis(1800000);
-    configurationToUse.setTimeBetweenEvictionRunsMillis(1200000);
-    configurationToUse.setRemoveAbandoned(Boolean.TRUE);
-    configurationToUse.setRemoveAbandonedTimeout(60);
-    configurationToUse.setValidationInterval(30000);
-    configurationToUse.setRemoveAbandonedTimeout(60);
-    configurationToUse.setMinIdle(10);
-    configurationToUse.setRemoveAbandoned(true);
-    configurationToUse.setJdbcInterceptors(
-      "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;" +
-        "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
     try {
-      dataSource = new DataSource();
-      dataSource.setPoolProperties(configurationToUse);
-      dataSource.setLogWriter(printStreamSql);
-    } catch (Exception e) {
-      logger.debug(e);
-      logger.error("Database connection  for a primary database was not initialised.");
-      logger.error(e.getMessage());
-      dataSource = null;
-    }
+      cluster = CouchbaseCluster.create(env, databaseInfo.getHost());
+      cluster.authenticate(databaseInfo.getUser(), databaseInfo.getPassword());
+      bucket = cluster.openBucket(bucketName);
 
+    }
+    catch (CouchbaseException e) {
+      logger.debug(e);
+      logger.error("Open bucket connection for a Couchbase database did not succeed.");
+      logger.error(e.getMessage());
+    }
+    /*
     initDBList();
+    */
   }
 
 
   public void initDBList() {
     listDB.clear();
-  String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
+    String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
                      + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
                      + "> 0 and "
                      + "TABLE_SCHEMA like 'mv_%'";
+
+    /* when this is updated for Couchbase, this query will get the list of database names */
+    String nquery =  "select distinct substr(meta(`" +
+                      bucket.name() +
+                      "`).id, 0, position(meta(`" +
+                      bucket.name() +
+                      "`).id, \'::\')) as database_name from `" +
+                      bucket.name() +
+                      "` where type = \'file\';";
+
     try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
          ResultSet resultSet = testStatement.executeQuery(sql)

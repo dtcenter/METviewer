@@ -10,6 +10,7 @@ import java.util.Map;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
 import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
+import edu.ucar.metviewer.db.CBLoadDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -17,7 +18,7 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class MVLoad {
 
   private static final Logger logger = LogManager.getLogger("MVLoad");
-  private static LoadDatabaseManager mysqlLoadDatabaseManager;
+  private static LoadDatabaseManager loadDatabaseManager;
 
 
   private static final long statHeaderTableTime = 0;
@@ -86,8 +87,10 @@ public class MVLoad {
         if ("-index".equalsIgnoreCase(argv[0])) {
           indexOnly = true;
 
-        } else if (argv[intArg].equals("mysql")) {
+        } else if (argv[intArg].equalsIgnoreCase("mysql")) {
           dbType = "mysql";
+        } else if (argv[intArg].equalsIgnoreCase("CB")) {
+          dbType = "CB";
         } else {
           logger.error(
               "  **  ERROR: unrecognized option '" + argv[intArg]
@@ -107,12 +110,19 @@ public class MVLoad {
                                                    job.getDBPassword());
       databaseInfo.setDbName(job.getDBName());
       if (dbType.equals("mysql")) {
-        mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
+        loadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
                                                                 IoBuilder.forLogger(
                                                                     MysqlLoadDatabaseManager.class)
                                                                     .setLevel(
                                                                         org.apache.logging.log4j.Level.INFO)
                                                                     .buildPrintWriter());
+      } else if (dbType.equals("CB")) {
+        loadDatabaseManager = new CBLoadDatabaseManager(databaseInfo,
+                        IoBuilder.forLogger(
+                        CBLoadDatabaseManager.class)
+                        .setLevel(
+                                org.apache.logging.log4j.Level.INFO)
+                        .buildPrintWriter());
       }
 
       verbose = job.getVerbose();
@@ -155,13 +165,13 @@ public class MVLoad {
       //  drop the database indexes, if requested
       boolean dropIndexes = job.getDropIndexes();
       if (dropIndexes) {
-        mysqlLoadDatabaseManager.dropIndexes();
+        loadDatabaseManager.dropIndexes();
       }
 
       //  if the job involves only applying indexes, do so and return
       boolean applyIndexes = job.getApplyIndexes();
       if (indexOnly && applyIndexes) {
-        mysqlLoadDatabaseManager.applyIndexes();
+        loadDatabaseManager.applyIndexes();
         logger.info("\n----  MVLoad Done  ----");
         return;
       }
@@ -174,7 +184,7 @@ public class MVLoad {
         for (int i = 0; i < listLoadFiles.length; i++) {
           try {
             file = new File(listLoadFiles[i]);
-            processFile(file);
+            processFile(file, databaseInfo);
           } catch (Exception e) {
             logger.error(
                 "  **  ERROR: caught " + e.getClass() + " loading file "
@@ -220,7 +230,7 @@ public class MVLoad {
             if (listDataFiles != null) {
               for (File listDataFile : listDataFiles) {
                 try {
-                  processFile(listDataFile);
+                  processFile(listDataFile, databaseInfo);
                 } catch (Exception e) {
                   logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n"
                                    + e.getMessage() + "\n"
@@ -301,12 +311,12 @@ public class MVLoad {
 
       //  apply the indexes, if requested
       if (applyIndexes) {
-        mysqlLoadDatabaseManager.applyIndexes();
+        loadDatabaseManager.applyIndexes();
       }
 
       //  update the instance_info table, if requested
       if (boolLoadNote) {
-        mysqlLoadDatabaseManager.updateInfoTable(strXML, job);
+        loadDatabaseManager.updateInfoTable(strXML, job);
 
       }
 
@@ -337,9 +347,9 @@ public class MVLoad {
    * @param file File to process //* @param con Connection to the database to load
    * @throws Exception
    */
-  public static void processFile(File file) throws Exception {
+  public static void processFile(File file, DatabaseInfo databaseInfo) throws Exception {
     long intProcessDataFileBegin = new Date().getTime();
-    DataFileInfo info = mysqlLoadDatabaseManager.processDataFile(file, forceDupFile);
+    DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile, databaseInfo);
     if (null == info) {
       return;
     }
@@ -359,7 +369,7 @@ public class MVLoad {
 
     if ("stat".equals(info._dataFileLuTypeName) && loadStat) {
       logger.info(strFileMsg);
-      Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFile(info);
+      Map<String, Long> timeStats = loadDatabaseManager.loadStatFile(info);
       statHeaderSearchTime += timeStats.get("headerSearchTime");
       statLinesTotal += timeStats.get("linesTotal");
       statHeaderRecords += timeStats.get("headerRecords");
@@ -374,7 +384,7 @@ public class MVLoad {
                     || "mode_cts".equals(info._dataFileLuTypeName))
                    && loadMode) {
       logger.info(strFileMsg);
-      Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadModeFile(info);
+      Map<String, Long> timeStats = loadDatabaseManager.loadModeFile(info);
       modeHeaderSearchTime += timeStats.get("headerSearchTime");
       modeHeaderRecords += timeStats.get("headerInserts");
       modeCtsRecords += timeStats.get("ctsInserts");
@@ -391,7 +401,7 @@ public class MVLoad {
                     || "mtd_3d_ss".equals(info._dataFileLuTypeName))
                    && loadMtd) {
       logger.info(strFileMsg);
-      Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadMtdFile(info);
+      Map<String, Long> timeStats = loadDatabaseManager.loadMtdFile(info);
       mtdHeaderSearchTime += timeStats.get("headerSearchTime");
       mtdHeaderRecords += timeStats.get("headerInserts");
       mtdObj3dSingleRecords += timeStats.get("obj3dSingleInserts");
@@ -403,7 +413,7 @@ public class MVLoad {
       numMtdFiles++;
     } else if ("vsdb_point_stat".equals(info._dataFileLuTypeName) && loadStat) {
       logger.info(strFileMsg);
-      Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFileVSDB(info);
+      Map<String, Long> timeStats = loadDatabaseManager.loadStatFileVSDB(info, databaseInfo);
       statHeaderSearchTime += timeStats.get("headerSearchTime");
       statLinesTotal += timeStats.get("linesTotal");
       statHeaderRecords += timeStats.get("headerRecords");
