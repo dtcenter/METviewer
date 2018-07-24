@@ -82,6 +82,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     */
   private final Map<String, String> tableVarLengthTable;
   /*
+   * names of the fields for each line type
+   */
+  private final Map<String, String> tableLineDataFieldsTable;
+  /*
     * data_file_lu_id values for each MET output type
     */
   private final Map<String, Integer> tableDataFileLU;
@@ -135,6 +139,16 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     tableVarLengthTable.put("PHIST", "line_data_phist_bin");
     tableVarLengthTable.put("ORANK", "line_data_orank_ens");
     tableVarLengthTable.put("ECLV", "line_data_eclv_pnt");
+
+    tableLineDataFieldsTable = new HashMap<>();
+    tableLineDataFieldsTable.put("CTC", "total, fy_oy, fy_on, fn_oy, fn_on, ");
+    tableLineDataFieldsTable.put("GRAD", "total, fgbar, ogbar, mgbar, egbar, ");
+    tableLineDataFieldsTable.put("sl1l2", "total, fbar, obar, fobar, ffbar, oobar, ");
+    tableLineDataFieldsTable.put("sal1l2", "total, fabar, oabar, foabar, ffabar, ooabar, ");
+    tableLineDataFieldsTable.put("vl1l2",
+            "total, ufbar, vfbar, uobar, vobar, uvfobar, uvffbar, uvoobar, f_speed_bar, o_speed_bar, ");
+    tableLineDataFieldsTable.put("val1l2", "total, ufabar, vfabar, uoabar, voabar, uvfoabar, uvffabar, uvooabar, ");
+    tableLineDataFieldsTable.put("NBR_CNT", "total, fbs, fss, ");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
@@ -1151,7 +1165,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               } catch (CouchbaseException e) {
                 throw new Exception(e.getMessage());
               }
-            }  //if (info._boolStatHeaderDBCheck)
+            }  // end if (info._boolStatHeaderDBCheck)
 
             //  if the stat_header was not found, add it to the database and table
             if (!boolFoundStatHeader) {
@@ -1161,10 +1175,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 nextIdNumber = bucket.counter("HDCounter", 1, 1).content();
                 // unique id must be a string
                 headerIdString = databaseInfo.getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
-
-                if (0 > nextIdNumber) {
-                  throw new Exception("METViewer load error: loadStatFileVSDB() unable to get header file counter");
-                }
 
               } catch (CouchbaseException e) {
                 throw new Exception(e.getMessage());
@@ -1202,8 +1212,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               // add header to table
               statHeaders.put(strStatHeaderValueList, headerIdString);
 
-            } // if (!boolFoundStatHeader)
-          }  //else stat_header is not in table
+            } // end if (!boolFoundStatHeader)
+          } // end else stat_header is not in table
 
           if (headerIdString != null) {
 
@@ -1212,7 +1222,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  if the line type is of variable length, get the line_data_id
             boolean boolHasVarLengthGroups = MVUtil.lengthGroupIndices
-                                                 .containsKey(mvLoadStatInsertData.getLineType());
+                                                 .containsKey(strLineType);
 
             //  determine the maximum token index for the data
             if (boolHasVarLengthGroups) {
@@ -1223,8 +1233,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  build the value list for the insert statment
             String strLineDataValueList =
-                strLineDataId +            //  line_data_id (if present)
-                        headerIdString + ", " +      //  stat_header_id
+                    databaseInfo.getDbName() + ", " +     // database name for ID
+                            strLineType + ", " +          // line type
+                            modelName + ", " +            // model name for ID
+                            headerIdString + ", " +      //  stat_header_id
                     info._dataFileId + ", " +      //  data_file_id
                     intLine + ", " +          //  line_num
                     strFcstLead + ", " +        //  fcst_lead
@@ -1237,16 +1249,15 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
-            if (MVUtil.covThreshLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
+            if (MVUtil.covThreshLineTypes.containsKey(strLineType)) {
               strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
             }
 
             //  if the line data requires an alpha value, add it
             String strAlpha = "-9999";
-            if (MVUtil.alphaLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
+            if (MVUtil.alphaLineTypes.containsKey(strLineType)) {
               if (strAlpha.equals("NA")) {
-                logger.warn("  **  WARNING: alpha value NA with line type '" + mvLoadStatInsertData
-                                                                                   .getLineType() + "'\n        " + mvLoadStatInsertData
+                logger.warn("  **  WARNING: alpha value NA with line type '" + strLineType + "'\n        " + mvLoadStatInsertData
                                                                                                                         .getFileLine());
               }
               strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
@@ -1536,13 +1547,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  add the values list to the line type values map
             List<String> listLineTypeValues = new ArrayList<>();
             if (mvLoadStatInsertData.getTableLineDataValues()
-                    .containsKey(mvLoadStatInsertData.getLineType())) {
+                    .containsKey(strLineType)) {
               listLineTypeValues = mvLoadStatInsertData.getTableLineDataValues()
-                                       .get(mvLoadStatInsertData.getLineType());
+                                       .get(strLineType);
             }
             listLineTypeValues.add("(" + strLineDataValueList + ")");
             mvLoadStatInsertData.getTableLineDataValues()
-                .put(mvLoadStatInsertData.getLineType(), listLineTypeValues);
+                .put(strLineType, listLineTypeValues);
             dataInserts++;
 
 
@@ -1587,7 +1598,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
 
               List<String> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
-                                                  .get(mvLoadStatInsertData.getLineType());
+                                                  .get(strLineType);
               if (null == listThreshValues) {
                 listThreshValues = new ArrayList<>();
               }
@@ -1669,7 +1680,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
 
               mvLoadStatInsertData.getTableVarLengthValues()
-                  .put(mvLoadStatInsertData.getLineType(), listThreshValues);
+                  .put(strLineType, listThreshValues);
             }
 
             //  if the insert threshhold has been reached, commit the stored data to the database
@@ -2574,20 +2585,63 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   }
 
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
+    long nextIdNumber;
+    String lineDataIdString;
+    JsonObject lineDataFile;
+    lineDataFile = null;
+    JsonDocument response;
+    JsonDocument doc;
+    String[] listFieldsArr;
+    String[] listValuesArr;
 
-    String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + "(";
     int numberOfValues = listValues.get(0).split(",").length;
-    for (int i = 0; i < numberOfValues; i++) {
-      strLineDataInsert = strLineDataInsert + "?,";
+    for (int i = 0; i < listValues.size(); i++) {
+
+      listValuesArr = listValues.get(i).split(",");
+      //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
+      try {
+        nextIdNumber = bucket.counter("LDCounter", 1, 1).content();
+        // unique id must be a string
+        lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" + listValuesArr[2] + "::" + String.valueOf(nextIdNumber);
+
+      } catch (CouchbaseException e) {
+        throw new Exception(e.getMessage());
+      }
+
+      try {
+        lineDataFile = JsonObject.empty()
+                .put("type", "line")
+                .put("line_type", listValuesArr[1])
+                .put("header_id", listValuesArr[3])
+                .put("data_id", listValuesArr[4])
+                .put("line_num", listValuesArr[5])
+                .put("fcst_lead", listValuesArr[6])
+                .put("fcst_valid_beg", listValuesArr[7])
+                .put("fcst_valid_end", listValuesArr[8])
+                .put("fcst_int_beg", listValuesArr[9])
+                .put("obs_lead", listValuesArr[10])
+                .put("obs_valid_beg", listValuesArr[11])
+                .put("obs_valid_end", listValuesArr[12]);
+
+        // listFieldsArr = tableLineDataFieldsTable
+
+
+        doc = JsonDocument.create(lineDataIdString, lineDataFile);
+        response = bucket.upsert(doc);
+        if (response.content().isEmpty()) {
+          logger.warn("  **  WARNING: unexpected result from line data INSERT");
+        }
+      } catch (Exception e) {
+        throw new Exception(e.getMessage());
+      }
+
     }
-    strLineDataInsert = strLineDataInsert.substring(0, strLineDataInsert.length() - 1);
-    strLineDataInsert = strLineDataInsert + ")";
+
     int intResLineDataInsert = 0;
 /*
-    PreparedStatement ps = null;
-    IntStream intStream = null;
+
     try {
-      con = getConnection();
+
       stmt = con.createStatement();
       ps = con.prepareStatement(strLineDataInsert);
       for (int i = 0; i < listValues.size(); i++) {
@@ -2618,20 +2672,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     } catch (Exception e) {
       throw new Exception("caught Exception calling executeBatch: " + se.getMessage());
-    } finally {
-      if (ps != null) {
-        ps.close();
-      }
-      if (stmt != null) {
-        stmt.close();
-      }
-      if (con != null) {
-        con.close();
-      }
-      if (intStream != null) {
-        intStream.close();
-      }
-    }  */
+    }   */
     return intResLineDataInsert;
   }
 
