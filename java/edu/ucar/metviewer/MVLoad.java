@@ -10,7 +10,6 @@ import java.util.Map;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
 import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
-import edu.ucar.metviewer.db.CBLoadDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -83,21 +82,19 @@ public class MVLoad {
       }
 
       int intArg = 0;
-      for (; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++) {
+ for (; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++) {
         if ("-index".equalsIgnoreCase(argv[0])) {
           indexOnly = true;
 
-        } else if (argv[intArg].equalsIgnoreCase("mysql")) {
+        } else if (argv[intArg].equals("mysql")) {
           dbType = "mysql";
-        } else if (argv[intArg].equalsIgnoreCase("CB")) {
-          dbType = "CB";
         } else {
           logger.error(
               "  **  ERROR: unrecognized option '" + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
-      }
-      String strXML = argv[intArg];
+}     
+String strXML = argv[intArg];
 
       //  parse the plot job
       logger.info("Begin time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
@@ -115,14 +112,7 @@ public class MVLoad {
                                                                     .setLevel(
                                                                         org.apache.logging.log4j.Level.INFO)
                                                                     .buildPrintWriter());
-      } else if (dbType.equals("CB")) {
-        loadDatabaseManager = new CBLoadDatabaseManager(databaseInfo,
-                        IoBuilder.forLogger(
-                        CBLoadDatabaseManager.class)
-                        .setLevel(
-                                org.apache.logging.log4j.Level.INFO)
-                        .buildPrintWriter());
-      }
+      } 
 
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();
