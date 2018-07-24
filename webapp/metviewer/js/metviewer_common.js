@@ -5412,7 +5412,7 @@ function loadXMLStatistics(fcst_stat) {
         }
         $("#boot_repl").val($(initXML.find("plot").find("agg_stat").find("boot_repl")).text());
         var seed = $(initXML.find("plot").find("agg_stat").find("boot_random_seed")).text();
-        if (Number.isInteger(seed)) {
+        if (Number.isInteger(parseInt(seed))) {
             $("#boot_random_seed").val(seed);
         } else {
             $("#boot_random_seed").val("");
@@ -5672,14 +5672,23 @@ function loadXMLRely() {
     }
     var is_check = true;
     if (initXML.find("plot").find("add_skill_line")) {
-        is_check = initXML.find("plot").find("add_skill_line").text();
+        is_check = $(initXML.find("plot").find("add_skill_line")).text();
+        if (is_check === 'true') {
+            $('#add_skill_line').prop('checked', true);
+        } else {
+            $('#add_skill_line').prop('checked', false);
+        }
+
     }
-    $('#add_skill_line').prop('checked', is_check);
-    is_check = true;
     if (initXML.find("plot").find("add_reference_line")) {
-        is_check = initXML.find("plot").find("add_reference_line").text();
+        is_check = $(initXML.find("plot").find("add_reference_line")).text();
+        if (is_check === 'true') {
+            $('#add_reference_line').prop('checked', true);
+        } else {
+            $('#add_reference_line').prop('checked', false);
+        }
     }
-    $('#add_reference_line').prop('checked', is_check);
+    loadXMLStatistics();
 }
 function loadXMLEns() {
     var series_var_val;
