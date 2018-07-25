@@ -37,72 +37,72 @@ import static edu.ucar.metviewer.test.util.TestUtil.captureCreatedImages;
 public class CreatePlotBatchTest {
 
   private static String testDataDir;
-  private String plotType = null;
+   private String plotType = null;
 
-  public CreatePlotBatchTest(String plotType) {
-    super();
-    this.plotType = plotType;
-  }
+   public CreatePlotBatchTest(String plotType) {
+     super();
+     this.plotType = plotType;
+   }
 
-  /**
-   * register all possible test cases in the test directory
-   * @return - test cases names
-   * @throws Exception - if test directory doesn't exists or it is empty
-   */
-  @Parameterized.Parameters
-  public static Collection<String[]> data() throws Exception {
-    testDataDir = ROOT_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
+   /**
+    * register all possible test cases in the test directory
+    * @return - test cases names
+    * @throws Exception - if test directory doesn't exists or it is empty
+    */
+   @Parameterized.Parameters
+   public static Collection<String[]> data() throws Exception {
+     testDataDir = ROOT_DIR + FILE_SEPARATOR + "test_data" + FILE_SEPARATOR + "test_cases";
 
-    File file = new File(testDataDir);
-    if (!file.exists()) {
-      throw new Exception(testDataDir + " doesn't exist.");
-    }
-    // does the testDataDir directory exist and does it have any files and are any of them .xml files?
-    String[] directories = file.list(DIRECTORY_FILTER);
-    Collection<String[]> plots = new ArrayList<>();
-    for (String directory : directories) {
-      plots.add(new String[]{directory});
-    }
-    if (plots.isEmpty()) {
-      throw new Exception(testDataDir + " doesn't have any test cases.");
-    }
-    return plots;
-  }
+     File file = new File(testDataDir);
+     if (!file.exists()) {
+       throw new Exception(testDataDir + " doesn't exist.");
+     }
+     // does the testDataDir directory exist and does it have any files and are any of them .xml files?
+     String[] directories = file.list(DIRECTORY_FILTER);
+     Collection<String[]> plots = new ArrayList<>();
+     for (String directory : directories) {
+       plots.add(new String[]{directory});
+     }
+     if (plots.isEmpty()) {
+       throw new Exception(testDataDir + " doesn't have any test cases.");
+     }
+     return plots;
+   }
 
-  @Before
-  public void runScript() {
-    if (System.getProperty("captureCreatedImages") != null) {
-      // if we are capturing images we have to clean the working dir each run
-      // because there are potentially multiple images created for each plotType
-      // i.e. a test case can cause some number of images to be created
-      // and we don't know how many.
-      // METViewer doesn't create multiple output plot directories so
-      // all of the generated plots are in the same output directory.
-      // we have to take them all if we are capturing images.
-      cleanWorkingDirs();
-    }
-    runBatch(testDataDir, plotType);
-  }
+   @Before
+   public void runScript() {
+     if (System.getProperty("captureCreatedImages") != null) {
+       // if we are capturing images we have to clean the working dir each run
+       // because there are potentially multiple images created for each plotType
+       // i.e. a test case can cause some number of images to be created
+       // and we don't know how many.
+       // METViewer doesn't create multiple output plot directories so
+       // all of the generated plots are in the same output directory.
+       // we have to take them all if we are capturing images.
+       cleanWorkingDirs();
+     }
+     runBatch(testDataDir, plotType);
+   }
 
-  @Test
-  public void compareOutputFiles() {
-    if (System.getProperty("captureCreatedImages") == null) {
-      if (!"ens_ss".equals(plotType)) {
-        comparePointsFilesWithNames(testDataDir, "1", plotType);
-        comparePointsFilesWithNames(testDataDir, "2", plotType);
-      }
-      comparePlotFilesWithNames(testDataDir, plotType);
-    } else {
-        captureCreatedImages(testDataDir, plotType);
-    }
-  }
+   @Test
+   public void compareOutputFiles() {
+     if (System.getProperty("captureCreatedImages") == null) {
+       if (!"ens_ss".equals(plotType)) {
+         comparePointsFilesWithNames(testDataDir, "1", plotType);
+         comparePointsFilesWithNames(testDataDir, "2", plotType);
+       }
+       comparePlotFilesWithNames(testDataDir, plotType);
+     } else {
+         captureCreatedImages(testDataDir, plotType);
+     }
+   }
 
 
-  @After
-  public void cleanup() {
-    if (System.getProperty("noClean") == null) {
-      cleanWorkingDirs();
-    }
-  }
+   @After
+   public void cleanup() {
+     if (System.getProperty("noClean") == null) {
+       cleanWorkingDirs();
+     }
+   }
 
-}
+ }
