@@ -155,12 +155,6 @@ public class MVLoad {
       }
 
       long intLoadTimeStart = new Date().getTime();
-      if (job.getGroup() != null) {
-        mysqlLoadDatabaseManager.updateGroup(job.getGroup());
-      }
-      if (job.getDescription() != null) {
-              mysqlLoadDatabaseManager.updateDescription(job.getDescription());
-            }
 
       //  drop the database indexes, if requested
       boolean dropIndexes = job.getDropIndexes();

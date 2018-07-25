@@ -29,7 +29,7 @@
 #	which might require a few modifications here.
 
 
-usage() { echo "Usage: $0  -U <git user> -t<path to METViewer test directory> -b<git branch> -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METViewer home> [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>] [-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-j<path to java executible>]" 1>&2; exit 1; }
+usage() { echo "Usage: $0  [-U <git user> -b<git branch> | -L<local metviewer home> ] -t<path to METViewer test directory>  -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METViewer home> [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>] [-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-j<path to java executible>]" 1>&2; exit 1; }
 export mv_test_db="mv_test"
 export mv_user="mvuser"
 export mv_pass="mvuser"
@@ -38,8 +38,14 @@ export mv_port=3306
 export git_user=""
 export METViewerTag="HEAD"
 export METViewerCompareTag="HEAD"
-while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:?" o; do
+while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:L?" o; do
     case "${o}" in
+        L) 	if [ ! -d "${OPTARG}" ]; then
+				echo "local MET_VIEWER_DIR directory ${OPTARG} does not exist"
+				usage
+			fi
+            export MET_VIEWER_DIR=${OPTARG} # local met viewer directory - do not check out
+            ;;
         U)
             gituser=${OPTARG} # credentialed user for access to github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git
             ;;
@@ -114,18 +120,24 @@ if [ "$?" -ne "0" ]; then
    exit 1;
 fi
 # check for mandatory params
-if [ -z ${gituser+x} ]; then
-	echo "gituser is unset - exiting"
+if [ -z ${MET_VIEWER_DIR+x} -a -z ${gituser+x} ]; then
+	echo "gituser is unset and no local (-L) METViewer dir is set - exiting"
 	usage
 fi
 if [ -z ${METViewerTestDir+x} ]; then
 	echo "METViewerTestDir is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerBranch+x} ]; then
-	echo "METViewerBranch is unset - exiting"
+if [ -z ${MET_VIEWER_DIR+x} -a -z ${METViewerBranch+x} ]; then
+	echo "METViewerBranch is unset and no local (-L) METViewer dir is set - exiting"
 	usage
 fi
+
+if [ -z ${MET_VIEWER_DIR+x} -a -z ${METViewerBranch+x} -a -z ${gituser+x} ]; then
+	echo "METViewerBranch is unset and gituser is unset and no local (-L) METViewer dir is set - exiting"
+	usage
+fi
+
 if [ -z ${METViewerCompareBranch+x} ]; then
 	echo "METViewerCompareBranch is unset - exiting"
 	usage
@@ -165,6 +177,9 @@ seconds=$(date +%s)
 mkdir -p $logdir
 logfile=${logdir}/${seconds}
 touch $logfile
+
+cdir=$(pwd)
+if [ -z ${MET_VIEWER_DIR+x} ]; then
 rm -rf ${METViewerDir}
 rm -rf ${METViewerTestDirTestCases}
 echo "clone the METViewer repo"
@@ -172,7 +187,6 @@ git clone https://${gituser}@github.com/NCAR/METViewer.git ${METViewerDir}
 #echo git fetch --all
 #git fetch --all
 # checkout code to proper branch and use -test for local copy
-cdir=$(pwd)
 cd ${METViewerDir}
 if [ ${METViewerTag} = "HEAD" ]; then
     # check to see if branch exists
