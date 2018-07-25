@@ -29,25 +29,27 @@
 #	which might require a few modifications here.
 
 
-usage() { echo "Usage: $0  [-U <git user> -b<git branch> | -L<local metviewer home> ] -t<path to METViewer test directory>  -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METViewer home> [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>] [-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-j<path to java executible>]" 1>&2; exit 1; }
+usage() { echo "Usage: $0  -U <git user> -b<git branch>|-n -t<path to METViewer test directory>  -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METViewer home> [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>] [-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-j<path to java executible>]" 1>&2; exit 1; }
 export mv_test_db="mv_test"
 export mv_user="mvuser"
 export mv_pass="mvuser"
 export mv_host="dakota.rap.ucar.edu"
 export mv_port=3306
-export git_user=""
 export METViewerTag="HEAD"
 export METViewerCompareTag="HEAD"
-while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:L?" o; do
+unset gituser
+unset METViewerTestDir
+unset METViewerCompareBranch
+unset METViewerDir
+unset MET_DATA_DIR
+unset JAVA
+
+while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:n?" o; do
     case "${o}" in
-        L) 	if [ ! -d "${OPTARG}" ]; then
-				echo "local MET_VIEWER_DIR directory ${OPTARG} does not exist"
-				usage
-			fi
-            export MET_VIEWER_DIR=${OPTARG} # local met viewer directory - do not check out
+        n) export noClone=true # do not rm and clone the METViewer directory - it is probably under construction
             ;;
         U)
-            gituser=${OPTARG} # credentialed user for access to github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git
+            export gituser=${OPTARG} # credentialed user for access to github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git
             ;;
         t)
             export METViewerTestDir=${OPTARG}
@@ -120,29 +122,40 @@ if [ "$?" -ne "0" ]; then
    exit 1;
 fi
 # check for mandatory params
-if [ -z ${MET_VIEWER_DIR+x} -a -z ${gituser+x} ]; then
-	echo "gituser is unset and no local (-L) METViewer dir is set - exiting"
+if [ -z "${gituser+x}" ]; then
+	echo "gituser is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerTestDir+x} ]; then
+if [ -z "${METViewerTestDir+x}" ]; then
 	echo "METViewerTestDir is unset - exiting"
 	usage
 fi
-if [ -z ${MET_VIEWER_DIR+x} -a -z ${METViewerBranch+x} ]; then
-	echo "METViewerBranch is unset and no local (-L) METViewer dir is set - exiting"
-	usage
-fi
-
-if [ -z ${MET_VIEWER_DIR+x} -a -z ${METViewerBranch+x} -a -z ${gituser+x} ]; then
-	echo "METViewerBranch is unset and gituser is unset and no local (-L) METViewer dir is set - exiting"
-	usage
-fi
-
-if [ -z ${METViewerCompareBranch+x} ]; then
+if [ -z "${METViewerCompareBranch+x}" ]; then
 	echo "METViewerCompareBranch is unset - exiting"
 	usage
 fi
-if [ -z ${MET_DATA_DIR+x} ]; then
+if [ -z "${METViewerDir+x}" -a -z "${METViewerBranch+x}" -a -z "${gituser+x}" ]; then
+	echo "METViewerBranch is unset and gituser is unset and local (-m) METViewer dir is unset - exiting"
+	usage
+else
+    if [ ! -z "${METViewerDir+x}" ]; then # MET_VIEWER_DIR is set
+        # MET_VIEWER_DIR is set - set the branch and tag
+        if [ ! -d "${METViewerDir}" ]; then
+				echo "MET_VIEWER_DIR directory ${METViewerDir} does not exist"
+				usage
+			fi
+        pushd ${METViewerDir}
+        git branch
+        if [[ $? -ne 0 ]]; then
+            METViewerBranch="unknown"
+        else
+            METViewerBranch=$(git branch | grep "*" | awk '{print $2}')
+        fi
+        popd
+    fi
+fi
+
+if [ -z "${MET_DATA_DIR+x}" ]; then
 	echo "MET_DATA_DIR is unset - exiting"
 	usage
 else
@@ -152,11 +165,11 @@ else
 				usage
 			fi
 fi
-if [ -z ${mv_test_db+x} ]; then
+if [ -z "${mv_test_db+x}" ]; then
 	echo "mv_test_db is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerDir+x} ]; then
+if [ -z "${METViewerDir+x}" ]; then
 	echo "METViewerDir is unset - exiting"
 	usage
 fi
@@ -179,38 +192,40 @@ logfile=${logdir}/${seconds}
 touch $logfile
 
 cdir=$(pwd)
-if [ -z ${MET_VIEWER_DIR+x} ]; then
-rm -rf ${METViewerDir}
-rm -rf ${METViewerTestDirTestCases}
-echo "clone the METViewer repo"
-git clone https://${gituser}@github.com/NCAR/METViewer.git ${METViewerDir}
-#echo git fetch --all
-#git fetch --all
-# checkout code to proper branch and use -test for local copy
-cd ${METViewerDir}
-if [ ${METViewerTag} = "HEAD" ]; then
-    # check to see if branch exists
-    echo "git rev-parse --verify --quiet \"remotes/origin/${METViewerBranch}\""
-    git rev-parse --verify --quiet "remotes/origin/${METViewerBranch}"
-    if [ $? -ne 0 ]; then
-        echo "branch \"remotes/origin/${METViewerBranch}\" does not exist in METViewer repository"
-        usage
+if [ -z "${noClone+x}" ]; then   # if not noClone then clone the METViewer directory
+    # gituser is set so clone the repo
+    rm -rf ${METViewerDir}
+    rm -rf ${METViewerTestDirTestCases}
+    echo "clone the METViewer repo"
+    git clone https://${gituser}@github.com/NCAR/METViewer.git ${METViewerDir}
+    #echo git fetch --all
+    #git fetch --all
+    # checkout code to proper branch and use -test for local copy
+    cd ${METViewerDir}
+    if [ ${METViewerTag} = "HEAD" ]; then
+        # check to see if branch exists
+        echo "git rev-parse --verify --quiet \"remotes/origin/${METViewerBranch}\""
+        git rev-parse --verify --quiet "remotes/origin/${METViewerBranch}"
+        if [ $? -ne 0 ]; then
+            echo "branch \"remotes/origin/${METViewerBranch}\" does not exist in METViewer repository"
+            usage
+        fi
+        git checkout remotes/origin/${METViewerBranch} -b "${METViewerBranch}-test"
+    else
+        # check to see if tag exists
+        echo git rev-parse --verify --quiet ${METViewerTag}
+        git rev-parse --verify --quiet ${METViewerTag}
+        if [ $? -ne 0 ]; then
+            echo "tag ${METViewerTag} does not exist in METViewer repository"
+            usage
+        fi
+        git checkout tags/${METViewerTag} -b "${METViewerBranch}-test"
     fi
-    git checkout remotes/origin/${METViewerBranch} -b "${METViewerBranch}-test"
-else
-    # check to see if tag exists
-    echo git rev-parse --verify --quiet ${METViewerTag}
-    git rev-parse --verify --quiet ${METViewerTag}
-    if [ $? -ne 0 ]; then
-        echo "tag ${METViewerTag} does not exist in METViewer repository"
-        usage
-    fi
-    git checkout tags/${METViewerTag} -b "${METViewerBranch}-test"
-fi
+fi   # end if clone
 
 cd $cdir
-mkdir -p ${METViewerTestDir}
 
+mkdir -p ${METViewerTestDir}
 echo "clone the test cases repo"
 if [ ! -d "${METViewerBranchTestDir}" ]; then
     mkdir -p ${METViewerBranchTestDir}
@@ -218,6 +233,7 @@ else
     rm -rf ${METViewerBranchTestDir}
 fi
 git clone https://${gituser}@github.com/NCAR/METViewer-test.git ${METViewerBranchTestDir}/test_data
+
 # the test cases are on the unversioned master branch for now. checkout a local called test - just to be safe
 cd ${METViewerBranchTestDir}/test_data
 git checkout remotes/origin/master -b test
