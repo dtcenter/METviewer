@@ -5,17 +5,20 @@
 
 package edu.ucar.metviewer.test;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static edu.ucar.metviewer.test.util.TestUtil.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import static edu.ucar.metviewer.test.util.TestUtil.COMPARE_DIRECTORY_FILTER;
+import static edu.ucar.metviewer.test.util.TestUtil.DIRECTORY_FILTER;
+import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
+import static edu.ucar.metviewer.test.util.TestUtil.ROOT_COMPARE_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.compareBinaryTestFiles;
 
 /**
  * Compare batch tests

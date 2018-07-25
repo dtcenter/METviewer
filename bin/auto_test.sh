@@ -1,4 +1,4 @@
-#!/bin/bash
+#!#!/bin/bash
 # NOTE:
 # Currently the met test load data files are not controlled so this script assumes that they are local.
 # This script assumes a directory structure like this...
@@ -13,7 +13,7 @@
 #met_data/ensemble_stat
 # your met_data directory might be named something else so you have to set it in the "modify these" variables section.
 
-# The two directories named in 
+# The two directories named in
 # METViewerDir
 # and METViewerTestCaseDir
 # WILL BE ERASED AND REBUILT from the github source
@@ -23,7 +23,7 @@
 # or with an ssh key or something. You won't be there to type the password...
 
 # How to use this...
-# 1) Make sure that you have a credentialed user for access to 
+# 1) Make sure that you have a credentialed user for access to
 # 	github.com/NCAR/METViewer.git and  https://github.com/NCAR/METViewer-test.git
 #	and that you pass the user to -U and that you put the credentials into a git store for your user. Alternatively you could use ssh keys,
 #	which might require a few modifications here.
@@ -314,5 +314,3 @@ else
 fi
 
 exit $ret
-
-	

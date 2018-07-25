@@ -131,5 +131,3 @@ echo "---------"
 ret=$?
 echo "$0 result is $ret"
 exit $ret
-
-

@@ -1,5 +1,8 @@
 package edu.ucar.metviewer.test;
 
+import java.io.File;
+import java.util.Map;
+
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
 import edu.ucar.metviewer.MVLoadJobParser;
@@ -8,10 +11,7 @@ import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.Test;
 
-import java.io.File;
-import java.util.Map;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class MysqlLoadDatabaseManagerTest {
 
@@ -36,10 +36,7 @@ public class MysqlLoadDatabaseManagerTest {
             MVLoadJob job = parser.getLoadJob();
             DatabaseInfo databaseInfo = new DatabaseInfo(job.getDBHost(), job.getDBUser(), job.getDBPassword());
             MysqlLoadDatabaseManager mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
-                    IoBuilder.forLogger(
-                            MysqlLoadDatabaseManager.class)
-                            .setLevel(
-                                    org.apache.logging.log4j.Level.INFO)
+                    IoBuilder.forLogger(MysqlLoadDatabaseManager.class).setLevel(org.apache.logging.log4j.Level.INFO)
                             .buildPrintWriter());
             File file = new File("a data file path");
             boolean forceDupFile = job.getForceDupFile();
@@ -67,4 +64,5 @@ public class MysqlLoadDatabaseManagerTest {
     @Test
     public void updateInfoTable() {
     }
+
 }

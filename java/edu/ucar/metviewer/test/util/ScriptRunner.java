@@ -1,6 +1,7 @@
 /**
- * ScriptRunner.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
+ * ScriptRunner.java Copyright UCAR (c) 2014. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2014.
  */
 
 package edu.ucar.metviewer.test.util;
@@ -9,7 +10,11 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * @author : tatiana $
@@ -33,8 +38,9 @@ public class ScriptRunner {
   /**
    * Default constructor
    */
-  public ScriptRunner(Connection connection, boolean autoCommit,
-                      boolean stopOnError) {
+  public ScriptRunner(
+                         Connection connection, boolean autoCommit,
+                         boolean stopOnError) {
     this.connection = connection;
     this.autoCommit = autoCommit;
     this.stopOnError = stopOnError;
@@ -96,7 +102,7 @@ public class ScriptRunner {
    * @throws IOException  if there is an error reading from the Reader
    */
   private void runScript(Connection conn, Reader reader) throws IOException,
-    SQLException {
+                                                                    SQLException {
     StringBuffer command = null;
     try {
       LineNumberReader lineReader = new LineNumberReader(reader);
@@ -109,20 +115,20 @@ public class ScriptRunner {
         if (trimmedLine.startsWith("--")) {
           println(trimmedLine);
         } else if (trimmedLine.length() < 1
-          || trimmedLine.startsWith("//")) {
+                       || trimmedLine.startsWith("//")) {
           // Do nothing
         } else if (trimmedLine.length() < 1
-          || trimmedLine.startsWith("--")) {
+                       || trimmedLine.startsWith("--")) {
           // Do nothing
         } else if (trimmedLine.startsWith("DELIMITER")) {
           this.delimiter = trimmedLine.substring(trimmedLine.length() - 1);
 
         } else if (!fullLineDelimiter
-          && trimmedLine.endsWith(getDelimiter())
-          || fullLineDelimiter
-          && trimmedLine.equals(getDelimiter())) {
+                       && trimmedLine.endsWith(getDelimiter())
+                       || fullLineDelimiter
+                              && trimmedLine.equals(getDelimiter())) {
           command.append(line.substring(0, line
-            .lastIndexOf(getDelimiter())));
+                                               .lastIndexOf(getDelimiter())));
           command.append(' ');
           Statement statement = conn.createStatement();
 
