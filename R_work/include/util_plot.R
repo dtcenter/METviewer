@@ -289,6 +289,9 @@ eventEqualizeAgainstValues = function(dfStats, strIndyVar,   eeStatsEqualize){
 #   matrix, with columns corresponding to the variable names in listVars.
 permute = function(listVals){
   listVars = names(listVals);
+  if(is.null(listVars)){
+    return (matrix());
+  }
 
   # if there is only one variable left, return the single permutation matrix
   if( 1 == length(listVars) ){
