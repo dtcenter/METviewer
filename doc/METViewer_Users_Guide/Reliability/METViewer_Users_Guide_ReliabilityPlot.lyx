@@ -136,6 +136,7 @@ Selection of options to produce your plot proceeds approxately counter-clockwise
  your set of cases.
  The reliability diagram only makes sense for probability forecasts, but
  these can be from ensemble forecasts or from a traditional forecast.
+ There are several reference lines on the reliability diagram.
  
 \end_layout
 
@@ -160,16 +161,12 @@ name "sec:Reliability-Plot-Examples"
 \begin_layout Standard
 
 \series medium
-The primary 
+The 
 \end_layout
 
 \begin_layout Standard
 
-\series medium
- histogram and probability integral transform information is produced.
- 
 \series bold
-
 \begin_inset Float figure
 placement t
 wide false
@@ -180,7 +177,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /d1/johnhg/MET/MET_development/svn-met-dev.cgd.ucar.edu/trunk/met/doc/MET_Users_Guide/Flowchart/MET_flowchart_v7.0.png
+	filename reliability.png
 	scale 60
 
 \end_inset
@@ -194,9 +191,8 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Basic representation of current MET structure and modules.
- Colored areas represent software and modules included in MET, and gray
- areas represent input and output files.
+Example reliability (attributes diagram) with histogram of observation counts
+ and bootstrap confidence intervals.
 \end_layout
 
 \end_inset
@@ -204,7 +200,7 @@ Basic representation of current MET structure and modules.
 
 \begin_inset CommandInset label
 LatexCommand label
-name "Fig_Overview_MET_Overview_Flowchart"
+name "Fig_Reliability_Plot_Example"
 
 \end_inset
 
