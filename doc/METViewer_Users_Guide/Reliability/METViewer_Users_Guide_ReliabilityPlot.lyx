@@ -141,6 +141,29 @@ Selection of options to produce your plot proceeds approxately counter-clockwise
 \end_layout
 
 \begin_layout Standard
+This plot has three special options:
+\end_layout
+
+\begin_layout Standard
+Event histograms: The histograms allow users to see how often the forecast
+ falls within each probability bin.
+ The sample sizes in each bin are typically different, and some may be too
+ small for conclusions.
+ They also allow users to judge the sharpness of the forecasts.
+ 
+\end_layout
+
+\begin_layout Standard
+Skill line:
+\end_layout
+
+\begin_layout Standard
+Reference line: This line (typically dashed) denotes the sample climatology
+ or base rate, the frequency of the event.
+ 
+\end_layout
+
+\begin_layout Standard
 
 \series medium
 Generate Plot button at top of METViewer window with the red text.
@@ -161,7 +184,50 @@ name "sec:Reliability-Plot-Examples"
 \begin_layout Standard
 
 \series medium
-The 
+The reliability diagram groups the forecasts into bins according to the
+ issued probability (x axis).
+ The frequency with which the event was observed to occur for this sub-group
+ of forecasts is then plotted against the y axis.
+ For perfect reliability the forecast probability and the frequency of occurrenc
+e should be equal, and the plotted points should lie on the diagonal (by
+ default a solid grey line in the figure).
+ In other words, when a 50% probability of precipitation is forecast, approximat
+ely half of the corresponding observations should indicate that precipitation
+ fell.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+In the figure the reliability curves have positive slope, indicating that
+ as the forecast probability of the event occurring increases, so does the
+ likelihood of observing the event.
+ The forecasts therefore have some reliability.
+ However, the slope is much less than the diagonal, indicating conditional
+ bias or a lack of reliability.
+ In this example, when forecast probability of precipitation is equal to
+ 55% the actual chance of observing the event is closer to 35%.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+Reliability diagrams can be used to make adjustments to the conditional
+ bias of the forecast probabilities.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+The histograms show the relative frequency with which the event has been
+ predicted (typically over the reference period and at all gridpoints) with
+ different levels of probability.
+ In the example the majority of forecasts predict low probabilities of precipita
+tion (near the climatological probability of ~9%).
+ The forecast system is also capable of predicting relatively high probabilities
+ of the event (e.g.
+ greater than 40%), but such forecasts are less common.
 \end_layout
 
 \begin_layout Standard
