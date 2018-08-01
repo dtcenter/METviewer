@@ -11,6 +11,7 @@ import java.util.Map;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
+import edu.ucar.metviewer.db.CBAppDatabaseManager;
 import edu.ucar.metviewer.jobManager.ContourJobManager;
 import edu.ucar.metviewer.jobManager.EclvJobManager;
 import edu.ucar.metviewer.jobManager.EnsSsJobManager;
@@ -42,7 +43,7 @@ public class MVBatch  {
   private int numPlots = 0;
   private int numPlotsRun = 0;
   private AppDatabaseManager databaseManager;
-  private String dbType;
+  private String dbType = "mysql";
 
 
   public MVBatch(
@@ -235,8 +236,10 @@ public class MVBatch  {
           boolList = true;
         } else if (argv[intArg].equals("-printSql")) {
           bat.setVerbose(true);
-        } else if (argv[intArg].equals("mysql")) {
+        } else if (argv[intArg].equalsIgnoreCase("mysql")) {
           bat.setDbType("mysql");
+        } else if (argv[intArg].equalsIgnoreCase("CB")) {
+          bat.setDbType("CB");
         } else {
           bat.print(
               "  **  ERROR: unrecognized option '"
@@ -253,6 +256,9 @@ public class MVBatch  {
       if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
         bat.setDatabaseManager(
             new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
+      } else if (bat.getDbType().equals("mysql")) {
+        bat.setDatabaseManager(
+                new CBAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
       }
       MVOrderedMap mapJobs = parser.getJobsMap();
 
