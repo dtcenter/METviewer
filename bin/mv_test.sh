@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The METViewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
-usage() { echo "Usage: $0 -t <path to METViewer test directory> [-m <path to METViewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -t<path to METViewer test directory> [-m<path to METViewer home>] [-d<mv_database>] [-u<mv_user>] [-pmv_passwd] [-h<mv_host>] [-P<mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)]" 1>&2; exit 1; }
 export MV_DATABASE="mv_test"
 export MV_USER="mvuser"
 export MV_PASSWD="mvuser"
