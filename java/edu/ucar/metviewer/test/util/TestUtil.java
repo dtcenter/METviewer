@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import edu.ucar.metviewer.MVBatch;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import static java.lang.System.out;
@@ -336,6 +337,11 @@ public class TestUtil {
         nodeList.item(i)
             .setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
       }
+
+      //assign a group name
+      tag="group";
+      Element group = doc.createElement(tag);
+      group.setTextContent("Testing");
 
       TransformerFactory.newInstance().newTransformer()
           .transform(new DOMSource(doc), new StreamResult(new File(fpath)));
