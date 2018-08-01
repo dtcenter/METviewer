@@ -307,14 +307,14 @@ fi
 # run the mv_test
 #send a note
 if [ "X$addressList" != "X" ]; then
-	echo "running /bin/sh ./bin/mv_test.sh -t${METViewerBranchTestDir} -m${METViewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c>> ${logfile}"
-	/bin/sh ./bin/mv_test.sh -m${METViewerDir} -t${METViewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port}  -l -c >> ${logfile}
+	echo "running /bin/sh ./bin/mv_test.sh -t${METViewerBranchTestDir} -m${METViewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l >> ${logfile}"
+	/bin/sh ./bin/mv_test.sh -m${METViewerDir} -t${METViewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port}  -l  >> ${logfile}
 	ret=$?
 	echo mv_test ret is $ret >> ${logfile}
 	#cat $logfile | mail -s "nightly_${METViewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
 else
-	echo "running /bin/sh ./bin/mv_test.sh -t${METViewerBranchTestDir} -m${METViewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c"
-    /bin/sh  ./bin/mv_test.sh -m${METViewerDir} -t${METViewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l -c
+	echo "running /bin/sh ./bin/mv_test.sh -t${METViewerBranchTestDir} -m${METViewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l"
+    /bin/sh  ./bin/mv_test.sh -m${METViewerDir} -t${METViewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l
 	ret=$?
 	echo mv_test ret is $ret
 fi
@@ -328,7 +328,7 @@ if [ "X$addressList" != "X" ]; then
 	cat $logfile | mail -s "nightly_${METViewerBranch} mv_compare failed with $ret failures - here is the log file" $addressList
 else
 	echo "running /bin/sh ./bin/mv_compare.sh  -m ${METViewerDir} -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir}"
-    /bin/sh  ./bin/mv_compare.sh  -m ${METViewerDir} -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir}
+    /bin/sh  ./bin/mv_compare.sh  -m${METViewerDir} -t${METViewerBranchTestDir} -c${METViewerCompareBranchTestDir}
 	ret=$?
 	echo mv_test ret is $ret
 fi
