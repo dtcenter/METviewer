@@ -25,9 +25,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Collections;
+
+import edu.ucar.metviewer.MVUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolConfiguration;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 /**
  * @author : tatiana $
@@ -39,7 +49,9 @@ public class CBDatabaseManager {
   //private static BoneCP connectionPool;
   protected static final String DB_PREFIX_MV = "mv_";
   protected DatabaseInfo databaseInfo;
-  protected static List<String> listDB = new ArrayList<>();
+  protected static Map<String, String> listDB = new TreeMap<>();
+  protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
+
   private DataSource dataSource;
   static CouchbaseEnvironment env;
   static Cluster cluster;
@@ -71,18 +83,16 @@ public class CBDatabaseManager {
       logger.error("Open bucket connection for a Couchbase database did not succeed.");
       logger.error(e.getMessage());
     }
-    /*
-    initDBList();
-    */
+
+    boolean updateGroups = false;
+    if (databaseInfo.getDbName() == null) {
+      updateGroups = true;
+    }
+    initDBList(updateGroups);
   }
 
-
-  public void initDBList() {
+  public void initDBList(boolean updateGroups) {
     listDB.clear();
-    String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
-                     + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
-                     + "> 0 and "
-                     + "TABLE_SCHEMA like 'mv_%'";
 
     /* when this is updated for Couchbase, this query will get the list of database names */
     String nquery =  "select distinct substr(meta(`" +
@@ -95,14 +105,13 @@ public class CBDatabaseManager {
 
     try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
-         ResultSet resultSet = testStatement.executeQuery(sql)
+         ResultSet resultSet = testStatement.executeQuery(nquery)
     ) {
       String database;
       while (resultSet.next()) {
         database = resultSet.getString("TABLE_SCHEMA");
-        listDB.add(database);
+        listDB.put(database, "");
       }
-      Collections.sort(listDB);
       resultSet.close();
       testStatement.close();
       testConnection.close();
@@ -111,6 +120,48 @@ public class CBDatabaseManager {
       logger.error(e.getMessage());
 
     }
+
+    if (updateGroups) {
+
+      //init groups
+      groupToDatabases.clear();
+
+      //for each database find a group
+      for (Map.Entry<String, String> database : listDB.entrySet()) {
+        String[] metadata = getDatabaseMetadata(database.getKey());
+        database.setValue(metadata[1]);
+
+        if (!groupToDatabases.containsKey(metadata[0])) {
+          groupToDatabases.put(metadata[0], new ArrayList<>());
+        }
+
+        groupToDatabases.get(metadata[0]).add(database.getKey());
+      }
+
+    }
+  }
+
+  private String[] getDatabaseMetadata(String database) {
+    String group = "";
+    String description = "";
+    String sql = "SELECT * from metadata";
+    try (Connection con = getConnection(database);
+         Statement statement = con.createStatement();
+         ResultSet rs = statement.executeQuery(sql)
+    ) {
+      while (rs.next()) {
+        group = rs.getString("category");
+        description = rs.getString("description");
+      }
+
+    } catch (SQLException e) {
+      logger.error("Can't get groups for database " + database);
+    }
+    if (group.isEmpty()) {
+      group = MVUtil.DEFAULT_DATABASE_GROUP;
+    }
+
+    return new String[]{group, description};
   }
 
 
@@ -122,7 +173,7 @@ public class CBDatabaseManager {
    */
   public boolean validate(String db) {
     boolean result = false;
-    for (String availableDB : listDB) {
+    for (String availableDB : listDB.keySet()) {
       if (availableDB.equals(db)) {
         result = true;
         break;
