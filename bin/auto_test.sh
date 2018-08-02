@@ -272,7 +272,8 @@ fi
 # run the mv_compare
 if [ "X$addressList" != "X" ]; then
 	echo "running /bin/sh ./bin/mv_compare.sh  -m ${METViewerDir}  -t ${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir} > ${logfile}"
-	/bin/sh  ./bin/mv_compare.sh  -m ${METViewerDir} -t${METViewerBranchTestDir} -c ${METViewerCompareBranchTestDir} > ${logfile}
+	/bin/sh  ./bin/mv_compare.sh  -m ${METViewerDir} -t ${METViewerBranchTestDir} -c
+	${METViewerCompareBranchTestDir} > ${logfile}
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METViewerBranch} mv_compare failed with $ret failures - here is the log file" $addressList
