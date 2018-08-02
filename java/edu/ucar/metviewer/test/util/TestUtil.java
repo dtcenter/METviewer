@@ -221,11 +221,11 @@ public class TestUtil {
     host = HOST_NAME + ":" + PORT;
     RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
     //PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
-    PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots";
+    PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
     //DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
-    DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data";
+    DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
     //SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
-    SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts";
+    SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts" + FILE_SEPARATOR;
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
     MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
     if (System.getProperty("mv_database") == null) {
@@ -274,13 +274,13 @@ public class TestUtil {
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-    if(plotType.contains("scorecard")){
+    if (plotType.contains("scorecard")) {
       try {
         Scorecard.main(args);
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
-    }else {
+    } else {
       MVBatch.main(args);
     }
   }
@@ -348,7 +348,7 @@ public class TestUtil {
       }
 
       //assign a group name
-      tag="group";
+      tag = "group";
       Element group = doc.createElement(tag);
       group.setTextContent("Testing");
 
