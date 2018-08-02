@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.ucar.metviewer.MVBatch;
+import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -273,7 +274,15 @@ public class TestUtil {
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-    MVBatch.main(args);
+    if(plotType.contains("scorecard")){
+      try {
+        Scorecard.main(args);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }else {
+      MVBatch.main(args);
+    }
   }
 
   public static void xlateTestSpec(String fpath) {
