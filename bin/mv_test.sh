@@ -115,6 +115,12 @@ CLASSPATH=$CLASSPATH:${MV_HOME}/lib/log4j-api-2.10.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/log4j-core-2.10.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/dist/lib/metviewer_all.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-0.7.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.8.5.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.8.5.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
+
+
 
 echo "Running allRestRunner"
 #/Users/pierce/test_data all
