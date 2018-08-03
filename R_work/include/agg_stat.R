@@ -26,7 +26,7 @@ intNumBoots		= 0;
 # read the input data file into a data frame
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strInputDataFile,nrows=5);
-
+listStat = NA;
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss', 'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean');
@@ -991,6 +991,9 @@ if ( nrow(sampleData) > 0){
 
   write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t", append=boolAppend, col.names=!boolAppend);
 
+}
+if(is.na(listStat)){
+  listStat = listStat1;
 }
 cat(
   "    boot time: ", formatTimeSpan(dblBootTime), "\n",
