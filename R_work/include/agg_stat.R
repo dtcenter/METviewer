@@ -26,7 +26,7 @@ intNumBoots		= 0;
 # read the input data file into a data frame
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strInputDataFile,nrows=5);
-
+listStat = NA;
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss', 'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean');
@@ -43,6 +43,11 @@ if ( nrow(sampleData) > 0){
   }
 
   dfStatsRec = read.delim(strInputDataFile,colClasses = classes);
+
+  #replace thresh_i values for reliability plot
+  if(strIndyVar == "thresh_i" && boolAggPct){
+    listIndyVal = unique(sort(dfStatsRec$thresh_i));
+  }
 
   intYMax = 1;
   if( 0 < length(listSeries2Val) ){ intYMax = 2; }
@@ -194,7 +199,12 @@ if ( nrow(sampleData) > 0){
         listOut[[derivedVar2]] = listFixedValEx[[derivedVar2]][[names(listFixedValEx[[derivedVar2]])]];
       }
     }
-    listSeriesVar = names(listSeriesVal);
+
+    if(is.null(names(listSeriesVal))){
+      listSeriesVar = c();
+    }else{
+      listSeriesVar = names(listSeriesVal);
+    }
     if( length(listDiffSeries) >0){
       if(isContourDiff){
         strDiffVar=derivedVar1;
@@ -401,92 +411,92 @@ if ( nrow(sampleData) > 0){
 
       # perform the aggregation of the sampled CTC lines
       if( boolAggCtc ){
-        dfSeriesSums = data.frame(
-          total	= sum( as.numeric(d[i,][[ paste(strPerm, "total", sep="_") ]]), na.rm=TRUE ),
-          fy_oy	= sum( as.numeric(d[i,][[ paste(strPerm, "fy_oy", sep="_") ]]), na.rm=TRUE ),
-          fy_on	= sum( as.numeric(d[i,][[ paste(strPerm, "fy_on", sep="_") ]]), na.rm=TRUE ),
-          fn_oy	= sum( as.numeric(d[i,][[ paste(strPerm, "fn_oy", sep="_") ]]), na.rm=TRUE ),
-          fn_on	= sum( as.numeric(d[i,][[ paste(strPerm, "fn_on", sep="_") ]]), na.rm=TRUE )
+        dfSeriescustom_sums = data.frame(
+          total	= custom_sum( as.numeric(d[i,][[ paste(strPerm, "total", sep="_") ]]), na.rm=TRUE ),
+          fy_oy	= custom_sum( as.numeric(d[i,][[ paste(strPerm, "fy_oy", sep="_") ]]), na.rm=TRUE ),
+          fy_on	= custom_sum( as.numeric(d[i,][[ paste(strPerm, "fy_on", sep="_") ]]), na.rm=TRUE ),
+          fn_oy	= custom_sum( as.numeric(d[i,][[ paste(strPerm, "fn_oy", sep="_") ]]), na.rm=TRUE ),
+          fn_on	= custom_sum( as.numeric(d[i,][[ paste(strPerm, "fn_on", sep="_") ]]), na.rm=TRUE )
         );
       }  else if ( boolAggSl1l2 ){ # perform the aggregation of the sampled SL1L2 lines
         listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total		= sum(listTotal, na.rm=TRUE);
-        dfSeriesSums = data.frame(
+        total		= custom_sum(listTotal, na.rm=TRUE);
+        dfSeriescustom_sums = data.frame(
           total	= total,
-          fbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fbar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total,
-          obar	= sum( as.numeric( d[i,][[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          fobar	= sum( as.numeric( d[i,][[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          mae   = sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+          fbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "fbar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total,
+          obar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          fobar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          ffbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          oobar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          mae   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggGrad ){ # perform the aggregation of the sampled grad lines
         listTotal	= d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total		= sum(listTotal, na.rm=TRUE);
+        total		= custom_sum(listTotal, na.rm=TRUE);
 
-        dfSeriesSums = data.frame(
+        dfSeriescustom_sums = data.frame(
           total	= total,
-          fgbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fgbar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total,
-          ogbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ogbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          mgbar	= sum( as.numeric( d[i,][[ paste(strPerm, "mgbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          egbar	= sum( as.numeric( d[i,][[ paste(strPerm, "egbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total
+          fgbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "fgbar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total,
+          ogbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "ogbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          mgbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "mgbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          egbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "egbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggVl1l2 ){ # perform the aggregation of the sampled VL1L2 lines
         listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total    = sum(listTotal, na.rm=TRUE);
-        dfSeriesSums = data.frame(
+        total    = custom_sum(listTotal, na.rm=TRUE);
+        dfSeriescustom_sums = data.frame(
           total  = total,
-          ufbar  = sum( as.numeric( d[i,][[ paste(strPerm, "ufbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          vfbar  = sum( as.numeric( d[i,][[ paste(strPerm, "vfbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          uobar  = sum( as.numeric( d[i,][[ paste(strPerm, "uobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          vobar  = sum( as.numeric( d[i,][[ paste(strPerm, "vobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          uvfobar  = sum( as.numeric( d[i,][[ paste(strPerm, "uvfobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          uvffbar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvffbar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
-          uvoobar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  *listTotal, na.rm=TRUE ) / total,
-          f_speed_bar   = sum( as.numeric( d[i,][[ paste(strPerm, "f_speed_bar", sep="_") ]] )*listTotal, na.rm=TRUE ) / total,
-          o_speed_bar   = sum( as.numeric( d[i,][[ paste(strPerm, "o_speed_bar", sep="_") ]] )*listTotal, na.rm=TRUE ) / total
+          ufbar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "ufbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          vfbar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "vfbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uobar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          vobar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "vobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uvfobar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uvfobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uvffbar   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uvffbar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
+          uvoobar   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uvoobar", sep="_") ]] )  *listTotal, na.rm=TRUE ) / total,
+          f_speed_bar   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "f_speed_bar", sep="_") ]] )*listTotal, na.rm=TRUE ) / total,
+          o_speed_bar   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "o_speed_bar", sep="_") ]] )*listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggVal1l2 ){ # perform the aggregation of the sampled VAL1L2 lines
         listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total    = sum(listTotal, na.rm=TRUE);
-        dfSeriesSums = data.frame(
+        total    = custom_sum(listTotal, na.rm=TRUE);
+        dfSeriescustom_sums = data.frame(
           total  = total,
-          ufabar  = sum( as.numeric( d[i,][[ paste(strPerm, "ufabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          vfabar  = sum( as.numeric( d[i,][[ paste(strPerm, "vfabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          uoabar  = sum( as.numeric( d[i,][[ paste(strPerm, "uoabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          voabar  = sum( as.numeric( d[i,][[ paste(strPerm, "voabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          uvfoabar  = sum( as.numeric( d[i,][[ paste(strPerm, "uvfoabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          uvffabar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvffabar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
-          uvooabar   = sum( as.numeric( d[i,][[ paste(strPerm, "uvooabar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+          ufabar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "ufabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          vfabar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "vfabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uoabar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uoabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          voabar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "voabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uvfoabar  = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uvfoabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          uvffabar   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uvffabar", sep="_") ]] )   * listTotal, na.rm=TRUE ) / total,
+          uvooabar   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "uvooabar", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggSal1l2 ){ # perform the aggregation of the sampled SAL1L2 lines
         listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total		= sum(listTotal, na.rm=TRUE);
-        dfSeriesSums = data.frame(
+        total		= custom_sum(listTotal, na.rm=TRUE);
+        dfSeriescustom_sums = data.frame(
           total	= total,
-          fbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          obar	= sum( as.numeric( d[i,][[ paste(strPerm, "oabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          fobar	= sum( as.numeric( d[i,][[ paste(strPerm, "foabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "ooabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          mae   = sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
+          fbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "fabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          obar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "oabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          fobar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "foabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          ffbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "ffabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          oobar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "ooabar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          mae   = custom_sum( as.numeric( d[i,][[ paste(strPerm, "mae", sep="_") ]] )  * listTotal, na.rm=TRUE ) / total
         );
       }  else if ( boolAggSsvar ){ # perform the aggregation of the sampled SSVAR lines
         listTotal  = d[i,][[ paste(strPerm, "bin_n", sep="_") ]];
-        total    = sum(listTotal, na.rm=TRUE);
-        dfSeriesSums = data.frame(
+        total    = custom_sum(listTotal, na.rm=TRUE);
+        dfSeriescustom_sums = data.frame(
           total  = total,
-          fbar	= sum( as.numeric( d[i,][[ paste(strPerm, "fbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          obar	= sum( as.numeric( d[i,][[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          fobar	= sum( as.numeric( d[i,][[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          ffbar	= sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          oobar	= sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
-          varmean	= sum( as.numeric( d[i,][[ paste(strPerm, "var_mean", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          fbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "fbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          obar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "obar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          fobar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "fobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          ffbar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "ffbar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          oobar	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "oobar", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
+          varmean	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "var_mean", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           binn	=  total
         );
       } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
         listTotal = d[i,][[ paste(strPerm, "total", sep="_") ]];
-        total = sum( as.numeric(listTotal), na.rm=TRUE);
+        total = custom_sum( as.numeric(listTotal), na.rm=TRUE);
         listFbs = d[i,][[ paste(strPerm, "fbs", sep="_") ]];
         listFss = d[i,][[ paste(strPerm, "fss", sep="_") ]];
         listAFss = d[i,][[ paste(strPerm, "afss", sep="_") ]];
@@ -496,14 +506,14 @@ if ( nrow(sampleData) > 0){
 
         listFss[listFss == -9999] = NA;
 
-        dblFbs = sum(listTotal * listFbs, na.rm=TRUE) / total;
+        dblFbs = custom_sum(listTotal * listFbs, na.rm=TRUE) / total;
 
-        dblFssDen = sum( (listFbs / (1.0 - listFss)) * listTotal, na.rm=TRUE) / total;
+        dblFssDen = custom_sum( (listFbs / (1.0 - listFss)) * listTotal, na.rm=TRUE) / total;
         dblFss = 1.0 - dblFbs / dblFssDen;
         if( !is.finite(dblFss) ){ dblFss = NA; }
 
-        dblFRate = sum(listTotal * listFRate, na.rm=TRUE) / total;
-        dblORate = sum(listTotal * listORate, na.rm=TRUE) / total;
+        dblFRate = custom_sum(listTotal * listFRate, na.rm=TRUE) / total;
+        dblORate = custom_sum(listTotal * listORate, na.rm=TRUE) / total;
 
         dblAFssNum = 2.0*dblFRate*dblORate;
         dblAFssDen = dblFRate*dblFRate + dblORate*dblORate;
@@ -512,7 +522,7 @@ if ( nrow(sampleData) > 0){
 
         dblUFss = 0.5 + dblORate/2.0;
 
-        dfSeriesSums = data.frame(
+        dfSeriescustom_sums = data.frame(
           total = total,
           fbs = dblFbs,
           fss = dblFss,
@@ -533,11 +543,13 @@ if ( nrow(sampleData) > 0){
         thresh_i_index = grep("thresh_i", colnames(dfAggPerm), value=FALSE);
 
         for(oy_i in oy_i_index){
-          dfAggPerm[1,oy_i] = sum(dfPerm[,oy_i], na.rm = TRUE);
+          dfAggPerm[1,oy_i] = custom_sum(dfPerm[,oy_i], na.rm = TRUE);
         }
         for(on_i in on_i_index){
-          dfAggPerm[1,on_i] = sum(dfPerm[,on_i], na.rm = TRUE);
+          dfAggPerm[1,on_i] = custom_sum(dfPerm[,on_i], na.rm = TRUE);
         }
+
+
 
         if(!is.na(dfAggPerm[1,thresh_i_index][[1]])){
           dfPctPerm = data.frame(
@@ -549,9 +561,7 @@ if ( nrow(sampleData) > 0){
           # calculate vectors and constants to use below
           dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
           dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
-          T = sum(dfPctPerm$n_i);									# T
-          oy_total = sum(dfPctPerm$oy_i);							# n_.1
-          o_bar = oy_total / T;									# n_.1 / T
+
           dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
 
           # row-based calculations
@@ -562,26 +572,29 @@ if ( nrow(sampleData) > 0){
           dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
           dfPctPerm$baserate		= dfPctPerm$o_bar_i;
 
+
           # table-based stat calculations
-          dfSeriesSums = list(
-            reliability	= sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
-            resolution	= sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
+          dfSeriescustom_sums = list(
+            reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
+            resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
             uncertainty	= o_bar * (1 - o_bar),
-            baser		= o_bar
+            baser		= o_bar,
+            calibration = dfPctPerm$calibration,
+            n_i = dfPctPerm$n_i
           );
-          #dfSeriesSums$b_ci	= calcBrierCI(dfPctPerm, dfSeriesSums$brier, dblAlpha);
+          #dfSeriescustom_sums$b_ci	= calcBrierCI(dfPctPerm, dfSeriescustom_sums$brier, dblAlpha);
 
           # build the dataframe for calculating and use the trapezoidal method roc_auc
           dfROC = calcPctROC(dfPctPerm);
           dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
           dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
-          dfSeriesSums$roc_auc = 0;
+          dfSeriescustom_sums$roc_auc = 0;
           for(r in 2:nrow(dfAUC)){
-            dfSeriesSums$roc_auc = dfSeriesSums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
+            dfSeriescustom_sums$roc_auc = dfSeriescustom_sums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
           }
 
         }else{
-          dfSeriesSums = list(
+          dfSeriescustom_sums = list(
             reliability	= NA,
             resolution	= NA,
             uncertainty	= NA,
@@ -595,7 +608,7 @@ if ( nrow(sampleData) > 0){
       # return a value for each statistic
       for(strStat in listStat){
         # calculate and store the statistic
-        dblStat = do.call( paste("calc", strStat, sep=""), list(d=dfSeriesSums) );
+        dblStat = do.call( paste("calc", strStat, sep=""), list(d=dfSeriescustom_sums) );
         listRet[[strStat]] = append(listRet[[strStat]], dblStat);
       }
     }
@@ -690,20 +703,39 @@ if ( nrow(sampleData) > 0){
 
         # build the data set pertinent to this series permutation
         dfStatsPerm = dfStatsIndy;
+        dfStatsPermAllIndy = dfStatsRec;
+        listSeriesVarLenght = length(listSeriesVar);
+        if(listSeriesVarLenght == 0){
+          listSeriesVarLenght = 1;
+        }
 
-        for(intSeriesVal in 1:length(listSeriesVar)){
+        for(intSeriesVal in 1:listSeriesVarLenght){
           strSeriesVar = listSeriesVar[intSeriesVal];
-          strSeriesVal = listPerm[intSeriesVal];
+          if( !is.null(strSeriesVar) ){
+
+            strSeriesVal = listPerm[intSeriesVal];
+
           if( grepl("^[0-9]+$", strSeriesVal) ){
             strSeriesVal = as.integer(strSeriesVal);
             vectValPerms = strSeriesVal;
           }else{
-            vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+
+              vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+
           }
           vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
           dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+          if( boolAggPct ){
+
+            dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
+          }
+          }
         }
+
+
         if( 1 > nrow(dfStatsPerm) ){ next; }
+
+
 
         # add the contingency table constituents for this series permutation to the boot list
         strPerm = escapeStr(paste(listPerm, sep="_"));
@@ -723,6 +755,12 @@ if ( nrow(sampleData) > 0){
           listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
         } else if( boolAggNbrCnt ){
           listFields = c("total", "fbs", "fss");
+        }else if( boolAggPct ){
+          #calc T abd o_bar for pct
+          n_i = dfStatsPermAllIndy$oy_i + dfStatsPermAllIndy$on_i;
+          T = custom_sum(n_i);									# T
+          oy_total = custom_sum(dfStatsPermAllIndy$oy_i);							# n_.1
+          o_bar = oy_total / T;
         }
         for(strCount in listFields){
           listCounts = dfStatsPerm[[strCount]];
@@ -767,10 +805,12 @@ if ( nrow(sampleData) > 0){
 
           # build a indicator list for the pertinent rows in the output dataframe
           listOutInd = rep(TRUE, nrow(dfOut));
-          for(intSeriesVal in 1:length(listSeriesVar)){
-            strSeriesVar = listSeriesVar[intSeriesVal];
-            strSeriesVal = listPerm[intSeriesVal];
-            listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
+          if( !is.null(listSeriesVar)){
+            for(intSeriesVal in 1:length(listSeriesVar)){
+              strSeriesVar = listSeriesVar[intSeriesVal];
+              strSeriesVal = listPerm[intSeriesVal];
+              listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
+            }
           }
           if(strIndyVar == ""){
             listOutInd = listOutInd & (dfOut$stat_name == strStat);
@@ -831,8 +871,8 @@ if ( nrow(sampleData) > 0){
               listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
               listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
 
-                strStat1= listSeriesDiff1[2];
-                strStat2= listSeriesDiff2[2];
+              strStat1= listSeriesDiff1[2];
+              strStat2= listSeriesDiff2[2];
 
 
               derivedCurveName = getDerivedCurveName(diffSeriesVec);
@@ -856,87 +896,87 @@ if ( nrow(sampleData) > 0){
             }
           }
         } else{
-        for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
+          for( diffSeriesNameInd in 1: length(listDiffSeries) ){ #1,2....
 
 
-          diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
-          listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
-          listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
+            diffSeriesVec = listDiffSeries[[diffSeriesNameInd]];
+            listSeriesDiff1 <- strsplit(trim(diffSeriesVec[1]), " ")[[1]];
+            listSeriesDiff2 <- strsplit(trim(diffSeriesVec[2]), " ")[[1]];
 
             strStat1= listSeriesDiff1[length(listSeriesDiff1)];
             strStat2= listSeriesDiff2[length(listSeriesDiff2)];
 
 
-          derivedCurveName = getDerivedCurveName(diffSeriesVec);
+            derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
-          # build a indicator list for the pertinent rows in the output dataframe
-          listOutInd = rep(TRUE, nrow(dfOut));
-          strDiffVar = listSeriesVar[length(listSeriesVar)];
-          listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
+            # build a indicator list for the pertinent rows in the output dataframe
+            listOutInd = rep(TRUE, nrow(dfOut));
+            strDiffVar = listSeriesVar[length(listSeriesVar)];
+            listOutInd = listOutInd & (dfOut[[strDiffVar]] == derivedCurveName);
 
-          if(strStat1 == strStat2){
-            stat_name = strStat1;
-          }else{
-            stat_name = paste(strStat1,strStat2,collapse = "", sep=",");
-          }
-
-          listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
-
-          diff_sig = NA;
-          # Use the empirical distribution and just compute the ratio of differences < 0 if needed
-          if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
-            if( !all(is.na(bootStat$t[,intBootIndex])) ){
-              indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
-
-              mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
-              bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
-
-              pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
-              diff_sig = perfectScoreAdjustment(bootStat$t0[indexes[1]], bootStat$t0[indexes[2]], listDep1Plot[[1]], pval);
-
-            }
-            dfOut[listOutInd1,]$stat_value = diff_sig;
-          }else{
-            if( 1 < intNumReplicates ){
-              stBootCI = Sys.time();
-              bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
-              dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
-            }
-            dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
-          }
-
-          dfOut[listOutInd1,]$nstats = 0;
-          if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
-            if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["percent"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["percent"]][5];
-
-            }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["normal"]][2];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["normal"]][3];
-
-            }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["basic"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["basic"]][5];
-
-            }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["bca"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["bca"]][5];
-
-            }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
-              dfOut[listOutInd1,]$stat_bcl = bootCI[["student"]][4];
-              dfOut[listOutInd1,]$stat_bcu = bootCI[["student"]][5];
+            if(strStat1 == strStat2){
+              stat_name = strStat1;
             }else{
+              stat_name = paste(strStat1,strStat2,collapse = "", sep=",");
+            }
+
+            listOutInd1 = listOutInd & (dfOut$stat_name == stat_name)  & (dfOut[[strIndyVar]] == strIndyVal);
+
+            diff_sig = NA;
+            # Use the empirical distribution and just compute the ratio of differences < 0 if needed
+            if(length(diffSeriesVec) == 3 && diffSeriesVec[3] == 'DIFF_SIG'){
+              if( !all(is.na(bootStat$t[,intBootIndex])) ){
+                indexes = findIndexes(diffSeriesVec, listGroupToValue, matPerm);
+
+                mean_bootStat = mean(bootStat$t[,intBootIndex], na.rm = TRUE);
+                bootStat_under_H0 = bootStat$t[,intBootIndex] - mean_bootStat;
+
+                pval = mean( abs( bootStat_under_H0 ) <= abs( bootStat$t0[intBootIndex] ),na.rm = TRUE );
+                diff_sig = perfectScoreAdjustment(bootStat$t0[indexes[1]], bootStat$t0[indexes[2]], listDep1Plot[[1]], pval);
+
+              }
+              dfOut[listOutInd1,]$stat_value = diff_sig;
+            }else{
+              if( 1 < intNumReplicates ){
+                stBootCI = Sys.time();
+                bootCI = try(boot.ci(bootStat, conf=(1 - dblAlpha), type=strCIType, index=intBootIndex));
+                dblBootCITime = dblBootCITime + as.numeric(Sys.time() - stBootCI, units="secs");
+              }
+              dfOut[listOutInd1,]$stat_value = bootStat$t0[intBootIndex];
+            }
+
+            dfOut[listOutInd1,]$nstats = 0;
+            if( exists("bootCI") == TRUE && class(bootCI) == "bootci" && is.na(diff_sig)){
+              if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["percent"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["percent"]][5];
+
+              }else if( strCIType == "norm" && !is.null(bootCI[["normal"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["normal"]][2];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["normal"]][3];
+
+              }else if( strCIType == "basic" && !is.null(bootCI[["basic"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["basic"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["basic"]][5];
+
+              }else if( strCIType == "bca" && !is.null(bootCI[["bca"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["bca"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["bca"]][5];
+
+              }else if( strCIType == "stud" && !is.null(bootCI[["student"]]) ){
+                dfOut[listOutInd1,]$stat_bcl = bootCI[["student"]][4];
+                dfOut[listOutInd1,]$stat_bcu = bootCI[["student"]][5];
+              }else{
+                dfOut[listOutInd1,]$stat_bcl = NA;
+                dfOut[listOutInd1,]$stat_bcu = NA;
+              }
+            } else {
               dfOut[listOutInd1,]$stat_bcl = NA;
               dfOut[listOutInd1,]$stat_bcu = NA;
             }
-          } else {
-            dfOut[listOutInd1,]$stat_bcl = NA;
-            dfOut[listOutInd1,]$stat_bcu = NA;
-          }
 
-          intBootIndex = intBootIndex + 1;
-        }
+            intBootIndex = intBootIndex + 1;
+          }
         }
       }
 
@@ -952,6 +992,9 @@ if ( nrow(sampleData) > 0){
   write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t", append=boolAppend, col.names=!boolAppend);
 
 }
+if(is.na(listStat)){
+  listStat = listStat1;
+}
 cat(
   "    boot time: ", formatTimeSpan(dblBootTime), "\n",
   " boot.ci time: ", formatTimeSpan(dblBootCITime), "\n",
@@ -961,6 +1004,7 @@ cat(
   "         seed: ", intRandomSeed, "\n",
   "        stats: ", length(listStat), "\n",
   sep="");
+
 
 # clean up
 cat("agg_stat.R done\n");

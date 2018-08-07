@@ -315,6 +315,12 @@
                 }
             });
             if (initXML != null) {
+                var sd = initXML.find("database").text();
+                var selectedDatabase = sd.split(",");
+                for (var i = 0; i < selectedDatabase.length; i++) {
+                    $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
+                            .prop("checked", true).change();
+                }
                 loadXMLSeries();
                 $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
                 $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "TRUE");
@@ -498,7 +504,7 @@
                         <option value="interp_pnts">INTERP_PNTS</option>
                         <option value="fcst_thresh">FCST_THRESH</option>
                         <option value="obs_thresh">OBS_THRESH</option>
-
+                        <option value="descr">DESC</option>
                     </select>
                 </td>
                 <td>

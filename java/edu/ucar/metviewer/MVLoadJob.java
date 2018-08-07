@@ -41,6 +41,9 @@ public class MVLoadJob {
   protected String _strLoadNote = "";
   protected boolean _boolLoadXML = true;
 
+  protected String group = null;
+  protected String description = null;
+
 
   public String getDBManagementSystem() {
     if (_strDBManagementSystem == null) {
@@ -288,5 +291,21 @@ public class MVLoadJob {
 
   public void setLoadXML(boolean loadXML) {
     _boolLoadXML = loadXML;
+  }
+
+  public String getGroup() {
+    return group;
+  }
+
+  public void setGroup(String group) {
+    this.group = group;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

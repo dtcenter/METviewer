@@ -4,7 +4,7 @@
 <HEAD>
   <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-  <TITLE>METViewer v2.5</TITLE>
+  <TITLE>METViewer v2.6</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -158,6 +158,122 @@
       height: 20px;
     }
 
+
+
+
+    nav {
+        display: block;
+        text-align: left;
+      }
+      nav ul {
+        margin: 0;
+        padding:0;
+        list-style: none;
+      }
+      .nav a {
+        display:block;
+        background: #fff;
+        color:#555;
+        text-decoration: none;
+        padding: 0.3em 1em;
+        position: relative;
+        font-weight: normal;
+        font-family: Verdana,Arial,sans-serif;
+        font-size: 11px;
+      }
+      .nav{
+        vertical-align: top;
+        display: inline-block;
+        border-radius:6px;
+      }
+      .nav li{position: relative;}
+      .nav > li {
+        float:left;
+        border-bottom: 4px #d3d3d3 solid;
+        margin-right: 1px;
+      }
+      .nav > li > a {
+        margin-bottom:1px;
+        width: 250px;
+      }
+      .nav > li:hover , .nav > li:hover >a{  border-bottom-color:#999;}
+      .nav li:hover > a { font-weight: bold; }
+      .nav > li:first-child  {
+        border-radius: 4px 0 0 4px;
+        background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
+        border: 1px solid #d3d3d3;
+      }
+      .nav > li:first-child>a{border-radius: 4px 0 0 0;
+        background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
+      }
+      .nav > li:last-child  {
+      	border-radius: 0 0 4px 0;
+      	margin-right: 0;
+      }
+      .nav > li:last-child >a{border-radius: 0 4px 0 0; }
+      .nav li li a { }
+
+
+
+        .nav li a:first-child:nth-last-child(2):before {
+         content:"";
+         position: absolute;
+         height:0;
+         width: 0;
+         border: 5px solid transparent;
+         top: 50% ;
+         right:5px;
+       }
+
+
+
+
+
+       /* submenu positioning*/
+    .nav ul {
+      position: absolute;
+      white-space: nowrap;
+      border-bottom: 1px solid  #d3d3d3;
+      z-index: 10000;
+      left: -99999em;
+    }
+    .nav > li:hover > ul {
+      left: auto;
+      padding-top: 5px  ;
+      min-width: 100%;
+    }
+    .nav > li li ul {
+      border:1px solid #d3d3d3;
+      max-height: 400px;
+      overflow: auto;
+    }
+
+
+    .nav > li li:hover > ul {
+     /* margin-left: 1px */
+      left: 100%;
+      top: -1px;
+    }
+    /* arrow hover styling */
+    .nav > li > a:first-child:nth-last-child(2):before {
+      border-top-color: #999;
+    }
+    .nav > li:hover > a:first-child:nth-last-child(2):before {
+      border: 5px solid transparent;
+      border-bottom-color: #999;
+      margin-top:-5px
+    }
+    .nav li li > a:first-child:nth-last-child(2):before {
+      border-left-color: #d3d3d3;
+      margin-top: -5px
+    }
+    .nav li li:hover > a:first-child:nth-last-child(2):before {
+      border: 5px solid transparent;
+      border-right-color: #999;
+      right: 10px;
+    }
+
+
   </style>
 
   <script src="js/jquery-min.js" type="text/javascript"></script>
@@ -170,7 +286,7 @@
   <script type="text/javascript" src="js/grid.locale-en.js"></script>
   <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
   <script type="text/javascript" src="js/jquery.colorpicker.min.js"></script>
-  <script type="text/javascript" src="js/jquery.multiselect.min.js"></script>
+  <script type="text/javascript" src="js/jquery.multiselect.js"></script>
   <script type="text/javascript" src="js/jquery.actual.min.js"></script>
   <script type="text/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
@@ -190,6 +306,7 @@
     var strInitXML = '<%= session.getAttribute("init_xml") %>';
     var initXML;
     var urlOutput = "";
+    var categories = [];
 
     if (strInitXML != "null" && strInitXML.length > 0) {
       try {
@@ -219,116 +336,11 @@
 
         },
         success: function (data) {
-
+          categories = $(data).find("groups").find('group');
           var url_output_xml = $(data).find("url_output");
           if (url_output_xml) {
             urlOutput = $(url_output_xml).text();
           }
-          var values = $(data).find("val");
-          var databaseEl = $("#database");
-          var selected;
-          var selectedDatabase = [];
-          if (initXML != null) {
-            var sd = initXML.find("database").text();
-            selectedDatabase = sd.split(",");
-
-          }
-          for (var i = 0; i < values.length; i++) {
-            var t = $(values[i]);
-            if (selectedDatabase.length > 0) {
-              selected = (selectedDatabase.indexOf(t.text()) > -1);
-            } else {
-              selected = i == 0;
-            }
-
-            var opt = $('<option />', {
-              value: t.text(),
-              text: t.text(),
-              selected: selected
-            });
-            opt.appendTo(databaseEl);
-          }
-          $("#database").multiselect({
-            multiple: true,
-            header: true,
-            minWidth: 'auto',
-            height: 300,
-            selectedList: 1, // 0-based index
-            click: function (event, ui) {
-              seriesDiffY1 = [];
-              seriesDiffY2 = [];
-              var values, i;
-              if (currentTab == 'Series' || currentTab == 'Box' || currentTab == 'Bar') {
-                $('#listdt').jqGrid('clearGridData');
-                var mode = $('#plot_data').multiselect('getChecked')[0].value;
-                updateForecastVariables();
-                if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
-                  mode = $('#plot_data').multiselect('getChecked')[0].value;
-                  updateForecastVariables();
-                  if ($('#plot_data').multiselect('getChecked')[0].value !== mode) {
-                    updateForecastVariables();
-                  }
-                }
-                mode = $('#plot_data').multiselect('getChecked')[0].value;
-                if (mode == 'stat') {
-                  updateStats("y1", 1, []);
-                  updateStats("y2", 1, []);
-                  updateFixVar("stat");
-                  updateIndyVar("stat");
-                  $("#agg_none").prop('checked', 'checked');
-                } else if (mode == 'mode') {
-                  updateMode("y1", 1, []);
-                  updateMode("y2", 1, []);
-                  updateFixVar("mode");
-                  updateIndyVar("mode");
-                } else if (mode == 'mtd') {
-                  updateMtd("y1", 1, []);
-                  updateMtd("y2", 1, []);
-                  updateFixVar("mtd");
-                  updateIndyVar("mtd");
-                }
-                updateSeriesVarVal("y1", 1, []);
-                updateSeriesVarVal("y2", 1, []);
-              } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist' || currentTab == 'Eclv') {
-                updateSeriesVarValHist(1, []);
-                for (i = 0; i < fixed_var_indexes.length; i++) {
-                  values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
-                  updateFixedVarValHist(fixed_var_indexes[i], values);
-                }
-                if (currentTab == 'Rely') {
-                  updateSeriesRely();
-                } else {
-                  updateSeriesHist();
-                }
-              } else if (currentTab == 'Ens_ss') {
-
-                for (i = 0; i < series_var_y1_indexes.length; i++) {
-                  values = $("#series_var_val_y1_" + series_var_y1_indexes[i]).val();
-                  updateSeriesVarValEns(series_var_y1_indexes[i], values);
-                }
-                for (i = 0; i < fixed_var_indexes.length; i++) {
-                  values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
-                  updateFixedVarValHist(fixed_var_indexes[i], values);
-                }
-              } else if (currentTab == 'Perf') {
-                $('#listdt').jqGrid('clearGridData');
-                updateSeriesVarVal("y1", 1, []);
-                var rowCount = $('#fixed_var_table').find('tr').length;
-                for (i = rowCount - 1; i >= 0; i--) {
-                  removeFixedVar("fixed_var_" + (i + 1));
-                }
-              } else if (currentTab == 'Taylor') {
-                $('#listdt').jqGrid('clearGridData');
-                updateForecastVariables();
-                updateSeriesVarVal("y1", 1, []);
-              } else if (currentTab == 'Contour') {
-                $('#listdt').jqGrid('clearGridData');
-                updateStatVariable();
-                updateYvalueCountour([]);
-
-              }
-            }
-          });
           initPage();
         }
       });
@@ -337,20 +349,27 @@
 </HEAD>
 <BODY>
 
-<div id="header">
+<div id="header" style="overflow: visible; position: static ">
+
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METViewer 2.5<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METViewer 2.6<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
-    <label for="database">Database:</label><select id="database" multiple="multiple">
-  </select>
+    <nav style="float: left;padding-left: 30px;">
+                   <ul class="nav"><li><a href="#" id="selected_db"><span>Databases</span> <span
+                           id="uncheck_all"
+                           title="Uncheck all"
+                           class="ui-button-icon-primary ui-icon ui-icon-trash" style="position: absolute;top: 5px;left: 240px;"></span></a>
+                     <ul id="categories"></ul></li></ul></nav>
+
     <span style="margin-left:20px;"><button id="generate_plot">Generate Plot</button></span>
     <button id="load_xml" style="float: right">Load XML</button>
     <button id="reload_databases" style="float: right">Reload databases</button>
   </div>
 </div>
+
 <div id="series_formatting" class="ui-layout-south " style="overflow: visible; padding: 0 0 10px 10px;">
   <div>
     <table id="listdt"></table>

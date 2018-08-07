@@ -39,6 +39,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -972,7 +974,8 @@ public class MVServlet extends HttpServlet {
         MVNode nodeReq = new MVNode(doc.getFirstChild());
 
         String[] currentDbName = null;
-        List<String> databases;
+        Map<String, String> databases;
+        Map<String, List<String>> groups;
 
 
         //  examine the children of the request node
@@ -981,21 +984,63 @@ public class MVServlet extends HttpServlet {
           //  <list_db> request
           if (nodeCall.tag.equalsIgnoreCase("list_db")) {
             strResp.append("<list_db>");
-            databases = databaseManager.getAllDatabases();
-            for (String database : databases) {
-              strResp.append("<val>").append(database).append("</val>");
+            databases = databaseManager.getAllDatabasesWithDescription();
+            groups = databaseManager.getAllGroups();
+            StringBuilder groupsXmlStr = new StringBuilder("<groups>");
+            SortedSet<String> keys = new TreeSet<>(groups.keySet());
+
+            for (String key : keys) {
+              if (!key.equals(MVUtil.DEFAULT_DATABASE_GROUP)) {
+                groupsXmlStr.append("<group name='").append(key).append("'>");
+                for (String database : groups.get(key)) {
+                  groupsXmlStr.append("<db>");
+                  groupsXmlStr.append("<val>").append(database).append("</val>");
+                  groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
+                  groupsXmlStr.append("</db>");
+                }
+                groupsXmlStr.append("</group>");
+              }
             }
+            groupsXmlStr.append("<group name='").append(MVUtil.DEFAULT_DATABASE_GROUP)
+                .append("' >");
+            for (String database : groups.get(MVUtil.DEFAULT_DATABASE_GROUP)) {
+              groupsXmlStr.append("<db>");
+              groupsXmlStr.append("<val>").append(database).append("</val>");
+              groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
+              groupsXmlStr.append("</db>");
+            }
+            groupsXmlStr.append("</group>");
+
+            groupsXmlStr.append("</groups>");
+            strResp.append(groupsXmlStr);
+            for (Map.Entry<String, String> database : databases.entrySet()) {
+              strResp.append("<val>").append(database.getKey()).append("</val>");
+              strResp.append("<desc>").append(database.getValue()).append("</desc>");
+            }
+
             strResp.append("<url_output><![CDATA[").append(urlOutput)
                 .append("]]></url_output>");
             strResp.append("</list_db>");
 
           } else if (nodeCall.tag.equalsIgnoreCase("list_db_update")) {
             strResp.append("<list_db>");
-            databaseManager.initDBList();
-            databases = databaseManager.getAllDatabases();
-            for (String database : databases) {
-              strResp.append("<val>").append(database).append("</val>");
+            databaseManager.initDBList(true);
+            databases = databaseManager.getAllDatabasesWithDescription();
+            groups = databaseManager.getAllGroups();
+            StringBuilder groupsXmlStr = new StringBuilder("<groups>");
+            for (Map.Entry<String, List<String>> entry : groups.entrySet()) {
+              groupsXmlStr.append("<group name='").append(entry.getKey()).append("'>");
+              for (String database : entry.getValue()) {
+                groupsXmlStr.append("<db>");
+                groupsXmlStr.append("<val>").append(database).append("</val>");
+                groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
+                groupsXmlStr.append("</db>");
+              }
+              groupsXmlStr.append("</group>");
             }
+            groupsXmlStr.append("</groups>");
+            strResp.append(groupsXmlStr);
+
             strResp.append("</list_db>");
             strResp.append("<url_output><![CDATA[").append(urlOutput)
                 .append("]]></url_output>");

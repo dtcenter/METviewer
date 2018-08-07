@@ -14,6 +14,7 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptStatManager;
 
@@ -48,12 +49,40 @@ public class RelyJobManager extends JobManager {
                                                          mvBatch.getPrintStream());
       (new File(dataFile)).getParentFile().mkdirs();
       int intNumDepSeries = mvBatch.getDatabaseManager()
-                                .buildAndExecuteQueriesForRocRelyJob(job, dataFile, plotFixPerm,
+                                .buildAndExecuteQueriesForRocRelyJob(job, dataFile + ".agg_stat",
+                                                                     plotFixPerm,
                                                                      mvBatch.getPrintStream(),
                                                                      mvBatch.getPrintStreamSql());
 
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
-      RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
+      info.put("agg_pct", "TRUE");
+      info.put("indy_var", "thresh_i");
+      info.put("indy_list", "c(0, 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)");
+      info.put("agg_stat1", "c(\"PSTD_CALIBRATION\", \"PSTD_BASER\", \"PSTD_NI\")");
+      MVOrderedMap mapAggStatStatic = new MVOrderedMap();
+
+      Object objFcstVar = job.getPlotFixVal().get("fcst_var");
+      String[] listFcstVar;
+      if (objFcstVar instanceof String[]) {
+        listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
+      } else {
+        MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
+        listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
+      }
+      mapAggStatStatic.put("fcst_var", listFcstVar[0]);
+      info.put("agg_stat_static", mapAggStatStatic.getRDecl());
+
+      MVOrderedMap mapDep1Plot = new MVOrderedMap();
+      mapDep1Plot.put(listFcstVar[0], new String[]{"PSTD_CALIBRATION","PSTD_BASER", "PSTD_NI"});
+      info.put("dep1_plot",  mapDep1Plot.getRDecl());
+
+
+      RscriptStatManager rscriptStatManager = new RscriptAggStatManager(mvBatch);
+      rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>(0));
+      rscriptStatManager.runRscript(job, info);
+
+
+      rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       rscriptStatManager
           .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
       info.put("data_file", dataFile);

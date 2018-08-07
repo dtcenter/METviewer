@@ -24,11 +24,13 @@ import org.apache.logging.log4j.io.IoBuilder;
  * @version : 1.0 : 22/12/17 10:49 $
  */
 public class RscriptSumStatManager extends RscriptStatManager {
-  private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache
-                                                                                              .logging.log4j.Level.INFO)
-                       .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-                       .buildPrintStream();
 
+  private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
+                                                     .setLevel(org.apache
+                                                                   .logging.log4j.Level.INFO)
+                                                     .setMarker(
+                                                         new MarkerManager.Log4jMarker("ERROR"))
+                                                     .buildPrintStream();
 
   public RscriptSumStatManager(MVBatch mvBatch) {
     super(mvBatch);
@@ -36,22 +38,18 @@ public class RscriptSumStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-                              MVPlotJob job,MVOrderedMap mvMap,
-                              Map<String, String> info,
-
-                              List<String> listQuery) throws
-      Exception {
+                                           MVPlotJob job, MVOrderedMap mvMap,
+                                           Map<String, String> info,
+                                           List<String> listQuery) throws Exception {
 
     //  run the plot SQL against the database connection
     long intStartTime = new Date().getTime();
 
-     dataFile = mvBatch.getDataFolder()
-                          + MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                       MVUtil.addTmplValDep(job),
-                                                       job.getTmplMaps(),
-                                                       mvBatch.getPrintStream());
-
-
+    dataFile = mvBatch.getDataFolder()
+                   + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+                                                MVUtil.addTmplValDep(job),
+                                                job.getTmplMaps(),
+                                                mvBatch.getPrintStream());
     dataFile = dataFile + ".sum_stat";
 
     rScriptFile = mvBatch.getRworkFolder() + "include/sum_stat.R";
@@ -60,7 +58,9 @@ public class RscriptSumStatManager extends RscriptStatManager {
 
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
       mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
-                                                               job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(),
+                                                               job.getCalcCtc()
+                                                                   || job.getCalcSl1l2()
+                                                                   || job.getCalcSal1l2(),
                                                                job.getCurrentDBName().get(i),
                                                                i == 0);
     }
@@ -86,9 +86,9 @@ public class RscriptSumStatManager extends RscriptStatManager {
       if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
         fileAggOutput.getParentFile().mkdirs();
         success = MVUtil.runRscript(job.getRscript(),
-                          rScriptFile,
-                          new String[]{sumInfo},
-                          mvBatch.getPrintStream());
+                                    rScriptFile,
+                                    new String[]{sumInfo},
+                                    mvBatch.getPrintStream());
       }
     } catch (Exception e) {
       errorStream.print(e.getMessage());

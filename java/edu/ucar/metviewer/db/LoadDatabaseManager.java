@@ -31,6 +31,9 @@ public interface LoadDatabaseManager {
 
   Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception;
 
-   Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception;
+  Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception;
 
+  void updateGroup(final String group) throws Exception;
+
+  void updateDescription(String description) throws Exception;
 }

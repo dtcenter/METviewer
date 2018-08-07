@@ -46,6 +46,8 @@
                 <pathelement location="${lib}/commons-lang3-3.5.jar"/>
                 <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
                 <pathelement location="${lib}/juli-6.0.53.jar"/>
+                <pathelement location="${lib}/junit-4.11.jar"/>
+
 
             </classpath>
             <exclude name="**/test/**"/>
@@ -97,8 +99,12 @@
                 <include name="**/*.ttf"/>
             </fileset>
         </copy>
+        <delete file="${build}/MANIFEST.MF"/>
+        <manifest file="${build}/MANIFEST.MF">
+            <attribute name="Specification-Version" value="2.6"/>
+        </manifest>
 
-        <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}">
+        <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
 
         </jar>
     </target>
@@ -108,7 +114,8 @@
 
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
-        <jar jarfile="${dist}/lib/metviewer_all.jar" basedir="${build}"/>
+        <jar jarfile="${dist}/lib/metviewer_all.jar" basedir="${build}"
+             manifest="${build}/MANIFEST.MF"/>
 
     </target>
 

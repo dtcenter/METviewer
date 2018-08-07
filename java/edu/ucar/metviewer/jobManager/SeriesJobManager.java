@@ -94,7 +94,7 @@ public class SeriesJobManager extends JobManager {
       //  build the SQL statements for the current plot
       listQuery = appDatabaseManager.buildPlotSql(job, plotFixPerm, mvBatch.getPrintStreamSql());
       for (String sql : listQuery) {
-        mvBatch.printSql(sql + "\n");
+        mvBatch.printSql(sql + "\n\n");
       }
 
 
@@ -181,6 +181,21 @@ public class SeriesJobManager extends JobManager {
       }
       validateNumDepSeries(job, intNumDepSeries);
 
+      //validate revision_series option
+      if (job.getPlotTmpl().startsWith("revision") && isAggStat) {
+        throw new Exception("revision series option only available for Summary statistics");
+      }
+      if (job.getPlotTmpl().startsWith("revision") && !job.getIndyVar().equals("fcst_valid_beg")) {
+        throw new Exception("revision series option only available for independent variable "
+                                + "'fcst_valid_beg'");
+      }
+      if (job.getPlotTmpl().startsWith("revision") && job.getDiffSeries1Count() > 0) {
+        throw new Exception("revision series don't produce derived curves");
+      }
+      if (job.getPlotTmpl().startsWith("revision") && job.getSeries2Val().size() > 0) {
+        throw new Exception("revision series don't produce plots on Y2 axis");
+      }
+
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
 
 
@@ -201,8 +216,14 @@ public class SeriesJobManager extends JobManager {
         listQuery.clear();
       }
 
-      //run main Rscript
+      //run script for revision series if needed
+
+
       rscriptStatManager = new RscriptNoneStatManager(mvBatch);
+
+
+      //run main Rscript
+
       String dataFileName = mvBatch.getDataFolder()
                                 + MVUtil.buildTemplateString(job.getDataFileTmpl(),
                                                              MVUtil.addTmplValDep(job),

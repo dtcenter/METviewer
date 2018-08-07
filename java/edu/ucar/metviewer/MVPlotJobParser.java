@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-public class MVPlotJobParser  {
+public class MVPlotJobParser {
 
   protected static final Map<String, Method> formatToBoolValues = new HashMap<>();
   private static final Logger logger = LogManager.getLogger("MVPlotJobParser");
@@ -505,10 +505,10 @@ public class MVPlotJobParser  {
       MVNode nodeChild = nodeDateRange.children[j];
       if (nodeChild.tag.equals("start")) {
         strStart = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
-                                                                    strFormat) : nodeChild.value);
+                                                                           strFormat) : nodeChild.value);
       } else if (nodeChild.tag.equals("end")) {
         strEnd = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
-                                                                  strFormat) : nodeChild.value);
+                                                                         strFormat) : nodeChild.value);
       }
     }
     return "BETWEEN '" + strStart + "' AND '" + strEnd + "'";
@@ -556,13 +556,14 @@ public class MVPlotJobParser  {
         for (int k = 0; k < nodeIndyVal.children.length; k++) {
           MVNode nodeChild = nodeIndyVal.children[k];
           if (nodeChild.tag.equals("start")) {
-            strStart = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
-                                                                        strFormat,
-                                                                        dep) : nodeChild.value);
+            strStart = (0 < nodeChild.children.length ? MVUtil
+                                                            .parseDateOffset(nodeChild.children[0],
+                                                                             strFormat,
+                                                                             dep) : nodeChild.value);
           } else if (nodeChild.tag.equals("end")) {
             strEnd = (0 < nodeChild.children.length ? MVUtil.parseDateOffset(nodeChild.children[0],
-                                                                      strFormat,
-                                                                      dep) : nodeChild.value);
+                                                                             strFormat,
+                                                                             dep) : nodeChild.value);
           } else if (nodeChild.tag.equals("inc")) {
             intInc = Integer.parseInt(nodeChild.value);
           } else if (nodeChild.tag.equals("label_format")) {
@@ -667,12 +668,12 @@ public class MVPlotJobParser  {
 
 
     //  if there are dep,  and indep elements present, handle them
-    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl()
-                                                       .startsWith("phist") && !job.getPlotTmpl()
-                                                                                    .startsWith(
-                                                                                        "roc")
-            && !job.getPlotTmpl().startsWith("rely") && !job.getPlotTmpl().startsWith(
-        "relp") && !job.getPlotTmpl().startsWith("eclv")) {
+    if (!job.getPlotTmpl().startsWith("rhist")
+            && !job.getPlotTmpl().startsWith("phist")
+            && !job.getPlotTmpl().startsWith("roc")
+            && !job.getPlotTmpl().startsWith("rely")
+            && !job.getPlotTmpl().startsWith("relp")
+            && !job.getPlotTmpl().startsWith("eclv")) {
       int axis = 2;
       if (job.getPlotTmpl().startsWith("taylor")) {
         axis = 1;
@@ -721,6 +722,7 @@ public class MVPlotJobParser  {
                           + "</val>");
       }
       xmlStr.append("</indep>");
+
     }
 
     //  plot_fix
@@ -788,8 +790,8 @@ public class MVPlotJobParser  {
     }
 
     //  calc_stat
-    if (job.getCalcCtc() || job.getCalcSl1l2()
-            || job.getCalcSal1l2() || job.getCalcVl1l2() || job.getCalcGrad()) {
+    if (!job.getRevisionStat() && (job.getCalcCtc() || job.getCalcSl1l2()
+                                       || job.getCalcSal1l2() || job.getCalcVl1l2() || job.getCalcGrad())) {
       xmlStr.append(
           "<calc_stat>"
               + "<calc_ctc>" + (job.getCalcCtc() ? "TRUE" : "FALSE") + "</calc_ctc>"
@@ -799,6 +801,23 @@ public class MVPlotJobParser  {
               + "<calc_grad>" + (job.getCalcGrad() ? "TRUE" : "FALSE") + "</calc_grad>"
               + "</calc_stat>");
     }
+
+
+    //revis_stat
+
+    if (job.getRevisionStat()) {
+      xmlStr.append(
+          "<revis_stat>"
+              + "<calc_ctc>" + (job.getCalcCtc() ? "TRUE" : "FALSE") + "</calc_ctc>"
+              + "<calc_sl1l2>" + (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>"
+              + "<calc_sal1l2>" + (job.getCalcSal1l2() ? "TRUE" : "FALSE") + "</calc_sal1l2>"
+              + "<calc_vl1l2>" + (job.getCalcVl1l2() ? "TRUE" : "FALSE") + "</calc_vl1l2>"
+              + "<calc_grad>" + (job.getCalcGrad() ? "TRUE" : "FALSE") + "</calc_grad>"
+              + "<revision_ac>" + (job.getRevisionAc() ? "TRUE" : "FALSE") + "</revision_ac>"
+              + "<revision_run>" + (job.getRevisionRun() ? "TRUE" : "FALSE") + "</revision_run>"
+              + "</revis_stat>");
+    }
+
 
     //  roc_calc
     if (job.getPlotTmpl().equals("roc.R_tmpl")) {
@@ -816,6 +835,8 @@ public class MVPlotJobParser  {
         xmlStr.append("<val>" + stat + "</val>");
       }
       xmlStr.append("</summary_curve>");
+      xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
+      xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine()).append("</add_reference_line>");
     }
 
     //  roc_calc
@@ -1076,7 +1097,8 @@ public class MVPlotJobParser  {
                 nodeChild.children[0], format) : nodeChild.value);
           } else if (nodeChild.tag.equals("range_end")) {
             rangeEnd = (0 < nodeChild.children.length
-                               ? MVUtil.parseDateOffset(nodeChild.children[0], format) : nodeChild.value);
+                            ? MVUtil.parseDateOffset(nodeChild.children[0],
+                                                     format) : nodeChild.value);
           } else if (nodeChild.tag.equalsIgnoreCase("range_length")) {
             rangeLength = Integer.parseInt(nodeChild.value);
           } else if (nodeChild.tag.equalsIgnoreCase("inc")) {
@@ -1168,7 +1190,7 @@ public class MVPlotJobParser  {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            mapMse.put(listFcstVar[0], new String[]{"MSE"});
+            mapMse.put(listFcstVar[0], new String[]{"MSE" });
             mapDep.put("dep1", mapMse);
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);
@@ -1188,7 +1210,7 @@ public class MVPlotJobParser  {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY" });
             mapDep.put("dep1", mapFarPody);
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);
@@ -1280,7 +1302,8 @@ public class MVPlotJobParser  {
           ArrayList listFixVal;
           if (job.getPlotFixVal().containsKey(nodeFix.name)
                   && job.getPlotFixVal().get(nodeFix.name) instanceof String[]) {
-            listFixVal = (ArrayList) MVUtil.toArrayList((String[]) job.getPlotFixVal().get(nodeFix.name));
+            listFixVal = (ArrayList) MVUtil.toArrayList(
+                (String[]) job.getPlotFixVal().get(nodeFix.name));
           } else {
             listFixVal = new ArrayList();
           }
@@ -1687,6 +1710,36 @@ public class MVPlotJobParser  {
                                   + "and calc_sal1l2 and calc_vl1l2 and calc_grad are true");
         }
       }
+      // <revis_stat />
+      else if (node.tag.equals("revis_stat")) {
+        job.setRevisionStat(Boolean.TRUE);
+        for (int j = 0; j < node.children.length; j++) {
+          MVNode nodeRevisStat = node.children[j];
+          boolean val = nodeRevisStat.value.equalsIgnoreCase("true");
+          if (nodeRevisStat.tag.equals("calc_ctc")) {
+            job.setCalcCtc(val);
+          } else if (nodeRevisStat.tag.equals("calc_sl1l2")) {
+            job.setCalcSl1l2(val);
+          } else if (nodeRevisStat.tag.equals("calc_grad")) {
+            job.setCalcGrad(val);
+          } else if (nodeRevisStat.tag.equals("calc_sal1l2")) {
+            job.setCalcSal1l2(val);
+          } else if (nodeRevisStat.tag.equals("calc_vl1l2")) {
+            job.setCalcVl1l2(val);
+          } else if (nodeRevisStat.tag.equals("revision_ac")) {
+            job.setRevisionAc(val);
+          } else if (nodeRevisStat.tag.equals("revision_run")) {
+            job.setRevisionRun(val);
+          }
+        }
+        if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()
+                && job.getCalcVl1l2() && job.getCalcGrad()) {
+          throw new Exception("invalid revis_stat setting - both calc_ctc and calc_sl1l2 "
+                                  + "and calc_sal1l2 and calc_vl1l2 and calc_grad are true");
+        }
+
+      }
+
 
       //  <roc_calc>
       else if (node.tag.equals("roc_calc")) {

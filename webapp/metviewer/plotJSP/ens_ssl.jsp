@@ -175,9 +175,15 @@
 
         getForecastVariablesHist();
         if (initXML != null) {
+            var sd = initXML.find("database").text();
+            var selectedDatabase = sd.split(",");
+            for (var i = 0; i < selectedDatabase.length; i++) {
+                $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
+                        .prop("checked", true).change();
+            }
             loadXMLEns();
             initXML = null;
-        }else{
+        } else {
             updateSeriesVarValEns( 1, []);
             $("input[name=ensss_pts_disp][value=false]").prop('checked', true);
             $('#ensss_pts').val("-1");

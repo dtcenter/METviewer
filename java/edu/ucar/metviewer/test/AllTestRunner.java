@@ -7,7 +7,6 @@ package edu.ucar.metviewer.test;
 
 import java.util.List;
 
-import edu.ucar.metviewer.test.util.TestUtil;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -21,60 +20,53 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 public class AllTestRunner {
 
   public static void main(String[] args) {
-    cleanWorkingDirs();
-    Result result;
-    List<Failure> failureListLoadDataTest = null;
-    if (args.length > 0 ) {
-      TestUtil.ROOT_DIR = args[0];
-    }
-    if (args.length > 1 && args[1].equals("all")) {
-      result = JUnitCore.runClasses(LoadDataTest.class);
-      failureListLoadDataTest = result.getFailures();
 
-    }
+      Result result;
+      List<Failure> failureListLoadDataTest = null;
+      List<Failure> failureListPlotBatchTest = null;
 
-    result = JUnitCore.runClasses(CreatePlotBatchTest.class);
-    List<Failure> failureListCreatePlotBatchTest = result.getFailures();
+      cleanWorkingDirs();
+      if (System.getProperty("loadData") != null) {
+        result = JUnitCore.runClasses(LoadDataTest.class);
+        failureListLoadDataTest = result.getFailures();
+      }
 
+      if (System.getProperty("compareOnly") == null) {
+        // really test
+        result = JUnitCore.runClasses(CreatePlotBatchTest.class);
+      } else {
+        result = JUnitCore.runClasses(ComparePlotBatchTest.class);
+      }
+      failureListPlotBatchTest = result.getFailures();
 
-    result = JUnitCore.runClasses(TestMVServlet.class);
-    List<Failure> failureListTestMVServlet = result.getFailures();
-
-
-    System.out.println("*************************************************");
-    if (failureListLoadDataTest != null) {
-
-      for (Failure failure : failureListLoadDataTest) {
+      System.out.println("*************************************************");
+      if (failureListLoadDataTest != null) {
+        for (Failure failure : failureListLoadDataTest) {
+          System.out.println(failure.toString());
+        }
+        if (failureListLoadDataTest.isEmpty()) {
+          System.out.println("***** Database loading tests finished successfully... *****");
+        }
+      } else {
+        System.out.println("***** Database loading tests was ignored... *****");
+      }
+      System.out.println("*************************************************");
+      System.out.println();
+      System.out.println("*************************************************");
+      for (Failure failure : failureListPlotBatchTest) {
         System.out.println(failure.toString());
       }
-      if (failureListLoadDataTest.isEmpty()) {
-        System.out.println("***** Database loading tests finished successfully... *****");
+      if (failureListPlotBatchTest.isEmpty()) {
+        System.out.println("***** Plot making tests finished successfully... *****");
       }
-
-    } else {
-      System.out.println("***** Database loading tests was ignored... *****");
+      System.out.println("*************************************************");
+      System.out.println();
+      System.out.println("*************************************************");
+      int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0: failureListLoadDataTest.size();
+      int failureListPlotBatchTestCount = failureListPlotBatchTest == null ? 0: failureListPlotBatchTest.size();
+      int exitCode = failureListLoadDataTestCount + failureListPlotBatchTestCount;
+      System.out.println("*************************************************");
+      System.out.println("There were " + exitCode + " failures");
+      System.exit( exitCode);
     }
-    System.out.println("*************************************************");
-    System.out.println();
-    System.out.println("*************************************************");
-    for (Failure failure : failureListCreatePlotBatchTest) {
-      System.out.println(failure.toString());
-    }
-    if (failureListCreatePlotBatchTest.isEmpty()) {
-      System.out.println("***** Plot making tests finished successfully... *****");
-    }
-    System.out.println("*************************************************");
-    System.out.println();
-    System.out.println("*************************************************");
-    for (Failure failure : failureListTestMVServlet) {
-      System.out.println(failure.toString());
-    }
-    if (failureListTestMVServlet.isEmpty()) {
-      System.out.println("***** Servlet tests finished successfully... *****");
-    }
-    System.out.println("*************************************************");
-    System.out.println();
-
-  }
-
 }

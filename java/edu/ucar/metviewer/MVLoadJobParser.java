@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-public class MVLoadJobParser  {
+public class MVLoadJobParser {
 
   protected final Map dateListDecl = new HashMap();
   protected MVNode loadSpec = null;
@@ -99,6 +99,10 @@ public class MVLoadJobParser  {
         loadJob.setLoadNote(node.value);
       } else if (node.tag.equals("load_xml")) {
         loadJob.setLoadXML(node.value.equalsIgnoreCase("true"));
+      } else if (node.tag.equals("group")) {
+        loadJob.setGroup(node.value);
+      } else if (node.tag.equals("description")) {
+        loadJob.setDescription(node.value);
       }
 
       //  <load_files>

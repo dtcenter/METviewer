@@ -90,7 +90,8 @@ public class MVLoad {
           dbType = "mysql";
         } else {
           logger.error(
-              "  **  ERROR: unrecognized option '" + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
+              "  **  ERROR: unrecognized option '" + argv[intArg]
+                  + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
       }
@@ -98,8 +99,8 @@ public class MVLoad {
 
       //  parse the plot job
       logger.info("Begin time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
-      logger
-          .info("Parsing: " + strXML + "\n" + (indexOnly ? "Applying Index Settings Only\n" : ""));
+      logger.info("Parsing: " + strXML + "\n"
+                      + (indexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
       MVLoadJob job = parser.getLoadJob();
       DatabaseInfo databaseInfo = new DatabaseInfo(job.getDBHost(), job.getDBUser(),
@@ -119,8 +120,7 @@ public class MVLoad {
       modeHeaderDBCheck = job.getModeHeaderDBCheck();
       mtdHeaderDBCheck = job.getMtdHeaderDBCheck();
       statHeaderDBCheck = job.getStatHeaderDBCheck();
-      boolean dropIndexes = job.getDropIndexes();
-      boolean applyIndexes = job.getApplyIndexes();
+
 
       lineTypeLoad = job.getLineTypeLoad();
       tableLineTypeLoad = job.getLineTypeLoadMap();
@@ -140,17 +140,26 @@ public class MVLoad {
 
       //  if the insert size is greater than 1, ensure that the db header check is off
       if (1 < insertSize) {
-        throw new Exception("METViewer load error: insert size (" + insertSize + ") > 1 and database header check turned on");
+        throw new Exception("METViewer load error: insert size ("
+                                + insertSize + ") > 1 and database header check turned on");
       }
 
       long intLoadTimeStart = new Date().getTime();
+      if (job.getGroup() != null) {
+        mysqlLoadDatabaseManager.updateGroup(job.getGroup());
+      }
+      if (job.getDescription() != null) {
+              mysqlLoadDatabaseManager.updateDescription(job.getDescription());
+            }
 
       //  drop the database indexes, if requested
+      boolean dropIndexes = job.getDropIndexes();
       if (dropIndexes) {
         mysqlLoadDatabaseManager.dropIndexes();
       }
 
       //  if the job involves only applying indexes, do so and return
+      boolean applyIndexes = job.getApplyIndexes();
       if (indexOnly && applyIndexes) {
         mysqlLoadDatabaseManager.applyIndexes();
         logger.info("\n----  MVLoad Done  ----");
@@ -168,10 +177,12 @@ public class MVLoad {
             processFile(file);
           } catch (Exception e) {
             logger.error(
-                "  **  ERROR: caught " + e.getClass() + " loading file " + listLoadFiles[i] + ": " + e.getMessage());
+                "  **  ERROR: caught " + e.getClass() + " loading file "
+                    + listLoadFiles[i] + ": " + e.getMessage());
             logger.error(e);
             logger.info(
-                "  **  WARNING: error(s) encountered loading file " + listLoadFiles[i] + " - skipping file");
+                "  **  WARNING: error(s) encountered loading file "
+                    + listLoadFiles[i] + " - skipping file");
           }
         }
       }
@@ -211,9 +222,10 @@ public class MVLoad {
                 try {
                   processFile(listDataFile);
                 } catch (Exception e) {
-                  logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n" +
-                                   e.getMessage() + "\n" +
-                                   "  **  WARNING: error(s) encountered loading file " + listDataFile + " - skipping file");
+                  logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n"
+                                   + e.getMessage() + "\n"
+                                   + "  **  WARNING: error(s) encountered loading file "
+                                   + listDataFile + " - skipping file");
                   logger.error(e);
                 }
               }
@@ -227,11 +239,12 @@ public class MVLoad {
             intModeLinesPrev = modeLinesTotal;
             intMtdLinesPrev = mtdLinesTotal;
             logger.info(
-                "Permutation " + (intPerm + 1) + " of " + listPerm.length + " complete - insert time: " +
-                    MVUtil.formatTimeSpan(
-                        new Date().getTime() - intPermStart) + "  stat lines: " + intStatLinesPerm +
-                    "  mode lines: " + intModeLinesPerm + "\n" + "  mtd lines: " + intMtdLinesPerm +
-                    "\n");
+                "Permutation " + (intPerm + 1) + " of " + listPerm.length
+                    + " complete - insert time: "
+                    + MVUtil.formatTimeSpan(new Date().getTime() - intPermStart)
+                    + "  stat lines: " + intStatLinesPerm
+                    + "  mode lines: " + intModeLinesPerm + "\n" + "  mtd lines: "
+                    + intMtdLinesPerm + "\n");
           }
         }
       }
@@ -242,9 +255,8 @@ public class MVLoad {
       if (!indexOnly) {
         logger.info("==== grid_stat ====\n\n" +
 
-                        MVUtil.padBegin("stat_header table time total: ", 36) + MVUtil
-                                                                                    .formatTimeSpan(
-                                                                                        statHeaderTableTime) + "\n" +
+                        MVUtil.padBegin("stat_header table time total: ", 36)
+                        + MVUtil.formatTimeSpan(statHeaderTableTime) + "\n" +
                         MVUtil.padBegin("stat header records: ", 36) + statHeaderRecords + "\n" +
                         MVUtil.padBegin("stat header inserts: ", 36) + statHeaderInserts + "\n" +
                         MVUtil.padBegin("line data records: ", 36) + lineDataRecords + "\n" +
@@ -262,13 +274,12 @@ public class MVLoad {
                         (modeHeaderDBCheck ? MVUtil.padBegin("mode_header search time total: ",
                                                              36) + MVUtil.formatTimeSpan(
                             modeHeaderSearchTime) + "\n" : "") +
-                        (mtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time total: ",
-                                                            36) + MVUtil
-                                                                      .formatTimeSpan(
-                                                                          mtdHeaderSearchTime) + "\n" : "") +
-                        (statHeaderDBCheck ? MVUtil.padBegin("stat_header search time total: ",
-                                                             36) + MVUtil.formatTimeSpan(
-                            statHeaderSearchTime) + "\n" : "") +
+                        (mtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time total: ", 36)
+                                                + MVUtil.formatTimeSpan(mtdHeaderSearchTime)
+                                                + "\n" : "") +
+                        (statHeaderDBCheck ? MVUtil.padBegin("stat_header search time total: ", 36)
+                                                 + MVUtil.formatTimeSpan(statHeaderSearchTime)
+                                                 + "\n" : "") +
                         MVUtil.padBegin("mode_header inserts: ", 36) + modeHeaderRecords + "\n" +
                         MVUtil.padBegin("mode_cts inserts: ", 36) + modeCtsRecords + "\n" +
                         MVUtil.padBegin("mode_obj_single inserts: ",
@@ -343,9 +354,8 @@ public class MVLoad {
     info._intInsertSize = insertSize;
     long intProcessDataFileTime = new Date().getTime() - intProcessDataFileBegin;
     String strFileMsg = "  " + info._dataFilePath + "/" + info._dataFileFilename +
-                            (verbose ? "\n" + MVUtil.padBegin("data file time: ", 36) + MVUtil
-                                                                                            .formatTimeSpan(
-                                                                                                intProcessDataFileTime) : "");
+                            (verbose ? "\n" + MVUtil.padBegin("data file time: ", 36)
+                                           + MVUtil.formatTimeSpan(intProcessDataFileTime) : "");
 
     if ("stat".equals(info._dataFileLuTypeName) && loadStat) {
       logger.info(strFileMsg);
@@ -360,9 +370,9 @@ public class MVLoad {
       lengthInserts += timeStats.get("lengthInserts");
 
       numStatFiles++;
-    } else if (("mode_obj".equals(info._dataFileLuTypeName) || "mode_cts".equals(
-        info._dataFileLuTypeName)) &&
-                   loadMode) {
+    } else if (("mode_obj".equals(info._dataFileLuTypeName)
+                    || "mode_cts".equals(info._dataFileLuTypeName))
+                   && loadMode) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadModeFile(info);
       modeHeaderSearchTime += timeStats.get("headerSearchTime");
@@ -378,8 +388,8 @@ public class MVLoad {
                     || "mtd_3d_pc".equals(info._dataFileLuTypeName)
                     || "mtd_3d_ps".equals(info._dataFileLuTypeName)
                     || "mtd_3d_sc".equals(info._dataFileLuTypeName)
-                    || "mtd_3d_ss".equals(info._dataFileLuTypeName)) &&
-                   loadMtd) {
+                    || "mtd_3d_ss".equals(info._dataFileLuTypeName))
+                   && loadMtd) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadMtdFile(info);
       mtdHeaderSearchTime += timeStats.get("headerSearchTime");

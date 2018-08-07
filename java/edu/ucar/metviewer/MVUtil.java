@@ -111,6 +111,8 @@ public class MVUtil {
                                                     .setMarker(
                                                         new MarkerManager.Log4jMarker("ERROR"))
                                                     .buildPrintStream();
+  public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
+
 
   public static final String[] lineTypes = new String[]{
       "fho",
@@ -410,17 +412,17 @@ public class MVUtil {
   }
 
   static {
-    statsMpr.put("MPR_FCST", new String[]{""});
-    statsMpr.put("MPR_OBS", new String[]{""});
-    statsMpr.put("MPR_CLIMO", new String[]{""});
+    statsMpr.put("MPR_FCST", new String[]{"" });
+    statsMpr.put("MPR_OBS", new String[]{"" });
+    statsMpr.put("MPR_CLIMO", new String[]{"" });
   }
 
   static {
-    statsOrank.put("PIT", new String[]{""});
-    statsOrank.put("RANK", new String[]{""});
-    statsOrank.put("ENS_MEAN", new String[]{""});
-    statsOrank.put("ORANK_OBS", new String[]{""});
-    statsOrank.put("ORANK_CLIMO", new String[]{""});
+    statsOrank.put("PIT", new String[]{"" });
+    statsOrank.put("RANK", new String[]{"" });
+    statsOrank.put("ENS_MEAN", new String[]{"" });
+    statsOrank.put("ORANK_OBS", new String[]{"" });
+    statsOrank.put("ORANK_CLIMO", new String[]{"" });
   }
 
   static {
@@ -446,13 +448,13 @@ public class MVUtil {
     statsCnt.put("S1", new String[]{"bc", GRAD});
     statsCnt.put("S1_OG", new String[]{"bc", GRAD});
     statsCnt.put("FGOG_RATIO", new String[]{"bc", GRAD});
-    statsCnt.put("E10", new String[]{"bc"});
-    statsCnt.put("E25", new String[]{"bc"});
-    statsCnt.put("E50", new String[]{"bc"});
-    statsCnt.put("E75", new String[]{"bc"});
-    statsCnt.put("E90", new String[]{"bc"});
-    statsCnt.put("IQR", new String[]{"bc"});
-    statsCnt.put("MAD", new String[]{"bc"});
+    statsCnt.put("E10", new String[]{"bc" });
+    statsCnt.put("E25", new String[]{"bc" });
+    statsCnt.put("E50", new String[]{"bc" });
+    statsCnt.put("E75", new String[]{"bc" });
+    statsCnt.put("E90", new String[]{"bc" });
+    statsCnt.put("IQR", new String[]{"bc" });
+    statsCnt.put("MAD", new String[]{"bc" });
     //statsCnt.put("PAC", new String[]{"bc"});
     statsCnt.put("ANOM_CORR", new String[]{"bc", SAL1L2});
     statsCnt.put("ME2", new String[]{"bc", SL1L2});
@@ -498,6 +500,7 @@ public class MVUtil {
     statsSsvar.put("SSVAR_ANOM_CORR", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_ME2", new String[]{"bc", SSVAR});
     statsSsvar.put("SSVAR_MSESS", new String[]{"bc", SSVAR});
+    statsSsvar.put("SSVAR_Spread", new String[]{"bc", SSVAR});
   }
 
 
@@ -525,19 +528,19 @@ public class MVUtil {
   }
 
   static {
-    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FBIAS", new String[]{"bc"});
-    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_GSS", new String[]{"bc"});
-    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc"});
-    statsNbrcts.put("NBR_HSS", new String[]{"bc"});
-    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_FBIAS", new String[]{"bc" });
+    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_GSS", new String[]{"bc" });
+    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_HSS", new String[]{"bc" });
+    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc" });
   }
 
   static {
@@ -565,10 +568,10 @@ public class MVUtil {
   }
 
   static {
-    statsMcts.put("MCTS_ACC", new String[]{"nc", "bc"});
-    statsMcts.put("MCTS_HK", new String[]{"bc"});
-    statsMcts.put("MCTS_HSS", new String[]{"bc"});
-    statsMcts.put("MCTS_GER", new String[]{"bc"});
+    statsMcts.put("MCTS_ACC", new String[]{"nc", "bc" });
+    statsMcts.put("MCTS_HK", new String[]{"bc" });
+    statsMcts.put("MCTS_HSS", new String[]{"bc" });
+    statsMcts.put("MCTS_GER", new String[]{"bc" });
   }
 
   static {
@@ -1831,10 +1834,8 @@ public class MVUtil {
             strVal = "0" + strVal;
           }
 
-        } else if (strTmplTagName.equals("init_hour") || strTmplTagName
-                                                             .equals("valid_hour") && strFormat
-                                                                                          .equals(
-                                                                                              "HH")) {
+        } else if (strTmplTagName.equals("init_hour")
+                       || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
           while (2 > strVal.length()) {
             strVal = "0" + strVal;
           }

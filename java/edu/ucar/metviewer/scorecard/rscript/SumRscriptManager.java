@@ -15,6 +15,7 @@ import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
+import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -47,8 +48,8 @@ public class SumRscriptManager extends RscriptManager {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
     sumStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SUM_FILE_NAME;
-    strRFile = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile()
-                                                                   .replaceFirst("\\.data$", ".R");
+    strRFile = scorecard.getWorkingFolders().getScriptsDir()
+                   + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
     strSumRFile = scorecard.getWorkingFolders().getrWorkDir() + "sum_stat.R";
     strSumInfo = scorecard.getWorkingFolders().getDataDir()
                      + scorecard.getSumStatDataFile().replaceFirst("\\.data.sum_stat$",
@@ -70,11 +71,9 @@ public class SumRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
     tableCalcStatInfoCommon
         .put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
-    tableCalcStatInfoCommon.put("data_file",
-                                scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile()
-                                                                                 .replaceAll(
-                                                                                     ".data",
-                                                                                     ".dataFromDb"));
+    tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir()
+                                                 + scorecard.getDataFile()
+                                                       .replaceAll(".data", ".dataFromDb"));
     tableCalcStatInfoCommon
         .put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
     tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
@@ -83,7 +82,20 @@ public class SumRscriptManager extends RscriptManager {
 
     tableCalcStatInfoCommon.put("eveq_dis", String.valueOf(Boolean.FALSE).toUpperCase());
     tableCalcStatInfoCommon.put("sum_stat_output", scorecard.getWorkingFolders().getDataDir()
-                                                       + scorecard.getDataFile()+ "1");
+                                                       + scorecard.getDataFile() + "1");
+    String dates = "c()";
+    for (Field fixedField : fixedVars) {
+      if ("fcst_valid_beg".equals(fixedField.getName())
+              || "fcst_init_beg".equals(fixedField.getName())) {
+
+        dates = "c('"
+                    + fixedField.getValues().get(0).getName().split("\\s")[0]
+                    + "', '" + fixedField.getValues().get(1).getName().split("\\s")[0]
+                    + "')";
+        break;
+      }
+    }
+    tableCalcStatInfoCommon.put("dates_list", dates);
 
   }
 
@@ -105,7 +117,8 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("sum_stat_static", "list(`fcst_var` = \"" + fcstVar + "\")");
 
       String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
-      tableCalcStatInfo.put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
+      tableCalcStatInfo
+          .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
       tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
                                              .toUpperCase());
       tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
