@@ -561,38 +561,47 @@ if ( nrow(sampleData) > 0){
           # calculate vectors and constants to use below
           dfPctPerm$n_i = dfPctPerm$oy_i + dfPctPerm$on_i;		# n_j.
           dfPctPerm = dfPctPerm[0 != dfPctPerm$n_i,];
+          if(nrow(dfPctPerm) == 0){
+            dfSeriescustom_sums = list(
+              reliability	= NA,
+              resolution	= NA,
+              uncertainty	= NA,
+              baser		= NA,
+              roc_auc=NA
+            );
+          } else {
 
-          dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
+            dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
 
-          # row-based calculations
-          dfPctPerm$oy_tp			= dfPctPerm$oy_i / T;
-          dfPctPerm$on_tp			= dfPctPerm$on_i / T;
-          dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
-          dfPctPerm$refinement	= dfPctPerm$n_i / T;
-          dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
-          dfPctPerm$baserate		= dfPctPerm$o_bar_i;
+            # row-based calculations
+            dfPctPerm$oy_tp			= dfPctPerm$oy_i / T;
+            dfPctPerm$on_tp			= dfPctPerm$on_i / T;
+            dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
+            dfPctPerm$refinement	= dfPctPerm$n_i / T;
+            dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
+            dfPctPerm$baserate		= dfPctPerm$o_bar_i;
 
 
-          # table-based stat calculations
-          dfSeriescustom_sums = list(
-            reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
-            resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
-            uncertainty	= o_bar * (1 - o_bar),
-            baser		= o_bar,
-            calibration = dfPctPerm$calibration,
-            n_i = dfPctPerm$n_i
-          );
-          #dfSeriescustom_sums$b_ci	= calcBrierCI(dfPctPerm, dfSeriescustom_sums$brier, dblAlpha);
+            # table-based stat calculations
+            dfSeriescustom_sums = list(
+              reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
+              resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
+              uncertainty	= o_bar * (1 - o_bar),
+              baser		= o_bar,
+              calibration = dfPctPerm$calibration,
+              n_i = dfPctPerm$n_i
+            );
+            #dfSeriescustom_sums$b_ci	= calcBrierCI(dfPctPerm, dfSeriescustom_sums$brier, dblAlpha);
 
-          # build the dataframe for calculating and use the trapezoidal method roc_auc
-          dfROC = calcPctROC(dfPctPerm);
-          dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
-          dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
-          dfSeriescustom_sums$roc_auc = 0;
-          for(r in 2:nrow(dfAUC)){
-            dfSeriescustom_sums$roc_auc = dfSeriescustom_sums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
+            # build the dataframe for calculating and use the trapezoidal method roc_auc
+            dfROC = calcPctROC(dfPctPerm);
+            dfAUC = rbind(data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=1, pofd=1), dfROC);
+            dfAUC = rbind(dfAUC, data.frame(thresh=0, n11=0, n10=0, n01=0, n00=0, pody=0, pofd=0));
+            dfSeriescustom_sums$roc_auc = 0;
+            for(r in 2:nrow(dfAUC)){
+              dfSeriescustom_sums$roc_auc = dfSeriescustom_sums$roc_auc + 0.5*(dfAUC[r-1,]$pody + dfAUC[r,]$pody)*(dfAUC[r-1,]$pofd - dfAUC[r,]$pofd);
+            }
           }
-
         }else{
           dfSeriescustom_sums = list(
             reliability	= NA,
