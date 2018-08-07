@@ -249,14 +249,15 @@ public class MVBatch  {
       }
 
       //  parse the input file
-      String xmlInput = argv[intArg++];
+      String xmlInput = argv[intArg];
       bat.print("input file: " + xmlInput + "\n");
+      intArg++;
 
       MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
       if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
         bat.setDatabaseManager(
             new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
-      } else if (bat.getDbType().equals("mysql")) {
+      } else if (bat.getDbType().equals("CB")) {
         bat.setDatabaseManager(
                 new CBAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
       }

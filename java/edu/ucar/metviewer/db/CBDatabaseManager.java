@@ -83,12 +83,12 @@ public class CBDatabaseManager {
       logger.error("Open bucket connection for a Couchbase database did not succeed.");
       logger.error(e.getMessage());
     }
-
+   /*
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
     }
-    initDBList(updateGroups);
+    initDBList(updateGroups); */
   }
 
   public void initDBList(boolean updateGroups) {

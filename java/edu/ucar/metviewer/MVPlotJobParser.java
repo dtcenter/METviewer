@@ -274,6 +274,8 @@ public class MVPlotJobParser {
   protected String dbHost = "";
   protected String dbUser = "";
   protected String dbPass = "";
+  // Venita trying to get a dbName
+  protected String dbName = "";
   protected String dbDriver = null;
 
 
@@ -1017,7 +1019,8 @@ public class MVPlotJobParser {
 
   protected void parsePlotJobSpec() throws Exception {
     ArrayList listJobs = new ArrayList();
-    String dbName = "";
+    // Venita trying to get a dbName - make it non-local - added to the top with dbHost, etc
+    // String dbName = "";
 
     for (int i = 0; null != plotSpec && i < plotSpec.children.length; i++) {
 
@@ -1914,6 +1917,10 @@ public class MVPlotJobParser {
     DatabaseInfo databaseInfo = null;
     if (dbHost != null && dbUser != null && dbPass != null) {
       databaseInfo = new DatabaseInfo(dbHost, dbUser, dbPass);
+    }
+    // put in by Venita, trying to get a dbName
+    if (dbName != null) {
+      databaseInfo.setDbName(dbName);
     }
     return databaseInfo;
   }

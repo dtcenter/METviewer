@@ -155,7 +155,7 @@ public class MysqlDatabaseManager {
       }
 
     } catch (SQLException e) {
-      logger.error("Can't get groups for database " + database);
+      logger.error("Can't get groups for database " + database + " SQL exception: " + e);
     }
     if (group.isEmpty()) {
       group = MVUtil.DEFAULT_DATABASE_GROUP;
