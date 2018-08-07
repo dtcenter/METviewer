@@ -70,6 +70,7 @@ for(col in 1:ncol(sampleData)){
 }
 
 dfPlot = read.delim(strDataFile,colClasses = classes);
+if(nrow(dfPlot) > 0){
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
@@ -255,8 +256,9 @@ for( ind in 1: length(listAllStats) ){
   intLegendIndex = intLegendIndex + 1;
 }
 
-
-lables_for_x = lables_for_x_series[[1]]
+if( length(lables_for_x_series)> 0 ){
+  lables_for_x = lables_for_x_series[[1]]
+}
 
 
 
@@ -682,4 +684,4 @@ line=1                      # margin line, starting at 0 counting outwards
 
 
 invisible(dev.off());
-
+}
