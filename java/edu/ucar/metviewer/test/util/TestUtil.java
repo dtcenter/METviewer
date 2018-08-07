@@ -351,6 +351,7 @@ public class TestUtil {
       tag = "group";
       Element group = doc.createElement(tag);
       group.setTextContent("Testing");
+      doc.appendChild(group);
 
       TransformerFactory.newInstance().newTransformer()
           .transform(new DOMSource(doc), new StreamResult(new File(fpath)));
