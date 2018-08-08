@@ -220,6 +220,20 @@ calcSSVAR_BCRMSE    = function(d){ return( calcBCRMSE(d) ); }
     dblPOFD = calcPOFD(d);
     return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
   }
+
+  calcLODDS = function(d){
+    if(is.na(d$fy_oy) || is.na(d$fy_on) || is.na(d$fn_oy) || is.na(d$fn_on)) {
+      return (NA);
+    }
+
+    if(d$fy_oy == 0 || d$fy_on == 0 || d$fn_oy == 0 || d$fn_on == 0) {
+      return (NA);
+    }
+
+    v= log( d$fy_oy) + log(d$fn_on) - log(d$fy_on) - log(d$fn_oy);
+    return( round(v, digits=5) );
+  }
+
   # BAGSS Reference:
   # Bias Adjusted Precipitation Threat Scores
   # F. Mesinger, Adv. Geosci., 16, 137-142, 2008
