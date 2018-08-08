@@ -455,37 +455,40 @@ if( FALSE != boolEventEqual  ){
     listBox = listSeries1;
 
     # if only points are displayed, call the points() function
-    if( boolBoxPts == TRUE){
-    intPch = listPchSeries1;
-    for(ind in 1:length(listBox)){
-      listPts = listBox[[ind]];
-      listPtsAt = rep(listX[ind], length(listPts));
-      points(
-        listPtsAt, # x coordinate vector
-        listPts, # y coordinate vector
-        type="p", # type of plot - p: points
-        pch=intPch[ind], # point symbol - see example(points)
-        col=strColor[ind], # point color
-        ylim=c(-2,2)
-      );
-    }
+    if(!all(is.na(unlist(listBox)))){
+      if( boolBoxPts == TRUE){
+      intPch = listPchSeries1;
+      for(ind in 1:length(listBox)){
+        listPts = listBox[[ind]];
+        listPtsAt = rep(listX[ind], length(listPts));
+        points(
+          listPtsAt, # x coordinate vector
+          listPts, # y coordinate vector
+          type="p", # type of plot - p: points
+          pch=intPch[ind], # point symbol - see example(points)
+          col=strColor[ind], # point color
+          ylim=c(-2,2)
+        );
+      }
     } else {
       strYaxt="s";
+
       boxplot_ci(
-        listBox, # box data as a list of vectors
-        at=listX, # vector of box positions
-        notch=FALSE, # draw box notces - TRUE: notches on, FALSE: notches off
-        boxwex=0.2, # scale factor to apply to all box widths
-        col=strColor, # box color(s)
-        outline=box_outline,# draw outliers - TRUE: draw, FALSE: no draw
-        xaxt="n", # x-axis type - n: no axis, s: compatibility with l and t
-        yaxt="n", # y-axis type - n: no axis, s: compatibility with l and t
-        ylim=listY1lim, # y1-axis limits
-        add=FALSE, # add boxes to current plot - TRUE: add, FALSE: new plot
-        tck=.01, # length of tick marks as a fraction of plot window
-        alpha=0.05 # alpha value to use when calculating confidence intervals
-      );
-    }
+            listBox, # box data as a list of vectors
+            at=listX, # vector of box positions
+            notch=FALSE, # draw box notces - TRUE: notches on, FALSE: notches off
+            boxwex=0.2, # scale factor to apply to all box widths
+            col=strColor, # box color(s)
+            outline=box_outline,# draw outliers - TRUE: draw, FALSE: no draw
+            xaxt="n", # x-axis type - n: no axis, s: compatibility with l and t
+            yaxt="n", # y-axis type - n: no axis, s: compatibility with l and t
+            ylim=listY1lim, # y1-axis limits
+            add=FALSE, # add boxes to current plot - TRUE: add, FALSE: new plot
+            tck=.01, # length of tick marks as a fraction of plot window
+            alpha=0.05 # alpha value to use when calculating confidence intervals
+          );
+      }
+
 
     # add the average starts to the plot, if requested
     if( boolBoxAvg ){
@@ -531,6 +534,7 @@ if( FALSE != boolEventEqual  ){
       ny=NULL					# number of cells in y direction, NULL for default
     );
   }
+
 
   # plot title
   mtext(
@@ -696,7 +700,7 @@ if( FALSE != boolEventEqual  ){
 
   #<plot_cmd>#
 
-
+}
   invisible(dev.off());
 
 }

@@ -365,6 +365,13 @@ if( 0 < length(listY1limUsr) ){
   dblY1Min = listY1Bounds$min;
   dblY1Max = listY1Bounds$max;
 }
+
+if(is.infinite(dblY1Min)){
+  dblY1Min = 0
+}
+if(is.infinite(dblY1Max)){
+  dblY1Max = 0
+}
 listY1axp = c(dblY1Min, dblY1Max, 5);
 
 listY1lim = c(dblY1Min, dblY1Max);
@@ -435,79 +442,67 @@ par(usr=c(par()$usr[1:2], dblY1Min - dblY1Bufr, dblY1Max + dblY1Bufr));
 
 # plot title
 mtext(
-"#<plot_title>#",        # label
-font=#<title_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-las=0,                  # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-side=3,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
-cex=#<title_size>#,		  # relative magnification
-padj=#<title_offset>#,	# axis label perpendicular location adjustment
-adj=#<title_align>#,	  # axis label parallel location adjustment
-line=1                  # margin line, starting at 0 counting outwards
+  "#<plot_title>#",        # label
+  font=#<title_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+  las=0,                  # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=3,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
+  cex=#<title_size>#,		  # relative magnification
+  padj=#<title_offset>#,	# axis label perpendicular location adjustment
+  adj=#<title_align>#,	  # axis label parallel location adjustment
+  line=1                  # margin line, starting at 0 counting outwards
 );
 
 # specify the x-axis
 axis(
-intXAxis,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
-at=replace(listX, which(is.na(lables_for_x)), NA),                  # locations of tick marks
-labels=lables_for_x,    # axis labels
-tick=TRUE,                # tick marks on/off
-tck=.02,                  # length of tick marks as a fraction of plot window
-las=2,      # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-padj=0.7,      # axis label perpendicular location adjustment
-hadj=.8,      # axis label parallel location adjustment
-cex.axis=1,  # relative axis label magnification
-col="gray"                # axis color
+  intXAxis,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
+  at=replace(listX, which(is.na(lables_for_x)), NA),                  # locations of tick marks
+  labels=lables_for_x,    # axis labels
+  tick=TRUE,                # tick marks on/off
+  tck=.02,                  # length of tick marks as a fraction of plot window
+  las=2,      # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  padj=0.7,      # axis label perpendicular location adjustment
+  hadj=.8,      # axis label parallel location adjustment
+  cex.axis=1,  # relative axis label magnification
+  col="gray"                # axis color
 );
-axis(
-intXAxis,                  # axis of interest, 1: below, 2: left, 3: above and 4: right
-at=replace(listX, which(!is.na(lables_for_x)), NA),                  # locations of tick marks
-labels=FALSE,    # axis labels
-tick=TRUE,                # tick marks on/off
-tck=.01,                  # length of tick marks as a fraction of plot window
-las=2,      # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-padj=0.75,      # axis label perpendicular location adjustment
-hadj=.8,      # axis label parallel location adjustment
-cex.axis=1,  # relative axis label magnification
-col="white",                # axis color
-col.ticks ="gray"
-);
+
 
 # x-axis label
 mtext(
-"#<x_label>#",        # label
-font=#<xlab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-las=0,                # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-side=intXAxis,        # axis of interest, 1: below, 2: left, 3: above and 4: right
-cex=#<xlab_size>#,		# relative axis label magnification
-padj=#<xlab_offset>#,	# axis label perpendicular location adjustment
-adj=#<xlab_align>#,		# axis label parallel location adjustment
-line=1                # margin line, starting at 0 counting outwards
+  "#<x_label>#",        # label
+  font=#<xlab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+  las=0,                # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=intXAxis,        # axis of interest, 1: below, 2: left, 3: above and 4: right
+  cex=#<xlab_size>#,		# relative axis label magnification
+  padj=#<xlab_offset>#,	# axis label perpendicular location adjustment
+  adj=#<xlab_align>#,		# axis label parallel location adjustment
+  line=1                # margin line, starting at 0 counting outwards
 );
 
 # specify the y-axis
 axis(
-intY1Axis,                # axis of interest, 1: below, 2: left, 3: above and 4: right
-#at=NA,					          # locations of tick marks
-labels=TRUE,              # tick labels on/off
-tick=TRUE,                # tick marks on/off
-tck=.01,                  # length of tick marks as a fraction of plot window
-las=#<ytlab_orient>#,	    # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-padj=#<ytlab_perp>#,	    # axis label perpendicular location adjustment
-hadj=#<ytlab_horiz>#,	    # axis label parallel location adjustment
-cex.axis=#<ytlab_size>#,  # relative axis label magnification
-col="gray"                # axis color
+  intY1Axis,                # axis of interest, 1: below, 2: left, 3: above and 4: right
+  #at=NA,					          # locations of tick marks
+  labels=TRUE,              # tick labels on/off
+  tick=TRUE,                # tick marks on/off
+  tck=.01,                  # length of tick marks as a fraction of plot window
+  las=#<ytlab_orient>#,	    # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  padj=#<ytlab_perp>#,	    # axis label perpendicular location adjustment
+  hadj=#<ytlab_horiz>#,	    # axis label parallel location adjustment
+  cex.axis=#<ytlab_size>#,  # relative axis label magnification
+  col="gray"                # axis color
 );
 
 # y-axis label
 mtext(
-"#<y1_label>#",        # label
-font=#<ylab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-las=0,                # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
-side=intY1Axis,        # axis of interest, 1: below, 2: left, 3: above and 4: right
-cex=#<ylab_size>#,		# relative axis label magnification
-padj=#<ylab_offset>#,	# axis label perpendicular location adjustment
-adj=#<ylab_align>#,		# axis label parallel location adjustment
-line=1                # margin line, starting at 0 counting outwards
+  "#<y1_label>#",        # label
+  font=#<ylab_weight>#,	# 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
+  las=0,                # axis label orientation - 0: parallel to axis, 1: horiz, 2: perp to axis, 3: vert
+  side=intY1Axis,        # axis of interest, 1: below, 2: left, 3: above and 4: right
+  cex=#<ylab_size>#,		# relative axis label magnification
+  padj=#<ylab_offset>#,	# axis label perpendicular location adjustment
+  adj=#<ylab_align>#,		# axis label parallel location adjustment
+  line=1                # margin line, starting at 0 counting outwards
 );
 
 # add grid lines to the plot, if requested
