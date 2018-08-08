@@ -333,7 +333,7 @@
         multiple: false,
         selectedList: 1,
         header: false,
-        minWidth: 'auto',
+        minWidth: 200,
         height: 'auto',
         position: {
           my: 'left bottom',
@@ -352,7 +352,7 @@
         multiple: false,
         selectedList: 1,
         header: false,
-        minWidth: 'auto',
+        minWidth: 200,
         height: 'auto',
         position: {
           my: 'left bottom',
@@ -371,7 +371,7 @@
         multiple: false,
         selectedList: 1,
         header: false,
-        minWidth: 'auto',
+        minWidth: 200,
         height: 'auto',
         position: {
           my: 'left bottom',
