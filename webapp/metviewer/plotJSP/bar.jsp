@@ -332,9 +332,9 @@
                 updateForecastVariables();
                 updateStats("y1", 1, []);
                 updateSeriesVarVal("y1", 1, []);
-                $.each(fix_var_value_to_title_stat_map, function (key, val) {
-                    $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
-                });
+                var val = $($(categories[0]).find("val")[0]).text();
+                $("input[name='multiselect_database'][value='" + val + "']")
+                                      .prop("checked", true).change();
             }
         });
 
