@@ -1001,7 +1001,7 @@ if ( nrow(sampleData) > 0){
   write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t", append=boolAppend, col.names=!boolAppend);
 
 }
-if(is.na(listStat)){
+if(all(is.na(listStat))){
   listStat = listStat1;
 }
 cat(
