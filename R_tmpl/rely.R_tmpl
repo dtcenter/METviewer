@@ -457,6 +457,14 @@ yValues  = yValues[listDataInd];
 
 # plot the series line
 for (i in 1:length(env$listThresh)){
+
+  # remove the NAs from the x and y lists
+  xValues  = env$listThresh[i][[1]]+ listX1Stag[i];
+  yValues  = env$listCal[i][[1]];
+  listDataInd  = !( is.na(env$listCal[i][[1]]) );
+  xValues  = xValues[listDataInd];
+  yValues  = yValues[listDataInd];
+
   lines(
     x=xValues, # x coordinates
     y=yValues, # y coordinates
