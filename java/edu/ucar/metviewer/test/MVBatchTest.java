@@ -11,6 +11,7 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import edu.ucar.metviewer.test.util.TestUtil;
 import org.junit.After;
@@ -41,21 +42,13 @@ public class MVBatchTest {
 
         @BeforeClass
         public static void setUp() throws Exception {
-
             log = new ByteArrayOutputStream();
             printStream = new PrintStream(log);
             logSql = new ByteArrayOutputStream();
             logError = new ByteArrayOutputStream();
             printStreamSql = new PrintWriter(logSql);
             printStreamError = new PrintStream(logError);
-            databaseInfo = new DatabaseInfo();
-            //databaseInfo.setDbName(TestUtil.DBNAME);
-            //databaseInfo.setDbTYPE(TestUtil.DBTYPE);
-            databaseInfo.setHost(TestUtil.host);
-            databaseInfo.setUser(TestUtil.USERNAME);
-            databaseInfo.setPassword(TestUtil.PWD);
-            databaseInfo.setDbName(TestUtil.database);
-            AppDatabaseManager databaseManager = new MysqlAppDatabaseManager(databaseInfo, printStreamSql);
+            AppDatabaseManager databaseManager = (AppDatabaseManager)DatabaseManager.getAppManager(TestUtil.type,TestUtil.host,TestUtil.USERNAME,TestUtil.PWD);
             mvBatch = new MVBatch(printStream, printStreamSql, printStreamError, databaseManager);
             MVUtil.updateLog4jConfiguration();
         }
@@ -99,14 +92,8 @@ public class MVBatchTest {
 
         @Test
         public void getSetDatabaseManager() {
-            DatabaseInfo myDatabaseInfo = new DatabaseInfo();
-            myDatabaseInfo.setHost("fredsmachine");
-            myDatabaseInfo.setUser("fred");
-            myDatabaseInfo.setPassword("fredspassword");
-            //myDatabaseInfo.setDatabase("fredsdatabase");
-            //myDatabaseInfo.setDBType("fredsCB");
             try {
-                AppDatabaseManager myDatabaseManager = new MysqlAppDatabaseManager(myDatabaseInfo, printStreamSql);
+                AppDatabaseManager myDatabaseManager = (AppDatabaseManager)DatabaseManager.getAppManager("cb","fredsmachine","fred","fredspassword");
                 mvBatch.setDatabaseManager(myDatabaseManager);
                 assertEquals("getSetDatabaseManager - the databaseManager was not properly set or retrieved", myDatabaseManager,mvBatch.getDatabaseManager());
                 mvBatch.setDatabaseManager(null);

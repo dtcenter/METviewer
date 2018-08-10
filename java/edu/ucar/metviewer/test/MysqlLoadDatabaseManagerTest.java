@@ -6,8 +6,8 @@ import java.util.Map;
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
 import edu.ucar.metviewer.MVLoadJobParser;
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.Test;
 
@@ -31,17 +31,16 @@ public class MysqlLoadDatabaseManagerTest {
     public void loadStatFileVSDB() {
         String strXML = "Iamanxmlpath"; //FIX THIS
         MVLoadJobParser parser = null;
+        LoadDatabaseManager loadDatabaseManager;
         try {
             parser = new MVLoadJobParser(strXML);
             MVLoadJob job = parser.getLoadJob();
-            DatabaseInfo databaseInfo = new DatabaseInfo(job.getDBHost(), job.getDBUser(), job.getDBPassword());
-            MysqlLoadDatabaseManager mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
-                    IoBuilder.forLogger(MysqlLoadDatabaseManager.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                            .buildPrintWriter());
+            String management_system = parser.getLoadJob().getDBManagementSystem();
+            loadDatabaseManager = (LoadDatabaseManager)DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
             File file = new File("a data file path");
             boolean forceDupFile = job.getForceDupFile();
-            DataFileInfo info = mysqlLoadDatabaseManager.processDataFile(file, forceDupFile, databaseInfo);
-            Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFileVSDB(info, databaseInfo);
+            DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile, loadDatabaseManager.getDatabaseInfo());
+            Map<String, Long> timeStats = loadDatabaseManager.loadStatFileVSDB(info, loadDatabaseManager.getDatabaseInfo());
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception caught: " + e.getMessage());

@@ -241,13 +241,17 @@ public class TestUtil {
     } else {
       PWD = System.getProperty("mv_pwd");
     }
+    if (System.getProperty("mv_type") == null) {
+      type = "mysql";
+    } else {
+      type = System.getProperty("mv_type");
+    }
     rscript = "Rscript";
     TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
     list = false;
     verbose = true;
     sql = false;
     job_name = null;
-    type = "mysql";
     driver = "com.mysql.jdbc.Driver";
   }
 

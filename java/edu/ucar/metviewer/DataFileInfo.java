@@ -20,7 +20,6 @@ public class DataFileInfo {
   public String _dataFileModDate = "";
   public int _dataFileLuId = -1;
   public String _dataFileLuTypeName = "";
-  public String _fileDataId = "";
   public boolean _boolLineTypeLoad;
   public Map _tableLineTypeLoad;
   public boolean _boolLoadMpr;
@@ -31,17 +30,16 @@ public class DataFileInfo {
   public boolean _boolVerbose;
   public int _intInsertSize;
 
-  public DataFileInfo(Integer dataFileId, String dataFileFilename,
+  public DataFileInfo(Object dataFileId, String dataFileFilename,
                       String dataFilePath, String dataFileLoadDate,
                       String dataFileModDate, int dataFileLuId,
-                      String dataFileLuTypeName, String fileDataId) {
-    _dataFileId = dataFileId;
+                      String dataFileLuTypeName) {
+    _dataFileId = (Integer)dataFileId;
     _dataFileFilename = dataFileFilename;
     _dataFilePath = dataFilePath;
     _dataFileLoadDate = dataFileLoadDate;
     _dataFileModDate = dataFileModDate;
     _dataFileLuId = dataFileLuId;
     _dataFileLuTypeName = dataFileLuTypeName;
-    _fileDataId = fileDataId;
   }
 }

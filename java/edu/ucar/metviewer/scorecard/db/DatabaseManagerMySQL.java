@@ -49,9 +49,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
 
   DatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
-    super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()),
-          IoBuilder.forLogger(DatabaseManagerMySQL.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                       .buildPrintWriter());
+    super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()));
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
     databaseName = scorecard.getDatabaseName();
@@ -267,7 +265,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
             Calendar cal = Calendar.getInstance();
             cal.setTimeZone(TimeZone.getTimeZone("UTC"));
             Timestamp ts = res.getTimestamp(i, cal);
-            strVal = MysqlDatabaseManager.DATE_FORMAT.format(ts);
+            strVal = DATE_FORMAT.format(ts);
           } else {
 
             strVal = res.getString(i);

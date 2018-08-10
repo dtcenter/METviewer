@@ -36,4 +36,6 @@ public interface LoadDatabaseManager {
   void updateGroup(final String group) throws Exception;
 
   void updateDescription(String description) throws Exception;
+
+  DatabaseInfo getDatabaseInfo() throws Exception;
 }

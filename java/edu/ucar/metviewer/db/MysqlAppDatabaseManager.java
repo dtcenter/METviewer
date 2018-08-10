@@ -56,10 +56,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public MysqlAppDatabaseManager(
-                                    DatabaseInfo databaseInfo,
-                                    PrintWriter printStreamSql) throws SQLException {
-    super(databaseInfo, printStreamSql);
+  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
+    super(databaseInfo);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
     statHeaderSqlType.put("fcst_lead", "INT");
@@ -609,7 +607,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             Calendar cal = Calendar.getInstance();
             cal.setTimeZone(TimeZone.getTimeZone("UTC"));
             Timestamp ts = res.getTimestamp(i, cal);
-            strVal = MysqlDatabaseManager.DATE_FORMAT.format(ts);
+            strVal = DATE_FORMAT.format(ts);
           } else {
 
             strVal = res.getString(i);
@@ -716,7 +714,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public SimpleDateFormat getDateFormat() {
-    return MysqlDatabaseManager.DATE_FORMAT;
+    return DATE_FORMAT;
   }
 
   @Override
@@ -3023,11 +3021,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     return intNumDepSeries;
-  }
-
-  @Override
-  public DatabaseInfo getDatabaseInfo() {
-    return databaseInfo;
   }
 
   /**

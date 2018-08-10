@@ -33,10 +33,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public CBAppDatabaseManager(
-                                    DatabaseInfo databaseInfo,
-                                    PrintWriter printStreamSql) throws SQLException {
-    super(databaseInfo, printStreamSql);
+  public CBAppDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
+    super(databaseInfo);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
     statHeaderSqlType.put("fcst_lead", "INT");
@@ -122,119 +120,124 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   public List<String> getListStat(String strFcstVar, String[] currentDBName) {
     List<String> listStatName = new ArrayList<>();
 
-    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n" +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n";
-
-    for (String database : currentDBName) {
-      try (Connection con = getConnection(database);
-           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                ResultSet.CONCUR_READ_ONLY);
-           ResultSet res = stmt.executeQuery(strSql)) {
-        int intStatIndex = 0;
-        boolean boolCnt = false;
-        boolean boolCts = false;
-        boolean boolVcnt = false;
-        while (res.next()) {
-          int intStatCount = res.getInt(1);
-          if (-9999 != intStatCount) {
-            switch (intStatIndex) {
-              case 0:
-              case 1:
-              case 15:
-              case 17:
-                if (!boolCnt) {
-                  listStatName.addAll(MVUtil.statsCnt.keySet());
-                }
-                boolCnt = true;
-                break;
-              case 2:
-              case 3:
-                if (!boolCts) {
-                  listStatName.addAll(MVUtil.statsCts.keySet());
-                }
-                boolCts = true;
-                break;
-              case 4:
-                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
-                break;
-              case 5:
-                listStatName.addAll(MVUtil.statsNbrcts.keySet());
-                break;
-              case 6:
-                listStatName.addAll(MVUtil.statsPstd.keySet());
-                break;
-              case 7:
-                listStatName.addAll(MVUtil.statsMcts.keySet());
-                break;
-              case 8:
-                listStatName.addAll(MVUtil.statsRhist.keySet());
-                break;
-              case 9:
-                //case 16:
-                listStatName.addAll(MVUtil.statsVl1l2.keySet());
-                listStatName.addAll(MVUtil.statsVcnt.keySet());
-                boolVcnt = true;
-                break;
-              case 10:
-                listStatName.addAll(MVUtil.statsPhist.keySet());
-                break;
-              case 11:
-                listStatName.addAll(MVUtil.statsEnscnt.keySet());
-                break;
-              case 12:
-                listStatName.addAll(MVUtil.statsMpr.keySet());
-                break;
-              case 13:
-                listStatName.addAll(MVUtil.statsOrank.keySet());
-                break;
-              case 14:
-                listStatName.addAll(MVUtil.statsSsvar.keySet());
-                break;
-              case 16:
-                listStatName.addAll(MVUtil.statsVal1l2.keySet());
-                break;
-              case 18:
-                if (!boolVcnt) {
-                  listStatName.addAll(MVUtil.statsVcnt.keySet());
-                }
-                break;
-              default:
-
-            }
-          }
-          intStatIndex++;
-        }
-        stmt.close();
-        res.close();
-        con.close();
-      } catch (SQLException e) {
-        logger.error(e.getMessage());
-      }
-    }
-    Collections.sort(listStatName);
-    //Set<String> set = new LinkedHashSet<>(listStatName);
-    //return new ArrayList<>(set);
+//    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n" +
+//                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n";
+//
+//    for (String database : currentDBName) {
+//      try (Connection con = getConnection(database);
+//           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//                                                ResultSet.CONCUR_READ_ONLY);
+//           ResultSet res = stmt.executeQuery(strSql)) {
+//        int intStatIndex = 0;
+//        boolean boolCnt = false;
+//        boolean boolCts = false;
+//        boolean boolVcnt = false;
+//        while (res.next()) {
+//          int intStatCount = res.getInt(1);
+//          if (-9999 != intStatCount) {
+//            switch (intStatIndex) {
+//              case 0:
+//              case 1:
+//              case 15:
+//              case 17:
+//                if (!boolCnt) {
+//                  listStatName.addAll(MVUtil.statsCnt.keySet());
+//                }
+//                boolCnt = true;
+//                break;
+//              case 2:
+//              case 3:
+//                if (!boolCts) {
+//                  listStatName.addAll(MVUtil.statsCts.keySet());
+//                }
+//                boolCts = true;
+//                break;
+//              case 4:
+//                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
+//                break;
+//              case 5:
+//                listStatName.addAll(MVUtil.statsNbrcts.keySet());
+//                break;
+//              case 6:
+//                listStatName.addAll(MVUtil.statsPstd.keySet());
+//                break;
+//              case 7:
+//                listStatName.addAll(MVUtil.statsMcts.keySet());
+//                break;
+//              case 8:
+//                listStatName.addAll(MVUtil.statsRhist.keySet());
+//                break;
+//              case 9:
+//                //case 16:
+//                listStatName.addAll(MVUtil.statsVl1l2.keySet());
+//                listStatName.addAll(MVUtil.statsVcnt.keySet());
+//                boolVcnt = true;
+//                break;
+//              case 10:
+//                listStatName.addAll(MVUtil.statsPhist.keySet());
+//                break;
+//              case 11:
+//                listStatName.addAll(MVUtil.statsEnscnt.keySet());
+//                break;
+//              case 12:
+//                listStatName.addAll(MVUtil.statsMpr.keySet());
+//                break;
+//              case 13:
+//                listStatName.addAll(MVUtil.statsOrank.keySet());
+//                break;
+//              case 14:
+//                listStatName.addAll(MVUtil.statsSsvar.keySet());
+//                break;
+//              case 16:
+//                listStatName.addAll(MVUtil.statsVal1l2.keySet());
+//                break;
+//              case 18:
+//                if (!boolVcnt) {
+//                  listStatName.addAll(MVUtil.statsVcnt.keySet());
+//                }
+//                break;
+//              default:
+//
+//            }
+//          }
+//          intStatIndex++;
+//        }
+//        stmt.close();
+//        res.close();
+//        con.close();
+//      } catch (SQLException e) {
+//        logger.error(e.getMessage());
+//      }
+//    }
+//    Collections.sort(listStatName);
+//    //Set<String> set = new LinkedHashSet<>(listStatName);
+//    //return new ArrayList<>(set);
     return listStatName;
   }
 
-  @Override
+    @Override
+    public boolean validate(String db) {
+        return false;
+    }
+
+    @Override
   public List<String> getListValues(MVNode nodeCall, String strField, String[] currentDBName) {
     List<String> listRes = new ArrayList<>();
     boolean boolMode = nodeCall.children[1].tag.equals("mode_field");
@@ -377,74 +380,74 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String strSql;
     String strTmpTable = null;
     for (String database : currentDBName) {
-      try (Connection con = getConnection(database)) {
-        if (boolNRank) {
-          strSql = "SELECT DISTINCT ld.n_rank "
-                       + "FROM stat_header h, line_data_rhist ld "
-                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
-                       + " ld.stat_header_id = h.stat_header_id "
-                       + "ORDER BY n_rank;";
-        } else if (boolNBin) {
-          strSql = "SELECT DISTINCT ld.n_bin "
-                       + "FROM stat_header h, line_data_phist ld "
-                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
-                       + " ld.stat_header_id = h.stat_header_id "
-                       + "ORDER BY ld.n_bin;";
-        } else if (!boolMode && !boolMtd
-                       && (strField.equals("fcst_lead")
-                               || strField.contains("valid")
-                               || strField.contains("init"))) {
-          String strSelectField = formatField(strField, boolMode || boolMtd);
-          //  create a temp table for the list values from the different line_data tables
-          strTmpTable = "tmp_" + new Date().getTime();
-          try (Statement stmtTmp = con.createStatement()) {
-            String strTmpSql = "CREATE TEMPORARY TABLE "
-                                   + strTmpTable + " (" + strField + " TEXT);";
-            stmtTmp.executeUpdate(strTmpSql);
-            //  add all distinct list field values to the temp table from each line_data table
-            for (String listTable : listTables) {
-              strTmpSql = "INSERT INTO " + strTmpTable
-                              + " SELECT DISTINCT " + strSelectField
-                              + " FROM " + listTable + " ld" + strWhereTime;
-              stmtTmp.executeUpdate(strTmpSql);
-            }
-            stmtTmp.close();
-          } catch (SQLException e) {
-            logger.error(e.getMessage());
-          }
-
-          //  build a query to list all distinct,
-          // ordered values of the list field from the temp table
-          strSql = "SELECT DISTINCT " + strField + " FROM "
-                       + strTmpTable + " ORDER BY " + strField + ";";
-        } else {
-          String strFieldDB = formatField(strField, boolMode || boolMtd).replaceAll("h\\.", "");
-          strWhere = strWhere.replaceAll("h\\.", "");
-          strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
-                       + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
-        }
-        //  execute the query
-        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                  ResultSet.CONCUR_READ_ONLY);
-             ResultSet res = stmt.executeQuery(strSql)) {
-
-          while (res.next()) {
-            listRes.add(res.getString(1));
-          }
-          //  drop the temp table, if present
-          if (strTmpTable != null) {
-            stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
-          }
-          res.close();
-          stmt.close();
-
-        } catch (SQLException e) {
-          logger.error(e.getMessage());
-        }
-        con.close();
-      } catch (SQLException e) {
-        logger.error(e.getMessage());
-      }
+//      try (Connection con = getConnection(database)) {
+//        if (boolNRank) {
+//          strSql = "SELECT DISTINCT ld.n_rank "
+//                       + "FROM stat_header h, line_data_rhist ld "
+//                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
+//                       + " ld.stat_header_id = h.stat_header_id "
+//                       + "ORDER BY n_rank;";
+//        } else if (boolNBin) {
+//          strSql = "SELECT DISTINCT ld.n_bin "
+//                       + "FROM stat_header h, line_data_phist ld "
+//                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
+//                       + " ld.stat_header_id = h.stat_header_id "
+//                       + "ORDER BY ld.n_bin;";
+//        } else if (!boolMode && !boolMtd
+//                       && (strField.equals("fcst_lead")
+//                               || strField.contains("valid")
+//                               || strField.contains("init"))) {
+//          String strSelectField = formatField(strField, boolMode || boolMtd);
+//          //  create a temp table for the list values from the different line_data tables
+//          strTmpTable = "tmp_" + new Date().getTime();
+//          try (Statement stmtTmp = con.createStatement()) {
+//            String strTmpSql = "CREATE TEMPORARY TABLE "
+//                                   + strTmpTable + " (" + strField + " TEXT);";
+//            stmtTmp.executeUpdate(strTmpSql);
+//            //  add all distinct list field values to the temp table from each line_data table
+//            for (String listTable : listTables) {
+//              strTmpSql = "INSERT INTO " + strTmpTable
+//                              + " SELECT DISTINCT " + strSelectField
+//                              + " FROM " + listTable + " ld" + strWhereTime;
+//              stmtTmp.executeUpdate(strTmpSql);
+//            }
+//            stmtTmp.close();
+//          } catch (SQLException e) {
+//            logger.error(e.getMessage());
+//          }
+//
+//          //  build a query to list all distinct,
+//          // ordered values of the list field from the temp table
+//          strSql = "SELECT DISTINCT " + strField + " FROM "
+//                       + strTmpTable + " ORDER BY " + strField + ";";
+//        } else {
+//          String strFieldDB = formatField(strField, boolMode || boolMtd).replaceAll("h\\.", "");
+//          strWhere = strWhere.replaceAll("h\\.", "");
+//          strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
+//                       + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
+//        }
+//        //  execute the query
+//        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//                                                  ResultSet.CONCUR_READ_ONLY);
+//             ResultSet res = stmt.executeQuery(strSql)) {
+//
+//          while (res.next()) {
+//            listRes.add(res.getString(1));
+//          }
+//          //  drop the temp table, if present
+//          if (strTmpTable != null) {
+//            stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
+//          }
+//          res.close();
+//          stmt.close();
+//
+//        } catch (SQLException e) {
+//          logger.error(e.getMessage());
+//        }
+//        con.close();
+//      } catch (SQLException e) {
+//        logger.error(e.getMessage());
+//      }
     }
     Collections.sort(listRes);
     //Set<String> set = new LinkedHashSet<>(listRes);
@@ -477,70 +480,70 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       }
     }
 
-    try (Connection con = getConnection(currentDBName)) {
-      for (String aListSqlBeforeSelect : listSqlBeforeSelect) {
-        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                  ResultSet.CONCUR_READ_ONLY)) {
-          stmt.execute(aListSqlBeforeSelect);
-          stmt.close();
-        } catch (Exception e) {
-          logger.error(e.getMessage());
-        }
-      }
-
-      for (int i = 0; i < listSqlLastSelect.size(); i++) {
-        boolean append = !isNewFile || i != 0;
-        boolean printHeader = !append;
-        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                  ResultSet.CONCUR_READ_ONLY);
-             FileWriter fstream = new FileWriter(new File(fileName), append);
-             BufferedWriter out = new BufferedWriter(fstream);) {
-
-          //TODO investigate implications of adding the Fetch Size
-          //stmt.setFetchSize(Integer.MIN_VALUE);
-
-          ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
-          printFormattedTable(resultSetLast, out, printHeader);
-          out.flush();
-          resultSetLast.close();
-          stmt.close();
-          success = true;
-
-        } catch (Exception e) {
-          logger.error(e.getMessage());
-          String stat = "This";
-          if (e.getMessage().contains("Unknown column")) {
-            String[] queryArr = listSqlLastSelect.get(i).split(",");
-            for (String str : queryArr) {
-              if (str.contains("stat_name")) {
-                stat = str.replaceAll("stat_name", "").trim();
-                break;
-              }
-            }
-            if (stat.equals("This")) {
-              Pattern pattern = Pattern.compile("'(.*?)'");
-              Matcher matcher = pattern.matcher(e.getMessage());
-
-              if (matcher.find()) {
-                stat = matcher.group(1);
-                if (stat.contains(".")) {
-                  stat = stat.split("\\.")[1];
-                }
-              }
-            }
-            logger.error(stat + " statistic can only be plotted as an aggregation of lines");
-
-            //rethrow the exception to be printed as a error popup on UI
-            throw new Exception(stat + " statistic can only be plotted as an aggregation of lines");
-          }
-
-        }
-      }
-      con.close();
-
-    } catch (SQLException e) {
-      logger.error(e.getMessage());
-    }
+//    try (Connection con = getConnection(currentDBName)) {
+//      for (String aListSqlBeforeSelect : listSqlBeforeSelect) {
+//        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//                                                  ResultSet.CONCUR_READ_ONLY)) {
+//          stmt.execute(aListSqlBeforeSelect);
+//          stmt.close();
+//        } catch (Exception e) {
+//          logger.error(e.getMessage());
+//        }
+//      }
+//
+//      for (int i = 0; i < listSqlLastSelect.size(); i++) {
+//        boolean append = !isNewFile || i != 0;
+//        boolean printHeader = !append;
+//        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//                                                  ResultSet.CONCUR_READ_ONLY);
+//             FileWriter fstream = new FileWriter(new File(fileName), append);
+//             BufferedWriter out = new BufferedWriter(fstream);) {
+//
+//          //TODO investigate implications of adding the Fetch Size
+//          //stmt.setFetchSize(Integer.MIN_VALUE);
+//
+//          ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
+//          printFormattedTable(resultSetLast, out, printHeader);
+//          out.flush();
+//          resultSetLast.close();
+//          stmt.close();
+//          success = true;
+//
+//        } catch (Exception e) {
+//          logger.error(e.getMessage());
+//          String stat = "This";
+//          if (e.getMessage().contains("Unknown column")) {
+//            String[] queryArr = listSqlLastSelect.get(i).split(",");
+//            for (String str : queryArr) {
+//              if (str.contains("stat_name")) {
+//                stat = str.replaceAll("stat_name", "").trim();
+//                break;
+//              }
+//            }
+//            if (stat.equals("This")) {
+//              Pattern pattern = Pattern.compile("'(.*?)'");
+//              Matcher matcher = pattern.matcher(e.getMessage());
+//
+//              if (matcher.find()) {
+//                stat = matcher.group(1);
+//                if (stat.contains(".")) {
+//                  stat = stat.split("\\.")[1];
+//                }
+//              }
+//            }
+//            logger.error(stat + " statistic can only be plotted as an aggregation of lines");
+//
+//            //rethrow the exception to be printed as a error popup on UI
+//            throw new Exception(stat + " statistic can only be plotted as an aggregation of lines");
+//          }
+//
+//        }
+//      }
+//      con.close();
+//
+//    } catch (SQLException e) {
+//      logger.error(e.getMessage());
+//    }
     return success;
   }
 
@@ -586,7 +589,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             Calendar cal = Calendar.getInstance();
             cal.setTimeZone(TimeZone.getTimeZone("UTC"));
             Timestamp ts = res.getTimestamp(i, cal);
-            strVal = MysqlDatabaseManager.DATE_FORMAT.format(ts);
+            strVal = DATE_FORMAT.format(ts);
           } else {
 
             strVal = res.getString(i);
@@ -624,24 +627,24 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     int numPctThresh = 0;
     int pctThresh = -1;
     Map<String, Integer> result = new HashMap<>();
-    try (Connection con = getConnection(currentDBName);
-         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                              ResultSet.CONCUR_READ_ONLY);
-         ResultSet resultSet = stmt.executeQuery(query)
-    ) {
-
-      //  validate and save the number of thresholds
-      while (resultSet.next()) {
-        pctThresh = resultSet.getInt(1);
-        numPctThresh++;
-      }
-      resultSet.close();
-      stmt.close();
-      con.close();
-
-    } catch (SQLException e) {
-      logger.error(e.getMessage());
-    }
+//    try (Connection con = getConnection(currentDBName);
+//         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//                                              ResultSet.CONCUR_READ_ONLY);
+//         ResultSet resultSet = stmt.executeQuery(query)
+//    ) {
+//
+//      //  validate and save the number of thresholds
+//      while (resultSet.next()) {
+//        pctThresh = resultSet.getInt(1);
+//        numPctThresh++;
+//      }
+//      resultSet.close();
+//      stmt.close();
+//      con.close();
+//
+//    } catch (SQLException e) {
+//      logger.error(e.getMessage());
+//    }
     result.put("numPctThresh", numPctThresh);
     result.put("pctThresh", pctThresh);
 
@@ -650,23 +653,23 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   private List<String> getNumbers(String query, String currentDBName) {
     List<String> result = new ArrayList<>();
-    try (Connection con = getConnection(currentDBName);
-         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                              ResultSet.CONCUR_READ_ONLY);
-         ResultSet resultSet = stmt.executeQuery(query)
-    ) {
-
-      //   save the number of thresholds
-      while (resultSet.next()) {
-        result.add(resultSet.getString(1));
-      }
-      resultSet.close();
-      stmt.close();
-      con.close();
-
-    } catch (SQLException e) {
-      logger.error(e.getMessage());
-    }
+//    try (Connection con = getConnection(currentDBName);
+//         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//                                              ResultSet.CONCUR_READ_ONLY);
+//         ResultSet resultSet = stmt.executeQuery(query)
+//    ) {
+//
+//      //   save the number of thresholds
+//      while (resultSet.next()) {
+//        result.add(resultSet.getString(1));
+//      }
+//      resultSet.close();
+//      stmt.close();
+//      con.close();
+//
+//    } catch (SQLException e) {
+//      logger.error(e.getMessage());
+//    }
     return result;
   }
 
@@ -698,7 +701,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   @Override
   public SimpleDateFormat getDateFormat() {
-    return MysqlDatabaseManager.DATE_FORMAT;
+    return DATE_FORMAT;
   }
 
   @Override
@@ -3005,11 +3008,6 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     }
 
     return intNumDepSeries;
-  }
-
-  @Override
-  public DatabaseInfo getDatabaseInfo() {
-    return databaseInfo;
   }
 
   /**

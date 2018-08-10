@@ -17,6 +17,8 @@ import java.util.Map;
 
 import edu.ucar.metviewer.MVLoad;
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
 import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.test.util.ScriptRunner;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -29,6 +31,7 @@ import static edu.ucar.metviewer.test.util.TestUtil.PWD;
 import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
 import static edu.ucar.metviewer.test.util.TestUtil.database;
 import static edu.ucar.metviewer.test.util.TestUtil.host;
+import static edu.ucar.metviewer.test.util.TestUtil.type;
 import static edu.ucar.metviewer.test.util.TestUtil.xlateTestSpec;
 import static org.junit.Assert.assertEquals;
 
@@ -40,7 +43,7 @@ public class LoadDataTest {
 
 
   private static final Map<String, Integer> TABLES_TO_ROWS = new HashMap<>();
-    private static  MysqlDatabaseManager mysqlDatabaseManager;;
+    private static  MysqlLoadDatabaseManager myDatabaseManager;
 
     @Before
     public void init() {
@@ -90,11 +93,8 @@ public class LoadDataTest {
       Connection con = null;
       Statement statement = null;
       try {
-        mysqlDatabaseManager = new MysqlDatabaseManager(new DatabaseInfo( host, USERNAME, PWD),
-                                                        IoBuilder.forLogger(MysqlDatabaseManager.class)
-                                                            .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                                     .buildPrintWriter());
-        con = mysqlDatabaseManager.getConnection();
+        myDatabaseManager = (MysqlLoadDatabaseManager)DatabaseManager.getLoadManager(type, host, USERNAME, PWD, database);
+        con = myDatabaseManager.getConnection();
         statement = con.createStatement();
         statement.executeUpdate("drop database " + database);
         statement.executeUpdate("create database " + database);
@@ -103,7 +103,7 @@ public class LoadDataTest {
         reader = new FileReader(LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql");
         scriptRunner.runScript(reader);
 
-      } catch (SQLException | IOException e) {
+      } catch (Exception e) {
         System.out.println(e.getMessage());
       } finally {
         if (reader != null) {
@@ -142,7 +142,7 @@ public class LoadDataTest {
       Connection con = null;
 
       try {
-        con = mysqlDatabaseManager.getConnection(database);
+        con = myDatabaseManager.getConnection(database);
         for (Map.Entry<String, Integer> entry : TABLES_TO_ROWS.entrySet()) {
           Integer rows = getNumberOfRows(con, entry.getKey());
           assertEquals("Number of rows in table " + entry.getKey() + " should be " + entry.getValue() + " but it is not", entry.getValue(), rows);

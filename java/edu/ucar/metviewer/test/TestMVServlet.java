@@ -118,11 +118,8 @@ public class TestMVServlet {
       MVServlet.plots = PLOTS_DIR;
       MVServlet.rscript = rscript;
       MVServlet.isValCache = true;
+      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD));
       MVServlet.isStatCache = true;
-      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD),
-                                                              IoBuilder.forLogger(MysqlAppDatabaseManager.class)
-                                                                  .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                                                     .buildPrintWriter());
       new MVServlet().doPost(request, response);
 
       verify(request, atLeast(1)).getReader();

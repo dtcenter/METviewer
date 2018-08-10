@@ -7,10 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.LoadDatabaseManager;
-import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
-import edu.ucar.metviewer.db.CBLoadDatabaseManager;
+import edu.ucar.metviewer.db.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -65,7 +62,6 @@ public class MVLoad {
   private static int modeObjPairRecords = 0;
   private static int mtdObj3dPairRecords = 0;
   private static int mtdObj2dRecords = 0;
-  private static String dbType = "mysql";
 
 
   private MVLoad() {
@@ -86,12 +82,7 @@ public class MVLoad {
       for (; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++) {
         if ("-index".equalsIgnoreCase(argv[0])) {
           indexOnly = true;
-
-        } else if (argv[intArg].equalsIgnoreCase("mysql")) {
-          dbType = "mysql";
-        } else if (argv[intArg].equalsIgnoreCase("CB")) {
-          dbType = "CB";
-        } else {
+        }  else {
           logger.error(
               "  **  ERROR: unrecognized option '" + argv[intArg]
                   + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
@@ -106,31 +97,13 @@ public class MVLoad {
                       + (indexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
       MVLoadJob job = parser.getLoadJob();
-      DatabaseInfo databaseInfo = new DatabaseInfo(job.getDBHost(), job.getDBUser(),
-                                                   job.getDBPassword());
-      databaseInfo.setDbName(job.getDBName());
-      if (dbType.equals("mysql")) {
-        loadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
-                                                                IoBuilder.forLogger(
-                                                                    MysqlLoadDatabaseManager.class)
-                                                                    .setLevel(
-                                                                        org.apache.logging.log4j.Level.INFO)
-                                                                    .buildPrintWriter());
-      } else if (dbType.equals("CB")) {
-        loadDatabaseManager = new CBLoadDatabaseManager(databaseInfo,
-                        IoBuilder.forLogger(
-                        CBLoadDatabaseManager.class)
-                        .setLevel(
-                                org.apache.logging.log4j.Level.INFO)
-                        .buildPrintWriter());
-      }
-
+      String management_system = parser.getLoadJob().getDBManagementSystem();
+      loadDatabaseManager = (LoadDatabaseManager)DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();
       modeHeaderDBCheck = job.getModeHeaderDBCheck();
       mtdHeaderDBCheck = job.getMtdHeaderDBCheck();
       statHeaderDBCheck = job.getStatHeaderDBCheck();
-
 
       lineTypeLoad = job.getLineTypeLoad();
       tableLineTypeLoad = job.getLineTypeLoadMap();
@@ -178,7 +151,7 @@ public class MVLoad {
         for (int i = 0; i < listLoadFiles.length; i++) {
           try {
             file = new File(listLoadFiles[i]);
-            processFile(file, databaseInfo);
+            processFile(file, loadDatabaseManager.getDatabaseInfo());
           } catch (Exception e) {
             logger.error(
                 "  **  ERROR: caught " + e.getClass() + " loading file "
@@ -224,7 +197,7 @@ public class MVLoad {
             if (listDataFiles != null) {
               for (File listDataFile : listDataFiles) {
                 try {
-                  processFile(listDataFile, databaseInfo);
+                  processFile(listDataFile, loadDatabaseManager.getDatabaseInfo());
                 } catch (Exception e) {
                   logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n"
                                    + e.getMessage() + "\n"
@@ -271,8 +244,7 @@ public class MVLoad {
                         MVUtil.padBegin("var length inserts: ", 36) + lengthInserts + "\n" +
                         MVUtil.padBegin("total lines: ", 36) + statLinesTotal + "\n" +
                         MVUtil.padBegin("insert size: ", 36) + insertSize + "\n" +
-                        MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
-            dblLinesPerMSec) + "\n" +
+                        MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(dblLinesPerMSec) + "\n" +
                         MVUtil.padBegin("num files: ", 36) + numStatFiles + "\n\n" +
                         "    ==== mode ====\n\n" +
                         (modeHeaderDBCheck ? MVUtil.padBegin("mode_header search time total: ",
