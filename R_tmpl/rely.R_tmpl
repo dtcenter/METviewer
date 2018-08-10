@@ -458,8 +458,8 @@ yValues  = yValues[listDataInd];
 # plot the series line
 for (i in 1:length(env$listThresh)){
   lines(
-    x=env$listThresh[i][[1]]+ listX1Stag[i], # x coordinates
-    y=env$listCal[i][[1]], # y coordinates
+    x=xValues, # x coordinates
+    y=yValues, # y coordinates
     type=listTypeDisp[i], # series line type - p: points, l: lines, o: overplotted points and lines,
     # b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
     pch=listPchDisp[i], # point symbol - see example(points)
