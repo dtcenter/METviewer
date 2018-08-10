@@ -446,6 +446,15 @@ if( TRUE == boolIndyStagger ){
   listX1Stag = seq( -(intNumStag/2)*dblAdjScale, (intNumStag/2)*dblAdjScale, length=intNumStag + 1 ) + ( dblAdjScale/2 );
 }
 
+
+# remove the NAs from the x and y lists
+xValues  = env$listThresh[i][[1]]+ listX1Stag[i];
+yValues  = env$listCal[i][[1]];
+listDataInd  = !( is.na(env$listCal[i][[1]]) );
+xValues  = xValues[listDataInd];
+yValues  = yValues[listDataInd];
+
+
 # plot the series line
 for (i in 1:length(env$listThresh)){
   lines(
