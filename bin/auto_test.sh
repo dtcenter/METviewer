@@ -1,4 +1,4 @@
-#!#!/bin/bash
+#!/bin/bash
 # NOTE:
 # Currently the met test load data files are not controlled so this script assumes that they are local.
 # This script assumes a directory structure like this...
@@ -14,8 +14,8 @@
 # your met_data directory might be named something else so you have to set it in the "modify these" variables section.
 
 # The two directories named in
-# METViewerDir
-# and METViewerTestCaseDir
+# METviewerDir
+# and METviewerTestCaseDir
 # WILL BE ERASED AND REBUILT from the github source
 
 # NOTE: This script is intended to run from cron.
@@ -38,8 +38,8 @@ export mv_pass="mvuser"
 export mv_host="dakota.rap.ucar.edu"
 export mv_port=3306
 export git_user=""
-export METViewerTag="HEAD"
-export METViewerCompareTag="HEAD"
+export METviewerTag="HEAD"
+export METviewerCompareTag="HEAD"
 while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:?" o; do
     case "${o}" in
         U)
@@ -47,13 +47,13 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:?" o; do
             #  https://github.com/NCAR/METviewer-test.git
             ;;
         t)
-            export METViewerTestDir=${OPTARG}
+            export METviewerTestDir=${OPTARG}
             ;;
         b)
-            export METViewerBranch=${OPTARG}
+            export METviewerBranch=${OPTARG}
             ;;
         B)
-            export METViewerCompareBranch=${OPTARG}
+            export METviewerCompareBranch=${OPTARG}
             ;;
         l)
 			if [ ! -d "${OPTARG}" ]; then
@@ -66,16 +66,16 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:?" o; do
             mv_test_db=${OPTARG}
             ;;
         m)
-            export METViewerDir=${OPTARG}
+            export METviewerDir=${OPTARG}
             ;;
         a)
             export addressList=${OPTARG}
             ;;
         g)
-            METViewerTag="${OPTARG}"
+            METviewerTag="${OPTARG}"
             ;;
         G)
-            METViewerCompareTag="${OPTARG}"
+            METviewerCompareTag="${OPTARG}"
             ;;
         u)
             mv_user=${OPTARG}
@@ -121,16 +121,16 @@ if [ -z ${gituser+x} ]; then
 	echo "gituser is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerTestDir+x} ]; then
-	echo "METViewerTestDir is unset - exiting"
+if [ -z ${METviewerTestDir+x} ]; then
+	echo "METviewerTestDir is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerBranch+x} ]; then
-	echo "METViewerBranch is unset - exiting"
+if [ -z ${METviewerBranch+x} ]; then
+	echo "METviewerBranch is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerCompareBranch+x} ]; then
-	echo "METViewerCompareBranch is unset - exiting"
+if [ -z ${METviewerCompareBranch+x} ]; then
+	echo "METviewerCompareBranch is unset - exiting"
 	usage
 fi
 if [ -z ${MET_DATA_DIR+x} ]; then
@@ -147,21 +147,21 @@ if [ -z ${mv_test_db+x} ]; then
 	echo "mv_test_db is unset - exiting"
 	usage
 fi
-if [ -z ${METViewerDir+x} ]; then
-	echo "METViewerDir is unset - exiting"
+if [ -z ${METviewerDir+x} ]; then
+	echo "METviewerDir is unset - exiting"
 	usage
 fi
 # end of options processing
 
-if [ ! -d "${METViewerTestDir}" ]; then
-    mkdir -p ${METViewerTestDir}
+if [ ! -d "${METviewerTestDir}" ]; then
+    mkdir -p ${METviewerTestDir}
 fi
 
-export METViewerBranchTestDir="${METViewerTestDir}/${METViewerBranch}/${METViewerTag}"
-export METViewerCompareBranchTestDir="${METViewerTestDir}/${METViewerCompareBranch}/${METViewerCompareTag}"
+export METviewerBranchTestDir="${METviewerTestDir}/${METviewerBranch}/${METviewerTag}"
+export METviewerCompareBranchTestDir="${METviewerTestDir}/${METviewerCompareBranch}/${METviewerCompareTag}"
 
-METViewerTestDirTestCases="${METViewerTestDir}/test_cases_source"
-logdir=~/MV_test_data/logs/nightly_${METViewerBranch}
+METviewerTestDirTestCases="${METviewerTestDir}/test_cases_source"
+logdir=~/MV_test_data/logs/nightly_${METviewerBranch}
 
 # create log file and clone METviewer repo - checkout a local test branch
 seconds=$(date +%s)
