@@ -76,7 +76,7 @@ public class CreatePlotBatchTest {
        // because there are potentially multiple images created for each plotType
        // i.e. a test case can cause some number of images to be created
        // and we don't know how many.
-       // METViewer doesn't create multiple output plot directories so
+       // METviewer doesn't create multiple output plot directories so
        // all of the generated plots are in the same output directory.
        // we have to take them all if we are capturing images.
        cleanWorkingDirs();

@@ -4,7 +4,7 @@
 <HEAD>
   <META http-equiv="content-type" content="text/html; charset=utf-8">
 
-  <TITLE>METViewer v2.6</TITLE>
+  <TITLE>METxiewer v2.7_dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -353,7 +353,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METViewer 2.6<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.7-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>

@@ -611,14 +611,14 @@ public class MVServlet extends HttpServlet {
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n\n"
             + "<html>\n"
             + "<head>\n"
-            + "<title>METViewer Error</title>\n"
+            + "<title>METviewer Error</title>\n"
             + "<link rel=\"stylesheet\" type=\"text/css\" href=\""
             + redirect + "/include/metviewer.css\"/>\n"
             + "<link rel=\"shortcut icon\" href=\""
             + redirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n"
             + "</head>\n"
             + "<body style=\"padding-left:20px; padding-top:20px\">\n"
-            + "<span class=\"bold\">An error has occurred in METViewer."
+            + "<span class=\"bold\">An error has occurred in METviewer."
             + "  Please contact your system administrator</span>\n"
             + "</body></html>\n\n");
   }

@@ -264,7 +264,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       pstmt = con.prepareStatement("SELECT MAX(" + field + ") FROM " + table);
       res = pstmt.executeQuery();
       if (!res.next()) {
-        throw new Exception("METViewer load error: getNextId(" + table + ", " + field + ") unable to find max id");
+        throw new Exception("METviewer load error: getNextId(" + table + ", " + field + ") unable"
+                                + " to find max id");
       }
       String strId = res.getString(1);
       if (null == strId) {
@@ -1788,7 +1789,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else if (matModePair.matches()) {
           intLineTypeLuId = modePair;
         } else {
-          throw new Exception("METViewer load error: loadModeFile() unable to determine line type "
+          throw new Exception("METviewer load error: loadModeFile() unable to determine line type "
                                   + MVUtil.findValueInArray(listToken, headerNames, "OBJECT_ID")
                                   + "\n        " + strFileLine);
         }
@@ -2223,7 +2224,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else if (8 == intDataFileLuId) {
           intLineTypeLuId = mtd2d;
         } else {
-          throw new Exception("METViewer load error: loadModeFile() unable to determine line type"
+          throw new Exception("METviewer load error: loadModeFile() unable to determine line type"
                                   + " " + strFileLine);
         }
         //  parse the valid times
@@ -2805,7 +2806,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             ResultSet res = stmt.executeQuery("SELECT MAX(data_file_id) FROM data_file;")) {
 
       if (!res.next()) {
-        throw new Exception("METViewer load error: processDataFile() unable to find max data_file_id");
+        throw new Exception("METviewer load error: processDataFile() unable to find max "
+                                + "data_file_id");
       }
       dataFileId = res.getInt(1);
       if (res.wasNull()) {

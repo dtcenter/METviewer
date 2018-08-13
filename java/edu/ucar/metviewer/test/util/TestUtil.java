@@ -201,7 +201,7 @@ public class TestUtil {
   static {
     FILE_SEPARATOR = System.getProperty("file.separator");
     if (System.getProperty("mv_root_dir") == null) {
-      ROOT_DIR = "/d3/projects/METViewer/test_data";
+      ROOT_DIR = "/d3/projects/METviewer/test_data";
     } else {
       ROOT_DIR = System.getProperty("mv_root_dir");  // This is the test dir/branch/tag
     }

@@ -140,7 +140,7 @@ public class MVLoad {
 
       //  if the insert size is greater than 1, ensure that the db header check is off
       if (1 < insertSize) {
-        throw new Exception("METViewer load error: insert size ("
+        throw new Exception("METviewer load error: insert size ("
                                 + insertSize + ") > 1 and database header check turned on");
       }
 
