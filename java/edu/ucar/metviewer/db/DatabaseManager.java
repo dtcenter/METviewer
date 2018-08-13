@@ -51,7 +51,8 @@ public abstract class DatabaseManager {
 
 
     public static DatabaseManager getLoadManager(String management_system, String host, String user, String password, String dbName) throws Exception {
-        String dbType = management_system == null ? "mysql" : management_system; // default dbType to mysql if management_system is missing
+        String ms = management_system.toLowerCase();
+        String dbType = ms == null ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         databaseInfo.setDbName(dbName);
         DatabaseManager databaseManager = null;
@@ -59,7 +60,7 @@ public abstract class DatabaseManager {
             case "mysql":
                 databaseManager = new MysqlLoadDatabaseManager(databaseInfo);
                 break;
-            case "CB":
+            case "cb":
                 databaseManager = new CBLoadDatabaseManager(databaseInfo);
                 break;
             default:
@@ -69,7 +70,9 @@ public abstract class DatabaseManager {
     }
 
     // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
-    public static DatabaseManager getAppManager(String dbType, String host, String user, String password) throws Exception {
+    public static DatabaseManager getAppManager(String management_system, String host, String user, String password) throws Exception {
+        String ms = management_system.toLowerCase();
+        String dbType = ms == null ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         DatabaseManager databaseManager = null;
         PrintWriter pw = null;
@@ -77,7 +80,7 @@ public abstract class DatabaseManager {
             case "mysql":
                 databaseManager = new MysqlAppDatabaseManager(databaseInfo);
                 break;
-            case "CB":
+            case "cb":
                 databaseManager = new CBAppDatabaseManager(databaseInfo);
                 break;
             default:

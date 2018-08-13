@@ -23,7 +23,7 @@ public interface LoadDatabaseManager {
 
   void updateInfoTable(String strXML, MVLoadJob job) throws Exception;
 
-  DataFileInfo processDataFile(File file, boolean forceDupFile, DatabaseInfo databaseInfo) throws Exception;
+  DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception;
 
   Map<String, Long> loadStatFile(DataFileInfo info) throws Exception;
 

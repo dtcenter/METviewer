@@ -1,16 +1,18 @@
 package edu.ucar.metviewer;
 
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import edu.ucar.metviewer.db.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVLoad {
 
@@ -315,7 +317,7 @@ public class MVLoad {
    */
   public static void processFile(File file, DatabaseInfo databaseInfo) throws Exception {
     long intProcessDataFileBegin = new Date().getTime();
-    DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile, databaseInfo);
+    DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile);
     if (null == info) {
       return;
     }

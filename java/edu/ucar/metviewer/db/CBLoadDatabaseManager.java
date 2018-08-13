@@ -2644,7 +2644,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @return data structure containing information about the input file
    */
   @Override
-  public DataFileInfo processDataFile(File file, boolean forceDupFile, DatabaseInfo databaseInfo) throws Exception {
+  public DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception {
     String strPath = file.getParent().replace("\\", "/");
     String strFile = file.getName();
     int strDataFileLuId = -1;
@@ -2757,7 +2757,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
-    nextIdString = databaseInfo.getDbName() + "::file::" + strDataFileLuTypeName + "::" + String.valueOf(nextIdNumber);
+    nextIdString = getDatabaseInfo().getDbName() + "::file::" + strDataFileLuTypeName + "::" + String.valueOf(nextIdNumber);
     try {
       dataFile = JsonObject.empty()
               .put("type", "file")
