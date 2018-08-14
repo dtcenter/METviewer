@@ -16,10 +16,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +50,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
   private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
   SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
+  DateTimeFormatter DB_DATE_STAT_FORMAT_1 = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
@@ -177,7 +181,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     for (Map.Entry listIndex : listIndexes) {
       String strIndexKey = listIndex.getKey().toString();
       String strField = listIndex.getValue().toString();
-      long intIndexStart = new Date().getTime();
+      long intIndexStart = System.currentTimeMillis();
 
       //  build a create index statment and run it
       Matcher matIndex = patIndexName.matcher(strIndexKey);
@@ -200,7 +204,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
       //  print out a performance message
-      long intIndexTime = new Date().getTime() - intIndexStart;
+      long intIndexTime = System.currentTimeMillis() - intIndexStart;
       logger.info(MVUtil.padBegin(strIndexName + ": ", 36) + MVUtil.formatTimeSpan(intIndexTime));
     }
     logger.info("");
@@ -306,7 +310,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     //  initialize the insert data structure
     MVLoadStatInsertData mvLoadStatInsertData = new MVLoadStatInsertData();
     //  performance counters
-    long intStatHeaderLoadStart = new Date().getTime();
+    long intStatHeaderLoadStart = System.currentTimeMillis();
     long headerSearchTime = 0;
     long headerRecords = 0;
     long headerInserts = 0;
@@ -360,21 +364,32 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         mvLoadStatInsertData.setFileLine(strFilename + ":" + intLine);
 
 
-        //  parse the valid times
-        Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_BEG"));
-        Date dateFcstValidEnd = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_END"));
-        Date dateObsValidBeg = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_BEG"));
-        Date dateObsValidEnd = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"));
+        //  parse the valid time
+
+        LocalDateTime fcstValidBeg = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_BEG"),
+            DB_DATE_STAT_FORMAT_1);
+
+
+        LocalDateTime fcstValidEnd = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_END"),
+            DB_DATE_STAT_FORMAT_1);
+
+
+        LocalDateTime obsValidBeg = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_BEG"),
+            DB_DATE_STAT_FORMAT_1);
+
+
+        LocalDateTime obsValidEnd = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"),
+            DB_DATE_STAT_FORMAT_1);
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strFcstValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidEnd);
-        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
-        String strObsValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidEnd);
+        String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+        String fcstValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidEnd);
+        String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidBeg);
+        String obsValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -386,11 +401,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0, intFcstLeadLen - 4)) * 3600;
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
-        Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calFcstInitBeg.setTime(dateFcstValidBeg);
-        calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
-        Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInitBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+
+        LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
+        fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
+
+        String fcstInitBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
         String strInterpPnts = MVUtil.findValueInArray(listToken, headerNames, "INTERP_PNTS");
@@ -472,9 +487,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  look for an existing stat_header record with the same information
           boolean boolFoundStatHeader = false;
-          long intStatHeaderSearchBegin = new Date().getTime();
+          long intStatHeaderSearchBegin = System.currentTimeMillis();
           if (info._boolStatHeaderDBCheck) {
-            String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
+            String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n"
+                                             + strStatHeaderWhereClause;
             Connection con = null;
             Statement stmt = null;
             ResultSet res = null;
@@ -503,8 +519,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
           }
 
-          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
-                                                                                    .getTime() - intStatHeaderSearchBegin);
+          timeStats.put("headerSearchTime",
+                        timeStats.get("headerSearchTime")
+                            + System.currentTimeMillis() - intStatHeaderSearchBegin);
 
 
           //  if the stat_header was not found, add it to the table
@@ -582,13 +599,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   info._dataFileId + ", " +      //  data_file_id
                   intLine + ", " +          //  line_num
                   strFcstLead + ", " +        //  fcst_lead
-                  "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
-                  "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
-                  "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
-                  MVUtil.findValueInArray(listToken, headerNames,
-                                          "OBS_LEAD") + ", " +        //  obs_lead
-                  "'" + strObsValidBeg + "', " +    //  obs_valid_beg
-                  "'" + strObsValidEnd + "'";      //  obs_valid_end
+                  "'" + fcstValidBegStr + "', " +    //  fcst_valid_beg
+                  "'" + fcstValidEndStr + "', " +    //  fcst_valid_end
+                  "'" + fcstInitBegStr + "', " +    //  fcst_init_beg
+                  MVUtil.findValueInArray(listToken, headerNames, "OBS_LEAD") + ", " + //  obs_lead
+                  "'" + obsValidBegStr + "', " +    //  obs_valid_beg
+                  "'" + obsValidEndStr + "'";      //  obs_valid_end
 
           //  if the line data requires a cov_thresh value, add it
           String strCovThresh = MVUtil.findValueInArray(listToken, headerNames, "COV_THRESH");
@@ -804,7 +820,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
     //  print a performance report
-    long intStatHeaderLoadTime = new Date().getTime() - intStatHeaderLoadStart;
+    long intStatHeaderLoadTime = System.currentTimeMillis()  - intStatHeaderLoadStart;
     double dblLinesPerMSec = (double) (intLine - 1) / (double) (intStatHeaderLoadTime);
 
     if (info._boolVerbose) {
@@ -937,7 +953,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     MVLoadStatInsertData mvLoadStatInsertData = new MVLoadStatInsertData();
 
     //  performance counters
-    long intStatHeaderLoadStart = new Date().getTime();
+    long intStatHeaderLoadStart = System.currentTimeMillis() ;
     long headerSearchTime = 0;
     long headerRecords = 0;
     long headerInserts = 0;
@@ -966,6 +982,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       List<String> allMatches;
       SimpleDateFormat formatStatVsdb = new SimpleDateFormat("yyyyMMddHH", Locale.US);
       formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+      DateTimeFormatter formatStatVsdb_1 = DateTimeFormatter.ofPattern("yyyyMMddHH");
+
 
       //  read in each line of the input file, remove "="
       while (reader.ready()) {
@@ -1040,8 +1059,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           } else {
             continue;
           }
-          if (info._boolLineTypeLoad && !info._tableLineTypeLoad
-                                             .containsKey(mvLoadStatInsertData.getLineType())) {
+          if (info._boolLineTypeLoad
+                  && !info._tableLineTypeLoad.containsKey(mvLoadStatInsertData.getLineType())) {
             continue;
           }
 
@@ -1050,25 +1069,24 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           //  parse the valid times
 
 
-          Date dateFcstValidBeg = formatStatVsdb.parse(listToken[3]);
+          LocalDateTime fcstValidBeg = LocalDateTime.parse(listToken[3], formatStatVsdb_1);
 
           //  format the valid times for the database insert
-          String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-
+          String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
 
           //  calculate the number of seconds corresponding to fcst_lead
           String strFcstLead = listToken[2];
           int intFcstLeadSec = Integer.parseInt(strFcstLead) * 3600;
 
           //  determine the init time by combining fcst_valid_beg and fcst_lead
-          Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-          calFcstInitBeg.setTime(dateFcstValidBeg);
-          calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
-          Date dateFcstInitBeg = calFcstInitBeg.getTime();
-          String strFcstInitBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
-          String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-          String strFcstValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-          String strObsValidEnd = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+
+          LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
+          fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
+          String fcstInitBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
+          String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+          String fcstValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+          String obsValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+
 
           //  ensure that the interp_pnts field value is a reasonable integer
           String strInterpPnts = "0";
@@ -1132,7 +1150,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
             //  look for an existing stat_header record with the same information
             boolean boolFoundStatHeader = false;
-            long intStatHeaderSearchBegin = new Date().getTime();
+            long intStatHeaderSearchBegin = System.currentTimeMillis();
             if (info._boolStatHeaderDBCheck) {
               String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
               Connection con = null;
@@ -1162,8 +1180,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 } catch (Exception e) { /* ignored */ }
               }
             }
-            timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
-                                                                                      .getTime() - intStatHeaderSearchBegin);
+            timeStats.put("headerSearchTime",
+                          timeStats.get("headerSearchTime")
+                              + System.currentTimeMillis() - intStatHeaderSearchBegin);
 
 
             //  if the stat_header was not found, add it to the table
@@ -1222,12 +1241,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                     info._dataFileId + ", " +      //  data_file_id
                     intLine + ", " +          //  line_num
                     strFcstLead + ", " +        //  fcst_lead
-                    "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
-                    "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
-                    "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
+                    "'" + fcstValidBegStr + "', " +    //  fcst_valid_beg
+                    "'" + fcstValidEndStr + "', " +    //  fcst_valid_end
+                    "'" + fcstInitBegStr + "', " +    //  fcst_init_beg
                     "000000" + ", " +        //  obs_lead
-                    "'" + strObsValidBeg + "', " +    //  obs_valid_beg
-                    "'" + strObsValidEnd + "'";      //  obs_valid_end
+                    "'" + obsValidBegStr + "', " +    //  obs_valid_beg
+                    "'" + obsValidEndStr + "'";      //  obs_valid_end
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
@@ -1700,7 +1719,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     timeStats.put("lengthInserts", lengthInserts);
 
     //  print a performance report
-    long intStatHeaderLoadTime = new Date().getTime() - intStatHeaderLoadStart;
+    long intStatHeaderLoadTime = System.currentTimeMillis() - intStatHeaderLoadStart;
     double dblLinesPerMSec = (double) (intLine - 1) / (double) (intStatHeaderLoadTime);
 
     if (info._boolVerbose) {
@@ -1742,7 +1761,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     Map<String, Integer> tableModeObjectId = new HashMap<>();
 
     //  performance counters
-    long intModeHeaderLoadStart = new Date().getTime();
+    long intModeHeaderLoadStart = System.currentTimeMillis();
     timeStats.put("headerSearchTime", 0L);
     long headerInserts = 0;
     long ctsInserts = 0;
@@ -1800,14 +1819,20 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 			 */
 
         //  parse the valid times
-        Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"));
-        Date dateObsValidBeg = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
+
+        LocalDateTime fcstValidBeg = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"),
+            DB_DATE_STAT_FORMAT_1);
+
+
+        LocalDateTime obsValidBeg = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"),
+            DB_DATE_STAT_FORMAT_1);
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+        String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidBeg);
+
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -1819,11 +1844,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0, intFcstLeadLen - 4)) * 3600;
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
-        Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calFcstInitBeg.setTime(dateFcstValidBeg);
-        calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
-        Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+
+        LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
+        fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
+
+        String fcstInitStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
+
 
         //  build a value list from the header information
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
@@ -1855,7 +1881,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                      "'" + MVUtil.findValueInArray(listToken, headerNames,
                                                                    "FCST_LEAD")
                                      + "', " +      //  fcst_lead
-                                     "'" + strFcstValidBeg + "', ";      //  fcst_valid
+                                     "'" + fcstValidBegStr + "', ";      //  fcst_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "FCST_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  fcst_accum
         } else {
@@ -1865,11 +1891,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                              .findValueInArray(listToken, headerNames, "FCST_ACCUM")
                                        + "', ";      //  fcst_accum
         }
-        strModeHeaderValueList = strModeHeaderValueList + "'" + strFcstInit + "', " +        //  fcst_init
+        strModeHeaderValueList = strModeHeaderValueList + "'" + fcstInitStr + "', "
+                                     +  // fcst_init
                                      "'"
                                      + MVUtil.findValueInArray(listToken, headerNames, "OBS_LEAD")
                                      + "', " +      //  obs_lead
-                                     "'" + strObsValidBeg + "', ";      //  obs_valid
+                                     "'" + obsValidBegStr + "', ";      //  obs_valid
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "OBS_ACCUM"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  obs_accum
         } else {
@@ -1910,13 +1937,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                         .findValueInArray(listToken, headerNames, "DESC") + "'\n" +
                 "  AND fcst_lead = '" + MVUtil.findValueInArray(listToken, headerNames,
                                                                 "FCST_LEAD") + "'\n" +
-                "  AND fcst_valid = '" + strFcstValidBeg + "'\n" +
+                "  AND fcst_valid = '" + fcstValidBegStr + "'\n" +
                 "  AND fcst_accum = '" + MVUtil.findValueInArray(listToken, headerNames,
                                                                  "FCST_ACCUM") + "'\n" +
-                "  AND fcst_init = '" + strFcstInit + "'\n" +
+                "  AND fcst_init = '" + fcstInitStr + "'\n" +
                 "  AND obs_lead = '" + MVUtil.findValueInArray(listToken, headerNames,
                                                                "OBS_LEAD") + "'\n" +
-                "  AND obs_valid = '" + strObsValidBeg + "'\n" +
+                "  AND obs_valid = '" + obsValidBegStr + "'\n" +
                 "  AND obs_accum = '" + MVUtil.findValueInArray(listToken, headerNames,
                                                                 "OBS_ACCUM") + "'\n" +
                 "  AND fcst_rad = '" + MVUtil.findValueInArray(listToken, headerNames,
@@ -1947,7 +1974,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  look for an existing mode_header record with the same information
           boolean boolFoundModeHeader = false;
-          long intModeHeaderSearchBegin = new Date().getTime();
+          long intModeHeaderSearchBegin = System.currentTimeMillis();
           if (info._boolModeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n"
                                              + strModeHeaderWhereClause;
@@ -1972,8 +1999,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
           }
-          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
-                                                + new Date().getTime() - intModeHeaderSearchBegin);
+          timeStats.put("headerSearchTime",
+                        timeStats.get("headerSearchTime")
+                            + System.currentTimeMillis() - intModeHeaderSearchBegin);
 
 
           //  if the mode_header was not found, add it to the table
@@ -2149,7 +2177,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
     //  print a performance report
     if (info._boolVerbose) {
-      long intModeHeaderLoadTime = new Date().getTime() - intModeHeaderLoadStart;
+      long intModeHeaderLoadTime = System.currentTimeMillis() - intModeHeaderLoadStart;
       logger.info(MVUtil.padBegin("mode_header inserts: ", 36) + headerInserts + "\n" +
                       MVUtil.padBegin("mode_cts inserts: ", 36) + ctsInserts + "\n" +
                       MVUtil.padBegin("mode_obj_single inserts: ", 36) + objSingleInserts + "\n" +
@@ -2179,7 +2207,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     Map<String, Long> timeStats = new HashMap<>();
 
     //  performance counters
-    long intMtdHeaderLoadStart = new Date().getTime();
+    long intMtdHeaderLoadStart = System.currentTimeMillis();
     timeStats.put("headerSearchTime", 0L);
     long headerInserts = 0;
     long obj3dSingleInserts = 0;
@@ -2228,14 +2256,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                   + " " + strFileLine);
         }
         //  parse the valid times
-        Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"));
-        Date dateObsValidBeg = DB_DATE_STAT_FORMAT.parse(
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
+
+
+        LocalDateTime fcstValidBeg = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"),
+            DB_DATE_STAT_FORMAT_1);
+
+
+        LocalDateTime obsValidBeg = LocalDateTime.parse(
+            MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"),
+            DB_DATE_STAT_FORMAT_1);
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strObsValidBeg = MysqlDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+
+
+        String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidBeg);
+
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -2269,11 +2306,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
-        Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calFcstInitBeg.setTime(dateFcstValidBeg);
-        calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
-        Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = MysqlDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
+        fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
+
+        String fcstInitStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
 
 
         String mtdHeaderValueList = "'" + MVUtil.findValueInArray(listToken, headerNames, "VERSION")
@@ -2287,10 +2323,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         mtdHeaderValueList = mtdHeaderValueList
                                  + "'"
                                  + fcstLeadInsert
-                                 + "', " + "'" + strFcstValidBeg + "', "
-                                 + "'" + strFcstInit + "', "
+                                 + "', " + "'" + fcstValidBegStr + "', "
+                                 + "'" + fcstInitStr + "', "
                                  + "'" + obsLeadInsert
-                                 + "', " + "'" + strObsValidBeg + "', ";
+                                 + "', " + "'" + obsValidBegStr + "', ";
 
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "T_DELTA"))) {
           mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
@@ -2325,12 +2361,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 + "  AND descr = '" + MVUtil.findValueInArray(listToken, headerNames, "DESC")
                 + "'\n"
                 + "  AND fcst_lead = '" + fcstLeadInsert + "'\n" +
-                "  AND fcst_valid = '" + strFcstValidBeg + "'\n" +
+                "  AND fcst_valid = '" + fcstValidBegStr + "'\n" +
                 "  AND t_delta = '" + MVUtil.findValueInArray(listToken, headerNames,
                                                               "T_DELTA") + "'\n" +
-                "  AND fcst_init = '" + strFcstInit + "'\n" +
+                "  AND fcst_init = '" + fcstInitStr + "'\n" +
                 "  AND obs_lead = '" + obsLeadInsert + "'\n" +
-                "  AND obs_valid = '" + strObsValidBeg + "'\n" +
+                "  AND obs_valid = '" + obsValidBegStr + "'\n" +
 
                 "  AND fcst_rad = '" + MVUtil.findValueInArray(listToken, headerNames,
                                                                "FCST_RAD") + "'\n" +
@@ -2360,7 +2396,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  look for an existing mode_header record with the same information
           boolean foundMtdHeader = false;
-          long mtdHeaderSearchBegin = new Date().getTime();
+          long mtdHeaderSearchBegin = System.currentTimeMillis();
           if (info._boolMtdHeaderDBCheck) {
             String strMtdHeaderSelect = "SELECT\n  mtd_header_id\nFROM\n  mtd_header\nWHERE\n" +
                                             mtdHeaderWhereClause;
@@ -2384,8 +2420,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
           }
-          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
-                                                + new Date().getTime() - mtdHeaderSearchBegin);
+          timeStats.put("headerSearchTime",
+                        timeStats.get("headerSearchTime")
+                            + System.currentTimeMillis() - mtdHeaderSearchBegin);
 
 
           //  if the mtd_header was not found, add it to the table
@@ -2559,7 +2596,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
     //  print a performance report
     if (info._boolVerbose) {
-      long intMtdHeaderLoadTime = new Date().getTime() - intMtdHeaderLoadStart;
+      long intMtdHeaderLoadTime = System.currentTimeMillis() - intMtdHeaderLoadStart;
       logger.info(
           MVUtil.padBegin("mtd_header inserts: ", 36)
               + headerInserts + "\n"
@@ -2723,9 +2760,15 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    LocalDateTime cal1 = LocalDateTime.now();
     String strLoadDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
+    String loadDateStr = MysqlDatabaseManager.DATE_FORMAT_1.format(cal1);
     cal.setTimeInMillis(file.lastModified());
+    cal1 =LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
+                                    ZoneId.of("UTC"));
     String strModDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
+    String modDateStr = MysqlDatabaseManager.DATE_FORMAT_1.format(cal1);
+
 
     // determine the type of the input data file by parsing the filename
     if (strFile.matches("\\S+\\.stat$")) {
@@ -2855,7 +2898,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
     }
     strUpdater = strUpdater.trim();
-    String strUpdateDate = MysqlDatabaseManager.DATE_FORMAT.format(new Date());
+    String strUpdateDate = MysqlDatabaseManager.DATE_FORMAT_1.format(LocalDateTime.now());
     String strUpdateDetail = job.getLoadNote();
 
     //  read the load xml into a string, if requested
