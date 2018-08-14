@@ -136,7 +136,7 @@
         multiple: false,
         selectedList: 1,
         header: false,
-        minWidth: 'auto',
+        minWidth: 110,
         height: 200,
 
         click: function () {
@@ -437,8 +437,8 @@
 
       } else {
         var val = $($(categories[0]).find("val")[0]).text();
-        $("input[name='multiselect_database'][value='" + val + "']")
-                .prop("checked", true).change();
+       // $("input[name='multiselect_database'][value='" + val + "']")
+       //         .prop("checked", true).change();
         updateForecastVariables();
         updateStats("y1", 1, []);
         updateStats("y2", 1, []);

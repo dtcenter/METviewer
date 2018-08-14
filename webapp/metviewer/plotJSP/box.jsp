@@ -130,7 +130,7 @@
         multiple: false,
         selectedList: 1,
         header: false,
-        minWidth: 'auto',
+        minWidth: 120,
         height: 200,
         click: function () {
           var id_array = this.id.split("_");
@@ -372,8 +372,8 @@
         initXML = null;
       } else {
         var val = $($(categories[0]).find("val")[0]).text();
-        $("input[name='multiselect_database'][value='" + val + "']")
-                        .prop("checked", true).change();
+       // $("input[name='multiselect_database'][value='" + val + "']")
+       //                 .prop("checked", true).change();
         updateForecastVariables();
         updateStats("y1", 1, []);
         updateStats("y2", 1, []);

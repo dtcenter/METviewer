@@ -120,7 +120,7 @@
                 multiple: false,
                 selectedList: 1,
                 header: false,
-                minWidth: 'auto',
+                minWidth: 120,
                 height: 200,
                 click: function () {
                     var id_array = this.id.split("_");
@@ -332,9 +332,9 @@
                 updateForecastVariables();
                 updateStats("y1", 1, []);
                 updateSeriesVarVal("y1", 1, []);
-                var val = $($(categories[0]).find("val")[0]).text();
-                $("input[name='multiselect_database'][value='" + val + "']")
-                                      .prop("checked", true).change();
+               // var val = $($(categories[0]).find("val")[0]).text();
+               // $("input[name='multiselect_database'][value='" + val + "']")
+               //                       .prop("checked", true).change();
             }
         });
 
