@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,9 @@ public class MysqlDatabaseManager {
 
   protected static final SimpleDateFormat DATE_FORMAT
       = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+
+  protected static final DateTimeFormatter DATE_FORMAT_1
+      = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
   public MysqlDatabaseManager(
