@@ -5,6 +5,7 @@ boolSumSl1l2 = #<sum_sl1l2>#;
 boolSumGrad = #<sum_grad>#;
 boolSumSal1l2 = #<sum_sal1l2>#;
 boolSumVl1l2 = #<sum_vl1l2>#;
+boolSumVal1l2 = #<sum_val1l2>#;
 boolEventEqual = #<event_equal>#;
 boolEveqDis = #<eveq_dis>#;
 boolEqualizeByIndep = #<equalize_by_indep>#;

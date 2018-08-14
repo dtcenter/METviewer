@@ -47,6 +47,8 @@ if ( boolSumCtc    ){
   statFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
 } else if( boolSumVl1l2  ){
   statFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar","f_speed_bar","o_speed_bar");
+} else if( boolSumVal1l2  ){
+  statFields = c("total", "ufabar", "vfabar", "uoabar", "voabar", "uvfoabar", "uvffabar","uvooabar");
 }
 
 # read the input data file into a data frame

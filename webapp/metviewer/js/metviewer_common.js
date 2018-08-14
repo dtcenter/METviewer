@@ -3912,7 +3912,8 @@ function createXMLSeries(plot) {
         plot.append(agg_stat);
     }
 
-    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
+    else if ((currentTab === 'Bar' || statistic === 'calculations_statistics')
+            && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);

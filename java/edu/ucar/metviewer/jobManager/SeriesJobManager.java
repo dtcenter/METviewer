@@ -52,6 +52,7 @@ public class SeriesJobManager extends JobManager {
                              || job.getCalcSl1l2()
                              || job.getCalcSal1l2()
                              || job.getCalcVl1l2()
+                             || job.getCalcVal1l2()
                              || job.getCalcGrad();
 
     /*

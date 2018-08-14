@@ -295,6 +295,21 @@ calcVL1L2_OVAR = function(d){
   return ( round(ovar, digits=5)) ;
 }
 
+calcVL1L2_FSPD = function(d){
+  fspd = calc_spd( d$ufbar, d$vfbar );
+  return ( round(fspd, digits=5)) ;
+}
+
+calcVL1L2_OSPD = function(d){
+  ospd = calc_spd( d$uobar, d$vobar );
+  return ( round(ospd, digits=5)) ;
+}
+
+calcVL1L2_SPEED_ERR = function(d){
+  speed_bias = calcVL1L2_FSPD(d) - calcVL1L2_OSPD(d);
+  return ( round(speed_bias, digits=5)) ;
+}
+
 calc_spd = function(u,v){
   if( is.na(u) || is.na(v) ) {
     return (NA);
