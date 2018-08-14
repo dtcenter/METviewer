@@ -645,7 +645,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         numPctThresh++;
       }
 
-
     } catch (SQLException e) {
       logger.error(e.getMessage());
     }
@@ -667,7 +666,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       while (resultSet.next()) {
         result.add(resultSet.getString(1));
       }
-
 
     } catch (SQLException e) {
       logger.error(e.getMessage());
@@ -763,6 +761,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                || job.getCalcSl1l2()
                                || job.getCalcSal1l2()
                                || job.getCalcVl1l2()
+                               || job.getCalcVal1l2()
                                || job.getCalcGrad();
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
@@ -1190,7 +1189,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.SSVAR;
           } else if (job.getCalcVl1l2() || job.getAggVl1l2()) {
             aggType = MVUtil.VL1L2;
-          } else if (job.getAggVal1l2()) {
+          } else if (job.getCalcVal1l2() || job.getAggVal1l2()) {
             aggType = MVUtil.VAL1L2;
           }
 
@@ -1405,6 +1404,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strSelectStat += ",\n  ld.total, ld.ufbar, ld.vfbar, ld.uobar, ld.vobar, "
                                  + "ld.uvfobar, ld.uvffbar, ld.uvoobar,"
                                  + " ld.f_speed_bar, ld.o_speed_bar, 'NA' stat_value,\n"
+                                 + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
+                                 + "'NA' stat_bcu";
+
+          } else if (job.getCalcVal1l2()) {
+            strSelectStat += ",\n  ld.total, ld.ufabar, ld.vfabar, ld.uoabar, ld.voabar, "
+                                 + "ld.uvfoabar, ld.uvffabar, ld.uvooabar,"
+                                 + " 'NA' stat_value,\n"
                                  + "  'NA' stat_ncl,\n  'NA' stat_ncu,\n  'NA' stat_bcl,\n  "
                                  + "'NA' stat_bcu";
           } else {
