@@ -15,7 +15,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -49,8 +48,7 @@ import org.apache.logging.log4j.Logger;
 public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
-  SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
-  DateTimeFormatter DB_DATE_STAT_FORMAT_1 = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+  DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
@@ -368,22 +366,22 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         LocalDateTime fcstValidBeg = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_BEG"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
 
         LocalDateTime fcstValidEnd = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID_END"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
 
         LocalDateTime obsValidBeg = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_BEG"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
 
         LocalDateTime obsValidEnd = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
         String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
@@ -980,10 +978,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     int intLine = 0;
     try (FileReader fileReader = new FileReader(strFilename); BufferedReader reader = new BufferedReader(fileReader)) {
       List<String> allMatches;
-      SimpleDateFormat formatStatVsdb = new SimpleDateFormat("yyyyMMddHH", Locale.US);
-      formatStatVsdb.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-      DateTimeFormatter formatStatVsdb_1 = DateTimeFormatter.ofPattern("yyyyMMddHH");
+      DateTimeFormatter formatStatVsdb = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
 
       //  read in each line of the input file, remove "="
@@ -1069,7 +1065,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           //  parse the valid times
 
 
-          LocalDateTime fcstValidBeg = LocalDateTime.parse(listToken[3], formatStatVsdb_1);
+          LocalDateTime fcstValidBeg = LocalDateTime.parse(listToken[3], formatStatVsdb);
 
           //  format the valid times for the database insert
           String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
@@ -1822,12 +1818,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         LocalDateTime fcstValidBeg = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
 
         LocalDateTime obsValidBeg = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
         String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
@@ -2260,12 +2256,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         LocalDateTime fcstValidBeg = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "FCST_VALID"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
 
         LocalDateTime obsValidBeg = LocalDateTime.parse(
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"),
-            DB_DATE_STAT_FORMAT_1);
+            DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
         String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
