@@ -310,6 +310,19 @@ calcVL1L2_SPEED_ERR = function(d){
   return ( round(speed_bias, digits=5)) ;
 }
 
+calcVL1L2_RMSVE = function(d){
+  rmsve = sqrt ( calcVL1L2_MSVE(d) );
+  return ( round(rmsve, digits=5) );
+}
+
+calcVL1L2_MSVE = function(d){
+  msve = d$uvffbar - 2.0*d$uvfobar + d$uvoobar;
+  if (msve < 0 ){
+    return (NA);
+  }
+  return ( round(msve, digits=5) );
+}
+
 calc_spd = function(u,v){
   if( is.na(u) || is.na(v) ) {
     return (NA);
