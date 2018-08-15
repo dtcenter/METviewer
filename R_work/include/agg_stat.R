@@ -786,10 +786,21 @@ if ( nrow(sampleData) > 0){
         if( intCountLength < length(listBoot[[strCountName]]) ){ intCountLength = length(listBoot[[strCountName]]); }
       }
       for(strCountName in names(listBoot)){
-        if( intCountLength > length(listBoot[[strCountName]]) ){
-          listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(NA, intCountLength - length(listBoot[[strCountName]])) );
-        }
-      }
+         if( intCountLength > length(listBoot[[strCountName]]) ){
+           if(is.factor(listBoot[[strCountName]])){
+             listBoot[[strCountName]]= droplevels(listBoot[[strCountName]]);
+             if(length(levels(listBoot[[strCountName]])) == 1){
+                listBoot[[strCountName]] =  rep(levels(listBoot[[strCountName]])[1], intCountLength ) ;
+             }else{
+               stop("Can't fill factor column");
+             }
+           }else if(grepl('thresh_i$',strCountName) ||  strIndyVar == 'thresh_i'){
+             listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(listBoot[[strCountName]][1], intCountLength - length(listBoot[[strCountName]])) );
+           }else{
+            listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(NA, intCountLength - length(listBoot[[strCountName]])) );
+           }
+         }
+       }
 
       # bootstrap the series data
       dfBoot = data.frame(listBoot, check.names=FALSE);
