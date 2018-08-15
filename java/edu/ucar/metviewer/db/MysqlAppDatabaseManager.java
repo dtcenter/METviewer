@@ -599,8 +599,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else {
 
             strVal = res.getString(i);
-            strVal = strVal.equalsIgnoreCase("null") ? "NA" : strVal;
-            strVal = strVal.equalsIgnoreCase("-9999") ? "NA" : strVal;
+            if (strVal == null || strVal.equalsIgnoreCase("null") || strVal.equalsIgnoreCase("-9999")) {
+              strVal = "NA";
+            }
+
           }
 
 
