@@ -348,12 +348,13 @@ public class TestUtil {
       }
 
       //assign a group name
-      tag = "group";
-      Element group = doc.createElement(tag);
-      group.setTextContent("Testing");
-      nodeList = doc.getElementsByTagName("load_spec");
-      nodeList.item(0).appendChild(group);
-
+      if(fpath.contains("load")) {
+        tag = "group";
+        Element group = doc.createElement(tag);
+        group.setTextContent("Testing");
+        nodeList = doc.getElementsByTagName("load_spec");
+        nodeList.item(0).appendChild(group);
+      }
       TransformerFactory.newInstance().newTransformer()
           .transform(new DOMSource(doc), new StreamResult(new File(fpath)));
     } catch (Exception e) {
