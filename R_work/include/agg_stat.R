@@ -566,32 +566,33 @@ if ( nrow(sampleData) > 0){
               reliability	= NA,
               resolution	= NA,
               uncertainty	= NA,
-              baser		= NA,
-              roc_auc=NA
+              baser		    = NA,
+              calibration = NA,
+              n_i         = NA,
+              roc_auc     = NA
             );
           } else {
 
             dfPctPerm$o_bar_i = dfPctPerm$oy_i / dfPctPerm$n_i;		# o_bar_i
 
             # row-based calculations
-            dfPctPerm$oy_tp			= dfPctPerm$oy_i / T;
-            dfPctPerm$on_tp			= dfPctPerm$on_i / T;
+            dfPctPerm$oy_tp			= dfPctPerm$oy_i / T[intPerm];
+            dfPctPerm$on_tp			= dfPctPerm$on_i / T[intPerm];
             dfPctPerm$calibration	= dfPctPerm$oy_i / dfPctPerm$n_i;
-            dfPctPerm$refinement	= dfPctPerm$n_i / T;
-            dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total;
+            dfPctPerm$refinement	= dfPctPerm$n_i / T[intPerm];
+            dfPctPerm$likelihood	= dfPctPerm$oy_i / oy_total[intPerm];
             dfPctPerm$baserate		= dfPctPerm$o_bar_i;
 
 
             # table-based stat calculations
             dfSeriescustom_sums = list(
-              reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T,
-              resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar)^2 ) / T,
-              uncertainty	= o_bar * (1 - o_bar),
-              baser		= o_bar,
+              reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T[intPerm],
+              resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar[intPerm])^2 ) / T[intPerm],
+              uncertainty	= o_bar[intPerm] * (1 - o_bar[intPerm]),
+              baser		= o_bar[intPerm],
               calibration = dfPctPerm$calibration,
               n_i = dfPctPerm$n_i
             );
-            #dfSeriescustom_sums$b_ci	= calcBrierCI(dfPctPerm, dfSeriescustom_sums$brier, dblAlpha);
 
             # build the dataframe for calculating and use the trapezoidal method roc_auc
             dfROC = calcPctROC(dfPctPerm);
@@ -607,8 +608,10 @@ if ( nrow(sampleData) > 0){
             reliability	= NA,
             resolution	= NA,
             uncertainty	= NA,
-            baser		= NA,
-            roc_auc=NA
+            baser		    = NA,
+            calibration = NA,
+            n_i         = NA,
+            roc_auc     = NA
           );
         }
 
@@ -619,6 +622,7 @@ if ( nrow(sampleData) > 0){
         # calculate and store the statistic
         dblStat = do.call( paste("calc", strStat, sep=""), list(d=dfSeriescustom_sums) );
         listRet[[strStat]] = append(listRet[[strStat]], dblStat);
+
       }
     }
     if(length(listDiffSeries) > 0){
@@ -707,6 +711,11 @@ if ( nrow(sampleData) > 0){
       listBoot = list();
 
       # run the bootstrap flow for each series permutation
+
+      #for pct stats
+      T=c();
+      o_bar=c();
+      oy_total=c();
       for(intPerm in 1:nrow(matPerm)){
         listPerm = matPerm[intPerm,];
 
@@ -767,9 +776,9 @@ if ( nrow(sampleData) > 0){
         }else if( boolAggPct ){
           #calc T abd o_bar for pct
           n_i = dfStatsPermAllIndy$oy_i + dfStatsPermAllIndy$on_i;
-          T = custom_sum(n_i);									# T
-          oy_total = custom_sum(dfStatsPermAllIndy$oy_i);							# n_.1
-          o_bar = oy_total / T;
+          T[intPerm] = custom_sum(n_i);									# T
+          oy_total[intPerm] = custom_sum(dfStatsPermAllIndy$oy_i);							# n_.1
+          o_bar[intPerm] = oy_total[intPerm] / T[intPerm];
         }
         for(strCount in listFields){
           listCounts = dfStatsPerm[[strCount]];
@@ -794,7 +803,7 @@ if ( nrow(sampleData) > 0){
              }else{
                stop("Can't fill factor column");
              }
-           }else if(grepl('thresh_i$',strCountName) ||  strIndyVar == 'thresh_i'){
+           }else if(grepl('thresh_i$',strCountName) &&  strIndyVar == 'thresh_i'){
              listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(listBoot[[strCountName]][1], intCountLength - length(listBoot[[strCountName]])) );
            }else{
             listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(NA, intCountLength - length(listBoot[[strCountName]])) );
