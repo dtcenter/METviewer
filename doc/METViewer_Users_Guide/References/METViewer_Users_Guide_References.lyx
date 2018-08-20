@@ -95,7 +95,7 @@ Alberson, S.D., 1998: Five-day Tropical cyclone track forecasts in the North
  Atlantic Basin.
  
 \emph on
-Weather & Forecasting
+Weather and Forecasting
 \emph default
 ,  13, 1005-1015.
 \end_layout
@@ -175,8 +175,13 @@ Bullock,
 R., T.
  Fowler, and B.
  Brown, 2016: Method for Object-Based Diagnostic Evaluation.
- NCAR Tech.
- Note NCAR/TN-532+STR, 66 pp.
+ 
+\series medium
+\emph on
+NCAR Technical Note
+\series default
+\emph default
+ NCAR/TN-532+STR, 66 pp.
 \end_layout
 
 \begin_layout Description
@@ -188,15 +193,10 @@ Candille
  Talagrand, 2008: Impact of observational error on the validation of ensemble
  prediction systems.
  
-\emph on
-Q.
- J.
- R.
- Meteorol.
- Soc
-\emph default
-.
- 134: 959–971.
+\shape italic
+Quarterly Journal of the Royal Meteorological Society
+\shape default
+, 134: 959–971.
 \end_layout
 
 \begin_layout Description
@@ -299,8 +299,7 @@ Eckel, F.
  Sittel, 2012: Estimation of Ambiguity in Ensemble Forecasts.
  
 \emph on
-Wea.
- Forecasting
+Weather and Forecasting
 \emph default
 , 
 \series default
@@ -397,11 +396,9 @@ Hamill, T.
  M., 2001: Interpretation of rank histograms for verifying ensemble forecasts.
  
 \emph on
-Mon.
- Wea.
- Rev
+Monthly Weather Review
 \emph default
-., 
+, 
 \series default
 129
 \series medium
@@ -415,13 +412,11 @@ Hogan, R., E.
  O'Connor, and A.
  Illingworth, 2009: Verification of cloud-fraction forecasts.
  
-\emph on
-Quart.
- Jour.
- Roy.
- Meteorol.
- Soc.
-\emph default
+\series default
+\shape italic
+Quarterly Journal of the Royal Meteorological Society
+\series medium
+\shape default
 , 
 \series default
 135
@@ -450,28 +445,15 @@ Knaff, J.A., M.
  Sampson, and J.M.
  Gross, 2003: Statistical, Five-Day Tropical Cyclone Intensity Forecasts
  Derived from Climatology and Persistence.
-\begin_inset Quotes erd
-\end_inset
-
 
 \emph on
-Weather & Forecasting,
+ Weather and Forecasting,
 \emph default
-
-\begin_inset Quotes erd
-\end_inset
-
- 
+ 18
 \series default
-Vol
+, 
 \series medium
-.
- 18 
-\series default
-Issue
-\series medium
- 2, p.
- 80-92.
+80-92.
 \end_layout
 
 \begin_layout Description
@@ -499,8 +481,13 @@ Mittermaier,
 \series default
 M., 2013: A strategy for verifying near-convection-resolving model forecasts
  at observing sites.
- Wea.
- Forecasting, 29, 185-204.
+ 
+\series medium
+\emph on
+Weather and Forecasting
+\series default
+\emph default
+, 29, 185-204.
 \end_layout
 
 \begin_layout Description
@@ -538,6 +525,17 @@ Monthly Weather Review
 \begin_layout Description
 
 \series medium
+Roebber, P.J., 2009: Visualizing multiple measures of forecast quality.
+ 
+\emph on
+Weather and Forecasting
+\emph default
+, 24, 601-608.
+\end_layout
+
+\begin_layout Description
+
+\series medium
 Roberts, N.M., and H.W.
  Lean, 2008: Scale-selective verification of rainfall accumulations from
  high-resolution forecasts of convective events.
@@ -562,10 +560,10 @@ Saetra O., H.
 
 \series default
 \emph on
- Monthly Weather Rev
+ Monthly Weather Review,
 \series medium
 \emph default
-iew 132: 1487–1501.
+ 132: 1487–1501.
 \end_layout
 
 \begin_layout Description
@@ -578,12 +576,13 @@ Santos C.
 
 \series default
 \emph on
- Q.
- J.
- R.
- Meteorol.
- Soc.
-
+ Q
+\shape italic
+\emph default
+uarterly Journal of the Royal Meteorological Society
+\shape default
+\emph on
+,
 \series medium
 \emph default
  138: 209–221.
@@ -622,9 +621,7 @@ Stephenson, D.B., B.
  forecasts of rare events.
  
 \emph on
-Meteor.
- Appl.
-
+Meteorological Applications,
 \emph default
  
 \series default
@@ -641,12 +638,10 @@ Taylor, K.
  diagram, 
 \series default
 \emph on
-J.
- Geophys.
- Res
+Journal of Geophysical Res
 \series medium
 \emph default
-., 106, 7183– 7192.
+earch, 106, 7183– 7192.
 \end_layout
 
 \begin_layout Description
@@ -672,9 +667,11 @@ Wilks,
  D.S.
  2010: Sampling distributions of the Brier score and Brier skill score under
  serial dependence.
- Q.J.R.
- Meteorol.
- Soc., 136, 2109–2118.
+ 
+\shape italic
+Quarterly Journal of the Royal Meteorological Society
+\shape default
+, 136, 2109–2118.
  doi:10.1002/qj.709
 \end_layout
 
