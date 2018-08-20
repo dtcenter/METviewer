@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class DataFileInfo {
 
-  public Integer _dataFileId = 0;
+  public String _dataFileId = "0";
   public String _dataFileFilename = "";
   public String _dataFilePath = "";
   public String _dataFileLoadDate = "";
@@ -30,11 +30,11 @@ public class DataFileInfo {
   public boolean _boolVerbose;
   public int _intInsertSize;
 
-  public DataFileInfo(Object dataFileId, String dataFileFilename,
+  public DataFileInfo(String dataFileId, String dataFileFilename,
                       String dataFilePath, String dataFileLoadDate,
                       String dataFileModDate, int dataFileLuId,
                       String dataFileLuTypeName) {
-    _dataFileId = (Integer)dataFileId;
+    _dataFileId = dataFileId;
     _dataFileFilename = dataFileFilename;
     _dataFilePath = dataFilePath;
     _dataFileLoadDate = dataFileLoadDate;

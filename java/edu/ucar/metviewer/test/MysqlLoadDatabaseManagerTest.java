@@ -39,8 +39,8 @@ public class MysqlLoadDatabaseManagerTest {
             loadDatabaseManager = (LoadDatabaseManager)DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
             File file = new File("a data file path");
             boolean forceDupFile = job.getForceDupFile();
-            DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile, loadDatabaseManager.getDatabaseInfo());
-            Map<String, Long> timeStats = loadDatabaseManager.loadStatFileVSDB(info, loadDatabaseManager.getDatabaseInfo());
+            DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile);
+            Map<String, Long> timeStats = loadDatabaseManager.loadStatFileVSDB(info);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception caught: " + e.getMessage());

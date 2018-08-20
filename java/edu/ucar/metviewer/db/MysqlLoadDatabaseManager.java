@@ -925,7 +925,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
   @Override
-  public Map<String, Long> loadStatFileVSDB(DataFileInfo info, DatabaseInfo databaseInfo) throws Exception {
+  public Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception {
 
     Map<String, Long> timeStats = new HashMap<>();
 
@@ -2780,7 +2780,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         strModDate = res.getString(4);
 
         if (forceDupFile) {
-          DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
+          DataFileInfo info = new DataFileInfo(dataFileId.toString(), strFile, strPath, strLoadDate,
                                                strModDate, strDataFileLuId, strDataFileLuTypeName);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
@@ -2832,7 +2832,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       logger.warn("  **  WARNING: unexpected result from data_file INSERT: " + intRes);
     }
 
-    return new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
+    return new DataFileInfo(dataFileId.toString(), strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
                             strDataFileLuTypeName);
   }
 

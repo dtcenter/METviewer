@@ -381,7 +381,7 @@ public class MVLoad {
       numMtdFiles++;
     } else if ("vsdb_point_stat".equals(info._dataFileLuTypeName) && loadStat) {
       logger.info(strFileMsg);
-      Map<String, Long> timeStats = loadDatabaseManager.loadStatFileVSDB(info, databaseInfo);
+      Map<String, Long> timeStats = loadDatabaseManager.loadStatFileVSDB(info);
       statHeaderSearchTime += timeStats.get("headerSearchTime");
       statLinesTotal += timeStats.get("linesTotal");
       statHeaderRecords += timeStats.get("headerRecords");

@@ -47,7 +47,7 @@ public class CBDatabaseManager extends DatabaseManager{
   protected static final String DB_PREFIX_MV = "mv_";
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
-  protected static Bucket bucket = null;
+  private static Bucket bucket = null;
 
   public CBDatabaseManager(DatabaseInfo databaseInfo) throws CouchbaseException {
     super(databaseInfo);

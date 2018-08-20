@@ -29,7 +29,7 @@ public interface LoadDatabaseManager {
 
   Map<String, Long> loadModeFile(DataFileInfo info) throws Exception;
 
-  Map<String, Long> loadStatFileVSDB(DataFileInfo info, DatabaseInfo databaseInfo) throws Exception;
+  Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception;
 
   Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception;
 

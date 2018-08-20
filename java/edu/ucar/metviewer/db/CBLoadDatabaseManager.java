@@ -139,14 +139,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     tableVarLengthTable.put("ECLV", "line_data_eclv_pnt");
 
     tableLineDataFieldsTable = new HashMap<>();
-    tableLineDataFieldsTable.put("CTC", "total, fy_oy, fy_on, fn_oy, fn_on, ");
-    tableLineDataFieldsTable.put("GRAD", "total, fgbar, ogbar, mgbar, egbar, ");
-    tableLineDataFieldsTable.put("sl1l2", "total, fbar, obar, fobar, ffbar, oobar, ");
-    tableLineDataFieldsTable.put("sal1l2", "total, fabar, oabar, foabar, ffabar, ooabar, ");
+    tableLineDataFieldsTable.put("ctc", "total,fy_oy,fy_on,fn_oy,fn_on");
+    tableLineDataFieldsTable.put("grad", "total,fgbar,ogbar,mgbar,egbar");
+    tableLineDataFieldsTable.put("sl1l2", "total,fbar,obar,fobar,ffbar,oobar");
+    tableLineDataFieldsTable.put("sal1l2", "total,fabar,oabar,foabar,ffabar,ooabar");
     tableLineDataFieldsTable.put("vl1l2",
-            "total, ufbar, vfbar, uobar, vobar, uvfobar, uvffbar, uvoobar, f_speed_bar, o_speed_bar, ");
-    tableLineDataFieldsTable.put("val1l2", "total, ufabar, vfabar, uoabar, voabar, uvfoabar, uvffabar, uvooabar, ");
-    tableLineDataFieldsTable.put("NBR_CNT", "total, fbs, fss, ");
+            "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar,f_speed_bar,o_speed_bar");
+    tableLineDataFieldsTable.put("val1l2", "total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar");
+    tableLineDataFieldsTable.put("nbr_cnt", "total,fbs,fss");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
@@ -939,7 +939,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   }
 
   @Override
-  public Map<String, Long> loadStatFileVSDB(DataFileInfo info, DatabaseInfo databaseInfo) throws Exception {
+  public Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception {
 
     Map<String, Long> timeStats = new HashMap<>();
 
@@ -1161,7 +1161,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               try {
                 nextIdNumber = getBucket().counter("HDCounter", 1, 1).content();
                 // unique id must be a string
-                headerIdString = databaseInfo.getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
+                headerIdString = getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
               } catch (CouchbaseException e) {
                 throw new Exception(e.getMessage());
               }
@@ -1215,13 +1215,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  build the value list for the insert statment
             String strLineDataValueList =
-                    databaseInfo.getDbName() + ", " +     // database name for ID
+                    getDbName() + "," +     // database name for ID
                             strLineType.toLowerCase() + "," +   // line type
-                            modelName + ", " +            // model name for ID
+                            modelName + "," +            // model name for ID
                             headerIdString + "," +       //  CB header_id
                             info._dataFileId + "," +     //  CB data_id for data_file
-                    intLine + ", " +          //  line_num
-                    strFcstLead + ", " +        //  fcst_lead
+                    intLine + "," +          //  line_num
+                    strFcstLead + "," +        //  fcst_lead
                             strFcstValidBeg + "," +    //  fcst_valid_beg
                             strFcstValidEnd + "," +    //  fcst_valid_end
                             strFcstInitBeg + "," +     //  fcst_init_beg
@@ -1242,7 +1242,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 logger.warn("  **  WARNING: alpha value NA with line type '" + strLineType + "'\n        " + mvLoadStatInsertData
                                                                                                                         .getFileLine());
               }
-              strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
+              strLineDataValueList += "," + replaceInvalidValues(strAlpha);
             }
 
             if (listToken[6].equals("RMSE")) {//CNT line type
@@ -1250,17 +1250,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 if (i == 53) {
                   strLineDataValueList += "," + listToken[10];
                 } else if (i == 31) {
-                  strLineDataValueList += ", '" + listToken[11] + "'";
+                  strLineDataValueList += ",'" + listToken[11] + "'";
                 } else if (i == 36) {
-                  strLineDataValueList += ", '" + listToken[9] + "'";
+                  strLineDataValueList += ",'" + listToken[9] + "'";
                 } else if (i == 44) {
-                  strLineDataValueList += ", '" + listToken[12] + "'";
+                  strLineDataValueList += ",'" + listToken[12] + "'";
                 } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
-                  strLineDataValueList += ", '0'";
+                  strLineDataValueList += ",'0'";
                 } else if (i == 77) {
-                  strLineDataValueList += ", '" + listToken[13] + "'";
+                  strLineDataValueList += ",'" + listToken[13] + "'";
                 } else {
-                  strLineDataValueList += ", '-9999'";
+                  strLineDataValueList += ",'-9999'";
                 }
               }
             }
@@ -1944,24 +1944,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (info._boolModeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n"
                                              + strModeHeaderWhereClause;
-      /*      try (Connection con = getBucket();
-                 Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                      ResultSet.CONCUR_READ_ONLY);
-                 ResultSet res = stmt.executeQuery(strModeHeaderSelect)) {
-              if (res.next()) {
-                String strModeHeaderIdDup = res.getString(1);
-                intModeHeaderId = Integer.parseInt(strModeHeaderIdDup);
-                boolFoundModeHeader = true;
-                logger.warn(
-                    "  **  WARNING: found duplicate mode_header record with id " + strModeHeaderIdDup + "\n        " + strFileLine);
-              }
-              res.close();
-              stmt.close();
-              con.close();
-            } catch (Exception e) {
-              logger.error(e.getMessage());
-            }  */
-
           }
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
                                                 + new Date().getTime() - intModeHeaderSearchBegin);
@@ -2354,25 +2336,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (info._boolMtdHeaderDBCheck) {
             String strMtdHeaderSelect = "SELECT\n  mtd_header_id\nFROM\n  mtd_header\nWHERE\n" +
                                             mtdHeaderWhereClause;
-    /*        try (Connection con = getBucket();
-                 Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                      ResultSet.CONCUR_READ_ONLY);
-                 ResultSet res = stmt.executeQuery(strMtdHeaderSelect)) {
-              if (res.next()) {
-                String strMtdHeaderIdDup = res.getString(1);
-                mtdHeaderId = Integer.parseInt(strMtdHeaderIdDup);
-                foundMtdHeader = true;
-                logger.warn(
-                    "  **  WARNING: found duplicate mtd_header record with id " +
-                        strMtdHeaderIdDup + "\n        " + strFileLine);
-              }
-              res.close();
-              stmt.close();
-              con.close();
-            } catch (Exception e) {
-              logger.error(e.getMessage());
-            }  */
-
           }
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
                                                 + new Date().getTime() - mtdHeaderSearchBegin);
@@ -2649,7 +2612,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String strFile = file.getName();
     int strDataFileLuId = -1;
     String strDataFileLuTypeName;
-    Integer dataFileId;
+    String dataFileId;
     JsonDocument doc;
     N1qlQueryResult queryResult;
     queryResult = null;
@@ -2705,7 +2668,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       strDataFileLuId = tableDataFileLU.get(strDataFileLuTypeName);
     }
     // for compile. remove when CB fully in
-    dataFileId = 0;
+    dataFileId = "0";
 
     // build a Couchbase query to look for the file and path in the data_file table
     String strDataFileQuery =  "SELECT " +
@@ -2820,7 +2783,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     //  create a unique string data_file id from a Couchbase counter, starting at 1 the first time
     try {
-      nextIdNumber = bucket.counter("DFCounter", 1, 1).content();
+      nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
       if (0 > nextIdNumber) {
         throw new Exception("METViewer load error: updateInfoTable() unable to get counter");
       }
@@ -2828,7 +2791,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       throw new Exception(e.getMessage());
     }
     // Create new id for data file job document
-    nextIdString = getDbName() + "::job::" + String.valueOf(nextIdNumber);
+    nextIdString = getDbName() + "::job::" + nextIdNumber;
 
     //  execute the CB insert
     logger.info("Inserting instance_info record...  ");
@@ -2842,7 +2805,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               .put("xml_test", strLoadXML);
 
       doc = JsonDocument.create(nextIdString, instanceFile);
-      response = bucket.upsert(doc);
+      response = getBucket().upsert(doc);
       if (response.content().isEmpty()) {
         logger.warn("  **  WARNING: unexpected result from instance_info INSERT");
     }
