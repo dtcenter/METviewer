@@ -289,6 +289,23 @@ filename "Reliability/METViewer_Users_Guide_ReliabilityPlot.lyx"
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand include
+filename "PerfDiag/METViewer_Users_Guide_PerfDiag.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
 filename "Contour/METViewer_Users_Guide_ContourPlot.lyx"
 
 \end_inset
