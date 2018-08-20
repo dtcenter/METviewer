@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.couchbase.client.core.CouchbaseException;
-            import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.*;
 import com.couchbase.client.java.env.*;
 import com.couchbase.client.java.document.*;
@@ -25,7 +25,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
-import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
@@ -1065,12 +1064,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
           //  parse the valid times
 
-
           Date dateFcstValidBeg = formatStatVsdb.parse(listToken[3]);
 
           //  format the valid times for the database insert
           String strFcstValidBeg = DATE_FORMAT.format(dateFcstValidBeg);
-
 
           //  calculate the number of seconds corresponding to fcst_lead
           String strFcstLead = listToken[2];
@@ -1090,7 +1087,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           String strInterpPnts = "0";
 
           String strLineType = mvLoadStatInsertData.getLineType();
-
 
 			/*
        * * * *  stat_header insert  * * * *
@@ -1215,19 +1211,19 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  build the value list for the insert statment
             String strLineDataValueList =
-                    getDbName() + "," +     // database name for ID
-                            strLineType.toLowerCase() + "," +   // line type
-                            modelName + "," +            // model name for ID
-                            headerIdString + "," +       //  CB header_id
-                            info._dataFileId + "," +     //  CB data_id for data_file
-                    intLine + "," +          //  line_num
-                    strFcstLead + "," +        //  fcst_lead
-                            strFcstValidBeg + "," +    //  fcst_valid_beg
-                            strFcstValidEnd + "," +    //  fcst_valid_end
-                            strFcstInitBeg + "," +     //  fcst_init_beg
-                            "00" + "," +               //  obs_lead
-                            strObsValidBeg + "," +     //  obs_valid_beg
-                            strObsValidEnd;            //  obs_valid_end
+                getDbName() + "," +     // database name for ID
+                strLineType.toLowerCase() + "," +   // line type
+                modelName + "," +            // model name for ID
+                headerIdString + "," +       //  CB header_id
+                info._dataFileId + "," +     //  CB data_id for data_file
+                intLine + "," +          //  line_num
+                strFcstLead + "," +        //  fcst_lead
+                strFcstValidBeg + "," +    //  fcst_valid_beg
+                strFcstValidEnd + "," +    //  fcst_valid_end
+                strFcstInitBeg + "," +     //  fcst_init_beg
+                "00" + "," +               //  obs_lead
+                strObsValidBeg + "," +     //  obs_valid_beg
+                strObsValidEnd;            //  obs_valid_end
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
@@ -2585,7 +2581,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         doc = JsonDocument.create(lineDataIdString, lineDataFile);
         response = getBucket().upsert(doc);
         if (response.content().isEmpty()) {
-          logger.warn("  **  WARNING: unexpected result from line data INSERT");
+            logger.warn("  **  WARNING: unexpected result from line data INSERT");
         } else {
             intResLineDataInsert++;
         }

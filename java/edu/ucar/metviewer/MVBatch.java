@@ -12,6 +12,7 @@ import java.util.Map;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
+import edu.ucar.metviewer.db.CBAppDatabaseManager;
 import edu.ucar.metviewer.jobManager.ContourJobManager;
 import edu.ucar.metviewer.jobManager.EclvJobManager;
 import edu.ucar.metviewer.jobManager.EnsSsJobManager;
