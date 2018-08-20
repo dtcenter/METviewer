@@ -104,22 +104,6 @@ name "sec:Purpose-and-organization"
 The goal of this User's Guide is to provide basic information for users
  of the METViewer database and display system to enable users to create
  plots from their MET output statistics.
- MET has been specifically designed for application to the Weather Research
- and Forecasting (WRF) model (see 
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-http://www.wrf-model.org/index.php
-\end_layout
-
-\end_inset
-
- for more information about the WRF).
- However, MET may also be used for the evaluation of forecasts from other
- models or applications if certain file format definitions (described in
- this document) are followed.
  
 \end_layout
 
@@ -127,35 +111,7 @@ http://www.wrf-model.org/index.php
 
 \series medium
 The METViewer User's Guide is organized as follows.
- Chapter 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "chap:Overview-of-METViewer"
-
-\end_inset
-
- provides an overview of MET and its components.
- Chapter 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "chap:METViewer-Series-Plot"
-
-\end_inset
-
- contains basic information about how to get started with MET - including
- system requirements, required software (and how to obtain it), how to download
- MET, and information about compilers, libraries, and how to build the code.
  
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-The remainder of this chapter includes information about the context for
- MET development, as well as information on the design principles used in
- developing MET.
- In addition, this chapter includes an overview of the MET package and its
- specific modules.
 \end_layout
 
 \begin_layout Section
@@ -207,10 +163,10 @@ The METViewer package will also be available to DTC visitors and to the
 \end_layout
 
 \begin_layout Section
-MET goals and design philosophy
+METViewer goals and design philosophy
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:MET-goals-and"
+name "sec:METViewer-goals"
 
 \end_inset
 
@@ -354,8 +310,9 @@ The fixed variables section controls the constraints for the plot (what
 \end_layout
 
 \begin_layout Standard
-Independent variable section is where the X-axis is configured.
- In the example, we are using forecast lead hours as our x-axis .
+The independent variable section is where the X-axis is configured.
+ As an example, forecast lead hours often serves as the x-axis for a series
+ plot.
 \end_layout
 
 \begin_layout Standard
@@ -469,6 +426,109 @@ The rightmost tab is a small square.
  (usually 'Downloads') folder.
  It is recommended that the user click through at least the plot and xml
  windows and save this output.
+ 
+\end_layout
+
+\begin_layout Section
+METViewer Plot Formatting Specifications 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:METViewer Plot Formatting Specifications"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+METViewer plot formatting options appear in the tabbed boxes at the bottom
+ right quadrant of the web browser.
+ The 
+\begin_inset Quotes eld
+\end_inset
+
+Titles & Labels
+\begin_inset Quotes erd
+\end_inset
+
+ tab will show by default, but the user can click any of the tabs along
+ the top to see the other windows.
+ The tabs include:
+\end_layout
+
+\begin_layout Standard
+Titles and Labels: This menu contains boxes for the user to specify a plot
+ title, caption, and axis labels.
+\end_layout
+
+\begin_layout Standard
+Common: This tab contains ten check boxes and a confidence level specification
+ box.
+ The ten check boxes add axes, stagger points from different axes, add sample
+ sizes or statistics text to the plots.
+ 
+\end_layout
+
+\begin_layout Standard
+Formatting: Plot, title and grid formatting options are available here.
+ Options include image type, height, width, and resolution.
+ Margins, offsets, text size, line widths, etc.
+ can all be set in units of text point size (e.g.
+ 8 = 8 pt font)
+\end_layout
+
+\begin_layout Standard
+X1, X2, Y1, and Y2 - These tabs specify the axis labels and values.
+ The text size, weight, alignment and offset can be chosen.
+ For Y1 and Y2 axes, limits and buffers can also be set.
+ 
+\end_layout
+
+\begin_layout Standard
+Legend & Caption: Options for the Legend and Caption include text size,
+ position, alignment, color, offset.
+ For details about setting these specifications, see the R-help pages for
+ the functions 
+\begin_inset Quotes eld
+\end_inset
+
+legend
+\begin_inset Quotes erd
+\end_inset
+
+ and / or 
+\begin_inset Quotes eld
+\end_inset
+
+title
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section
+METViewer Series Formatting Specifications 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:METViewer Series Formatting Specifications"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+At the bottom of the METViewer window is the series formatting box.
+ It allows the user to control the minute details of each line on a plot,
+ including title, color, symbol, line type, line width, legend text.
+\end_layout
+
+\begin_layout Standard
+Four radio buttons along the bottom of this menu allow users to create a
+ derived curve or remove one, apply default values or lock the formatting
+ in place (so subsequent plots are identical in format).
  
 \end_layout
 
