@@ -134,8 +134,8 @@ name "sec:Box-Plot-Details"
 \series medium
 Boxplots work best for comparing a set of continuous values (e.g.
  some verification statistic) conditionally for a set of discrete categories.
- The example below shows RMSE (a continuous measure of forecast quality)
- for each of several distinct lead times.
+ The example below shows RMSE (root-mean-squared-error; a continuous measure
+ of forecast quality) for each of several distinct lead times.
  Other examples could be probability of detection (POD) or Gilbert Skill
  Score (GSS) across a set of models for a specific precipitation threshold.
  Here, each forecast and observation is binary, but the verification statistic
@@ -159,6 +159,8 @@ name "sec:Box-Plot-Examples"
 \series medium
 The example below shows a boxplot of the RMSE for 2m temperature over the
  CONUS.
+ Many of the standard METViewer plotting options are available for the boxplot.
+ However, the boxplot has some special options than only apply.
  
 \end_layout
 
