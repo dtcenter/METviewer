@@ -1,6 +1,7 @@
 /**
- * DatabaseInfo.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * DatabaseInfo.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.db;
@@ -10,12 +11,13 @@ package edu.ucar.metviewer.db;
  * @version : 1.0 : 19/05/17 12:47 $
  */
 public class DatabaseInfo {
+
   private String host;
   private String user;
   private String password;
   private String dbName;
 
-  public DatabaseInfo( String host, String user, String password) {
+  public DatabaseInfo(String host, String user, String password) {
     this.host = host;
     this.user = user;
     this.password = password;
@@ -23,7 +25,6 @@ public class DatabaseInfo {
 
   public DatabaseInfo() {
   }
-
 
 
   public String getHost() {

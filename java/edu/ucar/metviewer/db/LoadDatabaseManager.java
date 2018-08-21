@@ -21,7 +21,7 @@ public interface LoadDatabaseManager {
 
   void applyIndexes() throws Exception;
 
-  void updateInfoTable(String strXML, MVLoadJob job, DatabaseInfo databaseInfo) throws Exception;
+  void updateInfoTable(String strXML, MVLoadJob job) throws Exception;
 
   DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception;
 

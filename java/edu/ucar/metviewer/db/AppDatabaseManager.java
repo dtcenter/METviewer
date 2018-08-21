@@ -59,6 +59,7 @@ public interface AppDatabaseManager {
   boolean validate(String db);
 
   List<String> getAllDatabases();
+
   Map<String, String> getAllDatabasesWithDescription();
 
   Map<String, List<String>> getAllGroups();

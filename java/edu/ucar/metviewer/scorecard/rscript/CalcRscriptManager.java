@@ -1,6 +1,7 @@
 /**
- * CalcRscriptManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * CalcRscriptManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.scorecard.rscript;
@@ -37,7 +38,8 @@ public class CalcRscriptManager extends RscriptManager {
   private CalcRscriptManager(Scorecard scorecard) {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
-    strRFile = scorecard.getWorkingFolders().getScriptsDir() + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
+    strRFile = scorecard.getWorkingFolders().getScriptsDir()
+                   + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
 
     tableCalcStatInfoCommon = new HashMap<>();
     tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
@@ -48,8 +50,10 @@ public class CalcRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("dep1_scale", "list()");
     tableCalcStatInfoCommon.put("indy_plot_val", "list()");
     tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
-    tableCalcStatInfoCommon.put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
-    tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+    tableCalcStatInfoCommon.put("working_dir", scorecard.getWorkingFolders().getrWorkDir()
+                                                   + "/include");
+    tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir()
+                                                 + scorecard.getDataFile());
     tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
   }
 
@@ -64,8 +68,10 @@ public class CalcRscriptManager extends RscriptManager {
     for (Map.Entry<String, Entry> entry : mapRow.entrySet()) {
       if ("fcst_var".equals(entry.getKey())) {
         fcstVar = entry.getValue().getName();
-      } else if (!"stat".equals(entry.getKey())) { // do not include stat variable to the fix vars list
-        fixVars.append("`").append(entry.getKey()).append("` = c(\"").append(entry.getValue().getName()).append("\"),");
+      } else if (!"stat".equals(
+          entry.getKey())) { // do not include stat variable to the fix vars list
+        fixVars.append("`").append(entry.getKey())
+            .append("` = c(\"").append(entry.getValue().getName()).append("\"),");
         diffVals.append(entry.getValue().getName()).append(" ");
       }
     }
@@ -102,7 +108,8 @@ public class CalcRscriptManager extends RscriptManager {
               if (diffVals.length() > 0) {
                 difStr.append(diffVals).append(" ");
               }
-              difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
+              difStr.append(model.getName()).append(" ").append(val.getName()).append(" ")
+                  .append(fcstVar).append(" ").append(stat).append("\",");
             }
 
             //difStr.append("\"DIFF_SIG\"").append("),");
@@ -158,9 +165,9 @@ public class CalcRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("series1_diff_list", seriesDiffList.toString());
 
 
-      try(PrintStream printStream = IoBuilder.forLogger(CalcRscriptManager.class)
-                                                     .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                     .buildPrintStream()) {
+      try (PrintStream printStream = IoBuilder.forLogger(CalcRscriptManager.class)
+                                         .setLevel(org.apache.logging.log4j.Level.INFO)
+                                         .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
         MVUtil.runRscript(rScriptCommand, strRFile, printStream);

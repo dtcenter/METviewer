@@ -284,7 +284,7 @@ public class MVLoad {
 
       //  update the instance_info table, if requested
       if (boolLoadNote) {
-        loadDatabaseManager.updateInfoTable(strXML, job, databaseInfo);
+        loadDatabaseManager.updateInfoTable(strXML, job);
 
       }
 

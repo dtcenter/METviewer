@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The METViewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
-usage() { echo "Usage: $0 -t<path to METViewer test directory> [-m<path to METViewer home>] [-d<mv_database>] [-u<mv_user>] [-pmv_passwd] [-h<mv_host>] [-P<mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -t <path to METViewer test directory> [-m <path to METViewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)]" 1>&2; exit 1; }
 export MV_DATABASE="mv_test"
 export MV_USER="mvuser"
 export MV_PASSWD="mvuser"
@@ -115,6 +115,12 @@ CLASSPATH=$CLASSPATH:${MV_HOME}/lib/log4j-api-2.10.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/log4j-core-2.10.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/log4j-iostreams-2.10.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/dist/lib/metviewer_all.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/j2html-0.7.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-core-2.8.5.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/jackson-databind-2.8.5.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
+
+
 
 echo "Running allRestRunner"
 #/Users/pierce/test_data all

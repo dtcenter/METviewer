@@ -2837,7 +2837,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
   @Override
-  public void updateInfoTable(String strXML, MVLoadJob job, DatabaseInfo databaseInfo) throws Exception {
+  public void updateInfoTable(String strXML, MVLoadJob job) throws Exception {
     //  get the instance_info information to insert
     int intInstInfoIdNext = getNextId("instance_info", "instance_info_id");
     String strUpdater = "";
