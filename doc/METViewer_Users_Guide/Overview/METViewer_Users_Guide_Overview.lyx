@@ -310,20 +310,18 @@ The fixed variables section controls the constraints for the plot (what
 \end_layout
 
 \begin_layout Standard
-The independent variable section is where the X-axis is configured.
- As an example, forecast lead hours often serves as the x-axis for a series
- plot.
-\end_layout
-
-\begin_layout Standard
-Aggregation statistics: Choose from line types CTCs or SL1L2.
- It calculates the plot statistics from CTCs or partial sums.
+Each of the above selections can have one or multiple items.
+ To add variables, series, or fixed values, select the button with the '+'
+ directly below the desired item.
+ Then additional selections will appear in a new dropdown menu.
+ To delete these extras, select the trash icon to the left of the item.
  
 \end_layout
 
 \begin_layout Standard
-This is where the main plot labels are entered and lot of stylistic changes
- can be applied to the graph.
+The independent variable section is where the X-axis is configured.
+ As an example, forecast lead hour often serves as the x-axis for a series
+ plot.
 \end_layout
 
 \begin_layout Standard
@@ -349,11 +347,8 @@ g the statistics.
 
 \begin_layout Standard
 Revision statistics - Creates a revision series (e.g.
- the temporal change in a statistic) 
-\end_layout
-
-\begin_layout Standard
-Series Formatting
+ the temporal change in a statistic).
+ 
 \end_layout
 
 \begin_layout Section
@@ -508,6 +503,11 @@ title
  
 \end_layout
 
+\begin_layout Standard
+Reset: This button, shown to the far right with a circular arrow icon, will
+ reset all options to the defaults.
+\end_layout
+
 \begin_layout Section
 METViewer Series Formatting Specifications 
 \begin_inset CommandInset label
@@ -529,6 +529,37 @@ At the bottom of the METViewer window is the series formatting box.
 Four radio buttons along the bottom of this menu allow users to create a
  derived curve or remove one, apply default values or lock the formatting
  in place (so subsequent plots are identical in format).
+ 
+\end_layout
+
+\begin_layout Section
+METViewer History Menu 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:METViewer History Menu"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Along the left of the METViewer GUI, hidden by default, is the history menu.
+ To open this menu, click the arrow at the top left side right underneath
+ the 
+\begin_inset Quotes eld
+\end_inset
+
+METViewer 2.6
+\begin_inset Quotes erd
+\end_inset
+
+ label.
+ This menu provides a list of all (or all successful) recent plotting attempts
+ using the METViewer GUI.
+ Users can select items from this menu to recover plots they may have neglected
+ to save.
+ Clicking on the button showing loads the plot.
  
 \end_layout
 
