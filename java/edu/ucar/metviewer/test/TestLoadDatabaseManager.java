@@ -3,19 +3,20 @@
  * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.test;
+
+import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.MVLoadJob;
+import edu.ucar.metviewer.db.DatabaseInfo;
 
 import java.io.File;
 import java.util.Map;
 
-import edu.ucar.metviewer.DataFileInfo;
-import edu.ucar.metviewer.MVLoadJob;
-import java.io.Reader;
 /**
  * @author : tatiana $
  * @version : 1.0 : 07/06/17 12:33 $
  */
-public interface LoadDatabaseManager {
+public interface TestLoadDatabaseManager {
 
   void dropIndexes() throws Exception;
 
@@ -38,4 +39,8 @@ public interface LoadDatabaseManager {
   void updateDescription(String description) throws Exception;
 
   DatabaseInfo getDatabaseInfo() throws Exception;
+
+  int getNumberOfRows(String lineDataType) throws Exception;
+
+  void loadData(String fileName, String database) throws Exception;
 }

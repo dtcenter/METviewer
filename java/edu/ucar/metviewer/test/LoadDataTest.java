@@ -37,7 +37,7 @@ public class LoadDataTest {
 
 
   private static final Map<String, Integer> TABLES_TO_ROWS = new HashMap<>();
-    private static LoadDatabaseManager myDatabaseManager;
+    private static TestLoadDatabaseManager myDatabaseManager;
 
     @Before
     public void init() {
@@ -85,7 +85,7 @@ public class LoadDataTest {
 
       Reader reader = null;
       try {
-        myDatabaseManager = (LoadDatabaseManager)DatabaseManager.getLoadManager(type, host, USERNAME, PWD, database);
+        myDatabaseManager = TestDatabaseManager.getLoadManager(type, host, USERNAME, PWD, database);
         String fname = LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql";
         myDatabaseManager.loadData(fname, database);
       } catch (Exception e) {

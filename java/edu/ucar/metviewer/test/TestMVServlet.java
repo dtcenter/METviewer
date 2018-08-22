@@ -5,41 +5,23 @@
 
 package edu.ucar.metviewer.test;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import edu.ucar.metviewer.MVServlet;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
-import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
-import static edu.ucar.metviewer.test.util.TestUtil.PLOTS_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.PWD;
-import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.RWORK_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.TEMPLATE_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
-import static edu.ucar.metviewer.test.util.TestUtil.host;
-import static edu.ucar.metviewer.test.util.TestUtil.readFileToString;
-import static edu.ucar.metviewer.test.util.TestUtil.rscript;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static edu.ucar.metviewer.test.util.TestUtil.*;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Ru

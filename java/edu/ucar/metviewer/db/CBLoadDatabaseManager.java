@@ -2814,29 +2814,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     logger.info("Done\n");
   }
 
-    @Override
-    public int getNumberOfRows(String lineDataType) throws Exception {
-        String tableName = lineDataType;
-        int rows= -1;
-        try {
-              //TODO
-//            Connection con = getConnection();
-//            java.sql.Statement statement = getConnection().createStatement();
-//            ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
-//            if (resultSet.next()) {
-//                rows = resultSet.getInt("count(*)");
-//            }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return rows;
-    }
-
-  @Override
-  public void loadData(String filename, String database) throws Exception {
-    //TODO
-  }
-
   private String replaceInvalidValues(String strData) {
     return strData.replace("NA", "-9999").replace("-nan", "-9999").replace("nan", "-9999");
   }
