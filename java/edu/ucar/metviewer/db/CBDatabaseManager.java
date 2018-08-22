@@ -6,36 +6,19 @@
 package edu.ucar.metviewer.db;
 
 
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.env.CouchbaseEnvironment;
+import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tomcat.jdbc.pool.DataSource;
-import org.apache.tomcat.jdbc.pool.PoolConfiguration;
-import org.apache.tomcat.jdbc.pool.PoolProperties;
 
-import com.couchbase.client.core.CouchbaseException;
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.*;
-import com.couchbase.client.java.env.*;
-import com.couchbase.client.java.document.*;
-import com.couchbase.client.java.document.json.*;
-
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
-import edu.ucar.metviewer.MVUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.tomcat.jdbc.pool.DataSource;
-import org.apache.tomcat.jdbc.pool.PoolConfiguration;
-import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 /**
  * @author : tatiana $

@@ -6,35 +6,23 @@
 
 package edu.ucar.metviewer.db;
 
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import edu.ucar.metviewer.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.couchbase.client.core.CouchbaseException;
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.*;
-import com.couchbase.client.java.env.*;
-import com.couchbase.client.java.document.*;
-import com.couchbase.client.java.document.json.*;
-import com.couchbase.client.java.query.*;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author : tatiana $

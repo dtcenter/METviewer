@@ -5,12 +5,11 @@
 
 package edu.ucar.metviewer.db;
 
-import java.io.File;
-import java.util.Map;
-
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
-import java.io.Reader;
+
+import java.io.File;
+import java.util.Map;
 /**
  * @author : tatiana $
  * @version : 1.0 : 07/06/17 12:33 $

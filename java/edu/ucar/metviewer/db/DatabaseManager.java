@@ -5,13 +5,13 @@
 
 package edu.ucar.metviewer.db;
 
+import org.apache.logging.log4j.io.IoBuilder;
+
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $
