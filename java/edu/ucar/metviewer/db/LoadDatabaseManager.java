@@ -10,7 +10,7 @@ import java.util.Map;
 
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
-
+import java.io.Reader;
 /**
  * @author : tatiana $
  * @version : 1.0 : 07/06/17 12:33 $
@@ -38,4 +38,8 @@ public interface LoadDatabaseManager {
   void updateDescription(String description) throws Exception;
 
   DatabaseInfo getDatabaseInfo() throws Exception;
+
+  int getNumberOfRows (String lineDataType) throws Exception;
+
+  void loadData(String filename, String database) throws Exception;
 }

@@ -8,18 +8,12 @@ package edu.ucar.metviewer.test;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVLoad;
-import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
 import edu.ucar.metviewer.test.util.ScriptRunner;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.junit.Before;
@@ -43,7 +37,7 @@ public class LoadDataTest {
 
 
   private static final Map<String, Integer> TABLES_TO_ROWS = new HashMap<>();
-    private static  MysqlLoadDatabaseManager myDatabaseManager;
+    private static LoadDatabaseManager myDatabaseManager;
 
     @Before
     public void init() {
@@ -90,43 +84,13 @@ public class LoadDataTest {
       // recreate database
 
       Reader reader = null;
-      Connection con = null;
-      Statement statement = null;
       try {
-        myDatabaseManager = (MysqlLoadDatabaseManager)DatabaseManager.getLoadManager(type, host, USERNAME, PWD, database);
-        con = myDatabaseManager.getConnection();
-        statement = con.createStatement();
-        statement.executeUpdate("drop database " + database);
-        statement.executeUpdate("create database " + database);
-        statement.executeUpdate("use " + database);
-        ScriptRunner scriptRunner = new ScriptRunner(con, false, true);
-        reader = new FileReader(LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql");
-        scriptRunner.runScript(reader);
-
+        myDatabaseManager = (LoadDatabaseManager)DatabaseManager.getLoadManager(type, host, USERNAME, PWD, database);
+        String fname = LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql";
+        myDatabaseManager.loadData(fname, database);
       } catch (Exception e) {
         System.out.println(e.getMessage());
-      } finally {
-        if (reader != null) {
-          try {
-            reader.close();
-          } catch (IOException e) {
-            System.out.println(e.getMessage());
-          }
-        }
-        if (con != null) {
-          try {
-            con.close();
-          } catch (SQLException e) {
-            System.out.println(e.getMessage());
-          }
-        }
-        if(statement != null){
-          try {
-            statement.close();
-          } catch (SQLException e) {
-            System.out.println(e.getMessage());
-          }
-        }
+      }
         String[] args = new String[]{LOAD_DIR + FILE_SEPARATOR + "load/load_test.xml"};
 
         // replace credentials from system properties
@@ -134,44 +98,16 @@ public class LoadDataTest {
 
         MVLoad.main(args);
       }
-    }
-
 
     @Test
     public void checkDatabaseContent() {
-      Connection con = null;
-
       try {
-        con = myDatabaseManager.getConnection(database);
         for (Map.Entry<String, Integer> entry : TABLES_TO_ROWS.entrySet()) {
-          Integer rows = getNumberOfRows(con, entry.getKey());
+          Integer rows = myDatabaseManager.getNumberOfRows(entry.getKey());
           assertEquals("Number of rows in table " + entry.getKey() + " should be " + entry.getValue() + " but it is not", entry.getValue(), rows);
         }
-      } catch (SQLException e) {
-        System.out.println(e.getMessage());
-      } finally {
-        if (con != null) {
-          try {
-            con.close();
-          } catch (SQLException e) {
-            System.out.println(e.getMessage());
-          }
-        }
-      }
-    }
-
-    private int getNumberOfRows(Connection con, String tableName) {
-      int rows = -1;
-      try {
-        Statement statement = con.createStatement();
-        ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
-        if (resultSet.next()) {
-          rows = resultSet.getInt("count(*)");
-        }
-
-      } catch (SQLException e) {
+      } catch (Exception e) {
         System.out.println(e.getMessage());
       }
-      return rows;
     }
   }

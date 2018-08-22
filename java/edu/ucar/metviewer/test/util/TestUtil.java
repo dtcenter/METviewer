@@ -26,8 +26,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.ucar.metviewer.MVBatch;
+import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import static java.lang.System.out;
@@ -219,11 +221,11 @@ public class TestUtil {
     host = HOST_NAME + ":" + PORT;
     RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
     //PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
-    PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots";
+    PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
     //DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
-    DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data";
+    DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
     //SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
-    SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts";
+    SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts" + FILE_SEPARATOR;
     LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
     MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
     if (System.getProperty("mv_database") == null) {
@@ -276,7 +278,15 @@ public class TestUtil {
     }
     String[] args = new String[argsList.size()];
     args = argsList.toArray(args);
-    MVBatch.main(args);
+    if (plotType.contains("scorecard")) {
+      try {
+        Scorecard.main(args);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    } else {
+      MVBatch.main(args);
+    }
   }
 
   public static void xlateTestSpec(String fpath) {
@@ -340,6 +350,11 @@ public class TestUtil {
         nodeList.item(i)
             .setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
       }
+
+      //assign a group name
+      tag = "group";
+      Element group = doc.createElement(tag);
+      group.setTextContent("Testing");
 
       TransformerFactory.newInstance().newTransformer()
           .transform(new DOMSource(doc), new StreamResult(new File(fpath)));
