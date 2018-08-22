@@ -101,9 +101,9 @@ name "sec:ROC-Plot-Description"
 \begin_layout Standard
 
 \series medium
-MET produces hit rate (POD) and false alarm rate (POFD) values for each
- user-specied threshold of a forecast, or from each category of a probabilistic
- forecast.
+MET produces hit rate (POD) and probability of false detection (POFD) values
+ for each user-specied threshold of a forecast, or from each category of
+ a probabilistic forecast.
  This information can be used to create a scatter plot of POFD vs.
  POD.
  When the points are connected, the plot is generally referred to as the
@@ -143,17 +143,7 @@ Selection of options to produce your plot proceeds approxately counter-clockwise
  window.
  Make sure the ROC tab is selected near the top left, just under the database
  pulldown menu.
- Next, you must select the type of MET statistics that will be used to create
- the plot.
- In the 
-\begin_inset Quotes eld
-\end_inset
-
-Plot Data
-\begin_inset Quotes erd
-\end_inset
-
- menu, the list contains 
+ Next, you must choose the 
 \begin_inset Quotes eld
 \end_inset
 
@@ -161,25 +151,26 @@ Stat
 \begin_inset Quotes erd
 \end_inset
 
-, 
+ option in the 
 \begin_inset Quotes eld
 \end_inset
 
-MODE
+Plot Data
 \begin_inset Quotes erd
 \end_inset
 
-, or 
+ menu, as this type of diagram can only use information from the CTC and
+ PCT line types available in the 
 \begin_inset Quotes eld
 \end_inset
 
-MODE-TD
+Stat
 \begin_inset Quotes erd
 \end_inset
 
-.
- For details about these types of output statistics in MET, please see the
- most recent version of the MET Users' Guide (
+ output.
+ For details about these statistics from MET, please see the most recent
+ version of the MET Users' Guide (
 \begin_inset Flex URL
 status open
 
@@ -214,16 +205,18 @@ name "sec:ROC-Plot-Examples"
 \begin_layout Standard
 
 \series medium
-The primary 
+The plot shown below is for two different probability of precipitation forecasts.
+ The dashed diagonal line represents the no-skill line.
+ Idea forecasts would have a point at the top left of the graphic, thus
+ better forecasts are closer to the top left of the plot.
+ In this example, the red line is closer than the purple line to ideal.
+ However, this small difference is probably not statistically significant.
+ 
 \end_layout
 
 \begin_layout Standard
 
-\series medium
- histogram and probability integral transform information is produced.
- 
 \series bold
-
 \begin_inset Float figure
 placement t
 wide false
@@ -234,7 +227,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename /d1/johnhg/MET/MET_development/svn-met-dev.cgd.ucar.edu/trunk/met/doc/MET_Users_Guide/Flowchart/MET_flowchart_v7.0.png
+	filename Example_ROC_plot.png
 	scale 60
 
 \end_inset
@@ -248,9 +241,9 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Basic representation of current MET structure and modules.
- Colored areas represent software and modules included in MET, and gray
- areas represent input and output files.
+Example ROC diagram showing POD vs.
+ POFD for two different POP forecasts at thresholds of (0%, 25%, 50%, and
+ 75%).
 \end_layout
 
 \end_inset
@@ -258,7 +251,7 @@ Basic representation of current MET structure and modules.
 
 \begin_inset CommandInset label
 LatexCommand label
-name "Fig_Overview_MET_Overview_Flowchart"
+name "Fig_Example_ROC_Plot"
 
 \end_inset
 
@@ -268,12 +261,6 @@ name "Fig_Overview_MET_Overview_Flowchart"
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-Several optional 
 \end_layout
 
 \end_body

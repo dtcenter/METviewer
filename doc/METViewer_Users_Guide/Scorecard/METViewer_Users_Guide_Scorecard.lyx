@@ -101,17 +101,8 @@ name "sec:Scorecard-Description"
 \begin_layout Standard
 
 \series medium
-The series plot is the most general of all the METViewer plotting options.
- A series plot is really just a special case of a scatter plot, where the
- dependent variable (i.e.
- Y-axis value) is related from one value to the next of the independent
- variable (X-axis value).
- Thus, points are placed into the graphic as on a scatter plot, but the
- Y-axis values are shown with connecting lines across the X-axis.
- Examples of data appropriate for this type of plot include verification
- statistics (on the Y-axis) for different lead times or thresholds (X-axis).
- The tremendous flexibility of this plot means that the user must specify
- many options.
+The scorecard can only be produced using xml code.
+ There is no GUI interface.
  
 \end_layout
 
@@ -129,71 +120,405 @@ name "sec:Scorecard-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce your plot proceeds approxately counter-clockwise
- around the METViewer window.
- Select your database from the pulldown menus at the top margin of the METViewer
- window.
- Make sure the 'Series' tab is selected near the top left, just under the
- database pulldown menu.
- Next, you must select the type of MET statistics that will be used to create
- the plot.
- In the 
-\begin_inset Quotes eld
-\end_inset
-
-Plot Data
-\begin_inset Quotes erd
-\end_inset
-
- menu, the list contains 
-\begin_inset Quotes eld
-\end_inset
-
-Stat
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-MODE
-\begin_inset Quotes erd
-\end_inset
-
-, or 
-\begin_inset Quotes eld
-\end_inset
-
-MODE-TD
-\begin_inset Quotes erd
-\end_inset
-
-.
- For details about these types of output statistics in MET, please see the
- most recent version of the MET Users' Guide (
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-www.dtcenter.org/met/users/docs
+The scorecard Module is used to generate a scorecard image and HTML table
+ using data in the METViewer database.
+ The usage statement:
 \end_layout
 
-\end_inset
+\begin_layout Standard
 
-).
- The example in the following section shows a series plot of the statistic
+\family typewriter
+\color darkgray
+USAGE: mv_scorecard.sh scorecard_spec_file
+\family default
+\series medium
+\color inherit
+ where "scorecard_spec_file" specifies the XML plot specification document.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+---- Scorecard Done ---- 
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+The scorecard_spec_file passed to the scorecard module contains information
+ about the scorecard that will be generated.
+ It is an XML file whose top-level tag is <plot_spec> which contains the
+ following elements, divided into functional sections:
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<connection> see common xml
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<rscript> specifies the Rscript instance to use, for example /usr/local/bin/Rscr
+ipt.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<folders>: a structure that specifies the input and output file system folders.
  
-\begin_inset Quotes eld
-\end_inset
+\end_layout
 
-Frequency Bias
-\begin_inset Quotes erd
-\end_inset
+\begin_layout Itemize
 
-.
+\series medium
+<r_tmpl>: the folder that contains the R templates used by METViewer, typically
+ R_tmpl/ from the metviewer CVS source tree 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<r_work>: the folder that will contain the data and generated R scripts,
+ must contain the sub-folder include/ 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<plots>: the output folder that will contain generated image and HTML files
  
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<data>: the output folder that will contain generated data files 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<scripts>: the output folder that will contain scripts files
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<plot>: a structure that specifies scorecard characteristics 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<view_value>: TRUE or FALSE, indicating whether or not to display statistical
+ values in the scorecard cells.
+ The default value is FALSE (do not display) 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<view_symbol>: TRUE or FALSE, indicating whether or not to display a symbol
+ in the scorecard cells.
+ The default value is TRUE ( display).
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<view_legend>: TRUE or FALSE, indicating whether or not to display a legend
+ for the scorecard.
+ The default value is TRUE ( display).
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<stat_flag>: NCAR or EMC, which algorithm to use to calculate statistics.The
+ default value is NCAR.
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<printSQL>: FALSE or TRUE, indicating whether or not to print SQL queries.
+ The default value is FALSE ( do not print).
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<stat>: DIFF (display a difference between models) or DIFF_SIG ( display
+ p_value ) or SINGLE (display a value of statistic for the 1st model; then
+ the value of the 2nd model is optional), indicating what value to show
+ in the cell.
+ The default value is DIFF_SIG ( display p_value ).
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<threshold_file>: full path to the XML file describing configurations for
+ thresholds, colors and symbols
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<template>: the name of the R plot script template to use.
+ The following templates are currently supported: scorecard.R_tmpl
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<plot_fix>: describes database fields - models, date range and init hour
+ - that are constant.
+ Model field contains two values - first and second model names.
+ Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and
+ contains two values - start and end dates Init hour can contain one or
+ more values.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+<field name="model"> 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+<val name="first_model" /> 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<val name="second_model" /> 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series medium
+</field> 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<field name="fcst_valid_beg"> 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+<val name="start_date" /> 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<val name="end_date" /> 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series medium
+</field> 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<field name="init_hour"> 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+<val name="first_hour" /> 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series medium
+</field>
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\series medium
+<rows>: describes an individual row in the scorecard table.
+ Contains one or more nested <field> elements.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<field>: describes an individual row or row group in the scorecard table.
+ Attributes: 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+name: database field name 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<val>: describes a value of the field.
+ Field can have more than one value element.
+ Attributes: 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+name: database field name 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+label: the label that shows up on the image.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+
+\series medium
+<field>: next level database field name.
+ Field can have more than one field element.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<columns>: describes an individual column in the scorecard table.
+ Contains one or more nested <field> elements 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<field>: describes an individual column or column group in the scorecard
+ table.
+ Attributes: 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+name: database field name 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<val>: describes a value of the field.
+ Field can have more than one value element.
+ Attributes: 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series medium
+name: database field name 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+label: the label that shows up on the image 
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+
+\series medium
+<field>: next level database field name.
+ Field can have more than one field element.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<agg_stat>: TRUE(bootstrapping) or FALSE(student-T/normal), indicating whether
+ or not to create a scorecard using aggregated statistics.
+ The default value is TRUE (use bootstrapping ) 
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<boot_repl>: number of bootstrapping replications, use 1 for no bootstrapping.
+ Used when <agg_stat> is TRUE.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<boot_random_seed>: value of Random.seed for bootstrapping to get a reproducible
+ random results.
+ Used when <agg_stat> is TRUE.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<plot_stat>: name of the aggregation statistic: median or mean.
+ The default value is median.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+<tmpl>: 
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<data_file>: name of the R data.frame data file, inside of the <r_work> folder
+ specified above.
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<plot_file>: name of the output image file, inside of the <plots> folder
+ specified above.
+\end_layout
+
+\begin_layout Itemize
+
+\series medium
+<title>: title of the scorecard displayed on the image.
+ Default value: Verification Scorecard 
 \end_layout
 
 \begin_layout Section
@@ -210,31 +535,7 @@ name "sec:Scorecard-Examples"
 \begin_layout Standard
 
 \series medium
-The image below shows an example of the plot and set-up options for a series
- plot in METViewer.
- This example uses the database 
-\begin_inset Quotes eld
-\end_inset
-
-mv_hrrr_sppmp_test
-\begin_inset Quotes erd
-\end_inset
-
- to plot 
-\begin_inset Quotes eld
-\end_inset
-
-Stat
-\begin_inset Quotes erd
-\end_inset
-
- output for seven ensemble members.
- The Frequency bias over the East domain is plotted for 3-hour precipitation
- accumulation exceeding 0.254 cm.
- Appropriate titles and labels have been entered in the titles and labels
- tab shown below the plot.
- Colors and line formatting are shown across the bottom menu of the plot.
- The values here are the defaults.
+The image below shows an example an output scorecard.
  
 \end_layout
 
@@ -266,7 +567,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Sccorecard output.
+Sccorecard output example.
 \end_layout
 
 \end_inset
