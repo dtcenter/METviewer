@@ -2784,7 +2784,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         if (forceDupFile) {
           DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
-                                               strModDate, strDataFileLuId, strDataFileLuTypeName, "");
+                                                  strModDate, strDataFileLuId, strDataFileLuTypeName, "");
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
         } else {
