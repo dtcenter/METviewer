@@ -53,7 +53,7 @@ public abstract class TestDatabaseManager {
 
     public static TestLoadDatabaseManager getLoadManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
-        String dbType = ms == null ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         databaseInfo.setDbName(dbName);
         TestLoadDatabaseManager databaseManager = null;
@@ -73,7 +73,7 @@ public abstract class TestDatabaseManager {
     // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
     public static TestAppDatabaseManager getAppManager(String management_system, String host, String user, String password) throws Exception {
         String ms = management_system.toLowerCase();
-        String dbType = ms == null ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         TestAppDatabaseManager databaseManager = null;
         PrintWriter pw = null;
