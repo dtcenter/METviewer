@@ -170,12 +170,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   @Override
   public void applyIndexes() throws Exception {
-    applyIndexes(false);
+    // what indexes do we need to apply in couchbase?
+    // do nothing for now
   }
 
   @Override
   public void dropIndexes() throws Exception {
-    applyIndexes(true);
+    // what indexes do we need to drop in couchbase?
+    // do nothing for now
   }
 
   private void applyIndexes(boolean drop) throws Exception {
