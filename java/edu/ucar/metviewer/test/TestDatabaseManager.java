@@ -7,6 +7,7 @@ package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.io.IoBuilder;
+import edu.ucar.metviewer.db.DatabaseManager;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -49,40 +50,18 @@ public abstract class TestDatabaseManager {
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     protected static final SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
 
-
-
-    public static TestLoadDatabaseManager getLoadManager(String management_system, String host, String user, String password, String dbName) throws Exception {
+    public static TestDBManager getManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
         String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         databaseInfo.setDbName(dbName);
-        TestLoadDatabaseManager databaseManager = null;
+        TestDBManager databaseManager = null;
         switch (dbType) {
             case "mysql":
-                databaseManager = (TestLoadDatabaseManager)new TestMysqlLoadDatabaseManager(databaseInfo);
+                databaseManager = new TestMysqlDatabaseManager(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (TestLoadDatabaseManager)new TestCBLoadDatabaseManager(databaseInfo);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid database type: " + dbType);
-        }
-        return databaseManager;
-    }
-
-    // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
-    public static TestAppDatabaseManager getAppManager(String management_system, String host, String user, String password) throws Exception {
-        String ms = management_system.toLowerCase();
-        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
-        DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
-        TestAppDatabaseManager databaseManager = null;
-        PrintWriter pw = null;
-        switch (dbType) {
-            case "mysql":
-                databaseManager = (TestAppDatabaseManager)new TestMysqlAppDatabaseManager(databaseInfo);
-                break;
-            case "cb":
-                databaseManager = (TestAppDatabaseManager)new TestCBAppDatabaseManager(databaseInfo);
+                databaseManager = new TestCBDatabaseManager(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);

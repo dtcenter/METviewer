@@ -226,7 +226,7 @@ public class TestUtil {
     DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
     //SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
     SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts" + FILE_SEPARATOR;
-    LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
+    LOAD_DIR = ROOT_DIR + "load_data";
     MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
     if (System.getProperty("mv_database") == null) {
       database = "mv_test";

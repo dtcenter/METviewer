@@ -1,5 +1,16 @@
 package edu.ucar.metviewer.test;
 
+import edu.ucar.metviewer.MVBatch;
+import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.test.util.TestUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
@@ -7,26 +18,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.ucar.metviewer.MVBatch;
-import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.db.AppDatabaseManager;
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
-import edu.ucar.metviewer.test.util.TestUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
-import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.compareBinaryFilesBySize;
-import static edu.ucar.metviewer.test.util.TestUtil.xlateTestSpec;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static edu.ucar.metviewer.test.util.TestUtil.*;
+import static org.junit.Assert.*;
 
 public class MVBatchTest {
     static MVBatch mvBatch;

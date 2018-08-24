@@ -9,8 +9,8 @@ import java.io.Reader;
 import java.sql.Connection;
 import java.sql.Statement;
 
-public class TestCBLoadDatabaseManager extends CBLoadDatabaseManager implements TestLoadDatabaseManager{
-    public TestCBLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+public class TestCBDatabaseManager extends CBLoadDatabaseManager implements TestDBManager {
+    public TestCBDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
         super(databaseInfo);
     }
 

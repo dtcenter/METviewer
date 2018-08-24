@@ -69,6 +69,25 @@ public abstract class DatabaseManager {
         return databaseManager;
     }
 
+    public static DatabaseManager getManager(String management_system, String host, String user, String password, String dbName) throws Exception {
+        String ms = management_system.toLowerCase();
+        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+        databaseInfo.setDbName(dbName);
+        DatabaseManager databaseManager = null;
+        switch (dbType) {
+            case "mysql":
+                databaseManager = new MysqlDatabaseManager(databaseInfo);
+                break;
+            case "cb":
+                databaseManager = new CBDatabaseManager(databaseInfo);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid database type: " + dbType);
+        }
+        return databaseManager;
+    }
+
     // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
     public static DatabaseManager getAppManager(String management_system, String host, String user, String password) throws Exception {
         String ms = management_system.toLowerCase();

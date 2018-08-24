@@ -1,17 +1,17 @@
 package edu.ucar.metviewer.test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.ucar.metviewer.MVLoad;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
 import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;

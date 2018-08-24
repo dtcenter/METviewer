@@ -1,7 +1,7 @@
 package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.test.util.ScriptRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,8 +16,8 @@ import java.sql.Statement;
 import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
 import static edu.ucar.metviewer.test.util.TestUtil.LOAD_DIR;
 
-public class TestMysqlLoadDatabaseManager extends MysqlLoadDatabaseManager implements TestLoadDatabaseManager{
-    public TestMysqlLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements TestDBManager {
+    public TestMysqlDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
         super(databaseInfo);
     }
 
@@ -50,7 +50,7 @@ public class TestMysqlLoadDatabaseManager extends MysqlLoadDatabaseManager imple
             statement.executeUpdate("create database " + database);
             statement.executeUpdate("use " + database);
             ScriptRunner scriptRunner = new ScriptRunner(con, false, true);
-            reader = new FileReader(LOAD_DIR + FILE_SEPARATOR + fileName);
+            reader = new FileReader(fileName);
             scriptRunner.runScript(reader);
         } catch (Exception e) {
             logger.error(e.getMessage());

@@ -5,28 +5,15 @@
 
 package edu.ucar.metviewer.test;
 
-import java.io.FileReader;
-import java.io.IOException;
+import edu.ucar.metviewer.MVLoad;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.ucar.metviewer.MVLoad;
-import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.db.LoadDatabaseManager;
-import edu.ucar.metviewer.test.util.ScriptRunner;
-import org.apache.logging.log4j.io.IoBuilder;
-import org.junit.Before;
-import org.junit.Test;
-
-import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
-import static edu.ucar.metviewer.test.util.TestUtil.LOAD_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.PWD;
-import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
-import static edu.ucar.metviewer.test.util.TestUtil.database;
-import static edu.ucar.metviewer.test.util.TestUtil.host;
-import static edu.ucar.metviewer.test.util.TestUtil.type;
-import static edu.ucar.metviewer.test.util.TestUtil.xlateTestSpec;
+import static edu.ucar.metviewer.test.util.TestUtil.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -37,7 +24,7 @@ public class LoadDataTest {
 
 
   private static final Map<String, Integer> TABLES_TO_ROWS = new HashMap<>();
-    private static TestLoadDatabaseManager myDatabaseManager;
+    private static TestDBManager myDatabaseManager;  // knows how to load data and getNumberOfRows
 
     @Before
     public void init() {
@@ -85,7 +72,7 @@ public class LoadDataTest {
 
       Reader reader = null;
       try {
-        myDatabaseManager = TestDatabaseManager.getLoadManager(type, host, USERNAME, PWD, database);
+        myDatabaseManager = TestDatabaseManager.getManager(type, host, USERNAME, PWD, database);
         String fname = LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql";
         myDatabaseManager.loadData(fname, database);
       } catch (Exception e) {
