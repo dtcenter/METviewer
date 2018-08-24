@@ -323,12 +323,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     long intLineDataSkipped = 0;
     long lengthRecords = 0;
     long lengthInserts = 0;
-    N1qlQueryResult queryResult;
-    queryResult = null;
-    List<N1qlQueryRow> queryList;
-    queryList = null;
-    String headerIdString;
-    headerIdString = null;
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    String headerIdString = null;
     timeStats.put("headerSearchTime", 0L);
 
     //  get the next stat_header_id
@@ -961,23 +958,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     long lengthRecords = 0;
     long lengthInserts = 0;
     timeStats.put("headerSearchTime", 0L);
-    long nextIdNumber;
-    nextIdNumber = 0;
-    String nextIdString;
-    nextIdString = "";
-    String headerIdString;
-    headerIdString = "";
+    long nextIdNumber = 0;
+    String nextIdString = "";
+    String headerIdString = "";
+    String searchDbName;
     JsonObject headerFile;
     JsonDocument response;
     JsonDocument doc;
-    N1qlQueryResult queryResult;
-    queryResult = null;
-    List<N1qlQueryRow> queryList;
-    queryList = null;
-    N1qlQueryRow firstRow;
-    firstRow = null;
-    JsonObject firstRowObject;
-    firstRowObject = null;
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
 
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
@@ -1121,6 +1112,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  look for an existing stat_header record with the same information
             boolean boolFoundStatHeader = false;
             long intStatHeaderSearchBegin = new Date().getTime();
+            searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
             if (info._boolStatHeaderDBCheck) {
               // build a Couchbase query to look for duplicate stat_header records
               String strDataFileQuery =  "SELECT " +
@@ -1133,6 +1125,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       bucket.name() +
                       "` WHERE " +
                       "type = \'header\' AND " +
+                      searchDbName + " = " + databaseInfo.getDbName() + " AND " +
                       "`header_type` = \'stat\' AND " +
                       "`data_type` = \'vsdb_point_stat\' AND " +
                       "model = \'" + modelName + "\' AND " +
@@ -2669,20 +2662,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String strDataFileLuTypeName;
     Integer dataFileId;
     JsonDocument doc;
-    N1qlQueryResult queryResult;
-    queryResult = null;
-    List<N1qlQueryRow> queryList;
-    queryList = null;
-    N1qlQueryRow firstRow;
-    firstRow = null;
-    JsonObject firstRowObject;
-    firstRowObject = null;
-    long nextIdNumber;
-    nextIdNumber = 0;
-    String nextIdString;
-    String dupIdString;
-    nextIdString = "";
-    dupIdString = "";
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
+    long nextIdNumber = 0;
+    String nextIdString = "";
+    String dupIdString = "";
+    String searchDbName = "";
     JsonObject dataFile;
     JsonDocument response;
 
@@ -2726,6 +2713,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     dataFileId = 0;
 
     // build a Couchbase query to look for the file and path in the data_file table
+
+    searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
+
     String strDataFileQuery =  "SELECT " +
             "meta().id as dataFileId, " +
             "type, " +
@@ -2736,6 +2726,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             bucket.name() +
             "` WHERE " +
             "type = \'file\' AND " +
+            searchDbName + " = " + databaseInfo.getDbName() + " AND " +
             "`data_type` = \'" + strDataFileLuTypeName + "\' AND " +
             "filename = \'" + strFile + "\' AND " +
             "`path` = \'" + strPath + "\';";
