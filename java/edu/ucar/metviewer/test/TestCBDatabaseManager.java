@@ -14,7 +14,7 @@ public class TestCBDatabaseManager extends CBDatabaseManager implements TestDBMa
         super(databaseInfo);
     }
 
-    private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
+    private static final Logger logger = LogManager.getLogger("TestCBDatabaseManager");
 
     public int getNumberOfRows(String lineDataType) throws Exception {
         String tableName = lineDataType;
