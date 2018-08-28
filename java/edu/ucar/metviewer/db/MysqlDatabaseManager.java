@@ -140,7 +140,7 @@ public class MysqlDatabaseManager extends DatabaseManager{
       }
 
     } catch (SQLException e) {
-      logger.error("Can't get groups for database " + database);
+      logger.error("Can't get groups for database " + database + " SQL exception: " + e);
     }
     if (group.isEmpty()) {
       group = MVUtil.DEFAULT_DATABASE_GROUP;

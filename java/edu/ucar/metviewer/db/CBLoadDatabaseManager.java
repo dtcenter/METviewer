@@ -949,6 +949,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     long nextIdNumber = 0;
     String nextIdString = "";
     String headerIdString = "";
+    String searchDbName;
     JsonObject headerFile;
     JsonDocument response;
     JsonDocument doc;
@@ -1099,6 +1100,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  look for an existing stat_header record with the same information
             boolean boolFoundStatHeader = false;
             long intStatHeaderSearchBegin = new Date().getTime();
+            searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
             if (info._boolStatHeaderDBCheck) {
               // build a Couchbase query to look for duplicate stat_header records
               String strDataFileQuery =  "SELECT " +
@@ -1111,6 +1113,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       getBucket().name() +
                       "` WHERE " +
                       "type = \'header\' AND " +
+                      searchDbName + " = " + getDbName() + " AND " +
                       "`header_type` = \'stat\' AND " +
                       "`data_type` = \'vsdb_point_stat\' AND " +
                       "model = \'" + modelName + "\' AND " +
@@ -1171,9 +1174,11 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         .put("interp_pnts", strInterpPnts)
                         .put("fcst_thresh", thresh)
                         .put("obs_thresh", thresh);
-
+                //logger.info("before document header create "+System.currentTimeMillis());
                 doc = JsonDocument.create(headerIdString, headerFile);
+                //logger.info(" after document header create "+System.currentTimeMillis());
                 response = getBucket().upsert(doc);
+                //logger.info(" after document header upsert "+System.currentTimeMillis());
                 if (response.content().isEmpty()) {
                   logger.warn("  **  WARNING: unexpected result from header INSERT");
                 } else {
@@ -2534,13 +2539,15 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String[] listValuesArr;
 
     int intResLineDataInsert = 0;
-
+    logger.info("before loop in executebatch "+ System.currentTimeMillis());
     for (int i = 0; i < listValues.size(); i++) {
 
       listValuesArr = listValues.get(i).split(",");
       //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
       try {
+        //logger.info("before get counter line data  "+System.currentTimeMillis());
         nextIdNumber = getBucket().counter("LDCounter", 1, 1).content();
+        //logger.info(" after get counter line data  "+System.currentTimeMillis());
         // unique id must be a string
         lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" + listValuesArr[2] + "::" + String.valueOf(nextIdNumber);
 
@@ -2568,8 +2575,11 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           lineDataFile.put(listFieldsArr[j], listValuesArr[j+13]);
         }
 
+        //logger.info("before document line data create "+System.currentTimeMillis());
         doc = JsonDocument.create(lineDataIdString, lineDataFile);
+        //logger.info(" after document line data create "+System.currentTimeMillis());
         response = getBucket().upsert(doc);
+        //logger.info(" after document line data upsert "+System.currentTimeMillis());
         if (response.content().isEmpty()) {
             logger.warn("  **  WARNING: unexpected result from line data INSERT");
         } else {
@@ -2580,6 +2590,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       }
 
     }
+    logger.info(" after loop in executebatch "+ System.currentTimeMillis());
 
     return intResLineDataInsert;
   }
@@ -2600,20 +2611,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String strDataFileLuTypeName;
     String dataFileId;
     JsonDocument doc;
-    N1qlQueryResult queryResult;
-    queryResult = null;
-    List<N1qlQueryRow> queryList;
-    queryList = null;
-    N1qlQueryRow firstRow;
-    firstRow = null;
-    JsonObject firstRowObject;
-    firstRowObject = null;
-    long nextIdNumber;
-    nextIdNumber = 0;
-    String nextIdString;
-    String dupIdString;
-    nextIdString = "";
-    dupIdString = "";
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
+    long nextIdNumber = 0;
+    String nextIdString = "";
+    String dupIdString = "";
+    String searchDbName = "";
     JsonObject dataFile;
     JsonDocument response;
 
@@ -2657,6 +2662,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     dataFileId = "0";
 
     // build a Couchbase query to look for the file and path in the data_file table
+
+    searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
+
     String strDataFileQuery =  "SELECT " +
             "meta().id as dataFileId, " +
             "type, " +
@@ -2667,6 +2675,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'file\' AND " +
+            searchDbName + " = " + getDbName() + " AND " +
             "`data_type` = \'" + strDataFileLuTypeName + "\' AND " +
             "filename = \'" + strFile + "\' AND " +
             "`path` = \'" + strPath + "\';";
@@ -2794,7 +2803,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       response = getBucket().upsert(doc);
       if (response.content().isEmpty()) {
         logger.warn("  **  WARNING: unexpected result from instance_info INSERT");
-    }
+      }
     } catch (Exception e) {
       throw new Exception(e.getMessage());
     }
