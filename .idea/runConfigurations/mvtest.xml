@@ -4,7 +4,7 @@
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="edu.ucar.metviewer.test.AllTestRunner" />
     <module name="METViewer" />
-    <option name="VM_PARAMETERS" value="-Xmx2048M -ea -Dmv_root_dir=$USER_HOME$/METViewerTest/mv_2_6_dev-rtp/HEAD/ -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -Dlog4j.configurationFile=file:$USER_HOME$/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -DcaptureCreatedImages=yes -DloadData" />
+    <option name="VM_PARAMETERS" value="-Xmx2048M -ea -Dmv_root_dir=$USER_HOME$/METViewerTest/mv_2_6_dev-rtp/HEAD -Dmv_database=mv_test_rp -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018## -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306 -Dlog4j.configurationFile=file:$USER_HOME$/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml -DcaptureCreatedImages=yes -DloadData" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

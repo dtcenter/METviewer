@@ -19,37 +19,7 @@ import java.util.Locale;
  * @author : tatiana $
  * @version : 1.0 : 19/05/17 12:42 $
  */
-public abstract class TestDatabaseManager {
-    private static List<String> listDB;
-    private PrintWriter pw;
-    private DatabaseInfo databaseInfo;
-    protected static final String DB_PREFIX_MV = "mv_";
-    public static final String[] SQL_INJECTION_WORDS = new String[]{
-            "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
-    };
-
-    public TestDatabaseManager(DatabaseInfo databaseInfo) {
-        this.databaseInfo = databaseInfo;
-        listDB = new ArrayList<>();
-        pw = IoBuilder.forLogger(getClass().getEnclosingClass()).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintWriter();
-    }
-
-    public TestDatabaseManager() {
-    }
-
-    public PrintWriter getPrintWriter(){
-        return pw;
-    }
-    public DatabaseInfo getDatabaseInfo() {
-        return databaseInfo;
-    }
-    public String getDbName() {
-        return databaseInfo.getDbName();
-    }
-
-    protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    protected static final SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
-
+public class TestDatabaseManager {
     public static TestDBManager getManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
         String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
@@ -68,7 +38,4 @@ public abstract class TestDatabaseManager {
         }
         return databaseManager;
     }
-
-    public abstract void initDBList();
-
 }
