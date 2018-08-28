@@ -26,7 +26,7 @@ intNumBoots		= 0;
 # read the input data file into a data frame
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strInputDataFile,nrows=5);
-
+listStat = NA;
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss', 'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean');
@@ -43,6 +43,11 @@ if ( nrow(sampleData) > 0){
   }
 
   dfStatsRec = read.delim(strInputDataFile,colClasses = classes);
+
+  #replace thresh_i values for reliability plot
+  if(strIndyVar == "thresh_i" && boolAggPct){
+    listIndyVal = unique(sort(dfStatsRec$thresh_i));
+  }
 
   intYMax = 1;
   if( 0 < length(listSeries2Val) ){ intYMax = 2; }
@@ -194,7 +199,12 @@ if ( nrow(sampleData) > 0){
         listOut[[derivedVar2]] = listFixedValEx[[derivedVar2]][[names(listFixedValEx[[derivedVar2]])]];
       }
     }
-    listSeriesVar = names(listSeriesVal);
+
+    if(is.null(names(listSeriesVal))){
+      listSeriesVar = c();
+    }else{
+      listSeriesVar = names(listSeriesVal);
+    }
     if( length(listDiffSeries) >0){
       if(isContourDiff){
         strDiffVar=derivedVar1;
@@ -693,26 +703,36 @@ if ( nrow(sampleData) > 0){
 
         # build the data set pertinent to this series permutation
         dfStatsPerm = dfStatsIndy;
-        dfStatsPermAllIndy = NaN;
+        dfStatsPermAllIndy = dfStatsRec;
+        listSeriesVarLenght = length(listSeriesVar);
+        if(listSeriesVarLenght == 0){
+          listSeriesVarLenght = 1;
+        }
 
-        for(intSeriesVal in 1:length(listSeriesVar)){
+        for(intSeriesVal in 1:listSeriesVarLenght){
           strSeriesVar = listSeriesVar[intSeriesVal];
-          strSeriesVal = listPerm[intSeriesVal];
+          if( !is.null(strSeriesVar) ){
+
+            strSeriesVal = listPerm[intSeriesVal];
+
           if( grepl("^[0-9]+$", strSeriesVal) ){
             strSeriesVal = as.integer(strSeriesVal);
             vectValPerms = strSeriesVal;
           }else{
-            vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+
+              vectValPerms= strsplit(strSeriesVal, ",")[[1]];
+
           }
           vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
           dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
           if( boolAggPct ){
-            if( is.nan(dfStatsPermAllIndy) ){
-              dfStatsPermAllIndy = dfStatsRec;
-            }
+
             dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
           }
+          }
         }
+
+
         if( 1 > nrow(dfStatsPerm) ){ next; }
 
 
@@ -785,10 +805,12 @@ if ( nrow(sampleData) > 0){
 
           # build a indicator list for the pertinent rows in the output dataframe
           listOutInd = rep(TRUE, nrow(dfOut));
-          for(intSeriesVal in 1:length(listSeriesVar)){
-            strSeriesVar = listSeriesVar[intSeriesVal];
-            strSeriesVal = listPerm[intSeriesVal];
-            listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
+          if( !is.null(listSeriesVar)){
+            for(intSeriesVal in 1:length(listSeriesVar)){
+              strSeriesVar = listSeriesVar[intSeriesVal];
+              strSeriesVal = listPerm[intSeriesVal];
+              listOutInd = listOutInd & (dfOut[[strSeriesVar]] == strSeriesVal);
+            }
           }
           if(strIndyVar == ""){
             listOutInd = listOutInd & (dfOut$stat_name == strStat);
@@ -970,6 +992,9 @@ if ( nrow(sampleData) > 0){
   write.table(dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t", append=boolAppend, col.names=!boolAppend);
 
 }
+if(is.na(listStat)){
+  listStat = listStat1;
+}
 cat(
   "    boot time: ", formatTimeSpan(dblBootTime), "\n",
   " boot.ci time: ", formatTimeSpan(dblBootCITime), "\n",
@@ -979,6 +1004,7 @@ cat(
   "         seed: ", intRandomSeed, "\n",
   "        stats: ", length(listStat), "\n",
   sep="");
+
 
 # clean up
 cat("agg_stat.R done\n");

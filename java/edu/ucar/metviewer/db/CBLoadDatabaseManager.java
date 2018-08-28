@@ -168,66 +168,66 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     // do nothing for now
   }
 
-  private void applyIndexes(boolean drop) throws Exception {
-
-    logger.info("    ==== indexes ====\n" + (drop ? "  dropping..." : ""));
-    Map.Entry[] listIndexes = mapIndexes.getOrderedEntries();
-    for (Map.Entry listIndex : listIndexes) {
-      String strIndexKey = listIndex.getKey().toString();
-      String strField = listIndex.getValue().toString();
-      long intIndexStart = new Date().getTime();
-
-      //  build a create index statment and run it
-      Matcher matIndex = patIndexName.matcher(strIndexKey);
-      if (!matIndex.matches()) {
-        throw new Exception("  **  ERROR: failed to parse index key " + strIndexKey);
-      }
-      String strTable = matIndex.group(1);
-      String strIndexName = strTable + matIndex.group(2);
-      String strIndex;
-      if (drop) {
-        strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";
-      } else {
-        strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");";
-      }
-      try {
-        executeUpdate(strIndex);
-      } catch (Exception e) {
-        logger.error(
-            "  **  ERROR: caught " + e.getClass() + " applying index " + strIndexName + ": " + e.getMessage());
-      }
-
-      //  print out a performance message
-      long intIndexTime = new Date().getTime() - intIndexStart;
-      logger.info(MVUtil.padBegin(strIndexName + ": ", 36) + MVUtil.formatTimeSpan(intIndexTime));
-    }
-    logger.info("");
-  }
-
-  /**
-   * Executes the input update statement against the database underlying the input Connection and
-   * cleans up any resources upon completion.
-   *
-   * @param update SQL UPDATE statement to execute
-   * @return Number of records affected (output of Statement.executeUpdate() call)
-   * @throws Exception
-   */
-  private int executeUpdate(String update) throws Exception {
-
-    int intRes;
-   /* try (
-            Connection con = getConnection();
-            Statement stmt = con.createStatement()  ) {
-       intRes = stmt.executeUpdate(update);
-
-    } catch (Exception e) {
-      logger.error(update);
-      throw new Exception("caught Exception calling executeUpdate: " + e.getMessage());
-    }
-  */
-    intRes = -1;
-    return intRes;
-  }
+//  private void applyIndexes(boolean drop) throws Exception {
+//
+//    logger.info("    ==== indexes ====\n" + (drop ? "  dropping..." : ""));
+//    Map.Entry[] listIndexes = mapIndexes.getOrderedEntries();
+//    for (Map.Entry listIndex : listIndexes) {
+//      String strIndexKey = listIndex.getKey().toString();
+//      String strField = listIndex.getValue().toString();
+//      long intIndexStart = new Date().getTime();
+//
+//      //  build a create index statment and run it
+//      Matcher matIndex = patIndexName.matcher(strIndexKey);
+//      if (!matIndex.matches()) {
+//        throw new Exception("  **  ERROR: failed to parse index key " + strIndexKey);
+//      }
+//      String strTable = matIndex.group(1);
+//      String strIndexName = strTable + matIndex.group(2);
+//      String strIndex;
+//      if (drop) {
+//        strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";
+//      } else {
+//        strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");";
+//      }
+//      try {
+//        executeUpdate(strIndex);
+//      } catch (Exception e) {
+//        logger.error(
+//            "  **  ERROR: caught " + e.getClass() + " applying index " + strIndexName + ": " + e.getMessage());
+//      }
+//
+//      //  print out a performance message
+//      long intIndexTime = new Date().getTime() - intIndexStart;
+//      logger.info(MVUtil.padBegin(strIndexName + ": ", 36) + MVUtil.formatTimeSpan(intIndexTime));
+//    }
+//    logger.info("");
+//  }
+//
+//  /**
+//   * Executes the input update statement against the database underlying the input Connection and
+//   * cleans up any resources upon completion.
+//   *
+//   * @param update SQL UPDATE statement to execute
+//   * @return Number of records affected (output of Statement.executeUpdate() call)
+//   * @throws Exception
+//   */
+//  private int executeUpdate(String update) throws Exception {
+//
+//    int intRes;
+//   /* try (
+//            Connection con = getConnection();
+//            Statement stmt = con.createStatement()  ) {
+//       intRes = stmt.executeUpdate(update);
+//
+//    } catch (Exception e) {
+//      logger.error(update);
+//      throw new Exception("caught Exception calling executeUpdate: " + e.getMessage());
+//    }
+//  */
+//    intRes = -1;
+//    return intRes;
+//  }
 
   /**
    * Initialize the table containing the max line_data_id for all line_data tables corresponding to
@@ -520,19 +520,19 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  insert the record into the stat_header database table
             String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
             int intStatHeaderInsert;
-            try {
-              intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
-              if (1 != intStatHeaderInsert) {
-                logger.warn(
-                    "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
-                intStatHeaderId = null;
-              } else {
-                headerInserts++;
-              }
-            } catch (Exception e) {
-              logger.error(e.getMessage());
-              intStatHeaderId = null;
-            }
+//            try {
+//              intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
+//              if (1 != intStatHeaderInsert) {
+//                logger.warn(
+//                    "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
+//                intStatHeaderId = null;
+//              } else {
+//                headerInserts++;
+//              }
+//            } catch (Exception e) {
+//              logger.error(e.getMessage());
+//              intStatHeaderId = null;
+//            }
 
           } else {
             statHeaders.put(strStatHeaderValueList, headerIdString);
@@ -881,14 +881,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                                                                .getListStatGroupInsertValues()
                                                                .get(i);
       }
-      String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
-      int intStatGroupInsert = executeUpdate(strStatGroupInsert);
-      if (mvLoadStatInsertData.getListStatGroupInsertValues().size() != intStatGroupInsert) {
-        logger.warn(
-            "  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " +
-                mvLoadStatInsertData.getListStatGroupInsertValues()
-                    .size() + "\n        " + mvLoadStatInsertData.getFileLine());
-      }
+//      String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
+//      int intStatGroupInsert = executeUpdate(strStatGroupInsert);
+//      if (mvLoadStatInsertData.getListStatGroupInsertValues().size() != intStatGroupInsert) {
+//        logger.warn(
+//            "  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " +
+//                mvLoadStatInsertData.getListStatGroupInsertValues()
+//                    .size() + "\n        " + mvLoadStatInsertData.getFileLine());
+//      }
       int indexStatGroup = 2;
       listInserts[indexStatGroup]++;
     }
@@ -915,12 +915,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
         listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
       }
-      int intThreshInsert = executeUpdate(strThreshInsert);
-      if (listVarLengthValues.length != intThreshInsert) {
-        logger.warn(
-            "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
-                listVarLengthValues.length + "\n        " + mvLoadStatInsertData.getFileLine());
-      }
+//      int intThreshInsert = executeUpdate(strThreshInsert);
+//      if (listVarLengthValues.length != intThreshInsert) {
+//        logger.warn(
+//            "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
+//                listVarLengthValues.length + "\n        " + mvLoadStatInsertData.getFileLine());
+//      }
       mvLoadStatInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
     }
 
@@ -1957,12 +1957,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  insert the record into the mode_header database table
             String strModeHeaderInsert = "INSERT INTO mode_header VALUES ("
                                              + strModeHeaderValueList + ");";
-            int intModeHeaderInsert = executeUpdate(strModeHeaderInsert);
-            if (1 != intModeHeaderInsert) {
-              logger.warn(
-                  "  **  WARNING: unexpected result from mode_header INSERT: "
-                      + intModeHeaderInsert + "\n        " + strFileLine);
-            }
+//            int intModeHeaderInsert = executeUpdate(strModeHeaderInsert);
+//            if (1 != intModeHeaderInsert) {
+//              logger.warn(
+//                  "  **  WARNING: unexpected result from mode_header INSERT: "
+//                      + intModeHeaderInsert + "\n        " + strFileLine);
+//            }
             headerInserts++;
           }
         }
@@ -1984,13 +1984,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           }
 
           //  insert the record into the mode_cts database table
-          String strModeCtsInsert = "INSERT INTO mode_cts VALUES (" + strCTSValueList + ");";
-          int intModeCtsInsert = executeUpdate(strModeCtsInsert);
-          if (1 != intModeCtsInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mode_cts INSERT: "
-                    + intModeCtsInsert + "\n        " + strFileLine);
-          }
+//          String strModeCtsInsert = "INSERT INTO mode_cts VALUES (" + strCTSValueList + ");";
+//          int intModeCtsInsert = executeUpdate(strModeCtsInsert);
+//          if (1 != intModeCtsInsert) {
+//            logger.warn(
+//                "  **  WARNING: unexpected result from mode_cts INSERT: "
+//                    + intModeCtsInsert + "\n        " + strFileLine);
+//          }
           ctsInserts++;
 
         }
@@ -2031,12 +2031,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           //  insert the record into the mode_obj_single database table
           String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES ("
                                               + strSingleValueList + ");";
-          int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert);
-          if (1 != intModeObjSingleInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mode_obj_single INSERT: "
-                    + intModeObjSingleInsert + "\n        " + strFileLine);
-          }
+//          int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert);
+//          if (1 != intModeObjSingleInsert) {
+//            logger.warn(
+//                "  **  WARNING: unexpected result from mode_obj_single INSERT: "
+//                    + intModeObjSingleInsert + "\n        " + strFileLine);
+//          }
           objSingleInserts++;
 
           //  add the mode_obj_id to the table, using the object_id as the key
@@ -2084,12 +2084,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           //  insert the record into the mode_obj_pair database table
           String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES ("
                                             + strPairValueList + ");";
-          int intModeObjPairInsert = executeUpdate(strModeObjPairInsert);
-          if (1 != intModeObjPairInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mode_obj_pair INSERT: "
-                    + intModeObjPairInsert + "\n        " + strFileLine);
-          }
+//          int intModeObjPairInsert = executeUpdate(strModeObjPairInsert);
+//          if (1 != intModeObjPairInsert) {
+//            logger.warn(
+//                "  **  WARNING: unexpected result from mode_obj_pair INSERT: "
+//                    + intModeObjPairInsert + "\n        " + strFileLine);
+//          }
           objPairInserts++;
 
         }
@@ -2349,12 +2349,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  insert the record into the mtd_header database table
             String strMtdHeaderInsert = "INSERT INTO mtd_header VALUES (" + mtdHeaderValueList +
                                             ");";
-            int intMtdHeaderInsert = executeUpdate(strMtdHeaderInsert);
-            if (1 != intMtdHeaderInsert) {
-              logger.warn(
-                  "  **  WARNING: unexpected result from mtd_header INSERT: " + intMtdHeaderInsert
-                      + "\n        " + strFileLine);
-            }
+//            int intMtdHeaderInsert = executeUpdate(strMtdHeaderInsert);
+//            if (1 != intMtdHeaderInsert) {
+//              logger.warn(
+//                  "  **  WARNING: unexpected result from mtd_header INSERT: " + intMtdHeaderInsert
+//                      + "\n        " + strFileLine);
+//            }
             headerInserts++;
           }
         }
@@ -2390,13 +2390,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                                      + matchedFlag;
 
           //  insert the record into the mtd_obj_single database table
-          int mtd3dObjSingleInsert = executeUpdate("INSERT INTO mtd_3d_obj_single VALUES ("
-                                                       + str3dSingleValueList + ");");
-          if (1 != mtd3dObjSingleInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
-                    + mtd3dObjSingleInsert + "\n        " + strFileLine);
-          }
+//          int mtd3dObjSingleInsert = executeUpdate("INSERT INTO mtd_3d_obj_single VALUES ("
+//                                                       + str3dSingleValueList + ");");
+//          if (1 != mtd3dObjSingleInsert) {
+//            logger.warn(
+//                "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
+//                    + mtd3dObjSingleInsert + "\n        " + strFileLine);
+//          }
           obj3dSingleInserts++;
         } else if (mtd2d == intLineTypeLuId) {
           String str2dValueList = mtdHeaderId + ", '" + strObjectId + "'";
@@ -2428,13 +2428,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           str2dValueList = str2dValueList + "," + fcstFlag + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mtd_obj_single database table
-          int mtd2dObjInsert = executeUpdate("INSERT INTO mtd_2d_obj VALUES ("
-                                                 + str2dValueList + ");");
-          if (1 != mtd2dObjInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
-                    + mtd2dObjInsert + "\n        " + strFileLine);
-          }
+//          int mtd2dObjInsert = executeUpdate("INSERT INTO mtd_2d_obj VALUES ("
+//                                                 + str2dValueList + ");");
+//          if (1 != mtd2dObjInsert) {
+//            logger.warn(
+//                "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
+//                    + mtd2dObjInsert + "\n        " + strFileLine);
+//          }
           obj2dInserts++;
         } else if (mtd3dPair == intLineTypeLuId) {
 
@@ -2474,13 +2474,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           }
           str3dPairValueList = str3dPairValueList + "," + simpleFlag + "," + matchedFlag;
 
-          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
-                                                     + str3dPairValueList + ");");
-          if (1 != mtd3dObjPairInsert) {
-            logger.warn(
-                "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
-                    mtd3dObjPairInsert + "\n        " + strFileLine);
-          }
+//          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
+//                                                     + str3dPairValueList + ");");
+//          if (1 != mtd3dObjPairInsert) {
+//            logger.warn(
+//                "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
+//                    mtd3dObjPairInsert + "\n        " + strFileLine);
+//          }
           obj3dPairInserts++;
 
         }

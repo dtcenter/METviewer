@@ -669,12 +669,12 @@ public class MVPlotJobParser {
 
 
     //  if there are dep,  and indep elements present, handle them
-    if (!job.getPlotTmpl().startsWith("rhist") && !job.getPlotTmpl()
-                                                       .startsWith("phist") && !job.getPlotTmpl()
-                                                                                    .startsWith(
-                                                                                        "roc")
-            && !job.getPlotTmpl().startsWith("rely") && !job.getPlotTmpl().startsWith(
-        "relp") && !job.getPlotTmpl().startsWith("eclv")) {
+    if (!job.getPlotTmpl().startsWith("rhist")
+            && !job.getPlotTmpl().startsWith("phist")
+            && !job.getPlotTmpl().startsWith("roc")
+            && !job.getPlotTmpl().startsWith("rely")
+            && !job.getPlotTmpl().startsWith("relp")
+            && !job.getPlotTmpl().startsWith("eclv")) {
       int axis = 2;
       if (job.getPlotTmpl().startsWith("taylor")) {
         axis = 1;
@@ -723,6 +723,7 @@ public class MVPlotJobParser {
                           + "</val>");
       }
       xmlStr.append("</indep>");
+
     }
 
     //  plot_fix
@@ -835,6 +836,8 @@ public class MVPlotJobParser {
         xmlStr.append("<val>" + stat + "</val>");
       }
       xmlStr.append("</summary_curve>");
+      xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
+      xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine()).append("</add_reference_line>");
     }
 
     //  roc_calc

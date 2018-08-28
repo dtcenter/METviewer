@@ -93,27 +93,10 @@ initSeries <- function(dfPerm,envir, intPermVal=1) {
       dfPerm[i-1,]$thresh_i = 0.5*(dfPerm[i,]$thresh_ii + dfPerm[i-1,]$thresh_ii);
     }
     dfPerm[i,]$thresh_i = 0.5*(1 + dfPerm[i,]$thresh_ii);
-    
-    # calculate vectors and constants to use below
-    #dfPerm$n_i = dfPerm$oy_i + dfPerm$on_i; # n_j.
-    #dfPerm = dfPerm[0 != dfPerm$n_i,];
-    #T = sum( as.numeric(dfPerm$n_i) ); # T
-    #oy_total = sum( as.numeric(dfPerm$oy_i) ); # n_.1
-    #o_bar = oy_total / T; # n_.1 / T
-    #dfPerm$o_bar_i = dfPerm$oy_i / dfPerm$n_i; # o_bar_i
-    
-    # row-based calculations
-    #dfPerm$oy_tp = dfPerm$oy_i / T;
-    #dfPerm$on_tp = dfPerm$on_i / T;
-    #dfPerm$calibration = dfPerm$oy_i / dfPerm$n_i;
-    #dfPerm$refinement = dfPerm$n_i / T;
-    #dfPerm$likelihood = dfPerm$oy_i / oy_total;
-    #dfPerm$baserate = dfPerm$o_bar_i;
-    #dfPerm$no_skill = 0.5*(dfPerm$thresh_i + o_bar);
+
     dfPerm$no_skill = 0.5*(dfPerm$thresh_i + dfPerm_obar$stat_value);
     
     # initialize the plot data
-    #listCal = dfPerm$calibration;
     listCal = dfPerm$stat_value;
 
     listThresh = dfPerm$thresh_i;

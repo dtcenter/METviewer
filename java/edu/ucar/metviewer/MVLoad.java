@@ -1,18 +1,18 @@
 package edu.ucar.metviewer;
 
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.db.LoadDatabaseManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
-
 import java.io.File;
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVLoad {
 
@@ -130,6 +130,12 @@ public class MVLoad {
       }
 
       long intLoadTimeStart = new Date().getTime();
+      if (job.getGroup() != null) {
+        loadDatabaseManager.updateGroup(job.getGroup());
+      }
+      if (job.getDescription() != null) {
+              loadDatabaseManager.updateDescription(job.getDescription());
+            }
 
       //  drop the database indexes, if requested
       boolean dropIndexes = job.getDropIndexes();
@@ -153,7 +159,7 @@ public class MVLoad {
         for (int i = 0; i < listLoadFiles.length; i++) {
           try {
             file = new File(listLoadFiles[i]);
-            processFile(file, loadDatabaseManager.getDatabaseInfo());
+            processFile(file);
           } catch (Exception e) {
             logger.error(
                 "  **  ERROR: caught " + e.getClass() + " loading file "
@@ -199,7 +205,7 @@ public class MVLoad {
             if (listDataFiles != null) {
               for (File listDataFile : listDataFiles) {
                 try {
-                  processFile(listDataFile, loadDatabaseManager.getDatabaseInfo());
+                  processFile(listDataFile);
                 } catch (Exception e) {
                   logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n"
                                    + e.getMessage() + "\n"
@@ -315,7 +321,7 @@ public class MVLoad {
    * @param file File to process //* @param con Connection to the database to load
    * @throws Exception
    */
-  public static void processFile(File file, DatabaseInfo databaseInfo) throws Exception {
+  public static void processFile(File file) throws Exception {
     long intProcessDataFileBegin = new Date().getTime();
     DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile);
     if (null == info) {

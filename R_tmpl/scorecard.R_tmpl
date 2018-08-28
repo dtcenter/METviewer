@@ -36,6 +36,8 @@ listDep1Scale = list(
 
 );
 
+dates=#<dates_list>#
+
 
 #
 #  Build the series data for the plot
@@ -174,8 +176,15 @@ if ( nrow(sampleData) > 0){
         derived_stat = NA;
         if( grepl('^DIFF_SIG', derivedCurveName) ){
           if(statFlag == 'EMC'){
-            ndays = as.numeric(difftime( as.Date('2014-07-30'), as.Date('2014-05-20')));
-                    ndays=ndays+1;
+            #ndays = as.numeric(difftime( as.Date('2018-07-07'), as.Date('2018-04-05')));
+            if(length(dates) > 1){
+              ndays = as.numeric(difftime( as.Date(dates[2]), as.Date(dates[1])));
+            }else{
+              ndays=0;
+            }
+
+            ndays=ndays+1;
+
             if ( ndays >= 80 ){
               alpha1=1.960  ; #95% confidence level
               alpha2=2.576  ; #99% confidence level

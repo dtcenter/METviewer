@@ -1,5 +1,12 @@
 package edu.ucar.metviewer;
 
+
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.jobManager.*;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.io.IoBuilder;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -8,11 +15,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import edu.ucar.metviewer.db.AppDatabaseManager;
-import edu.ucar.metviewer.db.DatabaseManager;
-import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
-import edu.ucar.metviewer.db.CBAppDatabaseManager;
 import edu.ucar.metviewer.jobManager.ContourJobManager;
 import edu.ucar.metviewer.jobManager.EclvJobManager;
 import edu.ucar.metviewer.jobManager.EnsSsJobManager;
@@ -24,8 +26,6 @@ import edu.ucar.metviewer.jobManager.RhistJobManager;
 import edu.ucar.metviewer.jobManager.RocJobManager;
 import edu.ucar.metviewer.jobManager.SeriesJobManager;
 import edu.ucar.metviewer.jobManager.TaylorJobManager;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVBatch  {
 
