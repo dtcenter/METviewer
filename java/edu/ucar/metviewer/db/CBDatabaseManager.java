@@ -71,6 +71,7 @@ public class CBDatabaseManager extends DatabaseManager{
 
       //for each database find a group
       for (Map.Entry<String, String> database : listDB.entrySet()) {
+        // TODO
 //        String[] metadata = getDatabaseMetadata(database.getKey());
 //        database.setValue(metadata[1]);
 //
@@ -84,6 +85,28 @@ public class CBDatabaseManager extends DatabaseManager{
     }
   }
 
+  private String[] getDatabaseMetadata(String database) {
+    String group = "";
+    String description = "";
+//    String sql = "SELECT * from metadata";
+//    try (Connection con = getConnection(database);
+//         Statement statement = con.createStatement();
+//         ResultSet rs = statement.executeQuery(sql)
+//    ) {
+//      while (rs.next()) {
+//        group = rs.getString("category");
+//        description = rs.getString("description");
+//      }
+//
+//    } catch (SQLException e) {
+//      logger.error("Can't get groups for database " + database + " SQL exception: " + e);
+//    }
+//    if (group.isEmpty()) {
+//      group = MVUtil.DEFAULT_DATABASE_GROUP;
+//    }
+
+    return new String[]{group, description};
+  }
 
 
   /**

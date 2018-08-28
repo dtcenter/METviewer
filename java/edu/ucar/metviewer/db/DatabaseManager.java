@@ -29,7 +29,7 @@ public abstract class DatabaseManager {
     public DatabaseManager(DatabaseInfo databaseInfo) {
         this.databaseInfo = databaseInfo;
         listDB = new ArrayList<>();
-        pw = IoBuilder.forLogger(getClass().getEnclosingClass()).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintWriter();
+        pw = IoBuilder.forLogger(getClass().getSimpleName()).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintWriter();
     }
 
     public DatabaseManager() {
