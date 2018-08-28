@@ -108,6 +108,6 @@ public abstract class DatabaseManager {
         return databaseManager;
     }
 
-    public abstract void initDBList();
+    public abstract void initDBList(boolean updateGroups);
 
 }

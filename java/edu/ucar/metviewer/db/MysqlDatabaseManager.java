@@ -214,9 +214,4 @@ public class MysqlDatabaseManager extends DatabaseManager{
     }
     return con;
   }
-
-  @Override
-  public void initDBList() {
-
-  }
 }

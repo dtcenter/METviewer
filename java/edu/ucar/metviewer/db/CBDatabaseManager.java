@@ -153,9 +153,4 @@ public class CBDatabaseManager extends DatabaseManager{
     }
     return bucket;
   }
-
-  @Override
-  public void initDBList() {
-
-  }
 }
