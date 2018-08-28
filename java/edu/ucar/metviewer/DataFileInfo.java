@@ -13,14 +13,13 @@ import java.util.Map;
  */
 public class DataFileInfo {
 
-  public Integer _dataFileId = 0;
+  public String _dataFileId = "0";
   public String _dataFileFilename = "";
   public String _dataFilePath = "";
   public String _dataFileLoadDate = "";
   public String _dataFileModDate = "";
   public int _dataFileLuId = -1;
   public String _dataFileLuTypeName = "";
-  public String _fileDataId = "";
   public boolean _boolLineTypeLoad;
   public Map _tableLineTypeLoad;
   public boolean _boolLoadMpr;
@@ -31,10 +30,10 @@ public class DataFileInfo {
   public boolean _boolVerbose;
   public int _intInsertSize;
 
-  public DataFileInfo(Integer dataFileId, String dataFileFilename,
+  public DataFileInfo(String dataFileId, String dataFileFilename,
                       String dataFilePath, String dataFileLoadDate,
                       String dataFileModDate, int dataFileLuId,
-                      String dataFileLuTypeName, String fileDataId) {
+                      String dataFileLuTypeName) {
     _dataFileId = dataFileId;
     _dataFileFilename = dataFileFilename;
     _dataFilePath = dataFilePath;
@@ -42,6 +41,5 @@ public class DataFileInfo {
     _dataFileModDate = dataFileModDate;
     _dataFileLuId = dataFileLuId;
     _dataFileLuTypeName = dataFileLuTypeName;
-    _fileDataId = fileDataId;
   }
 }

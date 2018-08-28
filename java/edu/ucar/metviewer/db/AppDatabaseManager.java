@@ -6,16 +6,16 @@
 
 package edu.ucar.metviewer.db;
 
+import edu.ucar.metviewer.MVNode;
+import edu.ucar.metviewer.MVOrderedMap;
+import edu.ucar.metviewer.MVPlotJob;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import edu.ucar.metviewer.MVNode;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVPlotJob;
 
 /**
  * @author : tatiana $
@@ -59,6 +59,7 @@ public interface AppDatabaseManager {
   boolean validate(String db);
 
   List<String> getAllDatabases();
+
   Map<String, String> getAllDatabasesWithDescription();
 
   Map<String, List<String>> getAllGroups();

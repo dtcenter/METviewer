@@ -7,19 +7,6 @@
 package edu.ucar.metviewer.db;
 
 
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-
 import edu.ucar.metviewer.MVUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,37 +14,35 @@ import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class MysqlDatabaseManager {
+public class MysqlDatabaseManager extends DatabaseManager{
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
   protected static final String DB_PREFIX_MV = "mv_";
-  protected DatabaseInfo databaseInfo;
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
 
   private DataSource dataSource;
 
 
-  protected static final SimpleDateFormat DATE_FORMAT
-      = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
 
-  public MysqlDatabaseManager(
-                                 DatabaseInfo databaseInfo,
-                                 PrintWriter printStreamSql) throws SQLException {
-
-
+  public MysqlDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
+      super(databaseInfo);
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
       jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
     }
     jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
-
-    this.databaseInfo = databaseInfo;
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
@@ -85,7 +70,7 @@ public class MysqlDatabaseManager {
     try {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
-      dataSource.setLogWriter(printStreamSql);
+      dataSource.setLogWriter(getPrintWriter());
     } catch (Exception e) {
       logger.debug(e);
       logger.error("Database connection  for a primary database was not initialised.");
@@ -230,4 +215,8 @@ public class MysqlDatabaseManager {
     return con;
   }
 
+  @Override
+  public void initDBList() {
+
+  }
 }

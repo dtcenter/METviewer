@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import edu.ucar.metviewer.db.CBAppDatabaseManager;
 import edu.ucar.metviewer.jobManager.ContourJobManager;
@@ -43,7 +44,7 @@ public class MVBatch  {
   private int numPlots = 0;
   private int numPlotsRun = 0;
   private AppDatabaseManager databaseManager;
-  private String dbType = "mysql";
+  private String dbType;
 
 
   public MVBatch(
@@ -215,19 +216,14 @@ public class MVBatch  {
 
   public static void main(String[] argv) {
     MVBatch bat = new MVBatch();
-
     bat.print("----  MVBatch  ----\n");
-
     try {
-
       MVPlotJob[] jobs;
-
-      //  if no input file is present, bail
+      // if no input file is present, bail
       if (1 > argv.length) {
         bat.print(getUsage() + "\n----  MVBatch Done  ----");
         return;
       }
-
       //  parse the command line options
       boolean boolList = false;
       int intArg = 0;
@@ -236,10 +232,6 @@ public class MVBatch  {
           boolList = true;
         } else if (argv[intArg].equals("-printSql")) {
           bat.setVerbose(true);
-        } else if (argv[intArg].equalsIgnoreCase("mysql")) {
-          bat.setDbType("mysql");
-        } else if (argv[intArg].equalsIgnoreCase("CB")) {
-          bat.setDbType("CB");
         } else {
           bat.print(
               "  **  ERROR: unrecognized option '"
@@ -249,18 +241,11 @@ public class MVBatch  {
       }
 
       //  parse the input file
-      String xmlInput = argv[intArg];
+      String xmlInput = argv[intArg++];
       bat.print("input file: " + xmlInput + "\n");
-      intArg++;
 
       MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
-      if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
-        bat.setDatabaseManager(
-            new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
-      } else if (bat.getDbType().equals("CB")) {
-        bat.setDatabaseManager(
-                new CBAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
-      }
+      bat.setDatabaseManager((AppDatabaseManager)DatabaseManager.getAppManager(parser.dbManagementSystem,parser.dbHost,parser.dbUser,parser.dbPass));
       MVOrderedMap mapJobs = parser.getJobsMap();
 
       //  build a list of jobs to run

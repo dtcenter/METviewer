@@ -6,32 +6,23 @@
 
 package edu.ucar.metviewer.db;
 
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import edu.ucar.metviewer.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.couchbase.client.core.CouchbaseException;
-import com.couchbase.client.java.*;
-import com.couchbase.client.java.env.*;
-import com.couchbase.client.java.document.*;
-import com.couchbase.client.java.document.json.*;
-import com.couchbase.client.java.query.*;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author : tatiana $
@@ -40,7 +31,6 @@ import java.time.format.DateTimeFormatter;
 public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
-  SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
@@ -89,10 +79,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public CBLoadDatabaseManager(
-                                     DatabaseInfo databaseInfo,
-                                     PrintWriter printStreamSql) throws Exception {
-    super(databaseInfo, printStreamSql);
+  public CBLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+    super(databaseInfo);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
@@ -384,10 +372,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID_END"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strFcstValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidEnd);
-        String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
-        String strObsValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateObsValidEnd);
+        String strFcstValidBeg = DATE_FORMAT.format(dateFcstValidBeg);
+        String strFcstValidEnd = DATE_FORMAT.format(dateFcstValidEnd);
+        String strObsValidBeg = DATE_FORMAT.format(dateObsValidBeg);
+        String strObsValidEnd = DATE_FORMAT.format(dateObsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -403,7 +391,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInitBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        String strFcstInitBeg = DATE_FORMAT.format(dateFcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
         String strInterpPnts = MVUtil.findValueInArray(listToken, headerNames, "INTERP_PNTS");
@@ -479,10 +467,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         if (statHeaders.containsKey(strStatHeaderValueList)) {
           headerIdString = statHeaders.get(strStatHeaderValueList);
         }
-
         //  if the stat_header does not yet exist, create one
         else {
-
           //  look for an existing stat_header record with the same information
           boolean boolFoundStatHeader = false;
           long intStatHeaderSearchBegin = new Date().getTime();
@@ -942,7 +928,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   }
 
   @Override
-  public Map<String, Long> loadStatFileVSDB(DataFileInfo info, DatabaseInfo databaseInfo) throws Exception {
+  public Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception {
 
     Map<String, Long> timeStats = new HashMap<>();
 
@@ -1072,7 +1058,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           Date dateFcstValidBeg = formatStatVsdb.parse(listToken[3]);
 
           //  format the valid times for the database insert
-          String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstValidBeg = DATE_FORMAT.format(dateFcstValidBeg);
 
           //  calculate the number of seconds corresponding to fcst_lead
           String strFcstLead = listToken[2];
@@ -1083,10 +1069,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           calFcstInitBeg.setTime(dateFcstValidBeg);
           calFcstInitBeg.add(Calendar.SECOND, (-1) * intFcstLeadSec);
           Date dateFcstInitBeg = calFcstInitBeg.getTime();
-          String strFcstInitBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
-          String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-          String strFcstValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-          String strObsValidEnd = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstInitBeg = DATE_FORMAT.format(dateFcstInitBeg);
+          String strObsValidBeg = DATE_FORMAT.format(dateFcstValidBeg);
+          String strFcstValidEnd = DATE_FORMAT.format(dateFcstValidBeg);
+          String strObsValidEnd = DATE_FORMAT.format(dateFcstValidBeg);
 
           //  ensure that the interp_pnts field value is a reasonable integer
           String strInterpPnts = "0";
@@ -1124,10 +1110,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       "data_type, " +
                       "data_id " +
                       "FROM `" +
-                      bucket.name() +
+                      getBucket().name() +
                       "` WHERE " +
                       "type = \'header\' AND " +
-                      searchDbName + " = " + databaseInfo.getDbName() + " AND " +
+                      searchDbName + " = " + getDbName() + " AND " +
                       "`header_type` = \'stat\' AND " +
                       "`data_type` = \'vsdb_point_stat\' AND " +
                       "model = \'" + modelName + "\' AND " +
@@ -1138,9 +1124,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       "`fcst_thresh` = \'" + thresh + "\';";
 
               try {
-                queryResult = bucket.query(N1qlQuery.simple(strDataFileQuery));
+                queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
                 queryList = queryResult.allRows();
-
                 // if the header document is already present in the database, print a warning and return the id
                 if (queryList.size() > 0) {
                   firstRow = queryList.get(0);
@@ -1154,21 +1139,18 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 }
                 timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date().getTime() -
                                                   intStatHeaderSearchBegin);
-
-              } catch (CouchbaseException e) {
+                } catch (CouchbaseException e) {
                 throw new Exception(e.getMessage());
               }
             }  // end if (info._boolStatHeaderDBCheck)
 
             //  if the stat_header was not found, add it to the database and table
             if (!boolFoundStatHeader) {
-
               //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
               try {
-                nextIdNumber = bucket.counter("HDCounter", 1, 1).content();
+                nextIdNumber = getBucket().counter("HDCounter", 1, 1).content();
                 // unique id must be a string
-                headerIdString = databaseInfo.getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
-
+                headerIdString = getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
               } catch (CouchbaseException e) {
                 throw new Exception(e.getMessage());
               }
@@ -1178,7 +1160,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         .put("type", "header")
                         .put("header_type", "stat")
                         .put("data_type", info._dataFileLuTypeName)
-                        .put("data_id", info._fileDataId)
+                        .put("data_id", info._dataFileId)
                         .put("version", listToken[0])
                         .put("model", modelName)
                         .put("descr", "NA")
@@ -1195,7 +1177,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 //logger.info("before document header create "+System.currentTimeMillis());
                 doc = JsonDocument.create(headerIdString, headerFile);
                 //logger.info(" after document header create "+System.currentTimeMillis());
-                response = bucket.upsert(doc);
+                response = getBucket().upsert(doc);
                 //logger.info(" after document header upsert "+System.currentTimeMillis());
                 if (response.content().isEmpty()) {
                   logger.warn("  **  WARNING: unexpected result from header INSERT");
@@ -1205,22 +1187,16 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               } catch (Exception e) {
                 throw new Exception(e.getMessage());
               }
-
               // add header to table
               statHeaders.put(strStatHeaderValueList, headerIdString);
-
             } // end if (!boolFoundStatHeader)
           } // end else stat_header is not in table
 
           if (headerIdString != null) {
-
             String strLineDataId = "";
             dataRecords++;
-
             //  if the line type is of variable length, get the line_data_id
-            boolean boolHasVarLengthGroups = MVUtil.lengthGroupIndices
-                                                 .containsKey(strLineType);
-
+            boolean boolHasVarLengthGroups = MVUtil.lengthGroupIndices.containsKey(strLineType);
             //  determine the maximum token index for the data
             if (boolHasVarLengthGroups) {
               int intLineDataId = tableVarLengthLineDataId.get(strLineType);
@@ -1230,19 +1206,19 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  build the value list for the insert statment
             String strLineDataValueList =
-                    databaseInfo.getDbName() + "," +     // database name for ID
-                            strLineType.toLowerCase() + "," +   // line type
-                            modelName + "," +            // model name for ID
-                            headerIdString + "," +       //  CB header_id
-                            info._fileDataId + "," +     //  CB data_id for data_file
-                            intLine + "," +            //  line_num
-                            strFcstLead + "," +        //  fcst_lead
-                            strFcstValidBeg + "," +    //  fcst_valid_beg
-                            strFcstValidEnd + "," +    //  fcst_valid_end
-                            strFcstInitBeg + "," +     //  fcst_init_beg
-                            "00" + "," +               //  obs_lead
-                            strObsValidBeg + "," +     //  obs_valid_beg
-                            strObsValidEnd;            //  obs_valid_end
+                getDbName() + "," +     // database name for ID
+                strLineType.toLowerCase() + "," +   // line type
+                modelName + "," +            // model name for ID
+                headerIdString + "," +       //  CB header_id
+                info._dataFileId + "," +     //  CB data_id for data_file
+                intLine + "," +          //  line_num
+                strFcstLead + "," +        //  fcst_lead
+                strFcstValidBeg + "," +    //  fcst_valid_beg
+                strFcstValidEnd + "," +    //  fcst_valid_end
+                strFcstInitBeg + "," +     //  fcst_init_beg
+                "00" + "," +               //  obs_lead
+                strObsValidBeg + "," +     //  obs_valid_beg
+                strObsValidEnd;            //  obs_valid_end
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
@@ -1817,8 +1793,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String strFcstValidBeg = DATE_FORMAT.format(dateFcstValidBeg);
+        String strObsValidBeg = DATE_FORMAT.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -1834,7 +1810,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        String strFcstInit = DATE_FORMAT.format(dateFcstInitBeg);
 
         //  build a value list from the header information
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
@@ -1959,24 +1935,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (info._boolModeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n"
                                              + strModeHeaderWhereClause;
-      /*      try (Connection con = getConnection();
-                 Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                      ResultSet.CONCUR_READ_ONLY);
-                 ResultSet res = stmt.executeQuery(strModeHeaderSelect)) {
-              if (res.next()) {
-                String strModeHeaderIdDup = res.getString(1);
-                intModeHeaderId = Integer.parseInt(strModeHeaderIdDup);
-                boolFoundModeHeader = true;
-                logger.warn(
-                    "  **  WARNING: found duplicate mode_header record with id " + strModeHeaderIdDup + "\n        " + strFileLine);
-              }
-              res.close();
-              stmt.close();
-              con.close();
-            } catch (Exception e) {
-              logger.error(e.getMessage());
-            }  */
-
           }
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
                                                 + new Date().getTime() - intModeHeaderSearchBegin);
@@ -2239,8 +2197,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             MVUtil.findValueInArray(listToken, headerNames, "OBS_VALID"));
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateFcstValidBeg);
-        String strObsValidBeg = CBDatabaseManager.DATE_FORMAT.format(dateObsValidBeg);
+        String strFcstValidBeg = DATE_FORMAT.format(dateFcstValidBeg);
+        String strObsValidBeg = DATE_FORMAT.format(dateObsValidBeg);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD");
@@ -2278,7 +2236,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         calFcstInitBeg.setTime(dateFcstValidBeg);
         calFcstInitBeg.add(Calendar.SECOND, -1 * intFcstLeadSec);
         Date dateFcstInitBeg = calFcstInitBeg.getTime();
-        String strFcstInit = CBDatabaseManager.DATE_FORMAT.format(dateFcstInitBeg);
+        String strFcstInit = DATE_FORMAT.format(dateFcstInitBeg);
 
 
         String mtdHeaderValueList = "'" + MVUtil.findValueInArray(listToken, headerNames, "VERSION")
@@ -2369,25 +2327,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (info._boolMtdHeaderDBCheck) {
             String strMtdHeaderSelect = "SELECT\n  mtd_header_id\nFROM\n  mtd_header\nWHERE\n" +
                                             mtdHeaderWhereClause;
-    /*        try (Connection con = getConnection();
-                 Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                      ResultSet.CONCUR_READ_ONLY);
-                 ResultSet res = stmt.executeQuery(strMtdHeaderSelect)) {
-              if (res.next()) {
-                String strMtdHeaderIdDup = res.getString(1);
-                mtdHeaderId = Integer.parseInt(strMtdHeaderIdDup);
-                foundMtdHeader = true;
-                logger.warn(
-                    "  **  WARNING: found duplicate mtd_header record with id " +
-                        strMtdHeaderIdDup + "\n        " + strFileLine);
-              }
-              res.close();
-              stmt.close();
-              con.close();
-            } catch (Exception e) {
-              logger.error(e.getMessage());
-            }  */
-
           }
           timeStats.put("headerSearchTime", timeStats.get("headerSearchTime")
                                                 + new Date().getTime() - mtdHeaderSearchBegin);
@@ -2607,7 +2546,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
       try {
         //logger.info("before get counter line data  "+System.currentTimeMillis());
-        nextIdNumber = bucket.counter("LDCounter", 1, 1).content();
+        nextIdNumber = getBucket().counter("LDCounter", 1, 1).content();
         //logger.info(" after get counter line data  "+System.currentTimeMillis());
         // unique id must be a string
         lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" + listValuesArr[2] + "::" + String.valueOf(nextIdNumber);
@@ -2639,7 +2578,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         //logger.info("before document line data create "+System.currentTimeMillis());
         doc = JsonDocument.create(lineDataIdString, lineDataFile);
         //logger.info(" after document line data create "+System.currentTimeMillis());
-        response = bucket.upsert(doc);
+        response = getBucket().upsert(doc);
         //logger.info(" after document line data upsert "+System.currentTimeMillis());
         if (response.content().isEmpty()) {
             logger.warn("  **  WARNING: unexpected result from line data INSERT");
@@ -2665,12 +2604,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @return data structure containing information about the input file
    */
   @Override
-  public DataFileInfo processDataFile(File file, boolean forceDupFile, DatabaseInfo databaseInfo) throws Exception {
+  public DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception {
     String strPath = file.getParent().replace("\\", "/");
     String strFile = file.getName();
     int strDataFileLuId = -1;
     String strDataFileLuTypeName;
-    Integer dataFileId;
+    String dataFileId;
     JsonDocument doc;
     N1qlQueryResult queryResult = null;
     List<N1qlQueryRow> queryList = null;
@@ -2689,9 +2628,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     }
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    String strLoadDate = CBDatabaseManager.DATE_FORMAT.format(cal.getTime());
+    String strLoadDate = DATE_FORMAT.format(cal.getTime());
     cal.setTimeInMillis(file.lastModified());
-    String strModDate = CBDatabaseManager.DATE_FORMAT.format(cal.getTime());
+    String strModDate = DATE_FORMAT.format(cal.getTime());
 
     // determine the type of the input data file by parsing the filename
     if (strFile.matches("\\S+\\.stat$")) {
@@ -2720,7 +2659,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       strDataFileLuId = tableDataFileLU.get(strDataFileLuTypeName);
     }
     // for compile. remove when CB fully in
-    dataFileId = 0;
+    dataFileId = "0";
 
     // build a Couchbase query to look for the file and path in the data_file table
 
@@ -2733,16 +2672,16 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "load_date, " +
             "mod_date " +
             "FROM `" +
-            bucket.name() +
+            getBucket().name() +
             "` WHERE " +
             "type = \'file\' AND " +
-            searchDbName + " = " + databaseInfo.getDbName() + " AND " +
+            searchDbName + " = " + getDbName() + " AND " +
             "`data_type` = \'" + strDataFileLuTypeName + "\' AND " +
             "filename = \'" + strFile + "\' AND " +
             "`path` = \'" + strPath + "\';";
 
     try {
-      queryResult = bucket.query(N1qlQuery.simple(strDataFileQuery));
+      queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
       queryList = queryResult.allRows();
 
       // if the data file is already present in the database, print a warning and return the id
@@ -2755,7 +2694,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           strLoadDate = firstRowObject.get("load_date").toString();
           strModDate = firstRowObject.get("mod_date").toString();
           DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
-                                               strModDate, strDataFileLuId, strDataFileLuTypeName, dupIdString);
+                                               strModDate, strDataFileLuId, strDataFileLuTypeName);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
         } else {
@@ -2768,7 +2707,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     }
     //  create a unique string data_file id from a Couchbase counter, starting at 1 the first time
     try {
-      nextIdNumber = bucket.counter("DFCounter", 1, 1).content();
+      nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
       if (0 > nextIdNumber) {
         throw new Exception("METViewer load error: processDataFile() unable to get counter");
       }
@@ -2776,7 +2715,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
-    nextIdString = databaseInfo.getDbName() + "::file::" + strDataFileLuTypeName + "::" + String.valueOf(nextIdNumber);
+    nextIdString = getDatabaseInfo().getDbName() + "::file::" + strDataFileLuTypeName + "::" + String.valueOf(nextIdNumber);
     try {
       dataFile = JsonObject.empty()
               .put("type", "file")
@@ -2787,19 +2726,19 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               .put("mod_date", strModDate);
 
       doc = JsonDocument.create(nextIdString, dataFile);
-      response = bucket.upsert(doc);
+      response = getBucket().upsert(doc);
       if (response.content().isEmpty()) {
         logger.warn("  **  WARNING: unexpected result from data_file INSERT");
       }
     } catch (Exception e) {
       throw new Exception(e.getMessage());
       }
-    return new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
-                            strDataFileLuTypeName, nextIdString);
+    return new DataFileInfo(nextIdString, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
+                            strDataFileLuTypeName);
   }
 
   @Override
-  public void updateInfoTable(String strXML, MVLoadJob job, DatabaseInfo databaseInfo) throws Exception {
+  public void updateInfoTable(String strXML, MVLoadJob job) throws Exception {
     long nextIdNumber;
     nextIdNumber = 0;
     String nextIdString;
@@ -2823,7 +2762,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       }
     }
     strUpdater = strUpdater.trim();
-    String strUpdateDate = CBDatabaseManager.DATE_FORMAT.format(new Date());
+    String strUpdateDate = DATE_FORMAT.format(new Date());
     String strUpdateDetail = job.getLoadNote();
 
     //  read the load xml into a string, if requested
@@ -2839,16 +2778,15 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     //  create a unique string data_file id from a Couchbase counter, starting at 1 the first time
     try {
-      nextIdNumber = bucket.counter("DFCounter", 1, 1).content();
+      nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
       if (0 > nextIdNumber) {
         throw new Exception("METViewer load error: updateInfoTable() unable to get counter");
       }
-
     } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
     // Create new id for data file job document
-    nextIdString = databaseInfo.getDbName() + "::job::" + String.valueOf(nextIdNumber);
+    nextIdString = getDbName() + "::job::" + nextIdNumber;
 
     //  execute the CB insert
     logger.info("Inserting instance_info record...  ");
@@ -2862,7 +2800,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               .put("xml_test", strLoadXML);
 
       doc = JsonDocument.create(nextIdString, instanceFile);
-      response = bucket.upsert(doc);
+      response = getBucket().upsert(doc);
       if (response.content().isEmpty()) {
         logger.warn("  **  WARNING: unexpected result from instance_info INSERT");
       }
@@ -2872,7 +2810,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     logger.info("Done\n");
   }
-
 
   private String replaceInvalidValues(String strData) {
     return strData.replace("NA", "-9999").replace("-nan", "-9999").replace("nan", "-9999");

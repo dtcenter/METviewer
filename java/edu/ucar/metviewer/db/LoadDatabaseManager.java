@@ -5,12 +5,11 @@
 
 package edu.ucar.metviewer.db;
 
-import java.io.File;
-import java.util.Map;
-
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
 
+import java.io.File;
+import java.util.Map;
 /**
  * @author : tatiana $
  * @version : 1.0 : 07/06/17 12:33 $
@@ -21,19 +20,21 @@ public interface LoadDatabaseManager {
 
   void applyIndexes() throws Exception;
 
-  void updateInfoTable(String strXML, MVLoadJob job, DatabaseInfo databaseInfo) throws Exception;
+  void updateInfoTable(String strXML, MVLoadJob job) throws Exception;
 
-  DataFileInfo processDataFile(File file, boolean forceDupFile, DatabaseInfo databaseInfo) throws Exception;
+  DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception;
 
   Map<String, Long> loadStatFile(DataFileInfo info) throws Exception;
 
   Map<String, Long> loadModeFile(DataFileInfo info) throws Exception;
 
-  Map<String, Long> loadStatFileVSDB(DataFileInfo info, DatabaseInfo databaseInfo) throws Exception;
+  Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception;
 
   Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception;
 
   void updateGroup(final String group) throws Exception;
 
   void updateDescription(String description) throws Exception;
+
+  DatabaseInfo getDatabaseInfo() throws Exception;
 }
