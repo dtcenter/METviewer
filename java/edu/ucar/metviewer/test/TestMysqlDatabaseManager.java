@@ -13,15 +13,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
-import static edu.ucar.metviewer.test.util.TestUtil.LOAD_DIR;
-
 public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements TestDBManager {
     public TestMysqlDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
         super(databaseInfo);
     }
 
-    private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
+    private static final Logger logger = LogManager.getLogger("TestMysqlDatabaseManager");
 
     public int getNumberOfRows(String lineDataType) throws Exception {
         String tableName = lineDataType;

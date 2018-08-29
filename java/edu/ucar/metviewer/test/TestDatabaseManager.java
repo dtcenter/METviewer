@@ -6,14 +6,6 @@
 package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.db.DatabaseInfo;
-import org.apache.logging.log4j.io.IoBuilder;
-import edu.ucar.metviewer.db.DatabaseManager;
-
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * @author : tatiana $

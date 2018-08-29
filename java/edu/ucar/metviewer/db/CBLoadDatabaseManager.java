@@ -1174,11 +1174,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         .put("interp_pnts", strInterpPnts)
                         .put("fcst_thresh", thresh)
                         .put("obs_thresh", thresh);
-                //logger.info("before document header create "+System.currentTimeMillis());
                 doc = JsonDocument.create(headerIdString, headerFile);
-                //logger.info(" after document header create "+System.currentTimeMillis());
                 response = getBucket().upsert(doc);
-                //logger.info(" after document header upsert "+System.currentTimeMillis());
                 if (response.content().isEmpty()) {
                   logger.warn("  **  WARNING: unexpected result from header INSERT");
                 } else {
@@ -2539,15 +2536,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String[] listValuesArr;
 
     int intResLineDataInsert = 0;
-    logger.info("before loop in executebatch "+ System.currentTimeMillis());
     for (int i = 0; i < listValues.size(); i++) {
 
       listValuesArr = listValues.get(i).split(",");
       //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
       try {
-        //logger.info("before get counter line data  "+System.currentTimeMillis());
         nextIdNumber = getBucket().counter("LDCounter", 1, 1).content();
-        //logger.info(" after get counter line data  "+System.currentTimeMillis());
         // unique id must be a string
         lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" + listValuesArr[2] + "::" + String.valueOf(nextIdNumber);
 
@@ -2575,11 +2569,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           lineDataFile.put(listFieldsArr[j], listValuesArr[j+13]);
         }
 
-        //logger.info("before document line data create "+System.currentTimeMillis());
         doc = JsonDocument.create(lineDataIdString, lineDataFile);
-        //logger.info(" after document line data create "+System.currentTimeMillis());
         response = getBucket().upsert(doc);
-        //logger.info(" after document line data upsert "+System.currentTimeMillis());
         if (response.content().isEmpty()) {
             logger.warn("  **  WARNING: unexpected result from line data INSERT");
         } else {
@@ -2590,7 +2581,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       }
 
     }
-    logger.info(" after loop in executebatch "+ System.currentTimeMillis());
 
     return intResLineDataInsert;
   }
