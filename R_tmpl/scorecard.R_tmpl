@@ -182,59 +182,67 @@ if ( nrow(sampleData) > 0){
             }else{
               ndays=0;
             }
-
             ndays=ndays+1;
 
-            if ( ndays >= 80 ){
-              alpha1=1.960  ; #95% confidence level
-              alpha2=2.576  ; #99% confidence level
-              alpha3=3.291  ; #99.9% confidence level
-            }else if (ndays >= 40 && ndays < 80 ){
-              alpha1=2.0    ; #95% confidence level
-              alpha2=2.66   ; #99% confidence level
-              alpha3=3.46   ; #99.9% confidence level
-            } else if( ndays >= 20 && ndays < 40 ){
-              alpha1=2.042  ; #95% confidence level
-              alpha2=2.75   ; #99% confidence level
-              alpha3=3.646  ; #99.9% confidence level
-            } else if (ndays < 20 ){
-              alpha1=2.228  ; #95% confidence level
-              alpha2=3.169  ; #99% confidence level
-              alpha3=4.587  ; #99.9% confidence level
-            }
-            acdm1 = mean( derived_stat_list, na.rm = TRUE );
-            acdm = sum( dfStatsIndy1$stat_value - dfStatsIndy2$stat_value ) / ndays;
-            std1 = sd( derived_stat_list, na.rm = TRUE );
+            acdm = sum( dfStatsIndy2$stat_value - dfStatsIndy1$stat_value ) / ndays;
+            std = sqrt ( sum( (dfStatsIndy2$stat_value - dfStatsIndy1$stat_value - acdm) * (dfStatsIndy2$stat_value - dfStatsIndy1$stat_value -acdm) ) / ndays );
 
-            std = sqrt ( sum( (dfStatsIndy1$stat_value - dfStatsIndy2$stat_value - acdm) * (dfStatsIndy1$stat_value - dfStatsIndy2$stat_value -acdm) ) / ndays );
             nsz = nrow(dfStatsIndy1);
 
-            if (nsz >= 80) {
-              intvl = 1.960 * std / sqrt(nsz - 1);
-            } else if (nsz >= 40 && nsz < 80) {
-              intvl = 2.000 * std / sqrt(nsz - 1);
-            } else if (nsz >= 20 && nsz < 40) {
-              intvl = 2.042 * std / sqrt(nsz - 1);
-            } else if (nsz < 20) {
-              intvl = 2.228 * std / sqrt(nsz - 1);
-            }
-            ###--!!!!!!!!!!!!!--
-            ##intvl = 1.960 * std / sqrt(nsz - 1);
-            ###--!!!!!!!!!!!!!--
+            #if (nsz >= 80) {
+              #  intvl = 1.960 * std1 / sqrt(ndays - 1);
+              #  intvl = round(intvl, digits=6)
+            # } else if (nsz >= 40 && nsz < 80) {
+              #  intvl = 2.000 * std1 / sqrt(ndays - 1);
+            #} else if (nsz >= 20 && nsz < 40) {
+             #  intvl = 2.042 * std1 / sqrt(ndays - 1);
+            #} else if (nsz < 20) {
+              #  intvl = 2.228 * std1 / sqrt(ndays - 1);
+            #}
+            intvl = 1.960 * std / sqrt(nsz - 1);
+            intvl = round(intvl, digits=6);
 
-            if ( grepl('ME$',listDepPlot[[1]] )
-                            || grepl('BIAS$',listDepPlot[[1]] )
-                            || grepl('SPEED_ERR$',listDepPlot[[1]] )){ #bias
-              ds = ( abs(mean(dfStatsIndy1$stat_value)) - abs(mean(dfStatsIndy2$stat_value)) )  / intvl;
+            mean1 = round(mean(dfStatsIndy1$stat_value, na.rm=TRUE), digits=6);
+            mean2 = round(mean(dfStatsIndy2$stat_value, na.rm=TRUE), digits=6);
+
+            if ( grepl('ME$',listDepPlot[[1]] ) || grepl('BIAS$',listDepPlot[[1]] )){ #bias
+              ds = ( abs(mean2-mean1) )/intvl;
+              sss = abs(mean2) - abs(mean1);
+              if(!is.null(sss) && !is.na(sss) && sss < 0){
+                ds = (-1) * ds;
+              }
+
             }else if ( grepl('RMSE$',listDepPlot[[1]]) || grepl('RMSVE$',listDepPlot[[1]]) ){
-              ds=( mean(dfStatsIndy1$stat_value) - mean(dfStatsIndy2$stat_value) ) / intvl;
+              ds=( mean2 - mean1 ) / intvl;
             }else {
-              ds= ( mean(dfStatsIndy2$stat_value) - mean(dfStatsIndy1$stat_value) ) / intvl;
+              ds= ( mean1 - mean2 ) / intvl;
             }
-             if(!is.na(ds)){
-               ds95 = (-1) * ds;
-               ds99 = (-1) * ds * alpha1 / alpha2;
-               ds999 = (-1) * ds * alpha1 / alpha3;
+            ds = round(ds, digits=3);
+            if(!is.na(ds)){
+              if ( ndays >= 80 ){
+                alpha1=1.960  ; #95% confidence level
+                alpha2=2.576  ; #99% confidence level
+                alpha3=3.291  ; #99.9% confidence level
+              }else if (ndays >= 40 && ndays < 80 ){
+                alpha1=2.0    ; #95% confidence level
+                alpha2=2.66   ; #99% confidence level
+                alpha3=3.46   ; #99.9% confidence level
+              } else if( ndays >= 20 && ndays < 40 ){
+                alpha1=2.042  ; #95% confidence level
+                alpha2=2.75   ; #99% confidence level
+                alpha3=3.646  ; #99.9% confidence level
+              } else if (ndays < 20 ){
+                alpha1=2.228  ; #95% confidence level
+                alpha2=3.169  ; #99% confidence level
+                alpha3=4.587  ; #99.9% confidence level
+              }
+              ds95 =  ds;
+              ds99 =  ds * alpha1 / alpha2;
+              ds99 = round(ds99, digits=3);
+              ds999 =  ds * alpha1 / alpha3;
+              ds999 = round(ds999, digits=3);
+              #cat("mean1 ",mean1, " mean2 ", mean2, " intvl ",intvl," ds95 ", ds95," ds999 ",
+              # ds999, '\n');
 
                for (index in 1:length(ds)) {
                  if (ds999[index] >= 1) {
