@@ -61,7 +61,11 @@ public class SumRscriptManager extends RscriptManager {
 
 
     tableCalcStatInfoCommon = new HashMap<>();
-    tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
+    if(scorecard.getStatFlag().equals("EMC")){
+      tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
+    }else {
+      tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
+    }
     tableCalcStatInfoCommon.put("ci_alpha", "0.05");
     tableCalcStatInfoCommon.put("equalize_by_indep", String.valueOf(Boolean.FALSE).toUpperCase());
     tableCalcStatInfoCommon.put("series2_list", "list()");
@@ -127,6 +131,8 @@ public class SumRscriptManager extends RscriptManager {
       )).toUpperCase());
       tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
                                              .toUpperCase());
+      tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
+                                                   .toUpperCase());
 
       //check id output file exists and its length not 0
       File output = new File(tableCalcStatInfo.get("sum_stat_output"));
