@@ -839,6 +839,8 @@ public class MVPlotJobParser {
       xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
       xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine())
           .append("</add_reference_line>");
+      xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds())
+          .append("</add_point_thresholds>");
     }
 
     //  roc_calc
