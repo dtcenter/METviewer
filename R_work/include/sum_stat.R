@@ -203,7 +203,7 @@ if ( nrow(sampleData) > 0){
     }
   }
 
-  dfStatsRecTranspose=data.frame(t(dfStatsRec),stringsAsFactors = FALSE);
+  dfStatsRecTranspose=data.frame(t(format(dfStatsRec, digits=10)),stringsAsFactors = FALSE);
   a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
   #a=lapply( dfStatsRecTranspose,prepareCalc);
 
