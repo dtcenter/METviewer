@@ -49,6 +49,8 @@ calcANOM_CORR    = function(d){
     }
   }
 }
+
+
 calcRMSFA    = function(d){
   if (is.na(d$ffbar) ||  0 > d$ffbar ){
     return (NA);
@@ -278,11 +280,15 @@ calcNBR_O_RATE = function(d){ return ( d$o_rate ); }
 calcVCNT_FS_RMS = function(d){ return ( sqrt(d$uvffbar) ); }
 calcVCNT_OS_RMS = function(d){ return ( sqrt(d$uvoobar) ); }
 
-calcVL1L2_BIAS = function(d){
+calcVL1L2_WIND_DIFF = function(d){
   bias = d$f_speed_bar - d$o_speed_bar;
   if ( is.na(bias) ){
     return (NA);
   }
+  return ( round(bias, digits=5)) ;
+}
+calcVL1L2_BIAS = function(d){
+  bias = sqrt(d$uvffbar) - sqrt(d$uvoobar);
   return ( round(bias, digits=5)) ;
 }
 
@@ -472,6 +478,8 @@ calc_wind_corr = function( total, uf, vf, uo, vo, uvfo, uvff, uvoo ){
     return ( round(corr, digits=5)) ;
   }
 }
+
+
 
 
 calcPSTD_BRIER = function(d){
