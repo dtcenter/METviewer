@@ -309,6 +309,9 @@ public class MVServlet extends HttpServlet {
     //  if the request is for the mode stats, return the static list
     String strId = nodeCall.children[0].value;
     String strFcstVar = nodeCall.children[1].value;
+    if(strFcstVar.equals("undefined")){
+      return "<list_stat><id>" + strId + "</id></list_stat>";
+    }
     if (nodeCall.children[0].tag.equals("mode_fcst_var")) {
       String strResp = "<list_stat><id>" + strId + "</id></list_stat>";
       logger.debug("handleListStat() - returning mode stats: " + strResp);
@@ -1055,7 +1058,11 @@ public class MVServlet extends HttpServlet {
           }
           //  <db_con> node containing the database connection name
           else if (nodeCall.tag.equalsIgnoreCase("db_con")) {
-            currentDbName = nodeCall.value.split(",");
+            if(nodeCall.value.isEmpty()){
+              currentDbName = new String[0];
+            }else {
+              currentDbName = nodeCall.value.split(",");
+            }
           }
 
           //  <list_val>
