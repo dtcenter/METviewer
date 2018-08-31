@@ -17,7 +17,13 @@
   <li>2018/08/31 - <b class="tag">mv 2.7</b></li>
   <div>New features:</div>
   <ul>Updated database selecting widget on the web page.</ul>
-  <ul>New VL1L2_BIAS, VL1L2_RMSVE, VL1L2_MSVE and VAL1L2_ANOM_CORR wind statistics</ul>
+  <ul>New VL1L2_BIAS, VL1L2_RMSVE, VL1L2_MSVE and VAL1L2_ANOM_CORR wind statistics.<br/>
+    VL1L2_BIAS = sqrt(d$uvffbar) - sqrt(d$uvoobar)<br/>
+    VL1L2_RMSVE = sqrt ( VL1L2_MSVE )<br/>
+    VL1L2_MSVE = d$uvffbar - 2.0*d$uvfobar + d$uvoobar<br/>
+    VAL1L2_ANOM_CORR = ( uvfo - uf * uo - vf * vo ) / ( sqrt( uvff - uf * uf - vf * vf ) * sqrt(
+    uvoo - uo * uo - vo * vo) )
+  </ul>
 
   <div>Fixes and improvements:</div>
   <ul>Fixed EMC method for the scorecard </ul>
