@@ -85,7 +85,7 @@
         multiple: false,
         selectedList: 1,
         header: false,
-        minWidth: 'auto',
+        minWidth: 120,
         height: 200,
 
         click: function () {

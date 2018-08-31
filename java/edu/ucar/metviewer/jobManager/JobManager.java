@@ -320,6 +320,7 @@ public abstract class JobManager {
     info.put("sum_sl1l2", job.getCalcSl1l2() ? "TRUE" : "FALSE");
     info.put("sum_grad", job.getCalcGrad() ? "TRUE" : "FALSE");
     info.put("sum_vl1l2", job.getCalcVl1l2() ? "TRUE" : "FALSE");
+    info.put("sum_val1l2", job.getCalcVal1l2() ? "TRUE" : "FALSE");
     info.put("sum_sal1l2", job.getCalcSal1l2() ? "TRUE" : "FALSE");
     info.put("eveq_dis", job.getEveqDis() ? "TRUE" : "FALSE");
     info.put("indy_var", job.getIndyVar());

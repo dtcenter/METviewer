@@ -218,6 +218,7 @@ public class Scorecard {
   public String getAggStatDataFile() {
     return dataFile + ".agg_stat";
   }
+
   public String getSumStatDataFile() {
     return dataFile + ".sum_stat";
   }
@@ -250,7 +251,6 @@ public class Scorecard {
   public void setStat(String stat) {
     this.stat = stat;
   }
-
 
 
   public static void main(String[] args) throws Exception {
@@ -324,10 +324,10 @@ public class Scorecard {
             rscriptManager.calculateStatsForRow(mapRow, "");
             logger.info(
                 "---------------------------------------------------------------------------------------");
-            rowCounter++;
-          }catch (Exception e){
+          } catch (Exception e) {
             logger.error(e.getMessage());
           }
+          rowCounter++;
         }
 
         File dataFile = new File(scorecard.getWorkingFolders().getDataDir()
@@ -351,8 +351,8 @@ public class Scorecard {
   }
 
   /**
-   * Checks if XML included only one model.
-   * If it does - add the second model that is the same as the first one
+   * Checks if XML included only one model. If it does - add the second model that is the same as
+   * the first one
    */
   private void fillValues() {
     for (Field fixedVar : fixedVars) {

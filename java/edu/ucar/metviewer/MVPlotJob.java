@@ -12,7 +12,7 @@ import edu.ucar.metviewer.db.DatabaseManager;
  * Storage class for a xml plot specification, implementing the java bean interface.  Instances are
  * populated by the MVPlotJobParser and handled by MVBatch.
  */
-public class MVPlotJob  {
+public class MVPlotJob {
 
   protected String jobName = "";
 
@@ -164,6 +164,7 @@ public class MVPlotJob  {
   protected boolean _boolCalcGrad = false;
   protected boolean _boolCalcSal1l2 = false;
   protected boolean _boolCalcVl1l2 = false;
+  protected boolean _boolCalcVal1l2 = false;
 
   protected boolean revisionStat = false;
   protected boolean revisionAc = false;
@@ -358,6 +359,7 @@ public class MVPlotJob  {
     job._boolCalcGrad = _boolCalcGrad;
     job._boolCalcSal1l2 = _boolCalcSal1l2;
     job._boolCalcVl1l2 = _boolCalcVl1l2;
+    job._boolCalcVal1l2 = _boolCalcVal1l2;
 
     job.revisionStat = revisionStat;
     job.revisionAc = revisionAc;
@@ -1546,9 +1548,18 @@ public class MVPlotJob  {
     _boolCalcVl1l2 = calcVl1l2;
   }
 
+  public boolean getCalcVal1l2() {
+    return _boolCalcVal1l2;
+  }
+
+  public void setCalcVal1l2(boolean calcVal1l2) {
+    _boolCalcVal1l2 = calcVal1l2;
+  }
+
   public boolean getCalcVl1l2() {
     return _boolCalcVl1l2;
   }
+
 
   public void setAggVl1l2(boolean aggVl1l2) {
     _boolAggVl1l2 = aggVl1l2;
@@ -1942,7 +1953,8 @@ public class MVPlotJob  {
     if (isMode == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
-        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep1"));
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(
+            (MVOrderedMap) listDep[0].get("dep1"));
         String strStat = MVUtil.parseModeStat(listFcstVarStat[0][1])[0];
 
         isMode = MVUtil.modeSingleStatField.containsKey(strStat)

@@ -49,6 +49,8 @@ calcANOM_CORR    = function(d){
     }
   }
 }
+
+
 calcRMSFA    = function(d){
   if (is.na(d$ffbar) ||  0 > d$ffbar ){
     return (NA);
@@ -278,11 +280,15 @@ calcNBR_O_RATE = function(d){ return ( d$o_rate ); }
 calcVCNT_FS_RMS = function(d){ return ( sqrt(d$uvffbar) ); }
 calcVCNT_OS_RMS = function(d){ return ( sqrt(d$uvoobar) ); }
 
-calcVL1L2_BIAS = function(d){
+calcVL1L2_WIND_DIFF = function(d){
   bias = d$f_speed_bar - d$o_speed_bar;
   if ( is.na(bias) ){
     return (NA);
   }
+  return ( round(bias, digits=5)) ;
+}
+calcVL1L2_BIAS = function(d){
+  bias = sqrt(d$uvffbar) - sqrt(d$uvoobar);
   return ( round(bias, digits=5)) ;
 }
 
@@ -293,6 +299,34 @@ calcVL1L2_FVAR = function(d){
 calcVL1L2_OVAR = function(d){
   ovar =  d$uvoobar - d$o_speed_bar^2 ;
   return ( round(ovar, digits=5)) ;
+}
+
+calcVL1L2_FSPD = function(d){
+  fspd = calc_spd( d$ufbar, d$vfbar );
+  return ( round(fspd, digits=5)) ;
+}
+
+calcVL1L2_OSPD = function(d){
+  ospd = calc_spd( d$uobar, d$vobar );
+  return ( round(ospd, digits=5)) ;
+}
+
+calcVL1L2_SPEED_ERR = function(d){
+  speed_bias = calcVL1L2_FSPD(d) - calcVL1L2_OSPD(d);
+  return ( round(speed_bias, digits=5)) ;
+}
+
+calcVL1L2_RMSVE = function(d){
+  rmsve = sqrt ( calcVL1L2_MSVE(d) );
+  return ( round(rmsve, digits=5) );
+}
+
+calcVL1L2_MSVE = function(d){
+  msve = d$uvffbar - 2.0*d$uvfobar + d$uvoobar;
+  if (msve < 0 ){
+    return (NA);
+  }
+  return ( round(msve, digits=5) );
 }
 
 calc_spd = function(u,v){
@@ -444,6 +478,8 @@ calc_wind_corr = function( total, uf, vf, uo, vo, uvfo, uvff, uvoo ){
     return ( round(corr, digits=5)) ;
   }
 }
+
+
 
 
 calcPSTD_BRIER = function(d){

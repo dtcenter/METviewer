@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <HTML>
 <HEAD>
-  <META http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METViewer v2.6</TITLE>
+  <TITLE>METviewer v2.7</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -13,6 +14,10 @@
   <link rel="stylesheet" href="css/ui.jqgrid.css"/>
   <link rel="stylesheet" href="css/jquery.colorpicker.css"/>
   <link rel="stylesheet" href="css/jquery.multiselect.css"/>
+  <link rel="stylesheet" type="text/css" href="css/multilevel-dropdown.css" />
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+
   <style type="text/css">
 
     .ui-jqgrid .ui-jqgrid-btable, .ui-pg-table, .ui-widget, .ui-widget-content .ui-state-default, .ui-widget table {
@@ -160,120 +165,6 @@
 
 
 
-
-    nav {
-        display: block;
-        text-align: left;
-      }
-      nav ul {
-        margin: 0;
-        padding:0;
-        list-style: none;
-      }
-      .nav a {
-        display:block;
-        background: #fff;
-        color:#555;
-        text-decoration: none;
-        padding: 0.3em 1em;
-        position: relative;
-        font-weight: normal;
-        font-family: Verdana,Arial,sans-serif;
-        font-size: 11px;
-      }
-      .nav{
-        vertical-align: top;
-        display: inline-block;
-        border-radius:6px;
-      }
-      .nav li{position: relative;}
-      .nav > li {
-        float:left;
-        border-bottom: 4px #d3d3d3 solid;
-        margin-right: 1px;
-      }
-      .nav > li > a {
-        margin-bottom:1px;
-        width: 250px;
-      }
-      .nav > li:hover , .nav > li:hover >a{  border-bottom-color:#999;}
-      .nav li:hover > a { font-weight: bold; }
-      .nav > li:first-child  {
-        border-radius: 4px 0 0 4px;
-        background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
-        border: 1px solid #d3d3d3;
-      }
-      .nav > li:first-child>a{border-radius: 4px 0 0 0;
-        background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
-      }
-      .nav > li:last-child  {
-      	border-radius: 0 0 4px 0;
-      	margin-right: 0;
-      }
-      .nav > li:last-child >a{border-radius: 0 4px 0 0; }
-      .nav li li a { }
-
-
-
-        .nav li a:first-child:nth-last-child(2):before {
-         content:"";
-         position: absolute;
-         height:0;
-         width: 0;
-         border: 5px solid transparent;
-         top: 50% ;
-         right:5px;
-       }
-
-
-
-
-
-       /* submenu positioning*/
-    .nav ul {
-      position: absolute;
-      white-space: nowrap;
-      border-bottom: 1px solid  #d3d3d3;
-      z-index: 10000;
-      left: -99999em;
-    }
-    .nav > li:hover > ul {
-      left: auto;
-      padding-top: 5px  ;
-      min-width: 100%;
-    }
-    .nav > li li ul {
-      border:1px solid #d3d3d3;
-      max-height: 400px;
-      overflow: auto;
-    }
-
-
-    .nav > li li:hover > ul {
-     /* margin-left: 1px */
-      left: 100%;
-      top: -1px;
-    }
-    /* arrow hover styling */
-    .nav > li > a:first-child:nth-last-child(2):before {
-      border-top-color: #999;
-    }
-    .nav > li:hover > a:first-child:nth-last-child(2):before {
-      border: 5px solid transparent;
-      border-bottom-color: #999;
-      margin-top:-5px
-    }
-    .nav li li > a:first-child:nth-last-child(2):before {
-      border-left-color: #d3d3d3;
-      margin-top: -5px
-    }
-    .nav li li:hover > a:first-child:nth-last-child(2):before {
-      border: 5px solid transparent;
-      border-right-color: #999;
-      right: 10px;
-    }
-
-
   </style>
 
   <script src="js/jquery-min.js" type="text/javascript"></script>
@@ -290,8 +181,9 @@
   <script type="text/javascript" src="js/jquery.actual.min.js"></script>
   <script type="text/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  <script type="text/javascript" src="js/metviewer_common.min.js"></script>
+  <script type="text/javascript" src="js/metviewer_common.js"></script>
   <script type="text/javascript" src="js/moment.min.js"></script>
+  <script type="text/javascript" src="js/multilevel-dropdown.js"></script>
 
   <script type="text/javascript">
 
@@ -321,6 +213,10 @@
 
 
     $(document).ready(function () {
+
+
+
+
       $('input[name=derive_oper]').change(function () {
         createNewDerivedSeriesName($('input[name=yAxisDiff]').val());
       });
@@ -353,16 +249,33 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METViewer 2.6<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.7<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
-    <nav style="float: left;padding-left: 30px;">
-                   <ul class="nav"><li><a href="#" id="selected_db"><span>Databases</span> <span
-                           id="uncheck_all"
-                           title="Uncheck all"
-                           class="ui-button-icon-primary ui-icon ui-icon-trash" style="position: absolute;top: 5px;left: 240px;"></span></a>
-                     <ul id="categories"></ul></li></ul></nav>
+    <nav style="float: left;padding-left: 50px;">
+
+
+      <span class="ui-state-default ui-corner-all" title="Uncheck all"
+                   style="float:left;width: 26px; height: 24px;
+                   background:  #e6e6e6
+                                 url('images/ui-bg_glass_75_e6e6e6_1x400.png');
+                                 border-bottom-right-radius:0;
+                                 border-top-right-radius:0;
+                                 border-right: none;">
+        <span id="uncheck_all" class="ui-button-icon-primary ui-icon ui-icon-trash"
+              style="margin: 4.5px;"></span>
+        </span>
+
+      <span style="float: right;">
+      <ul class="multilevel-dropdown" data-dropdown-name="values" data-dropdown-value="databases"
+          id="categories1" >
+        <ul data-label="Select databases" id="categories11">
+
+        </ul>
+      </ul>
+      </span>
+    </nav>
 
     <span style="margin-left:20px;"><button id="generate_plot">Generate Plot</button></span>
     <button id="load_xml" style="float: right">Load XML</button>
@@ -1141,7 +1054,7 @@
       <div>
         <input type="radio" name="derive_oper" value="DIFF" id="derive_oper_diff" checked/><label for="derive_oper_diff">DIFF</label>
         <input type="radio" name="derive_oper" value="RATIO" id="derive_oper_ratio" checked/><label for="derive_oper_ratio">RATIO</label>
-        <input type="radio" name="derive_oper" value="SS" id="derive_oper_SS" checked/><label for="derive_oper_ss">SKILL
+        <input type="radio" name="derive_oper" value="SS" id="derive_oper_ss" checked/><label for="derive_oper_ss">SKILL
         SCORE</label>
       </div>
       <div id="newDiffSeriesName" class="diffSelect" style="font-weight:bold;"></div>
@@ -1154,23 +1067,19 @@
 
 <div id="error_message" title="Error during creating the plot">
   <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-    <p>
         <span class="ui-icon ui-icon-alert"
               style="float:left; margin:0 7px 50px 0;"></span>
 
     <div id="error_message_text" style="color: #1A1A1A;"></div>
-    </p>
   </div>
 </div>
 
 <div id="r_error_message" title="Warnings during creating the plot">
   <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
-    <p>
         <span class="ui-icon ui-icon-info"
               style="float:left; margin:0 7px 50px 0;"></span>
 
     <div id="r_error_message_text" style="color: #1A1A1A;"></div>
-    </p>
   </div>
 </div>
 <div id="fade"></div>

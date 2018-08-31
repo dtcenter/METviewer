@@ -798,6 +798,7 @@ public class MVPlotJobParser {
               + "<calc_sl1l2>" + (job.getCalcSl1l2() ? "TRUE" : "FALSE") + "</calc_sl1l2>"
               + "<calc_sal1l2>" + (job.getCalcSal1l2() ? "TRUE" : "FALSE") + "</calc_sal1l2>"
               + "<calc_vl1l2>" + (job.getCalcVl1l2() ? "TRUE" : "FALSE") + "</calc_vl1l2>"
+              + "<calc_val1l2>" + (job.getCalcVal1l2() ? "TRUE" : "FALSE") + "</calc_val1l2>"
               + "<calc_grad>" + (job.getCalcGrad() ? "TRUE" : "FALSE") + "</calc_grad>"
               + "</calc_stat>");
     }
@@ -836,7 +837,10 @@ public class MVPlotJobParser {
       }
       xmlStr.append("</summary_curve>");
       xmlStr.append("<add_skill_line>").append(job.getAddSkillLine()).append("</add_skill_line>");
-      xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine()).append("</add_reference_line>");
+      xmlStr.append("<add_reference_line>").append(job.getAddReferenceLine())
+          .append("</add_reference_line>");
+      xmlStr.append("<add_point_thresholds>").append(job.getAddPointThresholds())
+          .append("</add_point_thresholds>");
     }
 
     //  roc_calc
@@ -1190,7 +1194,7 @@ public class MVPlotJobParser {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            mapMse.put(listFcstVar[0], new String[]{"MSE" });
+            mapMse.put(listFcstVar[0], new String[]{"MSE"});
             mapDep.put("dep1", mapMse);
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);
@@ -1210,7 +1214,7 @@ public class MVPlotJobParser {
               MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
               listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
             }
-            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY" });
+            mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
             mapDep.put("dep1", mapFarPody);
             mapDep.put("dep2", new MVOrderedMap());
             job.addDepGroup(mapDep);
@@ -1701,11 +1705,13 @@ public class MVPlotJobParser {
             job.setCalcSal1l2(val);
           } else if (nodeCalcStat.tag.equals("calc_vl1l2")) {
             job.setCalcVl1l2(val);
+          } else if (nodeCalcStat.tag.equals("calc_val1l2")) {
+            job.setCalcVal1l2(val);
           }
         }
 
         if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()
-                && job.getCalcVl1l2() && job.getCalcGrad()) {
+                && job.getCalcVl1l2() && job.getCalcVal1l2() && job.getCalcGrad()) {
           throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 "
                                   + "and calc_sal1l2 and calc_vl1l2 and calc_grad are true");
         }
@@ -1733,7 +1739,7 @@ public class MVPlotJobParser {
           }
         }
         if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()
-                && job.getCalcVl1l2() && job.getCalcGrad()) {
+                && job.getCalcVl1l2() && job.getCalcVal1l2() && job.getCalcGrad()) {
           throw new Exception("invalid revis_stat setting - both calc_ctc and calc_sl1l2 "
                                   + "and calc_sal1l2 and calc_vl1l2 and calc_grad are true");
         }

@@ -309,6 +309,9 @@ public class MVServlet extends HttpServlet {
     //  if the request is for the mode stats, return the static list
     String strId = nodeCall.children[0].value;
     String strFcstVar = nodeCall.children[1].value;
+    if(strFcstVar.equals("undefined")){
+      return "<list_stat><id>" + strId + "</id></list_stat>";
+    }
     if (nodeCall.children[0].tag.equals("mode_fcst_var")) {
       String strResp = "<list_stat><id>" + strId + "</id></list_stat>";
       logger.debug("handleListStat() - returning mode stats: " + strResp);
@@ -611,14 +614,14 @@ public class MVServlet extends HttpServlet {
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n\n"
             + "<html>\n"
             + "<head>\n"
-            + "<title>METViewer Error</title>\n"
+            + "<title>METviewer Error</title>\n"
             + "<link rel=\"stylesheet\" type=\"text/css\" href=\""
             + redirect + "/include/metviewer.css\"/>\n"
             + "<link rel=\"shortcut icon\" href=\""
             + redirect + "/include/ral_icon.ico\" type=\"image/x-icon\"/>\n"
             + "</head>\n"
             + "<body style=\"padding-left:20px; padding-top:20px\">\n"
-            + "<span class=\"bold\">An error has occurred in METViewer."
+            + "<span class=\"bold\">An error has occurred in METviewer."
             + "  Please contact your system administrator</span>\n"
             + "</body></html>\n\n");
   }
@@ -1055,7 +1058,11 @@ public class MVServlet extends HttpServlet {
           }
           //  <db_con> node containing the database connection name
           else if (nodeCall.tag.equalsIgnoreCase("db_con")) {
-            currentDbName = nodeCall.value.split(",");
+            if(nodeCall.value.isEmpty()){
+              currentDbName = new String[0];
+            }else {
+              currentDbName = nodeCall.value.split(",");
+            }
           }
 
           //  <list_val>
