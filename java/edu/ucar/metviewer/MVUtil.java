@@ -66,6 +66,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsOrank = new HashMap<>();
   public static final Map<String, String[]> statsCnt = new HashMap<>();
   public static final Map<String, String[]> statsVcnt = new HashMap<>();
+  public static final Map<String, String[]> statsEcnt = new HashMap<>();
   public static final Map<String, String[]> statsSsvar = new HashMap<>();
   public static final Map<String, String[]> statsCts = new HashMap<>();
   public static final Map<String, String[]> statsNbrcts = new HashMap<>();
@@ -141,7 +142,8 @@ public class MVUtil {
       "ssvar",
       "grad",
       "vcnt",
-      "relp"
+      "relp",
+      "ecnt"
   };
 
   static {
@@ -482,6 +484,19 @@ public class MVUtil {
     statsVcnt.put("VCNT_SPEED_ABSERR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
+  }
+//TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR
+  static {
+    statsEcnt.put("ECNT_CRPS", new String[]{""});
+    statsEcnt.put("ECNT_CRPSS", new String[]{""});
+    statsEcnt.put("ECNT_IGN", new String[]{""});
+    statsEcnt.put("ECNT_ME", new String[]{""});
+    statsEcnt.put("ECNT_RMSE", new String[]{""});
+    statsEcnt.put("ECNT_SPREAD", new String[]{""});
+    statsEcnt.put("ECNT_ME_OERR", new String[]{""});
+    statsEcnt.put("ECNT_RMSE_OERR", new String[]{""});
+    statsEcnt.put("ECNT_SPREAD_OERR", new String[]{""});
+    statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{""});
   }
 
   static {
@@ -1488,6 +1503,8 @@ public class MVUtil {
       return "mtd_3d_obj_single";
     } else if (statsVcnt.containsKey(strStat)) {
       return "line_data_vcnt";
+    } else if (statsEcnt.containsKey(strStat)) {
+         return "line_data_ecnt";
     } else {
       return "";
     }

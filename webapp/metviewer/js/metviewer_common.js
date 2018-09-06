@@ -203,6 +203,16 @@ value_to_desc_map['S1'] = 'S1 score';
 value_to_desc_map['S1_OG'] = 'S1 score with respect to observed gradient';
 value_to_desc_map['FGOG_RATIO'] = 'Ratio of forecast and observed gradients';
 value_to_desc_map['SSVAR_SPREAD'] = 'RHIST_SPREAD is preferred';
+value_to_desc_map['ECNT_CRPS'] = 'The Continuous Ranked Probability Score';
+value_to_desc_map['ECNT_CRPSS'] = 'The ContinuousRanked Probability Skill Score';
+value_to_desc_map['ECNT_IGN'] = 'The Ignorance Score';
+value_to_desc_map['ECNT_ME'] = 'The Mean Error of the ensemble mean';
+value_to_desc_map['ECNT_RMSE'] = 'The Root Mean Square Error of the ensemble mean';
+value_to_desc_map['ECNT_SPREAD'] = 'The mean of the spread of the unperturbed ensemble member values at each observation location';
+value_to_desc_map['ECNT_ME_OERR'] = 'The Mean Error of the PERTURBED ensemble mean';
+value_to_desc_map['ECNT_RMSE_OERR'] = 'The Root Mean Square Error of the PERTURBED ensemble mean';
+value_to_desc_map['ECNT_SPREAD_OERR'] = 'The mean of the spread of the PERTURBED ensemble member values at each observation location';
+value_to_desc_map['ECNT_SPREAD_PLUS_OERR'] = 'The square root of the sum of unperturbed ensemble variance and the observation error variance';
 
 var listStatModeRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
@@ -7389,7 +7399,7 @@ function initPage() {
             var val = d.find("val");
             var desc = d.find("desc");
             var li = $('<li data-value="'+val.text()+'" title="'+desc.text()+'">');
-            var input =$('<input name="multiselect_database" type="checkbox" value="' + val.text()
+            var input =$('<input name="multiselect_database" type="checkbox" disabled value="' + val.text()
                     + '" title="'+desc.text() +'" id="'+val.text()+'" /><label for="'+val.text()+'" >'+ val.text()+ '</label>lab');
             //li.text(val.text());
             li.prepend(input);

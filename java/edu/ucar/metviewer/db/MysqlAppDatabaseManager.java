@@ -163,7 +163,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                         + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n"
                         + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n"
                         + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n";
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM line_data_ecnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n";
 
     for (String database : currentDBName) {
       try (Connection con = getConnection(database);
@@ -237,6 +238,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 if (!boolVcnt) {
                   listStatName.addAll(MVUtil.statsVcnt.keySet());
                 }
+                break;
+              case 19:
+                  listStatName.addAll(MVUtil.statsEcnt.keySet());
                 break;
               default:
 
@@ -1300,7 +1304,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               tableStats = MVUtil.statsPstd;
               strStatTable = "line_data_pct ld,\n  line_data_pct_thresh ldt\n";
             }
-
+          } else if (MVUtil.statsEcnt.containsKey(strStat)) {
+            tableStats = MVUtil.statsEcnt;
+            strStatTable = "line_data_ecnt ld\n";
+            strStatField = strStat.replace("ECNT_", "").toLowerCase();
           } else {
             throw new Exception("unrecognized stat: " + strStat);
           }

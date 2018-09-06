@@ -701,6 +701,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             case "VL1L2":
               maxSize = 20;
               break;
+            case "ECNT":
+              maxSize = 22;
+              break;
 
             default:
           }
