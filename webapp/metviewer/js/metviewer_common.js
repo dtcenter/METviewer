@@ -213,6 +213,10 @@ value_to_desc_map['ECNT_ME_OERR'] = 'The Mean Error of the PERTURBED ensemble me
 value_to_desc_map['ECNT_RMSE_OERR'] = 'The Root Mean Square Error of the PERTURBED ensemble mean';
 value_to_desc_map['ECNT_SPREAD_OERR'] = 'The mean of the spread of the PERTURBED ensemble member values at each observation location';
 value_to_desc_map['ECNT_SPREAD_PLUS_OERR'] = 'The square root of the sum of unperturbed ensemble variance and the observation error variance';
+value_to_desc_map['ASPECTDIFF'] = 'Absolute value of the difference between teh aspect ratios' +
+        ' of two objects';
+value_to_desc_map['CURVATURERATIO'] = 'Ratio of the curvature of two objects definded as the' +
+        ' lesser of the two divided by teh greater of the two';
 
 var listStatModeRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
@@ -376,7 +380,7 @@ var listStatModeSingle = [
 
 var listStatModePair = [
     "CENTDIST", "BOUNDDIST", "HULLDIST", "ANGLEDIFF", "AREARATIO", "INTAREA", "UNIONAREA",
-    "SYMDIFF", "INTOVERAREA", "CMPLXRATIO", "PERCINTRATIO", "INT", "MAXINT", "MAXINTF", "MAXINTO"
+    "SYMDIFF", "INTOVERAREA", "CMPLXRATIO", "PERCINTRATIO", "INT", "MAXINT", "MAXINTF", "MAXINTO", "ASPECTDIFF" , "CURVATURERATIO"
 ];
 
 var listStatMtd2d = [

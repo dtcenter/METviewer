@@ -821,7 +821,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
     //  print a performance report
-    long intStatHeaderLoadTime = System.currentTimeMillis()  - intStatHeaderLoadStart;
+    long intStatHeaderLoadTime = System.currentTimeMillis() - intStatHeaderLoadStart;
     double dblLinesPerMSec = (double) (intLine - 1) / (double) (intStatHeaderLoadTime);
 
     if (info._boolVerbose) {
@@ -954,7 +954,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     MVLoadStatInsertData mvLoadStatInsertData = new MVLoadStatInsertData();
 
     //  performance counters
-    long intStatHeaderLoadStart = System.currentTimeMillis() ;
+    long intStatHeaderLoadStart = System.currentTimeMillis();
     long headerSearchTime = 0;
     long headerRecords = 0;
     long headerInserts = 0;
@@ -1854,10 +1854,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
 
         String strModeHeaderValueList =
-            "'" + MVUtil.findValueInArray(listToken, headerNames,
-                                          "VERSION") + "', " +      //  version
-                "'" + MVUtil.findValueInArray(listToken, headerNames,
-                                              "MODEL") + "', ";       //  model
+            "'" + MVUtil.findValueInArray(listToken, headerNames, "VERSION")
+                + "', " + "'" + MVUtil.findValueInArray(listToken, headerNames, "MODEL") + "', "
+                + "";
 
         if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "N_VALID"))) {
           strModeHeaderValueList = strModeHeaderValueList + "NULL" + ", ";      //  N_VALID
@@ -1927,40 +1926,65 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         String strModeHeaderWhereClause =
             "  version = '" + MVUtil.findValueInArray(listToken, headerNames, "VERSION") + "'\n" +
                 "  AND model = '" + MVUtil
-                                        .findValueInArray(listToken, headerNames, "MODEL") + "'\n" +
-                "  AND n_valid = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                              "N_VALID") + "'\n" +
-                "  AND grid_res = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "GRID_RES") + "'\n" +
-                "  AND descr = '" + MVUtil
-                                        .findValueInArray(listToken, headerNames, "DESC") + "'\n" +
-                "  AND fcst_lead = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                "FCST_LEAD") + "'\n" +
-                "  AND fcst_valid = '" + fcstValidBegStr + "'\n" +
-                "  AND fcst_accum = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                 "FCST_ACCUM") + "'\n" +
-                "  AND fcst_init = '" + fcstInitStr + "'\n" +
-                "  AND obs_lead = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "OBS_LEAD") + "'\n" +
-                "  AND obs_valid = '" + obsValidBegStr + "'\n" +
-                "  AND obs_accum = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                "OBS_ACCUM") + "'\n" +
-                "  AND fcst_rad = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "FCST_RAD") + "'\n" +
-                "  AND fcst_thr = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "FCST_THR") + "'\n" +
-                "  AND obs_rad = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                              "OBS_RAD") + "'\n" +
-                "  AND obs_thr = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                              "OBS_THR") + "'\n" +
-                "  AND fcst_var = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "FCST_VAR") + "'\n" +
-                "  AND fcst_lev = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "FCST_LEV") + "'\n" +
-                "  AND obs_var = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                              "OBS_VAR") + "'\n" +
-                "  AND obs_lev = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                              "OBS_LEV") + "';";
+                                        .findValueInArray(listToken, headerNames, "MODEL") + "'\n";
+        if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "N_VALID"))) {
+          strModeHeaderWhereClause = strModeHeaderWhereClause + "  AND n_valid is NULL ";
+        } else {
+          strModeHeaderWhereClause = strModeHeaderWhereClause
+                                         + "  AND n_valid = '"
+                                         + MVUtil
+                                               .findValueInArray(listToken, headerNames, "N_VALID")
+                                         + "'\n";
+        }
+        if ("NA".equals(MVUtil.findValueInArray(listToken, headerNames, "GRID_RES"))) {
+          strModeHeaderWhereClause = strModeHeaderWhereClause + "  AND grid_res is NULL ";
+          //  GRID_RES
+        } else {
+          strModeHeaderWhereClause = strModeHeaderWhereClause
+                                         + "  AND grid_res = '"
+                                         + MVUtil
+                                               .findValueInArray(listToken, headerNames, "GRID_RES")
+                                         + "'\n";
+        }
+        strModeHeaderWhereClause = strModeHeaderWhereClause
+                                       + "  AND descr = '"
+                                       + MVUtil.findValueInArray(listToken, headerNames, "DESC")
+                                       + "'\n" +
+                                       "  AND fcst_lead = " + Integer.valueOf(
+            MVUtil.findValueInArray(listToken, headerNames, "FCST_LEAD")) + "\n" +
+                                       "  AND fcst_valid = '" + fcstValidBegStr + "'\n" +
+                                       "  AND fcst_accum = " + Integer.valueOf(
+            MVUtil.findValueInArray(listToken, headerNames, "FCST_ACCUM")) + "\n" +
+                                       "  AND fcst_init = '" + fcstInitStr + "'\n" +
+                                       "  AND obs_lead = " + Integer.valueOf(
+            MVUtil.findValueInArray(listToken, headerNames, "OBS_LEAD")) + "\n" +
+                                       "  AND obs_valid = '" + obsValidBegStr + "'\n" +
+                                       "  AND obs_accum = " + Integer.valueOf(
+            MVUtil.findValueInArray(listToken, headerNames, "OBS_ACCUM")) + "\n" +
+                                       "  AND fcst_rad = '" + MVUtil.findValueInArray(listToken,
+                                                                                      headerNames,
+                                                                                      "FCST_RAD") + "'\n" +
+                                       "  AND fcst_thr = '" + MVUtil.findValueInArray(listToken,
+                                                                                      headerNames,
+                                                                                      "FCST_THR") + "'\n" +
+                                       "  AND obs_rad = '" + MVUtil.findValueInArray(listToken,
+                                                                                     headerNames,
+                                                                                     "OBS_RAD") + "'\n" +
+                                       "  AND obs_thr = '" + MVUtil.findValueInArray(listToken,
+                                                                                     headerNames,
+                                                                                     "OBS_THR") + "'\n" +
+                                       "  AND fcst_var = '" + MVUtil.findValueInArray(listToken,
+                                                                                      headerNames,
+                                                                                      "FCST_VAR") + "'\n" +
+                                       "  AND fcst_lev = '" + MVUtil.findValueInArray(listToken,
+                                                                                      headerNames,
+                                                                                      "FCST_LEV") + "'\n" +
+                                       "  AND obs_var = '" + MVUtil.findValueInArray(listToken,
+                                                                                     headerNames,
+                                                                                     "OBS_VAR") + "'\n" +
+                                       "  AND obs_lev = '" + MVUtil.findValueInArray(listToken,
+                                                                                     headerNames,
+                                                                                     "OBS_LEV") + "';";
 
         //  look for the header key in the table
         int intModeHeaderId = -1;
@@ -2124,10 +2148,36 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                         + MVUtil.findValueInArray(listToken, headerNames,
                                                                   "OBJECT_CAT")
                                         + "'";
-          int centroiddistIndex = headerNames.indexOf("CENTROID_DIST");
-          for (int i = 0; i < 12; i++) {
-            strPairValueList += ", " + replaceInvalidValues(listToken[centroiddistIndex + i]);
-          }
+
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "CENTROID_DIST"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "BOUNDARY_DIST"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "CONVEX_HULL_DIST"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "ANGLE_DIFF"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "ASPECT_DIFF"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "AREA_RATIO"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "INTERSECTION_AREA"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "UNION_AREA"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "SYMMETRIC_DIFF"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "INTERSECTION_OVER_AREA"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "CURVATURE_RATIO"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "COMPLEXITY_RATIO"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "PERCENTILE_INTENSITY_RATIO"));
+          strPairValueList += ", " + replaceInvalidValues(
+              MVUtil.findValueInArray(listToken, headerNames, "INTEREST"));
+
 
           //set flags
           Integer simpleFlag = 1;
@@ -2675,7 +2725,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
 
-
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
 
     String strLineDataInsert = "INSERT INTO " + strLineDataTable + " VALUES " + "(";
@@ -2765,8 +2814,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     String strLoadDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
     String loadDateStr = MysqlDatabaseManager.DATE_FORMAT_1.format(cal1);
     cal.setTimeInMillis(file.lastModified());
-    cal1 =LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
-                                    ZoneId.of("UTC"));
+    cal1 = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
+                                   ZoneId.of("UTC"));
     String strModDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
     String modDateStr = MysqlDatabaseManager.DATE_FORMAT_1.format(cal1);
 

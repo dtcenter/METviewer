@@ -659,6 +659,8 @@ public class MVUtil {
     modePairStatField.put("MAXINT", "MAX(interest)");
     modePairStatField.put("MAXINTF", "MAX(interest)");
     modePairStatField.put("MAXINTO", "MAX(interest)");
+    modePairStatField.put("ASPECTDIFF", "aspect_diff");
+    modePairStatField.put("CURVATURERATIO", "curvature_ratio");
   }
 
   static {

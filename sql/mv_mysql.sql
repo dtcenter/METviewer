@@ -1811,11 +1811,17 @@ CREATE TABLE mode_obj_pair
   boundary_dist DOUBLE,
   convex_hull_dist DOUBLE,
   angle_diff DOUBLE,
+
+  aspect_diff DOUBLE,
+
   area_ratio DOUBLE,
   intersection_area INT UNSIGNED,
   union_area INT UNSIGNED,
   symmetric_diff INTEGER,
   intersection_over_area DOUBLE,
+
+  curvature_ratio DOUBLE,
+
   complexity_ratio DOUBLE,
   percentile_intensity_ratio DOUBLE,
   interest DOUBLE,
