@@ -1004,15 +1004,17 @@ public class MVServlet extends HttpServlet {
                 groupsXmlStr.append("</group>");
               }
             }
-            groupsXmlStr.append("<group name='").append(MVUtil.DEFAULT_DATABASE_GROUP)
-                .append("' >");
-            for (String database : groups.get(MVUtil.DEFAULT_DATABASE_GROUP)) {
-              groupsXmlStr.append("<db>");
-              groupsXmlStr.append("<val>").append(database).append("</val>");
-              groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
-              groupsXmlStr.append("</db>");
+            if(groups.containsKey(MVUtil.DEFAULT_DATABASE_GROUP)) {
+              groupsXmlStr.append("<group name='").append(MVUtil.DEFAULT_DATABASE_GROUP)
+                  .append("' >");
+              for (String database : groups.get(MVUtil.DEFAULT_DATABASE_GROUP)) {
+                groupsXmlStr.append("<db>");
+                groupsXmlStr.append("<val>").append(database).append("</val>");
+                groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
+                groupsXmlStr.append("</db>");
+              }
+              groupsXmlStr.append("</group>");
             }
-            groupsXmlStr.append("</group>");
 
             groupsXmlStr.append("</groups>");
             strResp.append(groupsXmlStr);
