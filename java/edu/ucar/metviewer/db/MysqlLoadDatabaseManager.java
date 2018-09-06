@@ -669,7 +669,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 24;
               break;
             case "ORANK":
-              maxSize = 27;
+              maxSize = 30;
               break;
             case "CTS":
               maxSize = 104;
@@ -2673,6 +2673,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       executeUpdate(sql);
     }
   }
+
+
 
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
 

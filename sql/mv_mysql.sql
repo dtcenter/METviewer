@@ -1480,13 +1480,17 @@ CREATE TABLE line_data_orank
   obs_elv VARCHAR(64),
   orank_obs DOUBLE,
   pit DOUBLE,
-  rank INT UNSIGNED,
+  rank INT ,
   n_ens_vld INT UNSIGNED,
   n_ens INT UNSIGNED,
   obs_qc DOUBLE DEFAULT -9999,
   ens_mean DOUBLE DEFAULT -9999,
-  orank_climo DOUBLE DEFAULT -9999,
-  orank_enc_spread DOUBLE DEFAULT -9999,
+  climo DOUBLE DEFAULT -9999,
+  spread DOUBLE DEFAULT -9999,
+  ens_mean_oerr DOUBLE DEFAULT -9999,
+  spread_oerr DOUBLE DEFAULT -9999,
+  spread_plus_oerr DOUBLE DEFAULT -9999,
+
 
   PRIMARY KEY (line_data_id),
   CONSTRAINT line_data_orank_data_file_id_pk
