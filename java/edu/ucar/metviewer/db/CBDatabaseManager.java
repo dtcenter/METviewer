@@ -132,10 +132,11 @@ public class CBDatabaseManager extends DatabaseManager{
    * @return - connection (for couchbase a bucket)
    */
   protected Bucket getBucket() {
+    CouchbaseEnvironment env;
     if (bucket == null) {
-      CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
-              .connectTimeout(40000) //20000ms = 20s, default is 5s
-              .build();
+//      CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
+//              .connectTimeout(40000) //20000ms = 20s, default is 5s
+//              .build();
       // hardcoded bucket for now - change to command line option? XML tag?
       String bucketName = "testvsdb";
       try {
