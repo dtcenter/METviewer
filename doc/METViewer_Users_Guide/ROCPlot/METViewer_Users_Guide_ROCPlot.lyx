@@ -169,8 +169,8 @@ Stat
 \end_inset
 
  output.
- For details about these statistics from MET, please see the most recent
- version of the MET Users' Guide (
+ For details about these types of statistics from MET, please see the most
+ recent version of the MET Users' Guide (
 \begin_inset Flex URL
 status open
 
@@ -182,12 +182,42 @@ www.dtcenter.org/met/users/docs
 \end_inset
 
 ).
+ The method for creating the plot from each type of data is included below:
 \end_layout
 
 \begin_layout Standard
 
 \series medium
-Generate Plot button at top of METViewer window with the red text.
+(1) The most common way to product an ROC plot is using the Nx2 Probabilistic
+ Contingency Table counts from the PCT line in MET.
+ MET can also write out the PSTD line type which includes the ROC_AUC column:
+ a number between 0 and 1 indicating the area under the ROC curve, with
+ 1 being the best.
+ MET calculates this value and it gets loaded into METviewer.
+ METviewer can plot the ROC_AUC value but it does not compute it.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+(2) The less common way of generating a ROC curve is using several 2x2 contingen
+cy table lines.
+ This would be the FHO or CTC line types from MET.
+ They need to be multiple forecast thresholds all computed for the 
+\series default
+\emph on
+same
+\series medium
+\emph default
+ observation threshold.
+ However, METviewer does not currently compute the area under the ROC curve,
+ thus there is no way for METviewer to plot that statistic.
+\end_layout
+
+\begin_layout Standard
+In both of the above cases, the observation threshold must be identical
+ for all points on the plot.
+ Otherwise, this is not an ROC plot at all.
  
 \end_layout
 
