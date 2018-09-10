@@ -87,6 +87,7 @@ public class CreatePlotBatchTest {
        comparePlotFilesWithNames(testDataDir, plotType);
      } else {
          captureCreatedImages(testDataDir, plotType);
+         comparePlotFilesWithNames(testDataDir, plotType);
      }
    }
 

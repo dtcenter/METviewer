@@ -43,7 +43,7 @@ export METViewerCompareTag="HEAD"
 export capture=""
 while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
     case "${o}" in
-	c)
+	    c)
             capture="-c"
             ;;
         U)

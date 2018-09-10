@@ -57,10 +57,10 @@ while getopts "t:m:d:u:p:P:h:j:cnl?" o; do
             CAPTURE_CREATED_IMAGES="-DcaptureCreatedImages=yes"
             ;;
         n)
-            NOCLEAN="-DnoClean"
+            NOCLEAN="-DnoClean=yes"
             ;;
         l)
-            LOADDATA="-DloadData"
+            LOADDATA="-DloadData=yes"
             ;;
 		?)
 		usage
