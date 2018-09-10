@@ -769,11 +769,12 @@ perfectScoreAdjustment <- function(meanStats1, meanStats2, statistic, pval){
     'VL1L2_FSTDEV','VL1L2_OSTDEV','VL1L2_FOSTDEV', 'PSTD_BASER','PSTD_RESOLUTION', 'PSTD_UNCERTAINTY','PSTD_ROC_AUC',  'NBR_UFSS', 'NBR_F_RATE', 'NBR_O_RATE');
 
   zero_perf_score_stats <- c('POFD','FAR','ESTDEV','MAE', 'MSE', 'BCMSE', 'RMSE', 'E10', 'E25', 'E50', 'E75',
-    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE', 'PSTD_BRIER', 'PSTD_RELIABILITY', 'NBR_FBS'  );
+    'E90', 'EIQR', 'MAD', 'ME2', 'ME', 'ESTDEV', 'ODDS','LODDS','VL1L2_MSE','VL1L2_RMSE',
+'VL1L2_RMSVE','PSTD_BRIER', 'PSTD_RELIABILITY', 'NBR_FBS' ,'VL1L2_SPEED_ERR' );
 
   one_perf_score_stats <- c('ACC', 'FBIAS', 'PODY','PODN', 'CSI', 'GSS', 'HK', 'HSS', 'ORSS', 'EDS', 'SEDS',
     'EDI', 'SEDI', 'BAGSS','PR_CORR', 'SP_CORR', 'KT_CORR', 'MBIAS', 'ANOM_CORR','VL1L2_BIAS','VL1L2_CORR',
-    'PSTD_BSS', 'PSTD_BSS_SMPL', 'NBR_FSS', 'NBR_AFSS');
+    'PSTD_BSS', 'PSTD_BSS_SMPL', 'NBR_FSS', 'NBR_AFSS',  'VAL1L2_ANOM_CORR');
 
   if( statistic %in% na_perf_score_stats ){
     result = NA;

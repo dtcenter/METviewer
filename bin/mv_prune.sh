@@ -1,7 +1,7 @@
 #!/bin/bash
 
 JAVA=/usr/local/jdk/bin/java
-MV_HOME=/d3/projects/METViewer/src/apps/METViewer
+MV_HOME=/d3/projects/METViewer/src/apps/METviewer
 
 # construct the classpath for MVPruneDB
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mysql-connector-java-5.1.6.jar

@@ -3912,7 +3912,8 @@ function createXMLSeries(plot) {
         plot.append(agg_stat);
     }
 
-    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
+    else if ((currentTab === 'Bar' || statistic === 'calculations_statistics')
+            && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);
@@ -5574,7 +5575,11 @@ function loadXMLRoc() {
     if (initXML.find("plot").find("add_point_thresholds")) {
         is_check = initXML.find("plot").find("add_point_thresholds").text();
     }
-    $('#add_point_thresholds').prop('checked', is_check);
+    if (is_check === 'true') {
+        $('#add_point_thresholds').prop('checked', true);
+    } else {
+        $('#add_point_thresholds').prop('checked', false);
+    }
 
 }
 function loadXMLHist() {
@@ -6595,7 +6600,9 @@ function initPage() {
         $("input[name='multiselect_database']").each(function () {
             this.checked = false;
         });
-        $('#selected_db span').text("Select database");
+        var textnode = document.createTextNode('Select database');
+        var item = document.getElementById("categories1").childNodes[0];
+        item.replaceChild(textnode, item.childNodes[0]);
         updatePages();
     });
 
@@ -7159,12 +7166,12 @@ function initPage() {
     });
     $.ajaxSetup({
         beforeSend: function () {
-            $('#modal').css("display", 'block');
-            $('#fade').css("display", 'block');
+            $('#modal').css("display", "block");
+            $('#fade').css("display", "block");
         },
         complete: function () {
-            $('#modal').css("display", 'none');
-            $('#fade').css("display", 'none');
+            $('#modal').css("display", "none");
+            $('#fade').css("display", "none");
         }
     });
     $("#download_plot").button({
@@ -7372,45 +7379,49 @@ function initPage() {
             alert('Please allow popups for this site');
         }
     });
-
-
-    var categoriesEl = $("#categories");
-    categoriesEl.empty();
+    var categoriesEl = $("#categories11");
     for (var i = 0; i < categories.length; i++) {
         var t = $(categories[i]);
-        var li = $('<li>');
-        var a = $('<a href="#">' + t.attr('name') + '</a>');
-        var ul = $('<ul>');
-        li.append(a).append(ul);
+        var ul = $('<ul data-label="' + t.attr('name') + '">');
         var databases = t.find("db");
         for (var j = 0; j < databases.length; j++) {
             var d = $(databases[j]);
-            var li_database = $('<li>');
             var val = d.find("val");
             var desc = d.find("desc");
-            var a_database = $('<a href="#" title="'+desc.text()+'">'+ val.text() + '</a>');
-            var input = $('<input name="multiselect_database" type="checkbox" value="' + val.text() + '" />')
-                    .change(function () {
-                        var selected_db = [];
-                        $("input[name='multiselect_database']:checked").each(function () {
-                            selected_db.push($(this).val());
-                        });
-                        if (selected_db.length === 1) {
-                            $('#selected_db span').text(selected_db[0]);
-                        } else if (selected_db.length === 0) {
-                            $('#selected_db span').text("Select database");
-                        } else {
-                            $('#selected_db span').text(selected_db.length + " selected");
-                        }
-                        updatePages();
-                    });
-            a_database.prepend(input);
-            li_database.append(a_database);
-            ul.append(li_database);
-        }
-        categoriesEl.append(li);
+            var li = $('<li data-value="'+val.text()+'" title="'+desc.text()+'">');
+            var input =$('<input name="multiselect_database" type="checkbox" value="' + val.text()
+                    + '" title="'+desc.text() +'" id="'+val.text()+'" /><label for="'+val.text()+'" >'+ val.text()+ '</label>lab');
+            //li.text(val.text());
+            li.prepend(input);
 
+            ul.append(li);
+        }
+        categoriesEl.append(ul);
     }
+
+
+    $('.multilevel-dropdown').multilevelDropdown().on('change', function (event) {
+        var selected_db = [];
+        $("input[name='multiselect_database']:checked").each(function () {
+            selected_db.push($(this).val());
+        });
+
+        var text;
+        if (selected_db.length === 1) {
+            text = selected_db[0];
+        } else if (selected_db.length === 0) {
+            text = "Select database";
+        } else {
+            text = selected_db.length + " selected";
+        }
+        var textnode = document.createTextNode(text);
+        var item = document.getElementById("categories1").childNodes[0];
+        item.replaceChild(textnode, item.childNodes[0]);
+        updatePages();
+    });
+
+
+
     $('#header').css("position", "static");
 }
 

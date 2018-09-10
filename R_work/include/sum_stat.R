@@ -47,6 +47,8 @@ if ( boolSumCtc    ){
   statFields = c("total", "fabar", "oabar", "foabar", "ffabar", "ooabar", "mae");
 } else if( boolSumVl1l2  ){
   statFields = c("total", "ufbar", "vfbar", "uobar", "vobar", "uvfobar", "uvffbar","uvoobar","f_speed_bar","o_speed_bar");
+} else if( boolSumVal1l2  ){
+  statFields = c("total", "ufabar", "vfabar", "uoabar", "voabar", "uvfoabar", "uvffabar","uvooabar");
 }
 
 # read the input data file into a data frame
@@ -201,7 +203,7 @@ if ( nrow(sampleData) > 0){
     }
   }
 
-  dfStatsRecTranspose=data.frame(t(dfStatsRec),stringsAsFactors = FALSE);
+  dfStatsRecTranspose=data.frame(t(format(dfStatsRec, digits=10)),stringsAsFactors = FALSE);
   a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
   #a=lapply( dfStatsRecTranspose,prepareCalc);
 

@@ -660,8 +660,8 @@ class GraphicalOutputManager {
   public static void main(String[] arg) {
     StringBuilder htmlPageStr = new StringBuilder();
     String line = null;
-    try (FileReader fileReader = new FileReader("/d3/projects/METViewer/src_dev/apps/"
-                                                    + "METViewer/scorecard_cam_cts.html");
+    try (FileReader fileReader = new FileReader("/d3/projects/METviewer/src_dev/apps/"
+                                                    + "METviewer/scorecard_cam_cts.html");
          BufferedReader bufferedReader = new BufferedReader(fileReader)) {
       while ((line = bufferedReader.readLine()) != null) {
         htmlPageStr.append(htmlPageStr).append(line);
@@ -675,7 +675,7 @@ class GraphicalOutputManager {
       System.setProperty("java.awt.headless", "true");
       HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
       imageGenerator.loadHtml(htmlPageStr.toString());
-      imageGenerator.saveAsImage("/d3/projects/METViewer/src_dev/apps/METViewer/"
+      imageGenerator.saveAsImage("/d3/projects/METviewer/src_dev/apps/METviewer/"
                                      + "scorecard_cam_cts_2.png");
 
     } catch (Exception e) {

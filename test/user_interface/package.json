@@ -1,14 +1,14 @@
 {
-  "name": "METViewer-testing",
+  "name": "METviewer-testing",
   "version": "1.0.0",
-  "description": "Cucumber testing for METViewer",
+  "description": "Cucumber testing for METviewer",
   "main": "chimp.js",
   "scripts": {
     "test": "chimp.js --test --chai features/*"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NCAR/METViewer.git"
+    "url": "https://github.com/NCAR/METviewer.git"
   },
   "author": "",
   "license": "ISC",

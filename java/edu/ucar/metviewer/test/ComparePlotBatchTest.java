@@ -73,6 +73,7 @@ public class ComparePlotBatchTest {
 
   @Test
   public void compareOutputFiles() {
+    System.out.println("Comparing " +plotType);
     compareBinaryTestFiles(testDataDir, testCompareDataDir,plotType);
   }
 }
