@@ -580,8 +580,12 @@ public class TestUtil {
         }
         assertTrue("expected directory " +
                 testDataDir + FILE_SEPARATOR + plotType +
+                " with " + expectedNumberFiles + " files " +
                 " and actual directory " +
-                filter.getActualDir() + " do not have the same number of files ", expectedNumberFiles == actualNumberFiles);
+                filter.getActualDir() +
+                " with " + actualNumberFiles + " files " +
+                "do not have the same number of files ",
+                expectedNumberFiles == actualNumberFiles);
     }
 
     private static void compareBinaryTestFiles(
