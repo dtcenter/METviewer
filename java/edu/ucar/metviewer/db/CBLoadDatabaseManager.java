@@ -2517,12 +2517,157 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   @Override
   public void updateGroup(String group) throws Exception {
+    String currentCategory = "";
+    String currentID = "";
+    long nextIdNumber = 0;
+    int nrows = 0;
+    String nextIdString = "";
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
+    JsonDocument doc = null;
+    JsonDocument response = null;
+    JsonObject groupFile = null;
+    String searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
+
+    String strDataFileQuery =  "SELECT " +
+            "meta().id as groupId, " +
+            "type, " +
+            "`group`, " +
+            "description " +
+            "FROM `" +
+            getBucket().name() +
+            "` WHERE " +
+            "type = \'category\' AND " +
+            searchDbName + " = '" + getDbName() + "';";
+
+    try {
+      queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
+      queryList = queryResult.allRows();
+
+      // if a category document is present for the database, get the database group and the ID
+      if (queryList.size() > 0) {
+        firstRow = queryList.get(0);
+        firstRowObject = firstRow.value();
+        currentCategory = firstRowObject.get("group").toString();
+        currentID = firstRowObject.get("groupId").toString();
+        nrows = nrows + 1;
+      }
+
+    } catch (CouchbaseException e) {
+      System.out.println(e.getMessage());
+    }
+    // if no category document exists, or the group is not the same as in the XML
+    if (!currentCategory.equals(group)) {
+      if (nrows == 0) {
+        try {
+          nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
+          if (0 > nextIdNumber) {
+            throw new Exception("METViewer load error: processDataFile() unable to get counter");
+          }
+        } catch (CouchbaseException e) {
+          throw new Exception(e.getMessage());
+        }
+        nextIdString = getDatabaseInfo().getDbName() + "::category::" + group + "::" + String.valueOf(nextIdNumber);
+      } else {
+        nextIdString = currentID;
+      }
+      try {
+        groupFile = JsonObject.empty()
+                .put("type", "category")
+                .put("group", group)
+                .put("description", "");
+
+        doc = JsonDocument.create(nextIdString, groupFile);
+        response = getBucket().upsert(doc);
+        if (response.content().isEmpty()) {
+          logger.warn("  **  WARNING: unexpected result from data_file INSERT");
+        }
+      } catch (Exception e) {
+        throw new Exception(e.getMessage());
+      }
+    }
 
   }
 
   @Override
   public void updateDescription(String description) throws Exception {
+    String currentDescription = "";
+    String currentGroup = "";
+    String currentID = "";
+    String newGroup = "default";
+    long nextIdNumber = 0;
+    int nrows = 0;
+    String nextIdString = "";
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
+    JsonDocument doc = null;
+    JsonDocument response = null;
+    JsonObject groupFile = null;
+    String searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
 
+    String strDataFileQuery =  "SELECT " +
+            "meta().id as groupId, " +
+            "type, " +
+            "`group`, " +
+            "description " +
+            "FROM `" +
+            getBucket().name() +
+            "` WHERE " +
+            "type = \'category\' AND " +
+            searchDbName + " = '" + getDbName() + "';";
+
+    try {
+      queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
+      queryList = queryResult.allRows();
+
+      // if a category document is present for the database, get the database group and description and the ID
+      if (queryList.size() > 0) {
+        firstRow = queryList.get(0);
+        firstRowObject = firstRow.value();
+        currentGroup = firstRowObject.get("group").toString();
+        currentDescription = firstRowObject.get("description").toString();
+        currentID = firstRowObject.get("groupId").toString();
+        nrows = nrows + 1;
+      }
+
+    } catch (CouchbaseException e) {
+      System.out.println(e.getMessage());
+    }
+    // if no category document exists, or the group is not the same as in the XML
+    if (!currentDescription.equals(description)) {
+      if (nrows == 0) {
+        try {
+          nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
+          if (0 > nextIdNumber) {
+            throw new Exception("METViewer load error: processDataFile() unable to get counter");
+          }
+        } catch (CouchbaseException e) {
+          throw new Exception(e.getMessage());
+        }
+        nextIdString = getDatabaseInfo().getDbName() + "::category::" + description + "::" + String.valueOf(nextIdNumber);
+      } else {
+        nextIdString = currentID;
+        newGroup = currentGroup;
+      }
+      try {
+        groupFile = JsonObject.empty()
+                .put("type", "category")
+                .put("group", newGroup)
+                .put("description", description);
+
+        doc = JsonDocument.create(nextIdString, groupFile);
+        response = getBucket().upsert(doc);
+        if (response.content().isEmpty()) {
+          logger.warn("  **  WARNING: unexpected result from data_file INSERT");
+        }
+      } catch (Exception e) {
+        throw new Exception(e.getMessage());
+      }
+    }
   }
 
   private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {

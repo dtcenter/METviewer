@@ -10,11 +10,13 @@ import com.couchbase.client.core.CouchbaseException;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import edu.ucar.metviewer.MVUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,24 +44,24 @@ public class CBDatabaseManager extends DatabaseManager{
   }
 
   public void initDBList(boolean updateGroups) {
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> results = null;
+    JsonObject firstRowObject = null;
+
     listDB.clear();
 
-    /* when this is updated for Couchbase, this query will get the list of database names */
-    String nquery =  "select distinct substr(meta(`" +
-                      getBucket().name() +
-                      "`).id, 0, position(meta(`" +
-                      getBucket().name() +
-                      "`).id, \'::\')) as database_name from `" +
+    // get list of database names from data file documents
+    String nquery =  "select distinct substr(meta().id, 0, position(meta().id, \'::\')) as database_name " +
+                      "from `" +
                       getBucket().name() +
                       "` where type = \'file\';";
     try {
-      N1qlQueryResult queryResult = getBucket().query(N1qlQuery.simple(nquery));
-      List<N1qlQueryRow> results = queryResult.allRows();
-      String database;
-      Iterator<N1qlQueryRow> resultsIterator = results.iterator();
-      while (resultsIterator.hasNext()) {
-        database = resultsIterator.next().toString();
-        listDB.put(database, "");
+      queryResult = getBucket().query(N1qlQuery.simple(nquery));
+      results = queryResult.allRows();
+
+      for (N1qlQueryRow row : results) {
+        firstRowObject = row.value();
+        listDB.put(firstRowObject.get("database_name").toString(), "");
       }
     } catch (Exception e) {
       logger.error(e.getMessage());
@@ -71,39 +73,54 @@ public class CBDatabaseManager extends DatabaseManager{
 
       //for each database find a group
       for (Map.Entry<String, String> database : listDB.entrySet()) {
-        // TODO
-//        String[] metadata = getDatabaseMetadata(database.getKey());
-//        database.setValue(metadata[1]);
-//
-//        if (!groupToDatabases.containsKey(metadata[0])) {
-//          groupToDatabases.put(metadata[0], new ArrayList<>());
-//        }
-//
-//        groupToDatabases.get(metadata[0]).add(database.getKey());
+        String[] metadata = getDatabaseMetadata(database.getKey());
+        database.setValue(metadata[1]);
+
+        if (!groupToDatabases.containsKey(metadata[0])) {
+          groupToDatabases.put(metadata[0], new ArrayList<>());
+        }
+
+        groupToDatabases.get(metadata[0]).add(database.getKey());
       }
 
     }
   }
 
   private String[] getDatabaseMetadata(String database) {
-    String group = "";
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
+    String group = MVUtil.DEFAULT_DATABASE_GROUP;
     String description = "";
-//    String sql = "SELECT * from metadata";
-//    try (Connection con = getConnection(database);
-//         Statement statement = con.createStatement();
-//         ResultSet rs = statement.executeQuery(sql)
-//    ) {
-//      while (rs.next()) {
-//        group = rs.getString("category");
-//        description = rs.getString("description");
-//      }
-//
-//    } catch (SQLException e) {
-//      logger.error("Can't get groups for database " + database + " SQL exception: " + e);
-//    }
-//    if (group.isEmpty()) {
-//      group = MVUtil.DEFAULT_DATABASE_GROUP;
-//    }
+    String searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
+
+    String strDataFileQuery =  "SELECT " +
+            "meta().id as groupId, " +
+            "type, " +
+            "`group`, " +
+            "description " +
+            "FROM `" +
+            getBucket().name() +
+            "` WHERE " +
+            "type = \'category\' AND " +
+            searchDbName + " = '" + database + "';";
+
+    try {
+      queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
+      queryList = queryResult.allRows();
+
+      // if a category document is present for the database, get the database group and description and the ID
+      if (queryList.size() > 0) {
+        firstRow = queryList.get(0);
+        firstRowObject = firstRow.value();
+        group = firstRowObject.get("group").toString();
+        description = firstRowObject.get("description").toString();
+      }
+
+    } catch (CouchbaseException e) {
+      System.out.println(e.getMessage());
+    }
 
     return new String[]{group, description};
   }
