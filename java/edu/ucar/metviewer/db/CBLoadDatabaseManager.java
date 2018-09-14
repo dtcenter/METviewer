@@ -1063,6 +1063,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           //  calculate the number of seconds corresponding to fcst_lead
           String strFcstLead = listToken[2];
           int intFcstLeadSec = Integer.parseInt(strFcstLead) * 3600;
+          strFcstLead = Integer.toString(intFcstLeadSec);
 
           //  determine the init time by combining fcst_valid_beg and fcst_lead
           Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -1213,7 +1214,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 strFcstValidBeg + "," +    //  fcst_valid_beg
                 strFcstValidEnd + "," +    //  fcst_valid_end
                 strFcstInitBeg + "," +     //  fcst_init_beg
-                "00" + "," +               //  obs_lead
+                "0" + "," +               //  obs_lead
                 strObsValidBeg + "," +     //  obs_valid_beg
                 strObsValidEnd;            //  obs_valid_end
 
