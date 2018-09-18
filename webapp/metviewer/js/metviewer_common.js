@@ -218,6 +218,16 @@ value_to_desc_map['ASPECTDIFF'] = 'Absolute value of the difference between teh 
 value_to_desc_map['CURVATURERATIO'] = 'Ratio of the curvature of two objects definded as the' +
         ' lesser of the two divided by teh greater of the two';
 
+value_to_desc_map['ORANK_OBS'] = 'Value of the observation';
+value_to_desc_map['ORANK_PIT'] = 'Probability Integral Transform';
+value_to_desc_map['ORANK_RANK'] = 'Rank of the observation';
+value_to_desc_map['ORANK_ENS_MEAN'] = 'The unperturbed ensemble mean value';
+value_to_desc_map['ORANK_SPREAD'] = 'The spread of the unperturbed ensemble member values';
+value_to_desc_map['ORANK_CLIMO'] = 'The value of the inluded climatology';
+value_to_desc_map['ORANK_ENS_MEAN_OERR'] = 'The PERTURBED ensemble mean';
+value_to_desc_map['ORANK_SPREAD_OERR'] = 'The spread of the PERTURBED ensemble member values';
+value_to_desc_map['ORANK_SPREAD_PLUS_OERR'] = 'The square root of the sum of the unperturbed ensemble variance and the observation error variance';
+
 var listStatModeRatio = ["RATIO_FSA_ASA", "RATIO_OSA_ASA", "RATIO_ASM_ASA", "RATIO_ASU_ASA", "RATIO_FSM_FSA",
     "RATIO_FSU_FSA", "RATIO_OSM_OSA", "RATIO_OSU_OSA", "RATIO_FSM_ASM", "RATIO_OSM_ASM",
     "RATIO_FSU_ASU", "RATIO_OSU_ASU", "RATIO_FSA_AAA", "RATIO_OSA_AAA", "RATIO_FSA_FAA",
