@@ -1,6 +1,7 @@
 /**
- * DataFileInfo.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * DataFileInfo.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer;
@@ -13,33 +14,34 @@ import java.util.Map;
  */
 public class DataFileInfo {
 
-  public Integer _dataFileId = 0;
-  public String _dataFileFilename = "";
-  public String _dataFilePath = "";
-  public String _dataFileLoadDate = "";
-  public String _dataFileModDate = "";
-  public int _dataFileLuId = -1;
-  public String _dataFileLuTypeName = "";
-  public boolean _boolLineTypeLoad;
-  public Map _tableLineTypeLoad;
-  public boolean _boolLoadMpr;
-  public boolean _boolLoadOrank;
-  public boolean _boolStatHeaderDBCheck;
-  public boolean _boolModeHeaderDBCheck;
-  public boolean _boolMtdHeaderDBCheck;
-  public boolean _boolVerbose;
-  public int _intInsertSize;
+  public Integer fileId = 0;
+  public String filename = "";
+  public String path = "";
+  public String loadDate = "";
+  public String modDate = "";
+  public int luId = -1;
+  public String luTypeName = "";
+  public boolean lineTypeLoad;
+  public Map tableLineTypeLoad;
+  public boolean loadMpr;
+  public boolean loadOrank;
+  public boolean statHeaderDBCheck;
+  public boolean modeHeaderDBCheck;
+  public boolean mtdHeaderDBCheck;
+  public boolean verbose;
+  public int insertSize;
 
-  public DataFileInfo(Integer dataFileId, String dataFileFilename,
-                      String dataFilePath, String dataFileLoadDate,
-                      String dataFileModDate, int dataFileLuId,
-                      String dataFileLuTypeName) {
-    _dataFileId = dataFileId;
-    _dataFileFilename = dataFileFilename;
-    _dataFilePath = dataFilePath;
-    _dataFileLoadDate = dataFileLoadDate;
-    _dataFileModDate = dataFileModDate;
-    _dataFileLuId = dataFileLuId;
-    _dataFileLuTypeName = dataFileLuTypeName;
+  public DataFileInfo(
+                         Integer fileId, String filename,
+                         String dataFilePath, String dataFileLoadDate,
+                         String dataFileModDate, int dataFileLuId,
+                         String dataFileLuTypeName) {
+    this.fileId = fileId;
+    this.filename = filename;
+    path = dataFilePath;
+    loadDate = dataFileLoadDate;
+    modDate = dataFileModDate;
+    luId = dataFileLuId;
+    luTypeName = dataFileLuTypeName;
   }
 }
