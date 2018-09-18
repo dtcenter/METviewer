@@ -114,6 +114,8 @@ public class MVUtil {
                                                     .buildPrintStream();
   public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
 
+  public static final String SEPARATOR = ",";
+
 
   public static final String[] lineTypes = new String[]{
       "fho",
@@ -396,7 +398,7 @@ public class MVUtil {
     lengthGroupIndices.put("PJC", new int[]{23, 24, 7});
     lengthGroupIndices.put("PRC", new int[]{23, 24, 3});
     lengthGroupIndices.put("MCTC", new int[]{23, 24, 1});
-    lengthGroupIndices.put("RHIST", new int[]{25, 25, 1});
+    lengthGroupIndices.put("RHIST", new int[]{23, 23, 1});
     lengthGroupIndices.put("PHIST", new int[]{24, 25, 1});
     lengthGroupIndices.put("RELP", new int[]{23, 24, 1});
     lengthGroupIndices.put("ORANK", new int[]{33, 33, 1});
@@ -414,17 +416,17 @@ public class MVUtil {
   }
 
   static {
-    statsMpr.put("MPR_FCST", new String[]{"" });
-    statsMpr.put("MPR_OBS", new String[]{"" });
-    statsMpr.put("MPR_CLIMO", new String[]{"" });
+    statsMpr.put("MPR_FCST", new String[]{""});
+    statsMpr.put("MPR_OBS", new String[]{""});
+    statsMpr.put("MPR_CLIMO", new String[]{""});
   }
 
   static {
-    statsOrank.put("PIT", new String[]{"" });
-    statsOrank.put("RANK", new String[]{"" });
-    statsOrank.put("ENS_MEAN", new String[]{"" });
-    statsOrank.put("ORANK_OBS", new String[]{"" });
-    statsOrank.put("ORANK_CLIMO", new String[]{"" });
+    statsOrank.put("PIT", new String[]{""});
+    statsOrank.put("RANK", new String[]{""});
+    statsOrank.put("ENS_MEAN", new String[]{""});
+    statsOrank.put("ORANK_OBS", new String[]{""});
+    statsOrank.put("ORANK_CLIMO", new String[]{""});
   }
 
   static {
@@ -450,13 +452,13 @@ public class MVUtil {
     statsCnt.put("S1", new String[]{"bc", GRAD});
     statsCnt.put("S1_OG", new String[]{"bc", GRAD});
     statsCnt.put("FGOG_RATIO", new String[]{"bc", GRAD});
-    statsCnt.put("E10", new String[]{"bc" });
-    statsCnt.put("E25", new String[]{"bc" });
-    statsCnt.put("E50", new String[]{"bc" });
-    statsCnt.put("E75", new String[]{"bc" });
-    statsCnt.put("E90", new String[]{"bc" });
-    statsCnt.put("IQR", new String[]{"bc" });
-    statsCnt.put("MAD", new String[]{"bc" });
+    statsCnt.put("E10", new String[]{"bc"});
+    statsCnt.put("E25", new String[]{"bc"});
+    statsCnt.put("E50", new String[]{"bc"});
+    statsCnt.put("E75", new String[]{"bc"});
+    statsCnt.put("E90", new String[]{"bc"});
+    statsCnt.put("IQR", new String[]{"bc"});
+    statsCnt.put("MAD", new String[]{"bc"});
     //statsCnt.put("PAC", new String[]{"bc"});
     statsCnt.put("ANOM_CORR", new String[]{"bc", SAL1L2});
     statsCnt.put("ME2", new String[]{"bc", SL1L2});
@@ -485,7 +487,8 @@ public class MVUtil {
     statsVcnt.put("VCNT_DIR_ERR", new String[]{"bc", VL1L2});
     statsVcnt.put("VCNT_DIR_ABSERR", new String[]{"bc", VL1L2});
   }
-//TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR
+
+  //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR
   static {
     statsEcnt.put("ECNT_CRPS", new String[]{""});
     statsEcnt.put("ECNT_CRPSS", new String[]{""});
@@ -543,19 +546,19 @@ public class MVUtil {
   }
 
   static {
-    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_FBIAS", new String[]{"bc" });
-    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_GSS", new String[]{"bc" });
-    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc" });
-    statsNbrcts.put("NBR_HSS", new String[]{"bc" });
-    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc" });
+    statsNbrcts.put("NBR_BASER", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_FMEAN", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_ACC", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_FBIAS", new String[]{"bc"});
+    statsNbrcts.put("NBR_PODY", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_PODN", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_POFD", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_FAR", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_CSI", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_GSS", new String[]{"bc"});
+    statsNbrcts.put("NBR_HK", new String[]{"nc", "bc"});
+    statsNbrcts.put("NBR_HSS", new String[]{"bc"});
+    statsNbrcts.put("NBR_ODDS", new String[]{"nc", "bc"});
   }
 
   static {
@@ -583,10 +586,10 @@ public class MVUtil {
   }
 
   static {
-    statsMcts.put("MCTS_ACC", new String[]{"nc", "bc" });
-    statsMcts.put("MCTS_HK", new String[]{"bc" });
-    statsMcts.put("MCTS_HSS", new String[]{"bc" });
-    statsMcts.put("MCTS_GER", new String[]{"bc" });
+    statsMcts.put("MCTS_ACC", new String[]{"nc", "bc"});
+    statsMcts.put("MCTS_HK", new String[]{"bc"});
+    statsMcts.put("MCTS_HSS", new String[]{"bc"});
+    statsMcts.put("MCTS_GER", new String[]{"bc"});
   }
 
   static {
@@ -1506,7 +1509,7 @@ public class MVUtil {
     } else if (statsVcnt.containsKey(strStat)) {
       return "line_data_vcnt";
     } else if (statsEcnt.containsKey(strStat)) {
-         return "line_data_ecnt";
+      return "line_data_ecnt";
     } else {
       return "";
     }
@@ -1732,7 +1735,7 @@ public class MVUtil {
     }
   }
 
-  public static String findValueInArray(
+  public static String findValue(
                                            final String[] listToken, final List<String> headerNames,
                                            final String header) {
     int pos = headerNames.indexOf(header);
@@ -2240,6 +2243,15 @@ public class MVUtil {
       }
     }
     return result;
+  }
+
+  public static boolean isNumeric(final Object obj) {
+    try {
+      double d = Double.parseDouble(String.valueOf(obj));
+    } catch (NumberFormatException | NullPointerException nfe) {
+      return false;
+    }
+    return true;
   }
 
 }
