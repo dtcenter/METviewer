@@ -840,7 +840,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             if (insertData.getLineType().equals("MCTC")) {
               for (int i = 0; i < numGroups; i++) {
                 for (int j = 0; j < numGroups; j++) {
-                  threshValues.add("(" + lineDataId+", " + (i + 1) + ", " + (j + 1) + ", " +
+                  threshValues.add("(" + lineDataId + ", " + (i + 1) + ", " + (j + 1) + ", " +
                                        replaceInvalidValues(listToken[groupIndex++]) + ")");
                   lengthRecords++;
                 }
@@ -851,7 +851,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 groupIndex = lineDataMax;
               }
               for (int i = 0; i < numGroups; i++) {
-                String threshValuesStr = "(" + lineDataId +"," + (i + 1);
+                String threshValuesStr = "(" + lineDataId + "," + (i + 1);
                 for (int j = 0; j < groupSize; j++) {
                   threshValuesStr += ", " + replaceInvalidValues(listToken[groupIndex++]);
                 }
@@ -1463,16 +1463,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             if (listToken[6].equals("HIST")) { //RHIST line type
-              for (int i = 0; i < 6; i++) {
-                if (i == 3) {
-                  int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-                  strLineDataValueList += ", '" + intGroupSize + "'";
-                } else if (i == 0) {//total
-                  strLineDataValueList += ", 0";
-                } else {
-                  strLineDataValueList += ", -9999";
-                }
-              }
+              int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+              strLineDataValueList += ", 0," + intGroupSize;
+
             }
 
             if (listToken[6].equals("RELP")) {  // RELP line type
