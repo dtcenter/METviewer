@@ -1287,6 +1287,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             strStatTable = "line_data_orank ld\n";
+            strStatField = strStat.replace("ORANK_", "").toLowerCase();
           } else if (MVUtil.statsVcnt.containsKey(strStat)) {
             tableStats = MVUtil.statsVcnt;
             strStatField = strStat.replace("VCNT_", "").toLowerCase();
