@@ -614,8 +614,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           //  build the value list for the insert statement
           List<Object> lineDataValues = new ArrayList<>();
 
-
-          lineDataValues.add(lineDataId);
+          if (!lineDataId.isEmpty()) {
+            lineDataValues.add(lineDataId);
+          }
           lineDataValues.add(intStatHeaderId);
           lineDataValues.add(info.fileId);
           lineDataValues.add(intLine);
