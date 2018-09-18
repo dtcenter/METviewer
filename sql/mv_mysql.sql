@@ -410,7 +410,7 @@ CREATE TABLE line_data_ecnt
   obs_valid_end DATETIME,
 
   total INT UNSIGNED,
-  n_ens INT UNSIGNED,
+  n_ens INT ,
   crps DOUBLE,
   crpss DOUBLE,
   ign DOUBLE,
@@ -1280,11 +1280,7 @@ CREATE TABLE line_data_rhist
   obs_valid_end DATETIME,
   total INT UNSIGNED,
 
-  crps DOUBLE,
-  ign DOUBLE,
   n_rank INT UNSIGNED,
-  crpss DOUBLE,
-  spread DOUBLE,
 
   PRIMARY KEY (line_data_id),
   CONSTRAINT line_data_rhist_data_file_id_pk
@@ -1811,17 +1807,13 @@ CREATE TABLE mode_obj_pair
   boundary_dist DOUBLE,
   convex_hull_dist DOUBLE,
   angle_diff DOUBLE,
-
   aspect_diff DOUBLE,
-
   area_ratio DOUBLE,
   intersection_area INT UNSIGNED,
   union_area INT UNSIGNED,
   symmetric_diff INTEGER,
   intersection_over_area DOUBLE,
-
   curvature_ratio DOUBLE,
-
   complexity_ratio DOUBLE,
   percentile_intensity_ratio DOUBLE,
   interest DOUBLE,
@@ -1863,7 +1855,7 @@ INSERT INTO data_file_lu VALUES (12, 'mtd_3d_ss', 'Single attributes for 3D simp
 
 -- instance_info contains information about the particular instance of metvdb, including
 --   dates of data updates and information about data table contents
-
+DROP TABLE IF EXISTS instance_info;
 CREATE TABLE IF NOT EXISTS instance_info
 (
   instance_info_id INT UNSIGNED NOT NULL,
@@ -1874,7 +1866,7 @@ CREATE TABLE IF NOT EXISTS instance_info
   PRIMARY KEY (instance_info_id)
 ) ENGINE = MyISAM;
 
-
+DROP TABLE IF EXISTS model_fcst_lead_offset;
 CREATE TABLE model_fcst_lead_offset
 (
   model VARCHAR(64),
