@@ -343,21 +343,21 @@ public class MVLoad {
     if (null == info) {
       return;
     }
-    info._boolLineTypeLoad = lineTypeLoad;
-    info._tableLineTypeLoad = tableLineTypeLoad;
-    info._boolLoadMpr = loadMpr;
-    info._boolLoadOrank = loadOrank;
-    info._boolStatHeaderDBCheck = statHeaderDBCheck;
-    info._boolModeHeaderDBCheck = modeHeaderDBCheck;
-    info._boolMtdHeaderDBCheck = mtdHeaderDBCheck;
-    info._boolVerbose = verbose;
-    info._intInsertSize = insertSize;
+    info.lineTypeLoad = lineTypeLoad;
+    info.tableLineTypeLoad = tableLineTypeLoad;
+    info.loadMpr = loadMpr;
+    info.loadOrank = loadOrank;
+    info.statHeaderDBCheck = statHeaderDBCheck;
+    info.modeHeaderDBCheck = modeHeaderDBCheck;
+    info.mtdHeaderDBCheck = mtdHeaderDBCheck;
+    info.verbose = verbose;
+    info.insertSize = insertSize;
     long intProcessDataFileTime = new Date().getTime() - intProcessDataFileBegin;
-    String strFileMsg = "  " + info._dataFilePath + "/" + info._dataFileFilename +
+    String strFileMsg = "  " + info.path + "/" + info.filename +
                             (verbose ? "\n" + MVUtil.padBegin("data file time: ", 36)
                                            + MVUtil.formatTimeSpan(intProcessDataFileTime) : "");
 
-    if ("stat".equals(info._dataFileLuTypeName) && loadStat) {
+    if ("stat".equals(info.luTypeName) && loadStat) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFile(info);
       statHeaderSearchTime += timeStats.get("headerSearchTime");
@@ -370,8 +370,8 @@ public class MVLoad {
       lengthInserts += timeStats.get("lengthInserts");
 
       numStatFiles++;
-    } else if (("mode_obj".equals(info._dataFileLuTypeName)
-                    || "mode_cts".equals(info._dataFileLuTypeName))
+    } else if (("mode_obj".equals(info.luTypeName)
+                    || "mode_cts".equals(info.luTypeName))
                    && loadMode) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadModeFile(info);
@@ -384,11 +384,11 @@ public class MVLoad {
 
       modeLinesTotal += timeStats.get("linesTotal");
       numModeFiles++;
-    } else if (("mtd_2d".equals(info._dataFileLuTypeName)
-                    || "mtd_3d_pc".equals(info._dataFileLuTypeName)
-                    || "mtd_3d_ps".equals(info._dataFileLuTypeName)
-                    || "mtd_3d_sc".equals(info._dataFileLuTypeName)
-                    || "mtd_3d_ss".equals(info._dataFileLuTypeName))
+    } else if (("mtd_2d".equals(info.luTypeName)
+                    || "mtd_3d_pc".equals(info.luTypeName)
+                    || "mtd_3d_ps".equals(info.luTypeName)
+                    || "mtd_3d_sc".equals(info.luTypeName)
+                    || "mtd_3d_ss".equals(info.luTypeName))
                    && loadMtd) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadMtdFile(info);
@@ -401,7 +401,7 @@ public class MVLoad {
 
       mtdLinesTotal += timeStats.get("linesTotal");
       numMtdFiles++;
-    } else if ("vsdb_point_stat".equals(info._dataFileLuTypeName) && loadStat) {
+    } else if ("vsdb_point_stat".equals(info.luTypeName) && loadStat) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = mysqlLoadDatabaseManager.loadStatFileVSDB(info);
       statHeaderSearchTime += timeStats.get("headerSearchTime");
