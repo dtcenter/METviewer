@@ -652,11 +652,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  add total and all of the stats on the rest of the line to the value list
           if (lineType.equals("RHIST")) {
-
-            for (int i = headerNames.indexOf("LINE_TYPE") + 1; i < lineDataMax; i++) {
+            int lineTypeIndex = headerNames.indexOf("LINE_TYPE");
+            for (int i = lineTypeIndex + 1; i < lineDataMax; i++) {
               if (!isMet8) {
                 //skip crps ,ign,crpss, spread
-                if (i == 23 || i == 24 || i == 26 || i == 27) {
+                if (i == lineTypeIndex + 2 || i == lineTypeIndex + 3
+                        || i == lineTypeIndex + 5 || i == lineTypeIndex + 6) {
                   continue;
                 }
               }
@@ -665,13 +666,25 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             if (!isMet8) {
               //insert crps ,ign,crpss, spread to ECNT table
               List<Object> ecntLineDataValues = new ArrayList<>(lineDataValues);
+              int indexOfNrankOld = headerNames.indexOf("LINE_TYPE") + 4;
+              boolean isMetOld = (Double.valueOf(listToken[indexOfNrankOld])
+                                      .intValue() + indexOfNrankOld) ==
+                                     listToken.length - 1;
 
-              ecntLineDataValues.add(replaceInvalidValues(listToken[23]));
-              ecntLineDataValues.add(replaceInvalidValues(listToken[26]));
-              ecntLineDataValues.add(replaceInvalidValues(listToken[24]));
+              ecntLineDataValues.add(replaceInvalidValues(listToken[lineTypeIndex + 2]));
+              if (isMetOld) {
+                ecntLineDataValues.add(-9999);
+              } else {
+                ecntLineDataValues.add(replaceInvalidValues(listToken[lineTypeIndex + 5]));
+              }
+              ecntLineDataValues.add(replaceInvalidValues(listToken[lineTypeIndex + 3]));
               ecntLineDataValues.add(-9999);
               ecntLineDataValues.add(-9999);
-              ecntLineDataValues.add(replaceInvalidValues(listToken[27]));
+              if (isMetOld) {
+                ecntLineDataValues.add(-9999);
+              } else {
+                ecntLineDataValues.add(replaceInvalidValues(listToken[lineTypeIndex + 6]));
+              }
               ecntLineDataValues.add(-9999);
               ecntLineDataValues.add(-9999);
               ecntLineDataValues.add(-9999);
