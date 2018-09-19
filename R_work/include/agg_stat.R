@@ -798,11 +798,11 @@ if ( nrow(sampleData) > 0){
          if( intCountLength > length(listBoot[[strCountName]]) ){
            if(is.factor(listBoot[[strCountName]])){
              listBoot[[strCountName]]= droplevels(listBoot[[strCountName]]);
-             if(length(levels(listBoot[[strCountName]])) == 1){
+             #if(length(levels(listBoot[[strCountName]])) == 1){
                 listBoot[[strCountName]] =  rep(levels(listBoot[[strCountName]])[1], intCountLength ) ;
-             }else{
-               stop("Can't fill factor column");
-             }
+             #}else{
+             #  stop("Can't fill factor column");
+             #}
            }else if(grepl('thresh_i$',strCountName) &&  strIndyVar == 'thresh_i'){
              listBoot[[strCountName]] = append( listBoot[[strCountName]], rep(listBoot[[strCountName]][1], intCountLength - length(listBoot[[strCountName]])) );
            }else{
@@ -857,7 +857,8 @@ if ( nrow(sampleData) > 0){
 
             # store the bootstrapped stat value and CI values in the output dataframe
             dfOut[listOutInd,]$stat_value = bootStat$t0[intBootIndex];
-            dfOut[listOutInd,]$nstats = nrow(dfStatsPerm[dfStatsPerm$stat_name == strStat,]);
+            a=strsplit(strSeriesVal, ",")[[1]];
+            dfOut[listOutInd,]$nstats = nrow(dfStatsIndy[dfStatsIndy[[strSeriesVar]] %in% a  & dfStatsIndy$stat_name == strStat,  ]);
             if( exists("bootCI") == TRUE && class(bootCI) == "bootci" ){
               if( strCIType == "perc" && !is.null(bootCI[["percent"]]) ){
                 dfOut[listOutInd,]$stat_bcl = bootCI[["percent"]][4];
