@@ -219,6 +219,7 @@
                 if ($item.hasClass(config.classNames.open)) {
                     // level was open, close it
                     $item.removeClass(config.classNames.open);
+                    scope.$items.find("input").prop('disabled', true);
                 } else {
                     // level was closed
 
@@ -234,12 +235,14 @@
                     // TODO responsive logic
                     // TODO rearrange depending on screen size and position
                     $item.children('.' + config.classNames.level).css('left', $item.outerWidth());
+                    scope.$items.find('input').prop('disabled', false);
 
                 }
             } else if($item.hasClass(config.classNames.levelReset)) {
                 // item is a level reset
                 // just close this level
                 $item.closest('.' + config.classNames.children).removeClass(config.classNames.open);
+                scope.$items.find("input").prop('disabled', true);
             } else {
                 // item was a simple item
                 // set the new value
