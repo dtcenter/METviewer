@@ -145,19 +145,15 @@ public class TestUtil {
 
   static {
     FILE_SEPARATOR = System.getProperty("file.separator");
-    if (System.getProperty("mv_root_dir") == null) {
-      ROOT_DIR = "/d3/projects/METviewer/test_data";
-    } else {
-      ROOT_DIR = System.getProperty("mv_root_dir");  // This is the test dir/branch/tag
-    }
+
+    ROOT_DIR = System.getProperty("mv_root_dir");  // This is the test dir/branch/tag
+
     ROOT_COMPARE_DIR = System.getProperty(
         "mv_root_compare_dir"); // used for comparing test results to previous captured data
 
-    if (System.getProperty("mv_host") == null) {
-      HOST_NAME = "dakota.rap.ucar.edu";
-    } else {
-      HOST_NAME = System.getProperty("mv_host");
-    }
+
+    HOST_NAME = System.getProperty("mv_host");
+
     if (System.getProperty("mv_port") == null) {
       PORT = "3306";
     } else {
@@ -178,16 +174,12 @@ public class TestUtil {
     } else {
       database = System.getProperty("mv_database");
     }
-    if (System.getProperty("mv_user") == null) {
-      USERNAME = "mvuser";
-    } else {
-      USERNAME = System.getProperty("mv_user");
-    }
-    if (System.getProperty("mv_pwd") == null) {
-      PWD = "mvuser";
-    } else {
-      PWD = System.getProperty("mv_pwd");
-    }
+
+    USERNAME = System.getProperty("mv_user");
+
+
+    PWD = System.getProperty("mv_pwd");
+
     rscript = "Rscript";
     TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
     list = false;
