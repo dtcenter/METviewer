@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class Scorecard {
 
-  private static final Logger logger = LogManager.getLogger("Scorecard");
+  private static final Logger logger = LogManager.getLogger("Console");
   private String databaseName;
   private String user;
   private String pwd;

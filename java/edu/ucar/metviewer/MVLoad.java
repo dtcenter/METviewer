@@ -16,7 +16,7 @@ import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVLoad {
 
-  private static final Logger logger = LogManager.getLogger("MVLoad");
+  private static final Logger logger = LogManager.getLogger("Console");
   private static LoadDatabaseManager mysqlLoadDatabaseManager;
 
 
