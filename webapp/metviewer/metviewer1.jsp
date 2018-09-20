@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v2.7</TITLE>
+  <TITLE>METviewer v2.8</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -181,7 +181,7 @@
   <script type="text/javascript" src="js/jquery.actual.min.js"></script>
   <script type="text/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  <script type="text/javascript" src="js/metviewer_common.js"></script>
+  <script type="text/javascript" src="js/metviewer_common.min.js"></script>
   <script type="text/javascript" src="js/moment.min.js"></script>
   <script type="text/javascript" src="js/multilevel-dropdown.js"></script>
 
@@ -249,7 +249,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 2.7<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.8<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
