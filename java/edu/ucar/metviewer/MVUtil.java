@@ -2437,11 +2437,11 @@ public class MVUtil {
       }
 
     }
-    System.out.print("--------------------------------------------------------");
-    System.out.print("Database " + database);
-    System.out.print("Total in the line_data_rhist table:" + totalInTable);
-    System.out.print("Total inserted:" + totalInserted);
-    System.out.print("Total updated:" + totalUpdated);
+    System.out.println("--------------------------------------------------------");
+    System.out.println("Database " + database);
+    System.out.println("Total in the line_data_rhist table:" + totalInTable);
+    System.out.println("Total inserted:" + totalInserted);
+    System.out.println("Total updated:" + totalUpdated);
   }
 
   private static Timestamp convertUtilToSql(Date uDate) {
