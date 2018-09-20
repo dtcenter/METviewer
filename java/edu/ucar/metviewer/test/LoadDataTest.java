@@ -6,6 +6,7 @@
 package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.MVLoad;
+import edu.ucar.metviewer.test.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,9 +70,9 @@ public class LoadDataTest {
       TABLES_TO_ROWS.put("stat_header", 6097);
       TABLES_TO_ROWS.put("line_data_enscnt", 1276);
       // recreate database
-
       Reader reader = null;
       try {
+        TestUtil.mysqlCheckCreateDatabase(host, USERNAME, PWD, database);
         myDatabaseManager = TestDatabaseManager.getManager(type, host, USERNAME, PWD, database);
         String fname = LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql";
         myDatabaseManager.loadData(fname, database);

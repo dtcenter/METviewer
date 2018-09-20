@@ -22,7 +22,7 @@ public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements Te
 
     public int getNumberOfRows(String lineDataType) throws Exception {
         String tableName = lineDataType;
-        int rows= -1;
+        int rows = -1;
         try {
             Connection con = getConnection();
             Statement statement = getConnection().createStatement();
