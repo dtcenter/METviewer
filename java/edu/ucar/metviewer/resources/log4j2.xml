@@ -10,14 +10,7 @@
             </PatternLayout>
         </Console>
 
-        <File name="RollingFile" fileName="mvservlet.log" append="true">
-            <PatternLayout>
-                <MarkerPatternSelector defaultPattern="%msg%n">
-                    <PatternMatch key="START_END" pattern="%d{MM-dd-yyyy HH:mm} - %msg%n"/>
-                    <PatternMatch key="ERROR" pattern="%d{yyyy-MM-dd} %l %L %M - %msg%n"/>
-                </MarkerPatternSelector>
-            </PatternLayout>
-        </File>
+
 
 
     </Appenders>
@@ -27,7 +20,6 @@
 
         <Root level="info">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>
