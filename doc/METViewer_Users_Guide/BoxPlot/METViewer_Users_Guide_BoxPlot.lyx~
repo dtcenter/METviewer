@@ -109,10 +109,11 @@ Boxplots, or box and whisker plots, are a way to summarize a distribution
  have a value lower.
  The actual box (i.e.
  the central rectangle) spans the first quartile to the third quartile (or
- the interquartile range).
- The whiskers extend to 1.5 times the height of the box or, if closer, the
- minimum or maximum values of the data.
- The points represent outliers.
+ the interquartile range or IQR).
+ Whiskers extend to 1.5 times the height of the box or, if closer to the
+ median, the minimum or maximum values of the data.
+ The points represent outliers: any data point more than 1.5 times the IQR
+ away from the median.
  These are defined as values that do not fall inside the whiskers.
  Outliers are extreme values.
 \end_layout
@@ -131,66 +132,14 @@ name "sec:Box-Plot-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce your plot proceeds approxately counter-clockwise
- around the METViewer window.
- Select your database from the pulldown menus at the top margin of the METViewer
- window.
- Make sure the 'Series' tab is selected near the top left, just under the
- database pulldown menu.
- Next, you must select the type of MET statistics that will be used to create
- the plot.
- In the 
-\begin_inset Quotes eld
-\end_inset
-
-Plot Data
-\begin_inset Quotes erd
-\end_inset
-
- menu, the list contains 
-\begin_inset Quotes eld
-\end_inset
-
-Stat
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-MODE
-\begin_inset Quotes erd
-\end_inset
-
-, or 
-\begin_inset Quotes eld
-\end_inset
-
-MODE-TD
-\begin_inset Quotes erd
-\end_inset
-
-.
- For details about these types of output statistics in MET, please see the
- most recent version of the MET Users' Guide (
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-www.dtcenter.org/met/users/docs
-\end_layout
-
-\end_inset
-
-).
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-Generate Plot button at top of METViewer window with the red text.
+Boxplots work best for comparing a set of continuous values (e.g.
+ some verification statistic) conditionally for a set of discrete categories.
+ The example below shows RMSE (root-mean-squared-error; a continuous measure
+ of forecast quality) for each of several distinct lead times.
+ Other examples could be probability of detection (POD) or Gilbert Skill
+ Score (GSS) across a set of models for a specific precipitation threshold.
+ Here, each forecast and observation is binary, but the verification statistic
+ is continuous.
  
 \end_layout
 
@@ -210,6 +159,8 @@ name "sec:Box-Plot-Examples"
 \series medium
 The example below shows a boxplot of the RMSE for 2m temperature over the
  CONUS.
+ Many of the standard METViewer plotting options are available for the boxplot.
+ However, the boxplot has some special options than only apply.
  
 \end_layout
 
@@ -240,9 +191,8 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Basic representation of current MET structure and modules.
- Colored areas represent software and modules included in MET, and gray
- areas represent input and output files.
+Example Boxplot created by METViewer for RMSE of 2m temperature over the
+ CONUS by lead time.
 \end_layout
 
 \end_inset
@@ -260,12 +210,6 @@ name "Fig_Boxplot_MV_Example"
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-Several optional 
 \end_layout
 
 \end_body
