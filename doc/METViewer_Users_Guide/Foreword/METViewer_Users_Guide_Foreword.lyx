@@ -384,6 +384,23 @@ on for Atmospheric Research (UCAR) pursuant to a Cooperative Agreement with
 \end_inset
 
 
+\series default
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vfill
+\backslash
+eject
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -450,8 +467,18 @@ The METViewer User’s Guide.
 \begin_inset Newline newline
 \end_inset
 
-Available at: http://www.dtcenter.org/met/users/docs/users_guide/METViewer_Users_G
-uide_v2.5.pdf.
+Available at: 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://www.dtcenter.org/met/users/docs/users_guide/METViewer_Users_Guide_v2.5.pdf
+\end_layout
+
+\end_inset
+
+.
  80 pp.
 \end_layout
 
