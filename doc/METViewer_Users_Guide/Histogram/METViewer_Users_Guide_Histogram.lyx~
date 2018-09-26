@@ -217,6 +217,24 @@ reference "Fig_MV_Display_RankHist_MV_Example"
 \end_layout
 
 \begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vfill
+\backslash
+eject 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -227,7 +245,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename METViewer_screenshot_RankHist.png
-	scale 28
+	scale 30
 
 \end_inset
 
