@@ -2682,18 +2682,20 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String[] listValuesArr;
 
     int intResLineDataInsert = 0;
+
+    //  reserve a block of counters to add to ids for all the documents
+    try {
+      nextIdNumber = getBucket().counter("LDCounter", listValues.size()).content() - listValues.size();
+    } catch (CouchbaseException e) {
+      throw new Exception(e.getMessage());
+    }
+
     for (int i = 0; i < listValues.size(); i++) {
 
       listValuesArr = listValues.get(i).split(",");
-      //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
-      try {
-        nextIdNumber = getBucket().counter("LDCounter", 1, 1).content();
-        // unique id must be a string
-        lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" + listValuesArr[2] + "::" + String.valueOf(nextIdNumber);
-
-      } catch (CouchbaseException e) {
-        throw new Exception(e.getMessage());
-      }
+      // unique id must be a string
+      lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" +
+                         listValuesArr[2] + "::" + String.valueOf(nextIdNumber++);
 
       try {
         lineDataFile = JsonObject.empty()
