@@ -251,18 +251,8 @@ set folders.data to the absolute path of [output_dir]/data set folders.scripts
 
 \begin_layout Itemize
 set redirect to the application name in url (ex.
- if the application URL is "
-\begin_inset Flex URL
-status open
-
-\begin_layout Plain Layout
-
-http://www.dtcenter.org/met/metviewer/
-\end_layout
-
-\end_inset
-
-" redirect is "metviewer") 
+ if the application URL is "http://www.dtcenter.org/met/metviewer/" redirect
+ is "metviewer") 
 \end_layout
 
 \begin_layout Itemize
@@ -286,44 +276,52 @@ Build and deploy the application:
 Build METViewer and the web application: 
 \end_layout
 
-\begin_layout LyX-Code
-cd [install]/metviewer 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd [install]/metviewer 
 \end_layout
 
-\begin_layout LyX-Code
-ant
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ ant
 \end_layout
 
 \begin_layout Standard
 Install load_batch modual: 
 \end_layout
 
-\begin_layout LyX-Code
-cd [tomcat_base]/webapps 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd [tomcat_base]/webapps 
 \end_layout
 
-\begin_layout LyX-Code
-cp [install]/dist/metviewer.war ./
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cp [install]/dist/metviewer.war ./
 \end_layout
 
 \begin_layout Standard
 Deploy the web app to tomcat: 
 \end_layout
 
-\begin_layout LyX-Code
-cd [install]/dist 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd [install]/dist 
 \end_layout
 
-\begin_layout LyX-Code
-cp [install]/dist/batch_load.tar [load_batch_dir] 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cp [install]/dist/batch_load.tar [load_batch_dir] 
 \end_layout
 
-\begin_layout LyX-Code
-cd [load_batch_dir] 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd [load_batch_dir] 
 \end_layout
 
-\begin_layout LyX-Code
-tar -zxvf batch_load.tar
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ tar -zxvf batch_load.tar
 \end_layout
 
 \begin_layout Subsection
@@ -335,13 +333,15 @@ Create a database to store MET data, which has the prefix 'mv_', e.g.
  mv_met_data: 
 \end_layout
 
-\begin_layout LyX-Code
-cd [install]/metviewer $ mysql -u[db_username] -p[db_password] -e'create
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd [install]/metviewer $ mysql -u[db_username] -p[db_password] -e'create
  database [db_name];' 
 \end_layout
 
-\begin_layout LyX-Code
-mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql
 \end_layout
 
 \begin_layout Standard
@@ -350,24 +350,11 @@ Create an XML load specification document which contains information about
  as input (called [load_xml] here) and monitor progress: 
 \end_layout
 
-\begin_layout LyX-Code
-cd [install]/metviewer 
-\end_layout
-
-\begin_layout LyX-Code
-bin/mv_load.sh [load_xml] [optional redirection of output, e.g.
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd [install]/metviewer $ bin/mv_load.sh [load_xml] [optional redirection
+ of output, e.g.
  &> log/load_[date].log &]'
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-There is only one quotation.
- Where is the other quote?
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsection
@@ -380,75 +367,22 @@ Check out test_data (.../apps/verif/metviewer_test_data/test_data/) from CVS
  R script and sql files.
 \end_layout
 
-\begin_layout LyX-Code
-cd /d3/projects/METViewer/test_data 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd /d3/projects/METViewer/test_data $ ln -s /d3/projects/METViewer/src_dev/app
+s/verif/metviewer/R_tmpl R_tmpl $ mkdir R_work 
 \end_layout
 
-\begin_layout LyX-Code
-ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/R_tmpl R_tmpl
- 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd R_work $ mkdir data $ mkdir plots $ mkdir scripts $ ln -s /d3/projects/METV
+iewer/src_dev/apps/verif/metviewer/R_work/include/ include 
 \end_layout
 
-\begin_layout LyX-Code
-mkdir R_work 
-\end_layout
-
-\begin_layout LyX-Code
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
- 
-\backslash
-noindent
-\backslash
-vskip 0.1in 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
-cd R_work $ mkdir data 
-\end_layout
-
-\begin_layout LyX-Code
-mkdir plots $ mkdir scripts 
-\end_layout
-
-\begin_layout LyX-Code
-ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/R_work/include/
- include 
-\end_layout
-
-\begin_layout LyX-Code
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
- 
-\backslash
-noindent
-\backslash
-vskip 0.1in 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
-cd /d3/projects/METViewer/test_data/load_data/load 
-\end_layout
-
-\begin_layout LyX-Code
-ln -s /d3/projects/METViewer/src_dev/apps/verif/metviewer/sql/mv_mysql.sql
- mv_mysql.sql
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+$ cd /d3/projects/METViewer/test_data/load_data/load $ ln -s /d3/projects/METVie
+wer/src_dev/apps/verif/metviewer/sql/mv_mysql.sql mv_mysql.sql
 \end_layout
 
 \begin_layout Subsection
