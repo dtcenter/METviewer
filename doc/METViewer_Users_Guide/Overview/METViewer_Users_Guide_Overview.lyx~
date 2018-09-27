@@ -241,7 +241,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename MV_flowchart.png
-	scale 70
+	scale 45
 	clip
 
 \end_inset
