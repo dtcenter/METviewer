@@ -410,20 +410,35 @@ Here are the details for applying bootstrap confidence intervals, using
 \end_layout
 
 \begin_layout Itemize
-In the "Statistics" box make sure to have "Aggregation Statistics" selected.
+In the "
+\series bold
+Statistics
+\series default
+" box make sure to have "
+\series bold
+Aggregation Statistics
+\series default
+" selected.
  
 \end_layout
 
 \begin_layout Itemize
-In the "Statistics" box in the dropdown menu select the line type to be
- aggregated.
+In the "
+\series bold
+Statistics
+\series default
+" box in the dropdown menu select the line type to be aggregated.
  For GSS, aggregate CTC lines.
  
 \end_layout
 
 \begin_layout Itemize
-In the "Statistics" box select the number of bootstrapping replicates, using
- in general, at least 1000.
+In the "
+\series bold
+Statistics
+\series default
+" box select the number of bootstrapping replicates, using in general, at
+ least 1000.
  
 \end_layout
 
@@ -434,7 +449,19 @@ Note that to make the plot exactly repeatable in subsequent runs, set the
 \end_layout
 
 \begin_layout Itemize
-In the "Series Formatting" table in the "Conf Interval" column, select "boot".
+In the "
+\series bold
+Series Formatting
+\series default
+" table in the "
+\series bold
+Conf Interval
+\series default
+" column, select "
+\series bold
+boot
+\series default
+".
 \end_layout
 
 \begin_layout Standard
@@ -443,12 +470,24 @@ Some other suggestions.
 \end_layout
 
 \begin_layout Itemize
-Changing the "Common" tab, setting alpha will affect the CI.
+Changing the "
+\series bold
+Common
+\series default
+" tab, setting alpha will affect the CI.
  
 \end_layout
 
 \begin_layout Itemize
-On the "Common" tab, select "Y1 Stagger Points".
+On the "
+\series bold
+Common
+\series default
+" tab, select "
+\series bold
+Y1 Stagger Points
+\series default
+".
  That prevents the CI bars from being plotted on top of each other.
 \end_layout
 
@@ -462,38 +501,88 @@ To really compare the difference of these lines, consider plotting their
 \end_layout
 
 \begin_layout Itemize
-In the bottom-left corner, select "+Add Derived Curve".
+In the bottom-left corner, select "
+\series bold
++Add Derived Curve
+\series default
+".
  
 \end_layout
 
 \begin_layout Itemize
 In the pop-up, choose GFS in the first box and FV3GFS in the second, make
- sure "DIFF" is selected, and click "Create Derived Curve".
+ sure "
+\series bold
+DIFF
+\series default
+" is selected, and click "
+\series bold
+Create Derived Curve
+\series default
+".
  
 \end_layout
 
 \begin_layout Itemize
-This will create a new entry in the "Series Formatting" table.
- Select "boot" in the "Conf Interval" column.
+This will create a new entry in the "
+\series bold
+Series Formatting
+\series default
+" table.
+ Select "
+\series bold
+boot
+\series default
+" in the "
+\series bold
+Conf Interval
+\series default
+" column.
  Change the color to black and line width to 3.
- And set "Show Significance" to Yes.
+ And set "
+\series bold
+Show Significance
+\series default
+" to Yes.
  
 \end_layout
 
 \begin_layout Itemize
-In "Series Formatting" set the "Legend Text" to FV3GFS, GFS, and GFS-FV3GFS.
+In "
+\series bold
+Series Formatting
+\series default
+" set the "
+\series bold
+Legend Text
+\series default
+" to FV3GFS, GFS, and GFS-FV3GFS.
  
 \end_layout
 
 \begin_layout Itemize
-In the "Y1" tab get rid of the "Y1 Limits" setting so that R can fit all
- the data on the plot.
+In the "
+\series bold
+Y1
+\series default
+" tab get rid of the "
+\series bold
+Y1 Limits
+\series default
+" setting so that R can fit all the data on the plot.
  
 \end_layout
 
 \begin_layout Itemize
-In the "Formatting" tab, set the "Plot Script Commands" to draw a gray dashed
- reference line at 0: abline(h=0,col="gray",lty=2,lwd=3)
+In the "
+\series bold
+Formatting
+\series default
+" tab, set the "
+\series bold
+Plot Script Commands
+\series default
+" to draw a gray dashed reference line at 0: abline(h=0,col="gray",lty=2,lwd=3)
 \end_layout
 
 \begin_layout Standard
@@ -503,7 +592,11 @@ This shows that at GFS has a statistically significant higher GSS score
  Visually, when the confidence interval for the pairwise difference line
  does not include 0, the difference is significant and METviewer plots the
  CI in bold.
- That's the effect of turning on "Show Significance".
+ That's the effect of turning on "
+\series bold
+Show Significance
+\series default
+".
 \end_layout
 
 \begin_layout Section
@@ -532,8 +625,19 @@ XML
 \series default
  - This window contains all the code to reproduce the plot.
  It is recommended that the user save it.
- It can be reloaded using the 'Load XML' button at the top right of the
- METViewer web page.
+ It can be reloaded using the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Load XML
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ button at the top right of the METViewer web page.
 \end_layout
 
 \begin_layout Standard
@@ -624,7 +728,11 @@ METViewer plot formatting options appear in the tabbed boxes at the bottom
 \begin_inset Quotes eld
 \end_inset
 
-Titles & Labels
+
+\series bold
+Titles and Labels
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -689,7 +797,11 @@ Legend & Caption
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 legend
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -697,7 +809,11 @@ legend
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 title
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -807,8 +923,14 @@ name "sec:Code-support"
 \begin_layout Standard
 
 \series medium
-METViewer support is provided through a MET-help e-mail address: met_help@ucar.ed
-u.
+METViewer support is provided through a MET-help e-mail address: 
+\begin_inset CommandInset href
+LatexCommand href
+name "met_help@ucar.edu"
+
+\end_inset
+
+.
  We will endeavor to respond to requests for help in a timely fashion.
  
 \end_layout
