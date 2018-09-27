@@ -303,7 +303,7 @@ The first section is where the dependable variable (Y-axis) , statistic
 The fixed variables section controls the constraints for the plot (what
  period of data is used, what thresholds to include, interpolation method,
  as well as domains).
- Fixed values are your stratifications.
+ Fixed values are the stratifications.
  For example, select one or more thresholds to be aggregated, or one or
  more initilization times, or a date range based on valid times or cycle
  time.
@@ -368,7 +368,7 @@ Confidence intervals
  by the "standard error"...
  that uses the standard deviation to add confidence intervals and assumes
  normality (2) plot the aggregated statistics with confidence intervals
- defined by bootstrapping that aggregation
+ defined by bootstrapping that aggregation.
 \end_layout
 
 \begin_layout Standard
@@ -386,8 +386,8 @@ This is some text from a MET help question.
 \end_layout
 
 \begin_layout Standard
-To test, I tried method (1) and it works fine for some of the categorical
- stats, like BASER and FMEAN.
+Method (1) and it works well for some of the categorical stats, like BASER
+ and FMEAN.
  However, applying it to GSS results in this error:
 \end_layout
 
@@ -397,60 +397,103 @@ To test, I tried method (1) and it works fine for some of the categorical
 \end_layout
 
 \begin_layout Standard
-For high thresholds, GSS is undefined and that missing data is causing this
- error message.
- When I restrict the plot to the 2 lowest thresholds for which there are
- always events, then method (1) works fine.
+For high thresholds, GSS is undefined and causes this error message.
+ When the plot is restricted to the 2 lowest thresholds, where there are
+ always events, then method (1) will work.
 \end_layout
 
 \begin_layout Standard
-But you asked about method (2).
- Here are the details for applying bootstrap confidence intervals...
- - In the "Statistics" box make sure you have "Aggregation Statistics" selected...
- and you do.
- - In the "Statistics" box in the dropdown menu select the line type to
- be aggregated.
- For GSS, you aggregate CTC lines, which is what you have selected.
- - In the "Statistics" box select the number of bootstrapping replicates,
- using in general, at least 1000.
- I changed your "1" to "1000".
- - Note that if you want to make your plot exactly repeatable in subsequent
- runs, set the boostrapping seed to any number.
- - In the "Series Formatting" table in the "Conf Interval" column, select
- "boot".
+Here are the details for applying bootstrap confidence intervals, using
+ method (2) plot the aggregated statistics with confidence intervals defined
+ by bootstrapping that aggregation.
+ 
+\end_layout
+
+\begin_layout Itemize
+In the "Statistics" box make sure to have "Aggregation Statistics" selected.
+ 
+\end_layout
+
+\begin_layout Itemize
+In the "Statistics" box in the dropdown menu select the line type to be
+ aggregated.
+ For GSS, aggregate CTC lines.
+ 
+\end_layout
+
+\begin_layout Itemize
+In the "Statistics" box select the number of bootstrapping replicates, using
+ in general, at least 1000.
+ 
+\end_layout
+
+\begin_layout Itemize
+Note that to make the plot exactly repeatable in subsequent runs, set the
+ boostrapping seed to any number.
+ 
+\end_layout
+
+\begin_layout Itemize
+In the "Series Formatting" table in the "Conf Interval" column, select "boot".
 \end_layout
 
 \begin_layout Standard
-Some other suggestions...
- - The default alpha value is 0.05 for 95% confidence interval.
- You can change that in the "Common" tab.
- Setting alpha = 0.01 would yield a 99% CI.
- - On the "Common" tab, select "Y1 Stagger Points".
+Some other suggestions.
+ 
+\end_layout
+
+\begin_layout Itemize
+Changing the "Common" tab, setting alpha will affect the CI.
+ 
+\end_layout
+
+\begin_layout Itemize
+On the "Common" tab, select "Y1 Stagger Points".
  That prevents the CI bars from being plotted on top of each other.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 Bootstrapping 1000 times takes longer to generate the plot.
 \end_layout
 
 \begin_layout Standard
-To really compare the difference of these lines, I'd suggest plotting their
+To really compare the difference of these lines, consider plotting their
  pairwise difference:
 \end_layout
 
-\begin_layout Standard
-- In the bottom-left corner, select "+Add Derived Curve".
- - In the pop-up, choose GFS in the first box and FV3GFS in the second,
- make sure "DIFF" is selected, and click "Create Derived Curve".
- - We now have a new entry in the "Series Formatting" table.
+\begin_layout Itemize
+In the bottom-left corner, select "+Add Derived Curve".
+ 
+\end_layout
+
+\begin_layout Itemize
+In the pop-up, choose GFS in the first box and FV3GFS in the second, make
+ sure "DIFF" is selected, and click "Create Derived Curve".
+ 
+\end_layout
+
+\begin_layout Itemize
+This will create a new entry in the "Series Formatting" table.
  Select "boot" in the "Conf Interval" column.
  Change the color to black and line width to 3.
  And set "Show Significance" to Yes.
- - In "Series Formatting" set the "Legend Text" to FV3GFS, GFS, and GFS-FV3GFS.
- - In the "Y1" tab get rid of the "Y1 Limits" setting so that R can fit
- all the data on the plot.
- - In the "Formatting" tab, set the "Plot Script Commands" to draw a gray
- dashed reference line at 0: abline(h=0,col="gray",lty=2,lwd=3)
+ 
+\end_layout
+
+\begin_layout Itemize
+In "Series Formatting" set the "Legend Text" to FV3GFS, GFS, and GFS-FV3GFS.
+ 
+\end_layout
+
+\begin_layout Itemize
+In the "Y1" tab get rid of the "Y1 Limits" setting so that R can fit all
+ the data on the plot.
+ 
+\end_layout
+
+\begin_layout Itemize
+In the "Formatting" tab, set the "Plot Script Commands" to draw a gray dashed
+ reference line at 0: abline(h=0,col="gray",lty=2,lwd=3)
 \end_layout
 
 \begin_layout Standard
