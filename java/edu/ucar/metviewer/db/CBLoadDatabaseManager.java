@@ -32,7 +32,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
 
-  private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
   private final Map<String, String> statHeaders = new HashMap<>();
 
@@ -129,13 +128,41 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     tableLineDataFieldsTable = new HashMap<>();
     tableLineDataFieldsTable.put("ctc", "total,fy_oy,fy_on,fn_oy,fn_on");
-    tableLineDataFieldsTable.put("grad", "total,fgbar,ogbar,mgbar,egbar");
+    tableLineDataFieldsTable.put("fho", "total,f_rate,h_rate,o_rate");
+    tableLineDataFieldsTable.put("grad", "total,fgbar,ogbar,mgbar,egbar,s1,s1_og,fgog_ratio");
     tableLineDataFieldsTable.put("sl1l2", "total,fbar,obar,fobar,ffbar,oobar");
     tableLineDataFieldsTable.put("sal1l2", "total,fabar,oabar,foabar,ffabar,ooabar");
     tableLineDataFieldsTable.put("vl1l2",
             "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar,f_speed_bar,o_speed_bar");
     tableLineDataFieldsTable.put("val1l2", "total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar");
-    tableLineDataFieldsTable.put("nbr_cnt", "total,fbs,fss");
+    tableLineDataFieldsTable.put("cts", "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu,fmean," +
+            "fmean_ncl,fmean_ncu,fmean_bcl,fmean_bcu,acc,acc_ncl,acc_ncu,acc_bcl," +
+            "acc_bcu,fbias,fbias_bcl,fbias_bcu,pody,pody_ncl,pody_ncu,pody_bcl," +
+            "pody_bcu,podn,podn_ncl,podn_ncu,podn_bcl,podn_bcu,pofd,pofd_ncl," +
+            "pofd_ncu,pofd_bcl,pofd_bcu,far,far_ncl,far_ncu,far_bcl,far_bcu," +
+            "csi,csi_ncl,csi_ncu,csi_bcl,csi_bcu,gss,gss_bcl,gss_bcu," +
+            "hk,hk_ncl,hk_ncu,hk_bcl,hk_bcu,hss,hss_bcl,hss_bcu," +
+            "odds,odds_ncl,odds_ncu,odds_bcl,odds_bcu,lodds,lodds_ncl," +
+            "lodds_ncu,lodds_bcl,lodds_bcu,orss,orss_ncl,orss_ncu,orss_bcl,orss_bcu," +
+            "eds,eds_ncl,eds_ncu,eds_bcl,eds_bcu,seds,seds_ncl,seds_ncu,seds_bcl,seds_bcu," +
+            "edi,edi_ncl,edi_ncu,edi_bcl,edi_bcu,sedi,sedi_ncl,sedi_ncu,sedi_bcl,sedi_bcu," +
+            "bagss,bagss_bcl,bagss_bcu");
+    tableLineDataFieldsTable.put("cnt", "alpha,total,fbar,fbar_ncl,fbar_ncu,fbar_bcl,fbar_bcu," +
+            "fstdev,fstdev_ncl,fstdev_ncu,fstdev_bcl,fstdev_bcu,obar,obar_ncl,obar_ncu,obar_bcl,obar_bcu," +
+            "ostdev,ostdev_ncl,ostdev_ncu,ostdev_bcl,ostdev_bcu," +
+            "pr_corr,pr_corr_ncl,pr_corr_ncu,pr_corr_bcl,pr_corr_bcu,sp_corr,dt_corr," +
+            "ranks,frank_ties,orank_ties,me,me_ncl,me_ncu,me_bcl,me_bcu," +
+            "estdev,estdev_ncl,estdev_ncu,estdev_bcl,estdev_bcu," +
+            "mbias,mbias_bcl,mbias_bcu,mae,mae_bcl,mae_bcu,mse,mse_bcl,mse_bcu," +
+            "bcmse,bcmse_bcl,bcmse_bcu,rmse,rmse_bcl,rmse_bcu," +
+            "e10,e10_bcl,e10_bcu,e25,e25_bcl,e25_bcu,e50,e50_bcl,e50_bcu,e75,e75_bcl,e75_bcu," +
+            "e90,e90_bcl,e90_bcu,iqr,iqr_bcl,iqr_bcu,mad,mad_bcl,mad_bcu," +
+            "anom_corr,anom_corr_ncl,anom_corr_ncu,anom_corr_bcl,anom_corr_bcu," +
+            "me2,me2_bcl,me2_bcu,msess,msess_bcl,msess_bcu," +
+            "rmsfa,rmsfa_bcl,rmsfa_bcu,rmsoa,rmsoa_bcl,rmsoa_bcu");
+    tableLineDataFieldsTable.put("nbrcnt", "alpha,total,fbs,fbs_bcl,fbs_bcu,fss,fss_bcl,fss_bcu," +
+            "afss,afss_bcl,afss_bcu,ufss,ufss_bcl,ufss_bcu,f_rate,f_rate_bcl,f_rate_bcu," +
+            "u_rate,u_rate_bcl,u_rate_bcu");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
@@ -168,42 +195,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     // do nothing for now
   }
 
-//  private void applyIndexes(boolean drop) throws Exception {
-//
-//    logger.info("    ==== indexes ====\n" + (drop ? "  dropping..." : ""));
-//    Map.Entry[] listIndexes = mapIndexes.getOrderedEntries();
-//    for (Map.Entry listIndex : listIndexes) {
-//      String strIndexKey = listIndex.getKey().toString();
-//      String strField = listIndex.getValue().toString();
-//      long intIndexStart = new Date().getTime();
-//
-//      //  build a create index statment and run it
-//      Matcher matIndex = patIndexName.matcher(strIndexKey);
-//      if (!matIndex.matches()) {
-//        throw new Exception("  **  ERROR: failed to parse index key " + strIndexKey);
-//      }
-//      String strTable = matIndex.group(1);
-//      String strIndexName = strTable + matIndex.group(2);
-//      String strIndex;
-//      if (drop) {
-//        strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";
-//      } else {
-//        strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");";
-//      }
-//      try {
-//        executeUpdate(strIndex);
-//      } catch (Exception e) {
-//        logger.error(
-//            "  **  ERROR: caught " + e.getClass() + " applying index " + strIndexName + ": " + e.getMessage());
-//      }
-//
-//      //  print out a performance message
-//      long intIndexTime = new Date().getTime() - intIndexStart;
-//      logger.info(MVUtil.padBegin(strIndexName + ": ", 36) + MVUtil.formatTimeSpan(intIndexTime));
-//    }
-//    logger.info("");
-//  }
-//
 //  /**
 //   * Executes the input update statement against the database underlying the input Connection and
 //   * cleans up any resources upon completion.
@@ -313,19 +304,24 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     long intLineDataSkipped = 0;
     long lengthRecords = 0;
     long lengthInserts = 0;
+    String modelName;
     N1qlQueryResult queryResult = null;
     List<N1qlQueryRow> queryList = null;
-    String headerIdString = null;
+    N1qlQueryRow firstRow = null;
+    JsonObject firstRowObject = null;
+    long nextIdNumber = 0;
+    String headerIdString = "";
+    String searchDbName;
+    JsonObject headerFile;
+    JsonDocument response;
+    JsonDocument doc;
     timeStats.put("headerSearchTime", 0L);
-
-    //  get the next stat_header_id
-    int intStatHeaderIdNext = getNextId("stat_header", "stat_header_id");
 
     //  set up the input file for reading
     String strFilename = info._dataFilePath + "/" + info._dataFileFilename;
     int intLine = 0;
     List<String> headerNames = new ArrayList<>();
-    try (
+   try (
             FileReader fileReader = new FileReader(strFilename);
             BufferedReader reader = new BufferedReader(fileReader)) {
       //  read in each line of the input file
@@ -342,24 +338,30 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         //  error if the version number does not match the configured value
         String strMetVersion = MVUtil.findValueInArray(listToken, headerNames, "VERSION");
 
-
         //  if the line type load selector is activated, check that the current line type is on the list
         mvLoadStatInsertData
             .setLineType(MVUtil.findValueInArray(listToken, headerNames, "LINE_TYPE"));
-        if (!MVUtil.isValidLineType(mvLoadStatInsertData.getLineType())) {
+        String strLineType = mvLoadStatInsertData.getLineType();
+
+        if (!MVUtil.isValidLineType(strLineType)) {
           logger.warn(
-              "  **  WARNING: unexpected line type: " + mvLoadStatInsertData.getLineType()
+              "  **  WARNING: unexpected line type: " + strLineType
                   + "  the line will be ignored     ");
           continue;
         }
 
         if (info._boolLineTypeLoad && !info._tableLineTypeLoad
-                                           .containsKey(mvLoadStatInsertData.getLineType())) {
+                                           .containsKey(strLineType)) {
+          continue;
+        }
+
+        //  do not load matched pair lines or orank lines
+        if ((!info._boolLoadMpr && strLineType.equals("MPR"))
+                || (!info._boolLoadOrank && strLineType.equals("ORANK"))) {
           continue;
         }
 
         mvLoadStatInsertData.setFileLine(strFilename + ":" + intLine);
-
 
         //  parse the valid times
         Date dateFcstValidBeg = DB_DATE_STAT_FORMAT.parse(
@@ -385,6 +387,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         intFcstLeadSec += Integer.parseInt(
             strFcstLead.substring(intFcstLeadLen - 4, intFcstLeadLen - 2)) * 60;
         intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0, intFcstLeadLen - 4)) * 3600;
+        String strObsLead = MVUtil.findValueInArray(listToken, headerNames,"OBS_LEAD");
+        strObsLead = String.valueOf(Integer.parseInt(strObsLead));
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
         Calendar calFcstInitBeg = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -399,71 +403,27 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           strInterpPnts = "0";
         }
 
-        String strLineType = mvLoadStatInsertData.getLineType();
-
-        //  do not load matched pair lines or orank lines
-        if ((!info._boolLoadMpr && strLineType.equals("MPR"))
-                || (!info._boolLoadOrank && strLineType.equals("ORANK"))) {
-          continue;
-        }
-
 
 			/*
        * * * *  stat_header insert  * * * *
 			 */
         headerRecords++;
 
-        //  build the stat_header value list for this line
-        String[] listStatHeaderValue = {
-            MVUtil.findValueInArray(listToken, headerNames, "VERSION"),    //  version
-            MVUtil.findValueInArray(listToken, headerNames, "MODEL"),    //  model
-            MVUtil.findValueInArray(listToken, headerNames, "DESC"),    //  descr
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR"),    //  fcst_var
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV"),    //  fcst_lev
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_VAR"),    //  obs_var
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_LEV"),    //  obs_lev
-            MVUtil.findValueInArray(listToken, headerNames, "OBTYPE"),    //  obtype
-            MVUtil.findValueInArray(listToken, headerNames, "VX_MASK"),    //  vx_mask
-            MVUtil.findValueInArray(listToken, headerNames, "INTERP_MTHD"),    //  interp_mthd
-            strInterpPnts,    //  interp_pnts
-            MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH"),    //  fcst_thresh
-            MVUtil.findValueInArray(listToken, headerNames, "OBS_THRESH")    //  obs_thresh
-        };
-
-        //  build a where clause for searching for duplicate stat_header records
-        String strStatHeaderWhereClause =
-            "  model = '" + MVUtil.findValueInArray(listToken, headerNames, "MODEL") + "'\n" +
-                " AND descr = '" + MVUtil.findValueInArray(listToken, headerNames, "DESC") + "'\n" +
-                //"  AND version = '" +				listToken[0] + "'\n" +
-                "  AND fcst_var = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "FCST_VAR") + "'\n" +
-                "  AND fcst_lev = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                               "FCST_LEV") + "'\n" +
-                //"  AND obs_var = '" +			listToken[10] + "'\n" +
-                //"  AND obs_lev = '" +			listToken[11] + "'\n" +
-                "  AND obtype = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                             "OBTYPE") + "'\n" +
-                "  AND vx_mask = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                              "VX_MASK") + "'\n" +
-                "  AND interp_mthd = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                  "INTERP_MTHD") + "'\n" +
-                "  AND interp_pnts = " + strInterpPnts + "\n" +
-                "  AND fcst_thresh = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                  "FCST_THRESH") + "'\n" +
-                "  AND obs_thresh = '" + MVUtil.findValueInArray(listToken, headerNames,
-                                                                 "OBS_THRESH") + "'";
-
-        //  build the value list for the stat_header insert
-        String strStatHeaderValueList = "";
-        for (int i = 0; i < listStatHeaderValue.length; i++) {
-          strStatHeaderValueList += (0 < i ? ", " : "") + "'" + listStatHeaderValue[i] + "'";
-        }
-
+        modelName = MVUtil.findValueInArray(listToken, headerNames, "MODEL");
 
         String strFileLine = strFilename + ":" + intLine;
 
+        //  build the value list for the stat_header search
+        String strStatHeaderValueList =
+                modelName +
+                        MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR") +
+                        MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV") +
+                        MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") +
+                        MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") +
+                        MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH");
+
         //  look for the header key in the table
-        Integer intStatHeaderId = -1;
+        headerIdString = "";
         if (statHeaders.containsKey(strStatHeaderValueList)) {
           headerIdString = statHeaders.get(strStatHeaderValueList);
         }
@@ -472,73 +432,96 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           //  look for an existing stat_header record with the same information
           boolean boolFoundStatHeader = false;
           long intStatHeaderSearchBegin = new Date().getTime();
+          searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
           if (info._boolStatHeaderDBCheck) {
-            String strStatHeaderSelect = "SELECT\n  stat_header_id\nFROM\n  stat_header\nWHERE\n" + strStatHeaderWhereClause;
-    /*        Connection con = null;
-            Statement stmt = null;
-            ResultSet res = null;
+            // build a Couchbase query to look for duplicate stat_header records
+            String strDataFileQuery =  "SELECT " +
+                    "meta().id as headerFileId, " +
+                    "type, " +
+                    "header_type, " +
+                    "data_type, " +
+                    "data_id " +
+                    "FROM `" +
+                    getBucket().name() +
+                    "` WHERE " +
+                    "type = \'header\' AND " +
+                    searchDbName + " = \'" + getDbName() + "\' AND " +
+                    "`header_type` = \'stat\' AND " +
+                    "`data_type` = \'" + info._dataFileLuTypeName + "\' AND " +
+                    "model = \'" + modelName + "\' AND " +
+                    "`fcst_var` = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR") + "\' AND " +
+                    "`fcst_lev` = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV") + "\' AND " +
+                    "obtype = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") + "\' AND " +
+                    "`vx_mask` = \'" + MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") + "\' AND " +
+                    "`fcst_thresh` = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH") + "\';";
+
             try {
-              con = getConnection();
-              stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                         ResultSet.CONCUR_READ_ONLY);
-              res = stmt.executeQuery(strStatHeaderSelect);
-              if (res.next()) {
-                String strStatHeaderIdDup = res.getString(1);
-                intStatHeaderId = Integer.parseInt(strStatHeaderIdDup);
+              queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
+              queryList = queryResult.allRows();
+              // if the header document is already present in the database, print a warning and return the id
+              if (queryList.size() > 0) {
+                firstRow = queryList.get(0);
+                firstRowObject = firstRow.value();
+                // set headerIdString to id of existing header document
+                headerIdString = firstRowObject.get("headerFileId").toString();
                 boolFoundStatHeader = true;
+                // add header to table
+                statHeaders.put(strStatHeaderValueList, headerIdString);
+                logger.warn("  **  WARNING: header document already present in database");
               }
-            } catch (Exception e) {
-              logger.error(e.getMessage());
-            } finally {
-              try {
-                res.close();
-              } catch (Exception e) {  }
-              try {
-                stmt.close();
-              } catch (Exception e) {  }
-              try {
-                con.close();
-              } catch (Exception e) {  }
-            }  */
-          }
-
-          timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date()
-                                                                                    .getTime() - intStatHeaderSearchBegin);
-
+              timeStats.put("headerSearchTime", timeStats.get("headerSearchTime") + new Date().getTime() -
+                      intStatHeaderSearchBegin);
+            } catch (CouchbaseException e) {
+              throw new Exception(e.getMessage());
+            }
+          }  // end if (info._boolStatHeaderDBCheck)
 
           //  if the stat_header was not found, add it to the table
           if (!boolFoundStatHeader) {
+            //  create a unique data_file id from a Couchbase counter, starting at 1 the first time
+            try {
+              nextIdNumber = getBucket().counter("HDCounter", 1, 1).content();
+              // unique id must be a string
+              headerIdString = getDbName() + "::header::stat::" + modelName + "::" + String.valueOf(nextIdNumber);
+            } catch (CouchbaseException e) {
+              throw new Exception(e.getMessage());
+            }
 
-            intStatHeaderId = intStatHeaderIdNext++;
+            try {
+              headerFile = JsonObject.empty()
+                      .put("type", "header")
+                      .put("header_type", "stat")
+                      .put("data_type", info._dataFileLuTypeName)
+                      .put("data_id", info._dataFileId)
+                      .put("version", MVUtil.findValueInArray(listToken, headerNames, "VERSION"))
+                      .put("model", modelName)
+                      .put("descr", "NA")
+                      .put("fcst_var", MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR"))
+                      .put("fcst_lev", MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV"))
+                      .put("obs_var", MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR"))
+                      .put("obs_lev", MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV"))
+                      .put("obtype", MVUtil.findValueInArray(listToken, headerNames, "OBTYPE"))
+                      .put("vx_mask", MVUtil.findValueInArray(listToken, headerNames, "VX_MASK"))
+                      .put("interp_mthd", MVUtil.findValueInArray(listToken, headerNames, "INTERP_MTHD"))
+                      .put("interp_pnts", strInterpPnts)
+                      .put("fcst_thresh", MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH"))
+                      .put("obs_thresh", MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH"));
+              doc = JsonDocument.create(headerIdString, headerFile);
+              response = getBucket().upsert(doc);
+              if (response.content().isEmpty()) {
+                logger.warn("  **  WARNING: unexpected result from header INSERT");
+              } else {
+                headerInserts++;
+              }
+            } catch (Exception e) {
+              throw new Exception(e.getMessage());
+            }
+            // add header to table
             statHeaders.put(strStatHeaderValueList, headerIdString);
+          } // end if (!boolFoundStatHeader)
+        } // end else stat_header is not in table
 
-            //  build an insert statement for the mode header
-            strStatHeaderValueList =
-                Integer.toString(intStatHeaderId) + ", " +        //  stat_header_id
-                    strStatHeaderValueList;
-
-            //  insert the record into the stat_header database table
-            String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + strStatHeaderValueList + ");";
-            int intStatHeaderInsert;
-//            try {
-//              intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
-//              if (1 != intStatHeaderInsert) {
-//                logger.warn(
-//                    "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
-//                intStatHeaderId = null;
-//              } else {
-//                headerInserts++;
-//              }
-//            } catch (Exception e) {
-//              logger.error(e.getMessage());
-//              intStatHeaderId = null;
-//            }
-
-          } else {
-            statHeaders.put(strStatHeaderValueList, headerIdString);
-          }
-        }
-        if (intStatHeaderId != null) {
+        if (headerIdString != null) {
 
           int intLineDataMax = listToken.length;
           String strLineDataId = "";
@@ -546,7 +529,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
           //  if the line type is of variable length, get the line_data_id
           boolean boolHasVarLengthGroups = MVUtil.lengthGroupIndices
-                                               .containsKey(mvLoadStatInsertData.getLineType());
+                                               .containsKey(strLineType);
 
           //  determine the maximum token index for the data
           if (boolHasVarLengthGroups) {
@@ -554,7 +537,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             strLineDataId = Integer.toString(intLineDataId) + ", ";
             tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
             int[] listVarLengthGroupIndices1 = MVUtil.lengthGroupIndices
-                                                   .get(mvLoadStatInsertData.getLineType());
+                                                   .get(strLineType);
             int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1,
                                                             listVarLengthGroupIndices1.length);
             if (headerNames.indexOf("DESC") < 0) {
@@ -564,9 +547,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             }
 
-            if (mvLoadStatInsertData.getLineType().equals("RHIST") || mvLoadStatInsertData
-                                                                          .getLineType()
-                                                                          .equals("PSTD")) {
+            if (strLineType.equals("RHIST") || strLineType.equals("PSTD")) {
               intLineDataMax = intLineDataMax - Integer.valueOf(
                   listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
             } else {
@@ -574,36 +555,37 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             }
           }
 
-          //  build the value list for the insert statment
+          //  build the value list for the insert statement
           String strLineDataValueList =
-              strLineDataId +            //  line_data_id (if present)
-                  intStatHeaderId + ", " +      //  stat_header_id
-                  info._dataFileId + ", " +      //  data_file_id
-                  intLine + ", " +          //  line_num
-                  strFcstLead + ", " +        //  fcst_lead
-                  "'" + strFcstValidBeg + "', " +    //  fcst_valid_beg
-                  "'" + strFcstValidEnd + "', " +    //  fcst_valid_end
-                  "'" + strFcstInitBeg + "', " +    //  fcst_init_beg
-                  MVUtil.findValueInArray(listToken, headerNames,
-                                          "OBS_LEAD") + ", " +        //  obs_lead
-                  "'" + strObsValidBeg + "', " +    //  obs_valid_beg
-                  "'" + strObsValidEnd + "'";      //  obs_valid_end
+                  getDbName() + "," +     // database name for ID
+                  strLineType.toLowerCase() + "," +   // line type
+                  modelName + "," +            // model name for ID
+                  headerIdString + "," +       //  CB header_id
+                  info._dataFileId + "," +     //  CB data_id for data_file
+                  intLine + "," +          //  line_num
+                  strFcstLead + "," +        //  fcst_lead
+                  strFcstValidBeg + "," +    //  fcst_valid_beg
+                  strFcstValidEnd + "," +    //  fcst_valid_end
+                  strFcstInitBeg + "," +     //  fcst_init_beg
+                  strObsLead + "," +        //  obs_lead
+                  strObsValidBeg + "," +     //  obs_valid_beg
+                  strObsValidEnd;            //  obs_valid_end
 
           //  if the line data requires a cov_thresh value, add it
           String strCovThresh = MVUtil.findValueInArray(listToken, headerNames, "COV_THRESH");
-          if (MVUtil.covThreshLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
-            strLineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
+          if (MVUtil.covThreshLineTypes.containsKey(strLineType)) {
+            strLineDataValueList += "," + replaceInvalidValues(strCovThresh);
           }
 
           //  if the line data requires an alpha value, add it
           String strAlpha = MVUtil.findValueInArray(listToken, headerNames, "ALPHA");
-          if (MVUtil.alphaLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
+          if (MVUtil.alphaLineTypes.containsKey(strLineType)) {
             if (strAlpha.equals("NA")) {
               logger.warn("  **  WARNING: alpha value NA with line type '" + mvLoadStatInsertData
                                                                                  .getLineType() + "'\n        " + mvLoadStatInsertData
                                                                                                                       .getFileLine());
             }
-            strLineDataValueList += ", " + replaceInvalidValues(strAlpha);
+            strLineDataValueList += "," + replaceInvalidValues(strAlpha);
           } else if (!strAlpha.equals("NA")) {
             logger.warn(
                 "  **  WARNING: unexpected alpha value '" + strAlpha + "' in line type '" + mvLoadStatInsertData
@@ -615,18 +597,18 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           for (int i = headerNames.indexOf("LINE_TYPE") + 1; i < intLineDataMax; i++) {
             //  for the METv2.0 MPR line type, add the obs_sid
             if (headerNames.indexOf("LINE_TYPE") + 1 + 2 == i && "MPR".equals(
-                mvLoadStatInsertData.getLineType()) && "V2.0".equals(strMetVersion)) {
-              strLineDataValueList += ", 'NA'";
+                strLineType) && "V2.0".equals(strMetVersion)) {
+              strLineDataValueList += ",'NA'";
             }
             //  add the stats in order
-            strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
+            strLineDataValueList += "," + replaceInvalidValues(listToken[i]);
           }
 
 
           if (strLineType.equals("ORANK")) {
             //skip ensemble fields and get data for the rest
             int[] listVarLengthGroupIndices1 = MVUtil.lengthGroupIndices
-                                                   .get(mvLoadStatInsertData.getLineType());
+                                                   .get(strLineType);
             int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1,
                                                             listVarLengthGroupIndices1.length);
             if (headerNames.indexOf("DESC") < 0) {
@@ -637,7 +619,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             int extraFieldsInd = intLineDataMax + Integer.valueOf(
                 listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
             for (int i = extraFieldsInd; i < listToken.length; i++) {
-              strLineDataValueList += ", '" + replaceInvalidValues(listToken[i]) + "'";
+              strLineDataValueList += "," + replaceInvalidValues(listToken[i]);
             }
           }
 
@@ -648,43 +630,43 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           int maxSize = size;
           switch (strLineType) {
             case "CNT":
-              maxSize = 105;
+              maxSize = 108;
               break;
             case "MPR":
-              maxSize = 24;
-              break;
-            case "ORANK":
               maxSize = 27;
               break;
+            case "ORANK":
+              maxSize = 30;
+              break;
             case "CTS":
-              maxSize = 104;
+              maxSize = 107;
               break;
             case "NBRCTS":
-              maxSize = 105;
+              maxSize = 108;
               break;
             case "NBRCNT":
-              maxSize = 30;
+              maxSize = 33;
               break;
             case "SAL1L2":
-              maxSize = 17;
+              maxSize = 20;
               break;
             case "SL1L2":
-              maxSize = 17;
+              maxSize = 20;
               break;
             case "GRAD":
-              maxSize = 18;
+              maxSize = 21;
               break;
             case "PSTD":
-              maxSize = 30;
+              maxSize = 33;
               break;
             case "SSVAR":
-              maxSize = 46;
+              maxSize = 49;
               break;
             case "RHIST":
-              maxSize = 17;
+              maxSize = 20;
               break;
             case "VL1L2":
-              maxSize = 20;
+              maxSize = 23;
               break;
 
             default:
@@ -703,13 +685,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           //  add the values list to the line type values map
           List<String> listLineTypeValues = new ArrayList<>();
           if (mvLoadStatInsertData.getTableLineDataValues()
-                  .containsKey(mvLoadStatInsertData.getLineType())) {
+                  .containsKey(strLineType)) {
             listLineTypeValues = mvLoadStatInsertData.getTableLineDataValues()
-                                     .get(mvLoadStatInsertData.getLineType());
+                                     .get(strLineType);
           }
-          listLineTypeValues.add("(" + strLineDataValueList + ")");
+          listLineTypeValues.add(strLineDataValueList);
           mvLoadStatInsertData.getTableLineDataValues()
-              .put(mvLoadStatInsertData.getLineType(), listLineTypeValues);
+              .put(strLineType, listLineTypeValues);
           dataInserts++;
 
 
@@ -721,7 +703,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  get the index information about the current line type
             int[] listVarLengthGroupIndices1 = MVUtil.lengthGroupIndices
-                                                   .get(mvLoadStatInsertData.getLineType());
+                                                   .get(strLineType);
             int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1,
                                                             listVarLengthGroupIndices1.length);
             if (headerNames.indexOf("DESC") < 0) {
@@ -734,19 +716,19 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             int intGroupSize = listVarLengthGroupIndices[2];
             int intNumGroups = Integer.parseInt(listToken[intGroupCntIndex]);
 
-            if (mvLoadStatInsertData.getLineType().equals("PCT")
-                    || mvLoadStatInsertData.getLineType().equals("PJC")
-                    || mvLoadStatInsertData.getLineType().equals("PRC")) {
+            if (strLineType.equals("PCT")
+                    || strLineType.equals("PJC")
+                    || strLineType.equals("PRC")) {
               intNumGroups -= 1;
             }
             List<String> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
-                                                .get(mvLoadStatInsertData.getLineType());
+                                                .get(strLineType);
             if (null == listThreshValues) {
               listThreshValues = new ArrayList<>();
             }
 
             //  build a insert value statement for each threshold group
-            if (mvLoadStatInsertData.getLineType().equals("MCTC")) {
+            if (strLineType.equals("MCTC")) {
               for (int i = 0; i < intNumGroups; i++) {
                 for (int j = 0; j < intNumGroups; j++) {
                   listThreshValues.add("(" + strLineDataId + (i + 1) + ", " + (j + 1) + ", " +
@@ -755,8 +737,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 }
               }
             } else {
-              if (mvLoadStatInsertData.getLineType().equals("RHIST")
-                      || mvLoadStatInsertData.getLineType().equals("PSTD")) {
+              if (strLineType.equals("RHIST")
+                      || strLineType.equals("PSTD")) {
                 intGroupIndex = intLineDataMax;
               }
               for (int i = 0; i < intNumGroups; i++) {
@@ -770,7 +752,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
             }
             mvLoadStatInsertData.getTableVarLengthValues()
-                .put(mvLoadStatInsertData.getLineType(), listThreshValues);
+                .put(strLineType, listThreshValues);
           }
 
           //  if the insert threshhold has been reached, commit the stored data to the database
@@ -856,10 +838,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                                                      .entrySet()) {
       mvLoadStatInsertData.setLineType(entry.getKey());
       ArrayList listValues = (ArrayList) entry.getValue();
-      String strLineDataTable = "line_data_" + mvLoadStatInsertData.getLineType()
-                                                   .toLowerCase(Locale.US);
 
-      int intResLineDataInsert = executeBatch(listValues, strLineDataTable);
+      int intResLineDataInsert = executeBatch(listValues);
       if (listValues.size() != intResLineDataInsert) {
         logger.warn("  **  WARNING: unexpected result from line_data INSERT: " +
                         intResLineDataInsert + "\n        " + mvLoadStatInsertData.getFileLine());
@@ -1114,9 +1094,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       getBucket().name() +
                       "` WHERE " +
                       "type = \'header\' AND " +
-                      searchDbName + " = " + getDbName() + " AND " +
+                      searchDbName + " = \'" + getDbName() + "\' AND " +
                       "`header_type` = \'stat\' AND " +
-                      "`data_type` = \'vsdb_point_stat\' AND " +
+                      "`data_type` = \'" + info._dataFileLuTypeName + "\' AND " +
                       "model = \'" + modelName + "\' AND " +
                       "`fcst_var` = \'" + listToken[7] + "\' AND " +
                       "`fcst_lev` = \'" + listToken[8] + "\' AND " +
@@ -1202,7 +1182,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
             }
 
-            //  build the value list for the insert statment
+            //  build the value list for the insert statement
             String strLineDataValueList =
                 getDbName() + "," +     // database name for ID
                 strLineType.toLowerCase() + "," +   // line type
@@ -2541,7 +2521,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'category\' AND " +
-            searchDbName + " = '" + getDbName() + "';";
+            searchDbName + " = \'" + getDbName() + "\';";
 
     try {
       queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -2557,7 +2537,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       }
 
     } catch (CouchbaseException e) {
-      System.out.println(e.getMessage());
+      throw new Exception(e.getMessage());
     }
     // if no category document exists, or the group is not the same as in the XML
     if (!currentCategory.equals(group)) {
@@ -2619,7 +2599,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'category\' AND " +
-            searchDbName + " = '" + getDbName() + "';";
+            searchDbName + " = \'" + getDbName() + "\';";
 
     try {
       queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -2671,11 +2651,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     }
   }
 
-  private int executeBatch(List<String> listValues, String strLineDataTable) throws Exception {
+  private int executeBatch(List<String> listValues) throws Exception {
     long nextIdNumber;
     String lineDataIdString;
     JsonObject lineDataFile;
-    lineDataFile = null;
     JsonDocument response;
     JsonDocument doc;
     String[] listFieldsArr;
@@ -2813,7 +2792,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'file\' AND " +
-            searchDbName + " = " + getDbName() + " AND " +
+            searchDbName + " = \'" + getDbName() + "\' AND " +
             "`data_type` = \'" + strDataFileLuTypeName + "\' AND " +
             "filename = \'" + strFile + "\' AND " +
             "`path` = \'" + strPath + "\';";
@@ -2831,7 +2810,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           dupIdString = firstRowObject.get("dataFileId").toString();
           strLoadDate = firstRowObject.get("load_date").toString();
           strModDate = firstRowObject.get("mod_date").toString();
-          DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
+          // for couchbase, pass string id dupidstring, already in database, as new id
+          DataFileInfo info = new DataFileInfo(dupIdString, strFile, strPath, strLoadDate,
                                                strModDate, strDataFileLuId, strDataFileLuTypeName);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
