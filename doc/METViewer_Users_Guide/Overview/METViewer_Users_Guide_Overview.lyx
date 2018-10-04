@@ -311,8 +311,11 @@ The fixed variables section controls the constraints for the plot (what
 
 \begin_layout Standard
 Each of the above selections can have one or multiple items.
- To add variables, series, or fixed values, select the button with the '+'
- directly below the desired item.
+ To add variables, series, or fixed values, select the button with the '
+\series bold
++
+\series default
+' directly below the desired item.
  Then additional selections will appear in a new dropdown menu.
  To delete these extras, select the trash icon to the left of the item.
  
