@@ -129,7 +129,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     tableLineDataFieldsTable = new HashMap<>();
     tableLineDataFieldsTable.put("ctc",    "total,fy_oy,fy_on,fn_oy,fn_on");
     tableLineDataFieldsTable.put("fho",    "total,f_rate,h_rate,o_rate");
-    tableLineDataFieldsTable.put("pct",    "total,n_thresh");
+    tableLineDataFieldsTable.put("pct",    "cov_thresh,total,n_thresh");
+    tableLineDataFieldsTable.put("pjc",    "cov_thresh,total,n_thresh");
+    tableLineDataFieldsTable.put("prc",    "cov_thresh,total,n_thresh");
     tableLineDataFieldsTable.put("relp",   "total,n_ens");
     tableLineDataFieldsTable.put("eclv",   "total,baser,value_baser,n_pnt");
     tableLineDataFieldsTable.put("enscnt", "rpsf,rpsf_ncl,rpsf_ncu,rpsf_bcl,rpsf_bcu," +
