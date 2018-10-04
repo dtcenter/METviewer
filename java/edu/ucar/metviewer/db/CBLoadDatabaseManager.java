@@ -127,15 +127,24 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     tableVarLengthTable.put("ECLV", "line_data_eclv_pnt");
 
     tableLineDataFieldsTable = new HashMap<>();
-    tableLineDataFieldsTable.put("ctc", "total,fy_oy,fy_on,fn_oy,fn_on");
-    tableLineDataFieldsTable.put("fho", "total,f_rate,h_rate,o_rate");
-    tableLineDataFieldsTable.put("grad", "total,fgbar,ogbar,mgbar,egbar,s1,s1_og,fgog_ratio");
-    tableLineDataFieldsTable.put("sl1l2", "total,fbar,obar,fobar,ffbar,oobar");
-    tableLineDataFieldsTable.put("sal1l2", "total,fabar,oabar,foabar,ffabar,ooabar");
-    tableLineDataFieldsTable.put("vl1l2",
-            "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar,f_speed_bar,o_speed_bar");
+    tableLineDataFieldsTable.put("ctc",    "total,fy_oy,fy_on,fn_oy,fn_on");
+    tableLineDataFieldsTable.put("fho",    "total,f_rate,h_rate,o_rate");
+    tableLineDataFieldsTable.put("pct",    "total,n_thresh");
+    tableLineDataFieldsTable.put("relp",   "total,n_ens");
+    tableLineDataFieldsTable.put("eclv",   "total,baser,value_baser,n_pnt");
+    tableLineDataFieldsTable.put("enscnt", "rpsf,rpsf_ncl,rpsf_ncu,rpsf_bcl,rpsf_bcu," +
+                    "rpscl,rpscl_ncl,rpscl_ncu,rpscl_bcl,rpscl_bcu," +
+                    "rpss,rpss_ncl,rpss_ncu,rpss_bcl,rpss_bcu," +
+                    "crpsf,crpsf_ncl,crpsf_ncu,crpsf_bcl,crpsf_bcu," +
+                    "crpscl,crpscl_ncl,crpscl_ncu,crpscl_bcl,crpscl_bcu," +
+                    "crpss,crpss_ncl,crpss_ncu,crpss_bcl,crpss_bcu");
+    tableLineDataFieldsTable.put("grad",   "total,fgbar,ogbar,mgbar,egbar,s1,s1_og,fgog_ratio");
+    tableLineDataFieldsTable.put("sl1l2",  "total,fbar,obar,fobar,ffbar,oobar,mae");
+    tableLineDataFieldsTable.put("sal1l2", "total,fabar,oabar,foabar,ffabar,ooabar,mae");
+    tableLineDataFieldsTable.put("vl1l2",  "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar," +
+            "f_speed_bar,o_speed_bar");
     tableLineDataFieldsTable.put("val1l2", "total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar");
-    tableLineDataFieldsTable.put("cts", "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu,fmean," +
+    tableLineDataFieldsTable.put("cts",    "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu,fmean," +
             "fmean_ncl,fmean_ncu,fmean_bcl,fmean_bcu,acc,acc_ncl,acc_ncu,acc_bcl," +
             "acc_bcu,fbias,fbias_bcl,fbias_bcu,pody,pody_ncl,pody_ncu,pody_bcl," +
             "pody_bcu,podn,podn_ncl,podn_ncu,podn_bcl,podn_bcu,pofd,pofd_ncl," +
@@ -147,7 +156,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "eds,eds_ncl,eds_ncu,eds_bcl,eds_bcu,seds,seds_ncl,seds_ncu,seds_bcl,seds_bcu," +
             "edi,edi_ncl,edi_ncu,edi_bcl,edi_bcu,sedi,sedi_ncl,sedi_ncu,sedi_bcl,sedi_bcu," +
             "bagss,bagss_bcl,bagss_bcu");
-    tableLineDataFieldsTable.put("cnt", "alpha,total,fbar,fbar_ncl,fbar_ncu,fbar_bcl,fbar_bcu," +
+    tableLineDataFieldsTable.put("cnt",    "alpha,total,fbar,fbar_ncl,fbar_ncu,fbar_bcl,fbar_bcu," +
             "fstdev,fstdev_ncl,fstdev_ncu,fstdev_bcl,fstdev_bcu,obar,obar_ncl,obar_ncu,obar_bcl,obar_bcu," +
             "ostdev,ostdev_ncl,ostdev_ncu,ostdev_bcl,ostdev_bcu," +
             "pr_corr,pr_corr_ncl,pr_corr_ncu,pr_corr_bcl,pr_corr_bcu,sp_corr,dt_corr," +
@@ -160,9 +169,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "anom_corr,anom_corr_ncl,anom_corr_ncu,anom_corr_bcl,anom_corr_bcu," +
             "me2,me2_bcl,me2_bcu,msess,msess_bcl,msess_bcu," +
             "rmsfa,rmsfa_bcl,rmsfa_bcu,rmsoa,rmsoa_bcl,rmsoa_bcu");
+    tableLineDataFieldsTable.put("mpr",    "total,mp_index,obs_sid,obs_lat,obs_lon,obs_lvl,obs_elv," +
+            "mpr_fcst,mpr_obs,mpr_climo,obs_qc,climo_mean,climo_stdev,climo_cdf");
     tableLineDataFieldsTable.put("nbrcnt", "alpha,total,fbs,fbs_bcl,fbs_bcu,fss,fss_bcl,fss_bcu," +
             "afss,afss_bcl,afss_bcu,ufss,ufss_bcl,ufss_bcu,f_rate,f_rate_bcl,f_rate_bcu," +
             "u_rate,u_rate_bcl,u_rate_bcu");
+    tableLineDataFieldsTable.put("pstd",   "cov_thresh,alpha,total,n_thresh,baser,baser_ncl,baser_ncu," +
+            "reliability,resolution,uncertainty,roc_auc,brier,brier_ncl,brier_ncu,briercl,briercl_ncl," +
+            "briercl_ncu,bss,bss_smpl");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
