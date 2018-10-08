@@ -747,7 +747,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             if (strLineType.equals("MCTC")) {
               for (int i = 0; i < intNumGroups; i++) {
                 for (int j = 0; j < intNumGroups; j++) {
-                  listThreshValues.add("(" + strLineDataId + (i + 1) + ", " + (j + 1) + ", " +
+                  listThreshValues.add("(" + strLineDataId + (i + 1) + "," + (j + 1) + "," +
                                            replaceInvalidValues(listToken[intGroupIndex++]) + ")");
                   lengthRecords++;
                 }
@@ -760,7 +760,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < intNumGroups; i++) {
                 String strThreshValues = "(" + strLineDataId + (i + 1);
                 for (int j = 0; j < intGroupSize; j++) {
-                  strThreshValues += ", " + replaceInvalidValues(listToken[intGroupIndex++]);
+                  strThreshValues += "," + replaceInvalidValues(listToken[intGroupIndex++]);
                 }
                 strThreshValues += ")";
                 listThreshValues.add(strThreshValues);
@@ -1256,7 +1256,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 switch (i) {
                   case 0:
                   case 1:
-                    strLineDataValueList += ", '0'";
+                    strLineDataValueList += ",'0'";
                     break;
                   case 2:
                   case 3:
@@ -1267,25 +1267,25 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   case 13:
                   case 14:
                   case 16:
-                    strLineDataValueList += ", '-9999'";
+                    strLineDataValueList += ",'-9999'";
                     break;
                   case 5:
-                    strLineDataValueList += ", '" + listToken[12] + "'";
+                    strLineDataValueList += ",'" + listToken[12] + "'";
                     break;
                   case 6:
-                    strLineDataValueList += ", '" + listToken[13] + "'";
+                    strLineDataValueList += ",'" + listToken[13] + "'";
                     break;
                   case 7:
-                    strLineDataValueList += ", '" + listToken[14] + "'";
+                    strLineDataValueList += ",'" + listToken[14] + "'";
                     break;
                   case 9:
-                    strLineDataValueList += ", '" + listToken[9] + "'";
+                    strLineDataValueList += ",'" + listToken[9] + "'";
                     break;
                   case 12:
-                    strLineDataValueList += ", '" + listToken[10] + "'";
+                    strLineDataValueList += ",'" + listToken[10] + "'";
                     break;
                   case 15:
-                    strLineDataValueList += ", '" + listToken[11] + "'";
+                    strLineDataValueList += ",'" + listToken[11] + "'";
                     break;
                   default:
                 }
@@ -1297,58 +1297,58 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 30; i++) {
                 switch (i) {
                   case 0:
-                    strLineDataValueList += ", '" + listToken[9] + "'";
+                    strLineDataValueList += ",'" + listToken[9] + "'";
                     break;
                   case 1:
                   case 2:
                   case 3:
                   case 4:
-                    strLineDataValueList += ", '-9999'";
+                    strLineDataValueList += ",'-9999'";
                     break;
                   case 5:
-                    strLineDataValueList += ", '" + listToken[10] + "'";
+                    strLineDataValueList += ",'" + listToken[10] + "'";
                     break;
                   case 6:
                   case 7:
                   case 8:
                   case 9:
-                    strLineDataValueList += ", '-9999'";
+                    strLineDataValueList += ",'-9999'";
                     break;
                   case 10:
-                    strLineDataValueList += ", '" + listToken[11] + "'";
+                    strLineDataValueList += ",'" + listToken[11] + "'";
                     break;
                   case 11:
                   case 12:
                   case 13:
                   case 14:
-                    strLineDataValueList += ", -9999";
+                    strLineDataValueList += ",-9999";
                     break;
                   case 15:
-                    strLineDataValueList += ", '" + listToken[12] + "'";
+                    strLineDataValueList += ",'" + listToken[12] + "'";
                     break;
                   case 16:
                   case 17:
                   case 18:
                   case 19:
-                    strLineDataValueList += ", -9999";
+                    strLineDataValueList += ",-9999";
                     break;
                   case 20:
-                    strLineDataValueList += ", '" + listToken[13] + "'";
+                    strLineDataValueList += ",'" + listToken[13] + "'";
                     break;
                   case 21:
                   case 22:
                   case 23:
                   case 24:
-                    strLineDataValueList += ", -9999";
+                    strLineDataValueList += ",-9999";
                     break;
                   case 25:
-                    strLineDataValueList += ", '" + listToken[14] + "'";
+                    strLineDataValueList += ",'" + listToken[14] + "'";
                     break;
                   case 26:
                   case 27:
                   case 28:
                   case 29:
-                    strLineDataValueList += ", -9999";
+                    strLineDataValueList += ",-9999";
                     break;
                   default:
 
@@ -1361,24 +1361,24 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 6; i++) {
                 if (i == 3) {
                   int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-                  strLineDataValueList += ", '" + intGroupSize + "'";
+                  strLineDataValueList += ",'" + intGroupSize + "'";
                 } else if (i == 0) {//total
-                  strLineDataValueList += ", 0";
+                  strLineDataValueList += ",0";
                 } else {
-                  strLineDataValueList += ", -9999";
+                  strLineDataValueList += ",-9999";
                 }
               }
             }
 
             if (listToken[6].equals("RELP")) {  // RELP line type
-              strLineDataValueList += ", 0";
+              strLineDataValueList += ",0";
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]);
-              strLineDataValueList += ", '" + intGroupSize + "'";
+              strLineDataValueList += ",'" + intGroupSize + "'";
             }
             if (listToken[6].equals("ECON")) {  // ECLV line type
-              strLineDataValueList += ", 0, -9999, -9999";
+              strLineDataValueList += ",0,-9999,-9999";
               int intGroupSize = 18;
-              strLineDataValueList += ", '" + intGroupSize + "'";
+              strLineDataValueList += ",'" + intGroupSize + "'";
             }
 
 
@@ -1403,7 +1403,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
 
 
-              strLineDataValueList += ", " + total + ", " + intGroupSize;
+              strLineDataValueList += "," + total + "," + intGroupSize;
             }
 
             if (listToken[6].equals("SL1L2")
@@ -1497,13 +1497,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
               for (int i = 0; i < 19; i++) {
                 if (i == 0) {//total,
-                  strLineDataValueList += ", " + listToken[9];
+                  strLineDataValueList += "," + listToken[9];
                 } else if (i == 1) {//fbs
-                  strLineDataValueList += ", " + listToken[10];
+                  strLineDataValueList += "," + listToken[10];
                 } else if (i == 4) {//fss
-                  strLineDataValueList += ", " + fss;
+                  strLineDataValueList += "," + fss;
                 } else {
-                  strLineDataValueList += ", '-9999'";
+                  strLineDataValueList += ",'-9999'";
                 }
               }
             }
@@ -1576,7 +1576,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append(res * 100);
+                      strThreshValues.append(",").append(res * 100);
                     }
 
                   }
@@ -1602,7 +1602,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strThreshValues += ", " + oy + ", " + on;
                     total = total + oy + on;
                   } catch (Exception e) {
-                    strThreshValues += ", -9999,  -9999";
+                    strThreshValues += ",-9999,-9999";
                   }
 
                   intGroupIndex++;
@@ -1617,7 +1617,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append(res);
+                      strThreshValues.append(",").append(res);
                     }
 
                   }
@@ -1633,7 +1633,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append(X_POINTS_FOR_ECON[i]).append(",")
+                      strThreshValues.append(",").append(X_POINTS_FOR_ECON[i]).append(",")
                           .append(res);
                     }
 
