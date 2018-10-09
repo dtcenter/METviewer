@@ -4,7 +4,7 @@
 \begin_header
 \save_transient_properties true
 \origin unavailable
-\textclass book
+\textclass ../book
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -130,21 +130,25 @@ name "sec:PerfDiag-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce your plot proceeds approxately counter-clockwise
+Selection of options to produce the plot proceeds approxately counter-clockwise
  around the METViewer window.
- Select your database from the pulldown menus at the top margin of the METViewer
+ Select the database from the pulldown menus at the top margin of the METViewer
  window.
  Make sure the 
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Perf
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
  tab is selected near the top left, just under the database pulldown menu.
- The statistics for this type of plot are fixed, so you must only choose
- your set of cases.
+ The statistics for this type of plot are fixed, only one set of cases may
+ be chosen.
  
 \end_layout
 
@@ -166,8 +170,10 @@ There are several reference lines on the performance diagram.
 
 \begin_layout Standard
 
+\series bold
+Generate Plot
 \series medium
-Generate Plot button at top of METViewer window with the red text.
+ button at top of METViewer window with the red text.
  
 \end_layout
 

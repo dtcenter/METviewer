@@ -104,10 +104,32 @@ name "sec:PerfDiag-Description"
 Performance diagrams are used to show the relationship between categorical
  statistics, with axes representing detection and success (1 - false alarm)
  rates (Roebber, 2009).
- Frequency bias and the critical success index (CSI) are also shown on the
- diagram.
- The simplest input to the performance diagram is the MET contingency table
- statistics (cts) output.
+ Frequency bias and the 
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+
+\series medium
+Should this be capitalized? Critical Success Index
+\end_layout
+
+\end_inset
+
+critical success index (CSI) are also shown on the diagram.
+ The simplest input to the performance diagram is the MET 
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+
+\series medium
+Contingency Table Statistics?
+\end_layout
+
+\end_inset
+
+contingency table statistics (cts) output.
  This output can be produced by many of the MET tools (Point Stat, Grid
  Stat, etc.).
  In METViewer, contingency tables can be accumulated over some time period
