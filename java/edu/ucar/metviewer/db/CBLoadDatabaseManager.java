@@ -9,6 +9,7 @@ package edu.ucar.metviewer.db;
 import com.couchbase.client.core.CouchbaseException;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
@@ -37,6 +38,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   private static final int INDEX_LINE_DATA = 1;
   private static final int INDEX_VAR_LENGTH = 3;
+
+  // entity separator. Something not contained in the data. cannot be comma.
+  private static final String ESEP = "~";
 
   private static final double[] X_POINTS_FOR_ECON = new double[]{
       0.952380952, 0.909090909, 0.800000000, 0.666666667, 0.500000000, 0.333333333,
@@ -115,23 +119,27 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       mapIndexes.put("#" + listLineDataTable + "#_fcst_init_beg_idx", "fcst_init_beg");
     }
     tableVarLengthTable = new HashMap<>();
-    tableVarLengthTable.put("PCT", "line_data_pct_thresh");
-    tableVarLengthTable.put("PSTD", "line_data_pstd_thresh");
-    tableVarLengthTable.put("PJC", "line_data_pjc_thresh");
-    tableVarLengthTable.put("PRC", "line_data_prc_thresh");
-    tableVarLengthTable.put("MCTC", "line_data_mctc_cnt");
-    tableVarLengthTable.put("RHIST", "line_data_rhist_rank");
-    tableVarLengthTable.put("RELP", "line_data_relp_ens");
-    tableVarLengthTable.put("PHIST", "line_data_phist_bin");
-    tableVarLengthTable.put("ORANK", "line_data_orank_ens");
-    tableVarLengthTable.put("ECLV", "line_data_eclv_pnt");
+    tableVarLengthTable.put("PCT", "pct_thresh");
+    tableVarLengthTable.put("PSTD", "pstd_thresh");
+    tableVarLengthTable.put("PJC", "pjc_thresh");
+    tableVarLengthTable.put("PRC", "prc_thresh");
+    tableVarLengthTable.put("MCTC", "mctc_cnt");
+    tableVarLengthTable.put("RHIST", "rhist_rank");
+    tableVarLengthTable.put("RELP", "relp_ens");
+    tableVarLengthTable.put("PHIST", "phist_bin");
+    tableVarLengthTable.put("ORANK", "orank_ens");
+    tableVarLengthTable.put("ECLV", "eclv_pnt");
 
     tableLineDataFieldsTable = new HashMap<>();
     tableLineDataFieldsTable.put("ctc",    "total,fy_oy,fy_on,fn_oy,fn_on");
     tableLineDataFieldsTable.put("fho",    "total,f_rate,h_rate,o_rate");
-    tableLineDataFieldsTable.put("pct",    "cov_thresh,total,n_thresh");
-    tableLineDataFieldsTable.put("pjc",    "cov_thresh,total,n_thresh");
-    tableLineDataFieldsTable.put("prc",    "cov_thresh,total,n_thresh");
+    tableLineDataFieldsTable.put("pct",    "cov_thresh,total,n_thresh,pct_thresh");
+    tableLineDataFieldsTable.put("pct_thresh",    "i_value,thresh_i,oy_i,on_i");
+    tableLineDataFieldsTable.put("pjc",    "cov_thresh,total,n_thresh,pjc_thresh");
+    tableLineDataFieldsTable.put("pjc_thresh",    "i_value,thresh_i,oy_tp_i,on_tp_i,calibration_i," +
+                    "refinement_i,likelihood_i,baser_i");
+    tableLineDataFieldsTable.put("prc",    "cov_thresh,total,n_thresh,prc_thresh");
+    tableLineDataFieldsTable.put("prc_thresh",    "i_value,thresh_i,pody_i,pofd_i");
     tableLineDataFieldsTable.put("relp",   "total,n_ens");
     tableLineDataFieldsTable.put("eclv",   "total,baser,value_baser,n_pnt");
     tableLineDataFieldsTable.put("enscnt", "rpsf,rpsf_ncl,rpsf_ncu,rpsf_bcl,rpsf_bcu," +
@@ -178,7 +186,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "u_rate,u_rate_bcl,u_rate_bcu");
     tableLineDataFieldsTable.put("pstd",   "cov_thresh,alpha,total,n_thresh,baser,baser_ncl,baser_ncu," +
             "reliability,resolution,uncertainty,roc_auc,brier,brier_ncl,brier_ncu,briercl,briercl_ncl," +
-            "briercl_ncu,bss,bss_smpl");
+            "briercl_ncu,bss,bss_smpl,pstd_thresh");
+    tableLineDataFieldsTable.put("pstd_thresh",    "i_value,thresh_i");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
@@ -452,24 +461,27 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (info._boolStatHeaderDBCheck) {
             // build a Couchbase query to look for duplicate stat_header records
             String strDataFileQuery =  "SELECT " +
-                    "meta().id as headerFileId, " +
-                    "type, " +
-                    "header_type, " +
-                    "data_type, " +
-                    "data_id " +
-                    "FROM `" +
-                    getBucket().name() +
-                    "` WHERE " +
-                    "type = \'header\' AND " +
-                    searchDbName + " = \'" + getDbName() + "\' AND " +
-                    "`header_type` = \'stat\' AND " +
-                    "`data_type` = \'" + info._dataFileLuTypeName + "\' AND " +
-                    "model = \'" + modelName + "\' AND " +
-                    "`fcst_var` = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR") + "\' AND " +
-                    "`fcst_lev` = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV") + "\' AND " +
-                    "obtype = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") + "\' AND " +
-                    "`vx_mask` = \'" + MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") + "\' AND " +
-                    "`fcst_thresh` = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH") + "\';";
+                "meta().id as headerFileId, " +
+                "type, " +
+                "header_type, " +
+                "data_type, " +
+                "data_id " +
+                "FROM `" +
+                getBucket().name() +
+                "` WHERE " +
+                "type = \'header\' AND " +
+                searchDbName + " = \'" + getDbName() + "\' AND " +
+                "header_type = \'stat\' AND " +
+                "data_type = \'" + info._dataFileLuTypeName + "\' AND " +
+                "model = \'" + modelName + "\' AND " +
+                "fcst_var = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR") + "\' AND " +
+                "fcst_lev = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV") + "\' AND " +
+                "obs_var = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBS_VAR") + "\' AND " +
+                "obs_lev = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBS_LEV") + "\' AND " +
+                "obtype = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") + "\' AND " +
+                "vx_mask = \'" + MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") + "\' AND " +
+                "fcst_thresh = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH") + "\' AND " +
+                "obs_thresh = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBS_THRESH") + "\';";
 
             try {
               queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -511,17 +523,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       .put("data_id", info._dataFileId)
                       .put("version", MVUtil.findValueInArray(listToken, headerNames, "VERSION"))
                       .put("model", modelName)
-                      .put("descr", "NA")
+                      .put("descr", MVUtil.findValueInArray(listToken, headerNames, "DESC"))
                       .put("fcst_var", MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR"))
                       .put("fcst_lev", MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV"))
-                      .put("obs_var", MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR"))
-                      .put("obs_lev", MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV"))
+                      .put("obs_var", MVUtil.findValueInArray(listToken, headerNames, "OBS_VAR"))
+                      .put("obs_lev", MVUtil.findValueInArray(listToken, headerNames, "OBS_LEV"))
                       .put("obtype", MVUtil.findValueInArray(listToken, headerNames, "OBTYPE"))
                       .put("vx_mask", MVUtil.findValueInArray(listToken, headerNames, "VX_MASK"))
                       .put("interp_mthd", MVUtil.findValueInArray(listToken, headerNames, "INTERP_MTHD"))
                       .put("interp_pnts", strInterpPnts)
                       .put("fcst_thresh", MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH"))
-                      .put("obs_thresh", MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH"));
+                      .put("obs_thresh", MVUtil.findValueInArray(listToken, headerNames, "OBS_THRESH"));
               doc = JsonDocument.create(headerIdString, headerFile);
               response = getBucket().upsert(doc);
               if (response.content().isEmpty()) {
@@ -540,7 +552,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         if (headerIdString != null) {
 
           int intLineDataMax = listToken.length;
-          String strLineDataId = "";
           dataRecords++;
 
           //  if the line type is of variable length, get the line_data_id
@@ -549,9 +560,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
           //  determine the maximum token index for the data
           if (boolHasVarLengthGroups) {
-            int intLineDataId = tableVarLengthLineDataId.get(strLineType);
-            strLineDataId = Integer.toString(intLineDataId) + ", ";
-            tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
             int[] listVarLengthGroupIndices1 = MVUtil.lengthGroupIndices
                                                    .get(strLineType);
             int[] listVarLengthGroupIndices = Arrays.copyOf(listVarLengthGroupIndices1,
@@ -560,7 +568,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               //for old versions
               listVarLengthGroupIndices[0] = listVarLengthGroupIndices[0] - 1;
               listVarLengthGroupIndices[1] = listVarLengthGroupIndices[1] - 1;
-
             }
 
             if (strLineType.equals("RHIST") || strLineType.equals("PSTD")) {
@@ -573,40 +580,38 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
           //  build the value list for the insert statement
           String strLineDataValueList =
-                  getDbName() + "," +     // database name for ID
-                  strLineType.toLowerCase() + "," +   // line type
-                  modelName + "," +            // model name for ID
-                  headerIdString + "," +       //  CB header_id
-                  info._dataFileId + "," +     //  CB data_id for data_file
-                  intLine + "," +          //  line_num
-                  strFcstLead + "," +        //  fcst_lead
-                  strFcstValidBeg + "," +    //  fcst_valid_beg
-                  strFcstValidEnd + "," +    //  fcst_valid_end
-                  strFcstInitBeg + "," +     //  fcst_init_beg
-                  strObsLead + "," +        //  obs_lead
-                  strObsValidBeg + "," +     //  obs_valid_beg
+                  getDbName() + ESEP +     // database name for ID
+                  strLineType.toLowerCase() + ESEP +   // line type
+                  modelName + ESEP +            // model name for ID
+                  headerIdString + ESEP +       //  CB header_id
+                  info._dataFileId + ESEP +     //  CB data_id for data_file
+                  intLine + ESEP +          //  line_num
+                  strFcstLead + ESEP +        //  fcst_lead
+                  strFcstValidBeg + ESEP +    //  fcst_valid_beg
+                  strFcstValidEnd + ESEP +    //  fcst_valid_end
+                  strFcstInitBeg + ESEP +     //  fcst_init_beg
+                  strObsLead + ESEP +        //  obs_lead
+                  strObsValidBeg + ESEP +     //  obs_valid_beg
                   strObsValidEnd;            //  obs_valid_end
 
           //  if the line data requires a cov_thresh value, add it
           String strCovThresh = MVUtil.findValueInArray(listToken, headerNames, "COV_THRESH");
           if (MVUtil.covThreshLineTypes.containsKey(strLineType)) {
-            strLineDataValueList += "," + replaceInvalidValues(strCovThresh);
+            strLineDataValueList += ESEP + replaceInvalidValues(strCovThresh);
           }
 
           //  if the line data requires an alpha value, add it
           String strAlpha = MVUtil.findValueInArray(listToken, headerNames, "ALPHA");
           if (MVUtil.alphaLineTypes.containsKey(strLineType)) {
             if (strAlpha.equals("NA")) {
-              logger.warn("  **  WARNING: alpha value NA with line type '" + mvLoadStatInsertData
-                                                                                 .getLineType() + "'\n        " + mvLoadStatInsertData
-                                                                                                                      .getFileLine());
+              logger.warn("  **  WARNING: alpha value NA with line type '" + strLineType +
+                      "'\n        " + mvLoadStatInsertData.getFileLine());
             }
-            strLineDataValueList += "," + replaceInvalidValues(strAlpha);
+            strLineDataValueList += ESEP + replaceInvalidValues(strAlpha);
           } else if (!strAlpha.equals("NA")) {
             logger.warn(
-                "  **  WARNING: unexpected alpha value '" + strAlpha + "' in line type '" + mvLoadStatInsertData
-                                                                                                .getLineType() + "'\n        " + mvLoadStatInsertData
-                                                                                                                                     .getFileLine());
+                "  **  WARNING: unexpected alpha value '" + strAlpha + "' in line type '" + strLineType +
+                        "'\n        " + mvLoadStatInsertData.getFileLine());
           }
 
           //  add total and all of the stats on the rest of the line to the value list
@@ -614,10 +619,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  for the METv2.0 MPR line type, add the obs_sid
             if (headerNames.indexOf("LINE_TYPE") + 1 + 2 == i && "MPR".equals(
                 strLineType) && "V2.0".equals(strMetVersion)) {
-              strLineDataValueList += ",'NA'";
+              strLineDataValueList += ESEP + "'NA'";
             }
             //  add the stats in order
-            strLineDataValueList += "," + replaceInvalidValues(listToken[i]);
+            strLineDataValueList += ESEP + replaceInvalidValues(listToken[i]);
           }
 
 
@@ -635,12 +640,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             int extraFieldsInd = intLineDataMax + Integer.valueOf(
                 listToken[listVarLengthGroupIndices[0]]) * listVarLengthGroupIndices[2];
             for (int i = extraFieldsInd; i < listToken.length; i++) {
-              strLineDataValueList += "," + replaceInvalidValues(listToken[i]);
+              strLineDataValueList += ESEP + replaceInvalidValues(listToken[i]);
             }
           }
 
 
-          String[] insertValuesArr = strLineDataValueList.split(",");
+          String[] insertValuesArr = strLineDataValueList.split(ESEP);
           List<String> insertValuesList = new LinkedList<>(Arrays.asList(insertValuesArr));
           int size = insertValuesList.size();
           int maxSize = size;
@@ -673,7 +678,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               maxSize = 21;
               break;
             case "PSTD":
-              maxSize = 33;
+              maxSize = 32;
               break;
             case "SSVAR":
               maxSize = 49;
@@ -693,22 +698,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           }
           strLineDataValueList = "";
           for (String s : insertValuesList) {
-            strLineDataValueList = strLineDataValueList + s + ",";
+            strLineDataValueList = strLineDataValueList + s + ESEP;
           }
           strLineDataValueList = strLineDataValueList
                                      .substring(0, strLineDataValueList.length() - 1);
-
-          //  add the values list to the line type values map
-          List<String> listLineTypeValues = new ArrayList<>();
-          if (mvLoadStatInsertData.getTableLineDataValues()
-                  .containsKey(strLineType)) {
-            listLineTypeValues = mvLoadStatInsertData.getTableLineDataValues()
-                                     .get(strLineType);
-          }
-          listLineTypeValues.add(strLineDataValueList);
-          mvLoadStatInsertData.getTableLineDataValues()
-              .put(strLineType, listLineTypeValues);
-          dataInserts++;
 
 
 			/*
@@ -737,39 +730,55 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     || strLineType.equals("PRC")) {
               intNumGroups -= 1;
             }
-            List<String> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
-                                                .get(strLineType);
-            if (null == listThreshValues) {
-              listThreshValues = new ArrayList<>();
-            }
+            // create an array of objects
+            String strThreshValues = "[";
 
-            //  build a insert value statement for each threshold group
+            //  build an object for each threshold group
             if (strLineType.equals("MCTC")) {
               for (int i = 0; i < intNumGroups; i++) {
                 for (int j = 0; j < intNumGroups; j++) {
-                  listThreshValues.add("(" + strLineDataId + (i + 1) + "," + (j + 1) + "," +
-                                           replaceInvalidValues(listToken[intGroupIndex++]) + ")");
+                  strThreshValues += "{" + (i + 1) + "," + (j + 1) + "," +
+                                           replaceInvalidValues(listToken[intGroupIndex++]) + "}";
                   lengthRecords++;
                 }
               }
             } else {
-              if (strLineType.equals("RHIST")
-                      || strLineType.equals("PSTD")) {
-                intGroupIndex = intLineDataMax;
+              if (strLineType.equals("RHIST")) {
+                intGroupIndex = intLineDataMax + 1;
               }
+
+              String strVarType = tableVarLengthTable.get(strLineType);
+              String[] listFieldsArr;
+              listFieldsArr = tableLineDataFieldsTable.get(strVarType).split(",");
               for (int i = 0; i < intNumGroups; i++) {
-                String strThreshValues = "(" + strLineDataId + (i + 1);
+                strThreshValues += "{" + listFieldsArr[0] + ":" + (i + 1);
                 for (int j = 0; j < intGroupSize; j++) {
-                  strThreshValues += "," + replaceInvalidValues(listToken[intGroupIndex++]);
+                  strThreshValues += "," + listFieldsArr[j+1] + ":" + replaceInvalidValues(listToken[intGroupIndex++]);
                 }
-                strThreshValues += ")";
-                listThreshValues.add(strThreshValues);
+                strThreshValues += "}";
+                // put a comma after every object except the last one
+                if (i != (intNumGroups - 1)) {
+                  strThreshValues += ",";
+                }
                 lengthRecords++;
               }
             }
-            mvLoadStatInsertData.getTableVarLengthValues()
-                .put(strLineType, listThreshValues);
+            strThreshValues += "]";
+            strLineDataValueList += ESEP + strThreshValues;
+
           }
+
+          //  add the values list to the line type values map
+          List<String> listLineTypeValues = new ArrayList<>();
+          if (mvLoadStatInsertData.getTableLineDataValues()
+                  .containsKey(strLineType)) {
+            listLineTypeValues = mvLoadStatInsertData.getTableLineDataValues()
+                    .get(strLineType);
+          }
+          listLineTypeValues.add(strLineDataValueList);
+          mvLoadStatInsertData.getTableLineDataValues()
+                  .put(strLineType, listLineTypeValues);
+          dataInserts++;
 
           //  if the insert threshhold has been reached, commit the stored data to the database
           if (info._intInsertSize <= mvLoadStatInsertData.getListInsertValues().size()) {
@@ -1111,14 +1120,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       "` WHERE " +
                       "type = \'header\' AND " +
                       searchDbName + " = \'" + getDbName() + "\' AND " +
-                      "`header_type` = \'stat\' AND " +
-                      "`data_type` = \'" + info._dataFileLuTypeName + "\' AND " +
+                      "header_type = \'stat\' AND " +
+                      "data_type = \'" + info._dataFileLuTypeName + "\' AND " +
                       "model = \'" + modelName + "\' AND " +
-                      "`fcst_var` = \'" + listToken[7] + "\' AND " +
-                      "`fcst_lev` = \'" + listToken[8] + "\' AND " +
+                      "fcst_var = \'" + listToken[7] + "\' AND " +
+                      "fcst_lev = \'" + listToken[8] + "\' AND " +
                       "obtype = \'" + listToken[4] + "\' AND " +
-                      "`vx_mask` = \'" + listToken[5] + "\' AND " +
-                      "`fcst_thresh` = \'" + thresh + "\';";
+                      "vx_mask = \'" + listToken[5] + "\' AND " +
+                      "fcst_thresh = \'" + thresh + "\';";
 
               try {
                 queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -1200,52 +1209,52 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
             //  build the value list for the insert statement
             String strLineDataValueList =
-                getDbName() + "," +     // database name for ID
-                strLineType.toLowerCase() + "," +   // line type
-                modelName + "," +            // model name for ID
-                headerIdString + "," +       //  CB header_id
-                info._dataFileId + "," +     //  CB data_id for data_file
-                intLine + "," +          //  line_num
-                strFcstLead + "," +        //  fcst_lead
-                strFcstValidBeg + "," +    //  fcst_valid_beg
-                strFcstValidEnd + "," +    //  fcst_valid_end
-                strFcstInitBeg + "," +     //  fcst_init_beg
-                "0" + "," +               //  obs_lead
-                strObsValidBeg + "," +     //  obs_valid_beg
+                getDbName() + ESEP +     // database name for ID
+                strLineType.toLowerCase() + ESEP +   // line type
+                modelName + ESEP +            // model name for ID
+                headerIdString + ESEP +       //  CB header_id
+                info._dataFileId + ESEP +     //  CB data_id for data_file
+                intLine + ESEP +          //  line_num
+                strFcstLead + ESEP +        //  fcst_lead
+                strFcstValidBeg + ESEP +    //  fcst_valid_beg
+                strFcstValidEnd + ESEP +    //  fcst_valid_end
+                strFcstInitBeg + ESEP +     //  fcst_init_beg
+                "0" + ESEP +               //  obs_lead
+                strObsValidBeg + ESEP +     //  obs_valid_beg
                 strObsValidEnd;            //  obs_valid_end
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
             if (MVUtil.covThreshLineTypes.containsKey(strLineType)) {
-              strLineDataValueList += "," + replaceInvalidValues(strCovThresh);
+              strLineDataValueList += ESEP + replaceInvalidValues(strCovThresh);
             }
 
             //  if the line data requires an alpha value, add it
             String strAlpha = "-9999";
             if (MVUtil.alphaLineTypes.containsKey(strLineType)) {
               if (strAlpha.equals("NA")) {
-                logger.warn("  **  WARNING: alpha value NA with line type '" + strLineType + "'\n        " + mvLoadStatInsertData
-                                                                                                                        .getFileLine());
+                logger.warn("  **  WARNING: alpha value NA with line type '" + strLineType + "'\n        " +
+                        mvLoadStatInsertData                                 .getFileLine());
               }
-              strLineDataValueList += "," + replaceInvalidValues(strAlpha);
+              strLineDataValueList += ESEP + replaceInvalidValues(strAlpha);
             }
 
             if (listToken[6].equals("RMSE")) {//CNT line type
               for (int i = 0; i < 94; i++) {
                 if (i == 53) {
-                  strLineDataValueList += "," + listToken[10];
+                  strLineDataValueList += ESEP + listToken[10];
                 } else if (i == 31) {
-                  strLineDataValueList += ",'" + listToken[11] + "'";
+                  strLineDataValueList += ESEP + "'" + listToken[11] + "'";
                 } else if (i == 36) {
-                  strLineDataValueList += ",'" + listToken[9] + "'";
+                  strLineDataValueList += ESEP + "'" + listToken[9] + "'";
                 } else if (i == 44) {
-                  strLineDataValueList += ",'" + listToken[12] + "'";
+                  strLineDataValueList += ESEP + "'" + listToken[12] + "'";
                 } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
-                  strLineDataValueList += ",'0'";
+                  strLineDataValueList += ESEP + "'0'";
                 } else if (i == 77) {
-                  strLineDataValueList += ",'" + listToken[13] + "'";
+                  strLineDataValueList += ESEP + "'" + listToken[13] + "'";
                 } else {
-                  strLineDataValueList += ",'-9999'";
+                  strLineDataValueList += ESEP + "'-9999'";
                 }
               }
             }
@@ -1256,7 +1265,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 switch (i) {
                   case 0:
                   case 1:
-                    strLineDataValueList += ",'0'";
+                    strLineDataValueList += ESEP + "'0'";
                     break;
                   case 2:
                   case 3:
@@ -1267,25 +1276,25 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   case 13:
                   case 14:
                   case 16:
-                    strLineDataValueList += ",'-9999'";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   case 5:
-                    strLineDataValueList += ",'" + listToken[12] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[12] + "'";
                     break;
                   case 6:
-                    strLineDataValueList += ",'" + listToken[13] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[13] + "'";
                     break;
                   case 7:
-                    strLineDataValueList += ",'" + listToken[14] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[14] + "'";
                     break;
                   case 9:
-                    strLineDataValueList += ",'" + listToken[9] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[9] + "'";
                     break;
                   case 12:
-                    strLineDataValueList += ",'" + listToken[10] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[10] + "'";
                     break;
                   case 15:
-                    strLineDataValueList += ",'" + listToken[11] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[11] + "'";
                     break;
                   default:
                 }
@@ -1297,58 +1306,58 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 30; i++) {
                 switch (i) {
                   case 0:
-                    strLineDataValueList += ",'" + listToken[9] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[9] + "'";
                     break;
                   case 1:
                   case 2:
                   case 3:
                   case 4:
-                    strLineDataValueList += ",'-9999'";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   case 5:
-                    strLineDataValueList += ",'" + listToken[10] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[10] + "'";
                     break;
                   case 6:
                   case 7:
                   case 8:
                   case 9:
-                    strLineDataValueList += ",'-9999'";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   case 10:
-                    strLineDataValueList += ",'" + listToken[11] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[11] + "'";
                     break;
                   case 11:
                   case 12:
                   case 13:
                   case 14:
-                    strLineDataValueList += ",-9999";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   case 15:
-                    strLineDataValueList += ",'" + listToken[12] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[12] + "'";
                     break;
                   case 16:
                   case 17:
                   case 18:
                   case 19:
-                    strLineDataValueList += ",-9999";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   case 20:
-                    strLineDataValueList += ",'" + listToken[13] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[13] + "'";
                     break;
                   case 21:
                   case 22:
                   case 23:
                   case 24:
-                    strLineDataValueList += ",-9999";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   case 25:
-                    strLineDataValueList += ",'" + listToken[14] + "'";
+                    strLineDataValueList += ESEP + "'" + listToken[14] + "'";
                     break;
                   case 26:
                   case 27:
                   case 28:
                   case 29:
-                    strLineDataValueList += ",-9999";
+                    strLineDataValueList += ESEP + "-9999";
                     break;
                   default:
 
@@ -1361,24 +1370,24 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 6; i++) {
                 if (i == 3) {
                   int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-                  strLineDataValueList += ",'" + intGroupSize + "'";
+                  strLineDataValueList += ESEP + "'" + intGroupSize + "'";
                 } else if (i == 0) {//total
-                  strLineDataValueList += ",0";
+                  strLineDataValueList += ESEP + "0";
                 } else {
-                  strLineDataValueList += ",-9999";
+                  strLineDataValueList += ESEP + "-9999";
                 }
               }
             }
 
             if (listToken[6].equals("RELP")) {  // RELP line type
-              strLineDataValueList += ",0";
+              strLineDataValueList += ESEP + "0";
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]);
-              strLineDataValueList += ",'" + intGroupSize + "'";
+              strLineDataValueList += ESEP + "'" + intGroupSize + "'";
             }
             if (listToken[6].equals("ECON")) {  // ECLV line type
-              strLineDataValueList += ",0,-9999,-9999";
+              strLineDataValueList += ESEP + "0" + ESEP + "-9999" + ESEP + "-9999";
               int intGroupSize = 18;
-              strLineDataValueList += ",'" + intGroupSize + "'";
+              strLineDataValueList += ESEP + "'" + intGroupSize + "'";
             }
 
 
@@ -1403,7 +1412,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
 
 
-              strLineDataValueList += "," + total + "," + intGroupSize;
+              strLineDataValueList += ESEP + total + ESEP + intGroupSize;
             }
 
             if (listToken[6].equals("SL1L2")
@@ -1411,14 +1420,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 7; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    strLineDataValueList += ","
-                                                + (Double.valueOf(listToken[i + 9])).intValue();
+                    strLineDataValueList += ESEP + (Double.valueOf(listToken[i + 9])).intValue();
                   } else {
-                    strLineDataValueList += "," + Double.valueOf(listToken[i + 9]);
+                    strLineDataValueList += ESEP + Double.valueOf(listToken[i + 9]);
                   }
 
                 } else {
-                  strLineDataValueList += ",-9999";
+                  strLineDataValueList += ESEP + "-9999";
                 }
               }
             }
@@ -1427,13 +1435,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 8; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    strLineDataValueList += ","
-                                                + (Double.valueOf(listToken[i + 9])).intValue();
+                    strLineDataValueList += ESEP + (Double.valueOf(listToken[i + 9])).intValue();
                   } else {
-                    strLineDataValueList += "," + Double.valueOf(listToken[i + 9]);
+                    strLineDataValueList += ESEP + Double.valueOf(listToken[i + 9]);
                   }
                 } else {
-                  strLineDataValueList += ",-9999";
+                  strLineDataValueList += ESEP + "-9999";
                 }
 
               }
@@ -1442,13 +1449,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 10; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    strLineDataValueList += ","
-                                                + (Double.valueOf(listToken[i + 9])).intValue();
+                    strLineDataValueList += ESEP + (Double.valueOf(listToken[i + 9])).intValue();
                   } else {
-                    strLineDataValueList += "," + Double.valueOf(listToken[i + 9]);
+                    strLineDataValueList += ESEP + Double.valueOf(listToken[i + 9]);
                   }
                 } else {
-                  strLineDataValueList += ",-9999";
+                  strLineDataValueList += ESEP + "-9999";
                 }
 
               }
@@ -1476,15 +1482,15 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
               for (int i = 0; i < 5; i++) {
                 if (i == 4) {
-                  strLineDataValueList += "," + Math.max(0, fn_on);
+                  strLineDataValueList += ESEP + Math.max(0, fn_on);
                 } else if (i == 3) {
-                  strLineDataValueList += "," + Math.max(0, fn_oy);
+                  strLineDataValueList += ESEP + Math.max(0, fn_oy);
                 } else if (i == 2) {
-                  strLineDataValueList += "," + Math.max(0, fy_on);
+                  strLineDataValueList += ESEP + Math.max(0, fy_on);
                 } else if (i == 1) {
-                  strLineDataValueList += "," + Math.max(0, fy_oy);
+                  strLineDataValueList += ESEP + Math.max(0, fy_oy);
                 } else if (i == 0) {//total,
-                  strLineDataValueList += "," + listToken[9];
+                  strLineDataValueList += ESEP + listToken[9];
                 }
 
               }
@@ -1497,30 +1503,16 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
               for (int i = 0; i < 19; i++) {
                 if (i == 0) {//total,
-                  strLineDataValueList += "," + listToken[9];
+                  strLineDataValueList += ESEP + listToken[9];
                 } else if (i == 1) {//fbs
-                  strLineDataValueList += "," + listToken[10];
+                  strLineDataValueList += ESEP + listToken[10];
                 } else if (i == 4) {//fss
-                  strLineDataValueList += "," + fss;
+                  strLineDataValueList += ESEP + fss;
                 } else {
-                  strLineDataValueList += ",'-9999'";
+                  strLineDataValueList += ESEP + "-9999";
                 }
               }
             }
-
-
-            //  add the values list to the line type values map
-            List<String> listLineTypeValues = new ArrayList<>();
-            if (mvLoadStatInsertData.getTableLineDataValues()
-                    .containsKey(strLineType)) {
-              listLineTypeValues = mvLoadStatInsertData.getTableLineDataValues()
-                                       .get(strLineType);
-            }
-            listLineTypeValues.add(strLineDataValueList);
-            mvLoadStatInsertData.getTableLineDataValues()
-                .put(strLineType, listLineTypeValues);
-            dataInserts++;
-
 
 			/*
        * * * *  var_length insert  * * * *
@@ -1647,6 +1639,18 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               mvLoadStatInsertData.getTableVarLengthValues()
                   .put(strLineType, listThreshValues);
             }
+
+            //  add the values list to the line type values map
+            List<String> listLineTypeValues = new ArrayList<>();
+            if (mvLoadStatInsertData.getTableLineDataValues()
+                    .containsKey(strLineType)) {
+              listLineTypeValues = mvLoadStatInsertData.getTableLineDataValues()
+                      .get(strLineType);
+            }
+            listLineTypeValues.add(strLineDataValueList);
+            mvLoadStatInsertData.getTableLineDataValues()
+                    .put(strLineType, listLineTypeValues);
+            dataInserts++;
 
             //  if the insert threshhold has been reached, commit the stored data to the database
             if (info._intInsertSize <= mvLoadStatInsertData.getListInsertValues().size()) {
@@ -2675,6 +2679,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonDocument doc;
     String[] listFieldsArr;
     String[] listValuesArr;
+    String[] listObjectArr;
 
     int intResLineDataInsert = 0;
 
@@ -2687,7 +2692,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     for (int i = 0; i < listValues.size(); i++) {
 
-      listValuesArr = listValues.get(i).split(",");
+      listValuesArr = listValues.get(i).split(ESEP);
       // unique id must be a string
       lineDataIdString = listValuesArr[0] + "::line::" + listValuesArr[1] + "::" +
                          listValuesArr[2] + "::" + String.valueOf(nextIdNumber++);
@@ -2708,8 +2713,30 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 .put("obs_valid_end", listValuesArr[12]);
 
         listFieldsArr = tableLineDataFieldsTable.get(listValuesArr[1]).split(",");
+        String strArrayFields;
+        int intOpen, intClose, intColon;
+        JsonArray variableValues = null;
+        JsonObject variablePairs = null;
         for (int j = 0; j < listFieldsArr.length; j++) {
-          lineDataFile.put(listFieldsArr[j], listValuesArr[j+13]);
+          if (listValuesArr[j + 13].contains("[")) {
+            variableValues = JsonArray.empty();
+            while (listValuesArr[j + 13].contains("{")) {
+              intOpen = listValuesArr[j + 13].indexOf("{");
+              intClose = listValuesArr[j + 13].indexOf("}");
+              strArrayFields = listValuesArr[j + 13].substring(intOpen + 1, intClose);
+              listValuesArr[j + 13] = listValuesArr[j + 13].substring(intClose + 1);
+              listObjectArr = strArrayFields.split(",");
+              variablePairs = JsonObject.empty();
+              for (String element: listObjectArr) {
+                intColon = element.indexOf(":");
+                variablePairs.put(element.substring(0,intColon),element.substring(intColon+1));
+              }
+              variableValues.add(variablePairs);
+            }
+            lineDataFile.put(listFieldsArr[j], variableValues);
+          } else {
+            lineDataFile.put(listFieldsArr[j], listValuesArr[j + 13]);
+          }
         }
 
         doc = JsonDocument.create(lineDataIdString, lineDataFile);
@@ -2809,7 +2836,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "` WHERE " +
             "type = \'file\' AND " +
             searchDbName + " = \'" + getDbName() + "\' AND " +
-            "`data_type` = \'" + strDataFileLuTypeName + "\' AND " +
+            "data_type = \'" + strDataFileLuTypeName + "\' AND " +
             "filename = \'" + strFile + "\' AND " +
             "`path` = \'" + strPath + "\';";
 
