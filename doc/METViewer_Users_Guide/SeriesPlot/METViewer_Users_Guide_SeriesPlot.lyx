@@ -129,19 +129,26 @@ name "sec:Series-Plot-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce your plot proceeds approxately counter-clockwise
+Selection of options to produce the plot proceeds approxately counter-clockwise
  around the METViewer window.
- Select your database from the pulldown menus at the top margin of the METViewer
+ Select the database from the pulldown menus at the top margin of the METViewer
  window.
- Make sure the 'Series' tab is selected near the top left, just under the
- database pulldown menu.
- Next, you must select the type of MET statistics that will be used to create
- the plot.
+ Make sure the '
+\series bold
+Series
+\series medium
+' tab is selected near the top left, just under the database pulldown menu.
+ Next, select the type of MET statistics that will be used to create the
+ plot.
  In the 
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Plot Data
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -149,7 +156,11 @@ Plot Data
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Stat
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -157,7 +168,11 @@ Stat
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 MODE
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -165,7 +180,11 @@ MODE
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 MODE-TD
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -188,7 +207,11 @@ www.dtcenter.org/met/users/docs
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Frequency Bias
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -202,7 +225,11 @@ Users will generally wish to plot more than one line on the plot, and the
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Y1 Series Variable
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -212,7 +239,11 @@ Y1 Series Variable
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Fixed Values
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -235,6 +266,16 @@ East
 \end_inset
 
 ) are chosen.
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Please add more information.
+ What section are these under? 
+\end_layout
+
+\end_inset
+
  If multiple domains or threshold were chosen, the statistics would be a
  summary of all of those cases together, which in this case would be non-sensica
 l.
@@ -246,11 +287,33 @@ Then the X-axis value is selected in the
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Independent Variable
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
  dropdown menu.
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+The 
+\begin_inset Quotes eld
+\end_inset
+
+Independent Variable
+\begin_inset Quotes erd
+\end_inset
+
+ isn't visable on the figure.
+ Should a new one be generated?
+\end_layout
+
+\end_inset
+
  For a series plot, this is often a date, lead time, or threshold.
  For a series plot, this variable must be continuous and there should be
  reason to believe that the statistic on the Y1 axis is connected across
@@ -264,7 +327,11 @@ In the example in the next section, the Y1 dependent variable
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Frequency Bias
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -272,12 +339,26 @@ Frequency Bias
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Y1 Series Variable
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
  ensemble members.
  
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Lisa couldn't find this.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -286,13 +367,63 @@ Finally, the user must select the type of statistics summary from the radio
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Statistics
+\series default
+
 \begin_inset Quotes erd
 \end_inset
 
  section.
- By default, the median value of all statistics will be plotted.
- Using the dropdown menu, the mean or sum may be selected instead.
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+This isn't visable on the figure.
+ Should a new one be generated?
+\end_layout
+
+\end_inset
+
+ By default, the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+median
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ value of all statistics will be plotted.
+ Using the dropdown menu, the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+mean
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+sum
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ may be selected instead.
  Further, aggregated statistics may be selected for certain varieties of
  statistics, listed in the dropdown menu.
  Choosing this option will cause a single statistic to be calculated from
@@ -309,19 +440,27 @@ There are many other options, but at this point enough information has been
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Generate Plot
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
  button at top of METViewer window with the red text.
- Typically, if not plot is produced, it is because the database selected
+ Typically, if no plot is produced, it is because the database selected
  does not contain the correct type of data.
  Also, it is imperative to check the data used for the plot by selected
  the 
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 R data
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -353,7 +492,23 @@ The image below shows an example of the plot and set-up options for a series
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
+Regional Example
+\series medium
+
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
 mv_hrrr_sppmp_test
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
@@ -361,7 +516,11 @@ mv_hrrr_sppmp_test
 \begin_inset Quotes eld
 \end_inset
 
+
+\series bold
 Stat
+\series medium
+
 \begin_inset Quotes erd
 \end_inset
 
