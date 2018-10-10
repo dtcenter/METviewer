@@ -126,14 +126,26 @@ name "sec:Reliability-Plot-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce your plot proceeds approxately counter-clockwise
+Selection of options to produce the plot proceeds approxately counter-clockwise
  around the METViewer window.
- Select your database from the pulldown menus at the top margin of the METViewer
+ Select the database from the pulldown menus at the top margin of the METViewer
  window.
- Make sure the Reliability tab is selected near the top left, just under
- the database pulldown menu.
- The statistics for this type of plot are fixed, so you much only choose
- your set of cases.
+ Make sure the Reliability (Rely) tab is selected near the top left, just
+ under the database pulldown menu.
+ The statistics for this type of plot are fixed.
+ 
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+
+\series medium
+Is the next sentence correct?
+\end_layout
+
+\end_inset
+
+Cases are the only thing that can be chosen.
  The reliability diagram only makes sense for probability forecasts, but
  these can be from ensemble forecasts or from a traditional forecast.
  There are several reference lines on the reliability diagram.
@@ -145,8 +157,12 @@ This plot has three special options:
 \end_layout
 
 \begin_layout Standard
-Event histograms: The histograms allow users to see how often the forecast
- falls within each probability bin.
+
+\series bold
+Event histograms
+\series default
+: The histograms allow users to see how often the forecast falls within
+ each probability bin.
  The sample sizes in each bin are typically different, and some may be too
  small for conclusions.
  They also allow users to judge the sharpness of the forecasts.
@@ -154,12 +170,20 @@ Event histograms: The histograms allow users to see how often the forecast
 \end_layout
 
 \begin_layout Standard
-Skill line:
+
+\series bold
+Skill line
+\series default
+:
 \end_layout
 
 \begin_layout Standard
-Reference line: This line (typically dashed) denotes the sample climatology
- or base rate, the frequency of the event.
+
+\series bold
+Reference line
+\series default
+: This line (typically dashed) denotes the sample climatology or base rate,
+ the frequency of the event.
  
 \end_layout
 
@@ -195,6 +219,19 @@ e should be equal, and the plotted points should lie on the diagonal (by
 ely half of the corresponding observations should indicate that precipitation
  fell.
  
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+
+\series medium
+This same sentence is in the first paragraph of this section.
+ Reword?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -220,9 +257,9 @@ Reliability diagrams can be used to make adjustments to the conditional
 \begin_layout Standard
 
 \series medium
-The histograms show the relative frequency with which the event has been
- predicted (typically over the reference period and at all gridpoints) with
- different levels of probability.
+The histograms show the relative frequency of the event that has been predicted
+ (typically over the reference period and at all gridpoints) with different
+ levels of probability.
  In the example the majority of forecasts predict low probabilities of precipita
 tion (near the climatological probability of ~9%).
  The forecast system is also capable of predicting relatively high probabilities
