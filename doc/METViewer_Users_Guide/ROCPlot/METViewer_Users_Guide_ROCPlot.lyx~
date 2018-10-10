@@ -101,9 +101,9 @@ name "sec:ROC-Plot-Description"
 \begin_layout Standard
 
 \series medium
-MET produces hit rate, probability of detection (POD) and probability of
- false detection (POFD) values for each user-specied threshold of a forecast,
- or from each category of a probabilistic forecast.
+MET produces hit rate (POD) and probability of false detection (POFD) values
+ for each user-specied threshold of a forecast, or from each category of
+ a probabilistic forecast.
  This information can be used to create a scatter plot of POFD vs.
  POD.
  When the points are connected, the plot is generally referred to as the
@@ -137,32 +137,17 @@ name "sec:ROC-Plot-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce the plot proceeds approxately counter-clockwise
+Selection of options to produce your plot proceeds approxately counter-clockwise
  around the METViewer window.
- Select the database from the pulldown menus at the top margin of the METViewer
+ Select your database from the pulldown menus at the top margin of the METViewer
  window.
- Make sure the 
+ Make sure the ROC tab is selected near the top left, just under the database
+ pulldown menu.
+ Next, you must choose the 
 \begin_inset Quotes eld
 \end_inset
 
-
-\series bold
-Roc
-\series medium
-
-\begin_inset Quotes erd
-\end_inset
-
- tab is selected near the top left, just under the database pulldown menu.
- Next, choose the 
-\begin_inset Quotes eld
-\end_inset
-
-
-\series bold
 Stat
-\series medium
-
 \begin_inset Quotes erd
 \end_inset
 
@@ -170,29 +155,12 @@ Stat
 \begin_inset Quotes eld
 \end_inset
 
-
-\series bold
 Plot Data
-\series medium
-
 \begin_inset Quotes erd
 \end_inset
 
- menu
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-
-\series medium
-Please review.
- Lisa couldn't find the Plot Data menu
-\end_layout
-
-\end_inset
-
-, as this type of diagram can only use information from the CTC and PCT
- line types available in the 
+ menu, as this type of diagram can only use information from the CTC and
+ PCT line types available in the 
 \begin_inset Quotes eld
 \end_inset
 
@@ -234,19 +202,7 @@ www.dtcenter.org/met/users/docs
 \series medium
 (2) The less common way of generating a ROC curve is using several 2x2 contingen
 cy table lines.
- This would be the FHO
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-
-\series medium
-Where is FHO located?
-\end_layout
-
-\end_inset
-
- or CTC line types from MET.
+ This would be the FHO or CTC line types from MET.
  They need to be multiple forecast thresholds all computed for the 
 \series default
 \emph on
@@ -281,7 +237,7 @@ name "sec:ROC-Plot-Examples"
 \series medium
 The plot shown below is for two different probability of precipitation forecasts.
  The dashed diagonal line represents the no-skill line.
- Ideal forecasts would have a point at the top left of the graphic, thus
+ Idea forecasts would have a point at the top left of the graphic, thus
  better forecasts are closer to the top left of the plot.
  In this example, the red line is closer than the purple line to ideal.
  However, this small difference is probably not statistically significant.
