@@ -140,6 +140,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     "refinement_i,likelihood_i,baser_i");
     tableLineDataFieldsTable.put("prc",    "cov_thresh,total,n_thresh,prc_thresh");
     tableLineDataFieldsTable.put("prc_thresh",    "i_value,thresh_i,pody_i,pofd_i");
+    tableLineDataFieldsTable.put("pstd",   "cov_thresh,alpha,total,n_thresh,baser,baser_ncl,baser_ncu," +
+            "reliability,resolution,uncertainty,roc_auc,brier,brier_ncl,brier_ncu,briercl,briercl_ncl," +
+            "briercl_ncu,bss,bss_smpl,pstd_thresh");
+    tableLineDataFieldsTable.put("pstd_thresh",   "i_value,thresh_i");
     tableLineDataFieldsTable.put("relp",   "total,n_ens");
     tableLineDataFieldsTable.put("eclv",   "total,baser,value_baser,n_pnt");
     tableLineDataFieldsTable.put("enscnt", "rpsf,rpsf_ncl,rpsf_ncu,rpsf_bcl,rpsf_bcu," +
@@ -154,8 +158,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     tableLineDataFieldsTable.put("vl1l2",  "total,ufbar,vfbar,uobar,vobar,uvfobar,uvffbar,uvoobar," +
             "f_speed_bar,o_speed_bar");
     tableLineDataFieldsTable.put("val1l2", "total,ufabar,vfabar,uoabar,voabar,uvfoabar,uvffabar,uvooabar");
-    tableLineDataFieldsTable.put("cts",    "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu,fmean," +
-            "fmean_ncl,fmean_ncu,fmean_bcl,fmean_bcu,acc,acc_ncl,acc_ncu,acc_bcl," +
+    tableLineDataFieldsTable.put("cts",    "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu," +
+            "fmean,fmean_ncl,fmean_ncu,fmean_bcl,fmean_bcu,acc,acc_ncl,acc_ncu,acc_bcl," +
             "acc_bcu,fbias,fbias_bcl,fbias_bcu,pody,pody_ncl,pody_ncu,pody_bcl," +
             "pody_bcu,podn,podn_ncl,podn_ncu,podn_bcl,podn_bcu,pofd,pofd_ncl," +
             "pofd_ncu,pofd_bcl,pofd_bcu,far,far_ncl,far_ncu,far_bcl,far_bcu," +
@@ -179,15 +183,35 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "anom_corr,anom_corr_ncl,anom_corr_ncu,anom_corr_bcl,anom_corr_bcu," +
             "me2,me2_bcl,me2_bcu,msess,msess_bcl,msess_bcu," +
             "rmsfa,rmsfa_bcl,rmsfa_bcu,rmsoa,rmsoa_bcl,rmsoa_bcu");
+    tableLineDataFieldsTable.put("mctc",   "total,n_cat");
     tableLineDataFieldsTable.put("mpr",    "total,mp_index,obs_sid,obs_lat,obs_lon,obs_lvl,obs_elv," +
             "mpr_fcst,mpr_obs,mpr_climo,obs_qc,climo_mean,climo_stdev,climo_cdf");
+    tableLineDataFieldsTable.put("orank",  "total,orank_index,obs_sid,obs_lat,obs_lon,obs_lvl,obs_elv," +
+            "orank_obs,pit,rank,n_ens_vld,n_ens,obs_qc,ens_mean,orank_climo,orank_enc_spread");
+    tableLineDataFieldsTable.put("isc",    "total,tile_dim,time_xll,tile_yll,nscale,iscale,mse,isc," +
+            "fenergy2,oenergy2,baser,fbias");
     tableLineDataFieldsTable.put("nbrcnt", "alpha,total,fbs,fbs_bcl,fbs_bcu,fss,fss_bcl,fss_bcu," +
             "afss,afss_bcl,afss_bcu,ufss,ufss_bcl,ufss_bcu,f_rate,f_rate_bcl,f_rate_bcu," +
             "u_rate,u_rate_bcl,u_rate_bcu");
-    tableLineDataFieldsTable.put("pstd",   "cov_thresh,alpha,total,n_thresh,baser,baser_ncl,baser_ncu," +
-            "reliability,resolution,uncertainty,roc_auc,brier,brier_ncl,brier_ncu,briercl,briercl_ncl," +
-            "briercl_ncu,bss,bss_smpl,pstd_thresh");
-    tableLineDataFieldsTable.put("pstd_thresh",    "i_value,thresh_i");
+    tableLineDataFieldsTable.put("nbrctc", "cov_thresh,total,fy_oy,fy_on,fn_oy,fn_on");
+    tableLineDataFieldsTable.put("nbrcts", "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu," +
+            "fmean,fmean_ncl,fmean_ncu,fmean_bcl,fmean_bcu,acc,acc_ncl,acc_ncu,acc_bcl," +
+            "acc_bcu,fbias,fbias_bcl,fbias_bcu,pody,pody_ncl,pody_ncu,pody_bcl," +
+            "pody_bcu,podn,podn_ncl,podn_ncu,podn_bcl,podn_bcu,pofd,pofd_ncl," +
+            "pofd_ncu,pofd_bcl,pofd_bcu,far,far_ncl,far_ncu,far_bcl,far_bcu," +
+            "csi,csi_ncl,csi_ncu,csi_bcl,csi_bcu,gss,gss_bcl,gss_bcu," +
+            "hk,hk_ncl,hk_ncu,hk_bcl,hk_bcu,hss,hss_bcl,hss_bcu," +
+            "odds,odds_ncl,odds_ncu,odds_bcl,odds_bcu,lodds,lodds_ncl," +
+            "lodds_ncu,lodds_bcl,lodds_bcu,orss,orss_ncl,orss_ncu,orss_bcl,orss_bcu," +
+            "eds,eds_ncl,eds_ncu,eds_bcl,eds_bcu,seds,seds_ncl,seds_ncu,seds_bcl,seds_bcu," +
+            "edi,edi_ncl,edi_ncu,edi_bcl,edi_bcu,sedi,sedi_ncl,sedi_ncu,sedi_bcl,sedi_bcu," +
+            "bagss,bagss_bcl,bagss_bcu");
+    tableLineDataFieldsTable.put("ssvar",  "alpha,total,n_bin,bin_i,bin_n,var_min,var_max,var_mean," +
+            "fbar,obar,fobar,ffbar,oobar,fbar_ncl,fbar_ncu,fstdev,fstdev_ncl,fstdev_ncu," +
+            "obar_ncl,obar_ncu,ostdev,ostdev_ncl,ostdev_ncu," +
+            "pr_corr,pr_corr_ncl,pr_corr_ncu,me,me_ncl,me_ncu," +
+            "estdev,estdev_ncl,estdev_ncu,mbias,mse,bcmse,rmse");
+    tableLineDataFieldsTable.put("rhist",  "total,crps,ign,n_rank,crpss,spread");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
@@ -443,9 +467,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 modelName +
                         MVUtil.findValueInArray(listToken, headerNames, "FCST_VAR") +
                         MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV") +
+                        MVUtil.findValueInArray(listToken, headerNames, "OBS_VAR") +
+                        MVUtil.findValueInArray(listToken, headerNames, "OBS_LEV") +
                         MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") +
                         MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") +
-                        MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH");
+                        MVUtil.findValueInArray(listToken, headerNames, "INTERP_MTHD") +
+                        MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH") +
+                        MVUtil.findValueInArray(listToken, headerNames, "OBS_THRESH");
 
         //  look for the header key in the table
         headerIdString = "";
