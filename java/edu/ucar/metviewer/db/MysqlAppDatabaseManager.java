@@ -2564,6 +2564,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
+    // include binColumnName in GROUP BY to avoid only_full_group_by error
+    if (binColumnName != null) {
+      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
+    }
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
@@ -2735,7 +2739,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                               + strWhere
                               + "  AND h.stat_header_id = ld.stat_header_id\n"
                               + "GROUP BY\n"
-                              + "  h.fcst_thresh";
+                              + "  h.fcst_thresh, ld.total";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }
