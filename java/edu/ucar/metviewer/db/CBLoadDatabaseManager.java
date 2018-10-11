@@ -192,9 +192,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "fenergy2,oenergy2,baser,fbias");
     tableLineDataFieldsTable.put("nbrcnt", "alpha,total,fbs,fbs_bcl,fbs_bcu,fss,fss_bcl,fss_bcu," +
             "afss,afss_bcl,afss_bcu,ufss,ufss_bcl,ufss_bcu,f_rate,f_rate_bcl,f_rate_bcu," +
-            "u_rate,u_rate_bcl,u_rate_bcu");
+            "o_rate,o_rate_bcl,o_rate_bcu");
     tableLineDataFieldsTable.put("nbrctc", "cov_thresh,total,fy_oy,fy_on,fn_oy,fn_on");
-    tableLineDataFieldsTable.put("nbrcts", "alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu," +
+    tableLineDataFieldsTable.put("nbrcts", "cov_thresh,alpha,total,baser,baser_ncl,baser_ncu,baser_bcl,baser_bcu," +
             "fmean,fmean_ncl,fmean_ncu,fmean_bcl,fmean_bcu,acc,acc_ncl,acc_ncu,acc_bcl," +
             "acc_bcu,fbias,fbias_bcl,fbias_bcu,pody,pody_ncl,pody_ncu,pody_bcl," +
             "pody_bcu,podn,podn_ncl,podn_ncu,podn_bcl,podn_bcu,pofd,pofd_ncl," +
@@ -472,6 +472,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") +
                         MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") +
                         MVUtil.findValueInArray(listToken, headerNames, "INTERP_MTHD") +
+                        MVUtil.findValueInArray(listToken, headerNames, "INTERP_PNTS") +
                         MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH") +
                         MVUtil.findValueInArray(listToken, headerNames, "OBS_THRESH");
 
@@ -506,8 +507,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 "fcst_lev = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_LEV") + "\' AND " +
                 "obs_var = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBS_VAR") + "\' AND " +
                 "obs_lev = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBS_LEV") + "\' AND " +
-                "obtype = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") + "\' AND " +
+                    "obtype = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBTYPE") + "\' AND " +
                 "vx_mask = \'" + MVUtil.findValueInArray(listToken, headerNames, "VX_MASK") + "\' AND " +
+                "interp_mthd = \'" + MVUtil.findValueInArray(listToken, headerNames, "INTERP_MTHD") + "\' AND " +
+                "interp_pnts = \'" + MVUtil.findValueInArray(listToken, headerNames, "INTERP_PNTS") + "\' AND " +
                 "fcst_thresh = \'" + MVUtil.findValueInArray(listToken, headerNames, "FCST_THRESH") + "\' AND " +
                 "obs_thresh = \'" + MVUtil.findValueInArray(listToken, headerNames, "OBS_THRESH") + "\';";
 
