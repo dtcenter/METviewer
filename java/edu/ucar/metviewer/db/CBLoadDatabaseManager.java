@@ -33,7 +33,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
 
-  private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
   private final Map<String, String> statHeaders = new HashMap<>();
 
   private static final int INDEX_LINE_DATA = 1;
@@ -144,8 +143,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "reliability,resolution,uncertainty,roc_auc,brier,brier_ncl,brier_ncu,briercl,briercl_ncl," +
             "briercl_ncu,bss,bss_smpl,pstd_thresh");
     tableLineDataFieldsTable.put("pstd_thresh",   "i_value,thresh_i");
-    tableLineDataFieldsTable.put("relp",   "total,n_ens");
-    tableLineDataFieldsTable.put("eclv",   "total,baser,value_baser,n_pnt");
+    tableLineDataFieldsTable.put("relp",   "total,n_ens,relp_ens");
+    tableLineDataFieldsTable.put("relp_ens",      "i_value,ens_i");
+    tableLineDataFieldsTable.put("eclv",   "total,baser,value_baser,n_pnt,eclv_pnt");
+    tableLineDataFieldsTable.put("eclv_pnt",      "i_value,x_pnt_i,y_pnt_i");
     tableLineDataFieldsTable.put("enscnt", "rpsf,rpsf_ncl,rpsf_ncu,rpsf_bcl,rpsf_bcu," +
                     "rpscl,rpscl_ncl,rpscl_ncu,rpscl_bcl,rpscl_bcu," +
                     "rpss,rpss_ncl,rpss_ncu,rpss_bcl,rpss_bcu," +
@@ -183,11 +184,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "anom_corr,anom_corr_ncl,anom_corr_ncu,anom_corr_bcl,anom_corr_bcu," +
             "me2,me2_bcl,me2_bcu,msess,msess_bcl,msess_bcu," +
             "rmsfa,rmsfa_bcl,rmsfa_bcu,rmsoa,rmsoa_bcl,rmsoa_bcu");
-    tableLineDataFieldsTable.put("mctc",   "total,n_cat");
+    tableLineDataFieldsTable.put("mctc",   "total,n_cat,mctc_cnt");
+    tableLineDataFieldsTable.put("mctc_cnt",      "i_value,j_value,fi_oj");
     tableLineDataFieldsTable.put("mpr",    "total,mp_index,obs_sid,obs_lat,obs_lon,obs_lvl,obs_elv," +
             "mpr_fcst,mpr_obs,mpr_climo,obs_qc,climo_mean,climo_stdev,climo_cdf");
     tableLineDataFieldsTable.put("orank",  "total,orank_index,obs_sid,obs_lat,obs_lon,obs_lvl,obs_elv," +
-            "orank_obs,pit,rank,n_ens_vld,n_ens,obs_qc,ens_mean,orank_climo,orank_enc_spread");
+            "orank_obs,pit,rank,n_ens_vld,n_ens,obs_qc,ens_mean,orank_climo,orank_enc_spread,orank_ens");
+    tableLineDataFieldsTable.put("orank_ens",     "i_value,ens_i");
     tableLineDataFieldsTable.put("isc",    "total,tile_dim,time_xll,tile_yll,nscale,iscale,mse,isc," +
             "fenergy2,oenergy2,baser,fbias");
     tableLineDataFieldsTable.put("nbrcnt", "alpha,total,fbs,fbs_bcl,fbs_bcu,fss,fss_bcl,fss_bcu," +
@@ -211,7 +214,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             "obar_ncl,obar_ncu,ostdev,ostdev_ncl,ostdev_ncu," +
             "pr_corr,pr_corr_ncl,pr_corr_ncu,me,me_ncl,me_ncu," +
             "estdev,estdev_ncl,estdev_ncu,mbias,mse,bcmse,rmse");
-    tableLineDataFieldsTable.put("rhist",  "total,crps,ign,n_rank,crpss,spread");
+    tableLineDataFieldsTable.put("rhist",  "total,crps,ign,n_rank,crpss,spread,rhist_rank");
+    tableLineDataFieldsTable.put("rhist_rank",    "i_value,rank_i");
+    tableLineDataFieldsTable.put("phist",  "total,bin_size,n_bin,phist_bin");
+    tableLineDataFieldsTable.put("phist_bin",     "i_value,bin_i");
 
     tableDataFileLU = new HashMap<>();
     tableDataFileLU.put("point_stat", 0);
@@ -228,8 +234,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     tableDataFileLU.put("mtd_3d_sc", 11);
     tableDataFileLU.put("mtd_3d_ss", 12);
 
-
-    initVarLengthLineDataIds();
   }
 
   @Override
@@ -269,21 +273,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 //    return intRes;
 //  }
 
-  /**
-   * Initialize the table containing the max line_data_id for all line_data tables corresponding to
-   * variable length rows. //* @param con database connection used to search against
-   *
-   * @throws Exception
-   */
-  private void initVarLengthLineDataIds() throws Exception {
-    tableVarLengthLineDataId.clear();
-    Set<String> lineTypes = tableVarLengthTable.keySet();
-    for (String lineType : lineTypes) {
-      String strVarLengthTable = "line_data_" + lineType.toLowerCase();
-      int lineDataId = getNextId(strVarLengthTable, "line_data_id");
-      tableVarLengthLineDataId.put(lineType, lineDataId);
-    }
-  }
 
   /**
    * Build and execute a query that retrieves the next table record id, whose name is specified by
@@ -715,7 +704,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               maxSize = 49;
               break;
             case "RHIST":
-              maxSize = 20;
+              maxSize = 19;
               break;
             case "VL1L2":
               maxSize = 23;
@@ -775,7 +764,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               }
             } else {
               if (strLineType.equals("RHIST")) {
-                intGroupIndex = intLineDataMax + 1;
+                intGroupIndex = intLineDataMax;
               }
 
               String strVarType = tableVarLengthTable.get(strLineType);
@@ -1227,16 +1216,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           } // end else stat_header is not in table
 
           if (headerIdString != null) {
-            String strLineDataId = "";
             dataRecords++;
-            //  if the line type is of variable length, get the line_data_id
+            //  is the line type of variable length
             boolean boolHasVarLengthGroups = MVUtil.lengthGroupIndices.containsKey(strLineType);
-            //  determine the maximum token index for the data
-            if (boolHasVarLengthGroups) {
-              int intLineDataId = tableVarLengthLineDataId.get(strLineType);
-              strLineDataId = Integer.toString(intLineDataId) + ", ";
-              tableVarLengthLineDataId.put(strLineType, intLineDataId + 1);
-            }
 
             //  build the value list for the insert statement
             String strLineDataValueList =
@@ -1275,17 +1257,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 if (i == 53) {
                   strLineDataValueList += ESEP + listToken[10];
                 } else if (i == 31) {
-                  strLineDataValueList += ESEP + "'" + listToken[11] + "'";
+                  strLineDataValueList += ESEP + listToken[11];
                 } else if (i == 36) {
-                  strLineDataValueList += ESEP + "'" + listToken[9] + "'";
+                  strLineDataValueList += ESEP + listToken[9];
                 } else if (i == 44) {
-                  strLineDataValueList += ESEP + "'" + listToken[12] + "'";
+                  strLineDataValueList += ESEP + listToken[12];
                 } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
-                  strLineDataValueList += ESEP + "'0'";
+                  strLineDataValueList += ESEP + "0";
                 } else if (i == 77) {
-                  strLineDataValueList += ESEP + "'" + listToken[13] + "'";
+                  strLineDataValueList += ESEP + listToken[13];
                 } else {
-                  strLineDataValueList += ESEP + "'-9999'";
+                  strLineDataValueList += ESEP + "-9999";
                 }
               }
             }
@@ -1296,7 +1278,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 switch (i) {
                   case 0:
                   case 1:
-                    strLineDataValueList += ESEP + "'0'";
+                    strLineDataValueList += ESEP + "0";
                     break;
                   case 2:
                   case 3:
@@ -1310,22 +1292,22 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strLineDataValueList += ESEP + "-9999";
                     break;
                   case 5:
-                    strLineDataValueList += ESEP + "'" + listToken[12] + "'";
+                    strLineDataValueList += ESEP + listToken[12];
                     break;
                   case 6:
-                    strLineDataValueList += ESEP + "'" + listToken[13] + "'";
+                    strLineDataValueList += ESEP + listToken[13];
                     break;
                   case 7:
-                    strLineDataValueList += ESEP + "'" + listToken[14] + "'";
+                    strLineDataValueList += ESEP + listToken[14];
                     break;
                   case 9:
-                    strLineDataValueList += ESEP + "'" + listToken[9] + "'";
+                    strLineDataValueList += ESEP + listToken[9];
                     break;
                   case 12:
-                    strLineDataValueList += ESEP + "'" + listToken[10] + "'";
+                    strLineDataValueList += ESEP + listToken[10];
                     break;
                   case 15:
-                    strLineDataValueList += ESEP + "'" + listToken[11] + "'";
+                    strLineDataValueList += ESEP + listToken[11];
                     break;
                   default:
                 }
@@ -1337,7 +1319,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 30; i++) {
                 switch (i) {
                   case 0:
-                    strLineDataValueList += ESEP + "'" + listToken[9] + "'";
+                    strLineDataValueList += ESEP + listToken[9];
                     break;
                   case 1:
                   case 2:
@@ -1346,7 +1328,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strLineDataValueList += ESEP + "-9999";
                     break;
                   case 5:
-                    strLineDataValueList += ESEP + "'" + listToken[10] + "'";
+                    strLineDataValueList += ESEP + listToken[10];
                     break;
                   case 6:
                   case 7:
@@ -1355,7 +1337,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strLineDataValueList += ESEP + "-9999";
                     break;
                   case 10:
-                    strLineDataValueList += ESEP + "'" + listToken[11] + "'";
+                    strLineDataValueList += ESEP + listToken[11];
                     break;
                   case 11:
                   case 12:
@@ -1364,7 +1346,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strLineDataValueList += ESEP + "-9999";
                     break;
                   case 15:
-                    strLineDataValueList += ESEP + "'" + listToken[12] + "'";
+                    strLineDataValueList += ESEP + listToken[12];
                     break;
                   case 16:
                   case 17:
@@ -1373,7 +1355,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strLineDataValueList += ESEP + "-9999";
                     break;
                   case 20:
-                    strLineDataValueList += ESEP + "'" + listToken[13] + "'";
+                    strLineDataValueList += ESEP + listToken[13];
                     break;
                   case 21:
                   case 22:
@@ -1382,7 +1364,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                     strLineDataValueList += ESEP + "-9999";
                     break;
                   case 25:
-                    strLineDataValueList += ESEP + "'" + listToken[14] + "'";
+                    strLineDataValueList += ESEP + listToken[14];
                     break;
                   case 26:
                   case 27:
@@ -1401,7 +1383,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
               for (int i = 0; i < 6; i++) {
                 if (i == 3) {
                   int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-                  strLineDataValueList += ESEP + "'" + intGroupSize + "'";
+                  strLineDataValueList += ESEP + intGroupSize;
                 } else if (i == 0) {//total
                   strLineDataValueList += ESEP + "0";
                 } else {
@@ -1413,14 +1395,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             if (listToken[6].equals("RELP")) {  // RELP line type
               strLineDataValueList += ESEP + "0";
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]);
-              strLineDataValueList += ESEP + "'" + intGroupSize + "'";
+              strLineDataValueList += ESEP + intGroupSize;
             }
+
             if (listToken[6].equals("ECON")) {  // ECLV line type
               strLineDataValueList += ESEP + "0" + ESEP + "-9999" + ESEP + "-9999";
               int intGroupSize = 18;
-              strLineDataValueList += ESEP + "'" + intGroupSize + "'";
+              strLineDataValueList += ESEP + intGroupSize;
             }
-
 
             if (listToken[6].equals("RELI")) { //PCT line type
               int total = 0;
@@ -1585,30 +1567,34 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 intNumGroups = 2;
               }
 
-              List<String> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
-                                                  .get(strLineType);
-              if (null == listThreshValues) {
-                listThreshValues = new ArrayList<>();
-              }
+
+              String strVarType = tableVarLengthTable.get(strLineType);
+              String[] listFieldsArr;
+              listFieldsArr = tableLineDataFieldsTable.get(strVarType).split(",");
+              String strThreshValues;
+
+              // create an array of objects
+              strThreshValues = "[";
 
               //  build a insert value statement for each threshold group
               if (listToken[6].equals("HIST")) {
                 for (int i = 0; i < intNumGroups; i++) {
-                  StringBuilder strThreshValues = new StringBuilder("(");
-                  strThreshValues.append(strLineDataId).append(i + 1);
+                  strThreshValues += "{" + listFieldsArr[0] + ":" + (i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(",").append(res * 100);
+                      strThreshValues += "," + listFieldsArr[j+1] + ":" + (Math.round(res*100));
                     }
 
                   }
-                  strThreshValues.append(')');
-                  listThreshValues.add(strThreshValues.toString());
+                  strThreshValues += '}';
+                  // put a comma after every object except the last one
+                  if (i != (intNumGroups - 1)) {
+                    strThreshValues += ",";
+                  }
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("RELI")) {
-                int total = 0;
                 for (int i = 0; i < intGroupSize; i++) {
                   double thresh_i;
                   if (intGroupSize > 1) {
@@ -1616,59 +1602,60 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   } else {
                     thresh_i = 0;
                   }
-                  String strThreshValues = "(" + strLineDataId + (i + 1) + "," + thresh_i;
+                  strThreshValues += "{" + listFieldsArr[0] + ":" + (i + 1);
+                  strThreshValues += "," + listFieldsArr[1] + ":" + thresh_i;
                   Integer oy;
                   Integer on;
                   try {
                     oy = Double.valueOf(listToken[intGroupIndex]).intValue();
                     on = Double.valueOf(listToken[intGroupIndex + intGroupSize]).intValue() - oy;
-                    strThreshValues += ", " + oy + ", " + on;
-                    total = total + oy + on;
+                    strThreshValues += "," + listFieldsArr[2] + ":" + oy;
+                    strThreshValues += "," + listFieldsArr[3] + ":" + on;
                   } catch (Exception e) {
                     strThreshValues += ",-9999,-9999";
                   }
 
                   intGroupIndex++;
-                  strThreshValues += ")";
-                  listThreshValues.add(strThreshValues);
+                  strThreshValues += "}";
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("RELP")) {
                 for (int i = 0; i < intNumGroups; i++) {
-                  StringBuilder strThreshValues = new StringBuilder("(");
-                  strThreshValues.append(strLineDataId).append(i + 1);
+                  strThreshValues += "{" + listFieldsArr[0] + ":" + (i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(",").append(res);
+                      strThreshValues += "," + listFieldsArr[j+1] + ":" + (res);
                     }
-
                   }
-                  strThreshValues.append(')');
-                  listThreshValues.add(strThreshValues.toString());
+                  strThreshValues += '}';
+                  // put a comma after every object except the last one
+                  if (i != (intNumGroups - 1)) {
+                    strThreshValues += ",";
+                  }
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("ECON")) {
 
                 for (int i = 0; i < intNumGroups; i++) {
-                  StringBuilder strThreshValues = new StringBuilder("(");
-                  strThreshValues.append(strLineDataId).append(i + 1);
+                  strThreshValues += "{" + listFieldsArr[0] + ":" + (i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(",").append(X_POINTS_FOR_ECON[i]).append(",")
-                          .append(res);
+                      strThreshValues += "," + listFieldsArr[j+1] + ":" + (X_POINTS_FOR_ECON[i]);
                     }
-
                   }
-                  strThreshValues.append(')');
-                  listThreshValues.add(strThreshValues.toString());
+                  strThreshValues += '}';
+                  // put a comma after every object except the last one
+                  if (i != (intNumGroups - 1)) {
+                    strThreshValues += ",";
+                  }
                   lengthRecords++;
                 }
               }
 
-              mvLoadStatInsertData.getTableVarLengthValues()
-                  .put(strLineType, listThreshValues);
+              strThreshValues += "]";
+              strLineDataValueList += ESEP + strThreshValues;
             }
 
             //  add the values list to the line type values map
