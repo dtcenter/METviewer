@@ -1078,7 +1078,7 @@ public class MVUtil {
       //  verify and store the numerical value and the value pair
       listVal[i] = dblVal;
       Double dblKey = listVal[i];
-      Object objVal = val;
+      Object objVal = vals.get(i);
       if (tableVal.containsKey(dblKey)) {
         Object objValCur = tableVal.get(dblKey);
         ArrayList listValCur = new ArrayList();
