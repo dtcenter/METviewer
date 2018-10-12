@@ -108,19 +108,7 @@ Spread vs.
  One goal of ensemble forecasting is to have the ensemble members represent
  the range of possible outcomes, which suggests that the ensemble spread
  shoud approsimately equal the skill of the ensemble mean (as measured by
- 
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-
-\series medium
-Define RMSE 
-\end_layout
-
-\end_inset
-
-RMSE).
+ RMSE).
  Spread and skill will be plotted on the y-axis, and the user may select
  the x axis variable.
  
@@ -140,26 +128,19 @@ name "sec:SpreadSkill-Plot-Details"
 \begin_layout Standard
 
 \series medium
-Selection of options to produce the plot proceeds approxately counter-clockwise
+Selection of options to produce your plot proceeds approxately counter-clockwise
  around the METViewer window.
- Select the database from the pulldown menus at the top margin of the METViewer
+ Select your database from the pulldown menus at the top margin of the METViewer
  window.
- Make sure the '
-\series bold
-Series' tab
-\series medium
- is selected near the top left, just under the database pulldown menu.
- Next, select the type of MET statistics that will be used to create the
- plot.
+ Make sure the 'Series' tab is selected near the top left, just under the
+ database pulldown menu.
+ Next, you must select the type of MET statistics that will be used to create
+ the plot.
  In the 
 \begin_inset Quotes eld
 \end_inset
 
-
-\series bold
 Plot Data
-\series medium
-
 \begin_inset Quotes erd
 \end_inset
 
@@ -225,16 +206,6 @@ name "sec: SpreadSkill-Plot-Examples"
 
 \series medium
 The primary goal 
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-Please finish the thought.
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -289,8 +260,8 @@ name "Fig_SpreadSkill_Plot_MV_Example"
 \begin_layout Standard
 
 \series medium
-Several optional plotting utilities are provided to assist in checking the
- output from the data preprocessing step.
+Several optional plotting utilities are provided to assist users in checking
+ their output from the data preprocessing step.
  
 \end_layout
 
