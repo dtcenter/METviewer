@@ -559,9 +559,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         boolean isMet8 = true;
         if (insertData.getLineType().equals("RHIST")) {
           int indexOfNrank = headerNames.indexOf("LINE_TYPE") + 2;
-          isMet8 = (Double.valueOf(listToken[indexOfNrank])
-                        .intValue() + indexOfNrank) ==
-                       listToken.length - 1;
+          boolean isInt = MVUtil.isInteger(listToken[indexOfNrank], 10);
+          isMet8 = isInt
+                       && (Integer.valueOf(listToken[indexOfNrank])
+                               + indexOfNrank == listToken.length - 1);
+
         }
         if (intStatHeaderId != null) {
 
