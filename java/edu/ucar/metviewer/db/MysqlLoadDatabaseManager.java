@@ -2001,68 +2001,86 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                      "'" + MVUtil.findValue(listToken, headerNames,
                                                             "OBS_LEV") + "'";        //  obs_lev
 
-        String strModeHeaderWhereClause =
+        String headerWhere =
             "  version = '" + MVUtil.findValue(listToken, headerNames, "VERSION") + "'\n" +
                 "  AND model = '" + MVUtil
                                         .findValue(listToken, headerNames, "MODEL") + "'\n";
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "N_VALID"))) {
-          strModeHeaderWhereClause = strModeHeaderWhereClause + "  AND n_valid is NULL ";
+          headerWhere = headerWhere + "  AND n_valid is NULL ";
         } else {
-          strModeHeaderWhereClause = strModeHeaderWhereClause
-                                         + "  AND n_valid = '"
-                                         + MVUtil
-                                               .findValue(listToken, headerNames, "N_VALID")
-                                         + "'\n";
+          headerWhere = headerWhere
+                            + "  AND n_valid = '"
+                            + MVUtil.findValue(listToken, headerNames, "N_VALID")
+                            + "'\n";
         }
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "GRID_RES"))) {
-          strModeHeaderWhereClause = strModeHeaderWhereClause + "  AND grid_res is NULL ";
+          headerWhere = headerWhere + "  AND grid_res is NULL ";
           //  GRID_RES
         } else {
-          strModeHeaderWhereClause = strModeHeaderWhereClause
-                                         + "  AND grid_res = '"
-                                         + MVUtil
-                                               .findValue(listToken, headerNames, "GRID_RES")
-                                         + "'\n";
+          headerWhere = headerWhere
+                            + "  AND grid_res = '"
+                            + MVUtil.findValue(listToken, headerNames, "GRID_RES")
+                            + "'\n";
         }
-        strModeHeaderWhereClause = strModeHeaderWhereClause
-                                       + "  AND descr = '"
-                                       + MVUtil.findValue(listToken, headerNames, "DESC")
-                                       + "'\n" +
-                                       "  AND fcst_lead = " + Integer.valueOf(
-            MVUtil.findValue(listToken, headerNames, "FCST_LEAD")) + "\n" +
-                                       "  AND fcst_valid = '" + fcstValidBegStr + "'\n" +
-                                       "  AND fcst_accum = " + Integer.valueOf(
-            MVUtil.findValue(listToken, headerNames, "FCST_ACCUM")) + "\n" +
-                                       "  AND fcst_init = '" + fcstInitStr + "'\n" +
-                                       "  AND obs_lead = " + Integer.valueOf(
-            MVUtil.findValue(listToken, headerNames, "OBS_LEAD")) + "\n" +
-                                       "  AND obs_valid = '" + obsValidBegStr + "'\n" +
-                                       "  AND obs_accum = " + Integer.valueOf(
-            MVUtil.findValue(listToken, headerNames, "OBS_ACCUM")) + "\n" +
-                                       "  AND fcst_rad = '" + MVUtil.findValue(listToken,
-                                                                               headerNames,
-                                                                               "FCST_RAD") + "'\n" +
-                                       "  AND fcst_thr = '" + MVUtil.findValue(listToken,
-                                                                               headerNames,
-                                                                               "FCST_THR") + "'\n" +
-                                       "  AND obs_rad = '" + MVUtil.findValue(listToken,
-                                                                              headerNames,
-                                                                              "OBS_RAD") + "'\n" +
-                                       "  AND obs_thr = '" + MVUtil.findValue(listToken,
-                                                                              headerNames,
-                                                                              "OBS_THR") + "'\n" +
-                                       "  AND fcst_var = '" + MVUtil.findValue(listToken,
-                                                                               headerNames,
-                                                                               "FCST_VAR") + "'\n" +
-                                       "  AND fcst_lev = '" + MVUtil.findValue(listToken,
-                                                                               headerNames,
-                                                                               "FCST_LEV") + "'\n" +
-                                       "  AND obs_var = '" + MVUtil.findValue(listToken,
-                                                                              headerNames,
-                                                                              "OBS_VAR") + "'\n" +
-                                       "  AND obs_lev = '" + MVUtil.findValue(listToken,
-                                                                              headerNames,
-                                                                              "OBS_LEV") + "';";
+        headerWhere = headerWhere
+                          + "  AND descr = '"
+                          + MVUtil.findValue(listToken, headerNames, "DESC")
+                          + "'\n"
+                          + "  AND fcst_lead = "
+                          + Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_LEAD"))
+                          + "\n" +
+                          "  AND fcst_valid = '" + fcstValidBegStr + "'\n" +
+                          "  AND fcst_accum = ";
+
+        Integer accum = null;
+        try {
+          accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
+        } catch (Exception e) {
+        }
+        if (accum == null) {
+          headerWhere = headerWhere + "NULL";
+        } else {
+          headerWhere = headerWhere + accum;
+        }
+
+        headerWhere = headerWhere + "\n"
+                          + "  AND fcst_init = '" + fcstInitStr + "'\n"
+                          + "  AND obs_lead = "
+                          + Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_LEAD"))
+                          + "\n"
+                          + "  AND obs_valid = '" + obsValidBegStr + "'\n"
+                          + "  AND obs_accum = ";
+
+        try {
+          accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
+        } catch (Exception e) {
+        }
+        if (accum == null) {
+          headerWhere = headerWhere + "NULL";
+        } else {
+          headerWhere = headerWhere + accum;
+        }
+        headerWhere = headerWhere
+                          + "\n"
+                          + "  AND fcst_rad = '"
+                          + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + "'\n"
+                          + "  AND fcst_thr = '"
+                          + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "'\n"
+                          + "  AND obs_rad = '"
+                          + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + "'\n"
+                          + "  AND obs_thr = '"
+                          + MVUtil.findValue(listToken, headerNames, "OBS_THR")
+                          + "'\n"
+                          + "  AND fcst_var = '"
+                          + MVUtil.findValue(listToken, headerNames, "FCST_VAR")
+                          + "'\n" + "  AND fcst_lev = '"
+                          + MVUtil.findValue(listToken, headerNames, "FCST_LEV")
+                          + "'\n"
+                          + "  AND obs_var = '"
+                          + MVUtil.findValue(listToken, headerNames, "OBS_VAR")
+                          + "'\n"
+                          + "  AND obs_lev = '"
+                          + MVUtil.findValue(listToken, headerNames, "OBS_LEV") + "';";
 
         //  look for the header key in the table
         int intModeHeaderId = -1;
@@ -2078,7 +2096,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           long intModeHeaderSearchBegin = System.currentTimeMillis();
           if (info.modeHeaderDBCheck) {
             String strModeHeaderSelect = "SELECT\n  mode_header_id\nFROM\n  mode_header\nWHERE\n"
-                                             + strModeHeaderWhereClause;
+                                             + headerWhere;
             try (Connection con = getConnection();
                  Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
                                                       java.sql.ResultSet.CONCUR_READ_ONLY);
