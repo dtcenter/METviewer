@@ -47,6 +47,15 @@
                 <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
                 <pathelement location="${lib}/juli-6.0.53.jar"/>
                 <pathelement location="${lib}/junit-4.11.jar"/>
+                <pathelement location="${lib}/couchbase-core-io-1.5.8-javadoc.jar"/>
+                <pathelement location="${lib}/couchbase-core-io-1.5.8-sources.jar"/>
+                <pathelement location="${lib}/couchbase-core-io-1.5.8.jar"/>
+                <pathelement location="${lib}/couchbase-java-client-2.5.8-javadoc.jar"/>
+                <pathelement location="${lib}/couchbase-java-client-2.5.8-sources.jar"/>
+                <pathelement location="${lib}/couchbase-java-client-2.5.8.jar"/>
+                <pathelement location="${lib}/rxjava-1.3.4-javadoc.jar"/>
+                <pathelement location="${lib}/rxjava-1.3.4-sources.jar"/>
+                <pathelement location="${lib}/rxjava-1.3.4.jar"/>
 
 
             </classpath>
@@ -78,6 +87,15 @@
                 <pathelement location="${lib}/commons-lang3-3.5.jar"/>
                 <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
                 <pathelement location="${lib}/juli-6.0.53.jar"/>
+                <pathelement location="${lib}/couchbase-core-io-1.5.8-javadoc.jar"/>
+                <pathelement location="${lib}/couchbase-core-io-1.5.8-sources.jar"/>
+                <pathelement location="${lib}/couchbase-core-io-1.5.8.jar"/>
+                <pathelement location="${lib}/couchbase-java-client-2.5.8-javadoc.jar"/>
+                <pathelement location="${lib}/couchbase-java-client-2.5.8-sources.jar"/>
+                <pathelement location="${lib}/couchbase-java-client-2.5.8.jar"/>
+                <pathelement location="${lib}/rxjava-1.3.4-javadoc.jar"/>
+                <pathelement location="${lib}/rxjava-1.3.4-sources.jar"/>
+                <pathelement location="${lib}/rxjava-1.3.4.jar"/>
             </classpath>
         </javac>
 

@@ -35,9 +35,7 @@ class PruneDbManager extends MysqlDatabaseManager {
 
 
   public PruneDbManager(DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo, IoBuilder.forLogger(PruneDbManager.class)
-                                                              .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                                       .buildPrintWriter());
+    super(databaseInfo);
     //init tables data
     tables = new ArrayList<>();
     tables.add(new Table("line_data_cnt", "stat_header", "stat_header_id"));

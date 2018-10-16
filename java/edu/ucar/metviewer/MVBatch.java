@@ -1,5 +1,12 @@
 package edu.ucar.metviewer;
 
+
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.jobManager.*;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.io.IoBuilder;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -8,9 +15,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import edu.ucar.metviewer.db.AppDatabaseManager;
-import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import edu.ucar.metviewer.jobManager.ContourJobManager;
 import edu.ucar.metviewer.jobManager.EclvJobManager;
 import edu.ucar.metviewer.jobManager.EnsSsJobManager;
@@ -22,8 +26,6 @@ import edu.ucar.metviewer.jobManager.RhistJobManager;
 import edu.ucar.metviewer.jobManager.RocJobManager;
 import edu.ucar.metviewer.jobManager.SeriesJobManager;
 import edu.ucar.metviewer.jobManager.TaylorJobManager;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVBatch  {
 
@@ -214,19 +216,14 @@ public class MVBatch  {
 
   public static void main(String[] argv) {
     MVBatch bat = new MVBatch();
-
     bat.print("----  MVBatch  ----\n");
-
     try {
-
       MVPlotJob[] jobs;
-
-      //  if no input file is present, bail
+      // if no input file is present, bail
       if (1 > argv.length) {
         bat.print(getUsage() + "\n----  MVBatch Done  ----");
         return;
       }
-
       //  parse the command line options
       boolean boolList = false;
       int intArg = 0;
@@ -235,8 +232,6 @@ public class MVBatch  {
           boolList = true;
         } else if (argv[intArg].equals("-printSql")) {
           bat.setVerbose(true);
-        } else if (argv[intArg].equals("mysql")) {
-          bat.setDbType("mysql");
         } else {
           bat.print(
               "  **  ERROR: unrecognized option '"
@@ -250,10 +245,7 @@ public class MVBatch  {
       bat.print("input file: " + xmlInput + "\n");
 
       MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
-      if (bat.getDbType() == null || bat.getDbType().equals("mysql")) {
-        bat.setDatabaseManager(
-            new MysqlAppDatabaseManager(parser.getDatabaseInfo(), bat.getPrintStreamSql()));
-      }
+      bat.setDatabaseManager((AppDatabaseManager)DatabaseManager.getAppManager(parser.dbManagementSystem,parser.dbHost,parser.dbUser,parser.dbPass));
       MVOrderedMap mapJobs = parser.getJobsMap();
 
       //  build a list of jobs to run
