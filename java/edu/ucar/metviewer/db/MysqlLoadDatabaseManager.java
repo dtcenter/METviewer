@@ -373,10 +373,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
-        String strFcstValidBeg = DATE_FORMAT.format(fcstValidBeg);
-        String strFcstValidEnd = DATE_FORMAT.format(fcstValidEnd);
-        String strObsValidBeg = DATE_FORMAT.format(obsValidBeg);
-        String strObsValidEnd = DATE_FORMAT.format(obsValidBeg);
+        String fcstValidBegStr = DATE_FORMAT_1.format(fcstValidBeg);
+        String fcstValidEndStr = DATE_FORMAT_1.format(fcstValidEnd);
+        String obsValidBegStr = DATE_FORMAT_1.format(obsValidBeg);
+        String obsValidEndStr = DATE_FORMAT_1.format(obsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String fcstLeadStr = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
