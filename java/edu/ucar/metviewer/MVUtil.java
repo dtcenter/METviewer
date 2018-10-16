@@ -2275,8 +2275,7 @@ public class MVUtil {
     DatabaseInfo databaseInfo = new DatabaseInfo(argv[0], argv[1], argv[2]);
     ByteArrayOutputStream logSql = new ByteArrayOutputStream();
     PrintWriter printStreamSql = new PrintWriter(logSql);
-    MysqlAppDatabaseManager mysqlAppDatabaseManager = new MysqlAppDatabaseManager(databaseInfo,
-                                                                                  printStreamSql);
+    MysqlAppDatabaseManager mysqlAppDatabaseManager = new MysqlAppDatabaseManager(databaseInfo);
     List<String> databases = mysqlAppDatabaseManager.getAllDatabases();
 
     for (String database : databases) {
