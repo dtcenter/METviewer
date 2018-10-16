@@ -48,6 +48,8 @@ public abstract class DatabaseManager {
     }
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    protected static final DateTimeFormatter DATE_FORMAT_1
+            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     // protected static final SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
     protected static final DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
