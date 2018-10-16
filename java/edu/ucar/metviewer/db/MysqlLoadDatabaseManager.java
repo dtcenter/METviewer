@@ -6,6 +6,10 @@
 
 package edu.ucar.metviewer.db;
 
+import edu.ucar.metviewer.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,14 +38,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import edu.ucar.metviewer.DataFileInfo;
-import edu.ucar.metviewer.MVLoadJob;
-import edu.ucar.metviewer.MVLoadStatInsertData;
-import edu.ucar.metviewer.MVOrderedMap;
-import edu.ucar.metviewer.MVUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
@@ -47,7 +45,6 @@ import org.apache.logging.log4j.Logger;
 public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
-  DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
@@ -92,10 +89,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public MysqlLoadDatabaseManager(
-                                     DatabaseInfo databaseInfo,
-                                     PrintWriter printStreamSql) throws Exception {
-    super(databaseInfo, printStreamSql);
+  public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+    super(databaseInfo);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
@@ -378,10 +373,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
-        String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
-        String fcstValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidEnd);
-        String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidBeg);
-        String obsValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidEnd);
+        String fcstValidBegStr = DATE_FORMAT_1.format(fcstValidBeg);
+        String fcstValidEndStr = DATE_FORMAT_1.format(fcstValidEnd);
+        String obsValidBegStr = DATE_FORMAT_1.format(obsValidBeg);
+        String obsValidEndStr = DATE_FORMAT_1.format(obsValidEnd);
 
         //  calculate the number of seconds corresponding to fcst_lead
         String fcstLeadStr = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
@@ -396,7 +391,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
         fcstInitBeg = fcstInitBeg.minusSeconds(fcstLeadSec);
 
-        String fcstInitBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
+        String fcstInitBegStr = DATE_FORMAT_1.format(fcstInitBeg);
 
         //  ensure that the interp_pnts field value is a reasonable integer
         String strInterpPnts = MVUtil.findValue(listToken, headerNames, "INTERP_PNTS");
@@ -1156,7 +1151,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           LocalDateTime fcstValidBeg = LocalDateTime.parse(listToken[3], formatStatVsdb);
 
           //  format the valid times for the database insert
-          String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+          String fcstValidBegStr = DATE_FORMAT_1.format(fcstValidBeg);
 
           //  calculate the number of seconds corresponding to fcst_lead
           String strFcstLead = listToken[2];
@@ -1166,10 +1161,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
           fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
-          String fcstInitBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
-          String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
-          String fcstValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
-          String obsValidEndStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+          String fcstInitBegStr = DATE_FORMAT_1.format(fcstInitBeg);
+          String obsValidBegStr = DATE_FORMAT_1.format(fcstValidBeg);
+          String fcstValidEndStr = DATE_FORMAT_1.format(fcstValidBeg);
+          String obsValidEndStr = DATE_FORMAT_1.format(fcstValidBeg);
 
 
           //  ensure that the interp_pnts field value is a reasonable integer
@@ -1907,8 +1902,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
-        String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
-        String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidBeg);
+        String fcstValidBegStr = DATE_FORMAT_1.format(fcstValidBeg);
+        String obsValidBegStr = DATE_FORMAT_1.format(obsValidBeg);
 
 
         //  calculate the number of seconds corresponding to fcst_lead
@@ -1925,7 +1920,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
         fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
 
-        String fcstInitStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
+        String fcstInitStr = DATE_FORMAT_1.format(fcstInitBeg);
 
 
         //  build a value list from the header information
@@ -2395,10 +2390,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
-        String fcstValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstValidBeg);
+        String fcstValidBegStr = DATE_FORMAT_1.format(fcstValidBeg);
 
 
-        String obsValidBegStr = MysqlDatabaseManager.DATE_FORMAT_1.format(obsValidBeg);
+        String obsValidBegStr = DATE_FORMAT_1.format(obsValidBeg);
 
 
         //  calculate the number of seconds corresponding to fcst_lead
@@ -2436,7 +2431,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
         fcstInitBeg = fcstInitBeg.minusSeconds(intFcstLeadSec);
 
-        String fcstInitStr = MysqlDatabaseManager.DATE_FORMAT_1.format(fcstInitBeg);
+        String fcstInitStr = DATE_FORMAT_1.format(fcstInitBeg);
 
 
         String mtdHeaderValueList = "'" + MVUtil.findValue(listToken, headerNames, "VERSION")
@@ -2888,13 +2883,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     LocalDateTime cal1 = LocalDateTime.now();
-    String strLoadDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
-    String loadDateStr = MysqlDatabaseManager.DATE_FORMAT_1.format(cal1);
+    String strLoadDate = DATE_FORMAT.format(cal.getTime());
+    String loadDateStr = DATE_FORMAT_1.format(cal1);
     cal.setTimeInMillis(file.lastModified());
     cal1 = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
                                    ZoneId.of("UTC"));
-    String strModDate = MysqlDatabaseManager.DATE_FORMAT.format(cal.getTime());
-    String modDateStr = MysqlDatabaseManager.DATE_FORMAT_1.format(cal1);
+    String strModDate = DATE_FORMAT.format(cal.getTime());
+    String modDateStr = DATE_FORMAT_1.format(cal1);
 
 
     // determine the type of the input data file by parsing the filename
@@ -2954,7 +2949,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         strModDate = res.getString(4);
 
         if (forceDupFile) {
-          DataFileInfo info = new DataFileInfo(dataFileId, strFile, strPath, strLoadDate,
+          DataFileInfo info = new DataFileInfo(dataFileId.toString(), strFile, strPath, strLoadDate,
                                                strModDate, strDataFileLuId, strDataFileLuTypeName);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
@@ -3007,7 +3002,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       logger.warn("  **  WARNING: unexpected result from data_file INSERT: " + intRes);
     }
 
-    return new DataFileInfo(dataFileId, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
+    return new DataFileInfo(dataFileId.toString(), strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
                             strDataFileLuTypeName);
   }
 
@@ -3025,7 +3020,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
     }
     strUpdater = strUpdater.trim();
-    String strUpdateDate = MysqlDatabaseManager.DATE_FORMAT_1.format(LocalDateTime.now());
+    String strUpdateDate = DATE_FORMAT_1.format(LocalDateTime.now());
     String strUpdateDetail = job.getLoadNote();
 
     //  read the load xml into a string, if requested

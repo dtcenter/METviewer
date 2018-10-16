@@ -274,6 +274,7 @@ public class MVPlotJobParser {
   protected String dbHost = "";
   protected String dbUser = "";
   protected String dbPass = "";
+  protected String dbManagementSystem = "";
   protected String dbDriver = null;
 
 
@@ -1042,7 +1043,8 @@ public class MVPlotJobParser {
             dbUser = node.children[j].value;
           } else if (node.children[j].tag.equals("password")) {
             dbPass = node.children[j].value;
-
+          } else if (node.children[j].tag.equals("management_system")) {
+            dbManagementSystem = node.children[j].value;
           } else if (node.children[j].tag.equals("driver")) {
             dbDriver = node.children[j].value;
           }

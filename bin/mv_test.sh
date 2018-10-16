@@ -57,10 +57,10 @@ while getopts "t:m:d:u:p:P:h:j:cnl?" o; do
             CAPTURE_CREATED_IMAGES="-DcaptureCreatedImages=yes"
             ;;
         n)
-            NOCLEAN="-DnoClean"
+            NOCLEAN="-DnoClean=yes"
             ;;
         l)
-            LOADDATA="-DloadData"
+            LOADDATA="-DloadData=yes"
             ;;
 		?)
 		usage
@@ -123,7 +123,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
 
 
 echo "Running allRestRunner"
-#/Users/pierce/test_data all
+
 JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA"
 echo "---------"
 cd ${MV_HOME}

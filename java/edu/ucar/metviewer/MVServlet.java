@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import edu.ucar.metviewer.jobManager.ContourJobManager;
 import edu.ucar.metviewer.jobManager.EclvJobManager;
@@ -717,18 +718,11 @@ public class MVServlet extends HttpServlet {
     logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
-      DatabaseInfo databaseInfo = new DatabaseInfo();
-      databaseInfo.setHost(bundle.getString("db.host"));
-      databaseInfo.setUser(bundle.getString("db.user"));
-      databaseInfo.setPassword(bundle.getString("db.password"));
-      PrintWriter printStreamSql = null;
-      ByteArrayOutputStream logSql = null;
-      logSql = new ByteArrayOutputStream();
-      printStreamSql = new PrintWriter(logSql);
-
-      if (bundle.getString("db.managementSystem").equals("mysql")) {
-        databaseManager = new MysqlAppDatabaseManager(databaseInfo, printStreamSql);
-      }
+      databaseManager = (AppDatabaseManager)DatabaseManager.getAppManager(
+              bundle.getString("db.managementSystem"),
+              bundle.getString("db.host"),
+              bundle.getString("db.user"),
+              bundle.getString("db.password"));
 
       isValCache = bundle.getString("cache.val").equals("true");
       isStatCache = bundle.getString("cache.stat").equals("true");

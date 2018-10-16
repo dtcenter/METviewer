@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class DataFileInfo {
 
-  public Integer fileId = 0;
+  public String fileId = "0";
   public String filename = "";
   public String path = "";
   public String loadDate = "";
@@ -32,7 +32,7 @@ public class DataFileInfo {
   public int insertSize;
 
   public DataFileInfo(
-                         Integer fileId, String filename,
+                         String fileId, String filename,
                          String dataFilePath, String dataFileLoadDate,
                          String dataFileModDate, int dataFileLuId,
                          String dataFileLuTypeName) {
