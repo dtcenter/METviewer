@@ -1155,14 +1155,17 @@ function updateMtd(y_axis, index, selectedVals) {
     var selectedModeStat = "";
     var selectedModeStatCode = "";
 
-    var statArr = selectedVals.split("_");
-    for (var i = 0; i < statArr.length - 1; i++) {
-        selectedModeStat = selectedModeStat + statArr[i];
-        if (i != statArr.length - 2) {
-            selectedModeStat = selectedModeStat + '_';
+    if (selectedVals.length > 0) {
+
+        var statArr = selectedVals.split("_");
+        for (var i = 0; i < statArr.length - 1; i++) {
+            selectedModeStat = selectedModeStat + statArr[i];
+            if (i != statArr.length - 2) {
+                selectedModeStat = selectedModeStat + '_';
+            }
         }
+        selectedModeStatCode = statArr[statArr.length - 1];
     }
-    selectedModeStatCode = statArr[statArr.length - 1];
 
     var is_fcst_stat_mode = false;
     fcst_stat_mode.empty();
