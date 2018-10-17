@@ -1676,6 +1676,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         listQuery.add(buildMtd2dStatDiffTable(strSelectList, strWhere, strStat, query1, query2));
       }
     } else if (MVUtil.mtd3dPairStatField.containsKey(stat)) {
+      strWhere = strWhere.replace("h.", "");
       listQuery.add(buildMtd3dPairStatTable(strSelectList, strWhere, strStat));
     } else {
       strWhere = strWhere.replace("h.", "");
