@@ -1848,7 +1848,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  " + objectId + ",\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strTableStat + " stat_value\n"
             + "FROM mtd_header, mtd_3d_obj_pair \n"
@@ -1958,7 +1958,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + selectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + mtd3dSingleStatField.get(statName) + " stat_value\n"
             + "FROM mtd_header, mtd_3d_obj_single \n"
@@ -1991,7 +1991,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n"
             + "FROM mtd_header, mtd_2d_obj \n"
@@ -2033,7 +2033,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  area,\n"
             + "  fcst_flag,\n"
             + "  simple_flag,\n"
@@ -2053,7 +2053,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  volume,\n"
             + "  fcst_flag,\n"
             + "  simple_flag,\n"
@@ -2156,7 +2156,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String result =
         "SELECT\n" + strSelectListStat + ",\n"
             + "  s.object_id,\n"
-            + "  s.cluster_id,\n"
+            + "  s.object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
             + "FROM ("
@@ -2205,7 +2205,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String result =
         "SELECT\n" + strSelectListStat + ",\n"
             + "  s.object_id,\n"
-            + "  s.cluster_id,\n"
+            + "  s.object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
             + "FROM ("
