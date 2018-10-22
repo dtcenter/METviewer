@@ -20,7 +20,6 @@ import java.util.Locale;
  * @version : 1.0 : 19/05/17 12:42 $
  */
 public abstract class DatabaseManager {
-    private static List<String> listDB;
     private PrintWriter pw;
     private DatabaseInfo databaseInfo;
     protected static final String DB_PREFIX_MV = "mv_";
@@ -30,29 +29,31 @@ public abstract class DatabaseManager {
 
     public DatabaseManager(DatabaseInfo databaseInfo) {
         this.databaseInfo = databaseInfo;
-        listDB = new ArrayList<>();
-        pw = IoBuilder.forLogger(getClass().getSimpleName()).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintWriter();
+        pw = IoBuilder.forLogger(getClass().getSimpleName())
+                .setLevel(org.apache.logging.log4j.Level.INFO).buildPrintWriter();
     }
 
     public DatabaseManager() {
     }
 
-    public PrintWriter getPrintWriter(){
+    public PrintWriter getPrintWriter() {
         return pw;
     }
+
     public DatabaseInfo getDatabaseInfo() {
         return databaseInfo;
     }
+
     public String getDbName() {
         return databaseInfo.getDbName();
     }
 
-    protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    protected static final SimpleDateFormat DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     protected static final DateTimeFormatter DATE_FORMAT_1
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     // protected static final SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
     protected static final DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-
 
     public static DatabaseManager getLoadManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
@@ -73,7 +74,11 @@ public abstract class DatabaseManager {
         return databaseManager;
     }
 
-    public static DatabaseManager getManager(String management_system, String host, String user, String password, String dbName) throws Exception {
+    public static DatabaseManager getManager(String management_system,
+                                             String host,
+                                             String user,
+                                             String password,
+                                             String dbName) throws Exception {
         String ms = management_system.toLowerCase();
         String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
@@ -95,7 +100,7 @@ public abstract class DatabaseManager {
     // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
     public static DatabaseManager getAppManager(String management_system, String host, String user, String password) throws Exception {
         String ms = management_system.toLowerCase();
-        String dbType = (ms == null || ms == "")  ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         DatabaseManager databaseManager = null;
         PrintWriter pw = null;
