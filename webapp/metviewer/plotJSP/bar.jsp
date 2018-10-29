@@ -314,6 +314,10 @@
 
                 }
             });
+            $.each(fix_var_value_to_title_stat_map, function (key, val) {
+                            $('#fixed_var_1').append('<option value="' +
+                                    key + '">' + val + '</option>');
+                          });
             if (initXML != null) {
                 var sd = initXML.find("database").text();
                 var selectedDatabase = sd.split(",");
@@ -329,10 +333,6 @@
                 $('#box_boxwex').val($(initXML.find("plot").find("box_boxwex")).text());
                 initXML = null;
             }else{
-              $.each(fix_var_value_to_title_stat_map, function (key, val) {
-                $('#fixed_var_1').append('<option value="' +
-                        key + '">' + val + '</option>');
-              });
               updateForecastVariables();
               updateStats("y1", 1, []);
               updateSeriesVarVal("y1", 1, []);
