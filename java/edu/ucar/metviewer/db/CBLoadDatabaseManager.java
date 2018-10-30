@@ -2786,7 +2786,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     //  reserve a block of counters to add to ids for all the documents
     try {
-      nextIdNumber = getBucket().counter("LDCounter", listValues.size()).content() - listValues.size();
+      nextIdNumber = getBucket().counter("LDCounter", listValues.size(), 1).content() - listValues.size();
     } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
