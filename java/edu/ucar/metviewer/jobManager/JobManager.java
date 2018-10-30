@@ -68,7 +68,6 @@ public abstract class JobManager {
   }
 
 
-
   protected MVOrderedMap buildPlotFixTmplVal(
                                                 final MVOrderedMap tmplMaps,
                                                 final MVOrderedMap plotFixPerm,
@@ -168,16 +167,8 @@ public abstract class JobManager {
             strFcstVar = strFcstVarCur;
           } else if (!strFcstVar.equals(strFcstVarCur)) {
             //check if this is a mode/mtd/agg/sum stat job
-            boolean isAggStat = job.getAggCtc()
-                                    || job.getAggSl1l2()
-                                    || job.getAggSal1l2()
-                                    || job.getAggNbrCnt()
-                                    || job.getAggSsvar()
-                                    || job.getAggVl1l2()
-                                    || job.getAggVal1l2()
-                                    || job.getAggGrad()
-                                    || job.getAggPct();
-            if(job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
+            boolean isAggStat = job.isAggStat();
+            if (job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
               throw new Exception("fcst_var must remain constant for MODE, MTD, Aggregation "
                                       + "statistics, Event Equalizer");
             }
@@ -225,7 +216,8 @@ public abstract class JobManager {
              0 < listIndyLabel.length ? MVUtil.printRCol(listIndyLabel, true) : "c()"
     );
     info.put("indy_plot_val",
-             0 < job.getIndyPlotVal().length ? MVUtil.printRCol(job.getIndyPlotVal(), false) : "c()");
+             0 < job.getIndyPlotVal().length ? MVUtil
+                                                   .printRCol(job.getIndyPlotVal(), false) : "c()");
     info.put("dep1_plot", null != mapDep1Plot ? mapDep1Plot.getRDecl() : "c()");
     info.put("dep2_plot", null != mapDep2Plot ? mapDep2Plot.getRDecl() : "c()");
     info.put("agg_list", new MVOrderedMap().getRDecl());
@@ -347,6 +339,7 @@ public abstract class JobManager {
     info.put("agg_vl1l2", job.getAggVl1l2() ? "TRUE" : "FALSE");
     info.put("agg_val1l2", job.getAggVal1l2() ? "TRUE" : "FALSE");
     info.put("agg_pct", job.getAggPct() ? "TRUE" : "FALSE");
+    info.put("agg_ecnt", job.getAggEcnt() ? "TRUE" : "FALSE");
     info.put("cache_agg_stat", job.getCacheAggStat() ? "TRUE" : "FALSE");
 
     info.put("boot_repl", job.getAggBootRepl());

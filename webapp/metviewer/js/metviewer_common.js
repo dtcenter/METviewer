@@ -5429,6 +5429,8 @@ function loadXMLStatistics(fcst_stat) {
             $('#agg_stat').val('vl1l2');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_val1l2")).text() === "TRUE") {
             $('#agg_stat').val('val1l2');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_ecnt")).text() === "TRUE") {
+            $('#agg_stat').val('ecnt');
         } else {
             if (selected_mode === "mode" && listStatModeRatio.indexOf(fcst_stat[0]) !== -1) {
                 $('#agg_stat').val('mode');

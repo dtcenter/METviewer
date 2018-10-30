@@ -1,6 +1,7 @@
 /**
- * Util.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * Util.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR),
+ * National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL), P.O. Box
+ * 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.scorecard;
@@ -22,7 +23,7 @@ public class Util {
 
   private static final Logger logger = LogManager.getLogger("Util");
   private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2,
-    MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT};
+      MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT, MVUtil.ECNT};
 
   private Util() {
 
@@ -59,6 +60,8 @@ public class Util {
       orderedMap = MVUtil.statsPstd;
     } else if (MVUtil.statsNbrcnt.containsKey(stat)) {
       orderedMap = MVUtil.statsNbrcnt;
+    } else if (MVUtil.statsEcnt.containsKey(stat)) {
+      orderedMap = MVUtil.statsEcnt;
     } else {
       orderedMap = new HashMap<>();
     }

@@ -494,6 +494,26 @@ if ( nrow(sampleData) > 0){
           varmean	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "var_mean", sep="_") ]] ) * listTotal, na.rm=TRUE ) / total,
           binn	=  total
         );
+
+        }  else if ( boolAggEcnt ){ # perform the aggregation of the sampled ECNT lines
+          listTotal  = d[i,][[ paste(strPerm, "total", sep="_") ]];
+          total    = custom_sum(listTotal, na.rm=TRUE);
+          mse = as.numeric( d[i,][[ paste(strPerm, "rmse", sep="_") ]] ) * as.numeric( d[i,][[ paste(strPerm, "rmse", sep="_") ]] )
+          mse_oerr = as.numeric( d[i,][[ paste(strPerm, "rmse_oerr", sep="_") ]] ) * as.numeric( d[i,][[ paste(strPerm, "rmse_oerr", sep="_") ]] )
+          crps_climo = as.numeric( d[i,][[ paste(strPerm, "crps", sep="_") ]] ) / (1.0 - as.numeric( d[i,][[ paste(strPerm, "crpss", sep="_") ]] ))
+
+          dfSeriescustom_sums = data.frame(
+            mse	= custom_sum( mse * listTotal, na.rm=TRUE ) / total,
+            mse_oerr	= custom_sum( mse_oerr * listTotal, na.rm=TRUE ) / total,
+            crps_climo	= custom_sum( crps_climo * listTotal, na.rm=TRUE ) / total,
+            me	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "me", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+            crps	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "crps", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+            ign	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "ign", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+            spread	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "spread", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+            me_oerr	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "me_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+            spread_oerr	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "spread_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total,
+            spread_plus_oerr	= custom_sum( as.numeric( d[i,][[ paste(strPerm, "spread_plus_oerr", sep="_") ]] ) * listTotal,na.rm=TRUE) / total
+        );
       } else if( boolAggNbrCnt ){ # perform the aggregation of the sampled NBR_CNT lines
         listTotal = d[i,][[ paste(strPerm, "total", sep="_") ]];
         total = custom_sum( as.numeric(listTotal), na.rm=TRUE);
@@ -771,6 +791,8 @@ if ( nrow(sampleData) > 0){
           listFields = c("total", "ufabar", "vfabar", "uoabar", "voabar", "uvfoabar", "uvffabar","uvooabar");
         } else if( boolAggSsvar  ){
           listFields = c("total", "fbar", "obar", "fobar", "ffbar", "oobar", "var_mean", "bin_n");
+        } else if( boolAggEcnt  ){
+          listFields = c("total", "me", "rmse", "crps","crpss", "ign", "spread", "me_oerr","rmse_oerr","spread_oerr", "spread_plus_oerr");
         } else if( boolAggNbrCnt ){
           listFields = c("total", "fbs", "fss");
         }else if( boolAggPct ){
