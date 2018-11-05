@@ -6486,6 +6486,7 @@ if (typeof String.prototype.startsWith != 'function') {
     };
 }
 function colorDisplayFmatter(cellvalue, options, rowObject) {
+    console.log(rowObject);
     return '<input id="color_' + rowObject.id + '" type="text" value="' + rowObject.color + '" size="8" style="background-color:' + rowObject.color + ';">';
 }
 function colorDisplayUnmatter(cellvalue, options, cell) {
@@ -6834,7 +6835,8 @@ function initPage() {
         cellsubmit: 'clientArray',
         afterInsertRow: function (rowid, rowdata) {
             $('#color_' + rowdata.id).colorpicker({
-                parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer']
+                parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
+                altField: '#color_' + rowdata.id
             })
         },
         beforeEditCell: function (rowid, cellname, value, iRow, iCol) {
@@ -7141,15 +7143,13 @@ function initPage() {
     $('#grid_col').colorpicker({
         parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
         showOn: 'focus alt click',
-        buttonColorize: true,
-        buttonImageOnly: true
+        altField: '#grid_col'
     });
     $('#grid_col').colorpicker('setColor', '#CCCCCC');
     $('#caption_col').colorpicker({
         parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
         showOn: 'focus alt click',
-        buttonColorize: true,
-        buttonImageOnly: true
+        altField: '#caption_col'
     });
     $('#caption_col').colorpicker('setColor', '#333333');
 
