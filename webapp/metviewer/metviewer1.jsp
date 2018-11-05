@@ -176,7 +176,7 @@
           src="js/jquery.layout.resizeTabLayout-latest.min.js"></script>
   <script type="text/javascript" src="js/grid.locale-en.js"></script>
   <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
-  <script type="text/javascript" src="js/jquery.colorpicker.min.js"></script>
+  <script type="text/javascript" src="js/jquery.colorpicker.js"></script>
   <script type="text/javascript" src="js/jquery.multiselect.js"></script>
   <script type="text/javascript" src="js/jquery.actual.min.js"></script>
   <script type="text/javascript"
