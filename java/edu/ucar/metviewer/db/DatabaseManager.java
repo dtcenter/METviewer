@@ -48,13 +48,6 @@ public abstract class DatabaseManager {
         return databaseInfo.getDbName();
     }
 
-    protected static final SimpleDateFormat DATE_FORMAT =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    protected static final DateTimeFormatter DATE_FORMAT_1
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    // protected static final SimpleDateFormat DB_DATE_STAT_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
-    protected static final DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-
     public static DatabaseManager getLoadManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
         String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing

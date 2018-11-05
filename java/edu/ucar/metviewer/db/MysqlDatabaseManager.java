@@ -44,6 +44,10 @@ public class MysqlDatabaseManager extends DatabaseManager{
   protected static final String DB_PREFIX_MV = "mv_";
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
+  protected static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+  protected static final DateTimeFormatter DATE_FORMAT_1
+          = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private DataSource dataSource;
 
