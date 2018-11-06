@@ -1521,11 +1521,11 @@ public class MVUtil {
   }
 
 
-  public static boolean runRscript(
+  public static RscriptResponse runRscript(
                                       final String rscript,
-                                      final String script,
-                                      final PrintStream printStream) throws Exception {
-    return runRscript(rscript, script, new String[]{}, printStream);
+                                      final String script
+                                      ) throws Exception {
+    return runRscript(rscript, script, new String[]{});
   }
 
 
@@ -1533,25 +1533,23 @@ public class MVUtil {
    * Run the input R script named r using the Rscript command.  The output and error output will be
    * written to standard output.
    *
-   * @param rscript Rscript command
-   * @param script  R script to run
+   * @param rscriptCommand Rscript command
+   * @param scriptName  R script to run
    * @param args    (optional) Arguments to pass to the R script
    * @throws Exception
    */
-  public static boolean runRscript(
-                                      final String rscript, final String script,
-                                      final String[] args,
-                                      final PrintStream printStream) throws Exception {
+  public static RscriptResponse runRscript(
+                                      final String rscriptCommand, final String scriptName,
+                                      final String[] args
+                                      ) throws Exception {
+
+    RscriptResponse rscriptResponse = new RscriptResponse();
 
     //  build a list of arguments
     StringBuilder strArgList = new StringBuilder();
     for (int i = 0; null != args && i < args.length; i++) {
       strArgList.append(' ').append(args[i]);
     }
-
-    //  run the R script and wait for it to complete
-    printStream.println("\nRunning '" + rscript + " " + script + "'");
-
 
     Process proc = null;
     InputStreamReader inputStreamReader = null;
@@ -1568,7 +1566,7 @@ public class MVUtil {
 
     try {
 
-      proc = Runtime.getRuntime().exec(rscript + " " + script + strArgList);
+      proc = Runtime.getRuntime().exec(rscriptCommand + " " + scriptName + strArgList);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
@@ -1612,17 +1610,14 @@ public class MVUtil {
 
 
     if (strProcStd.length() > 0) {
-      printStream.println(
-          "\n==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====\n");
+      rscriptResponse.setInfoMessage("==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
     }
 
     if (strProcErr.length() > 0) {
-      printStream.println(
-          "\n==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====\n");
+      rscriptResponse.setErrorMessage("==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
     }
-
-    //  return the success flag
-    return 0 == intExitStatus;
+    rscriptResponse.setSuccess(0 == intExitStatus);
+    return rscriptResponse;
   }
 
   /**

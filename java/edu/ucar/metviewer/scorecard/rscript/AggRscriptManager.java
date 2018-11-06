@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -132,9 +134,21 @@ public class AggRscriptManager extends RscriptManager {
         aggStatTemplFile = aggStatTemplFilePath + "/agg_stat.info_tmpl";
 
         MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        printStream.print("Running '" + rScriptCommand + " " + aggStatTemplScript + "'");
 
-        MVUtil.runRscript(rScriptCommand, aggStatTemplScript, new String[]{thredInfoFileName},
-                          printStream);
+
+        RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,
+                                                            new String[]{thredInfoFileName});
+        stopWatch.stop();
+        if (rscriptResponse.getInfoMessage() != null) {
+          printStream.print(rscriptResponse.getInfoMessage());
+        }
+        if (rscriptResponse.getErrorMessage() != null) {
+          printStream.print(rscriptResponse.getErrorMessage());
+        }
+        printStream.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
         logger.error(e);
       }

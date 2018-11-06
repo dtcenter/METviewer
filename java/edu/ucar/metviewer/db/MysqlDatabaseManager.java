@@ -7,6 +7,7 @@
 package edu.ucar.metviewer.db;
 
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -52,7 +53,7 @@ public class MysqlDatabaseManager {
 
   public MysqlDatabaseManager(
                                  DatabaseInfo databaseInfo,
-                                 PrintWriter printStreamSql) throws SQLException {
+                                 PrintStream printStreamSql)  {
 
 
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
@@ -89,7 +90,7 @@ public class MysqlDatabaseManager {
     try {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
-      dataSource.setLogWriter(printStreamSql);
+      dataSource.setLogWriter(new PrintWriter(printStreamSql));
     } catch (Exception e) {
       logger.debug(e);
       logger.error("Database connection  for a primary database was not initialised.");

@@ -99,11 +99,6 @@ public class RhistJobManager extends JobManager {
       info.put("data_file", dataFile);
 
       boolean success = rscriptStatManager.runRscript(job, info);
-      if (success) {
-        mvBatch.print("Created plot " + rscriptStatManager.getPlotFile());
-      } else {
-        mvBatch.print("Failed to create plot " + rscriptStatManager.getPlotFile());
-      }
 
     }
 

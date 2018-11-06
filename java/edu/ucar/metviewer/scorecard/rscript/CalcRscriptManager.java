@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -28,10 +30,9 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class CalcRscriptManager extends RscriptManager {
 
   private static final Logger logger = LogManager.getLogger("CalcRscriptManager");
-
+  private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private final Map<String, String> tableCalcStatInfoCommon;
   private final String calcStatTemplScript;
-  private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private final String strRFile;
 
 
@@ -170,7 +171,19 @@ public class CalcRscriptManager extends RscriptManager {
                                          .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
-        MVUtil.runRscript(rScriptCommand, strRFile, printStream);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        printStream.print("Running '" + rScriptCommand + " " + strRFile + "'");
+
+        RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, strRFile);
+        stopWatch.stop();
+        if (rscriptResponse.getInfoMessage() != null) {
+          printStream.print(rscriptResponse.getInfoMessage());
+        }
+        if (rscriptResponse.getErrorMessage() != null) {
+          printStream.print(rscriptResponse.getErrorMessage());
+        }
+        printStream.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
         logger.error(e);
       }

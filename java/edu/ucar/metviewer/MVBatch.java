@@ -2,7 +2,6 @@ package edu.ucar.metviewer;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class MVBatch  {
 
 
   private PrintStream printStream;
-  private PrintWriter printStreamSql;
+  private PrintStream printStreamSql;
   private PrintStream printStreamEr;
 
 
@@ -46,7 +45,7 @@ public class MVBatch  {
 
 
   public MVBatch(
-                    PrintStream log, PrintWriter printStreamSql, PrintStream printStreamEr,
+                    PrintStream log, PrintStream printStreamSql, PrintStream printStreamEr,
                     AppDatabaseManager manager) {
     super();
 
@@ -61,7 +60,7 @@ public class MVBatch  {
     this(IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
              .buildPrintStream(),
          IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
-             .buildPrintWriter(),
+             .buildPrintStream(),
          IoBuilder.forLogger().setLevel(org.apache.logging.log4j.Level.INFO)
              .setMarker(new MarkerManager.Log4jMarker("ERROR"))
              .buildPrintStream(), null);
@@ -150,7 +149,7 @@ public class MVBatch  {
     this.rworkFolder = rworkFolder;
   }
 
-  public PrintWriter getPrintStreamSql() {
+  public PrintStream getPrintStreamSql() {
     return printStreamSql;
   }
 
@@ -212,7 +211,10 @@ public class MVBatch  {
                + "specification to run\n";
   }
 
-  public static void main(String[] argv) {
+  public static void main(String[] argv) throws Exception {
+
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
     MVBatch bat = new MVBatch();
 
     bat.print("----  MVBatch  ----\n");
@@ -393,6 +395,8 @@ public class MVBatch  {
     }
 
     bat.print("----  MVBatch Done  ----");
+    bat.print("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
+
   }
 
 }

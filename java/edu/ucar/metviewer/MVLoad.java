@@ -112,7 +112,7 @@ public class MVLoad {
                                                                     MysqlLoadDatabaseManager.class)
                                                                     .setLevel(
                                                                         org.apache.logging.log4j.Level.INFO)
-                                                                    .buildPrintWriter());
+                                                                    .buildPrintStream());
       }
 
       verbose = job.getVerbose();

@@ -7,7 +7,6 @@
 package edu.ucar.metviewer.jobManager;
 
 import java.io.File;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import edu.ucar.metviewer.MVPlotDep;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVPlotJobParser;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
@@ -206,13 +206,10 @@ public class SeriesJobManager extends JobManager {
       }
 
       //run script for revision series if needed
-
-
       rscriptStatManager = new RscriptNoneStatManager(mvBatch);
 
 
       //run main Rscript
-
       String dataFileName = mvBatch.getDataFolder()
                                 + MVUtil.buildTemplateString(job.getDataFileTmpl(),
                                                              MVUtil.addTmplValDep(job),
@@ -220,31 +217,25 @@ public class SeriesJobManager extends JobManager {
                                                              mvBatch.getPrintStream());
       File dataFile = new File(dataFileName);
       if (!listQuery.isEmpty() && !dataFile.exists()) {
-        long intStartTime = new Date().getTime();
         dataFile.getParentFile().mkdirs();
         for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-          appDatabaseManager.executeQueriesAndSaveToFile(listQuery,
-                                                         dataFileName,
-                                                         job.getCalcCtc()
-                                                             || job.getCalcSl1l2()
-                                                             || job.getCalcSal1l2(),
-                                                         job.getCurrentDBName().get(i),
-                                                         i == 0);
+          RscriptResponse rscriptResponse =
+              appDatabaseManager.executeQueriesAndSaveToFile(listQuery,
+                                                                         dataFileName,
+                                                                         job.isCalcStat(),
+                                                                         job.getCurrentDBName().get(i),
+                                                                         i == 0);
+          if(rscriptResponse.getInfoMessage() != null){
+            mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+          }
         }
-        mvBatch.print("Query returned  plot_data rows in "
-                          + MVUtil.formatTimeSpan(new Date().getTime() - intStartTime));
+
       }
 
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFileName);
 
-
       boolean success = rscriptStatManager.runRscript(job, info);
-      if (success) {
-        mvBatch.print("Created plot " + rscriptStatManager.getPlotFile());
-      } else {
-        mvBatch.print("Failed to create plot " + rscriptStatManager.getPlotFile());
-      }
 
     }
 

@@ -370,6 +370,8 @@ public class MVServlet extends HttpServlet {
   public static String handlePlot(String strRequest, String[] currentDBName) throws Exception {
 
     //  extract the plot xml from the request
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
     String strPlotXML = strRequest;
     strPlotXML = strPlotXML.substring(strPlotXML.indexOf("</db_con>") + 9);
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
@@ -463,7 +465,7 @@ public class MVServlet extends HttpServlet {
 
     ByteArrayOutputStream logSql = null;
     ByteArrayOutputStream logError = null;
-    PrintWriter printStreamSql = null;
+    PrintStream printStreamSql = null;
     PrintStream printStreamError = null;
 
 
@@ -473,7 +475,7 @@ public class MVServlet extends HttpServlet {
       logSql = new ByteArrayOutputStream();
       logError = new ByteArrayOutputStream();
       printStream = new PrintStream(log);
-      printStreamSql = new PrintWriter(logSql);
+      printStreamSql = new PrintStream(logSql);
       printStreamError = new PrintStream(logError);
       MVBatch mvBatch = new MVBatch(printStream, printStreamSql, printStreamError, databaseManager);
       //  configure the batch engine and run the job
@@ -495,7 +497,10 @@ public class MVServlet extends HttpServlet {
       }
       logSql.reset();
 
+      stopWatch.stop();
+      mvBatch.getPrintStream().println("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
       String strPlotterOutput = log.toString();
+
       try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + strPlotPrefix + ".log")) {
         fileWriter.write(strPlotterOutput);
       }
@@ -512,6 +517,7 @@ public class MVServlet extends HttpServlet {
       if (strPlotterOutput.contains("query returned no data")) {
         throw new Exception("query returned no data");
       }
+
 
     } catch (Exception e) {
 
@@ -559,9 +565,7 @@ public class MVServlet extends HttpServlet {
                             + "</r_error></response>" : "</response>");
   }
 
-  private static void runTargetedJob(
-                                        MVPlotJob job,
-                                        MVBatch bat) throws Exception {
+  private static void runTargetedJob(MVPlotJob job, MVBatch bat) throws Exception {
     JobManager jobManager;
     switch (job.getPlotTmpl()) {
       case "rhist.R_tmpl":
@@ -721,10 +725,10 @@ public class MVServlet extends HttpServlet {
       databaseInfo.setHost(bundle.getString("db.host"));
       databaseInfo.setUser(bundle.getString("db.user"));
       databaseInfo.setPassword(bundle.getString("db.password"));
-      PrintWriter printStreamSql = null;
+      PrintStream printStreamSql = null;
       ByteArrayOutputStream logSql = null;
       logSql = new ByteArrayOutputStream();
-      printStreamSql = new PrintWriter(logSql);
+      printStreamSql = new PrintStream(logSql);
 
       if (bundle.getString("db.managementSystem").equals("mysql")) {
         databaseManager = new MysqlAppDatabaseManager(databaseInfo, printStreamSql);

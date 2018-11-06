@@ -93,7 +93,7 @@ public class LoadDataTest {
         mysqlDatabaseManager = new MysqlDatabaseManager(new DatabaseInfo( host, USERNAME, PWD),
                                                         IoBuilder.forLogger(MysqlDatabaseManager.class)
                                                             .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                                     .buildPrintWriter());
+                                                                     .buildPrintStream());
         con = mysqlDatabaseManager.getConnection();
         statement = con.createStatement();
         statement.executeUpdate("drop database " + database);

@@ -122,7 +122,7 @@ public class TestMVServlet {
       MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD),
                                                               IoBuilder.forLogger(MysqlAppDatabaseManager.class)
                                                                   .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                                                     .buildPrintWriter());
+                                                                                     .buildPrintStream());
       new MVServlet().doPost(request, response);
 
       verify(request, atLeast(1)).getReader();

@@ -7,7 +7,6 @@
 package edu.ucar.metviewer.db;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import java.util.regex.Pattern;
 import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
+import edu.ucar.metviewer.RscriptResponse;
 
 /**
  * @author : tatiana $
@@ -24,31 +24,31 @@ import edu.ucar.metviewer.MVPlotJob;
 public interface AppDatabaseManager {
 
   List<String> buildPlotSql(
-                               MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                               PrintWriter printStreamSql) throws Exception;
+      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
+      PrintStream printStreamSql) throws Exception;
 
   List<String> buildPlotModeEventEqualizeSql(
-                                                MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                                                MVOrderedMap mapPlotFixVal) throws Exception;
+      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
+      MVOrderedMap mapPlotFixVal) throws Exception;
 
-  boolean executeQueriesAndSaveToFile(
-                                         List<String> queries, String fileName, boolean isCalc,
-                                         String currentDBName, boolean isNewFile) throws Exception;
+  RscriptResponse executeQueriesAndSaveToFile(
+      List<String> queries, String fileName, boolean isCalc,
+      String currentDBName, boolean isNewFile) throws Exception;
 
   String buildAndExecuteQueriesForHistJob(
-                                             MVPlotJob job, String strDataFile,
-                                             MVOrderedMap listPlotFixPerm, PrintStream printStream,
-                                             PrintWriter printStreamSql) throws Exception;
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm, PrintStream printStream,
+      PrintStream printStreamSql) throws Exception;
 
   int buildAndExecuteQueriesForRocRelyJob(
-                                             MVPlotJob job, String strDataFile,
-                                             MVOrderedMap listPlotFixPerm, PrintStream printStream,
-                                             PrintWriter printStreamSql) throws Exception;
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm, PrintStream printStream,
+      PrintStream printStreamSql) throws Exception;
 
   int buildAndExecuteQueriesForEclvJob(
-                                          MVPlotJob job, String strDataFile,
-                                          MVOrderedMap listPlotFixPerm, PrintStream printStream,
-                                          PrintWriter printStreamSql) throws Exception;
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm, PrintStream printStream,
+      PrintStream printStreamSql) throws Exception;
 
   DatabaseInfo getDatabaseInfo();
 

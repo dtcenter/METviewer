@@ -51,7 +51,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
   DatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
     super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()),
           IoBuilder.forLogger(DatabaseManagerMySQL.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                       .buildPrintWriter());
+                       .buildPrintStream());
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
     databaseName = scorecard.getDatabaseName();

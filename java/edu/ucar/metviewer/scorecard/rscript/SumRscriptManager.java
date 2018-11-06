@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -27,15 +29,12 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class SumRscriptManager extends RscriptManager {
 
   private static final Logger logger = LogManager.getLogger("SumRscriptManager");
-
-  private final Map<String, String> tableCalcStatInfoCommon;
-  private final String calcStatTemplScript;
-  private final String sumStatTemplScript;
-
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private static final String SUM_FILE_NAME = "/sum_stat.info_tmpl";
   private static final String STAT_SCRIPT_FILE_NAME = "/include/sum_stat.R";
-
+  private final Map<String, String> tableCalcStatInfoCommon;
+  private final String calcStatTemplScript;
+  private final String sumStatTemplScript;
   private final String strRFile;
   private final String strSumRFile;
   private final String strSumInfo;
@@ -61,9 +60,9 @@ public class SumRscriptManager extends RscriptManager {
 
 
     tableCalcStatInfoCommon = new HashMap<>();
-    if(scorecard.getStatFlag().equals("EMC")){
+    if (scorecard.getStatFlag().equals("EMC")) {
       tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
-    }else {
+    } else {
       tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
     }
     tableCalcStatInfoCommon.put("ci_alpha", "0.05");
@@ -132,7 +131,7 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
                                              .toUpperCase());
       tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
-                                                   .toUpperCase());
+                                              .toUpperCase());
 
       //check id output file exists and its length not 0
       File output = new File(tableCalcStatInfo.get("sum_stat_output"));
@@ -159,9 +158,22 @@ public class SumRscriptManager extends RscriptManager {
         sumStatTemplFile = sumStatTemplFilePath + "/sum_stat.info_tmpl";
         MVUtil.populateTemplateFile(sumStatTemplFile, thredInfoFileName, tableCalcStatInfo);
 
-        MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
-                          new String[]{thredInfoFileName},
-                          printStream);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        printStream.print("Running '" + rScriptCommand + " " + sumStatTemplScript + "'");
+
+
+        RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
+                                                            new String[]{thredInfoFileName});
+
+        stopWatch.stop();
+        if (rscriptResponse.getInfoMessage() != null) {
+          printStream.print(rscriptResponse.getInfoMessage());
+        }
+        if (rscriptResponse.getErrorMessage() != null) {
+          printStream.print(rscriptResponse.getErrorMessage());
+        }
+        printStream.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
         logger.error(e);
         logger.error(e);
@@ -185,7 +197,20 @@ public class SumRscriptManager extends RscriptManager {
                                          .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
 
-        MVUtil.runRscript(rScriptCommand, strRFile, printStream);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        printStream.print("Running '" + rScriptCommand + " " + strRFile + "'");
+
+
+        RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, strRFile);
+        stopWatch.stop();
+        if (rscriptResponse.getInfoMessage() != null) {
+          printStream.print(rscriptResponse.getInfoMessage());
+        }
+        if (rscriptResponse.getErrorMessage() != null) {
+          printStream.print(rscriptResponse.getErrorMessage());
+        }
+        printStream.print("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
         logger.error(e);
         logger.error(e);

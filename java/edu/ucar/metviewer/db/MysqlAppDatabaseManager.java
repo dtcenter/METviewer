@@ -10,7 +10,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -38,6 +37,8 @@ import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,8 +58,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
   public MysqlAppDatabaseManager(
-                                    DatabaseInfo databaseInfo,
-                                    PrintWriter printStreamSql) throws SQLException {
+      DatabaseInfo databaseInfo,
+      PrintStream printStreamSql) throws SQLException {
     super(databaseInfo, printStreamSql);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
@@ -469,11 +470,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   @Override
-  public boolean executeQueriesAndSaveToFile(
-                                                List<String> queries, String fileName,
-                                                boolean isCalc, String currentDBName,
-                                                boolean isNewFile) throws Exception {
-    boolean success = false;
+  public RscriptResponse executeQueriesAndSaveToFile(
+      List<String> queries, String fileName,
+      boolean isCalc, String currentDBName,
+      boolean isNewFile) throws Exception {
+    RscriptResponse rscriptResponse = new RscriptResponse();
 
     List<String> listSqlBeforeSelect = new ArrayList<>();
     List<String> listSqlLastSelectTemp = new ArrayList<>();
@@ -492,8 +493,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         listSqlBeforeSelect.add(sql);
       }
     }
+    StopWatch dbStopWatch = new StopWatch();
+    StopWatch saveToFileStopWatch = new StopWatch();
 
     try (Connection con = getConnection(currentDBName)) {
+      dbStopWatch.start();
       for (String aListSqlBeforeSelect : listSqlBeforeSelect) {
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                   ResultSet.CONCUR_READ_ONLY)) {
@@ -502,6 +506,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           logger.error(e.getMessage());
         }
       }
+      dbStopWatch.stop();
 
       for (int i = 0; i < listSqlLastSelect.size(); i++) {
         boolean append = !isNewFile || i != 0;
@@ -513,12 +518,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           //TODO investigate implications of adding the Fetch Size
           //stmt.setFetchSize(Integer.MIN_VALUE);
-
+          dbStopWatch.start();
           ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
+          dbStopWatch.stop();
+          saveToFileStopWatch.start();
           printFormattedTable(resultSetLast, out, printHeader);
+          saveToFileStopWatch.stop();
           out.flush();
           resultSetLast.close();
-          success = true;
+          rscriptResponse.setSuccess(true);
 
         } catch (Exception e) {
           logger.error(e.getMessage());
@@ -554,7 +562,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     } catch (SQLException e) {
       logger.error(e.getMessage());
     }
-    return success;
+    String message = "Database query time for " + currentDBName + " "
+                         + dbStopWatch.getFormattedTotalDuration();
+    if (saveToFileStopWatch.getTotalDuration() != null) {
+      message = message + "\nSave to file time for   " + currentDBName + " "
+                    + saveToFileStopWatch.getFormattedTotalDuration();
+    }
+    rscriptResponse.setInfoMessage(message);
+
+    return rscriptResponse;
   }
 
   /**
@@ -725,8 +741,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    */
   @Override
   public List<String> buildPlotSql(
-                                      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                                      PrintWriter printStreamSql) throws Exception {
+      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
+      PrintStream printStreamSql) throws Exception {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
@@ -985,8 +1001,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
       /*
-      *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
-      */
+       *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
+       */
       Map<String, Integer> pctThreshInfo = new HashMap<>();
       if (job.getAggPct()) {
         MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap())
@@ -1523,8 +1539,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    */
 
   private String buildPlotFixWhere(
-                                      Map.Entry[] listPlotFixFields, MVPlotJob job,
-                                      boolean boolModePlot) {
+      Map.Entry[] listPlotFixFields, MVPlotJob job,
+      boolean boolModePlot) {
     String strWhere = "";
 
     //  build the aggregate fields where clause
@@ -1574,9 +1590,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @return list of SQL queries for gathering plot data
    */
   private List<String> buildModeStatSql(
-                                           String strSelectList, String strWhere, String strStat,
-                                           String[] listGroupBy, boolean isEventEqualization,
-                                           Map.Entry[] listSeries) {
+      String strSelectList, String strWhere, String strStat,
+      String[] listGroupBy, boolean isEventEqualization,
+      Map.Entry[] listSeries) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1688,8 +1704,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildModeSingleAcovTable(
-                                             String selectList, String strWhere, String stat,
-                                             String[] groups, boolean isEventEqualization) {
+      String selectList, String strWhere, String stat,
+      String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -1856,8 +1872,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildModeSingleStatTable(
-                                             String selectList, String strWhere, String stat,
-                                             String[] groups, boolean isEventEqualization) {
+      String selectList, String strWhere, String stat,
+      String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -1931,7 +1947,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   private String buildMtd3dSingleStatTable(
-                                              String selectList, String strWhere, String stat) {
+      String selectList, String strWhere, String stat) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
@@ -1967,7 +1983,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   private String buildMtd2dStatTable(
-                                        String selectList, String strWhere, String stat) {
+      String selectList, String strWhere, String stat) {
 
 
     String[] listStatParse = stat.split("_");
@@ -2064,9 +2080,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildModeSingleStatDiffTable(
-                                                 String strSelectList, String strWhere, String stat,
-                                                 String table1, String table2,
-                                                 Map.Entry[] listSeries) {
+      String strSelectList, String strWhere, String stat,
+      String table1, String table2,
+      Map.Entry[] listSeries) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -2122,9 +2138,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildMtd3dSingleStatDiffTable(
-                                                  String strSelectList, String strWhere,
-                                                  String stat,
-                                                  String table1, String table2) {
+      String strSelectList, String strWhere,
+      String stat,
+      String table1, String table2) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
@@ -2172,8 +2188,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildMtd2dStatDiffTable(
-                                            String strSelectList, String strWhere, String stat,
-                                            String table1, String table2) {
+      String strSelectList, String strWhere, String stat,
+      String table1, String table2) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
@@ -2222,8 +2238,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public List<String> buildPlotModeEventEqualizeSql(
-                                                       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                                                       MVOrderedMap mapPlotFixVal)
+      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
+      MVOrderedMap mapPlotFixVal)
       throws Exception {
     MVOrderedMap fcstVarPat = new MVOrderedMap();
 
@@ -2258,8 +2274,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     /*
-    *  Build queries for statistics on both the y1 and y2 axes
-    */
+     *  Build queries for statistics on both the y1 and y2 axes
+     */
 
     List<String> listSql = new ArrayList<>();
     for (int intY = 1; intY <= 2; intY++) {
@@ -2291,8 +2307,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
       /*
-      *  Construct query components from the series variable/value pairs
-      */
+       *  Construct query components from the series variable/value pairs
+       */
 
       //  build the select list and where clauses for the series variables and values
 
@@ -2349,8 +2365,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
       /*
-      *  Construct the query components for the independent variable and values
-      */
+       *  Construct the query components for the independent variable and values
+       */
 
       //  validate and get the type and values for the independent variable
       String strIndyVarType;
@@ -2404,8 +2420,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
       /*
-        *  Construct a query for each fcst_var/stat pair
-      */
+       *  Construct a query for each fcst_var/stat pair
+       */
 
       //  determine how many queries are needed to gather that stat information
       int intNumQueries;
@@ -2485,10 +2501,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public String buildAndExecuteQueriesForHistJob(
-                                                    MVPlotJob job, String strDataFile,
-                                                    MVOrderedMap listPlotFixPerm,
-                                                    PrintStream printStream,
-                                                    PrintWriter printStreamSql) throws Exception {
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm,
+      PrintStream printStream,
+      PrintStream printStreamSql) throws Exception {
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
@@ -2610,10 +2626,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile,
-                                  job.getCalcCtc() || job.getCalcSl1l2()
-                                      || job.getCalcSal1l2() || job.getCalcGrad(),
-                                  job.getCurrentDBName().get(i), i == 0);
+      RscriptResponse rscriptResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                                    job.getCalcCtc() || job.getCalcSl1l2()
+                                                                        || job.getCalcSal1l2() || job.getCalcGrad(),
+                                                                    job.getCurrentDBName().get(i),
+                                                                    i == 0);
+      if (rscriptResponse.getInfoMessage() != null) {
+        printStream.println(rscriptResponse.getInfoMessage());
+      }
+      printStream.println();
     }
     return strMsg;
   }
@@ -2621,10 +2642,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public int buildAndExecuteQueriesForRocRelyJob(
-                                                    MVPlotJob job, String strDataFile,
-                                                    MVOrderedMap listPlotFixPerm,
-                                                    PrintStream printStream,
-                                                    PrintWriter printStreamSql) throws Exception {
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm,
+      PrintStream printStream,
+      PrintStream printStreamSql) throws Exception {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2793,12 +2814,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     List<String> listObsThresh = getNumbers(strObsThreshSelect, job.getCurrentDBName().get(0));
     if (intNumDepSeries < listObsThresh.size()) {
-      String obsThreshMsg = "ROC/Reliability plots must contain data from only a single obs_thresh,"
-                                + " instead found " + listObsThresh.size();
+      StringBuilder obsThreshMsg = new StringBuilder(
+          "ROC/Reliability plots must contain data from only a single obs_thresh,"
+              + " instead found " + listObsThresh.size());
       for (int i = 0; i < listObsThresh.size(); i++) {
-        obsThreshMsg += (0 == i ? ": " : ", ") + listObsThresh.toString();
+        obsThreshMsg.append(0 == i ? ": " : ", ").append(listObsThresh.toString());
       }
-      throw new Exception(obsThreshMsg);
+      throw new Exception(obsThreshMsg.toString());
     }
 
     if (listObsThresh.isEmpty()) {
@@ -2809,13 +2831,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
     if (job.getRocPct() && intNumDepSeries < listFcstThresh.size()) {
-      String fcstThreshMsg = "ROC/Reliability plots using PCTs must contain data "
-                                 + "from only a single fcst_thresh, "
-                                 + "instead found " + listFcstThresh.size();
+      StringBuilder fcstThreshMsg = new StringBuilder(
+          "ROC/Reliability plots using PCTs must contain data "
+              + "from only a single fcst_thresh, "
+              + "instead found " + listFcstThresh.size());
       for (int i = 0; i < listFcstThresh.size(); i++) {
-        fcstThreshMsg += (0 == i ? ":" : "") + "\n  " + listFcstThresh.toString();
+        fcstThreshMsg.append(0 == i ? ":" : "").append("\n  ").append(listFcstThresh.toString());
       }
-      throw new Exception(fcstThreshMsg);
+      throw new Exception(fcstThreshMsg.toString());
     }
     if (job.getRocPct() && listObsThresh.isEmpty()) {
       String strObsThreshMsg = "ROC/Reliability plots must contain data "
@@ -2827,10 +2850,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile,
-                                  job.getCalcCtc() || job.getCalcSl1l2()
-                                      || job.getCalcSal1l2() || job.getCalcGrad(),
-                                  job.getCurrentDBName().get(i), i == 0);
+      RscriptResponse rscriptResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                                    job.isCalcStat(),
+                                                                    job.getCurrentDBName().get(i),
+                                                                    i == 0);
+      if (rscriptResponse.getInfoMessage() != null) {
+        printStream.println(rscriptResponse.getInfoMessage());
+      }
     }
 
     return intNumDepSeries;
@@ -2838,13 +2864,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public int buildAndExecuteQueriesForEclvJob(
-                                                 MVPlotJob job, String strDataFile,
-                                                 MVOrderedMap listPlotFixPerm,
-                                                 PrintStream printStream,
-                                                 PrintWriter printStreamSql) throws Exception {
-    String strSelectList = "";
-    String strTempList = "";
-    String strWhereSeries = "";
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm,
+      PrintStream printStream,
+      PrintStream printStreamSql) throws Exception {
+    StringBuilder strSelectList = new StringBuilder();
+    StringBuilder strTempList = new StringBuilder();
+    StringBuilder strWhereSeries = new StringBuilder();
 
     Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
 
@@ -2857,20 +2883,19 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
-      strSelectList += (strSelectList.isEmpty() ? "" : ",")
-                           + "  " + formatField(strSeriesField, false, true);
-      strWhereSeries += "  AND " + formatField(strSeriesField, false, false)
-                            + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.isEmpty() ? "" : ",\n")
-                         + "    " + MVUtil.padEnd(strSeriesField, 20)
-                         + statHeaderSqlType.get(strSeriesField);
+      strSelectList.append((strSelectList.length() == 0) ? "" : ",").append("  ")
+          .append(formatField(strSeriesField, false, true));
+      strWhereSeries.append("  AND ").append(formatField(strSeriesField, false, false))
+          .append(" IN (").append(MVUtil.buildValueList(listSeriesVal)).append(")\n");
+      strTempList.append((strTempList.length() == 0) ? "" : ",\n").append("    ")
+          .append(MVUtil.padEnd(strSeriesField, 20)).append(statHeaderSqlType.get(strSeriesField));
 
     }
-    if (!strSelectList.contains("fcst_valid")) {
-      strSelectList += ",\n " + " ld.fcst_valid_beg";
+    if (!strSelectList.toString().contains("fcst_valid")) {
+      strSelectList.append(",\n " + " ld.fcst_valid_beg");
     }
-    if (!strSelectList.contains("fcst_lead")) {
-      strSelectList += ",\n " + " ld.fcst_lead";
+    if (!strSelectList.toString().contains("fcst_lead")) {
+      strSelectList.append(",\n " + " ld.fcst_lead");
     }
 
 
@@ -2991,10 +3016,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile,
-                                  job.getCalcCtc() || job.getCalcSl1l2()
-                                      || job.getCalcSal1l2() || job.getCalcGrad(),
-                                  job.getCurrentDBName().get(i), i == 0);
+      RscriptResponse rscriptResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                                    job.isCalcStat(),
+                                                                    job.getCurrentDBName().get(i),
+                                                                    i == 0);
+      if (rscriptResponse.getInfoMessage() != null) {
+        printStream.println(rscriptResponse.getInfoMessage());
+      }
     }
 
     return intNumDepSeries;
@@ -3047,10 +3075,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private BuildMysqlQueryStrings build(
-                                          boolean boolModePlot,
-                                          Map<String, String> tableHeaderSqlType,
-                                          Map.Entry[] listSeries, String strWhere,
-                                          boolean isFormatSelect) throws Exception {
+      boolean boolModePlot,
+      Map<String, String> tableHeaderSqlType,
+      Map.Entry[] listSeries, String strWhere,
+      boolean isFormatSelect) throws Exception {
 
     BuildMysqlQueryStrings buildMysqlQueryStrings = new BuildMysqlQueryStrings(boolModePlot,
                                                                                tableHeaderSqlType,

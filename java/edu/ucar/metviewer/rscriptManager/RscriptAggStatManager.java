@@ -8,7 +8,6 @@ package edu.ucar.metviewer.rscriptManager;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,8 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -38,9 +39,9 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-                                           MVPlotJob job, MVOrderedMap mvMap,
-                                           Map<String, String> info,
-                                           List<String> listQuery) throws Exception {
+      MVPlotJob job, MVOrderedMap mvMap,
+      Map<String, String> info,
+      List<String> listQuery) throws Exception {
 
 
     String fileName = MVUtil.buildTemplateString(job.getDataFileTmpl(),
@@ -63,35 +64,45 @@ public class RscriptAggStatManager extends RscriptStatManager {
       }
 
 
-      boolean success = false;
+      RscriptResponse rscriptResponse = new RscriptResponse();
       for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-        success = mvBatch.getDatabaseManager()
-                      .executeQueriesAndSaveToFile(eventEqualizeSql, dataFile + "_ee_input",
-                                                   job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(),
-                                                   job.getCurrentDBName().get(i), i == 0);
+        rscriptResponse = mvBatch.getDatabaseManager()
+                              .executeQueriesAndSaveToFile(eventEqualizeSql, dataFile + "_ee_input",
+                                                           job.isCalcStat(),
+                                                           job.getCurrentDBName().get(i), i == 0);
+        if (rscriptResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+        }
       }
 
-      if (success) {
+      if (rscriptResponse.isSuccess()) {
         String tmplFileName = "agg_stat_event_equalize.info_tmpl";
         info.put("agg_stat_input", dataFile + "_ee_input");
         info.put("agg_stat_output", dataFile + ".ee");
         String eeInfo = dataFile.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
 
-
         MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo,
                                     info);
-        MVUtil.runRscript(job.getRscript(), mvBatch.getRworkFolder() +
-                                                "/include/agg_stat_event_equalize.R",
-                          new String[]{eeInfo}, mvBatch.getPrintStream());
+        String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        mvBatch.getPrintStream().print("Running '" + job.getRscript() + " " + scriptName + "'");
+        rscriptResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
+
+        stopWatch.stop();
+        if (rscriptResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().print(rscriptResponse.getInfoMessage());
+        }
+        if (rscriptResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().print(rscriptResponse.getErrorMessage());
+        }
+        mvBatch.getPrintStream().print("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
 
     }
 
     //  run the plot SQL against the database connection
-    long intStartTime = new Date().getTime();
-
-
-    String scriptFileName = null;
+    String scriptFileName;
 
     if (job.isModeJob()) {
       if (job.isModeRatioJob()) {
@@ -126,26 +137,25 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
     rScriptFile = mvBatch.getRworkFolder() + scriptFileName;
 
-
     (new File(dataFile)).getParentFile().mkdirs();
 
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
-                                                               job.getCalcCtc() || job.getCalcSl1l2() || job.getCalcSal1l2(),
-                                                               job.getCurrentDBName().get(i),
-                                                               i == 0);
+      RscriptResponse rscriptResponse =
+          mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
+                                                                   job.isCalcStat(),
+                                                                   job.getCurrentDBName().get(i),
+                                                                   i == 0);
+      if (rscriptResponse.getInfoMessage() != null) {
+        mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+      }
     }
-    mvBatch.print("Query returned  plot_data rows in " + MVUtil.formatTimeSpan(
-        new Date().getTime() - intStartTime));
-
   }
 
   @Override
   public boolean runRscript(MVPlotJob job, Map<String, String> info) {
     String aggInfo;
     String aggOutput;
-    boolean success = false;
-    String tmplFileName = null;
+    String tmplFileName;
     if (job.isModeJob() || job.isMtdJob()) {
       if (job.isModeRatioJob() || job.isMtdRatioJob()) {
         aggInfo = dataFile.replaceFirst("\\.data.agg_stat_bootstrap$",
@@ -171,25 +181,38 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
     info.put("agg_stat_input", dataFile);
     info.put("agg_stat_output", aggOutput);
+    RscriptResponse rscriptResponse = new RscriptResponse();
+
     try {
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + tmplFileName, aggInfo,
                                   info);
       //  run agg_stat/agg_pct/agg_stat_bootstrap to generate the data file for plotting
+
       if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
         fileAggOutput.getParentFile().mkdirs();
 
-        success = MVUtil.runRscript(job.getRscript(),
-                                    rScriptFile,
-                                    new String[]{aggInfo},
-                                    mvBatch.getPrintStream());
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile );
 
+        rscriptResponse = MVUtil.runRscript(job.getRscript(),
+                                            rScriptFile,
+                                            new String[]{aggInfo});
+        stopWatch.stop();
+        if (rscriptResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+        }
+        if (rscriptResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().println(rscriptResponse.getErrorMessage());
+        }
+        mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
     } catch (Exception e) {
       errorStream.print(e.getMessage());
     }
 
 
-    return success;
+    return rscriptResponse.isSuccess();
   }
 
 }

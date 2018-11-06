@@ -3,7 +3,6 @@ package edu.ucar.metviewer.test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class MVBatchTest {
         static PrintStream printStream;
         static ByteArrayOutputStream logSql;
         static ByteArrayOutputStream logError;
-        static PrintWriter printStreamSql;
+        static PrintStream printStreamSql;
         static PrintStream printStreamError;
         static DatabaseInfo databaseInfo;
         static AppDatabaseManager databaseManager;
@@ -46,7 +45,7 @@ public class MVBatchTest {
             printStream = new PrintStream(log);
             logSql = new ByteArrayOutputStream();
             logError = new ByteArrayOutputStream();
-            printStreamSql = new PrintWriter(logSql);
+            printStreamSql = new PrintStream(logSql);
             printStreamError = new PrintStream(logError);
             databaseInfo = new DatabaseInfo();
             //databaseInfo.setDbName(TestUtil.DBNAME);

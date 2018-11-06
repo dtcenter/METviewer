@@ -37,7 +37,7 @@ public class MysqlLoadDatabaseManagerTest {
             DatabaseInfo databaseInfo = new DatabaseInfo(job.getDBHost(), job.getDBUser(), job.getDBPassword());
             MysqlLoadDatabaseManager mysqlLoadDatabaseManager = new MysqlLoadDatabaseManager(databaseInfo,
                     IoBuilder.forLogger(MysqlLoadDatabaseManager.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                            .buildPrintWriter());
+                            .buildPrintStream());
             File file = new File("a data file path");
             boolean forceDupFile = job.getForceDupFile();
             DataFileInfo info = mysqlLoadDatabaseManager.processDataFile(file, forceDupFile);

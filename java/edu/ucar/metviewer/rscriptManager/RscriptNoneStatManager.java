@@ -15,6 +15,8 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -36,9 +38,9 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-                                           MVPlotJob job, MVOrderedMap mvMap,
-                                           Map<String, String> info,
-                                           List<String> listQuery) throws Exception {
+      MVPlotJob job, MVOrderedMap mvMap,
+      Map<String, String> info,
+      List<String> listQuery) throws Exception {
 
     //  use the map of all plot values to populate the template strings
     String fileName = MVUtil.buildTemplateString(job.getPlotFileTmpl(),
@@ -83,18 +85,35 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
   @Override
   public boolean runRscript(MVPlotJob job, Map<String, String> info) {
-    boolean success = false;
+    RscriptResponse rscriptResponse;
     try {
       info.put("plot_file", plotFile);
-      mvBatch.print("Populating " + mvBatch.getRtmplFolder()
-                        + job.getPlotTmpl() + " " + rScriptFile);
+
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + job.getPlotTmpl(), rScriptFile, info);
-      success = MVUtil.runRscript(job.getRscript(), rScriptFile, mvBatch.getPrintStream());
+      StopWatch stopWatch = new StopWatch();
+      stopWatch.start();
+      mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
+      rscriptResponse = MVUtil.runRscript(job.getRscript(), rScriptFile);
+      stopWatch.stop();
+      if (rscriptResponse.getInfoMessage() != null) {
+        mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+      }
+      if (rscriptResponse.getErrorMessage() != null) {
+        mvBatch.getPrintStream().println(rscriptResponse.getErrorMessage());
+      }
+      if (rscriptResponse.isSuccess()) {
+        mvBatch.getPrintStream().println("Created plot " + getPlotFile());
+      } else {
+        mvBatch.getPrintStream().println("Failed to create plot " + getPlotFile());
+      }
+
+      mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
     } catch (Exception e) {
       errorStream.print(e.getMessage());
+      rscriptResponse = new RscriptResponse();
     }
 
-    return success;
+    return rscriptResponse.isSuccess();
   }
 
 }

@@ -9,7 +9,7 @@ package edu.ucar.metviewer.db;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -94,7 +94,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
   public MysqlLoadDatabaseManager(
                                      DatabaseInfo databaseInfo,
-                                     PrintWriter printStreamSql) throws Exception {
+                                     PrintStream printStreamSql) throws Exception {
     super(databaseInfo, printStreamSql);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
