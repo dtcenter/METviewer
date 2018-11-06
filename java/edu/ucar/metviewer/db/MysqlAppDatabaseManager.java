@@ -2608,6 +2608,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (binColumnName != null) {
       strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + "\n";
     }
+
+    String strPlotDataSelectPrior = strPlotDataSelect;
     strPlotDataSelect = strPlotDataSelect + "FROM\n"
                             + "  stat_header h,\n"
                             + "  " + table + " ld,\n"
@@ -2616,10 +2618,25 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                             + strWhere
                             + "  AND h.stat_header_id = ld.stat_header_id\n"
                             + "  AND ld.line_data_id = ldr.line_data_id\n"
-                            + "GROUP BY i_value";
+                            + "GROUP BY ";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
+
+    // RTP if it is in the select I think it MUST be in the GROUP_BY unless
+    // it is in a function
+    String strGroupBy = "i_value";
+    for (String elem : strPlotDataSelectPrior.replace("SELECT","").replaceAll(",","").trim().split("\n")) {
+      String[] elemParts = elem.split("\\.");
+      elem = elemParts[elemParts.length -1];
+      // is it absent and not a function
+      if (!(strGroupBy.contains(elem)) && !elem.contains("(")&& !elem.contains(")")) {
+          strGroupBy += ", " + elem;
+      }
+    }
+
+    strPlotDataSelect += strGroupBy;
+
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
@@ -2793,7 +2810,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                               + strWhere
                               + "  AND h.stat_header_id = ld.stat_header_id\n"
                               + "GROUP BY\n"
-                              + "  h.fcst_thresh";
+                              + "  h.fcst_thresh, ld.total";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }
