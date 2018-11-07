@@ -396,7 +396,7 @@ formatTimeSpan = function(s){
   if( 10 > intMins ){ strFormat = paste(strFormat, "0", sep=""); }
     strFormat = paste(strFormat, intMins, ":", sep="");
   if( 10 > dblSec ){ strFormat = paste(strFormat, "0", sep=""); }
-    strFormat = paste(strFormat, format(dblSec, digits=6), sep="");
+    strFormat = paste(strFormat, format(dblSec, digits=3), sep="");
 
   return( strFormat );
 }

@@ -194,7 +194,7 @@ public class TestUtil {
     throw new IllegalAccessError("Utility class");
   }
 
-  public static void runBatch(String testDataDir, String plotType) {
+  public static void runBatch(String testDataDir, String plotType) throws Exception {
     List<String> argsList = new ArrayList<>();
     if (list) {
       argsList.add("-list");

@@ -1,6 +1,7 @@
 /**
- * DatabaseManagerMySQL.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * DatabaseManagerMySQL.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
+ * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.scorecard.db;
@@ -23,6 +24,7 @@ import java.util.TimeZone;
 
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
@@ -43,15 +45,16 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
   private final Map<String, List<Entry>> columnsDescription;
   private final String databaseName;
-  String aggStatDataFilePath;
   private final List<Field> fixedVars;
   private final Boolean printSQL;
+  String aggStatDataFilePath;
 
 
   DatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
     super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()),
-          IoBuilder.forLogger(DatabaseManagerMySQL.class).setLevel(org.apache.logging.log4j.Level.INFO)
-                       .buildPrintStream());
+          IoBuilder.forLogger(DatabaseManagerMySQL.class)
+              .setLevel(org.apache.logging.log4j.Level.INFO)
+              .buildPrintStream());
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
     databaseName = scorecard.getDatabaseName();
@@ -71,12 +74,22 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         logger.info(mysql);
       }
       int lastDot = aggStatDataFilePath.lastIndexOf('.');
-      String thredFileName = aggStatDataFilePath.substring(0, lastDot) + threadName + aggStatDataFilePath.substring(lastDot);
+      String thredFileName = aggStatDataFilePath
+                                 .substring(0, lastDot) + threadName + aggStatDataFilePath
+                                                                           .substring(lastDot);
+      StopWatch stopWatch = new StopWatch();
+      stopWatch.start();
       try (Connection con = getConnection(databaseName);
-           PreparedStatement pstmt = con.prepareStatement(mysql); ResultSet res = pstmt.executeQuery();
+           PreparedStatement pstmt = con.prepareStatement(mysql);
+           ResultSet res = pstmt.executeQuery();
            FileWriter fstream = new FileWriter(new File(thredFileName), false);
            BufferedWriter out = new BufferedWriter(fstream)) {
+        stopWatch.stop();
+        logger.info("Database query time " + stopWatch.getFormattedDuration());
+        stopWatch.start();
         printFormattedTable(res, out, "\t", false, true);// isCalc=false,  isHeader=true
+        stopWatch.stop();
+        logger.info("Save to file time " + stopWatch.getFormattedDuration());
         out.flush();
         out.close();
         con.close();
@@ -92,8 +105,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     StringBuilder whereFields = new StringBuilder();
 
     String aggType = Util.getAggTypeForStat(Util.getStatForRow(map));
-    if(aggType.isEmpty()){
-      throw new Exception ("Can't find a line type for stat " + Util.getStatForRow(map));
+    if (aggType.isEmpty()) {
+      throw new Exception("Can't find a line type for stat " + Util.getStatForRow(map));
     }
     if (aggType.contains("nbr")) {
       aggType = aggType.replace("_", "");
@@ -103,18 +116,23 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
-        selectFields.append("'").append(entry.getValue().getName()).append("' stat_name,").append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
+        selectFields.append("'").append(entry.getValue().getName()).append("' stat_name,")
+            .append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
       } else {
         if (selectFields.indexOf(entry.getKey()) == -1) {
           selectFields.append(entry.getKey()).append(",");
         }
-        whereFields.append(entry.getKey()).append(" IN ('").append(entry.getValue().getName().replaceAll(",", "','")).append("') AND ");
+        whereFields.append(entry.getKey()).append(" IN ('")
+            .append(entry.getValue().getName().replaceAll(",", "','")).append("') AND ");
       }
     }
     for (Field fixedField : fixedVars) {
       StringBuilder values = new StringBuilder();
-      if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg".equals(fixedField.getName())) {
-        whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'").append(fixedField.getValues().get(0).getName()).append("' AND '").append(fixedField.getValues().get(1).getName()).append("' AND ");
+      if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg"
+                                                               .equals(fixedField.getName())) {
+        whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
+            .append(fixedField.getValues().get(0).getName()).append("' AND '")
+            .append(fixedField.getValues().get(1).getName()).append("' AND ");
       } else if ("init_hour".equals(fixedField.getName())) {
         for (Entry val : fixedField.getValues()) {
           values.append(Integer.valueOf(val.getName())).append(",");
@@ -138,9 +156,11 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         if (values.length() > 0) {
           values.deleteCharAt(values.length() - 1);
         }
-        whereFields.append(fixedField.getName()).append(" IN ('").append(values.toString().replaceAll(",", "','")).append("') AND ");
+        whereFields.append(fixedField.getName()).append(" IN ('")
+            .append(values.toString().replaceAll(",", "','")).append("') AND ");
       }
-      if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals("init_hour") && !fixedField.getName().equals("valid_hour")) {
+      if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
+          "init_hour") && !fixedField.getName().equals("valid_hour")) {
         selectFields.append(fixedField.getName()).append(",");
       }
     }
@@ -158,7 +178,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       if (values.length() > 0) {
         values.deleteCharAt(values.length() - 1);
       }
-      whereFields.append(columnEntry.getKey()).append(" IN ('").append(values.toString().replaceAll(",", "','")).append("') AND ");
+      whereFields.append(columnEntry.getKey()).append(" IN ('")
+          .append(values.toString().replaceAll(",", "','")).append("') AND ");
     }
 
 
@@ -177,7 +198,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
       String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
       try (Connection con = getConnection(databaseName);
-           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                                                ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(mysql);
       ) {
         int numPctThresh = 0;
@@ -214,11 +236,13 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
           if (i != 1) {
             whereFields.append("  AND");
           }
-          whereFields.append(" line_data_pct.line_data_id = ldt").append(i).append(".line_data_id  AND ldt").append(i).append(".i_value = ").append(i);
+          whereFields.append(" line_data_pct.line_data_id = ldt").append(i)
+              .append(".line_data_id  AND ldt").append(i).append(".i_value = ").append(i);
         }
         whereFields.append(" AND stat_header.stat_header_id = line_data_pct.stat_header_id");
       } else {
-        whereFields.append("stat_header.stat_header_id = ").append(table).append(".stat_header_id;");
+        whereFields.append("stat_header.stat_header_id = ").append(table)
+            .append(".stat_header_id;");
       }
       return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
     } else {
@@ -227,7 +251,9 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     }
   }
 
-  private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc, boolean isHeader) {
+  private void printFormattedTable(
+      ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc,
+      boolean isHeader) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -287,9 +313,9 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
             }
           }
         }
-          bufferedWriter.write(line);
-          bufferedWriter.write(System.getProperty("line.separator"));
-          intLine++;
+        bufferedWriter.write(line);
+        bufferedWriter.write(System.getProperty("line.separator"));
+        intLine++;
 
       }
 
@@ -299,7 +325,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       }
 
     } catch (Exception e) {
-      logger.error("  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
+      logger.error(
+          "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
 

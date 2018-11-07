@@ -136,19 +136,19 @@ public class AggRscriptManager extends RscriptManager {
         MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.print("Running '" + rScriptCommand + " " + aggStatTemplScript + "'");
+        printStream.println("Running " + rScriptCommand + " " + aggStatTemplScript );
 
 
         RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,
                                                             new String[]{thredInfoFileName});
         stopWatch.stop();
         if (rscriptResponse.getInfoMessage() != null) {
-          printStream.print(rscriptResponse.getInfoMessage());
+          printStream.println(rscriptResponse.getInfoMessage());
         }
         if (rscriptResponse.getErrorMessage() != null) {
-          printStream.print(rscriptResponse.getErrorMessage());
+          printStream.println(rscriptResponse.getErrorMessage());
         }
-        printStream.print("Rscript time " + stopWatch.getFormattedTotalDuration());
+        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
         logger.error(e);
       }

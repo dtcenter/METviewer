@@ -228,7 +228,7 @@ public class MVBatchTest {
         **/
 
         @Test
-        public void seriesDiffGrouping() {
+        public void seriesDiffGrouping() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -241,7 +241,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void handSelectedDates() {
+        public void handSelectedDates() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -254,7 +254,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void tylor() {
+        public void tylor() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -267,7 +267,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void rhist() {
+        public void rhist() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -280,7 +280,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void phist() {
+        public void phist() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -293,7 +293,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void servlet() {
+        public void servlet() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -306,7 +306,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void rely() {
+        public void rely() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -319,7 +319,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void series_sum_stat() {
+        public void series_sum_stat() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");
@@ -332,7 +332,7 @@ public class MVBatchTest {
         }
 
         @Test
-        public void plot_afwa_thresh() {
+        public void plot_afwa_thresh() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
             argsList.add("mysql");

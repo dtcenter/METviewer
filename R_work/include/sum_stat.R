@@ -10,7 +10,7 @@ listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
 }
-cat("sum_stat.R\ninput file: ", strInputInfoFile, "\n", sep="");
+cat("file: ", strInputInfoFile, "\n", sep="");
 
 source(strInputInfoFile);
 setwd(strWorkingDir);
@@ -214,5 +214,3 @@ cat(
   "   total time: ", formatTimeSpan(as.numeric(Sys.time() - stStart, units="secs")), "\n",
   sep="");
 
-# clean up
-cat("sum_stat.R done\n");

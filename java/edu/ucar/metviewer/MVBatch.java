@@ -2,8 +2,6 @@ package edu.ucar.metviewer;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -328,12 +326,12 @@ public class MVBatch  {
 
         bat.setNumPlots(bat.getNumPlots() + intNumJobPlots);
       }
-      LocalDateTime dateStart = LocalDateTime.now();
-      bat.print("Running " + bat.numPlots + " plots\n"
-                    + "Begin time: " + MVUtil.APP_DATE_FORMATTER.format(dateStart) + "\n");
+      StopWatch jobsStopWatch = new StopWatch();
+      bat.print("Running " + bat.numPlots + " plots");
 
 
       for (int intJob = 0; intJob < jobs.length; intJob++) {
+        jobsStopWatch.start();
         if (0 < intJob) {
           bat.print(
               "\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
@@ -377,24 +375,27 @@ public class MVBatch  {
         jobManager.runJob(jobs[intJob]);
 
         bat.numPlotsRun++;
+        jobsStopWatch.stop();
+        bat.print("\n" + "Job " + (intJob+1) + " execution time " + jobsStopWatch.getFormattedDuration());
 
       }
+      stopWatch.stop();
+      long plotAvg= (jobsStopWatch.getTotalDuration()/ 1000000) / (long) bat.numPlots;
 
-      LocalDateTime dateEnd = LocalDateTime.now();
-      long plotTime = dateStart.until(dateEnd, ChronoUnit.MILLIS);
-      long plotAvg = 0 < bat.numPlots ? plotTime / (long) bat.numPlots : 0;
       bat.print("\n"
-                    + MVUtil.padBegin("End time: ") + MVUtil.APP_DATE_FORMATTER.format(dateEnd) + "\n"
                     + MVUtil.padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
                     + "\n"
-                    + MVUtil.padBegin("Total time: ") + MVUtil.formatTimeSpan(plotTime) + "\n"
+                    + MVUtil.padBegin("Total time: ") + jobsStopWatch.getFormattedTotalDuration() + "\n"
                     + MVUtil.padBegin("Avg plot time: ") + MVUtil.formatTimeSpan(plotAvg) + "\n");
+
+
 
     } catch (Exception e) {
       bat.print("  **  ERROR:  " + e.getMessage());
     }
 
     bat.print("----  MVBatch Done  ----");
+
     bat.print("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
 
   }

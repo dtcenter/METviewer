@@ -10,7 +10,7 @@ listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
 }
-cat("agg_stat.R\ninput file: ", strInputInfoFile, "\n", sep="");
+cat("input file: ", strInputInfoFile, "\n", sep="");
 
 source(strInputInfoFile);
 setwd(strWorkingDir);
@@ -30,7 +30,8 @@ listStat = NA;
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss',
-'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean','total', 'me', 'rmse', 'crps','crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr'
+'fbar',	'obar',	'fobar',	'ffbar',	'oobar',	'var_mean','total', 'me', 'rmse', 'crps',
+  'crpss', 'ign', 'spread', 'me_oerr','rmse_oerr','spread_oerr', 'spread_plus_oerr', 'mae'
 );
   integer_columns <- c('fcst_lead','nstats');
   character_columns <- c('fcst_var', 'model', 'stat_name')
@@ -1062,7 +1063,3 @@ cat(
   "         seed: ", intRandomSeed, "\n",
   "        stats: ", length(listStat), "\n",
   sep="");
-
-
-# clean up
-cat("agg_stat.R done\n");

@@ -173,17 +173,17 @@ public class CalcRscriptManager extends RscriptManager {
         //  run agg_stat/
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.print("Running '" + rScriptCommand + " " + strRFile + "'");
+        printStream.println("Running " + rScriptCommand + " " + strRFile );
 
         RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, strRFile);
         stopWatch.stop();
         if (rscriptResponse.getInfoMessage() != null) {
-          printStream.print(rscriptResponse.getInfoMessage());
+          printStream.println(rscriptResponse.getInfoMessage());
         }
         if (rscriptResponse.getErrorMessage() != null) {
-          printStream.print(rscriptResponse.getErrorMessage());
+          printStream.println(rscriptResponse.getErrorMessage());
         }
-        printStream.print("Rscript time " + stopWatch.getFormattedTotalDuration());
+        printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
         logger.error(e);
       }

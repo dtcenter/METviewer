@@ -6,7 +6,7 @@ listArgs = commandArgs(TRUE)
 if( 0 <  length(listArgs) ) {
 	strInputInfoFile = listArgs[1];
 }
-cat("agg_stat_bootstrap.R\ninput file: ", strInputInfoFile, "\n", sep="");
+cat("input file: ", strInputInfoFile, "\n", sep="");
 
 source(strInputInfoFile);
 setwd(strWorkingDir);
@@ -1213,13 +1213,11 @@ for(strIndyVal in listIndyVal){
 		
 	}  #  END:  for intY
 	
-	cat("  PROC TIME: ", formatTimeSpan(as.numeric(Sys.time() - stBoot, units="secs")), "\n")
+	#cat("  PROC TIME: ", formatTimeSpan(as.numeric(Sys.time() - stBoot, units="secs")), "\n")
 		
 }  #  END:  for strIndyVal
 
 write.table( dfOut, file=strOutputFile, row.names=FALSE, quote=FALSE, sep="\t" );
 
 
-# clean up
-cat("agg_stat_bootstrap.R done\n");
 

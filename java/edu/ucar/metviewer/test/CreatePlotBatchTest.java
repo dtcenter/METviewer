@@ -70,7 +70,7 @@ public class CreatePlotBatchTest {
    }
 
    @Before
-   public void runScript() {
+   public void runScript() throws Exception {
      if (System.getProperty("captureCreatedImages") != null) {
        // if we are capturing images we have to clean the working dir each run
        // because there are potentially multiple images created for each plotType

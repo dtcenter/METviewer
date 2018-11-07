@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
@@ -35,6 +36,8 @@ import org.apache.logging.log4j.Logger;
 public class Scorecard {
 
   private static final Logger logger = LogManager.getLogger("Console");
+  private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
+                                          "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
   private String databaseName;
   private String user;
   private String pwd;
@@ -60,8 +63,117 @@ public class Scorecard {
   private String stat = "DIFF_SIG";
   private String thresholdFile = null;
 
-  private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
-                                          "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
+  public static void main(String[] args) throws Exception {
+
+    String filename;
+    String dbType = "mysql";
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    if (0 == args.length) {
+      logger.error("  Error: no arguments!!!");
+      logger.info(USAGE);
+
+    } else {
+
+      int intArg = 0;
+      for (; intArg < args.length && !args[intArg].matches(".*\\.xml$"); intArg++) {
+        if (args[intArg].equals("mysql")) {
+          dbType = "mysql";
+        }
+      }
+
+      filename = args[intArg];
+      XmlParser xmlParser = new XmlParser();
+      // parce XML and init parameters
+      Scorecard scorecard = xmlParser.parseParameters(filename);
+
+      //add a second model ( the same as the first one) if only one is selected
+      scorecard.fillValues();
+
+      //remove previous output with similar names
+      scorecard.cleanOldResults();
+
+      //TODO implement validation
+      boolean isValid = scorecard.validate();
+      if (isValid) {
+
+        DatabaseManager scorecardDbManager = null;
+        RscriptManager rscriptManager = null;
+        //create a list of each row with statistic as a key and columns
+        List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
+
+        //depending on stat type init mangers
+        if (scorecard.getAggStat()) {
+          if (dbType.equals("mysql")) {
+            scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
+          }
+          rscriptManager = new AggRscriptManager(scorecard);
+        } else {
+          if (dbType.equals("mysql")) {
+            scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
+          }
+          rscriptManager = new SumRscriptManager(scorecard);
+        }
+        int rowCounter = 1;
+        stopWatch.stop();
+        logger.info("Scorecard init time " + stopWatch.getFormattedDuration());
+
+        //for each row calculate statistics in the individual cell
+        for (Map<String, Entry> mapRow : listRows) {
+
+          stopWatch.start();
+          StringBuilder logMessage = new StringBuilder();
+          for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
+            logMessage.append(column.getKey()).append(": ").append(column.getValue().getName())
+                .append(", ");
+          }
+          logger.info(
+              "---------------------------------------------------------------------------------------");
+          logger.info("Row #" + rowCounter + ": " + logMessage);
+          logger.info(
+              "---------------------------------------------------------------------------------------");
+
+          try {
+            //get data from db and save it into file
+            scorecardDbManager.createDataFile(mapRow, "");
+
+            //use rscript and data from the db file to calculate stats and append them into the resulting file
+            rscriptManager.calculateStatsForRow(mapRow, "");
+
+          } catch (Exception e) {
+            logger.error(e.getMessage());
+          }
+          stopWatch.stop();
+          logger.info("\nRow execution time " + stopWatch.getFormattedDuration());
+          logger.info(
+              "---------------------------------------------------------------------------------------");
+          rowCounter++;
+
+        }
+        stopWatch.start();
+        File dataFile = new File(scorecard.getWorkingFolders().getDataDir()
+                                     + scorecard.getDataFile());
+        //if the resulting file exists - create an image and html file
+        if (dataFile.exists()) {
+          stopWatch.stop();
+          stopWatch.start();
+          GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
+          graphicalOutputManager.createGraphics();
+          stopWatch.stop();
+          logger.info("\nHTML and image  creation time " + stopWatch.getFormattedDuration());
+          stopWatch.start();
+
+        } else {
+          throw new MissingFileException(dataFile.getAbsolutePath());
+        }
+
+      }
+
+    }
+    stopWatch.stop();
+    logger.info("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
+
+  }
 
   public Boolean getPrintSQL() {
     return printSQL;
@@ -135,12 +247,12 @@ public class Scorecard {
     this.rScriptCommand = rScriptCommand;
   }
 
-  public void setPwd(String pwd) {
-    this.pwd = pwd;
-  }
-
   public String getPwd() {
     return pwd;
+  }
+
+  public void setPwd(String pwd) {
+    this.pwd = pwd;
   }
 
   public String getUser() {
@@ -159,12 +271,12 @@ public class Scorecard {
     this.host = host;
   }
 
-  public void setDatabaseName(String databaseName) {
-    this.databaseName = databaseName;
-  }
-
   public String getDatabaseName() {
     return databaseName;
+  }
+
+  public void setDatabaseName(String databaseName) {
+    this.databaseName = databaseName;
   }
 
   public WorkingFolders getWorkingFolders() {
@@ -215,6 +327,10 @@ public class Scorecard {
     return dataFile;
   }
 
+  public void setDataFile(String dataFile) {
+    this.dataFile = dataFile;
+  }
+
   public String getAggStatDataFile() {
     return dataFile + ".agg_stat";
   }
@@ -222,11 +338,6 @@ public class Scorecard {
   public String getSumStatDataFile() {
     return dataFile + ".sum_stat";
   }
-
-  public void setDataFile(String dataFile) {
-    this.dataFile = dataFile;
-  }
-
 
   public String getTitle() {
     return title;
@@ -240,114 +351,16 @@ public class Scorecard {
     return stat;
   }
 
+  public void setStat(String stat) {
+    this.stat = stat;
+  }
+
   public String getThresholdFile() {
     return thresholdFile;
   }
 
   public void setThresholdFile(String thresholdFile) {
     this.thresholdFile = thresholdFile;
-  }
-
-  public void setStat(String stat) {
-    this.stat = stat;
-  }
-
-
-  public static void main(String[] args) throws Exception {
-    long nanos = System.nanoTime();
-    String filename;
-    String dbType = "mysql";
-    if (0 == args.length) {
-      logger.error("  Error: no arguments!!!");
-      logger.info(USAGE);
-
-    } else {
-
-      int intArg = 0;
-      for (; intArg < args.length && !args[intArg].matches(".*\\.xml$"); intArg++) {
-        if (args[intArg].equals("mysql")) {
-          dbType = "mysql";
-        }
-      }
-
-      filename = args[intArg];
-      XmlParser xmlParser = new XmlParser();
-      // parce XML and init parameters
-      Scorecard scorecard = xmlParser.parseParameters(filename);
-
-      //add a second model ( the same as the first one) if only one is selected
-      scorecard.fillValues();
-
-      //remove previous output with similar names
-      scorecard.cleanOldResults();
-
-      //TODO implement validation
-      boolean isValid = scorecard.validate();
-      if (isValid) {
-
-        DatabaseManager scorecardDbManager = null;
-        RscriptManager rscriptManager = null;
-        //create a list of each row with statistic as a key and columns
-        List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
-
-        //depending on stat type init mangers
-        if (scorecard.getAggStat()) {
-          if (dbType.equals("mysql")) {
-            scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
-          }
-          rscriptManager = new AggRscriptManager(scorecard);
-        } else {
-          if (dbType.equals("mysql")) {
-            scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
-          }
-          rscriptManager = new SumRscriptManager(scorecard);
-        }
-        int rowCounter = 1;
-        //for each row calculate statistics in the individual cell
-        for (Map<String, Entry> mapRow : listRows) {
-          StringBuilder logMessage = new StringBuilder();
-          for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
-            logMessage.append(column.getKey()).append(": ").append(column.getValue().getName())
-                .append(", ");
-          }
-          logger.info(
-              "---------------------------------------------------------------------------------------");
-          logger.info("Row #" + rowCounter + ": " + logMessage);
-          logger.info(
-              "---------------------------------------------------------------------------------------");
-
-          try {
-            //get data from db and save it into file
-            scorecardDbManager.createDataFile(mapRow, "");
-
-            //use rscript and data from the db file to calculate stats and append them into the resulting file
-            rscriptManager.calculateStatsForRow(mapRow, "");
-            logger.info(
-                "---------------------------------------------------------------------------------------");
-          } catch (Exception e) {
-            logger.error(e.getMessage());
-          }
-          rowCounter++;
-        }
-
-        File dataFile = new File(scorecard.getWorkingFolders().getDataDir()
-                                     + scorecard.getDataFile());
-        //if the resulting file exists - create an image and html file
-        if (dataFile.exists()) {
-          GraphicalOutputManager graphicalOutputManager = new GraphicalOutputManager(scorecard);
-          graphicalOutputManager.createGraphics();
-
-        } else {
-          throw new MissingFileException(dataFile.getAbsolutePath());
-        }
-
-      }
-
-    }
-    long duration = System.nanoTime() - nanos;
-    int seconds = (int) (duration / 1000000000);
-    logger.info("----  Scorecard Done  ---- " + seconds + " seconds");
-
   }
 
   /**

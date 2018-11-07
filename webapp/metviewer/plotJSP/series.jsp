@@ -394,7 +394,7 @@
         $(this).prop("checked", true);
         $('#' + $(this).val()).show();
         if($(this).val() === "revision_statistics"){
-          $('#indy_var').val("fcst_valid_beg");
+          //$('#indy_var').val("fcst_valid_beg");
           $('#date_period_button').css("display", "block");
           $("#indy_var").multiselect("refresh");
         }
