@@ -15,7 +15,7 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -64,18 +64,18 @@ public class RscriptAggStatManager extends RscriptStatManager {
       }
 
 
-      RscriptResponse rscriptResponse = new RscriptResponse();
+      MvResponse mvResponse = new MvResponse();
       for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-        rscriptResponse = mvBatch.getDatabaseManager()
+        mvResponse = mvBatch.getDatabaseManager()
                               .executeQueriesAndSaveToFile(eventEqualizeSql, dataFile + "_ee_input",
                                                            job.isCalcStat(),
                                                            job.getCurrentDBName().get(i), i == 0);
-        if (rscriptResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+        if (mvResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
         }
       }
 
-      if (rscriptResponse.isSuccess()) {
+      if (mvResponse.isSuccess()) {
         String tmplFileName = "agg_stat_event_equalize.info_tmpl";
         info.put("agg_stat_input", dataFile + "_ee_input");
         info.put("agg_stat_output", dataFile + ".ee");
@@ -87,14 +87,14 @@ public class RscriptAggStatManager extends RscriptStatManager {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         mvBatch.getPrintStream().print("Running '" + job.getRscript() + " " + scriptName + "'");
-        rscriptResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
+        mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
 
         stopWatch.stop();
-        if (rscriptResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().print(rscriptResponse.getInfoMessage());
+        if (mvResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().print(mvResponse.getInfoMessage());
         }
-        if (rscriptResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().print(rscriptResponse.getErrorMessage());
+        if (mvResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().print(mvResponse.getErrorMessage());
         }
         mvBatch.getPrintStream().print("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
@@ -140,13 +140,13 @@ public class RscriptAggStatManager extends RscriptStatManager {
     (new File(dataFile)).getParentFile().mkdirs();
 
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      RscriptResponse rscriptResponse =
+      MvResponse mvResponse =
           mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
                                                                    job.isCalcStat(),
                                                                    job.getCurrentDBName().get(i),
                                                                    i == 0);
-      if (rscriptResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+      if (mvResponse.getInfoMessage() != null) {
+        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
       }
     }
   }
@@ -181,7 +181,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
     info.put("agg_stat_input", dataFile);
     info.put("agg_stat_output", aggOutput);
-    RscriptResponse rscriptResponse = new RscriptResponse();
+    MvResponse mvResponse = new MvResponse();
 
     try {
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + tmplFileName, aggInfo,
@@ -195,15 +195,15 @@ public class RscriptAggStatManager extends RscriptStatManager {
         stopWatch.start();
         mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile );
 
-        rscriptResponse = MVUtil.runRscript(job.getRscript(),
-                                            rScriptFile,
-                                            new String[]{aggInfo});
+        mvResponse = MVUtil.runRscript(job.getRscript(),
+                                       rScriptFile,
+                                       new String[]{aggInfo});
         stopWatch.stop();
-        if (rscriptResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+        if (mvResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
         }
-        if (rscriptResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().println(rscriptResponse.getErrorMessage());
+        if (mvResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
         }
         mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
@@ -212,7 +212,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
     }
 
 
-    return rscriptResponse.isSuccess();
+    return mvResponse.isSuccess();
   }
 
 }

@@ -16,7 +16,7 @@ import edu.ucar.metviewer.MVPlotDep;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVPlotJobParser;
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
@@ -219,14 +219,14 @@ public class SeriesJobManager extends JobManager {
       if (!listQuery.isEmpty() && !dataFile.exists()) {
         dataFile.getParentFile().mkdirs();
         for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-          RscriptResponse rscriptResponse =
+          MvResponse mvResponse =
               appDatabaseManager.executeQueriesAndSaveToFile(listQuery,
                                                                          dataFileName,
                                                                          job.isCalcStat(),
                                                                          job.getCurrentDBName().get(i),
                                                                          i == 0);
-          if(rscriptResponse.getInfoMessage() != null){
-            mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+          if(mvResponse.getInfoMessage() != null){
+            mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
           }
         }
 

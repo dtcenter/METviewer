@@ -15,7 +15,7 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -85,7 +85,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
   @Override
   public boolean runRscript(MVPlotJob job, Map<String, String> info) {
-    RscriptResponse rscriptResponse;
+    MvResponse mvResponse;
     try {
       info.put("plot_file", plotFile);
 
@@ -93,15 +93,15 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
       mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
-      rscriptResponse = MVUtil.runRscript(job.getRscript(), rScriptFile);
+      mvResponse = MVUtil.runRscript(job.getRscript(), rScriptFile);
       stopWatch.stop();
-      if (rscriptResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+      if (mvResponse.getInfoMessage() != null) {
+        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
       }
-      if (rscriptResponse.getErrorMessage() != null) {
-        mvBatch.getPrintStream().println(rscriptResponse.getErrorMessage());
+      if (mvResponse.getErrorMessage() != null) {
+        mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
       }
-      if (rscriptResponse.isSuccess()) {
+      if (mvResponse.isSuccess()) {
         mvBatch.getPrintStream().println("Created plot " + getPlotFile());
       } else {
         mvBatch.getPrintStream().println("Failed to create plot " + getPlotFile());
@@ -110,10 +110,10 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
     } catch (Exception e) {
       errorStream.print(e.getMessage());
-      rscriptResponse = new RscriptResponse();
+      mvResponse = new MvResponse();
     }
 
-    return rscriptResponse.isSuccess();
+    return mvResponse.isSuccess();
   }
 
 }

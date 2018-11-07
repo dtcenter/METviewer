@@ -1521,7 +1521,7 @@ public class MVUtil {
   }
 
 
-  public static RscriptResponse runRscript(
+  public static MvResponse runRscript(
                                       final String rscript,
                                       final String script
                                       ) throws Exception {
@@ -1538,12 +1538,12 @@ public class MVUtil {
    * @param args    (optional) Arguments to pass to the R script
    * @throws Exception
    */
-  public static RscriptResponse runRscript(
+  public static MvResponse runRscript(
                                       final String rscriptCommand, final String scriptName,
                                       final String[] args
                                       ) throws Exception {
 
-    RscriptResponse rscriptResponse = new RscriptResponse();
+    MvResponse mvResponse = new MvResponse();
 
     //  build a list of arguments
     StringBuilder strArgList = new StringBuilder();
@@ -1610,14 +1610,14 @@ public class MVUtil {
 
 
     if (strProcStd.length() > 0) {
-      rscriptResponse.setInfoMessage("==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
+      mvResponse.setInfoMessage("==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
     }
 
     if (strProcErr.length() > 0) {
-      rscriptResponse.setErrorMessage("==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
+      mvResponse.setErrorMessage("==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
     }
-    rscriptResponse.setSuccess(0 == intExitStatus);
-    return rscriptResponse;
+    mvResponse.setSuccess(0 == intExitStatus);
+    return mvResponse;
   }
 
   /**

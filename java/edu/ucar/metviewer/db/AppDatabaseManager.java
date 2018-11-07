@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 
 /**
  * @author : tatiana $
@@ -31,7 +31,7 @@ public interface AppDatabaseManager {
       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
       MVOrderedMap mapPlotFixVal) throws Exception;
 
-  RscriptResponse executeQueriesAndSaveToFile(
+  MvResponse executeQueriesAndSaveToFile(
       List<String> queries, String fileName, boolean isCalc,
       String currentDBName, boolean isNewFile) throws Exception;
 

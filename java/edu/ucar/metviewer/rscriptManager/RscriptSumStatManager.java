@@ -15,7 +15,7 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -56,13 +56,13 @@ public class RscriptSumStatManager extends RscriptStatManager {
     (new File(dataFile)).getParentFile().mkdirs();
 
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      RscriptResponse rscriptResponse =
+      MvResponse mvResponse =
           mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
                                                                    job.isCalcStat(),
                                                                    job.getCurrentDBName().get(i),
                                                                    i == 0);
-      if (rscriptResponse.getInfoMessage() != null) {
-        mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+      if (mvResponse.getInfoMessage() != null) {
+        mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
       }
     }
   }
@@ -76,7 +76,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
     String tmplFileName = "sum_stat.info_tmpl";
     info.put("sum_stat_input", dataFile);
     info.put("sum_stat_output", sumOutput);
-    RscriptResponse rscriptResponse = new RscriptResponse();
+    MvResponse mvResponse = new MvResponse();
     try {
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + tmplFileName, sumInfo, info);
       //  run agg_stat/agg_pct/agg_stat_bootstrap to generate the data file for plotting
@@ -85,13 +85,13 @@ public class RscriptSumStatManager extends RscriptStatManager {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
-        rscriptResponse = MVUtil.runRscript(job.getRscript(), rScriptFile, new String[]{sumInfo});
+        mvResponse = MVUtil.runRscript(job.getRscript(), rScriptFile, new String[]{sumInfo});
         stopWatch.stop();
-        if (rscriptResponse.getInfoMessage() != null) {
-          mvBatch.getPrintStream().println(rscriptResponse.getInfoMessage());
+        if (mvResponse.getInfoMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
         }
-        if (rscriptResponse.getErrorMessage() != null) {
-          mvBatch.getPrintStream().println(rscriptResponse.getErrorMessage());
+        if (mvResponse.getErrorMessage() != null) {
+          mvBatch.getPrintStream().println(mvResponse.getErrorMessage());
         }
         mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
@@ -99,6 +99,6 @@ public class RscriptSumStatManager extends RscriptStatManager {
       errorStream.print(e.getMessage());
     }
 
-    return rscriptResponse.isSuccess();
+    return mvResponse.isSuccess();
   }
 }

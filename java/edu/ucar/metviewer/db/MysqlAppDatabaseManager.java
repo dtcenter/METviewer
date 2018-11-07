@@ -37,7 +37,7 @@ import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -470,11 +470,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   @Override
-  public RscriptResponse executeQueriesAndSaveToFile(
+  public MvResponse executeQueriesAndSaveToFile(
       List<String> queries, String fileName,
       boolean isCalc, String currentDBName,
       boolean isNewFile) throws Exception {
-    RscriptResponse rscriptResponse = new RscriptResponse();
+    MvResponse mvResponse = new MvResponse();
 
     List<String> listSqlBeforeSelect = new ArrayList<>();
     List<String> listSqlLastSelectTemp = new ArrayList<>();
@@ -526,7 +526,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           saveToFileStopWatch.stop();
           out.flush();
           resultSetLast.close();
-          rscriptResponse.setSuccess(true);
+          mvResponse.setSuccess(true);
 
         } catch (Exception e) {
           logger.error(e.getMessage());
@@ -568,9 +568,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       message = message + "\nSave to file time for   " + currentDBName + " "
                     + saveToFileStopWatch.getFormattedTotalDuration();
     }
-    rscriptResponse.setInfoMessage(message);
+    mvResponse.setInfoMessage(message);
 
-    return rscriptResponse;
+    return mvResponse;
   }
 
   /**
@@ -2626,13 +2626,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      RscriptResponse rscriptResponse = executeQueriesAndSaveToFile(queries, strDataFile,
-                                                                    job.getCalcCtc() || job.getCalcSl1l2()
+      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                          job.getCalcCtc() || job.getCalcSl1l2()
                                                                         || job.getCalcSal1l2() || job.getCalcGrad(),
-                                                                    job.getCurrentDBName().get(i),
-                                                                    i == 0);
-      if (rscriptResponse.getInfoMessage() != null) {
-        printStream.println(rscriptResponse.getInfoMessage());
+                                                          job.getCurrentDBName().get(i),
+                                                          i == 0);
+      if (mvResponse.getInfoMessage() != null) {
+        printStream.println(mvResponse.getInfoMessage());
       }
       printStream.println();
     }
@@ -2850,12 +2850,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      RscriptResponse rscriptResponse = executeQueriesAndSaveToFile(queries, strDataFile,
-                                                                    job.isCalcStat(),
-                                                                    job.getCurrentDBName().get(i),
-                                                                    i == 0);
-      if (rscriptResponse.getInfoMessage() != null) {
-        printStream.println(rscriptResponse.getInfoMessage());
+      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                          job.isCalcStat(),
+                                                          job.getCurrentDBName().get(i),
+                                                          i == 0);
+      if (mvResponse.getInfoMessage() != null) {
+        printStream.println(mvResponse.getInfoMessage());
       }
     }
 
@@ -3016,12 +3016,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      RscriptResponse rscriptResponse = executeQueriesAndSaveToFile(queries, strDataFile,
-                                                                    job.isCalcStat(),
-                                                                    job.getCurrentDBName().get(i),
-                                                                    i == 0);
-      if (rscriptResponse.getInfoMessage() != null) {
-        printStream.println(rscriptResponse.getInfoMessage());
+      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                          job.isCalcStat(),
+                                                          job.getCurrentDBName().get(i),
+                                                          i == 0);
+      if (mvResponse.getInfoMessage() != null) {
+        printStream.println(mvResponse.getInfoMessage());
       }
     }
 

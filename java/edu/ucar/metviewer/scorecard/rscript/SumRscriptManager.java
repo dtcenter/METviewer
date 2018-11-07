@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.RscriptResponse;
+import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -163,15 +163,15 @@ public class SumRscriptManager extends RscriptManager {
         printStream.println("Running " + rScriptCommand + " " + sumStatTemplScript );
 
 
-        RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
-                                                            new String[]{thredInfoFileName});
+        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
+                                                  new String[]{thredInfoFileName});
 
         stopWatch.stop();
-        if (rscriptResponse.getInfoMessage() != null) {
-          printStream.println(rscriptResponse.getInfoMessage());
+        if (mvResponse.getInfoMessage() != null) {
+          printStream.println(mvResponse.getInfoMessage());
         }
-        if (rscriptResponse.getErrorMessage() != null) {
-          printStream.println(rscriptResponse.getErrorMessage());
+        if (mvResponse.getErrorMessage() != null) {
+          printStream.println(mvResponse.getErrorMessage());
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
@@ -202,13 +202,13 @@ public class SumRscriptManager extends RscriptManager {
         printStream.println("Running " + rScriptCommand + " " + strRFile);
 
 
-        RscriptResponse rscriptResponse = MVUtil.runRscript(rScriptCommand, strRFile);
+        MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);
         stopWatch.stop();
-        if (rscriptResponse.getInfoMessage() != null) {
-          printStream.println(rscriptResponse.getInfoMessage());
+        if (mvResponse.getInfoMessage() != null) {
+          printStream.println(mvResponse.getInfoMessage());
         }
-        if (rscriptResponse.getErrorMessage() != null) {
-          printStream.println(rscriptResponse.getErrorMessage());
+        if (mvResponse.getErrorMessage() != null) {
+          printStream.println(mvResponse.getErrorMessage());
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (Exception e) {
