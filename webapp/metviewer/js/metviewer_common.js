@@ -1155,14 +1155,17 @@ function updateMtd(y_axis, index, selectedVals) {
     var selectedModeStat = "";
     var selectedModeStatCode = "";
 
-    var statArr = selectedVals.split("_");
-    for (var i = 0; i < statArr.length - 1; i++) {
-        selectedModeStat = selectedModeStat + statArr[i];
-        if (i != statArr.length - 2) {
-            selectedModeStat = selectedModeStat + '_';
+    if (selectedVals.length > 0) {
+
+        var statArr = selectedVals.split("_");
+        for (var i = 0; i < statArr.length - 1; i++) {
+            selectedModeStat = selectedModeStat + statArr[i];
+            if (i != statArr.length - 2) {
+                selectedModeStat = selectedModeStat + '_';
+            }
         }
+        selectedModeStatCode = statArr[statArr.length - 1];
     }
-    selectedModeStatCode = statArr[statArr.length - 1];
 
     var is_fcst_stat_mode = false;
     fcst_stat_mode.empty();
@@ -5426,6 +5429,8 @@ function loadXMLStatistics(fcst_stat) {
             $('#agg_stat').val('vl1l2');
         } else if ($(initXML.find("plot").find("agg_stat").find("agg_val1l2")).text() === "TRUE") {
             $('#agg_stat').val('val1l2');
+        } else if ($(initXML.find("plot").find("agg_stat").find("agg_ecnt")).text() === "TRUE") {
+            $('#agg_stat').val('ecnt');
         } else {
             if (selected_mode === "mode" && listStatModeRatio.indexOf(fcst_stat[0]) !== -1) {
                 $('#agg_stat').val('mode');
@@ -6481,6 +6486,7 @@ if (typeof String.prototype.startsWith != 'function') {
     };
 }
 function colorDisplayFmatter(cellvalue, options, rowObject) {
+    console.log(rowObject);
     return '<input id="color_' + rowObject.id + '" type="text" value="' + rowObject.color + '" size="8" style="background-color:' + rowObject.color + ';">';
 }
 function colorDisplayUnmatter(cellvalue, options, cell) {
@@ -6829,7 +6835,8 @@ function initPage() {
         cellsubmit: 'clientArray',
         afterInsertRow: function (rowid, rowdata) {
             $('#color_' + rowdata.id).colorpicker({
-                parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer']
+                parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
+                altField: '#color_' + rowdata.id
             })
         },
         beforeEditCell: function (rowid, cellname, value, iRow, iCol) {
@@ -7136,15 +7143,13 @@ function initPage() {
     $('#grid_col').colorpicker({
         parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
         showOn: 'focus alt click',
-        buttonColorize: true,
-        buttonImageOnly: true
+        altField: '#grid_col'
     });
     $('#grid_col').colorpicker('setColor', '#CCCCCC');
     $('#caption_col').colorpicker({
         parts: ['header', 'map', 'bar', 'hex', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
         showOn: 'focus alt click',
-        buttonColorize: true,
-        buttonImageOnly: true
+        altField: '#caption_col'
     });
     $('#caption_col').colorpicker('setColor', '#333333');
 

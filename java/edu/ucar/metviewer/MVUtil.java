@@ -71,6 +71,7 @@ public class MVUtil {
   public static final String NBR_CNT = "nbr_cnt"; //  Neighborhood Continuous Statistics
   public static final String VL1L2 = "vl1l2"; // Vector Partial Sum
   public static final String VAL1L2 = "val1l2"; // Vector Anomaly Partial Sum
+  public static final String ECNT = "ecnt"; // Ensemble Continuous Statistics
   public static final Map<String, String[]> statsEnscnt = new HashMap<>();
   public static final Map<String, String[]> statsMpr = new HashMap<>();
   public static final Map<String, String[]> statsOrank = new HashMap<>();
@@ -503,16 +504,16 @@ public class MVUtil {
 
   //TOTAL N_ENS CRPS CRPSS IGN ME RMSE SPREAD ME_OERR RMSE_OERR SPREAD_OERR SPREAD_PLUS_OERR
   static {
-    statsEcnt.put("ECNT_CRPS", new String[]{""});
-    statsEcnt.put("ECNT_CRPSS", new String[]{""});
-    statsEcnt.put("ECNT_IGN", new String[]{""});
-    statsEcnt.put("ECNT_ME", new String[]{""});
-    statsEcnt.put("ECNT_RMSE", new String[]{""});
-    statsEcnt.put("ECNT_SPREAD", new String[]{""});
-    statsEcnt.put("ECNT_ME_OERR", new String[]{""});
-    statsEcnt.put("ECNT_RMSE_OERR", new String[]{""});
-    statsEcnt.put("ECNT_SPREAD_OERR", new String[]{""});
-    statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{""});
+    statsEcnt.put("ECNT_CRPS", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_CRPSS", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_IGN", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_ME", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_RMSE", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_SPREAD", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_ME_OERR", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_RMSE_OERR", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_SPREAD_OERR", new String[]{"bc", ECNT});
+    statsEcnt.put("ECNT_SPREAD_PLUS_OERR", new String[]{"bc", ECNT});
   }
 
   static {
@@ -1078,7 +1079,7 @@ public class MVUtil {
       //  verify and store the numerical value and the value pair
       listVal[i] = dblVal;
       Double dblKey = listVal[i];
-      Object objVal = val;
+      Object objVal = vals.get(i);
       if (tableVal.containsKey(dblKey)) {
         Object objValCur = tableVal.get(dblKey);
         ArrayList listValCur = new ArrayList();
@@ -2267,209 +2268,6 @@ public class MVUtil {
     return true;
   }
 
-  public static void main(String[] argv) throws Exception {
-
-    if (argv.length != 3) {
-      throw new Exception("provide credentials for the database server");
-    }
-    DatabaseInfo databaseInfo = new DatabaseInfo(argv[0], argv[1], argv[2]);
-    ByteArrayOutputStream logSql = new ByteArrayOutputStream();
-    PrintWriter printStreamSql = new PrintWriter(logSql);
-    MysqlAppDatabaseManager mysqlAppDatabaseManager = new MysqlAppDatabaseManager(databaseInfo);
-    List<String> databases = mysqlAppDatabaseManager.getAllDatabases();
-
-    for (String database : databases) {
-      updateDatabase(database, mysqlAppDatabaseManager);
-    }
-
-  }
-
-  private static void updateDatabase(
-                                        final String database,
-                                        MysqlAppDatabaseManager mysqlAppDatabaseManager) throws SQLException {
-
-    String sqlCheckInEcnt = "select COUNT(*) from line_data_ecnt where stat_header_id=? "
-                                + "and data_file_id=? and line_num = ? and fcst_lead = ? "
-                                + "and fcst_valid_beg =? and fcst_valid_end =? "
-                                + "and fcst_init_beg = ? and obs_lead = ? "
-                                + "and obs_valid_beg = ? and obs_valid_end = ? and total = ?";
-
-    String sqlInsert = "insert into line_data_ecnt VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, -9999, ?, ?, ?, -9999, -9999, ?, -9999, -9999, -9999, -9999)";
-    String sqlUpdate = "UPDATE line_data_ecnt SET crps = ?, ign = ?,crpss = ?, spread = ? where "
-                           + " stat_header_id=? and data_file_id =? and line_num = ? "
-                           + "and fcst_lead= ? and fcst_valid_beg =? and fcst_valid_end =? "
-                           + "and fcst_init_beg = ? "
-                           + "and obs_lead = ? and obs_valid_beg = ? and obs_valid_end = ? "
-                           + "and total = ?";
-
-
-    Double crps = null;
-    Double ign = null;
-    Double crpss = null;
-    Double spread = null;
-
-    Integer stat_header_id = null;
-    Integer data_file_id = null;
-    Integer line_num = null;
-    Integer fcst_lead = null;
-    Date fcst_valid_beg = null;
-    Date fcst_valid_end = null;
-    Date fcst_init_beg = null;
-    Integer obs_lead = null;
-    Date obs_valid_beg = null;
-    Date obs_valid_end = null;
-    Integer total = null;
-
-    ResultSet res = null;
-    ResultSet res1 = null;
-    Statement stmt = null;
-    PreparedStatement preparedStatement = null;
-    int totalInTable = 0;
-    int totalInserted = 0;
-    int totalUpdated = 0;
-
-    int buffer = 5000;
-    int rows = 0;
-
-    try (Connection conn = mysqlAppDatabaseManager.getConnection(database);
-         Statement st = conn.createStatement();
-         ResultSet resultSet = st.executeQuery("SELECT COUNT(*) FROM line_data_rhist")) {
-      while (resultSet.next()) {
-        rows = resultSet.getInt(1);
-      }
-    }catch (Exception e){
-      System.out.println(e.getMessage());
-    }
-    System.out.println("--------------------------------------------------------");
-    System.out.println(rows + " rows in  line_data_rhist " + database);
-
-    int count = 0;
-    while (count <= rows) {
-      try (Connection con = mysqlAppDatabaseManager.getConnection(database)) {
-        con.setReadOnly(true);
-        stmt = con.createStatement();
-        String sqlGetAllRhist = "select stat_header_id, data_file_id, line_num, fcst_lead, "
-                                    + "fcst_valid_beg, "
-                                    + "fcst_valid_end, fcst_init_beg, obs_lead, obs_valid_beg,"
-                                    + " obs_valid_end, total, crps, ign,crpss, spread "
-                                    + "from line_data_rhist limit " + count + "," + buffer;
-
-        res = stmt.executeQuery(sqlGetAllRhist);
-        while (res.next()) {
-
-
-          stat_header_id = res.getInt("stat_header_id");
-          data_file_id = res.getInt("data_file_id");
-          line_num = res.getInt("line_num");
-          fcst_lead = res.getInt("fcst_lead");
-          fcst_valid_beg = res.getTimestamp("fcst_valid_beg");
-          fcst_valid_end = res.getTimestamp("fcst_valid_end");
-          fcst_init_beg = res.getTimestamp("fcst_init_beg");
-          obs_lead = res.getInt("obs_lead");
-          obs_valid_beg = res.getTimestamp("obs_valid_beg");
-          obs_valid_end = res.getTimestamp("obs_valid_end");
-          total = res.getInt("total");
-          crps = res.getDouble("crps");
-          ign = res.getDouble("ign");
-          crpss = res.getDouble("crpss");
-          spread = res.getDouble("spread");
-
-          totalInTable++;
-          if (crps != -9999 || ign != -9999 || crpss != -9999 || spread != -9999) {
-            try (Connection con1 = mysqlAppDatabaseManager.getConnection(database)) {
-              PreparedStatement preparedStatement1 = con1.prepareStatement(sqlCheckInEcnt);
-              preparedStatement1.setInt(1, stat_header_id);
-              preparedStatement1.setInt(2, data_file_id);
-              preparedStatement1.setInt(3, line_num);
-              preparedStatement1.setInt(4, fcst_lead);
-              preparedStatement1.setTimestamp(5, convertUtilToSql(fcst_valid_beg));
-              preparedStatement1.setTimestamp(6, convertUtilToSql(fcst_valid_end));
-              preparedStatement1.setTimestamp(7, convertUtilToSql(fcst_init_beg));
-              preparedStatement1.setInt(8, obs_lead);
-              preparedStatement1.setTimestamp(9, convertUtilToSql(obs_valid_beg));
-              preparedStatement1.setTimestamp(10, convertUtilToSql(obs_valid_end));
-              preparedStatement1.setInt(11, total);
-
-              res1 = preparedStatement1.executeQuery();
-              int ecntCount = 0;
-              while (res1.next()) {
-                ecntCount = res1.getInt(1);
-              }
-              res1.close();
-              preparedStatement1.close();
-
-              if (ecntCount == 0) {
-                //insert
-                preparedStatement1 = con1.prepareStatement(sqlInsert);
-                preparedStatement1.setInt(1, stat_header_id);
-                preparedStatement1.setInt(2, data_file_id);
-                preparedStatement1.setInt(3, line_num);
-                preparedStatement1.setInt(4, fcst_lead);
-                preparedStatement1.setTimestamp(5, convertUtilToSql(fcst_valid_beg));
-                preparedStatement1.setTimestamp(6, convertUtilToSql(fcst_valid_end));
-                preparedStatement1.setTimestamp(7, convertUtilToSql(fcst_init_beg));
-                preparedStatement1.setInt(8, obs_lead);
-                preparedStatement1.setTimestamp(9, convertUtilToSql(obs_valid_beg));
-                preparedStatement1.setTimestamp(10, convertUtilToSql(obs_valid_end));
-                preparedStatement1.setInt(11, total);
-                preparedStatement1.setDouble(12, crps);
-                preparedStatement1.setDouble(13, crpss);
-                preparedStatement1.setDouble(14, ign);
-                preparedStatement1.setDouble(15, spread);
-                totalInserted = totalInserted + preparedStatement1.executeUpdate();
-              } else {
-                //update
-                preparedStatement1 = con1.prepareStatement(sqlUpdate);
-                preparedStatement1.setDouble(1, crps);
-                preparedStatement1.setDouble(2, ign);
-                preparedStatement1.setDouble(3, crpss);
-                preparedStatement1.setDouble(4, spread);
-                preparedStatement1.setInt(5, stat_header_id);
-                preparedStatement1.setInt(6, data_file_id);
-                preparedStatement1.setInt(7, line_num);
-                preparedStatement1.setInt(8, fcst_lead);
-                preparedStatement1.setTimestamp(9, convertUtilToSql(fcst_valid_beg));
-                preparedStatement1.setTimestamp(10, convertUtilToSql(fcst_valid_end));
-                preparedStatement1.setTimestamp(11, convertUtilToSql(fcst_init_beg));
-                preparedStatement1.setInt(12, obs_lead);
-                preparedStatement1.setTimestamp(13, convertUtilToSql(obs_valid_beg));
-                preparedStatement1.setTimestamp(14, convertUtilToSql(obs_valid_end));
-                preparedStatement1.setInt(15, total);
-                totalUpdated = totalUpdated + preparedStatement1.executeUpdate();
-              }
-              preparedStatement1.close();
-            }
-          }
-
-        }
-        res.close();
-
-      } catch (SQLException e) {
-        e.printStackTrace();
-      } finally {
-        if (res != null) {
-          res.close();
-        }
-        if (res1 != null) {
-          res1.close();
-        }
-        if (stmt != null) {
-          stmt.close();
-        }
-        if (preparedStatement != null) {
-          preparedStatement.close();
-        }
-
-      }
-      count = count + buffer;
-    }
-
-    System.out.println("Database " + database);
-    System.out.println("Total in the line_data_rhist table:" + totalInTable);
-    System.out.println("Total inserted:" + totalInserted);
-    System.out.println("Total updated:" + totalUpdated);
-    System.out.println("--------------------------------------------------------");
-  }
 
   private static Timestamp convertUtilToSql(Date uDate) {
     Timestamp sDate = new Timestamp(uDate.getTime());

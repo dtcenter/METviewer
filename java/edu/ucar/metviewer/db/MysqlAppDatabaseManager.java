@@ -238,7 +238,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 }
                 break;
               case 19:
-                  listStatName.addAll(MVUtil.statsEcnt.keySet());
+                listStatName.addAll(MVUtil.statsEcnt.keySet());
                 break;
               default:
 
@@ -601,7 +601,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else {
 
             strVal = res.getString(i);
-            if (strVal == null || strVal.equalsIgnoreCase("null") || strVal.equalsIgnoreCase("-9999")) {
+            if (strVal == null || strVal.equalsIgnoreCase("null") || strVal.equalsIgnoreCase(
+                "-9999")) {
               strVal = "NA";
             }
 
@@ -749,24 +750,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  determine if the plot requires data aggregation or calculations
-    boolean boolAggStat = job.getAggCtc()
-                              || job.getAggSl1l2()
-                              || job.getAggSal1l2()
-                              || job.getAggPct()
-                              || job.getAggNbrCnt()
-                              || job.getAggSsvar()
-                              || job.getAggVl1l2()
-                              || job.getAggVal1l2()
-                              || job.getAggGrad();
+    boolean boolAggStat = job.isAggStat();
 
     boolean boolCalcStat = job.isModeRatioJob()
                                || job.isMtdRatioJob()
-                               || job.getCalcCtc()
-                               || job.getCalcSl1l2()
-                               || job.getCalcSal1l2()
-                               || job.getCalcVl1l2()
-                               || job.getCalcVal1l2()
-                               || job.getCalcGrad();
+                               || job.isCalcStat();
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -801,8 +789,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (0 < listDepPlot.length && 1 > listSeries.length) {
         throw new Exception("dep values present, but no series values for Y" + intY);
       }
-      if (1 > listDepPlot.length && 0 < listSeries.length && !job.getPlotTmpl()
-                                                                  .equals("eclv.R_tmpl")) {
+      if (1 > listDepPlot.length && 0 < listSeries.length
+              && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
         throw new Exception("series values present, but no dep values for Y" + intY);
       }
 
@@ -985,10 +973,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
           if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
-            strSelectList += ",\n  " + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                   true);
-            selectPlotList += ",\n  " + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                    true);
+            strSelectList += ",\n  "
+                                 + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+            selectPlotList += ",\n  "
+                                  + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             strTempList += ",\n    " + strField + "            VARCHAR(64)";
           }
         }
@@ -1195,6 +1183,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             aggType = MVUtil.VL1L2;
           } else if (job.getCalcVal1l2() || job.getAggVal1l2()) {
             aggType = MVUtil.VAL1L2;
+          } else if (job.getAggEcnt()) {
+            aggType = MVUtil.ECNT;
           }
 
 
@@ -1354,6 +1344,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (job.getAggSal1l2()) {
             strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  ld.fabar,\n  ld.oabar,\n  "
                                  + "ld.foabar,\n  ld.ffabar,\n  ld.ooabar,\n ld.mae";
+
+          } else if (job.getAggEcnt()) {
+
+            strSelectStat += ",\n  0 stat_value,"
+                                 + "\n ld.total,\n  ld.me, \n  ld.rmse,\n  ld.crps,\n  ld.crpss,"
+                                 + "\n  ld.ign,  "
+                                 + "\n ld.spread,\n  ld.me_oerr,\n  ld.rmse_oerr,"
+                                 + " \n  ld.spread_oerr,"
+                                 + "\n ld.spread_plus_oerr";
           } else if (job.getAggPct()) {
             if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               strSelectStat += ",\n  0 stat_value,\n  ld.total,\n  (ld.n_thresh - 1)";
@@ -1637,8 +1636,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param strStat       MTD stat
    * @return list of SQL queries for gathering plot data
    */
-  private List<String> buildMtdStatSql(
-                                          String strSelectList, String strWhere, String strStat) {
+  private List<String> buildMtdStatSql(String strSelectList, String strWhere, String strStat) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1674,6 +1672,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         listQuery.add(buildMtd2dStatDiffTable(strSelectList, strWhere, strStat, query1, query2));
       }
     } else if (MVUtil.mtd3dPairStatField.containsKey(stat)) {
+      strWhere = strWhere.replace("h.", "");
       listQuery.add(buildMtd3dPairStatTable(strSelectList, strWhere, strStat));
     } else {
       strWhere = strWhere.replace("h.", "");
@@ -1851,7 +1850,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  " + objectId + ",\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strTableStat + " stat_value\n"
             + "FROM mtd_header, mtd_3d_obj_pair \n"
@@ -1973,7 +1972,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + selectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + mtd3dSingleStatField.get(statName) + " stat_value\n"
             + "FROM mtd_header, mtd_3d_obj_single \n"
@@ -2006,7 +2005,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n"
             + "FROM mtd_header, mtd_2d_obj \n"
@@ -2048,7 +2047,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  area,\n"
             + "  fcst_flag,\n"
             + "  simple_flag,\n"
@@ -2068,7 +2067,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + strSelectListStat + ",\n"
             + "  object_id,\n"
-            + "  cluster_id,\n"
+            + "  object_cat,\n"
             + "  volume,\n"
             + "  fcst_flag,\n"
             + "  simple_flag,\n"
@@ -2130,8 +2129,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                    + " AND s.fcst_valid = s2.fcst_valid "
                    + " AND s.fcst_lead = s2.fcst_lead";
       for (int i = 0; i < listSeries.length; i++) {
-        result = result + " AND s." + listSeries[i].getKey()
-                     + " = s2." + listSeries[i].getKey();
+        result = result + " AND s." + listSeries[i].getKey() + " = s2." + listSeries[i].getKey();
       }
       result = result + ";";
     }
@@ -2139,11 +2137,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildMtd3dSingleStatDiffTable(
-                                                  String strSelectList, String strWhere, String
-                                                                                             stat,
+                                                  String strSelectList, String strWhere,
+                                                  String stat,
                                                   String table1, String table2) {
 
-    //  parse the stat into the stat name and the object flags
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
     String strStatName = stat.replace("_" + listStatParse[listStatParse.length - 1], "");
@@ -2171,7 +2168,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String result =
         "SELECT\n" + strSelectListStat + ",\n"
             + "  s.object_id,\n"
-            + "  s.cluster_id,\n"
+            + "  s.object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
             + "FROM ("
@@ -2220,7 +2217,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String result =
         "SELECT\n" + strSelectListStat + ",\n"
             + "  s.object_id,\n"
-            + "  s.cluster_id,\n"
+            + "  s.object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
             + "FROM ("
@@ -2231,8 +2228,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) "
             + "= SUBSTRING(s2.object_id,  LOCATE('_', s.object_id)+1)\n";
     if (!strTableStat.contains("object_id")) {
-      result = result + "  AND " + strTableStats[0]
-                   + " != -9999 AND " + strTableStats[1] + " != -9999;";
+      result = result + "  AND " + strTableStats[0] + " != -9999 AND "
+                   + strTableStats[1] + " != -9999;";
     }
     return result;
   }
@@ -2412,10 +2409,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
           if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
-            selectList += ",\n  " + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                true);
-            selectPlotList += ",\n  " + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                    true);
+            selectList += ",\n  "
+                              + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+            selectPlotList += ",\n  "
+                                  + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             strTempList += ",\n    " + strField + "            VARCHAR(64)";
           }
         }
@@ -2471,9 +2468,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   private List buildModeStatEventEqualizeSql(String strSelectList, String strWhere) {
 
     List listQuery = new ArrayList();
-
     listQuery.add(buildModeSingleStatRatioEventEqualizeTable(strSelectList, strWhere));
-
     return listQuery;
   }
 

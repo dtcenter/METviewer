@@ -80,6 +80,7 @@
     position:				absolute;
 	left:					0;
 }
+
 /* Map */
 .ui-colorpicker-map,
 .ui-colorpicker-map > * {
@@ -91,7 +92,7 @@
 
 .ui-colorpicker-map-layer-1,
 .ui-colorpicker-map-layer-2 {
-	background:				url(images/map.png) no-repeat;
+	background:				url(../images/map.png) no-repeat;
 }
 
 .ui-colorpicker-map-128,
@@ -102,18 +103,18 @@
 
 .ui-colorpicker-map-128 .ui-colorpicker-map-layer-1,
 .ui-colorpicker-map-128 .ui-colorpicker-map-layer-2 {
-	background:				url(images/128/map.png) no-repeat;
+	background:				url(../images/128/map.png) no-repeat;
 }
 
 .ui-colorpicker-map-layer-alpha {
-	background:				url(images/map-opacity.png);
+	background:				url(../images/map-opacity.png);
 }
 
 .ui-colorpicker-map-pointer {
 	display:				inline-block;
 	width:					15px;
 	height:					15px;
-	background:				url(images/map-pointer.png) no-repeat;
+	background:				url(../images/map-pointer.png) no-repeat;
 }
 
 /* Bar */
@@ -135,33 +136,33 @@
 .ui-colorpicker-bar-layer-2,
 .ui-colorpicker-bar-layer-3,
 .ui-colorpicker-bar-layer-4 {
-	background:				url(images/bar.png) repeat-x;
+	background:				url(../images/bar.png) repeat-x;
 }
 
 .ui-colorpicker-bar-128 .ui-colorpicker-bar-layer-1,
 .ui-colorpicker-bar-128 .ui-colorpicker-bar-layer-2,
 .ui-colorpicker-bar-128 .ui-colorpicker-bar-layer-3,
 .ui-colorpicker-bar-128 .ui-colorpicker-bar-layer-4 {
-	background:				url(images/128/bar.png) repeat-x;
+	background:				url(../images/128/bar.png) repeat-x;
 }
 
 .ui-colorpicker-bar-layer-alpha {
-	background:				url(images/bar-opacity.png);
+	background:				url(../images/bar-opacity.png);
 }
 
 .ui-colorpicker-bar-layer-alphabar {
-	background:				url(images/bar-alpha.png);
+	background:				url(../images/bar-alpha.png);
 }
 
 .ui-colorpicker-bar-128 .ui-colorpicker-bar-layer-alphabar {
-	background:				url(images/128/bar-alpha.png);
+	background:				url(../images/128/bar-alpha.png);
 }
 
 .ui-colorpicker-bar-pointer {
 	display:				inline-block;
 	width:					20px;
 	height:					7px;
-	background:				url(images/bar-pointer.png) no-repeat;
+	background:				url(../images/bar-pointer.png) no-repeat;
 }
 
 /* Preview */
@@ -186,7 +187,7 @@
     width:					50px;
     height:					20px;
     display:				inline-block;
-	background:				url(images/preview-opacity.png) repeat;
+	background:				url(../images/preview-opacity.png) repeat;
 }
 
 /* Inputs */
@@ -224,4 +225,15 @@
 	height:					11px;
     border-right:			1px solid black;
     border-bottom:			1px solid black;
+}
+
+.ui-colorpicker-disabled {
+	opacity:				.5;
+	-ms-filter:				"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter:					alpha(opacity=50);
+	pointer-events:			none;
+}
+
+.ui-colorpicker-disabled * {
+	cursor:					default !important;
 }

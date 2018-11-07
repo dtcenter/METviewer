@@ -39,21 +39,9 @@ public class SeriesJobManager extends JobManager {
 
 
     //  determine if the plots require data aggregation
-    boolean isAggStat = job.getAggCtc()
-                            || job.getAggSl1l2()
-                            || job.getAggSal1l2()
-                            || job.getAggNbrCnt()
-                            || job.getAggSsvar()
-                            || job.getAggVl1l2()
-                            || job.getAggVal1l2()
-                            || job.getAggGrad()
-                            || job.getAggPct();
-    boolean isCalcStat = job.getCalcCtc()
-                             || job.getCalcSl1l2()
-                             || job.getCalcSal1l2()
-                             || job.getCalcVl1l2()
-                             || job.getCalcVal1l2()
-                             || job.getCalcGrad();
+    boolean isAggStat = job.isAggStat();
+    boolean isCalcStat = job.isCalcStat();
+
 
     /*
      *  Build a plot for each permutation of <plot_fix> values

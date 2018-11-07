@@ -903,9 +903,9 @@ if( 0 < length(listDep2Plot) ){
 
 
     # slice the series constituents from the series list
-    listData  = listSeries2[[3*(i-1) + 1]];
-    listDataLo  = listSeries2[[3*(i-1) + 2]];
-    listDataUp  = listSeries2[[3*(i-1) + 3]];
+    listData  = listSeries2[[3*(intStagIndex-1) + 1]];
+    listDataLo  = listSeries2[[3*(intStagIndex-1) + 2]];
+    listDataUp  = listSeries2[[3*(intStagIndex-1) + 3]];
     listXAdj  = listX + listX2Stag[intStagIndex];
 
     # remove the NAs from the x and y lists
@@ -922,19 +922,19 @@ if( 0 < length(listDep2Plot) ){
     lines(
       listXAdj,                      # x coordinates
       listData,                      # y coordinates
-      type=listTypeSeries2[i],      # series line type - p: points, l: lines, o: overplotted points and lines,
+      type=listTypeSeries2[intStagIndex],      # series line type - p: points, l: lines, o: overplotted points and lines,
       #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
-      pch=listPchSeries2[i],        # point symbol - see example(points)
+      pch=listPchSeries2[intStagIndex],        # point symbol - see example(points)
       font=5,                        # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-      lty=listLtySeries2[i],        # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-      col=listColorsSeries2[i],      # line color
+      lty=listLtySeries2[intStagIndex],        # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+      col=listColorsSeries2[intStagIndex],      # line color
       lend=1,
       cex=1,                        # line magnification
-      lwd=listLwdSeries2[i]          # line width
+      lwd=listLwdSeries2[intStagIndex]          # line width
     );
 
     # add arrows to the line, if requested
-    if( "none" != listPlotCISeries2[i] ) {
+    if( "none" != listPlotCISeries2[intStagIndex] ) {
       listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);
       if( 0 < sum(listDataInd) ){
         listXAdj  = listX + listX2Stag[intStagIndex];
@@ -953,21 +953,21 @@ if( 0 < length(listDep2Plot) ){
           listTmp = listXTo; listXTo = listYTo; listYTo = listTmp;
         }
         for(ind in 1: length(listXAdj)) {
-          if(listShowSignifSeries2[i] == FALSE){
-            lwd_current = listLwdSeries2[i];
+          if(listShowSignifSeries2[intStagIndex] == FALSE){
+            lwd_current = listLwdSeries2[intStagIndex];
           }else{
             if(TRUE ==boolVertPlot){
               if( listXFr[ind] < 0 && listXTo[ind] > 0){
-                lwd_current = listLwdSeries2[i];
+                lwd_current = listLwdSeries2[intStagIndex];
               }else{
-                lwd_current = listLwdSeries2[i] + 3;
+                lwd_current = listLwdSeries2[intStagIndex] + 3;
               }
 
             }else{
               if(  listYFr[ind] < 0  && listYTo[ind] > 0){
-                lwd_current = listLwdSeries2[i];
+                lwd_current = listLwdSeries2[intStagIndex];
               }else{
-                lwd_current = listLwdSeries2[i] + 3;
+                lwd_current = listLwdSeries2[intStagIndex] + 3;
               }
             }
           }
@@ -982,7 +982,7 @@ if( 0 < length(listDep2Plot) ){
             angle=90,                      # angle from the shaft of the arrow to the edge of the arrow head
             code=3,                        # arrow type - 1: up, 2: down and 3: both
             lwd=lwd_current,              # line width
-            col=listColorsSeries2[i],      # line color
+            col=listColorsSeries2[intStagIndex],      # line color
             ljoin=1,                      # line join style - 0: round, 1: mitre and 2: bevel
             lmitre=1,                      # line mitre limit, range 1-10
             lend=2                        # line end style - 0: round, 1: butt and 2: square
@@ -1033,16 +1033,16 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
   intStagIndex = listPlotOrderSeries1Part[i];
 
   # slice the series constituents from the series list
-  listData  = listSeries1[[3*(i-1) + 1]];
-  listDataLo  = listSeries1[[3*(i-1) + 2]];
-  listDataUp  = listSeries1[[3*(i-1) + 3]];
+  listData  = listSeries1[[3*(intStagIndex-1) + 1]];
+  listDataLo  = listSeries1[[3*(intStagIndex-1) + 2]];
+  listDataUp  = listSeries1[[3*(intStagIndex-1) + 3]];
   listXAdj  = listX + listX1Stag[intStagIndex];
 
 
 
   # remove the NAs from the x and y lists
   listDataInd  = !( is.na(listData) );
-  if( listConSeries1[i] != 0 ){
+  if( listConSeries1[intStagIndex] != 0 ){
     listXAdj  = listXAdj[listDataInd];
     listData  = listData[listDataInd];
   }
@@ -1054,18 +1054,18 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
   lines(
     listXAdj,                      # x coordinates
     listData,                      # y coordinates
-    type=listTypeSeries1[i],      # series line type - p: points, l: lines, o: overplotted points and lines,
+    type=listTypeSeries1[intStagIndex],      # series line type - p: points, l: lines, o: overplotted points and lines,
     #   b or c: points joined by lines, s or S: stair steps, h: histogram, n: nothing
-    pch=listPchSeries1[i],        # point symbol - see example(points)
+    pch=listPchSeries1[intStagIndex],        # point symbol - see example(points)
     font=5,                        # 1: plain text, 2: bold, 3: italic, 4: bold italic and 5: symbol
-    lty=listLtySeries1[i],        # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-    col=listColorsSeries1[i],      # line color
+    lty=listLtySeries1[intStagIndex],        # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+    col=listColorsSeries1[intStagIndex],      # line color
     cex=1,                        # line magnification
-    lwd=listLwdSeries1[i]          # line width
+    lwd=listLwdSeries1[intStagIndex]          # line width
   );
 
   # add arrows to the line, if requested
-  if( "none" != listPlotCISeries1[i] ) {
+  if( "none" != listPlotCISeries1[intStagIndex] ) {
     listDataInd = listDataInd & 0 < abs(listDataUp - listDataLo);
     if( 0 < sum(listDataInd) ){
       listXAdj  = listX + listX1Stag[intStagIndex];
@@ -1086,19 +1086,19 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
 
       for(ind in 1: length( listXAdj) ){
         if(listShowSignifSeries1[i] == FALSE){
-          lwd_current = listLwdSeries1[i];
+          lwd_current = listLwdSeries1[intStagIndex];
         }else{
           if(TRUE ==boolVertPlot){
             if( listXFr[ind] < 0 && listXTo[ind] > 0){
-              lwd_current = listLwdSeries1[i];
+              lwd_current = listLwdSeries1[intStagIndex];
             }else{
-              lwd_current = listLwdSeries1[i] + 3;
+              lwd_current = listLwdSeries1[intStagIndex] + 3;
             }
           }else{
             if(  listYFr[ind] < 0  && listYTo[ind] > 0){
-              lwd_current = listLwdSeries1[i];
+              lwd_current = listLwdSeries1[intStagIndex];
             }else{
-              lwd_current = listLwdSeries1[i] + 3;
+              lwd_current = listLwdSeries1[intStagIndex] + 3;
             }
           }
         }
@@ -1112,7 +1112,7 @@ for(i in 1:(intNumSeries1+ intNumSeries1Diff)){
           angle=90,                      # angle from the shaft of the arrow to the edge of the arrow head
           code=3,                        # arrow type - 1: up, 2: down and 3: both
           lwd=lwd_current,              # line width
-          col=listColorsSeries1[i],      # line color
+          col=listColorsSeries1[intStagIndex],      # line color
           ljoin=1,                      # line join style - 0: round, 1: mitre and 2: bevel
           lmitre=1,                      # line mitre limit, range 1-10
           lend=2                        # line end style - 0: round, 1: butt and 2: square

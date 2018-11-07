@@ -1,15 +1,15 @@
 # SL1L2 stat calculations
-  calcStdDev		= function(sum, sum_sq, n){
-    if ( 1 > n ){
-      return(NA);
-    }
-    v = (sum_sq - sum*sum/n)/(n - 1);
-    if( 0 > v ){
-      return(NA);
-    } else {
-      return( sqrt(v) );
-    }
+calcStdDev    = function(sum, sum_sq, n){
+  if ( 1 > n ){
+    return(NA);
   }
+  v = (sum_sq - sum*sum/n)/(n - 1);
+  if( 0 > v ){
+    return(NA);
+  } else {
+    return( sqrt(v) );
+  }
+}
 calcFBAR    = function(d){ return( d$fbar ); }
 calcOBAR    = function(d){ return( d$obar ); }
 calcFSTDEV    = function(d){ return( calcStdDev(d$fbar * d$total, d$ffbar * d$total, d$total) ); }
@@ -103,161 +103,161 @@ calcSSVAR_BCRMSE    = function(d){ return( calcBCRMSE(d) ); }
 
 
 
-  # CTC stat calculations
-  calcBASER    = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == d$total )                      {
-      return (NA);
-    } else {
-      return( (d$fy_oy + d$fn_oy) / d$total );
-    }
+# CTC stat calculations
+calcBASER    = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
   }
-  calcACC      = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == d$total )                      {
-      return (NA); } else {
-      return( (d$fy_oy + d$fn_on) / d$total );
-    }
+  if( 0 == d$total )                      {
+    return (NA);
+  } else {
+    return( (d$fy_oy + d$fn_oy) / d$total );
   }
-  calcFBIAS    = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) ){
-      return (NA);
-    }
-    if( 0 == (d$fy_oy + d$fn_oy) )          {
-      return (NA); } else {
-      return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) );
-    }
+}
+calcACC      = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
   }
-  calcFMEAN    = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == d$total )
-    { return (NA); } else {
-      return( (d$fy_oy + d$fy_on) / d$total );
-    }
+  if( 0 == d$total )                      {
+    return (NA); } else {
+    return( (d$fy_oy + d$fn_on) / d$total );
   }
-  calcPODY    = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == (d$fy_oy + d$fn_oy) ){
-      return (NA);
-    } else {
-      return( d$fy_oy / (d$fy_oy + d$fn_oy) );
-    }
+}
+calcFBIAS    = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) ){
+    return (NA);
   }
-  calcPOFD    = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy)  ){
-      return (NA);
-    }
-    if( 0 == (d$fy_on + d$fn_on) )          {
-      return (NA);
-    } else {
-      return( d$fy_on / (d$fy_on + d$fn_on) );
-    }
+  if( 0 == (d$fy_oy + d$fn_oy) )          {
+    return (NA); } else {
+    return( (d$fy_oy + d$fy_on) / (d$fy_oy + d$fn_oy) );
   }
-  calcPODN    = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy)  ){
-      return (NA);
-    }
-    if( 0 == (d$fy_on + d$fn_on) )          {
-      return (NA);
-    } else {
-      return( d$fn_on / (d$fy_on + d$fn_on) );
-    }
+}
+calcFMEAN    = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
   }
-  calcFAR      = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy)  ){
-      return (NA);
-    }
-    if( 0 == (d$fy_oy + d$fy_on) ){
-      return (NA);
-    } else {
-      return( d$fy_on / (d$fy_oy + d$fy_on) );
-    }             }
-  calcCSI      = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) ){
-      return (NA);
-    }
-    if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){
-      return (NA);
-    } else {
-      return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) );
-    }
+  if( 0 == d$total )
+  { return (NA); } else {
+    return( (d$fy_oy + d$fy_on) / d$total );
   }
-  calcGSS = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == d$total ){
-      return (NA);
-    }
-    dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
-    gss = ( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) )
-    return( round(gss, digits=5) );
+}
+calcPODY    = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
   }
-  calcHK = function(d){
-    if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){
-      return (NA); } else { return( calcPODY(d) - calcPOFD(d) );
-    }
+  if( 0 == (d$fy_oy + d$fn_oy) ){
+    return (NA);
+  } else {
+    return( d$fy_oy / (d$fy_oy + d$fn_oy) );
   }
-  calcHSS = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == d$total ){ return (NA); }
-    dblC = ( ((d$fy_oy + d$fy_on) / d$total) *(d$fy_oy + d$fn_oy)  +  ((d$fn_oy + d$fn_on) / d$total) * (d$fy_on + d$fn_on)  ) ;
-    hss = ( (d$fy_oy + d$fn_on - dblC) / (d$total - dblC) );
-    return( round(hss, digits=5) );
+}
+calcPOFD    = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy)  ){
+    return (NA);
+  }
+  if( 0 == (d$fy_on + d$fn_on) )          {
+    return (NA);
+  } else {
+    return( d$fy_on / (d$fy_on + d$fn_on) );
+  }
+}
+calcPODN    = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy)  ){
+    return (NA);
+  }
+  if( 0 == (d$fy_on + d$fn_on) )          {
+    return (NA);
+  } else {
+    return( d$fn_on / (d$fy_on + d$fn_on) );
+  }
+}
+calcFAR      = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy)  ){
+    return (NA);
+  }
+  if( 0 == (d$fy_oy + d$fy_on) ){
+    return (NA);
+  } else {
+    return( d$fy_on / (d$fy_oy + d$fy_on) );
+  }             }
+calcCSI      = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) ){
+    return (NA);
+  }
+  if( 0 == (d$fy_oy + d$fy_on + d$fn_oy) ){
+    return (NA);
+  } else {
+    return( d$fy_oy / (d$fy_oy + d$fy_on + d$fn_oy) );
+  }
+}
+calcGSS = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
+  }
+  if( 0 == d$total ){
+    return (NA);
+  }
+  dblC = ( (d$fy_oy + d$fy_on) / d$total ) * (d$fy_oy + d$fn_oy);
+  gss = ( (d$fy_oy - dblC) / (d$fy_oy + d$fy_on + d$fn_oy - dblC) )
+  return( round(gss, digits=5) );
+}
+calcHK = function(d){
+  if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){
+    return (NA); } else { return( calcPODY(d) - calcPOFD(d) );
+  }
+}
+calcHSS = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
+  }
+  if( 0 == d$total ){ return (NA); }
+  dblC = ( ((d$fy_oy + d$fy_on) / d$total) *(d$fy_oy + d$fn_oy)  +  ((d$fn_oy + d$fn_on) / d$total) * (d$fy_on + d$fn_on)  ) ;
+  hss = ( (d$fy_oy + d$fn_on - dblC) / (d$total - dblC) );
+  return( round(hss, digits=5) );
 
-  }
-  calcODDS = function(d){
-    if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
-    dblPOD = calcPODY(d);
-    dblPOFD = calcPOFD(d);
-    return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
-  }
+}
+calcODDS = function(d){
+  if( is.na(calcPODY(d)) || is.na(calcPOFD(d)) ){ return (NA); }
+  dblPOD = calcPODY(d);
+  dblPOFD = calcPOFD(d);
+  return( (dblPOD * (1 - dblPOFD)) / (dblPOFD * (1 - dblPOD)) );
+}
 
-  calcLODDS = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fy_on) || is.na(d$fn_oy) || is.na(d$fn_on)) {
-      return (NA);
-    }
-
-    if(d$fy_oy == 0 || d$fy_on == 0 || d$fn_oy == 0 || d$fn_on == 0) {
-      return (NA);
-    }
-
-    v= log( d$fy_oy) + log(d$fn_on) - log(d$fy_on) - log(d$fn_oy);
-    return( round(v, digits=5) );
+calcLODDS = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fy_on) || is.na(d$fn_oy) || is.na(d$fn_on)) {
+    return (NA);
   }
 
-  # BAGSS Reference:
-  # Bias Adjusted Precipitation Threat Scores
-  # F. Mesinger, Adv. Geosci., 16, 137-142, 2008
-  calcBAGSS = function(d){
-    if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
-      return (NA);
-    }
-    if( 0 == d$total || d$fn_oy == 0 || d$fy_on == 0){ return (NA); }
-    dblF  = d$fy_oy + d$fy_on;
-    dblO  = d$fy_oy + d$fn_oy;
-    dblLf = log(dblO / d$fn_oy);
-    dblHa = tryCatch({
-      dblO - (d$fy_on / dblLf) * lambert_W0(dblO / d$fy_on * dblLf);
-    }, warning = function(w) {
-      return (NA)
-    }, error = function(e) {
-      return (NA)
-    });
-    return( (dblHa - (dblO^2 / d$total)) / (2*dblO - dblHa - (dblO^2 / d$total)) );
+  if(d$fy_oy == 0 || d$fy_on == 0 || d$fn_oy == 0 || d$fn_on == 0) {
+    return (NA);
   }
 
-  calcECLV = function(d){
+  v= log( d$fy_oy) + log(d$fn_on) - log(d$fy_on) - log(d$fn_oy);
+  return( round(v, digits=5) );
+}
+
+# BAGSS Reference:
+# Bias Adjusted Precipitation Threat Scores
+# F. Mesinger, Adv. Geosci., 16, 137-142, 2008
+calcBAGSS = function(d){
+  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+    return (NA);
+  }
+  if( 0 == d$total || d$fn_oy == 0 || d$fy_on == 0){ return (NA); }
+  dblF  = d$fy_oy + d$fy_on;
+  dblO  = d$fy_oy + d$fn_oy;
+  dblLf = log(dblO / d$fn_oy);
+  dblHa = tryCatch({
+    dblO - (d$fy_on / dblLf) * lambert_W0(dblO / d$fy_on * dblLf);
+  }, warning = function(w) {
+    return (NA)
+  }, error = function(e) {
+    return (NA)
+  });
+  return( (dblHa - (dblO^2 / d$total)) / (2*dblO - dblHa - (dblO^2 / d$total)) );
+}
+
+calcECLV = function(d){
   # Build list of X-axis points between 0 and 1
   CL_PTS = seq(clStep, 1-clStep, clStep)
   ECLV = value(c(d$fy_oy, d$fy_on, d$fn_oy, d$fn_on), cl = CL_PTS);
@@ -376,7 +376,7 @@ calcVCNT_RMSVE = function(d){
 
 calcVCNT_FSTDEV = function(d){
   fstdev = sqrt( calcVL1L2_FVAR (d));
-return ( round(fstdev, digits=5)) ;
+  return ( round(fstdev, digits=5)) ;
 }
 
 calcVCNT_OSTDEV = function(d){
@@ -554,5 +554,71 @@ calcFGOG_RATIO = function(d){
 
 calcSSVAR_Spread = function(d){
   if( length( d$varmean ) < 1 ){ return (NA); }
-    return( sqrt(weighted.mean(d$varmean, d$binn)) );
+  return( sqrt(weighted.mean(d$varmean, d$binn)) );
 }
+
+#ECNT "calculations"
+calcECNT_CRPSS = function(d){
+  if( is.na(d$crps_climo) || d$crps_climo == 0 || is.na(d$crps) )
+  return ( NA );
+  crpss = ( d$crps_climo - d$crps ) / d$crps_climo;
+  return ( round(crpss, digits=5) )
+}
+
+calcECNT_RMSE = function(d){
+  if( is.na(d$mse) )
+  return ( NA );
+  rmse = sqrt(d$mse);
+  return ( round(rmse, digits=5) )
+}
+
+calcECNT_RMSE_OERR = function(d){
+  if( is.na(d$mse_oerr) )
+  return ( NA );
+  rmse_oerr = sqrt(d$mse_oerr);
+  return ( round(rmse_oerr, digits=5) )
+}
+
+calcECNT_ME = function(d){
+  if( is.na(d$me) )
+  return ( NA );
+  return ( round(d$me, digits=5) )
+}
+calcECNT_CRPS = function(d){
+  if( is.na(d$crps) )
+  return ( NA );
+  return ( round(d$crps, digits=5) )
+}
+
+calcECNT_IGN = function(d){
+  if( is.na(d$ign) )
+  return ( NA );
+  return ( round(d$ign, digits=5) )
+}
+calcECNT_SPREAD = function(d){
+  if( is.na(d$spread) )
+  return ( NA );
+  return ( round(d$spread, digits=5) )
+}
+calcECNT_ME_OERR = function(d){
+  if( is.na(d$me_oerr) )
+  return ( NA );
+  return ( round(d$me_oerr, digits=5) )
+}
+calcECNT_SPREAD_OERR = function(d){
+  if( is.na(d$spread_oerr) )
+  return ( NA );
+  return ( round(d$spread_oerr, digits=5) )
+}
+calcECNT_SPREAD_OERR = function(d){
+  if( is.na(d$spread_oerr) )
+  return ( NA );
+  return ( round(d$spread_oerr, digits=5) )
+}
+
+calcECNT_SPREAD_PLUS_OERR = function(d){
+  if( is.na(d$spread_plus_oerr) )
+  return ( NA );
+  return ( round(d$spread_plus_oerr, digits=5) )
+}
+

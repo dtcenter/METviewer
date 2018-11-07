@@ -548,6 +548,7 @@
               <option value="vl1l2">Vector partial sums (VL1L2)</option>
               <option value="val1l2">Vector anomaly partial sums (VAL1L2)</option>
               <option value="grad">Gradient partial sums (GRAD)</option>
+              <option value="ecnt">Ensemble Continuous Statistics (ECNT)</option>
             </select>
             </td>
 

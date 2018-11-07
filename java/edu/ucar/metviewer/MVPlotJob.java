@@ -2,6 +2,7 @@ package edu.ucar.metviewer;
 
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -150,6 +151,7 @@ public class MVPlotJob {
   protected boolean _boolAggSsvar = false;
   protected boolean _boolAggVl1l2 = false;
   protected boolean _boolAggVal1l2 = false;
+  protected boolean _boolAggEcnt = false;
   protected String _strAggBootRepl = "1";
   protected String _strAggBootRandomSeed = "NA";
 
@@ -345,6 +347,7 @@ public class MVPlotJob {
     job._boolAggPct = _boolAggPct;
     job._boolAggNbrCnt = _boolAggNbrCnt;
     job._boolAggSsvar = _boolAggSsvar;
+    job._boolAggEcnt = _boolAggEcnt;
     job._strAggBootRepl = _strAggBootRepl;
     job._strAggBootRandomSeed = _strAggBootRandomSeed;
     job.cl_step = cl_step;
@@ -1462,6 +1465,14 @@ public class MVPlotJob {
     _boolAggSsvar = aggSsvar;
   }
 
+  public boolean getAggEcnt() {
+    return _boolAggEcnt;
+  }
+
+  public void setAggEcnt(boolean aggEcnt) {
+    _boolAggEcnt = aggEcnt;
+  }
+
   public String getAggBootRepl() {
     return _strAggBootRepl;
   }
@@ -1911,8 +1922,8 @@ public class MVPlotJob {
     if (isModeRatio == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
-        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get
-                                                                                               ("dep1"));
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0]
+                                                                                    .get("dep1"));
         isModeRatio = listFcstVarStat.length > 0
                           && MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
       } else {
@@ -1932,8 +1943,8 @@ public class MVPlotJob {
     if (isMtdRatio == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
-        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get
-                                                                                               ("dep1"));
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0]
+                                                                                    .get("dep1"));
         isMtdRatio = listFcstVarStat.length > 0
                          && MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
       } else {
@@ -1971,8 +1982,8 @@ public class MVPlotJob {
     if (isMtd == null) {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
-        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get
-                                                                                               ("dep1"));
+        String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0]
+                                                                                    .get("dep1"));
 
         String[] listStatComp = listFcstVarStat[0][1].split("_");
         String stat = listFcstVarStat[0][1]
@@ -2049,6 +2060,28 @@ public class MVPlotJob {
 
   public void setReverseY(Boolean reverseY) {
     isReverseY = reverseY;
+  }
+
+  public boolean isAggStat() {
+    return this.getAggCtc()
+               || this.getAggSl1l2()
+               || this.getAggSal1l2()
+               || this.getAggNbrCnt()
+               || this.getAggSsvar()
+               || this.getAggVl1l2()
+               || this.getAggVal1l2()
+               || this.getAggGrad()
+               || this.getAggPct()
+               || this.getAggEcnt();
+  }
+
+  public boolean isCalcStat() {
+    return this.getCalcCtc()
+               || this.getCalcSl1l2()
+               || this.getCalcSal1l2()
+               || this.getCalcVl1l2()
+               || this.getCalcVal1l2()
+               || this.getCalcGrad();
   }
 }
 
