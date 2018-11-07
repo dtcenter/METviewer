@@ -1,11 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <HTML>
 <HEAD>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v2.8</TITLE>
+  <TITLE>METviewer v2.9-dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -167,25 +167,23 @@
 
   </style>
 
-  <script src="js/jquery-min.js" type="text/javascript"></script>
-  <script src="js/jquery-ui.min.js"
-          type="text/javascript"></script>
-  <script src="js/jquery.layout-latest.min.js"
-          type="text/javascript"></script>
-  <script type="text/javascript"
-          src="js/jquery.layout.resizeTabLayout-latest.min.js"></script>
-  <script type="text/javascript" src="js/grid.locale-en.js"></script>
-  <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
-  <script type="text/javascript" src="js/jquery.colorpicker.js"></script>
-  <script type="text/javascript" src="js/jquery.multiselect.js"></script>
-  <script type="text/javascript" src="js/jquery.actual.min.js"></script>
-  <script type="text/javascript"
+  <script src="js/jquery-min.js" type="application/javascript"></script>
+  <script src="js/jquery-ui.min.js" type="application/javascript"></script>
+  <script src="js/jquery.layout-latest.min.js" type="application/javascript"></script>
+  <script type="application/javascript"
+          src="js/jquery.layout.resizeTabLayout-latest.min.js" ></script>
+  <script type="application/javascript" src="js/grid.locale-en.js"></script>
+  <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
+  <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
+  <script type="application/javascript" src="js/jquery.multiselect.js"></script>
+  <script type="application/javascript" src="js/jquery.actual.min.js"></script>
+  <script type="application/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  <script type="text/javascript" src="js/metviewer_common.min.js"></script>
-  <script type="text/javascript" src="js/moment.min.js"></script>
-  <script type="text/javascript" src="js/multilevel-dropdown.js"></script>
+  <script type="application/javascript" src="js/metviewer_common.js"></script>
+  <script type="application/javascript" src="js/moment.min.js"></script>
+  <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
 
-  <script type="text/javascript">
+  <script type="application/javascript">
 
     var outerLayout, innerLayout, colorOfSelectedGroup;
     var boxID = 0;
@@ -227,7 +225,9 @@
         type: "POST",
         dataType: 'xml',
         processData: false,
-        data: '<request><list_db></list_db></request>',
+        contentType: "application/xml",
+          mimeType:'text/xml',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><list_db></list_db></request>',
         error: function (jqXHR, textStatus, errorThrown) {
 
         },
@@ -249,7 +249,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 2.8<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.9-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
