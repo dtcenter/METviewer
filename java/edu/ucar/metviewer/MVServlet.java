@@ -1141,7 +1141,7 @@ public class MVServlet extends HttpServlet {
       }
 
       logger.debug("doPost() - response: " + strResp);
-      response.setContentType("text/xml;charset=UTF-8");
+      response.setContentType("application/xml;charset=UTF-8");
       try (PrintWriter printWriter = response.getWriter()) {
         printWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         printWriter.append(strResp);
