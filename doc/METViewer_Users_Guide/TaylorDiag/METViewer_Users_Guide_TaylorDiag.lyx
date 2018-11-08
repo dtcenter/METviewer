@@ -77,7 +77,7 @@
 \begin_body
 
 \begin_layout Chapter
-Performance Diagrams in METViewer
+Taylor Diagrams in METViewer
 \begin_inset CommandInset label
 LatexCommand label
 name "chap:METViewer-TaylorDiag"
