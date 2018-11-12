@@ -5,24 +5,17 @@
 
 package edu.ucar.metviewer.test;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static edu.ucar.metviewer.test.util.TestUtil.DIRECTORY_FILTER;
-import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
-import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;
-import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
-import static edu.ucar.metviewer.test.util.TestUtil.comparePlotFilesWithNames;
-import static edu.ucar.metviewer.test.util.TestUtil.comparePointsFilesWithNames;
-import static edu.ucar.metviewer.test.util.TestUtil.runBatch;
-import static edu.ucar.metviewer.test.util.TestUtil.captureCreatedImages;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static edu.ucar.metviewer.test.util.TestUtil.*;
 
 
 
@@ -94,6 +87,7 @@ public class CreatePlotBatchTest {
        comparePlotFilesWithNames(testDataDir, plotType);
      } else {
          captureCreatedImages(testDataDir, plotType);
+         comparePlotFilesWithNames(testDataDir, plotType);
      }
    }
 
