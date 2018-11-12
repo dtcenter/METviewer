@@ -383,6 +383,7 @@ public class MVBatch  {
 
 
     } catch (Exception e) {
+      stopWatch.stop();
       bat.print("  **  ERROR:  " + e.getMessage());
     }
 
