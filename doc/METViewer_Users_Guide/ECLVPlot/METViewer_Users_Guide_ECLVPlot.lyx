@@ -114,23 +114,21 @@ The Economic Cost Loss Value statistic is sometime also called the Relative
 \series medium
 This information can help the user decide, for a cost/loss ratio C/L for
  taking action based on a forecast, what is the relative improvement in
- economic value between climatalogical and perfect information?
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-Range: -âˆž to 1.
- Perfect score: 1.
-\end_layout
-
-\begin_layout Standard
-
-\series medium
-Characteristics: The relative value is a skill score of expected expense,
- with (sample) climatology as the reference forecast.
+ economic value between climatalogical and perfect information.
+ The relative value is a skill score based on expected cost, with (sample)
+ climatology as the reference forecast.
  Because the cost/loss ratio is different for different users of forecasts,
  the value is plotted as a function of cost to loss.
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+The ECLV score can range from 
+\begin_inset Formula $\text{-∞}$
+\end_inset
+
+ to 1.
 \end_layout
 
 \begin_layout Standard
@@ -171,7 +169,28 @@ name "sec:ECLV-Plot-Examples"
 \begin_layout Standard
 
 \series medium
-The 
+The figure below shows an ECLV plot.
+ In this example, three different forecasting systems are used to predict
+ precipitation at two different thresholds.
+ The economic value peaks at about 0.6 for all forecasts, but at a cost to
+ loss ratio of about 0.2 for half of the forecasts, and near 0.35 for the
+ remaining half.
+ Values of the ECLV are negative for both very low and very high values
+ of the cost to loss ratio.
+ This makes sense, since low values of C/L indiate either a very small cost
+ to protect, very high losses, or both.
+ In these cases, it probably makes sense to protect regardless of the forecast.
+ At the other end, the cost to protect nears the amount of the potential
+ loss.
+ In that case, in probably makes sense to do nothing, regardless of the
+ forecast, so the economic value of the forecast is negative.
+ Between those extremes, each user can determine their own C/L ratio, risk
+ tolerance, etc.
+ to determine the best forecasting system for their needs.
+ In the example below, many of the forecasts are quite similar, so a user
+ may select from a grouping based on other criteria, such as forecast latency
+ or computational requirements.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -201,7 +220,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Example ECLV plot .
+Example ECLV plot for three models using two different thresholds.
 \end_layout
 
 \end_inset
