@@ -136,7 +136,7 @@ Characteristics: The relative value is a skill score of expected expense,
 \begin_layout Standard
 
 \series medium
-Like ROC, it gives information that can be used in decision making.
+Like ROC diagrams, it gives information that can be used in decision making.
 \end_layout
 
 \begin_layout Section
@@ -187,7 +187,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename Example_ECLV_plot.png
+	filename econ.png
 	scale 60
 
 \end_inset
