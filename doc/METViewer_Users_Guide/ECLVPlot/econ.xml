@@ -54,11 +54,11 @@
         </agg_stat>
         <plot_stat>median</plot_stat>
         <tmpl>
-            <data_file>plot_20181001_224606.data</data_file>
-            <plot_file>plot_20181001_224606.png</plot_file>
-            <r_file>plot_20181001_224606.R</r_file>
+            <data_file>plot_20181112_175156.data</data_file>
+            <plot_file>plot_20181112_175156.png</plot_file>
+            <r_file>plot_20181112_175156.R</r_file>
             <title>Economic Value for 24-hour APCP</title>
-            <x_label>Lead Hour</x_label>
+            <x_label>Cost / Loss Ratio</x_label>
             <y1_label>Economic Value</y1_label>
             <y2_label/>
             <caption/>
@@ -136,7 +136,7 @@
         <caption_align>0</caption_align>
         <ci_alpha>0.05</ci_alpha>
         <plot_ci>c("none","none","none","none","none","none")</plot_ci>
-        <show_signif>c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE)</show_signif>
+        <show_signif>c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)</show_signif>
         <plot_disp>c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE)</plot_disp>
         <colors>c("#ff0000FF","#32cd32FF","#1e90ffFF","#ff0000FF","#3cb371FF","#1e90ffFF")</colors>
         <pch>c(20,20,20,20,20,20)</pch>
