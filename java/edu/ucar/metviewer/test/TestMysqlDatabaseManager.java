@@ -1,17 +1,17 @@
 package edu.ucar.metviewer.test;
 
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
-import edu.ucar.metviewer.test.util.ScriptRunner;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.FileReader;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.test.util.ScriptRunner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements TestDBManager {
     public TestMysqlDatabaseManager(DatabaseInfo databaseInfo) throws Exception {

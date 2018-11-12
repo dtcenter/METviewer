@@ -6,27 +6,36 @@
 
 package edu.ucar.metviewer.db;
 
-import edu.ucar.metviewer.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintStream;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.couchbase.client.core.CouchbaseException;
-import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import edu.ucar.metviewer.BuildMysqlQueryStrings;
+import edu.ucar.metviewer.MVNode;
+import edu.ucar.metviewer.MVOrderedMap;
+import edu.ucar.metviewer.MVPlotJob;
+import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.MvResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.BufferedWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.FileWriter;
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author : tatiana $
@@ -456,14 +465,15 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   @Override
-  public boolean executeQueriesAndSaveToFile(
+  public MvResponse executeQueriesAndSaveToFile(
                                                 List<String> queries, String fileName,
                                                 boolean isCalc, String currentDBName,
                                                 boolean isNewFile) throws Exception {
     N1qlQueryResult queryResult = null;
     List<N1qlQueryRow> queryList = null;
     String queryString = "";
-    boolean success = false;
+    MvResponse mvResponse = new MvResponse();
+
 
     List<String> listSqlBeforeSelect = new ArrayList<>();
     List<String> listSqlLastSelectTemp = new ArrayList<>();
@@ -505,7 +515,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           if (queryList.size() > 0){
             printFormattedTable(queryList, queryString, out, printHeader);
             out.flush();
-            success = true;
+            mvResponse.setSuccess(true);
           } else {
             throw new Exception("Error: Query returned no data");
           }
@@ -543,7 +553,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     } catch (CouchbaseException e) {
       logger.error(e.getMessage());
     }
-    return success;
+    mvResponse.setInfoMessage("");
+
+    return mvResponse;
   }
 
   /**
@@ -716,7 +728,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   @Override
   public List<String> buildPlotSql(
                                       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                                      PrintWriter printStreamSql) throws Exception {
+                                      PrintStream printStreamSql) throws Exception {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
@@ -2476,7 +2488,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                                     MVPlotJob job, String strDataFile,
                                                     MVOrderedMap listPlotFixPerm,
                                                     PrintStream printStream,
-                                                    PrintWriter printStreamSql) throws Exception {
+                                                    PrintStream printStreamSql) throws Exception {
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
@@ -2612,7 +2624,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                                     MVPlotJob job, String strDataFile,
                                                     MVOrderedMap listPlotFixPerm,
                                                     PrintStream printStream,
-                                                    PrintWriter printStreamSql) throws Exception {
+                                                    PrintStream printStreamSql) throws Exception {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2829,7 +2841,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                                  MVPlotJob job, String strDataFile,
                                                  MVOrderedMap listPlotFixPerm,
                                                  PrintStream printStream,
-                                                 PrintWriter printStreamSql) throws Exception {
+                                                 PrintStream printStreamSql) throws Exception {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
