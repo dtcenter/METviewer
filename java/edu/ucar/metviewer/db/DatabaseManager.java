@@ -6,14 +6,9 @@
 
 package edu.ucar.metviewer.db;
 
-import org.apache.logging.log4j.io.IoBuilder;
-
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+
+import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $
@@ -50,7 +45,7 @@ public abstract class DatabaseManager {
 
     public static DatabaseManager getLoadManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
-        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         databaseInfo.setDbName(dbName);
         DatabaseManager databaseManager = null;
@@ -73,7 +68,7 @@ public abstract class DatabaseManager {
                                              String password,
                                              String dbName) throws Exception {
         String ms = management_system.toLowerCase();
-        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         databaseInfo.setDbName(dbName);
         DatabaseManager databaseManager = null;
@@ -93,7 +88,7 @@ public abstract class DatabaseManager {
     // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
     public static DatabaseManager getAppManager(String management_system, String host, String user, String password) throws Exception {
         String ms = management_system.toLowerCase();
-        String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
+        String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         DatabaseManager databaseManager = null;
         PrintWriter pw = null;
