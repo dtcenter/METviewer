@@ -6,6 +6,7 @@
 
 package edu.ucar.metviewer.db;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.apache.logging.log4j.io.IoBuilder;
@@ -15,7 +16,7 @@ import org.apache.logging.log4j.io.IoBuilder;
  * @version : 1.0 : 19/05/17 12:42 $
  */
 public abstract class DatabaseManager {
-    private PrintWriter pw;
+    private PrintStream pw;
     private DatabaseInfo databaseInfo;
     protected static final String DB_PREFIX_MV = "mv_";
     public static final String[] SQL_INJECTION_WORDS = new String[]{
@@ -25,13 +26,13 @@ public abstract class DatabaseManager {
     public DatabaseManager(DatabaseInfo databaseInfo) {
         this.databaseInfo = databaseInfo;
         pw = IoBuilder.forLogger(getClass().getSimpleName())
-                .setLevel(org.apache.logging.log4j.Level.INFO).buildPrintWriter();
+                .setLevel(org.apache.logging.log4j.Level.INFO).buildPrintStream();
     }
 
     public DatabaseManager() {
     }
 
-    public PrintWriter getPrintWriter() {
+    public PrintStream getPrintStream() {
         return pw;
     }
 
