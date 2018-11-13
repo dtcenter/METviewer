@@ -1724,42 +1724,47 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strWhere += "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0) ? "1" : "0");
     }
 
-
-    if (!strGroupBy.contains("fcst_valid")) {
-      if (groups.length > 0) {
-        strGroupBy += "  ,";
+    // RTP if it is in the select I think it MUST be in the GROUP_BY
+    for (String elem : selectList.split(",\n")) {
+      // space in the elem probably mean aggregation or function?
+      elem = elem.trim().replaceAll("h\\.", "");
+      if (!(strGroupBy.contains(elem)) && !elem.contains(" ")) {
+        if (groups.length > 0) {
+          strGroupBy += "  ,";
+        }
+        strGroupBy += elem;
       }
-      strGroupBy += " fcst_valid";
-
     }
+    strGroupBy += ", object_id, object_cat";
 
-    //mandatory group by fcst_valid and fcst_lead for EE
-    if (isEventEqualization && !strGroupBy.contains("fcst_lead")) {
-      if (groups.length > 0) {
-        strGroupBy += "  ,";
-      }
-      strGroupBy += " fcst_lead";
-    }
 
     String selectListStat = selectList.replaceAll("h\\.", "").replaceAll(",\\s+$", "");
 
     //  build the query
+
     return
-        "SELECT\n" + selectListStat + ",\n"
-            + "  '' object_id,\n"
-            + "  '' object_cat,\n"
-            + "  '" + stat + "' stat_name,\n"
-            + "  " + strStat + " stat_value\n"
-            + "FROM\n"
-            + "  mode_header ,\n"
-            + "  mode_obj_single ,\n"
-            + "  mode_cts\n"
-            + "WHERE\n" + strWhere + "\n"
-            + "  AND simple_flag = 1\n"
-            + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
-            + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n"
-            + "  AND mode_cts.field = 'OBJECT' "
-            + strGroupBy + ";";
+            "SELECT\n" + selectListStat + ",\n"
+                    + "  '' object_id,\n"
+                    + "  '' object_cat,\n"
+                    + "  '" + stat + "' stat_name,\n"
+                    + "  " + strStat + " stat_value\n"
+                    + "FROM\n"
+                    + "  mode_header ,\n"
+                    + "  mode_obj_single ,\n"
+                    + "  mode_cts\n"
+                    + "WHERE\n" + strWhere + "\n"
+                    + "  AND simple_flag = 1\n"
+                    + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
+                    + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n"
+                    + "  AND mode_cts.field = 'OBJECT' "
+                    + strGroupBy
+                    + (selectListStat.contains("fcst_init") ? ",fcst_init" : "")
+                    + (selectListStat.contains("fcst_var") ? ",fcst_var" : "")
+                    + ",stat_name"
+                    + ",stat_value"
+                    + ",object_id"
+                    + ",object_cat"
+                    + ";";
   }
 
   /**
@@ -1909,20 +1914,32 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
       //mandatory group by fcst_valid and fcst_lead for EE
-      if (isEventEqualization) {
-        if (!strGroupBy.contains("fcst_valid")) {
+//      if (isEventEqualization) {
+//        if (!strGroupBy.contains("fcst_valid")) {
+//          if (groups.length > 0) {
+//            strGroupBy += "  ,";
+//          }
+//          strGroupBy += " fcst_valid";
+//        }
+//        if (!strGroupBy.contains("fcst_lead")) {
+//          if (groups.length > 0) {
+//            strGroupBy += "  ,";
+//          }
+//          strGroupBy += " fcst_lead";
+//        }
+
+      // RTP if it is in the select I think it MUST be in the GROUP_BY
+      for (String elem : selectList.split(",\n")) {
+        // space in the elem probably mean aggregation or function?
+        elem = elem.trim().replaceAll("h\\.", "");
+        if (!(strGroupBy.contains(elem)) && !elem.contains(" ")) {
           if (groups.length > 0) {
             strGroupBy += "  ,";
           }
-          strGroupBy += " fcst_valid";
-        }
-        if (!strGroupBy.contains("fcst_lead")) {
-          if (groups.length > 0) {
-            strGroupBy += "  ,";
-          }
-          strGroupBy += " fcst_lead";
+          strGroupBy += elem;
         }
       }
+      strGroupBy += ", object_id, object_cat";
     }
     String selectListStat = selectList.replaceAll("h\\.", "");
     //  build the query
@@ -2602,6 +2619,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (binColumnName != null) {
       strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + "\n";
     }
+
+    String strPlotDataSelectPrior = strPlotDataSelect;
     strPlotDataSelect = strPlotDataSelect + "FROM\n"
                             + "  stat_header h,\n"
                             + "  " + table + " ld,\n"
@@ -2610,10 +2629,25 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                             + strWhere
                             + "  AND h.stat_header_id = ld.stat_header_id\n"
                             + "  AND ld.line_data_id = ldr.line_data_id\n"
-                            + "GROUP BY i_value";
+                            + "GROUP BY ";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
+
+    // RTP if it is in the select I think it MUST be in the GROUP_BY unless
+    // it is in a function
+    String strGroupBy = "i_value";
+    for (String elem : strPlotDataSelectPrior.replace("SELECT","").replaceAll(",","").trim().split("\n")) {
+      String[] elemParts = elem.split("\\.");
+      elem = elemParts[elemParts.length -1];
+      // is it absent and not a function
+      if (!(strGroupBy.contains(elem)) && !elem.contains("(")&& !elem.contains(")")) {
+          strGroupBy += ", " + elem;
+      }
+    }
+
+    strPlotDataSelect += strGroupBy;
+
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
@@ -2764,7 +2798,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                 + "  AND h.stat_header_id = ld.stat_header_id\n"
                                 + "  AND ld.line_data_id = ldt.line_data_id\n"
                                 + "GROUP BY\n"
-                                + "  ldt.thresh_i";
+                                + "  ldt.thresh_i,"
+                                + "  ld.total,"
+                                + "  ldt.i_value;";
         if (listSeries.length > 0) {
           strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
         }
@@ -2790,7 +2826,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                               + strWhere
                               + "  AND h.stat_header_id = ld.stat_header_id\n"
                               + "GROUP BY\n"
-                              + "  h.fcst_thresh";
+                              + "  h.fcst_thresh, ld.total";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }

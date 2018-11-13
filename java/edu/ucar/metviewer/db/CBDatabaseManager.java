@@ -33,6 +33,10 @@ public class CBDatabaseManager extends DatabaseManager{
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   private static Bucket bucket = null;
+  protected static final java.text.SimpleDateFormat DATE_FORMAT =
+          new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+  protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
+          = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public CBDatabaseManager(DatabaseInfo databaseInfo) throws CouchbaseException {
     super(databaseInfo);

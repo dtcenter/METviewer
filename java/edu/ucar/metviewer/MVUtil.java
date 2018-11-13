@@ -1,10 +1,17 @@
 package edu.ucar.metviewer;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +30,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;

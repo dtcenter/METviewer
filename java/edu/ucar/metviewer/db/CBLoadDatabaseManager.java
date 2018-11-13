@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
-  DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+  protected static final DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
   private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, String> statHeaders = new HashMap<>();
@@ -554,7 +554,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       .put("type", "header")
                       .put("header_type", "stat")
                       .put("data_type", info.luTypeName)
-                      .put("data_id", info.fileId)
+                      .put("data_id", info.fileIdStr)
                       .put("version", MVUtil.findValue(listToken, headerNames, "VERSION"))
                       .put("model", modelName)
                       .put("descr", MVUtil.findValue(listToken, headerNames, "DESC"))
@@ -642,7 +642,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                   lineType.toLowerCase() + ESEP +   // line type
                   modelName + ESEP +            // model name for ID
                   headerIdString + ESEP +       //  CB header_id
-                  info.fileId + ESEP +     //  CB data_id for data_file
+                  info.fileIdStr + ESEP +     //  CB data_id for data_file
                   intLine + ESEP +          //  line_num
                   fcstLeadStr + ESEP +        //  fcst_lead
                   fcstValidBegStr + ESEP +    //  fcst_valid_beg
@@ -1272,7 +1272,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         .put("type", "header")
                         .put("header_type", "stat")
                         .put("data_type", info.luTypeName)
-                        .put("data_id", info.fileId)
+                        .put("data_id", info.fileIdStr)
                         .put("version", listToken[0])
                         .put("model", modelName)
                         .put("descr", "NA")
@@ -2047,7 +2047,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             strModeHeaderValueList =
                 intModeHeaderId + ", " +        //  mode_header_id
                     intLineTypeLuId + ", " +        //  line_type_lu_id
-                    info.fileId + ", " +        //  data_file_id
+                    info.fileIdStr + ", " +        //  data_file_id
                     intLine + ", " +            //  linenumber
                     strModeHeaderValueList;
 
@@ -2441,7 +2441,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             mtdHeaderValueList =
                 mtdHeaderId + ", " +
                     intLineTypeLuId + ", " +
-                    info.fileId + ", " +
+                    info.fileIdStr + ", " +
                     intLine + ", " +
                     mtdHeaderValueList;
 
@@ -2786,7 +2786,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
     //  reserve a block of counters to add to ids for all the documents
     try {
-      nextIdNumber = getBucket().counter("LDCounter", listValues.size()).content() - listValues.size();
+      nextIdNumber = getBucket().counter("LDCounter", listValues.size(), 1).content() - listValues.size();
     } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
@@ -2870,15 +2870,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String strFile = file.getName();
     int strDataFileLuId = -1;
     String strDataFileLuTypeName;
-    String dataFileId;
+    Integer dataFileId;
     JsonDocument doc;
     N1qlQueryResult queryResult = null;
     List<N1qlQueryRow> queryList = null;
     N1qlQueryRow firstRow = null;
     JsonObject firstRowObject = null;
-    long nextIdNumber = 0;
+    Long nextIdNumber = 0L;
     String nextIdString = "";
-    String dupIdString = "";
     String searchDbName = "";
     JsonObject dataFile;
     JsonDocument response;
@@ -2920,7 +2919,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       strDataFileLuId = tableDataFileLU.get(strDataFileLuTypeName);
     }
     // for compile. remove when CB fully in
-    dataFileId = "0";
+    dataFileId = 0;
 
     // build a Couchbase query to look for the file and path in the data_file table
 
@@ -2951,11 +2950,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           firstRow = queryList.get(0);
           firstRowObject = firstRow.value();
           // set dupIdString to id of existing data file document
-          dupIdString = firstRowObject.get("dataFileId").toString();
           strLoadDate = firstRowObject.get("load_date").toString();
           strModDate = firstRowObject.get("mod_date").toString();
           // for couchbase, pass string id dupidstring, already in database, as new id
-          DataFileInfo info = new DataFileInfo(dupIdString, strFile, strPath, strLoadDate,
+          DataFileInfo info =
+                  new DataFileInfo(firstRowObject.get("dataFileId").toString(),
+                          strFile, strPath, strLoadDate,
                                                strModDate, strDataFileLuId, strDataFileLuTypeName);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
@@ -2977,7 +2977,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     } catch (CouchbaseException e) {
       throw new Exception(e.getMessage());
     }
-    nextIdString = getDatabaseInfo().getDbName() + "::file::" + strDataFileLuTypeName + "::" + String.valueOf(nextIdNumber);
+    nextIdString = getDatabaseInfo().getDbName() + "::file::" + strDataFileLuTypeName + "::" + nextIdNumber;
     try {
       dataFile = JsonObject.empty()
               .put("type", "file")
@@ -3001,17 +3001,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   @Override
   public void updateInfoTable(String strXML, MVLoadJob job) throws Exception {
-    long nextIdNumber;
-    nextIdNumber = 0;
-    String nextIdString;
-    nextIdString = "";
-    String headerIdString;
-    headerIdString = "";
+    Long nextIdNumber = 0L;
+    String nextIdString = "";
+    String headerIdString = "";
     JsonObject instanceFile;
     JsonDocument response;
     JsonDocument doc;
-    JsonObject firstRowObject;
-    firstRowObject = null;
+    JsonObject firstRowObject = null;
 
     //  get the instance_info information to insert
     String strUpdater = "";
