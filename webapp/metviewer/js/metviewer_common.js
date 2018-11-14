@@ -4475,8 +4475,6 @@ function resetFormatting() {
     $("#y2tlab_perp").val("0.5");
     $("#y2tlab_size").val("1");
     $("#y2tlab_orient").val("1");
-    $("#y2_lim_min").val("0");
-    $("#y2_lim_max").val("1");
     $("#y2_bufr").val("0");
 
     $("#legend_size").val("0.8");
