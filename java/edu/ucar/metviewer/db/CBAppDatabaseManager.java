@@ -29,11 +29,13 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import edu.ucar.metviewer.BuildMysqlQueryStrings;
+import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
+import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,7 +46,7 @@ import org.apache.logging.log4j.Logger;
 public class CBAppDatabaseManager extends CBDatabaseManager implements AppDatabaseManager {
 
 
-  private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
+  private static final Logger logger = LogManager.getLogger("CBAppDatabaseManager");
   private final Map<String, String> statHeaderSqlType = new HashMap<>();
   private final Map<String, String> modeHeaderSqlType = new HashMap<>();
   private final Map<String, String> mtd3dSingleStatField = new HashMap<>();
@@ -157,7 +159,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                         "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2) " +
                         "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2) " +
                         "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt) ";
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt) " +
+                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM line_data_ecnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt) ";
 
     for (String database : currentDBName) {
 //      try (Connection con = getConnection(database);
@@ -232,6 +235,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 //                  listStatName.addAll(MVUtil.statsVcnt.keySet());
 //                }
 //                break;
+//              case 19:
+//                listStatName.addAll(MVUtil.statsEcnt.keySet());
 //              default:
 //
 //            }
@@ -420,7 +425,6 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 //                              + " FROM " + listTable + " ld" + strWhereTime;
 //              stmtTmp.executeUpdate(strTmpSql);
 //            }
-//            stmtTmp.close();
 //          } catch (SQLException e) {
 //            logger.error(e.getMessage());
 //          }
@@ -447,13 +451,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 //          if (strTmpTable != null) {
 //            stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
 //          }
-//          res.close();
-//          stmt.close();
 //
 //        } catch (SQLException e) {
 //          logger.error(e.getMessage());
 //        }
-//        con.close();
 //      } catch (SQLException e) {
 //        logger.error(e.getMessage());
 //      }
@@ -492,8 +493,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         listSqlBeforeSelect.add(sql);
       }
     }
+    StopWatch dbStopWatch = new StopWatch();
+    StopWatch saveToFileStopWatch = new StopWatch();
 
     try {
+      dbStopWatch.start();
       for (String aListSqlBeforeSelect : listSqlBeforeSelect) {
         try {
           queryResult = getBucket().query(N1qlQuery.simple(aListSqlBeforeSelect));
@@ -502,6 +506,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           logger.error(e.getMessage());
         }
       }
+      dbStopWatch.stop();
 
       for (int i = 0; i < listSqlLastSelect.size(); i++) {
         boolean append = !isNewFile || i != 0;
@@ -510,10 +515,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
              BufferedWriter out = new BufferedWriter(fstream);) {
 
           queryString = listSqlLastSelect.get(i);
+          dbStopWatch.start();
           queryResult = getBucket().query(N1qlQuery.simple(queryString));
+          dbStopWatch.stop();
+          saveToFileStopWatch.start();
           queryList = queryResult.allRows();
           if (queryList.size() > 0){
             printFormattedTable(queryList, queryString, out, printHeader);
+            saveToFileStopWatch.stop();
             out.flush();
             mvResponse.setSuccess(true);
           } else {
@@ -553,7 +562,13 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     } catch (CouchbaseException e) {
       logger.error(e.getMessage());
     }
-    mvResponse.setInfoMessage("");
+    String message = "Database query time for " + currentDBName + " "
+            + dbStopWatch.getFormattedTotalDuration();
+    if (saveToFileStopWatch.getTotalDuration() != null) {
+      message = message + "\nSave to file time for   " + currentDBName + " "
+              + saveToFileStopWatch.getFormattedTotalDuration();
+    }
+    mvResponse.setInfoMessage(message);
 
     return mvResponse;
   }
@@ -647,9 +662,6 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 //        pctThresh = resultSet.getInt(1);
 //        numPctThresh++;
 //      }
-//      resultSet.close();
-//      stmt.close();
-//      con.close();
 //
 //    } catch (SQLException e) {
 //      logger.error(e.getMessage());
@@ -672,9 +684,6 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 //      while (resultSet.next()) {
 //        result.add(resultSet.getString(1));
 //      }
-//      resultSet.close();
-//      stmt.close();
-//      con.close();
 //
 //    } catch (SQLException e) {
 //      logger.error(e.getMessage());
@@ -727,8 +736,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
    */
   @Override
   public List<String> buildPlotSql(
-                                      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                                      PrintStream printStreamSql) throws Exception {
+      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
+      PrintStream printStreamSql) throws Exception {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
@@ -754,23 +763,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     }
 
     //  determine if the plot requires data aggregation or calculations
-    boolean boolAggStat = job.getAggCtc()
-                              || job.getAggSl1l2()
-                              || job.getAggSal1l2()
-                              || job.getAggPct()
-                              || job.getAggNbrCnt()
-                              || job.getAggSsvar()
-                              || job.getAggVl1l2()
-                              || job.getAggVal1l2()
-                              || job.getAggGrad();
+    boolean boolAggStat = job.isAggStat();
 
     boolean boolCalcStat = job.isModeRatioJob()
                                || job.isMtdRatioJob()
-                               || job.getCalcCtc()
-                               || job.getCalcSl1l2()
-                               || job.getCalcSal1l2()
-                               || job.getCalcVl1l2()
-                               || job.getCalcGrad();
+                               || job.isCalcStat();
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
@@ -805,8 +802,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (0 < listDepPlot.length && 1 > listSeries.length) {
         throw new Exception("dep values present, but no series values for Y" + intY);
       }
-      if (1 > listDepPlot.length && 0 < listSeries.length && !job.getPlotTmpl()
-                                                                  .equals("eclv.R_tmpl")) {
+      if (1 > listDepPlot.length && 0 < listSeries.length
+              && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
         throw new Exception("series values present, but no dep values for Y" + intY);
       }
 
@@ -1197,8 +1194,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             aggType = MVUtil.SSVAR;
           } else if (job.getCalcVl1l2() || job.getAggVl1l2()) {
             aggType = MVUtil.VL1L2;
-          } else if (job.getAggVal1l2()) {
+          } else if (job.getCalcVal1l2() || job.getAggVal1l2()) {
             aggType = MVUtil.VAL1L2;
+          } else if (job.getAggEcnt()) {
+            aggType = MVUtil.ECNT;
           }
 
 
@@ -1249,7 +1248,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             tableStats = MVUtil.statsPstd;
             strStatTable = "line_data_pstd ld ";
             if (aggType != null) {
-              strStatTable = "line_data_pct ld";
+              strStatTable = "line_data_pct ld ";
               MVUtil.isAggTypeValid(MVUtil.statsPstd, strStat, aggType);
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strStatTable += ",   line_data_pct_thresh ldt" + i;
@@ -1289,6 +1288,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
             strStatTable = "line_data_orank ld ";
+            strStatField = strStat.replace("ORANK_", "").toLowerCase();
           } else if (MVUtil.statsVcnt.containsKey(strStat)) {
             tableStats = MVUtil.statsVcnt;
             strStatField = strStat.replace("VCNT_", "").toLowerCase();
@@ -1306,7 +1306,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               tableStats = MVUtil.statsPstd;
               strStatTable = "line_data_pct ld,   line_data_pct_thresh ldt ";
             }
-
+          } else if (MVUtil.statsEcnt.containsKey(strStat)) {
+            tableStats = MVUtil.statsEcnt;
+            strStatTable = "line_data_ecnt ld ";
+            strStatField = strStat.replace("ECNT_", "").toLowerCase();
           } else {
             throw new Exception("unrecognized stat: " + strStat);
           }
@@ -1334,7 +1337,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             boolBCRMSE = true;
             strStatField = "bcmse";
           }
-          strSelectStat += ", '" + strStat + "' stat_name";
+          strSelectStat += ", " + strStat + " stat_name";
 
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
@@ -1354,6 +1357,15 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else if (job.getAggSal1l2()) {
             strSelectStat += ",   0 stat_value,   ld.total,   ld.fabar,   ld.oabar,   "
                                  + "ld.foabar,   ld.ffabar,   ld.ooabar,  ld.mae";
+
+          } else if (job.getAggEcnt()) {
+
+            strSelectStat += ",  0 stat_value,"
+                    + " ld.total,  ld.me,   ld.rmse,  ld.crps,  ld.crpss,"
+                    + "  ld.ign,  "
+                    + " ld.spread,  ld.me_oerr,  ld.rmse_oerr,"
+                    + "   ld.spread_oerr,"
+                    + " ld.spread_plus_oerr";
           } else if (job.getAggPct()) {
             if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               strSelectStat += ",   0 stat_value,   ld.total,   (ld.n_thresh - 1)";
@@ -1414,6 +1426,13 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                  + " ld.f_speed_bar, ld.o_speed_bar, 'NA' stat_value, "
                                  + "  'NA' stat_ncl,   'NA' stat_ncu,   'NA' stat_bcl,   "
                                  + "'NA' stat_bcu";
+
+          } else if (job.getCalcVal1l2()) {
+            strSelectStat += ",  ld.total, ld.ufabar, ld.vfabar, ld.uoabar, ld.voabar, "
+                    + "ld.uvfoabar, ld.uvffabar, ld.uvooabar,"
+                    + " 'NA' stat_value,"
+                    + "  'NA' stat_ncl,  'NA' stat_ncu,  'NA' stat_bcl,  "
+                    + "'NA' stat_bcu";
           } else {
             if (boolBCRMSE) {
               strSelectStat += ",   IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld."
@@ -1671,6 +1690,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         listQuery.add(buildMtd2dStatDiffTable(strSelectList, strWhere, strStat, query1, query2));
       }
     } else if (MVUtil.mtd3dPairStatField.containsKey(stat)) {
+      strWhere = strWhere.replace("h.", "");
       listQuery.add(buildMtd3dPairStatTable(strSelectList, strWhere, strStat));
     } else {
       strWhere = strWhere.replace("h.", "");
@@ -2119,9 +2139,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   private String buildMtd3dSingleStatDiffTable(
-                                                  String strSelectList, String strWhere, String
-                                                                                             stat,
-                                                  String table1, String table2) {
+      String strSelectList, String strWhere,
+      String stat,
+      String table1, String table2) {
 
     //  parse the stat into the stat name and the object flags
     //  parse the stat into the stat name and the object flags
@@ -2610,10 +2630,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile,
+      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
                                   job.getCalcCtc() || job.getCalcSl1l2()
                                       || job.getCalcSal1l2() || job.getCalcGrad(),
                                   job.getCurrentDBName().get(i), i == 0);
+      if (mvResponse.getInfoMessage() != null) {
+        printStream.println(mvResponse.getInfoMessage());
+      }
+      printStream.println();
     }
     return strMsg;
   }
@@ -2621,10 +2645,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   @Override
   public int buildAndExecuteQueriesForRocRelyJob(
-                                                    MVPlotJob job, String strDataFile,
-                                                    MVOrderedMap listPlotFixPerm,
-                                                    PrintStream printStream,
-                                                    PrintStream printStreamSql) throws Exception {
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm,
+      PrintStream printStream,
+      PrintStream printStreamSql) throws Exception {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2815,7 +2839,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       for (int i = 0; i < listFcstThresh.size(); i++) {
         fcstThreshMsg += (0 == i ? ":" : "") + "   " + listFcstThresh.toString();
       }
-      throw new Exception(fcstThreshMsg);
+      throw new Exception(fcstThreshMsg.toString());
     }
     if (job.getRocPct() && listObsThresh.isEmpty()) {
       String strObsThreshMsg = "ROC/Reliability plots must contain data "
@@ -2827,10 +2851,13 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile,
-                                  job.getCalcCtc() || job.getCalcSl1l2()
-                                      || job.getCalcSal1l2() || job.getCalcGrad(),
-                                  job.getCurrentDBName().get(i), i == 0);
+      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                          job.isCalcStat(),
+                                                          job.getCurrentDBName().get(i),
+                                                          i == 0);
+      if (mvResponse.getInfoMessage() != null) {
+        printStream.println(mvResponse.getInfoMessage());
+      }
     }
 
     return intNumDepSeries;
@@ -2866,10 +2893,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                          + statHeaderSqlType.get(strSeriesField);
 
     }
-    if (!strSelectList.contains("fcst_valid")) {
+    if (!strSelectList.toString().contains("fcst_valid")) {
       strSelectList += ",  " + " ld.fcst_valid_beg";
     }
-    if (!strSelectList.contains("fcst_lead")) {
+    if (!strSelectList.toString().contains("fcst_lead")) {
       strSelectList += ",  " + " ld.fcst_lead";
     }
 
@@ -2991,10 +3018,13 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     List<String> queries = new ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      executeQueriesAndSaveToFile(queries, strDataFile,
-                                  job.getCalcCtc() || job.getCalcSl1l2()
-                                      || job.getCalcSal1l2() || job.getCalcGrad(),
-                                  job.getCurrentDBName().get(i), i == 0);
+      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+                                                          job.isCalcStat(),
+                                                          job.getCurrentDBName().get(i),
+                                                          i == 0);
+      if (mvResponse.getInfoMessage() != null) {
+        printStream.println(mvResponse.getInfoMessage());
+      }
     }
 
     return intNumDepSeries;
