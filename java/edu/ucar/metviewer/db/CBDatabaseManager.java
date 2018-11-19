@@ -168,6 +168,7 @@ public class CBDatabaseManager extends DatabaseManager{
       try {
         env = DefaultCouchbaseEnvironment.builder()
                 .connectTimeout(40000) //20000ms = 20s, default is 5s
+                .queryTimeout(300000) //20000ms = 20s, default is 75000ms
                 .build();
         Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
         cluster.authenticate(getDatabaseInfo().getUser(), getDatabaseInfo().getPassword());

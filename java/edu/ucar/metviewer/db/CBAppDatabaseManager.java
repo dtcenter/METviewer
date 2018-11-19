@@ -141,112 +141,105 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   public List<String> getListStat(String strFcstVar, String[] currentDBName) {
     List<String> listStatName = new ArrayList<>();
 
-    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt) " +
-                        "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM line_data_ecnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt) ";
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    String queryString = "";
+    String dbList = "[";
 
-    for (String database : currentDBName) {
-//      try (Connection con = getConnection(database);
-//           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-//                                                ResultSet.CONCUR_READ_ONLY);
-//           ResultSet res = stmt.executeQuery(strSql)) {
-//        int intStatIndex = 0;
-//        boolean boolCnt = false;
-//        boolean boolCts = false;
-//        boolean boolVcnt = false;
-//        while (res.next()) {
-//          int intStatCount = res.getInt(1);
-//          if (-9999 != intStatCount) {
-//            switch (intStatIndex) {
-//              case 0:
-//              case 1:
-//              case 15:
-//              case 17:
-//                if (!boolCnt) {
-//                  listStatName.addAll(MVUtil.statsCnt.keySet());
-//                }
-//                boolCnt = true;
-//                break;
-//              case 2:
-//              case 3:
-//                if (!boolCts) {
-//                  listStatName.addAll(MVUtil.statsCts.keySet());
-//                }
-//                boolCts = true;
-//                break;
-//              case 4:
-//                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
-//                break;
-//              case 5:
-//                listStatName.addAll(MVUtil.statsNbrcts.keySet());
-//                break;
-//              case 6:
-//                listStatName.addAll(MVUtil.statsPstd.keySet());
-//                break;
-//              case 7:
-//                listStatName.addAll(MVUtil.statsMcts.keySet());
-//                break;
-//              case 8:
-//                listStatName.addAll(MVUtil.statsRhist.keySet());
-//                break;
-//              case 9:
-//                //case 16:
-//                listStatName.addAll(MVUtil.statsVl1l2.keySet());
-//                listStatName.addAll(MVUtil.statsVcnt.keySet());
-//                boolVcnt = true;
-//                break;
-//              case 10:
-//                listStatName.addAll(MVUtil.statsPhist.keySet());
-//                break;
-//              case 11:
-//                listStatName.addAll(MVUtil.statsEnscnt.keySet());
-//                break;
-//              case 12:
-//                listStatName.addAll(MVUtil.statsMpr.keySet());
-//                break;
-//              case 13:
-//                listStatName.addAll(MVUtil.statsOrank.keySet());
-//                break;
-//              case 14:
-//                listStatName.addAll(MVUtil.statsSsvar.keySet());
-//                break;
-//              case 16:
-//                listStatName.addAll(MVUtil.statsVal1l2.keySet());
-//                break;
-//              case 18:
-//                if (!boolVcnt) {
-//                  listStatName.addAll(MVUtil.statsVcnt.keySet());
-//                }
-//                break;
-//              case 19:
-//                listStatName.addAll(MVUtil.statsEcnt.keySet());
-//              default:
-//
-//            }
-//          }
-//          intStatIndex++;
-//        }
-//      } catch (SQLException e) {
-//        logger.error(e.getMessage());
-//      }
+    for (String cdbName: currentDBName) {
+      if (dbList.length() > 1) {
+        dbList += ", ";
+      }
+      dbList += "\'" + cdbName + "\'";
     }
+    dbList += "]";
+
+    // find the line_data documents where the header has the selected forecast variable
+    queryString = "select distinct ld.line_type"
+                  + " FROM `" + getBucket().name() + "` as h "
+                  + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id"
+                  + " WHERE ld.type = \'line\' AND h.type = \'header\' AND h.header_type = \'stat\' "
+                  + " AND h.fcst_var = \'" + strFcstVar + "\' "
+                  + " AND substr(meta(h).id, 0, position(meta(h).id, \'::\')) in " + dbList;
+
+    try {
+          queryResult = getBucket().query(N1qlQuery.simple(queryString));
+          boolean boolCnt = false;
+          boolean boolCts = false;
+          boolean boolVcnt = false;
+          for (N1qlQueryRow row : queryResult) {
+            // System.out.println(row);
+            switch (row.value().get("line_type").toString()) {
+              case "cnt":
+              case "sl1l2":
+              case "sal1l2":
+              case "grad":
+                if (!boolCnt) {
+                  listStatName.addAll(MVUtil.statsCnt.keySet());
+                }
+                boolCnt = true;
+                break;
+              case "cts":
+              case "ctc":
+                if (!boolCts) {
+                  listStatName.addAll(MVUtil.statsCts.keySet());
+                }
+                boolCts = true;
+                break;
+              case "nbrcnt":
+                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
+                break;
+              case "nbrcts":
+                listStatName.addAll(MVUtil.statsNbrcts.keySet());
+                break;
+              case "pstd":
+                listStatName.addAll(MVUtil.statsPstd.keySet());
+                break;
+              case "mcts":
+                listStatName.addAll(MVUtil.statsMcts.keySet());
+                break;
+              case "rhist":
+                listStatName.addAll(MVUtil.statsRhist.keySet());
+                break;
+              case "vl1l2":
+                //case val1l2:
+                listStatName.addAll(MVUtil.statsVl1l2.keySet());
+                listStatName.addAll(MVUtil.statsVcnt.keySet());
+                boolVcnt = true;
+                break;
+              case "phist":
+                listStatName.addAll(MVUtil.statsPhist.keySet());
+                break;
+              case "enscnt":
+                listStatName.addAll(MVUtil.statsEnscnt.keySet());
+                break;
+              case "mpr":
+                listStatName.addAll(MVUtil.statsMpr.keySet());
+                break;
+              case "orank":
+                listStatName.addAll(MVUtil.statsOrank.keySet());
+                break;
+              case "ssvar":
+                listStatName.addAll(MVUtil.statsSsvar.keySet());
+                break;
+              case "val1l2":
+                listStatName.addAll(MVUtil.statsVal1l2.keySet());
+                break;
+              case "vcnt":
+                if (!boolVcnt) {
+                  listStatName.addAll(MVUtil.statsVcnt.keySet());
+                }
+                break;
+              case "ecnt":
+                listStatName.addAll(MVUtil.statsEcnt.keySet());
+              default:
+
+            }
+          }
+        } catch (CouchbaseException e) {
+          logger.error(e.getMessage());
+        }
+
     Collections.sort(listStatName);
     return listStatName;
   }
@@ -1337,7 +1330,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             boolBCRMSE = true;
             strStatField = "bcmse";
           }
-          strSelectStat += ", " + strStat + " stat_name";
+          strSelectStat += ", \'" + strStat + "\' stat_name";
 
           //  add the appropriate stat table members, depending
           // on the use of aggregation and stat calculation
