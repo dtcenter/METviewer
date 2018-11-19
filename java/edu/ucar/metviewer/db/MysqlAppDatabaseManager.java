@@ -1893,6 +1893,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strWhere += "\n  AND matched_flag = " + ('M' == strStatFlag.charAt(2) ? "1" : "0");
     }
 
+    String selectListStat = selectList.replaceAll("h\\.", "");
+
+    //remove fcst_init from the select list to create valid "GROUP BY"
+    if (selectListStat.contains("fcst_init")) {
+      selectListStat = selectListStat.replace("fcst_init,",
+                                              "NOW()  fcst_init,");
+    }
+
     //  build the group by clause
     String strGroupBy = "";
     String statName = listStatParse[0];
@@ -1906,30 +1914,45 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           strGroupBy += "  ,";
         }
         strGroupBy += " fcst_valid";
+
+      } else {
+        if (selectListStat.contains("fcst_valid")) {
+          selectListStat = selectListStat.replace("fcst_valid,",
+                                                  "NOW()  fcst_valid,");
+        }
       }
+
 
       //mandatory group by fcst_valid and fcst_lead for EE
       if (isEventEqualization) {
-        if (!strGroupBy.contains("fcst_valid")) {
-          if (groups.length > 0) {
-            strGroupBy += "  ,";
-          }
-          strGroupBy += " fcst_valid";
-        }
+
         if (!strGroupBy.contains("fcst_lead")) {
           if (groups.length > 0) {
             strGroupBy += "  ,";
           }
           strGroupBy += " fcst_lead";
         }
+        if (!selectListStat.contains("fcst_lead")) {
+          selectListStat = selectListStat + ", fcst_lead\n";
+        }
+      } else {
+        if (Arrays.binarySearch(groups, "fcst_lead") >= 0) {
+          if (!strGroupBy.contains("fcst_lead")) {
+            if (groups.length > 0) {
+              strGroupBy += "  ,";
+            }
+            strGroupBy += " fcst_lead";
+          }
+        }else {
+          selectListStat = selectListStat.replace("fcst_lead,",
+                                                        "");
+        }
       }
     }
-    String selectListStat = selectList.replaceAll("h\\.", "");
+
     //  build the query
     return
         "SELECT\n" + selectListStat + ",\n"
-            + "  object_id,\n"
-            + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + MVUtil.modeSingleStatField.get(statName) + " stat_value\n"
             + "FROM\n"
@@ -2626,7 +2649,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
       MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
                                                           job.getCalcCtc() || job.getCalcSl1l2()
-                                                                        || job.getCalcSal1l2() || job.getCalcGrad(),
+                                                              || job.getCalcSal1l2() || job.getCalcGrad(),
                                                           job.getCurrentDBName().get(i),
                                                           i == 0);
       if (mvResponse.getInfoMessage() != null) {
@@ -2728,7 +2751,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  build the plot data sql
       strPlotDataSelect =
-          "SELECT\n  ld.total,\n";
+          "SELECT\n  ";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
@@ -2764,7 +2787,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                 + "  AND h.stat_header_id = ld.stat_header_id\n"
                                 + "  AND ld.line_data_id = ldt.line_data_id\n"
                                 + "GROUP BY\n"
-                                + "  ldt.thresh_i";
+                                + "   ldt.i_value, ldt.thresh_i ";
         if (listSeries.length > 0) {
           strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
         }
@@ -2778,7 +2801,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
-      strPlotDataSelect = strPlotDataSelect + "  ld.total,\n"
+      strPlotDataSelect = strPlotDataSelect
                               + "  SUM(ld.fy_oy) fy_oy,\n"
                               + "  SUM(ld.fy_on) fy_on,\n"
                               + "  SUM(ld.fn_oy) fn_oy,\n"
