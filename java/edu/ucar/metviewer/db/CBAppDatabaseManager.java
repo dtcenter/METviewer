@@ -14,7 +14,9 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -247,6 +249,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   @Override
   public List<String> getListValues(MVNode nodeCall, String strField, String[] currentDBName) {
     List<String> listRes = new ArrayList<>();
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+    String queryString = "";
+
     boolean boolMode = nodeCall.children[1].tag.equals("mode_field");
     boolean boolMtd = nodeCall.children[1].tag.equals("mtd_field");
     boolean boolRhist = nodeCall.children[1].tag.equals("rhist_field");
@@ -387,26 +393,25 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String strSql;
     String strTmpTable = null;
     for (String database : currentDBName) {
-//      try (Connection con = getConnection(database)) {
-//        if (boolNRank) {
+        if (boolNRank) {
 //          strSql = "SELECT DISTINCT ld.n_rank "
 //                       + "FROM stat_header h, line_data_rhist ld "
 //                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
 //                       + " ld.stat_header_id = h.stat_header_id "
 //                       + "ORDER BY n_rank;";
-//        } else if (boolNBin) {
+        } else if (boolNBin) {
 //          strSql = "SELECT DISTINCT ld.n_bin "
 //                       + "FROM stat_header h, line_data_phist ld "
 //                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
 //                       + " ld.stat_header_id = h.stat_header_id "
 //                       + "ORDER BY ld.n_bin;";
-//        } else if (!boolMode && !boolMtd
-//                       && (strField.equals("fcst_lead")
-//                               || strField.contains("valid")
-//                               || strField.contains("init"))) {
-//          String strSelectField = formatField(strField, boolMode || boolMtd);
-//          //  create a temp table for the list values from the different line_data tables
-//          strTmpTable = "tmp_" + new Date().getTime();
+        } else if (!boolMode && !boolMtd
+                       && (strField.equals("fcst_lead")
+                               || strField.contains("valid")
+                               || strField.contains("init"))) {
+          String strSelectField = formatField(strField, boolMode || boolMtd);
+          //  create a temp table for the list values from the different line_data tables
+          strTmpTable = "tmp_" + new Date().getTime();
 //          try (Statement stmtTmp = con.createStatement()) {
 //            String strTmpSql = "CREATE TEMPORARY TABLE "
 //                                   + strTmpTable + " (" + strField + " TEXT);";
@@ -426,35 +431,25 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 //          // ordered values of the list field from the temp table
 //          strSql = "SELECT DISTINCT " + strField + " FROM "
 //                       + strTmpTable + " ORDER BY " + strField + ";";
-//        } else {
-//          String strFieldDB = formatField(strField, boolMode || boolMtd).replaceAll("h\\.", "");
-//          strWhere = strWhere.replaceAll("h\\.", "");
-//          strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
-//                       + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
-//        }
-//        //  execute the query
-//        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-//                                                  ResultSet.CONCUR_READ_ONLY);
-//             ResultSet res = stmt.executeQuery(strSql)) {
-//
+        } else {
+            String strFieldDB = formatField(strField, boolMode || boolMtd).replaceAll("h\\.", "");
+            strWhere = strWhere.replaceAll("h\\.", "");
+            queryString = "SELECT DISTINCT " + strFieldDB + " FROM "
+                       + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
+        }
+        //  execute the query
+        try {
+            queryResult = getBucket().query(N1qlQuery.simple(queryString));
 //          while (res.next()) {
 //            listRes.add(res.getString(1));
 //          }
-//          //  drop the temp table, if present
-//          if (strTmpTable != null) {
-//            stmt.executeUpdate("DROP TABLE IF EXISTS " + strTmpTable + ";");
-//          }
-//
-//        } catch (SQLException e) {
-//          logger.error(e.getMessage());
-//        }
-//      } catch (SQLException e) {
-//        logger.error(e.getMessage());
-//      }
+
+
+        } catch (CouchbaseException e) {
+          logger.error(e.getMessage());
+        }
     }
     Collections.sort(listRes);
-    //Set<String> set = new LinkedHashSet<>(listRes);
-    //return new ArrayList<>(set);
     return listRes;
   }
 
