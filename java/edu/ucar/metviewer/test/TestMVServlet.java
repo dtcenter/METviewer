@@ -7,7 +7,8 @@ package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.MVServlet;
 import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -100,7 +101,8 @@ public class TestMVServlet {
       MVServlet.plots = PLOTS_DIR;
       MVServlet.rscript = rscript;
       MVServlet.isValCache = true;
-      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD));
+      MVServlet.databaseManager =
+              (AppDatabaseManager) edu.ucar.metviewer.db.DatabaseManager.getAppManager(type,host, USERNAME,PWD);
       MVServlet.isStatCache = true;
       new MVServlet().doPost(request, response);
 
@@ -108,8 +110,11 @@ public class TestMVServlet {
       verify(request, atLeast(1)).getSession();
       verify(response, atLeast(1)).getWriter();
       printWriter.flush();
+      System.out.println("********");
+      System.out.println("request is: " + requestValue);
+      System.out.println("Actual response is: " + byteArrayOutputStream.toString());
+      System.out.println("********");
       assertEquals(trimXML(responseValue), trimXML(byteArrayOutputStream.toString().trim()));
-
     } finally {
       if (printWriter != null) {
         printWriter.close();
