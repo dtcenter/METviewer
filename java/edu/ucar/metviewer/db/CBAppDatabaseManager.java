@@ -265,11 +265,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     boolean boolEclv = nodeCall.children[1].tag.equals("eclv_field");
     String strHeaderTable;
     if (boolMode) {
-      strHeaderTable = "mode_header";
+      strHeaderTable = "mode";
     } else if (boolMtd) {
-      strHeaderTable = "mtd_header";
+      strHeaderTable = "mtd";
     } else {
-      strHeaderTable = "stat_header";
+      strHeaderTable = "stat";
     }
     boolean boolNRank = strField.equalsIgnoreCase("N_RANK");
     boolean boolNBin = strField.equalsIgnoreCase("N_BIN");
@@ -279,22 +279,22 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     Map<String, String> tableLineDataTables = new HashMap<>();
     boolean boolFcstVar = false;
     if (boolRhist) {
-      tableLineDataTables.put("line_data_rhist", "true");
+      tableLineDataTables.put("rhist", "true");
     } else if (boolPhist) {
-      tableLineDataTables.put("line_data_phist", "true");
+      tableLineDataTables.put("phist", "true");
     } else if (boolROC) {
-      tableLineDataTables.put("line_data_pct", "true");
-      tableLineDataTables.put("line_data_ctc", "true");
+      tableLineDataTables.put("pct", "true");
+      tableLineDataTables.put("ctc", "true");
     } else if (boolRely) {
-      tableLineDataTables.put("line_data_pct", "true");
+      tableLineDataTables.put("pct", "true");
     } else if (boolEnsSS) {
-      tableLineDataTables.put("line_data_ssvar", "true");
+      tableLineDataTables.put("ssvar", "true");
     } else if (boolPerf) {
-      tableLineDataTables.put("line_data_cts", "true");
+      tableLineDataTables.put("cts", "true");
     } else if (boolTaylor) {
-      tableLineDataTables.put("line_data_sl1l2", "true");
+      tableLineDataTables.put("sl1l2", "true");
     } else if (boolEclv) {
-      tableLineDataTables.put("line_data_eclv", "true");
+      tableLineDataTables.put("eclv", "true");
     } else if (2 < nodeCall.children.length) {
       boolFcstVar = true;
       MVNode nodeFcstVarStat = nodeCall.children[2];
@@ -305,16 +305,25 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           String strStat = nodeFcstVar.children[j].value;
           String strLineDataTable = MVUtil.getStatTable(strStat);
           tableLineDataTables.put(strLineDataTable, "true");
-          if (strLineDataTable.equals("line_data_cnt")) {
-            tableLineDataTables.put("line_data_sl1l2", "true");
-            tableLineDataTables.put("line_data_sal1l2", "true");
-          } else if (strLineDataTable.equals("line_data_cts")) {
-            tableLineDataTables.put("line_data_ctc", "true");
+          if (strLineDataTable.equals("cnt")) {
+            tableLineDataTables.put("sl1l2", "true");
+            tableLineDataTables.put("sal1l2", "true");
+          } else if (strLineDataTable.equals("cts")) {
+            tableLineDataTables.put("ctc", "true");
           }
         }
       }
     }
     String[] listTables = tableLineDataTables.keySet().toArray(new String[]{});
+    String tableList = "[";
+    for (String tableName: listTables) {
+      if (tableList.length() > 1) {
+        tableList += ", ";
+      }
+      tableList += "\'" + tableName + "\'";
+    }
+    tableList += "]";
+
     String strWhere = "";
     //we need to get all values of obs_var for all variables
     if (strField.equalsIgnoreCase("obs_var")) {
@@ -371,7 +380,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         if (strVal.contains("*")) {
           strSqlOp = "LIKE";
         }
-        strValList += (0 < j ? ", " : "") + "'" + strVal.replace("*", "%") + "'";
+        strValList += (0 < j ? ", " : "") + "\'" + strVal.replace("*", "%") + "\'";
       }
 
       //  add the where clause to the criteria, if appropriate
@@ -390,9 +399,20 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     }
 
     //  build a query for the values
-    String strSql;
-    String strTmpTable = null;
-    for (String database : currentDBName) {
+    String strSelectField = formatField(strField, boolMode || boolMtd);
+    String strFieldDB = strSelectField.replaceAll("h\\.", "");
+    strFieldDB = strFieldDB.replaceAll("ld\\.", "");
+
+    String dbList = "[";
+
+    for (String cdbName: currentDBName) {
+        if (dbList.length() > 1) {
+            dbList += ", ";
+        }
+        dbList += "\'" + cdbName + "\'";
+    }
+    dbList += "]";
+
         if (boolNRank) {
 //          strSql = "SELECT DISTINCT ld.n_rank "
 //                       + "FROM stat_header h, line_data_rhist ld "
@@ -409,46 +429,37 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                        && (strField.equals("fcst_lead")
                                || strField.contains("valid")
                                || strField.contains("init"))) {
-          String strSelectField = formatField(strField, boolMode || boolMtd);
-          //  create a temp table for the list values from the different line_data tables
-          strTmpTable = "tmp_" + new Date().getTime();
-//          try (Statement stmtTmp = con.createStatement()) {
-//            String strTmpSql = "CREATE TEMPORARY TABLE "
-//                                   + strTmpTable + " (" + strField + " TEXT);";
-//            stmtTmp.executeUpdate(strTmpSql);
-//            //  add all distinct list field values to the temp table from each line_data table
-//            for (String listTable : listTables) {
-//              strTmpSql = "INSERT INTO " + strTmpTable
-//                              + " SELECT DISTINCT " + strSelectField
-//                              + " FROM " + listTable + " ld" + strWhereTime;
-//              stmtTmp.executeUpdate(strTmpSql);
-//            }
-//          } catch (SQLException e) {
-//            logger.error(e.getMessage());
-//          }
-//
-//          //  build a query to list all distinct,
-//          // ordered values of the list field from the temp table
-//          strSql = "SELECT DISTINCT " + strField + " FROM "
-//                       + strTmpTable + " ORDER BY " + strField + ";";
+            //  build a query to list all distinct,
+            //  ordered values of the list field from the selected line documents
+            strWhere = strWhere.replaceAll("ld\\.", "");
+            queryString = "SELECT DISTINCT " + strFieldDB
+                  + " FROM `"+ getBucket().name() + "` "
+                  + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
+                  + " line_type IN " + tableList
+                  + " AND type = \'line\'" + strWhereTime
+                  + " AND substr(meta().id, 0, position(meta().id, \'::\')) IN " + dbList
+                  + " ORDER BY " + strFieldDB;
         } else {
-            String strFieldDB = formatField(strField, boolMode || boolMtd).replaceAll("h\\.", "");
             strWhere = strWhere.replaceAll("h\\.", "");
-            queryString = "SELECT DISTINCT " + strFieldDB + " FROM "
-                       + strHeaderTable + " " + strWhere + " ORDER BY " + strField;
+            queryString = "SELECT DISTINCT " + strFieldDB
+                    + " FROM `" + getBucket().name() + "` "
+                    + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
+                    + " header_type = \'" + strHeaderTable
+                    + "\' AND type = \'header\'"
+                    + " AND substr(meta().id, 0, position(meta().id, \'::\')) IN " + dbList
+                    + " ORDER BY " + strFieldDB;
         }
         //  execute the query
         try {
             queryResult = getBucket().query(N1qlQuery.simple(queryString));
-//          while (res.next()) {
-//            listRes.add(res.getString(1));
-//          }
-
+            for (N1qlQueryRow row : queryResult) {
+              listRes.add(row.value().get(strFieldDB).toString());
+            }
 
         } catch (CouchbaseException e) {
           logger.error(e.getMessage());
         }
-    }
+
     Collections.sort(listRes);
     return listRes;
   }
