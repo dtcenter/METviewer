@@ -1206,7 +1206,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               MVUtil.isAggTypeValid(MVUtil.statsCnt, strStat, aggType);
               strStatTable = " AND ld.line_type = \'" + aggType + "\' ";
             } else {
-              strStatTable = "line_data_cnt" + " ld ";
+              strStatTable = " AND ld.line_type = \'cnt\' ";
             }
           } else if (MVUtil.statsSsvar.containsKey(strStat)) {
             tableStats = MVUtil.statsSsvar;
@@ -1274,12 +1274,12 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               MVUtil.isAggTypeValid(MVUtil.statsVl1l2, strStat, aggType);
             }
             tableStats = MVUtil.statsVl1l2;
-            strStatTable = "line_data_vl1l2 ld ";
+            strStatTable = " AND ld.line_type = \'vl1l2\' ";
             strStatField = strStat.replace("VL1L2_", "").toLowerCase();
           } else if (MVUtil.statsVal1l2.containsKey(strStat)) {
             MVUtil.isAggTypeValid(MVUtil.statsVal1l2, strStat, aggType);
             tableStats = MVUtil.statsVal1l2;
-            strStatTable = "line_data_val1l2 ld ";
+            strStatTable = " AND ld.line_type = \'val1l2\' ";
             strStatField = strStat.replace("VAL1L2_", "").toLowerCase();
           } else if (MVUtil.statsMpr.containsKey(strStat)) {
             tableStats = MVUtil.statsMpr;
@@ -1500,8 +1500,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           //  build the query
           strSelectSql += (strSelectSql.isEmpty() ? "" : " UNION ALL ")
                               + "SELECT " + strSelectStat + ", meta(h).id as hid, meta(ld).id as ldid "
-                              + "FROM `" + getBucket().name() + "` as ld "
-                              + " JOIN `" + getBucket().name() + "` as h on keys ld.header_id ";
+                              + "FROM `" + getBucket().name() + "` as h "
+                              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id ";
           strSelectSql += "WHERE " + strWhere;
           if (strFcstVarClause.length() > 0) {
             strSelectSql += " AND h.fcst_var " + strFcstVarClause + " ";
