@@ -113,9 +113,11 @@ public class TestMVServlet {
       printWriter.flush();
       System.out.println("********");
       System.out.println("request is: " + requestValue);
-      System.out.println("Actual response is: " + byteArrayOutputStream.toString());
+
+      String resp =  trimXML(byteArrayOutputStream.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","")).trim();
+      System.out.println("Actual response is: " + resp);
       System.out.println("********");
-      assertEquals(trimXML(responseValue), trimXML(byteArrayOutputStream.toString().trim()));
+      assertEquals(trimXML(responseValue), resp);
     } finally {
       if (printWriter != null) {
         printWriter.close();
