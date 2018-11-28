@@ -1293,7 +1293,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             strStatField = strStat.replace("VCNT_", "").toLowerCase();
             if (aggType != null) {
               MVUtil.isAggTypeValid(MVUtil.statsVcnt, strStat, aggType);
-              strStatTable = " ld.line_type = \'" + aggType + "\' AND";
+              strStatTable = " AND ld.line_type = \'" + aggType + "\' AND";
             } else {
               strStatTable = "line_data_vcnt" + " ld ";
             }
