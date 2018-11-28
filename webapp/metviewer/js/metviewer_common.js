@@ -3991,18 +3991,22 @@ function createXMLCommon(plot) {
     tmpl.append($('<y1_label />').text($('#y1_label_title').val()));
     tmpl.append($('<y2_label />').text($('#y2_label_title').val()));
     tmpl.append($('<caption />').text($('#caption').val()));
+    tmpl.append($('<job_title />').text($('#job_title').val()));
+    tmpl.append($('<keep_revisions />').text($('#keep_revisions').is(':checked')));
+
 
     var seriesDiffY1List = [];
+    var arr;
     if (seriesDiffY1.length > 0) {
         for (var i = 0; i < seriesDiffY1.length; i++) {
-            var arr = seriesDiffY1[i].split(",");
+            arr = seriesDiffY1[i].split(",");
             seriesDiffY1List.push('c("' + arr[0] + '","' + arr[1] + '","' + arr[2] + '")');
         }
     }
     var seriesDiffY2List = [];
     if (seriesDiffY2.length > 0) {
         for (var i = 0; i < seriesDiffY2.length; i++) {
-            var arr = seriesDiffY2[i].split(",");
+            arr = seriesDiffY2[i].split(",");
             seriesDiffY2List.push('c("' + arr[0] + '","' + arr[1] + '","' + arr[2] + '")');
         }
     }
@@ -4031,16 +4035,16 @@ function createXMLCommon(plot) {
     var mar_left = $("#mar_left").val().trim();
     var mar_top = $("#mar_top").val().trim();
     var mar_right = $("#mar_right").val().trim();
-    if (mar_bottom.length == 0) {
+    if (mar_bottom.length === 0) {
         mar_bottom = 0;
     }
-    if (mar_left.length == 0) {
+    if (mar_left.length === 0) {
         mar_left = 0;
     }
-    if (mar_top.length == 0) {
+    if (mar_top.length === 0) {
         mar_top = 0;
     }
-    if (mar_right.length == 0) {
+    if (mar_right.length === 0) {
         mar_right = 0;
     }
     plot.append($('<mar />').text("c(" + mar_bottom + "," + mar_left + "," + mar_top + "," + mar_right + ")"));
@@ -4048,13 +4052,13 @@ function createXMLCommon(plot) {
     var mgp_title = $("#mgp_title").val().trim();
     var mgp_labels = $("#mgp_labels").val().trim();
     var mgp_line = $("#mgp_line").val().trim();
-    if (mgp_title.length == 0) {
+    if (mgp_title.length === 0) {
         mgp_title = 0;
     }
-    if (mgp_labels.length == 0) {
+    if (mgp_labels.length === 0) {
         mgp_labels = 0;
     }
-    if (mgp_line.length == 0) {
+    if (mgp_line.length === 0) {
         mgp_line = 0;
     }
     plot.append($('<mgp />').text("c(" + mgp_title + "," + mgp_labels + "," + mgp_line + ")"));
@@ -4264,7 +4268,7 @@ function refreshHistory() {
                 var name = $(results[i]).attr("name");
                 var success = $(results[i]).attr("success");
                 var color;
-                if (success == "true") {
+                if (success === "true") {
                     color = "#000000"
                 } else {
                     color = "#B39A9A"
@@ -4285,7 +4289,7 @@ function refreshHistory() {
                 },
                 text: false
             }).click(function () {
-                $('#uploadLocalId').val($(this).attr('id'));
+                $('#uploadLocalId').val($(this).prop('id'));
                 loadImage($(this).attr('id'));
             });
 
@@ -4399,6 +4403,8 @@ function resetFormatting() {
     $('#y1_label_title').val("test y_label");
     $('#y2_label_title').val("");
     $('#caption').val("");
+    $('#job_title').val("");
+    $('#keep_revisions').prop('checked', false);
 
     $("#vert_plot").prop('checked', false);
     $("#x_reverse").prop('checked', false);
@@ -6509,11 +6515,10 @@ function myvalue(elem, operation, value) {
 if (typeof String.prototype.startsWith != 'function') {
     // see below for better implementation!
     String.prototype.startsWith = function (str) {
-        return this.indexOf(str) == 0;
+        return this.indexOf(str) === 0;
     };
 }
 function colorDisplayFmatter(cellvalue, options, rowObject) {
-    console.log(rowObject);
     return '<input id="color_' + rowObject.id + '" type="text" value="' + rowObject.color + '" size="8" style="background-color:' + rowObject.color + ';">';
 }
 function colorDisplayUnmatter(cellvalue, options, cell) {
@@ -6523,7 +6528,7 @@ function colorDisplayUnmatter(cellvalue, options, cell) {
     parts[0] = '#';
     for (var i = 1; i <= 3; ++i) {
         parts[i] = parseInt(parts[i]).toString(16);
-        if (parts[i].length == 1) parts[i] = '0' + parts[i];
+        if (parts[i].length === 1) parts[i] = '0' + parts[i];
     }
 
     return parts.join('');
@@ -6534,7 +6539,7 @@ function querySt(Key) {
     var KeysValues = url.split(/[\?&]+/);
     for (var i = 0; i < KeysValues.length; i++) {
         var KeyValue = KeysValues[i].split("=");
-        if (KeyValue[0] == Key) {
+        if (KeyValue[0] === Key) {
             return KeyValue[1];
         }
     }
@@ -6572,7 +6577,9 @@ function viewImage(id) {
             window_top = window_top - 20;
         },
         open: function (e) {
-            $(this).html('<img src="' + urlOutput + 'plots/plot_' + id + '.png" onError="this.src=\'images/no_image.png\';"/>');
+            $(this).html('<img src="' + urlOutput + 'plots/plot_' + id
+                    + '.png?' + (new Date()).getTime()
+                    +'" onError="this.src=\'images/no_image.png\';"/>');
         }
 
     });
@@ -6588,7 +6595,7 @@ function updateResult(result) {
             .error(function () {
                 $(this).attr("src", 'images/no_image.png');
             })
-            .attr("src", urlOutput + 'plots/' + resultName + '.png');
+            .attr("src", urlOutput + 'plots/' + resultName + '.png'+ '?' + (new Date()).getTime());
     $.ajax({
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".xml",
@@ -7312,6 +7319,12 @@ function initPage() {
         $('#y1_label_title').val($(initXML.find("plot").find("tmpl").find("y1_label")).text());
         $('#y2_label_title').val($(initXML.find("plot").find("tmpl").find("y2_label")).text());
         $('#caption').val($(initXML.find("plot").find("tmpl").find("caption")).text());
+        if ($(initXML.find("plot").find("tmpl").find("job_title"))) {
+            $('#job_title').val($(initXML.find("plot").find("tmpl").find("job_title")).text());
+        }
+        if ($(initXML.find("plot").find("tmpl").find("keep_revisions"))) {
+            $("#keep_revisions").prop('checked', $(initXML.find("plot").find("tmpl").find("keep_revisions")).text() === "true");
+        }
 
         $("#vert_plot").prop('checked', $(initXML.find("plot").find("vert_plot")).text() == "true");
         $("#x_reverse").prop('checked', $(initXML.find("plot").find("x_reverse")).text() == "true");
@@ -7322,7 +7335,7 @@ function initPage() {
         $("#dump_points2").prop('checked', $(initXML.find("plot").find("dump_points2")).text() == "true");
         $("#indy1_stag").prop('checked', $(initXML.find("plot").find("indy1_stag")).text() == "true");
         $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
-        $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() == "true");
+        $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() === "true");
         $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
 
         $("#plot_type").val($(initXML.find("plot").find("plot_type")).text());
