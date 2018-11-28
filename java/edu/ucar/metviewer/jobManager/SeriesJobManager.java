@@ -216,7 +216,7 @@ public class SeriesJobManager extends JobManager {
                                                              job.getTmplMaps(),
                                                              mvBatch.getPrintStream());
       File dataFile = new File(dataFileName);
-      if (!listQuery.isEmpty() && !dataFile.exists()) {
+      if (!listQuery.isEmpty() ) {
         dataFile.getParentFile().mkdirs();
         for (int i = 0; i < job.getCurrentDBName().size(); i++) {
           MvResponse mvResponse =
