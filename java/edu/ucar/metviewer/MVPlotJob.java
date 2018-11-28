@@ -2,7 +2,6 @@ package edu.ucar.metviewer;
 
 
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +54,8 @@ public class MVPlotJob {
   protected String y1LabelTmpl = "";
   protected String y2LabelTmpl = "";
   protected String captionTmpl = "";
+  protected String jobTitleTmpl = "";
+  protected boolean keepRevisions = false;
   protected String plotCmd = ""; // inserted and executed in Rscript
   protected String plotCond = ""; // insert and execute in database queries
 
@@ -251,6 +252,7 @@ public class MVPlotJob {
     job.y1LabelTmpl = y1LabelTmpl;
     job.y2LabelTmpl = y2LabelTmpl;
     job.captionTmpl = captionTmpl;
+    job.jobTitleTmpl = jobTitleTmpl;
     job.plotCmd = plotCmd;
     job.plotCond = plotCond;
 
@@ -400,6 +402,8 @@ public class MVPlotJob {
     job.isReverseX = isReverseX;
     job.contourIntervals = contourIntervals;
     job.colorPalette = colorPalette;
+
+    job.keepRevisions = keepRevisions;
     return job;
   }
 
@@ -485,6 +489,10 @@ public class MVPlotJob {
     return plotFixValEq;
   }
 
+  public void setPlotFixValEq(MVOrderedMap plotFixValEq) {
+    this.plotFixValEq = plotFixValEq;
+  }
+
   public void addPlotFixVal(String field, String[] vals, int index) throws Exception {
     for (String ind : vals) {
       validateSQL(ind);
@@ -521,10 +529,6 @@ public class MVPlotJob {
 
   public void addPlotFixValEq(String field, MVOrderedMap sets) {
     addPlotFixValEq(field, sets, plotFixValEq.size());
-  }
-
-  public void setPlotFixValEq(MVOrderedMap plotFixValEq) {
-    this.plotFixValEq = plotFixValEq;
   }
 
   public void removePlotFixVal(String field) {
@@ -755,6 +759,14 @@ public class MVPlotJob {
 
   public void setCaptionTmpl(String captionTmpl) {
     this.captionTmpl = captionTmpl;
+  }
+
+  public String getJobTitleTmpl() {
+    return jobTitleTmpl;
+  }
+
+  public void setJobTitleTmpl(String jobTitleTmpl) {
+    this.jobTitleTmpl = jobTitleTmpl;
   }
 
   public String getPlotCmd() {
@@ -1543,20 +1555,24 @@ public class MVPlotJob {
     return _boolCalcSl1l2;
   }
 
+  public void setCalcSl1l2(boolean calcSl1l2) {
+    _boolCalcSl1l2 = calcSl1l2;
+  }
+
   public boolean getCalcGrad() {
     return _boolCalcGrad;
   }
 
-  public void setCalcSal1l2(boolean calcSal1l2) {
-    _boolCalcSal1l2 = calcSal1l2;
+  public void setCalcGrad(boolean calcGrad) {
+    _boolCalcGrad = calcGrad;
   }
 
   public boolean getCalcSal1l2() {
     return _boolCalcSal1l2;
   }
 
-  public void setCalcVl1l2(boolean calcVl1l2) {
-    _boolCalcVl1l2 = calcVl1l2;
+  public void setCalcSal1l2(boolean calcSal1l2) {
+    _boolCalcSal1l2 = calcSal1l2;
   }
 
   public boolean getCalcVal1l2() {
@@ -1571,30 +1587,24 @@ public class MVPlotJob {
     return _boolCalcVl1l2;
   }
 
-
-  public void setAggVl1l2(boolean aggVl1l2) {
-    _boolAggVl1l2 = aggVl1l2;
+  public void setCalcVl1l2(boolean calcVl1l2) {
+    _boolCalcVl1l2 = calcVl1l2;
   }
 
   public boolean getAggVl1l2() {
     return _boolAggVl1l2;
   }
 
-  public void setAggVal1l2(boolean aggVal1l2) {
-    _boolAggVal1l2 = aggVal1l2;
+  public void setAggVl1l2(boolean aggVl1l2) {
+    _boolAggVl1l2 = aggVl1l2;
   }
 
   public boolean getAggVal1l2() {
     return _boolAggVal1l2;
   }
 
-
-  public void setCalcSl1l2(boolean calcSl1l2) {
-    _boolCalcSl1l2 = calcSl1l2;
-  }
-
-  public void setCalcGrad(boolean calcGrad) {
-    _boolCalcGrad = calcGrad;
+  public void setAggVal1l2(boolean aggVal1l2) {
+    _boolAggVal1l2 = aggVal1l2;
   }
 
   public boolean getRocPct() {
@@ -1748,6 +1758,10 @@ public class MVPlotJob {
     return _boolVarianceInflationFactor;
   }
 
+  public void setVarianceInflationFactor(boolean varianceInflationFactor) {
+    this._boolVarianceInflationFactor = varianceInflationFactor;
+  }
+
   public boolean getRevisionAc() {
     return revisionAc;
   }
@@ -1770,10 +1784,6 @@ public class MVPlotJob {
 
   public void setRevisionStat(boolean revisionStat) {
     this.revisionStat = revisionStat;
-  }
-
-  public void setVarianceInflationFactor(boolean varianceInflationFactor) {
-    this._boolVarianceInflationFactor = varianceInflationFactor;
   }
 
   public boolean getNormalizedHistogram() {
@@ -1800,6 +1810,14 @@ public class MVPlotJob {
     this._plotStat = _plotStat;
   }
 
+
+  public boolean getKeepRevisions() {
+    return keepRevisions;
+  }
+
+  public void setKeepRevisions(boolean keepRevisions) {
+    this.keepRevisions = keepRevisions;
+  }
 
   public String getOrderSeries() {
     if (_strOrderSeries.length() > 0) {

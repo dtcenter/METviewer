@@ -890,8 +890,13 @@ public class MVPlotJobParser {
             + "<x_label>" + preserveBackslash(job.getXLabelTmpl()) + "</x_label>"
             + "<y1_label>" + preserveBackslash(job.getY1LabelTmpl()) + "</y1_label>"
             + "<y2_label>" + preserveBackslash(job.getY2LabelTmpl()) + "</y2_label>"
-            + "<caption>" + preserveBackslash(job.getCaptionTmpl()).replace("&", "&#38;")
-                                .replace(">", "&gt;").replace("<", "&lt;") + "</caption>"
+            + "<caption>" + preserveBackslash(job.getCaptionTmpl())
+                                .replace("&", "&#38;")
+                                .replace(">", "&gt;")
+                                .replace("<", "&lt;")
+            + "</caption>"
+            + "<job_title>" + job.getJobTitleTmpl()+ "</job_title>"
+            + "<keep_revisions>" + job.getKeepRevisions()+ "</keep_revisions>"
             + "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>"
             + "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>"
             + "</tmpl>");
@@ -1631,6 +1636,10 @@ public class MVPlotJobParser {
             job.setY2LabelTmpl(nodeTmpl.value);
           } else if (nodeTmpl.tag.equals("caption")) {
             job.setCaptionTmpl(nodeTmpl.value);
+          } else if (nodeTmpl.tag.equals("job_title")) {
+            job.setJobTitleTmpl(nodeTmpl.value.replaceAll("\\s", "_"));
+          } else if (nodeTmpl.tag.equals("keep_revisions")) {
+            job.setKeepRevisions(nodeTmpl.value.equalsIgnoreCase("true"));
           } else if (nodeTmpl.tag.equalsIgnoreCase("listDiffSeries1")) {
             if (!job.getPlotTmpl().startsWith("contour")) {
               //validate listDiffSeries - make sure that differences
