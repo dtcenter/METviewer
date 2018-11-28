@@ -24,6 +24,9 @@
 
     use -Dlog4j2.file=fullpath/customlog4j2.xml to provide a custom log4j2.xml file to replace
     the log4j2.xml file in order to customize logging.
+
+    example build command...
+    ant -Dbuild.properties.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties -Dlog4j2.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml clean all
     -->
 
         <!-- default properties file -->
