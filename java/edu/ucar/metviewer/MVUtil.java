@@ -1,18 +1,12 @@
 package edu.ucar.metviewer;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.URI;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -30,8 +24,6 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
@@ -2264,11 +2256,6 @@ public class MVUtil {
   }
 
 
-  private static Timestamp convertUtilToSql(Date uDate) {
-    Timestamp sDate = new Timestamp(uDate.getTime());
-    return sDate;
-  }
-
   public static boolean isInteger(String s, int radix) {
       if(s.isEmpty()) return false;
       for(int i = 0; i < s.length(); i++) {
@@ -2280,4 +2267,20 @@ public class MVUtil {
       }
       return true;
   }
+
+  public static class NameFilter implements FilenameFilter {
+
+  		private String currentName;
+
+  		NameFilter(String name) {
+  			this.currentName = name;
+  		}
+
+  		@Override
+  		public boolean accept(File dir, String name) {
+  			return name.contains(currentName) && name.endsWith("xml");
+  		}
+
+  	}
+
 }
