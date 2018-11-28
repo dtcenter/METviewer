@@ -9,6 +9,8 @@ import edu.ucar.metviewer.MVServlet;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -35,6 +37,7 @@ public class TestMVServlet {
 
   private final String requestValue;
   private final String responseValue;
+  private static int count = 0;
 
   public TestMVServlet(String requestValue, String responseValue) {
     this.requestValue = requestValue;
@@ -112,12 +115,28 @@ public class TestMVServlet {
       verify(response, atLeast(1)).getWriter();
       printWriter.flush();
       System.out.println("********");
-      System.out.println("request is: " + requestValue);
+      System.out.println("request " + count + " is: " + requestValue);
 
-      String resp =  trimXML(byteArrayOutputStream.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","")).trim();
-      System.out.println("Actual response is: " + resp);
+
+      String expected =
+              trimXML(responseValue).replaceAll("<url_output>.*</url_output>"
+                      ,"");
+      // Why is <url_ouptut> there? RTP
+      String resp = trimXML(byteArrayOutputStream.toString().replaceAll(
+              "<url_output>.*</url_output>","").
+              replaceAll("<[?]xml.*[?]>","").trim());
+      System.out.println("Expected response  " + count + " is: " + expected);
+      System.out.println("Actual " + count + " response is: " + resp);
+      count ++;
       System.out.println("********");
-      assertEquals(trimXML(responseValue), resp);
+      if (expected.contains("plot_")) {
+        String expectedPattern = expected.replaceAll("<plot>plot_.*</plot>",
+                "<plot>plot_.*</plot>");
+        System.out.println("converted plot number to pattern for matching: " + expectedPattern);
+        assertTrue(resp.matches(expectedPattern));
+      } else {
+        assertEquals(expected, resp);
+      }
     } finally {
       if (printWriter != null) {
         printWriter.close();
