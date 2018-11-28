@@ -44,6 +44,7 @@
         <property name="db.user" value="mvuser"/>
         <property name="db.password" value="mvuser"/>
         <property name="db.management.system" value="mysql"/>
+        <property name="rscript.bin" value="/usr/local/bin/Rscript"/>
         <property name="redirect" value="metviewer"/>
         <property name="output.dir" value="/d2/www/dtcenter/met/metviewer_output"/>
         <property name="webapps.dir" value="/opt/vxwww/tomcat/webapps/metviewer"/>
@@ -295,6 +296,12 @@
         <!-- preserve original mvservlet.properties file -->
         <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"/>
         <!-- replace properties file values  -->
+
+        <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
+                       match="rscript.bin=(.*)"
+                       replace="rscript.bin=${rscript.bin}"
+                       byline="true"/>
+
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="db.managementSystem=(.*)"
                        replace="db.managementSystem=${db.management.system}"
