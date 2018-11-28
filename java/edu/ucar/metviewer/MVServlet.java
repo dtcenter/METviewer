@@ -82,6 +82,7 @@ public class MVServlet extends HttpServlet {
   protected static final Map<String, String> statCache = new HashMap<>();
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
+
   private static final FilenameFilter PNG_FILTER = new FilenameFilter() {
     @Override
     public boolean accept(File dir, String name) {
@@ -107,7 +108,7 @@ public class MVServlet extends HttpServlet {
   public static boolean isValCache = false;
   public static boolean isStatCache = false;
   public static AppDatabaseManager databaseManager;
-
+  private String dbManagementSystem = "mysql";
   /**
    * Clear cached <list_val> values for the input database
    *
@@ -720,6 +721,7 @@ public class MVServlet extends HttpServlet {
     logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
+      dbManagementSystem = bundle.getString("db.managementSystem");
       databaseManager = (AppDatabaseManager)DatabaseManager.getAppManager(
               bundle.getString("db.managementSystem"),
               bundle.getString("db.host"),
@@ -731,12 +733,37 @@ public class MVServlet extends HttpServlet {
 
       rscript = bundle.getString("rscript.bin");
 
+      File directory;
       plotXml = bundle.getString("folders.plot_xml");
+      directory = new File(plotXml);
+      if (! directory.exists()){
+        directory.mkdirs();
+      }
       rTmpl = bundle.getString("folders.r_tmpl");
+      directory = new File(rTmpl);
+      if (! directory.exists()){
+        directory.mkdirs();
+      }
       rWork = bundle.getString("folders.r_work");
+      directory = new File(rWork);
+      if (! directory.exists()){
+        directory.mkdirs();
+      }
       plots = bundle.getString("folders.plots");
+      directory = new File(plots);
+      if (! directory.exists()){
+        directory.mkdirs();
+      }
       data = bundle.getString("folders.data");
+      directory = new File(data);
+      if (! directory.exists()){
+        directory.mkdirs();
+      }
       scripts = bundle.getString("folders.scripts");
+      directory = new File(scripts);
+      if (! directory.exists()){
+        directory.mkdirs();
+      }
 
       try {
         redirect = bundle.getString("redirect");
@@ -929,7 +956,10 @@ public class MVServlet extends HttpServlet {
         }
 
       }
-      logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
+      long t = System.currentTimeMillis();
+      logger.debug("***** " + dbManagementSystem);
+      logger.debug("doPost(" + t + ") - request (" + request.getRemoteHost() + "): " + requestBody);
+
 
       StringBuilder strResp = new StringBuilder();
       if (!requestBody.startsWith("<")) {
@@ -1132,7 +1162,8 @@ public class MVServlet extends HttpServlet {
         strResp.append("<error>could not parse request</error>");
       }
 
-      logger.debug("doPost() - response: " + strResp);
+      logger.debug("doPost(" + t + ") - response: " + strResp);
+      logger.debug("*****");
       response.setContentType("application/xml;charset=UTF-8");
       try (PrintWriter printWriter = response.getWriter()) {
         printWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");

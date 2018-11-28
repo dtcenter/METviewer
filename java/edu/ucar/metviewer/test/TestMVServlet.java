@@ -91,6 +91,7 @@ public class TestMVServlet {
       byteArrayOutputStream = new ByteArrayOutputStream();
       printWriter = new PrintWriter(byteArrayOutputStream);
 
+
       when(request.getReader()).thenReturn(bufferedReader);
       when(request.getSession()).thenReturn(httpSession);
       when(response.getWriter()).thenReturn(printWriter);
