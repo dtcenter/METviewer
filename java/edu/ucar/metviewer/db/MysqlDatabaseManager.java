@@ -35,7 +35,6 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 public class MysqlDatabaseManager extends DatabaseManager{
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
-  protected static final String DB_PREFIX_MV = "mv_";
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   protected static final SimpleDateFormat DATE_FORMAT =
@@ -44,6 +43,7 @@ public class MysqlDatabaseManager extends DatabaseManager{
           = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private DataSource dataSource;
+  protected static final String BINARY ="  BINARY ";
 
 
 
