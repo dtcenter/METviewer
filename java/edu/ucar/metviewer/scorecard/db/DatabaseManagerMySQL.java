@@ -33,7 +33,6 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $
@@ -127,7 +126,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       StringBuilder values = new StringBuilder();
       if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg"
                                                                .equals(fixedField.getName())) {
-        whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
+        whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
             .append(fixedField.getValues().get(0).getName()).append("' AND '")
             .append(fixedField.getValues().get(1).getName()).append("' AND ");
       } else if ("init_hour".equals(fixedField.getName())) {
@@ -153,7 +152,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         if (values.length() > 0) {
           values.deleteCharAt(values.length() - 1);
         }
-        whereFields.append(fixedField.getName()).append(" IN ('")
+        whereFields.append(BINARY).append(fixedField.getName()).append(" IN ('")
             .append(values.toString().replaceAll(",", "','")).append("') AND ");
       }
       if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
@@ -175,7 +174,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       if (values.length() > 0) {
         values.deleteCharAt(values.length() - 1);
       }
-      whereFields.append(columnEntry.getKey()).append(" IN ('")
+      whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
           .append(values.toString().replaceAll(",", "','")).append("') AND ");
     }
 
