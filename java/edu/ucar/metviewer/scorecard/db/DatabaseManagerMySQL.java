@@ -112,7 +112,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
-        selectFields.append(BINARY).append("'").append(entry.getValue().getName())
+        selectFields.append("'").append(entry.getValue().getName())
             .append("' stat_name,")
             .append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
       } else {
