@@ -303,7 +303,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         tableFcstVarStat.put(nodeFcstVar.name, "true");
         for (int j = 0; j < nodeFcstVar.children.length; j++) {
           String strStat = nodeFcstVar.children[j].value;
-          String strLineDataTable = MVUtil.getStatTable(strStat);
+          String strLineDataTable = MVUtil.getStatTable(strStat).substring(10);
           tableLineDataTables.put(strLineDataTable, "true");
           if (strLineDataTable.equals("cnt")) {
             tableLineDataTables.put("sl1l2", "true");
@@ -527,7 +527,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else {
             throw new Exception("Error: Query returned no data");
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
           String stat = "This";
           if (e.getMessage().contains("Unknown column")) {
