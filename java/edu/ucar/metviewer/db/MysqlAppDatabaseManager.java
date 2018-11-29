@@ -1573,7 +1573,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                + " + (select fcst_lead_offset FROM model_fcst_lead_offset "
                                + "WHERE model = h.model) ) ";
       }
-      whereClause += (0 < i ? "  AND " : "  ") + BINARY + indyVarFormatted + " " + condition + "\n";
+      //add BINARY for all fields except HOUR(...)
+      String field;
+      if(indyVarFormatted.startsWith("HOUR(")){
+        field = indyVarFormatted;
+      }else{
+        field = BINARY + indyVarFormatted;
+      }
+      whereClause += (0 < i ? "  AND " : "  ") + field+ " " + condition + "\n";
     }
 
     return whereClause;
@@ -1792,8 +1799,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the list of fields involved in the computations
     String selectListStat = strSelectList.replaceAll("h\\.", "");
-    String strGroupListMMI = selectListStat.replaceAll("HOUR\\([^\\)]+\\) ", "");
-    strGroupListMMI = strGroupListMMI.replaceAll("if\\D+fcst_lead", "fcst_lead");
+    String groupListMMI = selectListStat.replaceAll("HOUR\\([^\\)]+\\) ", "");
+    groupListMMI = groupListMMI.replaceAll("if\\D+fcst_lead", "fcst_lead");
     //  set the object_id field, depending on the stat
     String objectId = "object_id";
     String objectIdName = "object_id";
@@ -1808,7 +1815,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         objectId = "SUBSTR(object_id, LOCATE('_', object_id)+1) obs_id";
         objectIdName = "obs_id";
       }
-      strGroupBy = "\nGROUP BY\n" + strGroupListMMI + ",\n  " + objectIdName;
+      strGroupBy = "\nGROUP BY\n" + groupListMMI + ",\n  " + objectIdName;
     }
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
