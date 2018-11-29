@@ -315,14 +315,19 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       }
     }
     String[] listTables = tableLineDataTables.keySet().toArray(new String[]{});
-    String tableList = "[";
-    for (String tableName: listTables) {
-      if (tableList.length() > 1) {
-        tableList += ", ";
+    String tableList = "";
+    if (listTables.length == 0) {
+      boolFcstVar = false;
+    } else {
+      tableList = "[";
+      for (String tableName : listTables) {
+        if (tableList.length() > 1) {
+          tableList += ", ";
+        }
+        tableList += "\'" + tableName + "\'";
       }
-      tableList += "\'" + tableName + "\'";
+      tableList += "]";
     }
-    tableList += "]";
 
     String strWhere = "";
     //we need to get all values of obs_var for all variables
@@ -402,7 +407,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     //  build a query for the values
     String strFieldDB = formatField(strField, boolMode || boolMtd).trim();
     if (boolFcstVar) {
-      strFieldDB = "ld." + strField;
+      if (strField.contains("valid") || strField.contains("init") || strField.contains("lead")) {
+        strFieldDB = "ld." + strField;
+      } else {
+        strFieldDB = "h." + strField;
+      }
     } else {
       strFieldDB = strFieldDB.replaceAll("ld\\.", "");
       strFieldDB = strFieldDB.replaceAll("h\\.", "");
