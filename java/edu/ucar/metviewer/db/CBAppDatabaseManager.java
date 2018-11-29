@@ -169,7 +169,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           boolean boolCnt = false;
           boolean boolCts = false;
           boolean boolVcnt = false;
-          for (N1qlQueryRow row : queryResult) {
+          for (N1qlQueryRow row: queryResult) {
             // System.out.println(row);
             switch (row.value().get("line_type").toString()) {
               case "cnt":
@@ -343,6 +343,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       }
       if (strFcstVarList.length() > 0) {
         strWhere += "WHERE h.fcst_var " + (boolRegEx ? "LIKE" : "IN") + " [" + strFcstVarList + "]";
+        strWhere += " AND h.type = \'header\' AND h.header_type = \'stat\'";
       }
     }
 
@@ -362,10 +363,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               || strFieldCrit.contains("init")
               || strFieldCrit.contains("lead")) {
         boolTimeCritField = strField.equals(strFieldCrit)
-                                || (strField.contains("fcst_init")
-                                        && strFieldCrit.equals("init_hour"))
-                                || (strField.contains("fcst_valid")
-                                        && strFieldCrit.equals("valid_hour"));
+                || (strField.contains("fcst_init")
+                && strFieldCrit.equals("init_hour"))
+                || (strField.contains("fcst_valid")
+                && strFieldCrit.equals("valid_hour"));
         boolTimeCritCur = true;
       }
       //  if so, build a where clause for the criteria
@@ -387,21 +388,25 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (boolTimeCritField) {
         if (boolMode || boolMtd) {
           strWhere += (strWhere.equals("") ? " WHERE " : " AND ")
-                          + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
+                  + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
         } else {
           strWhereTime += (strWhereTime.equals("") ? " WHERE " : " AND ")
-                              + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
+                  + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
         }
       } else if (!boolTimeCritCur) {
         strWhere += (strWhere.equals("") ? "WHERE " : " AND ")
-                        + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
+                + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
       }
     }
 
     //  build a query for the values
-    String strSelectField = formatField(strField, boolMode || boolMtd);
-    String strFieldDB = strSelectField.replaceAll("h\\.", "");
-    strFieldDB = strFieldDB.replaceAll("ld\\.", "");
+    String strFieldDB = formatField(strField, boolMode || boolMtd).trim();
+    if (boolFcstVar) {
+      strFieldDB = "ld." + strField;
+    } else {
+      strFieldDB = strFieldDB.replaceAll("ld\\.", "");
+      strFieldDB = strFieldDB.replaceAll("h\\.", "");
+    }
 
     String dbList = "[";
 
@@ -413,19 +418,27 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     }
     dbList += "]";
 
-        if (boolNRank) {
+    if (boolNRank) {
 //          strSql = "SELECT DISTINCT ld.n_rank "
 //                       + "FROM stat_header h, line_data_rhist ld "
 //                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
 //                       + " ld.stat_header_id = h.stat_header_id "
 //                       + "ORDER BY n_rank;";
-        } else if (boolNBin) {
+    } else if (boolNBin) {
 //          strSql = "SELECT DISTINCT ld.n_bin "
 //                       + "FROM stat_header h, line_data_phist ld "
 //                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
 //                       + " ld.stat_header_id = h.stat_header_id "
 //                       + "ORDER BY ld.n_bin;";
-        } else if (!boolMode && !boolMtd
+    } else if (!boolMode && !boolMtd && boolFcstVar) {
+            queryString = "SELECT DISTINCT " + strFieldDB
+                    + " FROM `" + getBucket().name() + "` as h "
+                    + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
+                    + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+                    + " ld.type = \'line\' AND ld.line_type IN " + tableList
+                    + " AND substr(meta(h).id, 0, position(meta(h).id, \'::\')) IN " + dbList
+                    + " ORDER BY " + strFieldDB;
+    } else if (!boolMode && !boolMtd
                        && (strField.equals("fcst_lead")
                                || strField.contains("valid")
                                || strField.contains("init"))) {
@@ -433,17 +446,17 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             //  ordered values of the list field from the selected line documents
             strWhere = strWhere.replaceAll("ld\\.", "");
             queryString = "SELECT DISTINCT " + strFieldDB
-                  + " FROM `"+ getBucket().name() + "` "
-                  + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
+                  + " FROM `" + getBucket().name() + "` "
+                  + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
                   + " line_type IN " + tableList
                   + " AND type = \'line\'" + strWhereTime
                   + " AND substr(meta().id, 0, position(meta().id, \'::\')) IN " + dbList
                   + " ORDER BY " + strFieldDB;
-        } else {
+    } else {
             strWhere = strWhere.replaceAll("h\\.", "");
             queryString = "SELECT DISTINCT " + strFieldDB
                     + " FROM `" + getBucket().name() + "` "
-                    + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
+                    + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
                     + " header_type = \'" + strHeaderTable
                     + "\' AND type = \'header\'"
                     + " AND substr(meta().id, 0, position(meta().id, \'::\')) IN " + dbList
@@ -453,10 +466,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         try {
             queryResult = getBucket().query(N1qlQuery.simple(queryString));
             for (N1qlQueryRow row : queryResult) {
-              listRes.add(row.value().get(strFieldDB).toString());
+              listRes.add(row.value().get(strField).toString());
             }
 
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
         }
 
