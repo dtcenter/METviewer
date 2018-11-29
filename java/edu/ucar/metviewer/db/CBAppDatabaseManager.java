@@ -527,7 +527,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else {
             throw new Exception("Error: Query returned no data");
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
           String stat = "This";
           if (e.getMessage().contains("Unknown column")) {
