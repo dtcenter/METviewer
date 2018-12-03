@@ -162,7 +162,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                   + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id"
                   + " WHERE ld.type = \'line\' AND h.type = \'header\' AND h.header_type = \'stat\' "
                   + " AND h.fcst_var = \'" + strFcstVar + "\' "
-                  + " AND substr(meta(h).id, 0, position(meta(h).id, \'::\')) in " + dbList;
+                  + " AND h.dbname in " + dbList;
 
     try {
           queryResult = getBucket().query(N1qlQuery.simple(queryString));
@@ -445,7 +445,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                     + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
                     + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
                     + " ld.type = \'line\' AND ld.line_type IN " + tableList
-                    + " AND substr(meta(h).id, 0, position(meta(h).id, \'::\')) IN " + dbList
+                    + " AND h.dbname IN " + dbList
                     + " ORDER BY " + strFieldDB;
     } else if (!boolMode && !boolMtd
                        && (strField.equals("fcst_lead")
@@ -459,7 +459,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                   + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
                   + " line_type IN " + tableList
                   + " AND type = \'line\'" + strWhereTime
-                  + " AND substr(meta().id, 0, position(meta().id, \'::\')) IN " + dbList
+                  + " AND dbname IN " + dbList
                   + " ORDER BY " + strFieldDB;
     } else {
             strWhere = strWhere.replaceAll("h\\.", "");
@@ -468,7 +468,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                     + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
                     + " header_type = \'" + strHeaderTable
                     + "\' AND type = \'header\'"
-                    + " AND substr(meta().id, 0, position(meta().id, \'::\')) IN " + dbList
+                    + " AND dbname IN " + dbList
                     + " ORDER BY " + strFieldDB;
         }
         //  execute the query
@@ -1529,8 +1529,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             strSelectSql += " AND h.fcst_var " + strFcstVarClause + " ";
           }
           strSelectSql += " AND h.type = \'header\' AND ld.type = \'line\'" + strStatTable
-                          + " AND substr(meta(h).id, 0, position(meta(h).id, \'::\')) = \'"
-                          + job.getCurrentDBName().get(0) + "\'"
+                          + " AND h.dbname = \'" + job.getCurrentDBName().get(0) + "\'"
                           + strStatNaClause;
         }
 

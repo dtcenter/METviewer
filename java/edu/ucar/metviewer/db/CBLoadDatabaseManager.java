@@ -354,7 +354,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonObject firstRowObject = null;
     long nextIdNumber = 0;
     String headerIdString = "";
-    String searchDbName;
     JsonObject headerFile;
     JsonDocument response;
     JsonDocument doc;
@@ -488,7 +487,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           //  look for an existing stat_header record with the same information
           boolean boolFoundStatHeader = false;
           long intStatHeaderSearchBegin = System.currentTimeMillis();
-          searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
           if (info.statHeaderDBCheck) {
             // build a Couchbase query to look for duplicate stat_header records
             String strDataFileQuery =  "SELECT " +
@@ -501,7 +499,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 getBucket().name() +
                 "` WHERE " +
                 "type = \'header\' AND " +
-                searchDbName + " = \'" + getDbName() + "\' AND " +
+                "dbname = \'" + getDbName() + "\' AND " +
                 "header_type = \'stat\' AND " +
                 "data_type = \'" + info.luTypeName + "\' AND " +
                 "model = \'" + modelName + "\' AND " +
@@ -555,6 +553,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       .put("header_type", "stat")
                       .put("data_type", info.luTypeName)
                       .put("data_id", info.fileIdStr)
+                      .put("dbname", getDbName())
                       .put("version", MVUtil.findValue(listToken, headerNames, "VERSION"))
                       .put("model", modelName)
                       .put("descr", MVUtil.findValue(listToken, headerNames, "DESC"))
@@ -1061,7 +1060,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     long nextIdNumber = 0;
     String nextIdString = "";
     String headerIdString = "";
-    String searchDbName;
     JsonObject headerFile;
     JsonDocument response;
     JsonDocument doc;
@@ -1212,7 +1210,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             //  look for an existing stat_header record with the same information
             boolean boolFoundStatHeader = false;
             long intStatHeaderSearchBegin = new Date().getTime();
-            searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
             if (info.statHeaderDBCheck) {
               // build a Couchbase query to look for duplicate stat_header records
               String strDataFileQuery =  "SELECT " +
@@ -1225,7 +1222,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                       getBucket().name() +
                       "` WHERE " +
                       "type = \'header\' AND " +
-                      searchDbName + " = \'" + getDbName() + "\' AND " +
+                      "dbname = \'" + getDbName() + "\' AND " +
                       "header_type = \'stat\' AND " +
                       "data_type = \'" + info.luTypeName + "\' AND " +
                       "model = \'" + modelName + "\' AND " +
@@ -1273,6 +1270,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         .put("header_type", "stat")
                         .put("data_type", info.luTypeName)
                         .put("data_id", info.fileIdStr)
+                        .put("dbname", getDbName())
                         .put("version", listToken[0])
                         .put("model", modelName)
                         .put("descr", "NA")
@@ -2631,7 +2629,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonDocument doc = null;
     JsonDocument response = null;
     JsonObject groupFile = null;
-    String searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
 
     String strDataFileQuery =  "SELECT " +
             "meta().id as groupId, " +
@@ -2642,7 +2639,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'category\' AND " +
-            searchDbName + " = \'" + getDbName() + "\';";
+            "dbname = \'" + getDbName() + "\';";
 
     try {
       queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -2678,6 +2675,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       try {
         groupFile = JsonObject.empty()
                 .put("type", "category")
+                .put("dbname", getDbName())
                 .put("group", group)
                 .put("description", "");
 
@@ -2709,7 +2707,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonDocument doc = null;
     JsonDocument response = null;
     JsonObject groupFile = null;
-    String searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
 
     String strDataFileQuery =  "SELECT " +
             "meta().id as groupId, " +
@@ -2720,7 +2717,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'category\' AND " +
-            searchDbName + " = \'" + getDbName() + "\';";
+            "dbname = \'" + getDbName() + "\';";
 
     try {
       queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -2758,6 +2755,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       try {
         groupFile = JsonObject.empty()
                 .put("type", "category")
+                .put("dbname", getDbName())
                 .put("group", newGroup)
                 .put("description", description);
 
@@ -2804,6 +2802,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 .put("line_type", listValuesArr[1])
                 .put("header_id", listValuesArr[3])
                 .put("data_id", listValuesArr[4])
+                .put("dbname", getDbName())
                 .put("line_num", listValuesArr[5])
                 .put("fcst_lead", listValuesArr[6])
                 .put("fcst_valid_beg", listValuesArr[7])
@@ -2878,7 +2877,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonObject firstRowObject = null;
     Long nextIdNumber = 0L;
     String nextIdString = "";
-    String searchDbName = "";
     JsonObject dataFile;
     JsonDocument response;
 
@@ -2922,9 +2920,6 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     dataFileId = 0;
 
     // build a Couchbase query to look for the file and path in the data_file table
-
-    searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
-
     String strDataFileQuery =  "SELECT " +
             "meta().id as dataFileId, " +
             "type, " +
@@ -2935,7 +2930,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             getBucket().name() +
             "` WHERE " +
             "type = \'file\' AND " +
-            searchDbName + " = \'" + getDbName() + "\' AND " +
+            "dbname = \'" + getDbName() + "\' AND " +
             "data_type = \'" + strDataFileLuTypeName + "\' AND " +
             "filename = \'" + strFile + "\' AND " +
             "`path` = \'" + strPath + "\';";
@@ -2982,6 +2977,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       dataFile = JsonObject.empty()
               .put("type", "file")
               .put("data_type", strDataFileLuTypeName)
+              .put("dbname", getDbName())
               .put("filename", strFile)
               .put("path", strPath)
               .put("load_date", strLoadDate)
@@ -3052,6 +3048,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     try {
       instanceFile = JsonObject.empty()
               .put("type", "job")
+              .put("dbname", getDbName())
               .put("updater", strUpdater)
               .put("update_date", strUpdateDate)
               .put("update_note", strUpdateDetail)
