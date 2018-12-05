@@ -373,6 +373,26 @@ filename "ECLVPlot/METViewer_Users_Guide_ECLVPlot.lyx"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "Scorecard/METViewer_Users_Guide_Scorecard.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Newpage pagebreak
 \end_inset
 
