@@ -38,7 +38,6 @@ listDep1Scale = list(
 
 dates=#<dates_list>#
 
-
 #
 #  Build the series data for the plot
 #
@@ -163,13 +162,40 @@ if ( nrow(sampleData) > 0){
       dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
       dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
 
-      if(nrow(dfStatsIndy1) != 0 && nrow(dfStatsIndy2) != 0){
+      if (nrow(dfStatsIndy1) != 0 && nrow(dfStatsIndy2) != 0) {
+
+        if ("fcst_valid_beg" %in% listFields) {
+          uniqueDates = length(unique(dfStatsIndy1[c("fcst_valid_beg", "fcst_lead")]))
+        } else if ("fcst_valid" %in% listFields) {
+          uniqueDates = length(unique(dfStatsIndy1[c("fcst_valid", "fcst_lead")]))
+        } else if ("fcst_init_beg" %in% listFields) {
+          uniqueDates = length(unique(dfStatsIndy1[c("fcst_init_beg", "fcst_lead")]))
+        } else {
+          uniqueDates = length(unique(dfStatsIndy1[c("fcst_init", "fcst_lead")]))
+        }
+        if (nrow(dfStatsIndy1) != uniqueDates) {
+          stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+        }
 
         #sort data
-        if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
-        if( "fcst_valid"     %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid),];   }
-        if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
-        if( "fcst_init"      %in% listFields ){ dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
+        if ("fcst_valid_beg" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid_beg, dfStatsIndy1$fcst_lead),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg, dfStatsIndy2$fcst_lead),];
+        }
+        if ("fcst_valid" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid, dfStatsIndy1$fcst_lead),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid, dfStatsIndy2$fcst_lead),];
+        }
+        if ("fcst_init_beg" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg, dfStatsIndy1$fcst_lead),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg, dfStatsIndy2$fcst_lead),];
+        }
+        if ("fcst_init" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init, dfStatsIndy1$fcst_lead),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init, dfStatsIndy2$fcst_lead),];
+        }
+
+
 
         derived_stat_list = calcDerivedCurveValue(dfStatsIndy1$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
 
