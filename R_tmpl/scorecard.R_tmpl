@@ -165,13 +165,13 @@ if ( nrow(sampleData) > 0){
       if (nrow(dfStatsIndy1) != 0 && nrow(dfStatsIndy2) != 0) {
 
         if ("fcst_valid_beg" %in% listFields) {
-          uniqueDates = length(unique(dfStatsIndy1[c("fcst_valid_beg", "fcst_lead")]))
+          uniqueDates = nrow(unique(dfStatsIndy1[c("fcst_valid_beg", "fcst_lead")]))
         } else if ("fcst_valid" %in% listFields) {
-          uniqueDates = length(unique(dfStatsIndy1[c("fcst_valid", "fcst_lead")]))
+          uniqueDates = nrow(unique(dfStatsIndy1[c("fcst_valid", "fcst_lead")]))
         } else if ("fcst_init_beg" %in% listFields) {
-          uniqueDates = length(unique(dfStatsIndy1[c("fcst_init_beg", "fcst_lead")]))
+          uniqueDates = nrow(unique(dfStatsIndy1[c("fcst_init_beg", "fcst_lead")]))
         } else {
-          uniqueDates = length(unique(dfStatsIndy1[c("fcst_init", "fcst_lead")]))
+          uniqueDates = nrow(unique(dfStatsIndy1[c("fcst_init", "fcst_lead")]))
         }
         if (nrow(dfStatsIndy1) != uniqueDates) {
           stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")

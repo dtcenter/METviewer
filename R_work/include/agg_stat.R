@@ -773,13 +773,13 @@ if ( nrow(sampleData) > 0){
         if (length(listDiffSeries) > 0) {
           listFields = names(dfStatsPerm);
           if ("fcst_valid_beg" %in% listFields) {
-            uniqueDates = length(unique(dfStatsPerm[c("fcst_valid_beg", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid_beg", "fcst_lead")]))
           } else if ("fcst_valid" %in% listFields) {
-            uniqueDates = length(unique(dfStatsPerm[c("fcst_valid", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid", "fcst_lead")]))
           } else if ("fcst_init_beg" %in% listFields) {
-            uniqueDates = length(unique(dfStatsPerm[c("fcst_init_beg", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init_beg", "fcst_lead")]))
           } else {
-            uniqueDates = length(unique(dfStatsPerm[c("fcst_init", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init", "fcst_lead")]))
           }
           if (nrow(dfStatsPerm) != uniqueDates) {
             stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
