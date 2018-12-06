@@ -7469,25 +7469,28 @@ function initPage() {
     }
 
 
-    $('.multilevel-dropdown').multilevelDropdown().on('change', function (event) {
-        var selected_db = [];
-        $("input[name='multiselect_database']:checked").each(function () {
-            selected_db.push($(this).val());
-        });
+    $('.multilevel-dropdown').multilevelDropdown();
+    $("input[name='multiselect_database']").on('change', function (event) {
+            if ($(this).val() != null) {
+                var selected_db = [];
+                $("input[name='multiselect_database']:checked").each(function () {
+                    selected_db.push($(this).val());
+                });
 
-        var text;
-        if (selected_db.length === 1) {
-            text = selected_db[0];
-        } else if (selected_db.length === 0) {
-            text = "Select database";
-        } else {
-            text = selected_db.length + " selected";
-        }
-        var textnode = document.createTextNode(text);
-        var item = document.getElementById("categories1").childNodes[0];
-        item.replaceChild(textnode, item.childNodes[0]);
-        updatePages();
-    });
+                var text;
+                if (selected_db.length === 1) {
+                    text = selected_db[0];
+                } else if (selected_db.length === 0) {
+                    text = "Select database";
+                } else {
+                    text = selected_db.length + " selected";
+                }
+                var textnode = document.createTextNode(text);
+                var item = document.getElementById("categories1").childNodes[0];
+                item.replaceChild(textnode, item.childNodes[0]);
+                updatePages();
+            }
+        });
 
 
 

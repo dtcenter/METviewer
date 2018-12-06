@@ -39,7 +39,7 @@
     position: relative;
     list-style: none;
     padding: 5px 11px;
-    cursor: pointer;
+    /*cursor: pointer;*/
     -moz-user-select: -moz-none;
     -ms-user-select: none;
     -webkit-user-select: none;
