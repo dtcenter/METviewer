@@ -773,29 +773,29 @@ if ( nrow(sampleData) > 0){
         if (length(listDiffSeries) > 0) {
           listFields = names(dfStatsPerm);
           if ("fcst_valid_beg" %in% listFields) {
-            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid_beg", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
           } else if ("fcst_valid" %in% listFields) {
-            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid", "fcst_lead", "stat_name")]))
           } else if ("fcst_init_beg" %in% listFields) {
-            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init_beg", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init_beg", "fcst_lead", "stat_name")]))
           } else {
-            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init", "fcst_lead")]))
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init", "fcst_lead", "stat_name")]))
           }
           if (nrow(dfStatsPerm) != uniqueDates) {
             stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
           }
           #sort data
           if ("fcst_valid_beg" %in% listFields) {
-            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_valid_beg, dfStatsPerm$fcst_lead),];
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_valid_beg, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
           }
           if ("fcst_valid" %in% listFields) {
-            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_valid, dfStatsPerm$fcst_lead),];
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_valid, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
           }
           if ("fcst_init_beg" %in% listFields) {
-            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init_beg, dfStatsPerm$fcst_lead),];
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init_beg, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
           }
           if ("fcst_init" %in% listFields) {
-            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init, dfStatsPerm$fcst_lead),];
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
           }
         }
 
