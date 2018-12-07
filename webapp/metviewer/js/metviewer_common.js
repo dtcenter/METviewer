@@ -1628,10 +1628,10 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     //get value of database
     var selectedDatabase = getSelectedDatabases();
     var selected_mode, statst;
-    if (currentTab == 'Perf') {
+    if (currentTab === 'Perf') {
         selected_mode = 'stat';
         statst = '<stat></stat>';
-    } else if (currentTab == 'Taylor') {
+    } else if (currentTab === 'Taylor') {
         selected_mode = 'taylor';
         statst = convertVarsAndStatsToXml();
     } else {
@@ -1644,83 +1644,85 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     } catch (err) {
         selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index).find('option:first-child').val();
     }
-    var url = '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
-    $.ajax({
-        async: false,
-        url: "servlet",
-        type: "POST",
-        data: url,
-        dataType: 'xml',
-        processData: false,
-        contentType: "application/xml",
-        error: function () {
+    if (typeof selectedSeriesVariable !== 'undefined') {
+        var url = '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
+        $.ajax({
+            async: false,
+            url: "servlet",
+            type: "POST",
+            data: url,
+            dataType: 'xml',
+            processData: false,
+            contentType: "application/xml",
+            error: function () {
 
-        },
-        success: function (data) {
-            if (y_axis === 'y1') {
-                seriesY1VarValResponse[index] = data;
-            } else {
-                seriesY2VarValResponse[index] = data;
-            }
-
-            var values = $(data).find("val");
-            var opt, selected;
-            var options = [];
-            if (values.length > 0) {
-                for (var i = 0; i < values.length; i++) {
-                    var t = $(values[i]);
-                    if ($.type(selectedVals) == "string") {
-                        selected = t.text() == selectedVals;
-                    } else {
-                        selected = $.inArray(t.text(), selectedVals) >= 0;
-                    }
-                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
-                        opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
-                            selected: selected
-                        });
-                        options.push(opt);
-                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
-                        options[options.length - 1].text(options[options.length - 1].text() + '*');
-                    }
+            },
+            success: function (data) {
+                if (y_axis === 'y1') {
+                    seriesY1VarValResponse[index] = data;
+                } else {
+                    seriesY2VarValResponse[index] = data;
                 }
-                var length;
-                var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
 
-                for (var i = 0; i < options.length; i++) {
-                    if (options[i].text() !== options[i][0].value) {
-                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
-                        if (length === databaseNumbers) {
-                            options[i].text(options[i][0].value + "*");
+                var values = $(data).find("val");
+                var opt, selected;
+                var options = [];
+                if (values.length > 0) {
+                    for (var i = 0; i < values.length; i++) {
+                        var t = $(values[i]);
+                        if ($.type(selectedVals) === "string") {
+                            selected = t.text() === selectedVals;
                         } else {
-                            options[i].text(options[i][0].value);
+                            selected = $.inArray(t.text(), selectedVals) >= 0;
+                        }
+                        if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
+                            opt = $('<option />', {
+                                value: t.text(),
+                                text: t.text(),
+                                selected: selected
+                            });
+                            options.push(opt);
+                        } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
+                            options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
                     }
-                    options[i].appendTo(select);
-                }
-                try {
-                    select.multiselect('refresh');
-                } catch (err) {
-                }
-            } else {
-                opt = $('<option />', {
-                    value: "N/A",
-                    text: "N/A"
-                });
-                opt.appendTo(select);
-                try {
-                    select.multiselect('refresh');
-                } catch (err) {
-                }
+                    var length;
+                    var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
 
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].text() !== options[i][0].value) {
+                            length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                            if (length === databaseNumbers) {
+                                options[i].text(options[i][0].value + "*");
+                            } else {
+                                options[i].text(options[i][0].value);
+                            }
+                        }
+                        options[i].appendTo(select);
+                    }
+                    try {
+                        select.multiselect('refresh');
+                    } catch (err) {
+                    }
+                } else {
+                    opt = $('<option />', {
+                        value: "N/A",
+                        text: "N/A"
+                    });
+                    opt.appendTo(select);
+                    try {
+                        select.multiselect('refresh');
+                    } catch (err) {
+                    }
+
+                }
+                if (selectedVals.length === 1 && selectedVals[0].indexOf(",") !== -1) {
+                    $("#group_series_var_" + y_axis + "_" + index).prop('checked', true);
+                }
+                selectedVals = [];
             }
-            if (selectedVals.length === 1 && selectedVals[0].indexOf(",") !== -1) {
-                $("#group_series_var_" + y_axis + "_" + index).prop('checked', true);
-            }
-            selectedVals = [];
-        }
-    });
+        });
+    }
 }
 
 function updateFixedVarValHist(index, selectedVals) {
@@ -5567,7 +5569,7 @@ function loadXMLEclv() {
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
-            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+            if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "block");
             } else {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
@@ -7513,18 +7515,18 @@ function updatePages(){
             }
         }
         mode = $('#plot_data').multiselect('getChecked')[0].value;
-        if (mode == 'stat') {
+        if (mode === 'stat') {
             updateStats("y1", 1, []);
             updateStats("y2", 1, []);
             updateFixVar("stat");
             updateIndyVar("stat");
             $("#agg_none").prop('checked', 'checked');
-        } else if (mode == 'mode') {
+        } else if (mode === 'mode') {
             updateMode("y1", 1, []);
             updateMode("y2", 1, []);
             updateFixVar("mode");
             updateIndyVar("mode");
-        } else if (mode == 'mtd') {
+        } else if (mode === 'mtd') {
             updateMtd("y1", 1, []);
             updateMtd("y2", 1, []);
             updateFixVar("mtd");
@@ -7532,18 +7534,18 @@ function updatePages(){
         }
         updateSeriesVarVal("y1", 1, []);
         updateSeriesVarVal("y2", 1, []);
-    } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist' || currentTab == 'Eclv') {
+    } else if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Hist' || currentTab === 'Eclv') {
         updateSeriesVarValHist(1, []);
         for (i = 0; i < fixed_var_indexes.length; i++) {
             values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
             updateFixedVarValHist(fixed_var_indexes[i], values);
         }
-        if (currentTab == 'Rely') {
+        if (currentTab === 'Rely') {
             updateSeriesRely();
         } else {
             updateSeriesHist();
         }
-    } else if (currentTab == 'Ens_ss') {
+    } else if (currentTab === 'Ens_ss') {
 
         for (i = 0; i < series_var_y1_indexes.length; i++) {
             values = $("#series_var_val_y1_" + series_var_y1_indexes[i]).val();
@@ -7553,18 +7555,18 @@ function updatePages(){
             values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
             updateFixedVarValHist(fixed_var_indexes[i], values);
         }
-    } else if (currentTab == 'Perf') {
+    } else if (currentTab === 'Perf') {
         $('#listdt').jqGrid('clearGridData');
         updateSeriesVarVal("y1", 1, []);
         var rowCount = $('#fixed_var_table').find('tr').length;
         for (i = rowCount - 1; i >= 0; i--) {
             removeFixedVar("fixed_var_" + (i + 1));
         }
-    } else if (currentTab == 'Taylor') {
+    } else if (currentTab === 'Taylor') {
         $('#listdt').jqGrid('clearGridData');
         updateForecastVariables();
         updateSeriesVarVal("y1", 1, []);
-    } else if (currentTab == 'Contour') {
+    } else if (currentTab === 'Contour') {
         $('#listdt').jqGrid('clearGridData');
         updateStatVariable();
         updateYvalueCountour([]);
