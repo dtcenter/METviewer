@@ -56,6 +56,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
+  private StopWatch cbStopWatch = new StopWatch();
+
   public CBAppDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
     super(databaseInfo);
     statHeaderSqlType.put("model", "VARCHAR(64)");
@@ -165,8 +167,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                   + " AND h.dbname in " + dbList;
 
     try {
-          logger.error("getListStat QUERYSTRING: " + queryString);
+          cbStopWatch.start();
           queryResult = getBucket().query(N1qlQuery.simple(queryString));
+          cbStopWatch.stop();
+          logger.error("getListStat QUERYSTRING: " + queryString + "\nDuration: " + cbStopWatch.getFormattedTotalDuration());
           boolean boolCnt = false;
           boolean boolCts = false;
           boolean boolVcnt = false;
@@ -240,7 +244,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
             }
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
         }
 
@@ -430,12 +434,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     dbList += "]";
 
     if (boolNRank) {
+            logger.error("boolNRank: no query yet");
 //          strSql = "SELECT DISTINCT ld.n_rank "
 //                       + "FROM stat_header h, line_data_rhist ld "
 //                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
 //                       + " ld.stat_header_id = h.stat_header_id "
 //                       + "ORDER BY n_rank;";
     } else if (boolNBin) {
+            logger.error("boolNBin: no query yet");
 //          strSql = "SELECT DISTINCT ld.n_bin "
 //                       + "FROM stat_header h, line_data_phist ld "
 //                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
@@ -475,9 +481,12 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         }
         //  execute the query
         try {
-            logger.error("getListValues QUERYSTRING: " + queryString);
-            queryResult = getBucket().query(N1qlQuery.simple(queryString));
-            for (N1qlQueryRow row : queryResult) {
+          cbStopWatch.start();
+          queryResult = getBucket().query(N1qlQuery.simple(queryString));
+          cbStopWatch.stop();
+          logger.error("getListStat QUERYSTRING: " + queryString + "\nDuration: " + cbStopWatch.getFormattedTotalDuration());
+
+          for (N1qlQueryRow row : queryResult) {
               listRes.add(row.value().get(strField).toString());
             }
 
