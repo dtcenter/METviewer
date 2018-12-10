@@ -165,6 +165,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                   + " AND h.dbname in " + dbList;
 
     try {
+          logger.error("getListStat QUERYSTRING: " + queryString);
           queryResult = getBucket().query(N1qlQuery.simple(queryString));
           boolean boolCnt = false;
           boolean boolCts = false;
@@ -474,6 +475,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         }
         //  execute the query
         try {
+            logger.error("getListValues QUERYSTRING: " + queryString);
             queryResult = getBucket().query(N1qlQuery.simple(queryString));
             for (N1qlQueryRow row : queryResult) {
               listRes.add(row.value().get(strField).toString());
