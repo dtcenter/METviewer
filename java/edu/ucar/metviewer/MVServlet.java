@@ -27,10 +27,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,13 +76,12 @@ public class MVServlet extends HttpServlet {
 
   public static final Pattern patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
   public static final Pattern patDownload = Pattern.compile(".*/download");
-
-  private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
+  public static final String DELIMITER = File.separator;
   protected static final Map<String, String> valCache = new HashMap<>();
   protected static final Map<String, String> statCache = new HashMap<>();
+  private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
-
   private static final FilenameFilter PNG_FILTER = new FilenameFilter() {
     @Override
     public boolean accept(File dir, String name) {
@@ -95,7 +94,6 @@ public class MVServlet extends HttpServlet {
       return name.toLowerCase(Locale.ENGLISH).endsWith(".xml");
     }
   };
-  public static final String DELIMITER = File.separator;
   public static String plotXml = "";
   public static String rTmpl = "";
   public static String rWork = "";
@@ -108,7 +106,7 @@ public class MVServlet extends HttpServlet {
   public static boolean isValCache = false;
   public static boolean isStatCache = false;
   public static AppDatabaseManager databaseManager;
-  private String dbManagementSystem = "mysql";
+
   /**
    * Clear cached <list_val> values for the input database
    *
@@ -239,8 +237,8 @@ public class MVServlet extends HttpServlet {
    * @throws Exception
    */
   public static String handleListVal(
-                                        MVNode nodeCall, String requestBody,
-                                        String[] currentDbName) throws Exception {
+      MVNode nodeCall, String requestBody,
+      String[] currentDbName) throws Exception {
     //  parse the input request, and initialize the response
     StringBuilder strResp = new StringBuilder("<list_val>");
     String strId = nodeCall.children[0].value;
@@ -304,12 +302,12 @@ public class MVServlet extends HttpServlet {
    * @throws Exception
    */
   public static String handleListStat(
-                                         MVNode nodeCall, String requestBody,
-                                         String[] currentDBName) throws Exception {
+      MVNode nodeCall, String requestBody,
+      String[] currentDBName) throws Exception {
     //  if the request is for the mode stats, return the static list
     String strId = nodeCall.children[0].value;
     String strFcstVar = nodeCall.children[1].value;
-    if(strFcstVar.equals("undefined")){
+    if (strFcstVar.equals("undefined")) {
       return "<list_stat><id>" + strId + "</id></list_stat>";
     }
     if (nodeCall.children[0].tag.equals("mode_fcst_var")) {
@@ -375,9 +373,9 @@ public class MVServlet extends HttpServlet {
     String strPlotXML = strRequest;
     strPlotXML = strPlotXML.substring(strPlotXML.indexOf("</db_con>") + 9);
     strPlotXML = strPlotXML.substring(0, strPlotXML.indexOf("</request>"));
-    String strPlotPrefix;
+    String plotPrefix;
     SimpleDateFormat formatPlot = new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
-    strPlotPrefix = "plot_" + formatPlot.format(new Date());
+    plotPrefix = "plot_" + formatPlot.format(new Date());
     String databases = "";
     for (String database : currentDBName) {
       databases = databases + database + ",";
@@ -405,43 +403,16 @@ public class MVServlet extends HttpServlet {
 
     strPlotXML = strPlotXML.replace("<tmpl>",
                                     "<tmpl>"
-                                        + "<data_file>" + strPlotPrefix + ".data" + "</data_file>"
-                                        + "<plot_file>" + strPlotPrefix + ".png" + "</plot_file>"
-                                        + "<r_file>" + strPlotPrefix + ".R" + "</r_file>");
+                                        + "<data_file>" + plotPrefix + ".data" + "</data_file>"
+                                        + "<plot_file>" + plotPrefix + ".png" + "</plot_file>"
+                                        + "<r_file>" + plotPrefix + ".R" + "</r_file>");
 
-    //  parse the input document and build the MVNode data structure
-    Document doc = MVPlotJobParser.getDocumentBuilder()
-                       .parse(new ByteArrayInputStream(strPlotXML.getBytes()));
-    StreamResult streamResult;
-    File f = new File(plotXml + DELIMITER + strPlotPrefix + ".xml");
-    try (FileOutputStream stream = new FileOutputStream(f);
-         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(stream, "UTF-8");) {
-      //Begin write DOM to file
-
-      TransformerFactory tf = TransformerFactory.newInstance();
-      Transformer transformer = tf.newTransformer();
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-      transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-      streamResult = new StreamResult(outputStreamWriter);
-      transformer.transform(new DOMSource(doc), streamResult);
-      stream.flush();
-    } catch (Exception e) {
-      logger.error(
-          "handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: "
-              + e.getMessage());
-      return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
-    }
 
     //  parse the input plot job
     MVPlotJobParser parser;
     MVPlotJob job;
-    ByteArrayInputStream byteArrayInputStream = null;
-    try {
-      byteArrayInputStream = new ByteArrayInputStream(strPlotXML.getBytes());
+    try (ByteArrayInputStream byteArrayInputStream
+             = new ByteArrayInputStream(strPlotXML.getBytes())) {
       parser = new MVPlotJobParser(byteArrayInputStream);
       MVPlotJob[] jobs = parser.getJobsList();
       if (1 != jobs.length) {
@@ -453,10 +424,6 @@ public class MVServlet extends HttpServlet {
       errorStream.print(
           "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
       return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
-    } finally {
-      if (byteArrayInputStream != null) {
-        byteArrayInputStream.close();
-      }
     }
 
     //  run the plot job and write the batch output to the log file
@@ -485,47 +452,84 @@ public class MVServlet extends HttpServlet {
       mvBatch.setDataFolder(parser.getDataFolder());
       mvBatch.setScriptsFolder(parser.getScriptsFolder());
 
+      //change timestamp job name to the custom if exists
+      if (!job.getJobTitleTmpl().isEmpty()) {
+        String title;
+        if (!job.getKeepRevisions()) {
+          title = job.getJobTitleTmpl();
+        } else {
+          //find file in plot xml
+          String[] similarNames =
+              new File(plotXml).list(new MVUtil.NameFilter(job.getJobTitleTmpl()));
+          if (similarNames == null || similarNames.length == 0) {
+            //no jobs with the same name
+            title = job.getJobTitleTmpl();
+          } else {
+            title = job.getJobTitleTmpl() + "(" + similarNames.length + ")";
+          }
+        }
+        String plotPrefixCustom = "plot_" + title;
+        job.setDataFileTmpl(plotPrefixCustom + ".data");
+        job.setPlotFileTmpl(plotPrefixCustom + ".png");
+        job.setRFileTmpl(plotPrefixCustom + ".R");
+        strPlotXML = strPlotXML.replace(plotPrefix, plotPrefixCustom);
+        plotPrefix = plotPrefixCustom;
+      }
+      //  parse the input document and build the MVNode data structure
+      Document doc = MVPlotJobParser.getDocumentBuilder()
+                         .parse(new ByteArrayInputStream(strPlotXML.getBytes()));
+      StreamResult streamResult;
+      File f = new File(plotXml + DELIMITER + plotPrefix + ".xml");
+      try (FileOutputStream stream = new FileOutputStream(f);
+           OutputStreamWriter outputStreamWriter
+               = new OutputStreamWriter(stream, StandardCharsets.UTF_8);) {
+        //Begin write DOM to file
+
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        streamResult = new StreamResult(outputStreamWriter);
+        transformer.transform(new DOMSource(doc), streamResult);
+        stream.flush();
+      } catch (Exception e) {
+        logger.error(
+            "handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: "
+                + e.getMessage());
+        return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
+      }
 
       //  run the job to generate the plot
       runTargetedJob(job, mvBatch);
-      //  build the job SQL using the batch engine
-      String plotSql = logSql.toString();
 
-      //  write the plot SQL to a file
-      try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + strPlotPrefix + ".sql")) {
-        fileWriter.write(plotSql);
-      }
-      logSql.reset();
 
-      stopWatch.stop();
-      mvBatch.getPrintStream().println("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
-      String strPlotterOutput = log.toString();
 
-      try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + strPlotPrefix + ".log")) {
-        fileWriter.write(strPlotterOutput);
-      }
+      String plotterOutput = log.toString();
       //  parse out R error messages, if present, throwing an exception if the error was fatal
       Matcher matOutput = Pattern.compile(
           "(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)")
-                              .matcher(strPlotterOutput);
+                              .matcher(plotterOutput);
       if (matOutput.find()) {
         strRErrorMsg = matOutput.group(1);
       }
-      if (strPlotterOutput.contains("Execution halted")) {
+      if (plotterOutput.contains("Execution halted")) {
         throw new Exception("R error");
       }
-      if (strPlotterOutput.contains("query returned no data")) {
+      if (plotterOutput.contains("query returned no data")) {
         throw new Exception("query returned no data");
       }
 
-
     } catch (Exception e) {
-
+      stopWatch.stop();
       errorStream.print(
           "handlePlot() - ERROR: caught " + e.getClass()
               + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
       String strPlotterOutput = log.toString();
-      try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + strPlotPrefix + ".log")) {
+      try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log")) {
         fileWriter.write(strPlotterOutput);
       }
       strRErrorMsg = strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
@@ -533,20 +537,50 @@ public class MVServlet extends HttpServlet {
       String message = e.getMessage().replace("&", "&amp;").replace("<", "&lt;")
                            .replace(">", "&gt;");
       return "<response><error>"
-                 + "failed to run plot " + strPlotPrefix + " - reason: " + message
+                 + "failed to run plot " + plotPrefix + " - reason: " + message
                  + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "")
-                 + "</error><plot>" + strPlotPrefix + "</plot></response>";
+                 + "</error><plot>" + plotPrefix + "</plot></response>";
     } finally {
+
+      stopWatch.stop();
+      if(logSql != null) {
+        //  build the job SQL using the batch engine
+        String plotSql = logSql.toString();
+
+        //  write the plot SQL to a file
+        try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".sql")) {
+          fileWriter.write(plotSql);
+        }
+        logSql.reset();
+      }
+
+
+      if (log != null && printStream != null) {
+        printStream.println("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
+        String plotterOutput = log.toString();
+
+        try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log")) {
+          fileWriter.write(plotterOutput);
+        }
+
+      }
       if (log != null) {
         log.close();
       }
-      if (printStream != null) {
+      if(printStream!= null){
         printStream.close();
       }
+
       if (logSql != null) {
+        logSql.flush();
         logSql.close();
       }
+      if (logError != null) {
+        logError.flush();
+        logError.close();
+      }
       if (printStreamSql != null) {
+        printStreamSql.flush();
         printStreamSql.close();
       }
       if (printStreamError != null) {
@@ -556,7 +590,7 @@ public class MVServlet extends HttpServlet {
     }
     logger.debug("handlePlot() - batch output:\n" + log.toString());
 
-    return "<response><plot>" + strPlotPrefix
+    return "<response><plot>" + plotPrefix
                + "</plot>"
                + (!strRErrorMsg.equals("")
                       ? "<r_error>"
@@ -674,7 +708,7 @@ public class MVServlet extends HttpServlet {
     return MVPlotJobParser.serializeJob(job, databaseManager.getDatabaseInfo());
   }
 
-  public static String getAvailableResults(String showAll) {
+  private static String getAvailableResults(String showAll) {
     StringBuilder result = new StringBuilder();
     String dir;
     String extension;
@@ -691,23 +725,25 @@ public class MVServlet extends HttpServlet {
 
     File plotDir = new File(dir);
     String fileXml;
-    String[] plotNames = plotDir.list(filter);
-    Arrays.sort(plotNames, Collections.reverseOrder());
-    for (String name : plotNames) {
+    File[] files = plotDir.listFiles(filter);
+    if (files != null) {
+      Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
+      for (File file : files) {
 
-      String success = "true";
-      if (dir.equals(plotXml)) {
-        //check if the image exists
-        File imageFile = new File(plots + DELIMITER + name.replace(extension, "") + ".png");
-        if (!imageFile.exists()) {
-          success = "false";
+        String success = "true";
+        if (dir.equals(plotXml)) {
+          //check if the image exists
+          File imageFile = new File(
+              plots + DELIMITER + file.getName().replace(extension, "") + ".png");
+          if (!imageFile.exists()) {
+            success = "false";
+          }
         }
+        fileXml = "<file name=\"" + file.getName().replace(extension, "")
+                                        .replace("plot_", "") + "\" success=\"" + success + "\" />";
+        result.append(fileXml);
       }
-      fileXml = "<file name=\"" + name.replace(extension, "")
-                                      .replace("plot_", "") + "\" success=\"" + success + "\" />";
-      result.append(fileXml);
     }
-
 
     return result.toString();
   }
@@ -721,12 +757,11 @@ public class MVServlet extends HttpServlet {
     logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
-      dbManagementSystem = bundle.getString("db.managementSystem");
-      databaseManager = (AppDatabaseManager)DatabaseManager.getAppManager(
-              bundle.getString("db.managementSystem"),
-              bundle.getString("db.host"),
-              bundle.getString("db.user"),
-              bundle.getString("db.password"));
+      databaseManager = (AppDatabaseManager) DatabaseManager.getAppManager(
+          bundle.getString("db.managementSystem"),
+          bundle.getString("db.host"),
+          bundle.getString("db.user"),
+          bundle.getString("db.password"));
 
       isValCache = bundle.getString("cache.val").equals("true");
       isStatCache = bundle.getString("cache.stat").equals("true");
@@ -912,7 +947,7 @@ public class MVServlet extends HttpServlet {
     try {
 
       //  initialize the request information
-      String requestBody = "";
+      StringBuilder requestBody = new StringBuilder();
       request.getSession().setAttribute("init_xml", "");
 
 
@@ -936,7 +971,8 @@ public class MVServlet extends HttpServlet {
         }
 
         //  scrub non-xml from the file contents
-        requestBody = "<request><xml_upload>" + uploadXml + "</xml_upload></request>";
+        requestBody = new StringBuilder(
+            "<request><xml_upload>" + uploadXml + "</xml_upload></request>");
         response.setContentType("application/xml");
         String[] refererArr = request.getHeader("referer").split(DELIMITER);
         referer = refererArr[refererArr.length - 1];
@@ -948,7 +984,7 @@ public class MVServlet extends HttpServlet {
         try {
           reader = request.getReader();
           while ((line = reader.readLine()) != null) {
-            requestBody = requestBody + line;
+            requestBody.append(line);
           }
           response.setContentType("application/xml");
         } catch (Exception e) {
@@ -956,16 +992,13 @@ public class MVServlet extends HttpServlet {
         }
 
       }
-      long t = System.currentTimeMillis();
-      logger.debug("***** " + dbManagementSystem);
-      logger.debug("doPost(" + t + ") - request (" + request.getRemoteHost() + "): " + requestBody);
-
+      logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
 
       StringBuilder strResp = new StringBuilder();
-      if (!requestBody.startsWith("<")) {
-        String[] simpleRequest = requestBody.split("=");
+      if (!requestBody.toString().startsWith("<")) {
+        String[] simpleRequest = requestBody.toString().split("=");
         if (simpleRequest[0].equals("fileUploadLocal") && simpleRequest.length > 1) {
-          String runId = simpleRequest[1];
+          String runId = simpleRequest[1].replace("%28", "(").replace("%29", ")");
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
           DocumentBuilder db = dbf.newDocumentBuilder();
           File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
@@ -996,7 +1029,7 @@ public class MVServlet extends HttpServlet {
         dbf.setNamespaceAware(true);
         Document doc;
         try (ByteArrayInputStream byteArrayInputStream
-                 = new ByteArrayInputStream(requestBody.getBytes())) {
+                 = new ByteArrayInputStream(requestBody.toString().getBytes())) {
           doc = dbf.newDocumentBuilder().parse(byteArrayInputStream);
         }
 
@@ -1030,7 +1063,7 @@ public class MVServlet extends HttpServlet {
                 groupsXmlStr.append("</group>");
               }
             }
-            if(groups.containsKey(MVUtil.DEFAULT_DATABASE_GROUP)) {
+            if (groups.containsKey(MVUtil.DEFAULT_DATABASE_GROUP)) {
               groupsXmlStr.append("<group name='").append(MVUtil.DEFAULT_DATABASE_GROUP)
                   .append("' >");
               for (String database : groups.get(MVUtil.DEFAULT_DATABASE_GROUP)) {
@@ -1086,21 +1119,21 @@ public class MVServlet extends HttpServlet {
           }
           //  <db_con> node containing the database connection name
           else if (nodeCall.tag.equalsIgnoreCase("db_con")) {
-            if(nodeCall.value.isEmpty()){
+            if (nodeCall.value.isEmpty()) {
               currentDbName = new String[0];
-            }else {
+            } else {
               currentDbName = nodeCall.value.split(",");
             }
           }
 
           //  <list_val>
           else if (nodeCall.tag.equalsIgnoreCase("list_val")) {
-            strResp.append(handleListVal(nodeCall, requestBody, currentDbName));
+            strResp.append(handleListVal(nodeCall, requestBody.toString(), currentDbName));
           }
 
           //  <list_stat>
           else if (nodeCall.tag.equalsIgnoreCase("list_stat")) {
-            strResp.append(handleListStat(nodeCall, requestBody, currentDbName));
+            strResp.append(handleListStat(nodeCall, requestBody.toString(), currentDbName));
           }
           //  <list_val_clear_cache>
           else if (nodeCall.tag.equalsIgnoreCase("list_val_clear_cache")) {
@@ -1127,7 +1160,7 @@ public class MVServlet extends HttpServlet {
 
           //  <plot>
           else if (nodeCall.tag.equalsIgnoreCase("plot")) {
-            strResp.append(handlePlot(requestBody, currentDbName));
+            strResp.append(handlePlot(requestBody.toString(), currentDbName));
           }
 
 
@@ -1162,8 +1195,7 @@ public class MVServlet extends HttpServlet {
         strResp.append("<error>could not parse request</error>");
       }
 
-      logger.debug("doPost(" + t + ") - response: " + strResp);
-      logger.debug("*****");
+      logger.debug("doPost() - response: " + strResp);
       response.setContentType("application/xml;charset=UTF-8");
       try (PrintWriter printWriter = response.getWriter()) {
         printWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");

@@ -330,7 +330,39 @@ if(length(listDiffSeries1) > 0){
     listBox1 = listAllStats1[[ diffSeriesVec[1] ]];
     listBox2 = listAllStats1[[ diffSeriesVec[2] ]];
     listBoxDiff = list();
-    for(strIndy in listIndy){
+    listFields = names(listBox1);
+    for (strIndy in listIndy) {
+      if ("fcst_valid_beg" %in% listFields) {
+        uniqueDates = nrow(unique(listBox1[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
+      } else if ("fcst_valid" %in% listFields) {
+        uniqueDates = nrow(unique(listBox1[c("fcst_valid", "fcst_lead", "stat_name")]))
+      } else if ("fcst_init_beg" %in% listFields) {
+        uniqueDates = nrow(unique(listBox1[c("fcst_init_beg", "fcst_lead", "stat_name")]))
+      } else {
+        uniqueDates = nrow(unique(listBox1[c("fcst_init", "fcst_lead", "stat_name")]))
+      }
+      if (nrow(listBox1) != uniqueDates) {
+        stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+      }
+
+      #sort data
+      if ("fcst_valid_beg" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_valid_beg, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_valid_beg, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+      if ("fcst_valid" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_valid, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_valid, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+      if ("fcst_init_beg" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_init_beg, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_init_beg, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+      if ("fcst_init" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_init, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_init, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+
       listBoxDiff[[strIndy]] = calcDerivedCurveValue(listBox1[[strIndy]], listBox2[[strIndy]], derivedCurveName);
     }
     listAllStats1[[derivedCurveName]] = listBoxDiff;
@@ -368,7 +400,39 @@ if(length(listDiffSeries2) > 0){
     listBox1 = listAllStats2[[ diffSeriesVec[1] ]];
     listBox2 = listAllStats2[[ diffSeriesVec[2] ]];
     listBoxDiff = list();
-    for(strIndy in listIndy){
+    listFields = names(listBox1);
+
+    for (strIndy in listIndy) {
+      if ("fcst_valid_beg" %in% listFields) {
+        uniqueDates = nrow(unique(listBox1[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
+      } else if ("fcst_valid" %in% listFields) {
+        uniqueDates = nrow(unique(listBox1[c("fcst_valid", "fcst_lead", "stat_name")]))
+      } else if ("fcst_init_beg" %in% listFields) {
+        uniqueDates = nrow(unique(listBox1[c("fcst_init_beg", "fcst_lead", "stat_name")]))
+      } else {
+        uniqueDates = nrow(unique(listBox1[c("fcst_init", "fcst_lead", "stat_name")]))
+      }
+      if (nrow(listBox1) != uniqueDates) {
+        stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+      }
+
+      #sort data
+      if ("fcst_valid_beg" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_valid_beg, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_valid_beg, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+      if ("fcst_valid" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_valid, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_valid, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+      if ("fcst_init_beg" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_init_beg, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_init_beg, listBox2$fcst_lead, listBox2$stat_name),];
+      }
+      if ("fcst_init" %in% listFields) {
+        listBox1 = listBox1[order(listBox1$fcst_init, listBox1$fcst_lead, listBox1$stat_name),];
+        listBox2 = listBox2[order(listBox2$fcst_init, listBox2$fcst_lead, listBox2$stat_name),];
+      }
       listBoxDiff[[strIndy]] = calcDerivedCurveValue(listBox1[[strIndy]], listBox2[[strIndy]], derivedCurveName);
     }
     listAllStats2[[derivedCurveName]] = listBoxDiff;

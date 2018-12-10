@@ -33,7 +33,6 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $
@@ -113,13 +112,14 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
-        selectFields.append("'").append(entry.getValue().getName()).append("' stat_name,")
+        selectFields.append("'").append(entry.getValue().getName())
+            .append("' stat_name,")
             .append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
       } else {
         if (selectFields.indexOf(entry.getKey()) == -1) {
           selectFields.append(entry.getKey()).append(",");
         }
-        whereFields.append(entry.getKey()).append(" IN ('")
+        whereFields.append(BINARY).append(entry.getKey()).append(" IN ('")
             .append(entry.getValue().getName().replaceAll(",", "','")).append("') AND ");
       }
     }
@@ -127,7 +127,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       StringBuilder values = new StringBuilder();
       if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg"
                                                                .equals(fixedField.getName())) {
-        whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
+        whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
             .append(fixedField.getValues().get(0).getName()).append("' AND '")
             .append(fixedField.getValues().get(1).getName()).append("' AND ");
       } else if ("init_hour".equals(fixedField.getName())) {
@@ -153,7 +153,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         if (values.length() > 0) {
           values.deleteCharAt(values.length() - 1);
         }
-        whereFields.append(fixedField.getName()).append(" IN ('")
+        whereFields.append(BINARY).append(fixedField.getName()).append(" IN ('")
             .append(values.toString().replaceAll(",", "','")).append("') AND ");
       }
       if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
@@ -175,7 +175,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       if (values.length() > 0) {
         values.deleteCharAt(values.length() - 1);
       }
-      whereFields.append(columnEntry.getKey()).append(" IN ('")
+      whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
           .append(values.toString().replaceAll(",", "','")).append("') AND ");
     }
 

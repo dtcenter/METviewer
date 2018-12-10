@@ -159,11 +159,42 @@ if(length(listDiffSeries1) > 0){
     derivedCurveName = getDerivedCurveName(diffSeriesVec);
 
     plotData1 = listAllStats[[diffSeriesVec[1]]];
-    plotData2 = listAllStats[[diffSeriesVec[2]]];
-    plotData1$stat_value = calcDerivedCurveValue(plotData1$stat_value, plotData2$stat_value, derivedCurveName);
+      plotData2 = listAllStats[[diffSeriesVec[2]]];
+      listFields = names(plotData1);
+      if ("fcst_valid_beg" %in% listFields) {
+          uniqueDates = nrow(unique(plotData1[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
+      } else if ("fcst_valid" %in% listFields) {
+          uniqueDates = nrow(unique(plotData1[c("fcst_valid", "fcst_lead", "stat_name")]))
+      } else if ("fcst_init_beg" %in% listFields) {
+          uniqueDates = nrow(unique(plotData1[c("fcst_init_beg", "fcst_lead", "stat_name")]))
+      } else {
+          uniqueDates = nrow(unique(plotData1[c("fcst_init", "fcst_lead", "stat_name")]))
+      }
+      if (nrow(plotData1) != uniqueDates) {
+          stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+      }
+      #sort data
+      if ("fcst_valid_beg" %in% listFields) {
+          plotData1 = plotData1[order(plotData1$fcst_valid_beg, plotData1$fcst_lead, dfStatsIndy1$stat_name),];
+          plotData2 = plotData2[order(plotData2$fcst_valid_beg, plotData2$fcst_lead, dfStatsIndy2$stat_name),];
+      }
+      if ("fcst_valid" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_valid, dfStatsIndy1$fcst_lead, dfStatsIndy1$stat_name),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+      }
+      if ("fcst_init_beg" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init_beg, dfStatsIndy1$fcst_lead, dfStatsIndy1$stat_name),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+      }
+      if ("fcst_init" %in% listFields) {
+          dfStatsIndy1 = dfStatsIndy1[order(dfStatsIndy1$fcst_init, dfStatsIndy1$fcst_lead, dfStatsIndy1$stat_name),];
+          dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+      }
+
+      plotData1$stat_value = calcDerivedCurveValue(plotData1$stat_value, plotData2$stat_value, derivedCurveName);
 
 
-    listPlotData1 = buildSeriesData(plotData1, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp,
+      listPlotData1 = buildSeriesData(plotData1, strIndyVar, listIndy, strDep1Stat, listSeries1Val, listPlotDisp,
     listPlotCI[(intNumSeries1 +1):(length(listPlotCI))],  boolVarianceInflationFactor, strPlotStat);
     listSeries1 = append(listSeries1, listPlotData1$series);
     if( TRUE == exists("listNStats") ){

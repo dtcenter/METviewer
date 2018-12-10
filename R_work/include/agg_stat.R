@@ -750,31 +750,57 @@ if ( nrow(sampleData) > 0){
           listSeriesVarLenght = 1;
         }
 
-        for(intSeriesVal in 1:listSeriesVarLenght){
+        for (intSeriesVal in 1 : listSeriesVarLenght) {
           strSeriesVar = listSeriesVar[intSeriesVal];
-          if( !is.null(strSeriesVar) ){
+          if (! is.null(strSeriesVar)) {
 
             strSeriesVal = listPerm[intSeriesVal];
 
-          if( grepl("^[0-9]+$", strSeriesVal) ){
-            strSeriesVal = as.integer(strSeriesVal);
-            vectValPerms = strSeriesVal;
-          }else{
-
-              vectValPerms= strsplit(strSeriesVal, ",")[[1]];
-
+            if (grepl("^[0-9]+$", strSeriesVal)) {
+              strSeriesVal = as.integer(strSeriesVal);
+              vectValPerms = strSeriesVal;
+            }else {
+              vectValPerms = strsplit(strSeriesVal, ",")[[1]];
+            }
+            vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
+            dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+            if (boolAggPct) {
+              dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
+            }
           }
-          vectValPerms=lapply(vectValPerms,function(x) {if( grepl("^[0-9]+$", x) ){ x=as.integer(x); }else{x=x} })
-          dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
-          if( boolAggPct ){
-
-            dfStatsPermAllIndy = dfStatsPermAllIndy[dfStatsPermAllIndy[[strSeriesVar]] %in% vectValPerms,];
+        }
+        #can't calculate differensies if  multiple values for one valid date/fcst_lead
+        if (length(listDiffSeries) > 0) {
+          listFields = names(dfStatsPerm);
+          if ("fcst_valid_beg" %in% listFields) {
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
+          } else if ("fcst_valid" %in% listFields) {
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_valid", "fcst_lead", "stat_name")]))
+          } else if ("fcst_init_beg" %in% listFields) {
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init_beg", "fcst_lead", "stat_name")]))
+          } else {
+            uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init", "fcst_lead", "stat_name")]))
           }
+          if (nrow(dfStatsPerm) != uniqueDates) {
+            stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+          }
+          #sort data
+          if ("fcst_valid_beg" %in% listFields) {
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_valid_beg, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
+          }
+          if ("fcst_valid" %in% listFields) {
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_valid, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
+          }
+          if ("fcst_init_beg" %in% listFields) {
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init_beg, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
+          }
+          if ("fcst_init" %in% listFields) {
+            dfStatsPerm = dfStatsPerm[order(dfStatsPerm$fcst_init, dfStatsPerm$fcst_lead, dfStatsPerm$stat_name),];
           }
         }
 
 
-        if( 1 > nrow(dfStatsPerm) ){ next; }
+        if (1 > nrow(dfStatsPerm)) { next;}
 
 
 
@@ -842,7 +868,9 @@ if ( nrow(sampleData) > 0){
       if( !is.na(intRandomSeed) ){
         set.seed(intRandomSeed);
       }
-      bootStat = try(boot(dfBoot, booter.iid, R=intNumReplicates , parallel = 'multicore', ncpus=4 ));
+
+
+      bootStat = try(boot(dfBoot, booter.iid, R = intNumReplicates , parallel = 'multicore', ncpus = 4));
 
       dblBootTime = dblBootTime + as.numeric(Sys.time() - stBoot, units="secs");
       intNumBoots = intNumBoots + 1;

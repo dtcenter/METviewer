@@ -399,13 +399,14 @@
       <div id="plot_title_labels">
         <table style="width: 100%;">
           <col width="70">
-          <%--<tr>--%>
-          <%--<td><label for="file_name">File name</label></td>--%>
-          <%--<td><input type="text" id="file_name" value=""--%>
-          <%--style="width: 100%"></td>--%>
-          <%--</tr>--%>
           <tr>
-            <td><label for="plot_title">Title</label></td>
+            <td><label for="job_title">Job title</label></td>
+            <td><input type="text" id="job_title" value="" style="width: 70%">
+              <label for="keep_revisions">Keep Revisions</label><input type="checkbox" id="keep_revisions"/>
+            </td>
+          </tr>
+          <tr>
+            <td><label for="plot_title">Plot title</label></td>
             <td><input type="text" id="plot_title" value="test title"
                        style="width: 100%"></td>
           </tr>
@@ -429,6 +430,7 @@
             <td><input type="text" id="caption" value="" style="width: 100%">
             </td>
           </tr>
+
         </table>
       </div>
       <div id="common">

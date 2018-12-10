@@ -1628,10 +1628,10 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     //get value of database
     var selectedDatabase = getSelectedDatabases();
     var selected_mode, statst;
-    if (currentTab == 'Perf') {
+    if (currentTab === 'Perf') {
         selected_mode = 'stat';
         statst = '<stat></stat>';
-    } else if (currentTab == 'Taylor') {
+    } else if (currentTab === 'Taylor') {
         selected_mode = 'taylor';
         statst = convertVarsAndStatsToXml();
     } else {
@@ -1644,83 +1644,85 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     } catch (err) {
         selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index).find('option:first-child').val();
     }
-    var url = '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
-    $.ajax({
-        async: false,
-        url: "servlet",
-        type: "POST",
-        data: url,
-        dataType: 'xml',
-        processData: false,
-        contentType: "application/xml",
-        error: function () {
+    if (typeof selectedSeriesVariable !== 'undefined') {
+        var url = '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
+        $.ajax({
+            async: false,
+            url: "servlet",
+            type: "POST",
+            data: url,
+            dataType: 'xml',
+            processData: false,
+            contentType: "application/xml",
+            error: function () {
 
-        },
-        success: function (data) {
-            if (y_axis === 'y1') {
-                seriesY1VarValResponse[index] = data;
-            } else {
-                seriesY2VarValResponse[index] = data;
-            }
-
-            var values = $(data).find("val");
-            var opt, selected;
-            var options = [];
-            if (values.length > 0) {
-                for (var i = 0; i < values.length; i++) {
-                    var t = $(values[i]);
-                    if ($.type(selectedVals) == "string") {
-                        selected = t.text() == selectedVals;
-                    } else {
-                        selected = $.inArray(t.text(), selectedVals) >= 0;
-                    }
-                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
-                        opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
-                            selected: selected
-                        });
-                        options.push(opt);
-                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
-                        options[options.length - 1].text(options[options.length - 1].text() + '*');
-                    }
+            },
+            success: function (data) {
+                if (y_axis === 'y1') {
+                    seriesY1VarValResponse[index] = data;
+                } else {
+                    seriesY2VarValResponse[index] = data;
                 }
-                var length;
-                var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
 
-                for (var i = 0; i < options.length; i++) {
-                    if (options[i].text() !== options[i][0].value) {
-                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
-                        if (length === databaseNumbers) {
-                            options[i].text(options[i][0].value + "*");
+                var values = $(data).find("val");
+                var opt, selected;
+                var options = [];
+                if (values.length > 0) {
+                    for (var i = 0; i < values.length; i++) {
+                        var t = $(values[i]);
+                        if ($.type(selectedVals) === "string") {
+                            selected = t.text() === selectedVals;
                         } else {
-                            options[i].text(options[i][0].value);
+                            selected = $.inArray(t.text(), selectedVals) >= 0;
+                        }
+                        if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
+                            opt = $('<option />', {
+                                value: t.text(),
+                                text: t.text(),
+                                selected: selected
+                            });
+                            options.push(opt);
+                        } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
+                            options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
                     }
-                    options[i].appendTo(select);
-                }
-                try {
-                    select.multiselect('refresh');
-                } catch (err) {
-                }
-            } else {
-                opt = $('<option />', {
-                    value: "N/A",
-                    text: "N/A"
-                });
-                opt.appendTo(select);
-                try {
-                    select.multiselect('refresh');
-                } catch (err) {
-                }
+                    var length;
+                    var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
 
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].text() !== options[i][0].value) {
+                            length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                            if (length === databaseNumbers) {
+                                options[i].text(options[i][0].value + "*");
+                            } else {
+                                options[i].text(options[i][0].value);
+                            }
+                        }
+                        options[i].appendTo(select);
+                    }
+                    try {
+                        select.multiselect('refresh');
+                    } catch (err) {
+                    }
+                } else {
+                    opt = $('<option />', {
+                        value: "N/A",
+                        text: "N/A"
+                    });
+                    opt.appendTo(select);
+                    try {
+                        select.multiselect('refresh');
+                    } catch (err) {
+                    }
+
+                }
+                if (selectedVals.length === 1 && selectedVals[0].indexOf(",") !== -1) {
+                    $("#group_series_var_" + y_axis + "_" + index).prop('checked', true);
+                }
+                selectedVals = [];
             }
-            if (selectedVals.length === 1 && selectedVals[0].indexOf(",") !== -1) {
-                $("#group_series_var_" + y_axis + "_" + index).prop('checked', true);
-            }
-            selectedVals = [];
-        }
-    });
+        });
+    }
 }
 
 function updateFixedVarValHist(index, selectedVals) {
@@ -3991,18 +3993,22 @@ function createXMLCommon(plot) {
     tmpl.append($('<y1_label />').text($('#y1_label_title').val()));
     tmpl.append($('<y2_label />').text($('#y2_label_title').val()));
     tmpl.append($('<caption />').text($('#caption').val()));
+    tmpl.append($('<job_title />').text($('#job_title').val()));
+    tmpl.append($('<keep_revisions />').text($('#keep_revisions').is(':checked')));
+
 
     var seriesDiffY1List = [];
+    var arr;
     if (seriesDiffY1.length > 0) {
         for (var i = 0; i < seriesDiffY1.length; i++) {
-            var arr = seriesDiffY1[i].split(",");
+            arr = seriesDiffY1[i].split(",");
             seriesDiffY1List.push('c("' + arr[0] + '","' + arr[1] + '","' + arr[2] + '")');
         }
     }
     var seriesDiffY2List = [];
     if (seriesDiffY2.length > 0) {
         for (var i = 0; i < seriesDiffY2.length; i++) {
-            var arr = seriesDiffY2[i].split(",");
+            arr = seriesDiffY2[i].split(",");
             seriesDiffY2List.push('c("' + arr[0] + '","' + arr[1] + '","' + arr[2] + '")');
         }
     }
@@ -4031,16 +4037,16 @@ function createXMLCommon(plot) {
     var mar_left = $("#mar_left").val().trim();
     var mar_top = $("#mar_top").val().trim();
     var mar_right = $("#mar_right").val().trim();
-    if (mar_bottom.length == 0) {
+    if (mar_bottom.length === 0) {
         mar_bottom = 0;
     }
-    if (mar_left.length == 0) {
+    if (mar_left.length === 0) {
         mar_left = 0;
     }
-    if (mar_top.length == 0) {
+    if (mar_top.length === 0) {
         mar_top = 0;
     }
-    if (mar_right.length == 0) {
+    if (mar_right.length === 0) {
         mar_right = 0;
     }
     plot.append($('<mar />').text("c(" + mar_bottom + "," + mar_left + "," + mar_top + "," + mar_right + ")"));
@@ -4048,13 +4054,13 @@ function createXMLCommon(plot) {
     var mgp_title = $("#mgp_title").val().trim();
     var mgp_labels = $("#mgp_labels").val().trim();
     var mgp_line = $("#mgp_line").val().trim();
-    if (mgp_title.length == 0) {
+    if (mgp_title.length === 0) {
         mgp_title = 0;
     }
-    if (mgp_labels.length == 0) {
+    if (mgp_labels.length === 0) {
         mgp_labels = 0;
     }
-    if (mgp_line.length == 0) {
+    if (mgp_line.length === 0) {
         mgp_line = 0;
     }
     plot.append($('<mgp />').text("c(" + mgp_title + "," + mgp_labels + "," + mgp_line + ")"));
@@ -4264,7 +4270,7 @@ function refreshHistory() {
                 var name = $(results[i]).attr("name");
                 var success = $(results[i]).attr("success");
                 var color;
-                if (success == "true") {
+                if (success === "true") {
                     color = "#000000"
                 } else {
                     color = "#B39A9A"
@@ -4285,7 +4291,7 @@ function refreshHistory() {
                 },
                 text: false
             }).click(function () {
-                $('#uploadLocalId').val($(this).attr('id'));
+                $('#uploadLocalId').val($(this).prop('id'));
                 loadImage($(this).attr('id'));
             });
 
@@ -4399,6 +4405,8 @@ function resetFormatting() {
     $('#y1_label_title').val("test y_label");
     $('#y2_label_title').val("");
     $('#caption').val("");
+    $('#job_title').val("");
+    $('#keep_revisions').prop('checked', false);
 
     $("#vert_plot").prop('checked', false);
     $("#x_reverse").prop('checked', false);
@@ -5561,7 +5569,7 @@ function loadXMLEclv() {
             $(series_arr[i]).find("val").each(function () {
                 series_var_val.push($(this).text());
             });
-            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+            if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "block");
             } else {
                 $("#series_var_val_y1_date_period_button_" + (i + 1)).css("display", "none");
@@ -6509,11 +6517,10 @@ function myvalue(elem, operation, value) {
 if (typeof String.prototype.startsWith != 'function') {
     // see below for better implementation!
     String.prototype.startsWith = function (str) {
-        return this.indexOf(str) == 0;
+        return this.indexOf(str) === 0;
     };
 }
 function colorDisplayFmatter(cellvalue, options, rowObject) {
-    console.log(rowObject);
     return '<input id="color_' + rowObject.id + '" type="text" value="' + rowObject.color + '" size="8" style="background-color:' + rowObject.color + ';">';
 }
 function colorDisplayUnmatter(cellvalue, options, cell) {
@@ -6523,7 +6530,7 @@ function colorDisplayUnmatter(cellvalue, options, cell) {
     parts[0] = '#';
     for (var i = 1; i <= 3; ++i) {
         parts[i] = parseInt(parts[i]).toString(16);
-        if (parts[i].length == 1) parts[i] = '0' + parts[i];
+        if (parts[i].length === 1) parts[i] = '0' + parts[i];
     }
 
     return parts.join('');
@@ -6534,7 +6541,7 @@ function querySt(Key) {
     var KeysValues = url.split(/[\?&]+/);
     for (var i = 0; i < KeysValues.length; i++) {
         var KeyValue = KeysValues[i].split("=");
-        if (KeyValue[0] == Key) {
+        if (KeyValue[0] === Key) {
             return KeyValue[1];
         }
     }
@@ -6572,7 +6579,9 @@ function viewImage(id) {
             window_top = window_top - 20;
         },
         open: function (e) {
-            $(this).html('<img src="' + urlOutput + 'plots/plot_' + id + '.png" onError="this.src=\'images/no_image.png\';"/>');
+            $(this).html('<img src="' + urlOutput + 'plots/plot_' + id
+                    + '.png?' + (new Date()).getTime()
+                    +'" onError="this.src=\'images/no_image.png\';"/>');
         }
 
     });
@@ -6588,7 +6597,7 @@ function updateResult(result) {
             .error(function () {
                 $(this).attr("src", 'images/no_image.png');
             })
-            .attr("src", urlOutput + 'plots/' + resultName + '.png');
+            .attr("src", urlOutput + 'plots/' + resultName + '.png'+ '?' + (new Date()).getTime());
     $.ajax({
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".xml",
@@ -7312,6 +7321,12 @@ function initPage() {
         $('#y1_label_title').val($(initXML.find("plot").find("tmpl").find("y1_label")).text());
         $('#y2_label_title').val($(initXML.find("plot").find("tmpl").find("y2_label")).text());
         $('#caption').val($(initXML.find("plot").find("tmpl").find("caption")).text());
+        if ($(initXML.find("plot").find("tmpl").find("job_title"))) {
+            $('#job_title').val($(initXML.find("plot").find("tmpl").find("job_title")).text());
+        }
+        if ($(initXML.find("plot").find("tmpl").find("keep_revisions"))) {
+            $("#keep_revisions").prop('checked', $(initXML.find("plot").find("tmpl").find("keep_revisions")).text() === "true");
+        }
 
         $("#vert_plot").prop('checked', $(initXML.find("plot").find("vert_plot")).text() == "true");
         $("#x_reverse").prop('checked', $(initXML.find("plot").find("x_reverse")).text() == "true");
@@ -7322,7 +7337,7 @@ function initPage() {
         $("#dump_points2").prop('checked', $(initXML.find("plot").find("dump_points2")).text() == "true");
         $("#indy1_stag").prop('checked', $(initXML.find("plot").find("indy1_stag")).text() == "true");
         $("#indy2_stag").prop('checked', $(initXML.find("plot").find("indy2_stag")).text() == "true");
-        $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() == "true");
+        $("#varianceInflationFactor").prop('checked', $(initXML.find("plot").find("varianceinflationfactor")).text() === "true");
         $("#ci_alpha").val($(initXML.find("plot").find("ci_alpha")).text());
 
         $("#plot_type").val($(initXML.find("plot").find("plot_type")).text());
@@ -7456,25 +7471,28 @@ function initPage() {
     }
 
 
-    $('.multilevel-dropdown').multilevelDropdown().on('change', function (event) {
-        var selected_db = [];
-        $("input[name='multiselect_database']:checked").each(function () {
-            selected_db.push($(this).val());
-        });
+    $('.multilevel-dropdown').multilevelDropdown();
+    $("input[name='multiselect_database']").on('change', function (event) {
+            if ($(this).val() != null) {
+                var selected_db = [];
+                $("input[name='multiselect_database']:checked").each(function () {
+                    selected_db.push($(this).val());
+                });
 
-        var text;
-        if (selected_db.length === 1) {
-            text = selected_db[0];
-        } else if (selected_db.length === 0) {
-            text = "Select database";
-        } else {
-            text = selected_db.length + " selected";
-        }
-        var textnode = document.createTextNode(text);
-        var item = document.getElementById("categories1").childNodes[0];
-        item.replaceChild(textnode, item.childNodes[0]);
-        updatePages();
-    });
+                var text;
+                if (selected_db.length === 1) {
+                    text = selected_db[0];
+                } else if (selected_db.length === 0) {
+                    text = "Select database";
+                } else {
+                    text = selected_db.length + " selected";
+                }
+                var textnode = document.createTextNode(text);
+                var item = document.getElementById("categories1").childNodes[0];
+                item.replaceChild(textnode, item.childNodes[0]);
+                updatePages();
+            }
+        });
 
 
 
@@ -7497,18 +7515,18 @@ function updatePages(){
             }
         }
         mode = $('#plot_data').multiselect('getChecked')[0].value;
-        if (mode == 'stat') {
+        if (mode === 'stat') {
             updateStats("y1", 1, []);
             updateStats("y2", 1, []);
             updateFixVar("stat");
             updateIndyVar("stat");
             $("#agg_none").prop('checked', 'checked');
-        } else if (mode == 'mode') {
+        } else if (mode === 'mode') {
             updateMode("y1", 1, []);
             updateMode("y2", 1, []);
             updateFixVar("mode");
             updateIndyVar("mode");
-        } else if (mode == 'mtd') {
+        } else if (mode === 'mtd') {
             updateMtd("y1", 1, []);
             updateMtd("y2", 1, []);
             updateFixVar("mtd");
@@ -7516,18 +7534,18 @@ function updatePages(){
         }
         updateSeriesVarVal("y1", 1, []);
         updateSeriesVarVal("y2", 1, []);
-    } else if (currentTab == 'Roc' || currentTab == 'Rely' || currentTab == 'Hist' || currentTab == 'Eclv') {
+    } else if (currentTab === 'Roc' || currentTab === 'Rely' || currentTab === 'Hist' || currentTab === 'Eclv') {
         updateSeriesVarValHist(1, []);
         for (i = 0; i < fixed_var_indexes.length; i++) {
             values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
             updateFixedVarValHist(fixed_var_indexes[i], values);
         }
-        if (currentTab == 'Rely') {
+        if (currentTab === 'Rely') {
             updateSeriesRely();
         } else {
             updateSeriesHist();
         }
-    } else if (currentTab == 'Ens_ss') {
+    } else if (currentTab === 'Ens_ss') {
 
         for (i = 0; i < series_var_y1_indexes.length; i++) {
             values = $("#series_var_val_y1_" + series_var_y1_indexes[i]).val();
@@ -7537,18 +7555,18 @@ function updatePages(){
             values = $("#fixed_var_val_" + fixed_var_indexes[i]).val();
             updateFixedVarValHist(fixed_var_indexes[i], values);
         }
-    } else if (currentTab == 'Perf') {
+    } else if (currentTab === 'Perf') {
         $('#listdt').jqGrid('clearGridData');
         updateSeriesVarVal("y1", 1, []);
         var rowCount = $('#fixed_var_table').find('tr').length;
         for (i = rowCount - 1; i >= 0; i--) {
             removeFixedVar("fixed_var_" + (i + 1));
         }
-    } else if (currentTab == 'Taylor') {
+    } else if (currentTab === 'Taylor') {
         $('#listdt').jqGrid('clearGridData');
         updateForecastVariables();
         updateSeriesVarVal("y1", 1, []);
-    } else if (currentTab == 'Contour') {
+    } else if (currentTab === 'Contour') {
         $('#listdt').jqGrid('clearGridData');
         updateStatVariable();
         updateYvalueCountour([]);

@@ -183,20 +183,44 @@ if(length(listDiffSeries1) > 0){
       listFields = names(plotData1);
       for(indy in listIndy){
 
-        for(seriesVal in listSeries1Val[[names(listSeries1Val)]]){
-          dfStatsIndy = plotData1[plotData1[[strIndyVar]] == indy & plotData1[[names(listSeries1Val)]] == seriesVal , ];
-          dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy & plotData2[[names(listSeries1Val)]] == seriesVal , ];
+        for (seriesVal in listSeries1Val[[names(listSeries1Val)]]) {
+          dfStatsIndy = plotData1[plotData1[[strIndyVar]] == indy & plotData1[[names(listSeries1Val)]] == seriesVal ,];
+          dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy & plotData2[[names(listSeries1Val)]] == seriesVal ,];
+          if ("fcst_valid_beg" %in% listFields) {
+            uniqueDates = nrow(unique(dfStatsIndy[c("fcst_valid_beg", "fcst_lead", "stat_name")]))
+          } else if ("fcst_valid" %in% listFields) {
+            uniqueDates = nrow(unique(dfStatsIndy[c("fcst_valid", "fcst_lead", "stat_name")]))
+          } else if ("fcst_init_beg" %in% listFields) {
+            uniqueDates = nrow(unique(dfStatsIndy[c("fcst_init_beg", "fcst_lead", "stat_name")]))
+          } else {
+            uniqueDates = nrow(unique(dfStatsIndy[c("fcst_init", "fcst_lead", "stat_name")]))
+          }
+          if (nrow(dfStatsIndy) != uniqueDates) {
+            stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+          }
 
           #sort data
-          if( "fcst_valid_beg" %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_valid_beg),]; dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg),];}
-          if( "fcst_valid"     %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_valid),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid),];   }
-          if( "fcst_init_beg"  %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_init_beg),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg),];}
-          if( "fcst_init"      %in% listFields ){ dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_init),];  dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init),];    }
+          if ("fcst_valid_beg" %in% listFields) {
+            dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_valid_beg, dfStatsIndy$fcst_lead, dfStatsIndy1$stat_name),];
+            dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid_beg, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+          }
+          if ("fcst_valid" %in% listFields) {
+            dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_valid, dfStatsIndy$fcst_lead, dfStatsIndy1$stat_name),];
+            dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_valid, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+          }
+          if ("fcst_init_beg" %in% listFields) {
+            dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_init_beg, dfStatsIndy$fcst_lead, dfStatsIndy1$stat_name),];
+            dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init_beg, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+          }
+          if ("fcst_init" %in% listFields) {
+            dfStatsIndy = dfStatsIndy[order(dfStatsIndy$fcst_init, dfStatsIndy$fcst_lead, dfStatsIndy1$stat_name),];
+            dfStatsIndy2 = dfStatsIndy2[order(dfStatsIndy2$fcst_init, dfStatsIndy2$fcst_lead, dfStatsIndy2$stat_name),];
+          }
 
           dfStatsIndy$stat_value = calcDerivedCurveValue(dfStatsIndy$stat_value, dfStatsIndy2$stat_value, derivedCurveName);
 
 
-          if(length(names(plotDataDiff)) == 0){
+          if (length(names(plotDataDiff)) == 0) {
             plotDataDiff = dfStatsIndy;
           }else{
             plotDataDiff = merge(plotDataDiff,dfStatsIndy,all=TRUE);

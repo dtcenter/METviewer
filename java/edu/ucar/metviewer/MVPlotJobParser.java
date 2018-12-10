@@ -448,43 +448,59 @@ public class MVPlotJobParser {
 
       Object valuesObj = entry.getValue();
 
+
       if (valuesObj instanceof String[]) {
+
         String[] values = (String[]) entry.getValue();
-        if (!String.valueOf(entry.getKey()).startsWith("fcst_thresh")
-                && !String.valueOf(entry.getKey()).startsWith("obs_thresh")
-                && !String.valueOf(entry.getKey()).startsWith("fcst_lev")) {
-          if (String.valueOf(entry.getKey()).startsWith("fcst_lead")
-                  || String.valueOf(entry.getKey()).startsWith("valid_hour")
-                  || String.valueOf(entry.getKey()).startsWith("init_hour")) {
-            Integer[] valuesSortedInt = new Integer[values.length];
-            for (int i = 0; i < values.length; i++) {
-              try {
-                valuesSortedInt[i] = Integer.valueOf(values[i]);
-              } catch (Exception e) {
-                logger.error(e.getMessage());
-              }
-            }
-            Arrays.sort(valuesSortedInt);
-            for (int i = 0; i < values.length; i++) {
-              try {
-                if (!Integer.valueOf(values[i]).equals(valuesSortedInt[i])) {
-                  return "Values for variable " + entry.getKey().toString() + " are not sorted";
+
+        /*
+                    check if values have ',' - groups.
+                    ignore if true
+                    */
+        boolean isGroup = false;
+        for (String value : values) {
+          if (value.contains(",")) {
+            isGroup = true;
+            break;
+          }
+        }
+        if (!isGroup) {
+          if (!String.valueOf(entry.getKey()).startsWith("fcst_thresh")
+                  && !String.valueOf(entry.getKey()).startsWith("obs_thresh")
+                  && !String.valueOf(entry.getKey()).startsWith("fcst_lev")) {
+            if (String.valueOf(entry.getKey()).startsWith("fcst_lead")
+                    || String.valueOf(entry.getKey()).startsWith("valid_hour")
+                    || String.valueOf(entry.getKey()).startsWith("init_hour")) {
+              Integer[] valuesSortedInt = new Integer[values.length];
+              for (int i = 0; i < values.length; i++) {
+                try {
+                  valuesSortedInt[i] = Integer.valueOf(values[i]);
+                } catch (Exception e) {
+                  logger.error(e.getMessage());
                 }
-              } catch (Exception e) {
-                logger.error(e.getMessage());
               }
-            }
-          } else {
-            String[] valuesSorted;
-            if (entry.getKey().equals("interp_pnts")) {
-              List<String> sorted = MVUtil.sortInterpPnts(Arrays.asList(values));
-              valuesSorted = sorted.toArray(new String[sorted.size()]);
+              Arrays.sort(valuesSortedInt);
+              for (int i = 0; i < values.length; i++) {
+                try {
+                  if (!Integer.valueOf(values[i]).equals(valuesSortedInt[i])) {
+                    return "Values for variable " + entry.getKey().toString() + " are not sorted";
+                  }
+                } catch (Exception e) {
+                  logger.error(e.getMessage());
+                }
+              }
             } else {
-              valuesSorted = Arrays.copyOf(values, values.length);
-              Arrays.sort(valuesSorted);
-            }
-            if (!Arrays.equals(values, valuesSorted)) {
-              return "Values for variable " + entry.getKey().toString() + " are not sorted";
+              String[] valuesSorted;
+              if (entry.getKey().equals("interp_pnts")) {
+                List<String> sorted = MVUtil.sortInterpPnts(Arrays.asList(values));
+                valuesSorted = sorted.toArray(new String[sorted.size()]);
+              } else {
+                valuesSorted = Arrays.copyOf(values, values.length);
+                Arrays.sort(valuesSorted);
+              }
+              if (!Arrays.equals(values, valuesSorted)) {
+                return "Values for variable " + entry.getKey().toString() + " are not sorted";
+              }
             }
           }
         }
@@ -608,14 +624,14 @@ public class MVPlotJobParser {
     }
     databases = databases.substring(0, databases.length() - 1);
     StringBuilder xmlStr = new StringBuilder(
-                                                "<plot_spec>"
-                                                    + "<connection>"
-                                                    + "<host>" + databaseInfo.getHost() + "</host>"
-                                                    + "<database>" + databases + "</database>"
-                                                    + "<user>" + "******" + "</user>"
-                                                    + "<password>" + "******" + "</password>"
-                                                    + "</connection>"
-                                                    + "<plot>");
+        "<plot_spec>"
+            + "<connection>"
+            + "<host>" + databaseInfo.getHost() + "</host>"
+            + "<database>" + databases + "</database>"
+            + "<user>" + "******" + "</user>"
+            + "<password>" + "******" + "</password>"
+            + "</connection>"
+            + "<plot>");
 
     //  plot template
     xmlStr.append("<template>").append(job.getPlotTmpl()).append("</template>");
@@ -874,8 +890,13 @@ public class MVPlotJobParser {
             + "<x_label>" + preserveBackslash(job.getXLabelTmpl()) + "</x_label>"
             + "<y1_label>" + preserveBackslash(job.getY1LabelTmpl()) + "</y1_label>"
             + "<y2_label>" + preserveBackslash(job.getY2LabelTmpl()) + "</y2_label>"
-            + "<caption>" + preserveBackslash(job.getCaptionTmpl()).replace("&", "&#38;")
-                                .replace(">", "&gt;").replace("<", "&lt;") + "</caption>"
+            + "<caption>" + preserveBackslash(job.getCaptionTmpl())
+                                .replace("&", "&#38;")
+                                .replace(">", "&gt;")
+                                .replace("<", "&lt;")
+            + "</caption>"
+            + "<job_title>" + job.getJobTitleTmpl()+ "</job_title>"
+            + "<keep_revisions>" + job.getKeepRevisions()+ "</keep_revisions>"
             + "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>"
             + "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>"
             + "</tmpl>");
@@ -999,6 +1020,14 @@ public class MVPlotJobParser {
     return xmlStr;
   }
 
+  private static String preserveBackslash(String str) {
+    String result = str;
+    if (str.contains("\\")) {
+      result = str.replaceAll("\\\\", "\\\\\\\\");
+    }
+    return result;
+  }
+
   public Document getDocument() {
     return doc;
   }
@@ -1111,7 +1140,7 @@ public class MVPlotJobParser {
                 nodeChild.children[0], format) : nodeChild.value);
           } else if (nodeChild.tag.equals("range_end")) {
             rangeEnd = (0 < nodeChild.children.length
-                            ? MVUtil.parseDateOffset(nodeChild.children[0],format)
+                            ? MVUtil.parseDateOffset(nodeChild.children[0], format)
                             : nodeChild.value);
           } else if (nodeChild.tag.equalsIgnoreCase("range_length")) {
             rangeLength = Integer.parseInt(nodeChild.value);
@@ -1498,7 +1527,8 @@ public class MVPlotJobParser {
 
           //  <mode_group>
           else if (nodeDepN.tag.equals("mode_group")) {
-            throw new Exception("<mode_group> tag no longer supported, use multiple inheritance instead");
+            throw new Exception(
+                "<mode_group> tag no longer supported, use multiple inheritance instead");
           }
 
           //  <dep1> or <dep2>
@@ -1606,6 +1636,10 @@ public class MVPlotJobParser {
             job.setY2LabelTmpl(nodeTmpl.value);
           } else if (nodeTmpl.tag.equals("caption")) {
             job.setCaptionTmpl(nodeTmpl.value);
+          } else if (nodeTmpl.tag.equals("job_title")) {
+            job.setJobTitleTmpl(nodeTmpl.value.replaceAll("\\s", "_"));
+          } else if (nodeTmpl.tag.equals("keep_revisions")) {
+            job.setKeepRevisions(nodeTmpl.value.equalsIgnoreCase("true"));
           } else if (nodeTmpl.tag.equalsIgnoreCase("listDiffSeries1")) {
             if (!job.getPlotTmpl().startsWith("contour")) {
               //validate listDiffSeries - make sure that differences
@@ -1919,14 +1953,6 @@ public class MVPlotJobParser {
           break;
         }
       }
-    }
-    return result;
-  }
-
-  private static String preserveBackslash(String str) {
-    String result = str;
-    if (str.contains("\\")) {
-      result = str.replaceAll("\\\\", "\\\\\\\\");
     }
     return result;
   }
