@@ -1150,7 +1150,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strStat = "ECLV";
           }
         }
-        selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0]   +"' fcst_var";
+        if(!selectList.contains("fcst_var")) {
+          selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
+        }
 
         //  determine the table containing the current stat
         Map tableStats;
