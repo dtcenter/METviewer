@@ -622,10 +622,12 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
   }
 
+  public static final String COUNT = "COUNT(*)";
+
   static {
     modeSingleStatField.put("ACOV", "SUM(area)");
-    modeSingleStatField.put("CNT", "COUNT(object_id)");
-    modeSingleStatField.put("CNTSUM", "COUNT(object_id)");
+    modeSingleStatField.put("CNT", COUNT);
+    modeSingleStatField.put("CNTSUM", COUNT);
     modeSingleStatField.put("CENTX", "centroid_x");
     modeSingleStatField.put("CENTY", "centroid_y");
     modeSingleStatField.put("CENTLAT", "centroid_lat");
