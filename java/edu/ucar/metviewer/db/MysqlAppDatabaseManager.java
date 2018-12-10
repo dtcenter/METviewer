@@ -983,7 +983,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                            + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
       }
       //  add fcst_var to the select list and temp table entries
-      selectList += ",\n  h.fcst_var";
+      //selectList += ",\n  h.fcst_var";
       selectPlotList += ",\n  h.fcst_var";
       strTempList += ",\n    fcst_var            VARCHAR(64)";
 
@@ -1150,6 +1150,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strStat = "ECLV";
           }
         }
+        selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0]   +"' h.fcst_var";
 
         //  determine the table containing the current stat
         Map tableStats;
@@ -1618,16 +1619,19 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       } else {
         String strWhereForQuery = whereClause.replace("h.", "");
         String newStat = stat.replace("_D", "_F");
-        String query1 = buildModeSingleStatTable(selectList, strWhereForQuery, newStat,
+       // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
+        String query1 = buildModeSingleStatTable(selectList + ",  h.object_id",
+                     strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
         newStat = stat.replace("_D", "_O");
-        String query2 = buildModeSingleStatTable(selectList, strWhereForQuery, newStat,
+        String query2 = buildModeSingleStatTable(selectList + ",  h.object_id",
+                             strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
-        whereClause = whereClause.replace("h.", "s.");
+
         listQuery
-            .add(buildModeSingleStatDiffTable(selectList, whereClause, stat, query1, query2,
+            .add(buildModeSingleStatDiffTable(selectList, stat, query1, query2,
                                               listSeries));
       }
     } else if (MVUtil.modePairStatField.containsKey(listStatComp[0])) {
@@ -1752,13 +1756,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       groupByClause += " fcst_lead";
     }
 
-    String selectListStat = selectList.replaceAll("h\\.", "").replaceAll(",\\s+$", "");
+    String selectListStat =
+        selectList.replaceAll("h\\.", "")
+            .replaceAll(",\\s+$", "")
+            .replaceAll("fcst_init", "NOW() fcst_init");
+
 
     //  build the query
     return
         "SELECT\n" + selectListStat + ",\n"
-            + "  '' object_id,\n"
-            + "  '' object_cat,\n"
+            + "'N/A'   object_id,\n"
+            + "'N/A'   object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + strStat + " stat_value\n"
             + "FROM\n"
@@ -1770,7 +1778,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
             + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n"
             + "  AND " + BINARY + "mode_cts.field = 'OBJECT' "
-            + groupByClause + ";";
+            + groupByClause + ", total;";
   }
 
   /**
@@ -1816,6 +1824,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         objectIdName = "obs_id";
       }
       strGroupBy = "\nGROUP BY\n" + groupListMMI + ",\n  " + objectIdName;
+      strGroupBy = strGroupBy.replaceAll(".+fcst_var", " fcst_var");
     }
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
@@ -1825,7 +1834,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + selectListStat + ",\n"
             + "  " + objectId + ",\n"
-            + "  object_cat,\n"
+            + " 'NA' object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
             + "  " + tableStat + " stat_value\n"
             + "FROM\n"
@@ -1881,7 +1890,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildModeSingleStatTable(
-      String selectList, String strWhere, String stat,
+      String selectList, String whereClause, String stat,
       String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
@@ -1895,13 +1904,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the object flag where clause
     if (strStatFlag.charAt(0) != 'A') {
-      strWhere += "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0) ? "1" : "0");
+      whereClause += "\n  AND fcst_flag = " + ('F' == strStatFlag.charAt(0) ? "1" : "0");
     }
     if (strStatFlag.charAt(1) != 'A') {
-      strWhere += "\n  AND simple_flag = " + ('S' == strStatFlag.charAt(1) ? "1" : "0");
+      whereClause += "\n  AND simple_flag = " + ('S' == strStatFlag.charAt(1) ? "1" : "0");
     }
     if (strStatFlag.charAt(2) != 'A') {
-      strWhere += "\n  AND matched_flag = " + ('M' == strStatFlag.charAt(2) ? "1" : "0");
+      whereClause += "\n  AND matched_flag = " + ('M' == strStatFlag.charAt(2) ? "1" : "0");
     }
 
     String selectListStat = selectList.replaceAll("h\\.", "");
@@ -1913,18 +1922,19 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  build the group by clause
-    String strGroupBy = "";
+    String groupBy = "";
     String statName = listStatParse[0];
     if (statName.startsWith("CNT")) {
-      strGroupBy = "\nGROUP BY\n";
+      selectListStat = selectListStat.replaceAll(",.+object_id", "");
+      groupBy = "\nGROUP BY\n";
       for (int i = 0; i < groups.length; i++) {
-        strGroupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
+        groupBy += (0 < i ? ",\n" : "") + "  " + groups[i];
       }
-      if (!statName.equals("CNTSUM") && !strGroupBy.contains("fcst_valid")) {
+      if (!statName.equals("CNTSUM") && !groupBy.contains("fcst_valid")) {
         if (groups.length > 0) {
-          strGroupBy += "  ,";
+          groupBy += "  ,";
         }
-        strGroupBy += " fcst_valid";
+        groupBy += " fcst_valid";
 
       } else {
         if (selectListStat.contains("fcst_valid")) {
@@ -1937,22 +1947,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //mandatory group by fcst_valid and fcst_lead for EE
       if (isEventEqualization) {
 
-        if (!strGroupBy.contains("fcst_lead")) {
+        if (!groupBy.contains("fcst_lead")) {
           if (groups.length > 0) {
-            strGroupBy += "  ,";
+            groupBy += "  ,";
           }
-          strGroupBy += " fcst_lead";
+          groupBy += " fcst_lead";
         }
         if (!selectListStat.contains("fcst_lead")) {
           selectListStat = selectListStat + ", fcst_lead\n";
         }
       } else {
         if (Arrays.binarySearch(groups, "fcst_lead") >= 0) {
-          if (!strGroupBy.contains("fcst_lead")) {
+          if (!groupBy.contains("fcst_lead")) {
             if (groups.length > 0) {
-              strGroupBy += "  ,";
+              groupBy += "  ,";
             }
-            strGroupBy += " fcst_lead";
+            groupBy += " fcst_lead";
           }
         } else {
           selectListStat = selectListStat.replace("fcst_lead,",
@@ -1970,11 +1980,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "  mode_header ,\n"
             + "  mode_obj_single ,\n"
             + "  mode_cts \n"
-            + "WHERE\n" + strWhere
+            + "WHERE\n" + whereClause
             + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id\n"
             + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id\n"
             + "  AND mode_cts.field = 'OBJECT'"
-            + strGroupBy;
+            + groupBy;
   }
 
 
@@ -2112,7 +2122,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   private String buildModeSingleStatDiffTable(
-      String strSelectList, String strWhere, String stat,
+      String selectList, String stat,
       String table1, String table2,
       Map.Entry[] listSeries) {
 
@@ -2121,42 +2131,40 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (2 != listStatParse.length) {
       return "";
     }
-    String strStatName = listStatParse[0];
+    String originalStatName = listStatParse[0];
 
     //  build the list of fields involved in the computations
-    String strSelectListStat = strSelectList.replaceAll("h\\.", "s.");
-
-    //  modify the where clause to suit two tables
-    strWhere = strWhere.replaceAll("fcst_var", "s.fcst_var") + "\n  AND s.fcst_var = s2.fcst_var";
+    String selectListStat = selectList.replaceAll("h\\.", "s.")
+                                .replaceAll(".+fcst_var", " s.fcst_var");
 
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
-    String strTableStat = MVUtil.modeSingleStatField.get(strStatName);
-    String statName = strTableStat.split("\\(")[0];
-    String[] strTableStats = new String[2];
-    if (strTableStat.contains("object_id")) {
-      strTableStats[0] = statName + "( s.object_id)";
-      strTableStats[1] = statName + "( s2.object_id)";
+    String tableStat = MVUtil.modeSingleStatField.get(originalStatName);
+    String statName = tableStat.split("\\(")[0];
+    String[] tableStats = new String[2];
+    if (tableStat.contains("object_id")) {
+      tableStats[0] = statName + "( s.object_id)";
+      tableStats[1] = statName + "( s2.object_id)";
     } else {
-      strTableStats[0] = "s." + "stat_value";
-      strTableStats[1] = "s2." + "stat_value";
+      tableStats[0] = "s." + "stat_value";
+      tableStats[1] = "s2." + "stat_value";
 
     }
 
     //  build the query COUNT(object_id)
     String result =
-        "SELECT\n" + strSelectListStat + ",\n"
-            + "  s.object_id,\n"
-            + "  s.object_cat,\n"
+        "SELECT\n" + selectListStat + ",\n"
             + "  '" + stat + "' stat_name,\n"
-            + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
+            + "  " + tableStats[0] + " - " + tableStats[1] + " stat_value\n"
             + "FROM ("
             + table1
             + " ) s, ( " + table2 + " ) s2\n"
             + "WHERE\n"
-            + strWhere + "\n"
-            + " AND" + BINARY + " SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3) \n";
-    if (!strTableStat.contains("object_id")) {
+            + " s.fcst_var = s2.fcst_var\n";
+    if(!table1.contains(MVUtil.COUNT)) {
+      result += " AND" + BINARY + " SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3) \n";
+    }
+    if (!tableStat.contains("object_id")) {
       result = result + "  AND " + "s.stat_value" + " != -9999"
                    + " AND " + "s2.stat_value" + " != -9999"
                    + " AND s.fcst_valid = s2.fcst_valid "
