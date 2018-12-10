@@ -234,6 +234,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                 break;
               case "ecnt":
                 listStatName.addAll(MVUtil.statsEcnt.keySet());
+                break;
               default:
 
             }
