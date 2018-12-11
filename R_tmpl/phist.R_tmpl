@@ -65,7 +65,7 @@ if(length(listSeries1Val) > 0){
     if( 1 > nrow(dfPerm) ){
       dfPerm=data.frame(i_value=listX, stat_value=rep(0, length(listX)) );
     }else{
-      dfPerm = subset(dfPerm, select=c(i_value, stat_value));
+      dfPerm = subset(dfPerm, select=c(i_value, stat_value, bin_size));
     }
     if( intPermVal == 1){
       res = dfPerm;
