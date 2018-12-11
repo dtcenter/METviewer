@@ -23,12 +23,14 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
  * -Dmv_database=mv_test_rp_fred -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018##
  * -Dmv_host=model-vxtest.gsd.esrl.noaa.gov -Dmv_port=3306
  * -Dlog4j.configurationFile=file:/Users/pierce/IdeaProjects/METViewer/java/edu/ucar/metviewer/resources/log4j2.xml
- * -DloadData
+ * -DloadData=y
+ * -DservletTest=y
  * edu.ucar.metviewer.test.AllTestRunner
  *
  * System Properties that affect testRunner
  * loadData - unset to not load data - set to anything to load data
  * compareOnly - unset to create test plots and compare - set to anything to only compare
+ * servletTest - set to anything to run the TestMVServlet tests
  * mv_root_dir - METViewer test data root directory - This is the test dir/branch/tag
  * mv_host - database host
  * mv_port - database port
@@ -44,25 +46,36 @@ public class AllTestRunner {
 
   public static void main(String[] args) {
 
-      Result result;
+      Result loadResult;
+      Result compareResult;
+      Result batchResult;
+      Result servletResult;
       List<Failure> failureListLoadDataTest = null;
       List<Failure> failureListPlotBatchTest = null;
+      List<Failure> failureServletTest = null;
 
       cleanWorkingDirs();
       if (System.getProperty("loadData") != null) {
-        result = JUnitCore.runClasses(LoadDataTest.class);
-        failureListLoadDataTest = result.getFailures();
+        loadResult = JUnitCore.runClasses(LoadDataTest.class);
+        failureListLoadDataTest = loadResult.getFailures();
       }
 
-      if (System.getProperty("compareOnly") == null) {
-        // really test
-        result = JUnitCore.runClasses(CreatePlotBatchTest.class);
+      if (System.getProperty("servletTest") == null) {
+        if (System.getProperty(
+                "compareOnly") == null) {
+          // really test
+          batchResult = JUnitCore.runClasses(CreatePlotBatchTest.class);
+        } else {
+          batchResult = JUnitCore.runClasses(ComparePlotBatchTest.class);
+        }
+        failureListPlotBatchTest = batchResult.getFailures();
       } else {
-        result = JUnitCore.runClasses(ComparePlotBatchTest.class);
+          servletResult = JUnitCore.runClasses(TestMVServlet.class);
+          failureServletTest = servletResult.getFailures();
       }
-      failureListPlotBatchTest = result.getFailures();
 
       System.out.println("*************************************************");
+      System.out.println("database Loading results");
       if (failureListLoadDataTest != null) {
         for (Failure failure : failureListLoadDataTest) {
           System.out.println(failure.toString());
@@ -74,20 +87,41 @@ public class AllTestRunner {
         System.out.println("***** Database loading tests was ignored... *****");
       }
       System.out.println("*************************************************");
-      System.out.println();
+      System.out.println("PlotBatchTest results");
       System.out.println("*************************************************");
-      for (Failure failure : failureListPlotBatchTest) {
-        System.out.println(failure.toString());
+      if (failureListPlotBatchTest != null) {
+        for (Failure failure : failureListPlotBatchTest) {
+          System.out.println(failure.toString());
+        }
+        if (failureListPlotBatchTest.isEmpty()) {
+          System.out.println("***** Plot making tests finished successfully... *****");
+        }
+      } else {
+        System.out.println("***** Plot batch testing was ignored... *****");
       }
-      if (failureListPlotBatchTest.isEmpty()) {
-        System.out.println("***** Plot making tests finished successfully... *****");
+
+      System.out.println("*************************************************");
+      System.out.println("Servlet Results");
+      if (failureServletTest != null) {
+        for (Failure failure : failureServletTest) {
+          System.out.println(failure.toString());
+        }
+        if (failureServletTest.isEmpty()) {
+          System.out.println("***** Servlet tests finished successfully... *****");
+        }
+      } else {
+        System.out.println("***** Servlet testing was ignored... *****");
       }
+
       System.out.println("*************************************************");
       System.out.println();
-      System.out.println("*************************************************");
+
+
+    System.out.println("*************************************************");
       int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0: failureListLoadDataTest.size();
       int failureListPlotBatchTestCount = failureListPlotBatchTest == null ? 0: failureListPlotBatchTest.size();
-      int exitCode = failureListLoadDataTestCount + failureListPlotBatchTestCount;
+      int failureServletTestCount = failureServletTest == null ? 0: failureServletTest.size();
+      int exitCode = failureListLoadDataTestCount + failureListPlotBatchTestCount  + failureServletTestCount;
       System.out.println("*************************************************");
       System.out.println("There were " + exitCode + " failures");
       System.exit( exitCode);

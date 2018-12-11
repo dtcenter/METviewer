@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.commons.io.FileUtils;
@@ -627,35 +626,5 @@ public class TestUtil {
     }
   }
 
-    public static void mysqlCheckCreateDatabase(String host, String userName, String password, String database) {
-        Connection aConn = null;
-        Statement aStmt = null;
-        try {
-            MysqlDataSource aDataSource = new MysqlDataSource();
-            aDataSource.setUser(userName);
-            aDataSource.setPassword(password);
-            aDataSource.setServerName(host.split(":")[0]); // don't need the port here
-            aDataSource.setPort(Integer.parseInt(host.split(":")[1])); // don't need the port here
-            aConn = aDataSource.getConnection();
-            aStmt = aConn.createStatement();
-            aStmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + database + ";");
-        } catch (Exception e) {
-            out.println(e.getMessage());
-        } finally {
-            if (aConn != null) {
-                try {
-                    aConn.close();
-                } catch (SQLException e) {
-                    out.println(e.getMessage());
-                }
-            }
-            if (aStmt != null) {
-                try {
-                    aStmt.close();
-                } catch (SQLException e) {
-                    out.println(e.getMessage());
-                }
-            }
-        }
-    }
+
 }
