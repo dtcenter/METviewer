@@ -5,26 +5,40 @@
 
 package edu.ucar.metviewer.test;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import edu.ucar.metviewer.MVServlet;
 import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.AppDatabaseManager;
-import edu.ucar.metviewer.db.DatabaseManager;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import edu.ucar.metviewer.db.MysqlAppDatabaseManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static edu.ucar.metviewer.test.util.TestUtil.*;
+import static edu.ucar.metviewer.test.util.TestUtil.FILE_SEPARATOR;
+import static edu.ucar.metviewer.test.util.TestUtil.PLOTS_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.PWD;
+import static edu.ucar.metviewer.test.util.TestUtil.ROOT_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.RWORK_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.TEMPLATE_DIR;
+import static edu.ucar.metviewer.test.util.TestUtil.USERNAME;
+import static edu.ucar.metviewer.test.util.TestUtil.host;
+import static edu.ucar.metviewer.test.util.TestUtil.readFileToString;
+import static edu.ucar.metviewer.test.util.TestUtil.rscript;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Ru
@@ -37,7 +51,6 @@ public class TestMVServlet {
 
   private final String requestValue;
   private final String responseValue;
-  private static int count = 0;
 
   public TestMVServlet(String requestValue, String responseValue) {
     this.requestValue = requestValue;
@@ -94,7 +107,6 @@ public class TestMVServlet {
       byteArrayOutputStream = new ByteArrayOutputStream();
       printWriter = new PrintWriter(byteArrayOutputStream);
 
-
       when(request.getReader()).thenReturn(bufferedReader);
       when(request.getSession()).thenReturn(httpSession);
       when(response.getWriter()).thenReturn(printWriter);
@@ -105,8 +117,7 @@ public class TestMVServlet {
       MVServlet.plots = PLOTS_DIR;
       MVServlet.rscript = rscript;
       MVServlet.isValCache = true;
-      MVServlet.databaseManager =
-              (AppDatabaseManager) edu.ucar.metviewer.db.DatabaseManager.getAppManager(type,host, USERNAME,PWD);
+      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD));
       MVServlet.isStatCache = true;
       new MVServlet().doPost(request, response);
 
@@ -114,29 +125,8 @@ public class TestMVServlet {
       verify(request, atLeast(1)).getSession();
       verify(response, atLeast(1)).getWriter();
       printWriter.flush();
-      System.out.println("********");
-      System.out.println("request " + count + " is: " + requestValue);
+      assertEquals(trimXML(responseValue), trimXML(byteArrayOutputStream.toString().trim()));
 
-
-      String expected =
-              trimXML(responseValue).replaceAll("<url_output>.*</url_output>"
-                      ,"");
-      // Why is <url_ouptut> there? RTP
-      String resp = trimXML(byteArrayOutputStream.toString().replaceAll(
-              "<url_output>.*</url_output>","").
-              replaceAll("<[?]xml.*[?]>","").trim());
-      System.out.println("Expected response  " + count + " is: " + expected);
-      System.out.println("Actual " + count + " response is: " + resp);
-      count ++;
-      System.out.println("********");
-      if (expected.contains("plot_")) {
-        String expectedPattern = expected.replaceAll("<plot>plot_.*</plot>",
-                "<plot>plot_.*</plot>");
-        System.out.println("converted plot number to pattern for matching: " + expectedPattern);
-        assertTrue(resp.matches(expectedPattern));
-      } else {
-        assertEquals(expected, resp);
-      }
     } finally {
       if (printWriter != null) {
         printWriter.close();

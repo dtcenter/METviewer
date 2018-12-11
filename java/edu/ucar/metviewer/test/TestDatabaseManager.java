@@ -18,24 +18,12 @@ public class TestDatabaseManager {
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         databaseInfo.setDbName(dbName);
         TestDBManager databaseManager = null;
-
-        // NOTE: the funky contstuctor using reflection is to enable us to build
-        // a mysql version without a couchbase dependency
-        // and a CB version without a mysql dependency.
-        // The build.xml will conditionally leave out the unwanted
-        // dependencies (jar files) based on db.management.system
         switch (dbType) {
             case "mysql":
-                databaseManager =
-                        (edu.ucar.metviewer.test.TestDBManager)Class.forName(
-                                "edu.ucar.metviewer.db" +
-                        ".TestMysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new TestMysqlDatabaseManager(databaseInfo);
                 break;
             case "cb":
-                databaseManager =
-                        (edu.ucar.metviewer.test.TestDBManager)Class.forName(
-                                "edu.ucar.metviewer.db" +
-                        ".TestCBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new TestCBDatabaseManager(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);

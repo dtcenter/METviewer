@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The METviewer test directory is set to something appropriate i.e. it has already been cloned and checked out to the right branch.
-usage() { echo "Usage: $0 -t <path to METviewer test directory> [-m <path to METviewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)] [-s(test servlet)]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -t <path to METviewer test directory> [-m <path to METviewer home>] [-d <mv_database>] [-u <mv_user>] [-p mv_passwd] [-h <mv_host>] [-P <mv_port>] [-j <path to java executible>] [-c(capture created images)] [-n(no clean)] [-l(load data)]" 1>&2; exit 1; }
 export MV_DATABASE="mv_test"
 export MV_USER="mvuser"
 export MV_PASSWD="mvuser"
@@ -10,8 +10,7 @@ export MV_PORT=3306
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
-export TESTSERVLET=""
-while getopts "t:m:d:u:p:P:h:j:cnls?" o; do
+while getopts "t:m:d:u:p:P:h:j:cnl?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -62,9 +61,6 @@ while getopts "t:m:d:u:p:P:h:j:cnls?" o; do
             ;;
         l)
             LOADDATA="-DloadData=yes"
-            ;;
-        s)
-            TESTSERVLET="-DtestServlet=yes"
             ;;
 		?)
 		usage
@@ -128,7 +124,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
 
 echo "Running allRestRunner"
 
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA $TESTSERVLET"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA"
 echo "---------"
 cd ${MV_HOME}
 #echo "*******"

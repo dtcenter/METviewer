@@ -88,6 +88,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         logger.info("Save to file time " + stopWatch.getFormattedDuration());
         out.flush();
         out.close();
+        res.close();
+        pstmt.close();
         con.close();
       } catch (Exception e) {
         logger.error(e.getMessage());

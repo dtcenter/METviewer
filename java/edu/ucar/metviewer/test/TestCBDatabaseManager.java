@@ -36,9 +36,4 @@ public class TestCBDatabaseManager extends CBDatabaseManager implements TestDBMa
         }
     }
 
-    @Override
-    public void checkCreateDatabase(String host, String userName, String password, String database) {
-        // do nothing at the moment - currently using one collection
-    }
-
 }

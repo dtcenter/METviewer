@@ -72,8 +72,8 @@ public class LoadDataTest {
       // recreate database
       Reader reader = null;
       try {
+        TestUtil.mysqlCheckCreateDatabase(host, USERNAME, PWD, database);
         myDatabaseManager = TestDatabaseManager.getManager(type, host, USERNAME, PWD, database);
-        myDatabaseManager.checkCreateDatabase(host, USERNAME, PWD, database);
         String fname = LOAD_DIR + FILE_SEPARATOR + "load/mv_mysql.sql";
         myDatabaseManager.loadData(fname, database);
       } catch (Exception e) {

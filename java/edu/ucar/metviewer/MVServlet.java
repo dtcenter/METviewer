@@ -768,37 +768,12 @@ public class MVServlet extends HttpServlet {
 
       rscript = bundle.getString("rscript.bin");
 
-      File directory;
       plotXml = bundle.getString("folders.plot_xml");
-      directory = new File(plotXml);
-      if (! directory.exists()){
-        directory.mkdirs();
-      }
       rTmpl = bundle.getString("folders.r_tmpl");
-      directory = new File(rTmpl);
-      if (! directory.exists()){
-        directory.mkdirs();
-      }
       rWork = bundle.getString("folders.r_work");
-      directory = new File(rWork);
-      if (! directory.exists()){
-        directory.mkdirs();
-      }
       plots = bundle.getString("folders.plots");
-      directory = new File(plots);
-      if (! directory.exists()){
-        directory.mkdirs();
-      }
       data = bundle.getString("folders.data");
-      directory = new File(data);
-      if (! directory.exists()){
-        directory.mkdirs();
-      }
       scripts = bundle.getString("folders.scripts");
-      directory = new File(scripts);
-      if (! directory.exists()){
-        directory.mkdirs();
-      }
 
       try {
         redirect = bundle.getString("redirect");

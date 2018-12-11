@@ -10,7 +10,6 @@ import java.sql.Statement;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.test.util.ScriptRunner;
-import static java.lang.System.out;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,11 +23,10 @@ public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements Te
     public int getNumberOfRows(String lineDataType) throws Exception {
         String tableName = lineDataType;
         int rows = -1;
-        try (
+        try {
             Connection con = getConnection();
             Statement statement = getConnection().createStatement();
             ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
-        ){
             if (resultSet.next()) {
                 rows = resultSet.getInt("count(*)");
             }
@@ -77,38 +75,4 @@ public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements Te
             }
         }
     }
-
-    public void checkCreateDatabase(String host, String userName,
-                                          String password, String database) {
-        Connection aConn = null;
-        Statement aStmt = null;
-        try {
-            com.mysql.jdbc.jdbc2.optional.MysqlDataSource aDataSource = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
-            aDataSource.setUser(userName);
-            aDataSource.setPassword(password);
-            aDataSource.setServerName(host.split(":")[0]); // don't need the port here
-            aDataSource.setPort(Integer.parseInt(host.split(":")[1])); // don't need the port here
-            aConn = aDataSource.getConnection();
-            aStmt = aConn.createStatement();
-            aStmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + database + ";");
-        } catch (Exception e) {
-            out.println(e.getMessage());
-        } finally {
-            if (aConn != null) {
-                try {
-                    aConn.close();
-                } catch (SQLException e) {
-                    out.println(e.getMessage());
-                }
-            }
-            if (aStmt != null) {
-                try {
-                    aStmt.close();
-                } catch (SQLException e) {
-                    out.println(e.getMessage());
-                }
-            }
-        }
-    }
 }
-

@@ -52,12 +52,10 @@ public abstract class DatabaseManager {
         DatabaseManager databaseManager = null;
         switch (dbType) {
             case "mysql":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".MysqlLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new MysqlLoadDatabaseManager(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".CBLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new CBLoadDatabaseManager(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -77,12 +75,10 @@ public abstract class DatabaseManager {
         DatabaseManager databaseManager = null;
         switch (dbType) {
             case "mysql":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".MysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new MysqlDatabaseManager(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".CBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new CBDatabaseManager(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -97,19 +93,12 @@ public abstract class DatabaseManager {
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         DatabaseManager databaseManager = null;
         PrintWriter pw = null;
-        // NOTE: the funky contstuctor using reflection is to enable us to build
-        // a mysql version without a couchbase dependency
-        // and a CB version without a mysql dependency.
-        // The build.xml will conditionally leave out the unwanted
-        // dependencies (jar files) based on db.management.system
         switch (dbType) {
             case "mysql":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".MysqlAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new MysqlAppDatabaseManager(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".CBAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                databaseManager = new CBAppDatabaseManager(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
