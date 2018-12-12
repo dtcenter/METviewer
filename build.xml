@@ -20,10 +20,13 @@
     ant all -Dbuild.property.file=fullpath/buildMYSQL-model-vxtest.properties
     or
     ant all -Dbuild.property.file=fullpath/buildCB-model-vxtest.properties
-    IMPORTANT! save your custom properyfiles somewhere safe
+    IMPORTANT! save your custom propertyfiles somewhere safe
 
     use -Dlog4j2.file=fullpath/customlog4j2.xml to provide a custom log4j2.xml file to replace
     the log4j2.xml file in order to customize logging.
+
+    use -Ddb.management.system=mysql or -Ddb.management.system=cb
+     to override the db.management.system property
 
     example build command...
     ant -Dbuild.properties.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties -Dlog4j2.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml clean all
@@ -196,6 +199,8 @@
             <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.cb"/>
+            <!-- This includes the db sprecific jar files based on the
+            path elements specified by refid i.e. mysql, mysql-all, cb, cb-all-->
             <classpath refid="${db.management.system}-all" />
         </javac>
     </target>
@@ -203,7 +208,6 @@
     <!-- Create the distribution directory -->
     <target name="dist" depends="compile"
             description="generate the distribution">
-
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
         <copy todir="${build}">
@@ -222,7 +226,6 @@
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer-${db.management.system}.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
-
         </jar>
     </target>
 
@@ -237,7 +240,7 @@
     </target>
 
     <!-- Build the web application folder -->
-    <target name="webapp" depends="dist, dist-test"
+    <target name="webapp" depends="dist, dist-test, test.db.management.system"
             description="build the web application bundle">
         <!-- Copy the webapp contents to the dist folder -->
         <delete dir="${dist}/metviewer"/>
@@ -269,11 +272,13 @@
         <!-- Copy the support jar files to the dist folder -->
         <copy todir="${dist}/metviewer/WEB-INF/lib">
             <fileset dir="${lib}">
-                <include name="*.jar"/>
                 <exclude name="servlet-api.jar"/>
+                <exclude name="couchbase*.jar, rxjava*.jar" if="db.management.system.mysql"/>
+                <exclude name="mysql*.jar" if="db.management.system.cb"/>
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
                 <exclude name="mockito-all-1.9.5.jar"/>
+                <include name="*.jar"/>
             </fileset>
         </copy>
         <copy todir="${dist}/metviewer/WEB-INF/lib"
@@ -377,11 +382,13 @@
         <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"/>
     </target>
 
-    <target name="batch_load" depends="dist" description="Create load_batch module">
+    <target name="batch_load" depends="dist, test.db.management.system" description="Create load_batch module">
         <tar destfile="${dist}/batch_load-${db.management.system}.tar">
             <tarfileset dir=".">
                 <exclude name="**/*.war"/>
                 <exclude name="**/*.tar"/>
+                <exclude name="lib/couchbase*.jar,lib/rxjava*.jar" if="db.management.system.mysql"/>
+                <exclude name="lib/mysql*.jar" if="db.management.system.cb"/>
                 <include name="bin/**"/>
                 <include name="dist/lib/metviewer.jar"/>
                 <include name="R_work/**"/>
