@@ -20,10 +20,15 @@
     ant all -Dbuild.property.file=fullpath/buildMYSQL-model-vxtest.properties
     or
     ant all -Dbuild.property.file=fullpath/buildCB-model-vxtest.properties
-    IMPORTANT! save your custom properyfiles somewhere safe
+    IMPORTANT! save your custom propertyfiles somewhere safe
 
     use -Dlog4j2.file=fullpath/customlog4j2.xml to provide a custom log4j2.xml file to replace
     the log4j2.xml file in order to customize logging.
+
+    use -Ddb.management.system=mysql
+    or
+     -Ddb.management.system=cb
+     to override the db.management.system property
 
     example build command...
     ant -Dbuild.properties.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties -Dlog4j2.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml clean all
@@ -196,6 +201,8 @@
             <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.cb"/>
+            <!-- This includes the db sprecific jar files based on the
+            path elements specified by refid i.e. mysql, mysql-all, cb, cb-all-->
             <classpath refid="${db.management.system}-all" />
         </javac>
     </target>
@@ -203,7 +210,6 @@
     <!-- Create the distribution directory -->
     <target name="dist" depends="compile"
             description="generate the distribution">
-
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
         <copy todir="${build}">
@@ -222,7 +228,6 @@
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer-${db.management.system}.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
-
         </jar>
     </target>
 
@@ -271,6 +276,9 @@
             <fileset dir="${lib}">
                 <include name="*.jar"/>
                 <exclude name="servlet-api.jar"/>
+                <exclude name="couchbase-*.jar" if="db.management.system.mysql"/>
+                <exclude name="rxjava-*.jar" if="db.management.system.mysql"/>
+                <exclude name="mysql-*.jar" if="db.management.system.cb"/>
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
                 <exclude name="mockito-all-1.9.5.jar"/>

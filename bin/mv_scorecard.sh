@@ -1,8 +1,9 @@
 #!/bin/bash
 
 JAVA=/usr/local/jdk/bin/java
-MV_HOME=/d3/projects/METViewer/src/apps/METviewer
-
+if [[ ! -z "${MV_HOME}" ]]; then
+    MV_HOME=/d3/projects/METViewer/src/apps/METviewer
+fi
 # construct the classpath for MVBatch
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mysql-connector-java-5.1.6.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
