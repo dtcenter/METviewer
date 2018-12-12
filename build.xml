@@ -373,6 +373,8 @@
              webxml="${dist}/metviewer/WEB-INF/web.xml"
              basedir="${dist}/metviewer">
         </war>
+        <!-- restore original mvservlet.properties file -->
+        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"/>
     </target>
 
     <target name="batch_load" depends="dist" description="Create load_batch module">
