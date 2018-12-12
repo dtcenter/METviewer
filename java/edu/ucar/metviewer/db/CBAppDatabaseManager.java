@@ -349,7 +349,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           boolRegEx = true;
         }
         if (listFcstVar[i].length() > 0 && !listFcstVar[i].equals("NA")) {
-          strFcstVarList += (0 < i ? ", " : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
+          strFcstVarList += (0 < i ? "," : "") + "'" + listFcstVar[i].replace("*", "%") + "'";
         }
       }
       if (strFcstVarList.length() > 0) {
@@ -392,7 +392,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         if (strVal.contains("*")) {
           strSqlOp = "LIKE";
         }
-        strValList += (0 < j ? ", " : "") + "\'" + strVal.replace("*", "%") + "\'";
+        strValList += (0 < j ? "," : "") + "\'" + strVal.replace("*", "%") + "\'";
       }
 
       //  add the where clause to the criteria, if appropriate
@@ -865,31 +865,31 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       // in the select list and temp table list, add them
       if (!strSelectList.contains("fcst_init")) {
         if (job.isModeJob() || job.isMtdJob()) {
-          strSelectList += ", h.fcst_init";
+          strSelectList += ",h.fcst_init";
           strTempList += ", fcst_init           " + "DATETIME";
         } else {
           if (strSelectList.length() > 0) {
-            strSelectList += ", ";
+            strSelectList += ",";
           }
           strSelectList += " ld.fcst_init_beg";
 
           if (strTempList.length() > 0) {
-            strTempList += ", ";
+            strTempList += ",";
           }
           strTempList += "   fcst_init_beg       " + "DATETIME";
         }
       }
       if (!strSelectList.contains("fcst_valid")) {
         if (job.isModeJob() || job.isMtdJob()) {
-          strSelectList += ", h.fcst_valid";
-          strTempList += ", fcst_valid          " + "DATETIME";
+          strSelectList += ",h.fcst_valid";
+          strTempList += ",fcst_valid          " + "DATETIME";
         } else {
           if (strSelectList.length() > 0) {
-            strSelectList += ", ";
+            strSelectList += ",";
           }
           strSelectList += " ld.fcst_valid_beg";
           if (strTempList.length() > 0) {
-            strTempList += ", ";
+            strTempList += ",";
           }
           strTempList += "  fcst_valid_beg      " + "DATETIME";
         }
@@ -897,21 +897,21 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
                                                            tableHeaderSqlType,
                                                            listSeries, strWhere, false);
-      String selectPlotList = buildQueryPlotStrings.getSelectList();
+      String selectPlotList = buildQueryPlotStrings.getSelectList().trim();
       //  if the fcst_valid or fcst_init fields are not present
       // in the select list and temp table list, add them
       if (!selectPlotList.contains("fcst_init") && !selectPlotList.contains("init_hour")) {
         if (job.isModeJob() || job.isMtdJob()) {
-          selectPlotList += ", h.fcst_init";
+          selectPlotList += ",h.fcst_init";
         } else {
-          selectPlotList += ", ld.fcst_init_beg";
+          selectPlotList += ",ld.fcst_init_beg";
         }
       }
       if (!selectPlotList.contains("fcst_valid")) {
         if (job.isModeJob() || job.isMtdJob()) {
-          selectPlotList += ", h.fcst_valid";
+          selectPlotList += ",h.fcst_valid";
         } else {
-          selectPlotList += ", ld.fcst_valid_beg";
+          selectPlotList += ",ld.fcst_valid_beg";
         }
       }
 
@@ -919,26 +919,26 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         if (job.isModeJob() || job.isMtdJob()) {
 
           if (job.getEventEqual()) {
-            strSelectList += ", " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+            strSelectList += "," + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
                                  + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) ) fcst_lead";
           } else {
-            strSelectList += ", h.fcst_lead";
+            strSelectList += ",h.fcst_lead";
           }
-          selectPlotList += ", h.fcst_lead";
-          strTempList += ", fcst_lead          " + "INT ";
+          selectPlotList += ",h.fcst_lead";
+          strTempList += ",fcst_lead          " + "INT ";
         } else {
           if (job.getEventEqual()) {
-            strSelectList += ", " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+            strSelectList += "," + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead "
                                  + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) ) fcst_lead";
           } else {
-            strSelectList += ", ld.fcst_lead";
+            strSelectList += ",ld.fcst_lead";
           }
-          selectPlotList += ", h.fcst_lead";
-          strTempList += ", fcst_lead      " + "INT ";
+          selectPlotList += ",h.fcst_lead";
+          strTempList += ",fcst_lead      " + "INT ";
         }
       }
 
@@ -961,14 +961,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (boolEnsSs) {
 
         listSql.add("SELECT "
-                        + selectPlotList + ",   h.fcst_var, "
-                        + "  ld.total,   ld.bin_n,   ld.var_min,   ld.var_max,   ld.var_mean, "
-                        + "  ld.fbar,   ld.obar,   ld.fobar,   ld.ffbar,   ld.oobar "
-                        + "FROM "
-                        + "  stat_header h, "
-                        + "  line_data_ssvar ld "
-                        + "WHERE " + strWhere
-                        + "  AND h.stat_header_id = ld.stat_header_id; ");
+                        + "h." + selectPlotList + ",h.fcst_var,"
+                        + "ld.total,ld.bin_n,ld.var_min,ld.var_max,ld.var_mean,"
+                        + "ld.fbar,ld.obar,ld.fobar,ld.ffbar,ld.oobar, meta(h).id as hid"
+                        + " FROM `" + getBucket().name() + "` as h "
+                        + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
+                        + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ssvar\' "
+                        + " AND h.type = \'header\' AND h.header_type = \'stat\' "
+                        + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']");
 
         return listSql;
       }
@@ -993,11 +993,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         //  construct the select list item, where clause
         // and temp table entry for the independent variable
         if (!strSelectList.contains(strIndyVar)) {
-          strSelectList += ", " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
+          strSelectList += "," + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
                                                  true);
-          selectPlotList += ", " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
+          selectPlotList += "," + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
                                                   true);
-          strTempList += ", " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
+          strTempList += "," + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
         }
         strIndyVarFormatted = formatField(strIndyVar, job.isModeJob() || job.isMtdJob(), false);
         if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
@@ -1011,19 +1011,19 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                         + " IN [" + MVUtil.buildValueList(job.getIndyVal()) + "] ";
       }
       //  add fcst_var to the select list and temp table entries
-      strSelectList += ", h.fcst_var";
-      selectPlotList += ", h.fcst_var";
-      strTempList += ", fcst_var            VARCHAR(64)";
+      strSelectList += ",h.fcst_var";
+      selectPlotList += ",h.fcst_var";
+      strTempList += ",fcst_var            VARCHAR(64)";
 
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
           if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
-            strSelectList += ", " + formatField(strField, job.isModeJob() || job.isMtdJob(),
+            strSelectList += "," + formatField(strField, job.isModeJob() || job.isMtdJob(),
                                                    true);
-            selectPlotList += ", " + formatField(strField, job.isModeJob() || job.isMtdJob(),
+            selectPlotList += "," + formatField(strField, job.isModeJob() || job.isMtdJob(),
                                                     true);
-            strTempList += ", " + strField + "            VARCHAR(64)";
+            strTempList += "," + strField + "            VARCHAR(64)";
           }
         }
       }
@@ -1038,7 +1038,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         MVOrderedMap[] forecastVars;
         if (job.getPlotTmpl().equals("eclv.R_tmpl") && job.getDepGroups().length == 0) {
           MVOrderedMap m = new MVOrderedMap();
-          m.put("NA", "ECLV");
+          m.put("NA","ECLV");
           forecastVars = new MVOrderedMap[]{m};
         } else {
           forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY))
