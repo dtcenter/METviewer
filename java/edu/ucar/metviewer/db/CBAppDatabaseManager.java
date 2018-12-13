@@ -871,7 +871,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           if (strSelectList.length() > 0) {
             strSelectList += ",";
           }
-          strSelectList += " ld.fcst_init_beg";
+          strSelectList += "ld.fcst_init_beg";
 
           if (strTempList.length() > 0) {
             strTempList += ",";
@@ -887,7 +887,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           if (strSelectList.length() > 0) {
             strSelectList += ",";
           }
-          strSelectList += " ld.fcst_valid_beg";
+          strSelectList += "ld.fcst_valid_beg";
           if (strTempList.length() > 0) {
             strTempList += ",";
           }
@@ -1246,9 +1246,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             tableStats = MVUtil.statsSsvar;
             if (aggType != null) {
               MVUtil.isAggTypeValid(MVUtil.statsSsvar, strStat, aggType);
-              strStatTable = "line_data_" + aggType + " ld ";
+              strStatTable = " AND ld.line_type = \'" + aggType + "\' ";
             } else {
-              strStatTable = "line_data_ssvar" + " ld ";
+              strStatTable = " AND ld.line_type = \'ssvar\' ";
             }
           } else if (MVUtil.statsCts.containsKey(strStat)) {
             tableStats = MVUtil.statsCts;
