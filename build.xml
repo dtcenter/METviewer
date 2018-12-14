@@ -30,18 +30,36 @@
      -Ddb.management.system=cb
      to override the db.management.system property
 
+    use -Dcontext.path.suffix to define a context path suffix.
+    e.g with no context.path.suffix the war file will be named metviewer.war and
+    will be deployed to the context path "metviewer". With a context.path.suffix of "-test"
+    the war file will be named metviewer-test.war and will be deployed to the context path
+    "metviewer-test".
+
     example build command...
-    ant -Dbuild.properties.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties -Dlog4j2.file=/Users/pierce/IdeaProjects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml clean all
+    ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
+         -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
+         -Ddb.management.system=cb \
+         -Dcontext.path.suffix="-cb" clean all
+
+    will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
+    $HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
+    named metviewer-test.tar also with libraries appropriate for couchbase.
+
     -->
 
-        <!-- default properties file -->
-        <property name="mvservlet.property.file" value="mvservlet.properties.orig"/>
-
-        <!-- default log4j2.xmlfile -->
+        <!-- log4j2.xmlfile override with -Dlog4j2.file-->
         <property name="log4j2.file" value="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"/>
 
-        <!-- override this with -Dbuild.properties.file=fullpath/somebuildpropertyfile to do custom build -->
+        <!-- original log4j2.xmlfile.orig -->
+        <property name="log4j2.file.orig" value="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"/>
+
+        <!-- build.properties override this with -Dbuild.properties.file=fullpath/somebuildpropertyfile to do custom build -->
         <property name="build.properties.file" value="${src.webapp.dir}/metviewer/WEB-INF/classes/build.properties"/>
+
+        <!-- original mvservlet.properties file -->
+        <property name="mvservlet.property.file.orig" value="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig"/>
+
 
         <!-- load the build properties -->
         <loadproperties srcFile="${build.properties.file}"/>
@@ -63,6 +81,7 @@
         <property name="data.dir" value="data"/>
         <property name="scripts.dir" value="scripts"/>
         <property name="url.output" value="http://www.dtcenter.org/met/metviewer_output/"/>
+        <property name="context.path.suffix" value=""/>
 
 
         <!-- Create the time stamp -->
@@ -227,7 +246,7 @@
             <attribute name="Specification-Version" value="2.8"/>
         </manifest>
 
-        <jar jarfile="${dist}/lib/metviewer-${db.management.system}.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
+        <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
         </jar>
     </target>
 
@@ -236,7 +255,7 @@
 
         <!-- Create the dist lib folder and put the jared class files there -->
         <mkdir dir="${dist}/lib"/>
-        <jar jarfile="${dist}/lib/metviewer_all-${db.management.system}.jar" basedir="${build}"
+        <jar jarfile="${dist}/lib/metviewer_all.jar" basedir="${build}"
              manifest="${build}/MANIFEST.MF"/>
 
     </target>
@@ -286,7 +305,7 @@
             </fileset>
         </copy>
         <copy todir="${dist}/metviewer/WEB-INF/lib"
-              file="${dist}/lib/metviewer-${db.management.system}.jar"/>
+              file="${dist}/lib/metviewer.jar"/>
 
         <!-- Copy the documentation files -->
         <mkdir dir="${dist}/metviewer/doc"/>
@@ -305,10 +324,12 @@
     </target>
 
     <target name="war" depends="webapp" description="Create web archive">
-        <!-- preserve original mvservlet.properties file -->
-        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"/>
-        <!-- replace properties file values  -->
+        <!-- copy original mvservlet.properties file -->
+        <copy file="${mvservlet.property.file.orig}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties" overwrite="true"/>
+        <!-- copy the log4j2.xml file from the defined one - might be the original - might not. -->
+        <copy file="${log4j2.file}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
 
+        <!-- replace properties file values  -->
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="rscript.bin=(.*)"
                        replace="rscript.bin=${rscript.bin}"
@@ -374,20 +395,19 @@
                        replace="url.output=${url.output}"
                        byline="true"/>
 
-        <!-- copy the custom log4j2.xml file -->
-        <copy file="${log4j2.file}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml"/>
-
-        <delete file="${dist}/metviewer-${db.management.system}.war"/>
-        <war destfile="${dist}/metviewer-${db.management.system}.war"
+        <delete file="${dist}/metviewer*.war"/>
+        <war destfile="${dist}/metviewer${context.path.suffix}.war"
              webxml="${dist}/metviewer/WEB-INF/web.xml"
              basedir="${dist}/metviewer">
         </war>
         <!-- restore original mvservlet.properties file -->
-        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"/>
+        <copy file="${mvservlet.property.file.orig}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties" overwrite="true"/>
+        <!-- restore the original log4j2.xml file -->
+        <copy file="${log4j2.file.orig}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
     </target>
 
     <target name="batch_load" depends="dist, test.db.management.system" description="Create load_batch module">
-        <tar destfile="${dist}/batch_load-${db.management.system}.tar">
+        <tar destfile="${dist}/batch_load.tar">
             <tarfileset dir=".">
                 <exclude name="**/*.war"/>
                 <exclude name="**/*.tar"/>
