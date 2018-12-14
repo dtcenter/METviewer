@@ -1,5 +1,5 @@
 /**
- * MysqlAppDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * CBAppDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
@@ -159,12 +159,12 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     dbList += "]";
 
     // find the line_data documents where the header has the selected forecast variable
-    queryString = "select distinct ld.line_type"
-                  + " FROM `" + getBucket().name() + "` as h "
-                  + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id"
+    queryString = "SELECT DISTINCT ld.line_type"
+                  + " FROM `" + getBucket().name() + "` AS h "
+                  + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
                   + " WHERE ld.type = \'line\' AND h.type = \'header\' AND h.header_type = \'stat\' "
                   + " AND h.fcst_var = \'" + strFcstVar + "\' "
-                  + " AND h.dbname in " + dbList;
+                  + " AND h.dbname IN " + dbList;
 
     try {
           cbStopWatch.start();
@@ -353,7 +353,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         }
       }
       if (strFcstVarList.length() > 0) {
-        strWhere += "WHERE h.fcst_var " + (boolRegEx ? "LIKE" : "IN") + " [" + strFcstVarList + "]";
+        strWhere += " WHERE h.fcst_var " + (boolRegEx ? "LIKE" : "IN") + " [" + strFcstVarList + "]";
         strWhere += " AND h.type = \'header\' AND h.header_type = \'stat\'";
       }
     }
@@ -405,7 +405,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                   + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
         }
       } else if (!boolTimeCritCur) {
-        strWhere += (strWhere.equals("") ? "WHERE " : " AND ")
+        strWhere += (strWhere.equals("") ? " WHERE " : " AND ")
                 + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
       }
     }
@@ -434,27 +434,32 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     dbList += "]";
 
     if (boolNRank) {
-            logger.error("boolNRank: no query yet");
-//          strSql = "SELECT DISTINCT ld.n_rank "
-//                       + "FROM stat_header h, line_data_rhist ld "
-//                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
-//                       + " ld.stat_header_id = h.stat_header_id "
-//                       + "ORDER BY n_rank;";
+            queryString = "SELECT DISTINCT ld.n_rank "
+              + " FROM `" + getBucket().name() + "` as h "
+              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
+              + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+              + " ld.type = \'line\' AND ld.line_type = \'rhist\'"
+              + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
+              + " AND h.dbname IN " + dbList
+              + " ORDER BY ld.n_rank";
     } else if (boolNBin) {
-            logger.error("boolNBin: no query yet");
-//          strSql = "SELECT DISTINCT ld.n_bin "
-//                       + "FROM stat_header h, line_data_phist ld "
-//                       + strWhere + (strWhere.equals("") ? "WHERE" : " AND")
-//                       + " ld.stat_header_id = h.stat_header_id "
-//                       + "ORDER BY ld.n_bin;";
+            queryString = "SELECT DISTINCT ld.n_bin "
+              + " FROM `" + getBucket().name() + "` as h "
+              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
+              + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+              + " ld.type = \'line\' AND ld.line_type = \'phist\'"
+              + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
+              + " AND h.dbname IN " + dbList
+              + " ORDER BY ld.n_bin";
     } else if (!boolMode && !boolMtd && boolFcstVar) {
             queryString = "SELECT DISTINCT " + strFieldDB
-                    + " FROM `" + getBucket().name() + "` as h "
-                    + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
-                    + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
-                    + " ld.type = \'line\' AND ld.line_type IN " + tableList
-                    + " AND h.dbname IN " + dbList
-                    + " ORDER BY " + strFieldDB;
+              + " FROM `" + getBucket().name() + "` as h "
+              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
+              + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+              + " ld.type = \'line\' AND ld.line_type IN " + tableList
+              + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
+              + " AND h.dbname IN " + dbList
+              + " ORDER BY " + strFieldDB;
     } else if (!boolMode && !boolMtd
                        && (strField.equals("fcst_lead")
                                || strField.contains("valid")
@@ -623,17 +628,18 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     Boolean firstLine;
 
     // determine the field names in the correct order from the select portion of the query statement
-    fieldString = queryString.substring(queryString.indexOf(" ") + 1, queryString.indexOf("meta") - 1).trim();
-    while(fieldString.length() > 0) {
-      if (fieldString.indexOf(".") > 2 || fieldString.indexOf(".") < 1) {
-        // new field created with literal
-        fieldString = fieldString.substring(fieldString.indexOf(" ") + 1);
-      } else {
-        // remove the h. or ld. prefix for query field
-        fieldString = fieldString.substring(fieldString.indexOf(".") + 1);
+    fieldString = queryString.substring(queryString.indexOf(" ") + 1, queryString.indexOf("FROM") - 1).trim();
+    String[] fieldArr = fieldString.split(",");
+    for (String str : fieldArr) {
+      str = str.trim();
+      if (str.contains(" ")) {
+        str = str.substring(str.indexOf(" ") + 1);
       }
-      docFields.add(fieldString.substring(0, fieldString.indexOf(",")));
-      fieldString = fieldString.substring(fieldString.indexOf(",") + 1).trim();
+      if (str.contains(".")) {
+        str = str.substring(str.indexOf(".") + 1);
+      }
+
+      docFields.add(str);
     }
     char delim = '\t';
     try {
@@ -705,22 +711,25 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     return result;
   }
 
-  private List<String> getNumbers(String query, String currentDBName) {
+  private List<String> getNumbers(String queryString, String currentDBName) {
     List<String> result = new ArrayList<>();
-//    try (Connection con = getConnection(currentDBName);
-//         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-//                                              ResultSet.CONCUR_READ_ONLY);
-//         ResultSet resultSet = stmt.executeQuery(query)
-//    ) {
-//
-//      //   save the number of thresholds
-//      while (resultSet.next()) {
-//        result.add(resultSet.getString(1));
-//      }
-//
-//    } catch (SQLException e) {
-//      logger.error(e.getMessage());
-//    }
+    String fieldName;
+
+    N1qlQueryResult queryResult = null;
+    List<N1qlQueryRow> queryList = null;
+
+    fieldName = queryString.substring(queryString.indexOf(".") + 1);
+    fieldName = fieldName.substring(0,fieldName.indexOf(" "));
+
+    try {
+      queryResult = getBucket().query(N1qlQuery.simple(queryString));
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    for (N1qlQueryRow row: queryResult) {
+
+      result.add(row.value().get(fieldName).toString());
+    }
     return result;
   }
 
@@ -920,9 +929,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
           if (job.getEventEqual()) {
             strSelectList += "," + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                 + "WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
+                                 + " WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
                                  + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                 + "WHERE model = h.model) ) fcst_lead";
+                                 + " WHERE model = h.model) ) fcst_lead";
           } else {
             strSelectList += ",h.fcst_lead";
           }
@@ -931,9 +940,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         } else {
           if (job.getEventEqual()) {
             strSelectList += "," + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                 + "WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead "
+                                 + " WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead "
                                  + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                 + "WHERE model = h.model) ) fcst_lead";
+                                 + " WHERE model = h.model) ) fcst_lead";
           } else {
             strSelectList += ",ld.fcst_lead";
           }
@@ -963,9 +972,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         listSql.add("SELECT "
                         + "h." + selectPlotList + ",h.fcst_var,"
                         + "ld.total,ld.bin_n,ld.var_min,ld.var_max,ld.var_mean,"
-                        + "ld.fbar,ld.obar,ld.fobar,ld.ffbar,ld.oobar, meta(h).id as hid"
-                        + " FROM `" + getBucket().name() + "` as h "
-                        + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
+                        + "ld.fbar,ld.obar,ld.fobar,ld.ffbar,ld.oobar"
+                        + " FROM `" + getBucket().name() + "` AS h "
+                        + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id "
                         + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ssvar\' "
                         + " AND h.type = \'header\' AND h.header_type = \'stat\' "
                         + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']");
@@ -1002,10 +1011,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         strIndyVarFormatted = formatField(strIndyVar, job.isModeJob() || job.isMtdJob(), false);
         if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
           strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                    + "WHERE model = h.model) is NULL , "
+                                    + " WHERE model = h.model) is NULL , "
                                     + strIndyVarFormatted + " , " + strIndyVarFormatted
                                     + " + (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                    + "WHERE model = h.model) ) ";
+                                    + " WHERE model = h.model) ) ";
         }
         strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted
                         + " IN [" + MVUtil.buildValueList(job.getIndyVal()) + "] ";
@@ -1055,7 +1064,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
                 String strSelPctThresh = "SELECT DISTINCT ld.n_thresh FROM   "
                                              + "stat_header h,   line_data_pct ld ";
-                strSelPctThresh = strSelPctThresh + "WHERE ";
+                strSelPctThresh = strSelPctThresh + " WHERE ";
                 if (strIndyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
                   strSelPctThresh = strSelPctThresh + strIndyVarFormatted;
                   strSelPctThresh = strSelPctThresh + " IN [" + MVUtil.buildValueList(
@@ -1254,34 +1263,34 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             tableStats = MVUtil.statsCts;
             if (aggType != null) {
               MVUtil.isAggTypeValid(MVUtil.statsCts, strStat, aggType);
-              strStatTable = "line_data_ctc" + " ld ";
+              strStatTable = " AND ld.line_type = \'ctc\' ";
             } else {
-              strStatTable = "line_data_cts" + " ld ";
+              strStatTable = " AND ld.line_type = \'cts\' ";
             }
           } else if (MVUtil.statsNbrcnt.containsKey(strStat)) {
             tableStats = MVUtil.statsNbrcnt;
             if (aggType != null) {
               MVUtil.isAggTypeValid(MVUtil.statsNbrcnt, strStat, aggType);
             }
-            strStatTable = "line_data_nbrcnt ld ";
+            strStatTable = " AND ld.line_type = \'nbrcnt\' ";
             strStatField = strStat.replace("NBR_", "").toLowerCase();
           } else if (MVUtil.statsEnscnt.containsKey(strStat)) {
             tableStats = MVUtil.statsEnscnt;
             if (aggType != null) {
               MVUtil.isAggTypeValid(MVUtil.statsEnscnt, strStat, aggType);
             }
-            strStatTable = "line_data_enscnt ld ";
+            strStatTable = " AND ld.line_type = \'enscnt\' ";
             strStatField = strStat.replace("ENS_", "").toLowerCase();
           } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
             tableStats = MVUtil.statsNbrcts;
             MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
-            strStatTable = "line_data_nbrcts ld ";
+            strStatTable = " AND ld.line_type = \'nbrcts\' ";
             strStatField = strStat.replace("NBR_", "").toLowerCase();
           } else if (MVUtil.statsPstd.containsKey(strStat)) {
             tableStats = MVUtil.statsPstd;
-            strStatTable = "line_data_pstd ld ";
+            strStatTable = " AND ld.line_type = \'pstd\' ";
             if (aggType != null) {
-              strStatTable = "line_data_pct ld ";
+              strStatTable = " AND ld.line_type = \'pct\' ";
               MVUtil.isAggTypeValid(MVUtil.statsPstd, strStat, aggType);
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 strStatTable += ",   line_data_pct_thresh ldt" + i;
@@ -1292,16 +1301,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else if (MVUtil.statsMcts.containsKey(strStat)) {
             tableStats = MVUtil.statsMcts;
             MVUtil.isAggTypeValid(MVUtil.statsMcts, strStat, aggType);
-            strStatTable = "line_data_mcts ld ";
+            strStatTable = " AND ld.line_type = \'mcts\' ";
             strStatField = strStat.replace("MCTS_", "").toLowerCase();
           } else if (MVUtil.statsRhist.containsKey(strStat)) {
             tableStats = MVUtil.statsRhist;
-            strStatTable = "line_data_rhist ld ";
+            strStatTable = " AND ld.line_type = \'rhist\' ";
             strStatField = strStat.replace("RHIST_", "").toLowerCase();
           } else if (MVUtil.statsPhist.containsKey(strStat)) {
             tableStats = MVUtil.statsPhist;
             MVUtil.isAggTypeValid(MVUtil.statsPhist, strStat, aggType);
-            strStatTable = "line_data_phist ld ";
+            strStatTable = " AND ld.line_type = \'phist\' ";
             strStatField = strStat.replace("PHIST_", "").toLowerCase();
           } else if (MVUtil.statsVl1l2.containsKey(strStat)) {
             if (aggType != null) {
@@ -1317,10 +1326,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             strStatField = strStat.replace("VAL1L2_", "").toLowerCase();
           } else if (MVUtil.statsMpr.containsKey(strStat)) {
             tableStats = MVUtil.statsMpr;
-            strStatTable = "line_data_mpr ld ";
+            strStatTable = " AND ld.line_type = \'mpr\' ";
           } else if (MVUtil.statsOrank.containsKey(strStat)) {
             tableStats = MVUtil.statsOrank;
-            strStatTable = "line_data_orank ld ";
+            strStatTable = " AND ld.line_type = \'orank\' ";
             strStatField = strStat.replace("ORANK_", "").toLowerCase();
           } else if (MVUtil.statsVcnt.containsKey(strStat)) {
             tableStats = MVUtil.statsVcnt;
@@ -1329,19 +1338,19 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               MVUtil.isAggTypeValid(MVUtil.statsVcnt, strStat, aggType);
               strStatTable = " AND ld.line_type = \'" + aggType + "\' AND";
             } else {
-              strStatTable = "line_data_vcnt" + " ld ";
+              strStatTable = " AND ld.line_type = \'vcnt\' ";
             }
           } else if (strStat.equals("ECLV") && job.getPlotTmpl().equals("eclv.R_tmpl")) {
             if (aggType != null && aggType.equals(MVUtil.CTC)) {
               tableStats = MVUtil.statsCts;
-              strStatTable = "line_data_ctc" + " ld ";
+              strStatTable = " AND ld.line_type = \'ctc\' ";
             } else {
               tableStats = MVUtil.statsPstd;
               strStatTable = "line_data_pct ld,   line_data_pct_thresh ldt ";
             }
           } else if (MVUtil.statsEcnt.containsKey(strStat)) {
             tableStats = MVUtil.statsEcnt;
-            strStatTable = "line_data_ecnt ld ";
+            strStatTable = " AND ld.line_type = \'ecnt\' ";
             strStatField = strStat.replace("ECNT_", "").toLowerCase();
           } else {
             throw new Exception("unrecognized stat: " + strStat);
@@ -1533,10 +1542,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
           //  build the query
           strSelectSql += (strSelectSql.isEmpty() ? "" : " UNION ALL ")
-                              + "SELECT " + strSelectStat + ", meta(h).id as hid, meta(ld).id as ldid "
-                              + "FROM `" + getBucket().name() + "` as h "
-                              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id ";
-          strSelectSql += "WHERE " + strWhere;
+                              + "SELECT " + strSelectStat
+                              + " FROM `" + getBucket().name() + "` AS h "
+                              + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id ";
+          strSelectSql += " WHERE " + strWhere;
           if (strFcstVarClause.length() > 0) {
             strSelectSql += " AND h.fcst_var " + strFcstVarClause + " ";
           }
@@ -1597,10 +1606,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       String strIndyVarFormatted = formatField(strField, boolModePlot, false);
       if (strField.equals("fcst_lead") && job.getEventEqual()) {
         strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                  + "WHERE model = h.model) is NULL , "
+                                  + " WHERE model = h.model) is NULL , "
                                   + strIndyVarFormatted + " , " + strIndyVarFormatted
                                   + " + (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                  + "WHERE model = h.model) ) ";
+                                  + " WHERE model = h.model) ) ";
       }
       strWhere += (0 < i ? "  AND " : "  ") + strIndyVarFormatted + " " + strCondition + " ";
     }
@@ -1784,11 +1793,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  '' object_cat, "
             + "  '" + stat + "' stat_name, "
             + "  " + strStat + " stat_value "
-            + "FROM "
+            + " FROM "
             + "  mode_header , "
             + "  mode_obj_single , "
             + "  mode_cts "
-            + "WHERE " + strWhere + " "
+            + " WHERE " + strWhere + " "
             + "  AND simple_flag = 1 "
             + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id "
             + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id "
@@ -1851,10 +1860,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  object_cat, "
             + "  '" + stat + "' stat_name, "
             + "  " + strTableStat + " stat_value "
-            + "FROM "
+            + " FROM "
             + "  mode_header, "
             + "  mode_obj_pair "
-            + "WHERE " + strWhere
+            + " WHERE " + strWhere
             + "  AND mode_header.mode_header_id = mode_obj_pair.mode_header_id "
             + strGroupBy + ";";
   }
@@ -1898,8 +1907,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  cluster_id, "
             + "  '" + stat + "' stat_name, "
             + "  " + strTableStat + " stat_value "
-            + "FROM mtd_header, mtd_3d_obj_pair  "
-            + "WHERE " + strWhere
+            + " FROM mtd_header, mtd_3d_obj_pair  "
+            + " WHERE " + strWhere
             + " AND mtd_header.mtd_header_id = mtd_3d_obj_pair.mtd_header_id";
   }
 
@@ -1966,11 +1975,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  object_cat, "
             + "  '" + stat + "' stat_name, "
             + "  " + MVUtil.modeSingleStatField.get(statName) + " stat_value "
-            + "FROM "
+            + " FROM "
             + "  mode_header , "
             + "  mode_obj_single , "
             + "  mode_cts  "
-            + "WHERE " + strWhere
+            + " WHERE " + strWhere
             + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id "
             + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id "
             + "  AND mode_cts.field = 'OBJECT'"
@@ -2008,8 +2017,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  cluster_id, "
             + "  '" + stat + "' stat_name, "
             + "  " + mtd3dSingleStatField.get(statName) + " stat_value "
-            + "FROM mtd_header, mtd_3d_obj_single  "
-            + "WHERE " + strWhere
+            + " FROM mtd_header, mtd_3d_obj_single  "
+            + " WHERE " + strWhere
             + " AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
   }
 
@@ -2041,8 +2050,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  cluster_id, "
             + "  '" + stat + "' stat_name, "
             + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value "
-            + "FROM mtd_header, mtd_2d_obj  "
-            + "WHERE " + strWhere
+            + " FROM mtd_header, mtd_2d_obj  "
+            + " WHERE " + strWhere
             + " AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
   }
 
@@ -2061,11 +2070,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  fcst_flag, "
             + "  simple_flag, "
             + "  matched_flag "
-            + "FROM "
+            + " FROM "
             + "  mode_header , "
             + "  mode_obj_single , "
             + "  mode_cts  "
-            + "WHERE " + strWhere
+            + " WHERE " + strWhere
             + "  AND mode_obj_single.mode_header_id = mode_header.mode_header_id "
             + "  AND mode_cts.mode_header_id = mode_obj_single.mode_header_id"
             + "  AND mode_cts.field = 'OBJECT'";
@@ -2085,8 +2094,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  fcst_flag, "
             + "  simple_flag, "
             + "  matched_flag "
-            + "FROM mtd_header, mtd_2d_obj "
-            + "WHERE " + strWhere
+            + " FROM mtd_header, mtd_2d_obj "
+            + " WHERE " + strWhere
             + "  AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
 
   }
@@ -2105,8 +2114,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  fcst_flag, "
             + "  simple_flag, "
             + "  matched_flag "
-            + "FROM mtd_header, mtd_3d_obj_single "
-            + "WHERE " + strWhere
+            + " FROM mtd_header, mtd_3d_obj_single "
+            + " WHERE " + strWhere
             + "  AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
 
   }
@@ -2150,10 +2159,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  s.object_cat, "
             + "  '" + stat + "' stat_name, "
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value "
-            + "FROM ("
+            + " FROM ("
             + table1
             + " ) s, ( " + table2 + " ) s2 "
-            + "WHERE "
+            + " WHERE "
             + strWhere + " "
             + " AND SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3) ";
     if (!strTableStat.contains("object_id")) {
@@ -2206,10 +2215,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  s.cluster_id, "
             + "  '" + stat + "' stat_name, "
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value "
-            + "FROM ("
+            + " FROM ("
             + table1
             + " ) s, ( " + table2 + " ) s2 "
-            + "WHERE "
+            + " WHERE "
             + strWhere + " "
             + "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) = SUBSTRING(s2.object_id,  "
             + "LOCATE('_', s "
@@ -2255,10 +2264,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  s.cluster_id, "
             + "  '" + stat + "' stat_name, "
             + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value "
-            + "FROM ("
+            + " FROM ("
             + table1
             + " ) s, ( " + table2 + " ) s2 "
-            + "WHERE "
+            + " WHERE "
             + strWhere + " "
             + "  AND SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) "
             + "= SUBSTRING(s2.object_id,  LOCATE('_', s.object_id)+1) ";
@@ -2388,9 +2397,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (!selectList.contains("fcst_lead")) {
         if (job.getEventEqual()) {
           selectList += ",  " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                            + "WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
+                            + " WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
                             + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
-                            + "WHERE model = h.model) ) fcst_lead";
+                            + " WHERE model = h.model) ) fcst_lead";
         } else {
           selectList += ",  " + " h.fcst_lead";
         }
@@ -2427,10 +2436,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                                false);
       if (strIndyVar.equals("fcst_lead") && job.getEventEqual()) {
         strIndyVarFormatted = " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                  + "WHERE model = h.model) is NULL , "
+                                  + " WHERE model = h.model) is NULL , "
                                   + strIndyVarFormatted + " , " + strIndyVarFormatted
                                   + " +  (select fcst_lead_offset FROM model_fcst_lead_offset "
-                                  + "WHERE model = h.model) ) ";
+                                  + " WHERE model = h.model) ) ";
       }
       strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted +
                       " IN [" + MVUtil.buildValueList(job.getIndyVal()) + "] ";
@@ -2525,11 +2534,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + "  fcst_flag, "
             + "  simple_flag, "
             + "  matched_flag "
-            + "FROM "
+            + " FROM "
             + " mode_header , "
             + " mode_obj_single, "
             + " mode_cts  "
-            + "WHERE " + strWhere
+            + " WHERE " + strWhere
             + " AND mode_obj_single.mode_header_id = mode_header.mode_header_id"
             + " AND mode_cts.mode_header_id = mode_obj_single.mode_header_id"
             + " AND mode_cts.field = 'OBJECT'";
@@ -2597,10 +2606,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     strNumSelect =
         "SELECT DISTINCT "
             + "  ld.n_" + type + "  "
-            + "FROM "
+            + " FROM "
             + "  stat_header h, "
             + "  " + table + " ld "
-            + "WHERE "
+            + " WHERE "
             + strWhere
             + "  AND h.stat_header_id = ld.stat_header_id;";
 
@@ -2640,11 +2649,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     if (binColumnName != null) {
       strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + " ";
     }
-    strPlotDataSelect = strPlotDataSelect + "FROM "
+    strPlotDataSelect = strPlotDataSelect + " FROM "
                             + "  stat_header h, "
                             + "  " + table + " ld, "
                             + "  " + tableBins + " ldr "
-                            + "WHERE "
+                            + " WHERE "
                             + strWhere
                             + "  AND h.stat_header_id = ld.stat_header_id "
                             + "  AND ld.line_data_id = ldr.line_data_id "
@@ -2716,19 +2725,17 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
     strWhere = strWhere + strWhereSeries;
 
-
     //  check to ensure only a single obs_thresh is used
     String strObsThreshSelect =
-        "SELECT   DISTINCT(h.obs_thresh) "
-            + "FROM "
-            + "  stat_header h, "
-            + "  " + (boolRelyPlot || job.getRocPct() ? "line_data_pct" : "line_data_ctc")
-            + " ld "
-            + "WHERE "
-            + strWhere
-            + "  AND h.stat_header_id = ld.stat_header_id "
-            + "ORDER BY h.obs_thresh;";
-
+        "SELECT DISTINCT h.obs_thresh "
+            + " FROM `" + getBucket().name() + "` AS h "
+            + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id"
+            + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+            + " ld.type = \'line\' AND ld.line_type = "
+            + (boolRelyPlot || job.getRocPct() ? "\'pct\'" : "\'ctc\'")
+            + " AND h.type = \'header\' "
+            + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']"
+            + " ORDER BY h.obs_thresh;";
 
     if (printStreamSql != null) {
       printStreamSql.println(strObsThreshSelect + " ");
@@ -2741,19 +2748,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     if (boolRelyPlot || job.getRocPct()) {
 
       //  check to ensure only a single fcst_thresh is used
-      String strFcstThreshSelect =
-          "SELECT ";
-
-      strFcstThreshSelect = strFcstThreshSelect + "  DISTINCT(h.fcst_thresh) thresh ";
+      String strFcstThreshSelect = "SELECT DISTINCT h.fcst_thresh thresh ";
 
       strFcstThreshSelect = strFcstThreshSelect
-                                + "FROM "
-                                + "  stat_header h, "
-                                + "  line_data_pct ld "
-                                + "WHERE "
-                                + strWhere
-                                + "  AND h.stat_header_id = ld.stat_header_id "
-                                + "ORDER BY h.fcst_thresh;";
+              + " FROM `" + getBucket().name() + "` AS h "
+              + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id"
+              + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+              + " ld.type = \'line\' AND ld.line_type = \'pct\'"
+              + " AND h.type = \'header\' "
+              + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']"
+              + " ORDER BY h.fcst_thresh;";
 
 
       if (printStreamSql != null) {
@@ -2776,11 +2780,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                 + "  ldt.oy_i oy_i, "
                                 + "  ldt.on_i on_i ";
 
-        strPlotDataSelect = strPlotDataSelect + "FROM "
+        strPlotDataSelect = strPlotDataSelect + " FROM "
                                 + "  stat_header h, "
                                 + "  line_data_pct ld, "
                                 + "  line_data_pct_thresh ldt "
-                                + "WHERE "
+                                + " WHERE "
                                 + strWhere
                                 + "  AND h.stat_header_id = ld.stat_header_id "
                                 + "  AND ld.line_data_id = ldt.line_data_id;";
@@ -2792,11 +2796,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                 + "  SUM(ldt.oy_i) oy_i, "
                                 + "  SUM(ldt.on_i) on_i ";
 
-        strPlotDataSelect = strPlotDataSelect + "FROM "
+        strPlotDataSelect = strPlotDataSelect + " FROM "
                                 + "  stat_header h, "
                                 + "  line_data_pct ld, "
                                 + "  line_data_pct_thresh ldt "
-                                + "WHERE "
+                                + " WHERE "
                                 + strWhere
                                 + "  AND h.stat_header_id = ld.stat_header_id "
                                 + "  AND ld.line_data_id = ldt.line_data_id "
@@ -2811,23 +2815,22 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     } else if (job.getRocCtc()) {
 
       strPlotDataSelect =
-          "SELECT   h.fcst_thresh thresh, ";
+          "SELECT h.fcst_thresh thresh, ";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ", ";
       }
-      strPlotDataSelect = strPlotDataSelect + "  ld.total, "
-                              + "  SUM(ld.fy_oy) fy_oy, "
-                              + "  SUM(ld.fy_on) fy_on, "
-                              + "  SUM(ld.fn_oy) fn_oy, "
-                              + "  SUM(ld.fn_on) fn_on "
-                              + "FROM "
-                              + "  stat_header h, "
-                              + "  line_data_ctc ld "
-                              + "WHERE "
-                              + strWhere
-                              + "  AND h.stat_header_id = ld.stat_header_id "
-                              + "GROUP BY "
-                              + "  h.fcst_thresh";
+      strPlotDataSelect = strPlotDataSelect
+              + " SUM(tonumber(ld.fy_oy)) fy_oy, "
+              + " SUM(tonumber(ld.fy_on)) fy_on, "
+              + " SUM(tonumber(ld.fn_oy)) fn_oy, "
+              + " SUM(tonumber(ld.fn_on)) fn_on "
+              + " FROM `" + getBucket().name() + "` AS h "
+              + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id "
+              + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ctc\' "
+              + " AND h.type = \'header\' AND h.header_type = \'stat\' "
+              + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']"
+              + " GROUP BY "
+              + " h.fcst_thresh";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }
@@ -2944,10 +2947,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String strNumSelect =
         "SELECT DISTINCT "
             + "  ld.n_pnt "
-            + "FROM "
+            + " FROM "
             + "  stat_header h, "
             + "  line_data_eclv ld "
-            + "WHERE "
+            + " WHERE "
             + strWhere
             + "  AND h.stat_header_id = ld.stat_header_id;";
 
@@ -3020,11 +3023,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                             + "  ldt.x_pnt_i, "
                             + "  ldt.y_pnt_i  ";
 
-    strPlotDataSelect = strPlotDataSelect + "FROM "
+    strPlotDataSelect = strPlotDataSelect + " FROM "
                             + "  stat_header h, "
                             + "  line_data_eclv ld, "
                             + "  line_data_eclv_pnt ldt "
-                            + "WHERE "
+                            + " WHERE "
                             + strWhere
                             + "  AND h.stat_header_id = ld.stat_header_id "
                             + "  AND ld.line_data_id = ldt.line_data_id";
