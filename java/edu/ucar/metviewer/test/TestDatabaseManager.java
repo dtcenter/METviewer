@@ -19,7 +19,7 @@ public class TestDatabaseManager {
         databaseInfo.setDbName(dbName);
         TestDBManager databaseManager = null;
 
-        // NOTE: the funky contstuctor using reflection is to enable us to build
+        // NOTE: the contstuctor using reflection is to enable us to build
         // a mysql version without a couchbase dependency
         // and a CB version without a mysql dependency.
         // The build.xml will conditionally leave out the unwanted

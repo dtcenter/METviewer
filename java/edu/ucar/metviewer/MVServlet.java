@@ -768,6 +768,7 @@ public class MVServlet extends HttpServlet {
 
       rscript = bundle.getString("rscript.bin");
 
+      // create any missing directories
       File directory;
       plotXml = bundle.getString("folders.plot_xml");
       directory = new File(plotXml);

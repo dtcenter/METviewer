@@ -51,6 +51,9 @@ public abstract class DatabaseManager {
         databaseInfo.setDbName(dbName);
         DatabaseManager databaseManager = null;
         switch (dbType) {
+            // It is necessary to use Class.forName for the specialized
+            // DatabaseManager construction so as to not create a
+            // dependency on the specialized database jar files.
             case "mysql":
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
                         ".MysqlLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
@@ -76,6 +79,10 @@ public abstract class DatabaseManager {
         databaseInfo.setDbName(dbName);
         DatabaseManager databaseManager = null;
         switch (dbType) {
+            // It is necessary to use Class.forName for the specialized
+            // DatabaseManager construction so as to not create a
+            // dependency on the specialized database jar files.
+
             case "mysql":
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
                         ".MysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
@@ -97,7 +104,7 @@ public abstract class DatabaseManager {
         DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
         DatabaseManager databaseManager = null;
         PrintWriter pw = null;
-        // NOTE: the funky contstuctor using reflection is to enable us to build
+        // NOTE: the contstuctor using reflection is to enable us to build
         // a mysql version without a couchbase dependency
         // and a CB version without a mysql dependency.
         // The build.xml will conditionally leave out the unwanted
