@@ -37,13 +37,13 @@
     "metviewer-test".
 
     example build command...
-    ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
-         -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
+    ant -Dbuild.properties.file=/Users/fred/Ideaprojects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
+         -Dlog4j2.file=/Users/fred/Ideaprojects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
          -Ddb.management.system=cb \
          -Dcontext.path.suffix="-cb" clean all
 
     will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
-    $HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
+    /Users/fred/Ideaprojects//METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
     named metviewer-test.tar also with libraries appropriate for couchbase.
 
     -->
