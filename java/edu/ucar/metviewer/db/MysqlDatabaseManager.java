@@ -32,24 +32,22 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class MysqlDatabaseManager extends DatabaseManager{
+public class MysqlDatabaseManager extends DatabaseManager {
 
+  protected static final String BINARY = "  BINARY ";
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
+  private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
   protected static final SimpleDateFormat DATE_FORMAT =
-          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-  protected static final DateTimeFormatter DATE_FORMAT_1
-          = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
+      new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
+  protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
+                                                                .ofPattern(DATE_FORMAT_STRING);
   private DataSource dataSource;
-  protected static final String BINARY ="  BINARY ";
 
 
-
-
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
-      super(databaseInfo);
+  public MysqlDatabaseManager(DatabaseInfo databaseInfo) {
+    super(databaseInfo);
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
       jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();

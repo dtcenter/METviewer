@@ -15,12 +15,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
@@ -282,17 +280,15 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       int intLine = 0;
 
       while (res.next()) {
-        String line = "";
+        StringBuilder line = new StringBuilder();
         for (int i = 1; i <= met.getColumnCount(); i++) {
           String strVal;
           String objectType = met.getColumnTypeName(i);
 
 
           if (objectType.equals("DATETIME")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Timestamp ts = res.getTimestamp(i, cal);
-            strVal = DATE_FORMAT.format(ts);
+            LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
+            strVal=DATE_FORMATTER.format(ts);
           } else {
 
             strVal = res.getString(i);
@@ -303,16 +299,16 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
           }
 
           if (delim.equals(" ")) {
-            line = line + (MVUtil.padEnd(strVal, intFieldWidths[i - 1]));
+            line.append(MVUtil.padEnd(strVal, intFieldWidths[i - 1]));
           } else {
             if (1 == i) {
-              line = line + (strVal);
+              line.append(strVal);
             } else {
-              line = line + (delim + strVal);
+              line.append(delim).append(strVal);
             }
           }
         }
-        bufferedWriter.write(line);
+        bufferedWriter.write(line.toString());
         bufferedWriter.write(System.getProperty("line.separator"));
         intLine++;
 

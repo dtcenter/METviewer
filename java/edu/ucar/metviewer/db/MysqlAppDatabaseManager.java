@@ -15,11 +15,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -605,22 +603,21 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       int intLine = 0;
 
       while (res.next()) {
-        String line = "";
+        StringBuilder line = new StringBuilder();
         for (int i = 1; i <= met.getColumnCount(); i++) {
           String strVal;
           String objectType = met.getColumnTypeName(i);
 
 
           if (objectType.equals("DATETIME")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Timestamp ts = res.getTimestamp(i, cal);
-            strVal = DATE_FORMAT.format(ts);
+            LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
+            strVal = DATE_FORMATTER.format(ts);
           } else {
-
             strVal = res.getString(i);
-            if (strVal == null || strVal.equalsIgnoreCase("null") || strVal.equalsIgnoreCase(
-                "-9999")) {
+
+            if (strVal == null
+                    || strVal.equalsIgnoreCase("null")
+                    || strVal.equalsIgnoreCase("-9999")) {
               strVal = "NA";
             }
 
@@ -628,13 +625,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
           if (1 == i) {
-            line = line + (strVal);
+            line.append(strVal);
           } else {
-            line = line + (delim + strVal);
+            line.append(delim).append(strVal);
           }
 
         }
-        bufferedWriter.write(line);
+        bufferedWriter.write(line.toString());
         bufferedWriter.write(System.getProperty("line.separator"));
         intLine++;
 
@@ -1150,7 +1147,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strStat = "ECLV";
           }
         }
-        if(!selectList.contains("fcst_var")) {
+        if (!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
         }
 
@@ -1578,12 +1575,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
       //add BINARY for all fields except HOUR(...)
       String field;
-      if(indyVarFormatted.startsWith("HOUR(")){
+      if (indyVarFormatted.startsWith("HOUR(")) {
         field = indyVarFormatted;
-      }else{
+      } else {
         field = BINARY + indyVarFormatted;
       }
-      whereClause += (0 < i ? "  AND " : "  ") + field+ " " + condition + "\n";
+      whereClause += (0 < i ? "  AND " : "  ") + field + " " + condition + "\n";
     }
 
     return whereClause;
@@ -1621,14 +1618,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       } else {
         String strWhereForQuery = whereClause.replace("h.", "");
         String newStat = stat.replace("_D", "_F");
-       // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
+        // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
         String query1 = buildModeSingleStatTable(selectList + ",  h.object_id",
-                     strWhereForQuery, newStat,
+                                                 strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
         newStat = stat.replace("_D", "_O");
         String query2 = buildModeSingleStatTable(selectList + ",  h.object_id",
-                             strWhereForQuery, newStat,
+                                                 strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
 
@@ -2163,7 +2160,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + " ) s, ( " + table2 + " ) s2\n"
             + "WHERE\n"
             + " s.fcst_var = s2.fcst_var\n";
-    if(!table1.contains(MVUtil.COUNT)) {
+    if (!table1.contains(MVUtil.COUNT)) {
       result += " AND" + BINARY + " SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3) \n";
     }
     if (!tableStat.contains("object_id")) {
@@ -2628,7 +2625,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg+ "\n");
+      printStream.println(strMsg + "\n");
     }
 
 
@@ -2897,7 +2894,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                                           job.getCurrentDBName().get(i),
                                                           i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        printStream.println(mvResponse.getInfoMessage()+ "\n");
+        printStream.println(mvResponse.getInfoMessage() + "\n");
       }
     }
 
@@ -2975,7 +2972,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg+ "\n");
+      printStream.println(strMsg + "\n");
     }
 
 
