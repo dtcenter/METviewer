@@ -37,13 +37,13 @@
     "metviewer-test".
 
     example build command...
-    ant -Dbuild.properties.file=/Users/fred/Ideaprojects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
-         -Dlog4j2.file=/Users/fred/Ideaprojects/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
+    ant -Dbuild.properties.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties \
+         -Dlog4j2.file=$HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.log4j2.xml \
          -Ddb.management.system=cb \
          -Dcontext.path.suffix="-cb" clean all
 
     will produce a war file named metviewer-cb.war with jar files appropriate for couchbase and the properties from the
-    /Users/fred/Ideaprojects//METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
+    $HOME/METViewer/webapp/metviewer/WEB-INF/classes/buildCB-model-vxtest.properties file, and a tar file
     named metviewer-test.tar also with libraries appropriate for couchbase.
 
     -->
@@ -318,17 +318,20 @@
     </target>
 
     <!-- Delete the ${build} and ${dist} directory trees -->
-    <target name="clean" description="clean up">
+    <target name="clean" description="clean up" depends="restore_properties">
         <delete dir="${build}"/>
         <delete dir="${dist}"/>
     </target>
 
-    <target name="war" depends="webapp" description="Create web archive">
-        <!-- copy original mvservlet.properties file -->
-        <copy file="${mvservlet.property.file.orig}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties" overwrite="true"/>
-        <!-- copy the log4j2.xml file from the defined one - might be the original - might not. -->
-        <copy file="${log4j2.file}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
+    <target name="war" depends="replace_properties,webapp" description="Create web archive">
+        <war destfile="${dist}/metviewer${context.path.suffix}.war"
+             webxml="${dist}/metviewer/WEB-INF/web.xml"
+             basedir="${dist}/metviewer">
+        </war>
+        <antcall target="restore_properties"/>
+    </target>
 
+    <target name="replace_properties" depends="init,restore_properties">
         <!-- replace properties file values  -->
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="rscript.bin=(.*)"
@@ -396,14 +399,13 @@
                        byline="true"/>
 
         <delete file="${dist}/metviewer*.war"/>
-        <war destfile="${dist}/metviewer${context.path.suffix}.war"
-             webxml="${dist}/metviewer/WEB-INF/web.xml"
-             basedir="${dist}/metviewer">
-        </war>
+    </target>
+
+    <target name="restore_properties">
         <!-- restore original mvservlet.properties file -->
-        <copy file="${mvservlet.property.file.orig}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties" overwrite="true"/>
+        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties" overwrite="true"/>
         <!-- restore the original log4j2.xml file -->
-        <copy file="${log4j2.file.orig}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
+        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
     </target>
 
     <target name="batch_load" depends="dist, test.db.management.system" description="Create load_batch module">

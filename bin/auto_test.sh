@@ -29,7 +29,7 @@
 #	which might require a few modifications here.
 
 
-usage() { echo "Usage: $0  -U <git user> -t<path to METviewer test directory> -b<git branch>
+usage() { echo "Usage: $0  -U <git user> -t<path to METviewer test directory> -s<db management system> -b<git branch>
 -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METviewer home>
 [-c(capture new images)] [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>]
 [-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>]
@@ -43,7 +43,7 @@ export git_user=""
 export METviewerTag="HEAD"
 export METviewerCompareTag="HEAD"
 export capture=""
-while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
+while getopts "U:t:b:B:s:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
     case "${o}" in
     	c)
             capture="-c"
@@ -60,6 +60,14 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
             ;;
         B)
             export METviewerCompareBranch=${OPTARG}
+            ;;
+        s)
+            optarglower=$(echo ${OPTARG} | /bin/tr '[:upper:]' '[:lower:]')
+            if [ "${optarglower}" != "mysql" -a "${optarglower}" != "cb" ]; then
+                echo "db management system ${OPTARG} is not mysql or cb"
+                usage
+            fi
+            export managementSystem=${optarglower}
             ;;
         l)
 			if [ ! -d "${OPTARG}" ]; then
@@ -97,13 +105,13 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
             ;;
         j)
 			if [ ! -x "${OPTARG}" ]; then
-				echo "file ${OPTARG} does not exist or is not executible"
+				echo "file ${OPTARG} does not exist or is not executable"
 				usage
 			fi
             export JAVA=${OPTARG}
 			$JAVA -version
 			if [ "$?" -ne "0" ]; then
-			   echo "You provided a bad java executible";
+			   echo "You provided a bad java executable";
 			   usage;
 			fi
             ;;
@@ -119,7 +127,7 @@ if [ -z ${JAVA+x} ]; then
 fi
 $JAVA -version
 if [ "$?" -ne "0" ]; then
-   echo "You do not have a java executible in your path";
+   echo "You do not have a java executable in your path";
    exit 1;
 fi
 # check for mandatory params
@@ -256,7 +264,7 @@ if [ $ret -ne 0 ]; then
 	fi
 	exit $ret
 fi
-ant all
+ant all -Ddb.management.system=${managementSystem}
 ret=$?
 if [ $ret -ne 0 ]; then
 	#send a note
