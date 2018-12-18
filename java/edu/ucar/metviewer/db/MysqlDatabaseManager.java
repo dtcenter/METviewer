@@ -59,7 +59,7 @@ public class MysqlDatabaseManager extends DatabaseManager{
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
     configurationToUse.setPassword(databaseInfo.getPassword());
-    configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
+    configurationToUse.setDriverClassName("org.mariadb.jdbc.Driver");
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
     configurationToUse.setMaxIdle(15);

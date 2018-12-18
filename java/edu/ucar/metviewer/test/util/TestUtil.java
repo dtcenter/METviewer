@@ -211,7 +211,7 @@ public class TestUtil {
     verbose = true;
     sql = false;
     job_name = null;
-    driver = "com.mysql.jdbc.Driver";
+    driver = "org.mariadb.jdbc.Driver";
   }
 
   private TestUtil() {
