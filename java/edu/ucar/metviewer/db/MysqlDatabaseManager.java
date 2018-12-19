@@ -34,25 +34,25 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  */
 public class MysqlDatabaseManager extends DatabaseManager {
 
-  protected static final String BINARY = "  BINARY ";
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-  protected static final SimpleDateFormat DATE_FORMAT =
-      new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
-  protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
-                                                                .ofPattern(DATE_FORMAT_STRING);
+
+  public static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
+
+  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_STRING);
+
+
   private DataSource dataSource;
+  public static final String BINARY ="  BINARY ";
+
 
 
   public MysqlDatabaseManager(DatabaseInfo databaseInfo) {
     super(databaseInfo);
-    String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
-    if (databaseInfo.getDbName() != null) {
-      jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
-    }
-    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+    String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
@@ -93,6 +93,15 @@ public class MysqlDatabaseManager extends DatabaseManager {
       updateGroups = true;
     }
     initDBList(updateGroups);
+  }
+
+  private String getJdbcUrl(final String hostName, final String dbName) {
+    String jdbcUrl = "jdbc:mysql://" + hostName;
+    if (dbName != null) {
+      jdbcUrl = jdbcUrl + "/" + dbName;
+    }
+    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+    return jdbcUrl;
   }
 
   public void initDBList(boolean updateGroups) {
