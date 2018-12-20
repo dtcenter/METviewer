@@ -1,6 +1,10 @@
 #!/bin/bash
 
-JAVA=/usr/local/jdk/bin/java
+if [[ ! -z "${JAVA_HOME}" ]]; then
+    JAVA_HOME=/usr/local/jdk
+fi
+JAVA=${JAVA_HOME}/bin/java
+
 if [[ ! -z "${MV_HOME}" ]]; then
     MV_HOME=/d3/projects/METViewer/src/apps/METviewer
 fi
