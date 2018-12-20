@@ -11,7 +11,7 @@ export MV_TYPE="mysql"
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
-while getopts "t:m:d:u:p:P:h:j:cnl:T?" o; do
+while getopts "t:m:d:u:p:P:s:h:j:cnl?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -39,12 +39,13 @@ while getopts "t:m:d:u:p:P:h:j:cnl:T?" o; do
         P)
             MV_PORT=${OPTARG}
             ;;
+        s)
+            MV_TYPE=${OPTARG}
+            ;;
         h)
             MV_HOST=${OPTARG}
             ;;
-        T)
-            MV_TYPE=${OPTARG}
-            ;;
+
         j)
 			if [ ! -x "${OPTARG}" ]; then
 				echo "file ${OPTARG} does not exist or is not executible"
