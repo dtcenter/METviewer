@@ -44,7 +44,7 @@ export git_user=""
 export METviewerTag="HEAD"
 export METviewerCompareTag="HEAD"
 export capture=""
-while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c:T?" o; do
+while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T?" o; do
     case "${o}" in
     	c)
             capture="-c"
@@ -96,7 +96,7 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c:T?" o; do
         P)
             mv_port=${OPTARG}
             ;;
-        T)
+        s)
             mv_type=${OPTARG}
             ;;
         j)
@@ -276,14 +276,14 @@ fi
 # run the mv_test
 #send a note
 if [ "X$addressList" != "X" ]; then
-	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -T${mv_type} -l ${capture} -n> ${logfile}"
-	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -T${mv_type} -l ${capture} -n > ${logfile}
+	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -s${mv_type} -l ${capture} -n> ${logfile}"
+	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${mv_type} -l ${capture} -n > ${logfile}
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METviewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
 else
-	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -T${mv_type} -l ${capture} -n"
-    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -Y${mv_type} -l ${capture} -n
+	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${mv_type} -l ${capture} -n"
+    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${mv_type} -l ${capture} -n
 	ret=$?
 	echo mv_test ret is $ret
 fi
