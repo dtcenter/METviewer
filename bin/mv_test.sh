@@ -7,6 +7,7 @@ export MV_USER="mvuser"
 export MV_PASSWD="mvuser"
 export MV_HOST="dakota.rap.ucar.edu"
 export MV_PORT=3306
+export MV_TYPE="mysql"
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
@@ -40,6 +41,9 @@ while getopts "t:m:d:u:p:P:h:j:cnl?" o; do
             ;;
         h)
             MV_HOST=${OPTARG}
+            ;;
+        t)
+            MV_TYPE=${OPTARG}
             ;;
         j)
 			if [ ! -x "${OPTARG}" ]; then
@@ -124,7 +128,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
 
 echo "Running allRestRunner"
 
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA"
 echo "---------"
 cd ${MV_HOME}
 #echo "*******"
