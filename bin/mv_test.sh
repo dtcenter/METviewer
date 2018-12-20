@@ -11,7 +11,7 @@ export MV_TYPE="mysql"
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
-while getopts "t:m:d:u:p:P:h:j:cnl?" o; do
+while getopts "t:m:d:u:p:P:h:j:cnl:T?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
