@@ -308,6 +308,10 @@ public class TestUtil {
         nodeList.item(i)
             .setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
       }
+      tag = "management_system";
+      Element managementSystem = doc.createElement(tag);
+      managementSystem.setTextContent(TestUtil.type);
+      nodeList.item(0).appendChild(managementSystem);
 
       //assign a group name
       if (fpath.contains("load")) {
