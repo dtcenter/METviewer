@@ -311,6 +311,7 @@ public class TestUtil {
       tag = "management_system";
       Element managementSystem = doc.createElement(tag);
       managementSystem.setTextContent(TestUtil.type);
+      nodeList = doc.getElementsByTagName("connection");
       nodeList.item(0).appendChild(managementSystem);
 
       //assign a group name
