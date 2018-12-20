@@ -57,21 +57,6 @@ public class MVLoadJob {
     this._strDBManagementSystem = _strDBManagementSystem;
   }
 
-  public String getDBDriver() {
-    if (_strDBDriver == null) {
-      if (getDBManagementSystem().equals("mysql")) {
-        _strDBDriver = "org.mariadb.jdbc.Driver";
-      } else if (getDBManagementSystem().equals("mariadb")) {
-        _strDBDriver = "org.postgresql.Driver";
-      }
-    }
-    return _strDBDriver;
-
-  }
-
-  public void setDBDriver(String _strDBDriver) {
-    this._strDBDriver = _strDBDriver;
-  }
 
   public String getDBHost() {
     return _strDBHost;
