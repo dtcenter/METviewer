@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
@@ -959,10 +958,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       String strLineDataTable = "line_data_" + mvLoadStatInsertData.getLineType()
                                                    .toLowerCase(Locale.US);
 
-      int resLineDataInsertCount = executeBatch(listValues, strLineDataTable);
-      if (listValues.size() != resLineDataInsertCount) {
-        logger.warn("  **  WARNING: unexpected result from line_data INSERT: " +
-                        resLineDataInsertCount + "\n        " + mvLoadStatInsertData.getFileLine());
+      boolean resLineDataInsertCount = executeBatch(listValues, strLineDataTable);
+      if (!resLineDataInsertCount) {
+        logger.warn(
+            "  **  WARNING: unexpected result from line_data INSERT: "
+                + mvLoadStatInsertData.getFileLine());
       }
       listInserts[INDEX_LINE_DATA]++;
     }
@@ -2829,7 +2829,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
 
-  private int executeBatch(final List<String> listValues, final String table) throws Exception {
+  private boolean executeBatch(final List<String> listValues, final String table) throws Exception {
 
     String insertSql = "INSERT INTO " + table + " VALUES " + "(";
     int numberOfValues = listValues.get(0).split(",").length;
@@ -2838,11 +2838,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     insertSql = insertSql.substring(0, insertSql.length() - 1);
     insertSql = insertSql + ")";
-    int totalInsert = 0;
+    boolean result = true;
     Connection con = null;
     Statement stmt = null;
     PreparedStatement ps = null;
-    IntStream intStream = null;
     try {
       con = getConnection();
       stmt = con.createStatement();
@@ -2858,21 +2857,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         ps.addBatch();
 
         //execute and commit batch of 20000 queries
-        if (i != 0 && i % 20000 == 0) {
+        if (i != 0 && i % 20000 == 0 && result) {
           int[] updateCounts = ps.executeBatch();
-          intStream = IntStream.of(updateCounts);
-          totalInsert = totalInsert + intStream.sum();
-          intStream.close();
+          if (updateCounts[0] < 0 && updateCounts[0] != Statement.SUCCESS_NO_INFO) {
+            result = false;
+          }
           ps.clearBatch();
         }
       }
-
-      int[] updateCounts = ps.executeBatch();
-      intStream = IntStream.of(updateCounts);
-      totalInsert = totalInsert + IntStream.of(updateCounts).sum();
-      intStream.close();
+      if (result) {
+        int[] updateCounts = ps.executeBatch();
+        if (updateCounts[0] < 0 && updateCounts[0] != Statement.SUCCESS_NO_INFO) {
+          result = false;
+        }
+      }
 
     } catch (SQLException se) {
+
       throw new Exception("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
       if (ps != null) {
@@ -2884,11 +2885,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       if (con != null) {
         con.close();
       }
-      if (intStream != null) {
-        intStream.close();
-      }
+
     }
-    return totalInsert;
+    return result;
   }
 
   /**
