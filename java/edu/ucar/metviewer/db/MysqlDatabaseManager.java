@@ -205,7 +205,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
         rs = statement.executeQuery("use " + db);
 
       } catch (SQLException e) {
-        logger.error(e.getMessage());
+        logger.error("can't get connection for database " + db + " " +e.getMessage());
       } finally {
         if (statement != null) {
           statement.close();
@@ -229,7 +229,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
     try {
       con = dataSource.getConnection();
     } catch (SQLException e) {
-      logger.error(e.getMessage());
+      logger.error("can't get connection " +e.getMessage());
     }
     return con;
   }
