@@ -95,7 +95,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
     initDBList(updateGroups);
   }
 
-  private String getJdbcUrl(final String hostName, final String dbName) {
+  protected String getJdbcUrl(final String hostName, final String dbName) {
     String jdbcUrl = "jdbc:mysql://" + hostName;
     if (dbName != null) {
       jdbcUrl = jdbcUrl + "/" + dbName;

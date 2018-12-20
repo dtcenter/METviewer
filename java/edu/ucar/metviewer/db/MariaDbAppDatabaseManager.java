@@ -18,7 +18,9 @@ public class MariaDbAppDatabaseManager extends MysqlAppDatabaseManager {
     super(databaseInfo);
   }
 
-  private String getJdbcUrl(final String hostName, final String dbName) {
+
+  @Override
+  protected String getJdbcUrl(final String hostName, final String dbName) {
     String jdbcUrl = "jdbc:mariadb://" + hostName;
     if (dbName != null) {
       jdbcUrl = jdbcUrl + "/" + dbName;
