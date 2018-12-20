@@ -215,6 +215,8 @@ public class MysqlDatabaseManager extends DatabaseManager {
         }
 
       }
+    }else{
+      logger.error("Database " + db + " is invalid");
     }
     return con;
   }
