@@ -976,7 +976,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                  + " + (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) ) ";
         }
-        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + BINARY + indyVarFormatted
+        String field;
+        if (indyVarFormatted.startsWith("HOUR(")) {
+          field = indyVarFormatted;
+        } else {
+          field = BINARY + indyVarFormatted;
+        }
+        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
                            + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
       }
       //  add fcst_var to the select list and temp table entries
