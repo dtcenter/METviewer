@@ -624,16 +624,21 @@ public class TestUtil {
       String host, String userName, String password, String database) {
     Connection aConn = null;
     Statement aStmt = null;
+    String command = "CREATE DATABASE IF NOT EXISTS ";
+    String serverName = host.split(":")[0];// don't need the port here
     try {
       MariaDbDataSource aDataSource = new MariaDbDataSource();
       aDataSource.setUser(userName);
       aDataSource.setPassword(password);
-      aDataSource.setServerName(host.split(":")[0]); // don't need the port here
+      aDataSource.setServerName(serverName);
       aDataSource.setPort(Integer.parseInt(host.split(":")[1])); // don't need the port here
       aConn = aDataSource.getConnection();
       aStmt = aConn.createStatement();
-      aStmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + database + ";");
+
+      aStmt.executeUpdate(command + database);
     } catch (Exception e) {
+      out.println("User " + userName + " failed to run command  '" + command + database + "' on "
+                      + "server " + serverName);
       out.println(e.getMessage());
     } finally {
       if (aConn != null) {
