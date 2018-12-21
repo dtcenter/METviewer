@@ -1,7 +1,7 @@
 /**
- * DatabaseManagerMySQL.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
- * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
- * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * DatabaseManagerSql.java Copyright UCAR (c) 2018. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2018.
  */
 
 package edu.ucar.metviewer.scorecard.db;
@@ -13,19 +13,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -34,23 +30,26 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static edu.ucar.metviewer.db.MysqlDatabaseManager.BINARY;
+import static edu.ucar.metviewer.db.MysqlDatabaseManager.DATE_FORMATTER;
+
 /**
  * @author : tatiana $
- * @version : 1.0 : 07/02/17 11:32 $
+ * @version : 1.0 : 2018-12-18 10:58 $
  */
-public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implements DatabaseManager {
+public abstract class DatabaseManagerSql implements DatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("DatabaseManagerMySQL");
-
+  private static final Logger logger = LogManager.getLogger("DatabaseManagerSql");
   private final Map<String, List<Entry>> columnsDescription;
   private final String databaseName;
   private final List<Field> fixedVars;
   private final Boolean printSQL;
   String aggStatDataFilePath;
+  private MysqlDatabaseManager databaseManager;
 
-
-  DatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
-    super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()));
+  DatabaseManagerSql(
+      final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
+    this.databaseManager = databaseManager;
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
     databaseName = scorecard.getDatabaseName();
@@ -61,8 +60,10 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
   protected abstract String getStatValue(String table, String stat);
 
+
   @Override
-  public void createDataFile(Map<String, Entry> map, String threadName) throws Exception {
+  public void createDataFile(
+      Map<String, Entry> map, String threadName) throws Exception {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -75,7 +76,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
                                                                            .substring(lastDot);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      try (Connection con = getConnection(databaseName);
+      try (Connection con = databaseManager.getConnection(databaseName);
            PreparedStatement pstmt = con.prepareStatement(mysql);
            ResultSet res = pstmt.executeQuery();
            FileWriter fstream = new FileWriter(new File(thredFileName), false);
@@ -109,6 +110,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     if (aggType.contains("nbr")) {
       aggType = aggType.replace("_", "");
     }
+
     String table = "line_data_" + aggType;
 
 
@@ -127,8 +129,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     }
     for (Field fixedField : fixedVars) {
       StringBuilder values = new StringBuilder();
-      if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg"
-                                                               .equals(fixedField.getName())) {
+      if ("fcst_valid_beg".equals(fixedField.getName())
+              || "fcst_init_beg".equals(fixedField.getName())) {
         whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
             .append(fixedField.getValues().get(0).getName()).append("' AND '")
             .append(fixedField.getValues().get(1).getName()).append("' AND ");
@@ -196,7 +198,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       Map<String, Integer> pctThreshInfo = new HashMap<>();
 
       String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
-      try (Connection con = getConnection(databaseName);
+      try (Connection con = databaseManager.getConnection(databaseName);
            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                 ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(mysql);
@@ -289,10 +291,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
 
           if (objectType.equals("DATETIME")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Timestamp ts = res.getTimestamp(i, cal);
-            strVal = DATE_FORMAT.format(ts);
+            LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
+            strVal = DATE_FORMATTER.format(ts);
           } else {
 
             strVal = res.getString(i);
@@ -328,5 +328,4 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
           "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
-
 }

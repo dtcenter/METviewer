@@ -6,6 +6,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -103,6 +104,7 @@ public class MVServlet extends HttpServlet {
   public static String urlOutput = "";
   public static String data = "";
   public static String scripts = "";
+  public static String managementSystem = "";
   public static boolean isValCache = false;
   public static boolean isStatCache = false;
   public static AppDatabaseManager databaseManager;
@@ -389,6 +391,7 @@ public class MVServlet extends HttpServlet {
             + "<database>" + databases + "</database>"
             + "<user>" + "******" + "</user>"
             + "<password>" + "******" + "</password>"
+            + "<management_system>" + managementSystem + "</management_system>"
             + "</connection>"
             + (rscript.equals("") ? "" : "<rscript>" + rscript + "</rscript>")
             + "<folders>"
@@ -486,6 +489,8 @@ public class MVServlet extends HttpServlet {
         //Begin write DOM to file
 
         TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+
         Transformer transformer = tf.newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
@@ -757,8 +762,10 @@ public class MVServlet extends HttpServlet {
     logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
+
+      managementSystem = bundle.getString("db.managementSystem");
       databaseManager = (AppDatabaseManager) DatabaseManager.getAppManager(
-          bundle.getString("db.managementSystem"),
+          managementSystem,
           bundle.getString("db.host"),
           bundle.getString("db.user"),
           bundle.getString("db.password"));
@@ -1001,6 +1008,8 @@ public class MVServlet extends HttpServlet {
 
         //  instantiate and configure the xml parser
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
         dbf.setNamespaceAware(true);
         Document doc;
         try (ByteArrayInputStream byteArrayInputStream

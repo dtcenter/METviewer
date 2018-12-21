@@ -7,10 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
-import edu.ucar.metviewer.db.MysqlLoadDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;

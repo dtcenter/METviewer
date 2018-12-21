@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.commons.io.FileUtils;
+import org.mariadb.jdbc.MariaDbDataSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -49,34 +49,34 @@ import static org.junit.Assert.fail;
  */
 public class TestUtil {
 
-    public static final String FILE_SEPARATOR;
-    public static final String DATA_DIR;
-    public static final String SCRIPTS_DIR;
-    public static final String LOAD_DIR;
-    public static final String MET_DATA_DIR;
-    public static final String database;
-    public static final String USERNAME;
-    public static final String PWD;
-    public static final String HOST_NAME;
-    public static final String PORT;
-    public static final String host;
-    public static final String rscript;
-    public static final String TEMPLATE_DIR;
-    public static final String RWORK_DIR;
-    public static final String PLOTS_DIR;
+  public static final String FILE_SEPARATOR;
+  public static final String DATA_DIR;
+  public static final String SCRIPTS_DIR;
+  public static final String LOAD_DIR;
+  public static final String MET_DATA_DIR;
+  public static final String database;
+  public static final String USERNAME;
+  public static final String PWD;
+  public static final String HOST_NAME;
+  public static final String PORT;
+  public static final String host;
+  public static final String rscript;
+  public static final String TEMPLATE_DIR;
+  public static final String RWORK_DIR;
+  public static final String PLOTS_DIR;
 
-    private static final Comparator<File> FILE_NAME_COMPARATOR = new Comparator<File>() {
-        @Override
-        public int compare(File o1, File o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    };
+  private static final Comparator<File> FILE_NAME_COMPARATOR = new Comparator<File>() {
+    @Override
+    public int compare(File o1, File o2) {
+      return o1.getName().compareTo(o2.getName());
+    }
+  };
 
-    private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
-        @Override
-        public String getFileExtension() {
-            return ".png";
-        }
+  private static final CustomFilenameFilter PLOT_FILES_FILTER = new CustomFilenameFilter() {
+    @Override
+    public String getFileExtension() {
+      return ".png";
+    }
 
     @Override
     public String getActualDir() {
@@ -155,64 +155,64 @@ public class TestUtil {
   };
   public static String MV_BRANCH_TAG;
 
-    static {
-        FILE_SEPARATOR = System.getProperty("file.separator");
-        if (System.getProperty("mv_root_dir") == null) {
-            ROOT_DIR = "/d3/projects/METViewer/test_data";
-        } else {
-            ROOT_DIR = System.getProperty("mv_root_dir");  // This is the test dir/branch/tag
-        }
-        ROOT_COMPARE_DIR = System.getProperty(
-                "mv_root_compare_dir"); // used for comparing test results to previous captured data
-
-        if (System.getProperty("mv_host") == null) {
-            HOST_NAME = "dakota.rap.ucar.edu";
-        } else {
-            HOST_NAME = System.getProperty("mv_host");
-        }
-        if (System.getProperty("mv_port") == null) {
-            PORT = "3306";
-        } else {
-            PORT = System.getProperty("mv_port");
-        }
-        host = HOST_NAME + ":" + PORT;
-        RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
-        //PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
-        PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
-        //DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
-        DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
-        //SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
-        SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts" + FILE_SEPARATOR;
-        LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
-        MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
-        if (System.getProperty("mv_database") == null) {
-            database = "mv_test";
-        } else {
-            database = System.getProperty("mv_database");
-        }
-        if (System.getProperty("mv_user") == null) {
-            USERNAME = "mvuser";
-        } else {
-            USERNAME = System.getProperty("mv_user");
-        }
-        if (System.getProperty("mv_pwd") == null) {
-            PWD = "mvuser";
-        } else {
-            PWD = System.getProperty("mv_pwd");
-        }
-        if (System.getProperty("mv_type") == null) {
-            type = "mysql";
-        } else {
-            type = System.getProperty("mv_type");
-        }
-        rscript = "Rscript";
-        TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
-        list = false;
-        verbose = true;
-        sql = false;
-        job_name = null;
-        driver = "com.mysql.jdbc.Driver";
+  static {
+    FILE_SEPARATOR = System.getProperty("file.separator");
+    if (System.getProperty("mv_root_dir") == null) {
+      ROOT_DIR = "/d3/projects/METViewer/test_data";
+    } else {
+      ROOT_DIR = System.getProperty("mv_root_dir");  // This is the test dir/branch/tag
     }
+    ROOT_COMPARE_DIR = System.getProperty(
+        "mv_root_compare_dir"); // used for comparing test results to previous captured data
+
+    if (System.getProperty("mv_host") == null) {
+      HOST_NAME = "dakota.rap.ucar.edu";
+    } else {
+      HOST_NAME = System.getProperty("mv_host");
+    }
+    if (System.getProperty("mv_port") == null) {
+      PORT = "3306";
+    } else {
+      PORT = System.getProperty("mv_port");
+    }
+    host = HOST_NAME + ":" + PORT;
+    RWORK_DIR = ROOT_DIR + FILE_SEPARATOR + "R_work";
+    //PLOTS_DIR = RWORK_DIR + FILE_SEPARATOR + "plots";
+    PLOTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "plots" + FILE_SEPARATOR;
+    //DATA_DIR = RWORK_DIR + FILE_SEPARATOR + "data";
+    DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "data" + FILE_SEPARATOR;
+    //SCRIPTS_DIR = RWORK_DIR + FILE_SEPARATOR + "scripts";
+    SCRIPTS_DIR = ROOT_DIR + FILE_SEPARATOR + "output" + FILE_SEPARATOR + "scripts" + FILE_SEPARATOR;
+    LOAD_DIR = ROOT_DIR + FILE_SEPARATOR + "load_data";
+    MET_DATA_DIR = ROOT_DIR + FILE_SEPARATOR + "met_data";
+    if (System.getProperty("mv_database") == null) {
+      database = "mv_test";
+    } else {
+      database = System.getProperty("mv_database");
+    }
+    if (System.getProperty("mv_user") == null) {
+      USERNAME = "mvuser";
+    } else {
+      USERNAME = System.getProperty("mv_user");
+    }
+    if (System.getProperty("mv_pwd") == null) {
+      PWD = "mvuser";
+    } else {
+      PWD = System.getProperty("mv_pwd");
+    }
+    if (System.getProperty("mv_type") == null) {
+      type = "mysql";
+    } else {
+      type = System.getProperty("mv_type");
+    }
+    rscript = "Rscript";
+    TEMPLATE_DIR = ROOT_DIR + FILE_SEPARATOR + "R_tmpl/";
+    list = false;
+    verbose = true;
+    sql = false;
+    job_name = null;
+    driver = "org.mariadb.jdbc.Driver";
+  }
 
   private TestUtil() {
     throw new IllegalAccessError("Utility class");
@@ -308,6 +308,11 @@ public class TestUtil {
         nodeList.item(i)
             .setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
       }
+      tag = "management_system";
+      Element managementSystem = doc.createElement(tag);
+      managementSystem.setTextContent(TestUtil.type);
+      nodeList = doc.getElementsByTagName("connection");
+      nodeList.item(0).appendChild(managementSystem);
 
       //assign a group name
       if (fpath.contains("load")) {
@@ -358,8 +363,8 @@ public class TestUtil {
   }
 
   public static void comparePointsFilesWithoutNames(
-            String testDataDir, String axis,
-            String plotType) {
+      String testDataDir, String axis,
+      String plotType) {
 
     CustomFilenameFilter filenameFilter = null;
     if (axis.equals("1")) {
@@ -403,24 +408,24 @@ public class TestUtil {
   }
 
 
-    /**
-     * Compare the number of files, names (if requested) and contents
-     *
-     * @param testDataDir    - expected files root dir
-     * @param plotType       - use case
-     * @param isCompareNames - should the name comparison be executed
-     * @param filter         - custom file filter to use
-     */
-    private static void compareTextFiles(
-            String testDataDir, String plotType,
-            boolean isCompareNames, boolean isCompareContent,
-            CustomFilenameFilter filter) {
-        //get all test results datafiles
-        File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
-        File[] expectedFiles = dir.listFiles(filter);
+  /**
+   * Compare the number of files, names (if requested) and contents
+   *
+   * @param testDataDir    - expected files root dir
+   * @param plotType       - use case
+   * @param isCompareNames - should the name comparison be executed
+   * @param filter         - custom file filter to use
+   */
+  private static void compareTextFiles(
+      String testDataDir, String plotType,
+      boolean isCompareNames, boolean isCompareContent,
+      CustomFilenameFilter filter) {
+    //get all test results datafiles
+    File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
+    File[] expectedFiles = dir.listFiles(filter);
 
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(filter.getActualDir(),expectedFile.getName());
+      File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       if (isCompareNames) {
 
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
@@ -476,12 +481,12 @@ public class TestUtil {
   }
 
   private static void compareBinaryFilesBySize(
-                                                  String testDataDir, String plotType,
-                                                  CustomFilenameFilter filter) {
+      String testDataDir, String plotType,
+      CustomFilenameFilter filter) {
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = dir.listFiles(filter);
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(filter.getActualDir(),expectedFile.getName());
+      File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       boolean areTheSameSize = actualFile.length() == expectedFile.length();
       if ((!actualFile.exists() || !areTheSameSize) && (System.getProperty(
           "captureCreatedImages") != null)) {
@@ -504,14 +509,14 @@ public class TestUtil {
   }
 
   private static void compareBinaryFiles(
-                                            String testDataDir, String plotType,
-                                            boolean isCompareNames, boolean isCompareContent,
-                                            CustomFilenameFilter filter) {
+      String testDataDir, String plotType,
+      boolean isCompareNames, boolean isCompareContent,
+      CustomFilenameFilter filter) {
     //get all test results datafiles
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = dir.listFiles(filter);
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(filter.getActualDir(),expectedFile.getName());
+      File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
@@ -535,22 +540,22 @@ public class TestUtil {
   }
 
   public static void compareBinaryTestFiles(
-                                               String testDataDir, String compareDataDir,
-                                               String plotType) {
+      String testDataDir, String compareDataDir,
+      String plotType) {
     compareBinaryTestFiles(testDataDir, compareDataDir, plotType, true, true, PLOT_FILES_FILTER);
   }
 
   private static void compareBinaryTestFiles(
-                                                String testDataDir, String compareDataDir,
-                                                String plotType, boolean isCompareNames,
-                                                boolean isCompareContent,
-                                                CustomFilenameFilter filter) {
+      String testDataDir, String compareDataDir,
+      String plotType, boolean isCompareNames,
+      boolean isCompareContent,
+      CustomFilenameFilter filter) {
     //get all test results datafiles
     File testDir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File compDir = new File(compareDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = compDir.listFiles(filter);
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(testDir,expectedFile.getName());
+      File actualFile = new File(testDir, expectedFile.getName());
 
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
@@ -615,6 +620,44 @@ public class TestUtil {
     return true;
   }
 
+  public static void mysqlCheckCreateDatabase(
+      String host, String userName, String password, String database) {
+    Connection aConn = null;
+    Statement aStmt = null;
+    String command = "CREATE DATABASE IF NOT EXISTS ";
+    String serverName = host.split(":")[0];// don't need the port here
+    try {
+      MariaDbDataSource aDataSource = new MariaDbDataSource();
+      aDataSource.setUser(userName);
+      aDataSource.setPassword(password);
+      aDataSource.setServerName(serverName);
+      aDataSource.setPort(Integer.parseInt(host.split(":")[1])); // don't need the port here
+      aConn = aDataSource.getConnection();
+      aStmt = aConn.createStatement();
+
+      aStmt.executeUpdate(command + database);
+    } catch (Exception e) {
+      out.println("User " + userName + " failed to run command  '" + command + database + "' on "
+                      + "server " + serverName);
+      out.println(e.getMessage());
+    } finally {
+      if (aConn != null) {
+        try {
+          aConn.close();
+        } catch (SQLException e) {
+          out.println(e.getMessage());
+        }
+      }
+      if (aStmt != null) {
+        try {
+          aStmt.close();
+        } catch (SQLException e) {
+          out.println(e.getMessage());
+        }
+      }
+    }
+  }
+
   public abstract static class CustomFilenameFilter implements FilenameFilter {
 
     public abstract String getFileExtension();
@@ -626,36 +669,4 @@ public class TestUtil {
       return name.endsWith(getFileExtension());
     }
   }
-
-    public static void mysqlCheckCreateDatabase(String host, String userName, String password, String database) {
-        Connection aConn = null;
-        Statement aStmt = null;
-        try {
-            MysqlDataSource aDataSource = new MysqlDataSource();
-            aDataSource.setUser(userName);
-            aDataSource.setPassword(password);
-            aDataSource.setServerName(host.split(":")[0]); // don't need the port here
-            aDataSource.setPort(Integer.parseInt(host.split(":")[1])); // don't need the port here
-            aConn = aDataSource.getConnection();
-            aStmt = aConn.createStatement();
-            aStmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + database + ";");
-        } catch (Exception e) {
-            out.println(e.getMessage());
-        } finally {
-            if (aConn != null) {
-                try {
-                    aConn.close();
-                } catch (SQLException e) {
-                    out.println(e.getMessage());
-                }
-            }
-            if (aStmt != null) {
-                try {
-                    aStmt.close();
-                } catch (SQLException e) {
-                    out.println(e.getMessage());
-                }
-            }
-        }
-    }
 }

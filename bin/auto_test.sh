@@ -32,18 +32,19 @@
 usage() { echo "Usage: $0  -U <git user> -t<path to METviewer test directory> -b<git branch>
 -B<compare git branch> -l<path to met data> -d<mv_database> -m<path to METviewer home>
 [-c(capture new images)] [-a address list] [-g<git tag>] [-G<compare git tag>] [-u<mv_user>]
-[-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>]
+[-p<mv_passwd>] [-h<mv_host>] [-P<mv_port>] [-T<mv_type>]
 [-j<path to java executible>]" 1>&2; exit 1; }
 export mv_test_db="mv_test"
 export mv_user="mvuser"
 export mv_pass="mvuser"
 export mv_host="dakota.rap.ucar.edu"
 export mv_port=3306
+export mv_type="mysql"
 export git_user=""
 export METviewerTag="HEAD"
 export METviewerCompareTag="HEAD"
 export capture=""
-while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
+while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T?" o; do
     case "${o}" in
     	c)
             capture="-c"
@@ -94,6 +95,9 @@ while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
             ;;
         P)
             mv_port=${OPTARG}
+            ;;
+        s)
+            mv_type=${OPTARG}
             ;;
         j)
 			if [ ! -x "${OPTARG}" ]; then
@@ -272,14 +276,14 @@ fi
 # run the mv_test
 #send a note
 if [ "X$addressList" != "X" ]; then
-	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -l ${capture} -n> ${logfile}"
-	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port}  -l ${capture} -n > ${logfile}
+	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -s${mv_type} -l ${capture} -n> ${logfile}"
+	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${mv_type} -l ${capture} -n > ${logfile}
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METviewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
 else
-	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l ${capture} -n"
-    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l ${capture} -n
+	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${mv_type} -l ${capture} -n"
+    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${mv_type} -l ${capture} -n
 	ret=$?
 	echo mv_test ret is $ret
 fi

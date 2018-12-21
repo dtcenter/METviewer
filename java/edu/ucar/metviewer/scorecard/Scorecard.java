@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.db.AuroraAppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.MariaDbAppDatabaseManager;
+import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;
@@ -79,6 +83,10 @@ public class Scorecard {
       for (; intArg < args.length && !args[intArg].matches(".*\\.xml$"); intArg++) {
         if (args[intArg].equals("mysql")) {
           dbType = "mysql";
+        } else if (args[intArg].equals("mariadb")) {
+          dbType = "mariadb";
+        } else if (args[intArg].equals("aurora")) {
+          dbType = "aurora";
         }
       }
 
@@ -103,15 +111,28 @@ public class Scorecard {
         List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
 
         //depending on stat type init mangers
+        MysqlDatabaseManager databaseManager = null;
+        if (dbType.equals("mysql")) {
+          databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+                                                                      scorecard.getUser(),
+                                                                      scorecard.getPwd()));
+        } else if (dbType.equals("mariadb")) {
+          databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+                                                                           scorecard.getUser(),
+                                                                           scorecard.getPwd()));
+        } else if (dbType.equals("aurora")) {
+          databaseManager =
+              new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+                                                            scorecard.getUser(),
+                                                            scorecard.getPwd()));
+        }
+
+
         if (scorecard.getAggStat()) {
-          if (dbType.equals("mysql")) {
-            scorecardDbManager = new AggDatabaseManagerMySQL(scorecard);
-          }
+          scorecardDbManager = new AggDatabaseManagerMySQL(scorecard, databaseManager);
           rscriptManager = new AggRscriptManager(scorecard);
         } else {
-          if (dbType.equals("mysql")) {
-            scorecardDbManager = new SumDatabaseManagerMySQL(scorecard);
-          }
+          scorecardDbManager = new SumDatabaseManagerMySQL(scorecard, databaseManager);
           rscriptManager = new SumRscriptManager(scorecard);
         }
         int rowCounter = 1;
