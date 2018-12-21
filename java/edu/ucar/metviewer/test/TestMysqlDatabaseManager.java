@@ -36,15 +36,13 @@ public class TestMysqlDatabaseManager implements TestDBManager {
     return rows;
   }
 
-  public void loadData(String fileName, String database) throws Exception {
+  public void loadData(String fileName, String database) {
     Reader reader = null;
     Connection con = null;
     Statement statement = null;
     try {
       con = this.databaseManager.getConnection();
       statement = con.createStatement();
-      statement.executeUpdate("drop database " + database);
-      statement.executeUpdate("create database " + database);
       statement.executeUpdate("use " + database);
       ScriptRunner scriptRunner = new ScriptRunner(con, false, true);
       reader = new FileReader(fileName);
