@@ -7,7 +7,7 @@ public class MVLoadJob {
   protected String _strDBHost = "";
   protected String _strDBName = "";
   protected String _strDBUser = "";
-  protected String _strDBPassword = "";
+  protected String _strDBPassword;
   protected String _strDBManagementSystem = null;
   protected String _strDBDriver = null;
 
