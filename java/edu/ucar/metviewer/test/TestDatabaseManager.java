@@ -22,7 +22,7 @@ public class TestDatabaseManager {
       String dbName) throws Exception {
     String ms = management_system.toLowerCase();
     String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
-    DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+    DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
     TestDBManager databaseManager = null;
     MysqlDatabaseManager mysqlDatabaseManager;
@@ -30,19 +30,19 @@ public class TestDatabaseManager {
 
     switch (dbType) {
       case "mysql":
-        mysqlDatabaseManager = new MysqlDatabaseManager(databaseInfo);
+        mysqlDatabaseManager = new MysqlDatabaseManager(databaseInfo, password);
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "mariadb":
-        mysqlDatabaseManager = new MariaDbAppDatabaseManager(databaseInfo);
+        mysqlDatabaseManager = new MariaDbAppDatabaseManager(databaseInfo, password);
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "aurora":
-        mysqlDatabaseManager = new AuroraAppDatabaseManager(databaseInfo);
+        mysqlDatabaseManager = new AuroraAppDatabaseManager(databaseInfo, password);
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "cb":
-        databaseManager = new TestCBDatabaseManager(databaseInfo);
+        databaseManager = new TestCBDatabaseManager(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);

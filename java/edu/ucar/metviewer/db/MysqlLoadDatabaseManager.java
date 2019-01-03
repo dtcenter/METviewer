@@ -91,8 +91,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   private final Map<String, Integer> tableDataFileLU;
   private MVOrderedMap mapIndexes;
 
-  public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo,password);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");

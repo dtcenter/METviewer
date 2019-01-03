@@ -12,8 +12,8 @@ package edu.ucar.metviewer.db;
  */
 public class AuroraLoadDatabaseManager extends MysqlLoadDatabaseManager {
 
-  public AuroraLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public AuroraLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo, password);
   }
 
 }

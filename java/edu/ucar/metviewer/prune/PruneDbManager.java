@@ -22,7 +22,6 @@ import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.MysqlDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $
@@ -34,8 +33,8 @@ class PruneDbManager extends MysqlDatabaseManager {
   private final List<Table> tables;
 
 
-  public PruneDbManager(DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo);
+  public PruneDbManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+    super(databaseInfo, password);
     //init tables data
     tables = new ArrayList<>();
     tables.add(new Table("line_data_cnt", "stat_header", "stat_header_id"));

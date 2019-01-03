@@ -55,8 +55,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo);
+  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+    super(databaseInfo, password);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
     statHeaderSqlType.put("fcst_lead", "INT");

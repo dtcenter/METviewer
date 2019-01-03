@@ -1961,8 +1961,8 @@ public class MVPlotJobParser {
 
   public DatabaseInfo getDatabaseInfo() {
     DatabaseInfo databaseInfo = null;
-    if (dbHost != null && dbUser != null && dbPass != null) {
-      databaseInfo = new DatabaseInfo(dbHost, dbUser, dbPass);
+    if (dbHost != null && dbUser != null ) {
+      databaseInfo = new DatabaseInfo(dbHost, dbUser);
     }
     return databaseInfo;
   }

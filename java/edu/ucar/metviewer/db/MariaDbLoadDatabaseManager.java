@@ -12,7 +12,7 @@ package edu.ucar.metviewer.db;
  */
 public class MariaDbLoadDatabaseManager extends MysqlLoadDatabaseManager {
 
-  public MariaDbLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public MariaDbLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo, password);
   }
 }

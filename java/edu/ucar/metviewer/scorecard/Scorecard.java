@@ -114,17 +114,17 @@ public class Scorecard {
         MysqlDatabaseManager databaseManager = null;
         if (dbType.equals("mysql")) {
           databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                                                                      scorecard.getUser(),
-                                                                      scorecard.getPwd()));
+                                                                      scorecard.getUser()),
+                                                     scorecard.getPwd());
         } else if (dbType.equals("mariadb")) {
           databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                                                                           scorecard.getUser(),
-                                                                           scorecard.getPwd()));
+                                                                           scorecard.getUser()),
+                                                          scorecard.getPwd());
         } else if (dbType.equals("aurora")) {
           databaseManager =
               new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                                                            scorecard.getUser(),
-                                                            scorecard.getPwd()));
+                                                            scorecard.getUser()),
+                                           scorecard.getPwd());
         }
 
 

@@ -75,7 +75,6 @@ public class MVServlet extends HttpServlet {
             .setMarker(new MarkerManager.Log4jMarker("ERROR"))
             .buildPrintStream();
 
-  public static final Pattern patDBLoad = Pattern.compile(".*/db/([\\w\\d]+)$");
   public static final Pattern patDownload = Pattern.compile(".*/download");
   public static final String DELIMITER = File.separator;
   protected static final Map<String, String> valCache = new HashMap<>();
@@ -512,7 +511,6 @@ public class MVServlet extends HttpServlet {
       runTargetedJob(job, mvBatch);
 
 
-
       String plotterOutput = log.toString();
       //  parse out R error messages, if present, throwing an exception if the error was fatal
       Matcher matOutput = Pattern.compile(
@@ -548,7 +546,7 @@ public class MVServlet extends HttpServlet {
     } finally {
 
       stopWatch.stop();
-      if(logSql != null) {
+      if (logSql != null) {
         //  build the job SQL using the batch engine
         String plotSql = logSql.toString();
 
@@ -572,7 +570,7 @@ public class MVServlet extends HttpServlet {
       if (log != null) {
         log.close();
       }
-      if(printStream!= null){
+      if (printStream != null) {
         printStream.close();
       }
 
@@ -807,97 +805,81 @@ public class MVServlet extends HttpServlet {
    * @param response Used to send information back to the requester
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
     try {
       //  if the request specifies a database to load, redirect with the appropriate parameter
       String strPath = request.getRequestURL().toString();
-      Matcher matDbLoad = patDBLoad.matcher(strPath);
-      if (matDbLoad.matches()) {
-        String strDb = matDbLoad.group(1);
-        if (!databaseManager.validate(strDb)) {
-          printErrorPage(response);
-          return;
+      Matcher matDownload = patDownload.matcher(strPath);
+      if (matDownload.matches()) {
+        String plot;
+        String type;
+        String filePath = "";
+
+        plot = request.getParameter("plot");
+
+        type = request.getParameter("type");
+
+
+        switch (type) {
+          case "plot_xml_url":
+            filePath = plotXml + DELIMITER + plot + ".xml";
+            break;
+          case "plot_sql_url":
+            filePath = plotXml + DELIMITER + plot + ".sql";
+            break;
+          case "r_script_url":
+            filePath = scripts + DELIMITER + plot + ".R";
+            break;
+          case "r_data_url":
+            filePath = data + DELIMITER + plot + ".data";
+            break;
+          case "plot_log_url":
+            filePath = plotXml + DELIMITER + plot + ".log";
+            break;
+          case "plot_image_url":
+            filePath = plots + DELIMITER + plot + ".png";
+            break;
+          case "y1_points_url":
+            filePath = data + DELIMITER + plot + ".points1";
+            break;
+          case "y2_points_url":
+            filePath = data + DELIMITER + plot + ".points2";
+            break;
+          default:
+            filePath = plotXml + DELIMITER + plot + ".xml";
+            break;
         }
-        //  redirect the user to the web app
-        request.getRequestDispatcher(redirect + "/metviewer1.jsp?db=" + matDbLoad.group(1))
-            .forward(request, response);
+        int length;
+        File file = new File(filePath);
+        ServletContext context = getServletConfig().getServletContext();
+        String mimetype = context.getMimeType(filePath);
+
+        // sets response content type
+        if (mimetype == null) {
+          mimetype = "application/octet-stream";
+        }
+        response.setContentType(mimetype);
+        response.setContentLength((int) file.length());
+        String fileName = new File(filePath).getName();
+
+        // sets HTTP header
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+
+        byte[] byteBuffer = new byte[4096];
+        try (ServletOutputStream outStream = response.getOutputStream();
+             FileInputStream fileInputStream = new FileInputStream(file);
+             DataInputStream in = new DataInputStream(fileInputStream)) {
+
+          // reads the file's bytes and writes them to the response stream
+          while ((length = in.read(byteBuffer)) != -1) {
+            outStream.write(byteBuffer, 0, length);
+          }
+        } catch (Exception e) {
+          errorStream.print(e.getMessage());
+        }
         return;
-      } else {
-        Matcher matDownload = patDownload.matcher(strPath);
-        if (matDownload.matches()) {
-
-
-          String plot;
-          String type;
-          String filePath = "";
-
-          plot = request.getParameter("plot");
-
-          type = request.getParameter("type");
-
-
-          switch (type) {
-            case "plot_xml_url":
-              filePath = plotXml + DELIMITER + plot + ".xml";
-              break;
-            case "plot_sql_url":
-              filePath = plotXml + DELIMITER + plot + ".sql";
-              break;
-            case "r_script_url":
-              filePath = scripts + DELIMITER + plot + ".R";
-              break;
-            case "r_data_url":
-              filePath = data + DELIMITER + plot + ".data";
-              break;
-            case "plot_log_url":
-              filePath = plotXml + DELIMITER + plot + ".log";
-              break;
-            case "plot_image_url":
-              filePath = plots + DELIMITER + plot + ".png";
-              break;
-            case "y1_points_url":
-              filePath = data + DELIMITER + plot + ".points1";
-              break;
-            case "y2_points_url":
-              filePath = data + DELIMITER + plot + ".points2";
-              break;
-            default:
-              filePath = plotXml + DELIMITER + plot + ".xml";
-              break;
-          }
-          int length;
-          File file = new File(filePath);
-          ServletContext context = getServletConfig().getServletContext();
-          String mimetype = context.getMimeType(filePath);
-
-          // sets response content type
-          if (mimetype == null) {
-            mimetype = "application/octet-stream";
-          }
-          response.setContentType(mimetype);
-          response.setContentLength((int) file.length());
-          String fileName = new File(filePath).getName();
-
-          // sets HTTP header
-          response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-
-          byte[] byteBuffer = new byte[4096];
-          try (ServletOutputStream outStream = response.getOutputStream();
-               FileInputStream fileInputStream = new FileInputStream(file);
-               DataInputStream in = new DataInputStream(fileInputStream)) {
-
-            // reads the file's bytes and writes them to the response stream
-            while ((length = in.read(byteBuffer)) != -1) {
-              outStream.write(byteBuffer, 0, length);
-            }
-          } catch (Exception e) {
-            errorStream.print(e.getMessage());
-          }
-          return;
-        }
-
       }
+
 
       //  if there is no specified database, print out the list of parameters for debugging
       try (PrintWriter printWriter = response.getWriter()) {

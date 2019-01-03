@@ -19,7 +19,10 @@ public abstract class DatabaseManager {
   public static final String[] SQL_INJECTION_WORDS = new String[]{
       "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
   };
-  protected static final String DB_PREFIX_MV = "mv_";
+  private static final String MYSQL = "mysql";
+  private static final String MARIADB = "mariadb";
+  public static final String CB = "cb";
+  private static final String AURORA = "aurora";
   private PrintStream pw;
   private DatabaseInfo databaseInfo;
 
@@ -33,25 +36,27 @@ public abstract class DatabaseManager {
   }
 
   public static DatabaseManager getLoadManager(
-      String management_system, String host, String user, String password,
+      String managementSystem, String host, String user, String password,
       String dbName) throws Exception {
-    String ms = management_system.toLowerCase();
-    String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
-    DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+    String ms = managementSystem.toLowerCase();
+
+    // default dbType to mysql if management_system is missing
+    String dbType = ms.isEmpty() ? MYSQL : ms;
+    DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
     DatabaseManager databaseManager = null;
     switch (dbType) {
-      case "mysql":
-        databaseManager = new MysqlLoadDatabaseManager(databaseInfo);
+      case MYSQL:
+        databaseManager = new MysqlLoadDatabaseManager(databaseInfo, password);
         break;
-      case "mariadb":
-        databaseManager = new MariaDbLoadDatabaseManager(databaseInfo);
+      case MARIADB:
+        databaseManager = new MariaDbLoadDatabaseManager(databaseInfo, password);
         break;
-      case "cb":
-        databaseManager = new CBLoadDatabaseManager(databaseInfo);
+      case CB:
+        databaseManager = new CBLoadDatabaseManager(databaseInfo, password);
         break;
-      case "aurora":
-        databaseManager = new AuroraLoadDatabaseManager(databaseInfo);
+      case AURORA:
+        databaseManager = new AuroraLoadDatabaseManager(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -60,28 +65,30 @@ public abstract class DatabaseManager {
   }
 
   public static DatabaseManager getManager(
-      String management_system,
+      String managementSystem,
       String host,
       String user,
       String password,
       String dbName) throws Exception {
-    String ms = management_system.toLowerCase();
-    String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
-    DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+    String ms = managementSystem.toLowerCase();
+
+    // default dbType to mysql if management_system is missing
+    String dbType = ms.isEmpty() ? MYSQL : ms;
+    DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
     DatabaseManager databaseManager;
     switch (dbType) {
-      case "mysql":
-        databaseManager = new MysqlDatabaseManager(databaseInfo);
+      case MYSQL:
+        databaseManager = new MysqlDatabaseManager(databaseInfo, password);
         break;
-      case "mariadb":
-        databaseManager = new MariaDbAppDatabaseManager(databaseInfo);
+      case MARIADB:
+        databaseManager = new MariaDbAppDatabaseManager(databaseInfo, password);
         break;
-      case "cb":
-        databaseManager = new CBDatabaseManager(databaseInfo);
+      case CB:
+        databaseManager = new CBDatabaseManager(databaseInfo, password);
         break;
-      case "aurora":
-        databaseManager = new AuroraAppDatabaseManager(databaseInfo);
+      case AURORA:
+        databaseManager = new AuroraAppDatabaseManager(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -89,25 +96,38 @@ public abstract class DatabaseManager {
     return databaseManager;
   }
 
-  // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
+
+  /**
+   * AppDatabaseManagers don't need a database name. They get a list of database names from the
+   * database engine.
+   *
+   * @param managementSystem - database type
+   * @param host - host name
+   * @param user - user name
+   * @param password - db user password
+   * @return - database manager for the requared database type
+   * @throws Exception
+   */
   public static DatabaseManager getAppManager(
-      String management_system, String host, String user, String password) throws Exception {
-    String ms = management_system.toLowerCase();
-    String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
-    DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+      String managementSystem, String host, String user, String password) throws Exception {
+    String ms = managementSystem.toLowerCase();
+
+    // default dbType to mysql if management_system is missing
+    String dbType = ms.isEmpty() ? MYSQL : ms;
+    DatabaseInfo databaseInfo = new DatabaseInfo(host, user/*, password*/);
     DatabaseManager databaseManager = null;
     switch (dbType) {
-      case "mysql":
-        databaseManager = new MysqlAppDatabaseManager(databaseInfo);
+      case MYSQL:
+        databaseManager = new MysqlAppDatabaseManager(databaseInfo, password);
         break;
-      case "mariadb":
-        databaseManager = new MariaDbAppDatabaseManager(databaseInfo);
+      case MARIADB:
+        databaseManager = new MariaDbAppDatabaseManager(databaseInfo, password);
         break;
-      case "cb":
-        databaseManager = new CBAppDatabaseManager(databaseInfo);
+      case CB:
+        databaseManager = new CBAppDatabaseManager(databaseInfo, password);
         break;
-      case "aurora":
-        databaseManager = new AuroraAppDatabaseManager(databaseInfo);
+      case AURORA:
+        databaseManager = new AuroraAppDatabaseManager(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);

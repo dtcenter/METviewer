@@ -117,7 +117,7 @@ public class TestMVServlet {
       MVServlet.plots = PLOTS_DIR;
       MVServlet.rscript = rscript;
       MVServlet.isValCache = true;
-      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME, PWD));
+      MVServlet.databaseManager = new MysqlAppDatabaseManager(new DatabaseInfo(  host, USERNAME ),PWD);
       MVServlet.isStatCache = true;
       new MVServlet().doPost(request, response);
 

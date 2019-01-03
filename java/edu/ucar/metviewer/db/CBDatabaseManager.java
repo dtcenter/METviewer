@@ -43,8 +43,23 @@ public class CBDatabaseManager extends DatabaseManager{
   protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
           = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-  public CBDatabaseManager(DatabaseInfo databaseInfo) throws CouchbaseException {
+  public CBDatabaseManager(DatabaseInfo databaseInfo, String password) throws CouchbaseException {
     super(databaseInfo);
+
+    String bucketName = "testvsdb";
+    CouchbaseEnvironment env;
+    try {
+      env = DefaultCouchbaseEnvironment.builder()
+              .connectTimeout(40000) //20000ms = 20s, default is 5s
+              .build();
+      Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
+      cluster.authenticate(getDatabaseInfo().getUser(), password);
+      bucket = cluster.openBucket(bucketName);
+    } catch (CouchbaseException e) {
+      logger.debug(e);
+      logger.error("Open bucket connection for a Couchbase database did not succeed.");
+      logger.error(e.getMessage());
+    }
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
@@ -158,7 +173,7 @@ public class CBDatabaseManager extends DatabaseManager{
    * @return - connection (for couchbase a bucket)
    */
   protected Bucket getBucket() {
-    CouchbaseEnvironment env;
+ /*   CouchbaseEnvironment env;
     if (bucket == null) {
 //      CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
 //              .connectTimeout(40000) //20000ms = 20s, default is 5s
@@ -170,14 +185,14 @@ public class CBDatabaseManager extends DatabaseManager{
                 .connectTimeout(40000) //20000ms = 20s, default is 5s
                 .build();
         Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
-        cluster.authenticate(getDatabaseInfo().getUser(), getDatabaseInfo().getPassword());
+        cluster.authenticate(getDatabaseInfo().getUser(), password);
         bucket = cluster.openBucket(bucketName);
       } catch (CouchbaseException e) {
         logger.debug(e);
         logger.error("Open bucket connection for a Couchbase database did not succeed.");
         logger.error(e.getMessage());
       }
-    }
+    }*/
     return bucket;
   }
 }

@@ -14,8 +14,8 @@ import java.sql.SQLException;
  */
 public class AuroraAppDatabaseManager extends MysqlAppDatabaseManager {
 
-  public AuroraAppDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo);
+  public AuroraAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+    super(databaseInfo, password);
   }
 
   @Override
