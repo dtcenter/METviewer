@@ -16,7 +16,7 @@ import org.apache.logging.log4j.io.IoBuilder;
  */
 public abstract class DatabaseManager {
 
-  protected static final String[] SQL_INJECTION_WORDS = new String[]{
+  public static final String[] SQL_INJECTION_WORDS = new String[]{
       "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
   };
   private static final String MYSQL = "mysql";
