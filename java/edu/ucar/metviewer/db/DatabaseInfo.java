@@ -14,13 +14,13 @@ public class DatabaseInfo {
 
   private String host;
   private String user;
-  private String password;
+  //private String password;
   private String dbName;
 
-  public DatabaseInfo(String host, String user, String password) {
+  public DatabaseInfo(String host, String user/*, String password*/) {
     this.host = host;
     this.user = user;
-    this.password = password;
+    //this.password = password;
   }
 
   public DatabaseInfo() {
@@ -43,13 +43,13 @@ public class DatabaseInfo {
     this.user = user;
   }
 
-  public String getPassword() {
-    return password;
-  }
+  //public String getPassword() {
+  //  return password;
+ // }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+ // public void setPassword(String password) {
+ //   this.password = password;
+ // }
 
   public String getDbName() {
     return dbName;

@@ -30,15 +30,15 @@ public class TestDatabaseManager {
 
     switch (dbType) {
       case "mysql":
-        mysqlDatabaseManager = new MysqlDatabaseManager(databaseInfo);
+        mysqlDatabaseManager = new MysqlDatabaseManager(databaseInfo, password);
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "mariadb":
-        mysqlDatabaseManager = new MariaDbAppDatabaseManager(databaseInfo);
+        mysqlDatabaseManager = new MariaDbAppDatabaseManager(databaseInfo, password);
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "aurora":
-        mysqlDatabaseManager = new AuroraAppDatabaseManager(databaseInfo);
+        mysqlDatabaseManager = new AuroraAppDatabaseManager(databaseInfo, password);
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "cb":

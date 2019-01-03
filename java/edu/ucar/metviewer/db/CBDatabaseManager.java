@@ -42,9 +42,11 @@ public class CBDatabaseManager extends DatabaseManager{
           new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
           = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private final String password;
 
-  public CBDatabaseManager(DatabaseInfo databaseInfo) throws CouchbaseException {
+  public CBDatabaseManager(DatabaseInfo databaseInfo, String password) throws CouchbaseException {
     super(databaseInfo);
+    this.password = password;
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
@@ -170,7 +172,7 @@ public class CBDatabaseManager extends DatabaseManager{
                 .connectTimeout(40000) //20000ms = 20s, default is 5s
                 .build();
         Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
-        cluster.authenticate(getDatabaseInfo().getUser(), getDatabaseInfo().getPassword());
+        cluster.authenticate(getDatabaseInfo().getUser(), this.password);
         bucket = cluster.openBucket(bucketName);
       } catch (CouchbaseException e) {
         logger.debug(e);

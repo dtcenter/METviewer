@@ -14,8 +14,8 @@ import java.sql.SQLException;
  */
 public class MariaDbAppDatabaseManager extends MysqlAppDatabaseManager {
 
-  public MariaDbAppDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo);
+  public MariaDbAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+    super(databaseInfo, password);
   }
 
 

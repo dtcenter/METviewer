@@ -50,13 +50,13 @@ public class MysqlDatabaseManager extends DatabaseManager {
 
 
 
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo) {
+  public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
     super(databaseInfo);
     String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
-    configurationToUse.setPassword(databaseInfo.getPassword());
+    configurationToUse.setPassword(password);
     configurationToUse.setDriverClassName("org.mariadb.jdbc.Driver");
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
