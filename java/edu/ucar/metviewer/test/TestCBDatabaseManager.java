@@ -1,16 +1,16 @@
 package edu.ucar.metviewer.test;
 
+import java.io.Reader;
+import java.sql.Connection;
+import java.sql.Statement;
+
 import edu.ucar.metviewer.db.CBDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Reader;
-import java.sql.Connection;
-import java.sql.Statement;
-
 public class TestCBDatabaseManager extends CBDatabaseManager implements TestDBManager {
-    public TestCBDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+    public TestCBDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
         super(databaseInfo, password);
     }
 

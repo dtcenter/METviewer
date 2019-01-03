@@ -22,7 +22,7 @@ public class TestDatabaseManager {
       String dbName) throws Exception {
     String ms = management_system.toLowerCase();
     String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
-    DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+    DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
     TestDBManager databaseManager = null;
     MysqlDatabaseManager mysqlDatabaseManager;
@@ -42,7 +42,7 @@ public class TestDatabaseManager {
         databaseManager = new TestMysqlDatabaseManager(mysqlDatabaseManager);
         break;
       case "cb":
-        databaseManager = new TestCBDatabaseManager(databaseInfo);
+        databaseManager = new TestCBDatabaseManager(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);
