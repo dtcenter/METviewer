@@ -2632,21 +2632,51 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             mtdHeaderId = intMtdHeaderIdNext++;
             mtdHeaders.put(mtdHeaderValueList, mtdHeaderId);
 
-            //  build an insert statement for the mtd header
-            mtdHeaderValueList =
-                mtdHeaderId + ", " +
-                    lineTypeLuId + ", " +
-                    info.fileId + ", " +
-                    line + ", " +
-                    mtdHeaderValueList;
 
             //  insert the record into the mtd_header database table
-            String strMtdHeaderInsert = "INSERT INTO mtd_header VALUES (" + mtdHeaderValueList +
-                                            ");";
-            int intMtdHeaderInsert = executeUpdate(strMtdHeaderInsert);
-            if (1 != intMtdHeaderInsert) {
+            String sql = "INSERT INTO mtd_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                             + "?)";
+            int mtdHeaderInsert;
+            try (Connection con = getConnection();
+                 PreparedStatement stmt = con.prepareStatement(sql)) {
+              stmt.setInt(1, mtdHeaderId);
+              stmt.setInt(2, lineTypeLuId);
+              stmt.setInt(3, info.fileId);
+              stmt.setInt(4, line);
+              stmt.setString(5, MVUtil.findValue(listToken, headerNames, "VERSION"));
+              stmt.setString(6, MVUtil.findValue(listToken, headerNames, "MODEL"));
+              stmt.setString(7, MVUtil.findValue(listToken, headerNames, "DESC"));
+              stmt.setObject(8, fcstLeadInsert, Types.INTEGER);
+              stmt.setObject(9, fcstValidBegStr, Types.TIMESTAMP);
+              stmt.setObject(10, fcstInitStr, Types.TIMESTAMP);
+              stmt.setObject(11, obsLeadInsert, Types.INTEGER);
+              stmt.setObject(12, obsValidBegStr, Types.TIMESTAMP);
+              if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
+                stmt.setNull(13, Types.INTEGER);
+              } else {
+                stmt.setObject(13, MVUtil.findValue(listToken, headerNames, "T_DELTA"),
+                               Types.INTEGER);
+              }
+              stmt.setObject(14, MVUtil.findValue(listToken, headerNames, "FCST_RAD"),
+                             Types.INTEGER);
+              stmt.setString(15, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
+              stmt.setObject(16, MVUtil.findValue(listToken, headerNames, "OBS_RAD"),
+                             Types.INTEGER);
+              stmt.setString(17, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
+              stmt.setString(18, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
+              stmt.setString(19, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
+              stmt.setString(20, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
+              stmt.setString(21, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
+              mtdHeaderInsert = stmt.executeUpdate();
+
+            } catch (SQLException se) {
+              logger.error(se.getMessage());
+              throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+            }
+
+            if (1 != mtdHeaderInsert) {
               logger.warn(
-                  "  **  WARNING: unexpected result from mtd_header INSERT: " + intMtdHeaderInsert
+                  "  **  WARNING: unexpected result from mtd_header INSERT: " + mtdHeaderInsert
                       + "\n        " + strFileLine);
             }
             headerInserts++;
@@ -2655,22 +2685,19 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
         if (mtd3dSingle == lineTypeLuId) {
-          String str3dSingleValueList = mtdHeaderId + ", '" + objectId + "'";
-          for (String header : mtdObj3dSingleColumns) {
-            str3dSingleValueList += ", '" + replaceInvalidValues(
-                MVUtil.findValue(listToken, headerNames, header)) + "'";
-          }
+          String sql = "INSERT INTO mtd_3d_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
 
           //set flags
-          Integer simpleFlag = 1;
-          Integer fcstFlag = 0;
+          int simpleFlag = 1;
+          int fcstFlag = 0;
           if (objectId.startsWith("C")) {
             simpleFlag = 0;
           }
           if (objectId.startsWith("CF") || objectId.startsWith("F")) {
             fcstFlag = 1;
           }
-          Integer matchedFlag = 0;
+          int matchedFlag = 0;
           String objCat = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT");
           Integer num = null;
           try {
@@ -2680,12 +2707,35 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (num != null && num != 0) {
             matchedFlag = 1;
           }
-          str3dSingleValueList = str3dSingleValueList + "," + fcstFlag + "," + simpleFlag + ","
-                                     + matchedFlag;
+
 
           //  insert the record into the mtd_obj_single database table
-          int mtd3dObjSingleInsert = executeUpdate("INSERT INTO mtd_3d_obj_single VALUES ("
-                                                       + str3dSingleValueList + ");");
+          int mtd3dObjSingleInsert;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, mtdHeaderId);
+            stmt.setString(2, objectId);
+            stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
+                                                                    mtdObj3dSingleColumns[0])));
+
+            for (int i = 0; i < 17; i++) {
+              stmt.setObject(4 + i,
+                             replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
+                                                                   mtdObj3dSingleColumns[i + 1])),
+                             Types.DOUBLE);
+            }
+            stmt.setInt(21, fcstFlag);
+            stmt.setInt(22, simpleFlag);
+            stmt.setInt(23, matchedFlag);
+
+            mtd3dObjSingleInsert = stmt.executeUpdate();
+
+          } catch (SQLException se) {
+            logger.error(se.getMessage());
+            throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+          }
+
+
           if (1 != mtd3dObjSingleInsert) {
             logger.warn(
                 "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
@@ -2693,22 +2743,17 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
           obj3dSingleInserts++;
         } else if (mtd2d == lineTypeLuId) {
-          String str2dValueList = mtdHeaderId + ", '" + objectId + "'";
-          for (String header : mtdObj2dColumns) {
-            str2dValueList += ", '" + replaceInvalidValues(
-                MVUtil.findValue(listToken, headerNames, header)) + "'";
-          }
 
           //set flags
-          Integer simpleFlag = 1;
-          Integer fcstFlag = 0;
+          int simpleFlag = 1;
+          int fcstFlag = 0;
           if (objectId.startsWith("C")) {
             simpleFlag = 0;
           }
           if (objectId.startsWith("CF") || objectId.startsWith("F")) {
             fcstFlag = 1;
           }
-          Integer matchedFlag = 0;
+          int matchedFlag = 0;
           String objCat = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT");
 
           Integer num = null;
@@ -2719,11 +2764,32 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (num != null && num != 0) {
             matchedFlag = 1;
           }
-          str2dValueList = str2dValueList + "," + fcstFlag + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mtd_obj_single database table
-          int mtd2dObjInsert = executeUpdate("INSERT INTO mtd_2d_obj VALUES ("
-                                                 + str2dValueList + ");");
+          String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+          int mtd2dObjInsert;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, mtdHeaderId);
+            stmt.setString(2, objectId);
+            stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
+                                                                    mtdObj2dColumns[0])));
+            for (int i = 0; i < 7; i++) {
+              stmt.setObject(4 + i,
+                             replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
+                                                                   mtdObj2dColumns[i + 1])),
+                             Types.DOUBLE);
+            }
+            stmt.setInt(11, fcstFlag);
+            stmt.setInt(12, simpleFlag);
+            stmt.setInt(13, matchedFlag);
+
+            mtd2dObjInsert = stmt.executeUpdate();
+          } catch (SQLException se) {
+            logger.error(se.getMessage());
+            throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+          }
+
           if (1 != mtd2dObjInsert) {
             logger.warn(
                 "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
@@ -2733,27 +2799,20 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } else if (mtd3dPair == lineTypeLuId) {
 
           //  build the value list for the mode_cts insert
-          String str3dPairValueList = mtdHeaderId + ", "
-                                          + "'"
-                                          + objectId
-                                          + "', '"
-                                          + MVUtil.findValue(listToken, headerNames,
-                                                             "OBJECT_CAT")
-                                          + "'";
+
+          String sql = "INSERT INTO mtd_3d_obj_pair VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
           int spaceCentroidDistIndex = headerNames.indexOf("SPACE_CENTROID_DIST");
-          for (int i = 0; i < 11; i++) {
-            str3dPairValueList += ", " + replaceInvalidValues(
-                listToken[spaceCentroidDistIndex + i]);
-          }
+
 
           //set flags
-          Integer simpleFlag = 1;
+          int simpleFlag = 1;
           String[] objIdArr = objectId.split("_");
           if (objIdArr.length == 2 && objIdArr[0].startsWith("C") && objIdArr[1].startsWith("C")) {
             simpleFlag = 0;
           }
 
-          Integer matchedFlag = 0;
+          int matchedFlag = 0;
           String[] objCatArr = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT")
                                    .split("_");
           Integer num1 = null;
@@ -2766,10 +2825,43 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (num1.equals(num2) && num1 != 0) {
             matchedFlag = 1;
           }
-          str3dPairValueList = str3dPairValueList + "," + simpleFlag + "," + matchedFlag;
 
-          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
-                                                     + str3dPairValueList + ");");
+          int mtd3dObjPairInsert = 0;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, mtdHeaderId);
+            stmt.setString(2, objectId);
+            stmt.setString(3, MVUtil.findValue(listToken, headerNames, "OBJECT_CAT"));
+            stmt.setObject(4, replaceInvalidValues(listToken[spaceCentroidDistIndex]),
+                           Types.DOUBLE);
+            stmt.setObject(5, replaceInvalidValues(listToken[spaceCentroidDistIndex + 1]),
+                           Types.DOUBLE);
+            stmt.setObject(6, replaceInvalidValues(listToken[spaceCentroidDistIndex + 2]),
+                           Types.DOUBLE);
+            stmt.setObject(7, replaceInvalidValues(listToken[spaceCentroidDistIndex + 3]),
+                           Types.DOUBLE);
+            stmt.setObject(8, replaceInvalidValues(listToken[spaceCentroidDistIndex + 4]),
+                           Types.DOUBLE);
+            stmt.setObject(9, replaceInvalidValues(listToken[spaceCentroidDistIndex + 5]),
+                           Types.DOUBLE);
+            stmt.setObject(10, replaceInvalidValues(listToken[spaceCentroidDistIndex + 6]),
+                           Types.DOUBLE);
+            stmt.setObject(11, replaceInvalidValues(listToken[spaceCentroidDistIndex + 7]),
+                           Types.DOUBLE);
+            stmt.setObject(12, replaceInvalidValues(listToken[spaceCentroidDistIndex + 8]),
+                           Types.DOUBLE);
+            stmt.setObject(13, replaceInvalidValues(listToken[spaceCentroidDistIndex + 9]),
+                           Types.DOUBLE);
+            stmt.setObject(14, replaceInvalidValues(listToken[spaceCentroidDistIndex + 10]),
+                           Types.DOUBLE);
+            stmt.setInt(15, simpleFlag);
+            stmt.setInt(16, matchedFlag);
+            mtd3dObjPairInsert = stmt.executeUpdate();
+          } catch (SQLException se) {
+            logger.error(se.getMessage());
+            throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+          }
+
           if (1 != mtd3dObjPairInsert) {
             logger.warn(
                 "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
