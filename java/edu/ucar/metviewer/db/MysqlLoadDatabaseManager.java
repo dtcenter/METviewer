@@ -205,6 +205,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         .put("mode_obj_single", "INSERT INTO mode_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
                                     + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//27
 
+    tableToInsert.put("mode_obj_pair", "INSERT INTO mode_obj_pair VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?,?,?,?,?,?,?)");//21
+
     dropIndexes = new String[]{
         "DROP INDEX stat_header_model_idx ON stat_header",
         "DROP INDEX stat_header_fcst_var_idx ON stat_header",
@@ -484,27 +487,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     logger.info("");
   }
 
-  /**
-   * Executes the input update statement against the database underlying the input Connection and
-   * cleans up any resources upon completion.
-   *
-   * @param update SQL UPDATE statement to execute
-   * @return Number of records affected (output of Statement.executeUpdate() call)
-   * @throws SQLException
-   */
-  private int executeUpdate(String update) throws Exception {
-
-    int intRes;
-    try (Connection con = getConnection();
-         Statement stmt = con.createStatement()) {
-      intRes = stmt.executeUpdate(update);
-    } catch (SQLException se) {
-      logger.error(update);
-      throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
-    }
-
-    return intRes;
-  }
 
   /**
    * Initialize the table containing the max line_data_id for all line_data tables corresponding to
@@ -1267,30 +1249,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     statInsertData.getTableLineDataValues().clear();
 
-
-    /*
-     * * * *  stat_group commit  * * * *
-     */
-
-    //  build a stat_group insert with all stored values
-    if (!statInsertData.getListStatGroupInsertValues().isEmpty()) {
-      String statGroupInsertValues = "";
-      for (int i = 0; i < statInsertData.getListStatGroupInsertValues().size(); i++) {
-        statGroupInsertValues += (i == 0 ? "" : ", ") + statInsertData
-                                                            .getListStatGroupInsertValues()
-                                                            .get(i);
-      }
-      String statGroupInsert = "INSERT INTO stat_group VALUES " + statGroupInsertValues + ";";
-      int statGroupInsertCount = executeUpdate(statGroupInsert);
-      if (statInsertData.getListStatGroupInsertValues().size() != statGroupInsertCount) {
-        logger.warn(
-            "  **  WARNING: unexpected result from stat_group INSERT: " + statGroupInsertCount + " vs. " +
-                statInsertData.getListStatGroupInsertValues()
-                    .size() + "\n        " + statInsertData.getFileLine());
-      }
-      int indexStatGroup = 2;
-      listInserts[indexStatGroup]++;
-    }
     statInsertData.getListStatGroupInsertValues().clear();
 
     /*
@@ -1308,13 +1266,21 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       if (1 > listVarLengthValues.length) {
         continue;
       }
-      String strVarLengthTable = tableVarLengthTable.get(listVarLengthType);
-      String strThreshInsert = "INSERT INTO " + strVarLengthTable + " VALUES ";
-      for (int j = 0; j < listVarLengthValues.length; j++) {
-        strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
-        listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+      String sql = tableToInsert.get(tableVarLengthTable.get(listVarLengthType));
+      int intThreshInsert;
+      try (Connection con = getConnection();
+           PreparedStatement stmt = con.prepareStatement(sql)) {
+        for (int j = 0; j < listVarLengthValues.length; j++) {
+          stmt.setObject(j + 1, listVarLengthValues[j]);
+          listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+        }
+        intThreshInsert = stmt.executeUpdate();
+      } catch (SQLException se) {
+        logger.error(se.getMessage());
+        throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
       }
-      int intThreshInsert = executeUpdate(strThreshInsert);
+
+
       if (listVarLengthValues.length != intThreshInsert) {
         logger.warn(
             "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
@@ -2717,44 +2683,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           int modeObjectIdFcst = tableModeObjectId.get(matModePair.group(1));
           int modeObjectIdObs = tableModeObjectId.get(matModePair.group(2));
 
-          //  build the value list for the mode_cts insert
-          String pairValueList = modeObjectIdObs + ", " + modeObjectIdFcst
-                                     + ", " + modeHeaderId + ", " +
-                                     "'" + objectId + "', '"
-                                     + MVUtil.findValue(listToken, headerNames,
-                                                        "OBJECT_CAT")
-                                     + "'";
-
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "CENTROID_DIST"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "BOUNDARY_DIST"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "CONVEX_HULL_DIST"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "ANGLE_DIFF"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "ASPECT_DIFF"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "AREA_RATIO"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "INTERSECTION_AREA"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "UNION_AREA"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "SYMMETRIC_DIFF"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "INTERSECTION_OVER_AREA"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "CURVATURE_RATIO"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "COMPLEXITY_RATIO"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "PERCENTILE_INTENSITY_RATIO"));
-          pairValueList += ", " + replaceInvalidValues(
-              MVUtil.findValue(listToken, headerNames, "INTEREST"));
-
-
           //set flags
           int simpleFlag = 1;
           String[] objIdArr = objectId.split("_");
@@ -2769,12 +2697,61 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
           }
-          pairValueList = pairValueList + "," + simpleFlag + "," + matchedFlag;
 
           //  insert the record into the mode_obj_pair database table
-          String strModeObjPairInsert = "INSERT INTO mode_obj_pair VALUES ("
-                                            + pairValueList + ");";
-          int intModeObjPairInsert = executeUpdate(strModeObjPairInsert);
+          String modeObjPairInsert = tableToInsert.get("mode_obj_single");
+          int intModeObjPairInsert;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(modeObjPairInsert)) {
+            stmt.setInt(1, modeObjectIdObs);
+            stmt.setInt(2, modeObjectIdFcst);
+            stmt.setInt(3, modeHeaderId);
+            stmt.setString(4, objectId);
+            stmt.setString(5, MVUtil.findValue(listToken, headerNames, "OBJECT_CAT"));
+            stmt.setObject(6, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "CENTROID_DIST")), Types.DOUBLE);
+            stmt.setObject(7, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "BOUNDARY_DIST")), Types.DOUBLE);
+            stmt.setObject(8, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "CONVEX_HULL_DIST")), Types.DOUBLE);
+            stmt.setObject(9, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "ANGLE_DIFF")), Types.DOUBLE);
+            stmt.setObject(10, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "ASPECT_DIFF")), Types.DOUBLE);
+            stmt.setObject(11, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "AREA_RATIO")), Types.DOUBLE);
+            stmt.setObject(12, replaceInvalidValues(
+                MVUtil.findValue(listToken,
+                                 headerNames,
+                                 "INTERSECTION_AREA")), Types.INTEGER);
+            stmt.setObject(13, replaceInvalidValues(
+                MVUtil.findValue(listToken,
+                                 headerNames,
+                                 "UNION_AREA")), Types.INTEGER);
+            stmt.setObject(14, replaceInvalidValues(
+                MVUtil.findValue(listToken,
+                                 headerNames,
+                                 "SYMMETRIC_DIFF")), Types.INTEGER);
+            stmt.setObject(15, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "INTERSECTION_OVER_AREA")), Types.DOUBLE);
+            stmt.setObject(16, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "CURVATURE_RATIO")), Types.DOUBLE);
+            stmt.setObject(17, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "COMPLEXITY_RATIO")), Types.DOUBLE);
+            stmt.setObject(18, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "PERCENTILE_INTENSITY_RATIO")),
+                           Types.DOUBLE);
+            stmt.setObject(19, replaceInvalidValues(
+                MVUtil.findValue(listToken, headerNames, "INTEREST")), Types.DOUBLE);
+            stmt.setInt(20, simpleFlag);
+            stmt.setInt(21, matchedFlag);
+
+            intModeObjPairInsert = stmt.executeUpdate();
+
+          } catch (SQLException se) {
+            logger.error(se.getMessage());
+            throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+          }
           if (1 != intModeObjPairInsert) {
             logger.warn(
                 "  **  WARNING: unexpected result from mode_obj_pair INSERT: "
