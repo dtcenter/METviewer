@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
 import edu.ucar.metviewer.MVLoadStatInsertData;
-import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -90,44 +90,218 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    * data_file_lu_id values for each MET output type
    */
   private final Map<String, Integer> tableDataFileLU;
-  private MVOrderedMap mapIndexes;
+  private final String[] dropIndexes;
+  private final String[] createIndexes;
 
   public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
     super(databaseInfo, password);
-    mapIndexes = new MVOrderedMap();
-    mapIndexes.put("#stat_header#_model_idx", "model");
-    mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
-    mapIndexes.put("#stat_header#_fcst_lev_idx", "fcst_lev");
-    mapIndexes.put("#stat_header#_obtype_idx", "obtype");
-    mapIndexes.put("#stat_header#_vx_mask_idx", "vx_mask");
-    mapIndexes.put("#stat_header#_interp_mthd_idx", "interp_mthd");
-    mapIndexes.put("#stat_header#_interp_pnts_idx", "interp_pnts");
-    mapIndexes.put("#stat_header#_fcst_thresh_idx", "fcst_thresh");
 
-    mapIndexes.put("#mode_header#_model_idx", "model");
-    mapIndexes.put("#mode_header#_fcst_lead_idx", "fcst_lead");
-    mapIndexes.put("#mode_header#_fcst_valid_idx", "fcst_valid");
-    mapIndexes.put("#mode_header#_fcst_init_idx", "fcst_init");
-    mapIndexes.put("#mode_header#_fcst_rad_idx", "fcst_rad");
-    mapIndexes.put("#mode_header#_fcst_thr_idx", "fcst_thr");
-    mapIndexes.put("#mode_header#_fcst_var_idx", "fcst_var");
-    mapIndexes.put("#mode_header#_fcst_lev_idx", "fcst_lev");
+    dropIndexes = new String[]{
+        "DROP INDEX stat_header_model_idx ON stat_header",
+        "DROP INDEX stat_header_fcst_var_idx ON stat_header",
+        "DROP INDEX stat_header_fcst_lev_idx ON stat_header",
+        "DROP INDEX stat_header_obtype_idx ON stat_header",
+        "DROP INDEX stat_header_vx_mask_idx ON stat_header",
+        "DROP INDEX stat_header_interp_mthd_idx ON stat_header",
+        "DROP INDEX stat_header_interp_pnts_idx ON stat_header",
+        "DROP INDEX stat_header_fcst_thresh_idx ON stat_header",
+        "DROP INDEX mode_header_model_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_lead_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_valid_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_init_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_rad_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_thr_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_var_idx ON mode_header",
+        "DROP INDEX mode_header_fcst_lev_idx ON mode_header",
+        "DROP INDEX mtd_header_model_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_lead_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_valid_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_init_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_rad_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_thr_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_var_idx ON mtd_header",
+        "DROP INDEX mtd_header_fcst_lev_idx ON mtd_header",
+        "DROP INDEX line_data_fho_fcst_lead_idx ON line_data_fho",
+        "DROP INDEX line_data_fho_fcst_valid_beg_idx ON line_data_fho",
+        "DROP INDEX line_data_fho_fcst_init_beg_idx ON line_data_fho",
+        "DROP INDEX line_data_ctc_fcst_lead_idx ON line_data_ctc",
+        "DROP INDEX line_data_ctc_fcst_valid_beg_idx ON line_data_ctc",
+        "DROP INDEX line_data_ctc_fcst_init_beg_idx ON line_data_ctc",
+        "DROP INDEX line_data_cts_fcst_lead_idx ON line_data_cts",
+        "DROP INDEX line_data_cts_fcst_valid_beg_idx ON line_data_cts",
+        "DROP INDEX line_data_cts_fcst_init_beg_idx ON line_data_cts",
+        "DROP INDEX line_data_cnt_fcst_lead_idx ON line_data_cnt",
+        "DROP INDEX line_data_cnt_fcst_valid_beg_idx ON line_data_cnt",
+        "DROP INDEX line_data_cnt_fcst_init_beg_idx ON line_data_cnt",
+        "DROP INDEX line_data_pct_fcst_lead_idx ON line_data_pct",
+        "DROP INDEX line_data_pct_fcst_valid_beg_idx ON line_data_pct",
+        "DROP INDEX line_data_pct_fcst_init_beg_idx ON line_data_pct",
+        "DROP INDEX line_data_pstd_fcst_lead_idx ON line_data_pstd",
+        "DROP INDEX line_data_pstd_fcst_valid_beg_idx ON line_data_pstd",
+        "DROP INDEX line_data_pstd_fcst_init_beg_idx ON line_data_pstd",
+        "DROP INDEX line_data_pjc_fcst_lead_idx ON line_data_pjc",
+        "DROP INDEX line_data_pjc_fcst_valid_beg_idx ON line_data_pjc",
+        "DROP INDEX line_data_pjc_fcst_init_beg_idx ON line_data_pjc",
+        "DROP INDEX line_data_prc_fcst_lead_idx ON line_data_prc",
+        "DROP INDEX line_data_prc_fcst_valid_beg_idx ON line_data_prc",
+        "DROP INDEX line_data_prc_fcst_init_beg_idx ON line_data_prc",
+        "DROP INDEX line_data_sl1l2_fcst_lead_idx ON line_data_sl1l2",
+        "DROP INDEX line_data_sl1l2_fcst_valid_beg_idx ON line_data_sl1l2",
+        "DROP INDEX line_data_sl1l2_fcst_init_beg_idx ON line_data_sl1l2",
+        "DROP INDEX line_data_sal1l2_fcst_lead_idx ON line_data_sal1l2",
+        "DROP INDEX line_data_sal1l2_fcst_valid_beg_idx ON line_data_sal1l2",
+        "DROP INDEX line_data_sal1l2_fcst_init_beg_idx ON line_data_sal1l2",
+        "DROP INDEX line_data_vl1l2_fcst_lead_idx ON line_data_vl1l2",
+        "DROP INDEX line_data_vl1l2_fcst_valid_beg_idx ON line_data_vl1l2",
+        "DROP INDEX line_data_vl1l2_fcst_init_beg_idx ON line_data_vl1l2",
+        "DROP INDEX line_data_val1l2_fcst_lead_idx ON line_data_val1l2",
+        "DROP INDEX line_data_val1l2_fcst_valid_beg_idx ON line_data_val1l2",
+        "DROP INDEX line_data_val1l2_fcst_init_beg_idx ON line_data_val1l2",
+        "DROP INDEX line_data_mpr_fcst_lead_idx ON line_data_mpr",
+        "DROP INDEX line_data_mpr_fcst_valid_beg_idx ON line_data_mpr",
+        "DROP INDEX line_data_mpr_fcst_init_beg_idx ON line_data_mpr",
+        "DROP INDEX line_data_nbrctc_fcst_lead_idx ON line_data_nbrctc",
+        "DROP INDEX line_data_nbrctc_fcst_valid_beg_idx ON line_data_nbrctc",
+        "DROP INDEX line_data_nbrctc_fcst_init_beg_idx ON line_data_nbrctc",
+        "DROP INDEX line_data_nbrcts_fcst_lead_idx ON line_data_nbrcts",
+        "DROP INDEX line_data_nbrcts_fcst_valid_beg_idx ON line_data_nbrcts",
+        "DROP INDEX line_data_nbrcts_fcst_init_beg_idx ON line_data_nbrcts",
+        "DROP INDEX line_data_nbrcnt_fcst_lead_idx ON line_data_nbrcnt",
+        "DROP INDEX line_data_nbrcnt_fcst_valid_beg_idx ON line_data_nbrcnt",
+        "DROP INDEX line_data_nbrcnt_fcst_init_beg_idx ON line_data_nbrcnt",
+        "DROP INDEX line_data_isc_fcst_lead_idx ON line_data_isc",
+        "DROP INDEX line_data_isc_fcst_valid_beg_idx ON line_data_isc",
+        "DROP INDEX line_data_isc_fcst_init_beg_idx ON line_data_isc",
+        "DROP INDEX line_data_mctc_fcst_lead_idx ON line_data_mctc",
+        "DROP INDEX line_data_mctc_fcst_valid_beg_idx ON line_data_mctc",
+        "DROP INDEX line_data_mctc_fcst_init_beg_idx ON line_data_mctc",
+        "DROP INDEX line_data_rhist_fcst_lead_idx ON line_data_rhist",
+        "DROP INDEX line_data_rhist_fcst_valid_beg_idx ON line_data_rhist",
+        "DROP INDEX line_data_rhist_fcst_init_beg_idx ON line_data_rhist",
+        "DROP INDEX line_data_orank_fcst_lead_idx ON line_data_orank",
+        "DROP INDEX line_data_orank_fcst_valid_beg_idx ON line_data_orank",
+        "DROP INDEX line_data_orank_fcst_init_beg_idx ON line_data_orank",
+        "DROP INDEX line_data_relp_fcst_lead_idx ON line_data_relp",
+        "DROP INDEX line_data_relp_fcst_valid_beg_idx ON line_data_relp",
+        "DROP INDEX line_data_relp_fcst_init_beg_idx ON line_data_relp",
+        "DROP INDEX line_data_eclv_fcst_lead_idx ON line_data_eclv",
+        "DROP INDEX line_data_eclv_fcst_valid_beg_idx ON line_data_eclv",
+        "DROP INDEX line_data_eclv_fcst_init_beg_idx ON line_data_eclv",
+        "DROP INDEX line_data_ssvar_fcst_lead_idx ON line_data_ssvar",
+        "DROP INDEX line_data_ssvar_fcst_valid_beg_idx ON line_data_ssvar",
+        "DROP INDEX line_data_ssvar_fcst_init_beg_idx ON line_data_ssvar",
+        "DROP INDEX line_data_enscnt_fcst_lead_idx ON line_data_enscnt",
+        "DROP INDEX line_data_enscnt_fcst_valid_beg_idx ON line_data_enscnt",
+        "DROP INDEX line_data_enscnt_fcst_init_beg_idx ON line_data_enscnt",
+        "DROP INDEX line_data_grad_fcst_lead_idx ON line_data_grad",
+        "DROP INDEX line_data_grad_fcst_valid_beg_idx ON line_data_grad",
+        "DROP INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad"
+    };
 
-    mapIndexes.put("#mtd_header#_model_idx", "model");
-    mapIndexes.put("#mtd_header#_fcst_lead_idx", "fcst_lead");
-    mapIndexes.put("#mtd_header#_fcst_valid_idx", "fcst_valid");
-    mapIndexes.put("#mtd_header#_fcst_init_idx", "fcst_init");
-    mapIndexes.put("#mtd_header#_fcst_rad_idx", "fcst_rad");
-    mapIndexes.put("#mtd_header#_fcst_thr_idx", "fcst_thr");
-    mapIndexes.put("#mtd_header#_fcst_var_idx", "fcst_var");
-    mapIndexes.put("#mtd_header#_fcst_lev_idx", "fcst_lev");
+    createIndexes = new String[]{
+        "CREATE INDEX stat_header_model_idx ON stat_header (model)",
+        "CREATE INDEX stat_header_fcst_var_idx ON stat_header (fcst_var)",
+        "CREATE INDEX stat_header_fcst_lev_idx ON stat_header (fcst_lev)",
+        "CREATE INDEX stat_header_obtype_idx ON stat_header (obtype)",
+        "CREATE INDEX stat_header_vx_mask_idx ON stat_header (vx_mask)",
+        "CREATE INDEX stat_header_interp_mthd_idx ON stat_header (interp_mthd)",
+        "CREATE INDEX stat_header_interp_pnts_idx ON stat_header (interp_pnts)",
+        "CREATE INDEX stat_header_fcst_thresh_idx ON stat_header (fcst_thresh)",
+        "CREATE INDEX mode_header_model_idx ON mode_header (model)",
+        "CREATE INDEX mode_header_fcst_lead_idx ON mode_header (fcst_lead)",
+        "CREATE INDEX mode_header_fcst_valid_idx ON mode_header (fcst_valid)",
+        "CREATE INDEX mode_header_fcst_init_idx ON mode_header (fcst_init)",
+        "CREATE INDEX mode_header_fcst_rad_idx ON mode_header (fcst_rad)",
+        "CREATE INDEX mode_header_fcst_thr_idx ON mode_header (fcst_thr)",
+        "CREATE INDEX mode_header_fcst_var_idx ON mode_header (fcst_var)",
+        "CREATE INDEX mode_header_fcst_lev_idx ON mode_header (fcst_lev)",
+        "CREATE INDEX mtd_header_model_idx ON mtd_header (model)",
+        "CREATE INDEX mtd_header_fcst_lead_idx ON mtd_header (fcst_lead)",
+        "CREATE INDEX mtd_header_fcst_valid_idx ON mtd_header (fcst_valid)",
+        "CREATE INDEX mtd_header_fcst_init_idx ON mtd_header (fcst_init)",
+        "CREATE INDEX mtd_header_fcst_rad_idx ON mtd_header (fcst_rad)",
+        "CREATE INDEX mtd_header_fcst_thr_idx ON mtd_header (fcst_thr)",
+        "CREATE INDEX mtd_header_fcst_var_idx ON mtd_header (fcst_var)",
+        "CREATE INDEX mtd_header_fcst_lev_idx ON mtd_header (fcst_lev)",
+        "CREATE INDEX line_data_fho_fcst_lead_idx ON line_data_fho (fcst_lead)",
+        "CREATE INDEX line_data_fho_fcst_valid_beg_idx ON line_data_fho (fcst_valid_beg)",
+        "CREATE INDEX line_data_fho_fcst_init_beg_idx ON line_data_fho (fcst_init_beg)",
+        "CREATE INDEX line_data_ctc_fcst_lead_idx ON line_data_ctc (fcst_lead)",
+        "CREATE INDEX line_data_ctc_fcst_valid_beg_idx ON line_data_ctc (fcst_valid_beg)",
+        "CREATE INDEX line_data_ctc_fcst_init_beg_idx ON line_data_ctc (fcst_init_beg)",
+        "CREATE INDEX line_data_cts_fcst_lead_idx ON line_data_cts (fcst_lead)",
+        "CREATE INDEX line_data_cts_fcst_valid_beg_idx ON line_data_cts (fcst_valid_beg)",
+        "CREATE INDEX line_data_cts_fcst_init_beg_idx ON line_data_cts (fcst_init_beg)",
+        "CREATE INDEX line_data_cnt_fcst_lead_idx ON line_data_cnt (fcst_lead)",
+        "CREATE INDEX line_data_cnt_fcst_valid_beg_idx ON line_data_cnt (fcst_valid_beg)",
+        "CREATE INDEX line_data_cnt_fcst_init_beg_idx ON line_data_cnt (fcst_init_beg)",
+        "CREATE INDEX line_data_pct_fcst_lead_idx ON line_data_pct (fcst_lead)",
+        "CREATE INDEX line_data_pct_fcst_valid_beg_idx ON line_data_pct (fcst_valid_beg)",
+        "CREATE INDEX line_data_pct_fcst_init_beg_idx ON line_data_pct (fcst_init_beg)",
+        "CREATE INDEX line_data_pstd_fcst_lead_idx ON line_data_pstd (fcst_lead)",
+        "CREATE INDEX line_data_pstd_fcst_valid_beg_idx ON line_data_pstd (fcst_valid_beg)",
+        "CREATE INDEX line_data_pstd_fcst_init_beg_idx ON line_data_pstd (fcst_init_beg)",
+        "CREATE INDEX line_data_pjc_fcst_lead_idx ON line_data_pjc (fcst_lead)",
+        "CREATE INDEX line_data_pjc_fcst_valid_beg_idx ON line_data_pjc (fcst_valid_beg)",
+        "CREATE INDEX line_data_pjc_fcst_init_beg_idx ON line_data_pjc (fcst_init_beg)",
+        "CREATE INDEX line_data_prc_fcst_lead_idx ON line_data_prc (fcst_lead)",
+        "CREATE INDEX line_data_prc_fcst_valid_beg_idx ON line_data_prc (fcst_valid_beg)",
+        "CREATE INDEX line_data_prc_fcst_init_beg_idx ON line_data_prc (fcst_init_beg)",
+        "CREATE INDEX line_data_sl1l2_fcst_lead_idx ON line_data_sl1l2 (fcst_lead)",
+        "CREATE INDEX line_data_sl1l2_fcst_valid_beg_idx ON line_data_sl1l2 (fcst_valid_beg)",
+        "CREATE INDEX line_data_sl1l2_fcst_init_beg_idx ON line_data_sl1l2 (fcst_init_beg)",
+        "CREATE INDEX line_data_sal1l2_fcst_lead_idx ON line_data_sal1l2 (fcst_lead)",
+        "CREATE INDEX line_data_sal1l2_fcst_valid_beg_idx ON line_data_sal1l2 (fcst_valid_beg)",
+        "CREATE INDEX line_data_sal1l2_fcst_init_beg_idx ON line_data_sal1l2 (fcst_init_beg)",
+        "CREATE INDEX line_data_vl1l2_fcst_lead_idx ON line_data_vl1l2 (fcst_lead)",
+        "CREATE INDEX line_data_vl1l2_fcst_valid_beg_idx ON line_data_vl1l2 (fcst_valid_beg)",
+        "CREATE INDEX line_data_vl1l2_fcst_init_beg_idx ON line_data_vl1l2 (fcst_init_beg)",
+        "CREATE INDEX line_data_val1l2_fcst_lead_idx ON line_data_val1l2 (fcst_lead)",
+        "CREATE INDEX line_data_val1l2_fcst_valid_beg_idx ON line_data_val1l2 (fcst_valid_beg)",
+        "CREATE INDEX line_data_val1l2_fcst_init_beg_idx ON line_data_val1l2 (fcst_init_beg)",
+        "CREATE INDEX line_data_mpr_fcst_lead_idx ON line_data_mpr (fcst_lead)",
+        "CREATE INDEX line_data_mpr_fcst_valid_beg_idx ON line_data_mpr (fcst_valid_beg)",
+        "CREATE INDEX line_data_mpr_fcst_init_beg_idx ON line_data_mpr (fcst_init_beg)",
+        "CREATE INDEX line_data_nbrctc_fcst_lead_idx ON line_data_nbrctc (fcst_lead)",
+        "CREATE INDEX line_data_nbrctc_fcst_valid_beg_idx ON line_data_nbrctc (fcst_valid_beg)",
+        "CREATE INDEX line_data_nbrctc_fcst_init_beg_idx ON line_data_nbrctc (fcst_init_beg)",
+        "CREATE INDEX line_data_nbrcts_fcst_lead_idx ON line_data_nbrcts (fcst_lead)",
+        "CREATE INDEX line_data_nbrcts_fcst_valid_beg_idx ON line_data_nbrcts (fcst_valid_beg)",
+        "CREATE INDEX line_data_nbrcts_fcst_init_beg_idx ON line_data_nbrcts (fcst_init_beg)",
+        "CREATE INDEX line_data_nbrcnt_fcst_lead_idx ON line_data_nbrcnt (fcst_lead)",
+        "CREATE INDEX line_data_nbrcnt_fcst_valid_beg_idx ON line_data_nbrcnt (fcst_valid_beg)",
+        "CREATE INDEX line_data_nbrcnt_fcst_init_beg_idx ON line_data_nbrcnt (fcst_init_beg)",
+        "CREATE INDEX line_data_isc_fcst_lead_idx ON line_data_isc (fcst_lead)",
+        "CREATE INDEX line_data_isc_fcst_valid_beg_idx ON line_data_isc (fcst_valid_beg)",
+        "CREATE INDEX line_data_isc_fcst_init_beg_idx ON line_data_isc (fcst_init_beg)",
+        "CREATE INDEX line_data_mctc_fcst_lead_idx ON line_data_mctc (fcst_lead)",
+        "CREATE INDEX line_data_mctc_fcst_valid_beg_idx ON line_data_mctc (fcst_valid_beg)",
+        "CREATE INDEX line_data_mctc_fcst_init_beg_idx ON line_data_mctc (fcst_init_beg)",
+        "CREATE INDEX line_data_rhist_fcst_lead_idx ON line_data_rhist (fcst_lead)",
+        "CREATE INDEX line_data_rhist_fcst_valid_beg_idx ON line_data_rhist (fcst_valid_beg)",
+        "CREATE INDEX line_data_rhist_fcst_init_beg_idx ON line_data_rhist (fcst_init_beg)",
+        "CREATE INDEX line_data_orank_fcst_lead_idx ON line_data_orank (fcst_lead)",
+        "CREATE INDEX line_data_orank_fcst_valid_beg_idx ON line_data_orank (fcst_valid_beg)",
+        "CREATE INDEX line_data_orank_fcst_init_beg_idx ON line_data_orank (fcst_init_beg)",
+        "CREATE INDEX line_data_relp_fcst_lead_idx ON line_data_relp (fcst_lead)",
+        "CREATE INDEX line_data_relp_fcst_valid_beg_idx ON line_data_relp (fcst_valid_beg)",
+        "CREATE INDEX line_data_relp_fcst_init_beg_idx ON line_data_relp (fcst_init_beg)",
+        "CREATE INDEX line_data_eclv_fcst_lead_idx ON line_data_eclv (fcst_lead)",
+        "CREATE INDEX line_data_eclv_fcst_valid_beg_idx ON line_data_eclv (fcst_valid_beg)",
+        "CREATE INDEX line_data_eclv_fcst_init_beg_idx ON line_data_eclv (fcst_init_beg)",
+        "CREATE INDEX line_data_ssvar_fcst_lead_idx ON line_data_ssvar (fcst_lead)",
+        "CREATE INDEX line_data_ssvar_fcst_valid_beg_idx ON line_data_ssvar (fcst_valid_beg)",
+        "CREATE INDEX line_data_ssvar_fcst_init_beg_idx ON line_data_ssvar (fcst_init_beg)",
+        "CREATE INDEX line_data_enscnt_fcst_lead_idx ON line_data_enscnt (fcst_lead)",
+        "CREATE INDEX line_data_enscnt_fcst_valid_beg_idx ON line_data_enscnt (fcst_valid_beg)",
+        "CREATE INDEX line_data_enscnt_fcst_init_beg_idx ON line_data_enscnt (fcst_init_beg)",
+        "CREATE INDEX line_data_grad_fcst_lead_idx ON line_data_grad (fcst_lead)",
+        "CREATE INDEX line_data_grad_fcst_valid_beg_idx ON line_data_grad (fcst_valid_beg)",
+        "CREATE INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad (fcst_init_beg)"
+    };
 
 
-    for (String listLineDataTable : listLineDataTables) {
-      mapIndexes.put("#" + listLineDataTable + "#_fcst_lead_idx", "fcst_lead");
-      mapIndexes.put("#" + listLineDataTable + "#_fcst_valid_beg_idx", "fcst_valid_beg");
-      mapIndexes.put("#" + listLineDataTable + "#_fcst_init_beg_idx", "fcst_init_beg");
-    }
+
     tableVarLengthTable = new HashMap<>();
     tableVarLengthTable.put("PCT", "line_data_pct_thresh");
     tableVarLengthTable.put("PSTD", "line_data_pstd_thresh");
@@ -170,38 +344,35 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
   private void applyIndexes(boolean drop) throws Exception {
-
-    logger.info("    ==== indexes ====\n" + (drop ? "  dropping..." : ""));
-    Map.Entry[] listIndexes = mapIndexes.getOrderedEntries();
-    for (Map.Entry listIndex : listIndexes) {
-      String strIndexKey = listIndex.getKey().toString();
-      String strField = listIndex.getValue().toString();
-      long intIndexStart = System.currentTimeMillis();
-
-      //  build a create index statment and run it
-      Matcher matIndex = patIndexName.matcher(strIndexKey);
-      if (!matIndex.matches()) {
-        throw new Exception("  **  ERROR: failed to parse index key " + strIndexKey);
-      }
-      String strTable = matIndex.group(1);
-      String strIndexName = strTable + matIndex.group(2);
-      String strIndex;
-      if (drop) {
-        strIndex = "DROP INDEX " + strIndexName + " ON " + strTable + " ;";
-      } else {
-        strIndex = "CREATE INDEX " + strIndexName + " ON " + strTable + " (" + strField + ");";
-      }
-      try {
-        executeUpdate(strIndex);
-      } catch (Exception e) {
-        logger.error(
-            "  **  ERROR: caught " + e.getClass() + " applying index " + strIndexName + ": " + e.getMessage());
-      }
-
-      //  print out a performance message
-      long intIndexTime = System.currentTimeMillis() - intIndexStart;
-      logger.info(MVUtil.padBegin(strIndexName + ": ", 36) + MVUtil.formatTimeSpan(intIndexTime));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    String[] sqlArray;
+    String operation;
+    if (drop) {
+      sqlArray = dropIndexes;
+      operation = "dropping";
+    } else {
+      sqlArray = createIndexes;
+      operation = "creating";
     }
+    logger.info("    ==== indexes ====" + operation);
+
+    for (String sql : sqlArray) {
+      try (Connection con = getConnection();
+           PreparedStatement stmt = con.prepareStatement(sql)) {
+        stmt.executeUpdate();
+      } catch (SQLException se) {
+        //print message only if the error is NOT about duplicated or missing index
+        //1061; Symbol: ER_DUP_KEYNAME; SQLSTATE: 42000 Message: Duplicate key name '%s'
+        //1091; Symbol: ER_CANT_DROP_FIELD_OR_KEY; SQLSTATE: 42000 Message: Can't
+        // DROP '%s'; check that column/key exists
+        if(se.getErrorCode() != 1091 || se.getErrorCode() != 1061 ) {
+          logger.error(se.getMessage());
+        }
+      }
+    }
+    stopWatch.stop();
+    logger.info("Indexes " + operation +" " + stopWatch.getFormattedTotalDuration());
     logger.info("");
   }
 
@@ -530,22 +701,41 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             statHeaderValue = Integer.toString(statHeaderId) + ", " + statHeaderValue;
 
             //  insert the record into the stat_header database table
-            String statHeaderInsertSql = "INSERT INTO stat_header VALUES ("
-                                             + statHeaderValue + ");";
-            int intStatHeaderInsert;
-            try {
-              intStatHeaderInsert = executeUpdate(statHeaderInsertSql);
-              if (1 != intStatHeaderInsert) {
-                logger.warn(
-                    "  **  WARNING: unexpected result from stat_header INSERT: "
-                        + intStatHeaderInsert + "\n        " + fileLine);
-                statHeaderId = null;
-              } else {
-                headerInserts++;
-              }
-            } catch (Exception e) {
-              logger.error(e.getMessage());
+            String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            int statHeaderInsert;
+            try (Connection con = getConnection();
+                 PreparedStatement stmt = con.prepareStatement(sql)) {
+
+              stmt.setInt(1, statHeaderId);
+              stmt.setString(2, MVUtil.findValue(listToken, headerNames, "VERSION"));
+              stmt.setString(3, MVUtil.findValue(listToken, headerNames, "MODEL"));
+              stmt.setString(4, MVUtil.findValue(listToken, headerNames, "DESC"));
+              stmt.setString(5, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
+              stmt.setString(6, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
+              stmt.setString(7, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
+              stmt.setString(8, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
+              stmt.setString(9, MVUtil.findValue(listToken, headerNames, "OBTYPE"));
+              stmt.setString(10, MVUtil.findValue(listToken, headerNames, "VX_MASK"));
+              stmt.setString(11, MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
+              stmt.setObject(12, strInterpPnts, Types.INTEGER);
+              stmt.setString(13, MVUtil.findValue(listToken, headerNames, "FCST_THRESH"));
+              stmt.setString(14, MVUtil.findValue(listToken, headerNames, "OBS_THRESH"));
+
+              statHeaderInsert = stmt.executeUpdate();
+
+            } catch (SQLException se) {
+              logger.error(se.getMessage());
+              throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+            }
+
+
+            if (1 != statHeaderInsert) {
+              logger.warn(
+                  "  **  WARNING: unexpected result from stat_header INSERT: "
+                      + statHeaderInsert + "\n        " + fileLine);
               statHeaderId = null;
+            } else {
+              headerInserts++;
             }
 
           } else {
@@ -1202,17 +1392,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           };
 
           //  build a where clause for searching for duplicate stat_header records
-         /* String statHeaderWhere = BINARY +
-                                       "  model = '" + modelName + "'\n" +
-                                       "  AND " + BINARY + "descr = '" + "NA" + "'\n" +
-                                       "  AND " + BINARY + "fcst_var = '" + listToken[7] + "'\n" +
-                                       "  AND " + BINARY + "fcst_lev = '" + listToken[8] + "'\n" +
-                                       "  AND " + BINARY + "obtype = '" + listToken[4] + "'\n" +
-                                       "  AND " + BINARY + "vx_mask = '" + listToken[5] + "'\n" +
-                                       "  AND " + BINARY + "interp_mthd = '" + "NA" + "'\n" +
-                                       "  AND interp_pnts = " + interpPnts + "\n" +
-                                       "  AND " + BINARY + "fcst_thresh = '" + thresh + "'\n" +
-                                       "  AND " + BINARY + "obs_thresh = '" + thresh + "'";*/
+
 
           String statHeaderWhere = BINARY + "  model =?"
                                        + "  AND " + BINARY + "descr =?"
@@ -1303,21 +1483,41 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                         statHeaderValueList;
 
               //  insert the record into the stat_header database table
-              String strStatHeaderInsert = "INSERT INTO stat_header VALUES (" + statHeaderValueList + ");";
-
+              String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
               int intStatHeaderInsert;
-              try {
-                intStatHeaderInsert = executeUpdate(strStatHeaderInsert);
-                if (1 != intStatHeaderInsert) {
-                  logger.warn(
-                      "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
-                  statHeaderId = null;
-                } else {
-                  headerInserts++;
-                }
-              } catch (Exception e) {
-                logger.error(e.getMessage());
+              try (Connection con = getConnection();
+                   PreparedStatement stmt = con.prepareStatement(sql)) {
+
+
+                stmt.setInt(1, statHeaderId);
+                stmt.setString(2, statHeaderValue[0]);
+                stmt.setString(3, modelName);
+                stmt.setString(4, "NA");
+                stmt.setString(5, listToken[7]);
+                stmt.setString(6, listToken[8]);
+                stmt.setString(7, listToken[7]);
+                stmt.setString(8, listToken[8]);
+                stmt.setString(9, listToken[4]);
+                stmt.setString(10, listToken[5]);
+                stmt.setString(11, "NA");
+                stmt.setObject(12, interpPnts, Types.INTEGER);
+                stmt.setString(13, thresh);
+                stmt.setString(13, thresh);
+
+
+                intStatHeaderInsert = stmt.executeUpdate();
+              } catch (SQLException se) {
+                logger.error(se.getMessage());
+                throw new Exception(
+                    "caught SQLException calling executeUpdate: " + se.getMessage());
+              }
+
+              if (1 != intStatHeaderInsert) {
+                logger.warn(
+                    "  **  WARNING: unexpected result from stat_header INSERT: " + intStatHeaderInsert + "\n        " + strFileLine);
                 statHeaderId = null;
+              } else {
+                headerInserts++;
               }
 
             } else {
@@ -2070,30 +2270,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                                  "VERSION"));
               stmt.setString(2, MVUtil.findValue(listToken, headerNames,
                                                  "MODEL"));
-
               if ("NA".equals(MVUtil.findValue(listToken, headerNames, "N_VALID"))) {
                 stmt.setNull(3, Types.INTEGER);
               } else {
                 stmt.setObject(3, MVUtil.findValue(listToken, headerNames, "N_VALID"),
                                Types.INTEGER);
               }
-
               if ("NA".equals(MVUtil.findValue(listToken, headerNames, "GRID_RES"))) {
                 stmt.setNull(4, Types.INTEGER);
               } else {
                 stmt.setObject(4, MVUtil.findValue(listToken, headerNames, "GRID_RES"),
                                Types.INTEGER);
               }
-
               stmt.setString(5, MVUtil.findValue(listToken, headerNames,
                                                  "DESC"));
-
               stmt.setObject(6, MVUtil.findValue(listToken, headerNames, "FCST_LEAD"),
                              Types.INTEGER);
-
               stmt.setObject(7, fcstValidBegStr, Types.TIMESTAMP);
-
-
               Integer accum = null;
               try {
                 accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
@@ -2104,14 +2297,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               } else {
                 stmt.setInt(8, accum);
               }
-
               stmt.setObject(9, fcstInitStr, Types.TIMESTAMP);
-
               stmt.setString(10, MVUtil.findValue(listToken, headerNames,
                                                   "OBS_LEAD"));
-
               stmt.setObject(11, obsValidBegStr, Types.TIMESTAMP);
-
               try {
                 accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
               } catch (Exception e) {
@@ -2121,14 +2310,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               } else {
                 stmt.setInt(12, accum);
               }
-
-
               stmt.setObject(13, MVUtil.findValue(listToken, headerNames, "FCST_RAD"),
                              Types.INTEGER);
-
               stmt.setString(14, MVUtil.findValue(listToken, headerNames,
                                                   "FCST_THR"));
-
               stmt.setObject(15, MVUtil.findValue(listToken, headerNames, "OBS_RAD"),
                              Types.INTEGER);
               stmt.setString(16, MVUtil.findValue(listToken, headerNames,
@@ -2181,9 +2366,82 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                     modeHeaderValueList;
 
             //  insert the record into the mode_header database table
-            String modeHeaderInsert = "INSERT INTO mode_header VALUES ("
-                                          + modeHeaderValueList + ");";
-            int modeHeaderInsertCount = executeUpdate(modeHeaderInsert);
+            String sql = "INSERT INTO mode_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            int modeHeaderInsertCount;
+            try (Connection con = getConnection();
+                 PreparedStatement stmt = con.prepareStatement(sql)) {
+              stmt.setInt(1, modeHeaderId);
+              stmt.setInt(2, lineTypeLuId);
+              stmt.setInt(3, info.fileId);
+              stmt.setInt(4, intLine);
+              stmt.setString(5, MVUtil.findValue(listToken, headerNames,
+                                                 "VERSION"));
+              stmt.setString(6, MVUtil.findValue(listToken, headerNames,
+                                                 "MODEL"));
+              if ("NA".equals(MVUtil.findValue(listToken, headerNames, "N_VALID"))) {
+                stmt.setNull(7, Types.INTEGER);
+              } else {
+                stmt.setObject(7, MVUtil.findValue(listToken, headerNames, "N_VALID"),
+                               Types.INTEGER);
+              }
+              if ("NA".equals(MVUtil.findValue(listToken, headerNames, "GRID_RES"))) {
+                stmt.setNull(8, Types.INTEGER);
+              } else {
+                stmt.setObject(8, MVUtil.findValue(listToken, headerNames,
+                                                   "GRID_RES"),
+                               Types.INTEGER);
+              }
+              stmt.setString(9, MVUtil.findValue(listToken, headerNames,
+                                                 "DESC"));
+              stmt.setObject(10, MVUtil.findValue(listToken, headerNames, "FCST_LEAD"),
+                             Types.INTEGER);
+              stmt.setObject(11, fcstValidBegStr, Types.TIMESTAMP);
+              Integer accum = null;
+              try {
+                accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
+              } catch (Exception e) {
+              }
+              if (accum == null) {
+                stmt.setNull(12, Types.INTEGER);
+              } else {
+                stmt.setInt(12, accum);
+              }
+              stmt.setObject(13, fcstInitStr, Types.TIMESTAMP);
+              stmt.setString(14, MVUtil.findValue(listToken, headerNames,
+                                                  "OBS_LEAD"));
+              stmt.setObject(15, obsValidBegStr, Types.TIMESTAMP);
+              try {
+                accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
+              } catch (Exception e) {
+              }
+              if (accum == null) {
+                stmt.setNull(16, Types.INTEGER);
+              } else {
+                stmt.setInt(16, accum);
+              }
+              stmt.setObject(17, MVUtil.findValue(listToken, headerNames, "FCST_RAD"),
+                             Types.INTEGER);
+              stmt.setString(18, MVUtil.findValue(listToken, headerNames,
+                                                  "FCST_THR"));
+              stmt.setObject(19, MVUtil.findValue(listToken, headerNames, "OBS_RAD"),
+                             Types.INTEGER);
+              stmt.setString(20, MVUtil.findValue(listToken, headerNames,
+                                                  "OBS_THR"));
+              stmt.setString(21, MVUtil.findValue(listToken, headerNames,
+                                                  "FCST_VAR"));
+              stmt.setString(22, MVUtil.findValue(listToken, headerNames,
+                                                  "FCST_LEV"));
+              stmt.setString(23, MVUtil.findValue(listToken, headerNames,
+                                                  "OBS_VAR"));
+              stmt.setString(24, MVUtil.findValue(listToken, headerNames,
+                                                  "OBS_LEV"));
+
+              modeHeaderInsertCount = stmt.executeUpdate();
+            } catch (SQLException se) {
+              logger.error(se.getMessage());
+              throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+            }
+
             if (1 != modeHeaderInsertCount) {
               logger.warn(
                   "  **  WARNING: unexpected result from mode_header INSERT: "
@@ -2929,12 +3187,31 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     if (!currentCategory.equals(group)) {
       if (nrows == 0) {
-        sql = "INSERT INTO metadata VALUES ('" + group + "','')";
+        sql = "INSERT INTO metadata VALUES (?,?)";
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setString(1, group);
+          stmt.setString(2, "");
+          stmt.executeUpdate();
+        } catch (SQLException se) {
+          logger.error(se.getMessage());
+          throw new Exception(
+              "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
       } else {
-        sql = "UPDATE metadata SET category = '" + group
-                  + "' WHERE " + BINARY + "category = '" + currentCategory + "'";
+        sql =
+            "UPDATE metadata SET category = ? WHERE " + BINARY + "category = ?";
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setString(1, group);
+          stmt.setString(2, currentCategory);
+          stmt.executeUpdate();
+        } catch (SQLException se) {
+          logger.error(se.getMessage());
+          throw new Exception(
+              "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
       }
-      executeUpdate(sql);
     }
   }
 
@@ -2959,12 +3236,33 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     if (!currentDescription.equals(description)) {
       if (nrows == 0) {
-        sql = "INSERT INTO metadata VALUES (''," + description + "')";
+        sql = "INSERT INTO metadata VALUES (?,?)";
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setString(1, "");
+          stmt.setString(2, description);
+          stmt.executeUpdate();
+        } catch (SQLException se) {
+          logger.error(se.getMessage());
+          throw new Exception(
+              "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
+
       } else {
-        sql = "UPDATE metadata SET description = '" + description
-                  + "' WHERE " + BINARY + "description = '" + currentDescription + "'";
+
+        sql =
+            "UPDATE metadata SET description = ? WHERE " + BINARY + "description = ?";
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setString(1, description);
+          stmt.setString(2, currentDescription);
+          stmt.executeUpdate();
+        } catch (SQLException se) {
+          logger.error(se.getMessage());
+          throw new Exception(
+              "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
       }
-      executeUpdate(sql);
     }
   }
 
@@ -3040,8 +3338,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    */
   @Override
   public DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception {
-    String strPath = file.getParent().replace("\\", "/");
-    String strFile = file.getName();
+    String filePath = file.getParent().replace("\\", "/");
+    String fileName = file.getName();
     int dataFileLuId = -1;
     String dataFileLuTypeName;
     int dataFileId;
@@ -3059,23 +3357,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
     // determine the type of the input data file by parsing the filename
-    if (strFile.matches("\\S+\\.stat$")) {
+    if (fileName.matches("\\S+\\.stat$")) {
       dataFileLuTypeName = "stat";
-    } else if (strFile.matches("\\S+_obj\\.txt$")) {
+    } else if (fileName.matches("\\S+_obj\\.txt$")) {
       dataFileLuTypeName = "mode_obj";
-    } else if (strFile.matches("\\S+_cts\\.txt$")) {
+    } else if (fileName.matches("\\S+_cts\\.txt$")) {
       dataFileLuTypeName = "mode_cts";
-    } else if (strFile.matches("\\S+\\.vsdb$")) {
+    } else if (fileName.matches("\\S+\\.vsdb$")) {
       dataFileLuTypeName = "vsdb_point_stat";
-    } else if (strFile.matches("\\S+2d.txt$")) {
+    } else if (fileName.matches("\\S+2d.txt$")) {
       dataFileLuTypeName = "mtd_2d";
-    } else if (strFile.matches("\\S+3d_pair_cluster.txt$")) {
+    } else if (fileName.matches("\\S+3d_pair_cluster.txt$")) {
       dataFileLuTypeName = "mtd_3d_pc";
-    } else if (strFile.matches("\\S+3d_pair_simple.txt$")) {
+    } else if (fileName.matches("\\S+3d_pair_simple.txt$")) {
       dataFileLuTypeName = "mtd_3d_ps";
-    } else if (strFile.matches("\\S+3d_single_cluster.txt$")) {
+    } else if (fileName.matches("\\S+3d_single_cluster.txt$")) {
       dataFileLuTypeName = "mtd_3d_sc";
-    } else if (strFile.matches("\\S+3d_single_simple.txt$")) {
+    } else if (fileName.matches("\\S+3d_single_simple.txt$")) {
       dataFileLuTypeName = "mtd_3d_ss";
     } else {
       return null;
@@ -3096,8 +3394,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "  data_file df " +
             "WHERE " +
             "  dfl.data_file_lu_id = df.data_file_lu_id " +
-            "  AND " + BINARY + "df.filename = \'" + strFile + "\' " +
-            "  AND " + BINARY + "df.path = \'" + strPath + "\'";
+            "  AND " + BINARY + "df.filename = \'" + fileName + "\' " +
+            "  AND " + BINARY + "df.path = \'" + filePath + "\'";
 
 
     try (
@@ -3114,9 +3412,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         modDate = res.getString(4);
 
         if (forceDupFile) {
-          DataFileInfo info = new DataFileInfo(dataFileId,
-                                               strFile
-              , strPath, loadDate,
+          DataFileInfo info = new DataFileInfo(dataFileId, fileName, filePath, loadDate,
                                                modDate, dataFileLuId, dataFileLuTypeName);
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
@@ -3151,20 +3447,30 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
     // add the input file to the data_file table
+
+
     String strDataFileInsert =
-        "INSERT INTO data_file VALUES (" +
-            dataFileId + ", " +      // data_file_id
-            dataFileLuId + ", " +    // data_file_lu_id
-            "'" + strFile + "', " +      // filename
-            "'" + strPath + "', " +      // path
-            "'" + loadDate + "', " +    // load_date
-            "'" + modDate + "');";    // mod_date
-    int intRes = executeUpdate(strDataFileInsert);
-    if (1 != intRes) {
-      logger.warn("  **  WARNING: unexpected result from data_file INSERT: " + intRes);
+        "INSERT INTO data_file VALUES (?,?,?,?,?,?)";
+    int resCounter;
+    try (Connection con = getConnection();
+         PreparedStatement stmt = con.prepareStatement(strDataFileInsert)) {
+      stmt.setInt(1, dataFileId);
+      stmt.setInt(2, dataFileLuId);
+      stmt.setString(3, fileName);
+      stmt.setString(4, filePath);
+      stmt.setObject(5, loadDate, Types.TIMESTAMP);
+      stmt.setObject(6, modDate, Types.TIMESTAMP);
+      resCounter = stmt.executeUpdate();
+    } catch (SQLException se) {
+      logger.error(se.getMessage());
+      throw new Exception(
+          "caught SQLException calling executeUpdate: " + se.getMessage());
+    }
+    if (1 != resCounter) {
+      logger.warn("  **  WARNING: unexpected result from data_file INSERT: " + resCounter);
     }
 
-    return new DataFileInfo(dataFileId, strFile, strPath,
+    return new DataFileInfo(dataFileId, fileName, filePath,
                             loadDate,
                             modDate, dataFileLuId,
                             dataFileLuTypeName);
@@ -3198,18 +3504,28 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
 
     //  construct an update statement for instance_info
+
+
     String instInfoSQL =
-        "INSERT INTO instance_info VALUES (" +
-            "'" + instInfoIdNext + "', " +
-            "'" + updater + "', " +
-            "'" + updateDate + "', " +
-            "'" + updateDetail + "', " +
-            "'" + loadXmlStr + "'" +
-            ");";
+        "INSERT INTO instance_info VALUES (?,?,?,?,?)";
 
     //  execute the insert SQL
     logger.info("Inserting instance_info record...  ");
-    int insert = executeUpdate(instInfoSQL);
+    int insert;
+    try (Connection con = getConnection();
+         PreparedStatement stmt = con.prepareStatement(instInfoSQL)) {
+      stmt.setInt(1, instInfoIdNext);
+      stmt.setString(2, updater);
+      stmt.setObject(3, updateDate, Types.TIMESTAMP);
+      stmt.setString(4, updateDetail);
+      stmt.setString(5, loadXmlStr.toString());
+      insert = stmt.executeUpdate();
+    } catch (SQLException se) {
+      logger.error(se.getMessage());
+      throw new Exception(
+          "caught SQLException calling executeUpdate: " + se.getMessage());
+    }
+
     if (1 != insert) {
       throw new Exception("unexpected number of instance_info rows inserted: " + insert);
     }
