@@ -53,7 +53,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       0.200000000, 0.125000000, 0.100000000, 0.055555556, 0.037037037, 0.025000000,
       0.016666667, 0.011111111, 0.007142857, 0.004761905, 0.002857143, 0.002000000
   };
-  private final Pattern patIndexName = Pattern.compile("#([\\w\\d]+)#([\\w\\d]+)");
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
   private final Map<String, Integer> statHeaders = new HashMap<>();
   private final Map<String, Integer> modeHeaders = new HashMap<>();
@@ -92,9 +91,119 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   private final Map<String, Integer> tableDataFileLU;
   private final String[] dropIndexes;
   private final String[] createIndexes;
+  private final Map<String, String> tableToInsert;
 
   public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
     super(databaseInfo, password);
+
+    tableToInsert = new HashMap<>();
+    tableToInsert.put("line_data_fho", "INSERT INTO line_data_fho VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?)");//14
+    tableToInsert.put("line_data_ctc", "INSERT INTO line_data_ctc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?)");//15
+    tableToInsert.put("line_data_cts",
+                      "INSERT INTO line_data_cts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//104
+    tableToInsert.put("line_data_cnt", "INSERT INTO line_data_cnt VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//105
+    tableToInsert
+        .put("line_data_ecnt", "INSERT INTO line_data_ecnt VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?,?,?,?,?)");//22
+    tableToInsert
+        .put("line_data_mctc", "INSERT INTO line_data_mctc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?)");//13
+    tableToInsert.put("line_data_mctc_cnt", "INSERT INTO line_data_mctc_cnt VALUES (?,?,?,?)");//4
+    tableToInsert
+        .put("line_data_mcts", "INSERT INTO line_data_mcts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//27
+    tableToInsert.put("line_data_pct", "INSERT INTO line_data_pct VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?)");//14
+    tableToInsert
+        .put("line_data_pct_thresh", "INSERT INTO line_data_pct_thresh VALUES (?,?,?,?,?)");//5
+    tableToInsert
+        .put("line_data_pstd", "INSERT INTO line_data_pstd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//30
+    tableToInsert
+        .put("line_data_pstd_thresh", "INSERT INTO line_data_pstd_thresh VALUES (?,?,?)");//3
+    tableToInsert.put("line_data_pjc", "INSERT INTO line_data_pjc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?)");//14
+    tableToInsert.put("line_data_pjc_thresh", "INSERT INTO line_data_pjc_thresh VALUES (?,?,?,?,?,"
+                                                  + "?,?,?,?)");//9
+    tableToInsert.put("line_data_prc", "INSERT INTO line_data_prc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?)");//14
+    tableToInsert
+        .put("line_data_prc_thresh", "INSERT INTO line_data_prc_thresh VALUES (?,?,?,?,?)");//5
+    tableToInsert
+        .put("line_data_sl1l2", "INSERT INTO line_data_sl1l2 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?,?,?,?)");//17
+    tableToInsert
+        .put("line_data_grad", "INSERT INTO line_data_grad VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?)");//18
+    tableToInsert
+        .put("line_data_sal1l2", "INSERT INTO line_data_sal1l2 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?)");//17
+    tableToInsert
+        .put("line_data_vl1l2", "INSERT INTO line_data_vl1l2 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?,?,?,?,?,?,?)");//20
+    tableToInsert
+        .put("line_data_val1l2", "INSERT INTO line_data_val1l2 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?)");//18
+    tableToInsert.put("line_data_mpr", "INSERT INTO line_data_mpr VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?,?,?,?,?,?,?,?,?,?)");//24
+
+    tableToInsert
+        .put("line_data_nbrctc", "INSERT INTO line_data_nbrctc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?)");//16
+    tableToInsert
+        .put("line_data_nbrcts", "INSERT INTO line_data_nbrcts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//105
+    tableToInsert
+        .put("line_data_nbrcnt", "INSERT INTO line_data_nbrcnt VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//30
+    tableToInsert
+        .put("line_data_enscnt", "INSERT INTO line_data_enscnt VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                     + "?,?,?,?,?,?,?,?,?,?)");//40
+    tableToInsert.put("line_data_isc", "INSERT INTO line_data_isc VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                           + "?,?,?,?,?,?,?,?,?,?)");//22
+    tableToInsert
+        .put("line_data_rhist", "INSERT INTO line_data_rhist VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?)");//13
+    tableToInsert.put("line_data_rhist_rank", "INSERT INTO line_data_rhist_rank VALUES (?,?,?)");//3
+    tableToInsert
+        .put("line_data_relp", "INSERT INTO line_data_relp VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?)");//13
+    tableToInsert.put("line_data_relp_ens", "INSERT INTO line_data_relp_ens VALUES (?,?,?)");//3
+    tableToInsert
+        .put("line_data_eclv", "INSERT INTO line_data_eclv VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?)");//15
+    tableToInsert.put("line_data_eclv_pnt", "INSERT INTO line_data_eclv_pnt VALUES (?,?,?,?)");//4
+    tableToInsert
+        .put("line_data_phist", "INSERT INTO line_data_phist VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?)");//14
+    tableToInsert.put("line_data_phist_bin", "INSERT INTO line_data_phist_bin VALUES (?,?,?)");//3
+    tableToInsert
+        .put("line_data_orank", "INSERT INTO line_data_orank VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//30
+    tableToInsert.put("line_data_orank_ens", "INSERT INTO line_data_orank_ens VALUES (?,?,?)");//3
+    tableToInsert
+        .put("line_data_ssvar", "INSERT INTO line_data_ssvar VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//46
+    tableToInsert
+        .put("line_data_vcnt", "INSERT INTO line_data_vcnt VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                                   + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//66
+    tableToInsert.put("mode_cts", "INSERT INTO mode_cts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                      + "?,?,?,?,?,?,?,?)");//20
+
+    tableToInsert
+        .put("mode_obj_single", "INSERT INTO mode_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
+                                    + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//27
 
     dropIndexes = new String[]{
         "DROP INDEX stat_header_model_idx ON stat_header",
@@ -301,7 +410,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     };
 
 
-
     tableVarLengthTable = new HashMap<>();
     tableVarLengthTable.put("PCT", "line_data_pct_thresh");
     tableVarLengthTable.put("PSTD", "line_data_pstd_thresh");
@@ -366,13 +474,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //1061; Symbol: ER_DUP_KEYNAME; SQLSTATE: 42000 Message: Duplicate key name '%s'
         //1091; Symbol: ER_CANT_DROP_FIELD_OR_KEY; SQLSTATE: 42000 Message: Can't
         // DROP '%s'; check that column/key exists
-        if(se.getErrorCode() != 1091 || se.getErrorCode() != 1061 ) {
+        if (se.getErrorCode() != 1091 || se.getErrorCode() != 1061) {
           logger.error(se.getMessage());
         }
       }
     }
     stopWatch.stop();
-    logger.info("Indexes " + operation +" " + stopWatch.getFormattedTotalDuration());
+    logger.info("Indexes " + operation + " " + stopWatch.getFormattedTotalDuration());
     logger.info("");
   }
 
@@ -1121,12 +1229,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    * was designed to be called from loadStatFile(), which is responsible for building insert value
    * lists for the various types of grid_stat and point_stat database tables.
    *
-   * @param mvLoadStatInsertData Data structure loaded with insert value lists
+   * @param statInsertData Data structure loaded with insert value lists
    * @return An array of four integers, indexed by the INDEX_* members, representing the number of
    * database inserts of each type
    * @throws Exception
    */
-  private int[] commitStatData(MVLoadStatInsertData mvLoadStatInsertData)
+  private int[] commitStatData(MVLoadStatInsertData statInsertData)
       throws Exception {
 
     int[] listInserts = new int[]{0, 0, 0, 0};
@@ -1135,7 +1243,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
      * * * *  stat_header was committed commit  * * * *
      */
 
-    mvLoadStatInsertData.getListInsertValues().clear();
+    statInsertData.getListInsertValues().clear();
 
 
     /*
@@ -1143,22 +1251,21 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
      */
 
     //  for each line type, build an insert statement with the appropriate list of values
-    for (Map.Entry<String, List<String>> entry : mvLoadStatInsertData.getTableLineDataValues()
+    for (Map.Entry<String, List<String>> entry : statInsertData.getTableLineDataValues()
                                                      .entrySet()) {
-      mvLoadStatInsertData.setLineType(entry.getKey());
+      statInsertData.setLineType(entry.getKey());
       ArrayList listValues = (ArrayList) entry.getValue();
-      String strLineDataTable = "line_data_" + mvLoadStatInsertData.getLineType()
-                                                   .toLowerCase(Locale.US);
+      String tableName = "line_data_" + statInsertData.getLineType().toLowerCase(Locale.US);
 
-      boolean resLineDataInsertCount = executeBatch(listValues, strLineDataTable);
+      boolean resLineDataInsertCount = executeBatch(listValues, tableName);
       if (!resLineDataInsertCount) {
         logger.warn(
             "  **  WARNING: unexpected result from line_data INSERT: "
-                + mvLoadStatInsertData.getFileLine());
+                + statInsertData.getFileLine());
       }
       listInserts[INDEX_LINE_DATA]++;
     }
-    mvLoadStatInsertData.getTableLineDataValues().clear();
+    statInsertData.getTableLineDataValues().clear();
 
 
     /*
@@ -1166,38 +1273,38 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
      */
 
     //  build a stat_group insert with all stored values
-    if (!mvLoadStatInsertData.getListStatGroupInsertValues().isEmpty()) {
+    if (!statInsertData.getListStatGroupInsertValues().isEmpty()) {
       String statGroupInsertValues = "";
-      for (int i = 0; i < mvLoadStatInsertData.getListStatGroupInsertValues().size(); i++) {
-        statGroupInsertValues += (i == 0 ? "" : ", ") + mvLoadStatInsertData
+      for (int i = 0; i < statInsertData.getListStatGroupInsertValues().size(); i++) {
+        statGroupInsertValues += (i == 0 ? "" : ", ") + statInsertData
                                                             .getListStatGroupInsertValues()
                                                             .get(i);
       }
       String statGroupInsert = "INSERT INTO stat_group VALUES " + statGroupInsertValues + ";";
       int statGroupInsertCount = executeUpdate(statGroupInsert);
-      if (mvLoadStatInsertData.getListStatGroupInsertValues().size() != statGroupInsertCount) {
+      if (statInsertData.getListStatGroupInsertValues().size() != statGroupInsertCount) {
         logger.warn(
             "  **  WARNING: unexpected result from stat_group INSERT: " + statGroupInsertCount + " vs. " +
-                mvLoadStatInsertData.getListStatGroupInsertValues()
-                    .size() + "\n        " + mvLoadStatInsertData.getFileLine());
+                statInsertData.getListStatGroupInsertValues()
+                    .size() + "\n        " + statInsertData.getFileLine());
       }
       int indexStatGroup = 2;
       listInserts[indexStatGroup]++;
     }
-    mvLoadStatInsertData.getListStatGroupInsertValues().clear();
+    statInsertData.getListStatGroupInsertValues().clear();
 
     /*
      * * * *  variable length data commit  * * * *
      */
 
     //  insert probabilistic data into the thresh tables
-    Set<String> strings = mvLoadStatInsertData.getTableVarLengthValues().keySet();
+    Set<String> strings = statInsertData.getTableVarLengthValues().keySet();
     String[] varLengthTypes = strings.toArray(new String[strings.size()]);
 
 
     for (String listVarLengthType : varLengthTypes) {
       String[] listVarLengthValues = MVUtil.toArray(
-          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType));
+          statInsertData.getTableVarLengthValues().get(listVarLengthType));
       if (1 > listVarLengthValues.length) {
         continue;
       }
@@ -1211,9 +1318,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       if (listVarLengthValues.length != intThreshInsert) {
         logger.warn(
             "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
-                listVarLengthValues.length + "\n        " + mvLoadStatInsertData.getFileLine());
+                listVarLengthValues.length + "\n        " + statInsertData.getFileLine());
       }
-      mvLoadStatInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
+      statInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
     }
 
     return listInserts;
@@ -2458,18 +2565,39 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         if (modeCts == lineTypeLuId) {
 
-          //  build the value list for the mode_cts insert
-          String ctsValueList = modeHeaderId + ", '"
-                                    + MVUtil.findValue(listToken, headerNames, "FIELD")
-                                    + "'";
           int totalIndex = headerNames.indexOf("TOTAL");
-          for (int i = 0; i < 18; i++) {
-            ctsValueList += ", " + replaceInvalidValues(listToken[totalIndex + i]);
+
+          String modeCtsInsert = tableToInsert.get("mode_cts");
+          int modeCtsInsertCount;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(modeCtsInsert)) {
+            stmt.setInt(1, modeHeaderId);
+            stmt.setString(2, MVUtil.findValue(listToken, headerNames, "FIELD"));
+            stmt.setObject(3, replaceInvalidValues(listToken[totalIndex]), Types.INTEGER);
+            stmt.setObject(4, replaceInvalidValues(listToken[totalIndex + 1]), Types.INTEGER);
+            stmt.setObject(5, replaceInvalidValues(listToken[totalIndex + 2]), Types.INTEGER);
+            stmt.setObject(6, replaceInvalidValues(listToken[totalIndex + 3]), Types.INTEGER);
+            stmt.setObject(7, replaceInvalidValues(listToken[totalIndex + 4]), Types.INTEGER);
+            stmt.setObject(8, replaceInvalidValues(listToken[totalIndex + 5]), Types.DOUBLE);
+            stmt.setObject(9, replaceInvalidValues(listToken[totalIndex + 6]), Types.DOUBLE);
+            stmt.setObject(10, replaceInvalidValues(listToken[totalIndex + 7]), Types.DOUBLE);
+            stmt.setObject(11, replaceInvalidValues(listToken[totalIndex + 8]), Types.DOUBLE);
+            stmt.setObject(12, replaceInvalidValues(listToken[totalIndex + 9]), Types.DOUBLE);
+            stmt.setObject(13, replaceInvalidValues(listToken[totalIndex + 10]), Types.DOUBLE);
+            stmt.setObject(14, replaceInvalidValues(listToken[totalIndex + 11]), Types.DOUBLE);
+            stmt.setObject(15, replaceInvalidValues(listToken[totalIndex + 12]), Types.DOUBLE);
+            stmt.setObject(16, replaceInvalidValues(listToken[totalIndex + 13]), Types.DOUBLE);
+            stmt.setObject(17, replaceInvalidValues(listToken[totalIndex + 14]), Types.DOUBLE);
+            stmt.setObject(18, replaceInvalidValues(listToken[totalIndex + 15]), Types.DOUBLE);
+            stmt.setObject(19, replaceInvalidValues(listToken[totalIndex + 16]), Types.DOUBLE);
+            stmt.setObject(20, replaceInvalidValues(listToken[totalIndex + 17]), Types.DOUBLE);
+            modeCtsInsertCount = stmt.executeUpdate();
+
+          } catch (SQLException se) {
+            logger.error(se.getMessage());
+            throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
           }
 
-          //  insert the record into the mode_cts database table
-          String modeCtsInsert = "INSERT INTO mode_cts VALUES (" + ctsValueList + ");";
-          int modeCtsInsertCount = executeUpdate(modeCtsInsert);
           if (1 != modeCtsInsertCount) {
             logger.warn(
                 "  **  WARNING: unexpected result from mode_cts INSERT: "
@@ -2487,12 +2615,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           //  build the value list for the mode_cts insert
           int modeObjId = intModeObjIdNext++;
-          String singleValueList = modeObjId + ", " + modeHeaderId + ", '"
-                                       + objectId + "'";
-          for (String header : modeObjSingleColumns) {
-            singleValueList += ", '" + replaceInvalidValues(
-                MVUtil.findValue(listToken, headerNames, header)) + "'";
-          }
+
 
           //set flags
           int simpleFlag = 1;
@@ -2509,13 +2632,69 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           if (objCatArr.length == 1 && !objCatArr[0].substring(2).equals("000")) {
             matchedFlag = 1;
           }
-          singleValueList = singleValueList + "," + fcstFlag + "," + simpleFlag + ","
-                                + matchedFlag;
 
-          //  insert the record into the mode_obj_single database table
-          String strModeObjSingleInsert = "INSERT INTO mode_obj_single VALUES ("
-                                              + singleValueList + ");";
-          int intModeObjSingleInsert = executeUpdate(strModeObjSingleInsert);
+          String modeObjSingleInsert = tableToInsert.get("mode_obj_single");
+          int intModeObjSingleInsert;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(modeObjSingleInsert)) {
+            stmt.setInt(1, modeObjId);
+            stmt.setInt(2, modeHeaderId);
+            stmt.setString(3, objectId);
+            stmt.setString(4, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[0]));
+            stmt.setObject(5, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[1]),
+                           Types.DOUBLE);
+            stmt.setObject(6, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[2]),
+                           Types.DOUBLE);
+            stmt.setObject(7, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[3]),
+                           Types.DOUBLE);
+            stmt.setObject(8, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[4]),
+                           Types.DOUBLE);
+            stmt.setObject(9, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[5]),
+                           Types.DOUBLE);
+            stmt.setObject(10, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[6]),
+                           Types.DOUBLE);
+            stmt.setObject(11, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[7]),
+                           Types.DOUBLE);
+
+            stmt.setObject(12, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[8]),
+                           Types.INTEGER);
+            stmt.setObject(13, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[9]),
+                           Types.INTEGER);
+
+            stmt.setObject(14, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[10]),
+                           Types.DOUBLE);
+            stmt.setObject(15, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[11]),
+                           Types.DOUBLE);
+            stmt.setObject(16, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[12]),
+                           Types.DOUBLE);
+            stmt.setObject(17, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[13]),
+                           Types.DOUBLE);
+            stmt.setObject(18, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[14]),
+                           Types.DOUBLE);
+            stmt.setObject(19, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[15]),
+                           Types.DOUBLE);
+            stmt.setObject(20, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[16]),
+                           Types.DOUBLE);
+            stmt.setObject(21, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[17]),
+                           Types.DOUBLE);
+            stmt.setObject(22, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[18]),
+                           Types.DOUBLE);
+            stmt.setObject(23, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[19]),
+                           Types.DOUBLE);
+            stmt.setObject(24, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[20]),
+                           Types.DOUBLE);
+
+            stmt.setInt(25, fcstFlag);
+            stmt.setInt(26, simpleFlag);
+            stmt.setInt(27, matchedFlag);
+            intModeObjSingleInsert = stmt.executeUpdate();
+
+          } catch (SQLException se) {
+            logger.error(se.getMessage());
+            throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
+          }
+
+
           if (1 != intModeObjSingleInsert) {
             logger.warn(
                 "  **  WARNING: unexpected result from mode_obj_single INSERT: "
@@ -3269,13 +3448,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
   private boolean executeBatch(final List<String> listValues, final String table) throws Exception {
 
-    String insertSql = "INSERT INTO " + table + " VALUES " + "(";
-    int numberOfValues = listValues.get(0).split(",").length;
-    for (int i = 0; i < numberOfValues; i++) {
-      insertSql = insertSql + "?,";
-    }
-    insertSql = insertSql.substring(0, insertSql.length() - 1);
-    insertSql = insertSql + ")";
+
+    String insertSql = tableToInsert.get(table);
     boolean result = true;
     Connection con = null;
     Statement stmt = null;
