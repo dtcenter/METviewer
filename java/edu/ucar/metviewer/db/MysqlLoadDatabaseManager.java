@@ -1270,14 +1270,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     for (String listVarLengthType : varLengthTypes) {
       List<List<Object>> listVarLengthValues =
           statInsertData.getTableVarLengthValues().get(listVarLengthType);
-      if (1 > listVarLengthValues.size()) {
+      if (listVarLengthValues.isEmpty()) {
         continue;
       }
       String sql = tableToInsert.get(tableVarLengthTable.get(listVarLengthType));
 
       try (Connection con = getConnection();
            PreparedStatement stmt = con.prepareStatement(sql)) {
-        int[] threshInsert ;
+        int[] threshInsert;
         for (List<Object> listVarLengthValue : listVarLengthValues) {
           for (int k = 0; k < listVarLengthValue.size(); k++) {
             stmt.setObject(k + 1, listVarLengthValue.get(k));
@@ -1624,56 +1624,57 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             //  build the value list for the insert statment
-            String lineDataValueList = "";
+            StringBuilder lineDataValueList = new StringBuilder();
             if (!lineDataIdStr.isEmpty()) {
-              lineDataValueList = lineDataIdStr + ", ";//  line_data_id (if present)
+              lineDataValueList.append(lineDataIdStr).append(", ");//  line_data_id (if present)
             }
 
-            lineDataValueList = lineDataValueList +
-                                    statHeaderId + ", " +      //  stat_header_id
-                                    info.fileId + ", " +      //  data_file_id
-                                    intLine + ", " +          //  line_num
-                                    strFcstLead + ", " +        //  fcst_lead
-                                    "'" + fcstValidBegStr + "', " +    //  fcst_valid_beg
-                                    "'" + fcstValidEndStr + "', " +    //  fcst_valid_end
-                                    "'" + fcstInitBegStr + "', " +    //  fcst_init_beg
-                                    "000000" + ", " +        //  obs_lead
-                                    "'" + obsValidBegStr + "', " +    //  obs_valid_beg
-                                    "'" + obsValidEndStr + "'";      //  obs_valid_end
+            lineDataValueList.append(
+                statHeaderId + ", " +      //  stat_header_id
+                    info.fileId + ", " +      //  data_file_id
+                    intLine + ", " +          //  line_num
+                    strFcstLead + ", " +        //  fcst_lead
+                    "'" + fcstValidBegStr + "', " +    //  fcst_valid_beg
+                    "'" + fcstValidEndStr + "', " +    //  fcst_valid_end
+                    "'" + fcstInitBegStr + "', " +    //  fcst_init_beg
+                    "000000" + ", " +        //  obs_lead
+                    "'" + obsValidBegStr + "', " +    //  obs_valid_beg
+                    "'" + obsValidEndStr + "'");      //  obs_valid_end
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
             if (MVUtil.covThreshLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
-              lineDataValueList += ", '" + replaceInvalidValues(strCovThresh) + "'";
+              lineDataValueList.append(", '").append(replaceInvalidValues(strCovThresh))
+                  .append("'");
             }
 
             //  if the line data requires an alpha value, add it
             String alpha = "-9999";
             if (MVUtil.alphaLineTypes.containsKey(mvLoadStatInsertData.getLineType())) {
               if (alpha.equals("NA")) {
-                logger.warn("  **  WARNING: alpha value NA with line type '" + mvLoadStatInsertData
-                                                                                   .getLineType() + "'\n        " + mvLoadStatInsertData
-                                                                                                                        .getFileLine());
+                logger.warn("  **  WARNING: alpha value NA with line type '"
+                                + mvLoadStatInsertData.getLineType()
+                                + "'\n        " + mvLoadStatInsertData.getFileLine());
               }
-              lineDataValueList += ", " + replaceInvalidValues(alpha);
+              lineDataValueList.append(", ").append(replaceInvalidValues(alpha));
             }
 
             if (listToken[6].equals("RMSE")) {//CNT line type
               for (int i = 0; i < 94; i++) {
                 if (i == 53) {
-                  lineDataValueList += ", '" + listToken[10] + "'";
+                  lineDataValueList.append(", '").append(listToken[10]).append("'");
                 } else if (i == 31) {
-                  lineDataValueList += ", '" + listToken[11] + "'";
+                  lineDataValueList.append(", '").append(listToken[11]).append("'");
                 } else if (i == 36) {
-                  lineDataValueList += ", '" + listToken[9] + "'";
+                  lineDataValueList.append(", '").append(listToken[9]).append("'");
                 } else if (i == 44) {
-                  lineDataValueList += ", '" + listToken[12] + "'";
+                  lineDataValueList.append(", '").append(listToken[12]).append("'");
                 } else if (i == 0 || i == 28 || i == 29 || i == 30) {//total,ranks, frank_ties, orank_ties
-                  lineDataValueList += ", '0'";
+                  lineDataValueList.append(", '0'");
                 } else if (i == 77) {
-                  lineDataValueList += ", '" + listToken[13] + "'";
+                  lineDataValueList.append(", '").append(listToken[13]).append("'");
                 } else {
-                  lineDataValueList += ", '-9999'";
+                  lineDataValueList.append(", '-9999'");
                 }
               }
             }
@@ -1684,7 +1685,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 switch (i) {
                   case 0:
                   case 1:
-                    lineDataValueList += ", '0'";
+                    lineDataValueList.append(", '0'");
                     break;
                   case 2:
                   case 3:
@@ -1695,25 +1696,25 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   case 13:
                   case 14:
                   case 16:
-                    lineDataValueList += ", '-9999'";
+                    lineDataValueList.append(", '-9999'");
                     break;
                   case 5:
-                    lineDataValueList += ", '" + listToken[12] + "'";
+                    lineDataValueList.append(", '").append(listToken[12]).append("'");
                     break;
                   case 6:
-                    lineDataValueList += ", '" + listToken[13] + "'";
+                    lineDataValueList.append(", '").append(listToken[13]).append("'");
                     break;
                   case 7:
-                    lineDataValueList += ", '" + listToken[14] + "'";
+                    lineDataValueList.append(", '").append(listToken[14]).append("'");
                     break;
                   case 9:
-                    lineDataValueList += ", '" + listToken[9] + "'";
+                    lineDataValueList.append(", '").append(listToken[9]).append("'");
                     break;
                   case 12:
-                    lineDataValueList += ", '" + listToken[10] + "'";
+                    lineDataValueList.append(", '").append(listToken[10]).append("'");
                     break;
                   case 15:
-                    lineDataValueList += ", '" + listToken[11] + "'";
+                    lineDataValueList.append(", '").append(listToken[11]).append("'");
                     break;
                   default:
                 }
@@ -1725,58 +1726,58 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               for (int i = 0; i < 30; i++) {
                 switch (i) {
                   case 0:
-                    lineDataValueList += ", '" + listToken[9] + "'";
+                    lineDataValueList.append(", '").append(listToken[9]).append("'");
                     break;
                   case 1:
                   case 2:
                   case 3:
                   case 4:
-                    lineDataValueList += ", '-9999'";
+                    lineDataValueList.append(", '-9999'");
                     break;
                   case 5:
-                    lineDataValueList += ", '" + listToken[10] + "'";
+                    lineDataValueList.append(", '").append(listToken[10]).append("'");
                     break;
                   case 6:
                   case 7:
                   case 8:
                   case 9:
-                    lineDataValueList += ", '-9999'";
+                    lineDataValueList.append(", '-9999'");
                     break;
                   case 10:
-                    lineDataValueList += ", '" + listToken[11] + "'";
+                    lineDataValueList.append(", '").append(listToken[11]).append("'");
                     break;
                   case 11:
                   case 12:
                   case 13:
                   case 14:
-                    lineDataValueList += ", -9999";
+                    lineDataValueList.append(", -9999");
                     break;
                   case 15:
-                    lineDataValueList += ", '" + listToken[12] + "'";
+                    lineDataValueList.append(", '").append(listToken[12]).append("'");
                     break;
                   case 16:
                   case 17:
                   case 18:
                   case 19:
-                    lineDataValueList += ", -9999";
+                    lineDataValueList.append(", -9999");
                     break;
                   case 20:
-                    lineDataValueList += ", '" + listToken[13] + "'";
+                    lineDataValueList.append(", '").append(listToken[13]).append("'");
                     break;
                   case 21:
                   case 22:
                   case 23:
                   case 24:
-                    lineDataValueList += ", -9999";
+                    lineDataValueList.append(", -9999");
                     break;
                   case 25:
-                    lineDataValueList += ", '" + listToken[14] + "'";
+                    lineDataValueList.append(", '").append(listToken[14]).append("'");
                     break;
                   case 26:
                   case 27:
                   case 28:
                   case 29:
-                    lineDataValueList += ", -9999";
+                    lineDataValueList.append(", -9999");
                     break;
                   default:
 
@@ -1787,19 +1788,19 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
             if (listToken[6].equals("HIST")) { //RHIST line type
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-              lineDataValueList += ", 0," + intGroupSize;
+              lineDataValueList.append(", 0,").append(intGroupSize);
 
             }
 
             if (listToken[6].equals("RELP")) {  // RELP line type
-              lineDataValueList += ", 0";
+              lineDataValueList.append(", 0");
               int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]);
-              lineDataValueList += ", '" + intGroupSize + "'";
+              lineDataValueList.append(", '").append(intGroupSize).append("'");
             }
             if (listToken[6].equals("ECON")) {  // ECLV line type
-              lineDataValueList += ", 0, -9999, -9999";
+              lineDataValueList.append(", 0, -9999, -9999");
               int intGroupSize = 18;
-              lineDataValueList += ", '" + intGroupSize + "'";
+              lineDataValueList.append(", '").append(intGroupSize).append("'");
             }
 
 
@@ -1824,7 +1825,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               }
 
 
-              lineDataValueList += ", " + total + ", " + intGroupSize;
+              lineDataValueList.append(", ").append(total).append(", ").append(intGroupSize);
             }
 
             if (listToken[6].equals("SL1L2")
@@ -1832,15 +1833,15 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               for (int i = 0; i < 7; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    lineDataValueList += ", '"
-                                             + (Double.valueOf(listToken[i + 9]))
-                                                   .intValue() + "'";
+                    lineDataValueList.append(", '")
+                        .append((Double.valueOf(listToken[i + 9])).intValue()).append("'");
                   } else {
-                    lineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                    lineDataValueList.append(", '").append(Double.valueOf(listToken[i + 9]))
+                        .append("'");
                   }
 
                 } else {
-                  lineDataValueList += ", '-9999'";
+                  lineDataValueList.append(", '-9999'");
                 }
               }
             }
@@ -1849,14 +1850,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               for (int i = 0; i < 8; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    lineDataValueList += ", '"
-                                             + (Double.valueOf(listToken[i + 9])).intValue()
-                                             + "'";
+                    lineDataValueList.append(", '")
+                        .append((Double.valueOf(listToken[i + 9])).intValue()).append("'");
                   } else {
-                    lineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                    lineDataValueList.append(", '").append(Double.valueOf(listToken[i + 9]))
+                        .append("'");
                   }
                 } else {
-                  lineDataValueList += ", '-9999'";
+                  lineDataValueList.append(", '-9999'");
                 }
 
               }
@@ -1865,14 +1866,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               for (int i = 0; i < 10; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
-                    lineDataValueList += ", '"
-                                             + (Double.valueOf(listToken[i + 9])).intValue()
-                                             + "'";
+                    lineDataValueList.append(", '")
+                        .append((Double.valueOf(listToken[i + 9])).intValue()).append("'");
                   } else {
-                    lineDataValueList += ", '" + Double.valueOf(listToken[i + 9]) + "'";
+                    lineDataValueList.append(", '").append(Double.valueOf(listToken[i + 9]))
+                        .append("'");
                   }
                 } else {
-                  lineDataValueList += ", '-9999'";
+                  lineDataValueList.append(", '-9999'");
                 }
 
               }
@@ -1900,15 +1901,15 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
               for (int i = 0; i < 5; i++) {
                 if (i == 4) {
-                  lineDataValueList += ", '" + Math.max(0, fn_on) + "'";
+                  lineDataValueList.append(", '").append(Math.max(0, fn_on)).append("'");
                 } else if (i == 3) {
-                  lineDataValueList += ", '" + Math.max(0, fn_oy) + "'";
+                  lineDataValueList.append(", '").append(Math.max(0, fn_oy)).append("'");
                 } else if (i == 2) {
-                  lineDataValueList += ", '" + Math.max(0, fy_on) + "'";
+                  lineDataValueList.append(", '").append(Math.max(0, fy_on)).append("'");
                 } else if (i == 1) {
-                  lineDataValueList += ", '" + Math.max(0, fy_oy) + "'";
+                  lineDataValueList.append(", '").append(Math.max(0, fy_oy)).append("'");
                 } else if (i == 0) {//total,
-                  lineDataValueList += ", '" + listToken[9] + "'";
+                  lineDataValueList.append(", '").append(listToken[9]).append("'");
                 }
 
               }
@@ -1921,13 +1922,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               }
               for (int i = 0; i < 19; i++) {
                 if (i == 0) {//total,
-                  lineDataValueList += ", " + listToken[9];
+                  lineDataValueList.append(", ").append(listToken[9]);
                 } else if (i == 1) {//fbs
-                  lineDataValueList += ", " + listToken[10];
+                  lineDataValueList.append(", ").append(listToken[10]);
                 } else if (i == 4) {//fss
-                  lineDataValueList += ", " + fss;
+                  lineDataValueList.append(", ").append(fss);
                 } else {
-                  lineDataValueList += ", '-9999'";
+                  lineDataValueList.append(", '-9999'");
                 }
               }
             }
@@ -2131,7 +2132,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                       MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
           dblLinesPerMSec) + "\n\n");
     }
-    logger.info("intLine " + intLine);
     return timeStats;
   }
 
