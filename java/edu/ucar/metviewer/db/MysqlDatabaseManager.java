@@ -196,24 +196,16 @@ public class MysqlDatabaseManager extends DatabaseManager {
   public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
-    Statement statement = null;
-    ResultSet rs = null;
     if (validDB) {
       try {
         con = dataSource.getConnection();
-        statement = con.createStatement();
-        rs = statement.executeQuery("use " + db);
+        con.setCatalog(db);
 
-      } catch (SQLException e) {
+      } catch (Exception e) {
         logger.error("can't get connection for database " + db + " " +e.getMessage());
-      } finally {
-        if (statement != null) {
-          statement.close();
+        if(con != null) {
+          con.close();
         }
-        if (rs != null) {
-          rs.close();
-        }
-
       }
     }else{
       logger.error("Database " + db + " is invalid");
