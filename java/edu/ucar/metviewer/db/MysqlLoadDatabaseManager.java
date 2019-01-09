@@ -1575,7 +1575,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setString(11, "NA");
                 stmt.setObject(12, interpPnts, Types.INTEGER);
                 stmt.setString(13, thresh);
-                stmt.setString(13, thresh);
+                stmt.setString(14, thresh);
 
 
                 intStatHeaderInsert = stmt.executeUpdate();
