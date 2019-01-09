@@ -24,7 +24,7 @@ public class MVLoadStatInsertData {
   private final List<String> listInsertValues = new ArrayList<>();
   private final Map<String, List<String>> tableLineDataValues = new HashMap<>();
   private final List<String> listStatGroupInsertValues = new ArrayList<>();
-  private final Map<String, List<String>> tableVarLengthValues = new HashMap<>();
+  private final Map<String, List<List<Object>>> tableVarLengthValues = new HashMap<>();
   private String lineType = "";
   private String fileLine = "";
 
@@ -40,7 +40,7 @@ public class MVLoadStatInsertData {
     return listStatGroupInsertValues;
   }
 
-  public Map<String, List<String>> getTableVarLengthValues() {
+  public Map<String, List<List<Object>>> getTableVarLengthValues() {
     return tableVarLengthValues;
   }
 

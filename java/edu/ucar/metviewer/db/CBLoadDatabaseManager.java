@@ -1028,17 +1028,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
 
     for (String listVarLengthType : listVarLengthTypes) {
-      String[] listVarLengthValues = MVUtil.toArray(
-          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType));
-      if (1 > listVarLengthValues.length) {
+      List<List<Object>> listVarLengthValues =
+          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType);
+      if (1 > listVarLengthValues.size()) {
         continue;
       }
       String strVarLengthTable = tableVarLengthTable.get(listVarLengthType);
       String strThreshInsert = "INSERT INTO " + strVarLengthTable + " VALUES ";
-      for (int j = 0; j < listVarLengthValues.length; j++) {
-        strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
-        listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
-      }
+    //  for (int j = 0; j < listVarLengthValues.size(); j++) {
+    //    strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
+    //    listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+    //  }
 //      int intThreshInsert = executeUpdate(strThreshInsert);
 //      if (listVarLengthValues.length != intThreshInsert) {
 //        logger.warn(

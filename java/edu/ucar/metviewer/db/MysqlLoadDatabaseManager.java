@@ -1122,8 +1122,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                     || insertData.getLineType().equals("PRC")) {
               numGroups -= 1;
             }
-            List<String> threshValues = insertData.getTableVarLengthValues()
-                                            .get(insertData.getLineType());
+            List<List<Object>> threshValues = insertData.getTableVarLengthValues()
+                                                  .get(insertData.getLineType());
             if (null == threshValues) {
               threshValues = new ArrayList<>();
             }
@@ -1132,8 +1132,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             if (insertData.getLineType().equals("MCTC")) {
               for (int i = 0; i < numGroups; i++) {
                 for (int j = 0; j < numGroups; j++) {
-                  threshValues.add("(" + lineDataId + ", " + (i + 1) + ", " + (j + 1) + ", " +
-                                       replaceInvalidValues(listToken[groupIndex++]) + ")");
+                  List<Object> vals = new ArrayList<>();
+                  vals.add(lineDataId);
+                  vals.add(i + 1);
+                  vals.add(j + 1);
+                  vals.add(replaceInvalidValues(listToken[groupIndex++]));
+                  threshValues.add(vals);
                   lengthRecords++;
                 }
               }
@@ -1143,12 +1147,15 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 groupIndex = lineDataMax;
               }
               for (int i = 0; i < numGroups; i++) {
-                String threshValuesStr = "(" + lineDataId + "," + (i + 1);
+                List<Object> vals = new ArrayList<>();
+                vals.add(lineDataId);
+                vals.add(i + 1);
+
                 for (int j = 0; j < groupSize; j++) {
-                  threshValuesStr += ", " + replaceInvalidValues(listToken[groupIndex++]);
+                  vals.add(replaceInvalidValues(listToken[groupIndex++]));
+
                 }
-                threshValuesStr += ")";
-                threshValues.add(threshValuesStr);
+                threshValues.add(vals);
                 lengthRecords++;
               }
             }
@@ -1261,31 +1268,34 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
     for (String listVarLengthType : varLengthTypes) {
-      String[] listVarLengthValues = MVUtil.toArray(
-          statInsertData.getTableVarLengthValues().get(listVarLengthType));
-      if (1 > listVarLengthValues.length) {
+      List<List<Object>> listVarLengthValues =
+          statInsertData.getTableVarLengthValues().get(listVarLengthType);
+      if (1 > listVarLengthValues.size()) {
         continue;
       }
       String sql = tableToInsert.get(tableVarLengthTable.get(listVarLengthType));
-      int intThreshInsert;
+
       try (Connection con = getConnection();
            PreparedStatement stmt = con.prepareStatement(sql)) {
-        for (int j = 0; j < listVarLengthValues.length; j++) {
-          stmt.setObject(j + 1, listVarLengthValues[j]);
-          listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+        int[] threshInsert ;
+        for (List<Object> listVarLengthValue : listVarLengthValues) {
+          for (int k = 0; k < listVarLengthValue.size(); k++) {
+            stmt.setObject(k + 1, listVarLengthValue.get(k));
+            listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+          }
+          stmt.addBatch();
         }
-        intThreshInsert = stmt.executeUpdate();
+        threshInsert = stmt.executeBatch();
+        if (listVarLengthValues.size() != threshInsert.length) {
+          logger.warn(
+              "  **  WARNING: unexpected result from thresh INSERT: " + threshInsert.length + " vs. " +
+                  listVarLengthValues.size() + "\n        " + statInsertData.getFileLine());
+        }
       } catch (SQLException se) {
         logger.error(se.getMessage());
         throw new Exception("caught SQLException calling executeUpdate: " + se.getMessage());
       }
 
-
-      if (listVarLengthValues.length != intThreshInsert) {
-        logger.warn(
-            "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
-                listVarLengthValues.length + "\n        " + statInsertData.getFileLine());
-      }
       statInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
     }
 
@@ -1609,23 +1619,27 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             //  determine the maximum token index for the data
             if (hasVarLengthGroups) {
               int lineDataId = tableVarLengthLineDataId.get(strLineType);
-              lineDataIdStr = Integer.toString(lineDataId) + ", ";
+              lineDataIdStr = Integer.toString(lineDataId);
               tableVarLengthLineDataId.put(strLineType, lineDataId + 1);
             }
 
             //  build the value list for the insert statment
-            String lineDataValueList =
-                lineDataIdStr +            //  line_data_id (if present)
-                    statHeaderId + ", " +      //  stat_header_id
-                    info.fileId + ", " +      //  data_file_id
-                    intLine + ", " +          //  line_num
-                    strFcstLead + ", " +        //  fcst_lead
-                    "'" + fcstValidBegStr + "', " +    //  fcst_valid_beg
-                    "'" + fcstValidEndStr + "', " +    //  fcst_valid_end
-                    "'" + fcstInitBegStr + "', " +    //  fcst_init_beg
-                    "000000" + ", " +        //  obs_lead
-                    "'" + obsValidBegStr + "', " +    //  obs_valid_beg
-                    "'" + obsValidEndStr + "'";      //  obs_valid_end
+            String lineDataValueList = "";
+            if (!lineDataIdStr.isEmpty()) {
+              lineDataValueList = lineDataIdStr + ", ";//  line_data_id (if present)
+            }
+
+            lineDataValueList = lineDataValueList +
+                                    statHeaderId + ", " +      //  stat_header_id
+                                    info.fileId + ", " +      //  data_file_id
+                                    intLine + ", " +          //  line_num
+                                    strFcstLead + ", " +        //  fcst_lead
+                                    "'" + fcstValidBegStr + "', " +    //  fcst_valid_beg
+                                    "'" + fcstValidEndStr + "', " +    //  fcst_valid_end
+                                    "'" + fcstInitBegStr + "', " +    //  fcst_init_beg
+                                    "000000" + ", " +        //  obs_lead
+                                    "'" + obsValidBegStr + "', " +    //  obs_valid_beg
+                                    "'" + obsValidEndStr + "'";      //  obs_valid_end
 
             //  if the line data requires a cov_thresh value, add it
             String strCovThresh = "NA";
@@ -1799,7 +1813,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 intGroupSize = 0;
               }
               for (int i = 0; i < intGroupSize; i++) {
-                Integer on;
+                int on;
                 try {
                   on = Double.valueOf(listToken[intGroupIndex + intGroupSize]).intValue();
                   total = total + on;
@@ -1972,8 +1986,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 intNumGroups = 2;
               }
 
-              List<String> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
-                                                  .get(mvLoadStatInsertData.getLineType());
+              List<List<Object>> listThreshValues = mvLoadStatInsertData.getTableVarLengthValues()
+                                                        .get(mvLoadStatInsertData.getLineType());
               if (null == listThreshValues) {
                 listThreshValues = new ArrayList<>();
               }
@@ -1981,17 +1995,17 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               //  build a insert value statement for each threshold group
               if (listToken[6].equals("HIST")) {
                 for (int i = 0; i < intNumGroups; i++) {
-                  StringBuilder strThreshValues = new StringBuilder("(");
-                  strThreshValues.append(lineDataIdStr).append(i + 1);
+                  List<Object> threshValues = new ArrayList<>();
+                  threshValues.add(lineDataIdStr);
+                  threshValues.add(i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append(res * 100);
+                      threshValues.add(res * 100);
                     }
 
                   }
-                  strThreshValues.append(')');
-                  listThreshValues.add(strThreshValues.toString());
+                  listThreshValues.add(threshValues);
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("RELI")) {
@@ -2003,53 +2017,60 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   } else {
                     thresh_i = 0;
                   }
-                  String strThreshValues = "(" + lineDataIdStr + (i + 1) + "," + thresh_i;
+                  List<Object> threshValues = new ArrayList<>();
+
+                  threshValues.add(lineDataIdStr);
+                  threshValues.add(i + 1);
+                  threshValues.add(thresh_i);
                   int oy;
                   int on;
                   try {
                     oy = Double.valueOf(listToken[intGroupIndex]).intValue();
                     on = Double.valueOf(listToken[intGroupIndex + intGroupSize]).intValue() - oy;
-                    strThreshValues += ", " + oy + ", " + on;
+                    threshValues.add(oy);
+                    threshValues.add(on);
                     total = total + oy + on;
                   } catch (Exception e) {
-                    strThreshValues += ", -9999,  -9999";
+                    threshValues.add("-9999");
+                    threshValues.add("-9999");
+
                   }
 
                   intGroupIndex++;
-                  strThreshValues += ")";
-                  listThreshValues.add(strThreshValues);
+                  listThreshValues.add(threshValues);
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("RELP")) {
                 for (int i = 0; i < intNumGroups; i++) {
-                  StringBuilder strThreshValues = new StringBuilder("(");
-                  strThreshValues.append(lineDataIdStr).append(i + 1);
+                  List<Object> threshValues = new ArrayList<>();
+                  threshValues.add(lineDataIdStr);
+                  threshValues.add(i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append(res);
+                      threshValues.add(res);
                     }
 
                   }
-                  strThreshValues.append(')');
-                  listThreshValues.add(strThreshValues.toString());
+
+                  listThreshValues.add(threshValues);
                   lengthRecords++;
                 }
               } else if (listToken[6].equals("ECON")) {
 
                 for (int i = 0; i < intNumGroups; i++) {
-                  StringBuilder strThreshValues = new StringBuilder("(");
-                  strThreshValues.append(lineDataIdStr).append(i + 1);
+                  List<Object> threshValues = new ArrayList<>();
+                  threshValues.add(lineDataIdStr);
+                  threshValues.add(i + 1);
                   for (int j = 0; j < intGroupSize; j++) {
                     double res = Double.parseDouble(listToken[intGroupIndex++]);
                     if (res != -9999) {
-                      strThreshValues.append(", ").append(X_POINTS_FOR_ECON[i]).append(",")
-                          .append(res);
+                      threshValues.add(X_POINTS_FOR_ECON[i]);
+                      threshValues.add(res);
                     }
 
                   }
-                  strThreshValues.append(')');
-                  listThreshValues.add(strThreshValues.toString());
+                  listThreshValues.add(threshValues);
                   lengthRecords++;
                 }
               }
