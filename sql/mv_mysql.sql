@@ -1687,9 +1687,9 @@ CREATE TABLE mode_header
   fcst_thr VARCHAR(15),
   obs_rad INT UNSIGNED,
   obs_thr VARCHAR(15),
-  fcst_var VARCHAR(10),
+  fcst_var VARCHAR(40),
   fcst_lev VARCHAR(10),
-  obs_var VARCHAR(10),
+  obs_var VARCHAR(40),
   obs_lev VARCHAR(10),
   PRIMARY KEY (mode_header_id),
 
@@ -1894,9 +1894,9 @@ CREATE TABLE mtd_header
   fcst_thr VARCHAR(15),
   obs_rad INT UNSIGNED,
   obs_thr VARCHAR(15),
-  fcst_var VARCHAR(10),
+  fcst_var VARCHAR(40),
   fcst_lev VARCHAR(10),
-  obs_var VARCHAR(10),
+  obs_var VARCHAR(40),
   obs_lev VARCHAR(10),
   PRIMARY KEY (mtd_header_id),
 
