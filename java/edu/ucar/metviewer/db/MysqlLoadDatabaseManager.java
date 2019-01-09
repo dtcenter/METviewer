@@ -477,7 +477,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //1061; Symbol: ER_DUP_KEYNAME; SQLSTATE: 42000 Message: Duplicate key name '%s'
         //1091; Symbol: ER_CANT_DROP_FIELD_OR_KEY; SQLSTATE: 42000 Message: Can't
         // DROP '%s'; check that column/key exists
-        if (se.getErrorCode() != 1091 || se.getErrorCode() != 1061) {
+        if (se.getErrorCode() != 1091 && se.getErrorCode() != 1061) {
           logger.error(se.getMessage());
         }
       }
@@ -2295,20 +2295,48 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                                          "OBS_VAR") + "', " +      //  obs_var
                                   "'" + MVUtil.findValue(listToken, headerNames,
                                                          "OBS_LEV") + "'";        //  obs_lev
+        String isnvalid = "=";
+        if ("NA".equals(MVUtil.findValue(listToken, headerNames, "N_VALID"))) {
+          isnvalid = "is";
+        }
+        String isgridres = "=";
+        if ("NA".equals(MVUtil.findValue(listToken, headerNames, "GRID_RES"))) {
+          isgridres = "is";
+        }
+
+        Integer fcstaccum = null;
+        try {
+          fcstaccum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
+        } catch (Exception e) {
+        }
+        String isfcstaccum = "=";
+        if (fcstaccum == null) {
+          isfcstaccum = "is";
+        }
+
+        Integer obsaccum = null;
+        try {
+          obsaccum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
+        } catch (Exception e) {
+        }
+        String isobsaccum = "=";
+        if (isobsaccum == null) {
+          isobsaccum = "is";
+        }
 
         String headerWhere = BINARY
                                  + " version = ?"
-                                 + "  AND model = ?"
-                                 + "  AND n_valid=?"
-                                 + "  AND grid_res=?"
+                                 + "  AND " + BINARY + " model = ?"
+                                 + "  AND n_valid " + isnvalid + " ?"
+                                 + "  AND grid_res " + isgridres + " ?"
                                  + "  AND " + BINARY + "descr = ?"
                                  + "  AND fcst_lead = ?"
                                  + "  AND fcst_valid = ?"
-                                 + "  AND fcst_accum = ?"
+                                 + "  AND fcst_accum " + isfcstaccum + " ?"
                                  + "  AND fcst_init = ?"
                                  + "  AND obs_lead = ?"
                                  + "  AND obs_valid = ?"
-                                 + "  AND obs_accum = ?"
+                                 + "  AND obs_accum " + isobsaccum + " ?"
                                  + "  AND fcst_rad = ?"
                                  + "  AND " + BINARY + "fcst_thr = ?"
                                  + "  AND obs_rad = ?"
@@ -2360,28 +2388,21 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               stmt.setObject(6, MVUtil.findValue(listToken, headerNames, "FCST_LEAD"),
                              Types.INTEGER);
               stmt.setObject(7, fcstValidBegStr, Types.TIMESTAMP);
-              Integer accum = null;
-              try {
-                accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
-              } catch (Exception e) {
-              }
-              if (accum == null) {
+
+              if (fcstaccum == null) {
                 stmt.setNull(8, Types.INTEGER);
               } else {
-                stmt.setInt(8, accum);
+                stmt.setInt(8, fcstaccum);
               }
               stmt.setObject(9, fcstInitStr, Types.TIMESTAMP);
-              stmt.setString(10, MVUtil.findValue(listToken, headerNames,
-                                                  "OBS_LEAD"));
+              stmt.setObject(10, MVUtil.findValue(listToken, headerNames,
+                                                  "OBS_LEAD"), Types.INTEGER);
               stmt.setObject(11, obsValidBegStr, Types.TIMESTAMP);
-              try {
-                accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
-              } catch (Exception e) {
-              }
-              if (accum == null) {
+
+              if (obsaccum == null) {
                 stmt.setNull(12, Types.INTEGER);
               } else {
-                stmt.setInt(12, accum);
+                stmt.setInt(12, obsaccum);
               }
               stmt.setObject(13, MVUtil.findValue(listToken, headerNames, "FCST_RAD"),
                              Types.INTEGER);
@@ -2430,13 +2451,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             modeHeaderId = intModeHeaderIdNext++;
             modeHeaders.put(modeHeaderValueList, modeHeaderId);
 
-            //  build an insert statement for the mode header
-            modeHeaderValueList =
-                modeHeaderId + ", " +        //  mode_header_id
-                    lineTypeLuId + ", " +        //  line_type_lu_id
-                    info.fileId + ", " +        //  data_file_id
-                    intLine + ", " +            //  linenumber
-                    modeHeaderValueList;
 
             //  insert the record into the mode_header database table
             String sql = "INSERT INTO mode_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -2480,8 +2494,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setInt(12, accum);
               }
               stmt.setObject(13, fcstInitStr, Types.TIMESTAMP);
-              stmt.setString(14, MVUtil.findValue(listToken, headerNames,
-                                                  "OBS_LEAD"));
+              stmt.setObject(14, MVUtil.findValue(listToken, headerNames,
+                                                  "OBS_LEAD"), Types.INTEGER);
               stmt.setObject(15, obsValidBegStr, Types.TIMESTAMP);
               try {
                 accum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
@@ -2699,7 +2713,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
           //  insert the record into the mode_obj_pair database table
-          String modeObjPairInsert = tableToInsert.get("mode_obj_single");
+          String modeObjPairInsert = tableToInsert.get("mode_obj_pair");
           int intModeObjPairInsert;
           try (Connection con = getConnection();
                PreparedStatement stmt = con.prepareStatement(modeObjPairInsert)) {
