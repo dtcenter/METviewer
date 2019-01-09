@@ -2649,20 +2649,54 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                            Types.DOUBLE);
             stmt.setObject(17, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[13]),
                            Types.DOUBLE);
-            stmt.setObject(18, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[14]),
-                           Types.DOUBLE);
-            stmt.setObject(19, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[15]),
-                           Types.DOUBLE);
-            stmt.setObject(20, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[16]),
-                           Types.DOUBLE);
-            stmt.setObject(21, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[17]),
-                           Types.DOUBLE);
-            stmt.setObject(22, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[18]),
-                           Types.DOUBLE);
-            stmt.setObject(23, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[19]),
-                           Types.DOUBLE);
-            stmt.setObject(24, MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[20]),
-                           Types.DOUBLE);
+
+            String value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[14]);
+            if ("NA".equals(value)) {
+              stmt.setNull(18, Types.DOUBLE);
+            } else {
+              stmt.setObject(18, value, Types.DOUBLE);
+            }
+
+            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[15]);
+            if ("NA".equals(value)) {
+              stmt.setNull(19, Types.DOUBLE);
+            } else {
+              stmt.setObject(19, value, Types.DOUBLE);
+            }
+
+            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[16]);
+            if ("NA".equals(value)) {
+              stmt.setNull(20, Types.DOUBLE);
+            } else {
+              stmt.setObject(20, value, Types.DOUBLE);
+            }
+
+            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[17]);
+            if ("NA".equals(value)) {
+              stmt.setNull(21, Types.DOUBLE);
+            } else {
+              stmt.setObject(21, value, Types.DOUBLE);
+            }
+
+            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[18]);
+            if ("NA".equals(value)) {
+              stmt.setNull(22, Types.DOUBLE);
+            } else {
+              stmt.setObject(22, value, Types.DOUBLE);
+            }
+            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[19]);
+            if ("NA".equals(value)) {
+              stmt.setNull(23, Types.DOUBLE);
+            } else {
+              stmt.setObject(23, value, Types.DOUBLE);
+            }
+
+            value = MVUtil.findValue(listToken, headerNames, modeObjSingleColumns[20]);
+            if ("NA".equals(value)) {
+              stmt.setNull(24, Types.DOUBLE);
+            } else {
+              stmt.setObject(24, value, Types.DOUBLE);
+            }
 
             stmt.setInt(25, fcstFlag);
             stmt.setInt(26, simpleFlag);
