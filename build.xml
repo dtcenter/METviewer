@@ -332,6 +332,8 @@
     </target>
 
     <target name="replace_properties" depends="init,restore_properties">
+        <!-- copy the  log4j2.xml file -->
+        <copy file="${log4j2.file}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
         <!-- replace properties file values  -->
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="rscript.bin=(.*)"
