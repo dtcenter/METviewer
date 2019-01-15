@@ -355,6 +355,10 @@
           $("#indy_var").multiselect("refresh");
         }
       });
+        $.each(fix_var_value_to_title_stat_map, function (key, val) {
+                             $('#fixed_var_1').append('<option value="' +
+                                     key + '">' + val + '</option>');
+                           });
 
       if (initXML != null) {
         var sd = initXML.find("database").text();
