@@ -2617,7 +2617,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   @Override
   public void updateGroup(String group) throws Exception {
-    String currentCategory = "";
+    String currentGroup = "";
+    String currentDescription = "";
     String currentID = "";
     long nextIdNumber = 0;
     int nrows = 0;
@@ -2649,26 +2650,27 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       if (queryList.size() > 0) {
         firstRow = queryList.get(0);
         firstRowObject = firstRow.value();
-        currentCategory = firstRowObject.get("group").toString();
+        currentGroup = firstRowObject.get("group").toString();
+        currentDescription = firstRowObject.get("description").toString();
         currentID = firstRowObject.get("groupId").toString();
         nrows = nrows + 1;
       }
 
-    } catch (CouchbaseException e) {
+    } catch (Exception e) {
       throw new Exception(e.getMessage());
     }
     // if no category document exists, or the group is not the same as in the XML
-    if (!currentCategory.equals(group)) {
+    if (!currentGroup.equals(group)) {
       if (nrows == 0) {
         try {
           nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
           if (0 > nextIdNumber) {
             throw new Exception("METViewer load error: processDataFile() unable to get counter");
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           throw new Exception(e.getMessage());
         }
-        nextIdString = getDatabaseInfo().getDbName() + "::category::" + group + "::" + String.valueOf(nextIdNumber);
+        nextIdString = getDbName() + "::category::" + String.valueOf(nextIdNumber);
       } else {
         nextIdString = currentID;
       }
@@ -2696,7 +2698,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String currentDescription = "";
     String currentGroup = "";
     String currentID = "";
-    String newGroup = "default";
+    String newGroup = MVUtil.DEFAULT_DATABASE_GROUP;
     long nextIdNumber = 0;
     int nrows = 0;
     String nextIdString = "";
@@ -2733,7 +2735,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         nrows = nrows + 1;
       }
 
-    } catch (CouchbaseException e) {
+    } catch (Exception e) {
       System.out.println(e.getMessage());
     }
     // if no category document exists, or the group is not the same as in the XML
@@ -2744,10 +2746,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (0 > nextIdNumber) {
             throw new Exception("METViewer load error: processDataFile() unable to get counter");
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           throw new Exception(e.getMessage());
         }
-        nextIdString = getDatabaseInfo().getDbName() + "::category::" + description + "::" + String.valueOf(nextIdNumber);
+        nextIdString = getDatabaseInfo().getDbName() + "::category::" + String.valueOf(nextIdNumber);
       } else {
         nextIdString = currentID;
         newGroup = currentGroup;
