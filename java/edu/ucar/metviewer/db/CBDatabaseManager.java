@@ -60,7 +60,7 @@ public class CBDatabaseManager extends DatabaseManager{
     listDB.clear();
 
     // get list of database names from data file documents
-    String nquery =  "select distinct substr(meta().id, 0, position(meta().id, \'::\')) as database_name " +
+    String nquery =  "select distinct dbname as database_name " +
                       "from `" +
                       getBucket().name() +
                       "` where type = \'file\';";
@@ -102,7 +102,6 @@ public class CBDatabaseManager extends DatabaseManager{
     JsonObject firstRowObject = null;
     String group = MVUtil.DEFAULT_DATABASE_GROUP;
     String description = "";
-    String searchDbName = "substr(meta().id, 0, position(meta().id, \'::\'))";
 
     String strDataFileQuery =  "SELECT " +
             "meta().id as groupId, " +
@@ -113,7 +112,7 @@ public class CBDatabaseManager extends DatabaseManager{
             getBucket().name() +
             "` WHERE " +
             "type = \'category\' AND " +
-            searchDbName + " = '" + database + "';";
+            "dbname = \'" + database + "\';";
 
     try {
       queryResult = getBucket().query(N1qlQuery.simple(strDataFileQuery));
@@ -168,6 +167,7 @@ public class CBDatabaseManager extends DatabaseManager{
       try {
         env = DefaultCouchbaseEnvironment.builder()
                 .connectTimeout(40000) //20000ms = 20s, default is 5s
+                .queryTimeout(300000) //20000ms = 20s, default is 75000ms
                 .build();
         Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
         cluster.authenticate(getDatabaseInfo().getUser(), getDatabaseInfo().getPassword());
