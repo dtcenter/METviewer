@@ -256,16 +256,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   @Override
   public List<String> getListValues(MVNode nodeCall, String field, String[] currentDBName) {
     List<String> listRes = new ArrayList<>();
-    boolean boolMode = nodeCall.children[1].tag.equals("mode_field");
-    boolean boolMtd = nodeCall.children[1].tag.equals("mtd_field");
-    boolean boolRhist = nodeCall.children[1].tag.equals("rhist_field");
-    boolean boolPhist = nodeCall.children[1].tag.equals("phist_field");
-    boolean boolROC = nodeCall.children[1].tag.equals("roc_field");
-    boolean boolRely = nodeCall.children[1].tag.equals("rely_field");
-    boolean boolEnsSS = nodeCall.children[1].tag.equals("ensss_field");
-    boolean boolPerf = nodeCall.children[1].tag.equals("perf_field");
-    boolean boolTaylor = nodeCall.children[1].tag.equals("taylor_field");
-    boolean boolEclv = nodeCall.children[1].tag.equals("eclv_field");
+    boolean boolMode = nodeCall.children[0].tag.equals("mode_field");
+    boolean boolMtd = nodeCall.children[0].tag.equals("mtd_field");
+    boolean boolRhist = nodeCall.children[0].tag.equals("rhist_field");
+    boolean boolPhist = nodeCall.children[0].tag.equals("phist_field");
+    boolean boolROC = nodeCall.children[0].tag.equals("roc_field");
+    boolean boolRely = nodeCall.children[0].tag.equals("rely_field");
+    boolean boolEnsSS = nodeCall.children[0].tag.equals("ensss_field");
+    boolean boolPerf = nodeCall.children[0].tag.equals("perf_field");
+    boolean boolTaylor = nodeCall.children[0].tag.equals("taylor_field");
+    boolean boolEclv = nodeCall.children[0].tag.equals("eclv_field");
     String strHeaderTable;
     if (boolMode) {
       strHeaderTable = "mode_header";
@@ -298,9 +298,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       tableLineDataTables.put("line_data_sl1l2", "true");
     } else if (boolEclv) {
       tableLineDataTables.put("line_data_eclv", "true");
-    } else if (2 < nodeCall.children.length) {
+    } else if (1 < nodeCall.children.length) {
       fcstVar = true;
-      MVNode nodeFcstVarStat = nodeCall.children[2];
+      MVNode nodeFcstVarStat = nodeCall.children[1];
       for (int i = 0; i < nodeFcstVarStat.children.length; i++) {
         MVNode nodeFcstVar = nodeFcstVarStat.children[i];
         tableFcstVarStat.put(nodeFcstVar.name, "true");
@@ -344,7 +344,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  parse the list of constraints into a SQL where clause
     String whereTime = "";
-    for (int i = 2; i < nodeCall.children.length; i++) {
+    for (int i = 1; i < nodeCall.children.length; i++) {
       if (nodeCall.children[i].tag.equals("stat")) {
         continue;
       }
