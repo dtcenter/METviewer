@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -65,7 +66,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MVServlet extends HttpServlet {
@@ -77,8 +80,8 @@ public class MVServlet extends HttpServlet {
 
   public static final Pattern patDownload = Pattern.compile(".*/download");
   public static final String DELIMITER = File.separator;
-  protected static final Map<String, String> valCache = new HashMap<>();
-  protected static final Map<String, String> statCache = new HashMap<>();
+  protected static final Map<String, Document> valCache = new HashMap<>();
+  protected static final Map<String, Document> statCache = new HashMap<>();
   private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
@@ -114,14 +117,24 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleClearListValCache() {
+  public static String handleClearListValCache() throws ParserConfigurationException {
+
+    Document docResp = MVUtil.createDocument();
     if (!isValCache) {
-      return "<error>list_val caching not activated</error>";
+      Element errorXml = docResp.createElement("error");
+      docResp.appendChild(errorXml);
+      errorXml.appendChild(docResp.createTextNode("list_val caching not activated"));
+
+    } else {
+
+      String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
+      int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, valCache);
+      Element listXml = docResp.createElement("list_val_clear_cache");
+      docResp.appendChild(listXml);
+      listXml.appendChild(docResp.createTextNode("success: removed " + intNumRemoved + " entries"));
     }
-    String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
-    int intNumRemoved = removeTableEntriesByKeyPrefix(strKeyPrefix, valCache);
-    return "<list_val_clear_cache>success: removed "
-               + intNumRemoved + " entries</list_val_clear_cache>";
+
+    return MVUtil.domSourceToString(docResp);
   }
 
   /**
@@ -130,21 +143,30 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListValCacheKeys() {
+  public static String handleListValCacheKeys() throws ParserConfigurationException{
+    Document docResp = MVUtil.createDocument();
     if (!isValCache) {
-      return "<error>list_val caching not activated</error>";
+      Element errorXml = docResp.createElement("error");
+      docResp.appendChild(errorXml);
+      errorXml.appendChild(docResp.createTextNode("list_val caching not activated"));
+
+    } else {
+      String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
+      String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, valCache);
+      StringBuilder strMsg = new StringBuilder("db url: " + databaseManager.getDatabaseInfo()
+                                                                .getHost() + "  # keys: " + listKeys.length + "\n");
+      Element listXml = docResp.createElement("list_val_cache_keys");
+      docResp.appendChild(listXml);
+      for (String listKey : listKeys) {
+        strMsg.append("  ").append(listKey).append("\n");
+        Element key = docResp.createElement("key");
+        key.appendChild(docResp.createTextNode(listKey));
+        listXml.appendChild(key);
+      }
+      logger.debug("handleListValCacheKeys() - " + strMsg);
+
     }
-    String strKeyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
-    String[] listKeys = listTableEntriesByKeyPrefix(strKeyPrefix, valCache);
-    String strXml = "";
-    String strMsg = "db url: " + databaseManager.getDatabaseInfo()
-                                     .getHost() + "  # keys: " + listKeys.length + "\n";
-    for (String listKey : listKeys) {
-      strMsg += "  " + listKey + "\n";
-      strXml += "<key>" + listKey + "</key>";
-    }
-    logger.debug("handleListValCacheKeys() - " + strMsg);
-    return "<list_val_cache_keys>" + strXml + "</list_val_cache_keys>";
+    return MVUtil.domSourceToString(docResp);
   }
 
   /**
@@ -153,14 +175,20 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleClearListStatCache() {
+  public static String handleClearListStatCache() throws ParserConfigurationException {
+    Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
-      return "<error>caching list_stat caching not activated</error>";
+      Element errorXml = docResp.createElement("error");
+      docResp.appendChild(errorXml);
+      errorXml.appendChild(docResp.createTextNode("caching list_stat caching not activated"));
+    } else {
+      String keyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
+      int intNumRemoved = removeTableEntriesByKeyPrefix(keyPrefix, statCache);
+      Element listXml = docResp.createElement("list_stat_clear_cache");
+      docResp.appendChild(listXml);
+      listXml.appendChild(docResp.createTextNode("success: removed " + intNumRemoved + " entries"));
     }
-    String keyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
-    int intNumRemoved = removeTableEntriesByKeyPrefix(keyPrefix, statCache);
-    return "<list_stat_clear_cache>success: removed "
-               + intNumRemoved + " entries</list_stat_clear_cache>";
+    return MVUtil.domSourceToString(docResp);
   }
 
   /**
@@ -169,21 +197,30 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListStatCacheKeys() {
+  public static String handleListStatCacheKeys() throws ParserConfigurationException {
+    Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
-      return "<error>list_stat caching not activated</error>";
+      Element errorXml = docResp.createElement("error");
+      docResp.appendChild(errorXml);
+      errorXml
+          .appendChild(docResp.createTextNode("<error>list_stat caching not activated</error>"));
+    } else {
+      String keyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
+      String[] keys = listTableEntriesByKeyPrefix(keyPrefix, statCache);
+      StringBuilder strMsg = new StringBuilder("db url: " + databaseManager.getDatabaseInfo()
+                                                                .getHost() + "  # keys: " + keys.length + "\n");
+      Element listXml = docResp.createElement("list_stat_cache_keys");
+      docResp.appendChild(listXml);
+      for (String listKey : keys) {
+        strMsg.append("  ").append(listKey).append("\n");
+        Element key = docResp.createElement("key");
+        key.appendChild(docResp.createTextNode(listKey));
+        listXml.appendChild(key);
+      }
+      logger.debug("handleListStatCacheKeys() - " + strMsg);
+
     }
-    String keyPrefix = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>";
-    String[] keys = listTableEntriesByKeyPrefix(keyPrefix, statCache);
-    String strXml = "";
-    String strMsg = "db url: " + databaseManager.getDatabaseInfo()
-                                     .getHost() + "  # keys: " + keys.length + "\n";
-    for (String listKey : keys) {
-      strMsg += "  " + listKey + "\n";
-      strXml += "<key>" + listKey + "</key>";
-    }
-    logger.debug("handleListStatCacheKeys() - " + strMsg);
-    return "<list_stat_cache_keys>" + strXml + "</list_stat_cache_keys>";
+    return MVUtil.domSourceToString(docResp);
   }
 
   /**
@@ -194,7 +231,7 @@ public class MVServlet extends HttpServlet {
    * @param table  Table from which matching entries will be removed
    * @return number of removed entries
    */
-  public static int removeTableEntriesByKeyPrefix(String prefix, Map<String, String> table) {
+  public static int removeTableEntriesByKeyPrefix(String prefix, Map<String, Document> table) {
     int intNumRemoved = 0;
     Map.Entry[] listEntries = table.entrySet().toArray(new Map.Entry[]{});
     for (Map.Entry listEntry : listEntries) {
@@ -216,7 +253,7 @@ public class MVServlet extends HttpServlet {
    * @param table  Table from which matching entries will be removed
    * @return number of removed entries
    */
-  public static String[] listTableEntriesByKeyPrefix(String prefix, Map<String, String> table) {
+  public static String[] listTableEntriesByKeyPrefix(String prefix, Map<String, Document> table) {
     ArrayList listKeys = new ArrayList();
     Map.Entry[] listEntries = table.entrySet().toArray(new Map.Entry[]{});
     for (Map.Entry listEntry : listEntries) {
@@ -240,57 +277,52 @@ public class MVServlet extends HttpServlet {
   public static String handleListVal(
       MVNode nodeCall, String requestBody,
       String[] currentDbName) throws Exception {
-    //  parse the input request, and initialize the response
-    StringBuilder strResp = new StringBuilder("<list_val>");
-    String strId = nodeCall.children[0].value;
-
-    strResp.append("<id>").append(strId).append("</id>");
-
+    Document docResp = MVUtil.createDocument();
     //  check the list val cache for the request data
-    String strCacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>"
-                             + requestBody.replaceAll("<id>\\d+</id>", "")
-                                   .replaceAll("<date>\\d+</date>", "");
-    if (isValCache && valCache.containsKey(strCacheKey)) {
-      return valCache.get(strCacheKey)
-                 .replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
+    String cacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>"
+                          + requestBody;
+
+    if (isValCache && valCache.containsKey(cacheKey)) {
+      docResp = valCache.get(cacheKey);
+    } else {
+      //  parse the input request, and initialize the response
+      Element listVal = docResp.createElement("list_val");
+      docResp.appendChild(listVal);
+      String strField = nodeCall.children[0].value.toLowerCase(Locale.ENGLISH);
+      List<String> listRes = databaseManager.getListValues(nodeCall, strField, currentDbName);
+
+
+      //  sort and format the results, depending on the field
+      if (strField.equals("fcst_thresh") || strField.equals("fcst_thr")
+              || strField.equals("obs_thresh") || strField.equals("obs_thr")) {
+        listRes = MVUtil.sortThresh(listRes);
+      } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
+        listRes = MVUtil.sortLev(listRes);
+      } else if (strField.equals("interp_pnts")) {
+        listRes = MVUtil.sortInterpPnts(listRes);
+      } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
+        listRes = MVUtil.sortFormatLead(listRes, true, false);
+      } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
+        listRes = MVUtil.sortHour(listRes, true);
+      } else if (strField.equals("fcst_valid")
+                     || strField.equals("fcst_init")
+                     || strField.equals("obs_valid")) {
+        listRes = MVUtil.formatDates(listRes);
+      }
+
+
+      //  add the list of field values to the response
+      for (String aListVal : listRes) {
+        //  add the database field value to the list
+        Element valXml = docResp.createElement("val");
+        valXml.appendChild(docResp.createTextNode(
+            aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;")));
+        listVal.appendChild(valXml);
+
+      }
+      valCache.put(cacheKey, docResp);
     }
-    String strField = nodeCall.children[1].value.toLowerCase(Locale.ENGLISH);
-
-    List<String> listRes = databaseManager.getListValues(nodeCall, strField, currentDbName);
-
-
-    //  sort and format the results, depending on the field
-    if (strField.equals("fcst_thresh") || strField.equals("fcst_thr")
-            || strField.equals("obs_thresh") || strField.equals("obs_thr")) {
-      listRes = MVUtil.sortThresh(listRes);
-    } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
-      listRes = MVUtil.sortLev(listRes);
-    } else if (strField.equals("interp_pnts")) {
-      listRes = MVUtil.sortInterpPnts(listRes);
-    } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
-      listRes = MVUtil.sortFormatLead(listRes, true, false);
-    } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
-      listRes = MVUtil.sortHour(listRes, true);
-    } else if (strField.equals("fcst_valid") || strField.equals("fcst_init") || strField.equals(
-        "obs_valid")) {
-      listRes = MVUtil.formatDates(listRes);
-    }
-
-
-    //  add the list of field values to the response
-    for (String aListVal : listRes) {
-
-      //  add the database field value to the list
-      strResp.append("<val>")
-          .append(aListVal.replace("&", "&#38;").replace(">", "&gt;").replace("<", "&lt;"))
-          .append("</val>");
-
-    }
-
-
-    strResp.append("</list_val>");
-    valCache.put(strCacheKey, strResp.toString());
-    return strResp.toString();
+    return MVUtil.domSourceToString(docResp);
   }
 
   /**
@@ -305,59 +337,45 @@ public class MVServlet extends HttpServlet {
   public static String handleListStat(
       MVNode nodeCall, String requestBody,
       String[] currentDBName) throws Exception {
-    //  if the request is for the mode stats, return the static list
-    String strId = nodeCall.children[0].value;
-    String strFcstVar = nodeCall.children[1].value;
-    if (strFcstVar.equals("undefined")) {
-      return "<list_stat><id>" + strId + "</id></list_stat>";
-    }
-    if (nodeCall.children[0].tag.equals("mode_fcst_var")) {
-      String strResp = "<list_stat><id>" + strId + "</id></list_stat>";
-      logger.debug("handleListStat() - returning mode stats: " + strResp);
-      return strResp;
-    }
-
+    String strFcstVar = nodeCall.children[0].value;
+    Document docResp = MVUtil.createDocument();
     //  check the list val cache for the request data
     String strCacheKey = "<db>"
                              + databaseManager.getDatabaseInfo().getHost()
                              + "</db>"
-                             + requestBody.replaceAll("<id>\\d+</id>", "")
-                                   .replaceAll("<date>\\d+</date>", "");
-    if (isStatCache) {
-      logger.debug(
-          "handleListStat() - checking cache for key " + strCacheKey
-              + ": " + statCache.containsKey(strCacheKey));
-      if (statCache.containsKey(strCacheKey)) {
-        String strListStat = statCache.get(strCacheKey)
-                                 .replaceAll("<id>\\d+</id>", "<id>" + strId + "</id>");
-        logger.debug(
-            "handleListStat() - returning cached value\n  key: "
-                + strCacheKey + "\n  val: " + strListStat);
-        return strListStat;
+                             + requestBody;
+    if (isStatCache && statCache.containsKey(strCacheKey)) {
+      docResp = statCache.get(strCacheKey);
+    } else {
+      if (strFcstVar.equals("undefined") || nodeCall.children[0].tag.equals("mode_fcst_var")) {
+        Element listStat = docResp.createElement("list_stat");
+        docResp.appendChild(listStat);
+
+      } else {
+
+        List<String> listStatName = databaseManager.getListStat(strFcstVar, currentDBName);
+        Element listStatXml = docResp.createElement("list_stat");
+        docResp.appendChild(listStatXml);
+
+        //  sort and build the response string using the list of stat names
+        String[] listStat = MVUtil.toArray(listStatName);
+        Arrays.sort(listStat, new Comparator<String>() {
+          @Override
+          public int compare(String o1, String o2) {
+            return o1.compareTo(o2);
+          }
+        });
+        for (String aListStat : listStat) {
+          Element valXml = docResp.createElement("val");
+          valXml.appendChild(docResp.createTextNode(aListStat));
+          listStatXml.appendChild(valXml);
+        }
+        statCache.put(strCacheKey, docResp);
       }
     }
-
-    List<String> listStatName = databaseManager.getListStat(strFcstVar, currentDBName);
-
-    StringBuilder strResp = new StringBuilder("<list_stat><id>" + strId + "</id>");
-
-    //  sort and build the response string using the list of stat names
-    String[] listStat = MVUtil.toArray(listStatName);
-    Arrays.sort(listStat, new Comparator<String>() {
-      @Override
-      public int compare(String o1, String o2) {
-        return o1.compareTo(o2);
-      }
-    });
-    for (String aListStat : listStat) {
-      strResp.append("<val>").append(aListStat).append("</val>");
-    }
-
-    //  clean up
-    strResp.append("</list_stat>");
-    statCache.put(strCacheKey, strResp.toString());
-    return strResp.toString();
+    return MVUtil.domSourceToString(docResp);
   }
+
 
   /**
    * Save and parse the plot request XML, then generate the requested plot and return information
@@ -489,6 +507,8 @@ public class MVServlet extends HttpServlet {
 
         TransformerFactory tf = TransformerFactory.newInstance();
         tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+
 
         Transformer transformer = tf.newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
@@ -1006,75 +1026,110 @@ public class MVServlet extends HttpServlet {
         Map<String, List<String>> groups;
 
 
+        DocumentBuilder dBuilder = dbf.newDocumentBuilder();
+        Document docResp = dBuilder.newDocument();
+
+
         //  examine the children of the request node
         for (int i = 0; i < nodeReq.children.length; i++) {
           MVNode nodeCall = nodeReq.children[i];
           //  <list_db> request
           if (nodeCall.tag.equalsIgnoreCase("list_db")) {
-            strResp.append("<list_db>");
+            Element listDb = docResp.createElement("list_db");
+            docResp.appendChild(listDb);
             databases = databaseManager.getAllDatabasesWithDescription();
             groups = databaseManager.getAllGroups();
-            StringBuilder groupsXmlStr = new StringBuilder("<groups>");
+            Element groupsXml = docResp.createElement("groups");
             SortedSet<String> keys = new TreeSet<>(groups.keySet());
 
             for (String key : keys) {
               if (!key.equals(MVUtil.DEFAULT_DATABASE_GROUP)) {
-                groupsXmlStr.append("<group name='").append(key).append("'>");
+                Element groupXml = docResp.createElement("group");
+                Attr attrName = docResp.createAttribute("name");
+                attrName.setValue(key);
+                groupXml.setAttributeNode(attrName);
                 for (String database : groups.get(key)) {
-                  groupsXmlStr.append("<db>");
-                  groupsXmlStr.append("<val>").append(database).append("</val>");
-                  groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
-                  groupsXmlStr.append("</db>");
+                  Element dbXml = docResp.createElement("db");
+                  Element valXml = docResp.createElement("val");
+                  valXml.appendChild(docResp.createTextNode(database));
+                  dbXml.appendChild(valXml);
+                  Element descXml = docResp.createElement("desc");
+                  descXml.appendChild(docResp.createTextNode(databases.get(database)));
+                  dbXml.appendChild(descXml);
+                  groupXml.appendChild(dbXml);
                 }
-                groupsXmlStr.append("</group>");
+                groupsXml.appendChild(groupXml);
               }
             }
             if (groups.containsKey(MVUtil.DEFAULT_DATABASE_GROUP)) {
-              groupsXmlStr.append("<group name='").append(MVUtil.DEFAULT_DATABASE_GROUP)
-                  .append("' >");
+
+              Element groupXml = docResp.createElement("group");
+              Attr attrName = docResp.createAttribute("name");
+              attrName.setValue(MVUtil.DEFAULT_DATABASE_GROUP);
+              groupXml.setAttributeNode(attrName);
               for (String database : groups.get(MVUtil.DEFAULT_DATABASE_GROUP)) {
-                groupsXmlStr.append("<db>");
-                groupsXmlStr.append("<val>").append(database).append("</val>");
-                groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
-                groupsXmlStr.append("</db>");
+                Element dbXml = docResp.createElement("db");
+                Element valXml = docResp.createElement("val");
+                valXml.appendChild(docResp.createTextNode(database));
+                dbXml.appendChild(valXml);
+                Element descXml = docResp.createElement("desc");
+                descXml.appendChild(docResp.createTextNode(databases.get(database)));
+                dbXml.appendChild(descXml);
+
               }
-              groupsXmlStr.append("</group>");
+              groupsXml.appendChild(groupXml);
             }
 
-            groupsXmlStr.append("</groups>");
-            strResp.append(groupsXmlStr);
+            listDb.appendChild(groupsXml);
             for (Map.Entry<String, String> database : databases.entrySet()) {
-              strResp.append("<val>").append(database.getKey()).append("</val>");
-              strResp.append("<desc>").append(database.getValue()).append("</desc>");
+              Element valXml = docResp.createElement("val");
+              valXml.appendChild(docResp.createTextNode(database.getKey()));
+              listDb.appendChild(valXml);
+              Element descXml = docResp.createElement("desc");
+              descXml.appendChild(docResp.createTextNode(database.getValue()));
+              listDb.appendChild(descXml);
             }
-
-            strResp.append("<url_output><![CDATA[").append(urlOutput)
-                .append("]]></url_output>");
-            strResp.append("</list_db>");
+            Element urlXml = docResp.createElement("url_output");
+            urlXml.appendChild(docResp.createCDATASection(urlOutput));
+            listDb.appendChild(urlXml);
+            strResp.append(MVUtil.domSourceToString(docResp));
 
           } else if (nodeCall.tag.equalsIgnoreCase("list_db_update")) {
-            strResp.append("<list_db>");
+            Element listDb = docResp.createElement("list_db");
+            docResp.appendChild(listDb);
+
             databaseManager.initDBList(true);
             databases = databaseManager.getAllDatabasesWithDescription();
             groups = databaseManager.getAllGroups();
-            StringBuilder groupsXmlStr = new StringBuilder("<groups>");
+            Element groupsXml = docResp.createElement("groups");
+
             for (Map.Entry<String, List<String>> entry : groups.entrySet()) {
-              groupsXmlStr.append("<group name='").append(entry.getKey()).append("'>");
+              Element groupXml = docResp.createElement("group");
+              Attr attrName = docResp.createAttribute("name");
+              attrName.setValue(entry.getKey());
+              groupXml.setAttributeNode(attrName);
+
               for (String database : entry.getValue()) {
-                groupsXmlStr.append("<db>");
-                groupsXmlStr.append("<val>").append(database).append("</val>");
-                groupsXmlStr.append("<desc>").append(databases.get(database)).append("</desc>");
-                groupsXmlStr.append("</db>");
+                Element dbXml = docResp.createElement("db");
+                Element valXml = docResp.createElement("val");
+                valXml.appendChild(docResp.createTextNode(database));
+                dbXml.appendChild(valXml);
+                Element descXml = docResp.createElement("desc");
+                descXml.appendChild(docResp.createTextNode(databases.get(database)));
+                dbXml.appendChild(descXml);
+                groupXml.appendChild(dbXml);
+
               }
-              groupsXmlStr.append("</group>");
+              groupsXml.appendChild(groupXml);
+
             }
-            groupsXmlStr.append("</groups>");
-            strResp.append(groupsXmlStr);
+            listDb.appendChild(groupsXml);
 
-            strResp.append("</list_db>");
-            strResp.append("<url_output><![CDATA[").append(urlOutput)
-                .append("]]></url_output>");
 
+            Element urlXml = docResp.createElement("url_output");
+            urlXml.appendChild(docResp.createCDATASection(urlOutput));
+            listDb.appendChild(urlXml);
+            strResp.append(MVUtil.domSourceToString(docResp));
             handleClearListValCache();
             handleClearListStatCache();
           }
@@ -1152,8 +1207,13 @@ public class MVServlet extends HttpServlet {
 
           //  not handled
           else {
-            strResp.append("<error>unexpected request type: ").append(nodeCall.tag)
-                .append("</error>");
+            Element errorXml = docResp.createElement("error");
+            docResp.appendChild(errorXml);
+
+            errorXml
+                .appendChild(docResp.createTextNode("unexpected request type: " + nodeCall.tag));
+            strResp.append(MVUtil.domSourceToString(docResp));
+
           }
         }
       }
@@ -1163,8 +1223,8 @@ public class MVServlet extends HttpServlet {
 
       logger.debug("doPost() - response: " + strResp);
       response.setContentType("application/xml;charset=UTF-8");
+
       try (PrintWriter printWriter = response.getWriter()) {
-        printWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         printWriter.append(strResp);
       }
     } catch (Exception e) {
