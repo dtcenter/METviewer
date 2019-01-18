@@ -15,8 +15,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements TestDBManager {
-    public TestMysqlDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-        super(databaseInfo);
+    public TestMysqlDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+        super(databaseInfo, password);
     }
 
     private static final Logger logger = LogManager.getLogger("TestMysqlDatabaseManager");

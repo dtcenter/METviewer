@@ -58,8 +58,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   private StopWatch cbStopWatch = new StopWatch();
 
-  public CBAppDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public CBAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo, password);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
     statHeaderSqlType.put("fcst_lead", "INT");

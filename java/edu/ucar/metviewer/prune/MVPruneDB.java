@@ -1,15 +1,21 @@
 /**
- * MVPruneDB.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
+ * MVPruneDB.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR),
+ * National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL), P.O. Box
+ * 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
  */
 
 package edu.ucar.metviewer.prune;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.*;
 
 /**
  * Counts or deletes data that  match the criteria specified in  XML file
@@ -23,36 +29,56 @@ public class MVPruneDB {
 
   private static final String USAGE = "USAGE:  mv_prune.sh <prune_db_spec_file>\n" +
     "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
-
-
-  private String databaseName;
-  private String user;
-  private String pwd;
-  private String host;
   private final Map<String, List<String>> fieldToRangeValues = new HashMap<>();
   private final Map<String, List<String>> fieldToListValues = new HashMap<>();
   private final List<String> files = new ArrayList<>();
   private final Set<String> directories = new HashSet<>();
+  private String databaseName;
+  private String user;
+  private String pwd;
+  private String host;
   private Boolean isInfoOnly = null;
+
+  public static void main(String[] args) throws Exception {
+    String filename;
+    if (0 == args.length) {
+      logger.error("  Error: no arguments!!!");
+      logger.info(USAGE);
+
+    } else {
+      filename = args[0];
+      PruneXmlParser pruneXmlParser = new PruneXmlParser();
+      MVPruneDB mvPruneDB = pruneXmlParser.parseParameters(filename);
+      boolean isValid = mvPruneDB.validate();
+      if (isValid) {
+        PruneDbManager pruneDbManager = new PruneDbManager(
+            new DatabaseInfo(mvPruneDB.getHost(), mvPruneDB.getUser()), mvPruneDB.getPwd());
+
+        pruneDbManager.pruneData(mvPruneDB);
+      }
+
+    }
+    logger.info("----  MVPruneDB Done  ----");
+  }
 
   public Set<String> getDirectories() {
     return directories;
-  }
-
-  public void setInfoOnly(Boolean infoOnly) {
-    isInfoOnly = infoOnly;
   }
 
   public Boolean getInfoOnly() {
     return isInfoOnly;
   }
 
-  public void setPwd(String pwd) {
-    this.pwd = pwd;
+  public void setInfoOnly(Boolean infoOnly) {
+    isInfoOnly = infoOnly;
   }
 
   private String getPwd() {
     return pwd;
+  }
+
+  public void setPwd(String pwd) {
+    this.pwd = pwd;
   }
 
   private String getUser() {
@@ -84,34 +110,12 @@ public class MVPruneDB {
     return files;
   }
 
-  public void setDatabaseName(String databaseName) {
-    this.databaseName = databaseName;
-  }
-
   public String getDatabaseName() {
     return databaseName;
   }
 
-
-  public static void main(String[] args) throws Exception {
-    String filename;
-    if (0 == args.length) {
-      logger.error("  Error: no arguments!!!");
-      logger.info(USAGE);
-
-    } else {
-      filename = args[0];
-      PruneXmlParser pruneXmlParser = new PruneXmlParser();
-      MVPruneDB mvPruneDB = pruneXmlParser.parseParameters(filename);
-      boolean isValid = mvPruneDB.validate();
-      if (isValid) {
-        PruneDbManager pruneDbManager = new PruneDbManager(new DatabaseInfo(  mvPruneDB.getHost(), mvPruneDB.getUser(), mvPruneDB.getPwd()));
-
-        pruneDbManager.pruneData(mvPruneDB);
-      }
-
-    }
-    logger.info("----  MVPruneDB Done  ----");
+  public void setDatabaseName(String databaseName) {
+    this.databaseName = databaseName;
   }
 
   /**

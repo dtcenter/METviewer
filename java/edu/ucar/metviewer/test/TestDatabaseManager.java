@@ -15,7 +15,7 @@ public class TestDatabaseManager {
     public static TestDBManager getManager(String management_system, String host, String user, String password, String dbName) throws Exception {
         String ms = management_system.toLowerCase();
         String dbType = (ms == null || ms == "") ? "mysql" : ms; // default dbType to mysql if management_system is missing
-        DatabaseInfo databaseInfo = new DatabaseInfo(host, user, password);
+        DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
         databaseInfo.setDbName(dbName);
         TestDBManager databaseManager = null;
 

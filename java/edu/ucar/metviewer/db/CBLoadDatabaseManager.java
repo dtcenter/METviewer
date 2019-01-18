@@ -84,8 +84,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public CBLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public CBLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo, password);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");

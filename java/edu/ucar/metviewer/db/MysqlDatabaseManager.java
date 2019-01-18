@@ -37,18 +37,21 @@ public class MysqlDatabaseManager extends DatabaseManager{
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
+  private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
   protected static final SimpleDateFormat DATE_FORMAT =
           new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   protected static final DateTimeFormatter DATE_FORMAT_1
           = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_STRING);
+
+
   private DataSource dataSource;
-  protected static final String BINARY ="  BINARY ";
+  public static final String BINARY ="  BINARY ";
 
 
 
-
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo) throws SQLException {
+  public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
       super(databaseInfo);
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
@@ -58,7 +61,7 @@ public class MysqlDatabaseManager extends DatabaseManager{
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
-    configurationToUse.setPassword(databaseInfo.getPassword());
+    configurationToUse.setPassword(password);
     configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
