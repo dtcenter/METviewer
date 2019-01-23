@@ -26,7 +26,7 @@ import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;

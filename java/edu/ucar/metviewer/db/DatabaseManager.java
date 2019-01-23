@@ -55,11 +55,13 @@ public abstract class DatabaseManager {
             // DatabaseManager construction so as to not create a
             // dependency on the specialized database jar files.
             case "mysql":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.mysql" +
                         ".MysqlLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.couchbase" +
                         ".CBLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             default:
@@ -84,11 +86,13 @@ public abstract class DatabaseManager {
             // dependency on the specialized database jar files.
 
             case "mysql":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.mysql" +
                         ".MysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.couchbase" +
                         ".CBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             default:
@@ -111,11 +115,13 @@ public abstract class DatabaseManager {
         // dependencies (jar files) based on db.management.system
         switch (dbType) {
             case "mysql":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.mysql" +
                         ".MysqlAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             case "cb":
-                databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.couchbase" +
                         ".CBAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             default:

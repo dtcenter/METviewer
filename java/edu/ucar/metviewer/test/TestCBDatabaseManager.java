@@ -1,6 +1,6 @@
 package edu.ucar.metviewer.test;
 
-import edu.ucar.metviewer.db.CBDatabaseManager;
+import edu.ucar.metviewer.db.couchbase.CBDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

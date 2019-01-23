@@ -19,10 +19,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.io.IoBuilder;
 
 /**
  * @author : tatiana $

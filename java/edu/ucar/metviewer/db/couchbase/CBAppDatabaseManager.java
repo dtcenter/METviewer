@@ -4,7 +4,7 @@
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.db.couchbase;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -41,7 +41,7 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 19/05/17 12:42 $
  */
-public class CBAppDatabaseManager extends CBDatabaseManager implements AppDatabaseManager {
+public class CBAppDatabaseManager extends CBDatabaseManager implements edu.ucar.metviewer.db.AppDatabaseManager {
 
 
   private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
@@ -52,7 +52,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public CBAppDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+  public CBAppDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws Exception {
     super(databaseInfo);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");

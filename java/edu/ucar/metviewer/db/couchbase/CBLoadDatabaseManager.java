@@ -4,7 +4,7 @@
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.db.couchbase;
 
 import com.couchbase.client.core.CouchbaseException;
 import com.couchbase.client.java.document.JsonDocument;
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
  */
-public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadDatabaseManager {
+public class CBLoadDatabaseManager extends CBDatabaseManager implements edu.ucar.metviewer.db.LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
   protected static final DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
@@ -84,7 +84,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public CBLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+  public CBLoadDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws Exception {
     super(databaseInfo);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");

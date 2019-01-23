@@ -4,7 +4,7 @@
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.db.mysql;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,7 +41,7 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
  */
-public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements LoadDatabaseManager {
+public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements edu.ucar.metviewer.db.LoadDatabaseManager {
 
   protected static final DateTimeFormatter DB_DATE_STAT_FORMAT
       = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
@@ -92,7 +92,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   private final Map<String, Integer> tableDataFileLU;
   private MVOrderedMap mapIndexes;
 
-  public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
+  public MysqlLoadDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws Exception {
     super(databaseInfo);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");

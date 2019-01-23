@@ -3,7 +3,7 @@
  * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.db.couchbase;
 
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class CBDatabaseManager extends DatabaseManager{
+public class CBDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("CBDatabaseManager");
   protected static final String DB_PREFIX_MV = "mv_";
@@ -43,7 +43,7 @@ public class CBDatabaseManager extends DatabaseManager{
   protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
           = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-  public CBDatabaseManager(DatabaseInfo databaseInfo) throws CouchbaseException {
+  public CBDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws CouchbaseException {
     super(databaseInfo);
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
