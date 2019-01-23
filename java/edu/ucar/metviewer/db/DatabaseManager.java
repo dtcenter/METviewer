@@ -60,11 +60,11 @@ public abstract class DatabaseManager {
             // dependency on the specialized database jar files.
             case MYSQL:
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".MysqlLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+                        ".MysqlLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo, password);
                 break;
             case CB:
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".CBLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+                        ".CBLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo, password);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -89,11 +89,11 @@ public abstract class DatabaseManager {
 
             case MYSQL:
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".MysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+                        ".MysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo, password);
                 break;
             case CB:
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".CBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+                        ".CBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo, password);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -116,11 +116,11 @@ public abstract class DatabaseManager {
         switch (dbType) {
             case MYSQL:
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".MysqlAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+                        ".MysqlAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo, password);
                 break;
             case CB:
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar.metviewer.db" +
-                        ".CBAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+                        ".CBAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo, password);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);

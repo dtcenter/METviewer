@@ -29,13 +29,13 @@ public class TestDatabaseManager {
                 databaseManager =
                         (edu.ucar.metviewer.test.TestDBManager)Class.forName(
                                 "edu.ucar.metviewer.db" +
-                        ".TestMysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                        ".TestMysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo);
                 break;
             case "cb":
                 databaseManager =
                         (edu.ucar.metviewer.test.TestDBManager)Class.forName(
                                 "edu.ucar.metviewer.db" +
-                        ".TestCBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                        ".TestCBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class).newInstance(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
