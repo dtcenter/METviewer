@@ -7,34 +7,55 @@
 package edu.ucar.metviewer.db.mariadb;
 
 
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+
+import edu.ucar.metviewer.MVUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolConfiguration;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
 public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
 
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("MysqlDatabaseManager");
-  protected static java.util.Map<String, String> listDB = new java.util.TreeMap<>();
-  protected static java.util.Map<String, java.util.List<String>> groupToDatabases = new java.util.HashMap<>();
-  protected static final java.text.SimpleDateFormat DATE_FORMAT =
-          new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US);
-  protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
-          = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
+  protected static Map<String, String> listDB = new TreeMap<>();
+  protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
+  protected static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+  protected static final DateTimeFormatter DATE_FORMAT_1
+          = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-  private org.apache.tomcat.jdbc.pool.DataSource dataSource;
+  private DataSource dataSource;
   protected static final String BINARY ="  BINARY ";
 
 
 
 
-  public MariaDbDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws java.sql.SQLException {
-      super(databaseInfo);
+  public MariaDbDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws SQLException {
+    super(databaseInfo);
     String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
       jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
     }
     jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
-    org.apache.tomcat.jdbc.pool.PoolConfiguration configurationToUse = new org.apache.tomcat.jdbc.pool.PoolProperties();
+    PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
     configurationToUse.setPassword(databaseInfo.getPassword());
@@ -56,12 +77,12 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
     configurationToUse.setMinIdle(10);
     configurationToUse.setRemoveAbandoned(true);
     configurationToUse.setJdbcInterceptors(
-        "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
-            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
+                    + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
     try {
-      dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
+      dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
-      dataSource.setLogWriter(new java.io.PrintWriter(getPrintStream()));
+      dataSource.setLogWriter(new PrintWriter(getPrintStream()));
     } catch (Exception e) {
       logger.debug(e);
       logger.error("Database connection  for a primary database was not initialised.");
@@ -79,12 +100,12 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
   public void initDBList(boolean updateGroups) {
     listDB.clear();
     String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
-                     + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
-                     + "> 0 and "
-                     + "TABLE_SCHEMA like 'mv_%'";
-    try (java.sql.Connection testConnection = dataSource.getConnection();
-         java.sql.Statement testStatement = testConnection.createStatement();
-         java.sql.ResultSet resultSet = testStatement.executeQuery(sql)
+            + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
+            + "> 0 and "
+            + "TABLE_SCHEMA like 'mv_%'";
+    try (Connection testConnection = dataSource.getConnection();
+         Statement testStatement = testConnection.createStatement();
+         ResultSet resultSet = testStatement.executeQuery(sql)
 
     ) {
       String database;
@@ -92,7 +113,7 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
         database = resultSet.getString("TABLE_SCHEMA");
         listDB.put(database, "");
       }
-    } catch (java.sql.SQLException e) {
+    } catch (SQLException e) {
       logger.error(e.getMessage());
 
     }
@@ -103,12 +124,12 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
       groupToDatabases.clear();
 
       //for each database find a group
-      for (java.util.Map.Entry<String, String> database : listDB.entrySet()) {
+      for (Map.Entry<String, String> database : listDB.entrySet()) {
         String[] metadata = getDatabaseMetadata(database.getKey());
         database.setValue(metadata[1]);
 
         if (!groupToDatabases.containsKey(metadata[0])) {
-          groupToDatabases.put(metadata[0], new java.util.ArrayList<>());
+          groupToDatabases.put(metadata[0], new ArrayList<>());
         }
 
         groupToDatabases.get(metadata[0]).add(database.getKey());
@@ -121,20 +142,20 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
     String group = "";
     String description = "";
     String sql = "SELECT * from metadata";
-    try (java.sql.Connection con = getConnection(database);
-         java.sql.Statement statement = con.createStatement();
-         java.sql.ResultSet rs = statement.executeQuery(sql)
+    try (Connection con = getConnection(database);
+         Statement statement = con.createStatement();
+         ResultSet rs = statement.executeQuery(sql)
     ) {
       while (rs.next()) {
         group = rs.getString("category");
         description = rs.getString("description");
       }
 
-    } catch (java.sql.SQLException e) {
+    } catch (SQLException e) {
       logger.error("Can't get groups for database " + database + " SQL exception: " + e);
     }
     if (group.isEmpty()) {
-      group = edu.ucar.metviewer.MVUtil.DEFAULT_DATABASE_GROUP;
+      group = MVUtil.DEFAULT_DATABASE_GROUP;
     }
 
     return new String[]{group, description};
@@ -163,20 +184,20 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
    *
    * @param db - a name of database to get a connection for
    * @return - db connection
-   * @throws java.sql.SQLException
+   * @throws SQLException
    */
-  public java.sql.Connection getConnection(String db) throws java.sql.SQLException {
+  public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
-    java.sql.Connection con = null;
-    java.sql.Statement statement = null;
-    java.sql.ResultSet rs = null;
+    Connection con = null;
+    Statement statement = null;
+    ResultSet rs = null;
     if (validDB) {
       try {
         con = dataSource.getConnection();
         statement = con.createStatement();
         rs = statement.executeQuery("use " + db);
 
-      } catch (java.sql.SQLException e) {
+      } catch (SQLException e) {
         logger.error(e.getMessage());
       } finally {
         if (statement != null) {
@@ -196,11 +217,11 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
    *
    * @return - connection
    */
-  public java.sql.Connection getConnection() {
-    java.sql.Connection con = null;
+  public Connection getConnection() {
+    Connection con = null;
     try {
       con = dataSource.getConnection();
-    } catch (java.sql.SQLException e) {
+    } catch (SQLException e) {
       logger.error(e.getMessage());
     }
     return con;
