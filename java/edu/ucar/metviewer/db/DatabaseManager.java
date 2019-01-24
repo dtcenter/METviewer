@@ -64,6 +64,16 @@ public abstract class DatabaseManager {
                         ".metviewer.db.couchbase" +
                         ".CBLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
+            case "mariadb":
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.mariadb" +
+                        ".MariaDbLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
+            case "aurora":
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.aurora" +
+                        ".AuroraLoadDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
         }
@@ -95,6 +105,16 @@ public abstract class DatabaseManager {
                         ".metviewer.db.couchbase" +
                         ".CBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
+            case "mariadb":
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.mariadb" +
+                        ".MariaDbDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
+            case "aurora":
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.aurora" +
+                        ".AuroraDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
         }
@@ -123,6 +143,16 @@ public abstract class DatabaseManager {
                 databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
                         ".metviewer.db.couchbase" +
                         ".CBAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
+            case "mariadb":
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.mariadb" +
+                        ".MariaDbAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
+            case "aurora":
+                databaseManager = (DatabaseManager)Class.forName("edu.ucar" +
+                        ".metviewer.db.aurora" +
+                        ".AuroraAppDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);

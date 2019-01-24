@@ -37,6 +37,18 @@ public class TestDatabaseManager {
                                 "edu.ucar.metviewer.db" +
                         ".TestCBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
                 break;
+            case "maria":
+                databaseManager =
+                        (edu.ucar.metviewer.test.TestDBManager)Class.forName(
+                                "edu.ucar.metviewer.db" +
+                                        ".TestMariaDbDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
+            case "aurora":
+                databaseManager =
+                        (edu.ucar.metviewer.test.TestDBManager)Class.forName(
+                                "edu.ucar.metviewer.db" +
+                                        ".TestAuroraDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo);
+                break;
             default:
                 throw new IllegalArgumentException("Invalid database type: " + dbType);
         }
