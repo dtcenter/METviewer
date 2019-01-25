@@ -1,11 +1,11 @@
 /**
- * MysqlDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * AuroraDatabaseManager.java Copyright UCAR (c) 2017. University Corporation
+ * for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.db.aurora;
-
 
 /**
  * @author : tatiana $
@@ -13,7 +13,9 @@ package edu.ucar.metviewer.db.aurora;
  */
 public class AuroraDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
 
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("MysqlDatabaseManager");
+  private static final org.apache.logging.log4j.Logger logger =
+          org.apache.logging.log4j.LogManager.getLogger(
+                  "AuroraDatabaseManager");
   protected static java.util.Map<String, String> listDB = new java.util.TreeMap<>();
   protected static java.util.Map<String, java.util.List<String>> groupToDatabases = new java.util.HashMap<>();
   protected static final java.text.SimpleDateFormat DATE_FORMAT =
@@ -24,16 +26,14 @@ public class AuroraDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager
   private org.apache.tomcat.jdbc.pool.DataSource dataSource;
   protected static final String BINARY ="  BINARY ";
 
-
-
-
   public AuroraDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws java.sql.SQLException {
       super(databaseInfo);
-    String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
+    String jdbcUrl = "jdbc:mysql:aurora://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
       jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
     }
     jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+
     org.apache.tomcat.jdbc.pool.PoolConfiguration configurationToUse = new org.apache.tomcat.jdbc.pool.PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
@@ -192,7 +192,7 @@ public class AuroraDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager
   }
 
   /**
-   * Returns a connection to MySQL
+   * Returns a connection to Aurora
    *
    * @return - connection
    */

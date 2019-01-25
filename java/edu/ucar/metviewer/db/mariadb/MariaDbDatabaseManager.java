@@ -1,5 +1,6 @@
 /**
- * MysqlDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * MariaDbDatabaseManager.java Copyright UCAR (c) 2017. University Corporation
+ * for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
@@ -34,7 +35,8 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  */
 public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
+  private static final Logger logger = LogManager.getLogger(
+          "MariaDbDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   protected static final SimpleDateFormat DATE_FORMAT =
@@ -45,16 +47,14 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
   private DataSource dataSource;
   protected static final String BINARY ="  BINARY ";
 
-
-
-
   public MariaDbDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws SQLException {
     super(databaseInfo);
-    String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
+    String jdbcUrl = "jdbc:mariadb://" + databaseInfo.getHost();
     if (databaseInfo.getDbName() != null) {
       jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
     }
     jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
@@ -196,7 +196,6 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
         con = dataSource.getConnection();
         statement = con.createStatement();
         rs = statement.executeQuery("use " + db);
-
       } catch (SQLException e) {
         logger.error(e.getMessage());
       } finally {
@@ -213,7 +212,7 @@ public class MariaDbDatabaseManager extends edu.ucar.metviewer.db.DatabaseManage
   }
 
   /**
-   * Returns a connection to MySQL
+   * Returns a connection to mariaDb
    *
    * @return - connection
    */
