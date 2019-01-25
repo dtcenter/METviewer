@@ -2,12 +2,14 @@ package edu.ucar.metviewer.test;
 
 import static java.lang.System.out;
 
-public class TestAuroraDatabaseManager extends edu.ucar.metviewer.db.mysql.MysqlDatabaseManager implements edu.ucar.metviewer.test.TestDBManager {
+public class TestAuroraDatabaseManager extends edu.ucar.metviewer.db.aurora.AuroraDatabaseManager implements edu.ucar.metviewer.test.TestDBManager {
     public TestAuroraDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws Exception {
         super(databaseInfo);
     }
 
-    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("TestMysqlDatabaseManager");
+    private static final org.apache.logging.log4j.Logger logger =
+            org.apache.logging.log4j.LogManager.getLogger(
+                    "TestAuroraDatabaseManager");
 
     public int getNumberOfRows(String lineDataType) throws Exception {
         String tableName = lineDataType;
@@ -71,7 +73,8 @@ public class TestAuroraDatabaseManager extends edu.ucar.metviewer.db.mysql.Mysql
         java.sql.Connection aConn = null;
         java.sql.Statement aStmt = null;
         try {
-            com.mysql.jdbc.jdbc2.optional.MysqlDataSource aDataSource = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+            com.aurora.jdbc.jdbc2.optional.MysqlDataSource aDataSource =
+                    new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
             aDataSource.setUser(userName);
             aDataSource.setPassword(password);
             aDataSource.setServerName(host.split(":")[0]); // don't need the port here
