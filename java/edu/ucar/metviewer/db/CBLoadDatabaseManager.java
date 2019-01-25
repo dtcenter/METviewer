@@ -2698,7 +2698,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String currentDescription = "";
     String currentGroup = "";
     String currentID = "";
-    String newGroup = MVUtil.DEFAULT_DATABASE_GROUP;
+    String newGroup = "";
     long nextIdNumber = 0;
     int nrows = 0;
     String nextIdString = "";
