@@ -288,7 +288,8 @@
         <javac srcdir="${src}" destdir="${build}">
             <include name="**/*.java"/>
             <exclude name="**/test/**"/>
-            <!-- aurora-->
+
+            <!-- aurora
             <exclude name="**/MysqlDatabaseManager.java" if="db.management.system.aurora"/>
             <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.aurora"/>
             <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.aurora"/>
@@ -298,8 +299,13 @@
             <exclude name="**/CBDatabaseManager.java" if="db.management.system.aurora"/>
             <exclude name="**/CBAppDatabaseManager.java" if="db.management.system.aurora"/>
             <exclude name="**/CBLoadDatabaseManager.java" if="db.management.system.aurora"/>
+            -->
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.aurora"/>
 
-            <!-- mysql-->
+
+            <!-- mysql
             <exclude name="**/AuroraDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/AuroraAppDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/AuroraLoadDatabaseManager.java" if="db.management.system.mysql"/>
@@ -309,8 +315,12 @@
             <exclude name="**/CBDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/CBAppDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/CBLoadDatabaseManager.java" if="db.management.system.mysql"/>
+            -->
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.mysql"/>
 
-            <!-- cb-->
+            <!-- cb
             <exclude name="**/AuroraDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/AuroraAppDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/AuroraLoadDatabaseManager.java" if="db.management.system.cb"/>
@@ -320,8 +330,12 @@
             <exclude name="**/MysqlDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.cb"/>
+            -->
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.cb"/>
 
-            <!-- mariadb-->
+            <!-- mariadb
             <exclude name="**/AuroraDatabaseManager.java" if="db.management.system.mariadb"/>
             <exclude name="**/AuroraAppDatabaseManager.java" if="db.management.system.mariadb"/>
             <exclude name="**/AuroraLoadDatabaseManager.java" if="db.management.system.mariadb"/>
@@ -331,6 +345,11 @@
             <exclude name="**/MysqlDatabaseManager.java" if="db.management.system.mariadb"/>
             <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.mariadb"/>
             <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.mariadb"/>
+            -->
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
+
             <classpath refid="${db.management.system}" />
         </javac>
 
@@ -339,14 +358,45 @@
         <!-- Compile the project java files -->
         <javac sourcepath="" srcdir="${src}" destdir="${build}">
             <include name="**/*.java"/>
+            <!--
             <exclude name="**/CBDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/CBAppDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/CBLoadDatabaseManager.java" if="db.management.system.mysql"/>
             <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mysql"/>
+
             <exclude name="**/MysqlDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.cb"/>
+            -->
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.aurora"/>
+            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
+            <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.aurora"/>
+            <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.aurora"/>
+
+            <exclude name="/edu/ucar/metviewer/db/aurora/**" if="db.management.system.cb"/>
+            <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.cb"/>
+            <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.cb"/>
+            <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.cb"/>
+
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mariadb"/>
+            <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
+            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
+            <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.mariadb"/>
+
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mysql"/>
+            <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mysql"/>
+            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.mysql"/>
+            <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.mysql"/>
+
             <!-- This includes the db sprecific jar files based on the
             path elements specified by refid i.e. mysql, mysql-all, cb, cb-all-->
             <classpath refid="${db.management.system}-all" />
