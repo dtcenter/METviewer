@@ -850,6 +850,7 @@ public class MVServlet extends HttpServlet {
         String filePath = "";
 
         plot = request.getParameter("plot");
+        plot = MVUtil.cleanString(plot);
 
         type = request.getParameter("type");
 
@@ -994,6 +995,7 @@ public class MVServlet extends HttpServlet {
         String[] simpleRequest = requestBody.toString().split("=");
         if (simpleRequest[0].equals("fileUploadLocal") && simpleRequest.length > 1) {
           String runId = simpleRequest[1].replace("%28", "(").replace("%29", ")");
+          runId = MVUtil.cleanString(runId);
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
           DocumentBuilder db = dbf.newDocumentBuilder();
           File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
