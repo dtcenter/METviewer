@@ -2679,7 +2679,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 .put("type", "category")
                 .put("dbname", getDbName())
                 .put("group", group)
-                .put("description", "");
+                .put("description", currentDescription);
 
         doc = JsonDocument.create(nextIdString, groupFile);
         response = getBucket().upsert(doc);
