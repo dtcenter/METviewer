@@ -301,7 +301,7 @@ public class MVServlet extends HttpServlet {
       } else if (strField.equals("interp_pnts")) {
         listRes = MVUtil.sortInterpPnts(listRes);
       } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
-        listRes = MVUtil.sortFormatLead(listRes, true, false);
+        listRes = MVUtil.sortFormatLead(listRes, true);
       } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
         listRes = MVUtil.sortHour(listRes, true);
       } else if (strField.equals("fcst_valid")
