@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
@@ -37,6 +38,7 @@ class XmlParser {
     Scorecard scorecard = new Scorecard();
     try {
       db = dbf.newDocumentBuilder();
+      filename = MVUtil.cleanString(filename);
       Document doc = db.parse(new File(filename));
       Node pruneSpec = doc.getFirstChild();
       NodeList scorecardSpecNodes = pruneSpec.getChildNodes();
