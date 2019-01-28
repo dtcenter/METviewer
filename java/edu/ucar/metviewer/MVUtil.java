@@ -1142,12 +1142,10 @@ public class MVUtil {
    *
    * @param lead        List of lead time values
    * @param asc         true for ascending order
-   * @param removeZeros true to remove the trailing 0000 from the lead time value
    * @return Sorted list of formatted lead times, by numerical value
    */
   public static List<String> sortFormatLead(
-      final List<String> lead, final boolean asc,
-      final boolean removeZeros) {
+      final List<String> lead, final boolean asc) {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.size()];
@@ -1155,7 +1153,7 @@ public class MVUtil {
     for (int i = 0; i < lead.size(); i++) {
       listVal[i] = Double.parseDouble(lead.get(i));
       String strLead = lead.get(i);
-      if (removeZeros && strLead.endsWith("0000")) {
+      if (strLead.endsWith("0000")) {
         strLead = strLead.replaceAll("0000$", "");
       }
       tableVal.put(listVal[i], strLead);
