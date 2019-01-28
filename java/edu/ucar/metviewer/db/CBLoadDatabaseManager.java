@@ -3035,6 +3035,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     //  read the load xml into a string, if requested
     String strLoadXML = "";
     if (job.getLoadXML()) {
+      strXML = MVUtil.cleanString(strXML);
       try (BufferedReader reader = new BufferedReader(new FileReader(strXML))) {
         while (reader.ready()) {
           strLoadXML += reader.readLine().trim();
