@@ -2577,11 +2577,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           try {
             num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
             num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
+            if (num1.equals(num2) && num1 != 0) {
+              matchedFlag = 1;
+            }
           } catch (Exception e) {
           }
-          if (num1.equals(num2) && num1 != 0) {
-            matchedFlag = 1;
-          }
+
           str3dPairValueList = str3dPairValueList + "," + simpleFlag + "," + matchedFlag;
 
 //          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
