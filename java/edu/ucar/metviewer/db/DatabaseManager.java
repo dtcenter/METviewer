@@ -7,6 +7,7 @@
 package edu.ucar.metviewer.db;
 
 import java.io.PrintStream;
+import java.util.Locale;
 
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -38,13 +39,13 @@ public abstract class DatabaseManager {
   public static DatabaseManager getLoadManager(
       String managementSystem, String host, String user, String password,
       String dbName) throws Exception {
-    String ms = managementSystem.toLowerCase();
+    String ms = managementSystem.toLowerCase(Locale.ENGLISH);
 
     // default dbType to mysql if management_system is missing
     String dbType = ms.isEmpty() ? MYSQL : ms;
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
-    DatabaseManager databaseManager = null;
+    DatabaseManager databaseManager;
     switch (dbType) {
       case MYSQL:
         databaseManager = new MysqlLoadDatabaseManager(databaseInfo, password);
@@ -70,7 +71,7 @@ public abstract class DatabaseManager {
       String user,
       String password,
       String dbName) throws Exception {
-    String ms = managementSystem.toLowerCase();
+    String ms = managementSystem.toLowerCase(Locale.ENGLISH);
 
     // default dbType to mysql if management_system is missing
     String dbType = ms.isEmpty() ? MYSQL : ms;
@@ -102,15 +103,15 @@ public abstract class DatabaseManager {
    * database engine.
    *
    * @param managementSystem - database type
-   * @param host - host name
-   * @param user - user name
-   * @param password - db user password
+   * @param host             - host name
+   * @param user             - user name
+   * @param password         - db user password
    * @return - database manager for the requared database type
    * @throws Exception
    */
   public static DatabaseManager getAppManager(
       String managementSystem, String host, String user, String password) throws Exception {
-    String ms = managementSystem.toLowerCase();
+    String ms = managementSystem.toLowerCase(Locale.ENGLISH);
 
     // default dbType to mysql if management_system is missing
     String dbType = ms.isEmpty() ? MYSQL : ms;
