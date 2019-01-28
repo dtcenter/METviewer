@@ -568,10 +568,11 @@ public class MVServlet extends HttpServlet {
                          .replace(">", "&gt;");
       String message = e.getMessage().replace("&", "&amp;").replace("<", "&lt;")
                            .replace(">", "&gt;");
+      errorStream.print("failed to run plot " + plotPrefix + " - reason: " + message
+                       + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : ""));
       return "<response><error>"
-                 + "failed to run plot " + plotPrefix + " - reason: " + message
-                 + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "")
-                 + "</error><plot>" + plotPrefix + "</plot></response>";
+                 + "failed to run plot " + plotPrefix + "</error><plot>" + plotPrefix + "</plot"
+                 + "></response>";
     } finally {
       stopWatch.stop();
       if (logSql != null) {
