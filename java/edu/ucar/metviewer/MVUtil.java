@@ -12,6 +12,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -2331,5 +2332,16 @@ public class MVUtil {
     DocumentBuilder dBuilder = dbf.newDocumentBuilder();
     return dBuilder.newDocument();
   }
+
+  public static void safeClose(FileWriter fileWriter) {
+    if (fileWriter != null) {
+      try {
+        fileWriter.close();
+      } catch (IOException e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
 
 }
