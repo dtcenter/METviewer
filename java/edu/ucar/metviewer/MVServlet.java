@@ -937,9 +937,6 @@ public class MVServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     //  initialize the response writer and session
-    PrintWriter out = null;
-
-    ByteArrayOutputStream byteArrayOutputStream = null;
     BufferedReader reader = null;
     String referer;
     try {
@@ -1242,18 +1239,10 @@ public class MVServlet extends HttpServlet {
         printWriter.append(strResp);
       }
     } catch (Exception e) {
-
       errorStream
           .print("doPost() - caught " + e.getClass()
-                     + ": " + e.getMessage() + "\n" + byteArrayOutputStream.toString());
-      out.append("<error>caught " + e.getClass() + ": " + e.getMessage() + "</error>");
+                     + ": " + e.getMessage() );
     } finally {
-      if (out != null) {
-        out.close();
-      }
-      if (byteArrayOutputStream != null) {
-        byteArrayOutputStream.close();
-      }
 
       if (reader != null) {
         reader.close();
