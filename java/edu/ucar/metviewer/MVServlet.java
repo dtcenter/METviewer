@@ -548,7 +548,7 @@ public class MVServlet extends HttpServlet {
 
     } catch (Exception e) {
       stopWatch.stop();
-      if(log != null) {
+      if (log != null) {
         String plotterOutput = log.toString();
         errorStream.print(
             "handlePlot() - ERROR: caught " + e.getClass()
@@ -997,6 +997,10 @@ public class MVServlet extends HttpServlet {
           String runId = simpleRequest[1].replace("%28", "(").replace("%29", ")");
           runId = MVUtil.cleanString(runId);
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+          dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+          dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+          dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
           DocumentBuilder db = dbf.newDocumentBuilder();
           File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
           if (fileXml.exists()) {
@@ -1243,7 +1247,7 @@ public class MVServlet extends HttpServlet {
     } catch (Exception e) {
       errorStream
           .print("doPost() - caught " + e.getClass()
-                     + ": " + e.getMessage() );
+                     + ": " + e.getMessage());
     } finally {
 
       if (reader != null) {

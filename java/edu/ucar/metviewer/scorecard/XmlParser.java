@@ -37,6 +37,10 @@ class XmlParser {
     DocumentBuilder db;
     Scorecard scorecard = new Scorecard();
     try {
+      dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
       db = dbf.newDocumentBuilder();
       filename = MVUtil.cleanString(filename);
       Document doc = db.parse(new File(filename));
