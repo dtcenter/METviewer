@@ -143,7 +143,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListValCacheKeys() throws ParserConfigurationException{
+  public static String handleListValCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
       Element errorXml = docResp.createElement("error");
@@ -548,12 +548,21 @@ public class MVServlet extends HttpServlet {
 
     } catch (Exception e) {
       stopWatch.stop();
-      errorStream.print(
-          "handlePlot() - ERROR: caught " + e.getClass()
-              + " running plot: " + e.getMessage() + "\nbatch output:\n" + log.toString());
-      String strPlotterOutput = log.toString();
-      try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log")) {
-        fileWriter.write(strPlotterOutput);
+      if(log != null) {
+        String plotterOutput = log.toString();
+        errorStream.print(
+            "handlePlot() - ERROR: caught " + e.getClass()
+                + " running plot: " + e.getMessage() + "\nbatch output:\n" + plotterOutput);
+
+        FileWriter fileWriter = null;
+        try {
+          fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log");
+          fileWriter.write(plotterOutput);
+        } finally {
+          if (fileWriter != null) {
+            MVUtil.safeClose(fileWriter);
+          }
+        }
       }
       strRErrorMsg = strRErrorMsg.replace("&", "&amp;").replace("<", "&lt;")
                          .replace(">", "&gt;");
@@ -564,15 +573,20 @@ public class MVServlet extends HttpServlet {
                  + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : "")
                  + "</error><plot>" + plotPrefix + "</plot></response>";
     } finally {
-
       stopWatch.stop();
       if (logSql != null) {
         //  build the job SQL using the batch engine
         String plotSql = logSql.toString();
 
         //  write the plot SQL to a file
-        try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".sql")) {
+        FileWriter fileWriter = null;
+        try {
+          fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".sql");
           fileWriter.write(plotSql);
+        } finally {
+          if (fileWriter != null) {
+            MVUtil.safeClose(fileWriter);
+          }
         }
         logSql.reset();
       }
