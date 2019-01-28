@@ -765,10 +765,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               logger.error(e.getMessage());
             } finally {
               try {
-                res.close();
+                if (res != null) {
+                  res.close();
+                }
               } catch (Exception e) { /* ignored */ }
               try {
-                stmt.close();
+                if (stmt != null) {
+                  stmt.close();
+                }
               } catch (Exception e) { /* ignored */ }
               try {
                 con.close();
@@ -1539,10 +1543,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 logger.error(e.getMessage());
               } finally {
                 try {
-                  res.close();
+                  if (res != null) {
+                    res.close();
+                  }
                 } catch (Exception e) { /* ignored */ }
                 try {
-                  stmt.close();
+                  if (stmt != null) {
+                    stmt.close();
+                  }
                 } catch (Exception e) { /* ignored */ }
                 try {
                   con.close();
@@ -3303,11 +3311,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           try {
             num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
             num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
+            if (num1.equals(num2) && num1 != 0) {
+              matchedFlag = 1;
+            }
           } catch (Exception e) {
           }
-          if (num1.equals(num2) && num1 != 0) {
-            matchedFlag = 1;
-          }
+
 
           int mtd3dObjPairInsert = 0;
           try (Connection con = getConnection();
