@@ -515,7 +515,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    * @throws Exception
    */
   private int getNextId(String table, String field) throws Exception {
-    int intId = -1;
+    int intId;
     PreparedStatement pstmt = null;
     ResultSet res = null;
     try (Connection con = getConnection()) {
@@ -2349,7 +2349,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         } catch (Exception e) {
         }
         String isobsaccum = "=";
-        if (isobsaccum == null) {
+        if (obsaccum == null) {
           isobsaccum = "is";
         }
 
