@@ -3725,6 +3725,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     //  read the load xml into a string, if requested
     StringBuilder loadXmlStr = new StringBuilder();
     if (job.getLoadXML()) {
+      strXML = MVUtil.cleanString(strXML);
       try (BufferedReader reader = new BufferedReader(new FileReader(strXML))) {
         while (reader.ready()) {
           loadXmlStr.append(reader.readLine().trim());
