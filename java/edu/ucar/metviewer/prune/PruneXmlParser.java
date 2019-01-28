@@ -1,6 +1,7 @@
 /**
- * PruneXmlParser.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
+ * PruneXmlParser.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
  */
 
 package edu.ucar.metviewer.prune;
@@ -43,6 +44,10 @@ class PruneXmlParser {
     DocumentBuilder db;
     MVPruneDB mvPruneDB = new MVPruneDB();
     try {
+      dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
       db = dbf.newDocumentBuilder();
       filename = MVUtil.cleanString(filename);
       Document doc = db.parse(new File(filename));
@@ -51,15 +56,20 @@ class PruneXmlParser {
       for (int i = 0; i < pruneSpecNodes.getLength(); i++) {
         Node pruneSpecNode = pruneSpecNodes.item(i);
         //for each node
-        if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "connection".equals(pruneSpecNode.getNodeName())) {
+        if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "connection".equals(
+            pruneSpecNode.getNodeName())) {
           setDbConnection(mvPruneDB, pruneSpecNode);
-        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "info_only".equals(pruneSpecNode.getNodeName())) {
+        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "info_only".equals(
+            pruneSpecNode.getNodeName())) {
           setInfo(mvPruneDB, pruneSpecNode);
-        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "fields".equals(pruneSpecNode.getNodeName())) {
+        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "fields".equals(
+            pruneSpecNode.getNodeName())) {
           setFields(mvPruneDB, pruneSpecNode);
-        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "files".equals(pruneSpecNode.getNodeName())) {
+        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "files".equals(
+            pruneSpecNode.getNodeName())) {
           setFiles(mvPruneDB, pruneSpecNode);
-        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "folders".equals(pruneSpecNode.getNodeName())) {
+        } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "folders".equals(
+            pruneSpecNode.getNodeName())) {
           setDirectoriesFromFolders(mvPruneDB, pruneSpecNode);
         }
 
@@ -78,24 +88,31 @@ class PruneXmlParser {
     //read template and values
     for (int j = 0; j < foldersNodeList.getLength(); j++) {
       Node foldersNode = foldersNodeList.item(j);
-      if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "folder_tmpl".equals(foldersNode.getNodeName())) {
+      if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "folder_tmpl".equals(
+          foldersNode.getNodeName())) {
         folderTmpl = foldersNode.getTextContent();
-      } else if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "load_val".equals(foldersNode.getNodeName())) {
+      } else if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "load_val".equals(
+          foldersNode.getNodeName())) {
         fieldTOValue = readDirectoriesTemplates(foldersNode);
-      } else if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "date_list".equals(foldersNode.getNodeName())) {
+      } else if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "date_list".equals(
+          foldersNode.getNodeName())) {
         DateList dateList = new DateList();
         dateList.setName(getFieldName(foldersNode));
         NodeList dateListNodeList = foldersNode.getChildNodes();
 
         for (int i = 0; i < dateListNodeList.getLength(); i++) {
           Node dateListNode = dateListNodeList.item(i);
-          if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "start".equals(dateListNode.getNodeName())) {
+          if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "start".equals(
+              dateListNode.getNodeName())) {
             dateList.setStartStr(dateListNode.getTextContent());
-          } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "end".equals(dateListNode.getNodeName())) {
+          } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "end".equals(
+              dateListNode.getNodeName())) {
             dateList.setEndStr(dateListNode.getTextContent());
-          } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "format".equals(dateListNode.getNodeName())) {
+          } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "format".equals(
+              dateListNode.getNodeName())) {
             dateList.setFormatStr(dateListNode.getTextContent());
-          } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "inc".equals(dateListNode.getNodeName())) {
+          } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "inc".equals(
+              dateListNode.getNodeName())) {
             dateList.setIncrement(Integer.valueOf(dateListNode.getTextContent()));
           }
 
@@ -104,10 +121,12 @@ class PruneXmlParser {
 
       }
     }
-    if (!dateListToValues.isEmpty() && fieldTOValue != null ) {
+    if (!dateListToValues.isEmpty() && fieldTOValue != null) {
       for (Map.Entry<String, List<String>> fieldTOValueEntry : fieldTOValue.entrySet()) {
         for (Map.Entry<String, List<String>> dateListToValuesEntry : dateListToValues.entrySet()) {
-          if (fieldTOValueEntry.getValue().size() == 1 && fieldTOValueEntry.getValue().get(0).equals(dateListToValuesEntry.getKey())) {
+          if (fieldTOValueEntry.getValue().size() == 1 && fieldTOValueEntry.getValue().get(0)
+                                                              .equals(
+                                                                  dateListToValuesEntry.getKey())) {
             fieldTOValueEntry.setValue(dateListToValuesEntry.getValue());
             break;
           }
@@ -118,15 +137,18 @@ class PruneXmlParser {
 
   }
 
-  private void setDirectories(MVPruneDB mvPruneDB, String folderTmpl, Map<String, List<String>> fieldTOValue) {
+  private void setDirectories(
+      MVPruneDB mvPruneDB, String folderTmpl, Map<String, List<String>> fieldTOValue) {
     List<Map<String, String>> listOfCombinations = new ArrayList<>();
     if (fieldTOValue != null && folderTmpl != null) {
-      createAllCombinations(fieldTOValue, new ArrayList<>(fieldTOValue.keySet()).listIterator(), new HashMap<>(), listOfCombinations);
+      createAllCombinations(fieldTOValue, new ArrayList<>(fieldTOValue.keySet()).listIterator(),
+                            new HashMap<>(), listOfCombinations);
 
       for (Map<String, String> combinationMap : listOfCombinations) {
         String directoryStr = folderTmpl;
         for (Map.Entry<String, String> combinationEntry : combinationMap.entrySet()) {
-          directoryStr = directoryStr.replace("{" + combinationEntry.getKey() + "}", combinationEntry.getValue());
+          directoryStr = directoryStr.replace("{" + combinationEntry.getKey() + "}",
+                                              combinationEntry.getValue());
         }
         if (directoryStr.charAt(directoryStr.length() - 1) == '/') {
           directoryStr = directoryStr.substring(0, directoryStr.length() - 1);
@@ -136,7 +158,9 @@ class PruneXmlParser {
     }
   }
 
-  private void createAllCombinations(Map<String, List<String>> map, ListIterator<String> fieldsIterator, Map<String, String> combination, List<Map<String, String>> listOfCombinations) {
+  private void createAllCombinations(
+      Map<String, List<String>> map, ListIterator<String> fieldsIterator,
+      Map<String, String> combination, List<Map<String, String>> listOfCombinations) {
     // we're at a leaf node in the recursion tree, add solution to list
     if (!fieldsIterator.hasNext()) {
       listOfCombinations.add(new HashMap<>(combination));
@@ -159,7 +183,8 @@ class PruneXmlParser {
     NodeList loadValNodeList = foldersNode.getChildNodes();
     for (int i = 0; i < loadValNodeList.getLength(); i++) {
       Node loadValNode = loadValNodeList.item(i);
-      if (loadValNode.getNodeType() == Node.ELEMENT_NODE && "field".equals(loadValNode.getNodeName())) {
+      if (loadValNode.getNodeType() == Node.ELEMENT_NODE && "field".equals(
+          loadValNode.getNodeName())) {
         String name = getFieldName(loadValNode);
         NodeList listNodesList = loadValNode.getChildNodes();
         fieldToValue.put(name, new ArrayList<>());
@@ -167,7 +192,8 @@ class PruneXmlParser {
           Node listNode = listNodesList.item(h);
           if (listNode.getNodeType() == Node.ELEMENT_NODE && "val".equals(listNode.getNodeName())) {
             fieldToValue.get(name).add(listNode.getTextContent());
-          } else if (listNode.getNodeType() == Node.ELEMENT_NODE && "date_list".equals(listNode.getNodeName())) {
+          } else if (listNode.getNodeType() == Node.ELEMENT_NODE && "date_list".equals(
+              listNode.getNodeName())) {
             fieldToValue.get(name).add(getFieldName(listNode));
           }
         }
@@ -220,7 +246,8 @@ class PruneXmlParser {
     NodeList fieldsNodeList = pruneSpecNode.getChildNodes();
     for (int j = 0; j < fieldsNodeList.getLength(); j++) {
       Node fieldsNode = fieldsNodeList.item(j);
-      if (fieldsNode.getNodeType() == Node.ELEMENT_NODE && "field".equals(fieldsNode.getNodeName())) {
+      if (fieldsNode.getNodeType() == Node.ELEMENT_NODE && "field"
+                                                               .equals(fieldsNode.getNodeName())) {
         String fieldName = getFieldName(fieldsNode);
         if (fieldName != null) {
           setFieldToValues(mvPruneDB, fieldsNode, fieldName);
@@ -240,9 +267,11 @@ class PruneXmlParser {
     NodeList fieldNodeList = fieldsNode.getChildNodes();
     for (int k = 0; k < fieldNodeList.getLength(); k++) {
       Node valueNode = fieldNodeList.item(k);
-      if (valueNode.getNodeType() == Node.ELEMENT_NODE && "value_range".equals(valueNode.getNodeName())) {
+      if (valueNode.getNodeType() == Node.ELEMENT_NODE && "value_range"
+                                                              .equals(valueNode.getNodeName())) {
         setRangeValues(mvPruneDB, fieldName, valueNode);
-      } else if (valueNode.getNodeType() == Node.ELEMENT_NODE && "value_list".equals(valueNode.getNodeName())) {
+      } else if (valueNode.getNodeType() == Node.ELEMENT_NODE && "value_list".equals(
+          valueNode.getNodeName())) {
         setListValues(mvPruneDB, fieldName, valueNode);
       }
     }
@@ -280,7 +309,8 @@ class PruneXmlParser {
       Node rangeNode = rangeNodesList.item(h);
       if (rangeNode.getNodeType() == Node.ELEMENT_NODE && "start".equals(rangeNode.getNodeName())) {
         mvPruneDB.getFieldToRangeValues().get(fieldName).add(0, rangeNode.getTextContent());
-      } else if (rangeNode.getNodeType() == Node.ELEMENT_NODE && "end".equals(rangeNode.getNodeName())) {
+      } else if (rangeNode.getNodeType() == Node.ELEMENT_NODE && "end".equals(
+          rangeNode.getNodeName())) {
         mvPruneDB.getFieldToRangeValues().get(fieldName).add(1, rangeNode.getTextContent());
       }
     }
