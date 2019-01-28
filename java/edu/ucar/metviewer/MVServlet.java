@@ -443,7 +443,7 @@ public class MVServlet extends HttpServlet {
 
       errorStream.print(
           "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
-      return "<error>failed to parse plot job - reason: " + e.getMessage() + "</error>";
+      return "<error>failed to parse plot job</error>";
     }
 
     //  run the plot job and write the batch output to the log file
@@ -524,7 +524,7 @@ public class MVServlet extends HttpServlet {
         logger.error(
             "handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: "
                 + e.getMessage());
-        return "<error>failed to serialize plot xml - reason: " + e.getMessage() + "</error>";
+        return "<error>failed to serialize plot xml</error>";
       }
 
       //  run the job to generate the plot
