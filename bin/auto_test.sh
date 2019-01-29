@@ -281,14 +281,14 @@ fi
 #send a note
 if [ "X$addressList" != "X" ]; then
 	echo "running /bin/sh ./bin/mv_test.sh -t ${METviewerBranchTestDir} -m ${METviewerDir} -d ${mv_test_db} -u ${mv_user} -p ${mv_pass} -h ${mv_host} -P ${mv_port} -l ${capture} -n> ${logfile}"
-	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -s${managementSystem}  -l ${capture} -n > ${logfile}
+	/bin/sh ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -k${managementSystem}  -l ${capture} -n > ${logfile}
 
 	ret=$?
 	echo mv_test ret is $ret
 	cat $logfile | mail -s "nightly_${METviewerBranch} mv_test failed with $ret failures - here is the log file" $addressList
 else
 	echo "running /bin/sh ./bin/mv_test.sh -t${METviewerBranchTestDir} -m${METviewerDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -l ${capture} -n"
-    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} s${managementSystem} -l ${capture} -n
+    /bin/sh  ./bin/mv_test.sh -m${METviewerDir} -t${METviewerBranchTestDir} -d${mv_test_db} -u${mv_user} -p${mv_pass} -h${mv_host} -P${mv_port} -k${managementSystem} -l ${capture} -n
 	ret=$?
 	echo mv_test ret is $ret
 fi
