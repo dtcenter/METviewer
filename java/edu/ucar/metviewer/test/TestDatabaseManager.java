@@ -25,13 +25,14 @@ public class TestDatabaseManager {
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
     TestDBManager databaseManager;
+    System.out.println("in TestDBManager getManager dbType=" + dbType);
 
 
     switch (dbType) {
       case DatabaseManager.MYSQL:
         databaseManager =
             (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.db.TestMysqlDatabaseManager")
+                "edu.ucar.metviewer.test.TestMysqlDatabaseManager")
                                 .getDeclaredConstructor(DatabaseInfo.class, String.class)
                                 .newInstance(databaseInfo, password);
 
@@ -39,7 +40,7 @@ public class TestDatabaseManager {
       case DatabaseManager.MARIADB:
         databaseManager =
             (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.db.TestMariaDbDatabaseManager")
+                "edu.ucar.metviewer.test.TestMariaDbDatabaseManager")
                                 .getDeclaredConstructor(DatabaseInfo.class, String.class)
                                 .newInstance(databaseInfo, password);
 
@@ -47,7 +48,7 @@ public class TestDatabaseManager {
       case DatabaseManager.AURORA:
         databaseManager =
             (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.db.TestAuroraDatabaseManager")
+                "edu.ucar.metviewer.test.TestAuroraDatabaseManager")
                                 .getDeclaredConstructor(DatabaseInfo.class,
                                                         String.class)
                                 .newInstance(databaseInfo, password);
@@ -56,7 +57,7 @@ public class TestDatabaseManager {
       case DatabaseManager.CB:
         databaseManager =
             (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.db.TestCBDatabaseManager")
+                "edu.ucar.metviewer.test.TestCBDatabaseManager")
                                 .getDeclaredConstructor(DatabaseInfo.class,
                                                         String.class)
                                 .newInstance(databaseInfo, password);
