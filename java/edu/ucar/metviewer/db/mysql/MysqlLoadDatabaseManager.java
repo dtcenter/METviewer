@@ -3693,7 +3693,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }else {
         stmt.setString(4, filePath);
       }
-      stmt.setString(4, filePath);
       stmt.setObject(5, loadDate, Types.TIMESTAMP);
       stmt.setObject(6, modDate, Types.TIMESTAMP);
       resCounter = stmt.executeUpdate();
