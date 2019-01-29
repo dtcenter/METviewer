@@ -22,9 +22,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -307,6 +304,11 @@ public class TestUtil {
         nodeList.item(i)
             .setTextContent(MET_DATA_DIR + FILE_SEPARATOR + "{config}/{fcst_init}/{config1}");
       }
+      tag = "management_system";
+      Element managementSystem = doc.createElement(tag);
+      managementSystem.setTextContent(TestUtil.type);
+      nodeList = doc.getElementsByTagName("connection");
+      nodeList.item(0).appendChild(managementSystem);
 
       //assign a group name
       if (fpath.contains("load")) {
@@ -357,8 +359,8 @@ public class TestUtil {
   }
 
   public static void comparePointsFilesWithoutNames(
-            String testDataDir, String axis,
-            String plotType) {
+      String testDataDir, String axis,
+      String plotType) {
 
     CustomFilenameFilter filenameFilter = null;
     if (axis.equals("1")) {
@@ -402,24 +404,24 @@ public class TestUtil {
   }
 
 
-    /**
-     * Compare the number of files, names (if requested) and contents
-     *
-     * @param testDataDir    - expected files root dir
-     * @param plotType       - use case
-     * @param isCompareNames - should the name comparison be executed
-     * @param filter         - custom file filter to use
-     */
-    private static void compareTextFiles(
-            String testDataDir, String plotType,
-            boolean isCompareNames, boolean isCompareContent,
-            CustomFilenameFilter filter) {
-        //get all test results datafiles
-        File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
-        File[] expectedFiles = dir.listFiles(filter);
+  /**
+   * Compare the number of files, names (if requested) and contents
+   *
+   * @param testDataDir    - expected files root dir
+   * @param plotType       - use case
+   * @param isCompareNames - should the name comparison be executed
+   * @param filter         - custom file filter to use
+   */
+  private static void compareTextFiles(
+      String testDataDir, String plotType,
+      boolean isCompareNames, boolean isCompareContent,
+      CustomFilenameFilter filter) {
+    //get all test results datafiles
+    File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
+    File[] expectedFiles = dir.listFiles(filter);
 
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(filter.getActualDir(),expectedFile.getName());
+      File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       if (isCompareNames) {
 
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
@@ -475,12 +477,12 @@ public class TestUtil {
   }
 
   private static void compareBinaryFilesBySize(
-                                                  String testDataDir, String plotType,
-                                                  CustomFilenameFilter filter) {
+      String testDataDir, String plotType,
+      CustomFilenameFilter filter) {
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = dir.listFiles(filter);
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(filter.getActualDir(),expectedFile.getName());
+      File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       boolean areTheSameSize = actualFile.length() == expectedFile.length();
       if ((!actualFile.exists() || !areTheSameSize) && (System.getProperty(
           "captureCreatedImages") != null)) {
@@ -503,14 +505,14 @@ public class TestUtil {
   }
 
   private static void compareBinaryFiles(
-                                            String testDataDir, String plotType,
-                                            boolean isCompareNames, boolean isCompareContent,
-                                            CustomFilenameFilter filter) {
+      String testDataDir, String plotType,
+      boolean isCompareNames, boolean isCompareContent,
+      CustomFilenameFilter filter) {
     //get all test results datafiles
     File dir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = dir.listFiles(filter);
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(filter.getActualDir(),expectedFile.getName());
+      File actualFile = new File(filter.getActualDir(), expectedFile.getName());
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());
       }
@@ -534,22 +536,22 @@ public class TestUtil {
   }
 
   public static void compareBinaryTestFiles(
-                                               String testDataDir, String compareDataDir,
-                                               String plotType) {
+      String testDataDir, String compareDataDir,
+      String plotType) {
     compareBinaryTestFiles(testDataDir, compareDataDir, plotType, true, true, PLOT_FILES_FILTER);
   }
 
   private static void compareBinaryTestFiles(
-                                                String testDataDir, String compareDataDir,
-                                                String plotType, boolean isCompareNames,
-                                                boolean isCompareContent,
-                                                CustomFilenameFilter filter) {
+      String testDataDir, String compareDataDir,
+      String plotType, boolean isCompareNames,
+      boolean isCompareContent,
+      CustomFilenameFilter filter) {
     //get all test results datafiles
     File testDir = new File(testDataDir + FILE_SEPARATOR + plotType);
     File compDir = new File(compareDataDir + FILE_SEPARATOR + plotType);
     File[] expectedFiles = compDir.listFiles(filter);
     for (File expectedFile : expectedFiles) {
-      File actualFile = new File(testDir,expectedFile.getName());
+      File actualFile = new File(testDir, expectedFile.getName());
 
       if (isCompareNames) {
         assertTrue(actualFile.getName() + " does not exist.", actualFile.exists());

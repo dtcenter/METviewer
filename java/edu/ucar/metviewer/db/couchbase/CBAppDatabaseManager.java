@@ -34,6 +34,8 @@ import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,7 +43,7 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 19/05/17 12:42 $
  */
-public class CBAppDatabaseManager extends CBDatabaseManager implements edu.ucar.metviewer.db.AppDatabaseManager {
+public class CBAppDatabaseManager extends CBDatabaseManager implements AppDatabaseManager {
 
 
   private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
@@ -52,8 +54,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements edu.ucar.
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public CBAppDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public CBAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo, password);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
     statHeaderSqlType.put("fcst_lead", "INT");
@@ -249,16 +251,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements edu.ucar.
   @Override
   public List<String> getListValues(MVNode nodeCall, String strField, String[] currentDBName) {
     List<String> listRes = new ArrayList<>();
-    boolean boolMode = nodeCall.children[1].tag.equals("mode_field");
-    boolean boolMtd = nodeCall.children[1].tag.equals("mtd_field");
-    boolean boolRhist = nodeCall.children[1].tag.equals("rhist_field");
-    boolean boolPhist = nodeCall.children[1].tag.equals("phist_field");
-    boolean boolROC = nodeCall.children[1].tag.equals("roc_field");
-    boolean boolRely = nodeCall.children[1].tag.equals("rely_field");
-    boolean boolEnsSS = nodeCall.children[1].tag.equals("ensss_field");
-    boolean boolPerf = nodeCall.children[1].tag.equals("perf_field");
-    boolean boolTaylor = nodeCall.children[1].tag.equals("taylor_field");
-    boolean boolEclv = nodeCall.children[1].tag.equals("eclv_field");
+    boolean boolMode = nodeCall.children[0].tag.equals("mode_field");
+    boolean boolMtd = nodeCall.children[0].tag.equals("mtd_field");
+    boolean boolRhist = nodeCall.children[0].tag.equals("rhist_field");
+    boolean boolPhist = nodeCall.children[0].tag.equals("phist_field");
+    boolean boolROC = nodeCall.children[0].tag.equals("roc_field");
+    boolean boolRely = nodeCall.children[0].tag.equals("rely_field");
+    boolean boolEnsSS = nodeCall.children[0].tag.equals("ensss_field");
+    boolean boolPerf = nodeCall.children[0].tag.equals("perf_field");
+    boolean boolTaylor = nodeCall.children[0].tag.equals("taylor_field");
+    boolean boolEclv = nodeCall.children[0].tag.equals("eclv_field");
     String strHeaderTable;
     if (boolMode) {
       strHeaderTable = "mode_header";
@@ -291,9 +293,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements edu.ucar.
       tableLineDataTables.put("line_data_sl1l2", "true");
     } else if (boolEclv) {
       tableLineDataTables.put("line_data_eclv", "true");
-    } else if (2 < nodeCall.children.length) {
+    } else if (1 < nodeCall.children.length) {
       boolFcstVar = true;
-      MVNode nodeFcstVarStat = nodeCall.children[2];
+      MVNode nodeFcstVarStat = nodeCall.children[1];
       for (int i = 0; i < nodeFcstVarStat.children.length; i++) {
         MVNode nodeFcstVar = nodeFcstVarStat.children[i];
         tableFcstVarStat.put(nodeFcstVar.name, "true");
@@ -335,7 +337,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements edu.ucar.
 
     //  parse the list of constraints into a SQL where clause
     String strWhereTime = "";
-    for (int i = 2; i < nodeCall.children.length; i++) {
+    for (int i = 1; i < nodeCall.children.length; i++) {
       if (nodeCall.children[i].tag.equals("stat")) {
         continue;
       }

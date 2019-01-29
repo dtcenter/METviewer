@@ -13,19 +13,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -34,23 +30,26 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.BINARY;
+import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
+
 /**
  * @author : tatiana $
- * @version : 1.0 : 07/02/17 11:32 $
+ * @version : 1.0 : 2018-12-18 10:58 $
  */
-public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implements DatabaseManager {
+public abstract class DatabaseManagerSql implements DatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("DatabaseManagerMySQL");
-
+  private static final Logger logger = LogManager.getLogger("DatabaseManagerSql");
   private final Map<String, List<Entry>> columnsDescription;
   private final String databaseName;
   private final List<Field> fixedVars;
   private final Boolean printSQL;
   String aggStatDataFilePath;
+  private MysqlDatabaseManager databaseManager;
 
-
-  DatabaseManagerMySQL(final Scorecard scorecard) throws SQLException {
-    super(new DatabaseInfo(scorecard.getHost(), scorecard.getUser(), scorecard.getPwd()));
+  DatabaseManagerSql(
+      final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
+    this.databaseManager = databaseManager;
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
     databaseName = scorecard.getDatabaseName();
@@ -61,8 +60,10 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
   protected abstract String getStatValue(String table, String stat);
 
+
   @Override
-  public void createDataFile(Map<String, Entry> map, String threadName) throws Exception {
+  public void createDataFile(
+      Map<String, Entry> map, String threadName) throws Exception {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -75,7 +76,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
                                                                            .substring(lastDot);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      try (Connection con = getConnection(databaseName);
+      try (Connection con = databaseManager.getConnection(databaseName);
            PreparedStatement pstmt = con.prepareStatement(mysql);
            ResultSet res = pstmt.executeQuery();
            FileWriter fstream = new FileWriter(new File(thredFileName), false);
@@ -83,7 +84,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
         stopWatch.stop();
         logger.info("Database query time " + stopWatch.getFormattedDuration());
         stopWatch.start();
-        printFormattedTable(res, out, "\t", false, true);// isCalc=false,  isHeader=true
+        printFormattedTable(res, out);// isCalc=false,  isHeader=true
         stopWatch.stop();
         logger.info("Save to file time " + stopWatch.getFormattedDuration());
         out.flush();
@@ -109,6 +110,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     if (aggType.contains("nbr")) {
       aggType = aggType.replace("_", "");
     }
+
     String table = "line_data_" + aggType;
 
 
@@ -127,8 +129,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
     }
     for (Field fixedField : fixedVars) {
       StringBuilder values = new StringBuilder();
-      if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg"
-                                                               .equals(fixedField.getName())) {
+      if ("fcst_valid_beg".equals(fixedField.getName())
+              || "fcst_init_beg".equals(fixedField.getName())) {
         whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
             .append(fixedField.getValues().get(0).getName()).append("' AND '")
             .append(fixedField.getValues().get(1).getName()).append("' AND ");
@@ -196,7 +198,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       Map<String, Integer> pctThreshInfo = new HashMap<>();
 
       String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
-      try (Connection con = getConnection(databaseName);
+      try (Connection con = databaseManager.getConnection(databaseName);
            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                 ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(mysql);
@@ -251,8 +253,7 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
   }
 
   private void printFormattedTable(
-      ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc,
-      boolean isHeader) {
+      ResultSet res, BufferedWriter bufferedWriter) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -263,20 +264,17 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
       }
 
       //  print out the column headers
-      if (isHeader) {
-        for (int i = 1; i <= met.getColumnCount(); i++) {
-          if (delim.equals(" ")) {
-            bufferedWriter.write(MVUtil.padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
+      for (int i = 1; i <= met.getColumnCount(); i++) {
+
+          if (1 == i) {
+            bufferedWriter.write(met.getColumnLabel(i));
           } else {
-            if (1 == i) {
-              bufferedWriter.write(met.getColumnLabel(i));
-            } else {
-              bufferedWriter.write(delim + met.getColumnLabel(i));
-            }
+            bufferedWriter.write("\t" + met.getColumnLabel(i));
           }
-        }
-        bufferedWriter.write(System.getProperty("line.separator"));
+
       }
+      bufferedWriter.write(System.getProperty("line.separator"));
+
 
       //  print out the table of values
       int intLine = 0;
@@ -289,10 +287,8 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
 
 
           if (objectType.equals("DATETIME")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Timestamp ts = res.getTimestamp(i, cal);
-            strVal = DATE_FORMAT.format(ts);
+            LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
+            strVal = DATE_FORMATTER.format(ts);
           } else {
 
             strVal = res.getString(i);
@@ -302,15 +298,13 @@ public abstract class DatabaseManagerMySQL extends MysqlDatabaseManager implemen
             strVal = strVal.equalsIgnoreCase("-9999") ? "NA" : strVal;
           }
 
-          if (delim.equals(" ")) {
-            line = line + (MVUtil.padEnd(strVal, intFieldWidths[i - 1]));
-          } else {
+
             if (1 == i) {
               line = line + (strVal);
             } else {
-              line = line + (delim + strVal);
+              line = line + ("\t" + strVal);
             }
-          }
+
         }
         bufferedWriter.write(line);
         bufferedWriter.write(System.getProperty("line.separator"));

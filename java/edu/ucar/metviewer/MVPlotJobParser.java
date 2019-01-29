@@ -327,6 +327,8 @@ public class MVPlotJobParser {
     //  instantiate and configure the xml parser
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    //Disable DTDs
+    dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     dbf.setNamespaceAware(true);
     return dbf.newDocumentBuilder();
   }
@@ -1959,8 +1961,8 @@ public class MVPlotJobParser {
 
   public DatabaseInfo getDatabaseInfo() {
     DatabaseInfo databaseInfo = null;
-    if (dbHost != null && dbUser != null && dbPass != null) {
-      databaseInfo = new DatabaseInfo(dbHost, dbUser, dbPass);
+    if (dbHost != null && dbUser != null ) {
+      databaseInfo = new DatabaseInfo(dbHost, dbUser);
     }
     return databaseInfo;
   }

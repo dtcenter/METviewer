@@ -10,13 +10,15 @@ import java.sql.Statement;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.test.util.ScriptRunner;
-import static java.lang.System.out;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mariadb.jdbc.MariaDbDataSource;
+
+import static java.lang.System.out;
 
 public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements TestDBManager {
-    public TestMysqlDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-        super(databaseInfo);
+    public TestMysqlDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+        super(databaseInfo,password);
     }
 
     private static final Logger logger = LogManager.getLogger("TestMysqlDatabaseManager");
@@ -83,7 +85,7 @@ public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements Te
         Connection aConn = null;
         Statement aStmt = null;
         try {
-            com.mysql.jdbc.jdbc2.optional.MysqlDataSource aDataSource = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+            MariaDbDataSource aDataSource = new MariaDbDataSource();
             aDataSource.setUser(userName);
             aDataSource.setPassword(password);
             aDataSource.setServerName(host.split(":")[0]); // don't need the port here

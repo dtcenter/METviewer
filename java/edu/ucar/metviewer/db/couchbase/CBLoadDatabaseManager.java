@@ -6,31 +6,46 @@
 
 package edu.ucar.metviewer.db.couchbase;
 
-import com.couchbase.client.core.CouchbaseException;
-import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonObject;
-import com.couchbase.client.java.document.json.JsonArray;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
-import edu.ucar.metviewer.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonArray;
+import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
+import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.MVLoadJob;
+import edu.ucar.metviewer.MVLoadStatInsertData;
+import edu.ucar.metviewer.MVOrderedMap;
+import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
  */
-public class CBLoadDatabaseManager extends CBDatabaseManager implements edu.ucar.metviewer.db.LoadDatabaseManager {
+public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadDatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("CBLoadDatabaseManager");
   protected static final DateTimeFormatter DB_DATE_STAT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
@@ -84,8 +99,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements edu.ucar
     */
   private final Map<String, Integer> tableDataFileLU;
 
-  public CBLoadDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws Exception {
-    super(databaseInfo);
+  public CBLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo,password);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
@@ -1015,17 +1030,17 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements edu.ucar
 
 
     for (String listVarLengthType : listVarLengthTypes) {
-      String[] listVarLengthValues = MVUtil.toArray(
-          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType));
-      if (1 > listVarLengthValues.length) {
+      List<List<Object>> listVarLengthValues =
+          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType);
+      if (1 > listVarLengthValues.size()) {
         continue;
       }
       String strVarLengthTable = tableVarLengthTable.get(listVarLengthType);
       String strThreshInsert = "INSERT INTO " + strVarLengthTable + " VALUES ";
-      for (int j = 0; j < listVarLengthValues.length; j++) {
-        strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
-        listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
-      }
+    //  for (int j = 0; j < listVarLengthValues.size(); j++) {
+    //    strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
+    //    listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+    //  }
 //      int intThreshInsert = executeUpdate(strThreshInsert);
 //      if (listVarLengthValues.length != intThreshInsert) {
 //        logger.warn(
@@ -2564,11 +2579,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements edu.ucar
           try {
             num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
             num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
+            if (num1.equals(num2) && num1 != 0) {
+              matchedFlag = 1;
+            }
           } catch (Exception e) {
           }
-          if (num1.equals(num2) && num1 != 0) {
-            matchedFlag = 1;
-          }
+
           str3dPairValueList = str3dPairValueList + "," + simpleFlag + "," + matchedFlag;
 
 //          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("
@@ -3022,6 +3038,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements edu.ucar
     //  read the load xml into a string, if requested
     String strLoadXML = "";
     if (job.getLoadXML()) {
+      strXML = MVUtil.cleanString(strXML);
       try (BufferedReader reader = new BufferedReader(new FileReader(strXML))) {
         while (reader.ready()) {
           strLoadXML += reader.readLine().trim();

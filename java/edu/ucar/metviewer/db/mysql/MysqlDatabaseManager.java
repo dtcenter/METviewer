@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -32,34 +34,32 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class MysqlDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
+public class MysqlDatabaseManager extends DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
-  protected static final SimpleDateFormat DATE_FORMAT =
-          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-  protected static final DateTimeFormatter DATE_FORMAT_1
-          = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+
+  public static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
+
+  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_STRING);
+
 
   private DataSource dataSource;
-  protected static final String BINARY ="  BINARY ";
+  public static final String BINARY ="  BINARY ";
 
 
 
-
-  public MysqlDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws SQLException {
-      super(databaseInfo);
-    String jdbcUrl = "jdbc:" + "mysql" + "://" + databaseInfo.getHost();
-    if (databaseInfo.getDbName() != null) {
-      jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
-    }
-    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+  public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
+    super(databaseInfo);
+    String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
-    configurationToUse.setPassword(databaseInfo.getPassword());
-    configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
+    configurationToUse.setPassword(password);
+    configurationToUse.setDriverClassName("org.mariadb.jdbc.Driver");
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
     configurationToUse.setMaxIdle(15);
@@ -95,6 +95,15 @@ public class MysqlDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager 
       updateGroups = true;
     }
     initDBList(updateGroups);
+  }
+
+  protected String getJdbcUrl(final String hostName, final String dbName) {
+    String jdbcUrl = "jdbc:mysql://" + hostName;
+    if (dbName != null) {
+      jdbcUrl = jdbcUrl + "/" + dbName;
+    }
+    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+    return jdbcUrl;
   }
 
   public void initDBList(boolean updateGroups) {
@@ -189,25 +198,19 @@ public class MysqlDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager 
   public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
-    Statement statement = null;
-    ResultSet rs = null;
     if (validDB) {
       try {
         con = dataSource.getConnection();
-        statement = con.createStatement();
-        rs = statement.executeQuery("use " + db);
+        con.setCatalog(db);
 
-      } catch (SQLException e) {
-        logger.error(e.getMessage());
-      } finally {
-        if (statement != null) {
-          statement.close();
+      } catch (Exception e) {
+        logger.error("can't get connection for database " + db + " " +e.getMessage());
+        if(con != null) {
+          con.close();
         }
-        if (rs != null) {
-          rs.close();
-        }
-
       }
+    }else{
+      logger.error("Database " + db + " is invalid");
     }
     return con;
   }
@@ -222,7 +225,7 @@ public class MysqlDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager 
     try {
       con = dataSource.getConnection();
     } catch (SQLException e) {
-      logger.error(e.getMessage());
+      logger.error("can't get connection " +e.getMessage());
     }
     return con;
   }

@@ -10,8 +10,8 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 public class TestCBDatabaseManager extends CBDatabaseManager implements TestDBManager {
-    public TestCBDatabaseManager(DatabaseInfo databaseInfo) throws Exception {
-        super(databaseInfo);
+    public TestCBDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+        super(databaseInfo, password);
     }
 
     private static final Logger logger = LogManager.getLogger("TestCBDatabaseManager");

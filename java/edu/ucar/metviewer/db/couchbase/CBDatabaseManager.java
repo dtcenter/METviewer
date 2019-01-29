@@ -24,6 +24,8 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,7 +33,7 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class CBDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
+public class CBDatabaseManager extends DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("CBDatabaseManager");
   protected static final String DB_PREFIX_MV = "mv_";
@@ -43,8 +45,23 @@ public class CBDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
   protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
           = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-  public CBDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws CouchbaseException {
+  public CBDatabaseManager(DatabaseInfo databaseInfo, String password) throws CouchbaseException {
     super(databaseInfo);
+
+    String bucketName = "testvsdb";
+    CouchbaseEnvironment env;
+    try {
+      env = DefaultCouchbaseEnvironment.builder()
+              .connectTimeout(40000) //20000ms = 20s, default is 5s
+              .build();
+      Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
+      cluster.authenticate(getDatabaseInfo().getUser(), password);
+      bucket = cluster.openBucket(bucketName);
+    } catch (CouchbaseException e) {
+      logger.debug(e);
+      logger.error("Open bucket connection for a Couchbase database did not succeed.");
+      logger.error(e.getMessage());
+    }
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
@@ -158,7 +175,7 @@ public class CBDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
    * @return - connection (for couchbase a bucket)
    */
   protected Bucket getBucket() {
-    CouchbaseEnvironment env;
+ /*   CouchbaseEnvironment env;
     if (bucket == null) {
 //      CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
 //              .connectTimeout(40000) //20000ms = 20s, default is 5s
@@ -170,14 +187,14 @@ public class CBDatabaseManager extends edu.ucar.metviewer.db.DatabaseManager {
                 .connectTimeout(40000) //20000ms = 20s, default is 5s
                 .build();
         Cluster cluster = CouchbaseCluster.create(env, getDatabaseInfo().getHost());
-        cluster.authenticate(getDatabaseInfo().getUser(), getDatabaseInfo().getPassword());
+        cluster.authenticate(getDatabaseInfo().getUser(), password);
         bucket = cluster.openBucket(bucketName);
       } catch (CouchbaseException e) {
         logger.debug(e);
         logger.error("Open bucket connection for a Couchbase database did not succeed.");
         logger.error(e.getMessage());
       }
-    }
+    }*/
     return bucket;
   }
 }

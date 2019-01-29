@@ -21,434 +21,434 @@
   <script type="text/javascript">
 
 
-    $(document).ready(function () {
-      $('.help-button').button({
-        icons: {
-          primary: "ui-icon-help"
-        },
-        text: false
-      }).click(function () {
-        $('#helpContent').empty();
-        $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
-        $('#helpContent').dialog({
-          buttons: {
-            "Open in new window": function () {
-              var win = window.open('doc/plot.html');
-              if (win) {
-                //Browser has allowed it to be opened
-                win.focus();
-              } else {
-                //Browser has blocked it
-                alert('Please allow popups for this site');
-              }
-            },
-            Cancel: function () {
-              $(this).dialog("close");
-            }
-          }
-        });
-        $('#helpContent').dialog('open');
-      });
+      $(document).ready(function () {
+          $('.help-button').button({
+              icons: {
+                  primary: "ui-icon-help"
+              },
+              text: false
+          }).click(function () {
+              $('#helpContent').empty();
+              $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
+              $('#helpContent').dialog({
+                  buttons: {
+                      "Open in new window": function () {
+                          var win = window.open('doc/plot.html');
+                          if (win) {
+                              //Browser has allowed it to be opened
+                              win.focus();
+                          } else {
+                              //Browser has blocked it
+                              alert('Please allow popups for this site');
+                          }
+                      },
+                      Cancel: function () {
+                          $(this).dialog("close");
+                      }
+                  }
+              });
+              $('#helpContent').dialog('open');
+          });
 
-      $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
-        height: 400,
-        width: 600,
-        autoOpen: false
-      });
+          $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
+              height: 400,
+              width: 600,
+              autoOpen: false
+          });
 
-      $("#tabs_axis_variables").tabs({
-        heightStyle: "content"
-      });
+          $("#tabs_axis_variables").tabs({
+              heightStyle: "content"
+          });
 
-      $('#add_fcst_var_y1').button({
-                icons: {
+          $('#add_fcst_var_y1').button({
+                      icons: {
+                          primary: "ui-icon-circle-plus"
+                      }
+                  }
+          ).click(function () {
+              addFcstVar("y1");
+          });
+          $('#add_fcst_var_y2').button({
+              icons: {
                   primary: "ui-icon-circle-plus"
-                }
               }
-      ).click(function () {
-        addFcstVar("y1");
-      });
-      $('#add_fcst_var_y2').button({
-        icons: {
-          primary: "ui-icon-circle-plus"
-        }
-      }).click(function () {
-        addFcstVar("y2");
-      });
-      $('#add_fixed_var').button({
-        icons: {
-          primary: "ui-icon-circle-plus"
-        }
-      }).click(function () {
-        addFixedVar();
-      });
+          }).click(function () {
+              addFcstVar("y2");
+          });
+          $('#add_fixed_var').button({
+              icons: {
+                  primary: "ui-icon-circle-plus"
+              }
+          }).click(function () {
+              addFixedVar();
+          });
 
 
-      $("#plot_data").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 'auto',
-        height: 'auto',
-        click: function (event, ui) {
-          updateForecastVariables();
-          if ($('#plot_data').multiselect('getChecked')[0].value !== ui.value) {
-            ui.value = $('#plot_data').multiselect('getChecked')[0].value;
-            updateForecastVariables();
-            if ($('#plot_data').multiselect('getChecked')[0].value !== ui.value) {
-              updateForecastVariables();
-            }
-          }
-          if ($('#plot_data').multiselect('getChecked')[0].value == 'stat') {
-            updateStats("y1", 1, []);
-            updateStats("y2", 1, []);
-            updateFixVar("stat");
-            updateIndyVar("stat");
-            $("#agg_none").prop('checked', 'checked');
-          } else if ($('#plot_data').multiselect('getChecked')[0].value == 'mode') {
-            updateMode("y1", 1, []);
-            updateMode("y2", 1, []);
-            updateFixVar("mode");
-            updateIndyVar("mode");
-          } else if ($('#plot_data').multiselect('getChecked')[0].value == 'mtd') {
-            updateMtd("y1", 1, []);
-            updateMtd("y2", 1, []);
-            updateFixVar("mtd");
-            updateIndyVar("mtd");
-          }
-          updateSeriesVarVal("y1", 1, []);
-          updateSeriesVarVal("y2", 1, []);
-        }
+          $("#plot_data").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 'auto',
+              height: 'auto',
+              click: function (event, ui) {
+                  updateForecastVariables();
+                  if ($('#plot_data').multiselect('getChecked')[0].value !== ui.value) {
+                      ui.value = $('#plot_data').multiselect('getChecked')[0].value;
+                      updateForecastVariables();
+                      if ($('#plot_data').multiselect('getChecked')[0].value !== ui.value) {
+                          updateForecastVariables();
+                      }
+                  }
+                  if ($('#plot_data').multiselect('getChecked')[0].value == 'stat') {
+                      updateStats("y1", 1, []);
+                      updateStats("y2", 1, []);
+                      updateFixVar("stat");
+                      updateIndyVar("stat");
+                      $("#agg_none").prop('checked', 'checked');
+                  } else if ($('#plot_data').multiselect('getChecked')[0].value == 'mode') {
+                      updateMode("y1", 1, []);
+                      updateMode("y2", 1, []);
+                      updateFixVar("mode");
+                      updateIndyVar("mode");
+                  } else if ($('#plot_data').multiselect('getChecked')[0].value == 'mtd') {
+                      updateMtd("y1", 1, []);
+                      updateMtd("y2", 1, []);
+                      updateFixVar("mtd");
+                      updateIndyVar("mtd");
+                  }
+                  updateSeriesVarVal("y1", 1, []);
+                  updateSeriesVarVal("y2", 1, []);
+              }
 
-      });
+          });
 
-      $("#plot_stat").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 'auto',
-        height: 'auto'
+          $("#plot_stat").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 'auto',
+              height: 'auto'
 
-      });
-
-
-      $("#fcst_var_y1_1").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 110,
-        height: 200,
-
-        click: function () {
-          var id_array = this.id.split("_");
-          updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
-          var selectedSeriesVarVal = $("#series_var_val_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("getChecked").val();
-          if (selectedSeriesVarVal == null) {
-            selectedSeriesVarVal = [];
-          }
-          updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], selectedSeriesVarVal);
-        }
-      });
+          });
 
 
-      $("#fcst_stat_y1_1").multiselect({
-        selectedList: 100, // 0-based index
-        noneSelectedText: "Select attribute stat",
-        click: function (event, ui) {
-          var id_array = this.id.split("_");
-          $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).css("display", "none");
-          try {
-            $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
-          } catch (err) {
-            console.log("Error " + err);
-          }
+          $("#fcst_var_y1_1").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 110,
+              height: 200,
 
-          if ($("#plot_data").val() === "mode") {
-            $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
-            $('#agg_stat').val('mode');
-            try {
-              $('#agg_stat').multiselect('refresh');
-            } catch (e) {
-            }
-            $('#aggregation_statistics ').show();
-            $('#calculations_statistics ').hide();
-            $('#revision_statistics ').hide();
-          }
-
-          updateSeries();
-        },
-        position: {
-          my: 'right center',
-          at: 'right center'
-        },
-        checkAll: function () {
-          updateSeries();
-        },
-        uncheckAll: function () {
-          updateSeries();
-        }
-
-      });
-      $("#series_var_y1_1").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 'auto',
-        height: 'auto',
-        click: function (event, ui) {
-          $('#series_var_val_y1_date_period_start_1').empty();
-          $('#series_var_val_y1_date_period_end_1').empty();
-
-          if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
-            $("#series_var_val_y1_date_period_button_1").css("display", "block");
-          } else {
-            $("#series_var_val_y1_date_period_button_1").css("display", "none");
-          }
-          var id_array = this.id.split("_");
-          updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
-        }
-
-      });
-      $("#series_var_val_y1_date_period_button_1").button({
-        icons: {
-          primary: "ui-icon-check",
-          secondary: "ui-icon-circlesmall-plus"
-        },
-        text: false
-      }).click(function () {
-        $("#series_var_val_y1_date_period_1").dialog("open");
-      });
-      createValDatePeriodDialog('series_var_val_y1', 1);
+              click: function () {
+                  var id_array = this.id.split("_");
+                  updateStats(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+                  var selectedSeriesVarVal = $("#series_var_val_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("getChecked").val();
+                  if (selectedSeriesVarVal == null) {
+                      selectedSeriesVarVal = [];
+                  }
+                  updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], selectedSeriesVarVal);
+              }
+          });
 
 
-      $("#indy_var").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 'auto',
-        height: 300,
-        click: function (event, ui) {
-          $('#date_period_start').empty();
-          $('#date_period_end').empty();
+          $("#fcst_stat_y1_1").multiselect({
+              selectedList: 100, // 0-based index
+              noneSelectedText: "Select attribute stat",
+              click: function (event, ui) {
+                  var id_array = this.id.split("_");
+                  $("#fcst_stat_mode_config_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).css("display", "none");
+                  try {
+                      $("#fcst_stat_mode_" + id_array[id_array.length - 2] + "_" + id_array[id_array.length - 1]).multiselect("uncheckAll");
+                  } catch (err) {
+                      console.log("Error " + err);
+                  }
 
-          if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
-            $("#date_period_button").css("display", "block");
-          } else {
-            $("#date_period_button").css("display", "none");
-          }
-          $("#indy_var_val").multiselect("uncheckAll");
+                  if ($("#plot_data").val() === "mode") {
+                      $("input[name=statistics][value=aggregation_statistics]").prop('checked', true);
+                      $('#agg_stat').val('mode');
+                      try {
+                          $('#agg_stat').multiselect('refresh');
+                      } catch (e) {
+                      }
+                      $('#aggregation_statistics ').show();
+                      $('#calculations_statistics ').hide();
+                      $('#revision_statistics ').hide();
+                  }
 
-        },
-        position: {
-          my: 'left bottom',
-          at: 'left top'
-        }
+                  updateSeries();
+              },
+              position: {
+                  my: 'right center',
+                  at: 'right center'
+              },
+              checkAll: function () {
+                  updateSeries();
+              },
+              uncheckAll: function () {
+                  updateSeries();
+              }
 
-      });
-      $("#series_var_val_y1_1").multiselect({
-        selectedList: 100, // 0-based index
-        noneSelectedText: "Select value",
-        click: function () {
-          updateSeries();
-        },
-        checkAll: function () {
-          updateSeries(true);
-        },
-        uncheckAll: function () {
-          updateSeries();
-        }
-      });
-      $("#indy_var_val").multiselect({
-        selectedList: 100, // 0-based index
-        noneSelectedText: "Select value",
-        addLabel: true,
-        minWidth: 300,
-        height: 300,
-        beforeopen: function (event, ui) {
-          var values = $('#indy_var_val').val();
-          if (values == null) {
-            values = [];
-          }
-          populateIndyVarVal(values);
-        },
-        position: {
-          my: 'center center',
-          at: 'right center'
-        }
-      });
+          });
+          $("#series_var_y1_1").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 'auto',
+              height: 'auto',
+              click: function (event, ui) {
+                  $('#series_var_val_y1_date_period_start_1').empty();
+                  $('#series_var_val_y1_date_period_end_1').empty();
 
-      $("#date_period_button").button({
-        icons: {
-          primary: "ui-icon-check",
-          secondary: "ui-icon-circlesmall-plus"
-        },
-        text: false
-      }).click(function () {
-        $("#date_period_dialog").dialog("open");
-      });
+                  if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                      $("#series_var_val_y1_date_period_button_1").css("display", "block");
+                  } else {
+                      $("#series_var_val_y1_date_period_button_1").css("display", "none");
+                  }
+                  var id_array = this.id.split("_");
+                  updateSeriesVarVal(id_array[id_array.length - 2], id_array[id_array.length - 1], []);
+              }
 
-
-      createDatePeriodDialog();
-
-      $('#add_series_var_y1').button({
-        icons: {
-          primary: "ui-icon-circle-plus"
-        }
-      }).click(function () {
-        addSeriesVar("y1");
-      });
-      $('#add_series_var_y2').button({
-        icons: {
-          primary: "ui-icon-circle-plus"
-        }
-      }).click(function () {
-        addSeriesVar("y2");
-      });
+          });
+          $("#series_var_val_y1_date_period_button_1").button({
+              icons: {
+                  primary: "ui-icon-check",
+                  secondary: "ui-icon-circlesmall-plus"
+              },
+              text: false
+          }).click(function () {
+              $("#series_var_val_y1_date_period_1").dialog("open");
+          });
+          createValDatePeriodDialog('series_var_val_y1', 1);
 
 
-      $('#aggregation_statistics ').hide();
-      $('#calculations_statistics ').hide();
-      $('#revision_statistics ').hide();
+          $("#indy_var").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 'auto',
+              height: 300,
+              click: function (event, ui) {
+                  $('#date_period_start').empty();
+                  $('#date_period_end').empty();
 
-      $('#event_equal').prop("checked", false);
+                  if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+                      $("#date_period_button").css("display", "block");
+                  } else {
+                      $("#date_period_button").css("display", "none");
+                  }
+                  $("#indy_var_val").multiselect("uncheckAll");
 
-      $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
-      $("#fix_var_event_equal_1").prop('checked', false).prop('disabled', true);
-      $('#event_equal').change(function(){
-        if ($(this).prop("checked")) {
-          for (var i = 0; i < fixed_var_indexes.length; i++) {
-            $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', true).prop('disabled', false);
-          }
-          $("#indy_var_event_equal").prop('checked', true).prop('disabled', false);
-        } else {
-          for (var i = 0; i < fixed_var_indexes.length; i++) {
-            $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', false).prop('disabled', true);
-          }
+              },
+              position: {
+                  my: 'left bottom',
+                  at: 'left top'
+              }
+
+          });
+          $("#series_var_val_y1_1").multiselect({
+              selectedList: 100, // 0-based index
+              noneSelectedText: "Select value",
+              click: function () {
+                  updateSeries();
+              },
+              checkAll: function () {
+                  updateSeries(true);
+              },
+              uncheckAll: function () {
+                  updateSeries();
+              }
+          });
+          $("#indy_var_val").multiselect({
+              selectedList: 100, // 0-based index
+              noneSelectedText: "Select value",
+              addLabel: true,
+              minWidth: 300,
+              height: 300,
+              beforeopen: function (event, ui) {
+                  var values = $('#indy_var_val').val();
+                  if (values == null) {
+                      values = [];
+                  }
+                  populateIndyVarVal(values);
+              },
+              position: {
+                  my: 'center center',
+                  at: 'right center'
+              }
+          });
+
+          $("#date_period_button").button({
+              icons: {
+                  primary: "ui-icon-check",
+                  secondary: "ui-icon-circlesmall-plus"
+              },
+              text: false
+          }).click(function () {
+              $("#date_period_dialog").dialog("open");
+          });
+
+
+          createDatePeriodDialog();
+
+          $('#add_series_var_y1').button({
+              icons: {
+                  primary: "ui-icon-circle-plus"
+              }
+          }).click(function () {
+              addSeriesVar("y1");
+          });
+          $('#add_series_var_y2').button({
+              icons: {
+                  primary: "ui-icon-circle-plus"
+              }
+          }).click(function () {
+              addSeriesVar("y2");
+          });
+
+
+          $('#aggregation_statistics ').hide();
+          $('#calculations_statistics ').hide();
+          $('#revision_statistics ').hide();
+
+          $('#event_equal').prop("checked", false);
+
           $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
+          $("#fix_var_event_equal_1").prop('checked', false).prop('disabled', true);
+          $('#event_equal').change(function () {
+              if ($(this).prop("checked")) {
+                  for (var i = 0; i < fixed_var_indexes.length; i++) {
+                      $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', true).prop('disabled', false);
+                  }
+                  $("#indy_var_event_equal").prop('checked', true).prop('disabled', false);
+              } else {
+                  for (var i = 0; i < fixed_var_indexes.length; i++) {
+                      $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', false).prop('disabled', true);
+                  }
+                  $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
 
-        }
-      });
+              }
+          });
 
-      $("#calc_stat").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 200,
-        height: 'auto',
-        position: {
-          my: 'left bottom',
-          at: 'left top'
-        },
-        click: function (event, ui) {
-          if (ui.value !== "none") {
-            $("#agg_stat").val("none");
-            $("#agg_stat").multiselect("refresh");
-            $("#revis_stat").val("none");
-            $("#revis_stat").multiselect("refresh");
+          $("#calc_stat").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 200,
+              height: 'auto',
+              position: {
+                  my: 'left bottom',
+                  at: 'left top'
+              },
+              click: function (event, ui) {
+                  if (ui.value !== "none") {
+                      $("#agg_stat").val("none");
+                      $("#agg_stat").multiselect("refresh");
+                      $("#revis_stat").val("none");
+                      $("#revis_stat").multiselect("refresh");
+                  }
+              }
+          });
+          $("#revis_stat").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 200,
+              height: 'auto',
+              position: {
+                  my: 'left bottom',
+                  at: 'left top'
+              },
+              click: function (event, ui) {
+                  if (ui.value !== "none") {
+                      $("#agg_stat").val("none");
+                      $("#agg_stat").multiselect("refresh");
+                      $("#calc_stat").val("none");
+                      $("#calc_stat").multiselect("refresh");
+                  }
+              }
+          });
+          $("#agg_stat").multiselect({
+              multiple: false,
+              selectedList: 1,
+              header: false,
+              minWidth: 200,
+              height: 'auto',
+              position: {
+                  my: 'left bottom',
+                  at: 'left top'
+              },
+              click: function (event, ui) {
+                  if (ui.value !== "none") {
+                      $("#calc_stat").val("none");
+                      $("#calc_stat").multiselect("refresh");
+                      $("#revis_stat").val("none");
+                      $("#revis_stat").multiselect("refresh");
+                  }
+              }
+          });
+
+          $(' input[name="statistics"]').click(function () {
+              $('#aggregation_statistics').hide();
+              $('#calculations_statistics').hide();
+              $('#revision_statistics').hide();
+              $(this).prop("checked", true);
+              $('#' + $(this).val()).show();
+              if ($(this).val() === "revision_statistics") {
+                  //$('#indy_var').val("fcst_valid_beg");
+                  $('#date_period_button').css("display", "block");
+                  $("#indy_var").multiselect("refresh");
+              }
+          });
+          $('#calculations_statistics').show();
+
+
+          $(".remove_var").button({
+              icons: {
+                  primary: "ui-icon-trash"
+              },
+              text: false,
+              disabled: true
+          }).click(function () {
+              if ($(this).attr('id').startsWith('remove_series_var')) {
+                  removeSeriesVar($(this).attr('id'));
+              } else if ($(this).attr('id').startsWith('remove_fcst_var')) {
+                  removeFcstVar($(this).attr('id'));
+              }
+          });
+          $(".remove_fixed_var").button({
+              icons: {
+                  primary: "ui-icon-trash"
+              },
+              text: false
+          }).click(function () {
+              removeFixedVar($(this).attr('id'));
+          });
+
+
+          if (initXML != null) {
+              var sd = initXML.find("database").text();
+              var selectedDatabase = sd.split(",");
+              for (var i = 0; i < selectedDatabase.length; i++) {
+                  $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
+                          .prop("checked", true).change();
+              }
+              loadXMLSeries();
+              initXML = null;
+
+          } else {
+              var selectedDatabase = querySt("db");
+              $("input[name='multiselect_database'][value='" + selectedDatabase + "']")
+                      .prop("checked", true).change();
+              updateForecastVariables();
+              updateStats("y1", 1, []);
+              updateStats("y2", 1, []);
+              updateSeriesVarVal("y1", 1, []);
+              updateSeriesVarVal("y2", 1, []);
+
           }
-        }
+
+
       });
-      $("#revis_stat").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 200,
-        height: 'auto',
-        position: {
-          my: 'left bottom',
-          at: 'left top'
-        },
-        click: function (event, ui) {
-          if (ui.value !== "none") {
-            $("#agg_stat").val("none");
-            $("#agg_stat").multiselect("refresh");
-            $("#calc_stat").val("none");
-            $("#calc_stat").multiselect("refresh");
-          }
-        }
-      });
-      $("#agg_stat").multiselect({
-        multiple: false,
-        selectedList: 1,
-        header: false,
-        minWidth: 200,
-        height: 'auto',
-        position: {
-          my: 'left bottom',
-          at: 'left top'
-        },
-        click: function (event, ui) {
-          if (ui.value !== "none") {
-            $("#calc_stat").val("none");
-            $("#calc_stat").multiselect("refresh");
-            $("#revis_stat").val("none");
-            $("#revis_stat").multiselect("refresh");
-          }
-        }
-      });
-
-      $(' input[name="statistics"]').click(function () {
-        $('#aggregation_statistics').hide();
-        $('#calculations_statistics').hide();
-        $('#revision_statistics').hide();
-        $(this).prop("checked", true);
-        $('#' + $(this).val()).show();
-        if($(this).val() === "revision_statistics"){
-          //$('#indy_var').val("fcst_valid_beg");
-          $('#date_period_button').css("display", "block");
-          $("#indy_var").multiselect("refresh");
-        }
-      });
-      $('#calculations_statistics').show();
-
-
-      $(".remove_var").button({
-        icons: {
-          primary: "ui-icon-trash"
-        },
-        text: false,
-        disabled: true
-      }).click(function () {
-        if ($(this).attr('id').startsWith('remove_series_var')) {
-          removeSeriesVar($(this).attr('id'));
-        } else if ($(this).attr('id').startsWith('remove_fcst_var')) {
-          removeFcstVar($(this).attr('id'));
-        }
-      });
-      $(".remove_fixed_var").button({
-        icons: {
-          primary: "ui-icon-trash"
-        },
-        text: false
-      }).click(function () {
-        removeFixedVar($(this).attr('id'));
-      });
-
-
-      if (initXML != null) {
-        var sd = initXML.find("database").text();
-        var selectedDatabase = sd.split(",");
-        for (var i = 0; i < selectedDatabase.length; i++) {
-          $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
-                  .prop("checked", true).change();
-        }
-        loadXMLSeries();
-        initXML = null;
-
-      } else {
-        var val = $($(categories[0]).find("val")[0]).text();
-       // $("input[name='multiselect_database'][value='" + val + "']")
-       //         .prop("checked", true).change();
-        updateForecastVariables();
-        updateStats("y1", 1, []);
-        updateStats("y2", 1, []);
-        updateSeriesVarVal("y1", 1, []);
-        updateSeriesVarVal("y2", 1, []);
-
-      }
-
-
-    });
 
 
   </script>
@@ -855,11 +855,10 @@
         <label for="aggregation_statistics_label">Aggregation
           statistics</label>
         <input type="radio" name="statistics"
-                      value="revision_statistics"
-                      id="revision_statistics_label"/>
-               <label for="revision_statistics_label">Revision
-                 statistics</label>
-
+               value="revision_statistics"
+               id="revision_statistics_label"/>
+        <label for="revision_statistics_label">Revision
+          statistics</label>
 
 
       </div>

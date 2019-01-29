@@ -656,7 +656,7 @@ function isMtdStat(stat) {
 function getForecastVariablesHist() {
     var selectedDatabase = getSelectedDatabases();
 
-    //<request><db_con>mv_dart_gsi</db_con><list_stat><id>0</id><stat_fcst_var>TMP</stat_fcst_var></list_stat></request>
+    //<request><db_con>mv_dart_gsi</db_con><list_stat><stat_fcst_var>TMP</stat_fcst_var></list_stat></request>
     $.ajax({
         async: false,
         url: "servlet",
@@ -664,7 +664,7 @@ function getForecastVariablesHist() {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><stat_field>FCST_VAR</stat_field></list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><stat_field>FCST_VAR</stat_field></list_val></request>',
         error: function (jqXHR, textStatus, errorThrown) {
         },
         success: function (data) {
@@ -685,7 +685,7 @@ function getForecastVariablesHist() {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_stat><id>0</id><stat_fcst_var>' + fcst_var + '</stat_fcst_var></list_stat></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_stat><stat_fcst_var>' + fcst_var + '</stat_fcst_var></list_stat></request>',
         error: function (jqXHR, textStatus, errorThrown) {
         },
         success: function (data) {
@@ -743,7 +743,7 @@ function updateStatVariable() {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_val><id>0</id><stat_field>FCST_VAR</stat_field></list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_val><stat_field>FCST_VAR</stat_field></list_val></request>',
         error: function () {
         },
         success: function (data) {
@@ -847,7 +847,7 @@ function updateForecastVariables() {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_val><id>0</id><' + selected_mode + '_field>FCST_VAR</' + selected_mode + '_field></list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_val><' + selected_mode + '_field>FCST_VAR</' + selected_mode + '_field></list_val></request>',
         error: function () {
         },
         success: function (data) {
@@ -1350,7 +1350,7 @@ function updateStatVal() {
                 type: "POST",
                 dataType: 'xml',
                 contentType: "application/xml",
-                data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat><id>0</id><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
+                data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat>><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
                 error: function () {
                 },
                 success: function (data) {
@@ -1477,7 +1477,7 @@ function updateStats(y_axis, index, selectedVals) {
             type: "POST",
             dataType: 'xml',
             contentType: "application/xml",
-            data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat><id>0</id><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
+            data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
             error: function () {
             },
             success: function (data) {
@@ -1565,7 +1565,7 @@ function updateSeriesVarValEns(index, selectedVals) {
         contentType: "application/xml",
         dataType: 'xml',
         processData: false,
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><ensss_field>' + selectedSeriesVariable + '</ensss_field><stat><fcst_var name="TMP"></fcst_var></stat></list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><ensss_field>' + selectedSeriesVariable + '</ensss_field><stat><fcst_var name="TMP"></fcst_var></stat></list_val></request>',
         error: function () {
 
         },
@@ -1645,7 +1645,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
         selectedSeriesVariable = $("#series_var_" + y_axis + "_" + index).find('option:first-child').val();
     }
     if (typeof selectedSeriesVariable !== 'undefined') {
-        var url = '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
+        var url = '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><' + selected_mode + '_field>' + selectedSeriesVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>';
         $.ajax({
             async: false,
             url: "servlet",
@@ -1759,7 +1759,7 @@ function updateFixedVarValHist(index, selectedVals) {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + field_type + '_field>' + selectedFixedVariable + '</' + field_type + '_field></list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><' + field_type + '_field>' + selectedFixedVariable + '</' + field_type + '_field></list_val></request>',
         error: function () {
         },
         success: function (data) {
@@ -1834,7 +1834,7 @@ function updateYvalueCountour(selectedVals) {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><stat_field>' + selectedVariable + '</stat_field>' + statst + '</list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><stat_field>' + selectedVariable + '</stat_field>' + statst + '</list_val></request>',
         error: function () {
             try {
                 select.multiselect('refresh');
@@ -1917,7 +1917,7 @@ function updateDerivedVarVal() {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><stat_field>' + selectedFixedVariable + '</stat_field>' + statst + '</list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><stat_field>' + selectedFixedVariable + '</stat_field>' + statst + '</list_val></request>',
         error: function () {
             try {
                 select.multiselect('refresh');
@@ -2015,7 +2015,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
         error: function () {
             try {
                 select.multiselect('refresh');
@@ -2106,7 +2106,7 @@ function populateIndyVarVal(selectedVals) {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><' + selected_mode + '_field>' + selectedFixedVariable + '</' + selected_mode + '_field>' + statst + '</list_val></request>',
         error: function () {
         },
         success: function (data) {
@@ -2595,7 +2595,7 @@ function updateSeriesVarValHist(index, selectedVals) {
         processData: false,
         contentType: "application/xml",
         dataType: 'xml',
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><id>0</id><' + field_type + '_field>' + selectedSeriesVariable + '</' + field_type + '_field><stat><fcst_var name="' + fcst_var + '"><val>' + fcst_vars_stat + '</val></fcst_var></stat></list_val></request>',
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + selectedDatabase + '</db_con><list_val><' + field_type + '_field>' + selectedSeriesVariable + '</' + field_type + '_field><stat><fcst_var name="' + fcst_var + '"><val>' + fcst_vars_stat + '</val></fcst_var></stat></list_val></request>',
         error: function () {
 
         },

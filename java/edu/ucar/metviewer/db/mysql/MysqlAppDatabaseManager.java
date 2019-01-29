@@ -15,11 +15,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +37,8 @@ import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.db.AppDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,7 +46,7 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 19/05/17 12:42 $
  */
-public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu.ucar.metviewer.db.AppDatabaseManager {
+public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements AppDatabaseManager {
 
 
   private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
@@ -57,8 +57,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
 
   private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
 
-  public MysqlAppDatabaseManager(edu.ucar.metviewer.db.DatabaseInfo databaseInfo) throws SQLException {
-    super(databaseInfo);
+  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+    super(databaseInfo, password);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
     statHeaderSqlType.put("fcst_lead", "INT");
@@ -258,16 +258,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
   @Override
   public List<String> getListValues(MVNode nodeCall, String field, String[] currentDBName) {
     List<String> listRes = new ArrayList<>();
-    boolean boolMode = nodeCall.children[1].tag.equals("mode_field");
-    boolean boolMtd = nodeCall.children[1].tag.equals("mtd_field");
-    boolean boolRhist = nodeCall.children[1].tag.equals("rhist_field");
-    boolean boolPhist = nodeCall.children[1].tag.equals("phist_field");
-    boolean boolROC = nodeCall.children[1].tag.equals("roc_field");
-    boolean boolRely = nodeCall.children[1].tag.equals("rely_field");
-    boolean boolEnsSS = nodeCall.children[1].tag.equals("ensss_field");
-    boolean boolPerf = nodeCall.children[1].tag.equals("perf_field");
-    boolean boolTaylor = nodeCall.children[1].tag.equals("taylor_field");
-    boolean boolEclv = nodeCall.children[1].tag.equals("eclv_field");
+    boolean boolMode = nodeCall.children[0].tag.equals("mode_field");
+    boolean boolMtd = nodeCall.children[0].tag.equals("mtd_field");
+    boolean boolRhist = nodeCall.children[0].tag.equals("rhist_field");
+    boolean boolPhist = nodeCall.children[0].tag.equals("phist_field");
+    boolean boolROC = nodeCall.children[0].tag.equals("roc_field");
+    boolean boolRely = nodeCall.children[0].tag.equals("rely_field");
+    boolean boolEnsSS = nodeCall.children[0].tag.equals("ensss_field");
+    boolean boolPerf = nodeCall.children[0].tag.equals("perf_field");
+    boolean boolTaylor = nodeCall.children[0].tag.equals("taylor_field");
+    boolean boolEclv = nodeCall.children[0].tag.equals("eclv_field");
     String strHeaderTable;
     if (boolMode) {
       strHeaderTable = "mode_header";
@@ -300,9 +300,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
       tableLineDataTables.put("line_data_sl1l2", "true");
     } else if (boolEclv) {
       tableLineDataTables.put("line_data_eclv", "true");
-    } else if (2 < nodeCall.children.length) {
+    } else if (1 < nodeCall.children.length) {
       fcstVar = true;
-      MVNode nodeFcstVarStat = nodeCall.children[2];
+      MVNode nodeFcstVarStat = nodeCall.children[1];
       for (int i = 0; i < nodeFcstVarStat.children.length; i++) {
         MVNode nodeFcstVar = nodeFcstVarStat.children[i];
         tableFcstVarStat.put(nodeFcstVar.name, "true");
@@ -346,7 +346,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
 
     //  parse the list of constraints into a SQL where clause
     String whereTime = "";
-    for (int i = 2; i < nodeCall.children.length; i++) {
+    for (int i = 1; i < nodeCall.children.length; i++) {
       if (nodeCall.children[i].tag.equals("stat")) {
         continue;
       }
@@ -605,22 +605,21 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
       int intLine = 0;
 
       while (res.next()) {
-        String line = "";
+        StringBuilder line = new StringBuilder();
         for (int i = 1; i <= met.getColumnCount(); i++) {
           String strVal;
           String objectType = met.getColumnTypeName(i);
 
 
           if (objectType.equals("DATETIME")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Timestamp ts = res.getTimestamp(i, cal);
-            strVal = DATE_FORMAT.format(ts);
+            LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
+            strVal = DATE_FORMATTER.format(ts);
           } else {
-
             strVal = res.getString(i);
-            if (strVal == null || strVal.equalsIgnoreCase("null") || strVal.equalsIgnoreCase(
-                "-9999")) {
+
+            if (strVal == null
+                    || strVal.equalsIgnoreCase("null")
+                    || strVal.equalsIgnoreCase("-9999")) {
               strVal = "NA";
             }
 
@@ -628,13 +627,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
 
 
           if (1 == i) {
-            line = line + (strVal);
+            line.append(strVal);
           } else {
-            line = line + (delim + strVal);
+            line.append(delim).append(strVal);
           }
 
         }
-        bufferedWriter.write(line);
+        bufferedWriter.write(line.toString());
         bufferedWriter.write(System.getProperty("line.separator"));
         intLine++;
 
@@ -979,7 +978,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
                                  + " + (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) ) ";
         }
-        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + BINARY + indyVarFormatted
+        String field;
+        if (indyVarFormatted.startsWith("HOUR(")) {
+          field = indyVarFormatted;
+        } else {
+          field = BINARY + indyVarFormatted;
+        }
+        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
                            + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
       }
       //  add fcst_var to the select list and temp table entries
@@ -1150,7 +1155,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
             strStat = "ECLV";
           }
         }
-        if(!selectList.contains("fcst_var")) {
+        if (!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
         }
 
@@ -1578,12 +1583,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
       }
       //add BINARY for all fields except HOUR(...)
       String field;
-      if(indyVarFormatted.startsWith("HOUR(")){
+      if (indyVarFormatted.startsWith("HOUR(")) {
         field = indyVarFormatted;
-      }else{
+      } else {
         field = BINARY + indyVarFormatted;
       }
-      whereClause += (0 < i ? "  AND " : "  ") + field+ " " + condition + "\n";
+      whereClause += (0 < i ? "  AND " : "  ") + field + " " + condition + "\n";
     }
 
     return whereClause;
@@ -1621,14 +1626,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
       } else {
         String strWhereForQuery = whereClause.replace("h.", "");
         String newStat = stat.replace("_D", "_F");
-       // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
+        // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
         String query1 = buildModeSingleStatTable(selectList + ",  h.object_id",
-                     strWhereForQuery, newStat,
+                                                 strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
         newStat = stat.replace("_D", "_O");
         String query2 = buildModeSingleStatTable(selectList + ",  h.object_id",
-                             strWhereForQuery, newStat,
+                                                 strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
 
@@ -2163,7 +2168,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
             + " ) s, ( " + table2 + " ) s2\n"
             + "WHERE\n"
             + " s.fcst_var = s2.fcst_var\n";
-    if(!table1.contains(MVUtil.COUNT)) {
+    if (!table1.contains(MVUtil.COUNT)) {
       result += " AND" + BINARY + " SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3) \n";
     }
     if (!tableStat.contains("object_id")) {
@@ -2628,7 +2633,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg+ "\n");
+      printStream.println(strMsg + "\n");
     }
 
 
@@ -2975,7 +2980,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements edu
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg+ "\n");
+      printStream.println(strMsg + "\n");
     }
 
 
