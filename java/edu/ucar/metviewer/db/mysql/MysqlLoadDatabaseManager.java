@@ -3688,8 +3688,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       stmt.setInt(1, dataFileId);
       stmt.setInt(2, dataFileLuId);
       stmt.setString(3, fileName);
-      if(filePath.length() > 510){
-        filePath = filePath.substring(0, 509) + "...";
+      if(filePath.length() > 120){
+        filePath = filePath.substring(0, 115) + "...";
       }
       stmt.setString(4, filePath);
       stmt.setObject(5, loadDate, Types.TIMESTAMP);
