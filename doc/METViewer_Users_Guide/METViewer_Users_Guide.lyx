@@ -78,7 +78,7 @@
 \begin_layout Title
 
 \series bold
-METViewer Version 2.6
+METViewer Version 2.9
 \begin_inset Newline newline
 \end_inset
 
@@ -125,7 +125,7 @@ Tatiana Burek, Tressa Fowler,
 \shape italic
 John Halley Gotway, Tara Jensen
 \shape default
-
+, Lisa Goodrich
 \begin_inset Newline newline
 \end_inset
 
@@ -141,7 +141,7 @@ John Halley Gotway, Tara Jensen
 \begin_layout Date
 
 \series bold
-May 2018
+November 2018
 \end_layout
 
 \begin_layout Standard
@@ -238,6 +238,20 @@ filename "SeriesPlot/METViewer_Users_Guide_SeriesPlot.lyx"
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand include
+filename "BarPlot/METViewer_Users_Guide_BarPlot.lyx"
+
+\end_inset
+
+
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
 filename "BoxPlot/METViewer_Users_Guide_BoxPlot.lyx"
 
 \end_inset
@@ -306,6 +320,23 @@ filename "PerfDiag/METViewer_Users_Guide_PerfDiag.lyx"
 \begin_layout Standard
 \begin_inset CommandInset include
 LatexCommand include
+filename "TaylorDiag/METViewer_Users_Guide_TaylorDiag.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
 filename "Contour/METViewer_Users_Guide_ContourPlot.lyx"
 
 \end_inset
@@ -328,6 +359,40 @@ filename "SpreadSkill/METViewer_Users_Guide_SpreadSkillPlot.lyx"
 \end_inset
 
 
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "ECLVPlot/METViewer_Users_Guide_ECLVPlot.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "Scorecard/METViewer_Users_Guide_Scorecard.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Newpage pagebreak
 \end_inset
 

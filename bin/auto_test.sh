@@ -43,7 +43,7 @@ export git_user=""
 export METviewerTag="HEAD"
 export METviewerCompareTag="HEAD"
 export capture=""
-while getopts "U:t:b:B:s:l:d:m:a:g:G:u:p:h:P:j:c?" o; do
+while getopts "U:t:b:B:l:d:m:a:g:G:u:p:h:P:s:j:c:T?" o; do
     case "${o}" in
     	c)
             capture="-c"
