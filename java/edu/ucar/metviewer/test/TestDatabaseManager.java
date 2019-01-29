@@ -1,11 +1,13 @@
 /**
- * DatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR),
- * Research Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
+ * DatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric Research
+ * (UCAR), National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL),
+ * P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
 package edu.ucar.metviewer.test;
 
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
 
 
 /**
@@ -18,7 +20,7 @@ public class TestDatabaseManager {
       String management_system, String host, String user, String password,
       String dbName) throws Exception {
     String ms = management_system.toLowerCase();
-    String dbType = ( ms.isEmpty()) ? "mysql" : ms; // default dbType to mysql if management_system is
+    String dbType = (ms.isEmpty()) ? "mysql" : ms; // default dbType to mysql if management_system is
     // missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
@@ -26,32 +28,38 @@ public class TestDatabaseManager {
 
 
     switch (dbType) {
-      case "mysql":
+      case DatabaseManager.MYSQL:
         databaseManager =
-                                (edu.ucar.metviewer.test.TestDBManager)Class.forName(
-                                        "edu.ucar.metviewer.db" +
-                                ".TestMysqlDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+            (TestDBManager) Class.forName(
+                "edu.ucar.metviewer.db.TestMysqlDatabaseManager")
+                                .getDeclaredConstructor(DatabaseInfo.class, String.class)
+                                .newInstance(databaseInfo, password);
 
         break;
-      case "mariadb":
+      case DatabaseManager.MARIADB:
         databaseManager =
-                        (edu.ucar.metviewer.test.TestDBManager)Class.forName(
-                                "edu.ucar.metviewer.db" +
-                                        ".TestMariaDbDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+            (TestDBManager) Class.forName(
+                "edu.ucar.metviewer.db.TestMariaDbDatabaseManager")
+                                .getDeclaredConstructor(DatabaseInfo.class, String.class)
+                                .newInstance(databaseInfo, password);
 
         break;
-      case "aurora":
+      case DatabaseManager.AURORA:
         databaseManager =
-                         (edu.ucar.metviewer.test.TestDBManager)Class.forName(
-                                 "edu.ucar.metviewer.db" +
-                                         ".TestAuroraDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+            (TestDBManager) Class.forName(
+                "edu.ucar.metviewer.db.TestAuroraDatabaseManager")
+                                .getDeclaredConstructor(DatabaseInfo.class,
+                                                        String.class)
+                                .newInstance(databaseInfo, password);
 
         break;
-      case "cb":
+      case DatabaseManager.CB:
         databaseManager =
-                               (edu.ucar.metviewer.test.TestDBManager)Class.forName(
-                                       "edu.ucar.metviewer.db" +
-                               ".TestCBDatabaseManager").getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class).newInstance(databaseInfo, password);
+            (TestDBManager) Class.forName(
+                "edu.ucar.metviewer.db.TestCBDatabaseManager")
+                                .getDeclaredConstructor(DatabaseInfo.class,
+                                                        String.class)
+                                .newInstance(databaseInfo, password);
 
         break;
       default:
