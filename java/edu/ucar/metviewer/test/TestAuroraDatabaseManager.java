@@ -73,8 +73,8 @@ public class TestAuroraDatabaseManager extends edu.ucar.metviewer.db.aurora.Auro
         java.sql.Connection aConn = null;
         java.sql.Statement aStmt = null;
         try {
-            com.aurora.jdbc.jdbc2.optional.MysqlDataSource aDataSource =
-                    new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+            com.mysql.jdbc.jdbc2.optional.MysqlDataSource aDataSource = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+
             aDataSource.setUser(userName);
             aDataSource.setPassword(password);
             aDataSource.setServerName(host.split(":")[0]); // don't need the port here
