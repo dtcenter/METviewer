@@ -26,10 +26,10 @@ public abstract class DatabaseManager {
       "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
   };
 
-  private static final String MYSQL = "mysql";
-  private static final String MARIADB = "mariadb";
+  public static final String MYSQL = "mysql";
+  public static final String MARIADB = "mariadb";
   public static final String CB = "cb";
-  private static final String AURORA = "aurora";
+  public static final String AURORA = "aurora";
 
   public DatabaseManager(DatabaseInfo databaseInfo) {
     this.databaseInfo = databaseInfo;
