@@ -8,7 +8,7 @@ package edu.ucar.metviewer.scorecard.db;
 import java.sql.SQLException;
 
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

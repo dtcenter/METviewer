@@ -4,7 +4,7 @@
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.db.mysql;
 
 
 import java.io.PrintWriter;
@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -32,7 +34,7 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class MysqlDatabaseManager extends DatabaseManager{
+public class MysqlDatabaseManager extends DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();

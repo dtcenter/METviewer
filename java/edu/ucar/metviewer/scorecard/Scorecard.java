@@ -15,7 +15,7 @@ import java.util.Map;
 
 import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.db.SumDatabaseManagerMySQL;

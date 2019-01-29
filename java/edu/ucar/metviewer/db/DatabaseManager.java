@@ -60,13 +60,13 @@ public abstract class DatabaseManager {
             // dependency on the specialized database jar files.
             case MYSQL:
                 databaseManager = (DatabaseManager)Class
-                    .forName("edu.ucar.metviewer.db.MysqlLoadDatabaseManager")
+                    .forName("edu.ucar.metviewer.db.mysql.MysqlLoadDatabaseManager")
                     .getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class)
                     .newInstance(databaseInfo, password);
                 break;
             case CB:
                 databaseManager = (DatabaseManager)Class
-                    .forName("edu.ucar.metviewer.db.CBLoadDatabaseManager")
+                    .forName("edu.ucar.metviewer.db.couchbase.CBLoadDatabaseManager")
                     .getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class)
                     .newInstance(databaseInfo, password);
                 break;
@@ -93,13 +93,13 @@ public abstract class DatabaseManager {
 
             case MYSQL:
                 databaseManager = (DatabaseManager)Class
-                    .forName("edu.ucar.metviewer.db.MysqlDatabaseManager")
+                    .forName("edu.ucar.metviewer.db.mysql.MysqlDatabaseManager")
                     .getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class)
                     .newInstance(databaseInfo, password);
                 break;
             case CB:
                 databaseManager = (DatabaseManager)Class
-                    .forName("edu.ucar.metviewer.db.CBDatabaseManager")
+                    .forName("edu.ucar.metviewer.db.couchbase.CBDatabaseManager")
                     .getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class)
                     .newInstance(databaseInfo, password);
                 break;
@@ -124,13 +124,13 @@ public abstract class DatabaseManager {
         switch (dbType) {
             case MYSQL:
                 databaseManager = (DatabaseManager)Class
-                    .forName("edu.ucar.metviewer.db.MysqlAppDatabaseManager")
+                    .forName("edu.ucar.metviewer.db.mysql.MysqlAppDatabaseManager")
                     .getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class)
                     .newInstance(databaseInfo, password);
                 break;
             case CB:
                 databaseManager = (DatabaseManager)Class
-                    .forName("edu.ucar.metviewer.db.CBAppDatabaseManager")
+                    .forName("edu.ucar.metviewer.db.couchbase.CBAppDatabaseManager")
                     .getDeclaredConstructor(edu.ucar.metviewer.db.DatabaseInfo.class, java.lang.String.class)
                     .newInstance(databaseInfo, password);
                 break;

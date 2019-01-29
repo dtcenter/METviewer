@@ -4,7 +4,7 @@
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db;
+package edu.ucar.metviewer.db.couchbase;
 
 import com.couchbase.client.core.CouchbaseException;
 import com.couchbase.client.java.document.JsonDocument;
@@ -14,6 +14,8 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import edu.ucar.metviewer.*;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

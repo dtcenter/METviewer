@@ -13,10 +13,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +24,7 @@ import java.util.TimeZone;
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -35,8 +32,8 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static edu.ucar.metviewer.db.MysqlDatabaseManager.BINARY;
-import static edu.ucar.metviewer.db.MysqlDatabaseManager.DATE_FORMATTER;
+import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.BINARY;
+import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
 
 /**
  * @author : tatiana $
