@@ -1,11 +1,18 @@
 #!/bin/bash
+echo $(env)
 
-JAVA=/usr/local/jdk/bin/java
-if [[ ! -z "${MV_HOME}" ]]; then
-    MV_HOME=/d3/projects/METViewer/src/apps/METviewer
+if [ -z ${JAVA_HOME+x} ]; then
+    #JAVA_HOME=/usr/local/jdk
+    JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home
+fi
+JAVA=${JAVA_HOME}/bin/java
+
+if [ -z ${MV_HOME+x} ]; then
+    #MV_HOME=/d3/projects/METViewer/src/apps/METviewer
+    MV_HOME=/Users/pierce/IdeaProjects/METViewer
 fi
 # construct the classpath for MVBatch
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mysql-connector-java-5.1.6.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.3.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.2.jar

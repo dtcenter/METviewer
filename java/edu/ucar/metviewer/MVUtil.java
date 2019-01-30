@@ -1,11 +1,23 @@
 package edu.ucar.metviewer;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -28,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
+import org.w3c.dom.Document;
 
 public class MVUtil {
 
@@ -100,11 +113,11 @@ public class MVUtil {
   public static final DecimalFormat formatPerf = new DecimalFormat("0.000");
 
   /*
-     * variable length group data indices for lines with an arbitrary number of fields
-     *   - index of field containing number of sets
-     *   - index of first repeating field(s)
-     *   - number of fields in each repeating set
-     */
+   * variable length group data indices for lines with an arbitrary number of fields
+   *   - index of field containing number of sets
+   *   - index of first repeating field(s)
+   *   - number of fields in each repeating set
+   */
   public static final Map<String, int[]> lengthGroupIndices = new HashMap<>();
   public static final Map<String, Boolean> alphaLineTypes = new HashMap<>();
 
@@ -622,10 +635,12 @@ public class MVUtil {
     statsVl1l2.put("VL1L2_SPEED_DIFF", new String[]{VL1L2});
   }
 
+  public static final String COUNT = "COUNT(*)";
+
   static {
     modeSingleStatField.put("ACOV", "SUM(area)");
-    modeSingleStatField.put("CNT", "COUNT(object_id)");
-    modeSingleStatField.put("CNTSUM", "COUNT(object_id)");
+    modeSingleStatField.put("CNT", COUNT);
+    modeSingleStatField.put("CNTSUM", COUNT);
     modeSingleStatField.put("CENTX", "centroid_x");
     modeSingleStatField.put("CENTY", "centroid_y");
     modeSingleStatField.put("CENTLAT", "centroid_lat");
@@ -746,8 +761,8 @@ public class MVUtil {
    * @return List of date strings
    */
   public static List<String> buildDateList(
-                                              final String start, final String end, final int incr,
-                                              final String format) {
+      final String start, final String end, final int incr,
+      final String format) {
     SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.US);
     formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     List<String> listDates = new ArrayList<>();
@@ -1032,8 +1047,8 @@ public class MVUtil {
    * @return Sorted list, by numerical value
    */
   public static List<String> sortVals(
-                                         final List<String> vals, final boolean asc,
-                                         final Pattern pat) {
+      final List<String> vals, final boolean asc,
+      final Pattern pat) {
 
     //  parse the input values and store the numerical values in a sortable array
     double[] listVal = new double[vals.size()];
@@ -1127,12 +1142,10 @@ public class MVUtil {
    *
    * @param lead        List of lead time values
    * @param asc         true for ascending order
-   * @param removeZeros true to remove the trailing 0000 from the lead time value
    * @return Sorted list of formatted lead times, by numerical value
    */
   public static List<String> sortFormatLead(
-                                               final List<String> lead, final boolean asc,
-                                               final boolean removeZeros) {
+      final List<String> lead, final boolean asc) {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.size()];
@@ -1140,7 +1153,7 @@ public class MVUtil {
     for (int i = 0; i < lead.size(); i++) {
       listVal[i] = Double.parseDouble(lead.get(i));
       String strLead = lead.get(i);
-      if (removeZeros && strLead.endsWith("0000")) {
+      if (strLead.endsWith("0000")) {
         strLead = strLead.replaceAll("0000$", "");
       }
       tableVal.put(listVal[i], strLead);
@@ -1523,9 +1536,9 @@ public class MVUtil {
 
 
   public static MvResponse runRscript(
-                                      final String rscript,
-                                      final String script
-                                      ) throws Exception {
+      final String rscript,
+      final String script
+  ) throws Exception {
     return runRscript(rscript, script, new String[]{});
   }
 
@@ -1535,14 +1548,14 @@ public class MVUtil {
    * written to standard output.
    *
    * @param rscriptCommand Rscript command
-   * @param scriptName  R script to run
-   * @param args    (optional) Arguments to pass to the R script
+   * @param scriptName     R script to run
+   * @param args           (optional) Arguments to pass to the R script
    * @throws Exception
    */
   public static MvResponse runRscript(
-                                      final String rscriptCommand, final String scriptName,
-                                      final String[] args
-                                      ) throws Exception {
+      final String rscriptCommand, final String scriptName,
+      final String[] args
+  ) throws Exception {
 
     MvResponse mvResponse = new MvResponse();
 
@@ -1611,11 +1624,13 @@ public class MVUtil {
 
 
     if (strProcStd.length() > 0) {
-      mvResponse.setInfoMessage("==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
+      mvResponse.setInfoMessage(
+          "==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
     }
 
     if (strProcErr.length() > 0) {
-      mvResponse.setErrorMessage("==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
+      mvResponse.setErrorMessage(
+          "==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
     }
     mvResponse.setSuccess(0 == intExitStatus);
     return mvResponse;
@@ -1631,8 +1646,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static void populateTemplateFile(
-                                             final String tmpl, final String output,
-                                             final Map<String, String> vals) throws Exception {
+      final String tmpl, final String output,
+      final Map<String, String> vals) throws Exception {
     try (FileReader fileReader = new FileReader(tmpl);
          BufferedReader reader = new BufferedReader(fileReader);
          PrintStream writer = new PrintStream(output)) {
@@ -1688,8 +1703,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static Map.Entry[] buildPlotFixTmplMap(
-                                                   final MVOrderedMap mapPlotFix,
-                                                   final MVOrderedMap mapPlotFixVal) {
+      final MVOrderedMap mapPlotFix,
+      final MVOrderedMap mapPlotFixVal) {
     Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
     //  replace fixed value set names with their value maps
     ArrayList listPlotFixValAdj = new ArrayList();
@@ -1720,8 +1735,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static void isAggTypeValid(
-                                       final Map<String, String[]> tableStats, final String strStat,
-                                       final String aggType) throws Exception {
+      final Map<String, String[]> tableStats, final String strStat,
+      final String aggType) throws Exception {
     //check if aggType is allowed for this stat
     String[] types = tableStats.get(strStat);
     boolean isFound = false;
@@ -1732,13 +1747,14 @@ public class MVUtil {
       }
     }
     if (!isFound) {
-      throw new Exception("aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
+      throw new Exception(
+          "aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
     }
   }
 
   public static String findValue(
-                                    final String[] listToken, final List<String> headerNames,
-                                    final String header) {
+      final String[] listToken, final List<String> headerNames,
+      final String header) {
     int pos = headerNames.indexOf(header);
     if (pos >= 0 && pos < listToken.length) {
       return listToken[pos];
@@ -1800,9 +1816,9 @@ public class MVUtil {
    * @return String built using the template and values
    */
   public static String buildTemplateString(
-                                              final String tmpl, final MVOrderedMap vals,
-                                              final MVOrderedMap tmplMaps,
-                                              final PrintStream printStream) throws Exception {
+      final String tmpl, final MVOrderedMap vals,
+      final MVOrderedMap tmplMaps,
+      final PrintStream printStream) throws Exception {
 
 
     String strRet = tmpl;
@@ -1834,7 +1850,8 @@ public class MVUtil {
         }
         MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
         if (null == mapTmplVal) {
-          throw new Exception("template tag " + strTmplTagName + " does not have a val_map defined");
+          throw new Exception(
+              "template tag " + strTmplTagName + " does not have a val_map defined");
         }
         if (mapTmplVal.containsKey(strVal)) {
           strVal = mapTmplVal.getStr(strVal);
@@ -1991,8 +2008,8 @@ public class MVUtil {
   }
 
   public static String buildTemplateString(
-                                              final String tmpl, final MVOrderedMap vals,
-                                              final PrintStream printStream) throws Exception {
+      final String tmpl, final MVOrderedMap vals,
+      final PrintStream printStream) throws Exception {
     return buildTemplateString(tmpl, vals, null, printStream);
   }
 
@@ -2257,30 +2274,121 @@ public class MVUtil {
 
 
   public static boolean isInteger(String s, int radix) {
-      if(s.isEmpty()) return false;
-      for(int i = 0; i < s.length(); i++) {
-          if(i == 0 && s.charAt(i) == '-') {
-              if(s.length() == 1) return false;
-              else continue;
-          }
-          if(Character.digit(s.charAt(i),radix) < 0) return false;
+    if (s.isEmpty()) {
+      return false;
+    }
+    for (int i = 0; i < s.length(); i++) {
+      if (i == 0 && s.charAt(i) == '-') {
+        if (s.length() == 1) {
+          return false;
+        } else {
+          continue;
+        }
       }
-      return true;
+      if (Character.digit(s.charAt(i), radix) < 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public static class NameFilter implements FilenameFilter {
 
-  		private String currentName;
+    private String currentName;
 
-  		NameFilter(String name) {
-  			this.currentName = name;
-  		}
+    NameFilter(String name) {
+      this.currentName = name;
+    }
 
-  		@Override
-  		public boolean accept(File dir, String name) {
-  			return name.contains(currentName) && name.endsWith("xml");
-  		}
+    @Override
+    public boolean accept(File dir, String name) {
+      return name.contains(currentName) && name.endsWith("xml");
+    }
 
-  	}
+  }
+
+  public static String domSourceToString(final Document document) {
+    String result = "";
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+
+    DOMSource source = new DOMSource(document);
+    try (StringWriter stringWriter = new StringWriter()) {
+      transformerFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      Transformer transformer = transformerFactory.newTransformer();
+      transformer.transform(source, new StreamResult(stringWriter));
+      result = stringWriter.toString();
+    } catch (TransformerException | IOException e) {
+      System.out.println(e.getMessage());
+    }
+    return result;
+  }
+
+  public static Document createDocument() throws ParserConfigurationException {
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    DocumentBuilder dBuilder = dbf.newDocumentBuilder();
+    return dBuilder.newDocument();
+  }
+
+  public static void safeClose(FileWriter fileWriter) {
+    if (fileWriter != null) {
+      try {
+        fileWriter.close();
+      } catch (IOException e) {
+        System.out.println(e.getMessage());
+      }
+    }
+  }
+
+  public static String cleanString(String aString) {
+    if (aString == null) {
+      return null;
+    }
+    StringBuilder cleanString = new StringBuilder();
+    for (int i = 0; i < aString.length(); ++i) {
+      cleanString.append( cleanChar(aString.charAt(i)));
+    }
+    return cleanString.toString();
+  }
+
+  private static char cleanChar(char aChar) {
+
+    // 0 - 9
+    for (int i = 48; i < 58; ++i) {
+      if (aChar == i) {
+        return (char) i;
+      }
+    }
+
+    // 'A' - 'Z'
+    for (int i = 65; i < 91; ++i) {
+      if (aChar == i) {
+        return (char) i;
+      }
+    }
+
+    // 'a' - 'z'
+    for (int i = 97; i < 123; ++i) {
+      if (aChar == i) {
+        return (char) i;
+      }
+    }
+
+    // other valid characters
+    switch (aChar) {
+      case '/':
+        return '/';
+      case '.':
+        return '.';
+      case '-':
+        return '-';
+      case '_':
+        return '_';
+      case ' ':
+        return ' ';
+    }
+    return '%';
+  }
 
 }

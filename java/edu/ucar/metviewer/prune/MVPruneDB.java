@@ -28,7 +28,7 @@ public class MVPruneDB {
   private static final Logger logger = LogManager.getLogger("MVPruneDB");
 
   private static final String USAGE = "USAGE:  mv_prune.sh <prune_db_spec_file>\n" +
-    "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
+                                          "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
   private final Map<String, List<String>> fieldToRangeValues = new HashMap<>();
   private final Map<String, List<String>> fieldToListValues = new HashMap<>();
   private final List<String> files = new ArrayList<>();
@@ -137,10 +137,14 @@ public class MVPruneDB {
     } else if (this.databaseName == null) {
       logger.error("Please, specify databaseName");
       isValid = false;
-    } else if ((!this.files.isEmpty() || !this.directories.isEmpty()) && (!this.fieldToListValues.isEmpty() || !this.fieldToRangeValues.isEmpty())) {
+    } else if ((!this.files.isEmpty() || !this.directories.isEmpty()) && (!this.fieldToListValues
+                                                                               .isEmpty() || !this.fieldToRangeValues
+                                                                                                  .isEmpty())) {
       logger.error("Files and fields are both presented. Please, specify one or another");
       isValid = false;
-    } else if (this.fieldToListValues.isEmpty() && this.fieldToRangeValues.isEmpty() && this.files.isEmpty() && this.directories.isEmpty()) {
+    } else if (this.fieldToListValues.isEmpty() && this.fieldToRangeValues.isEmpty() && this.files
+                                                                                            .isEmpty() && this.directories
+                                                                                                              .isEmpty()) {
       logger.error("Please, specify at least one field or file");
       isValid = false;
     } else if (this.isInfoOnly == null) {
@@ -163,8 +167,5 @@ public class MVPruneDB {
 
     return isValid;
   }
-
-
-
 
 }

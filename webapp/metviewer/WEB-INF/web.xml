@@ -15,10 +15,7 @@
         <servlet-name>MvServlet</servlet-name>
 		<url-pattern>/servlet</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>MvServlet</servlet-name>
-		<url-pattern>/db/*</url-pattern>
-    </servlet-mapping>
+
     <servlet-mapping>
            <servlet-name>MvServlet</servlet-name>
    		<url-pattern>/download/*</url-pattern>

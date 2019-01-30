@@ -60,7 +60,7 @@ if(length(listSeries1Val) > 0){
     seriesLegend = paste(seriesLegend,' Probability Histogram');
     legend=append(legend, seriesLegend);
 
-
+	bin = dfPerm$bin_size
     # if there is no data for this case, skip to the next permutation
     if( 1 > nrow(dfPerm) ){
       dfPerm=data.frame(i_value=listX, stat_value=rep(0, length(listX)) );
@@ -76,8 +76,10 @@ if(length(listSeries1Val) > 0){
 
   }
 }else{
-  res=dfPlot;
-  legend=append(legend, 'Rank Histogram');
+	res=dfPlot;
+	bin = dfPlot$bin_size
+	res = subset(dfPlot, select=c(i_value, stat_value));
+	legend=append(legend, 'Rank Histogram');
 }
 
 #replace with user's legends
@@ -93,8 +95,7 @@ listHistData=vector();
 listVisibleLegend=vector();
 listVisibleColors=vector();
 
-#ignore the last colunm - bin_size
-for(n in 2: (length(names(res))-1)  ){
+for(n in 2: (length(names(res)))  ){
   actualInd = listPlotOrderSeries[n-1];
   if(listPlotDisp[actualInd]){
     listHistData=rbind(listHistData,res[[actualInd+1]]);
@@ -110,8 +111,8 @@ if( boolNormalizedHistogram ){
   }
 }
 
-if( nrow(listHistData)>0 && "bin_size" %in% colnames(res) && length(res$bin_size)>0) {
-	bin_size = res$bin_size[1]
+if( nrow(listHistData)>0  && length(bin)>0) {
+	bin_size = bin[1]
   listX = 1:(1/bin_size) * bin_size;
 }else{
   listX=vector();

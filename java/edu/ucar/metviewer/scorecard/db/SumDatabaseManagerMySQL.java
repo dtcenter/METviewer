@@ -15,7 +15,7 @@ import edu.ucar.metviewer.scorecard.Scorecard;
  * @author : tatiana $
  * @version : 1.0 : 07/02/17 11:38 $
  */
-public class SumDatabaseManagerMySQL extends DatabaseManagerMySQL {
+public class SumDatabaseManagerMySQL extends DatabaseManagerSql {
 
   public SumDatabaseManagerMySQL(Scorecard scorecard,final MysqlDatabaseManager databaseManager) throws SQLException {
     super(scorecard,databaseManager);

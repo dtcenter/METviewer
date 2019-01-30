@@ -1,10 +1,12 @@
 /**
- * MysqlAppDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * MariaDbAppDatabaseManager.java Copyright UCAR (c) 2017. University
+ * Corporation
+ * for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db.mysql;
+package edu.ucar.metviewer.db.mariadb;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,18 +48,19 @@ import org.apache.logging.log4j.Logger;
  * @author : tatiana $
  * @version : 1.0 : 19/05/17 12:42 $
  */
-public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements AppDatabaseManager {
+public class MariaDbAppDatabaseManager extends MariaDbDatabaseManager implements AppDatabaseManager {
 
 
-  private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
-  private final Map<String, String> statHeaderSqlType = new HashMap<>();
-  private final Map<String, String> modeHeaderSqlType = new HashMap<>();
-  private final Map<String, String> mtd3dSingleStatField = new HashMap<>();
+  private static final Logger logger = LogManager.getLogger(
+                  "MariaDbAppDatabaseManager");
+  private final java.util.Map<String, String> statHeaderSqlType = new java.util.HashMap<>();
+  private final java.util.Map<String, String> modeHeaderSqlType = new java.util.HashMap<>();
+  private final java.util.Map<String, String> mtd3dSingleStatField = new java.util.HashMap<>();
 
 
-  private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
+  private final java.util.Map<String, String> mtdHeaderSqlType = new java.util.HashMap<>();
 
-  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+  public MariaDbAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws java.sql.SQLException {
     super(databaseInfo, password);
     statHeaderSqlType.put("model", "VARCHAR(64)");
     statHeaderSqlType.put("descr", "VARCHAR(64)");
@@ -141,8 +144,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   @Override
-  public List<String> getListStat(String strFcstVar, String[] currentDBName) {
-    List<String> listStatName = new ArrayList<>();
+  public java.util.List<String> getListStat(String strFcstVar, String[] currentDBName) {
+    java.util.List<String> listStatName = new java.util.ArrayList<>();
 
     String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n"
                         + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n"
@@ -166,10 +169,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                         + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM line_data_ecnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n";
 
     for (String database : currentDBName) {
-      try (Connection con = getConnection(database);
-           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                ResultSet.CONCUR_READ_ONLY);
-           ResultSet res = stmt.executeQuery(strSql)) {
+      try (java.sql.Connection con = getConnection(database);
+           java.sql.Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                                java.sql.ResultSet.CONCUR_READ_ONLY);
+           java.sql.ResultSet res = stmt.executeQuery(strSql)) {
         int intStatIndex = 0;
         boolean boolCnt = false;
         boolean boolCts = false;
@@ -183,63 +186,63 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               case 15:
               case 17:
                 if (!boolCnt) {
-                  listStatName.addAll(MVUtil.statsCnt.keySet());
+                  listStatName.addAll(edu.ucar.metviewer.MVUtil.statsCnt.keySet());
                 }
                 boolCnt = true;
                 break;
               case 2:
               case 3:
                 if (!boolCts) {
-                  listStatName.addAll(MVUtil.statsCts.keySet());
+                  listStatName.addAll(edu.ucar.metviewer.MVUtil.statsCts.keySet());
                 }
                 boolCts = true;
                 break;
               case 4:
-                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsNbrcnt.keySet());
                 break;
               case 5:
-                listStatName.addAll(MVUtil.statsNbrcts.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsNbrcts.keySet());
                 break;
               case 6:
-                listStatName.addAll(MVUtil.statsPstd.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsPstd.keySet());
                 break;
               case 7:
-                listStatName.addAll(MVUtil.statsMcts.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsMcts.keySet());
                 break;
               case 8:
-                listStatName.addAll(MVUtil.statsRhist.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsRhist.keySet());
                 break;
               case 9:
                 //case 16:
-                listStatName.addAll(MVUtil.statsVl1l2.keySet());
-                listStatName.addAll(MVUtil.statsVcnt.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsVl1l2.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsVcnt.keySet());
                 boolVcnt = true;
                 break;
               case 10:
-                listStatName.addAll(MVUtil.statsPhist.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsPhist.keySet());
                 break;
               case 11:
-                listStatName.addAll(MVUtil.statsEnscnt.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsEnscnt.keySet());
                 break;
               case 12:
-                listStatName.addAll(MVUtil.statsMpr.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsMpr.keySet());
                 break;
               case 13:
-                listStatName.addAll(MVUtil.statsOrank.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsOrank.keySet());
                 break;
               case 14:
-                listStatName.addAll(MVUtil.statsSsvar.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsSsvar.keySet());
                 break;
               case 16:
-                listStatName.addAll(MVUtil.statsVal1l2.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsVal1l2.keySet());
                 break;
               case 18:
                 if (!boolVcnt) {
-                  listStatName.addAll(MVUtil.statsVcnt.keySet());
+                  listStatName.addAll(edu.ucar.metviewer.MVUtil.statsVcnt.keySet());
                 }
                 break;
               case 19:
-                listStatName.addAll(MVUtil.statsEcnt.keySet());
+                listStatName.addAll(edu.ucar.metviewer.MVUtil.statsEcnt.keySet());
                 break;
               default:
 
@@ -247,27 +250,27 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
           intStatIndex++;
         }
-      } catch (SQLException e) {
+      } catch (java.sql.SQLException e) {
         logger.error(e.getMessage());
       }
     }
-    Collections.sort(listStatName);
+    java.util.Collections.sort(listStatName);
     return listStatName;
   }
 
   @Override
-  public List<String> getListValues(MVNode nodeCall, String field, String[] currentDBName) {
-    List<String> listRes = new ArrayList<>();
-    boolean boolMode = nodeCall.children[0].tag.equals("mode_field");
-    boolean boolMtd = nodeCall.children[0].tag.equals("mtd_field");
-    boolean boolRhist = nodeCall.children[0].tag.equals("rhist_field");
-    boolean boolPhist = nodeCall.children[0].tag.equals("phist_field");
-    boolean boolROC = nodeCall.children[0].tag.equals("roc_field");
-    boolean boolRely = nodeCall.children[0].tag.equals("rely_field");
-    boolean boolEnsSS = nodeCall.children[0].tag.equals("ensss_field");
-    boolean boolPerf = nodeCall.children[0].tag.equals("perf_field");
-    boolean boolTaylor = nodeCall.children[0].tag.equals("taylor_field");
-    boolean boolEclv = nodeCall.children[0].tag.equals("eclv_field");
+  public java.util.List<String> getListValues(edu.ucar.metviewer.MVNode nodeCall, String field, String[] currentDBName) {
+    java.util.List<String> listRes = new java.util.ArrayList<>();
+    boolean boolMode = nodeCall.children[1].tag.equals("mode_field");
+    boolean boolMtd = nodeCall.children[1].tag.equals("mtd_field");
+    boolean boolRhist = nodeCall.children[1].tag.equals("rhist_field");
+    boolean boolPhist = nodeCall.children[1].tag.equals("phist_field");
+    boolean boolROC = nodeCall.children[1].tag.equals("roc_field");
+    boolean boolRely = nodeCall.children[1].tag.equals("rely_field");
+    boolean boolEnsSS = nodeCall.children[1].tag.equals("ensss_field");
+    boolean boolPerf = nodeCall.children[1].tag.equals("perf_field");
+    boolean boolTaylor = nodeCall.children[1].tag.equals("taylor_field");
+    boolean boolEclv = nodeCall.children[1].tag.equals("eclv_field");
     String strHeaderTable;
     if (boolMode) {
       strHeaderTable = "mode_header";
@@ -280,8 +283,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     boolean boolNBin = field.equalsIgnoreCase("N_BIN");
 
     //  parse the fcst_var/stat constraint to build a list of line_data tables and fcst_var values
-    Map<String, String> tableFcstVarStat = new HashMap<>();
-    Map<String, String> tableLineDataTables = new HashMap<>();
+    java.util.Map<String, String> tableFcstVarStat = new java.util.HashMap<>();
+    java.util.Map<String, String> tableLineDataTables = new java.util.HashMap<>();
     boolean fcstVar = false;
     if (boolRhist) {
       tableLineDataTables.put("line_data_rhist", "true");
@@ -300,15 +303,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       tableLineDataTables.put("line_data_sl1l2", "true");
     } else if (boolEclv) {
       tableLineDataTables.put("line_data_eclv", "true");
-    } else if (1 < nodeCall.children.length) {
+    } else if (2 < nodeCall.children.length) {
       fcstVar = true;
-      MVNode nodeFcstVarStat = nodeCall.children[1];
+      edu.ucar.metviewer.MVNode nodeFcstVarStat = nodeCall.children[2];
       for (int i = 0; i < nodeFcstVarStat.children.length; i++) {
-        MVNode nodeFcstVar = nodeFcstVarStat.children[i];
+        edu.ucar.metviewer.MVNode nodeFcstVar = nodeFcstVarStat.children[i];
         tableFcstVarStat.put(nodeFcstVar.name, "true");
         for (int j = 0; j < nodeFcstVar.children.length; j++) {
           String strStat = nodeFcstVar.children[j].value;
-          String strLineDataTable = MVUtil.getStatTable(strStat);
+          String strLineDataTable = edu.ucar.metviewer.MVUtil.getStatTable(strStat);
           tableLineDataTables.put(strLineDataTable, "true");
           if (strLineDataTable.equals("line_data_cnt")) {
             tableLineDataTables.put("line_data_sl1l2", "true");
@@ -346,14 +349,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  parse the list of constraints into a SQL where clause
     String whereTime = "";
-    for (int i = 1; i < nodeCall.children.length; i++) {
+    for (int i = 2; i < nodeCall.children.length; i++) {
       if (nodeCall.children[i].tag.equals("stat")) {
         continue;
       }
 
       //  determine if the field should be used as criteria
-      MVNode nodeField = nodeCall.children[i];
-      String fieldCrit = nodeField.name.toLowerCase(Locale.ENGLISH);
+      edu.ucar.metviewer.MVNode nodeField = nodeCall.children[i];
+      String fieldCrit = nodeField.name.toLowerCase(java.util.Locale.ENGLISH);
       boolean timeCritField = false;
       boolean timeCritCur = false;
       if (fieldCrit.contains("valid")
@@ -400,7 +403,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String strSql;
     String tmpTable = null;
     for (String database : currentDBName) {
-      try (Connection con = getConnection(database)) {
+      try (java.sql.Connection con = getConnection(database)) {
         if (boolNRank) {
           strSql = "SELECT DISTINCT ld.n_rank "
                        + "FROM stat_header h, line_data_rhist ld "
@@ -419,8 +422,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                || field.contains("init"))) {
           String selectField = formatField(field, boolMode || boolMtd);
           //  create a temp table for the list values from the different line_data tables
-          tmpTable = "tmp_" + new Date().getTime();
-          try (Statement stmtTmp = con.createStatement()) {
+          tmpTable = "tmp_" + new java.util.Date().getTime();
+          try (java.sql.Statement stmtTmp = con.createStatement()) {
             String strTmpSql = "CREATE TEMPORARY TABLE "
                                    + tmpTable + " (" + field + " TEXT);";
             stmtTmp.executeUpdate(strTmpSql);
@@ -431,7 +434,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                               + " FROM " + listTable + " ld" + whereTime;
               stmtTmp.executeUpdate(strTmpSql);
             }
-          } catch (SQLException e) {
+          } catch (java.sql.SQLException e) {
             logger.error(e.getMessage());
           }
 
@@ -446,9 +449,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                        + strHeaderTable + " " + whereReplaced + " ORDER BY " + field;
         }
         //  execute the query
-        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                  ResultSet.CONCUR_READ_ONLY);
-             ResultSet res = stmt.executeQuery(strSql)) {
+        try (java.sql.Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                                  java.sql.ResultSet.CONCUR_READ_ONLY);
+             java.sql.ResultSet res = stmt.executeQuery(strSql)) {
 
           while (res.next()) {
             listRes.add(res.getString(1));
@@ -458,27 +461,27 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             stmt.executeUpdate("DROP TABLE IF EXISTS " + tmpTable + ";");
           }
 
-        } catch (SQLException e) {
+        } catch (java.sql.SQLException e) {
           logger.error(e.getMessage());
         }
-      } catch (SQLException e) {
+      } catch (java.sql.SQLException e) {
         logger.error(e.getMessage());
       }
     }
-    Collections.sort(listRes);
+    java.util.Collections.sort(listRes);
     return listRes;
   }
 
   @Override
-  public MvResponse executeQueriesAndSaveToFile(
-      List<String> queries, String fileName,
-      boolean isCalc, String currentDBName,
-      boolean isNewFile) throws Exception {
-    MvResponse mvResponse = new MvResponse();
+  public edu.ucar.metviewer.MvResponse executeQueriesAndSaveToFile(
+          java.util.List<String> queries, String fileName,
+          boolean isCalc, String currentDBName,
+          boolean isNewFile) throws Exception {
+    edu.ucar.metviewer.MvResponse mvResponse = new edu.ucar.metviewer.MvResponse();
 
-    List<String> listSqlBeforeSelect = new ArrayList<>();
-    List<String> listSqlLastSelectTemp = new ArrayList<>();
-    List<String> listSqlLastSelect = new ArrayList<>();
+    java.util.List<String> listSqlBeforeSelect = new java.util.ArrayList<>();
+    java.util.List<String> listSqlLastSelectTemp = new java.util.ArrayList<>();
+    java.util.List<String> listSqlLastSelect = new java.util.ArrayList<>();
     for (int i = queries.size() - 1; i >= 0; i--) {
       if (queries.get(i).startsWith("SELECT")) {
         listSqlLastSelectTemp.add(queries.get(i));
@@ -493,14 +496,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         listSqlBeforeSelect.add(sql);
       }
     }
-    StopWatch dbStopWatch = new StopWatch();
-    StopWatch saveToFileStopWatch = new StopWatch();
+    edu.ucar.metviewer.StopWatch dbStopWatch = new edu.ucar.metviewer.StopWatch();
+    edu.ucar.metviewer.StopWatch saveToFileStopWatch = new edu.ucar.metviewer.StopWatch();
 
-    try (Connection con = getConnection(currentDBName)) {
+    try (java.sql.Connection con = getConnection(currentDBName)) {
       dbStopWatch.start();
       for (String aListSqlBeforeSelect : listSqlBeforeSelect) {
-        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                  ResultSet.CONCUR_READ_ONLY)) {
+        try (java.sql.Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                                  java.sql.ResultSet.CONCUR_READ_ONLY)) {
           stmt.execute(aListSqlBeforeSelect);
         } catch (Exception e) {
           logger.error(e.getMessage());
@@ -511,15 +514,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listSqlLastSelect.size(); i++) {
         boolean append = !isNewFile || i != 0;
         boolean printHeader = !append;
-        try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                  ResultSet.CONCUR_READ_ONLY);
-             FileWriter fstream = new FileWriter(new File(fileName), append);
-             BufferedWriter out = new BufferedWriter(fstream);) {
+        try (java.sql.Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                                  java.sql.ResultSet.CONCUR_READ_ONLY);
+             java.io.FileWriter fstream = new java.io.FileWriter(new java.io.File(fileName), append);
+             java.io.BufferedWriter out = new java.io.BufferedWriter(fstream);) {
 
           //TODO investigate implications of adding the Fetch Size
           //stmt.setFetchSize(Integer.MIN_VALUE);
           dbStopWatch.start();
-          ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
+          java.sql.ResultSet resultSetLast = stmt.executeQuery(listSqlLastSelect.get(i));
           dbStopWatch.stop();
           saveToFileStopWatch.start();
           printFormattedTable(resultSetLast, out, printHeader);
@@ -540,8 +543,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               }
             }
             if (stat.equals("This")) {
-              Pattern pattern = Pattern.compile("'(.*?)'");
-              Matcher matcher = pattern.matcher(e.getMessage());
+              java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("'(.*?)'");
+              java.util.regex.Matcher matcher = pattern.matcher(e.getMessage());
 
               if (matcher.find()) {
                 stat = matcher.group(1);
@@ -559,7 +562,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
       }
 
-    } catch (SQLException e) {
+    } catch (java.sql.SQLException e) {
       logger.error(e.getMessage());
     }
     String message = "Database query time for " + currentDBName + " "
@@ -574,18 +577,18 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   }
 
   /**
-   * Prints a textual representation of the input {@link ResultSet} with the field names in the
-   * first row to the specified {@link BufferedWriter} destination.
+   * Prints a textual representation of the input {@link java.sql.ResultSet} with the field names in the
+   * first row to the specified {@link java.io.BufferedWriter} destination.
    *
    * @param res            The ResultSet to print
    * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
    */
 
-  private void printFormattedTable(ResultSet res, BufferedWriter bufferedWriter, boolean isHeader) {
+  private void printFormattedTable(java.sql.ResultSet res, java.io.BufferedWriter bufferedWriter, boolean isHeader) {
 
     char delim = '\t';
     try {
-      ResultSetMetaData met = res.getMetaData();
+      java.sql.ResultSetMetaData met = res.getMetaData();
 
       //  print out the column headers
       if (isHeader) {
@@ -605,21 +608,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       int intLine = 0;
 
       while (res.next()) {
-        StringBuilder line = new StringBuilder();
+        String line = "";
         for (int i = 1; i <= met.getColumnCount(); i++) {
           String strVal;
           String objectType = met.getColumnTypeName(i);
 
 
           if (objectType.equals("DATETIME")) {
-            LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
-            strVal = DATE_FORMATTER.format(ts);
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            java.sql.Timestamp ts = res.getTimestamp(i, cal);
+            strVal = DATE_FORMAT.format(ts);
           } else {
-            strVal = res.getString(i);
 
-            if (strVal == null
-                    || strVal.equalsIgnoreCase("null")
-                    || strVal.equalsIgnoreCase("-9999")) {
+            strVal = res.getString(i);
+            if (strVal == null || strVal.equalsIgnoreCase("null") || strVal.equalsIgnoreCase(
+                "-9999")) {
               strVal = "NA";
             }
 
@@ -627,13 +631,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
           if (1 == i) {
-            line.append(strVal);
+            line = line + (strVal);
           } else {
-            line.append(delim).append(strVal);
+            line = line + (delim + strVal);
           }
 
         }
-        bufferedWriter.write(line.toString());
+        bufferedWriter.write(line);
         bufferedWriter.write(System.getProperty("line.separator"));
         intLine++;
 
@@ -641,7 +645,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       if (0 == intLine) {
         logger.info("No data was returned from database");
-        throw new EmptyResultSetException("result set contained no data");
+        throw new edu.ucar.metviewer.EmptyResultSetException("result set contained no data");
       }
 
     } catch (Exception e) {
@@ -651,14 +655,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
   }
 
-  private Map<String, Integer> getPctThreshInfo(String query, String currentDBName) {
+  private java.util.Map<String, Integer> getPctThreshInfo(String query, String currentDBName) {
     int numPctThresh = 0;
     int pctThresh = -1;
-    Map<String, Integer> result = new HashMap<>();
-    try (Connection con = getConnection(currentDBName);
-         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                              ResultSet.CONCUR_READ_ONLY);
-         ResultSet resultSet = stmt.executeQuery(query)
+    java.util.Map<String, Integer> result = new java.util.HashMap<>();
+    try (java.sql.Connection con = getConnection(currentDBName);
+         java.sql.Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                              java.sql.ResultSet.CONCUR_READ_ONLY);
+         java.sql.ResultSet resultSet = stmt.executeQuery(query)
     ) {
 
       //  validate and save the number of thresholds
@@ -667,7 +671,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         numPctThresh++;
       }
 
-    } catch (SQLException e) {
+    } catch (java.sql.SQLException e) {
       logger.error(e.getMessage());
     }
     result.put("numPctThresh", numPctThresh);
@@ -676,12 +680,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return result;
   }
 
-  private List<String> getNumbers(String query, String currentDBName) {
-    List<String> result = new ArrayList<>();
-    try (Connection con = getConnection(currentDBName);
-         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                              ResultSet.CONCUR_READ_ONLY);
-         ResultSet resultSet = stmt.executeQuery(query)
+  private java.util.List<String> getNumbers(String query, String currentDBName) {
+    java.util.List<String> result = new java.util.ArrayList<>();
+    try (java.sql.Connection con = getConnection(currentDBName);
+         java.sql.Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                                              java.sql.ResultSet.CONCUR_READ_ONLY);
+         java.sql.ResultSet resultSet = stmt.executeQuery(query)
     ) {
 
       //   save the number of thresholds
@@ -689,7 +693,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         result.add(resultSet.getString(1));
       }
 
-    } catch (SQLException e) {
+    } catch (java.sql.SQLException e) {
       logger.error(e.getMessage());
     }
     return result;
@@ -701,30 +705,30 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @return list of database names
    */
   @Override
-  public List<String> getAllDatabases() {
-    return new ArrayList<>(listDB.keySet());
+  public java.util.List<String> getAllDatabases() {
+    return new java.util.ArrayList<>(listDB.keySet());
   }
 
   @Override
-  public Map<String, String> getAllDatabasesWithDescription() {
-    return Collections.unmodifiableMap(listDB);
+  public java.util.Map<String, String> getAllDatabasesWithDescription() {
+    return java.util.Collections.unmodifiableMap(listDB);
   }
 
   @Override
-  public Map<String, List<String>> getAllGroups() {
-    return Collections.unmodifiableMap(groupToDatabases);
+  public java.util.Map<String, java.util.List<String>> getAllGroups() {
+    return java.util.Collections.unmodifiableMap(groupToDatabases);
   }
 
 
   @Override
-  public SimpleDateFormat getDateFormat() {
+  public java.text.SimpleDateFormat getDateFormat() {
     return DATE_FORMAT;
   }
 
   @Override
-  public Pattern getDateRangePattern() {
+  public java.util.regex.Pattern getDateRangePattern() {
 
-    return Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
+    return java.util.regex.Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
   }
 
 
@@ -739,13 +743,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @throws Exception
    */
   @Override
-  public List<String> buildPlotSql(
-      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-      PrintStream printStreamSql) throws Exception {
-    MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
-    MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
+  public java.util.List<String> buildPlotSql(
+          edu.ucar.metviewer.MVPlotJob job, edu.ucar.metviewer.MVOrderedMap mapPlotFixPerm,
+          java.io.PrintStream printStreamSql) throws Exception {
+    edu.ucar.metviewer.MVOrderedMap _mapFcstVarPat = new edu.ucar.metviewer.MVOrderedMap();
+    edu.ucar.metviewer.MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
-    Map<String, String> tableHeaderSqlType;
+    java.util.Map<String, String> tableHeaderSqlType;
     if (job.isModeJob()) {
       tableHeaderSqlType = modeHeaderSqlType;
     } else if (job.isMtdJob()) {
@@ -755,7 +759,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  populate the plot template values with plot_fix values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(mapPlotFixPerm, mapPlotFixVal);
+    java.util.Map.Entry[] listPlotFixVal = edu.ucar.metviewer.MVUtil.buildPlotFixTmplMap(mapPlotFixPerm, mapPlotFixVal);
 
     //  build the sql where clauses for the current permutation of fixed variables and values
     String plotFixWhere = buildPlotFixWhere(listPlotFixVal, job,
@@ -775,32 +779,32 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     boolean boolEnsSs = job.getPlotTmpl().equals("ens_ss.R_tmpl");
 
     //  remove multiple dep group capability
-    MVOrderedMap[] listDep = job.getDepGroups();
-    MVOrderedMap mapDepGroup;
+    edu.ucar.metviewer.MVOrderedMap[] listDep = job.getDepGroups();
+    edu.ucar.metviewer.MVOrderedMap mapDepGroup;
     if (1 != listDep.length && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
       throw new Exception("unexpected number of <dep> groups: " + listDep.length);
     }
     if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
-      mapDepGroup = new MVOrderedMap();
+      mapDepGroup = new edu.ucar.metviewer.MVOrderedMap();
     } else {
       mapDepGroup = listDep[0];
     }
 
-    List<String> listSql = new ArrayList<>();
+    java.util.List<String> listSql = new java.util.ArrayList<>();
     String strSelectSql = "";
     for (int intY = 1; intY <= 2; intY++) {
 
       //  get the dep values for the current dep group
-      MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
+      edu.ucar.metviewer.MVOrderedMap mapDep = (edu.ucar.metviewer.MVOrderedMap) mapDepGroup.get("dep" + intY);
       if (mapDep == null) {
-        mapDep = new MVOrderedMap();
+        mapDep = new edu.ucar.metviewer.MVOrderedMap();
       }
 
 
       //  establish lists of entires for each group of variables and values
-      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val())
+      java.util.Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val())
                                    .getOrderedEntriesForSqlSeries();
-      Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
+      java.util.Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
       //  if there is a mis-match between the presence of series and dep values, bail
       if (0 < listDepPlot.length && 1 > listSeries.length) {
@@ -825,12 +829,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  build the select list and where clauses for the series variables and values
 
       String whereClause = plotFixWhere;
-      BuildMysqlQueryStrings buildMysqlQueryStrings = build(job.isModeJob() || job.isMtdJob(),
+      edu.ucar.metviewer.BuildMysqlQueryStrings buildQueryStrings = build(job.isModeJob() || job.isMtdJob(),
                                                             tableHeaderSqlType,
                                                             listSeries, whereClause, true);
-      String selectList = buildMysqlQueryStrings.getSelectList();
-      String strTempList = buildMysqlQueryStrings.getTempList();
-      whereClause = buildMysqlQueryStrings.getWhere();
+      String selectList = buildQueryStrings.getSelectList();
+      String strTempList = buildQueryStrings.getTempList();
+      whereClause = buildQueryStrings.getWhere();
 
       //  if the fcst_valid or fcst_init fields are not present
       // in the select list and temp table list, add them
@@ -865,7 +869,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           strTempList += "  fcst_valid_beg      " + "DATETIME";
         }
       }
-      BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
+      edu.ucar.metviewer.BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
                                                            tableHeaderSqlType,
                                                            listSeries, whereClause, false);
       String selectPlotList = buildQueryPlotStrings.getSelectList();
@@ -918,13 +922,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String[] listGroupBy = new String[]{};
       if ((job.isModeJob() && !job.isModeRatioJob())
               || (job.isMtdJob() && !job.isMtdRatioJob())) {
-        ArrayList<String> listGroupFields = new ArrayList<>();
+        java.util.ArrayList<String> listGroupFields = new java.util.ArrayList<>();
         listGroupFields.add(job.getIndyVar());
-        for (Map.Entry listSery : listSeries) {
+        for (java.util.Map.Entry listSery : listSeries) {
           listGroupFields.add(listSery.getKey().toString());
         }
 
-        Collections.addAll(listGroupFields, job.getPlotFixVal().getKeyList());
+        java.util.Collections.addAll(listGroupFields, job.getPlotFixVal().getKeyList());
         listGroupBy = listGroupFields.toArray(new String[]{});
       }
 
@@ -968,7 +972,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                               true);
           selectPlotList += ",\n  " + formatField(indyVar, job.isModeJob() || job.isMtdJob(),
                                                   true);
-          strTempList += ",\n    " + MVUtil.padEnd(indyVar, 20) + strIndyVarType;
+          strTempList += ",\n    " + edu.ucar.metviewer.MVUtil.padEnd(indyVar, 20) + strIndyVarType;
         }
         indyVarFormatted = formatField(indyVar, job.isModeJob() || job.isMtdJob(), false);
         if (indyVar.equals("fcst_lead") && job.getEventEqual()) {
@@ -978,14 +982,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                  + " + (select fcst_lead_offset FROM model_fcst_lead_offset "
                                  + "WHERE model = h.model) ) ";
         }
-        String field;
-        if (indyVarFormatted.startsWith("HOUR(")) {
-          field = indyVarFormatted;
-        } else {
-          field = BINARY + indyVarFormatted;
-        }
-        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + field
-                           + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+        whereClause += (!whereClause.isEmpty() ? "  AND " : "") + BINARY + indyVarFormatted
+                           + " IN (" + edu.ucar.metviewer.MVUtil.buildValueList(job.getIndyVal()) + ")\n";
       }
       //  add fcst_var to the select list and temp table entries
       //selectList += ",\n  h.fcst_var";
@@ -1008,26 +1006,26 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       /*
        *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
        */
-      Map<String, Integer> pctThreshInfo = new HashMap<>();
+      java.util.Map<String, Integer> pctThreshInfo = new java.util.HashMap<>();
       if (job.getAggPct()) {
-        MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap())
+        edu.ucar.metviewer.MVOrderedMap[] series = edu.ucar.metviewer.MVUtil.permute(job.getSeries1Val().convertFromSeriesMap())
                                     .getRows();
-        MVOrderedMap[] forecastVars;
+        edu.ucar.metviewer.MVOrderedMap[] forecastVars;
         if (job.getPlotTmpl().equals("eclv.R_tmpl") && job.getDepGroups().length == 0) {
-          MVOrderedMap m = new MVOrderedMap();
+          edu.ucar.metviewer.MVOrderedMap m = new edu.ucar.metviewer.MVOrderedMap();
           m.put("NA", "ECLV");
-          forecastVars = new MVOrderedMap[]{m};
+          forecastVars = new edu.ucar.metviewer.MVOrderedMap[]{m};
         } else {
-          forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY))
+          forecastVars = edu.ucar.metviewer.MVUtil.permute((edu.ucar.metviewer.MVOrderedMap) job.getDepGroups()[0].get("dep" + intY))
                              .getRows();
         }
         for (int forecastVarsInd = 0; forecastVarsInd < forecastVars.length; forecastVarsInd++) {
-          MVOrderedMap stats = forecastVars[forecastVarsInd];
+          edu.ucar.metviewer.MVOrderedMap stats = forecastVars[forecastVarsInd];
           String[] vars = stats.getKeyList();
           for (int varsInd = 0; varsInd < vars.length; varsInd++) {
             int[] seriesNthresh = new int[series.length];
             for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
-              MVOrderedMap ser = series[seriesInd];
+              edu.ucar.metviewer.MVOrderedMap ser = series[seriesInd];
               String[] serName = ser.getKeyList();
               for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
                 String selPctThresh = "SELECT DISTINCT ld.n_thresh\nFROM\n  "
@@ -1035,7 +1033,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 selPctThresh = selPctThresh + "WHERE\n";
                 if (indyVarFormatted.length() > 0 && job.getIndyVal().length > 0) {
                   selPctThresh = selPctThresh + BINARY + indyVarFormatted
-                                     + " IN (" + MVUtil.buildValueList(
+                                     + " IN (" + edu.ucar.metviewer.MVUtil.buildValueList(
                       job.getIndyVal()) + ")\n  AND ";
                 }
                 selPctThresh = selPctThresh + BINARY + serName[serNameInd]
@@ -1053,7 +1051,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
                 //  run the PCT thresh query
-                List<String> errors = new ArrayList<>();
+                java.util.List<String> errors = new java.util.ArrayList<>();
                 for (int i = 0; i < job.getCurrentDBName().size(); i++) {
                   pctThreshInfo = getPctThreshInfo(selPctThresh, job.getCurrentDBName().get(i));
                   if (1 != pctThreshInfo.get("numPctThresh")) {
@@ -1122,7 +1120,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       int intNumQueries;
       String[][] listFcstVarStat;
       if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
-        listFcstVarStat = MVUtil.buildFcstVarStatList(mapDep);
+        listFcstVarStat = edu.ucar.metviewer.MVUtil.buildFcstVarStatList(mapDep);
         intNumQueries = listFcstVarStat.length;
       } else {
         intNumQueries = 1;
@@ -1141,12 +1139,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           //  build the fcst_var where clause criteria
           fcstVarClause = "= '" + strFcstVar + "'";
-          Matcher matProb = MVUtil.prob.matcher(strFcstVar);
+          java.util.regex.Matcher matProb = edu.ucar.metviewer.MVUtil.prob.matcher(strFcstVar);
           if (matProb.matches() && strFcstVar.contains("*")) {
-            Pattern patFcstVar = Pattern.compile(
+            java.util.regex.Pattern patFcstVar = java.util.regex.Pattern.compile(
                 strFcstVar.replace("*", ".*").replace("(", "\\(").replace(")", "\\)"));
             if (!_mapFcstVarPat.containsKey(patFcstVar)) {
-              _mapFcstVarPat.put(patFcstVar, MVUtil.replaceSpecialChars(strFcstVar));
+              _mapFcstVarPat.put(patFcstVar, edu.ucar.metviewer.MVUtil.replaceSpecialChars(strFcstVar));
             }
             fcstVarClause = "LIKE '" + strFcstVar.replace("*", "%") + "'";
           }
@@ -1155,22 +1153,22 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             strStat = "ECLV";
           }
         }
-        if (!selectList.contains("fcst_var")) {
+        if(!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
         }
 
         //  determine the table containing the current stat
-        Map tableStats;
+        java.util.Map tableStats;
         String statTable = "";
-        String statField = strStat.toLowerCase(Locale.US);
+        String statField = strStat.toLowerCase(java.util.Locale.US);
         if (job.isModeJob()) {
-          String statMode = MVUtil.parseModeStat(strStat)[0];
-          if (MVUtil.modeSingleStatField.containsKey(statMode)) {
-            tableStats = MVUtil.modeSingleStatField;
-          } else if (MVUtil.modePairStatField.containsKey(statMode)) {
-            tableStats = MVUtil.modeSingleStatField;
-          } else if (MVUtil.modeRatioField.contains(strStat)) {
-            tableStats = MVUtil.modeSingleStatField;
+          String statMode = edu.ucar.metviewer.MVUtil.parseModeStat(strStat)[0];
+          if (edu.ucar.metviewer.MVUtil.modeSingleStatField.containsKey(statMode)) {
+            tableStats = edu.ucar.metviewer.MVUtil.modeSingleStatField;
+          } else if (edu.ucar.metviewer.MVUtil.modePairStatField.containsKey(statMode)) {
+            tableStats = edu.ucar.metviewer.MVUtil.modeSingleStatField;
+          } else if (edu.ucar.metviewer.MVUtil.modeRatioField.contains(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.modeSingleStatField;
           } else {
             throw new Exception("unrecognized mode stat: " + statMode);
           }
@@ -1181,12 +1179,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           if (mtd3dSingleStatField.containsKey(stat)) {
             tableStats = mtd3dSingleStatField;
-          } else if (MVUtil.mtd3dPairStatField.containsKey(stat)) {
-            tableStats = MVUtil.mtd3dPairStatField;
-          } else if (MVUtil.mtdRatioField.contains(strStat)) {
+          } else if (edu.ucar.metviewer.MVUtil.mtd3dPairStatField.containsKey(stat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.mtd3dPairStatField;
+          } else if (edu.ucar.metviewer.MVUtil.mtdRatioField.contains(strStat)) {
             tableStats = mtd3dSingleStatField;
-          } else if (MVUtil.mtd2dStatField.containsKey(stat)) {
-            tableStats = MVUtil.mtd2dStatField;
+          } else if (edu.ucar.metviewer.MVUtil.mtd2dStatField.containsKey(stat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.mtd2dStatField;
           } else {
             throw new Exception("unrecognized mode stat: " + stat);
           }
@@ -1194,135 +1192,135 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
           String aggType = null;
           if (job.getCalcCtc() || job.getAggCtc()) {
-            aggType = MVUtil.CTC;
+            aggType = edu.ucar.metviewer.MVUtil.CTC;
           } else if (job.getCalcSl1l2() || job.getAggSl1l2()) {
-            aggType = MVUtil.SL1L2;
+            aggType = edu.ucar.metviewer.MVUtil.SL1L2;
           } else if (job.getCalcGrad() || job.getAggGrad()) {
-            aggType = MVUtil.GRAD;
+            aggType = edu.ucar.metviewer.MVUtil.GRAD;
           } else if (job.getCalcSal1l2() || job.getAggSal1l2()) {
-            aggType = MVUtil.SAL1L2;
+            aggType = edu.ucar.metviewer.MVUtil.SAL1L2;
           } else if (job.getAggNbrCnt()) {
-            aggType = MVUtil.NBR_CNT;
+            aggType = edu.ucar.metviewer.MVUtil.NBR_CNT;
           } else if (job.getAggPct()) {
-            aggType = MVUtil.PCT;
+            aggType = edu.ucar.metviewer.MVUtil.PCT;
           } else if (job.getAggSsvar()) {
-            aggType = MVUtil.SSVAR;
+            aggType = edu.ucar.metviewer.MVUtil.SSVAR;
           } else if (job.getCalcVl1l2() || job.getAggVl1l2()) {
-            aggType = MVUtil.VL1L2;
+            aggType = edu.ucar.metviewer.MVUtil.VL1L2;
           } else if (job.getCalcVal1l2() || job.getAggVal1l2()) {
-            aggType = MVUtil.VAL1L2;
+            aggType = edu.ucar.metviewer.MVUtil.VAL1L2;
           } else if (job.getAggEcnt()) {
-            aggType = MVUtil.ECNT;
+            aggType = edu.ucar.metviewer.MVUtil.ECNT;
           }
 
 
-          if (MVUtil.statsCnt.containsKey(strStat)) {
-            tableStats = MVUtil.statsCnt;
+          if (edu.ucar.metviewer.MVUtil.statsCnt.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsCnt;
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsCnt, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsCnt, strStat, aggType);
               statTable = "line_data_" + aggType + " ld\n";
             } else {
               statTable = "line_data_cnt" + " ld\n";
             }
-          } else if (MVUtil.statsSsvar.containsKey(strStat)) {
-            tableStats = MVUtil.statsSsvar;
+          } else if (edu.ucar.metviewer.MVUtil.statsSsvar.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsSsvar;
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsSsvar, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsSsvar, strStat, aggType);
               statTable = "line_data_" + aggType + " ld\n";
             } else {
               statTable = "line_data_ssvar" + " ld\n";
             }
-          } else if (MVUtil.statsCts.containsKey(strStat)) {
-            tableStats = MVUtil.statsCts;
+          } else if (edu.ucar.metviewer.MVUtil.statsCts.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsCts;
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsCts, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsCts, strStat, aggType);
               statTable = "line_data_ctc" + " ld\n";
             } else {
               statTable = "line_data_cts" + " ld\n";
             }
-          } else if (MVUtil.statsNbrcnt.containsKey(strStat)) {
-            tableStats = MVUtil.statsNbrcnt;
+          } else if (edu.ucar.metviewer.MVUtil.statsNbrcnt.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsNbrcnt;
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsNbrcnt, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsNbrcnt, strStat, aggType);
             }
             statTable = "line_data_nbrcnt ld\n";
             statField = strStat.replace("NBR_", "").toLowerCase();
-          } else if (MVUtil.statsEnscnt.containsKey(strStat)) {
-            tableStats = MVUtil.statsEnscnt;
+          } else if (edu.ucar.metviewer.MVUtil.statsEnscnt.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsEnscnt;
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsEnscnt, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsEnscnt, strStat, aggType);
             }
             statTable = "line_data_enscnt ld\n";
             statField = strStat.replace("ENS_", "").toLowerCase();
-          } else if (MVUtil.statsNbrcts.containsKey(strStat)) {
-            tableStats = MVUtil.statsNbrcts;
-            MVUtil.isAggTypeValid(MVUtil.statsNbrcts, strStat, aggType);
+          } else if (edu.ucar.metviewer.MVUtil.statsNbrcts.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsNbrcts;
+            edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsNbrcts, strStat, aggType);
             statTable = "line_data_nbrcts ld\n";
             statField = strStat.replace("NBR_", "").toLowerCase();
-          } else if (MVUtil.statsPstd.containsKey(strStat)) {
-            tableStats = MVUtil.statsPstd;
+          } else if (edu.ucar.metviewer.MVUtil.statsPstd.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsPstd;
             statTable = "line_data_pstd ld\n";
             if (aggType != null) {
               statTable = "line_data_pct ld";
-              MVUtil.isAggTypeValid(MVUtil.statsPstd, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsPstd, strStat, aggType);
               for (int i = 1; i < pctThreshInfo.get("pctThresh"); i++) {
                 statTable += ",\n  line_data_pct_thresh ldt" + i;
               }
               statTable += "\n";
             }
             statField = strStat.replace("PSTD_", "").toLowerCase();
-          } else if (MVUtil.statsMcts.containsKey(strStat)) {
-            tableStats = MVUtil.statsMcts;
-            MVUtil.isAggTypeValid(MVUtil.statsMcts, strStat, aggType);
+          } else if (edu.ucar.metviewer.MVUtil.statsMcts.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsMcts;
+            edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsMcts, strStat, aggType);
             statTable = "line_data_mcts ld\n";
             statField = strStat.replace("MCTS_", "").toLowerCase();
-          } else if (MVUtil.statsRhist.containsKey(strStat)) {
-            tableStats = MVUtil.statsRhist;
+          } else if (edu.ucar.metviewer.MVUtil.statsRhist.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsRhist;
             statTable = "line_data_rhist ld\n";
             statField = strStat.replace("RHIST_", "").toLowerCase();
-          } else if (MVUtil.statsPhist.containsKey(strStat)) {
-            tableStats = MVUtil.statsPhist;
-            MVUtil.isAggTypeValid(MVUtil.statsPhist, strStat, aggType);
+          } else if (edu.ucar.metviewer.MVUtil.statsPhist.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsPhist;
+            edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsPhist, strStat, aggType);
             statTable = "line_data_phist ld\n";
             statField = strStat.replace("PHIST_", "").toLowerCase();
-          } else if (MVUtil.statsVl1l2.containsKey(strStat)) {
+          } else if (edu.ucar.metviewer.MVUtil.statsVl1l2.containsKey(strStat)) {
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsVl1l2, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsVl1l2, strStat, aggType);
             }
-            tableStats = MVUtil.statsVl1l2;
+            tableStats = edu.ucar.metviewer.MVUtil.statsVl1l2;
             statTable = "line_data_vl1l2 ld\n";
             statField = strStat.replace("VL1L2_", "").toLowerCase();
-          } else if (MVUtil.statsVal1l2.containsKey(strStat)) {
-            MVUtil.isAggTypeValid(MVUtil.statsVal1l2, strStat, aggType);
-            tableStats = MVUtil.statsVal1l2;
+          } else if (edu.ucar.metviewer.MVUtil.statsVal1l2.containsKey(strStat)) {
+            edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsVal1l2, strStat, aggType);
+            tableStats = edu.ucar.metviewer.MVUtil.statsVal1l2;
             statTable = "line_data_val1l2 ld\n";
             statField = strStat.replace("VAL1L2_", "").toLowerCase();
-          } else if (MVUtil.statsMpr.containsKey(strStat)) {
-            tableStats = MVUtil.statsMpr;
+          } else if (edu.ucar.metviewer.MVUtil.statsMpr.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsMpr;
             statTable = "line_data_mpr ld\n";
-          } else if (MVUtil.statsOrank.containsKey(strStat)) {
-            tableStats = MVUtil.statsOrank;
+          } else if (edu.ucar.metviewer.MVUtil.statsOrank.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsOrank;
             statTable = "line_data_orank ld\n";
             statField = strStat.replace("ORANK_", "").toLowerCase();
-          } else if (MVUtil.statsVcnt.containsKey(strStat)) {
-            tableStats = MVUtil.statsVcnt;
+          } else if (edu.ucar.metviewer.MVUtil.statsVcnt.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsVcnt;
             statField = strStat.replace("VCNT_", "").toLowerCase();
             if (aggType != null) {
-              MVUtil.isAggTypeValid(MVUtil.statsVcnt, strStat, aggType);
+              edu.ucar.metviewer.MVUtil.isAggTypeValid(edu.ucar.metviewer.MVUtil.statsVcnt, strStat, aggType);
               statTable = "line_data_" + aggType + " ld\n";
             } else {
               statTable = "line_data_vcnt" + " ld\n";
             }
           } else if (strStat.equals("ECLV") && job.getPlotTmpl().equals("eclv.R_tmpl")) {
-            if (aggType != null && aggType.equals(MVUtil.CTC)) {
-              tableStats = MVUtil.statsCts;
+            if (aggType != null && aggType.equals(edu.ucar.metviewer.MVUtil.CTC)) {
+              tableStats = edu.ucar.metviewer.MVUtil.statsCts;
               statTable = "line_data_ctc" + " ld\n";
             } else {
-              tableStats = MVUtil.statsPstd;
+              tableStats = edu.ucar.metviewer.MVUtil.statsPstd;
               statTable = "line_data_pct ld,\n  line_data_pct_thresh ldt\n";
             }
-          } else if (MVUtil.statsEcnt.containsKey(strStat)) {
-            tableStats = MVUtil.statsEcnt;
+          } else if (edu.ucar.metviewer.MVUtil.statsEcnt.containsKey(strStat)) {
+            tableStats = edu.ucar.metviewer.MVUtil.statsEcnt;
             statTable = "line_data_ecnt ld\n";
             statField = strStat.replace("ECNT_", "").toLowerCase();
           } else {
@@ -1534,7 +1532,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //remove duplicated queries
-    listSql = new ArrayList<>(new LinkedHashSet<>(listSql));
+    listSql = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(listSql));
 
     return listSql;
   }
@@ -1549,8 +1547,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    */
 
   private String buildPlotFixWhere(
-      Map.Entry[] plotFixFields, MVPlotJob job,
-      boolean isModePlot) {
+          java.util.Map.Entry[] plotFixFields, edu.ucar.metviewer.MVPlotJob job,
+          boolean isModePlot) {
     String whereClause = "";
 
     //  build the aggregate fields where clause
@@ -1559,12 +1557,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String condition = "";
       Object objValue = plotFixFields[i].getValue();
       if (objValue instanceof String[]) {
-        condition = "IN (" + MVUtil.buildValueList((String[]) objValue) + ")";
-      } else if (objValue instanceof MVOrderedMap) {
-        MVOrderedMap mapTmpl = job.getTmplVal();
+        condition = "IN (" + edu.ucar.metviewer.MVUtil.buildValueList((String[]) objValue) + ")";
+      } else if (objValue instanceof edu.ucar.metviewer.MVOrderedMap) {
+        edu.ucar.metviewer.MVOrderedMap mapTmpl = job.getTmplVal();
         String setName = mapTmpl.get(strField + "_set").toString();
-        String[] listValues = (String[]) ((MVOrderedMap) objValue).get(setName);
-        condition = "IN (" + MVUtil.buildValueList(listValues) + ")";
+        String[] listValues = (String[]) ((edu.ucar.metviewer.MVOrderedMap) objValue).get(setName);
+        condition = "IN (" + edu.ucar.metviewer.MVUtil.buildValueList(listValues) + ")";
 
       } else if (objValue instanceof String) {
         if (objValue.toString().startsWith("BETWEEN")) {
@@ -1583,12 +1581,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
       //add BINARY for all fields except HOUR(...)
       String field;
-      if (indyVarFormatted.startsWith("HOUR(")) {
+      if(indyVarFormatted.startsWith("HOUR(")){
         field = indyVarFormatted;
-      } else {
+      }else{
         field = BINARY + indyVarFormatted;
       }
-      whereClause += (0 < i ? "  AND " : "  ") + field + " " + condition + "\n";
+      whereClause += (0 < i ? "  AND " : "  ") + field+ " " + condition + "\n";
     }
 
     return whereClause;
@@ -1606,19 +1604,19 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param listSeries
    * @return list of SQL queries for gathering plot data
    */
-  private List<String> buildModeStatSql(
+  private java.util.List<String> buildModeStatSql(
       String selectList, String whereClause, String stat, String[] listGroupBy,
-      boolean isEventEqualization, Map.Entry[] listSeries) {
+      boolean isEventEqualization, java.util.Map.Entry[] listSeries) {
 
-    List<String> listQuery = new ArrayList<>();
+    java.util.List<String> listQuery = new java.util.ArrayList<>();
 
     //  build the appropriate type of query, depending on the statistic
-    String[] listStatComp = MVUtil.parseModeStat(stat);
+    String[] listStatComp = edu.ucar.metviewer.MVUtil.parseModeStat(stat);
     if (listStatComp[0].equals("ACOV")) {
       whereClause = whereClause.replace("h.", "");
       listQuery.add(buildModeSingleAcovTable(selectList, whereClause, stat, listGroupBy,
                                              isEventEqualization));
-    } else if (MVUtil.modeSingleStatField.containsKey(listStatComp[0])) {
+    } else if (edu.ucar.metviewer.MVUtil.modeSingleStatField.containsKey(listStatComp[0])) {
       if (!listStatComp[1].startsWith("D")) {
         whereClause = whereClause.replace("h.", "");
         listQuery.add(buildModeSingleStatTable(selectList, whereClause, stat, listGroupBy,
@@ -1626,14 +1624,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       } else {
         String strWhereForQuery = whereClause.replace("h.", "");
         String newStat = stat.replace("_D", "_F");
-        // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
+       // selectList = selectList  + "  h.object_id,\n"+ "  h.object_cat";
         String query1 = buildModeSingleStatTable(selectList + ",  h.object_id",
-                                                 strWhereForQuery, newStat,
+                     strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
         newStat = stat.replace("_D", "_O");
         String query2 = buildModeSingleStatTable(selectList + ",  h.object_id",
-                                                 strWhereForQuery, newStat,
+                             strWhereForQuery, newStat,
                                                  listGroupBy,
                                                  isEventEqualization);
 
@@ -1641,7 +1639,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             .add(buildModeSingleStatDiffTable(selectList, stat, query1, query2,
                                               listSeries));
       }
-    } else if (MVUtil.modePairStatField.containsKey(listStatComp[0])) {
+    } else if (edu.ucar.metviewer.MVUtil.modePairStatField.containsKey(listStatComp[0])) {
 
 
       if (listStatComp[0].equals("MAXINT")) {
@@ -1651,7 +1649,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         };
         listMaxintQueries[0] = listMaxintQueries[0].replace("MAXINTF", "MAXINT");
         listMaxintQueries[1] = listMaxintQueries[1].replace("MAXINTO", "MAXINT");
-        listQuery.addAll(Arrays.asList(listMaxintQueries));
+        listQuery.addAll(java.util.Arrays.asList(listMaxintQueries));
       } else {
         listQuery.add(buildModePairStatTable(selectList, whereClause, stat));
       }
@@ -1673,9 +1671,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @param strStat       MTD stat
    * @return list of SQL queries for gathering plot data
    */
-  private List<String> buildMtdStatSql(String strSelectList, String whereClause, String strStat) {
+  private java.util.List<String> buildMtdStatSql(String strSelectList, String whereClause, String strStat) {
 
-    List<String> listQuery = new ArrayList<>();
+    java.util.List<String> listQuery = new java.util.ArrayList<>();
 
     //  build the appropriate type of query, depending on the statistic
     String[] listStatParse = strStat.split("_");
@@ -1696,7 +1694,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             .add(
                 buildMtd3dSingleStatDiffTable(strSelectList, whereClause, strStat, query1, query2));
       }
-    } else if (MVUtil.mtd2dStatField.containsKey(stat)) {
+    } else if (edu.ucar.metviewer.MVUtil.mtd2dStatField.containsKey(stat)) {
       if (!strStatFlag.startsWith("D")) {
         whereClause = whereClause.replace("h.", "");
         listQuery.add(buildMtd2dStatTable(strSelectList, whereClause, strStat));
@@ -1709,7 +1707,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         whereClause = whereClause.replace("h.", "s.");
         listQuery.add(buildMtd2dStatDiffTable(strSelectList, whereClause, strStat, query1, query2));
       }
-    } else if (MVUtil.mtd3dPairStatField.containsKey(stat)) {
+    } else if (edu.ucar.metviewer.MVUtil.mtd3dPairStatField.containsKey(stat)) {
       whereClause = whereClause.replace("h.", "");
       listQuery.add(buildMtd3dPairStatTable(strSelectList, whereClause, strStat));
     } else {
@@ -1728,7 +1726,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
-    String[] listStatParse = MVUtil.parseModeStat(stat);
+    String[] listStatParse = edu.ucar.metviewer.MVUtil.parseModeStat(stat);
     if (2 != listStatParse.length) {
       return "";
     }
@@ -1798,7 +1796,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   private String buildModePairStatTable(String strSelectList, String whereClause, String stat) {
 
     //  parse the stat into the stat name and the object flags
-    String[] listStatParse = MVUtil.parseModeStat(stat);
+    String[] listStatParse = edu.ucar.metviewer.MVUtil.parseModeStat(stat);
     if (2 != listStatParse.length) {
       return "";
     }
@@ -1835,7 +1833,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
-    String tableStat = MVUtil.modePairStatField.get(statName);
+    String tableStat = edu.ucar.metviewer.MVUtil.modePairStatField.get(statName);
     whereClause = whereClause.replace("h.", "");
     //  build the query
     return
@@ -1882,7 +1880,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     String statName = stat.replace("_" + listStatParse[listStatParse.length - 1], "");
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
-    String strTableStat = MVUtil.mtd3dPairStatField.get(statName);
+    String strTableStat = edu.ucar.metviewer.MVUtil.mtd3dPairStatField.get(statName);
 
     //  build the query
     return
@@ -1901,7 +1899,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
-    String[] listStatParse = MVUtil.parseModeStat(stat);
+    String[] listStatParse = edu.ucar.metviewer.MVUtil.parseModeStat(stat);
     if (2 != listStatParse.length) {
       return "";
     }
@@ -1964,7 +1962,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           selectListStat = selectListStat + ", fcst_lead\n";
         }
       } else {
-        if (Arrays.binarySearch(groups, "fcst_lead") >= 0) {
+        if (java.util.Arrays.binarySearch(groups, "fcst_lead") >= 0) {
           if (!groupBy.contains("fcst_lead")) {
             if (groups.length > 0) {
               groupBy += "  ,";
@@ -1982,7 +1980,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return
         "SELECT\n" + selectListStat + ",\n"
             + "  '" + stat + "' stat_name,\n"
-            + "  " + MVUtil.modeSingleStatField.get(statName) + " stat_value\n"
+            + "  " + edu.ucar.metviewer.MVUtil.modeSingleStatField.get(statName) + " stat_value\n"
             + "FROM\n"
             + "  mode_header ,\n"
             + "  mode_obj_single ,\n"
@@ -2057,7 +2055,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "  object_id,\n"
             + "  object_cat,\n"
             + "  '" + stat + "' stat_name,\n"
-            + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n"
+            + "  " + edu.ucar.metviewer.MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n"
             + "FROM mtd_header, mtd_2d_obj \n"
             + "WHERE\n" + strWhere
             + " AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
@@ -2131,10 +2129,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   private String buildModeSingleStatDiffTable(
       String selectList, String stat,
       String table1, String table2,
-      Map.Entry[] listSeries) {
+      java.util.Map.Entry[] listSeries) {
 
     //  parse the stat into the stat name and the object flags
-    String[] listStatParse = MVUtil.parseModeStat(stat);
+    String[] listStatParse = edu.ucar.metviewer.MVUtil.parseModeStat(stat);
     if (2 != listStatParse.length) {
       return "";
     }
@@ -2146,7 +2144,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
-    String tableStat = MVUtil.modeSingleStatField.get(originalStatName);
+    String tableStat = edu.ucar.metviewer.MVUtil.modeSingleStatField.get(originalStatName);
     String statName = tableStat.split("\\(")[0];
     String[] tableStats = new String[2];
     if (tableStat.contains("object_id")) {
@@ -2168,7 +2166,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + " ) s, ( " + table2 + " ) s2\n"
             + "WHERE\n"
             + " s.fcst_var = s2.fcst_var\n";
-    if (!table1.contains(MVUtil.COUNT)) {
+    if(!table1.contains(MVUtil.COUNT)) {
       result += " AND" + BINARY + " SUBSTRING(s.object_id, -3) = SUBSTRING(s2.object_id,  -3) \n";
     }
     if (!tableStat.contains("object_id")) {
@@ -2250,7 +2248,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
-    String strTableStat = MVUtil.mtd2dStatField.get(strStatName);
+    String strTableStat = edu.ucar.metviewer.MVUtil.mtd2dStatField.get(strStatName);
     String statName = strTableStat.split("\\(")[0];
     String[] strTableStats = new String[2];
     if (strTableStat.contains("object_id")) {
@@ -2284,14 +2282,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   @Override
-  public List<String> buildPlotModeEventEqualizeSql(
-      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-      MVOrderedMap mapPlotFixVal)
+  public java.util.List<String> buildPlotModeEventEqualizeSql(
+          edu.ucar.metviewer.MVPlotJob job, edu.ucar.metviewer.MVOrderedMap mapPlotFixPerm,
+          edu.ucar.metviewer.MVOrderedMap mapPlotFixVal)
       throws Exception {
-    MVOrderedMap fcstVarPat = new MVOrderedMap();
+    edu.ucar.metviewer.MVOrderedMap fcstVarPat = new edu.ucar.metviewer.MVOrderedMap();
 
     //  determine if the plot job is for stat data or MODE data
-    Map<String, String> tableHeaderSqlType;
+    java.util.Map<String, String> tableHeaderSqlType;
     if (job.isModeJob()) {
       tableHeaderSqlType = modeHeaderSqlType;
     } else {
@@ -2300,7 +2298,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //  populate the plot template values with plot_fix values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(mapPlotFixPerm, mapPlotFixVal);
+    java.util.Map.Entry[] listPlotFixVal = edu.ucar.metviewer.MVUtil.buildPlotFixTmplMap(mapPlotFixPerm, mapPlotFixVal);
 
     //  build the sql where clauses for the current permutation of fixed variables and values
     String strPlotFixWhere = buildPlotFixWhere(listPlotFixVal, job,
@@ -2313,27 +2311,27 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //  remove multiple dep group capability
-    MVOrderedMap[] listDep = job.getDepGroups();
+    edu.ucar.metviewer.MVOrderedMap[] listDep = job.getDepGroups();
     if (1 != listDep.length) {
       throw new Exception("unexpected number of <dep> groups: " + listDep.length);
     }
-    MVOrderedMap mapDepGroup = listDep[0];
+    edu.ucar.metviewer.MVOrderedMap mapDepGroup = listDep[0];
 
 
     /*
      *  Build queries for statistics on both the y1 and y2 axes
      */
 
-    List<String> listSql = new ArrayList<>();
+    java.util.List<String> listSql = new java.util.ArrayList<>();
     for (int intY = 1; intY <= 2; intY++) {
 
       //  get the dep values for the current dep group
-      MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
+      edu.ucar.metviewer.MVOrderedMap mapDep = (edu.ucar.metviewer.MVOrderedMap) mapDepGroup.get("dep" + intY);
 
       //  establish lists of entires for each group of variables and values
-      Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val())
+      java.util.Map.Entry[] listSeries = (1 == intY ? job.getSeries1Val() : job.getSeries2Val())
                                    .getOrderedEntriesForSqlSeries();
-      Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
+      java.util.Map.Entry[] listDepPlot = mapDep.getOrderedEntries();
 
       //  if there is a mis-match between the presence of series and dep values, bail
       if (0 < listDepPlot.length && 1 > listSeries.length) {
@@ -2360,12 +2358,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  build the select list and where clauses for the series variables and values
 
       String strWhere = strPlotFixWhere;
-      BuildMysqlQueryStrings buildMysqlQueryStrings = build(job.isModeJob() || job.isMtdJob(),
+      edu.ucar.metviewer.BuildMysqlQueryStrings buildQueryStrings = build(job.isModeJob() || job.isMtdJob(),
                                                             tableHeaderSqlType,
                                                             listSeries, strWhere, true);
-      String selectList = buildMysqlQueryStrings.getSelectList();
-      String strTempList = buildMysqlQueryStrings.getTempList();
-      strWhere = buildMysqlQueryStrings.getWhere();
+      String selectList = buildQueryStrings.getSelectList();
+      String strTempList = buildQueryStrings.getTempList();
+      strWhere = buildQueryStrings.getWhere();
 
       //  if the fcst_valid or fcst_init fields
       // are not present in the select list and temp table list, add them
@@ -2377,7 +2375,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         selectList += ",\n  h.fcst_valid";
         strTempList += ",\n    fcst_valid          " + "DATETIME";
       }
-      BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
+      edu.ucar.metviewer.BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
                                                            tableHeaderSqlType,
                                                            listSeries, strWhere, false);
       String selectPlotList = buildQueryPlotStrings.getSelectList();
@@ -2434,7 +2432,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         selectList += ",\n  " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(), true);
         selectPlotList += ",\n  " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
                                                 true);
-        strTempList += ",\n    " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
+        strTempList += ",\n    " + edu.ucar.metviewer.MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
       }
       String strIndyVarFormatted = formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
                                                false);
@@ -2446,7 +2444,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                   + "WHERE model = h.model) ) ";
       }
       strWhere += (!strWhere.isEmpty() ? "  AND " : "") + strIndyVarFormatted
-                      + " IN (" + MVUtil.buildValueList(job.getIndyVal()) + ")\n";
+                      + " IN (" + edu.ucar.metviewer.MVUtil.buildValueList(job.getIndyVal()) + ")\n";
 
       //  add fcst_var to the select list and temp table entries
       selectList += ",\n  h.fcst_var";
@@ -2472,7 +2470,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  determine how many queries are needed to gather that stat information
       int intNumQueries;
-      String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(mapDep);
+      String[][] listFcstVarStat = edu.ucar.metviewer.MVUtil.buildFcstVarStatList(mapDep);
 
       intNumQueries = listFcstVarStat.length;
 
@@ -2485,12 +2483,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
         //  build the fcst_var where clause criteria
         String strFcstVarClause = "= '" + strFcstVar + "'";
-        Matcher matProb = MVUtil.prob.matcher(strFcstVar);
+        java.util.regex.Matcher matProb = edu.ucar.metviewer.MVUtil.prob.matcher(strFcstVar);
         if (matProb.matches() && strFcstVar.contains("*")) {
-          Pattern patFcstVar = Pattern.compile(
+          java.util.regex.Pattern patFcstVar = java.util.regex.Pattern.compile(
               strFcstVar.replace("*", ".*").replace("(", "\\(").replace(")", "\\)"));
           if (!fcstVarPat.containsKey(patFcstVar)) {
-            fcstVarPat.put(patFcstVar, MVUtil.replaceSpecialChars(strFcstVar));
+            fcstVarPat.put(patFcstVar, edu.ucar.metviewer.MVUtil.replaceSpecialChars(strFcstVar));
           }
           strFcstVarClause = "LIKE '" + strFcstVar.replace("*", "%") + "'";
         }
@@ -2507,15 +2505,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //remove duplicated queries
-    listSql = new ArrayList<>(new LinkedHashSet<>(listSql));
+    listSql = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(listSql));
 
     return listSql;
   }
 
 
-  private List buildModeStatEventEqualizeSql(String strSelectList, String strWhere) {
+  private java.util.List buildModeStatEventEqualizeSql(String strSelectList, String strWhere) {
 
-    List listQuery = new ArrayList();
+    java.util.List listQuery = new java.util.ArrayList();
     listQuery.add(buildModeSingleStatRatioEventEqualizeTable(strSelectList, strWhere));
     return listQuery;
   }
@@ -2548,17 +2546,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public String buildAndExecuteQueriesForHistJob(
-      MVPlotJob job, String strDataFile,
-      MVOrderedMap listPlotFixPerm,
-      PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+          edu.ucar.metviewer.MVPlotJob job, String strDataFile,
+          edu.ucar.metviewer.MVOrderedMap listPlotFixPerm,
+          java.io.PrintStream printStream,
+          java.io.PrintStream printStreamSql) throws Exception {
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    java.util.Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
 
 
-    for (Map.Entry listSery : listSeries) {
+    for (java.util.Map.Entry listSery : listSeries) {
       //  get the current series field and values
       String strSeriesField = listSery.getKey().toString();
       String[] listSeriesVal = (String[]) listSery.getValue();
@@ -2570,15 +2568,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
                            + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + BINARY + formatField(strSeriesField, false, false)
-                            + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
+                            + " IN (" + edu.ucar.metviewer.MVUtil.buildValueList(listSeriesVal) + ")\n";
       strTempList += (strTempList.isEmpty() ? "" : ",\n")
-                         + "    " + MVUtil.padEnd(strSeriesField, 20)
+                         + "    " + edu.ucar.metviewer.MVUtil.padEnd(strSeriesField, 20)
                          + statHeaderSqlType.get(strSeriesField);
 
     }
 
     //  populate the template map with fixed values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
+    java.util.Map.Entry[] listPlotFixVal = edu.ucar.metviewer.MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
 
 
     //  build the stat_header where clauses of the sql
@@ -2623,7 +2621,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  run the rank number query and warn, if necessary
     String strMsg = "";
-    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
+    java.util.List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
 
 
     if (listNum.isEmpty()) {
@@ -2633,7 +2631,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg + "\n");
+      printStream.println(strMsg+ "\n");
     }
 
 
@@ -2670,10 +2668,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
-    List<String> queries = new ArrayList<>(1);
+    java.util.List<String> queries = new java.util.ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+      edu.ucar.metviewer.MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
                                                           job.getCalcCtc() || job.getCalcSl1l2()
                                                               || job.getCalcSal1l2() || job.getCalcGrad(),
                                                           job.getCurrentDBName().get(i),
@@ -2689,17 +2687,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public int buildAndExecuteQueriesForRocRelyJob(
-      MVPlotJob job, String strDataFile,
-      MVOrderedMap listPlotFixPerm,
-      PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+          edu.ucar.metviewer.MVPlotJob job, String strDataFile,
+          edu.ucar.metviewer.MVOrderedMap listPlotFixPerm,
+          java.io.PrintStream printStream,
+          java.io.PrintStream printStreamSql) throws Exception {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
 
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    java.util.Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
 
-    for (Map.Entry listSery : listSeries) {
+    for (java.util.Map.Entry listSery : listSeries) {
       //  get the current series field and values
       String strSeriesField = listSery.getKey().toString();
       String[] listSeriesVal = (String[]) listSery.getValue();
@@ -2711,16 +2709,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
                            + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + BINARY + formatField(strSeriesField, false, false)
-                            + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
+                            + " IN (" + edu.ucar.metviewer.MVUtil.buildValueList(listSeriesVal) + ")\n";
       strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    "
-                         + MVUtil.padEnd(strSeriesField, 20)
+                         + edu.ucar.metviewer.MVUtil.padEnd(strSeriesField, 20)
                          + statHeaderSqlType.get(strSeriesField);
 
     }
 
 
     //  populate the template map with fixed values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
+    java.util.Map.Entry[] listPlotFixVal = edu.ucar.metviewer.MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
 
     boolean boolRelyPlot = job.getPlotTmpl().startsWith("rely");
 
@@ -2749,7 +2747,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the query depending on the type of data requested
     String strPlotDataSelect = "";
-    List<String> listFcstThresh = new ArrayList<>();
+    java.util.List<String> listFcstThresh = new java.util.ArrayList<>();
     if (boolRelyPlot || job.getRocPct()) {
 
       //  check to ensure only a single fcst_thresh is used
@@ -2854,12 +2852,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  if the query does not return data from a expected obs_thresh, throw an error
     int intNumDepSeries = 1;
-    Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
-    for (Map.Entry aListSeries1Val : listSeries1Val) {
+    java.util.Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    for (java.util.Map.Entry aListSeries1Val : listSeries1Val) {
       String[] listVal = (String[]) aListSeries1Val.getValue();
       intNumDepSeries *= listVal.length;
     }
-    List<String> listObsThresh = getNumbers(strObsThreshSelect, job.getCurrentDBName().get(0));
+    java.util.List<String> listObsThresh = getNumbers(strObsThreshSelect, job.getCurrentDBName().get(0));
     if (intNumDepSeries < listObsThresh.size()) {
       StringBuilder obsThreshMsg = new StringBuilder(
           "ROC/Reliability plots must contain data from only a single obs_thresh,"
@@ -2894,10 +2892,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
-    List<String> queries = new ArrayList<>(1);
+    java.util.List<String> queries = new java.util.ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+      edu.ucar.metviewer.MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
                                                           job.isCalcStat(),
                                                           job.getCurrentDBName().get(i),
                                                           i == 0);
@@ -2911,17 +2909,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   @Override
   public int buildAndExecuteQueriesForEclvJob(
-      MVPlotJob job, String strDataFile,
-      MVOrderedMap listPlotFixPerm,
-      PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+          edu.ucar.metviewer.MVPlotJob job, String strDataFile,
+          edu.ucar.metviewer.MVOrderedMap listPlotFixPerm,
+          java.io.PrintStream printStream,
+          java.io.PrintStream printStreamSql) throws Exception {
     StringBuilder strSelectList = new StringBuilder();
     StringBuilder strTempList = new StringBuilder();
     StringBuilder strWhereSeries = new StringBuilder();
 
-    Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    java.util.Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
 
-    for (Map.Entry listSery : listSeries) {
+    for (java.util.Map.Entry listSery : listSeries) {
       //  get the current series field and values
       String strSeriesField = listSery.getKey().toString();
       String[] listSeriesVal = (String[]) listSery.getValue();
@@ -2934,9 +2932,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           .append(formatField(strSeriesField, false, true));
       strWhereSeries.append("  AND ").append(BINARY)
           .append(formatField(strSeriesField, false, false))
-          .append(" IN (").append(MVUtil.buildValueList(listSeriesVal)).append(")\n");
+          .append(" IN (").append(edu.ucar.metviewer.MVUtil.buildValueList(listSeriesVal)).append(")\n");
       strTempList.append((strTempList.length() == 0) ? "" : ",\n").append("    ")
-          .append(MVUtil.padEnd(strSeriesField, 20)).append(statHeaderSqlType.get(strSeriesField));
+          .append(edu.ucar.metviewer.MVUtil.padEnd(strSeriesField, 20)).append(statHeaderSqlType.get(strSeriesField));
 
     }
     if (!strSelectList.toString().contains("fcst_valid")) {
@@ -2948,7 +2946,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     //  populate the template map with fixed values
-    Map.Entry[] listPlotFixVal = MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
+    java.util.Map.Entry[] listPlotFixVal = edu.ucar.metviewer.MVUtil.buildPlotFixTmplMap(listPlotFixPerm, job.getPlotFixVal());
 
 
     //  build the stat_header where clauses of the sql
@@ -2970,7 +2968,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
     //  run the rank number query and warn, if necessary
     String strMsg = "";
-    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
+    java.util.List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
 
 
     if (listNum.isEmpty()) {
@@ -2980,14 +2978,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listNum.size(); i++) {
         strMsg += (0 < i ? ", " : "") + listNum.get(i);
       }
-      printStream.println(strMsg + "\n");
+      printStream.println(strMsg+ "\n");
     }
 
 
-    Map<String, Integer> pctThreshInfo;
-    MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
+    java.util.Map<String, Integer> pctThreshInfo;
+    edu.ucar.metviewer.MVOrderedMap[] series = edu.ucar.metviewer.MVUtil.permute(job.getSeries1Val().convertFromSeriesMap()).getRows();
     for (int seriesInd = 0; seriesInd < series.length; seriesInd++) {
-      MVOrderedMap ser = series[seriesInd];
+      edu.ucar.metviewer.MVOrderedMap ser = series[seriesInd];
       String[] serName = ser.getKeyList();
       for (int serNameInd = 0; serNameInd < serName.length; serNameInd++) {
         String strSelPctThresh = "SELECT DISTINCT ld.n_pnt\nFROM\n  stat_header h,\n  "
@@ -3024,7 +3022,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
     }
     if (listPlotFixVal.length > 0) {
-      for (Map.Entry aListPlotFixVal : listPlotFixVal) {
+      for (java.util.Map.Entry aListPlotFixVal : listPlotFixVal) {
         String strField = (String) aListPlotFixVal.getKey();
         strPlotDataSelect = strPlotDataSelect + strField + ",\n";
       }
@@ -3053,18 +3051,18 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  if the query does not return data from a expected obs_thresh, throw an error
     int intNumDepSeries = 1;
-    Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
-    for (Map.Entry aListSeries1Val : listSeries1Val) {
+    java.util.Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
+    for (java.util.Map.Entry aListSeries1Val : listSeries1Val) {
       String[] listVal = (String[]) aListSeries1Val.getValue();
       intNumDepSeries *= listVal.length;
     }
 
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
-    List<String> queries = new ArrayList<>(1);
+    java.util.List<String> queries = new java.util.ArrayList<>(1);
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
-      MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
+      edu.ucar.metviewer.MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
                                                           job.isCalcStat(),
                                                           job.getCurrentDBName().get(i),
                                                           i == 0);
@@ -3117,17 +3115,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return formatField(field, mode, true);
   }
 
-  private BuildMysqlQueryStrings build(
-      boolean boolModePlot,
-      Map<String, String> tableHeaderSqlType,
-      Map.Entry[] listSeries, String strWhere,
-      boolean isFormatSelect) throws Exception {
+  private edu.ucar.metviewer.BuildMysqlQueryStrings build(
+          boolean boolModePlot,
+          java.util.Map<String, String> tableHeaderSqlType,
+          java.util.Map.Entry[] listSeries, String strWhere,
+          boolean isFormatSelect) throws Exception {
 
-    BuildMysqlQueryStrings buildMysqlQueryStrings = new BuildMysqlQueryStrings(boolModePlot,
+    edu.ucar.metviewer.BuildMysqlQueryStrings buildQueryStrings = new edu.ucar.metviewer.BuildMysqlQueryStrings(boolModePlot,
                                                                                tableHeaderSqlType,
                                                                                listSeries, strWhere,
                                                                                isFormatSelect);
-    for (Map.Entry entry : listSeries) {
+    for (java.util.Map.Entry entry : listSeries) {
 
       //  get the current series field and values
       String field = entry.getKey().toString();
@@ -3141,38 +3139,38 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strTempType = tableHeaderSqlType.get(field);
 
       //  build the select list element, where clause and temp table list element
-      if (buildMysqlQueryStrings.getSelectList().length() == 0) {
+      if (buildQueryStrings.getSelectList().length() == 0) {
         if (isFormatSelect) {
-          buildMysqlQueryStrings.setSelectList(
-              buildMysqlQueryStrings.getSelectList() + "  "
+          buildQueryStrings.setSelectList(
+              buildQueryStrings.getSelectList() + "  "
                   + formatField(field, boolModePlot, true));
         } else {
-          buildMysqlQueryStrings
-              .setSelectList(buildMysqlQueryStrings.getSelectList() + "  " + field);
+          buildQueryStrings
+              .setSelectList(buildQueryStrings.getSelectList() + "  " + field);
 
         }
       } else {
         if (isFormatSelect) {
-          buildMysqlQueryStrings.setSelectList(
-              buildMysqlQueryStrings.getSelectList() + ",\n"
+          buildQueryStrings.setSelectList(
+              buildQueryStrings.getSelectList() + ",\n"
                   + "  " + formatField(field, boolModePlot, true));
 
         } else {
-          buildMysqlQueryStrings
-              .setSelectList(buildMysqlQueryStrings.getSelectList() + ",\n" + "  " + field);
+          buildQueryStrings
+              .setSelectList(buildQueryStrings.getSelectList() + ",\n" + "  " + field);
         }
       }
-      buildMysqlQueryStrings.setWhere(
-          buildMysqlQueryStrings.getWhere()
-              + (buildMysqlQueryStrings.getWhere().isEmpty() ? "  " : "  AND ")
+      buildQueryStrings.setWhere(
+          buildQueryStrings.getWhere()
+              + (buildQueryStrings.getWhere().isEmpty() ? "  " : "  AND ")
               + BINARY + formatField(field, boolModePlot, false)
-              + " IN (" + MVUtil.buildValueList((String[]) entry.getValue()) + ")\n");
+              + " IN (" + edu.ucar.metviewer.MVUtil.buildValueList((String[]) entry.getValue()) + ")\n");
 
-      buildMysqlQueryStrings.setTempList(
-          (buildMysqlQueryStrings.getTempList().isEmpty() ? "" : ",\n")
-              + "    " + MVUtil.padEnd(field, 20) + strTempType);
+      buildQueryStrings.setTempList(
+          (buildQueryStrings.getTempList().isEmpty() ? "" : ",\n")
+              + "    " + edu.ucar.metviewer.MVUtil.padEnd(field, 20) + strTempType);
     }
-    return buildMysqlQueryStrings;
+    return buildQueryStrings;
   }
 
 }

@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
@@ -36,7 +37,12 @@ class XmlParser {
     DocumentBuilder db;
     Scorecard scorecard = new Scorecard();
     try {
+      dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
       db = dbf.newDocumentBuilder();
+      filename = MVUtil.cleanString(filename);
       Document doc = db.parse(new File(filename));
       Node pruneSpec = doc.getFirstChild();
       NodeList scorecardSpecNodes = pruneSpec.getChildNodes();

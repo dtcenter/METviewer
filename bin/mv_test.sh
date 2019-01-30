@@ -7,11 +7,12 @@ export MV_USER="mvuser"
 export MV_PASSWD="mvuser"
 export MV_HOST="dakota.rap.ucar.edu"
 export MV_PORT=3306
+export MV_TYPE="mysql"
 export NOCLEAN=""
 export CAPTURE_CREATED_IMAGES=""
 export LOADDATA=""
 export TESTSERVLET=""
-while getopts "t:m:d:u:p:P:h:j:cnls?" o; do
+while getopts "t:m:d:u:p:P:k:h:j:cnls?" o; do
     case "${o}" in
         t)
 			if [ ! -d "${OPTARG}" ]; then
@@ -38,6 +39,9 @@ while getopts "t:m:d:u:p:P:h:j:cnls?" o; do
             ;;
         P)
             MV_PORT=${OPTARG}
+            ;;
+        k)
+            MV_TYPE=${OPTARG}
             ;;
         h)
             MV_HOST=${OPTARG}
@@ -101,7 +105,7 @@ fi
 
 # construct the classpath for MVLoad
 CLASSPATH=${MV_HOME}/lib/log4j-1.2.15.jar
-CLASSPATH=$CLASSPATH:${MV_HOME}/lib/mysql-connector-java-5.1.6.jar
+CLASSPATH=$CLASSPATH:${MV_HOME}/lib/mariadb-java-client-2.3.0.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:${MV_HOME}/lib/tomcat-jdbc-8.5.2.jar
@@ -128,7 +132,7 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/commons-lang3-3.5.jar
 
 echo "Running allRestRunner"
 
-JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA $TESTSERVLET"
+JAVA_OPTS="-Xmx2048M -ea -Dmv_root_dir=$MV_TEST_HOME -Dmv_database=$MV_DATABASE -Dmv_user=$MV_USER -Dmv_pwd=$MV_PASSWD -Dmv_host=$MV_HOST -Dmv_port=$MV_PORT -Dmv_type=$MV_TYPE -Dlog4j.configurationFile=file:${MV_HOME}/java/edu/ucar/metviewer/resources/log4j2.xml $CAPTURE_CREATED_IMAGES $NOCLEAN $LOADDATA $TESTSERVLET"
 echo "---------"
 cd ${MV_HOME}
 #echo "*******"

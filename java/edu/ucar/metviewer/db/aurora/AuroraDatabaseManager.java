@@ -1,11 +1,11 @@
 /**
- * MysqlDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * AuroraDatabaseManager.java Copyright UCAR (c) 2017. University Corporation
+ * for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db.mysql;
-
+package edu.ucar.metviewer.db.aurora;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -34,32 +34,33 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class MysqlDatabaseManager extends DatabaseManager {
+public class AuroraDatabaseManager extends DatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
-  protected static Map<String, String> listDB = new TreeMap<>();
-  protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
-  private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-
-  public static final SimpleDateFormat DATE_FORMAT =
-          new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
-
-  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_STRING);
-
+  private static final Logger logger = LogManager.getLogger(
+                  "AuroraDatabaseManager");
+  protected static java.util.Map<String, String> listDB = new TreeMap<>();
+  protected static java.util.Map<String, List<String>> groupToDatabases = new HashMap<>();
+  protected static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US);
+  protected static final java.time.format.DateTimeFormatter DATE_FORMAT_1
+          = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private DataSource dataSource;
-  public static final String BINARY ="  BINARY ";
+  protected static final String BINARY ="  BINARY ";
 
+  public AuroraDatabaseManager(DatabaseInfo databaseInfo, String password) throws java.sql.SQLException {
+      super(databaseInfo);
+    String jdbcUrl = "jdbc:mysql:aurora://" + databaseInfo.getHost();
+    if (databaseInfo.getDbName() != null) {
+      jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
+    }
+    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
 
-
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
-    super(databaseInfo);
-    String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
-    PoolConfiguration configurationToUse = new PoolProperties();
+    org.apache.tomcat.jdbc.pool.PoolConfiguration configurationToUse = new org.apache.tomcat.jdbc.pool.PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
     configurationToUse.setPassword(password);
-    configurationToUse.setDriverClassName("org.mariadb.jdbc.Driver");
+    configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
     configurationToUse.setMaxIdle(15);
@@ -80,9 +81,9 @@ public class MysqlDatabaseManager extends DatabaseManager {
         "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
             + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
     try {
-      dataSource = new DataSource();
+      dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
       dataSource.setPoolProperties(configurationToUse);
-      dataSource.setLogWriter(new PrintWriter(getPrintStream()));
+      dataSource.setLogWriter(new java.io.PrintWriter(getPrintStream()));
     } catch (Exception e) {
       logger.debug(e);
       logger.error("Database connection  for a primary database was not initialised.");
@@ -97,24 +98,15 @@ public class MysqlDatabaseManager extends DatabaseManager {
     initDBList(updateGroups);
   }
 
-  protected String getJdbcUrl(final String hostName, final String dbName) {
-    String jdbcUrl = "jdbc:mysql://" + hostName;
-    if (dbName != null) {
-      jdbcUrl = jdbcUrl + "/" + dbName;
-    }
-    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
-    return jdbcUrl;
-  }
-
   public void initDBList(boolean updateGroups) {
     listDB.clear();
     String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
                      + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
                      + "> 0 and "
                      + "TABLE_SCHEMA like 'mv_%'";
-    try (Connection testConnection = dataSource.getConnection();
-         Statement testStatement = testConnection.createStatement();
-         ResultSet resultSet = testStatement.executeQuery(sql)
+    try (java.sql.Connection testConnection = dataSource.getConnection();
+         java.sql.Statement testStatement = testConnection.createStatement();
+         java.sql.ResultSet resultSet = testStatement.executeQuery(sql)
 
     ) {
       String database;
@@ -122,7 +114,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
         database = resultSet.getString("TABLE_SCHEMA");
         listDB.put(database, "");
       }
-    } catch (SQLException e) {
+    } catch (java.sql.SQLException e) {
       logger.error(e.getMessage());
 
     }
@@ -133,12 +125,12 @@ public class MysqlDatabaseManager extends DatabaseManager {
       groupToDatabases.clear();
 
       //for each database find a group
-      for (Map.Entry<String, String> database : listDB.entrySet()) {
+      for (java.util.Map.Entry<String, String> database : listDB.entrySet()) {
         String[] metadata = getDatabaseMetadata(database.getKey());
         database.setValue(metadata[1]);
 
         if (!groupToDatabases.containsKey(metadata[0])) {
-          groupToDatabases.put(metadata[0], new ArrayList<>());
+          groupToDatabases.put(metadata[0], new java.util.ArrayList<>());
         }
 
         groupToDatabases.get(metadata[0]).add(database.getKey());
@@ -151,20 +143,20 @@ public class MysqlDatabaseManager extends DatabaseManager {
     String group = "";
     String description = "";
     String sql = "SELECT * from metadata";
-    try (Connection con = getConnection(database);
-         Statement statement = con.createStatement();
-         ResultSet rs = statement.executeQuery(sql)
+    try (java.sql.Connection con = getConnection(database);
+         java.sql.Statement statement = con.createStatement();
+         java.sql.ResultSet rs = statement.executeQuery(sql)
     ) {
       while (rs.next()) {
         group = rs.getString("category");
         description = rs.getString("description");
       }
 
-    } catch (SQLException e) {
+    } catch (java.sql.SQLException e) {
       logger.error("Can't get groups for database " + database + " SQL exception: " + e);
     }
     if (group.isEmpty()) {
-      group = MVUtil.DEFAULT_DATABASE_GROUP;
+      group = edu.ucar.metviewer.MVUtil.DEFAULT_DATABASE_GROUP;
     }
 
     return new String[]{group, description};
@@ -193,39 +185,45 @@ public class MysqlDatabaseManager extends DatabaseManager {
    *
    * @param db - a name of database to get a connection for
    * @return - db connection
-   * @throws SQLException
+   * @throws java.sql.SQLException
    */
-  public Connection getConnection(String db) throws SQLException {
+  public java.sql.Connection getConnection(String db) throws java.sql.SQLException {
     boolean validDB = validate(db);
-    Connection con = null;
+    java.sql.Connection con = null;
+    java.sql.Statement statement = null;
+    java.sql.ResultSet rs = null;
     if (validDB) {
       try {
         con = dataSource.getConnection();
-        con.setCatalog(db);
+        statement = con.createStatement();
+        rs = statement.executeQuery("use " + db);
 
-      } catch (Exception e) {
-        logger.error("can't get connection for database " + db + " " +e.getMessage());
-        if(con != null) {
-          con.close();
+      } catch (java.sql.SQLException e) {
+        logger.error(e.getMessage());
+      } finally {
+        if (statement != null) {
+          statement.close();
         }
+        if (rs != null) {
+          rs.close();
+        }
+
       }
-    }else{
-      logger.error("Database " + db + " is invalid");
     }
     return con;
   }
 
   /**
-   * Returns a connection to MySQL
+   * Returns a connection to Aurora
    *
    * @return - connection
    */
-  public Connection getConnection() {
-    Connection con = null;
+  public java.sql.Connection getConnection() {
+    java.sql.Connection con = null;
     try {
       con = dataSource.getConnection();
-    } catch (SQLException e) {
-      logger.error("can't get connection " +e.getMessage());
+    } catch (java.sql.SQLException e) {
+      logger.error(e.getMessage());
     }
     return con;
   }

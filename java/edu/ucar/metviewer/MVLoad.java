@@ -179,7 +179,7 @@ public class MVLoad {
 
         //  build a folder with each permutation of load values and load the data therein
         MVOrderedMap[] listPerm = MVUtil.permute(job.getLoadVal()).getRows();
-        String strBaseFolder;
+        String baseFolder;
         long intPermStart;
         File fileBaseFolder;
         File[] listDataFiles;
@@ -188,15 +188,16 @@ public class MVLoad {
                                         .setLevel(org.apache.logging.log4j.Level.INFO)
                                         .buildPrintStream();
           //  determine the name of the current folder
-          strBaseFolder = MVUtil.buildTemplateString(job.getFolderTmpl(), listPerm[intPerm],
+          baseFolder = MVUtil.buildTemplateString(job.getFolderTmpl(), listPerm[intPerm],
                                                      printStream);
+          baseFolder = MVUtil.cleanString(baseFolder);
           printStream.close();
           logger.info(
-              "Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + strBaseFolder);
+              "Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + baseFolder);
           intPermStart = new Date().getTime();
 
           //  try to access the folder and its contents, and continue if it does not exist
-          fileBaseFolder = new File(strBaseFolder);
+          fileBaseFolder = new File(baseFolder);
           if (fileBaseFolder.exists()) {
 
             //  process each file in the folder

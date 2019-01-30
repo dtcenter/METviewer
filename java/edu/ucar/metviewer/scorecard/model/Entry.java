@@ -10,7 +10,7 @@ package edu.ucar.metviewer.scorecard.model;
  * @author : tatiana $
  * @version : 1.0 : 12/01/17 11:55 $
  */
-public class Entry {
+public final class Entry {
 
   private String name;
   private String label;
@@ -19,9 +19,9 @@ public class Entry {
   }
 
   // copy constructor
-  public Entry(Entry e) {
-    name = e.getName();
-    label = e.getLabel();
+  public Entry(final Entry e) {
+    this.name = e.getName();
+    this.label = e.getLabel();
   }
 
   public String getName() {

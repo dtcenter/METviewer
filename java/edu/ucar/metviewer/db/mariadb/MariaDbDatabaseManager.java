@@ -1,10 +1,11 @@
 /**
- * MysqlDatabaseManager.java Copyright UCAR (c) 2017. University Corporation for Atmospheric
+ * MariaDbDatabaseManager.java Copyright UCAR (c) 2017. University Corporation
+ * for Atmospheric
  * Research (UCAR), National Center for Atmospheric Research (NCAR), Research Applications
  * Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2017.
  */
 
-package edu.ucar.metviewer.db.mysql;
+package edu.ucar.metviewer.db.mariadb;
 
 
 import java.io.PrintWriter;
@@ -34,32 +35,33 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  * @author : tatiana $
  * @version : 1.0 : 23/05/17 09:51 $
  */
-public class MysqlDatabaseManager extends DatabaseManager {
+public class MariaDbDatabaseManager extends DatabaseManager {
 
-  private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
+  private static final Logger logger = LogManager.getLogger(
+          "MariaDbDatabaseManager");
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
-  private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-
-  public static final SimpleDateFormat DATE_FORMAT =
-          new SimpleDateFormat(DATE_FORMAT_STRING, Locale.US);
-
-  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_STRING);
-
+  protected static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+  protected static final DateTimeFormatter DATE_FORMAT_1
+          = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private DataSource dataSource;
-  public static final String BINARY ="  BINARY ";
+  protected static final String BINARY ="  BINARY ";
 
-
-
-  public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
+  public MariaDbDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
     super(databaseInfo);
-    String jdbcUrl = getJdbcUrl(databaseInfo.getHost(), databaseInfo.getDbName());
+    String jdbcUrl = "jdbc:mariadb://" + databaseInfo.getHost();
+    if (databaseInfo.getDbName() != null) {
+      jdbcUrl = jdbcUrl + "/" + databaseInfo.getDbName();
+    }
+    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
+
     PoolConfiguration configurationToUse = new PoolProperties();
     configurationToUse.setUrl(jdbcUrl);
     configurationToUse.setUsername(databaseInfo.getUser());
     configurationToUse.setPassword(password);
-    configurationToUse.setDriverClassName("org.mariadb.jdbc.Driver");
+    configurationToUse.setDriverClassName("com.mysql.jdbc.Driver");
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
     configurationToUse.setMaxIdle(15);
@@ -77,8 +79,8 @@ public class MysqlDatabaseManager extends DatabaseManager {
     configurationToUse.setMinIdle(10);
     configurationToUse.setRemoveAbandoned(true);
     configurationToUse.setJdbcInterceptors(
-        "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
-            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
+                    + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
     try {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
@@ -97,21 +99,12 @@ public class MysqlDatabaseManager extends DatabaseManager {
     initDBList(updateGroups);
   }
 
-  protected String getJdbcUrl(final String hostName, final String dbName) {
-    String jdbcUrl = "jdbc:mysql://" + hostName;
-    if (dbName != null) {
-      jdbcUrl = jdbcUrl + "/" + dbName;
-    }
-    jdbcUrl = jdbcUrl + "?rewriteBatchedStatements=true";
-    return jdbcUrl;
-  }
-
   public void initDBList(boolean updateGroups) {
     listDB.clear();
     String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
-                     + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
-                     + "> 0 and "
-                     + "TABLE_SCHEMA like 'mv_%'";
+            + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
+            + "> 0 and "
+            + "TABLE_SCHEMA like 'mv_%'";
     try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
          ResultSet resultSet = testStatement.executeQuery(sql)
@@ -198,25 +191,30 @@ public class MysqlDatabaseManager extends DatabaseManager {
   public Connection getConnection(String db) throws SQLException {
     boolean validDB = validate(db);
     Connection con = null;
+    Statement statement = null;
+    ResultSet rs = null;
     if (validDB) {
       try {
         con = dataSource.getConnection();
-        con.setCatalog(db);
-
-      } catch (Exception e) {
-        logger.error("can't get connection for database " + db + " " +e.getMessage());
-        if(con != null) {
-          con.close();
+        statement = con.createStatement();
+        rs = statement.executeQuery("use " + db);
+      } catch (SQLException e) {
+        logger.error(e.getMessage());
+      } finally {
+        if (statement != null) {
+          statement.close();
         }
+        if (rs != null) {
+          rs.close();
+        }
+
       }
-    }else{
-      logger.error("Database " + db + " is invalid");
     }
     return con;
   }
 
   /**
-   * Returns a connection to MySQL
+   * Returns a connection to mariaDb
    *
    * @return - connection
    */
@@ -225,7 +223,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
     try {
       con = dataSource.getConnection();
     } catch (SQLException e) {
-      logger.error("can't get connection " +e.getMessage());
+      logger.error(e.getMessage());
     }
     return con;
   }

@@ -15,16 +15,14 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
+import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -37,20 +35,20 @@ import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
 
 /**
  * @author : tatiana $
- * @version : 1.0 : 07/02/17 11:32 $
+ * @version : 1.0 : 2018-12-18 10:58 $
  */
-public abstract class DatabaseManagerMySQL implements DatabaseManager {
+public abstract class DatabaseManagerSql {
 
-  private static final Logger logger = LogManager.getLogger("DatabaseManagerMySQL");
-
+  private static final Logger logger = LogManager.getLogger("DatabaseManagerSql");
   private final Map<String, List<Entry>> columnsDescription;
   private final String databaseName;
   private final List<Field> fixedVars;
   private final Boolean printSQL;
   String aggStatDataFilePath;
-  private MysqlDatabaseManager databaseManager;
+  private DatabaseManager databaseManager;
 
-  DatabaseManagerMySQL(final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
+  DatabaseManagerSql(
+      final Scorecard scorecard, DatabaseManager databaseManager) {
     this.databaseManager = databaseManager;
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
@@ -62,8 +60,8 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
 
   protected abstract String getStatValue(String table, String stat);
 
-  @Override
-  public void createDataFile(Map<String, Entry> map, String threadName) throws Exception {
+  public void createDataFile(
+      Map<String, Entry> map, String threadName) throws Exception {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -84,11 +82,13 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
         stopWatch.stop();
         logger.info("Database query time " + stopWatch.getFormattedDuration());
         stopWatch.start();
-        printFormattedTable(res, out, "\t", false, true);// isCalc=false,  isHeader=true
+        printFormattedTable(res, out);// isCalc=false,  isHeader=true
         stopWatch.stop();
         logger.info("Save to file time " + stopWatch.getFormattedDuration());
         out.flush();
         out.close();
+        res.close();
+        pstmt.close();
         con.close();
       } catch (Exception e) {
         logger.error(e.getMessage());
@@ -108,6 +108,7 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
     if (aggType.contains("nbr")) {
       aggType = aggType.replace("_", "");
     }
+
     String table = "line_data_" + aggType;
 
 
@@ -126,8 +127,8 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
     }
     for (Field fixedField : fixedVars) {
       StringBuilder values = new StringBuilder();
-      if ("fcst_valid_beg".equals(fixedField.getName()) || "fcst_init_beg"
-                                                               .equals(fixedField.getName())) {
+      if ("fcst_valid_beg".equals(fixedField.getName())
+              || "fcst_init_beg".equals(fixedField.getName())) {
         whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
             .append(fixedField.getValues().get(0).getName()).append("' AND '")
             .append(fixedField.getValues().get(1).getName()).append("' AND ");
@@ -250,8 +251,7 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
   }
 
   private void printFormattedTable(
-      ResultSet res, BufferedWriter bufferedWriter, String delim, boolean isCalc,
-      boolean isHeader) {
+      ResultSet res, BufferedWriter bufferedWriter) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -262,20 +262,17 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
       }
 
       //  print out the column headers
-      if (isHeader) {
-        for (int i = 1; i <= met.getColumnCount(); i++) {
-          if (delim.equals(" ")) {
-            bufferedWriter.write(MVUtil.padEnd(met.getColumnLabel(i), intFieldWidths[i - 1]));
+      for (int i = 1; i <= met.getColumnCount(); i++) {
+
+          if (1 == i) {
+            bufferedWriter.write(met.getColumnLabel(i));
           } else {
-            if (1 == i) {
-              bufferedWriter.write(met.getColumnLabel(i));
-            } else {
-              bufferedWriter.write(delim + met.getColumnLabel(i));
-            }
+            bufferedWriter.write("\t" + met.getColumnLabel(i));
           }
-        }
-        bufferedWriter.write(System.getProperty("line.separator"));
+
       }
+      bufferedWriter.write(System.getProperty("line.separator"));
+
 
       //  print out the table of values
       int intLine = 0;
@@ -288,8 +285,6 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
 
 
           if (objectType.equals("DATETIME")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(TimeZone.getTimeZone("UTC"));
             LocalDateTime ts = res.getTimestamp(i).toLocalDateTime();
             strVal = DATE_FORMATTER.format(ts);
           } else {
@@ -301,15 +296,13 @@ public abstract class DatabaseManagerMySQL implements DatabaseManager {
             strVal = strVal.equalsIgnoreCase("-9999") ? "NA" : strVal;
           }
 
-          if (delim.equals(" ")) {
-            line = line + (MVUtil.padEnd(strVal, intFieldWidths[i - 1]));
-          } else {
+
             if (1 == i) {
               line = line + (strVal);
             } else {
-              line = line + (delim + strVal);
+              line = line + ("\t" + strVal);
             }
-          }
+
         }
         bufferedWriter.write(line);
         bufferedWriter.write(System.getProperty("line.separator"));

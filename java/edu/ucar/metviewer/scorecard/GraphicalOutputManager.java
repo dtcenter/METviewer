@@ -138,6 +138,10 @@ class GraphicalOutputManager {
       DocumentBuilder db;
 
       try {
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
         db = dbf.newDocumentBuilder();
         Document doc = db.parse(new File(thresholdFile));
         Node pruneSpec = doc.getFirstChild();

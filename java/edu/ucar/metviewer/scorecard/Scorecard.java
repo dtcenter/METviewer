@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager;
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.db.AggDatabaseManagerMySQL;
 import edu.ucar.metviewer.scorecard.db.DatabaseManager;
@@ -109,12 +111,22 @@ public class Scorecard {
         List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
 
         //depending on stat type init mangers
-        MysqlDatabaseManager databaseManager = null;
+        DatabaseManager databaseManager = null;
         if (dbType.equals("mysql")) {
-          databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+          databaseManager = (DatabaseManager) new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
                                                                       scorecard.getUser()),
                                                      scorecard.getPwd());
+        } else if (dbType.equals("mariadb")) {
+          databaseManager = (DatabaseManager) new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+                                                                           scorecard.getUser()),
+                                                          scorecard.getPwd());
+        } else if (dbType.equals("aurora")) {
+          databaseManager =
+                  (DatabaseManager) new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+                                                            scorecard.getUser()),
+                                           scorecard.getPwd());
         }
+
 
         if (scorecard.getAggStat()) {
           scorecardDbManager = new AggDatabaseManagerMySQL(scorecard, databaseManager);

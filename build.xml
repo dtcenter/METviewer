@@ -145,7 +145,7 @@
         <pathelement location="${lib}/log4j-core-2.10.0.jar"/>
         <pathelement location="${lib}/log4j-iostreams-2.10.0.jar"/>
         <pathelement location="${lib}/log4j-web-2.10.0.jar"/>
-        <pathelement location="${lib}/mysql-connector-java-5.1.6.jar"/>
+        <pathelement location="${lib}/mariadb-java-client-2.3.0.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
         <pathelement location="${lib}/servlet-api.jar"/>
@@ -165,7 +165,91 @@
         <pathelement location="${lib}/log4j-core-2.10.0.jar"/>
         <pathelement location="${lib}/log4j-iostreams-2.10.0.jar"/>
         <pathelement location="${lib}/log4j-web-2.10.0.jar"/>
-        <pathelement location="${lib}/mysql-connector-java-5.1.6.jar"/>
+        <pathelement location="${lib}/mariadb-java-client-2.3.0.jar"/>
+        <pathelement location="${lib}/xercesImpl.jar"/>
+        <pathelement location="${lib}/xml-apis.jar"/>
+        <pathelement location="${lib}/servlet-api.jar"/>
+        <pathelement location="${lib}/commons-fileupload-1.3.jar"/>
+        <pathelement location="${lib}/commons-io-2.4.jar"/>
+        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
+        <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
+        <pathelement location="${lib}/j2html-0.7.jar"/>
+        <pathelement location="${lib}/jackson-core-2.8.5.jar"/>
+        <pathelement location="${lib}/jackson-databind-2.8.5.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.5.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
+    </path>
+
+    <path id="mariadb">
+        <pathelement location="${lib}/log4j-api-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.10.0.jar"/>
+        <pathelement location="${lib}/mariadb-java-client-2.3.0.jar"/>
+        <pathelement location="${lib}/xercesImpl.jar"/>
+        <pathelement location="${lib}/xml-apis.jar"/>
+        <pathelement location="${lib}/servlet-api.jar"/>
+        <pathelement location="${lib}/commons-fileupload-1.3.jar"/>
+        <pathelement location="${lib}/commons-io-2.4.jar"/>
+        <pathelement location="${lib}/j2html-0.7.jar"/>
+        <pathelement location="${lib}/jackson-core-2.8.5.jar"/>
+        <pathelement location="${lib}/jackson-databind-2.8.5.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.5.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
+        <pathelement location="${lib}/junit-4.11.jar"/>
+    </path>
+
+    <path id="mariadb-all">
+        <pathelement location="${lib}/log4j-api-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.10.0.jar"/>
+        <pathelement location="${lib}/mariadb-java-client-2.3.0.jar"/>
+        <pathelement location="${lib}/xercesImpl.jar"/>
+        <pathelement location="${lib}/xml-apis.jar"/>
+        <pathelement location="${lib}/servlet-api.jar"/>
+        <pathelement location="${lib}/commons-fileupload-1.3.jar"/>
+        <pathelement location="${lib}/commons-io-2.4.jar"/>
+        <pathelement location="${lib}/junit-4.11.jar"/>
+        <pathelement location="${lib}/hamcrest-core-1.3.jar"/>
+        <pathelement location="${lib}/mockito-all-1.9.5.jar"/>
+        <pathelement location="${lib}/j2html-0.7.jar"/>
+        <pathelement location="${lib}/jackson-core-2.8.5.jar"/>
+        <pathelement location="${lib}/jackson-databind-2.8.5.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.5.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
+    </path>
+
+    <path id="aurora">
+        <pathelement location="${lib}/log4j-api-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.10.0.jar"/>
+        <pathelement location="${lib}/mariadb-java-client-2.3.0.jar"/>
+        <pathelement location="${lib}/xercesImpl.jar"/>
+        <pathelement location="${lib}/xml-apis.jar"/>
+        <pathelement location="${lib}/servlet-api.jar"/>
+        <pathelement location="${lib}/commons-fileupload-1.3.jar"/>
+        <pathelement location="${lib}/commons-io-2.4.jar"/>
+        <pathelement location="${lib}/j2html-0.7.jar"/>
+        <pathelement location="${lib}/jackson-core-2.8.5.jar"/>
+        <pathelement location="${lib}/jackson-databind-2.8.5.jar"/>
+        <pathelement location="${lib}/commons-lang3-3.5.jar"/>
+        <pathelement location="${lib}/tomcat-jdbc-8.5.2.jar"/>
+        <pathelement location="${lib}/juli-6.0.53.jar"/>
+        <pathelement location="${lib}/junit-4.11.jar"/>
+    </path>
+
+    <path id="aurora-all">
+        <pathelement location="${lib}/log4j-api-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-core-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-iostreams-2.10.0.jar"/>
+        <pathelement location="${lib}/log4j-web-2.10.0.jar"/>
+        <pathelement location="${lib}/mariadb-java-client-2.3.0.jar"/>
         <pathelement location="${lib}/xercesImpl.jar"/>
         <pathelement location="${lib}/xml-apis.jar"/>
         <pathelement location="${lib}/servlet-api.jar"/>
@@ -186,6 +270,12 @@
         <condition property="db.management.system.mysql">
             <equals arg1="${db.management.system}" arg2="mysql"/>
         </condition>
+        <condition property="db.management.system.mariadb">
+            <equals arg1="${db.management.system}" arg2="mariadb"/>
+        </condition>
+        <condition property="db.management.system.aurora">
+            <equals arg1="${db.management.system}" arg2="aurora"/>
+        </condition>
         <condition property="db.management.system.cb">
             <equals arg1="${db.management.system}" arg2="cb"/>
         </condition>
@@ -195,31 +285,62 @@
     <!-- Compile the java code from ${src} into ${build} -->
     <target name="compile" depends="init, test.db.management.system" description="compile the source">
         <!-- Compile the project java files -->
-        <javac srcdir="${src}" destdir="${build}">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
             <include name="**/*.java"/>
             <exclude name="**/test/**"/>
-            <exclude name="**/CBDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/CBAppDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/CBLoadDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/MysqlDatabaseManager.java" if="db.management.system.cb"/>
-            <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.cb"/>
-            <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.cb"/>
+            <!-- aurora-->
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.aurora"/>
+            <!-- mysql-->
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.mysql"/>
+            <!-- cb-->
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.cb"/>
+            <!-- mariadb-->
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
+            <!-- set the refid -->
             <classpath refid="${db.management.system}" />
         </javac>
 
     </target>
     <target name="compile-all" depends="init, test.db.management.system" description="compile the source">
         <!-- Compile the project java files -->
-        <javac sourcepath="" srcdir="${src}" destdir="${build}">
+        <javac sourcepath="" srcdir="${src}" destdir="${build}" includeantruntime="false">
             <include name="**/*.java"/>
-            <exclude name="**/CBDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/CBAppDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/CBLoadDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mysql"/>
-            <exclude name="**/MysqlDatabaseManager.java" if="db.management.system.cb"/>
-            <exclude name="**/MysqlAppDatabaseManager.java" if="db.management.system.cb"/>
-            <exclude name="**/MysqlLoadDatabaseManager.java" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.aurora"/>
+            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
+            <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.aurora"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.aurora"/>
+            <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.aurora"/>
+
+            <exclude name="/edu/ucar/metviewer/db/aurora/**" if="db.management.system.cb"/>
+            <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.cb"/>
+            <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.cb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.cb"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.cb"/>
+
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mariadb"/>
+            <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
+            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mariadb"/>
+            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
+            <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.mariadb"/>
+
+            <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mysql"/>
+            <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mysql"/>
+            <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mysql"/>
+            <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.mysql"/>
+            <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.mysql"/>
+
             <!-- This includes the db sprecific jar files based on the
             path elements specified by refid i.e. mysql, mysql-all, cb, cb-all-->
             <classpath refid="${db.management.system}-all" />
@@ -270,7 +391,12 @@
                 <exclude name="**/*.ncep"/>
                 <exclude name="**/*.noaa"/>
                 <exclude name="**/*.dev"/>
-                <exclude name="**/*mvservlet_psql.properties"/>
+                <exclude name="webapp/metviewer/WEB-INF/classes/mvservlet_psql.properties"/>
+                <exclude name="**/buildCB*"/>
+                <exclude name="**/buildMYSQL*"/>
+                <exclude name="**/buildMARIADB*"/>
+                <exclude name="**/buildAURORA*"/>
+                <exclude name="**/*.orig"/>
             </fileset>
         </copy>
 
@@ -295,10 +421,25 @@
             <fileset dir="${lib}">
                 <include name="*.jar"/>
                 <exclude name="servlet-api.jar"/>
+
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.mariadb"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.aurora"/>
+
                 <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
+
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
                 <exclude name="mockito-all-1.9.5.jar"/>
@@ -416,9 +557,25 @@
                 <exclude name="**/*.war"/>
                 <exclude name="**/*.tar"/>
                 <exclude name="lib/couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
-                <exclude name="lib/couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
-                <exclude name="lib/rxjava-1.3.4.jar" if="db.management.system.mysql"/>
-                <exclude name="lib/mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.mariadb"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.aurora"/>
+
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
+
                 <include name="bin/**"/>
                 <include name="dist/lib/metviewer.jar"/>
                 <include name="R_work/**"/>
