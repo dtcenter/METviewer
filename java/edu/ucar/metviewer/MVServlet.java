@@ -507,7 +507,8 @@ public class MVServlet extends HttpServlet {
 
         TransformerFactory tf = TransformerFactory.newInstance();
         tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        tf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 
 
         Transformer transformer = tf.newTransformer();
@@ -1024,7 +1025,9 @@ public class MVServlet extends HttpServlet {
           String runId = simpleRequest[1].replace("%28", "(").replace("%29", ")");
           runId = MVUtil.cleanString(runId);
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-          dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+          dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+          dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+          dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
           dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
           dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 

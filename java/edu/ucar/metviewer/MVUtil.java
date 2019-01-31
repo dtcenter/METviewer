@@ -2314,8 +2314,9 @@ public class MVUtil {
 
     DOMSource source = new DOMSource(document);
     try (StringWriter stringWriter = new StringWriter()) {
-      transformerFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      Transformer transformer = transformerFactory.newTransformer();
+      transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");      Transformer transformer = transformerFactory.newTransformer();
       transformer.transform(source, new StreamResult(stringWriter));
       result = stringWriter.toString();
     } catch (TransformerException | IOException e) {
