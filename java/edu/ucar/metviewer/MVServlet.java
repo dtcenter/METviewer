@@ -1120,7 +1120,7 @@ public class MVServlet extends HttpServlet {
                 Element descXml = docResp.createElement("desc");
                 descXml.appendChild(docResp.createTextNode(databases.get(database)));
                 dbXml.appendChild(descXml);
-
+                groupXml.appendChild(dbXml);
               }
               groupsXml.appendChild(groupXml);
             }
