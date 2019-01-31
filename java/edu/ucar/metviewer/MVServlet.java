@@ -1026,8 +1026,6 @@ public class MVServlet extends HttpServlet {
           runId = MVUtil.cleanString(runId);
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
           dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-          dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-          dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
           dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
           dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
