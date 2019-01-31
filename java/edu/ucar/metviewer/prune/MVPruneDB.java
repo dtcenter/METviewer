@@ -105,7 +105,6 @@ public class MVPruneDB {
     return fieldToListValues;
   }
 
-
   public List<String> getFiles() {
     return files;
   }

@@ -6,27 +6,41 @@
 
 package edu.ucar.metviewer.db.couchbase;
 
-import com.couchbase.client.core.CouchbaseException;
-import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonObject;
-import com.couchbase.client.java.document.json.JsonArray;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
-import edu.ucar.metviewer.*;
-import edu.ucar.metviewer.db.DatabaseInfo;
-import edu.ucar.metviewer.db.LoadDatabaseManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.couchbase.client.core.CouchbaseException;
+import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonArray;
+import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
+import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.MVLoadJob;
+import edu.ucar.metviewer.MVLoadStatInsertData;
+import edu.ucar.metviewer.MVOrderedMap;
+import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.LoadDatabaseManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author : tatiana $
@@ -945,12 +959,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * was designed to be called from loadStatFile(), which is responsible for building insert value
    * lists for the various types of grid_stat and point_stat database tables.
    *
-   * @param mvLoadStatInsertData Data structure loaded with insert value lists
+   * @param statInsertData Data structure loaded with insert value lists
    * @return An array of four integers, indexed by the INDEX_* members, representing the number of
    * database inserts of each type
    * @throws Exception
    */
-  private int[] commitStatData(MVLoadStatInsertData mvLoadStatInsertData)
+  private int[] commitStatData(MVLoadStatInsertData statInsertData)
       throws Exception {
 
     int[] listInserts = new int[]{0, 0, 0, 0};
@@ -959,7 +973,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
        * * * *  stat_header was committed commit  * * * *
   		 */
 
-    mvLoadStatInsertData.getListInsertValues().clear();
+    statInsertData.getListInsertValues().clear();
 
 
   		/*
@@ -967,74 +981,51 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   		 */
 
     //  for each line type, build an insert statement with the appropriate list of values
-    for (Map.Entry<String, List<String>> entry : mvLoadStatInsertData.getTableLineDataValues()
+    for (Map.Entry<String, List<String>> entry : statInsertData.getTableLineDataValues()
                                                      .entrySet()) {
-      mvLoadStatInsertData.setLineType(entry.getKey());
+      statInsertData.setLineType(entry.getKey());
       ArrayList listValues = (ArrayList) entry.getValue();
+      String tableName = statInsertData.getLineType().toLowerCase(Locale.US);
 
       int intResLineDataInsert = executeBatch(listValues);
       if (listValues.size() != intResLineDataInsert) {
         logger.warn("  **  WARNING: unexpected result from line_data INSERT: " +
-                        intResLineDataInsert + "\n        " + mvLoadStatInsertData.getFileLine());
+                        intResLineDataInsert + "\n        " + statInsertData.getFileLine());
       }
       listInserts[INDEX_LINE_DATA]++;
     }
-    mvLoadStatInsertData.getTableLineDataValues().clear();
+    statInsertData.getTableLineDataValues().clear();
 
-
-  		/*
-       * * * *  stat_group commit  * * * *
-  		 */
-
-    //  build a stat_group insert with all stored values
-    if (!mvLoadStatInsertData.getListStatGroupInsertValues().isEmpty()) {
-      String strStatGroupInsertValues = "";
-      for (int i = 0; i < mvLoadStatInsertData.getListStatGroupInsertValues().size(); i++) {
-        strStatGroupInsertValues += (i == 0 ? "" : ", ") + mvLoadStatInsertData
-                                                               .getListStatGroupInsertValues()
-                                                               .get(i);
-      }
-//      String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
-//      int intStatGroupInsert = executeUpdate(strStatGroupInsert);
-//      if (mvLoadStatInsertData.getListStatGroupInsertValues().size() != intStatGroupInsert) {
-//        logger.warn(
-//            "  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " +
-//                mvLoadStatInsertData.getListStatGroupInsertValues()
-//                    .size() + "\n        " + mvLoadStatInsertData.getFileLine());
-//      }
-      int indexStatGroup = 2;
-      listInserts[indexStatGroup]++;
-    }
-    mvLoadStatInsertData.getListStatGroupInsertValues().clear();
+    statInsertData.getListStatGroupInsertValues().clear();
 
   		/*
        * * * *  variable length data commit  * * * *
   		 */
 
     //  insert probabilistic data into the thresh tables
-    Set<String> strings = mvLoadStatInsertData.getTableVarLengthValues().keySet();
-    String[] listVarLengthTypes = strings.toArray(new String[strings.size()]);
+    Set<String> strings = statInsertData.getTableVarLengthValues().keySet();
+    String[] varLengthTypes = strings.toArray(new String[strings.size()]);
 
 
-    for (String listVarLengthType : listVarLengthTypes) {
-      String[] listVarLengthValues = MVUtil.toArray(
-          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType));
-      if (1 > listVarLengthValues.length) {
+    for (String listVarLengthType : varLengthTypes) {
+      List<List<Object>> listVarLengthValues =
+              statInsertData.getTableVarLengthValues().get(listVarLengthType);
+      if (1 > listVarLengthValues.size()) {
         continue;
       }
       String strVarLengthTable = tableVarLengthTable.get(listVarLengthType);
       String strThreshInsert = "INSERT INTO " + strVarLengthTable + " VALUES ";
-      for (int j = 0; j < listVarLengthValues.length; j++) {
-        strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
-        listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
-      }
+    //  for (int j = 0; j < listVarLengthValues.size(); j++) {
+    //    strThreshInsert += (0 < j ? ", " : "") + listVarLengthValues[j];
+    //    listInserts[INDEX_VAR_LENGTH]++; //  lengthInserts++;
+    //  }
 //      int intThreshInsert = executeUpdate(strThreshInsert);
 //      if (listVarLengthValues.length != intThreshInsert) {
 //        logger.warn(
 //            "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
-//                listVarLengthValues.length + "\n        " + mvLoadStatInsertData.getFileLine());
+//                listVarLengthValues.length + "\n        " + statInsertData.getFileLine());
 //      }
-      mvLoadStatInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
+      statInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
     }
 
     return listInserts;
@@ -2566,11 +2557,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           try {
             num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
             num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
+            if (num1.equals(num2) && num1 != 0) {
+              matchedFlag = 1;
+            }
           } catch (Exception e) {
           }
-          if (num1.equals(num2) && num1 != 0) {
-            matchedFlag = 1;
-          }
+
           str3dPairValueList = str3dPairValueList + "," + simpleFlag + "," + matchedFlag;
 
 //          int mtd3dObjPairInsert = executeUpdate("INSERT INTO mtd_3d_obj_pair VALUES ("

@@ -8,7 +8,7 @@ package edu.ucar.metviewer.scorecard.db;
 import java.sql.SQLException;
 
 import edu.ucar.metviewer.MVUtil;
-import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +23,7 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerSql {
 
 
   public AggDatabaseManagerMySQL(final Scorecard scorecard,
-                                 final DatabaseManager databaseManager) throws SQLException {
+                                 final MysqlDatabaseManager databaseManager) throws SQLException {
     super(scorecard,databaseManager);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile();
 

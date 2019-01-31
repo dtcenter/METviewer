@@ -22,7 +22,7 @@ import java.util.Map;
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
-import edu.ucar.metviewer.db.DatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -37,7 +37,7 @@ import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
  * @author : tatiana $
  * @version : 1.0 : 2018-12-18 10:58 $
  */
-public abstract class DatabaseManagerSql {
+public abstract class DatabaseManagerSql implements DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("DatabaseManagerSql");
   private final Map<String, List<Entry>> columnsDescription;
@@ -45,10 +45,10 @@ public abstract class DatabaseManagerSql {
   private final List<Field> fixedVars;
   private final Boolean printSQL;
   String aggStatDataFilePath;
-  private DatabaseManager databaseManager;
+  private MysqlDatabaseManager databaseManager;
 
   DatabaseManagerSql(
-      final Scorecard scorecard, DatabaseManager databaseManager) {
+      final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
     this.databaseManager = databaseManager;
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
@@ -60,6 +60,8 @@ public abstract class DatabaseManagerSql {
 
   protected abstract String getStatValue(String table, String stat);
 
+
+  @Override
   public void createDataFile(
       Map<String, Entry> map, String threadName) throws Exception {
     String mysql = getQueryForRow(map);

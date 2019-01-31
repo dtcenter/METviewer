@@ -64,7 +64,6 @@ public class CBDatabaseManager extends DatabaseManager {
       logger.error("Open bucket connection for a Couchbase database did not succeed.");
       logger.error(e.getMessage());
     }
-
     boolean updateGroups = false;
     if (databaseInfo.getDbName() == null) {
       updateGroups = true;
@@ -177,7 +176,7 @@ public class CBDatabaseManager extends DatabaseManager {
    * @return - connection (for couchbase a bucket)
    */
   protected Bucket getBucket() {
-/*    CouchbaseEnvironment env;
+ /*   CouchbaseEnvironment env;
     if (bucket == null) {
 //      CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
 //              .connectTimeout(40000) //20000ms = 20s, default is 5s
@@ -197,7 +196,7 @@ public class CBDatabaseManager extends DatabaseManager {
         logger.error("Open bucket connection for a Couchbase database did not succeed.");
         logger.error(e.getMessage());
       }
-    }  */
+    }*/
     return bucket;
   }
 }

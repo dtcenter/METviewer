@@ -1157,6 +1157,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
         if (!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
+        }else{
+          selectList = selectList.replace(listFcstVarStat[intFcstVarStat-1][0] + "' fcst_var"
+              , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
 
         //  determine the table containing the current stat

@@ -217,7 +217,6 @@ public class MVBatchTest {
         public void seriesDiffGrouping() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "diff_grouping";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -230,7 +229,6 @@ public class MVBatchTest {
         public void handSelectedDates() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "hand_selected_dates";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -243,7 +241,6 @@ public class MVBatchTest {
         public void tylor() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "tylor";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -256,7 +253,6 @@ public class MVBatchTest {
         public void rhist() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "rhist";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -269,7 +265,6 @@ public class MVBatchTest {
         public void phist() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "phist";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -282,7 +277,6 @@ public class MVBatchTest {
         public void servlet() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "servlet";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -295,7 +289,6 @@ public class MVBatchTest {
         public void rely() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "rely";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -308,7 +301,6 @@ public class MVBatchTest {
         public void series_sum_stat() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "series_sum_stat";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);
@@ -321,7 +313,6 @@ public class MVBatchTest {
         public void plot_afwa_thresh() throws Exception {
             List<String> argsList = new ArrayList<>();
             argsList.add("-printSql");
-            argsList.add("mysql");
             String plotType = "plot_afwa_thresh";
             String fpath = testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + plotType + ".xml";
             argsList.add(fpath);

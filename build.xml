@@ -10,7 +10,6 @@
     <property name="src.webapp.dir" location="webapp"/>
 
 
-
     <!-- Initialize the build tree -->
     <target name="init">
         <!-- use -Dbuild.property.file=propertyFileName to replace
@@ -49,16 +48,20 @@
     -->
 
         <!-- log4j2.xmlfile override with -Dlog4j2.file-->
-        <property name="log4j2.file" value="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"/>
+        <property name="log4j2.file"
+                  value="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"/>
 
         <!-- original log4j2.xmlfile.orig -->
-        <property name="log4j2.file.orig" value="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"/>
+        <property name="log4j2.file.orig"
+                  value="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"/>
 
         <!-- build.properties override this with -Dbuild.properties.file=fullpath/somebuildpropertyfile to do custom build -->
-        <property name="build.properties.file" value="${src.webapp.dir}/metviewer/WEB-INF/classes/build.properties"/>
+        <property name="build.properties.file"
+                  value="${src.webapp.dir}/metviewer/WEB-INF/classes/build.properties"/>
 
         <!-- original mvservlet.properties file -->
-        <property name="mvservlet.property.file.orig" value="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig"/>
+        <property name="mvservlet.property.file.orig"
+                  value="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig"/>
 
 
         <!-- load the build properties -->
@@ -283,7 +286,8 @@
 
 
     <!-- Compile the java code from ${src} into ${build} -->
-    <target name="compile" depends="init, test.db.management.system" description="compile the source">
+    <target name="compile" depends="init, test.db.management.system"
+            description="compile the source">
         <!-- Compile the project java files -->
         <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
             <include name="**/*.java"/>
@@ -305,11 +309,12 @@
             <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
             <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
             <!-- set the refid -->
-            <classpath refid="${db.management.system}" />
+            <classpath refid="${db.management.system}"/>
         </javac>
 
     </target>
-    <target name="compile-all" depends="init, test.db.management.system" description="compile the source">
+    <target name="compile-all" depends="init, test.db.management.system"
+            description="compile the source">
         <!-- Compile the project java files -->
         <javac sourcepath="" srcdir="${src}" destdir="${build}" includeantruntime="false">
             <include name="**/*.java"/>
@@ -343,7 +348,7 @@
 
             <!-- This includes the db sprecific jar files based on the
             path elements specified by refid i.e. mysql, mysql-all, cb, cb-all-->
-            <classpath refid="${db.management.system}-all" />
+            <classpath refid="${db.management.system}-all"/>
         </javac>
     </target>
 
@@ -382,7 +387,84 @@
     </target>
 
     <!-- Build the web application folder -->
-    <target name="webapp" depends="dist, dist-test, test.db.management.system"
+    <target name="webapp-all" depends="dist, dist-test, test.db.management.system"
+            description="build the web application bundle">
+        <!-- Copy the webapp contents to the dist folder -->
+        <delete dir="${dist}/metviewer"/>
+        <copy todir="${dist}/metviewer">
+            <fileset dir="webapp/metviewer">
+                <exclude name="**/*.ncep"/>
+                <exclude name="**/*.noaa"/>
+                <exclude name="**/*.dev"/>
+                <exclude name="webapp/metviewer/WEB-INF/classes/mvservlet_psql.properties"/>
+                <exclude name="**/buildCB*"/>
+                <exclude name="**/buildMYSQL*"/>
+                <exclude name="**/buildMARIADB*"/>
+                <exclude name="**/buildAURORA*"/>
+                <exclude name="**/*.orig"/>
+            </fileset>
+        </copy>
+
+        <!-- Copy the R_work/include folder R files -->
+        <mkdir dir="${dist}/metviewer/R_work/include"/>
+        <copy todir="${dist}/metviewer/R_work/include">
+            <fileset dir="R_work/include">
+                <include name="*.R"/>
+            </fileset>
+        </copy>
+
+        <!-- Copy the R_tmpl folder R files -->
+        <mkdir dir="${dist}/metviewer/R_tmpl"/>
+        <copy todir="${dist}/metviewer/R_tmpl">
+            <fileset dir="R_tmpl">
+                <include name="*tmpl"/>
+            </fileset>
+        </copy>
+
+        <!-- Copy the support jar files to the dist folder -->
+        <copy todir="${dist}/metviewer/WEB-INF/lib">
+            <fileset dir="${lib}">
+                <include name="*.jar"/>
+                <exclude name="servlet-api.jar"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.mariadb"/>
+
+                <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
+                <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.aurora"/>
+
+                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
+
+                <exclude name="junit-4.11.jar"/>
+                <exclude name="hamcrest-core-1.3.jar"/>
+                <exclude name="mockito-all-1.9.5.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="${dist}/metviewer/WEB-INF/lib"
+              file="${dist}/lib/metviewer.jar"/>
+
+        <!-- Copy the documentation files -->
+        <mkdir dir="${dist}/metviewer/doc"/>
+        <copy todir="${dist}/metviewer/doc">
+            <fileset dir="doc">
+                <include name="**"/>
+            </fileset>
+        </copy>
+
+    </target>
+
+
+    <target name="webapp" depends="dist, test.db.management.system"
             description="build the web application bundle">
         <!-- Copy the webapp contents to the dist folder -->
         <delete dir="${dist}/metviewer"/>
@@ -464,6 +546,14 @@
         <delete dir="${dist}"/>
     </target>
 
+    <target name="war-all" depends="replace_properties,webapp-all" description="Create web archive">
+        <war destfile="${dist}/metviewer${context.path.suffix}.war"
+             webxml="${dist}/metviewer/WEB-INF/web.xml"
+             basedir="${dist}/metviewer">
+        </war>
+        <antcall target="restore_properties"/>
+    </target>
+
     <target name="war" depends="replace_properties,webapp" description="Create web archive">
         <war destfile="${dist}/metviewer${context.path.suffix}.war"
              webxml="${dist}/metviewer/WEB-INF/web.xml"
@@ -474,7 +564,8 @@
 
     <target name="replace_properties" depends="init,restore_properties">
         <!-- copy the  log4j2.xml file -->
-        <copy file="${log4j2.file}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
+        <copy file="${log4j2.file}" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml"
+              overwrite="true"/>
         <!-- replace properties file values  -->
         <replaceregexp file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
                        match="rscript.bin=(.*)"
@@ -546,12 +637,16 @@
 
     <target name="restore_properties">
         <!-- restore original mvservlet.properties file -->
-        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties" overwrite="true"/>
+        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties.orig"
+              tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/mvservlet.properties"
+              overwrite="true"/>
         <!-- restore the original log4j2.xml file -->
-        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig" tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
+        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml.orig"
+              tofile="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" overwrite="true"/>
     </target>
 
-    <target name="batch_load" depends="dist, test.db.management.system" description="Create load_batch module">
+    <target name="batch_load" depends="dist, test.db.management.system"
+            description="Create load_batch module">
         <tar destfile="${dist}/batch_load.tar">
             <tarfileset dir=".">
                 <exclude name="**/*.war"/>
@@ -586,7 +681,8 @@
         </tar>
     </target>
 
-    <target name="all" depends="war,batch_load" description="Create all modules"/>
+    <target name="all" depends="war-all,batch_load" description="Create all modules"/>
+    <target name="fortify" depends="war,batch_load" description="Create all modules"/>
 
 </project>
 

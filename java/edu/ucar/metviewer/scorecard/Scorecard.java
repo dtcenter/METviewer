@@ -111,18 +111,18 @@ public class Scorecard {
         List<Map<String, Entry>> listRows = scorecard.getListOfEachRowWithDesc();
 
         //depending on stat type init mangers
-        DatabaseManager databaseManager = null;
+        MysqlDatabaseManager databaseManager = null;
         if (dbType.equals("mysql")) {
-          databaseManager = (DatabaseManager) new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+          databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
                                                                       scorecard.getUser()),
                                                      scorecard.getPwd());
         } else if (dbType.equals("mariadb")) {
-          databaseManager = (DatabaseManager) new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+          databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
                                                                            scorecard.getUser()),
                                                           scorecard.getPwd());
         } else if (dbType.equals("aurora")) {
           databaseManager =
-                  (DatabaseManager) new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+              new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
                                                             scorecard.getUser()),
                                            scorecard.getPwd());
         }
