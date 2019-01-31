@@ -1152,11 +1152,7 @@ public class MVUtil {
     Map<Double, String> tableVal = new HashMap<>();
     for (int i = 0; i < lead.size(); i++) {
       listVal[i] = Double.parseDouble(lead.get(i));
-      String strLead = lead.get(i);
-      if (strLead.endsWith("0000")) {
-        strLead = strLead.replaceAll("0000$", "");
-      }
-      tableVal.put(listVal[i], strLead);
+      tableVal.put(listVal[i], lead.get(i));
     }
 
     //  sort the lead numerical values and build a sorted list of leads
