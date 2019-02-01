@@ -23,6 +23,8 @@ dblBootTime		= 0;
 dblBootCITime	= 0;
 intNumBoots		= 0;
 
+exemptedVars <- c('SSVAR_Spread', 'SSVAR_RMSE')
+
 # read the input data file into a data frame
 #if fcst_var is a special char - read it as-is and do not convert
 sampleData = read.delim(strInputDataFile,nrows=5);
@@ -781,7 +783,7 @@ if ( nrow(sampleData) > 0){
           } else {
             uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init", "fcst_lead", "stat_name")]))
           }
-          if (nrow(dfStatsPerm) != uniqueDates) {
+          if (nrow(dfStatsPerm) != uniqueDates && !listStat %in% exemptedVars) {
             stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
           }
           #sort data

@@ -493,6 +493,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         MVUtil.findValue(listToken, headerNames, "FCST_THRESH") +
                         MVUtil.findValue(listToken, headerNames, "OBS_THRESH");
 
+        //  These will eventually be put back into the above code after adding to MySQL
+        //        MVUtil.findValue(listToken, headerNames, "OBS_LEV") +
+        //        MVUtil.findValue(listToken, headerNames, "OBTYPE") +
+
         //  look for the header key in the table
         headerIdString = "";
         if (statHeaders.containsKey(statHeaderValue)) {
