@@ -5877,17 +5877,7 @@ function loadXMLSeries() {
         $("#plot_stat").val(initXML.find("plot").find("plot_stat").text()).multiselect("refresh");
     } catch (e) {
     }
-    if (selected_mode === "stat") {
-        $.each(fix_var_value_to_title_stat_map, function (key, val) {
-            $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
-        });
-    } else {
-        $.each(fix_var_value_to_title_mode_map, function (key, val) {
-            $('#fixed_var_1').append('<option value="' + key + '">' + val + '</option>');
-        });
 
-
-    }
     var value, number_of_axis;
     if (currentTab === 'Perf' || currentTab === 'Taylor' || currentTab === 'Contour') {
         number_of_axis = 1
