@@ -8,6 +8,7 @@ package edu.ucar.metviewer.db;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.Locale;
 
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -54,7 +55,7 @@ public abstract class DatabaseManager {
   public static DatabaseManager getLoadManager(
       String managementSystem, String host, String user, String password,
       String dbName) throws Exception {
-    String ms = managementSystem.toLowerCase();
+    String ms = managementSystem.toLowerCase(Locale.ENGLISH);
     String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
@@ -101,7 +102,7 @@ public abstract class DatabaseManager {
   // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
   public static DatabaseManager getAppManager(
       String managementSystem, String host, String user, String password) throws Exception {
-    String ms = managementSystem.toLowerCase();
+    String ms = managementSystem.toLowerCase(Locale.ENGLISH);
     String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     DatabaseManager databaseManager;
