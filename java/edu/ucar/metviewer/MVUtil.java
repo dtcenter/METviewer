@@ -1433,35 +1433,6 @@ public class MVUtil {
     return new String[]{mat.group(1), mat.group(2)};
   }
 
-  /**
-   * Run the system command and return the output
-   */
-  public static String sysCmd() throws Exception {
-    Process proc = Runtime.getRuntime().exec("whoami");
-
-    boolean boolExit = false;
-    String strOut = "";
-    BufferedReader readerProcStd = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-    BufferedReader readerProcErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-    while (!boolExit) {
-      try {
-        proc.exitValue();
-        boolExit = true;
-      } catch (Exception e) {
-      }
-
-      while (readerProcStd.ready()) {
-        strOut += readerProcStd.readLine() + "\n";
-      }
-      while (readerProcErr.ready()) {
-        strOut += readerProcErr.readLine() + "\n";
-      }
-    }
-    readerProcStd.close();
-    readerProcErr.close();
-
-    return strOut;
-  }
 
   /**
    * Determine the database line_data table in which the input statistic is stored.  For mode stats,

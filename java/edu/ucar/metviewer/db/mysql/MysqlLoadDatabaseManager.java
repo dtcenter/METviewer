@@ -3715,16 +3715,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   public void updateInfoTable(String strXML, MVLoadJob job) throws Exception {
     //  get the instance_info information to insert
     int instInfoIdNext = getNextId("instance_info", "instance_info_id");
-    String updater = "";
-    try {
-      updater = MVUtil.sysCmd();
-    } catch (Exception e) {
-      try {
-        updater = MVUtil.sysCmd();
-      } catch (Exception e2) {
-      }
-    }
-    updater = updater.trim();
+    String updater = "mvuser";
     String updateDate = DATE_FORMATTER.format(LocalDateTime.now());
     String updateDetail = job.getLoadNote();
 

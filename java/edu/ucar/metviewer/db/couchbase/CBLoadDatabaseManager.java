@@ -3022,16 +3022,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonObject firstRowObject = null;
 
     //  get the instance_info information to insert
-    String strUpdater = "";
-    try {
-      strUpdater = MVUtil.sysCmd();
-    } catch (Exception e) {
-      try {
-        strUpdater = MVUtil.sysCmd();
-      } catch (Exception e2) {
-      }
-    }
-    strUpdater = strUpdater.trim();
+    String strUpdater = "mvuser";
     String strUpdateDate = DATE_FORMAT.format(new Date());
     String strUpdateDetail = job.getLoadNote();
 
