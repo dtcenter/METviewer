@@ -101,7 +101,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   private final Map<String, Integer> tableDataFileLU;
 
   public CBLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
-    super(databaseInfo, password);
+    super(databaseInfo,password);
     mapIndexes = new MVOrderedMap();
     mapIndexes.put("#stat_header#_model_idx", "model");
     mapIndexes.put("#stat_header#_fcst_var_idx", "fcst_var");
@@ -484,6 +484,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 modelName +
                         MVUtil.findValue(listToken, headerNames, "FCST_VAR") +
                         MVUtil.findValue(listToken, headerNames, "FCST_LEV") +
+                        MVUtil.findValue(listToken, headerNames, "OBS_VAR") +
+                        MVUtil.findValue(listToken, headerNames, "OBS_LEV") +
                         MVUtil.findValue(listToken, headerNames, "OBTYPE") +
                         MVUtil.findValue(listToken, headerNames, "VX_MASK") +
                         MVUtil.findValue(listToken, headerNames, "INTERP_MTHD") +
@@ -3020,6 +3022,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     //  read the load xml into a string, if requested
     String strLoadXML = "";
     if (job.getLoadXML()) {
+      strXML = MVUtil.cleanString(strXML);
       try (BufferedReader reader = new BufferedReader(new FileReader(strXML))) {
         while (reader.ready()) {
           strLoadXML += reader.readLine().trim();

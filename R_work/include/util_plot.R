@@ -68,12 +68,12 @@ seriesMinMax = function(series, numModels, log=FALSE,listPlotDisp){
 #   series for the difference associated with the last series.
 numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
   intNumStats = 0;
-  for( strDep1Name in names(listDep1Plot) ){
-    for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
+  for( strDepName in names(listDepVal) ){
+    for( strDepStat in listDepVal[[strDepName]] ){
       intNumStats = intNumStats + 1;
     }
   }
-
+  
   intNumSeries = 1;
   listSeriesVar = names(listSeriesVal);
   for(intSeriesVar in 1:length(listSeriesVar)){
@@ -84,7 +84,7 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
     }
     intNumSeries = intNumSeries * intNumSeriesVal;
   }
-
+  
   return( intNumSeries * intNumStats );
 }
 
