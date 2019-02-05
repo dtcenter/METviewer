@@ -484,6 +484,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 modelName +
                         MVUtil.findValue(listToken, headerNames, "FCST_VAR") +
                         MVUtil.findValue(listToken, headerNames, "FCST_LEV") +
+                        MVUtil.findValue(listToken, headerNames, "OBS_VAR") +
+                        MVUtil.findValue(listToken, headerNames, "OBS_LEV") +
                         MVUtil.findValue(listToken, headerNames, "OBTYPE") +
                         MVUtil.findValue(listToken, headerNames, "VX_MASK") +
                         MVUtil.findValue(listToken, headerNames, "INTERP_MTHD") +

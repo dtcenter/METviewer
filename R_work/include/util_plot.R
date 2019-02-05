@@ -73,7 +73,7 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
       intNumStats = intNumStats + 1;
     }
   }
-
+  
   intNumSeries = 1;
   listSeriesVar = names(listSeriesVal);
   for(intSeriesVar in 1:length(listSeriesVar)){
@@ -84,7 +84,7 @@ numSeries = function(listSeriesVal, listDepVal, boolDiff = FALSE){
     }
     intNumSeries = intNumSeries * intNumSeriesVal;
   }
-
+  
   return( intNumSeries * intNumStats );
 }
 

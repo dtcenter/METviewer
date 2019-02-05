@@ -424,7 +424,7 @@
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
-          <!--      <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/> -->
+                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/>
 
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
