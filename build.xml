@@ -295,7 +295,6 @@
             <!-- aurora-->
             <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.aurora"/>
             <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
-            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.aurora"/>
             <!-- mysql-->
             <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mysql"/>
             <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mysql"/>
@@ -303,13 +302,11 @@
             <!-- cb-->
             <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.cb"/>
             <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.cb"/>
-            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.cb"/>
             <!-- mariadb-->
             <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mariadb"/>
             <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
-            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
             <!-- set the refid -->
-            <classpath refid="${db.management.system}"/>
+            <classpath refid="${db.management.system}" />
         </javac>
 
     </target>
@@ -322,21 +319,18 @@
             <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.aurora"/>
             <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.aurora"/>
             <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.aurora"/>
-            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.aurora"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.aurora"/>
 
             <exclude name="/edu/ucar/metviewer/db/aurora/**" if="db.management.system.cb"/>
             <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.cb"/>
             <exclude name="edu/ucar/metviewer/db/mariadb/**" if="db.management.system.cb"/>
             <exclude name="**/TestMariaDbDatabaseManager.java" if="db.management.system.cb"/>
-            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.cb"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.cb"/>
 
             <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mariadb"/>
             <exclude name="**/TestAuroraDatabaseManager.java" if="db.management.system.mariadb"/>
             <exclude name="edu/ucar/metviewer/db/couchbase/**" if="db.management.system.mariadb"/>
             <exclude name="**/TestCBDatabaseManager.java" if="db.management.system.mariadb"/>
-            <exclude name="edu/ucar/metviewer/db/mysql/**" if="db.management.system.mariadb"/>
             <exclude name="**/TestMysqlDatabaseManager.java" if="db.management.system.mariadb"/>
 
             <exclude name="edu/ucar/metviewer/db/aurora/**" if="db.management.system.mysql"/>
@@ -504,7 +498,6 @@
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
-                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/>
 
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>

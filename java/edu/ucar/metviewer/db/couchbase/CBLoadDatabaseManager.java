@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -492,6 +493,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                         MVUtil.findValue(listToken, headerNames, "FCST_THRESH") +
                         MVUtil.findValue(listToken, headerNames, "OBS_THRESH");
 
+        //  These will eventually be put back into the above code after adding to MySQL
+        //        MVUtil.findValue(listToken, headerNames, "OBS_VAR") +
+        //        MVUtil.findValue(listToken, headerNames, "OBS_LEV") +
+
         //  look for the header key in the table
         headerIdString = "";
         if (statHeaders.containsKey(statHeaderValue)) {
@@ -958,12 +963,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * was designed to be called from loadStatFile(), which is responsible for building insert value
    * lists for the various types of grid_stat and point_stat database tables.
    *
-   * @param mvLoadStatInsertData Data structure loaded with insert value lists
+   * @param statInsertData Data structure loaded with insert value lists
    * @return An array of four integers, indexed by the INDEX_* members, representing the number of
    * database inserts of each type
    * @throws Exception
    */
-  private int[] commitStatData(MVLoadStatInsertData mvLoadStatInsertData)
+  private int[] commitStatData(MVLoadStatInsertData statInsertData)
       throws Exception {
 
     int[] listInserts = new int[]{0, 0, 0, 0};
@@ -972,7 +977,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
        * * * *  stat_header was committed commit  * * * *
   		 */
 
-    mvLoadStatInsertData.getListInsertValues().clear();
+    statInsertData.getListInsertValues().clear();
 
 
   		/*
@@ -980,58 +985,35 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   		 */
 
     //  for each line type, build an insert statement with the appropriate list of values
-    for (Map.Entry<String, List<String>> entry : mvLoadStatInsertData.getTableLineDataValues()
+    for (Map.Entry<String, List<String>> entry : statInsertData.getTableLineDataValues()
                                                      .entrySet()) {
-      mvLoadStatInsertData.setLineType(entry.getKey());
+      statInsertData.setLineType(entry.getKey());
       ArrayList listValues = (ArrayList) entry.getValue();
+      String tableName = statInsertData.getLineType().toLowerCase(Locale.US);
 
       int intResLineDataInsert = executeBatch(listValues);
       if (listValues.size() != intResLineDataInsert) {
         logger.warn("  **  WARNING: unexpected result from line_data INSERT: " +
-                        intResLineDataInsert + "\n        " + mvLoadStatInsertData.getFileLine());
+                        intResLineDataInsert + "\n        " + statInsertData.getFileLine());
       }
       listInserts[INDEX_LINE_DATA]++;
     }
-    mvLoadStatInsertData.getTableLineDataValues().clear();
+    statInsertData.getTableLineDataValues().clear();
 
-
-  		/*
-       * * * *  stat_group commit  * * * *
-  		 */
-
-    //  build a stat_group insert with all stored values
-    if (!mvLoadStatInsertData.getListStatGroupInsertValues().isEmpty()) {
-      String strStatGroupInsertValues = "";
-      for (int i = 0; i < mvLoadStatInsertData.getListStatGroupInsertValues().size(); i++) {
-        strStatGroupInsertValues += (i == 0 ? "" : ", ") + mvLoadStatInsertData
-                                                               .getListStatGroupInsertValues()
-                                                               .get(i);
-      }
-//      String strStatGroupInsert = "INSERT INTO stat_group VALUES " + strStatGroupInsertValues + ";";
-//      int intStatGroupInsert = executeUpdate(strStatGroupInsert);
-//      if (mvLoadStatInsertData.getListStatGroupInsertValues().size() != intStatGroupInsert) {
-//        logger.warn(
-//            "  **  WARNING: unexpected result from stat_group INSERT: " + intStatGroupInsert + " vs. " +
-//                mvLoadStatInsertData.getListStatGroupInsertValues()
-//                    .size() + "\n        " + mvLoadStatInsertData.getFileLine());
-//      }
-      int indexStatGroup = 2;
-      listInserts[indexStatGroup]++;
-    }
-    mvLoadStatInsertData.getListStatGroupInsertValues().clear();
+    statInsertData.getListStatGroupInsertValues().clear();
 
   		/*
        * * * *  variable length data commit  * * * *
   		 */
 
     //  insert probabilistic data into the thresh tables
-    Set<String> strings = mvLoadStatInsertData.getTableVarLengthValues().keySet();
-    String[] listVarLengthTypes = strings.toArray(new String[strings.size()]);
+    Set<String> strings = statInsertData.getTableVarLengthValues().keySet();
+    String[] varLengthTypes = strings.toArray(new String[strings.size()]);
 
 
-    for (String listVarLengthType : listVarLengthTypes) {
+    for (String listVarLengthType : varLengthTypes) {
       List<List<Object>> listVarLengthValues =
-          mvLoadStatInsertData.getTableVarLengthValues().get(listVarLengthType);
+              statInsertData.getTableVarLengthValues().get(listVarLengthType);
       if (1 > listVarLengthValues.size()) {
         continue;
       }
@@ -1045,9 +1027,9 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 //      if (listVarLengthValues.length != intThreshInsert) {
 //        logger.warn(
 //            "  **  WARNING: unexpected result from thresh INSERT: " + intThreshInsert + " vs. " +
-//                listVarLengthValues.length + "\n        " + mvLoadStatInsertData.getFileLine());
+//                listVarLengthValues.length + "\n        " + statInsertData.getFileLine());
 //      }
-      mvLoadStatInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
+      statInsertData.getTableVarLengthValues().put(listVarLengthType, new ArrayList<>());
     }
 
     return listInserts;
@@ -2633,7 +2615,8 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
 
   @Override
   public void updateGroup(String group) throws Exception {
-    String currentCategory = "";
+    String currentGroup = "";
+    String currentDescription = "";
     String currentID = "";
     long nextIdNumber = 0;
     int nrows = 0;
@@ -2665,26 +2648,27 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       if (queryList.size() > 0) {
         firstRow = queryList.get(0);
         firstRowObject = firstRow.value();
-        currentCategory = firstRowObject.get("group").toString();
+        currentGroup = firstRowObject.get("group").toString();
+        currentDescription = firstRowObject.get("description").toString();
         currentID = firstRowObject.get("groupId").toString();
         nrows = nrows + 1;
       }
 
-    } catch (CouchbaseException e) {
+    } catch (Exception e) {
       throw new Exception(e.getMessage());
     }
     // if no category document exists, or the group is not the same as in the XML
-    if (!currentCategory.equals(group)) {
+    if (!currentGroup.equals(group)) {
       if (nrows == 0) {
         try {
           nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
           if (0 > nextIdNumber) {
             throw new Exception("METViewer load error: processDataFile() unable to get counter");
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           throw new Exception(e.getMessage());
         }
-        nextIdString = getDatabaseInfo().getDbName() + "::category::" + group + "::" + String.valueOf(nextIdNumber);
+        nextIdString = getDbName() + "::category::" + String.valueOf(nextIdNumber);
       } else {
         nextIdString = currentID;
       }
@@ -2693,7 +2677,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
                 .put("type", "category")
                 .put("dbname", getDbName())
                 .put("group", group)
-                .put("description", "");
+                .put("description", currentDescription);
 
         doc = JsonDocument.create(nextIdString, groupFile);
         response = getBucket().upsert(doc);
@@ -2712,7 +2696,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     String currentDescription = "";
     String currentGroup = "";
     String currentID = "";
-    String newGroup = "default";
+    String newGroup = "";
     long nextIdNumber = 0;
     int nrows = 0;
     String nextIdString = "";
@@ -2749,7 +2733,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         nrows = nrows + 1;
       }
 
-    } catch (CouchbaseException e) {
+    } catch (Exception e) {
       System.out.println(e.getMessage());
     }
     // if no category document exists, or the group is not the same as in the XML
@@ -2760,10 +2744,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           if (0 > nextIdNumber) {
             throw new Exception("METViewer load error: processDataFile() unable to get counter");
           }
-        } catch (CouchbaseException e) {
+        } catch (Exception e) {
           throw new Exception(e.getMessage());
         }
-        nextIdString = getDatabaseInfo().getDbName() + "::category::" + description + "::" + String.valueOf(nextIdNumber);
+        nextIdString = getDatabaseInfo().getDbName() + "::category::" + String.valueOf(nextIdNumber);
       } else {
         nextIdString = currentID;
         newGroup = currentGroup;
