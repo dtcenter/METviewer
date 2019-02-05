@@ -435,14 +435,11 @@
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.mariadb"/>
 
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.aurora"/>
 
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
                 <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
 
                 <exclude name="junit-4.11.jar"/>
@@ -512,14 +509,11 @@
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.mariadb"/>
 
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.aurora"/>
 
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
                 <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
 
                 <exclude name="junit-4.11.jar"/>
@@ -656,19 +650,15 @@
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mysql"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mysql"/>
-                <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.mysql"/>
 
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.mariadb"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.mariadb"/>
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.mariadb"/>
 
                 <exclude name="couchbase-core-io-1.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="couchbase-java-client-2.5.8.jar" if="db.management.system.aurora"/>
                 <exclude name="rxjava-1.3.4.jar" if="db.management.system.aurora"/>
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.aurora"/>
 
-                <exclude name="mysql-connector-java-5.1.6.jar" if="db.management.system.cb"/>
                 <exclude name="mariadb-java-client-2.3.0.jar" if="db.management.system.cb"/>
 
                 <include name="bin/**"/>
