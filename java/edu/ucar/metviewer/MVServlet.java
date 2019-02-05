@@ -1028,6 +1028,8 @@ public class MVServlet extends HttpServlet {
           dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
           dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
           dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+          dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+
 
           DocumentBuilder db = dbf.newDocumentBuilder();
           File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
