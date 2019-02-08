@@ -631,7 +631,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String[] fieldArr = fieldString.split(",");
     for (String str : fieldArr) {
       str = str.trim();
-      if (str.contains(" ")) {
+      while (str.contains(" ")) {
         str = str.substring(str.indexOf(" ") + 1);
       }
       if (str.contains(".")) {
@@ -2588,29 +2588,38 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     if (job.getPlotTmpl().startsWith("relp")) {
       type = "ens";
-      table = "line_data_relp";
-      tableBins = "line_data_relp_ens";
+      table = "relp";
+      tableBins = "relp_ens";
     } else if (job.getPlotTmpl().startsWith("rhist")) {
       type = "rank";
-      table = "line_data_rhist";
-      tableBins = "line_data_rhist_rank";
+      table = "rhist";
+      tableBins = "rhist_rank";
     } else if (job.getPlotTmpl().startsWith("phist")) {
       type = "bin";
-      table = "line_data_phist";
-      strWhere = strWhere.replaceAll("h\\.n_bin", "ld.n_bin");
-      tableBins = "line_data_phist_bin";
+      table = "phist";
+      tableBins = "phist_bin";
       binColumnName = "bin_size";
     }
     strWhere = strWhere.replaceAll("h\\.n_" + type, "ld.n_" + type);
-    strNumSelect =
-        "SELECT DISTINCT "
-            + "  ld.n_" + type + "  "
-            + " FROM "
-            + "  stat_header h, "
-            + "  " + table + " ld "
-            + " WHERE "
-            + strWhere
-            + "  AND h.stat_header_id = ld.stat_header_id;";
+
+    String dbList = "[";
+
+    for (String cdbName: job.getCurrentDBName()) {
+      if (dbList.length() > 1) {
+        dbList += ", ";
+      }
+      dbList += "\'" + cdbName + "\'";
+    }
+    dbList += "]";
+
+    // find the line_data documents where the header has the selected forecast variable
+    strNumSelect = "SELECT DISTINCT ld.n_" + type
+            + " FROM `" + getBucket().name() + "` AS h "
+            + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
+            + " WHERE " + strWhere
+            + " AND ld.type = \'line\' AND ld.line_type = \'" + table + "\'"
+            + " AND h.type = \'header\' AND h.header_type = \'stat\' "
+            + " AND h.dbname IN " + dbList;
 
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + " ");
@@ -2620,7 +2629,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     //  run the rank number query and warn, if necessary
     String strMsg = "";
-    List<String> listNum = getNumbers(strNumSelect, job.getCurrentDBName().get(0));
+    List<String> listNum = getNumbers(strNumSelect, dbList);
 
 
     if (listNum.isEmpty()) {
@@ -2637,30 +2646,34 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     //  build a query for the rank data
     strWhere = strWhere + strWhereSeries;
     String strPlotDataSelect =
-        "SELECT   ldr.i_value, ";
+        "SELECT hbin.i_value, ";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + strSelectList + ", ";
     }
 
 
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value ";
+    strPlotDataSelect = strPlotDataSelect + " SUM(TONUMBER(hbin." + type + "_i)) AS stat_value";
 
     if (binColumnName != null) {
-      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + " ";
+      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
     }
-    strPlotDataSelect = strPlotDataSelect + " FROM "
-                            + "  stat_header h, "
-                            + "  " + table + " ld, "
-                            + "  " + tableBins + " ldr "
-                            + " WHERE "
-                            + strWhere
-                            + "  AND h.stat_header_id = ld.stat_header_id "
-                            + "  AND ld.line_data_id = ldr.line_data_id "
-                            + "GROUP BY i_value";
+    strPlotDataSelect = strPlotDataSelect
+            + " FROM `" + getBucket().name() + "` AS h "
+            + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
+            + " UNNEST ld." + tableBins + "[0:" + listNum.get(0) + "] AS hbin"
+            + " WHERE " + strWhere
+            + " AND ld.type = \'line\' AND ld.line_type = \'" + table + "\'"
+            + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+            + " AND h.dbname IN " + dbList
+            + " GROUP BY hbin.i_value";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
-    strPlotDataSelect = strPlotDataSelect + ";";
+    // for phist plots with bin_size, add to group by as well as select
+    if (binColumnName != null) {
+      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
+    }
+    strPlotDataSelect = strPlotDataSelect + " ORDER BY TONUMBER(hbin.i_value);";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + " ");
       printStreamSql.flush();

@@ -2666,6 +2666,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
+    // for phist plots with bin_size, add to group by as well as select
+    if (binColumnName != null) {
+      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
+    }
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
