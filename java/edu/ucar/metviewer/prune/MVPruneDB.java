@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.ucar.metviewer.db.DatabaseInfo;
+import edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager;
+import edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager;
+import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,19 +44,46 @@ public class MVPruneDB {
 
   public static void main(String[] args) throws Exception {
     String filename;
+    String dbType = "mysql";
     if (0 == args.length) {
       logger.error("  Error: no arguments!!!");
       logger.info(USAGE);
 
     } else {
       filename = args[0];
+      if (args.length > 1) {
+        switch (args[1]) {
+          case "mysql":
+            dbType = "mysql";
+            break;
+          case "mariadb":
+            dbType = "mariadb";
+            break;
+          case "aurora":
+            dbType = "aurora";
+            break;
+        }
+      }
       PruneXmlParser pruneXmlParser = new PruneXmlParser();
       MVPruneDB mvPruneDB = pruneXmlParser.parseParameters(filename);
       boolean isValid = mvPruneDB.validate();
       if (isValid) {
-        PruneDbManager pruneDbManager = new PruneDbManager(
-            new DatabaseInfo(mvPruneDB.getHost(), mvPruneDB.getUser()), mvPruneDB.getPwd());
-
+        MysqlDatabaseManager databaseManager = null;
+        if (dbType.equals("mysql")) {
+          databaseManager = new MysqlDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
+                                                                      mvPruneDB.getUser()),
+                                                     mvPruneDB.getPwd());
+        } else if (dbType.equals("mariadb")) {
+          databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
+                                                                           mvPruneDB.getUser()),
+                                                          mvPruneDB.getPwd());
+        } else if (dbType.equals("aurora")) {
+          databaseManager =
+              new AuroraAppDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
+                                                            mvPruneDB.getUser()),
+                                           mvPruneDB.getPwd());
+        }
+        PruneDbManager pruneDbManager = new PruneDbManagerMysql(databaseManager);
         pruneDbManager.pruneData(mvPruneDB);
       }
 

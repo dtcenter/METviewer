@@ -65,6 +65,8 @@ CREATE TABLE stat_header
     descr,
     fcst_var(20),
     fcst_lev,
+    obs_var(20),
+    obs_lev,
     obtype,
     vx_mask,
     interp_mthd,
