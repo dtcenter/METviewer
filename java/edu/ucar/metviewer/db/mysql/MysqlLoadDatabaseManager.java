@@ -752,12 +752,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               stmt.setString(2, MVUtil.findValue(listToken, headerNames, "DESC"));
               stmt.setString(3, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
               stmt.setString(4, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
-              stmt.setString(5, MVUtil.findValue(listToken, headerNames, "OBTYPE"));
-              stmt.setString(6, MVUtil.findValue(listToken, headerNames, "VX_MASK"));
-              stmt.setString(7, MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
-              stmt.setInt(8, Integer.valueOf(strInterpPnts));
-              stmt.setString(9, MVUtil.findValue(listToken, headerNames, "FCST_THRESH"));
-              stmt.setString(10, MVUtil.findValue(listToken, headerNames, "OBS_THRESH"));
+              stmt.setString(5, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
+              stmt.setString(6, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
+              stmt.setString(7, MVUtil.findValue(listToken, headerNames, "OBTYPE"));
+              stmt.setString(8, MVUtil.findValue(listToken, headerNames, "VX_MASK"));
+              stmt.setString(9, MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
+              stmt.setInt(10, Integer.valueOf(strInterpPnts));
+              stmt.setString(11, MVUtil.findValue(listToken, headerNames, "FCST_THRESH"));
+              stmt.setString(12, MVUtil.findValue(listToken, headerNames, "OBS_THRESH"));
 
               res = stmt.executeQuery();
               if (res.next()) {
@@ -1532,12 +1534,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setString(2, "NA");
                 stmt.setString(3, listToken[7]);
                 stmt.setString(4, listToken[8]);
-                stmt.setString(5, listToken[4]);
-                stmt.setString(6, listToken[5]);
-                stmt.setString(7, "NA");
-                stmt.setInt(8, Integer.valueOf(interpPnts));
-                stmt.setString(9, thresh);
-                stmt.setString(10, thresh);
+                stmt.setString(5, listToken[7]);
+                stmt.setString(6, listToken[8]);
+                stmt.setString(7, listToken[4]);
+                stmt.setString(8, listToken[5]);
+                stmt.setString(9, "NA");
+                stmt.setInt(10, Integer.valueOf(interpPnts));
+                stmt.setString(11, thresh);
+                stmt.setString(12, thresh);
 
                 res = stmt.executeQuery();
                 if (res.next()) {
