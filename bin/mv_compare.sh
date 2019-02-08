@@ -69,7 +69,7 @@ fi
 
 # construct the classpath for MVLoad
 CLASSPATH=$MV_HOME/lib/log4j-1.2.15.jar
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.3.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.4.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.2.jar
