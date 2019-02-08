@@ -10,7 +10,7 @@ if [ -z ${MV_HOME+x} ]; then
 fi
 
 # construct the classpath for MVBatch
-CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.3.0.jar
+CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.4.0.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xercesImpl.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/xml-apis.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/tomcat-jdbc-8.5.2.jar
