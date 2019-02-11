@@ -301,9 +301,9 @@ public class MVServlet extends HttpServlet {
       } else if (strField.equals("interp_pnts")) {
         listRes = MVUtil.sortInterpPnts(listRes);
       } else if (strField.equals("fcst_lead") || strField.equals("obs_lead")) {
-        listRes = MVUtil.sortFormatLead(listRes, true);
+        listRes = MVUtil.sortFormatLead(listRes);
       } else if (strField.equals("init_hour") || strField.equals("valid_hour")) {
-        listRes = MVUtil.sortHour(listRes, true);
+        listRes = MVUtil.sortHour(listRes);
       } else if (strField.equals("fcst_valid")
                      || strField.equals("fcst_init")
                      || strField.equals("obs_valid")) {
@@ -532,7 +532,10 @@ public class MVServlet extends HttpServlet {
       runTargetedJob(job, mvBatch);
 
 
-      String plotterOutput = log.toString();
+      String plotterOutput = "";
+      if(log != null){
+        plotterOutput = log.toString();
+      }
       //  parse out R error messages, if present, throwing an exception if the error was fatal
       Matcher matOutput = Pattern.compile(
           "(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)")
@@ -1029,9 +1032,10 @@ public class MVServlet extends HttpServlet {
           dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
           dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
           dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-
+          dbf.setValidating(true);
 
           DocumentBuilder db = dbf.newDocumentBuilder();
+
           File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
           if (fileXml.exists()) {
             try (FileInputStream fileInputStream = new FileInputStream(fileXml);) {
@@ -1057,6 +1061,7 @@ public class MVServlet extends HttpServlet {
 
         //  instantiate and configure the xml parser
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setValidating(true);
         dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
         dbf.setNamespaceAware(true);

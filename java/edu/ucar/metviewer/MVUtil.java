@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -1002,7 +1003,7 @@ public class MVUtil {
    * @return Sorted threshold list, by value
    */
   public static List<String> sortThresh(final List<String> thresh) {
-    return sortVals(thresh, true, MVUtil.thresh);
+    return sortVals(thresh, MVUtil.thresh);
   }
 
   /**
@@ -1012,7 +1013,7 @@ public class MVUtil {
    * @return Sorted threshold list, by value
    */
   public static List<String> sortLev(final List<String> lev) {
-    return sortVals(lev, true, MVUtil.lev);
+    return sortVals(lev, MVUtil.lev);
   }
 
   /**
@@ -1042,12 +1043,11 @@ public class MVUtil {
    * the numerical portion (assumed to be group 2 of the matched pattern).
    *
    * @param vals List of String representations of the values
-   * @param asc  true for ascending order
    * @param pat  Pattern used to parse the input values
    * @return Sorted list, by numerical value
    */
   public static List<String> sortVals(
-      final List<String> vals, final boolean asc,
+      final List<String> vals,
       final Pattern pat) {
 
     //  parse the input values and store the numerical values in a sortable array
@@ -1116,21 +1116,11 @@ public class MVUtil {
       //  if not, add the value(s) to the return list
       Object objValCur = tableVal.get(dblKey);
       if (objValCur instanceof String) {
-        if (asc) {
-          listRet.add(listRet.size(), objValCur);
-        } else {
-          listRet.add(0, objValCur);
-        }
+        listRet.add(listRet.size(), objValCur);
       } else {
-        ArrayList listValCur = (ArrayList) objValCur;
-        for (Object valCur : listValCur) {
-          if (asc) {
-            listRet.add(listRet.size(), valCur);
-          } else {
-            listRet.add(0, valCur);
-          }
-        }
+        listRet.add(0, objValCur);
       }
+
       tableAdded.put(dblKey, "true");
     }
 
@@ -1140,12 +1130,11 @@ public class MVUtil {
   /**
    * Parse, format and sort the input list of lead times, removing the trailing 0000, if requested.
    *
-   * @param lead        List of lead time values
-   * @param asc         true for ascending order
+   * @param lead List of lead time values
    * @return Sorted list of formatted lead times, by numerical value
    */
   public static List<String> sortFormatLead(
-      final List<String> lead, final boolean asc) {
+      final List<String> lead) {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.size()];
@@ -1159,7 +1148,7 @@ public class MVUtil {
     Arrays.sort(listVal);
     List<String> listRet = new ArrayList<>(lead.size());
     for (int i = 0; i < listVal.length; i++) {
-      listRet.add(asc ? i : listVal.length - 1 - i, tableVal.get(listVal[i]));
+      listRet.add(i, tableVal.get(listVal[i]));
     }
 
     return listRet;
@@ -1178,7 +1167,7 @@ public class MVUtil {
     return listRet;
   }
 
-  public static List<String> sortHour(final List<String> hour, boolean asc) {
+  public static List<String> sortHour(final List<String> hour) {
 
     List<Integer> hoursInt = new ArrayList<>();
     for (String hourStr : hour) {
@@ -1188,11 +1177,8 @@ public class MVUtil {
 
       }
     }
-    if (asc) {
-      Collections.sort(hoursInt);
-    } else {
-      Collections.sort(hoursInt, Collections.reverseOrder());
-    }
+    Collections.sort(hoursInt);
+
     List<String> result = new ArrayList<>();
     for (Integer hourInt : hoursInt) {
       result.add(String.format("%02d", hourInt));
@@ -1527,9 +1513,9 @@ public class MVUtil {
     MvResponse mvResponse = new MvResponse();
 
     //  build a list of arguments
-    StringBuilder strArgList = new StringBuilder();
+    StringBuilder argList = new StringBuilder();
     for (int i = 0; null != args && i < args.length; i++) {
-      strArgList.append(' ').append(args[i]);
+      argList.append(' ').append(args[i]);
     }
 
     Process proc = null;
@@ -1546,8 +1532,12 @@ public class MVUtil {
 
 
     try {
+      String rscriptCommandClean = cleanString(rscriptCommand);
+      String scriptNameClean = cleanString(scriptName);
+      String strArgListClean = cleanString(argList.toString());
 
-      proc = Runtime.getRuntime().exec(rscriptCommand + " " + scriptName + strArgList);
+      proc = Runtime.getRuntime()
+                 .exec(rscriptCommandClean + " " + scriptNameClean + strArgListClean);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
@@ -1866,11 +1856,11 @@ public class MVUtil {
         formatDBms.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date dateParse = formatDb.parse(strVal);
         if (null != dateParse) {
-          strVal = PLOT_FORMAT.format(dateParse);
+          strVal = formatPlotFormat(dateParse);
         } else {
           dateParse = formatDBms.parse(strVal);
           if (null != dateParse) {
-            strVal = PLOT_FORMAT.format(dateParse);
+            strVal = formatPlotFormat(dateParse);
           }
         }
       } catch (Exception e) {
@@ -2283,7 +2273,8 @@ public class MVUtil {
     try (StringWriter stringWriter = new StringWriter()) {
       transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");      Transformer transformer = transformerFactory.newTransformer();
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+      Transformer transformer = transformerFactory.newTransformer();
       transformer.transform(source, new StreamResult(stringWriter));
       result = stringWriter.toString();
     } catch (TransformerException | IOException e) {
@@ -2315,7 +2306,7 @@ public class MVUtil {
     }
     StringBuilder cleanString = new StringBuilder();
     for (int i = 0; i < aString.length(); ++i) {
-      cleanString.append( cleanChar(aString.charAt(i)));
+      cleanString.append(cleanChar(aString.charAt(i)));
     }
     return cleanString.toString();
   }
@@ -2357,6 +2348,18 @@ public class MVUtil {
         return ' ';
     }
     return '%';
+  }
+
+  public static synchronized String formatPlotFormat(Date date) {
+    return PLOT_FORMAT.format(date);
+  }
+
+  public static synchronized Date parsePlotFormat(String dateStr) throws ParseException {
+    return PLOT_FORMAT.parse(dateStr);
+  }
+
+  public static synchronized String formatPerf(double val) {
+    return formatPerf.format(val);
   }
 
 }

@@ -252,7 +252,7 @@ public class MVLoad {
                         MVUtil.padBegin("var length inserts: ", 36) + lengthInserts + "\n" +
                         MVUtil.padBegin("total lines: ", 36) + statLinesTotal + "\n" +
                         MVUtil.padBegin("insert size: ", 36) + insertSize + "\n" +
-                        MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
+                        MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf(
                                 dblLinesPerMSec) + "\n" +
                         MVUtil.padBegin("num files: ", 36) + numStatFiles + "\n\n" +
                         "    ==== mode ====\n\n" +

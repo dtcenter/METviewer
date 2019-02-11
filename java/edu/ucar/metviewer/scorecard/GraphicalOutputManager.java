@@ -11,7 +11,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -141,6 +140,7 @@ class GraphicalOutputManager {
         dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
         dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        dbf.setValidating(true);
 
         db = dbf.newDocumentBuilder();
         Document doc = db.parse(new File(thresholdFile));
@@ -661,30 +661,5 @@ class GraphicalOutputManager {
     return row;
   }
 
-  public static void main(String[] arg) {
-    StringBuilder htmlPageStr = new StringBuilder();
-    String line = null;
-    try (FileReader fileReader = new FileReader("/d3/projects/METviewer/src_dev/apps/"
-                                                    + "METviewer/scorecard_cam_cts.html");
-         BufferedReader bufferedReader = new BufferedReader(fileReader)) {
-      while ((line = bufferedReader.readLine()) != null) {
-        htmlPageStr.append(htmlPageStr).append(line);
-      }
-    } catch (Exception e) {
 
-      logger.error(e);
-    }
-
-    try {
-      System.setProperty("java.awt.headless", "true");
-      HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
-      imageGenerator.loadHtml(htmlPageStr.toString());
-      imageGenerator.saveAsImage("/d3/projects/METviewer/src_dev/apps/METviewer/"
-                                     + "scorecard_cam_cts_2.png");
-
-    } catch (Exception e) {
-      logger.error(e);
-      logger.info("Image was not  saved");
-    }
-  }
 }

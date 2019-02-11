@@ -84,7 +84,7 @@ public abstract class JobManager {
         Matcher matDateRange = mvBatch.getDatabaseManager().getDateRangePattern()
                                    .matcher(strFixVal);
         if (matDateRange.matches()) {
-          strFixVal = MVUtil.PLOT_FORMAT.format(dbFormat.parse(matDateRange.group(2)));
+          strFixVal = MVUtil.formatPlotFormat(dbFormat.parse(matDateRange.group(2)));
         }
       }
       result.putStr(strFixVar, strFixVal);

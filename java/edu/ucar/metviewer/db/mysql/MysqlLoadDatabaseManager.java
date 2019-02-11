@@ -1217,7 +1217,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           statHeaderLoadTime) + "\n" +
                       MVUtil.padBegin("stat_header search time: ", 36) + MVUtil.formatTimeSpan(
           headerSearchTime) + "\n" +
-                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
+                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf(
           dblLinesPerMSec) + "\n\n");
     }
     return timeStats;
@@ -2147,7 +2147,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           intStatHeaderLoadTime) + "\n" +
                       MVUtil.padBegin("stat_header search time: ", 36) + MVUtil.formatTimeSpan(
           headerSearchTime) + "\n" +
-                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
+                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf(
           dblLinesPerMSec) + "\n\n");
     }
     return timeStats;
@@ -3589,10 +3589,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
     // set default values for the loaded time (now) and the modified time (that of input file)
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    String loadDate = DATE_FORMAT.format(cal.getTime());
+    String loadDate = formatDate(cal.getTime());
     cal.setTimeInMillis(file.lastModified());
 
-    String modDate = DATE_FORMAT.format(cal.getTime());
+    String modDate = formatDate(cal.getTime());
 
 
     // determine the type of the input data file by parsing the filename

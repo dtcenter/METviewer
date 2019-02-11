@@ -15,6 +15,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -95,6 +96,9 @@ public class MysqlDatabaseManager extends DatabaseManager {
       updateGroups = true;
     }
     initDBList(updateGroups);
+  }
+  public synchronized String formatDate(Date date){
+   return DATE_FORMAT.format(date.getTime());
   }
 
   protected String getJdbcUrl(final String hostName, final String dbName) {

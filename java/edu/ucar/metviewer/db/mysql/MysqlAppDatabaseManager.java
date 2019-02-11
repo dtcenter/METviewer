@@ -3004,7 +3004,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                      + strWhere
                                      + "  AND ld.stat_header_id = h.stat_header_id "
                                      + "AND ld.line_data_id = ldt.line_data_id;";
-        printStreamSql.println(strSelPctThresh + "\n");
+        if (printStreamSql != null) {
+          printStreamSql.println(strSelPctThresh + "\n");
+        }
 
         //  run the PCT thresh query
         pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));

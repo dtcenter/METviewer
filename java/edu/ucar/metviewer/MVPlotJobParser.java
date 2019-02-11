@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-public class MVPlotJobParser {
+public final class MVPlotJobParser {
 
   protected static final Map<String, Method> formatToBoolValues = new HashMap<>();
   private static final Logger logger = LogManager.getLogger("MVPlotJobParser");
@@ -330,6 +330,8 @@ public class MVPlotJobParser {
     //Disable DTDs
     dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     dbf.setNamespaceAware(true);
+    dbf.setValidating(true);
+
     return dbf.newDocumentBuilder();
   }
 

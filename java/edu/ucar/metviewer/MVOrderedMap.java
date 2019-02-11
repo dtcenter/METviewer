@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Extension of Hashtable that returns the set of entries in the order that they were inserted into the table, via the method getOrderedEntries().
  */
-public class MVOrderedMap extends Hashtable {
+public final class MVOrderedMap extends Hashtable {
   private static final long serialVersionUID = 1L;
   private final List listKeys = new ArrayList();
 

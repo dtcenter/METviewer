@@ -67,7 +67,7 @@ public class SeriesJobManager extends JobManager {
         String strDep = "";
         if (job.getTmplVal().containsKey(depIndy.getDepVar())) {
           strDep = appDatabaseManager.getDateFormat().format(
-              MVUtil.PLOT_FORMAT.parse(job.getTmplVal().getStr(depIndy.getDepVar())));
+              MVUtil.parsePlotFormat(job.getTmplVal().getStr(depIndy.getDepVar())));
         }
         String[][] listIndy = MVPlotJobParser.parseIndyNode(depIndy.getSpec(), strDep);
         job.setIndyVal(listIndy[0]);

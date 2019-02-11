@@ -17,24 +17,6 @@ public class StopWatch {
   private Long duration;
   private Long totalDuration;
 
-  public static void main(String args[]) throws Exception {
-    StopWatch stopWatch = new StopWatch();
-    stopWatch.start();
-
-    for (int i = 0; i < 10000000; i++) {
-      Object obj = new Object();
-    }
-    stopWatch.stop();
-    System.out.println(stopWatch.getFormattedDuration());
-
-    stopWatch.start();
-    for (int i = 0; i < 10000000; i++) {
-      Object obj = new Object();
-    }
-    stopWatch.stop();
-    System.out.println(stopWatch.getFormattedDuration());
-    System.out.println(stopWatch.getFormattedTotalDuration());
-  }
 
 
   public void start() {
