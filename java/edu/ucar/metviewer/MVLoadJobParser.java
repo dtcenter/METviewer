@@ -1,5 +1,6 @@
 package edu.ucar.metviewer;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,12 +26,10 @@ public class MVLoadJobParser {
     dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     dbf.setValidating(true);
-
-
-    Document doc = dbf.newDocumentBuilder().parse(spec);
-
+    DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+    documentBuilder.setErrorHandler(null);
+    Document doc = documentBuilder.parse(spec);
     loadSpec = new MVNode(doc.getFirstChild());
-
     parseLoadJobSpec();
   }
 

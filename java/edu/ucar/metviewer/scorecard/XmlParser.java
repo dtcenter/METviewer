@@ -43,6 +43,8 @@ class XmlParser {
       dbf.setValidating(true);
 
       db = dbf.newDocumentBuilder();
+      db.setErrorHandler(null);
+
       filename = MVUtil.cleanString(filename);
       Document doc = db.parse(new File(filename));
       Node pruneSpec = doc.getFirstChild();

@@ -38,6 +38,7 @@ class PruneXmlParser {
    * @param filename - path to parameters file
    * @return
    */
+  @SuppressWarnings("validation")
   public MVPruneDB parseParameters(String filename) {
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -50,6 +51,7 @@ class PruneXmlParser {
       dbf.setValidating(true);
 
       db = dbf.newDocumentBuilder();
+      db.setErrorHandler(null);
       filename = MVUtil.cleanString(filename);
       Document doc = db.parse(new File(filename));
       Node pruneSpec = doc.getFirstChild();

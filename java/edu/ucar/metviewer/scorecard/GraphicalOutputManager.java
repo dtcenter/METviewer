@@ -143,6 +143,8 @@ class GraphicalOutputManager {
         dbf.setValidating(true);
 
         db = dbf.newDocumentBuilder();
+        db.setErrorHandler(null);
+
         Document doc = db.parse(new File(thresholdFile));
         Node pruneSpec = doc.getFirstChild();
         NodeList ranges = pruneSpec.getChildNodes();

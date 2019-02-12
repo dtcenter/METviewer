@@ -1035,6 +1035,7 @@ public class MVServlet extends HttpServlet {
           dbf.setValidating(true);
 
           DocumentBuilder db = dbf.newDocumentBuilder();
+          db.setErrorHandler(null);
 
           File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
           if (fileXml.exists()) {
@@ -1061,14 +1062,18 @@ public class MVServlet extends HttpServlet {
 
         //  instantiate and configure the xml parser
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
         dbf.setValidating(true);
         dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
         dbf.setNamespaceAware(true);
         Document doc;
+        DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+        documentBuilder.setErrorHandler(null);
+
         try (ByteArrayInputStream byteArrayInputStream
                  = new ByteArrayInputStream(requestBody.toString().getBytes())) {
-          doc = dbf.newDocumentBuilder().parse(byteArrayInputStream);
+          doc = documentBuilder.parse(byteArrayInputStream);
         }
 
         MVNode nodeReq = new MVNode(doc.getFirstChild());

@@ -331,8 +331,9 @@ public final class MVPlotJobParser {
     dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     dbf.setNamespaceAware(true);
     dbf.setValidating(true);
-
-    return dbf.newDocumentBuilder();
+    DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+    documentBuilder.setErrorHandler(null);
+    return documentBuilder;
   }
 
   /**
