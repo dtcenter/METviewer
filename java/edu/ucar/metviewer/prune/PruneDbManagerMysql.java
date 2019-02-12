@@ -39,8 +39,10 @@ public class PruneDbManagerMysql extends PruneDbManager {
     tables.add(new Table("line_data_cnt", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_ctc", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_cts", "stat_header", "stat_header_id"));
+    tables.add(new Table("line_data_ecnt", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_enscnt", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_fho", "stat_header", "stat_header_id"));
+    tables.add(new Table("line_data_grad", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_isc", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_mcts", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_mpr", "stat_header", "stat_header_id"));
@@ -51,6 +53,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
     tables.add(new Table("line_data_sl1l2", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_ssvar", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_val1l2", "stat_header", "stat_header_id"));
+    tables.add(new Table("line_data_vcnt", "stat_header", "stat_header_id"));
     tables.add(new Table("line_data_vl1l2", "stat_header", "stat_header_id"));
 
     tables.add(new Table("line_data_mctc", "stat_header", "stat_header_id", "line_data_mctc_cnt",
@@ -77,6 +80,10 @@ public class PruneDbManagerMysql extends PruneDbManager {
     tables.add(new Table("mode_cts", "mode_header", "mode_header_id"));
     tables.add(new Table("mode_obj_pair", "mode_header", "mode_header_id"));
     tables.add(new Table("mode_obj_single", "mode_header", "mode_header_id"));
+
+    tables.add(new Table("mtd_2d_obj", "mtd_header", "mtd_header_id"));
+    tables.add(new Table("mtd_3d_obj_pair", "mtd_header", "mtd_header_id"));
+    tables.add(new Table("mtd_3d_obj_single", "mtd_header", "mtd_header_id"));
 
     tables.add(new Table("data_file", null, "data_file_id"));
   }
