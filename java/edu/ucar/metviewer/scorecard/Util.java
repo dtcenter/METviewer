@@ -73,7 +73,7 @@ public class Util {
           break;
         }
       }
-    } catch (NullPointerException e) {
+    } catch (Exception e) {
       logger.error("Error during assigning a table name and line type for the stat : " + stat);
       aggType = "";
     }
