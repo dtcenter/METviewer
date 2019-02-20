@@ -72,8 +72,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
       int lastDot = aggStatDataFilePath.lastIndexOf('.');
       String thredFileName = aggStatDataFilePath
-                                 .substring(0, lastDot) + threadName + aggStatDataFilePath
-                                                                           .substring(lastDot);
+                                 .substring(0, lastDot) + threadName
+                                 + aggStatDataFilePath.substring(lastDot);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
       try (Connection con = databaseManager.getConnection(databaseName);
