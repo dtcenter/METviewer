@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -143,33 +143,58 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   @Override
   public List<String> getListStat(String strFcstVar, String[] currentDBName) {
     List<String> listStatName = new ArrayList<>();
+    //strFcstVar
 
-    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM line_data_cts    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM line_data_ctc    ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM line_data_nbrcts ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM line_data_pstd   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM line_data_mcts   ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM line_data_rhist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM line_data_phist  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM line_data_enscnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM line_data_mpr  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM line_data_orank  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM line_data_ssvar  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM line_data_val1l2  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM line_data_grad  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM line_data_vcnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n"
-                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM line_data_ecnt  ld, stat_header h WHERE h.fcst_var = '" + strFcstVar + "' AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n";
+    String strSql = "(SELECT IFNULL( (SELECT ld.stat_header_id  'cnt'    FROM line_data_cnt    "
+                        + "ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) cnt)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sl1l2'  FROM "
+                        + "line_data_sl1l2  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sl1l2)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'cts'    FROM "
+                        + "line_data_cts    ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) cts)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ctc'    FROM "
+                        + "line_data_ctc    ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) ctc)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcnt' FROM "
+                        + "line_data_nbrcnt ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcnt)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'nbrcts' FROM "
+                        + "line_data_nbrcts ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) nbrcts)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'pstd'   FROM "
+                        + "line_data_pstd   ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) pstd)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mcts'   FROM "
+                        + "line_data_mcts   ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) mcts)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'rhist'  FROM "
+                        + "line_data_rhist  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) rhist)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vl1l2'  FROM "
+                        + "line_data_vl1l2  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) vl1l2)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'phist'  FROM "
+                        + "line_data_phist  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1)  ,-9999) phist)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'enscnt'  FROM "
+                        + "line_data_enscnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) enscnt)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'mpr'  FROM "
+                        + "line_data_mpr  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) mpr)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'orank'  FROM "
+                        + "line_data_orank  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) orank)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ssvar'  FROM "
+                        + "line_data_ssvar  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ssvar)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'sal1l2'  FROM "
+                        + "line_data_sal1l2  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) sal1l2)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'val1l2'  FROM "
+                        + "line_data_val1l2  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) val1l2)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'grad'  FROM "
+                        + "line_data_grad  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) grad)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM "
+                        + "line_data_vcnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n"
+                        + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM "
+                        + "line_data_ecnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n";
 
     for (String database : currentDBName) {
+      ResultSet res = null;
       try (Connection con = getConnection(database);
-           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                ResultSet.CONCUR_READ_ONLY);
-           ResultSet res = stmt.executeQuery(strSql)) {
+           PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
+                                                         ResultSet.CONCUR_READ_ONLY)) {
+        for (int i = 1; i <= 20; i++) {
+          stmt.setString(i, strFcstVar);
+        }
+        res = stmt.executeQuery();
         int intStatIndex = 0;
         boolean boolCnt = false;
         boolean boolCts = false;
@@ -249,6 +274,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
       } catch (SQLException e) {
         logger.error(e.getMessage());
+      } finally {
+        if (res != null) {
+          try {
+            res.close();
+          } catch (SQLException e) {
+            e.printStackTrace();
+          }
+        }
       }
     }
     Collections.sort(listStatName);
@@ -398,7 +431,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build a query for the values
     String strSql;
-    String tmpTable = null;
     for (String database : currentDBName) {
       try (Connection con = getConnection(database)) {
         if (boolNRank) {
@@ -417,28 +449,17 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                        && (field.equals("fcst_lead")
                                || field.contains("valid")
                                || field.contains("init"))) {
-          String selectField = formatField(field, boolMode || boolMtd);
-          //  create a temp table for the list values from the different line_data tables
-          tmpTable = "tmp_" + new Date().getTime();
-          try (Statement stmtTmp = con.createStatement()) {
-            String strTmpSql = "CREATE TEMPORARY TABLE "
-                                   + tmpTable + " (" + field + " TEXT);";
-            stmtTmp.executeUpdate(strTmpSql);
-            //  add all distinct list field values to the temp table from each line_data table
-            for (String listTable : tables) {
-              strTmpSql = "INSERT INTO " + tmpTable
-                              + " SELECT DISTINCT " + selectField
-                              + " FROM " + listTable + " ld" + whereTime;
-              stmtTmp.executeUpdate(strTmpSql);
-            }
-          } catch (SQLException e) {
-            logger.error(e.getMessage());
-          }
 
-          //  build a query to list all distinct,
-          // ordered values of the list field from the temp table
-          strSql = "SELECT DISTINCT " + field + " FROM "
-                       + tmpTable + " ORDER BY " + field + ";";
+          strSql = "SELECT DISTINCT " + field + " FROM (";
+
+          for (int i = 0; i < tables.length; i++) {
+            strSql = strSql + " SELECT DISTINCT " + field + " FROM " + tables[i] + " " + whereTime;
+            if (i != tables.length - 1) {
+              strSql = strSql + " UNION ";
+            }
+          }
+          strSql = strSql + ") ll  ORDER BY " + field;
+
         } else {
           String strFieldDB = formatField(field, boolMode || boolMtd).replaceAll("h\\.", "");
           String whereReplaced = where.toString().replaceAll("h\\.", "");
@@ -453,10 +474,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           while (res.next()) {
             listRes.add(res.getString(1));
           }
-          //  drop the temp table, if present
-          if (tmpTable != null) {
-            stmt.executeUpdate("DROP TABLE IF EXISTS " + tmpTable + ";");
-          }
+
 
         } catch (SQLException e) {
           logger.error(e.getMessage());
@@ -1157,8 +1175,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
         if (!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
-        }else{
-          selectList = selectList.replace(listFcstVarStat[intFcstVarStat-1][0] + "' fcst_var"
+        } else {
+          selectList = selectList.replace(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var"
               , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
 
@@ -2909,7 +2927,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                                           job.getCurrentDBName().get(i),
                                                           i == 0);
       if (mvResponse.getInfoMessage() != null) {
-        printStream.println(mvResponse.getInfoMessage()+ "\n");
+        printStream.println(mvResponse.getInfoMessage() + "\n");
       }
     }
 
