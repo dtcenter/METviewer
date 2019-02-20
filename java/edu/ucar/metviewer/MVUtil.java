@@ -111,7 +111,7 @@ public class MVUtil {
 
   public static final Pattern patRTmpl = Pattern.compile("#<(\\w+)>#");
 
-  public static final DecimalFormat formatPerf = new DecimalFormat("0.000");
+  public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.000");
 
   /*
    * variable length group data indices for lines with an arbitrary number of fields
@@ -2223,7 +2223,7 @@ public class MVUtil {
   public static boolean isNumeric(final Object obj) {
     try {
       double d = Double.parseDouble(String.valueOf(obj));
-    } catch (NumberFormatException | NullPointerException nfe) {
+    } catch (Exception nfe) {
       return false;
     }
     return true;
@@ -2359,7 +2359,7 @@ public class MVUtil {
   }
 
   public static synchronized String formatPerf(double val) {
-    return formatPerf.format(val);
+    return DECIMAL_FORMAT.format(val);
   }
 
 }
