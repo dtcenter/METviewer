@@ -91,8 +91,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
    * data_file_lu_id values for each MET output type
    */
   private final Map<String, Integer> tableDataFileLU;
-  private final String[] dropIndexes;
-  private final String[] createIndexes;
+  private final String[] dropIndexesQueries;
+  private final String[] createIndexesQueries;
   private final Map<String, String> tableToInsert;
 
   public MysqlLoadDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
@@ -210,7 +210,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     tableToInsert.put("mode_obj_pair", "INSERT INTO mode_obj_pair VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
                                            + "?,?,?,?,?,?,?,?,?)");//21
 
-    dropIndexes = new String[]{
+    dropIndexesQueries = new String[]{
         "DROP INDEX stat_header_model_idx ON stat_header",
         "DROP INDEX stat_header_fcst_var_idx ON stat_header",
         "DROP INDEX stat_header_fcst_lev_idx ON stat_header",
@@ -312,7 +312,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         "DROP INDEX line_data_grad_fcst_init_beg_idx ON line_data_grad"
     };
 
-    createIndexes = new String[]{
+    createIndexesQueries = new String[]{
         "CREATE INDEX stat_header_model_idx ON stat_header (model)",
         "CREATE INDEX stat_header_fcst_var_idx ON stat_header (fcst_var)",
         "CREATE INDEX stat_header_fcst_lev_idx ON stat_header (fcst_lev)",
@@ -462,10 +462,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     String[] sqlArray;
     String operation;
     if (drop) {
-      sqlArray = dropIndexes;
+      sqlArray = dropIndexesQueries;
       operation = "dropping";
     } else {
-      sqlArray = createIndexes;
+      sqlArray = createIndexesQueries;
       operation = "creating";
     }
     logger.info("    ==== indexes ====" + operation);
@@ -3633,22 +3633,25 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             "  data_file df " +
             "WHERE " +
             "  dfl.data_file_lu_id = df.data_file_lu_id " +
-            "  AND " + BINARY + "df.filename = \'" + fileName + "\' " +
-            "  AND " + BINARY + "df.path = \'" + filePath + "\'";
+            "  AND  BINARY df.filename = ? " +
+            "  AND  BINARY df.path = ? ";
 
-
+    ResultSet resultSet = null;
     try (
         Connection con = getConnection();
-        Statement stmt = con.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                                             java.sql.ResultSet.CONCUR_READ_ONLY);
-        ResultSet res = stmt.executeQuery(dataFileQuery)) {
+        PreparedStatement stmt = con.prepareStatement(dataFileQuery, ResultSet.TYPE_FORWARD_ONLY,
+                                                                ResultSet.CONCUR_READ_ONLY)) {
+
+      stmt.setString(1, fileName);
+      stmt.setString(2, filePath);
+      resultSet = stmt.executeQuery();
 
       // if the data file is already present in the database, print a warning and return the id
-      if (res.next()) {
-        dataFileLuTypeName = res.getString(1);
-        dataFileId = res.getInt(2);
-        loadDate = res.getString(3);
-        modDate = res.getString(4);
+      if (resultSet.next()) {
+        dataFileLuTypeName = resultSet.getString(1);
+        dataFileId = resultSet.getInt(2);
+        loadDate = resultSet.getString(3);
+        modDate = resultSet.getString(4);
 
         if (forceDupFile) {
           DataFileInfo info = new DataFileInfo(dataFileId, fileName, filePath, loadDate,
@@ -3662,6 +3665,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
     } catch (Exception e) {
       throw new Exception(e.getMessage());
+    }finally {
+      if (resultSet != null){
+        resultSet.close();
+      }
     }
     // if the file is not present in the data_file table, query for the largest data_file_id
     try (
