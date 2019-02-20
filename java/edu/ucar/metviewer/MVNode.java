@@ -79,7 +79,8 @@ public class MVNode {
     if (namedNodeMap.getLength() > 0) {
       try {
         attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
-      } catch (NullPointerException e) {
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
       }
     }
     return attributeValue;
