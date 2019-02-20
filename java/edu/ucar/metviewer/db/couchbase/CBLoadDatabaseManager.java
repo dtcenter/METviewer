@@ -952,7 +952,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           intStatHeaderLoadTime) + "\n" +
                       MVUtil.padBegin("stat_header search time: ", 36) + MVUtil.formatTimeSpan(
           headerSearchTime) + "\n" +
-                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
+                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.DECIMAL_FORMAT.format(
           dblLinesPerMSec) + "\n\n");
     }
     return timeStats;
@@ -1792,7 +1792,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           intStatHeaderLoadTime) + "\n" +
                       MVUtil.padBegin("stat_header search time: ", 36) + MVUtil.formatTimeSpan(
           headerSearchTime) + "\n" +
-                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf.format(
+                      MVUtil.padBegin("lines / msec: ", 36) + MVUtil.DECIMAL_FORMAT.format(
           dblLinesPerMSec) + "\n\n");
     }
     logger.info("intLine " + intLine);
