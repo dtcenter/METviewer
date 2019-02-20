@@ -279,7 +279,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           try {
             res.close();
           } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
           }
         }
       }
