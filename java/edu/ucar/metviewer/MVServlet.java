@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -97,19 +98,47 @@ public class MVServlet extends HttpServlet {
       return name.toLowerCase(Locale.ENGLISH).endsWith(".xml");
     }
   };
-  public static String plotXml = "";
-  public static String rTmpl = "";
-  public static String rWork = "";
-  public static String plots = "";
-  public static String rscript = "";
-  public static String redirect = "";
-  public static String urlOutput = "";
-  public static String data = "";
-  public static String scripts = "";
-  public static String managementSystem = "";
-  public static boolean isValCache = false;
-  public static boolean isStatCache = false;
-  public static AppDatabaseManager databaseManager;
+  private String plotXml = "";
+  private String  rTmpl = "";
+  private String rWork = "";
+  private String plots = "";
+  private String rscript = "";
+  private String redirect = "";
+  private String urlOutput = "";
+  private String data = "";
+  private String scripts = "";
+  private String managementSystem = "";
+  private boolean isValCache = false;
+  private boolean isStatCache = false;
+  private AppDatabaseManager databaseManager;
+
+  public void setPlotXml(String plotXml) {
+    this.plotXml = plotXml;
+  }
+
+  public void setrTmpl(String rTmpl) {
+    this.rTmpl = rTmpl;
+  }
+
+  public void setrWork(String rWork) {
+    this.rWork = rWork;
+  }
+
+  public void setPlots(String plots) {
+    this.plots = plots;
+  }
+
+  public void setRscript(String rscript) {
+    this.rscript = rscript;
+  }
+
+  public void setDatabaseManager(AppDatabaseManager databaseManager) {
+    this.databaseManager = databaseManager;
+  }
+
+  public void setValCache(boolean valCache) {
+    isValCache = valCache;
+  }
 
   /**
    * Clear cached <list_val> values for the input database
@@ -117,7 +146,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleClearListValCache() throws ParserConfigurationException {
+  public  String handleClearListValCache() throws ParserConfigurationException {
 
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
@@ -143,7 +172,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListValCacheKeys() throws ParserConfigurationException {
+  public  String handleListValCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
       Element errorXml = docResp.createElement("error");
@@ -175,7 +204,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleClearListStatCache() throws ParserConfigurationException {
+  public  String handleClearListStatCache() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
       Element errorXml = docResp.createElement("error");
@@ -197,7 +226,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public static String handleListStatCacheKeys() throws ParserConfigurationException {
+  public  String handleListStatCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
       Element errorXml = docResp.createElement("error");
@@ -274,7 +303,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListVal(
+  public  String handleListVal(
       MVNode nodeCall, String requestBody,
       String[] currentDbName) throws Exception {
     Document docResp = MVUtil.createDocument();
@@ -334,7 +363,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public static String handleListStat(
+  public  String handleListStat(
       MVNode nodeCall, String requestBody,
       String[] currentDBName) throws Exception {
     String strFcstVar = nodeCall.children[0].value;
@@ -384,7 +413,7 @@ public class MVServlet extends HttpServlet {
    * @param strRequest XML plot specification
    * @return status message
    */
-  public static String handlePlot(String strRequest, String[] currentDBName) throws Exception {
+  public  String handlePlot(String strRequest, String[] currentDBName) throws Exception {
 
     //  extract the plot xml from the request
     StopWatch stopWatch = new StopWatch();
@@ -532,10 +561,8 @@ public class MVServlet extends HttpServlet {
       runTargetedJob(job, mvBatch);
 
 
-      String plotterOutput = "";
-      if(log != null){
-        plotterOutput = log.toString();
-      }
+      String plotterOutput = log.toString();
+
       //  parse out R error messages, if present, throwing an exception if the error was fatal
       Matcher matOutput = Pattern.compile(
           "(?sm)(==== Start Rscript error  ====.*====   End Rscript error  ====)")
@@ -573,7 +600,7 @@ public class MVServlet extends HttpServlet {
       String message = e.getMessage().replace("&", "&amp;").replace("<", "&lt;")
                            .replace(">", "&gt;");
       errorStream.print("failed to run plot " + plotPrefix + " - reason: " + message
-                       + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : ""));
+                            + (!strRErrorMsg.equals("") ? ":\n" + strRErrorMsg : ""));
       return "<response><error>"
                  + "failed to run plot " + plotPrefix + "</error><plot>" + plotPrefix + "</plot"
                  + "></response>";
@@ -687,7 +714,7 @@ public class MVServlet extends HttpServlet {
    *
    * @param response
    */
-  public static void printErrorPage(HttpServletResponse response) throws IOException {
+  public  void printErrorPage(HttpServletResponse response) throws IOException {
     PrintWriter out = response.getWriter();
     response.setContentType("text/html");
     out.print(
@@ -715,7 +742,7 @@ public class MVServlet extends HttpServlet {
    * @return serialized plot spec of a single plot from the input spec
    * @throws Exception
    */
-  public static StringBuilder handleXmlUpload(MVNode nodeCall) throws Exception {
+  public  StringBuilder handleXmlUpload(MVNode nodeCall) throws Exception {
 
     //  run the parser to generate plot jobs
     MVPlotJobParser par = new MVPlotJobParser(nodeCall.children[0]);
@@ -750,8 +777,18 @@ public class MVServlet extends HttpServlet {
     return MVPlotJobParser.serializeJob(job, databaseManager.getDatabaseInfo());
   }
 
-  private static String getAvailableResults(String showAll) {
-    StringBuilder result = new StringBuilder();
+  private  String getAvailableResults(String showAll) throws ParserConfigurationException {
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+    dbf.setValidating(true);
+    dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    dbf.setNamespaceAware(true);
+    DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+    documentBuilder.setErrorHandler(null);
+    DocumentBuilder dBuilder = dbf.newDocumentBuilder();
+    Document docResp = dBuilder.newDocument();
+    Element results = docResp.createElement("results");
+    docResp.appendChild(results);
     String dir;
     String extension;
     FilenameFilter filter;
@@ -766,7 +803,6 @@ public class MVServlet extends HttpServlet {
     }
 
     File plotDir = new File(dir);
-    String fileXml;
     File[] files = plotDir.listFiles(filter);
     if (files != null) {
       Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
@@ -781,13 +817,19 @@ public class MVServlet extends HttpServlet {
             success = "false";
           }
         }
-        fileXml = "<file name=\"" + file.getName().replace(extension, "")
-                                        .replace("plot_", "") + "\" success=\"" + success + "\" />";
-        result.append(fileXml);
+        Element fileEl = docResp.createElement("file");
+        results.appendChild(fileEl);
+        Attr attrName = docResp.createAttribute("name");
+        String fileForDisplay = file.getName().replace(extension, "").replace("plot_", "");
+        attrName.setValue(fileForDisplay);
+        fileEl.setAttributeNode(attrName);
+        Attr attrSuccess = docResp.createAttribute("success");
+        attrSuccess.setValue(success);
+        fileEl.setAttributeNode(attrSuccess);
       }
     }
 
-    return result.toString();
+    return MVUtil.domSourceToString(docResp);
   }
 
   /**
@@ -816,32 +858,32 @@ public class MVServlet extends HttpServlet {
       File directory;
       plotXml = bundle.getString("folders.plot_xml");
       directory = new File(plotXml);
-      if (! directory.exists()){
+      if (!directory.exists()) {
         directory.mkdirs();
       }
       rTmpl = bundle.getString("folders.r_tmpl");
       directory = new File(rTmpl);
-      if (! directory.exists()){
+      if (!directory.exists()) {
         directory.mkdirs();
       }
       rWork = bundle.getString("folders.r_work");
       directory = new File(rWork);
-      if (! directory.exists()){
+      if (!directory.exists()) {
         directory.mkdirs();
       }
       plots = bundle.getString("folders.plots");
       directory = new File(plots);
-      if (! directory.exists()){
+      if (!directory.exists()) {
         directory.mkdirs();
       }
       data = bundle.getString("folders.data");
       directory = new File(data);
-      if (! directory.exists()){
+      if (!directory.exists()) {
         directory.mkdirs();
       }
       scripts = bundle.getString("folders.scripts");
       directory = new File(scripts);
-      if (! directory.exists()){
+      if (!directory.exists()) {
         directory.mkdirs();
       }
 
@@ -987,12 +1029,16 @@ public class MVServlet extends HttpServlet {
         StringBuilder uploadXml = new StringBuilder();
         for (FileItem item : items) {
           if (!item.isFormField()) {
-            try (InputStreamReader inputStreamReader
-                     = new InputStreamReader(item.getInputStream())) {
-              reader = new BufferedReader(inputStreamReader);
-              while (reader.ready()) {
-                uploadXml.append(reader.readLine().replaceAll("<\\?.*\\?>", "")).append('\n');
+            if (item.getName().endsWith(".xml") && item.getContentType().equals("text/xml") && item.getSize() < 30000) {
+              try (InputStream inputStream = item.getInputStream();
+                   InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+                reader = new BufferedReader(inputStreamReader);
+                while (reader.ready()) {
+                  uploadXml.append(reader.readLine().replaceAll("<\\?.*\\?>", "")).append('\n');
+                }
               }
+            } else {
+              errorStream.println("Uploaded file is invalid");
             }
           }
         }
@@ -1037,7 +1083,7 @@ public class MVServlet extends HttpServlet {
           DocumentBuilder db = dbf.newDocumentBuilder();
           db.setErrorHandler(null);
 
-          File fileXml = new File(MVServlet.plotXml + File.separator + "plot_" + runId + ".xml");
+          File fileXml = new File(plotXml + File.separator + "plot_" + runId + ".xml");
           if (fileXml.exists()) {
             try (FileInputStream fileInputStream = new FileInputStream(fileXml);) {
               Document doc = db.parse(fileInputStream);
@@ -1258,7 +1304,7 @@ public class MVServlet extends HttpServlet {
 
           } else if (nodeCall.tag.equalsIgnoreCase("history")) {
             String isShowAll = nodeCall.children[0].value;
-            strResp.append("<results>").append(getAvailableResults(isShowAll)).append("</results>");
+            strResp.append(getAvailableResults(isShowAll));
 
           }
 
