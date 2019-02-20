@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.FormatFlagsConversionMismatchException;
 import java.util.HashMap;
@@ -392,7 +393,7 @@ class GraphicalOutputManager {
             BigDecimal value;
             try {
               value = new BigDecimal(node.findValue("stat_value").asText());
-              value = value.setScale(3, BigDecimal.ROUND_HALF_UP);
+              value = value.setScale(3, RoundingMode.HALF_UP);
             } catch (Exception e) {
               logger.error(e);
               value = BigDecimal.valueOf(-9999);
