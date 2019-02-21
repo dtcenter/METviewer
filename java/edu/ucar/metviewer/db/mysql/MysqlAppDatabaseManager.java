@@ -1897,7 +1897,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  build the list of fields involved in the computations
     String strSelectListStat = strSelectList.replaceAll("h\\.", "");
-    String strGroupListMMI = strSelectListStat.replaceAll("HOUR\\([^\\)]+\\) ", "");
     //  set the object_id field, depending on the stat
     String objectId = "object_id";
     String statName = stat.replace("_" + listStatParse[listStatParse.length - 1], "");

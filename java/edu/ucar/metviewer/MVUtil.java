@@ -9,7 +9,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -97,6 +96,9 @@ public class MVUtil {
   public static final Map<String, String> modeSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd2dStatField = new HashMap<>();
+
+  public static final int MAX_STR_LEN = 500;
+
 
   public static final List<String> modeRatioField = new ArrayList<>();
   public static final List<String> mtdRatioField = new ArrayList<>();
@@ -1522,8 +1524,8 @@ public class MVUtil {
     InputStreamReader inputStreamReader = null;
     InputStreamReader errorInputStreamReader = null;
 
-    BufferedReader readerProcStd = null;
-    BufferedReader readerProcErr = null;
+    BoundedBufferedReader readerProcStd = null;
+    BoundedBufferedReader readerProcErr = null;
 
     boolean boolExit = false;
     int intExitStatus = 0;
@@ -1541,8 +1543,8 @@ public class MVUtil {
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
-      readerProcStd = new BufferedReader(inputStreamReader);
-      readerProcErr = new BufferedReader(errorInputStreamReader);
+      readerProcStd = new BoundedBufferedReader(inputStreamReader);
+      readerProcErr = new BoundedBufferedReader(errorInputStreamReader);
       while (!boolExit) {
         try {
           intExitStatus = proc.exitValue();
@@ -1551,10 +1553,12 @@ public class MVUtil {
         }
 
         while (readerProcStd.ready()) {
-          strProcStd.append(readerProcStd.readLine()).append('\n');
+          String line = readerProcStd.readLineBounded();
+          strProcStd.append(line).append('\n');
         }
         while (readerProcErr.ready()) {
-          strProcErr.append(readerProcErr.readLine()).append('\n');
+          String line = readerProcErr.readLineBounded();
+          strProcErr.append(line).append('\n');
         }
       }
     } catch (Exception e) {
@@ -1606,10 +1610,10 @@ public class MVUtil {
       final String tmpl, final String output,
       final Map<String, String> vals) throws Exception {
     try (FileReader fileReader = new FileReader(tmpl);
-         BufferedReader reader = new BufferedReader(fileReader);
+         BoundedBufferedReader reader = new BoundedBufferedReader(fileReader);
          PrintStream writer = new PrintStream(output)) {
       while (reader.ready()) {
-        String strTmplLine = reader.readLine();
+        String strTmplLine = reader.readLineBounded();
         String strOutputLine = strTmplLine;
 
         Matcher matRtmplLine = patRTmpl.matcher(strTmplLine);
@@ -2222,7 +2226,7 @@ public class MVUtil {
 
   public static boolean isNumeric(final Object obj) {
     try {
-      double d = Double.parseDouble(String.valueOf(obj));
+      Double.parseDouble(String.valueOf(obj));
     } catch (Exception nfe) {
       return false;
     }

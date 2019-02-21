@@ -46,6 +46,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseManager;
@@ -99,7 +100,7 @@ public class MVServlet extends HttpServlet {
     }
   };
   private String plotXml = "";
-  private String  rTmpl = "";
+  private String rTmpl = "";
   private String rWork = "";
   private String plots = "";
   private String rscript = "";
@@ -146,7 +147,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public  String handleClearListValCache() throws ParserConfigurationException {
+  public String handleClearListValCache() throws ParserConfigurationException {
 
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
@@ -172,7 +173,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public  String handleListValCacheKeys() throws ParserConfigurationException {
+  public String handleListValCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
       Element errorXml = docResp.createElement("error");
@@ -204,7 +205,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public  String handleClearListStatCache() throws ParserConfigurationException {
+  public String handleClearListStatCache() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
       Element errorXml = docResp.createElement("error");
@@ -226,7 +227,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public  String handleListStatCacheKeys() throws ParserConfigurationException {
+  public String handleListStatCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
       Element errorXml = docResp.createElement("error");
@@ -303,7 +304,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public  String handleListVal(
+  public String handleListVal(
       MVNode nodeCall, String requestBody,
       String[] currentDbName) throws Exception {
     Document docResp = MVUtil.createDocument();
@@ -363,7 +364,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public  String handleListStat(
+  public String handleListStat(
       MVNode nodeCall, String requestBody,
       String[] currentDBName) throws Exception {
     String strFcstVar = nodeCall.children[0].value;
@@ -413,7 +414,7 @@ public class MVServlet extends HttpServlet {
    * @param strRequest XML plot specification
    * @return status message
    */
-  public  String handlePlot(String strRequest, String[] currentDBName) throws Exception {
+  public String handlePlot(String strRequest, String[] currentDBName) throws Exception {
 
     //  extract the plot xml from the request
     StopWatch stopWatch = new StopWatch();
@@ -559,7 +560,6 @@ public class MVServlet extends HttpServlet {
 
       //  run the job to generate the plot
       runTargetedJob(job, mvBatch);
-
 
       String plotterOutput = log.toString();
 
@@ -714,7 +714,7 @@ public class MVServlet extends HttpServlet {
    *
    * @param response
    */
-  public  void printErrorPage(HttpServletResponse response) throws IOException {
+  public void printErrorPage(HttpServletResponse response) throws IOException {
     PrintWriter out = response.getWriter();
     response.setContentType("text/html");
     out.print(
@@ -742,7 +742,7 @@ public class MVServlet extends HttpServlet {
    * @return serialized plot spec of a single plot from the input spec
    * @throws Exception
    */
-  public  StringBuilder handleXmlUpload(MVNode nodeCall) throws Exception {
+  public StringBuilder handleXmlUpload(MVNode nodeCall) throws Exception {
 
     //  run the parser to generate plot jobs
     MVPlotJobParser par = new MVPlotJobParser(nodeCall.children[0]);
@@ -777,7 +777,7 @@ public class MVServlet extends HttpServlet {
     return MVPlotJobParser.serializeJob(job, databaseManager.getDatabaseInfo());
   }
 
-  private  String getAvailableResults(String showAll) throws ParserConfigurationException {
+  private String getAvailableResults(String showAll) throws ParserConfigurationException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     dbf.setValidating(true);
@@ -1029,12 +1029,15 @@ public class MVServlet extends HttpServlet {
         StringBuilder uploadXml = new StringBuilder();
         for (FileItem item : items) {
           if (!item.isFormField()) {
-            if (item.getName().endsWith(".xml") && item.getContentType().equals("text/xml") && item.getSize() < 30000) {
+            if (item.getName().endsWith(".xml") && item.getContentType().equals(
+                "text/xml") && item.getSize() < 30000) {
               try (InputStream inputStream = item.getInputStream();
-                   InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
-                reader = new BufferedReader(inputStreamReader);
-                while (reader.ready()) {
-                  uploadXml.append(reader.readLine().replaceAll("<\\?.*\\?>", "")).append('\n');
+                   InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                   BoundedBufferedReader boundedBufferedReader = new BoundedBufferedReader(inputStreamReader);) {
+
+                while (boundedBufferedReader.ready()) {
+                  String line = boundedBufferedReader.readLineBounded();
+                  uploadXml.append(line.replaceAll("<\\?.*\\?>", "")).append('\n');
                 }
               }
             } else {
@@ -1053,21 +1056,23 @@ public class MVServlet extends HttpServlet {
 
       } else {
         //  if the request is not a file upload, read it directly
-        String line;
-        try {
-          reader = request.getReader();
-          while ((line = reader.readLine()) != null) {
+        requestBody.append(request.getReader().lines().collect( Collectors.joining(  ) ));
+
+        /*try (BoundedBufferedReader boundedBufferedReader = (BoundedBufferedReader) request.getReader()){
+          while ((line = boundedBufferedReader.readLineBounded()) != null) {
             requestBody.append(line);
           }
           response.setContentType("application/xml");
         } catch (Exception e) {
           errorStream.print(e.getMessage());
-        }
+        }*/
 
       }
       logger.debug("doPost() - request (" + request.getRemoteHost() + "): " + requestBody);
 
       StringBuilder strResp = new StringBuilder();
+
+
       if (!requestBody.toString().startsWith("<")) {
         String[] simpleRequest = requestBody.toString().split("=");
         if (simpleRequest[0].equals("fileUploadLocal") && simpleRequest.length > 1) {
@@ -1294,11 +1299,10 @@ public class MVServlet extends HttpServlet {
             try {
               strResp.append(handleXmlUpload(nodeCall));
               request.getSession().setAttribute("init_xml", strResp.toString().replace("'", "\""));
-
-              request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
-
             } catch (Exception e) {
               strResp.append("<error>could not parse request</error>");
+
+            } finally {
               request.getRequestDispatcher("/metviewer1.jsp").forward(request, response);
             }
 
@@ -1326,7 +1330,6 @@ public class MVServlet extends HttpServlet {
 
       logger.debug("doPost() - response: " + strResp);
       response.setContentType("application/xml;charset=UTF-8");
-
       try (PrintWriter printWriter = response.getWriter()) {
         printWriter.append(strResp);
       }

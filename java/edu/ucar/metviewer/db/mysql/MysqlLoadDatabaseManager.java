@@ -6,7 +6,6 @@
 
 package edu.ucar.metviewer.db.mysql;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
@@ -29,6 +28,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.ucar.metviewer.BoundedBufferedReader;
 import edu.ucar.metviewer.DataFileInfo;
 import edu.ucar.metviewer.MVLoadJob;
 import edu.ucar.metviewer.MVLoadStatInsertData;
@@ -586,10 +586,11 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     List<String> headerNames = new ArrayList<>();
     try (
         FileReader fileReader = new FileReader(filename);
-        BufferedReader reader = new BufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
       //  read in each line of the input file
       while (reader.ready()) {
-        String[] listToken = reader.readLine().split("\\s+");
+        String line = reader.readLineBounded();
+        String[] listToken = line.split("\\s+");
         intLine++;
 
         //  the first line is the header line
@@ -796,9 +797,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
             statHeaderId = intStatHeaderIdNext++;
             statHeaders.put(statHeaderValue, statHeaderId);
-
-            //  build an insert statement for the mode header
-            statHeaderValue = Integer.toString(statHeaderId) + ", " + statHeaderValue;
 
             //  insert the record into the stat_header database table
             String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -1346,19 +1344,17 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     }
 
     int intLine = 0;
-    try (FileReader fileReader = new FileReader(
-        strFilename); BufferedReader reader = new BufferedReader(fileReader)) {
+    try (FileReader fileReader = new FileReader(strFilename);
+         BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
       List<String> allMatches;
-
       DateTimeFormatter formatStatVsdb = DateTimeFormatter.ofPattern("yyyyMMddHH");
-
 
       //  read in each line of the input file, remove "="
       while (reader.ready()) {
-
-        String line = reader.readLine();
+        String line = reader.readLineBounded();
         try {
           line = line.replaceAll("\\s=\\s", " "); // remove " = "
+
           Matcher m = Pattern.compile("\\d-0\\.").matcher(
               line); // some records do not have a space between columns if the value in column starts with "-"
 
@@ -1577,11 +1573,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
               statHeaderId = intStatHeaderIdNext++;
               statHeaders.put(statHeaderValueList, statHeaderId);
-
-              //  build an insert statement for the mode header
-              statHeaderValueList = Integer.toString(
-                  statHeaderId) + ", " +        //  stat_header_id
-                                        statHeaderValueList;
 
               //  insert the record into the stat_header database table
               String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -2189,10 +2180,12 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     List<String> headerNames = new ArrayList<>();
     try (
         FileReader fileReader = new FileReader(strFilename);
-        BufferedReader reader = new BufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
       //  read each line of the input file
       while (reader.ready()) {
-        String[] listToken = reader.readLine().split("\\s+");
+        String line = reader.readLineBounded();
+
+        String[] listToken = reader.readLineBounded().split("\\s+");
 
         //  the first line is the header line
         if (1 > listToken.length || listToken[0].equals("VERSION")) {
@@ -2912,10 +2905,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     List<String> headerNames = new ArrayList<>();
     try (
         FileReader fileReader = new FileReader(filename);
-        BufferedReader reader = new BufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
       //  read each line of the input file
       while (reader.ready()) {
-        String lineStr = reader.readLine().trim();
+        String lineStr = reader.readLineBounded().trim();
         String[] listToken = lineStr.split("\\s+");
 
         //  the first line is the header line
@@ -3640,7 +3633,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     try (
         Connection con = getConnection();
         PreparedStatement stmt = con.prepareStatement(dataFileQuery, ResultSet.TYPE_FORWARD_ONLY,
-                                                                ResultSet.CONCUR_READ_ONLY)) {
+                                                      ResultSet.CONCUR_READ_ONLY)) {
 
       stmt.setString(1, fileName);
       stmt.setString(2, filePath);
@@ -3665,8 +3658,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
     } catch (Exception e) {
       throw new Exception(e.getMessage());
-    }finally {
-      if (resultSet != null){
+    } finally {
+      if (resultSet != null) {
         resultSet.close();
       }
     }
@@ -3703,9 +3696,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       stmt.setInt(1, dataFileId);
       stmt.setInt(2, dataFileLuId);
       stmt.setString(3, fileName);
-      if(filePath.length() > 120){
+      if (filePath.length() > 120) {
         stmt.setString(4, filePath.substring(0, 115) + "...");
-      }else {
+      } else {
         stmt.setString(4, filePath);
       }
       stmt.setObject(5, loadDate, Types.TIMESTAMP);
@@ -3738,9 +3731,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     StringBuilder loadXmlStr = new StringBuilder();
     if (job.getLoadXML()) {
       strXML = MVUtil.cleanString(strXML);
-      try (BufferedReader reader = new BufferedReader(new FileReader(strXML))) {
+      try (FileReader fileReader = new FileReader(strXML);
+          BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
         while (reader.ready()) {
-          loadXmlStr.append(reader.readLine().trim());
+          loadXmlStr.append(reader.readLineBounded().trim());
         }
       }
     }
