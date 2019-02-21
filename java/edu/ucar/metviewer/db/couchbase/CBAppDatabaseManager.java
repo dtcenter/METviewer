@@ -10,7 +10,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -611,7 +610,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   /**
-   * Prints a textual representation of the input {@link ResultSet} with the field names in the
+   * Prints a textual representation of the input with the field names in the
    * first row to the specified {@link BufferedWriter} destination.
    *
    * @param res            The ResultSet to print
@@ -1079,6 +1078,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                 }
                 strSelPctThresh = strSelPctThresh + "  AND ld.stat_header_id = h.stat_header_id;";
                 printStreamSql.println(strSelPctThresh + " ");
+                printStreamSql.flush();
 
                 //  run the PCT thresh query
                 List<String> errors = new ArrayList<>();
@@ -1183,6 +1183,12 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
             strStat = "ECLV";
           }
+        }
+        if (!strSelectList.contains("fcst_var")) {
+          strSelectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
+        }else{
+          strSelectList = strSelectList.replace(listFcstVarStat[intFcstVarStat-1][0] + "' fcst_var"
+                  , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
 
         //  determine the table containing the current stat
