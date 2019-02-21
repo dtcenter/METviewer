@@ -78,7 +78,7 @@ public class EclvJobManager extends JobManager {
         listAggStats1.add("ECLV");
         info.put("agg_stat1", MVUtil.printRCol(
             listAggStats1.toArray(new String[listAggStats1.size()]), true));
-        boolean success = rscriptStatManager.runRscript(job, info);
+        rscriptStatManager.runRscript(job, info);
         //  turn off the event equalizer
         job.setEventEqual(Boolean.FALSE);
         info.put("event_equal",  "FALSE");
@@ -99,7 +99,7 @@ public class EclvJobManager extends JobManager {
           .prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFile);
 
-      boolean success = rscriptStatManager.runRscript(job, info);
+      rscriptStatManager.runRscript(job, info);
 
 
     }

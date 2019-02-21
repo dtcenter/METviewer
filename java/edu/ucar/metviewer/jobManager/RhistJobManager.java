@@ -98,7 +98,7 @@ public class RhistJobManager extends JobManager {
           .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
       info.put("data_file", dataFile);
 
-      boolean success = rscriptStatManager.runRscript(job, info);
+      rscriptStatManager.runRscript(job, info);
 
     }
 

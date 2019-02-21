@@ -235,7 +235,7 @@ public class SeriesJobManager extends JobManager {
       rscriptStatManager.prepareDataFileAndRscript(job, plotFixPerm, info, listQuery);
       info.put("data_file", dataFileName);
 
-      boolean success = rscriptStatManager.runRscript(job, info);
+      rscriptStatManager.runRscript(job, info);
 
     }
 
