@@ -754,9 +754,10 @@ function updateStatVariable() {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             title: value_to_desc_map[t.text()]
                         });
                         options.push(opt);
@@ -858,9 +859,10 @@ function updateForecastVariables() {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             title: value_to_desc_map[t.text()]
                         });
                         options.push(opt);
@@ -1361,9 +1363,10 @@ function updateStatVal() {
                         for (var i = 0; i < values.length; i++) {
                             var t = $(values[i]);
                             if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                                var text_formatted = t.text().formatAll();
                                 opt = $('<option />', {
-                                    value: t.text(),
-                                    text: t.text(),
+                                    value: text_formatted,
+                                    text: text_formatted,
                                     title: value_to_desc_map[t.text()]
                                 });
                                 options.push(opt);
@@ -1489,9 +1492,10 @@ function updateStats(y_axis, index, selectedVals) {
                         var t = $(values[i]);
                         selected = $.inArray(t.text(), selectedVals) >= 0;
                         if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                            var text_formatted = t.text().formatAll();
                             opt = $('<option />', {
-                                value: t.text(),
-                                text: t.text(),
+                                value: text_formatted,
+                                text: text_formatted,
                                 title: value_to_desc_map[t.text()],
                                 selected: selected
                             });
@@ -1579,9 +1583,10 @@ function updateSeriesVarValEns(index, selectedVals) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             selected: selected
                         });
                         options.push(opt);
@@ -1772,7 +1777,7 @@ function updateFixedVarValHist(index, selectedVals) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
-                        var text_formatted = t.text().replace("&#38;", "&").replace("&gt;", ">").replace("&lt;", "<");
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
                             value: text_formatted,
                             text: text_formatted,
@@ -1851,9 +1856,10 @@ function updateYvalueCountour(selectedVals) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             selected: selected
                         });
                         options.push(opt);
@@ -1934,9 +1940,10 @@ function updateDerivedVarVal() {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text()
+                            value: text_formatted,
+                            text: text_formatted
                         });
                         options.push(opt);
                     } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
@@ -2034,9 +2041,10 @@ function updateFixedVarVal(index, selectedVals, equalize) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             selected: selected
                         });
                         options.push(opt);
@@ -2137,9 +2145,10 @@ function populateIndyVarVal(selectedVals) {
                         var t = $(values[i]);
                         selected = $.inArray(t.text(), selectedVals) >= 0;
                         if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                            var text_formatted = t.text().formatAll();
                             opt = $('<option />', {
-                                value: t.text(),
-                                text: t.text(),
+                                value: text_formatted,
+                                text: text_formatted,
                                 selected: selected,
                                 class: "indy-var-option"
                             });
@@ -2610,9 +2619,10 @@ function updateSeriesVarValHist(index, selectedVals) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             selected: selected
                         });
                         options.push(opt);
@@ -7594,3 +7604,10 @@ function changeFixedVarHist(value) {
         $('#fixed_var_' + fixed_var_indexes[i]).multiselect('refresh');
     }
 }
+String.prototype.formatAll = function(t) {
+    var target = this;
+    target = target.split("&#38;").join("&");
+    target = target.split("&gt;").join(">");
+    target = target.split("&lt;").join("<");
+    return target;
+};
