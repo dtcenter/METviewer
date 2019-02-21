@@ -1772,9 +1772,10 @@ function updateFixedVarValHist(index, selectedVals) {
                     var t = $(values[i]);
                     selected = $.inArray(t.text(), selectedVals) >= 0;
                     if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        var text_formatted = t.text().replace("&#38;", "&").replace("&gt;", ">").replace("&lt;", "<");
                         opt = $('<option />', {
-                            value: t.text(),
-                            text: t.text(),
+                            value: text_formatted,
+                            text: text_formatted,
                             selected: selected
                         });
                         options.push(opt);
