@@ -8,12 +8,9 @@ package edu.ucar.metviewer.scorecard;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.ucar.metviewer.BoundedBufferedReader;
 import edu.ucar.metviewer.scorecard.exceptions.MissingFileException;
 import edu.ucar.metviewer.scorecard.html2image.HtmlImageGenerator;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -76,6 +74,7 @@ class GraphicalOutputManager {
             + ".legendText {text-align:left;}";
   public static final String CLASS = "class";
   public static final String STYLE = "style";
+
 
   private final ContainerTag html;
   private final ContainerTag title1;
@@ -629,16 +628,17 @@ class GraphicalOutputManager {
   private ArrayNode readFileToJsonTable(File dataFile) throws IOException {
     ArrayNode table = new ArrayNode(JsonNodeFactory.instance);
 
-    try (InputStream is = new FileInputStream(dataFile);
-         InputStreamReader inputStreamReader = new InputStreamReader(is);
-         BufferedReader buf = new BufferedReader(inputStreamReader)) {
-      //read the headet line
-      String line = buf.readLine();
+    try (FileReader is = new FileReader(dataFile);
+         BoundedBufferedReader buf = new BoundedBufferedReader(is, 1024, 1024)) {
+      //read the header line
+      String line = buf.readLineBounded();
       String[] headers = line.split("\\t");
 
       //read data lines
-      line = buf.readLine();
+      line = buf.readLineBounded();
+
       while (line != null) {
+
         String[] values = line.split("\\t");
         //only use lines with full set of data
         //ignore rows with original values  - not derived curves
@@ -646,7 +646,8 @@ class GraphicalOutputManager {
                 && (line.contains("DIFF") || line.contains("SINGLE"))) {
           table.add(addJsonRow(headers, values));
         }
-        line = buf.readLine();
+        line = buf.readLineBounded();
+
       }
     }
     return table;
@@ -663,6 +664,5 @@ class GraphicalOutputManager {
     }
     return row;
   }
-
 
 }
