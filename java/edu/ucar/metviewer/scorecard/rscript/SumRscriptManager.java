@@ -141,8 +141,7 @@ public class SumRscriptManager extends RscriptManager {
       // }
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       int lastDot = sumStatDataFilePath.lastIndexOf('.');
-      String thredFileName = sumStatDataFilePath.substring(0, lastDot) + threadName +
-                                 sumStatDataFilePath.substring(lastDot);
+
       tableCalcStatInfo.put("sum_stat_input", tableCalcStatInfoCommon.get("data_file"));
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       String thredInfoFileName = strSumInfo.substring(0, lastDot)
