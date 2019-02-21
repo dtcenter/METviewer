@@ -7,7 +7,6 @@
 package edu.ucar.metviewer.db;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.Locale;
 
 import org.apache.logging.log4j.io.IoBuilder;
@@ -106,7 +105,6 @@ public abstract class DatabaseManager {
     String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     DatabaseManager databaseManager;
-    PrintWriter pw = null;
     // NOTE: the contstuctor using reflection is to enable us to build
     // a mysql version without a couchbase dependency
     // and a CB version without a mysql dependency.
