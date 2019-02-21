@@ -24,12 +24,11 @@ public class TestMysqlDatabaseManager extends MysqlDatabaseManager implements Te
     private static final Logger logger = LogManager.getLogger("TestMysqlDatabaseManager");
 
     public int getNumberOfRows(String lineDataType) throws Exception {
-        String tableName = lineDataType;
         int rows = -1;
         try (
             Connection con = getConnection();
             Statement statement = getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
+            ResultSet resultSet = statement.executeQuery("select count(*) from " + lineDataType);
         ){
             if (resultSet.next()) {
                 rows = resultSet.getInt("count(*)");
