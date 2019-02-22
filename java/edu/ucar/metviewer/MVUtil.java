@@ -1120,7 +1120,10 @@ public class MVUtil {
       if (objValCur instanceof String) {
         listRet.add(listRet.size(), objValCur);
       } else {
-        listRet.add(0, objValCur);
+        ArrayList listValCur = (ArrayList) objValCur;
+        for (Object valCur : listValCur) {
+          listRet.add(listRet.size(), valCur);
+        }
       }
 
       tableAdded.put(dblKey, "true");
