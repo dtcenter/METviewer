@@ -1018,7 +1018,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                         + " IN [" + MVUtil.buildValueList(job.getIndyVal()) + "] ";
       }
       //  add fcst_var to the select list and temp table entries
-      strSelectList += ",h.fcst_var";
+      // strSelectList += ",h.fcst_var";
       selectPlotList += ",h.fcst_var";
       strTempList += ",fcst_var            VARCHAR(64)";
 
