@@ -26,11 +26,6 @@ public class BoundedBufferedReader extends BufferedReader {
 
   public BoundedBufferedReader(FileReader reader, int maxLines, int maxLineLen) {
     super(reader);
-    if ((maxLines <= 0) || (maxLineLen <= 0)) {
-      throw new IllegalArgumentException(
-          "BoundedBufferedReader - maxLines and maxLineLen must be greater than 0");
-    }
-
     readerMaxLines = maxLines;
     readerMaxLineLen = maxLineLen;
   }
