@@ -10,7 +10,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -611,7 +610,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   /**
-   * Prints a textual representation of the input {@link ResultSet} with the field names in the
+   * Prints a textual representation of the input with the field names in the
    * first row to the specified {@link BufferedWriter} destination.
    *
    * @param res            The ResultSet to print
@@ -1019,7 +1018,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                         + " IN [" + MVUtil.buildValueList(job.getIndyVal()) + "] ";
       }
       //  add fcst_var to the select list and temp table entries
-      strSelectList += ",h.fcst_var";
+      // strSelectList += ",h.fcst_var";
       selectPlotList += ",h.fcst_var";
       strTempList += ",fcst_var            VARCHAR(64)";
 
@@ -1079,6 +1078,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                 }
                 strSelPctThresh = strSelPctThresh + "  AND ld.stat_header_id = h.stat_header_id;";
                 printStreamSql.println(strSelPctThresh + " ");
+                printStreamSql.flush();
 
                 //  run the PCT thresh query
                 List<String> errors = new ArrayList<>();
@@ -1183,6 +1183,12 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
             strStat = "ECLV";
           }
+        }
+        if (!strSelectList.contains("fcst_var")) {
+          strSelectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
+        }else{
+          strSelectList = strSelectList.replace(listFcstVarStat[intFcstVarStat-1][0] + "' fcst_var"
+                  , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
 
         //  determine the table containing the current stat
@@ -2719,7 +2725,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
                            + "  " + formatField(strSeriesField, false, true);
-      strWhereSeries += "  AND " + formatField(strSeriesField, false, false)
+      strWhereSeries += " AND " + formatField(strSeriesField, false, false)
                             + " IN [" + MVUtil.buildValueList(listSeriesVal) + "] ";
       strTempList += (strTempList.isEmpty() ? "" : ", ") + "    "
                          + MVUtil.padEnd(strSeriesField, 20)
@@ -2737,6 +2743,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String strWhere = buildPlotFixWhere(listPlotFixVal, job, false);
     strWhere = strWhere + strWhereSeries;
 
+    String dbList = "[";
+
+    for (String cdbName: job.getCurrentDBName()) {
+      if (dbList.length() > 1) {
+        dbList += ", ";
+      }
+      dbList += "\'" + cdbName + "\'";
+    }
+    dbList += "]";
+
     //  check to ensure only a single obs_thresh is used
     String strObsThreshSelect =
         "SELECT DISTINCT h.obs_thresh "
@@ -2745,8 +2761,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
             + " ld.type = \'line\' AND ld.line_type = "
             + (boolRelyPlot || job.getRocPct() ? "\'pct\'" : "\'ctc\'")
-            + " AND h.type = \'header\' "
-            + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']"
+            + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+            + " AND h.dbname IN " + dbList
             + " ORDER BY h.obs_thresh;";
 
     if (printStreamSql != null) {
@@ -2760,15 +2776,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     if (boolRelyPlot || job.getRocPct()) {
 
       //  check to ensure only a single fcst_thresh is used
-      String strFcstThreshSelect = "SELECT DISTINCT h.fcst_thresh thresh ";
+      String strFcstThreshSelect = "SELECT DISTINCT h.fcst_thresh ";
 
       strFcstThreshSelect = strFcstThreshSelect
               + " FROM `" + getBucket().name() + "` AS h "
               + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id"
               + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
-              + " ld.type = \'line\' AND ld.line_type = \'pct\'"
-              + " AND h.type = \'header\' "
-              + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']"
+              + " ld.type = \'line\' AND ld.line_type = "
+              + (boolRelyPlot || job.getRocPct() ? "\'pct\'" : "\'ctc\'")
+              + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+              + " AND h.dbname IN " + dbList
               + " ORDER BY h.fcst_thresh;";
 
 
@@ -2781,43 +2798,43 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
       //  build the plot data sql
       strPlotDataSelect =
-          "SELECT   ld.total, ";
+          "SELECT ";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ", ";
       }
       if (boolRelyPlot) {
         strPlotDataSelect = strPlotDataSelect
-                                + "  ldt.i_value, "
-                                + "  ldt.thresh_i, "
-                                + "  ldt.oy_i oy_i, "
-                                + "  ldt.on_i on_i ";
+                                + " thresh.i_value,"
+                                + " TONUMBER(thresh.thresh_i) AS thresh_i,"
+                                + " thresh.oy_i,"
+                                + " thresh.on_i";
 
-        strPlotDataSelect = strPlotDataSelect + " FROM "
-                                + "  stat_header h, "
-                                + "  line_data_pct ld, "
-                                + "  line_data_pct_thresh ldt "
-                                + " WHERE "
-                                + strWhere
-                                + "  AND h.stat_header_id = ld.stat_header_id "
-                                + "  AND ld.line_data_id = ldt.line_data_id;";
-
+        strPlotDataSelect = strPlotDataSelect
+                + " FROM `" + getBucket().name() + "` AS h "
+                + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
+                + " UNNEST ld.pct_thresh AS thresh"
+                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+                + " ld.type = \'line\' AND ld.line_type = \'pct\'"
+                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+                + " AND h.dbname IN " + dbList
+                + " ORDER BY thresh_i";
       } else {
         strPlotDataSelect = strPlotDataSelect
-                                + "  ldt.i_value, "
-                                + "  ldt.thresh_i, "
-                                + "  SUM(ldt.oy_i) oy_i, "
-                                + "  SUM(ldt.on_i) on_i ";
+                                + " thresh.i_value, "
+                                + " thresh.thresh_i, "
+                                + " SUM(TONUMBER(thresh.oy_i)) oy_i, "
+                                + " SUM(TONUMBER(thresh.on_i)) on_i ";
 
-        strPlotDataSelect = strPlotDataSelect + " FROM "
-                                + "  stat_header h, "
-                                + "  line_data_pct ld, "
-                                + "  line_data_pct_thresh ldt "
-                                + " WHERE "
-                                + strWhere
-                                + "  AND h.stat_header_id = ld.stat_header_id "
-                                + "  AND ld.line_data_id = ldt.line_data_id "
-                                + "GROUP BY "
-                                + "  ldt.thresh_i";
+        strPlotDataSelect = strPlotDataSelect
+                + " FROM `" + getBucket().name() + "` AS h "
+                + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
+                + " UNNEST ld.pct_thresh AS thresh"
+                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+                + " ld.type = \'line\' AND ld.line_type = \'pct\'"
+                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+                + " AND h.dbname IN " + dbList
+                + " GROUP BY thresh.i_value, thresh.thresh_i"
+                + " ORDER BY thresh.i_value";
         if (listSeries.length > 0) {
           strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
         }
@@ -2840,7 +2857,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id "
               + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ctc\' "
               + " AND h.type = \'header\' AND h.header_type = \'stat\' "
-              + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']"
+              + " AND h.dbname IN " + dbList
               + " GROUP BY "
               + " h.fcst_thresh";
       if (listSeries.length > 0) {
