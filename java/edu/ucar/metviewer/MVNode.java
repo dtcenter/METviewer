@@ -3,13 +3,16 @@ package edu.ucar.metviewer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class MVNode {
+  private static final Logger logger = LogManager.getLogger("MVNode");
 
-  protected Node node = null;
+  protected Node node;
   public String tag = "";
   public String name = "";
   protected String label = "";
@@ -48,7 +51,7 @@ public class MVNode {
       } else if (strAttrName.equals("equalize")) {
         equalize = nodeAttr.getNodeValue();
       } else {
-        System.out.println(
+        logger.error(
             "  **  WARNING: unrecognized attribute name '" + strAttrName
                 + "' in node '" + tag + "'");
       }
@@ -80,7 +83,7 @@ public class MVNode {
       try {
         attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
       } catch (Exception e) {
-        System.out.println(e.getMessage());
+        logger.error(e.getMessage());
       }
     }
     return attributeValue;
