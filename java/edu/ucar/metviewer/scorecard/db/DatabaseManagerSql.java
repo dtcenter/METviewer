@@ -273,7 +273,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           }
 
       }
-      bufferedWriter.write(System.getProperty("line.separator"));
+      bufferedWriter.write(MVUtil.LINE_SEPARATOR);
 
 
       //  print out the table of values
@@ -307,7 +307,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
         }
         bufferedWriter.write(line);
-        bufferedWriter.write(System.getProperty("line.separator"));
+        bufferedWriter.write(MVUtil.LINE_SEPARATOR);
         intLine++;
 
       }
