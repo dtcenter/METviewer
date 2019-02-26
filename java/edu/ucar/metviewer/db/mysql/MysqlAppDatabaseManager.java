@@ -616,7 +616,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
         }
 
-        bufferedWriter.write(System.getProperty("line.separator"));
+        bufferedWriter.write(MVUtil.LINE_SEPARATOR);
       }
 
       //  print out the table of values
@@ -652,7 +652,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
         }
         bufferedWriter.write(line.toString());
-        bufferedWriter.write(System.getProperty("line.separator"));
+        bufferedWriter.write(MVUtil.LINE_SEPARATOR);
         intLine++;
 
       }
