@@ -3420,7 +3420,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     }
     if (!currentCategory.equals(group)) {
       if (nrows == 0) {
@@ -3469,7 +3469,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     }
     if (!currentDescription.equals(description)) {
       if (nrows == 0) {
