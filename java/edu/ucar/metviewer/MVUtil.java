@@ -44,6 +44,7 @@ import org.w3c.dom.Document;
 
 public class MVUtil {
 
+  private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger("MVUtil");
 
   public static final Pattern thresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
   public static final Pattern lev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
@@ -60,7 +61,7 @@ public class MVUtil {
   public static final DateTimeFormatter APP_DATE_FORMATTER
       = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-
+  public final static String LINE_SEPARATOR = System.getProperty("line.separator");
   /**
    * Parse the input mode statistic, which is assume to have the form SSSS_FFF, where SSSS is the
    * name of a mode statistic with arbitrary lenght and FFF is a three character flag indicator
@@ -1565,7 +1566,7 @@ public class MVUtil {
         }
       }
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     } finally {
 
       if (inputStreamReader != null) {
@@ -1736,7 +1737,7 @@ public class MVUtil {
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     }
 
   }
@@ -2285,7 +2286,7 @@ public class MVUtil {
       transformer.transform(source, new StreamResult(stringWriter));
       result = stringWriter.toString();
     } catch (TransformerException | IOException e) {
-      System.out.println(e.getMessage());
+      logger.error(e.getMessage());
     }
     return result;
   }
@@ -2302,7 +2303,7 @@ public class MVUtil {
       try {
         fileWriter.close();
       } catch (IOException e) {
-        System.out.println(e.getMessage());
+        logger.error(e.getMessage());
       }
     }
   }
