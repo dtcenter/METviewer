@@ -1,7 +1,6 @@
 package edu.ucar.metviewer;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -75,15 +74,15 @@ import org.w3c.dom.Node;
 
 public class MVServlet extends HttpServlet {
 
-  public static final PrintStream errorStream
+  private static final PrintStream errorStream
       = IoBuilder.forLogger(MVUtil.class).setLevel(org.apache.logging.log4j.Level.INFO)
             .setMarker(new MarkerManager.Log4jMarker("ERROR"))
             .buildPrintStream();
 
-  public static final Pattern patDownload = Pattern.compile(".*/download");
+  private static final Pattern patDownload = Pattern.compile(".*/download");
   public static final String DELIMITER = File.separator;
-  protected static final Map<String, Document> valCache = new HashMap<>();
-  protected static final Map<String, Document> statCache = new HashMap<>();
+  private static final Map<String, Document> valCache = new HashMap<>();
+  private static final Map<String, Document> statCache = new HashMap<>();
   private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
@@ -147,7 +146,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public String handleClearListValCache() throws ParserConfigurationException {
+  private String handleClearListValCache() throws ParserConfigurationException {
 
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
@@ -173,7 +172,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public String handleListValCacheKeys() throws ParserConfigurationException {
+  private String handleListValCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isValCache) {
       Element errorXml = docResp.createElement("error");
@@ -227,7 +226,7 @@ public class MVServlet extends HttpServlet {
    * @return reponse XML indicating progress
    * @throws Exception
    */
-  public String handleListStatCacheKeys() throws ParserConfigurationException {
+  private String handleListStatCacheKeys() throws ParserConfigurationException {
     Document docResp = MVUtil.createDocument();
     if (!isStatCache) {
       Element errorXml = docResp.createElement("error");
@@ -261,7 +260,7 @@ public class MVServlet extends HttpServlet {
    * @param table  Table from which matching entries will be removed
    * @return number of removed entries
    */
-  public static int removeTableEntriesByKeyPrefix(String prefix, Map<String, Document> table) {
+  private static int removeTableEntriesByKeyPrefix(String prefix, Map<String, Document> table) {
     int intNumRemoved = 0;
     Map.Entry[] listEntries = table.entrySet().toArray(new Map.Entry[]{});
     for (Map.Entry listEntry : listEntries) {
@@ -283,7 +282,7 @@ public class MVServlet extends HttpServlet {
    * @param table  Table from which matching entries will be removed
    * @return number of removed entries
    */
-  public static String[] listTableEntriesByKeyPrefix(String prefix, Map<String, Document> table) {
+  private static String[] listTableEntriesByKeyPrefix(String prefix, Map<String, Document> table) {
     ArrayList listKeys = new ArrayList();
     Map.Entry[] listEntries = table.entrySet().toArray(new Map.Entry[]{});
     for (Map.Entry listEntry : listEntries) {
@@ -304,7 +303,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public String handleListVal(
+  private String handleListVal(
       MVNode nodeCall, String requestBody,
       String[] currentDbName) throws Exception {
     Document docResp = MVUtil.createDocument();
@@ -364,7 +363,7 @@ public class MVServlet extends HttpServlet {
    * @return XML response information
    * @throws Exception
    */
-  public String handleListStat(
+  private String handleListStat(
       MVNode nodeCall, String requestBody,
       String[] currentDBName) throws Exception {
     String strFcstVar = nodeCall.children[0].value;
@@ -414,7 +413,7 @@ public class MVServlet extends HttpServlet {
    * @param strRequest XML plot specification
    * @return status message
    */
-  public String handlePlot(String strRequest, String[] currentDBName) throws Exception {
+  private String handlePlot(String strRequest, String[] currentDBName) throws Exception {
 
     //  extract the plot xml from the request
     StopWatch stopWatch = new StopWatch();
@@ -742,7 +741,7 @@ public class MVServlet extends HttpServlet {
    * @return serialized plot spec of a single plot from the input spec
    * @throws Exception
    */
-  public StringBuilder handleXmlUpload(MVNode nodeCall) throws Exception {
+  private StringBuilder handleXmlUpload(MVNode nodeCall) throws Exception {
 
     //  run the parser to generate plot jobs
     MVPlotJobParser par = new MVPlotJobParser(nodeCall.children[0]);
@@ -837,7 +836,7 @@ public class MVServlet extends HttpServlet {
    * global variables
    */
   @Override
-  public void init() throws ServletException {
+  public void init()  {
     logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
@@ -1008,8 +1007,7 @@ public class MVServlet extends HttpServlet {
    * @param response Used to send information back to the requester
    */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response){
     //  initialize the response writer and session
     BufferedReader reader = null;
     String referer;
@@ -1340,7 +1338,13 @@ public class MVServlet extends HttpServlet {
     } finally {
 
       if (reader != null) {
-        reader.close();
+        try {
+          reader.close();
+        } catch (IOException e) {
+          errorStream
+                    .print("doPost() - caught " + e.getClass()
+                               + ": " + e.getMessage());
+        }
       }
     }
   }
