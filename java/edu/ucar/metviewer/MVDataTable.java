@@ -5,14 +5,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Mutable data structure that stores data and facilitates subsetting of the rows to create individual data sets.  After the MVDataTable is loaded, subsets of
  * rows can be built using the subset command.
  */
 public class MVDataTable {
+  private static final Logger logger = LogManager.getLogger("MVDataTable");
 
-  protected List _listFields = new ArrayList();
-  protected List _listRows = new ArrayList();
+  private List _listFields = new ArrayList();
+  private List _listRows = new ArrayList();
 
 
 
@@ -48,30 +52,6 @@ public class MVDataTable {
     return (MVOrderedMap[]) _listRows.toArray(new MVOrderedMap[]{});
   }
 
-
-
-  public String getStr(String field, int row) {
-    if (0 > row || _listRows.size() - 1 < row || !_listFields.contains(field)) {
-      return null;
-    }
-    return ((MVOrderedMap) _listRows.get(row)).getStr(field);
-  }
-
-
-
-  /**
-   * The number of rows in the table
-   */
-  public int getNumRows() {
-    return _listRows.size();
-  }
-
-  /**
-   * The number of fields in the table
-   */
-  public int getNumFields() {
-    return _listFields.size();
-  }
 
   /**
    * Add and initialize a new field in the MVDataTable at the specified index
@@ -118,7 +98,7 @@ public class MVDataTable {
     //  remove inappropriate values from the input row
     for (Map.Entry val : vals) {
       if (!_listFields.contains(val.getKey())) {
-        System.out.println("  **  WARNING: MVDataTable.addRow() removed key " + val.getKey());
+        logger.error("  **  WARNING: MVDataTable.addRow() removed key " + val.getKey());
         row.remove(val.getKey());
       }
     }
