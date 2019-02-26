@@ -1843,7 +1843,7 @@ public final class MVPlotJobParser {
         try {
           m.invoke(job, node.value.equals("true"));
         } catch (Exception e) {
-          System.out.println(
+          logger.error(
               "  **  ERROR: caught " + e.getClass() + " parsing format boolean '"
                   + node.tag + "': " + e.getMessage());
         }
@@ -1866,7 +1866,7 @@ public final class MVPlotJobParser {
             Throwable ex = ((InvocationTargetException) e).getTargetException();
             throw new Exception(ex);
           } else {
-            System.out.println(
+            logger.error(
                 "  **  ERROR: caught " + e.getClass() + " parsing format string '"
                     + node.tag + "': " + e.getMessage());
             throw new Exception(e);
@@ -1877,7 +1877,7 @@ public final class MVPlotJobParser {
 
       //  report unused tags
       else {
-        System.out.println("  **  WARNING: unused plot tag '" + node.tag + "'");
+        logger.info("  **  WARNING: unused plot tag '" + node.tag + "'");
       }
     }
 
