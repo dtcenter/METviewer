@@ -12,8 +12,8 @@ import org.w3c.dom.Document;
 
 public class MVLoadJobParser {
 
-  protected final Map dateListDecl = new HashMap();
-  protected MVNode loadSpec = null;
+  private final Map dateListDecl = new HashMap();
+  private MVNode loadSpec;
   protected MVLoadJob job = null;
 
 
@@ -159,12 +159,10 @@ public class MVLoadJobParser {
 
     //check if all load values are present in folder_tmpl
     String[] loadVals = loadJob.getLoadVal().getKeyList();
-    if (loadVals != null) {
-      for (String val : loadVals) {
-        if (!loadJob.getFolderTmpl().contains("{" + val + "}")) {
-          //remove value
-          loadJob.getLoadVal().remove(val);
-        }
+    for (String val : loadVals) {
+      if (!loadJob.getFolderTmpl().contains("{" + val + "}")) {
+        //remove value
+        loadJob.getLoadVal().remove(val);
       }
     }
 
