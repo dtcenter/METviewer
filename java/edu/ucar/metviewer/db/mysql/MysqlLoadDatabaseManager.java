@@ -3611,6 +3611,30 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       return null;
     }
 
+    // do not insert empty files into the database
+    int lines = 0;
+    try (
+        FileReader fileReader = new FileReader(file);
+        BufferedReader reader = new BufferedReader(fileReader)) {
+      //  read in each line of the input file
+      while (reader.ready()) {
+        String listToken = reader.readLine();
+
+        //  the first line is the header line
+        if (listToken.startsWith("VERSION")) {
+          lines++;
+        } else {
+          lines++;
+          break;
+        }
+      }
+    }
+    if (lines <= 1) {
+      logger.warn("  **  WARNING: file " + file.getAbsolutePath() + " is empty and will be "
+                      + "ignored");
+      return null;
+    }
+
     dataFileLuId = tableDataFileLU.get(dataFileLuTypeName);
 
 
