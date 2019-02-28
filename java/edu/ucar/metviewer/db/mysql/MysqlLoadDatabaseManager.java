@@ -56,6 +56,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       0.200000000, 0.125000000, 0.100000000, 0.055555556, 0.037037037, 0.025000000,
       0.016666667, 0.011111111, 0.007142857, 0.004761905, 0.002857143, 0.002000000
   };
+  public static final int MAX_LINES = 20000;
+  public static final int MAX_LINE_LEN = 1024;
   private final Map<String, Integer> tableVarLengthLineDataId = new HashMap<>();
   private final Map<String, Integer> statHeaders = new HashMap<>();
   private final Map<String, Integer> modeHeaders = new HashMap<>();
@@ -587,7 +589,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     List<String> headerNames = new ArrayList<>();
     try (
         FileReader fileReader = new FileReader(filename);
-        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
+                                                                 MAX_LINE_LEN)) {
       //  read in each line of the input file
       while (reader.ready()) {
         String line = reader.readLineBounded();
@@ -1181,7 +1184,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }  // end: while( reader.ready() )
 
     } catch (Exception e) {
-      logger.error(e.getMessage());
+      logger.error("ERROR for file " + filename + " : " +e.getMessage());
     }
 
     //  commit all the remaining stored data
@@ -1346,7 +1349,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
     int intLine = 0;
     try (FileReader fileReader = new FileReader(strFilename);
-         BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
+         BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
+                                                                  MAX_LINE_LEN)) {
       List<String> allMatches;
       DateTimeFormatter formatStatVsdb = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
@@ -2181,7 +2185,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     List<String> headerNames = new ArrayList<>();
     try (
         FileReader fileReader = new FileReader(strFilename);
-        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
+                                                                 MAX_LINE_LEN)) {
       //  read each line of the input file
       while (reader.ready()) {
         String line = reader.readLineBounded();
@@ -2906,7 +2911,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     List<String> headerNames = new ArrayList<>();
     try (
         FileReader fileReader = new FileReader(filename);
-        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
+                                                                 MAX_LINE_LEN)) {
       //  read each line of the input file
       while (reader.ready()) {
         String lineStr = reader.readLineBounded().trim();
@@ -3528,7 +3534,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         ps.addBatch();
 
         //execute and commit batch of 20000 queries
-        if (i != 0 && i % 20000 == 0 && result) {
+        if (i != 0 && i % MAX_LINES == 0 && result) {
           int[] updateCounts = ps.executeBatch();
           if (updateCounts[0] < 0 && updateCounts[0] != Statement.SUCCESS_NO_INFO) {
             result = false;
