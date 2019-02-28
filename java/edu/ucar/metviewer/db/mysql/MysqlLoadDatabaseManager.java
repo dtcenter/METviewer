@@ -6,7 +6,6 @@
 
 package edu.ucar.metviewer.db.mysql;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
@@ -2189,7 +2188,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                                                  MAX_LINE_LEN)) {
       //  read each line of the input file
       while (reader.ready()) {
-        String line = reader.readLineBounded();
 
         String[] listToken = reader.readLineBounded().split("\\s+");
 
@@ -3622,7 +3620,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     int lines = 0;
     try (
         FileReader fileReader = new FileReader(file);
-        BufferedReader reader = new BufferedReader(fileReader)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES, MAX_LINE_LEN)) {
       //  read in each line of the input file
       while (reader.ready()) {
         String listToken = reader.readLine();
