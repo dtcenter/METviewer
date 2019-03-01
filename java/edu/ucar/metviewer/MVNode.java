@@ -77,13 +77,13 @@ public class MVNode {
 
 
   public String getAttribute(String attributeName) {
-    String attributeValue = null;
+    String attributeValue =null;
     NamedNodeMap namedNodeMap = node.getAttributes();
     if (namedNodeMap.getLength() > 0) {
       try {
         attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
       } catch (Exception e) {
-        logger.error(e.getMessage());
+        attributeValue=null;
       }
     }
     return attributeValue;
