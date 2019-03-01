@@ -1183,7 +1183,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }  // end: while( reader.ready() )
 
     } catch (Exception e) {
-      logger.error("ERROR for file " + filename + " : " +e.getMessage());
+      logger.error("ERROR for file " + filename + " : " + e.getMessage());
     }
 
     //  commit all the remaining stored data
@@ -2188,9 +2188,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                                                  MAX_LINE_LEN)) {
       //  read each line of the input file
       while (reader.ready()) {
-
         String[] listToken = reader.readLineBounded().split("\\s+");
-
         //  the first line is the header line
         if (1 > listToken.length || listToken[0].equals("VERSION")) {
           headerNames = Arrays.asList(listToken);
@@ -3620,21 +3618,20 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     int lines = 0;
     try (
         FileReader fileReader = new FileReader(file);
-        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES, MAX_LINE_LEN)) {
+        BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
+                                                                 MAX_LINE_LEN)) {
       //  read in each line of the input file
       while (reader.ready()) {
-        String listToken = reader.readLine();
-
-        //  the first line is the header line
-        if (listToken.startsWith("VERSION")) {
+        String line = reader.readLineBounded();
+        if (line.length() > 0 && !line.startsWith("VERSION")) {
           lines++;
-        } else {
-          lines++;
+        }
+        if(lines == 1){
           break;
         }
       }
     }
-    if (lines <= 1) {
+    if (lines == 0) {
       logger.warn("  **  WARNING: file " + file.getAbsolutePath() + " is empty and will be "
                       + "ignored");
       return null;
@@ -3761,7 +3758,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     if (job.getLoadXML()) {
       strXML = MVUtil.cleanString(strXML);
       try (FileReader fileReader = new FileReader(strXML);
-          BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
+           BoundedBufferedReader reader = new BoundedBufferedReader(fileReader)) {
         while (reader.ready()) {
           loadXmlStr.append(reader.readLineBounded().trim());
         }
