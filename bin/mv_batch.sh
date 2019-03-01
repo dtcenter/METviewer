@@ -2,14 +2,12 @@
 echo $(env)
 
 if [ -z ${JAVA_HOME+x} ]; then
-    #JAVA_HOME=/usr/local/jdk
-    JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home
+    JAVA_HOME=/usr/local/jdk
 fi
 JAVA=${JAVA_HOME}/bin/java
 
 if [ -z ${MV_HOME+x} ]; then
-    #MV_HOME=/d3/projects/METViewer/src/apps/METviewer
-    MV_HOME=/Users/pierce/IdeaProjects/METViewer
+    MV_HOME=/d3/projects/METViewer/src/apps/METviewer
 fi
 # construct the classpath for MVBatch
 CLASSPATH=$CLASSPATH:$MV_HOME/lib/mariadb-java-client-2.4.0.jar
