@@ -1775,8 +1775,8 @@ function updateFixedVarValHist(index, selectedVals) {
                 var options = [];
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
-                    selected = $.inArray(t.text(), selectedVals) >= 0;
-                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                    selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
+                    if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                         var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
                             value: text_formatted,
@@ -2039,8 +2039,8 @@ function updateFixedVarVal(index, selectedVals, equalize) {
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
-                    selected = $.inArray(t.text(), selectedVals) >= 0;
-                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                    selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
+                    if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                         var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
                             value: text_formatted,
