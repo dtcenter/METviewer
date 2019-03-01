@@ -1,5 +1,4 @@
 #!/bin/bash
-echo $(env)
 
 if [ -z ${JAVA_HOME+x} ]; then
     JAVA_HOME=/usr/local/jdk
