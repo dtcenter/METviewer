@@ -1,23 +1,24 @@
 <html>
 <head>
-	<title>METViewer Documentation</title>
+	<title>METviewer Documentation</title>
 	<link rel="stylesheet" type="text/css" href="mv_doc.css" />
 	<link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 </head>
 <body>
 
 <p class="loc" style="padding-top:10px">
-<b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Installing METViewer
+<b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Installing METviewer
 </p><hr/>
 
-<h2>Installing METViewer</h2>
+<h2>Installing METviewer</h2>
 
 <p>
-METViewer relies on the following tools.  These must be installed and tested prior to installing METViewer:<br/>
+METviewer relies on the following tools.  These must be installed and tested prior to installing
+	METviewer:<br/>
 <ul>
 	<li>
-		<b class="inst">Java JDK</b> - 
-			<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">download</a> and install version 1.8
+		<b class="inst">Java JDK 1.8+</b> -
+
 	</li>
 	<li>
 		<b class="inst">ant</b> - <a href="http://ant.apache.org/bindownload.cgi" target="_blank">download</a> and install the latest version
@@ -85,7 +86,7 @@ METViewer relies on the following tools.  These must be installed and tested pri
 	</li>
 	<li class="inst">Build and deploy the application:<br/>
 		<ul>
-			<li style="list-style-type:disc">Build METViewer and the web application:<br/>
+			<li style="list-style-type:disc">Build METviewer and the web application:<br/>
 				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
 				<span class="term" style="padding-left:40px">$ ant</span><br/>
 			</li><br/>
@@ -101,7 +102,7 @@ METViewer relies on the following tools.  These must be installed and tested pri
 						</li><br/><br/>
 		</ul>
 	</li>
-	<li class="inst">Create a METViewer database:<br/>
+	<li class="inst">Create a METviewer database:<br/>
 		<ul>
 			<li style="list-style-type:disc">create a database to store MET data, which has the prefix 'mv_', e.g. mv_met_data:<br/>
 				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
@@ -109,7 +110,8 @@ METViewer relies on the following tools.  These must be installed and tested pri
 				<span class="term" style="padding-left:40px">$ mysql -u[db_username] -p[db_password] [db_name] < sql/mv_mysql.sql</span><br/><br/>		 
 			</li>
 			<li style="list-style-type:disc">create an <a href="load.html">XML load specification</a> document which contains information about your MET data</li>
-			<li style="list-style-type:disc">run the METViewer load tool using the XML load specification as input (called [load_xml] here) and monitor progress:<br/>
+			<li style="list-style-type:disc">run the METviewer load tool using the XML load
+				specification as input (called [load_xml] here) and monitor progress:<br/>
 				<span class="term" style="padding-left:40px">$ cd [install]/metviewer</span><br/>		 
 				<span class="term" style="padding-left:40px">$ bin/mv_load.sh [load_xml] [optional redirection of output, e.g. &> log/load_[date].log &]'</span><br/>		 
 			</li><br/><br/>
@@ -139,9 +141,10 @@ METViewer relies on the following tools.  These must be installed and tested pri
 
 
 <a name="db_new"></a>
-<h3>Making a Database Accessible in the METViewer Web Application</h3>
+<h3>Making a Database Accessible in the METviewer Web Application</h3>
 <p>
-To make a new database accessible in the METViewer Web Application click on "Reload list of databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it<br/>
+To make a new database accessible in the METviewer Web Application click on "Reload list of
+	databases" button in the upper right corner of the main JSP page. The list of available databases should be updated and a new database should be in it<br/>
 </p>
 
 </body>

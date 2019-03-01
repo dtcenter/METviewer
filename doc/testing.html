@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>METViewer Documentation</title>
+  <title>METviewer Documentation</title>
   <link rel="stylesheet" type="text/css" href="mv_doc.css"/>
   <link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 </head>
@@ -13,7 +13,7 @@
 </p>
 <hr/>
 
-<h2>METViewer Documentation - Testing Module</h2>
+<h2>METviewer Documentation - Testing Module</h2>
 <h3>Testing example - install and run on dakota</h3>
 <p>
   Testing HOME directory: /d3/projects/METViewer/auto_test<br/>
@@ -63,7 +63,7 @@
 
 <h3>Testing - capture</h3>
 <p>The testing modual is used to execute the regression testing of a specified
-  version of METViewer. The capture tool is invoked by using the mv_test script.
+  version of METviewer. The capture tool is invoked by using the mv_test script.
   During test capture, system or processing errors will be reported but images and data are not
   verified.
   Verification of data or images is performed by the mv_compare script. The mv_test script
@@ -71,11 +71,11 @@
   copies them from the output directory to the appropriate directory test_cases directory.
 </p>
 <p>
-  Capture and Verification are performed against a specified METViewer branch and tag. It is
+  Capture and Verification are performed against a specified METviewer branch and tag. It is
   expected that the proper branch or tag has been
-  previously fetched or cloned and checked out into the METViewer home directory that is specified
+  previously fetched or cloned and checked out into the METviewer home directory that is specified
   with -m (the auto test script does check out specific code
-  and then runs test capture and compare - see below). The METViewer test directory should also be a
+  and then runs test capture and compare - see below). The METviewer test directory should also be a
   subdirectory that corresponds to the proper branch and
   tag, with an output directory that will contain the generated images, scripts and data for a given
   test run,
@@ -90,7 +90,7 @@
 </p>
 <h5>NOTE ABOUT GIT TAGS</h5>
 <p>
-  A short discussion of METViewer git tags is appropriate here. Git tags are not directly related to
+  A short discussion of METviewer git tags is appropriate here. Git tags are not directly related to
   any git branches. They are different things. A git tag simply refers to a
   specific commit to the git repository. The branches that existed at the time of the tagging could
   all be deleted (except for the master) and the tag would still
@@ -109,10 +109,10 @@
 <p>
   NOTE that since we want to do binary comparisons on captured test data the test data is saved in a
   directory structure that
-  is mnemonically tied to the product branches or tags. The METViewer code under test is only ever
+  is mnemonically tied to the product branches or tags. The METviewer code under test is only ever
   checked out to one specific branch HEAD, or to a tag point, at a time.
   Its produced data and images may be compared, however, to data that was captured by a different
-  version or tag point of METViewer code.
+  version or tag point of METviewer code.
 
   This test directory structure might look like this, for example...
     <pre>
@@ -179,7 +179,7 @@
                             generated xml files
                     R_work/
                             generated R scripts
-                    R_tmpl   (link to METViewer R_tmpl)
+                    R_tmpl   (link to METviewer R_tmpl)
                 TAG1/
                     ....
                 TAG2/
@@ -203,15 +203,15 @@
   for a version under test
   and a comparison version. It performs the following steps...
 <ul>
-  <li>Remove any METViewer directory and METViewerTestSource directory</li>
-  <li>Do a git clone into the METViewer home directory and checkout the corresponding branch or
+  <li>Remove any METviewer directory and METviewerTestSource directory</li>
+  <li>Do a git clone into the METviewer home directory and checkout the corresponding branch or
     tag
   </li>
-  <li>Do a git clone of the METViewer testing repository into the METViewerTestSource directory
+  <li>Do a git clone of the METviewer testing repository into the METviewerTestSource directory
     (this is not the test directory)
   </li>
   <li>If needed create a METVIEWER_TEST_DIR subdirectory for the specified branch and load common
-    data from the METViewerTestSource into it
+    data from the METviewerTestSource into it
   </li>
   <li>Run the testing capture program to capture test data for the specified branch, and copy the
     data to the corresponding test subdirectory
@@ -237,7 +237,7 @@
 </p>
 <p class="term">
   ---- Auto Test ----<br/><br/>
-  Usage: auto_test.sh -U &#60git user&#62 -t&#60path to METViewer test directory&#62 -b&#60git
+  Usage: auto_test.sh -U &#60git user&#62 -t&#60path to METviewer test directory&#62 -b&#60git
   branch&#62 -B&#60compare git branch&#62 -l&#60path to met data&#62 -d&#60mv_database&#62
   -m&#60path to METViewer home&#62 [-a address list] [-g&#60git tag&#62] [-G&#60compare git tag&#62]
   [-u&#60mv_user&#62] [-p&#60mv_passwd&#62] [-h&#60mv_host&#62] [-P&#60mv_port&#62] [-j&#60path to
@@ -281,7 +281,7 @@
   [-n] causes no clean - i.e. test created data and plots will remain after the test completes,
   default is to clean prior to and after running<br/>
   [-l] causes the LoadDataTest submodule to be executed, default is to not load data, gets met data
-  from METViewer test directory meta_data<br/>
+  from METvviewer test directory meta_data<br/>
   [-c] Captures created output data and copies it into the test directory. Prior to doing this the
   compare will fail
   [-X] Do not compare output automatically - only create images

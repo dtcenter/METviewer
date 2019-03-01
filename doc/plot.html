@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>METViewer Documentation</title>
+	<title>METviewer Documentation</title>
 	<link rel="stylesheet" type="text/css" href="mv_doc.css" />
 	<link rel="shortcut icon" href="include/ral_icon.ico" type="image/x-icon"/>
 </head>
@@ -10,9 +10,10 @@
 <b>Location:</b> <a class="loc" href="index.html">Home</a> &#187; Batch Plotting
 </p><hr/>
 
-<h2>METViewer Documentation - Batch Plotting Module</h2>
+<h2>METviewer Documentation - Batch Plotting Module</h2>
 
-<p>The batch plotting system is used to generate a number of plots of data in the METViewer database.  The usage statement:</p>
+<p>The batch plotting system is used to generate a number of plots of data in the METviewer
+	database.  The usage statement:</p>
 
 <p class="term">
 ----  MVBatch  ----<br/><br/>
@@ -42,7 +43,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	<li>
 		<span class="code">&lt;folders&gt;</span>: a structure that specifies the input and output file system folders 
 		<ul>
-			<li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used by METViewer, typically <span class="term">R_tmpl/</span> from the metviewer 
+			<li><span class="code">&lt;r_tmpl&gt;</span>: the folder that contains the R templates used
+				by METviewer, typically <span class="term">R_tmpl/</span> from the metviewer
 			CVS source tree
 			<li><span class="code">&lt;r_work&gt;</span>: the folder that will contain the data and generated R scripts, must contain the sub-folder <span class="term">include/</span>
 			<li><span class="code">&lt;plots&gt;</span>: the output folder that will contain the generated plots</li>
@@ -356,7 +358,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 
 			
 			<a name="calc_stat"></a>		
-			<li><span class="code">&lt;calc_stat&gt;</span>: contains flags telling METViewer to calculate the plot statistics from CTCs or partial sums.  If present, calc_stat is
+			<li><span class="code">&lt;calc_stat&gt;</span>: contains flags telling METviewer to
+				calculate the plot statistics from CTCs or partial sums.  If present, calc_stat is
 			turned on.  Depending on the selected <span class="code">&lt;dep&gt;</span> statistics, only certain settings are appropriate.</br>
 				<ul>
 					<li><span class="code">&lt;calc_ctc&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to calculate CTC stats</li>
@@ -373,7 +376,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			</li><br/>
 			
 			<a name="roc_calc"></a>		
-			<li><span class="code">&lt;roc_calc&gt;</span>: contains flags telling METViewer how to calculate the points on the ROC curve: from PCTs or CTCs.  This setting is required 
+			<li><span class="code">&lt;roc_calc&gt;</span>: contains flags telling METviewer how to
+				calculate the points on the ROC curve: from PCTs or CTCs.  This setting is required
 				if the roc.R_tmpl is used, otherwise, it is ignored.</br>
 				<ul>
 					<li><span class="code">&lt;roc_pct&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether or not to calculate ROC points
@@ -392,7 +396,8 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 			</li><br/>
 
             <a name="hist_type"></a>
-            			<li><span class="code">&lt;normalized_histogram&gt;</span>: contains flags telling METViewer which type of histogram to built: normalized or raw counts plot.  This setting is required
+            			<li><span class="code">&lt;normalized_histogram&gt;</span>: contains flags
+										telling METviewer which type of histogram to built: normalized or raw counts plot.  This setting is required
             				if the rhist.R_tmpl is used, otherwise, it is ignored.The default value is TRUE (normalized histogram).</br>
             				<ul>
             					<li><span class="code">&lt;normalized_histogram&gt;</span>: <span class="code">TRUE</span> or <span class="code">FALSE</span>, indicating whether  to build a normalized or raw counts histogram
@@ -560,7 +565,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 		
 	<p style="padding-left:60px">	
 	<table border="1" cellspacing="0">
-	    <tr><th align="left">Single Object Stat</th>	<th align="left">METViewer Stat Name</th></tr>
+	    <tr><th align="left">Single Object Stat</th>	<th align="left">METviewer Stat Name</th></tr>
 		<tr><td>SUM(area) / total</td>					<td><span class="term">ACOV</span></td></tr>
 		<tr><td>COUNT(object_id)</td>					<td><span class="term">CNT</span></td></tr>
 		<tr><td>COUNT(object_id)</td>					<td><span class="term">CNTSUM</span></td></tr>
@@ -588,14 +593,16 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	</p>
 		
 	<p style="padding-left:40px">	
-	In addition to the single object statistics, METViewer supports ratios of single object counts and areas, and also some contingency table statistics.  These statistics are specified
+	In addition to the single object statistics, METviewer supports ratios of single object counts
+		and areas, and also some contingency table statistics.  These statistics are specified
 	in the table below with their corresponding interpretation.  For the area-weighted version of these statistics, replace <span class="term">RATIO_</span> with 
 	<span class="term">AREARAT_</span> and <span class="term">OBJ</span> with <span class="term">OBJA</span>.
 	</p>
 	
 	<p style="padding-left:60px">
 	<table border="1" cellspacing="0">
-	    <tr><th align="left">Interpretation</th>														<th align="left">METViewer Stat Name</th></tr>
+	    <tr><th align="left">Interpretation</th>														<th
+					align="left">METviewer Stat Name</th></tr>
 	    <tr><td>What percentage of simple objects are forecast?</td>									<td><span class="term">RATIO_FSA_ASA</span></td></tr>
 	    <tr><td>What percentage of simple objects are observation?</td>									<td><span class="term">RATIO_OSA_ASA</span></td></tr>
 	    <tr><td>What percentage of simple objects are matched?</td>										<td><span class="term">RATIO_ASM_ASA</span></td></tr>
@@ -649,7 +656,7 @@ top-level tag is <span class="code">&lt;plot_spec&gt;</load_spec></span> which c
 	
 	<p style="padding-left:60px">
 	<table border="1" cellspacing="0">
-	    <tr><th align="left">Object Pair Stat</th>	<th align="left">METViewer Stat Name</th></tr>
+	    <tr><th align="left">Object Pair Stat</th>	<th align="left">METviewer Stat Name</th></tr>
 		<tr><td>centroid_dist</td>					<td><span class="term">CENTDIST</span></td></tr>
 		<tr><td>boundary_dist</td>					<td><span class="term">BOUNDDIST</span></td></tr>
 		<tr><td>convex_hull_dist</td>				<td><span class="term">HULLDIST</span></td></tr>
