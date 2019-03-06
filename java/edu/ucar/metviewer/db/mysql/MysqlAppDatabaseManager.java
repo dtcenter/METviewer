@@ -9,6 +9,7 @@ package edu.ucar.metviewer.db.mysql;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -662,7 +663,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         throw new EmptyResultSetException("result set contained no data");
       }
 
-    } catch (Exception e) {
+    } catch (EmptyResultSetException | SQLException | IOException e) {
       logger.error(
           "  **  ERROR: Caught " + e.getClass()
               + " in printFormattedTable(ResultSet res): " + e.getMessage());

@@ -11,6 +11,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -465,14 +467,12 @@ public class MVServlet extends HttpServlet {
       parser = new MVPlotJobParser(byteArrayInputStream);
       MVPlotJob[] jobs = parser.getJobsList();
       if (1 != jobs.length) {
-        throw new Exception("unexpected number of plot jobs generated: " + jobs.length);
+        String error = "unexpected number of plot jobs generated: " + jobs.length;
+        errorStream.print(
+            "handlePlot() - ERROR: caught  parsing plot job: " + error);
+        return "<error>failed to parse plot job</error>";
       }
       job = jobs[0];
-    } catch (Exception e) {
-
-      errorStream.print(
-          "handlePlot() - ERROR: caught " + e.getClass() + " parsing plot job: " + e.getMessage());
-      return "<error>failed to parse plot job</error>";
     }
 
     //  run the plot job and write the batch output to the log file
@@ -550,7 +550,7 @@ public class MVServlet extends HttpServlet {
         streamResult = new StreamResult(outputStreamWriter);
         transformer.transform(new DOMSource(doc), streamResult);
         stream.flush();
-      } catch (Exception e) {
+      } catch ( IllegalArgumentException | NullPointerException | TransformerException e) {
         logger.error(
             "handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: "
                 + e.getMessage());
@@ -836,7 +836,7 @@ public class MVServlet extends HttpServlet {
    * global variables
    */
   @Override
-  public void init()  {
+  public void init() {
     logger.debug("init() - loading properties...");
     try {
       ResourceBundle bundle = ResourceBundle.getBundle("mvservlet");
@@ -1007,7 +1007,7 @@ public class MVServlet extends HttpServlet {
    * @param response Used to send information back to the requester
    */
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response){
+  public void doPost(HttpServletRequest request, HttpServletResponse response) {
     //  initialize the response writer and session
     BufferedReader reader = null;
     String referer;
@@ -1027,11 +1027,12 @@ public class MVServlet extends HttpServlet {
         StringBuilder uploadXml = new StringBuilder();
         for (FileItem item : items) {
           if (!item.isFormField()) {
-            if (item.getName().endsWith(".xml") && item.getContentType().equals(
-                "text/xml") && item.getSize() < 30000) {
+            if (item.getName().endsWith(".xml")
+                    && item.getContentType().equals("text/xml") && item.getSize() < 30000) {
               try (InputStream inputStream = item.getInputStream();
                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                   BoundedBufferedReader boundedBufferedReader = new BoundedBufferedReader(inputStreamReader);) {
+                   BoundedBufferedReader boundedBufferedReader = new BoundedBufferedReader(
+                       inputStreamReader);) {
 
                 while (boundedBufferedReader.ready()) {
                   String line = boundedBufferedReader.readLineBounded();
@@ -1054,7 +1055,7 @@ public class MVServlet extends HttpServlet {
 
       } else {
         //  if the request is not a file upload, read it directly
-        requestBody.append(request.getReader().lines().collect( Collectors.joining(  ) ));
+        requestBody.append(request.getReader().lines().collect(Collectors.joining()));
 
         /*try (BoundedBufferedReader boundedBufferedReader = (BoundedBufferedReader) request.getReader()){
           while ((line = boundedBufferedReader.readLineBounded()) != null) {
@@ -1342,8 +1343,8 @@ public class MVServlet extends HttpServlet {
           reader.close();
         } catch (IOException e) {
           errorStream
-                    .print("doPost() - caught " + e.getClass()
-                               + ": " + e.getMessage());
+              .print("doPost() - caught " + e.getClass()
+                         + ": " + e.getMessage());
         }
       }
     }

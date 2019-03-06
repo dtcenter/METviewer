@@ -1504,7 +1504,7 @@ public class MVPlotJob {
       try {
         Integer.valueOf(aggBootRandomSeed.trim());
         _strAggBootRandomSeed = aggBootRandomSeed;
-      } catch (Exception e) {
+      } catch (NumberFormatException  e) {
         _strAggBootRandomSeed = "NA";
       }
 
@@ -1521,7 +1521,7 @@ public class MVPlotJob {
     } else {
       try {
         this.cl_step = Float.valueOf(cl_step.trim());
-      } catch (Exception e) {
+      } catch (NumberFormatException e) {
         this.cl_step = 0.05F;
       }
     }
@@ -2036,7 +2036,7 @@ public class MVPlotJob {
   public void setContourIntervals(String contourIntervals) {
     try {
       this.contourIntervals = Integer.valueOf(contourIntervals);
-    } catch (Exception e) {
+    } catch (NumberFormatException e) {
     }
   }
 

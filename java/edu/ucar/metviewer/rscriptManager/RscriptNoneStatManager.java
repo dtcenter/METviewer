@@ -7,6 +7,7 @@
 package edu.ucar.metviewer.rscriptManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -108,7 +110,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       }
 
       mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
-    } catch (Exception e) {
+    } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());
       mvResponse = new MvResponse();
     }

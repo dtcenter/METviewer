@@ -5,6 +5,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -417,19 +418,22 @@ public final class MVPlotJobParser {
         for (int i = 0; i < indyVals.length; i++) {
           try {
             valuesSortedInt[i] = Integer.valueOf(indyVals[i]);
-          } catch (Exception e) {
+          } catch (NumberFormatException e) {
             logger.error(e.getMessage());
           }
         }
         Arrays.sort(valuesSortedInt);
         for (int i = 0; i < indyVals.length; i++) {
+          Integer indyInt = null;
           try {
-            if (!Integer.valueOf(indyVals[i]).equals(valuesSortedInt[i])) {
+            indyInt = Integer.valueOf(indyVals[i]);
+            if (!indyInt.equals(valuesSortedInt[i])) {
               result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
             }
-          } catch (Exception e) {
+          } catch (NumberFormatException e) {
             logger.error(e.getMessage());
           }
+
         }
       } else {
         String[] indyValsSorted;
@@ -480,17 +484,19 @@ public final class MVPlotJobParser {
               for (int i = 0; i < values.length; i++) {
                 try {
                   valuesSortedInt[i] = Integer.valueOf(values[i]);
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                   logger.error(e.getMessage());
                 }
               }
               Arrays.sort(valuesSortedInt);
               for (int i = 0; i < values.length; i++) {
+                Integer indyInt = null;
                 try {
-                  if (!Integer.valueOf(values[i]).equals(valuesSortedInt[i])) {
+                  indyInt = Integer.valueOf(values[i]);
+                  if (!indyInt.equals(valuesSortedInt[i])) {
                     return "Values for variable " + entry.getKey().toString() + " are not sorted";
                   }
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                   logger.error(e.getMessage());
                 }
               }
@@ -605,10 +611,13 @@ public final class MVPlotJobParser {
                                                       formatDb.toPattern());
         List<String> listLabels = new ArrayList<>();
         for (String listDate : listDates) {
+
           try {
             listLabels.add(formatLabel.format(formatDb.parse(listDate)));
-          } catch (Exception e) {
+          } catch (ParseException e) {
+            logger.error(e.getMessage());
           }
+
         }
 
         listIndyVal.addAll(listDates);
@@ -900,8 +909,8 @@ public final class MVPlotJobParser {
                                 .replace(">", "&gt;")
                                 .replace("<", "&lt;")
             + "</caption>"
-            + "<job_title>" + job.getJobTitleTmpl()+ "</job_title>"
-            + "<keep_revisions>" + job.getKeepRevisions()+ "</keep_revisions>"
+            + "<job_title>" + job.getJobTitleTmpl() + "</job_title>"
+            + "<keep_revisions>" + job.getKeepRevisions() + "</keep_revisions>"
             + "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>"
             + "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>"
             + "</tmpl>");
@@ -1160,7 +1169,7 @@ public final class MVPlotJobParser {
         try {
           cal.setTime(formatDB.parse(rangeStart));
           endTime = formatDB.parse(rangeEnd).getTime();
-        } catch (Exception e) {
+        } catch (ParseException e) {
         }
 
         //  build the list
@@ -1842,7 +1851,7 @@ public final class MVPlotJobParser {
         Method m = formatToBoolValues.get(node.tag);
         try {
           m.invoke(job, node.value.equals("true"));
-        } catch (Exception e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NullPointerException | ExceptionInInitializerError e) {
           logger.error(
               "  **  ERROR: caught " + e.getClass() + " parsing format boolean '"
                   + node.tag + "': " + e.getMessage());
@@ -1964,7 +1973,7 @@ public final class MVPlotJobParser {
 
   public DatabaseInfo getDatabaseInfo() {
     DatabaseInfo databaseInfo = null;
-    if (dbHost != null && dbUser != null ) {
+    if (dbHost != null && dbUser != null) {
       databaseInfo = new DatabaseInfo(dbHost, dbUser);
     }
     return databaseInfo;

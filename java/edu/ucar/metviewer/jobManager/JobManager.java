@@ -69,9 +69,9 @@ public abstract class JobManager {
 
 
   protected MVOrderedMap buildPlotFixTmplVal(
-                                                final MVOrderedMap tmplMaps,
-                                                final MVOrderedMap plotFixPerm,
-                                                final SimpleDateFormat dbFormat)
+      final MVOrderedMap tmplMaps,
+      final MVOrderedMap plotFixPerm,
+      final SimpleDateFormat dbFormat)
       throws Exception {
     MVOrderedMap result = new MVOrderedMap();
     for (Map.Entry fixValEntry : plotFixPerm.getOrderedEntries()) {
@@ -130,10 +130,7 @@ public abstract class JobManager {
     String[] listIndyValFmt = job.getIndyVal();
     if (job.getIndyVar().matches(".*_hour")) {
       for (int i = 0; i < listIndyValFmt.length; i++) {
-        try {
-          listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
-        } catch (Exception e) {
-        }
+        listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
       }
     }
 

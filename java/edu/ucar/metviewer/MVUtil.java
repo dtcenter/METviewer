@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -783,7 +784,7 @@ public class MVUtil {
         cal.add(Calendar.SECOND, incr);
       }
 
-    } catch (Exception e) {
+    } catch (ParseException e) {
       errorStream
           .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
 
@@ -857,7 +858,7 @@ public class MVUtil {
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     try {
       cal.setTime(formatOffset.parse(date));
-    } catch (Exception e) {
+    } catch (ParseException e) {
     }
     cal.set(Calendar.HOUR_OF_DAY, intHour);
     cal.set(Calendar.MINUTE, 0);
@@ -1030,7 +1031,7 @@ public class MVUtil {
     for (String interpPnt : lev) {
       try {
         resultInt.add(Integer.valueOf(interpPnt));
-      } catch (Exception e) {
+      } catch (NumberFormatException e) {
       }
     }
     Collections.sort(resultInt);
@@ -1179,7 +1180,7 @@ public class MVUtil {
     for (String hourStr : hour) {
       try {
         hoursInt.add(Integer.valueOf(hourStr));
-      } catch (Exception e) {
+      } catch (NumberFormatException e) {
 
       }
     }
@@ -1496,8 +1497,7 @@ public class MVUtil {
 
   public static MvResponse runRscript(
       final String rscript,
-      final String script
-  ) throws Exception {
+      final String script) {
     return runRscript(rscript, script, new String[]{});
   }
 
@@ -1513,8 +1513,7 @@ public class MVUtil {
    */
   public static MvResponse runRscript(
       final String rscriptCommand, final String scriptName,
-      final String[] args
-  ) throws Exception {
+      final String[] args) {
 
     MvResponse mvResponse = new MvResponse();
 
@@ -1553,7 +1552,7 @@ public class MVUtil {
         try {
           intExitStatus = proc.exitValue();
           boolExit = true;
-        } catch (Exception e) {
+        } catch (IllegalThreadStateException e) {
         }
 
         while (readerProcStd.ready()) {
@@ -1565,21 +1564,37 @@ public class MVUtil {
           strProcErr.append(line).append('\n');
         }
       }
-    } catch (Exception e) {
+    } catch (SecurityException | IOException | NullPointerException | IllegalArgumentException e) {
       logger.error(e.getMessage());
     } finally {
 
       if (inputStreamReader != null) {
-        inputStreamReader.close();
+        try {
+          inputStreamReader.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (errorInputStreamReader != null) {
-        errorInputStreamReader.close();
+        try {
+          errorInputStreamReader.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (readerProcStd != null) {
-        readerProcStd.close();
+        try {
+          readerProcStd.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (readerProcErr != null) {
-        readerProcErr.close();
+        try {
+          readerProcErr.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (proc != null) {
         proc.destroy();
@@ -1612,7 +1627,7 @@ public class MVUtil {
    */
   public static void populateTemplateFile(
       final String tmpl, final String output,
-      final Map<String, String> vals) throws Exception {
+      final Map<String, String> vals) throws IOException {
     try (FileReader fileReader = new FileReader(tmpl);
          BoundedBufferedReader reader = new BoundedBufferedReader(fileReader);
          PrintStream writer = new PrintStream(output)) {
@@ -1736,7 +1751,7 @@ public class MVUtil {
       URI imgurl = new URI("jar:file:" + jarPath + "!/edu/ucar/metviewer/resources/log4j2.xml");
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
-    } catch (Exception e) {
+    } catch (URISyntaxException | SecurityException | NullPointerException | UnsupportedOperationException e) {
       logger.error(e.getMessage());
     }
 
@@ -1871,7 +1886,7 @@ public class MVUtil {
             strVal = formatPlotFormat(dateParse);
           }
         }
-      } catch (Exception e) {
+      } catch (ParseException e) {
       }
 
       //  if the tag is a threshold, format it accordingly
@@ -2231,7 +2246,7 @@ public class MVUtil {
   public static boolean isNumeric(final Object obj) {
     try {
       Double.parseDouble(String.valueOf(obj));
-    } catch (Exception nfe) {
+    } catch (NumberFormatException nfe) {
       return false;
     }
     return true;

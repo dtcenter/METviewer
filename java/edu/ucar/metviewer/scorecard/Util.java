@@ -42,7 +42,7 @@ public class Util {
   }
 
   public static String getAggTypeForStat(final String stat) {
-    String aggType = null;
+    String aggType = "";
 
     Map<String, String[]> orderedMap;
 
@@ -65,18 +65,16 @@ public class Util {
     } else {
       orderedMap = new HashMap<>();
     }
-    try {
+
       String[] entry = orderedMap.get(stat);
+
       for (String st : entry) {
         if (Arrays.asList(aggTypes).contains(st.toLowerCase())) {
           aggType = st;
           break;
         }
       }
-    } catch (Exception e) {
-      logger.error("Error during assigning a table name and line type for the stat : " + stat);
-      aggType = "";
-    }
+    
     return aggType;
   }
 }

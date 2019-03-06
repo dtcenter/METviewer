@@ -27,9 +27,9 @@ public class StopWatch {
 
   }
 
-  public void stop() throws Exception {
+  public void stop() throws StopWatchException {
     if (startTime == null) {
-      throw new Exception("Start time was never set");
+      throw new StopWatchException("Start time was never set");
     }
     stopTime = System.nanoTime();
     duration = stopTime - startTime;
@@ -45,16 +45,16 @@ public class StopWatch {
     return totalDuration;
   }
 
-  public String getFormattedDuration() throws Exception {
+  public String getFormattedDuration() throws StopWatchException {
     if (duration == null) {
-      throw new Exception("Start or stop time was never set");
+      throw new StopWatchException("Start or stop time was never set");
     }
     return MVUtil.formatTimeSpan(duration / 1000000);
   }
 
-  public String getFormattedTotalDuration() throws Exception {
+  public String getFormattedTotalDuration() throws StopWatchException {
     if (totalDuration == null) {
-      throw new Exception("Start or stop time was never set");
+      throw new StopWatchException("Start or stop time was never set");
     }
     return MVUtil.formatTimeSpan(totalDuration / 1000000);
   }
