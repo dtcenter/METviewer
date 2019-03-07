@@ -19,6 +19,7 @@ import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -43,7 +44,7 @@ public class RscriptSumStatManager extends RscriptStatManager {
   public void prepareDataFileAndRscript(
       MVPlotJob job, MVOrderedMap mvMap,
       Map<String, String> info,
-      List<String> listQuery) throws Exception {
+      List<String> listQuery) throws ValidationException {
 
     //  run the plot SQL against the database connection
     dataFile = mvBatch.getDataFolder()

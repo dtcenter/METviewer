@@ -16,6 +16,7 @@ import edu.ucar.metviewer.MVNode;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MvResponse;
+import edu.ucar.metviewer.ValidationException;
 
 /**
  * @author : tatiana $
@@ -25,30 +26,30 @@ public interface AppDatabaseManager {
 
   List<String> buildPlotSql(
       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-      PrintStream printStreamSql) throws Exception;
+      PrintStream printStreamSql) throws ValidationException;
 
   List<String> buildPlotModeEventEqualizeSql(
       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-      MVOrderedMap mapPlotFixVal) throws Exception;
+      MVOrderedMap mapPlotFixVal) throws ValidationException;
 
   MvResponse executeQueriesAndSaveToFile(
       List<String> queries, String fileName, boolean isCalc,
-      String currentDBName, boolean isNewFile) throws Exception;
+      String currentDBName, boolean isNewFile) throws ValidationException;
 
   String buildAndExecuteQueriesForHistJob(
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm, PrintStream printStream,
-      PrintStream printStreamSql) throws Exception;
+      PrintStream printStreamSql) throws ValidationException;
 
   int buildAndExecuteQueriesForRocRelyJob(
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm, PrintStream printStream,
-      PrintStream printStreamSql) throws Exception;
+      PrintStream printStreamSql) throws ValidationException;
 
   int buildAndExecuteQueriesForEclvJob(
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm, PrintStream printStream,
-      PrintStream printStreamSql) throws Exception;
+      PrintStream printStreamSql) throws ValidationException;
 
   DatabaseInfo getDatabaseInfo();
 

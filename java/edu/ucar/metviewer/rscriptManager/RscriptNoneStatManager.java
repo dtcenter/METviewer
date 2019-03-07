@@ -19,6 +19,7 @@ import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
 import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -42,7 +43,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
   public void prepareDataFileAndRscript(
       MVPlotJob job, MVOrderedMap mvMap,
       Map<String, String> info,
-      List<String> listQuery) throws Exception {
+      List<String> listQuery) throws ValidationException {
 
     //  use the map of all plot values to populate the template strings
     String fileName = MVUtil.buildTemplateString(job.getPlotFileTmpl(),
@@ -53,7 +54,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
     //validate file name - should be less than 256 chars
     if (plotFile.length() >= 256) {
-      throw new Exception("The plot filename is longer than the limit 255 characters");
+      throw new ValidationException("The plot filename is longer than the limit 255 characters");
     }
 
     fileName = MVUtil.buildTemplateString(job.getRFileTmpl(),
@@ -72,14 +73,14 @@ public class RscriptNoneStatManager extends RscriptStatManager {
       //check if y1_lim has 0
       String[] lims = job.getY1Lim().replace("c(", "").replace(")", "").split(",");
       if (lims[0].equals("0") || lims[1].equals("0")) {
-        throw new Exception("Y1 axis limits can't start or end with 0 if Log Scale is on");
+        throw new ValidationException("Y1 axis limits can't start or end with 0 if Log Scale is on");
       }
     }
     if (job.getLogY2() && !job.getY2Lim().equals("c()")) {
       //check if y2_lim has 0
       String[] lims = job.getY2Lim().replace("c(", "").replace(")", "").split(",");
       if (lims[0].equals("0") || lims[1].equals("0")) {
-        throw new Exception("Y2 axis limits can't start or end with 0 if Log Scale is on");
+        throw new ValidationException("Y2 axis limits can't start or end with 0 if Log Scale is on");
       }
     }
 

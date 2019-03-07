@@ -34,6 +34,8 @@ import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
@@ -148,7 +150,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     String queryString = "";
     String dbList = "[";
 
-    for (String cdbName: currentDBName) {
+    for (String cdbName : currentDBName) {
       if (dbList.length() > 1) {
         dbList += ", ";
       }
@@ -158,93 +160,95 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     // find the line_data documents where the header has the selected forecast variable
     queryString = "SELECT DISTINCT ld.line_type"
-                  + " FROM `" + getBucket().name() + "` AS h "
-                  + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
-                  + " WHERE ld.type = \'line\' AND h.type = \'header\' AND h.header_type = \'stat\' "
-                  + " AND h.fcst_var = \'" + strFcstVar + "\' "
-                  + " AND h.dbname IN " + dbList;
+                      + " FROM `" + getBucket().name() + "` AS h "
+                      + " INNER JOIN `" + getBucket()
+                                              .name() + "` AS ld on ld.header_id = meta(h).id"
+                      + " WHERE ld.type = \'line\' AND h.type = \'header\' AND h.header_type = \'stat\' "
+                      + " AND h.fcst_var = \'" + strFcstVar + "\' "
+                      + " AND h.dbname IN " + dbList;
 
     try {
-          cbStopWatch.start();
-          queryResult = getBucket().query(N1qlQuery.simple(queryString));
-          cbStopWatch.stop();
-          logger.error("getListStat QUERYSTRING: " + queryString + "\nDuration: " + cbStopWatch.getFormattedTotalDuration());
-          boolean boolCnt = false;
-          boolean boolCts = false;
-          boolean boolVcnt = false;
-          for (N1qlQueryRow row: queryResult) {
-            // System.out.println(row);
-            switch (row.value().get("line_type").toString()) {
-              case "cnt":
-              case "sl1l2":
-              case "sal1l2":
-              case "grad":
-                if (!boolCnt) {
-                  listStatName.addAll(MVUtil.statsCnt.keySet());
-                }
-                boolCnt = true;
-                break;
-              case "cts":
-              case "ctc":
-                if (!boolCts) {
-                  listStatName.addAll(MVUtil.statsCts.keySet());
-                }
-                boolCts = true;
-                break;
-              case "nbrcnt":
-                listStatName.addAll(MVUtil.statsNbrcnt.keySet());
-                break;
-              case "nbrcts":
-                listStatName.addAll(MVUtil.statsNbrcts.keySet());
-                break;
-              case "pstd":
-                listStatName.addAll(MVUtil.statsPstd.keySet());
-                break;
-              case "mcts":
-                listStatName.addAll(MVUtil.statsMcts.keySet());
-                break;
-              case "rhist":
-                listStatName.addAll(MVUtil.statsRhist.keySet());
-                break;
-              case "vl1l2":
-                //case val1l2:
-                listStatName.addAll(MVUtil.statsVl1l2.keySet());
-                listStatName.addAll(MVUtil.statsVcnt.keySet());
-                boolVcnt = true;
-                break;
-              case "phist":
-                listStatName.addAll(MVUtil.statsPhist.keySet());
-                break;
-              case "enscnt":
-                listStatName.addAll(MVUtil.statsEnscnt.keySet());
-                break;
-              case "mpr":
-                listStatName.addAll(MVUtil.statsMpr.keySet());
-                break;
-              case "orank":
-                listStatName.addAll(MVUtil.statsOrank.keySet());
-                break;
-              case "ssvar":
-                listStatName.addAll(MVUtil.statsSsvar.keySet());
-                break;
-              case "val1l2":
-                listStatName.addAll(MVUtil.statsVal1l2.keySet());
-                break;
-              case "vcnt":
-                if (!boolVcnt) {
-                  listStatName.addAll(MVUtil.statsVcnt.keySet());
-                }
-                break;
-              case "ecnt":
-                listStatName.addAll(MVUtil.statsEcnt.keySet());
-                break;
-              default:
-
+      cbStopWatch.start();
+      queryResult = getBucket().query(N1qlQuery.simple(queryString));
+      cbStopWatch.stop();
+      logger.error("getListStat QUERYSTRING: " + queryString + "\nDuration: " + cbStopWatch
+                                                                                    .getFormattedTotalDuration());
+      boolean boolCnt = false;
+      boolean boolCts = false;
+      boolean boolVcnt = false;
+      for (N1qlQueryRow row : queryResult) {
+        // System.out.println(row);
+        switch (row.value().get("line_type").toString()) {
+          case "cnt":
+          case "sl1l2":
+          case "sal1l2":
+          case "grad":
+            if (!boolCnt) {
+              listStatName.addAll(MVUtil.statsCnt.keySet());
             }
-          }
-        } catch (Exception e) {
-          logger.error(e.getMessage());
+            boolCnt = true;
+            break;
+          case "cts":
+          case "ctc":
+            if (!boolCts) {
+              listStatName.addAll(MVUtil.statsCts.keySet());
+            }
+            boolCts = true;
+            break;
+          case "nbrcnt":
+            listStatName.addAll(MVUtil.statsNbrcnt.keySet());
+            break;
+          case "nbrcts":
+            listStatName.addAll(MVUtil.statsNbrcts.keySet());
+            break;
+          case "pstd":
+            listStatName.addAll(MVUtil.statsPstd.keySet());
+            break;
+          case "mcts":
+            listStatName.addAll(MVUtil.statsMcts.keySet());
+            break;
+          case "rhist":
+            listStatName.addAll(MVUtil.statsRhist.keySet());
+            break;
+          case "vl1l2":
+            //case val1l2:
+            listStatName.addAll(MVUtil.statsVl1l2.keySet());
+            listStatName.addAll(MVUtil.statsVcnt.keySet());
+            boolVcnt = true;
+            break;
+          case "phist":
+            listStatName.addAll(MVUtil.statsPhist.keySet());
+            break;
+          case "enscnt":
+            listStatName.addAll(MVUtil.statsEnscnt.keySet());
+            break;
+          case "mpr":
+            listStatName.addAll(MVUtil.statsMpr.keySet());
+            break;
+          case "orank":
+            listStatName.addAll(MVUtil.statsOrank.keySet());
+            break;
+          case "ssvar":
+            listStatName.addAll(MVUtil.statsSsvar.keySet());
+            break;
+          case "val1l2":
+            listStatName.addAll(MVUtil.statsVal1l2.keySet());
+            break;
+          case "vcnt":
+            if (!boolVcnt) {
+              listStatName.addAll(MVUtil.statsVcnt.keySet());
+            }
+            break;
+          case "ecnt":
+            listStatName.addAll(MVUtil.statsEcnt.keySet());
+            break;
+          default:
+
         }
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
 
     Collections.sort(listStatName);
     return listStatName;
@@ -372,10 +376,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
               || strFieldCrit.contains("init")
               || strFieldCrit.contains("lead")) {
         boolTimeCritField = strField.equals(strFieldCrit)
-                || (strField.contains("fcst_init")
-                && strFieldCrit.equals("init_hour"))
-                || (strField.contains("fcst_valid")
-                && strFieldCrit.equals("valid_hour"));
+                                || (strField.contains("fcst_init")
+                                        && strFieldCrit.equals("init_hour"))
+                                || (strField.contains("fcst_valid")
+                                        && strFieldCrit.equals("valid_hour"));
         boolTimeCritCur = true;
       }
       //  if so, build a where clause for the criteria
@@ -397,14 +401,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (boolTimeCritField) {
         if (boolMode || boolMtd) {
           strWhere += (strWhere.equals("") ? " WHERE " : " AND ")
-                  + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
+                          + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
         } else {
           strWhereTime += (strWhereTime.equals("") ? " WHERE " : " AND ")
-                  + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
+                              + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
         }
       } else if (!boolTimeCritCur) {
         strWhere += (strWhere.equals("") ? " WHERE " : " AND ")
-                + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
+                        + strFieldDBCrit + " " + strSqlOp + " [" + strValList + "]";
       }
     }
 
@@ -423,79 +427,83 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     String dbList = "[";
 
-    for (String cdbName: currentDBName) {
-        if (dbList.length() > 1) {
-            dbList += ", ";
-        }
-        dbList += "\'" + cdbName + "\'";
+    for (String cdbName : currentDBName) {
+      if (dbList.length() > 1) {
+        dbList += ", ";
+      }
+      dbList += "\'" + cdbName + "\'";
     }
     dbList += "]";
 
     if (boolNRank) {
-            queryString = "SELECT DISTINCT ld.n_rank "
-              + " FROM `" + getBucket().name() + "` as h "
-              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
-              + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
-              + " ld.type = \'line\' AND ld.line_type = \'rhist\'"
-              + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
-              + " AND h.dbname IN " + dbList
-              + " ORDER BY ld.n_rank";
+      queryString = "SELECT DISTINCT ld.n_rank "
+                        + " FROM `" + getBucket().name() + "` as h "
+                        + " INNER JOIN `" + getBucket()
+                                                .name() + "` as ld on ld.header_id = meta(h).id "
+                        + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+                        + " ld.type = \'line\' AND ld.line_type = \'rhist\'"
+                        + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
+                        + " AND h.dbname IN " + dbList
+                        + " ORDER BY ld.n_rank";
     } else if (boolNBin) {
-            queryString = "SELECT DISTINCT ld.n_bin "
-              + " FROM `" + getBucket().name() + "` as h "
-              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
-              + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
-              + " ld.type = \'line\' AND ld.line_type = \'phist\'"
-              + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
-              + " AND h.dbname IN " + dbList
-              + " ORDER BY ld.n_bin";
+      queryString = "SELECT DISTINCT ld.n_bin "
+                        + " FROM `" + getBucket().name() + "` as h "
+                        + " INNER JOIN `" + getBucket()
+                                                .name() + "` as ld on ld.header_id = meta(h).id "
+                        + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+                        + " ld.type = \'line\' AND ld.line_type = \'phist\'"
+                        + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
+                        + " AND h.dbname IN " + dbList
+                        + " ORDER BY ld.n_bin";
     } else if (!boolMode && !boolMtd && boolFcstVar) {
-            queryString = "SELECT DISTINCT " + strFieldDB
-              + " FROM `" + getBucket().name() + "` as h "
-              + " INNER JOIN `" + getBucket().name() + "` as ld on ld.header_id = meta(h).id "
-              + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
-              + " ld.type = \'line\' AND ld.line_type IN " + tableList
-              + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
-              + " AND h.dbname IN " + dbList
-              + " ORDER BY " + strFieldDB;
+      queryString = "SELECT DISTINCT " + strFieldDB
+                        + " FROM `" + getBucket().name() + "` as h "
+                        + " INNER JOIN `" + getBucket()
+                                                .name() + "` as ld on ld.header_id = meta(h).id "
+                        + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+                        + " ld.type = \'line\' AND ld.line_type IN " + tableList
+                        + " AND h.type = \'header\' AND h.header_type = \'" + strHeaderTable + "\'"
+                        + " AND h.dbname IN " + dbList
+                        + " ORDER BY " + strFieldDB;
     } else if (!boolMode && !boolMtd
-                       && (strField.equals("fcst_lead")
-                               || strField.contains("valid")
-                               || strField.contains("init"))) {
-            //  build a query to list all distinct,
-            //  ordered values of the list field from the selected line documents
-            strWhere = strWhere.replaceAll("ld\\.", "");
-            queryString = "SELECT DISTINCT " + strFieldDB
-                  + " FROM `" + getBucket().name() + "` "
-                  + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
-                  + " line_type IN " + tableList
-                  + " AND type = \'line\'" + strWhereTime
-                  + " AND dbname IN " + dbList
-                  + " ORDER BY " + strFieldDB;
+                   && (strField.equals("fcst_lead")
+                           || strField.contains("valid")
+                           || strField.contains("init"))) {
+      //  build a query to list all distinct,
+      //  ordered values of the list field from the selected line documents
+      strWhere = strWhere.replaceAll("ld\\.", "");
+      queryString = "SELECT DISTINCT " + strFieldDB
+                        + " FROM `" + getBucket().name() + "` "
+                        + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+                        + " line_type IN " + tableList
+                        + " AND type = \'line\'" + strWhereTime
+                        + " AND dbname IN " + dbList
+                        + " ORDER BY " + strFieldDB;
     } else {
-            strWhere = strWhere.replaceAll("h\\.", "");
-            queryString = "SELECT DISTINCT " + strFieldDB
-                    + " FROM `" + getBucket().name() + "` "
-                    + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
-                    + " header_type = \'" + strHeaderTable
-                    + "\' AND type = \'header\'"
-                    + " AND dbname IN " + dbList
-                    + " ORDER BY " + strFieldDB;
-        }
-        //  execute the query
-        try {
-          cbStopWatch.start();
-          queryResult = getBucket().query(N1qlQuery.simple(queryString));
-          cbStopWatch.stop();
-          logger.error("getListStat QUERYSTRING: " + queryString + "\nDuration: " + cbStopWatch.getFormattedTotalDuration());
+      strWhere = strWhere.replaceAll("h\\.", "");
+      queryString = "SELECT DISTINCT " + strFieldDB
+                        + " FROM `" + getBucket().name() + "` "
+                        + strWhere + (strWhere.equals("") ? " WHERE" : " AND")
+                        + " header_type = \'" + strHeaderTable
+                        + "\' AND type = \'header\'"
+                        + " AND dbname IN " + dbList
+                        + " ORDER BY " + strFieldDB;
+    }
+    //  execute the query
+    try {
+      cbStopWatch.start();
+      queryResult = getBucket().query(N1qlQuery.simple(queryString));
+      cbStopWatch.stop();
+      logger.error("getListStat QUERYSTRING: " + queryString + "\nDuration: " + cbStopWatch
+                                                                                    .getFormattedTotalDuration());
 
-          for (N1qlQueryRow row : queryResult) {
-              listRes.add(row.value().get(strField).toString());
-            }
+      for (N1qlQueryRow row : queryResult) {
+        listRes.add(row.value().get(strField).toString());
+      }
 
-        } catch (Exception e) {
-          logger.error(e.getMessage());
-        }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
 
     Collections.sort(listRes);
     return listRes;
@@ -503,9 +511,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   @Override
   public MvResponse executeQueriesAndSaveToFile(
-                                                List<String> queries, String fileName,
-                                                boolean isCalc, String currentDBName,
-                                                boolean isNewFile) throws Exception {
+      List<String> queries, String fileName,
+      boolean isCalc, String currentDBName,
+      boolean isNewFile) throws ValidationException {
     N1qlQueryResult queryResult = null;
     List<N1qlQueryRow> queryList = null;
     String queryString = "";
@@ -542,7 +550,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           logger.error(e.getMessage());
         }
       }
-      dbStopWatch.stop();
+      try {
+        dbStopWatch.stop();
+      } catch (StopWatchException e) {
+        logger.error(e.getMessage());
+      }
 
       for (int i = 0; i < listSqlLastSelect.size(); i++) {
         boolean append = !isNewFile || i != 0;
@@ -556,7 +568,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           dbStopWatch.stop();
           saveToFileStopWatch.start();
           queryList = queryResult.allRows();
-          if (queryList.size() > 0){
+          if (queryList.size() > 0) {
             printFormattedTable(queryList, queryString, out, printHeader);
             saveToFileStopWatch.stop();
             out.flush();
@@ -589,7 +601,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             logger.error(stat + " statistic can only be plotted as an aggregation of lines");
 
             //rethrow the exception to be printed as a error popup on UI
-            throw new Exception(stat + " statistic can only be plotted as an aggregation of lines");
+            throw new ValidationException(
+                stat + " statistic can only be plotted as an aggregation of lines");
           }
 
         }
@@ -598,26 +611,33 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     } catch (CouchbaseException e) {
       logger.error(e.getMessage());
     }
-    String message = "Database query time for " + currentDBName + " "
-            + dbStopWatch.getFormattedTotalDuration();
-    if (saveToFileStopWatch.getTotalDuration() != null) {
-      message = message + "\nSave to file time for   " + currentDBName + " "
-              + saveToFileStopWatch.getFormattedTotalDuration();
+    String message = null;
+    try {
+      message = "Database query time for " + currentDBName + " "
+                    + dbStopWatch.getFormattedTotalDuration();
+      if (saveToFileStopWatch.getTotalDuration() != null) {
+        message = message + "\nSave to file time for   " + currentDBName + " "
+                      + saveToFileStopWatch.getFormattedTotalDuration();
+      }
+    } catch (StopWatchException e) {
+      logger.error(e.getMessage());
     }
+
     mvResponse.setInfoMessage(message);
 
     return mvResponse;
   }
 
   /**
-   * Prints a textual representation of the input with the field names in the
-   * first row to the specified {@link BufferedWriter} destination.
+   * Prints a textual representation of the input with the field names in the first row to the
+   * specified {@link BufferedWriter} destination.
    *
    * @param res            The ResultSet to print
    * @param bufferedWriter The stream to write the formatted results to (defaults to printStream)
    */
 
-  private void printFormattedTable(List<N1qlQueryRow> res, String queryString, BufferedWriter bufferedWriter, boolean isHeader) {
+  private void printFormattedTable(
+      List<N1qlQueryRow> res, String queryString, BufferedWriter bufferedWriter, boolean isHeader) {
     N1qlQueryRow firstRow = null;
     JsonObject firstRowObject = null;
     ArrayList<String> docFields = new ArrayList<String>();
@@ -626,7 +646,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     Boolean firstLine;
 
     // determine the field names in the correct order from the select portion of the query statement
-    fieldString = queryString.substring(queryString.indexOf(" ") + 1, queryString.indexOf("FROM") - 1).trim();
+    fieldString = queryString
+                      .substring(queryString.indexOf(" ") + 1, queryString.indexOf("FROM") - 1)
+                      .trim();
     String[] fieldArr = fieldString.split(",");
     for (String str : fieldArr) {
       str = str.trim();
@@ -643,7 +665,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     try {
       //  print out the column headers
       firstLine = true;
-      for (String docHeader: docFields) {
+      for (String docHeader : docFields) {
         if (firstLine) {
           bufferedWriter.write(docHeader);
           firstLine = false;
@@ -657,7 +679,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       for (N1qlQueryRow row : res) {
         firstRowObject = row.value();
         firstLine = true;
-        for (String docLine: docFields) {
+        for (String docLine : docFields) {
           strVal = firstRowObject.get(docLine).toString();
           strVal = strVal.equalsIgnoreCase("null") ? "NA" : strVal;
           strVal = strVal.equalsIgnoreCase("-9999") ? "NA" : strVal;
@@ -717,14 +739,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     List<N1qlQueryRow> queryList = null;
 
     fieldName = queryString.substring(queryString.indexOf(".") + 1);
-    fieldName = fieldName.substring(0,fieldName.indexOf(" "));
+    fieldName = fieldName.substring(0, fieldName.indexOf(" "));
 
     try {
       queryResult = getBucket().query(N1qlQuery.simple(queryString));
     } catch (Exception e) {
       logger.error(e.getMessage());
     }
-    for (N1qlQueryRow row: queryResult) {
+    for (N1qlQueryRow row : queryResult) {
 
       result.add(row.value().get(fieldName).toString());
     }
@@ -777,7 +799,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   @Override
   public List<String> buildPlotSql(
       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-      PrintStream printStreamSql) throws Exception {
+      PrintStream printStreamSql) throws ValidationException {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
@@ -814,7 +836,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     MVOrderedMap[] listDep = job.getDepGroups();
     MVOrderedMap mapDepGroup;
     if (1 != listDep.length && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
-      throw new Exception("unexpected number of <dep> groups: " + listDep.length);
+      throw new ValidationException("unexpected number of <dep> groups: " + listDep.length);
     }
     if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
       mapDepGroup = new MVOrderedMap();
@@ -840,18 +862,18 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
       //  if there is a mis-match between the presence of series and dep values, bail
       if (0 < listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("dep values present, but no series values for Y" + intY);
+        throw new ValidationException("dep values present, but no series values for Y" + intY);
       }
       if (1 > listDepPlot.length && 0 < listSeries.length
               && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
-        throw new Exception("series values present, but no dep values for Y" + intY);
+        throw new ValidationException("series values present, but no dep values for Y" + intY);
       }
 
       //  there must be at least one y1 series and stat, but not for y2
 
       if (!job.getPlotTmpl().equals(
           "eclv.R_tmpl") && 1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("no Y1 series stat found");
+        throw new ValidationException("no Y1 series stat found");
       }
       if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
         continue;
@@ -972,7 +994,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                         + "ld.total,ld.bin_n,ld.var_min,ld.var_max,ld.var_mean,"
                         + "ld.fbar,ld.obar,ld.fobar,ld.ffbar,ld.oobar"
                         + " FROM `" + getBucket().name() + "` AS h "
-                        + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id "
+                        + " INNER JOIN `" + getBucket()
+                                                .name() + "` AS ld ON ld.header_id = meta(h).id "
                         + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ssvar\' "
                         + " AND h.type = \'header\' AND h.header_type = \'stat\' "
                         + " AND h.dbname IN [\'" + job.getCurrentDBName().get(0) + "\']");
@@ -988,22 +1011,22 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (!strIndyVar.isEmpty()) {
         String[] listIndyVal = job.getIndyVal();
         if (!tableHeaderSqlType.containsKey(strIndyVar)) {
-          throw new Exception("unrecognized indep "
+          throw new ValidationException("unrecognized indep "
                                   + (job.isModeJob() ? "mode" : "stat")
                                   + "_header field: " + strIndyVar);
         }
         strIndyVarType = tableHeaderSqlType.get(strIndyVar);
         if (1 > listIndyVal.length) {
-          throw new Exception("no independent variable values specified");
+          throw new ValidationException("no independent variable values specified");
         }
 
         //  construct the select list item, where clause
         // and temp table entry for the independent variable
         if (!strSelectList.contains(strIndyVar)) {
           strSelectList += "," + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
-                                                 true);
+                                             true);
           selectPlotList += "," + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
-                                                  true);
+                                              true);
           strTempList += "," + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
         }
         strIndyVarFormatted = formatField(strIndyVar, job.isModeJob() || job.isMtdJob(), false);
@@ -1027,17 +1050,17 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           String strField = (String) listPlotFixVal[i].getKey();
           if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
             strSelectList += "," + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                   true);
+                                               true);
             selectPlotList += "," + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                    true);
+                                                true);
             strTempList += "," + strField + "            VARCHAR(64)";
           }
         }
       }
 
       /*
-      *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
-      */
+       *  For agg_stat PCT plots, retrieve the sizes of PCT threshold lists for each series
+       */
       Map<String, Integer> pctThreshInfo = new HashMap<>();
       if (job.getAggPct()) {
         MVOrderedMap[] series = MVUtil.permute(job.getSeries1Val().convertFromSeriesMap())
@@ -1045,7 +1068,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         MVOrderedMap[] forecastVars;
         if (job.getPlotTmpl().equals("eclv.R_tmpl") && job.getDepGroups().length == 0) {
           MVOrderedMap m = new MVOrderedMap();
-          m.put("NA","ECLV");
+          m.put("NA", "ECLV");
           forecastVars = new MVOrderedMap[]{m};
         } else {
           forecastVars = MVUtil.permute((MVOrderedMap) job.getDepGroups()[0].get("dep" + intY))
@@ -1118,7 +1141,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                 if (!noErrors) {
                   for (String error : errors) {
                     if (error != null) {
-                      throw new Exception(error);
+                      throw new ValidationException(error);
                     }
                   }
                 }
@@ -1135,7 +1158,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             }
             if (!allEqual) {
               String error = "Different value for PCT thresholds   for individual series!";
-              throw new Exception(error);
+              throw new ValidationException(error);
             } else {
               pctThreshInfo.put("pctThresh", seriesNthresh[0]);
             }
@@ -1186,9 +1209,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         }
         if (!strSelectList.contains("fcst_var")) {
           strSelectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
-        }else{
-          strSelectList = strSelectList.replace(listFcstVarStat[intFcstVarStat-1][0] + "' fcst_var"
-                  , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
+        } else {
+          strSelectList = strSelectList
+                              .replace(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var"
+                                  , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
 
         //  determine the table containing the current stat
@@ -1204,7 +1228,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else if (MVUtil.modeRatioField.contains(strStat)) {
             tableStats = MVUtil.modeSingleStatField;
           } else {
-            throw new Exception("unrecognized mode stat: " + strStatMode);
+            throw new ValidationException("unrecognized mode stat: " + strStatMode);
           }
         } else if (job.isMtdJob()) {
 
@@ -1220,7 +1244,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else if (MVUtil.mtd2dStatField.containsKey(stat)) {
             tableStats = MVUtil.mtd2dStatField;
           } else {
-            throw new Exception("unrecognized mode stat: " + stat);
+            throw new ValidationException("unrecognized mode stat: " + stat);
           }
         } else {
 
@@ -1358,7 +1382,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
             strStatTable = " AND ld.line_type = \'ecnt\' ";
             strStatField = strStat.replace("ECNT_", "").toLowerCase();
           } else {
-            throw new Exception("unrecognized stat: " + strStat);
+            throw new ValidationException("unrecognized stat: " + strStat);
           }
         }
 
@@ -1408,11 +1432,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           } else if (job.getAggEcnt()) {
 
             strSelectStat += ",  0 stat_value,"
-                    + " ld.total,  ld.me,   ld.rmse,  ld.crps,  ld.crpss,"
-                    + "  ld.ign,  "
-                    + " ld.spread,  ld.me_oerr,  ld.rmse_oerr,"
-                    + "   ld.spread_oerr,"
-                    + " ld.spread_plus_oerr";
+                                 + " ld.total,  ld.me,   ld.rmse,  ld.crps,  ld.crpss,"
+                                 + "  ld.ign,  "
+                                 + " ld.spread,  ld.me_oerr,  ld.rmse_oerr,"
+                                 + "   ld.spread_oerr,"
+                                 + " ld.spread_plus_oerr";
           } else if (job.getAggPct()) {
             if (!job.getPlotTmpl().equals("eclv.R_tmpl")) {
               strSelectStat += ",   0 stat_value,   ld.total,   (ld.n_thresh - 1)";
@@ -1476,10 +1500,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
           } else if (job.getCalcVal1l2()) {
             strSelectStat += ",  ld.total, ld.ufabar, ld.vfabar, ld.uoabar, ld.voabar, "
-                    + "ld.uvfoabar, ld.uvffabar, ld.uvooabar,"
-                    + " 'NA' stat_value,"
-                    + "  'NA' stat_ncl,  'NA' stat_ncu,  'NA' stat_bcl,  "
-                    + "'NA' stat_bcu";
+                                 + "ld.uvfoabar, ld.uvffabar, ld.uvooabar,"
+                                 + " 'NA' stat_value,"
+                                 + "  'NA' stat_ncl,  'NA' stat_ncu,  'NA' stat_bcl,  "
+                                 + "'NA' stat_bcu";
           } else {
             if (boolBCRMSE) {
               strSelectStat += ",   IF(ld." + strStatField + "=-9999,'NA',CAST(sqrt(ld."
@@ -1549,14 +1573,15 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           strSelectSql += (strSelectSql.isEmpty() ? "" : " UNION ALL ")
                               + "SELECT " + strSelectStat
                               + " FROM `" + getBucket().name() + "` AS h "
-                              + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id ";
+                              + " INNER JOIN `" + getBucket()
+                                                      .name() + "` AS ld ON ld.header_id = meta(h).id ";
           strSelectSql += " WHERE " + strWhere;
           if (strFcstVarClause.length() > 0) {
             strSelectSql += " AND h.fcst_var " + strFcstVarClause + " ";
           }
           strSelectSql += " AND h.type = \'header\' AND ld.type = \'line\'" + strStatTable
-                          + " AND h.dbname = \'" + job.getCurrentDBName().get(0) + "\'"
-                          + strStatNaClause;
+                              + " AND h.dbname = \'" + job.getCurrentDBName().get(0) + "\'"
+                              + strStatNaClause;
         }
 
       }
@@ -1584,8 +1609,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
    */
 
   private String buildPlotFixWhere(
-                                      Map.Entry[] listPlotFixFields, MVPlotJob job,
-                                      boolean boolModePlot) {
+      Map.Entry[] listPlotFixFields, MVPlotJob job,
+      boolean boolModePlot) {
     String strWhere = "";
 
     //  build the aggregate fields where clause
@@ -1635,9 +1660,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
    * @return list of SQL queries for gathering plot data
    */
   private List<String> buildModeStatSql(
-                                           String strSelectList, String strWhere, String strStat,
-                                           String[] listGroupBy, boolean isEventEqualization,
-                                           Map.Entry[] listSeries) {
+      String strSelectList, String strWhere, String strStat,
+      String[] listGroupBy, boolean isEventEqualization,
+      Map.Entry[] listSeries) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1700,7 +1725,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
    * @return list of SQL queries for gathering plot data
    */
   private List<String> buildMtdStatSql(
-                                          String strSelectList, String strWhere, String strStat) {
+      String strSelectList, String strWhere, String strStat) {
 
     List<String> listQuery = new ArrayList<>();
 
@@ -1750,8 +1775,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   private String buildModeSingleAcovTable(
-                                             String selectList, String strWhere, String stat,
-                                             String[] groups, boolean isEventEqualization) {
+      String selectList, String strWhere, String stat,
+      String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -1918,8 +1943,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   private String buildModeSingleStatTable(
-                                             String selectList, String strWhere, String stat,
-                                             String[] groups, boolean isEventEqualization) {
+      String selectList, String strWhere, String stat,
+      String[] groups, boolean isEventEqualization) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -1993,7 +2018,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
 
   private String buildMtd3dSingleStatTable(
-                                              String selectList, String strWhere, String stat) {
+      String selectList, String strWhere, String stat) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
@@ -2029,7 +2054,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
 
   private String buildMtd2dStatTable(
-                                        String selectList, String strWhere, String stat) {
+      String selectList, String strWhere, String stat) {
 
 
     String[] listStatParse = stat.split("_");
@@ -2126,9 +2151,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   private String buildModeSingleStatDiffTable(
-                                                 String strSelectList, String strWhere, String stat,
-                                                 String table1, String table2,
-                                                 Map.Entry[] listSeries) {
+      String strSelectList, String strWhere, String stat,
+      String table1, String table2,
+      Map.Entry[] listSeries) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = MVUtil.parseModeStat(stat);
@@ -2236,8 +2261,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   private String buildMtd2dStatDiffTable(
-                                            String strSelectList, String strWhere, String stat,
-                                            String table1, String table2) {
+      String strSelectList, String strWhere, String stat,
+      String table1, String table2) {
 
     //  parse the stat into the stat name and the object flags
     String[] listStatParse = stat.split("_");
@@ -2286,9 +2311,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   @Override
   public List<String> buildPlotModeEventEqualizeSql(
-                                                       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-                                                       MVOrderedMap mapPlotFixVal)
-      throws Exception {
+      MVPlotJob job, MVOrderedMap mapPlotFixPerm,
+      MVOrderedMap mapPlotFixVal)
+      throws ValidationException {
     MVOrderedMap fcstVarPat = new MVOrderedMap();
 
     //  determine if the plot job is for stat data or MODE data
@@ -2316,14 +2341,14 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     //  remove multiple dep group capability
     MVOrderedMap[] listDep = job.getDepGroups();
     if (1 != listDep.length) {
-      throw new Exception("unexpected number of <dep> groups: " + listDep.length);
+      throw new ValidationException("unexpected number of <dep> groups: " + listDep.length);
     }
     MVOrderedMap mapDepGroup = listDep[0];
 
 
     /*
-    *  Build queries for statistics on both the y1 and y2 axes
-    */
+     *  Build queries for statistics on both the y1 and y2 axes
+     */
 
     List<String> listSql = new ArrayList<>();
     for (int intY = 1; intY <= 2; intY++) {
@@ -2338,16 +2363,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
       //  if there is a mis-match between the presence of series and dep values, bail
       if (0 < listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("dep values present, but no series values for Y" + intY);
+        throw new ValidationException("dep values present, but no series values for Y" + intY);
       }
       if (1 > listDepPlot.length && 0 < listSeries.length) {
-        throw new Exception("series values present, but no dep values for Y" + intY);
+        throw new ValidationException("series values present, but no dep values for Y" + intY);
       }
 
       //  there must be at least one y1 series and stat, but not for y2
       if (!job.getPlotTmpl().equals(
           "eclv.R_tmpl") && 1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("no Y1 series stat found");
+        throw new ValidationException("no Y1 series stat found");
       }
       if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
         continue;
@@ -2355,8 +2380,8 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
 
       /*
-      *  Construct query components from the series variable/value pairs
-      */
+       *  Construct query components from the series variable/value pairs
+       */
 
       //  build the select list and where clauses for the series variables and values
 
@@ -2413,20 +2438,20 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       }
 
       /*
-      *  Construct the query components for the independent variable and values
-      */
+       *  Construct the query components for the independent variable and values
+       */
 
       //  validate and get the type and values for the independent variable
       String strIndyVarType;
       String strIndyVar = job.getIndyVar();
       String[] listIndyVal = job.getIndyVal();
       if (!tableHeaderSqlType.containsKey(strIndyVar)) {
-        throw new Exception("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
+        throw new ValidationException("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
                                 + "_header field: " + strIndyVar);
       }
       strIndyVarType = tableHeaderSqlType.get(strIndyVar);
       if (1 > listIndyVal.length) {
-        throw new Exception("no independent variable values specified");
+        throw new ValidationException("no independent variable values specified");
       }
 
       //  construct the select list item, where clause
@@ -2434,7 +2459,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       if (!selectList.contains(strIndyVar)) {
         selectList += ",   " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(), true);
         selectPlotList += ",   " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
-                                                true);
+                                               true);
         strTempList += ",     " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
       }
       String strIndyVarFormatted = formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
@@ -2459,17 +2484,17 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
           String strField = (String) listPlotFixVal[i].getKey();
           if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
             selectList += ",  " + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                true);
+                                              true);
             selectPlotList += ",  " + formatField(strField, job.isModeJob() || job.isMtdJob(),
-                                                    true);
+                                                  true);
             strTempList += ",    " + strField + "            VARCHAR(64)";
           }
         }
       }
 
       /*
-        *  Construct a query for each fcst_var/stat pair
-      */
+       *  Construct a query for each fcst_var/stat pair
+       */
 
       //  determine how many queries are needed to gather that stat information
       int intNumQueries;
@@ -2551,10 +2576,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   @Override
   public String buildAndExecuteQueriesForHistJob(
-                                                    MVPlotJob job, String strDataFile,
-                                                    MVOrderedMap listPlotFixPerm,
-                                                    PrintStream printStream,
-                                                    PrintStream printStreamSql) throws Exception {
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm,
+      PrintStream printStream,
+      PrintStream printStreamSql) throws ValidationException {
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
@@ -2567,7 +2592,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
       if (!statHeaderSqlType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+        throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
@@ -2610,7 +2635,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     String dbList = "[";
 
-    for (String cdbName: job.getCurrentDBName()) {
+    for (String cdbName : job.getCurrentDBName()) {
       if (dbList.length() > 1) {
         dbList += ", ";
       }
@@ -2620,12 +2645,13 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     // find the line_data documents where the header has the selected forecast variable
     strNumSelect = "SELECT DISTINCT ld.n_" + type
-            + " FROM `" + getBucket().name() + "` AS h "
-            + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
-            + " WHERE " + strWhere
-            + " AND ld.type = \'line\' AND ld.line_type = \'" + table + "\'"
-            + " AND h.type = \'header\' AND h.header_type = \'stat\' "
-            + " AND h.dbname IN " + dbList;
+                       + " FROM `" + getBucket().name() + "` AS h "
+                       + " INNER JOIN `" + getBucket()
+                                               .name() + "` AS ld on ld.header_id = meta(h).id"
+                       + " WHERE " + strWhere
+                       + " AND ld.type = \'line\' AND ld.line_type = \'" + table + "\'"
+                       + " AND h.type = \'header\' AND h.header_type = \'stat\' "
+                       + " AND h.dbname IN " + dbList;
 
     if (printStreamSql != null) {
       printStreamSql.println(strNumSelect + " ");
@@ -2639,7 +2665,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
 
     if (listNum.isEmpty()) {
-      throw new Exception("no " + type + "  data found");
+      throw new ValidationException("no " + type + "  data found");
     } else if (1 < listNum.size()) {
       strMsg = "  **  WARNING: multiple n_" + type + " values found for search criteria: ";
       for (int i = 0; i < listNum.size(); i++) {
@@ -2664,14 +2690,15 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
     }
     strPlotDataSelect = strPlotDataSelect
-            + " FROM `" + getBucket().name() + "` AS h "
-            + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
-            + " UNNEST ld." + tableBins + "[0:" + listNum.get(0) + "] AS hbin"
-            + " WHERE " + strWhere
-            + " AND ld.type = \'line\' AND ld.line_type = \'" + table + "\'"
-            + " AND h.type = \'header\' AND h.header_type = \'stat\'"
-            + " AND h.dbname IN " + dbList
-            + " GROUP BY hbin.i_value";
+                            + " FROM `" + getBucket().name() + "` AS h "
+                            + " INNER JOIN `" + getBucket()
+                                                    .name() + "` AS ld on ld.header_id = meta(h).id"
+                            + " UNNEST ld." + tableBins + "[0:" + listNum.get(0) + "] AS hbin"
+                            + " WHERE " + strWhere
+                            + " AND ld.type = \'line\' AND ld.line_type = \'" + table + "\'"
+                            + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+                            + " AND h.dbname IN " + dbList
+                            + " GROUP BY hbin.i_value";
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
     }
@@ -2690,9 +2717,9 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     queries.add(strPlotDataSelect);
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
       MvResponse mvResponse = executeQueriesAndSaveToFile(queries, strDataFile,
-                                  job.getCalcCtc() || job.getCalcSl1l2()
-                                      || job.getCalcSal1l2() || job.getCalcGrad(),
-                                  job.getCurrentDBName().get(i), i == 0);
+                                                          job.getCalcCtc() || job.getCalcSl1l2()
+                                                              || job.getCalcSal1l2() || job.getCalcGrad(),
+                                                          job.getCurrentDBName().get(i), i == 0);
       if (mvResponse.getInfoMessage() != null) {
         printStream.println(mvResponse.getInfoMessage());
       }
@@ -2707,7 +2734,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm,
       PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+      PrintStream printStreamSql) throws ValidationException {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2720,7 +2747,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
       if (!statHeaderSqlType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+        throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
@@ -2745,7 +2772,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
     String dbList = "[";
 
-    for (String cdbName: job.getCurrentDBName()) {
+    for (String cdbName : job.getCurrentDBName()) {
       if (dbList.length() > 1) {
         dbList += ", ";
       }
@@ -2779,14 +2806,15 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       String strFcstThreshSelect = "SELECT DISTINCT h.fcst_thresh ";
 
       strFcstThreshSelect = strFcstThreshSelect
-              + " FROM `" + getBucket().name() + "` AS h "
-              + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id"
-              + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
-              + " ld.type = \'line\' AND ld.line_type = "
-              + (boolRelyPlot || job.getRocPct() ? "\'pct\'" : "\'ctc\'")
-              + " AND h.type = \'header\' AND h.header_type = \'stat\'"
-              + " AND h.dbname IN " + dbList
-              + " ORDER BY h.fcst_thresh;";
+                                + " FROM `" + getBucket().name() + "` AS h "
+                                + " INNER JOIN `" + getBucket()
+                                                        .name() + "` AS ld ON ld.header_id = meta(h).id"
+                                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+                                + " ld.type = \'line\' AND ld.line_type = "
+                                + (boolRelyPlot || job.getRocPct() ? "\'pct\'" : "\'ctc\'")
+                                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+                                + " AND h.dbname IN " + dbList
+                                + " ORDER BY h.fcst_thresh;";
 
 
       if (printStreamSql != null) {
@@ -2810,14 +2838,15 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                 + " thresh.on_i";
 
         strPlotDataSelect = strPlotDataSelect
-                + " FROM `" + getBucket().name() + "` AS h "
-                + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
-                + " UNNEST ld.pct_thresh AS thresh"
-                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
-                + " ld.type = \'line\' AND ld.line_type = \'pct\'"
-                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
-                + " AND h.dbname IN " + dbList
-                + " ORDER BY thresh_i";
+                                + " FROM `" + getBucket().name() + "` AS h "
+                                + " INNER JOIN `" + getBucket()
+                                                        .name() + "` AS ld on ld.header_id = meta(h).id"
+                                + " UNNEST ld.pct_thresh AS thresh"
+                                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+                                + " ld.type = \'line\' AND ld.line_type = \'pct\'"
+                                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+                                + " AND h.dbname IN " + dbList
+                                + " ORDER BY thresh_i";
       } else {
         strPlotDataSelect = strPlotDataSelect
                                 + " thresh.i_value, "
@@ -2826,15 +2855,16 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
                                 + " SUM(TONUMBER(thresh.on_i)) on_i ";
 
         strPlotDataSelect = strPlotDataSelect
-                + " FROM `" + getBucket().name() + "` AS h "
-                + " INNER JOIN `" + getBucket().name() + "` AS ld on ld.header_id = meta(h).id"
-                + " UNNEST ld.pct_thresh AS thresh"
-                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
-                + " ld.type = \'line\' AND ld.line_type = \'pct\'"
-                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
-                + " AND h.dbname IN " + dbList
-                + " GROUP BY thresh.i_value, thresh.thresh_i"
-                + " ORDER BY thresh.i_value";
+                                + " FROM `" + getBucket().name() + "` AS h "
+                                + " INNER JOIN `" + getBucket()
+                                                        .name() + "` AS ld on ld.header_id = meta(h).id"
+                                + " UNNEST ld.pct_thresh AS thresh"
+                                + " WHERE " + strWhere + (strWhere.equals("") ? "" : " AND ")
+                                + " ld.type = \'line\' AND ld.line_type = \'pct\'"
+                                + " AND h.type = \'header\' AND h.header_type = \'stat\'"
+                                + " AND h.dbname IN " + dbList
+                                + " GROUP BY thresh.i_value, thresh.thresh_i"
+                                + " ORDER BY thresh.i_value";
         if (listSeries.length > 0) {
           strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
         }
@@ -2849,17 +2879,18 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         strPlotDataSelect = strPlotDataSelect + strSelectList + ", ";
       }
       strPlotDataSelect = strPlotDataSelect
-              + " SUM(tonumber(ld.fy_oy)) fy_oy, "
-              + " SUM(tonumber(ld.fy_on)) fy_on, "
-              + " SUM(tonumber(ld.fn_oy)) fn_oy, "
-              + " SUM(tonumber(ld.fn_on)) fn_on "
-              + " FROM `" + getBucket().name() + "` AS h "
-              + " INNER JOIN `" + getBucket().name() + "` AS ld ON ld.header_id = meta(h).id "
-              + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ctc\' "
-              + " AND h.type = \'header\' AND h.header_type = \'stat\' "
-              + " AND h.dbname IN " + dbList
-              + " GROUP BY "
-              + " h.fcst_thresh";
+                              + " SUM(tonumber(ld.fy_oy)) fy_oy, "
+                              + " SUM(tonumber(ld.fy_on)) fy_on, "
+                              + " SUM(tonumber(ld.fn_oy)) fn_oy, "
+                              + " SUM(tonumber(ld.fn_on)) fn_on "
+                              + " FROM `" + getBucket().name() + "` AS h "
+                              + " INNER JOIN `" + getBucket()
+                                                      .name() + "` AS ld ON ld.header_id = meta(h).id "
+                              + " WHERE " + strWhere + " AND ld.type = \'line\' AND ld.line_type = \'ctc\' "
+                              + " AND h.type = \'header\' AND h.header_type = \'stat\' "
+                              + " AND h.dbname IN " + dbList
+                              + " GROUP BY "
+                              + " h.fcst_thresh";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
       }
@@ -2886,13 +2917,13 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       for (int i = 0; i < listObsThresh.size(); i++) {
         obsThreshMsg += (0 == i ? ": " : ", ") + listObsThresh.toString();
       }
-      throw new Exception(obsThreshMsg);
+      throw new ValidationException(obsThreshMsg);
     }
 
     if (listObsThresh.isEmpty()) {
       String strObsThreshMsg = "ROC/Reliability plots must contain data "
                                    + "from at least one obs_thresh ";
-      throw new Exception(strObsThreshMsg);
+      throw new ValidationException(strObsThreshMsg);
     }
 
     //  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
@@ -2903,12 +2934,12 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       for (int i = 0; i < listFcstThresh.size(); i++) {
         fcstThreshMsg += (0 == i ? ":" : "") + "   " + listFcstThresh.toString();
       }
-      throw new Exception(fcstThreshMsg.toString());
+      throw new ValidationException(fcstThreshMsg.toString());
     }
     if (job.getRocPct() && listObsThresh.isEmpty()) {
       String strObsThreshMsg = "ROC/Reliability plots must contain data "
                                    + "from at least one obs_thresh ";
-      throw new Exception(strObsThreshMsg);
+      throw new ValidationException(strObsThreshMsg);
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -2929,10 +2960,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
   @Override
   public int buildAndExecuteQueriesForEclvJob(
-                                                 MVPlotJob job, String strDataFile,
-                                                 MVOrderedMap listPlotFixPerm,
-                                                 PrintStream printStream,
-                                                 PrintStream printStreamSql) throws Exception {
+      MVPlotJob job, String strDataFile,
+      MVOrderedMap listPlotFixPerm,
+      PrintStream printStream,
+      PrintStream printStreamSql) throws ValidationException {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2945,7 +2976,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
       if (!statHeaderSqlType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+        throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
@@ -2992,7 +3023,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
 
 
     if (listNum.isEmpty()) {
-      throw new Exception("no pnt  data found");
+      throw new ValidationException("no pnt  data found");
     } else if (1 < listNum.size()) {
       strMsg = "  **  WARNING: multiple n_pnt values found for search criteria: ";
       for (int i = 0; i < listNum.size(); i++) {
@@ -3020,11 +3051,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
         //  run the PCT thresh query
         pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));
         if (1 != pctThreshInfo.get("numPctThresh")) {
-          throw new Exception("number of ECLV pnts (" + pctThreshInfo.get(
+          throw new ValidationException("number of ECLV pnts (" + pctThreshInfo.get(
               "numPctThresh") + ") not distinct for " + serName[serNameInd] + " = '" + ser.getStr(
               serName[serNameInd]));
         } else if (1 > pctThreshInfo.get("numPctThresh")) {
-          throw new Exception("invalid number of ECLV pnts (" + pctThreshInfo.get(
+          throw new ValidationException("invalid number of ECLV pnts (" + pctThreshInfo.get(
               "numPctThresh") + ") found for" + serName[serNameInd]
                                   + " = '" + ser.getStr(serName[serNameInd]) + "'");
         }
@@ -3136,10 +3167,10 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
   }
 
   private BuildMysqlQueryStrings build(
-                                          boolean boolModePlot,
-                                          Map<String, String> tableHeaderSqlType,
-                                          Map.Entry[] listSeries, String strWhere,
-                                          boolean isFormatSelect) throws Exception {
+      boolean boolModePlot,
+      Map<String, String> tableHeaderSqlType,
+      Map.Entry[] listSeries, String strWhere,
+      boolean isFormatSelect) throws ValidationException {
 
     BuildMysqlQueryStrings buildMysqlQueryStrings = new BuildMysqlQueryStrings(boolModePlot,
                                                                                tableHeaderSqlType,
@@ -3153,7 +3184,7 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
       //  validate the series field and get its type
       String strTempType;
       if (!tableHeaderSqlType.containsKey(field)) {
-        throw new Exception("unrecognized " + (boolModePlot ? "mode" : "stat")
+        throw new ValidationException("unrecognized " + (boolModePlot ? "mode" : "stat")
                                 + "_header field: " + field);
       }
       strTempType = tableHeaderSqlType.get(field);

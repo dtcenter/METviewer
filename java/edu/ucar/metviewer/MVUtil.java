@@ -1716,7 +1716,7 @@ public class MVUtil {
    */
   public static void isAggTypeValid(
       final Map<String, String[]> tableStats, final String strStat,
-      final String aggType) throws Exception {
+      final String aggType) throws ValidationException {
     //check if aggType is allowed for this stat
     String[] types = tableStats.get(strStat);
     boolean isFound = false;
@@ -1727,7 +1727,7 @@ public class MVUtil {
       }
     }
     if (!isFound) {
-      throw new Exception(
+      throw new ValidationException(
           "aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
     }
   }
@@ -1798,7 +1798,7 @@ public class MVUtil {
   public static String buildTemplateString(
       final String tmpl, final MVOrderedMap vals,
       final MVOrderedMap tmplMaps,
-      final PrintStream printStream) throws Exception {
+      final PrintStream printStream) throws ValidationException {
 
 
     String strRet = tmpl;
@@ -1830,7 +1830,7 @@ public class MVUtil {
         }
         MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
         if (null == mapTmplVal) {
-          throw new Exception(
+          throw new ValidationException(
               "template tag " + strTmplTagName + " does not have a val_map defined");
         }
         if (mapTmplVal.containsKey(strVal)) {

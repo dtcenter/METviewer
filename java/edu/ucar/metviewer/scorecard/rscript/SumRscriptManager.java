@@ -175,7 +175,7 @@ public class SumRscriptManager extends RscriptManager {
           printStream.println(mvResponse.getErrorMessage());
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (Exception e) {
+      } catch (StopWatchException | IOException e) {
         logger.error(e);
         logger.error(e);
       }

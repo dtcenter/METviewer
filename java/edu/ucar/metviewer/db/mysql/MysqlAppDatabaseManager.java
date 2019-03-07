@@ -38,6 +38,8 @@ import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
@@ -476,7 +478,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             listRes.add(res.getString(1));
           }
 
-
         } catch (SQLException e) {
           logger.error(e.getMessage());
         }
@@ -492,7 +493,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   public MvResponse executeQueriesAndSaveToFile(
       List<String> queries, String fileName,
       boolean isCalc, String currentDBName,
-      boolean isNewFile) throws Exception {
+      boolean isNewFile) throws ValidationException {
     MvResponse mvResponse = new MvResponse();
 
     List<String> listSqlBeforeSelect = new ArrayList<>();
@@ -521,7 +522,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                   ResultSet.CONCUR_READ_ONLY)) {
           stmt.execute(aListSqlBeforeSelect);
-        } catch (Exception e) {
+        } catch (SQLException e) {
           logger.error(e.getMessage());
         }
       }
@@ -547,7 +548,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           resultSetLast.close();
           mvResponse.setSuccess(true);
 
-        } catch (Exception e) {
+        } catch (SQLException | IOException e) {
           logger.error(e.getMessage());
           String stat = "This";
           if (e.getMessage().contains("Unknown column")) {
@@ -572,21 +573,28 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             logger.error(stat + " statistic can only be plotted as an aggregation of lines");
 
             //rethrow the exception to be printed as a error popup on UI
-            throw new Exception(stat + " statistic can only be plotted as an aggregation of lines");
+            throw new ValidationException(
+                stat + " statistic can only be plotted as an aggregation of lines");
           }
 
         }
       }
 
-    } catch (SQLException e) {
+    } catch (SQLException | StopWatchException e) {
       logger.error(e.getMessage());
     }
-    String message = "Database query time for " + currentDBName + " "
-                         + dbStopWatch.getFormattedTotalDuration();
-    if (saveToFileStopWatch.getTotalDuration() != null) {
-      message = message + "\nSave to file time for   " + currentDBName + " "
-                    + saveToFileStopWatch.getFormattedTotalDuration();
+    String message = null;
+    try {
+      message = "Database query time for " + currentDBName + " "
+                    + dbStopWatch.getFormattedTotalDuration();
+      if (saveToFileStopWatch.getTotalDuration() != null) {
+        message = message + "\nSave to file time for   " + currentDBName + " "
+                      + saveToFileStopWatch.getFormattedTotalDuration();
+      }
+    } catch (StopWatchException e) {
+      logger.error(e.getMessage());
     }
+
     mvResponse.setInfoMessage(message);
 
     return mvResponse;
@@ -760,7 +768,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   @Override
   public List<String> buildPlotSql(
       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
-      PrintStream printStreamSql) throws Exception {
+      PrintStream printStreamSql) throws ValidationException {
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
@@ -797,7 +805,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     MVOrderedMap[] listDep = job.getDepGroups();
     MVOrderedMap mapDepGroup;
     if (1 != listDep.length && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
-      throw new Exception("unexpected number of <dep> groups: " + listDep.length);
+      throw new ValidationException("unexpected number of <dep> groups: " + listDep.length);
     }
     if (job.getPlotTmpl().equals("eclv.R_tmpl")) {
       mapDepGroup = new MVOrderedMap();
@@ -823,18 +831,18 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  if there is a mis-match between the presence of series and dep values, bail
       if (0 < listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("dep values present, but no series values for Y" + intY);
+        throw new ValidationException("dep values present, but no series values for Y" + intY);
       }
       if (1 > listDepPlot.length && 0 < listSeries.length
               && !job.getPlotTmpl().equals("eclv.R_tmpl")) {
-        throw new Exception("series values present, but no dep values for Y" + intY);
+        throw new ValidationException("series values present, but no dep values for Y" + intY);
       }
 
       //  there must be at least one y1 series and stat, but not for y2
 
       if (!job.getPlotTmpl().equals(
           "eclv.R_tmpl") && 1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("no Y1 series stat found");
+        throw new ValidationException("no Y1 series stat found");
       }
       if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
         continue;
@@ -971,13 +979,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (!indyVar.isEmpty()) {
         String[] listIndyVal = job.getIndyVal();
         if (!tableHeaderSqlType.containsKey(indyVar)) {
-          throw new Exception("unrecognized indep "
-                                  + (job.isModeJob() ? "mode" : "stat")
-                                  + "_header field: " + indyVar);
+          throw new ValidationException("unrecognized indep "
+                                            + (job.isModeJob() ? "mode" : "stat")
+                                            + "_header field: " + indyVar);
         }
         strIndyVarType = tableHeaderSqlType.get(indyVar);
         if (1 > listIndyVal.length) {
-          throw new Exception("no independent variable values specified");
+          throw new ValidationException("no independent variable values specified");
         }
 
         //  construct the select list item, where clause
@@ -1109,7 +1117,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 if (!noErrors) {
                   for (String error : errors) {
                     if (error != null) {
-                      throw new Exception(error);
+                      throw new ValidationException(error);
                     }
                   }
                 }
@@ -1125,7 +1133,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             }
             if (!allEqual) {
               String error = "Different value for PCT thresholds   for individual series!";
-              throw new Exception(error);
+              throw new ValidationException(error);
             } else {
               pctThreshInfo.put("pctThresh", seriesNthresh[0]);
             }
@@ -1194,7 +1202,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.modeRatioField.contains(strStat)) {
             tableStats = MVUtil.modeSingleStatField;
           } else {
-            throw new Exception("unrecognized mode stat: " + statMode);
+            throw new ValidationException("unrecognized mode stat: " + statMode);
           }
         } else if (job.isMtdJob()) {
 
@@ -1210,7 +1218,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else if (MVUtil.mtd2dStatField.containsKey(stat)) {
             tableStats = MVUtil.mtd2dStatField;
           } else {
-            throw new Exception("unrecognized mode stat: " + stat);
+            throw new ValidationException("unrecognized mode stat: " + stat);
           }
         } else {
 
@@ -1348,7 +1356,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             statTable = "line_data_ecnt ld\n";
             statField = strStat.replace("ECNT_", "").toLowerCase();
           } else {
-            throw new Exception("unrecognized stat: " + strStat);
+            throw new ValidationException("unrecognized stat: " + strStat);
           }
         }
 
@@ -2308,7 +2316,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
   public List<String> buildPlotModeEventEqualizeSql(
       MVPlotJob job, MVOrderedMap mapPlotFixPerm,
       MVOrderedMap mapPlotFixVal)
-      throws Exception {
+      throws ValidationException {
     MVOrderedMap fcstVarPat = new MVOrderedMap();
 
     //  determine if the plot job is for stat data or MODE data
@@ -2336,7 +2344,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  remove multiple dep group capability
     MVOrderedMap[] listDep = job.getDepGroups();
     if (1 != listDep.length) {
-      throw new Exception("unexpected number of <dep> groups: " + listDep.length);
+      throw new ValidationException("unexpected number of <dep> groups: " + listDep.length);
     }
     MVOrderedMap mapDepGroup = listDep[0];
 
@@ -2358,16 +2366,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  if there is a mis-match between the presence of series and dep values, bail
       if (0 < listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("dep values present, but no series values for Y" + intY);
+        throw new ValidationException("dep values present, but no series values for Y" + intY);
       }
       if (1 > listDepPlot.length && 0 < listSeries.length) {
-        throw new Exception("series values present, but no dep values for Y" + intY);
+        throw new ValidationException("series values present, but no dep values for Y" + intY);
       }
 
       //  there must be at least one y1 series and stat, but not for y2
       if (!job.getPlotTmpl().equals(
           "eclv.R_tmpl") && 1 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
-        throw new Exception("no Y1 series stat found");
+        throw new ValidationException("no Y1 series stat found");
       }
       if (2 == intY && 1 > listDepPlot.length && 1 > listSeries.length) {
         continue;
@@ -2441,12 +2449,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String strIndyVar = job.getIndyVar();
       String[] listIndyVal = job.getIndyVal();
       if (!tableHeaderSqlType.containsKey(strIndyVar)) {
-        throw new Exception("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
-                                + "_header field: " + strIndyVar);
+        throw new ValidationException("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
+                                          + "_header field: " + strIndyVar);
       }
       strIndyVarType = tableHeaderSqlType.get(strIndyVar);
       if (1 > listIndyVal.length) {
-        throw new Exception("no independent variable values specified");
+        throw new ValidationException("no independent variable values specified");
       }
 
       //  construct the select list item, where clause
@@ -2572,7 +2580,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm,
       PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+      PrintStream printStreamSql) throws ValidationException {
     String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
@@ -2585,7 +2593,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
       if (!statHeaderSqlType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+        throw new ValidationException(
+            "unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
@@ -2648,7 +2657,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     if (listNum.isEmpty()) {
-      throw new Exception("no " + type + "  data found");
+      throw new ValidationException("no " + type + "  data found");
     } else if (1 < listNum.size()) {
       strMsg = "  **  WARNING: multiple n_" + type + " values found for search criteria: ";
       for (int i = 0; i < listNum.size(); i++) {
@@ -2717,7 +2726,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm,
       PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+      PrintStream printStreamSql) throws ValidationException {
     String strSelectList = "";
     String strTempList = "";
     String strWhereSeries = "";
@@ -2730,7 +2739,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
       if (!statHeaderSqlType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+        throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
       strSelectList += (strSelectList.isEmpty() ? "" : ",")
@@ -2892,13 +2901,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listObsThresh.size(); i++) {
         obsThreshMsg.append(0 == i ? ": " : ", ").append(listObsThresh.toString());
       }
-      throw new Exception(obsThreshMsg.toString());
+      throw new ValidationException(obsThreshMsg.toString());
     }
 
     if (listObsThresh.isEmpty()) {
       String strObsThreshMsg = "ROC/Reliability plots must contain data "
                                    + "from at least one obs_thresh ";
-      throw new Exception(strObsThreshMsg);
+      throw new ValidationException(strObsThreshMsg);
     }
 
     //  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
@@ -2910,12 +2919,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       for (int i = 0; i < listFcstThresh.size(); i++) {
         fcstThreshMsg.append(0 == i ? ":" : "").append("\n  ").append(listFcstThresh.toString());
       }
-      throw new Exception(fcstThreshMsg.toString());
+      throw new ValidationException(fcstThreshMsg.toString());
     }
     if (job.getRocPct() && listObsThresh.isEmpty()) {
       String strObsThreshMsg = "ROC/Reliability plots must contain data "
                                    + "from at least one obs_thresh ";
-      throw new Exception(strObsThreshMsg);
+      throw new ValidationException(strObsThreshMsg);
     }
 
     //  get the data for the current plot from the plot_data temp table and write it to a data file
@@ -2939,7 +2948,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       MVPlotJob job, String strDataFile,
       MVOrderedMap listPlotFixPerm,
       PrintStream printStream,
-      PrintStream printStreamSql) throws Exception {
+      PrintStream printStreamSql) throws ValidationException {
     StringBuilder strSelectList = new StringBuilder();
     StringBuilder strTempList = new StringBuilder();
     StringBuilder strWhereSeries = new StringBuilder();
@@ -2952,7 +2961,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
       if (!statHeaderSqlType.containsKey(strSeriesField)) {
-        throw new Exception("unrecognized " + "stat" + "_header field: " + strSeriesField);
+        throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
       strSelectList.append((strSelectList.length() == 0) ? "" : ",").append("  ")
@@ -2999,7 +3008,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
     if (listNum.isEmpty()) {
-      throw new Exception("no pnt  data found");
+      throw new ValidationException("no pnt  data found");
     } else if (1 < listNum.size()) {
       strMsg = "  **  WARNING: multiple n_pnt values found for search criteria: ";
       for (int i = 0; i < listNum.size(); i++) {
@@ -3029,11 +3038,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         //  run the PCT thresh query
         pctThreshInfo = getPctThreshInfo(strSelPctThresh, job.getCurrentDBName().get(0));
         if (1 != pctThreshInfo.get("numPctThresh")) {
-          throw new Exception("number of ECLV pnts (" + pctThreshInfo.get(
+          throw new ValidationException("number of ECLV pnts (" + pctThreshInfo.get(
               "numPctThresh") + ") not distinct for " + serName[serNameInd] + " = '" + ser.getStr(
               serName[serNameInd]));
         } else if (1 > pctThreshInfo.get("numPctThresh")) {
-          throw new Exception("invalid number of ECLV pnts (" + pctThreshInfo.get(
+          throw new ValidationException("invalid number of ECLV pnts (" + pctThreshInfo.get(
               "numPctThresh") + ") found for" + serName[serNameInd]
                                   + " = '" + ser.getStr(serName[serNameInd]) + "'");
         }
@@ -3148,7 +3157,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       boolean boolModePlot,
       Map<String, String> tableHeaderSqlType,
       Map.Entry[] listSeries, String strWhere,
-      boolean isFormatSelect) throws Exception {
+      boolean isFormatSelect) throws ValidationException {
 
     BuildMysqlQueryStrings buildMysqlQueryStrings = new BuildMysqlQueryStrings(boolModePlot,
                                                                                tableHeaderSqlType,
@@ -3162,8 +3171,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  validate the series field and get its type
       String strTempType;
       if (!tableHeaderSqlType.containsKey(field)) {
-        throw new Exception("unrecognized " + (boolModePlot ? "mode" : "stat")
-                                + "_header field: " + field);
+        throw new ValidationException("unrecognized " + (boolModePlot ? "mode" : "stat")
+                                          + "_header field: " + field);
       }
       strTempType = tableHeaderSqlType.get(field);
 

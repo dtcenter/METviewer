@@ -33,6 +33,7 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.MVLoadJob;
 import edu.ucar.metviewer.MVLoadStatInsertData;
 import edu.ucar.metviewer.MVOrderedMap;
@@ -258,13 +259,13 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   }
 
   @Override
-  public void applyIndexes() throws Exception {
+  public void applyIndexes(){
     // what indexes do we need to apply in couchbase?
     // do nothing for now
   }
 
   @Override
-  public void dropIndexes() throws Exception {
+  public void dropIndexes()  {
     // what indexes do we need to drop in couchbase?
     // do nothing for now
   }
@@ -305,7 +306,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @return Next available id
    * @throws Exception
    */
-  private int getNextId(String table, String field) throws Exception {
+  private int getNextId(String table, String field) throws DatabaseException {
     int intId = -1;
  /*   PreparedStatement pstmt = null;
     ResultSet res = null;
@@ -349,7 +350,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @throws Exception
    */
   @Override
-  public Map<String, Long> loadStatFile(DataFileInfo info) throws Exception {
+  public Map<String, Long> loadStatFile(DataFileInfo info) throws DatabaseException {
     Map<String, Long> timeStats = new HashMap<>();
     //  initialize the insert data structure
     MVLoadStatInsertData insertData = new MVLoadStatInsertData();
@@ -969,7 +970,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @throws Exception
    */
   private int[] commitStatData(MVLoadStatInsertData statInsertData)
-      throws Exception {
+      throws DatabaseException {
 
     int[] listInserts = new int[]{0, 0, 0, 0};
 
@@ -1036,7 +1037,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   }
 
   @Override
-  public Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception {
+  public Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws DatabaseException {
 
     Map<String, Long> timeStats = new HashMap<>();
 
@@ -1811,7 +1812,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @throws Exception
    */
   @Override
-  public Map<String, Long> loadModeFile(DataFileInfo info) throws Exception {
+  public Map<String, Long> loadModeFile(DataFileInfo info) throws DatabaseException {
     Map<String, Long> timeStats = new HashMap<>();
 
     //  data structure for storing mode object ids
@@ -2230,7 +2231,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @throws Exception
    */
   @Override
-  public Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception {
+  public Map<String, Long> loadMtdFile(DataFileInfo info) throws DatabaseException {
     Map<String, Long> timeStats = new HashMap<>();
 
     //  performance counters
@@ -2614,7 +2615,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
   }
 
   @Override
-  public void updateGroup(String group) throws Exception {
+  public void updateGroup(String group) throws DatabaseException {
     String currentGroup = "";
     String currentDescription = "";
     String currentID = "";
@@ -2655,7 +2656,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       }
 
     } catch (Exception e) {
-      throw new Exception(e.getMessage());
+      throw new DatabaseException(e.getMessage());
     }
     // if no category document exists, or the group is not the same as in the XML
     if (!currentGroup.equals(group)) {
@@ -2666,7 +2667,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             throw new Exception("METViewer load error: processDataFile() unable to get counter");
           }
         } catch (Exception e) {
-          throw new Exception(e.getMessage());
+          throw new DatabaseException(e.getMessage());
         }
         nextIdString = getDbName() + "::category::" + String.valueOf(nextIdNumber);
       } else {
@@ -2685,14 +2686,14 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           logger.warn("  **  WARNING: unexpected result from data_file INSERT");
         }
       } catch (Exception e) {
-        throw new Exception(e.getMessage());
+        throw new DatabaseException(e.getMessage());
       }
     }
 
   }
 
   @Override
-  public void updateDescription(String description) throws Exception {
+  public void updateDescription(String description) throws DatabaseException {
     String currentDescription = "";
     String currentGroup = "";
     String currentID = "";
@@ -2745,7 +2746,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             throw new Exception("METViewer load error: processDataFile() unable to get counter");
           }
         } catch (Exception e) {
-          throw new Exception(e.getMessage());
+          throw new DatabaseException(e.getMessage());
         }
         nextIdString = getDatabaseInfo().getDbName() + "::category::" + String.valueOf(nextIdNumber);
       } else {
@@ -2765,12 +2766,12 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           logger.warn("  **  WARNING: unexpected result from data_file INSERT");
         }
       } catch (Exception e) {
-        throw new Exception(e.getMessage());
+        throw new DatabaseException(e.getMessage());
       }
     }
   }
 
-  private int executeBatch(List<String> listValues) throws Exception {
+  private int executeBatch(List<String> listValues) throws DatabaseException {
     long nextIdNumber;
     String lineDataIdString;
     JsonObject lineDataFile;
@@ -2786,7 +2787,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     try {
       nextIdNumber = getBucket().counter("LDCounter", listValues.size(), 1).content() - listValues.size();
     } catch (CouchbaseException e) {
-      throw new Exception(e.getMessage());
+      throw new DatabaseException(e.getMessage());
     }
 
     for (int i = 0; i < listValues.size(); i++) {
@@ -2847,7 +2848,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
             intResLineDataInsert++;
         }
       } catch (Exception e) {
-        throw new Exception(e.getMessage());
+        throw new DatabaseException(e.getMessage());
       }
 
     }
@@ -2864,7 +2865,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
    * @return data structure containing information about the input file
    */
   @Override
-  public DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception {
+  public DataFileInfo processDataFile(File file, boolean forceDupFile) throws DatabaseException {
     String strPath = file.getParent().replace("\\", "/");
     String strFile = file.getName();
     int strDataFileLuId = -1;
@@ -2955,22 +2956,22 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
           logger.warn("  **  WARNING: file already present in table data_file");
           return info;
         } else {
-          throw new Exception("file already present in table data_file, use force_dup_file setting to override");
+          throw new DatabaseException("file already present in table data_file, use force_dup_file setting to override");
         }
       }
 
     } catch (CouchbaseException e) {
-      throw new Exception(e.getMessage());
+      throw new DatabaseException(e.getMessage());
     }
     //  create a unique string data_file id from a Couchbase counter, starting at 1 the first time
     try {
       nextIdNumber = getBucket().counter("DFCounter", 1, 1).content();
       if (0 > nextIdNumber) {
-        throw new Exception("METViewer load error: processDataFile() unable to get counter");
+        throw new DatabaseException("METViewer load error: processDataFile() unable to get counter");
       }
 
     } catch (CouchbaseException e) {
-      throw new Exception(e.getMessage());
+      throw new DatabaseException(e.getMessage());
     }
     nextIdString = getDatabaseInfo().getDbName() + "::file::" + strDataFileLuTypeName + "::" + nextIdNumber;
     try {
@@ -2989,7 +2990,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
         logger.warn("  **  WARNING: unexpected result from data_file INSERT");
       }
     } catch (Exception e) {
-      throw new Exception(e.getMessage());
+      throw new DatabaseException(e.getMessage());
       }
     return new DataFileInfo(nextIdString, strFile, strPath, strLoadDate, strModDate, strDataFileLuId,
                             strDataFileLuTypeName);

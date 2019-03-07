@@ -446,7 +446,7 @@ public class MVPlotJob {
     return Arrays.copyOf(indyVal, indyVal.length);
   }
 
-  public void setIndyVal(String[] indyVal) throws Exception {
+  public void setIndyVal(String[] indyVal) throws DatabaseException {
     for (String ind : indyVal) {
       validateSQL(ind);
     }
@@ -2018,13 +2018,13 @@ public class MVPlotJob {
     return isMtd;
   }
 
-  private void validateSQL(String str) throws Exception {
+  private void validateSQL(String str) throws DatabaseException {
     if (str.toLowerCase().contains("and") && !str.toLowerCase().contains("between")) {
-      throw new Exception("String " + str + " includes SQL unsafe word AND");
+      throw new DatabaseException("String " + str + " includes SQL unsafe word AND");
     }
     for (String noSQL : DatabaseManager.SQL_INJECTION_WORDS) {
       if (str.contains(noSQL.toLowerCase()) || str.contains(noSQL.toUpperCase())) {
-        throw new Exception("String " + str + " includes SQL unsafe word " + noSQL);
+        throw new DatabaseException("String " + str + " includes SQL unsafe word " + noSQL);
       }
     }
   }

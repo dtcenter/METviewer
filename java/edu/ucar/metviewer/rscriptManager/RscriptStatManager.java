@@ -6,12 +6,15 @@
 
 package edu.ucar.metviewer.rscriptManager;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 
 /**
  * @author : tatiana $
@@ -33,7 +36,7 @@ public abstract class RscriptStatManager {
 
   public abstract void prepareDataFileAndRscript(MVPlotJob job, MVOrderedMap mvMap,
                                                  Map<String, String> info,
-                                                 List<String> listQuery) throws Exception;
+                                                 List<String> listQuery) throws ValidationException, IOException, StopWatchException;
   public abstract boolean runRscript(MVPlotJob job, Map<String, String> info);
 
 

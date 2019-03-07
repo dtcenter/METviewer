@@ -10,6 +10,7 @@ import java.util.Map;
 
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVPlotJob;
+import edu.ucar.metviewer.ValidationException;
 
 /**
  * @author : tatiana $
@@ -26,10 +27,6 @@ public class ContourJobManager extends SeriesJobManager {
     return 1 - job.getDiffSeries1Count();
   }
 
-  @Override
-  protected void validateNumDepSeries(MVPlotJob job, int intNumDepSeries) throws Exception {
-    //do nothing
-  }
 
   @Override
   protected int getNumberPlotCurves(Map.Entry[] listDep1Plot) {
@@ -37,7 +34,7 @@ public class ContourJobManager extends SeriesJobManager {
   }
 
   @Override
-  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws Exception {
+  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
     Map<String, String> info = super.createInfoMap(job, intNumDepSeries);
     if (job.getDiffSeries1Count() == 0) {
       info.put("contour_diff", "FALSE");

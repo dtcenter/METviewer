@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -97,7 +98,8 @@ public class PruneDbManagerMysql extends PruneDbManager {
       List<String> allTables = getAllTables(con, mvPruneDB.getDatabaseName());
       StringBuilder whereStr = createWhere(con, mvPruneDB);
       if (whereStr.length() == 0) {
-        throw new Exception("Nothing to delete. Could be that listed files are not in database.");
+        throw new DatabaseException("Nothing to delete. Could be that listed files are not in "
+                                     + "database.");
       }
       for (String table : allTables) {
         Table tableObj = getTableByName(table);
@@ -118,7 +120,8 @@ public class PruneDbManagerMysql extends PruneDbManager {
       }
 
       con.close();
-    } catch (Exception e) {
+
+    } catch (SQLException | DatabaseException e) {
       logger.error(e.getMessage());
     }
 
