@@ -22,7 +22,7 @@ public interface LoadDatabaseManager {
 
   void applyIndexes();
 
-  void updateInfoTable(String strXML, MVLoadJob job) throws Exception;
+  void updateInfoTable(String strXML, MVLoadJob job) throws DatabaseException;
 
   DataFileInfo processDataFile(File file, boolean forceDupFile) throws DatabaseException;
 

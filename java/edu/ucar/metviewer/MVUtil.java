@@ -1989,7 +1989,7 @@ public class MVUtil {
 
   public static String buildTemplateString(
       final String tmpl, final MVOrderedMap vals,
-      final PrintStream printStream) throws Exception {
+      final PrintStream printStream) throws ValidationException {
     return buildTemplateString(tmpl, vals, null, printStream);
   }
 

@@ -437,7 +437,7 @@ public class MVPlotJob {
     return indyVar;
   }
 
-  public void setIndyVar(String indyVar) throws Exception {
+  public void setIndyVar(String indyVar) throws DatabaseException {
     validateSQL(indyVar);
     this.indyVar = indyVar;
   }
@@ -457,7 +457,7 @@ public class MVPlotJob {
     return Arrays.copyOf(indyPlotVal, indyPlotVal.length);
   }
 
-  public void setIndyPlotVal(String[] indyPlotVal) throws Exception {
+  public void setIndyPlotVal(String[] indyPlotVal) throws DatabaseException {
     for (String ind : indyPlotVal) {
       validateSQL(ind);
     }
@@ -493,7 +493,7 @@ public class MVPlotJob {
     this.plotFixValEq = plotFixValEq;
   }
 
-  public void addPlotFixVal(String field, String[] vals, int index) throws Exception {
+  public void addPlotFixVal(String field, String[] vals, int index) throws DatabaseException {
     for (String ind : vals) {
       validateSQL(ind);
     }
@@ -504,11 +504,11 @@ public class MVPlotJob {
     plotFixValEq.put(field, vals, index);
   }
 
-  public void addPlotFixVal(String field, String[] vals) throws Exception {
+  public void addPlotFixVal(String field, String[] vals) throws DatabaseException {
     addPlotFixVal(field, vals, plotFixVal.size());
   }
 
-  public void addPlotFixValEq(String field, String[] vals) throws Exception {
+  public void addPlotFixValEq(String field, String[] vals) throws DatabaseException {
     for (String ind : vals) {
       validateSQL(ind);
     }
@@ -559,7 +559,7 @@ public class MVPlotJob {
   }
 
 
-  public void addSeries1Val(String field, String[] vals, int index) throws Exception {
+  public void addSeries1Val(String field, String[] vals, int index) throws DatabaseException {
     for (String ind : vals) {
       validateSQL(ind);
     }
@@ -567,7 +567,7 @@ public class MVPlotJob {
   }
 
 
-  public void addSeries1Val(String field, String[] vals) throws Exception {
+  public void addSeries1Val(String field, String[] vals) throws DatabaseException {
     if (field.equals("valid_hour") || field.equals("init_hour")) {
       String[] newVals = new String[vals.length];
       for (int i = 0; i < vals.length; i++) {
@@ -594,14 +594,14 @@ public class MVPlotJob {
     return series2Val;
   }
 
-  public void addSeries2Val(String field, String[] vals, int index) throws Exception {
+  public void addSeries2Val(String field, String[] vals, int index) throws DatabaseException {
     for (String ind : vals) {
       validateSQL(ind);
     }
     series2Val.putSeries(field, vals, index);
   }
 
-  public void addSeries2Val(String field, String[] vals) throws Exception {
+  public void addSeries2Val(String field, String[] vals) throws DatabaseException {
     addSeries2Val(field, vals, series2Val.size());
   }
 
@@ -614,13 +614,13 @@ public class MVPlotJob {
     return seriesNobs;
   }
 
-  public void addSeriesNobs(String field, String val, int index) throws Exception {
+  public void addSeriesNobs(String field, String val, int index) throws DatabaseException {
     validateSQL(val);
 
     seriesNobs.put(field, val, index);
   }
 
-  public void addSeriesNobs(String field, String val) throws Exception {
+  public void addSeriesNobs(String field, String val) throws DatabaseException {
     addSeriesNobs(field, val, seriesNobs.size());
   }
 
@@ -781,7 +781,7 @@ public class MVPlotJob {
     return plotCond;
   }
 
-  public void setPlotCond(String plotCond) throws Exception {
+  public void setPlotCond(String plotCond) throws DatabaseException {
     validateSQL(plotCond);
 
     this.plotCond = plotCond;
