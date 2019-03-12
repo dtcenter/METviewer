@@ -20,7 +20,7 @@ public class MVLoadJobParser {
   protected MVLoadJob job = null;
 
 
-  public MVLoadJobParser(String spec) throws ParserConfigurationException, IOException, SAXException {
+  public MVLoadJobParser(String spec) throws ParserConfigurationException, IOException, SAXException, ValidationException {
 
     super();
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -40,7 +40,7 @@ public class MVLoadJobParser {
     return job;
   }
 
-  private void parseLoadJobSpec() {
+  private void parseLoadJobSpec() throws ValidationException {
     MVLoadJob loadJob = new MVLoadJob();
     List<String> listLoadFiles;
     List<String> listVal;

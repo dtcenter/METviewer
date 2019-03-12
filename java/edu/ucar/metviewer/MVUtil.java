@@ -799,7 +799,8 @@ public class MVUtil {
    * @param node MVNode to parse for the date list parameters
    * @return List of date strings
    */
-  public static List<String> buildDateList(final MVNode node, final PrintStream printStream) {
+  public static List<String> buildDateList(final MVNode node, final PrintStream printStream)
+      throws ValidationException{
     String strStart = "";
     String strEnd = "";
     int intInc = 0;
@@ -822,8 +823,8 @@ public class MVUtil {
           strStart = nodeChild.value;
         }
       } else if (nodeChild.tag.equals("end")) {
-        strEnd = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
-                                                                  strFormat) : nodeChild.value);
+        strEnd = (0 < nodeChild.children.length
+                      ? parseDateOffset(nodeChild.children[0],strFormat) : nodeChild.value);
       }
     }
 
@@ -840,16 +841,21 @@ public class MVUtil {
    * @param date   (optional) String representation of the date from which to offset
    * @return String representation of the offset date
    */
-  public static String parseDateOffset(final MVNode node, final String format, final String date) {
+  public static String parseDateOffset(final MVNode node, final String format, final String date)
+      throws ValidationException{
     int intOffset = 0;
     int intHour = 0;
 
     for (int i = 0; i < node.children.length; i++) {
       MVNode nodeChild = node.children[i];
-      if (nodeChild.tag.equals("day_offset")) {
-        intOffset = Integer.parseInt(nodeChild.value);
-      } else if (nodeChild.tag.equals("hour")) {
-        intHour = Integer.parseInt(nodeChild.value);
+      try {
+        if (nodeChild.tag.equals("day_offset")) {
+          intOffset = Integer.parseInt(nodeChild.value);
+        } else if (nodeChild.tag.equals("hour")) {
+          intHour = Integer.parseInt(nodeChild.value);
+        }
+      } catch (NumberFormatException e){
+        throw new ValidationException("day_offset or hour is invalid");
       }
     }
 
@@ -859,6 +865,7 @@ public class MVUtil {
     try {
       cal.setTime(formatOffset.parse(date));
     } catch (ParseException e) {
+      throw new ValidationException("date" + date +  " is invalid");
     }
     cal.set(Calendar.HOUR_OF_DAY, intHour);
     cal.set(Calendar.MINUTE, 0);
@@ -868,7 +875,7 @@ public class MVUtil {
     return formatOffset.format(cal.getTime());
   }
 
-  public static String parseDateOffset(final MVNode node, final String format) {
+  public static String parseDateOffset(final MVNode node, final String format) throws ValidationException{
     return parseDateOffset(node, format, null);
   }
 
@@ -1026,12 +1033,13 @@ public class MVUtil {
    * @param lev List of Interp Pnts
    * @return Sorted Inter Pnts list, by value
    */
-  public static List<String> sortInterpPnts(final List<String> lev) {
+  public static List<String> sortInterpPnts(final List<String> lev) throws ValidationException{
     List<Integer> resultInt = new ArrayList<>(lev.size());
     for (String interpPnt : lev) {
       try {
         resultInt.add(Integer.valueOf(interpPnt));
       } catch (NumberFormatException e) {
+        throw new ValidationException("interp_pnt is invalid");
       }
     }
     Collections.sort(resultInt);
@@ -1174,14 +1182,14 @@ public class MVUtil {
     return listRet;
   }
 
-  public static List<String> sortHour(final List<String> hour) {
+  public static List<String> sortHour(final List<String> hour) throws ValidationException{
 
     List<Integer> hoursInt = new ArrayList<>();
     for (String hourStr : hour) {
       try {
         hoursInt.add(Integer.valueOf(hourStr));
       } catch (NumberFormatException e) {
-
+        throw new ValidationException("the hour " + hourStr+ " is invalid");
       }
     }
     Collections.sort(hoursInt);
@@ -1553,6 +1561,7 @@ public class MVUtil {
           intExitStatus = proc.exitValue();
           boolExit = true;
         } catch (IllegalThreadStateException e) {
+          logger.debug(e.getMessage());
         }
 
         while (readerProcStd.ready()) {
@@ -1887,6 +1896,7 @@ public class MVUtil {
           }
         }
       } catch (ParseException e) {
+        logger.debug(e.getMessage());
       }
 
       //  if the tag is a threshold, format it accordingly

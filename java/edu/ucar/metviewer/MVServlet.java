@@ -311,7 +311,7 @@ public class MVServlet extends HttpServlet {
    */
   private String handleListVal(
       MVNode nodeCall, String requestBody,
-      String[] currentDbName) throws ParserConfigurationException {
+      String[] currentDbName) throws ParserConfigurationException, ValidationException {
     Document docResp = MVUtil.createDocument();
     //  check the list val cache for the request data
     String cacheKey = "<db>" + databaseManager.getDatabaseInfo().getHost() + "</db>"

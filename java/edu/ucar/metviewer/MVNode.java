@@ -80,7 +80,7 @@ public class MVNode {
   public String getAttribute(String attributeName) {
     String attributeValue =null;
     NamedNodeMap namedNodeMap = node.getAttributes();
-    if (namedNodeMap.getLength() > 0) {
+    if (namedNodeMap.getLength() > 0 &&  namedNodeMap.getNamedItem(attributeName) != null) {
       try {
         attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
       } catch (DOMException e) {

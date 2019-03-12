@@ -2033,10 +2033,11 @@ public class MVPlotJob {
     return contourIntervals;
   }
 
-  public void setContourIntervals(String contourIntervals) {
+  public void setContourIntervals(String contourIntervals) throws ValidationException{
     try {
       this.contourIntervals = Integer.valueOf(contourIntervals);
     } catch (NumberFormatException e) {
+      throw new ValidationException("contour interval is not an integer");
     }
   }
 

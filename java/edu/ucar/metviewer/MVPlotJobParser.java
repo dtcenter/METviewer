@@ -396,7 +396,7 @@ public final class MVPlotJobParser {
    * @param job plot job to inspect
    * @return name of missing structure, or an empty string if the job is ok
    */
-  public static String checkJobFieldsOrder(MVPlotJob job) {
+  public static String checkJobFieldsOrder(MVPlotJob job) throws ValidationException {
     String result = "";
     Map.Entry[] mapValues = job.getSeries1Val().getOrderedEntriesForSqlSeries();
     result = result + checkOrder(mapValues);
@@ -455,7 +455,7 @@ public final class MVPlotJobParser {
     return result;
   }
 
-  private static String checkOrder(Map.Entry[] mapValues) {
+  private static String checkOrder(Map.Entry[] mapValues) throws ValidationException {
     for (Map.Entry entry : mapValues) {
 
       Object valuesObj = entry.getValue();
@@ -533,7 +533,7 @@ public final class MVPlotJobParser {
    * @param nodeDateRange Contains date range information
    * @return String containing SQL between clause
    */
-  public static String parseDateRange(MVNode nodeDateRange) {
+  public static String parseDateRange(MVNode nodeDateRange) throws ValidationException {
     String strStart = "";
     String strEnd = "";
     SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
@@ -561,7 +561,7 @@ public final class MVPlotJobParser {
    * @param dep  (optional) String representation of a dependency value date
    * @return Two lists of independent variable values and labels, respectively
    */
-  public static String[][] parseIndyNode(MVNode node, String dep) {
+  public static String[][] parseIndyNode(MVNode node, String dep) throws ValidationException {
     int intIndyNum = node.children.length;
     List<String> listIndyVal = new ArrayList<>();
     List<String> listIndyLabel = new ArrayList<>();
@@ -1173,6 +1173,7 @@ public final class MVPlotJobParser {
           cal.setTime(formatDB.parse(rangeStart));
           endTime = formatDB.parse(rangeEnd).getTime();
         } catch (ParseException e) {
+          throw new ValidationException("range_start is invalid");
         }
 
         //  build the list
@@ -1948,7 +1949,7 @@ public final class MVPlotJobParser {
    * @param strStat order of series
    * @return true if valid, false otherwise
    */
-  public boolean isOrderValid(String strStat) {
+  public boolean isOrderValid(String strStat) throws ValidationException{
     //c(1, 3, 2)
     boolean result = true;
     if (!strStat.equals("c()")) {
@@ -1960,7 +1961,7 @@ public final class MVPlotJobParser {
           order = Integer.valueOf(ch.trim());
           inInts.add(order);
         } catch (NumberFormatException e) {
-
+          throw new ValidationException("the order value is invalid");
         }
       }
       Collections.sort(inInts);
