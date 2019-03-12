@@ -3022,7 +3022,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           fcstLeadSec += Integer.parseInt(fcstLead.substring(fcstLeadLen - 6,
                                                              fcstLeadLen - 4)) * 3600;
         } catch (NumberFormatException e) {
-          logger.error("fcstLead " + fcstLead + " is invalid");
+          logger.debug("fcstLead " + fcstLead + " is invalid");
         }
         String fcstLeadInsert = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
         if (fcstLeadInsert.equals("NA")) {
