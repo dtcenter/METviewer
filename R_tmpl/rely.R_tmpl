@@ -425,16 +425,20 @@ if(addReferenceLine){
 
 # draw the no-skill line
 for (i in 1:length(env$dblNoSkillB)){
-  abline(
-    a=env$dblNoSkillB[i][[1]], # intercept
-    b=env$dblNoSkillM[i][[1]], # slope
-    lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
-    col=listColorsDisp[i], # line color
-    lend=1, # line end style - 0: rounded, 1: butt, 2: square
-    cex=1, # line magnification
-    lwd=1.5, # line width
-    xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
-  );
+  if(!is.na(env$dblNoSkillB[i][[1]]) && !is.na(env$dblNoSkillM[i][[1]]) ){
+    abline(
+      a=env$dblNoSkillB[i][[1]], # intercept
+      b=env$dblNoSkillM[i][[1]], # slope
+      lty=2, # line type - 0: blank, 1: solid, 2: dashed, 3: dotted, 4: dotdash, 5: longdash, 6: twodash
+      col=listColorsDisp[i], # line color
+      lend=1, # line end style - 0: rounded, 1: butt, 2: square
+      cex=1, # line magnification
+      lwd=1.5, # line width
+      xpd=FALSE # plot clipping - FALSE: plot, TRUE: figure, NA: device
+    );
+  }else{
+      cat("  WARNING: no-skill line can't be created for the " , i , "series \n");
+  }
 }
 
 # build the x-adjustment increments, if requested
