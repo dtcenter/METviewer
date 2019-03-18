@@ -196,7 +196,7 @@ if(length(listDiffSeries1) > 0){
             uniqueDates = nrow(unique(dfStatsIndy[c("fcst_init", "fcst_lead", "stat_name")]))
           }
           if (nrow(dfStatsIndy) != uniqueDates) {
-            stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+            stop("Derived curve can't be calculated. Multiple values for one valid date/fcst_lead")
           }
 
           #sort data

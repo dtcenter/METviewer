@@ -784,7 +784,7 @@ if ( nrow(sampleData) > 0){
             uniqueDates = nrow(unique(dfStatsPerm[c("fcst_init", "fcst_lead", "stat_name")]))
           }
           if (nrow(dfStatsPerm) != uniqueDates && !listStat %in% exemptedVars) {
-            stop("Derived curve cant't be calculated. Multiple values for one valid date/fcst_lead")
+            stop("Derived curve can't be calculated. Multiple values for one valid date/fcst_lead")
           }
           #sort data
           if ("fcst_valid_beg" %in% listFields) {
