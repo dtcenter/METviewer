@@ -2825,8 +2825,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         strPlotDataSelect = strPlotDataSelect
                                 + "  ldt.i_value,\n"
                                 + "  ldt.thresh_i,\n"
-                                + "  SUM(ldt.oy_i) oy_i,\n"
-                                + "  SUM(ldt.on_i) on_i\n";
+                               // + "  SUM(ldt.oy_i) oy_i,\n"
+                               // + "  SUM(ldt.on_i) on_i\n";
+                                + "   ld.fcst_valid_beg, \n"
+                                + "   ld.fcst_lead \n";
 
         strPlotDataSelect = strPlotDataSelect + "FROM\n"
                                 + "  stat_header h,\n"
@@ -2835,9 +2837,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                                 + "WHERE\n"
                                 + strWhere
                                 + "  AND h.stat_header_id = ld.stat_header_id\n"
-                                + "  AND ld.line_data_id = ldt.line_data_id\n"
-                                + "GROUP BY\n"
-                                + "   ldt.i_value, ldt.thresh_i ";
+                                + "  AND ld.line_data_id = ldt.line_data_id\n";
+             //                   + "GROUP BY\n"
+             //                   + "   ldt.i_value, ldt.thresh_i ";
         if (listSeries.length > 0) {
           strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
         }
