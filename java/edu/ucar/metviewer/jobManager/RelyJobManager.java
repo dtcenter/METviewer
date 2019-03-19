@@ -7,6 +7,8 @@
 package edu.ucar.metviewer.jobManager;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -14,6 +16,8 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptStatManager;
@@ -29,7 +33,7 @@ public class RelyJobManager extends JobManager {
   }
 
   @Override
-  protected void run(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws ParseException, ValidationException, IOException, StopWatchException {
 
 
     //  run the plot jobs once for each permutation of plot fixed values

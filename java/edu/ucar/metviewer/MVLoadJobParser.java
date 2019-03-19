@@ -2,6 +2,8 @@ package edu.ucar.metviewer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class MVLoadJobParser {
 
@@ -17,7 +20,7 @@ public class MVLoadJobParser {
   protected MVLoadJob job = null;
 
 
-  public MVLoadJobParser(String spec) throws Exception {
+  public MVLoadJobParser(String spec) throws ParserConfigurationException, IOException, SAXException, ValidationException {
 
     super();
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -37,7 +40,7 @@ public class MVLoadJobParser {
     return job;
   }
 
-  private void parseLoadJobSpec() {
+  private void parseLoadJobSpec() throws ValidationException {
     MVLoadJob loadJob = new MVLoadJob();
     List<String> listLoadFiles;
     List<String> listVal;

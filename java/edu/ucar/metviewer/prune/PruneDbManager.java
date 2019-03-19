@@ -6,7 +6,6 @@
 
 package edu.ucar.metviewer.prune;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
@@ -21,15 +20,16 @@ abstract class PruneDbManager implements DatabaseManager {
 
   protected MysqlDatabaseManager databaseManager;
 
-  public PruneDbManager(MysqlDatabaseManager databaseManager) throws SQLException {
+  public PruneDbManager(MysqlDatabaseManager databaseManager) {
     this.databaseManager = databaseManager;
   }
+
   public abstract void pruneData(MVPruneDB mvPruneDB);
 
 
   @Override
   public void createDataFile(
-      Map<String, Entry> map, String threadName) throws Exception {
-
+      Map<String, Entry> map, String threadName) {
+        // do nothing
   }
 }

@@ -322,7 +322,7 @@ public class MVLoad {
    * @param file File to process //* @param con Connection to the database to load
    * @throws Exception
    */
-  public static void processFile(File file) throws Exception {
+  public static void processFile(File file) throws DatabaseException {
     long intProcessDataFileBegin = new Date().getTime();
     DataFileInfo info = loadDatabaseManager.processDataFile(file, forceDupFile);
     if (null == info) {

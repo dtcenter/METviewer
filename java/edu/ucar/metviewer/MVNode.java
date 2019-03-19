@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -79,10 +80,10 @@ public class MVNode {
   public String getAttribute(String attributeName) {
     String attributeValue =null;
     NamedNodeMap namedNodeMap = node.getAttributes();
-    if (namedNodeMap.getLength() > 0) {
+    if (namedNodeMap.getLength() > 0 &&  namedNodeMap.getNamedItem(attributeName) != null) {
       try {
         attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
-      } catch (Exception e) {
+      } catch (DOMException e) {
         attributeValue=null;
       }
     }

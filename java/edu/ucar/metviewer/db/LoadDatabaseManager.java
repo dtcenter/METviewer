@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Map;
 
 import edu.ucar.metviewer.DataFileInfo;
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.MVLoadJob;
 
 /**
@@ -17,25 +18,24 @@ import edu.ucar.metviewer.MVLoadJob;
  */
 public interface LoadDatabaseManager {
 
-  void dropIndexes() throws Exception;
+  void dropIndexes();
 
-  void applyIndexes() throws Exception;
+  void applyIndexes();
 
-  void updateInfoTable(String strXML, MVLoadJob job) throws Exception;
+  void updateInfoTable(String strXML, MVLoadJob job) throws DatabaseException;
 
-  DataFileInfo processDataFile(File file, boolean forceDupFile) throws Exception;
+  DataFileInfo processDataFile(File file, boolean forceDupFile) throws DatabaseException;
 
-  Map<String, Long> loadStatFile(DataFileInfo info) throws Exception;
+  Map<String, Long> loadStatFile(DataFileInfo info) throws DatabaseException;
 
-  Map<String, Long> loadModeFile(DataFileInfo info) throws Exception;
+  Map<String, Long> loadModeFile(DataFileInfo info) throws DatabaseException;
 
-  Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws Exception;
+  Map<String, Long> loadStatFileVSDB(DataFileInfo info) throws DatabaseException;
 
-  Map<String, Long> loadMtdFile(DataFileInfo info) throws Exception;
+  Map<String, Long> loadMtdFile(DataFileInfo info) throws DatabaseException;
 
-  void updateGroup(final String group) throws Exception;
+  void updateGroup(final String group) throws DatabaseException;
 
-  void updateDescription(String description) throws Exception;
+  void updateDescription(String description) throws DatabaseException;
 
-  DatabaseInfo getDatabaseInfo() throws Exception;
 }

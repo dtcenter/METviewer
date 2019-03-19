@@ -7,6 +7,7 @@
 package edu.ucar.metviewer.scorecard.rscript;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Map;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -149,8 +151,8 @@ public class AggRscriptManager extends RscriptManager {
           printStream.println(mvResponse.getErrorMessage());
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (Exception e) {
-        logger.error(e);
+      } catch (IOException | StopWatchException e) {
+        logger.error(e.getMessage());
       }
     }
   }

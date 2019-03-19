@@ -9,19 +9,23 @@ package edu.ucar.metviewer.scorecard.db;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.EmptyResultSetException;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.db.mysql.MysqlDatabaseManager;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -63,7 +67,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
   @Override
   public void createDataFile(
-      Map<String, Entry> map, String threadName) throws Exception {
+      Map<String, Entry> map,
+      String threadName) throws DatabaseException, SQLException, IOException, StopWatchException {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -92,20 +97,18 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         res.close();
         pstmt.close();
         con.close();
-      } catch (Exception e) {
-        logger.error(e.getMessage());
       }
     }
   }
 
-  private String getQueryForRow(Map<String, Entry> map) throws Exception {
+  private String getQueryForRow(Map<String, Entry> map) throws DatabaseException {
     //get fcst_var
     StringBuilder selectFields = new StringBuilder();
     StringBuilder whereFields = new StringBuilder();
 
     String aggType = Util.getAggTypeForStat(Util.getStatForRow(map));
     if (aggType.isEmpty()) {
-      throw new Exception("Can't find a line type for stat " + Util.getStatForRow(map));
+      throw new DatabaseException("Can't find a line type for stat " + Util.getStatForRow(map));
     }
     if (aggType.contains("nbr")) {
       aggType = aggType.replace("_", "");
@@ -215,7 +218,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         resultSet.close();
         stmt.close();
         con.close();
-      } catch (Exception e) {
+      } catch (SQLException e) {
         logger.error(e.getMessage());
       }
       thresh = pctThreshInfo.get("pctThresh");
@@ -266,11 +269,11 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       //  print out the column headers
       for (int i = 1; i <= met.getColumnCount(); i++) {
 
-          if (1 == i) {
-            bufferedWriter.write(met.getColumnLabel(i));
-          } else {
-            bufferedWriter.write("\t" + met.getColumnLabel(i));
-          }
+        if (1 == i) {
+          bufferedWriter.write(met.getColumnLabel(i));
+        } else {
+          bufferedWriter.write("\t" + met.getColumnLabel(i));
+        }
 
       }
       bufferedWriter.write(MVUtil.LINE_SEPARATOR);
@@ -299,11 +302,11 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           }
 
 
-            if (1 == i) {
-              line = line + (strVal);
-            } else {
-              line = line + ("\t" + strVal);
-            }
+          if (1 == i) {
+            line = line + (strVal);
+          } else {
+            line = line + ("\t" + strVal);
+          }
 
         }
         bufferedWriter.write(line);
@@ -317,7 +320,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         throw new EmptyResultSetException("result set contained no data");
       }
 
-    } catch (Exception e) {
+    } catch (IOException | SQLException | EmptyResultSetException e) {
       logger.error(
           "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }

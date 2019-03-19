@@ -6,6 +6,8 @@
 
 package edu.ucar.metviewer.jobManager;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,11 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVDataTable;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 
 /**
  * @author : tatiana $
@@ -35,18 +40,19 @@ public abstract class JobManager {
   }
 
 
-  public void runJob(MVPlotJob job) throws Exception {
+  public void runJob(MVPlotJob job) throws IOException, DatabaseException, StopWatchException, ParseException, ValidationException {
     try {
       //  build a list of fixed value permutations for all plots
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
       run(job);
-    } catch (Exception e) {
+    } catch (ParseException| ValidationException| IOException| StopWatchException|
+                                                          DatabaseException e) {
       mvBatch.print("Failed to create a plot. " + e.getMessage());
       throw e;
     }
   }
 
-  protected abstract void run(MVPlotJob job) throws Exception;
+  protected abstract void run(MVPlotJob job) throws ParseException, ValidationException, IOException, StopWatchException, DatabaseException;
 
 
   /**
@@ -69,10 +75,9 @@ public abstract class JobManager {
 
 
   protected MVOrderedMap buildPlotFixTmplVal(
-                                                final MVOrderedMap tmplMaps,
-                                                final MVOrderedMap plotFixPerm,
-                                                final SimpleDateFormat dbFormat)
-      throws Exception {
+      final MVOrderedMap tmplMaps,
+      final MVOrderedMap plotFixPerm,
+      final SimpleDateFormat dbFormat) throws ParseException {
     MVOrderedMap result = new MVOrderedMap();
     for (Map.Entry fixValEntry : plotFixPerm.getOrderedEntries()) {
       String strFixVar = fixValEntry.getKey().toString();
@@ -101,13 +106,13 @@ public abstract class JobManager {
     return intNumDep1;
   }
 
-  protected void validateNumDepSeries(MVPlotJob job, int intNumDepSeries) throws Exception {
+  protected void validateNumDepSeries(MVPlotJob job, int intNumDepSeries) throws ValidationException {
     if (intNumDepSeries != MVUtil.parseRCol(job.getPlotCI()).length) {
-      throw new Exception("length of plot_ci differs from number of series ("
+      throw new ValidationException("length of plot_ci differs from number of series ("
                               + intNumDepSeries + ")");
     }
     if (intNumDepSeries != MVUtil.parseRCol(job.getConSeries()).length) {
-      throw new Exception("length of con_series differs from number of series ("
+      throw new ValidationException("length of con_series differs from number of series ("
                               + intNumDepSeries + ")");
     }
   }
@@ -116,7 +121,7 @@ public abstract class JobManager {
     return intNumDep1Series + intNumDep2Series;
   }
 
-  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws Exception {
+  protected Map<String, String> createInfoMap(MVPlotJob job, int intNumDepSeries) throws ValidationException {
 
 
     MVOrderedMap mapDep;
@@ -130,10 +135,7 @@ public abstract class JobManager {
     String[] listIndyValFmt = job.getIndyVal();
     if (job.getIndyVar().matches(".*_hour")) {
       for (int i = 0; i < listIndyValFmt.length; i++) {
-        try {
-          listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
-        } catch (Exception e) {
-        }
+        listIndyValFmt[i] = String.valueOf(Integer.parseInt(listIndyValFmt[i]));
       }
     }
 
@@ -146,7 +148,7 @@ public abstract class JobManager {
           throw new Exception();
         }
       } catch (Exception e) {
-        throw new Exception("unable to parse xtlab_decim value " + job.getXtlabFreq());
+        throw new ValidationException("unable to parse xtlab_decim value " + job.getXtlabFreq());
       }
       listIndyLabel = decimate(listIndyLabel, intDecim);
     }
@@ -169,7 +171,7 @@ public abstract class JobManager {
             //check if this is a mode/mtd/agg/sum stat job
             boolean isAggStat = job.isAggStat();
             if (job.isModeJob() || job.isMtdJob() || isAggStat || job.getEventEqual()) {
-              throw new Exception("fcst_var must remain constant for MODE, MTD, Aggregation "
+              throw new ValidationException("fcst_var must remain constant for MODE, MTD, Aggregation "
                                       + "statistics, Event Equalizer");
             }
           }

@@ -5,8 +5,12 @@
 
 package edu.ucar.metviewer.scorecard.db;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 
+import edu.ucar.metviewer.DatabaseException;
+import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 
 /**
@@ -15,5 +19,5 @@ import edu.ucar.metviewer.scorecard.model.Entry;
  */
 @FunctionalInterface
 public interface DatabaseManager {
-   void createDataFile(Map<String, Entry> map, String threadName) throws Exception;
+   void createDataFile(Map<String, Entry> map, String threadName) throws DatabaseException, SQLException, IOException, StopWatchException;
 }

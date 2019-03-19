@@ -84,7 +84,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
       dataSource.setLogWriter(new PrintWriter(getPrintStream()));
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logger.debug(e);
       logger.error("Database connection  for a primary database was not initialised.");
       logger.error(e.getMessage());

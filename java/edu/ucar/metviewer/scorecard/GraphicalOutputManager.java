@@ -8,6 +8,7 @@ package edu.ucar.metviewer.scorecard;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
@@ -196,11 +198,12 @@ class GraphicalOutputManager {
 
           }
         }
-      } catch (Exception e) {
+      } catch (ParserConfigurationException | IOException | SAXException e) {
         logger.error("ERROR during reading threshold XML file : " + e.getMessage());
         logger.error("Default threshold configurations will be used");
         logger.debug(e);
         rangeList.clear();
+
       }
     }
     if (rangeList.isEmpty()) {
@@ -290,7 +293,7 @@ class GraphicalOutputManager {
 
   }
 
-  public void createGraphics() throws Exception {
+  public void createGraphics() throws IOException, MissingFileException {
     File dataFile = new File(dataFileStr);
     if (dataFile.exists()) {
       ArrayNode table = readFileToJsonTable(dataFile);
@@ -319,24 +322,15 @@ class GraphicalOutputManager {
       try (PrintWriter out = new PrintWriter(htmlFileName)) {
         out.println(htmlPageStr);
         out.flush();
-      } catch (Exception e) {
-        logger.error("Could not save HTML to file " + htmlFileName);
-        logger.error(e);
       }
 
       //create an image
 
-      try {
+      System.setProperty("java.awt.headless", "true");
+      HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
+      imageGenerator.loadHtml(htmlPageStr);
+      imageGenerator.saveAsImage(plotFileStr);
 
-        System.setProperty("java.awt.headless", "true");
-        HtmlImageGenerator imageGenerator = new HtmlImageGenerator();
-        imageGenerator.loadHtml(htmlPageStr);
-        imageGenerator.saveAsImage(plotFileStr);
-
-      } catch (Exception e) {
-        logger.error(e);
-        logger.info("Image was not  saved");
-      }
       logger.info("Image was saved to " + plotFileStr);
     } else {
       throw new MissingFileException(dataFile.getAbsolutePath());
@@ -393,7 +387,7 @@ class GraphicalOutputManager {
             try {
               value = new BigDecimal(node.findValue("stat_value").asText());
               value = value.setScale(3, RoundingMode.HALF_UP);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
               logger.error(e);
               value = BigDecimal.valueOf(-9999);
             }
@@ -446,15 +440,13 @@ class GraphicalOutputManager {
       } else {
         name = entry.getKey();
       }
-      try {
-        if (node.findValue(name) != null
-                && !node.findValue(name).asText().equals(entry.getValue().getName())) {
-          isMatch = false;
-          break;
-        }
-      } catch (Exception e) {
-        logger.error(e.getMessage());
+
+      if (node.findValue(name) != null
+              && !node.findValue(name).asText().equals(entry.getValue().getName())) {
+        isMatch = false;
+        break;
       }
+
     }
     return isMatch;
   }

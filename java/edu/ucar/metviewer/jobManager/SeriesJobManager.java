@@ -7,9 +7,12 @@
 package edu.ucar.metviewer.jobManager;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotDep;
@@ -17,6 +20,8 @@ import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVPlotJobParser;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.rscriptManager.RscriptAggStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
@@ -35,7 +40,7 @@ public class SeriesJobManager extends JobManager {
   }
 
   @Override
-  protected void run(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws ParseException, ValidationException, IOException, StopWatchException, DatabaseException {
 
 
     //  determine if the plots require data aggregation
@@ -130,59 +135,59 @@ public class SeriesJobManager extends JobManager {
 
       //  validate the number of formatting elements
       if (intNumDepSeries > MVUtil.parseRCol(job.getPlotDisp()).length) {
-        throw new Exception("length of plot_disp differs from number of series ("
+        throw new ValidationException("length of plot_disp differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (job.getOrderSeries().length() > 0
               && intNumDepSeries > MVUtil.parseRCol(job.getOrderSeries()).length) {
-        throw new Exception("length of order_series differs from number of series ("
+        throw new ValidationException("length of order_series differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getColors()).length) {
-        throw new Exception("length of colors differs from number of series ("
+        throw new ValidationException("length of colors differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getPch()).length) {
-        throw new Exception("length of pch differs from number of series ("
+        throw new ValidationException("length of pch differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getType()).length) {
-        throw new Exception("length of type differs from number of series ("
+        throw new ValidationException("length of type differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getLty()).length) {
-        throw new Exception("length of lty differs from number of series ("
+        throw new ValidationException("length of lty differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getLwd()).length) {
-        throw new Exception("length of lwd differs from number of series ("
+        throw new ValidationException("length of lwd differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (!job.getLegend().isEmpty()
               && intNumDepSeries > MVUtil.parseRCol(job.getLegend()).length) {
-        throw new Exception("length of legend differs from number of series ("
+        throw new ValidationException("length of legend differs from number of series ("
                                 + intNumDepSeries + ")");
       }
 
       if (intNumDepSeries > MVUtil.parseRCol(job.getShowSignif()).length) {
-        throw new Exception("length of show_signif differs from number of series ("
+        throw new ValidationException("length of show_signif differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       validateNumDepSeries(job, intNumDepSeries);
 
       //validate revision_series option
       if (job.getPlotTmpl().startsWith("revision") && isAggStat) {
-        throw new Exception("revision series option only available for Summary statistics");
+        throw new ValidationException("revision series option only available for Summary statistics");
       }
       if (job.getPlotTmpl().startsWith("revision") && !job.getIndyVar().equals("fcst_valid_beg")) {
-        throw new Exception("revision series option only available for independent variable "
+        throw new ValidationException("revision series option only available for independent variable "
                                 + "'fcst_valid_beg'");
       }
       if (job.getPlotTmpl().startsWith("revision") && job.getDiffSeries1Count() > 0) {
-        throw new Exception("revision series don't produce derived curves");
+        throw new ValidationException("revision series don't produce derived curves");
       }
       if (job.getPlotTmpl().startsWith("revision") && job.getSeries2Val().size() > 0) {
-        throw new Exception("revision series don't produce plots on Y2 axis");
+        throw new ValidationException("revision series don't produce plots on Y2 axis");
       }
 
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
@@ -241,7 +246,7 @@ public class SeriesJobManager extends JobManager {
 
   }
 
-  private void validateModeSeriesDefinition(MVPlotJob job) throws Exception {
+  private void validateModeSeriesDefinition(MVPlotJob job) throws ValidationException {
     MVOrderedMap[] listDep = job.getDepGroups();
     for (int dep = 1; dep <= 2; dep++) {
       String[][] listFcstVarStat
@@ -259,7 +264,7 @@ public class SeriesJobManager extends JobManager {
                 && type.startsWith("D")) {
 
           if (!type.equals("DCM")) {
-            throw new Exception("Incorrect series definition. Stat "
+            throw new ValidationException("Incorrect series definition. Stat "
                                     + stat + " can only have Cluster and Matched for Diff type");
           }
         }

@@ -5,11 +5,11 @@
 
 package edu.ucar.metviewer.scorecard.model;
 
+import java.awt.Color;
+import java.math.BigDecimal;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.awt.*;
-import java.math.BigDecimal;
 
 /**
  * Description how the threshold would be represented in the table and legend
@@ -120,7 +120,7 @@ public class LegendRange {
       tmpColor = Color.decode(colorStr);
       // color is a valid color
     } catch (IllegalArgumentException iae) {
-      // This color string is not valid
+      logger.error(iae.getMessage());
     }
     return tmpColor != null;
   }

@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -783,7 +784,7 @@ public class MVUtil {
         cal.add(Calendar.SECOND, incr);
       }
 
-    } catch (Exception e) {
+    } catch (ParseException e) {
       errorStream
           .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
 
@@ -798,7 +799,8 @@ public class MVUtil {
    * @param node MVNode to parse for the date list parameters
    * @return List of date strings
    */
-  public static List<String> buildDateList(final MVNode node, final PrintStream printStream) {
+  public static List<String> buildDateList(final MVNode node, final PrintStream printStream)
+      throws ValidationException{
     String strStart = "";
     String strEnd = "";
     int intInc = 0;
@@ -821,8 +823,8 @@ public class MVUtil {
           strStart = nodeChild.value;
         }
       } else if (nodeChild.tag.equals("end")) {
-        strEnd = (0 < nodeChild.children.length ? parseDateOffset(nodeChild.children[0],
-                                                                  strFormat) : nodeChild.value);
+        strEnd = (0 < nodeChild.children.length
+                      ? parseDateOffset(nodeChild.children[0],strFormat) : nodeChild.value);
       }
     }
 
@@ -839,16 +841,21 @@ public class MVUtil {
    * @param date   (optional) String representation of the date from which to offset
    * @return String representation of the offset date
    */
-  public static String parseDateOffset(final MVNode node, final String format, final String date) {
+  public static String parseDateOffset(final MVNode node, final String format, final String date)
+      throws ValidationException{
     int intOffset = 0;
     int intHour = 0;
 
     for (int i = 0; i < node.children.length; i++) {
       MVNode nodeChild = node.children[i];
-      if (nodeChild.tag.equals("day_offset")) {
-        intOffset = Integer.parseInt(nodeChild.value);
-      } else if (nodeChild.tag.equals("hour")) {
-        intHour = Integer.parseInt(nodeChild.value);
+      try {
+        if (nodeChild.tag.equals("day_offset")) {
+          intOffset = Integer.parseInt(nodeChild.value);
+        } else if (nodeChild.tag.equals("hour")) {
+          intHour = Integer.parseInt(nodeChild.value);
+        }
+      } catch (NumberFormatException e){
+        throw new ValidationException("day_offset or hour is invalid");
       }
     }
 
@@ -857,7 +864,8 @@ public class MVUtil {
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     try {
       cal.setTime(formatOffset.parse(date));
-    } catch (Exception e) {
+    } catch (ParseException e) {
+      throw new ValidationException("date" + date +  " is invalid");
     }
     cal.set(Calendar.HOUR_OF_DAY, intHour);
     cal.set(Calendar.MINUTE, 0);
@@ -867,7 +875,7 @@ public class MVUtil {
     return formatOffset.format(cal.getTime());
   }
 
-  public static String parseDateOffset(final MVNode node, final String format) {
+  public static String parseDateOffset(final MVNode node, final String format) throws ValidationException{
     return parseDateOffset(node, format, null);
   }
 
@@ -1025,12 +1033,13 @@ public class MVUtil {
    * @param lev List of Interp Pnts
    * @return Sorted Inter Pnts list, by value
    */
-  public static List<String> sortInterpPnts(final List<String> lev) {
+  public static List<String> sortInterpPnts(final List<String> lev) throws ValidationException{
     List<Integer> resultInt = new ArrayList<>(lev.size());
     for (String interpPnt : lev) {
       try {
         resultInt.add(Integer.valueOf(interpPnt));
-      } catch (Exception e) {
+      } catch (NumberFormatException e) {
+        throw new ValidationException("interp_pnt is invalid");
       }
     }
     Collections.sort(resultInt);
@@ -1173,14 +1182,14 @@ public class MVUtil {
     return listRet;
   }
 
-  public static List<String> sortHour(final List<String> hour) {
+  public static List<String> sortHour(final List<String> hour) throws ValidationException{
 
     List<Integer> hoursInt = new ArrayList<>();
     for (String hourStr : hour) {
       try {
         hoursInt.add(Integer.valueOf(hourStr));
-      } catch (Exception e) {
-
+      } catch (NumberFormatException e) {
+        throw new ValidationException("the hour " + hourStr+ " is invalid");
       }
     }
     Collections.sort(hoursInt);
@@ -1496,8 +1505,7 @@ public class MVUtil {
 
   public static MvResponse runRscript(
       final String rscript,
-      final String script
-  ) throws Exception {
+      final String script) {
     return runRscript(rscript, script, new String[]{});
   }
 
@@ -1513,8 +1521,7 @@ public class MVUtil {
    */
   public static MvResponse runRscript(
       final String rscriptCommand, final String scriptName,
-      final String[] args
-  ) throws Exception {
+      final String[] args) {
 
     MvResponse mvResponse = new MvResponse();
 
@@ -1553,7 +1560,8 @@ public class MVUtil {
         try {
           intExitStatus = proc.exitValue();
           boolExit = true;
-        } catch (Exception e) {
+        } catch (IllegalThreadStateException e) {
+          logger.debug(e.getMessage());
         }
 
         while (readerProcStd.ready()) {
@@ -1565,21 +1573,37 @@ public class MVUtil {
           strProcErr.append(line).append('\n');
         }
       }
-    } catch (Exception e) {
+    } catch (SecurityException | IOException | NullPointerException | IllegalArgumentException e) {
       logger.error(e.getMessage());
     } finally {
 
       if (inputStreamReader != null) {
-        inputStreamReader.close();
+        try {
+          inputStreamReader.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (errorInputStreamReader != null) {
-        errorInputStreamReader.close();
+        try {
+          errorInputStreamReader.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (readerProcStd != null) {
-        readerProcStd.close();
+        try {
+          readerProcStd.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (readerProcErr != null) {
-        readerProcErr.close();
+        try {
+          readerProcErr.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage());
+        }
       }
       if (proc != null) {
         proc.destroy();
@@ -1612,7 +1636,7 @@ public class MVUtil {
    */
   public static void populateTemplateFile(
       final String tmpl, final String output,
-      final Map<String, String> vals) throws Exception {
+      final Map<String, String> vals) throws IOException {
     try (FileReader fileReader = new FileReader(tmpl);
          BoundedBufferedReader reader = new BoundedBufferedReader(fileReader);
          PrintStream writer = new PrintStream(output)) {
@@ -1701,7 +1725,7 @@ public class MVUtil {
    */
   public static void isAggTypeValid(
       final Map<String, String[]> tableStats, final String strStat,
-      final String aggType) throws Exception {
+      final String aggType) throws ValidationException {
     //check if aggType is allowed for this stat
     String[] types = tableStats.get(strStat);
     boolean isFound = false;
@@ -1712,7 +1736,7 @@ public class MVUtil {
       }
     }
     if (!isFound) {
-      throw new Exception(
+      throw new ValidationException(
           "aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
     }
   }
@@ -1736,7 +1760,7 @@ public class MVUtil {
       URI imgurl = new URI("jar:file:" + jarPath + "!/edu/ucar/metviewer/resources/log4j2.xml");
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
-    } catch (Exception e) {
+    } catch (URISyntaxException | SecurityException | NullPointerException | UnsupportedOperationException e) {
       logger.error(e.getMessage());
     }
 
@@ -1783,7 +1807,7 @@ public class MVUtil {
   public static String buildTemplateString(
       final String tmpl, final MVOrderedMap vals,
       final MVOrderedMap tmplMaps,
-      final PrintStream printStream) throws Exception {
+      final PrintStream printStream) throws ValidationException {
 
 
     String strRet = tmpl;
@@ -1815,7 +1839,7 @@ public class MVUtil {
         }
         MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
         if (null == mapTmplVal) {
-          throw new Exception(
+          throw new ValidationException(
               "template tag " + strTmplTagName + " does not have a val_map defined");
         }
         if (mapTmplVal.containsKey(strVal)) {
@@ -1871,7 +1895,8 @@ public class MVUtil {
             strVal = formatPlotFormat(dateParse);
           }
         }
-      } catch (Exception e) {
+      } catch (ParseException e) {
+        logger.debug(e.getMessage());
       }
 
       //  if the tag is a threshold, format it accordingly
@@ -1974,7 +1999,7 @@ public class MVUtil {
 
   public static String buildTemplateString(
       final String tmpl, final MVOrderedMap vals,
-      final PrintStream printStream) throws Exception {
+      final PrintStream printStream) throws ValidationException {
     return buildTemplateString(tmpl, vals, null, printStream);
   }
 
@@ -2231,7 +2256,7 @@ public class MVUtil {
   public static boolean isNumeric(final Object obj) {
     try {
       Double.parseDouble(String.valueOf(obj));
-    } catch (Exception nfe) {
+    } catch (NumberFormatException nfe) {
       return false;
     }
     return true;

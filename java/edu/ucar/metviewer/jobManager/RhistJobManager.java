@@ -7,6 +7,8 @@
 package edu.ucar.metviewer.jobManager;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -14,6 +16,8 @@ import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.rscriptManager.RscriptNoneStatManager;
 import edu.ucar.metviewer.rscriptManager.RscriptStatManager;
 
@@ -28,7 +32,7 @@ public class RhistJobManager extends JobManager {
   }
 
   @Override
-  protected void run(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws ParseException, ValidationException, IOException, StopWatchException {
 
 
     //  run the plot jobs once for each permutation of plot fixed values
@@ -75,21 +79,21 @@ public class RhistJobManager extends JobManager {
 
       //  validate the number of formatting elements
       if (intNumDepSeries != MVUtil.parseRCol(job.getPlotDisp()).length) {
-        throw new Exception("length of plot_disp differs from number of series ("
+        throw new ValidationException("length of plot_disp differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (job.getOrderSeries().length() > 0 && intNumDepSeries != MVUtil.parseRCol(
           job.getOrderSeries()).length) {
-        throw new Exception("length of order_series differs from number of series ("
+        throw new ValidationException("length of order_series differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (intNumDepSeries != MVUtil.parseRCol(job.getColors()).length) {
-        throw new Exception("length of colors differs from number of series ("
+        throw new ValidationException("length of colors differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       if (!job.getLegend().isEmpty() &&
               intNumDepSeries != MVUtil.parseRCol(job.getLegend()).length) {
-        throw new Exception("length of legend differs from number of series ("
+        throw new ValidationException("length of legend differs from number of series ("
                                 + intNumDepSeries + ")");
       }
       Map<String, String> info = createInfoMap(job, intNumDepSeries);

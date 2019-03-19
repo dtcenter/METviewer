@@ -6,11 +6,16 @@
 
 package edu.ucar.metviewer.jobManager;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Map;
 
+import edu.ucar.metviewer.DatabaseException;
 import edu.ucar.metviewer.MVBatch;
 import edu.ucar.metviewer.MVOrderedMap;
 import edu.ucar.metviewer.MVPlotJob;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 
 /**
  * @author : tatiana $
@@ -23,7 +28,7 @@ public class TaylorJobManager extends SeriesJobManager {
   }
 
   @Override
-  protected void run(MVPlotJob job) throws Exception {
+  protected void run(MVPlotJob job) throws IOException, DatabaseException, StopWatchException, ParseException, ValidationException {
     job.setEventEqual(Boolean.TRUE);
     job.setEqualizeByIndep(Boolean.TRUE);
     job.setAggSl1l2(Boolean.TRUE);

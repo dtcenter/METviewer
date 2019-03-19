@@ -2,9 +2,12 @@ package edu.ucar.metviewer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +23,7 @@ import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public final class MVPlotJobParser {
 
@@ -283,7 +287,7 @@ public final class MVPlotJobParser {
    *
    * @param spec URI of the XML plot specification source
    */
-  public MVPlotJobParser(String spec) throws Exception {
+  public MVPlotJobParser(String spec) throws ParserConfigurationException, IOException, SAXException, DatabaseException, ValidationException {
     super();
     DocumentBuilder builder = getDocumentBuilder();
     //  parse the input document and build the MVNode data structure
@@ -299,7 +303,7 @@ public final class MVPlotJobParser {
    *
    * @param in Stream from which the plot specification will be drawn
    */
-  public MVPlotJobParser(InputStream in) throws Exception {
+  public MVPlotJobParser(InputStream in) throws ParserConfigurationException, DatabaseException, ValidationException, IOException, SAXException {
     DocumentBuilder builder = getDocumentBuilder();
 
     //  parse the input document and build the MVNode data structure
@@ -313,7 +317,7 @@ public final class MVPlotJobParser {
    *
    * @param node plot_spec MVNode to parse
    */
-  public MVPlotJobParser(MVNode node) throws Exception {
+  public MVPlotJobParser(MVNode node) throws DatabaseException, ValidationException {
     super();
     plotSpec = node;
     parsePlotJobSpec();
@@ -322,7 +326,7 @@ public final class MVPlotJobParser {
   /**
    * Create a parser-specific instance of the DocumentBuilder and return it
    */
-  public static DocumentBuilder getDocumentBuilder() throws Exception {
+  public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
 
     //  instantiate and configure the xml parser
 
@@ -392,7 +396,7 @@ public final class MVPlotJobParser {
    * @param job plot job to inspect
    * @return name of missing structure, or an empty string if the job is ok
    */
-  public static String checkJobFieldsOrder(MVPlotJob job) {
+  public static String checkJobFieldsOrder(MVPlotJob job) throws ValidationException {
     String result = "";
     Map.Entry[] mapValues = job.getSeries1Val().getOrderedEntriesForSqlSeries();
     result = result + checkOrder(mapValues);
@@ -417,19 +421,22 @@ public final class MVPlotJobParser {
         for (int i = 0; i < indyVals.length; i++) {
           try {
             valuesSortedInt[i] = Integer.valueOf(indyVals[i]);
-          } catch (Exception e) {
+          } catch (NumberFormatException e) {
             logger.error(e.getMessage());
           }
         }
         Arrays.sort(valuesSortedInt);
         for (int i = 0; i < indyVals.length; i++) {
+          Integer indyInt = null;
           try {
-            if (!Integer.valueOf(indyVals[i]).equals(valuesSortedInt[i])) {
+            indyInt = Integer.valueOf(indyVals[i]);
+            if (!indyInt.equals(valuesSortedInt[i])) {
               result = result + "Values for variable " + job.getIndyVar() + " are not sorted";
             }
-          } catch (Exception e) {
+          } catch (NumberFormatException e) {
             logger.error(e.getMessage());
           }
+
         }
       } else {
         String[] indyValsSorted;
@@ -448,7 +455,7 @@ public final class MVPlotJobParser {
     return result;
   }
 
-  private static String checkOrder(Map.Entry[] mapValues) {
+  private static String checkOrder(Map.Entry[] mapValues) throws ValidationException {
     for (Map.Entry entry : mapValues) {
 
       Object valuesObj = entry.getValue();
@@ -480,17 +487,19 @@ public final class MVPlotJobParser {
               for (int i = 0; i < values.length; i++) {
                 try {
                   valuesSortedInt[i] = Integer.valueOf(values[i]);
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                   logger.error(e.getMessage());
                 }
               }
               Arrays.sort(valuesSortedInt);
               for (int i = 0; i < values.length; i++) {
+                Integer indyInt = null;
                 try {
-                  if (!Integer.valueOf(values[i]).equals(valuesSortedInt[i])) {
+                  indyInt = Integer.valueOf(values[i]);
+                  if (!indyInt.equals(valuesSortedInt[i])) {
                     return "Values for variable " + entry.getKey().toString() + " are not sorted";
                   }
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                   logger.error(e.getMessage());
                 }
               }
@@ -524,7 +533,7 @@ public final class MVPlotJobParser {
    * @param nodeDateRange Contains date range information
    * @return String containing SQL between clause
    */
-  public static String parseDateRange(MVNode nodeDateRange) {
+  public static String parseDateRange(MVNode nodeDateRange) throws ValidationException {
     String strStart = "";
     String strEnd = "";
     SimpleDateFormat formatDb = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
@@ -552,7 +561,7 @@ public final class MVPlotJobParser {
    * @param dep  (optional) String representation of a dependency value date
    * @return Two lists of independent variable values and labels, respectively
    */
-  public static String[][] parseIndyNode(MVNode node, String dep) {
+  public static String[][] parseIndyNode(MVNode node, String dep) throws ValidationException {
     int intIndyNum = node.children.length;
     List<String> listIndyVal = new ArrayList<>();
     List<String> listIndyLabel = new ArrayList<>();
@@ -605,10 +614,13 @@ public final class MVPlotJobParser {
                                                       formatDb.toPattern());
         List<String> listLabels = new ArrayList<>();
         for (String listDate : listDates) {
+
           try {
             listLabels.add(formatLabel.format(formatDb.parse(listDate)));
-          } catch (Exception e) {
+          } catch (ParseException e) {
+            logger.error(e.getMessage());
           }
+
         }
 
         listIndyVal.addAll(listDates);
@@ -900,8 +912,8 @@ public final class MVPlotJobParser {
                                 .replace(">", "&gt;")
                                 .replace("<", "&lt;")
             + "</caption>"
-            + "<job_title>" + job.getJobTitleTmpl()+ "</job_title>"
-            + "<keep_revisions>" + job.getKeepRevisions()+ "</keep_revisions>"
+            + "<job_title>" + job.getJobTitleTmpl() + "</job_title>"
+            + "<keep_revisions>" + job.getKeepRevisions() + "</keep_revisions>"
             + "<listDiffSeries1>" + job.getDiffSeries1() + "</listDiffSeries1>"
             + "<listDiffSeries2>" + job.getDiffSeries2() + "</listDiffSeries2>"
             + "</tmpl>");
@@ -1065,7 +1077,7 @@ public final class MVPlotJobParser {
     return scriptsFolder;
   }
 
-  protected void parsePlotJobSpec() throws Exception {
+  protected void parsePlotJobSpec() throws ValidationException, DatabaseException {
     ArrayList listJobs = new ArrayList();
     String dbName = "";
 
@@ -1160,7 +1172,8 @@ public final class MVPlotJobParser {
         try {
           cal.setTime(formatDB.parse(rangeStart));
           endTime = formatDB.parse(rangeEnd).getTime();
-        } catch (Exception e) {
+        } catch (ParseException e) {
+          throw new ValidationException("range_start is invalid");
         }
 
         //  build the list
@@ -1189,12 +1202,12 @@ public final class MVPlotJobParser {
         } else {
           String[] listInherits = strInherits.split("\\s*,\\s*");
           if (!plotDecl.containsKey(listInherits[0])) {
-            throw new Exception("inherited plot job " + listInherits[0] + " not found");
+            throw new ValidationException("inherited plot job " + listInherits[0] + " not found");
           }
           MVPlotJob jobBase = (MVPlotJob) plotDecl.get(listInherits[0]);
           for (int j = 1; j < listInherits.length; j++) {
             if (!plotNode.containsKey(listInherits[j])) {
-              throw new Exception("multiple inherited plot job " + listInherits[j] + " not found");
+              throw new ValidationException("multiple inherited plot job " + listInherits[j] + " not found");
             }
             MVNode nodeInherit = (MVNode) plotNode.get(listInherits[j]);
             jobBase = parsePlotJob(nodeInherit, jobBase);
@@ -1285,7 +1298,7 @@ public final class MVPlotJobParser {
           }
           listJobs.add(job);
         } else if (boolPlotRun) {
-          throw new Exception("plot " + node.name + ": " + strCompleteness);
+          throw new ValidationException("plot " + node.name + ": " + strCompleteness);
         }
       }
 
@@ -1302,7 +1315,7 @@ public final class MVPlotJobParser {
    * @param jobBase  MVPlotJob whose characteristics to inherit
    * @return Populated MVPlot structure
    */
-  public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase) throws Exception {
+  public MVPlotJob parsePlotJob(MVNode nodePlot, MVPlotJob jobBase) throws DatabaseException, ValidationException {
     MVPlotJob job = (null != jobBase ? jobBase.copy() : new MVPlotJob());
 
     for (int i = 0; i < nodePlot.children.length; i++) {
@@ -1389,12 +1402,12 @@ public final class MVPlotJobParser {
 
                 //  <date_range>
                 else if (nodeFixSet.tag.equals("date_range")) {
-                  throw new Exception("sets of date_range structures not supported");
+                  throw new ValidationException("sets of date_range structures not supported");
                 }
 
                 //  <date_range_list>
                 else if (nodeFixSet.tag.equals("date_range_list")) {
-                  throw new Exception("sets of date_range_list structures not supported");
+                  throw new ValidationException("sets of date_range_list structures not supported");
                 }
               }
               mapFixVal.put(nodeFixVal.name, MVUtil.toArray(listFixSet));
@@ -1413,7 +1426,7 @@ public final class MVPlotJobParser {
             //  <date_range>
             else if (nodeFixVal.tag.equals("date_range")) {
               if (!dateRangeDecl.containsKey(nodeFixVal.name)) {
-                throw new Exception("date_range " + nodeFixVal.name + " not found in plot_fix");
+                throw new ValidationException("date_range " + nodeFixVal.name + " not found in plot_fix");
               }
               String strDateRangeVal = dateRangeDecl.get(nodeFixVal.name).toString();
               listFixVal.add(strDateRangeVal);
@@ -1532,7 +1545,7 @@ public final class MVPlotJobParser {
 
           //  <mode_group>
           else if (nodeDepN.tag.equals("mode_group")) {
-            throw new Exception(
+            throw new ValidationException(
                 "<mode_group> tag no longer supported, use multiple inheritance instead");
           }
 
@@ -1556,7 +1569,7 @@ public final class MVPlotJobParser {
               for (int l = 0; l < nodeFcstVar.children.length; l++) {
                 String strStat = nodeFcstVar.children[l].value;
                 if (!job.getPlotTmpl().startsWith("contour") && !isStatValid(strStat)) {
-                  throw new Exception("unknown stat name " + strStat);
+                  throw new ValidationException("unknown stat name " + strStat);
                 }
                 listStats.add(strStat);
               }
@@ -1567,16 +1580,16 @@ public final class MVPlotJobParser {
 
           //  <fix>
           else if (nodeDepN.tag.startsWith("fix")) {
-            throw new Exception("<dep> child <fix> no longer supported, use <plot_fix> instead");
+            throw new ValidationException("<dep> child <fix> no longer supported, use <plot_fix> instead");
           }
         }
 
         //  complain if a dep component is missing
         if (!boolDep1Present) {
-          throw new Exception("plot job dep lacks dep1");
+          throw new ValidationException("plot job dep lacks dep1");
         }
         if (!boolDep2Present && !job.getPlotTmpl().contains("taylor")) {
-          throw new Exception("plot job dep lacks dep2");
+          throw new ValidationException("plot job dep lacks dep2");
         }
 
         //  add the dep group to the job
@@ -1585,7 +1598,7 @@ public final class MVPlotJobParser {
 
       //  <agg>
       else if (node.tag.equals("agg")) {
-        throw new Exception("<agg> no longer supported, please change to <plot_fix>");
+        throw new ValidationException("<agg> no longer supported, please change to <plot_fix>");
       }
 
       //  <taylor_voc>
@@ -1696,7 +1709,7 @@ public final class MVPlotJobParser {
 
       //  <bootstrapping>
       else if (node.tag.equals("bootstrapping")) {
-        throw new Exception("<bootstrapping> tag no longer supported, use <agg_stat> instead");
+        throw new ValidationException("<bootstrapping> tag no longer supported, use <agg_stat> instead");
       }
 
       //  <agg_stat>
@@ -1763,7 +1776,7 @@ public final class MVPlotJobParser {
 
         if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()
                 && job.getCalcVl1l2() && job.getCalcVal1l2() && job.getCalcGrad()) {
-          throw new Exception("invalid calc_stat setting - both calc_ctc and calc_sl1l2 "
+          throw new ValidationException("invalid calc_stat setting - both calc_ctc and calc_sl1l2 "
                                   + "and calc_sal1l2 and calc_vl1l2 and calc_grad are true");
         }
       }
@@ -1791,7 +1804,7 @@ public final class MVPlotJobParser {
         }
         if (job.getCalcCtc() && job.getCalcSl1l2() && job.getCalcSal1l2()
                 && job.getCalcVl1l2() && job.getCalcVal1l2() && job.getCalcGrad()) {
-          throw new Exception("invalid revis_stat setting - both calc_ctc and calc_sl1l2 "
+          throw new ValidationException("invalid revis_stat setting - both calc_ctc and calc_sl1l2 "
                                   + "and calc_sal1l2 and calc_vl1l2 and calc_grad are true");
         }
 
@@ -1810,10 +1823,10 @@ public final class MVPlotJobParser {
         }
 
         if (!job.getRocPct() && !job.getRocCtc()) {
-          throw new Exception("invalid roc_calc setting - neither roc_pct nor roc_ctc are true");
+          throw new ValidationException("invalid roc_calc setting - neither roc_pct nor roc_ctc are true");
         }
         if (job.getRocPct() && job.getRocCtc()) {
-          throw new Exception("invalid roc_calc setting - both roc_pct and roc_ctc are true");
+          throw new ValidationException("invalid roc_calc setting - both roc_pct and roc_ctc are true");
         }
       } else if (node.tag.equals("summary_curve")) {
         for (int j = 0; j < node.children.length; j++) {
@@ -1842,7 +1855,7 @@ public final class MVPlotJobParser {
         Method m = formatToBoolValues.get(node.tag);
         try {
           m.invoke(job, node.value.equals("true"));
-        } catch (Exception e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NullPointerException | ExceptionInInitializerError e) {
           logger.error(
               "  **  ERROR: caught " + e.getClass() + " parsing format boolean '"
                   + node.tag + "': " + e.getMessage());
@@ -1855,7 +1868,7 @@ public final class MVPlotJobParser {
           //validate order_series
           String strStat = node.value;
           if (!isOrderValid(strStat)) {
-            throw new Exception("Series order is invalid " + strStat);
+            throw new ValidationException("Series order is invalid " + strStat);
           }
         }
         Method m = formatToStrValues.get(node.tag);
@@ -1864,12 +1877,12 @@ public final class MVPlotJobParser {
         } catch (Exception e) {
           if (e instanceof InvocationTargetException) {
             Throwable ex = ((InvocationTargetException) e).getTargetException();
-            throw new Exception(ex);
+            throw new ValidationException(e.getMessage());
           } else {
             logger.error(
                 "  **  ERROR: caught " + e.getClass() + " parsing format string '"
                     + node.tag + "': " + e.getMessage());
-            throw new Exception(e);
+            throw new ValidationException(e.getMessage());
           }
         }
 
@@ -1884,7 +1897,7 @@ public final class MVPlotJobParser {
     return job;
   }
 
-  private void validateListDiffSeries(MVNode node, MVNode nodeTmpl) throws Exception {
+  private void validateListDiffSeries(MVNode node, MVNode nodeTmpl) throws ValidationException {
     String[] diffSeries = nodeTmpl.value.split("c\\(");
     for (int k = 1; k < diffSeries.length; k++) {
       String[] diffSeriesArray = diffSeries[k].replace("\"", "").replace(")", "").split(",");
@@ -1896,7 +1909,7 @@ public final class MVPlotJobParser {
                                   + diffSeriesParametersArray[diffSeriesParametersArray.length - 1];
         if (diffSeriesArray.length > 2 && diffSeriesArray[2].equals("DIFF")
                 && !diffSeriesArray[1].endsWith(variableStat)) {
-          throw new Exception("Difference curve "
+          throw new ValidationException("Difference curve "
                                   + diffSeries[k]
                                   + " configured to be calculated using different "
                                   + "variable and/or statistic."
@@ -1907,13 +1920,13 @@ public final class MVPlotJobParser {
     //validate listDiffSeries - make sure that MODE Attribute stats are not in the list
     for (String stat : MVUtil.modeSingleStatField.keySet()) {
       if (node.value.indexOf(stat) > 0) {
-        throw new Exception("MODE Attribute stats " + stat
+        throw new ValidationException("MODE Attribute stats " + stat
                                 + " can't be a part of difference curve.");
       }
     }
     for (String stat : MVUtil.modePairStatField.keySet()) {
       if (node.value.indexOf(stat) > 0) {
-        throw new Exception("MODE Attribute stats " + stat
+        throw new ValidationException("MODE Attribute stats " + stat
                                 + " can't be a part of difference curve.");
       }
     }
@@ -1936,7 +1949,7 @@ public final class MVPlotJobParser {
    * @param strStat order of series
    * @return true if valid, false otherwise
    */
-  public boolean isOrderValid(String strStat) {
+  public boolean isOrderValid(String strStat) throws ValidationException{
     //c(1, 3, 2)
     boolean result = true;
     if (!strStat.equals("c()")) {
@@ -1948,7 +1961,7 @@ public final class MVPlotJobParser {
           order = Integer.valueOf(ch.trim());
           inInts.add(order);
         } catch (NumberFormatException e) {
-
+          throw new ValidationException("the order value is invalid");
         }
       }
       Collections.sort(inInts);
@@ -1964,7 +1977,7 @@ public final class MVPlotJobParser {
 
   public DatabaseInfo getDatabaseInfo() {
     DatabaseInfo databaseInfo = null;
-    if (dbHost != null && dbUser != null ) {
+    if (dbHost != null && dbUser != null) {
       databaseInfo = new DatabaseInfo(dbHost, dbUser);
     }
     return databaseInfo;

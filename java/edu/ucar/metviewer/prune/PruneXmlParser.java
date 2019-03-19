@@ -8,7 +8,9 @@ package edu.ucar.metviewer.prune;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +18,14 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.ParsingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * @author : tatiana $
@@ -77,13 +81,13 @@ class PruneXmlParser {
         }
 
       }
-    } catch (Exception e) {
+    } catch (ParserConfigurationException | SAXException | IOException | ParsingException e) {
       logger.error("ERROR during reading XML file : " + e.getMessage());
     }
     return mvPruneDB;
   }
 
-  private void setDirectoriesFromFolders(MVPruneDB mvPruneDB, Node pruneSpecNode) throws Exception {
+  private void setDirectoriesFromFolders(MVPruneDB mvPruneDB, Node pruneSpecNode) throws ParsingException {
     NodeList foldersNodeList = pruneSpecNode.getChildNodes();
     String folderTmpl = null;
     Map<String, List<String>> fieldTOValue = null;

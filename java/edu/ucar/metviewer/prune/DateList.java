@@ -1,6 +1,7 @@
 /**
- * DateList.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR), National Center for Atmospheric Research (NCAR), Research
- * Applications Laboratory (RAL), P.O. Box 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
+ * DateList.java Copyright UCAR (c) 2016. University Corporation for Atmospheric Research (UCAR),
+ * National Center for Atmospheric Research (NCAR), Research Applications Laboratory (RAL), P.O. Box
+ * 3000, Boulder, Colorado, 80307-3000, USA.Copyright UCAR (c) 2016.
  */
 
 package edu.ucar.metviewer.prune;
@@ -9,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.ucar.metviewer.ParsingException;
 
 /**
  * @author : tatiana $
@@ -46,7 +49,7 @@ class DateList {
     this.startStr = startStr;
   }
 
-  public List<String> getValues() throws Exception {
+  public List<String> getValues() throws ParsingException {
     validate();
     List<String> values = new ArrayList<>();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatStr);
@@ -55,12 +58,14 @@ class DateList {
     try {
       start = LocalDateTime.parse(startStr, formatter);
     } catch (Exception e) {
-      throw new Exception("Date format can't be applied to the start date in 'date_list' element");
+      throw new ParsingException("Date format can't be applied to the start date in 'date_list' "
+                                     + "element");
     }
     try {
       end = LocalDateTime.parse(endStr, formatter);
     } catch (Exception e) {
-      throw new Exception("Date format can't be applied to the end date in 'date_list' element");
+      throw new ParsingException(
+          "Date format can't be applied to the end date in 'date_list' element");
     }
     while (start.isBefore(end) || start.isEqual(end)) {
       values.add(start.format(formatter));
@@ -69,21 +74,21 @@ class DateList {
     return values;
   }
 
-  private void validate() throws Exception {
+  private void validate() throws ParsingException {
     if (name == null) {
-      throw new Exception("Attribute 'name' in 'date_list' element is missing");
+      throw new ParsingException("Attribute 'name' in 'date_list' element is missing");
     }
     if (startStr == null) {
-      throw new Exception("Element 'start' in 'date_list' element is missing");
+      throw new ParsingException("Element 'start' in 'date_list' element is missing");
     }
     if (endStr == null) {
-      throw new Exception("Element 'end' in 'date_list' element is missing");
+      throw new ParsingException("Element 'end' in 'date_list' element is missing");
     }
     if (increment == null) {
-      throw new Exception("Element 'inc' in 'date_list' element is missing");
+      throw new ParsingException("Element 'inc' in 'date_list' element is missing");
     }
     if (formatStr == null) {
-      throw new Exception("Element 'format' in 'date_list' element is missing");
+      throw new ParsingException("Element 'format' in 'date_list' element is missing");
     }
 
   }

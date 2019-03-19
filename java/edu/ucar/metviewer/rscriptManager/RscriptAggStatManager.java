@@ -7,6 +7,7 @@
 package edu.ucar.metviewer.rscriptManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,8 @@ import edu.ucar.metviewer.MVPlotJob;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
+import edu.ucar.metviewer.ValidationException;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
@@ -41,7 +44,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
   public void prepareDataFileAndRscript(
       MVPlotJob job, MVOrderedMap mvMap,
       Map<String, String> info,
-      List<String> listQuery) throws Exception {
+      List<String> listQuery) throws ValidationException, IOException, StopWatchException {
 
 
     String fileName = MVUtil.buildTemplateString(job.getDataFileTmpl(),
@@ -89,7 +92,9 @@ public class RscriptAggStatManager extends RscriptStatManager {
         mvBatch.getPrintStream().print("Running '" + job.getRscript() + " " + scriptName + "'");
         mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
 
-        stopWatch.stop();
+
+          stopWatch.stop();
+
         if (mvResponse.getInfoMessage() != null) {
           mvBatch.getPrintStream().print(mvResponse.getInfoMessage());
         }
@@ -207,7 +212,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
         }
         mvBatch.getPrintStream().println("Rscript time " + stopWatch.getFormattedTotalDuration());
       }
-    } catch (Exception e) {
+    } catch (IOException | StopWatchException e) {
       errorStream.print(e.getMessage());
     }
 

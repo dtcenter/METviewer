@@ -7,6 +7,7 @@
 package edu.ucar.metviewer.scorecard.rscript;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Map;
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.MvResponse;
 import edu.ucar.metviewer.StopWatch;
+import edu.ucar.metviewer.StopWatchException;
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
@@ -173,7 +175,7 @@ public class SumRscriptManager extends RscriptManager {
           printStream.println(mvResponse.getErrorMessage());
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (Exception e) {
+      } catch (StopWatchException | IOException e) {
         logger.error(e);
         logger.error(e);
       }
@@ -182,10 +184,7 @@ public class SumRscriptManager extends RscriptManager {
 
       //check if output file exists and its length is not 0
       output = new File(tableCalcStatInfo.get("plot_file"));
-      isAppend = false;
-      if (output.exists() && output.length() > 0) {
-        isAppend = true;
-      }
+      isAppend = output.exists() && output.length() > 0;
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       tableCalcStatInfo.put("data_file",
                             tableCalcStatInfoCommon.get("sum_stat_output"));
@@ -210,7 +209,7 @@ public class SumRscriptManager extends RscriptManager {
           printStream.println(mvResponse.getErrorMessage());
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
-      } catch (Exception e) {
+      } catch (IOException | StopWatchException e) {
         logger.error(e);
         logger.error(e);
       }
