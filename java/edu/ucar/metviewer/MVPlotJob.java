@@ -520,7 +520,10 @@ public class MVPlotJob {
   }
 
   public void addPlotFixValEq(String field, MVOrderedMap sets, int index) {
-    plotFixValEq.put(field, sets, index);
+    //ignore fcst_var
+    if(!field.equalsIgnoreCase("fcst_var")) {
+      plotFixValEq.put(field, sets, index);
+    }
   }
 
   public void addPlotFixVal(String field, MVOrderedMap sets) {
@@ -528,7 +531,10 @@ public class MVPlotJob {
   }
 
   public void addPlotFixValEq(String field, MVOrderedMap sets) {
-    addPlotFixValEq(field, sets, plotFixValEq.size());
+    //ignore fcst_var
+    if(!field.equalsIgnoreCase("fcst_var")) {
+      addPlotFixValEq(field, sets, plotFixValEq.size());
+    }
   }
 
   public void removePlotFixVal(String field) {
