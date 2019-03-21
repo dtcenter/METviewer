@@ -253,8 +253,6 @@ public abstract class JobManager {
     info.put("plot_stat", job.getPlotStat());
     info.put("series1_diff_list", diffSeries1);
     info.put("series2_diff_list", diffSeries2);
-    info.put("fix_val_list_eq", job.getPlotFixValEq().getRDecl());
-    info.put("fix_val_list", job.getPlotFixVal().getRDecl());
 
     //  populate the formatting information in the R script template
     MVUtil.populatePlotFmtTmpl(info, job);

@@ -20,6 +20,11 @@ listStatisticsCurvs	= #<summary_curves>#;
 
 addPointThresholds = #<add_point_thresholds>#;
 
+boolEqualizeByIndep = #<equalize_by_indep>#;
+boolEventEqual  = #<event_equal>#;
+listFixedValEx = #<fix_val_list_eq>#;
+
+
 
 drawLine <- function(dfPerm,envir, intPermVal=1) {
 
@@ -179,7 +184,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
 
 
 
-dfData = read.delim(strDataFile,header=TRUE,sep='');
+dfData = read.delim(strDataFile, header=TRUE, row.names=NULL);
 legend=c();
 env <- new.env(parent=emptyenv())
 env$isPlotCreated=FALSE;
@@ -235,6 +240,79 @@ listLty = #<lty>#;
 listLwd = #<lwd>#;
 
 intCurveNum = 0;
+
+
+# run event equalizer, if requested
+if( FALSE != boolEventEqual  ){
+  dfPlot1 = data.frame();
+  #list all fixed variables
+  listFixVars=c();
+  listFixVarVals = c();
+  if(length(listFixedValEx) > 0){
+    for(index in 1:length(listFixedValEx)){
+      if(is.null(listFixVars)){
+        listFixVars = names(listFixedValEx[index]);
+        listFixVarVals = permute(listFixedValEx[index]);
+      }else{
+        listFixVars =  append(listFixVars, names(listFixedValEx[index]));
+        listFixVarVals = append(listFixVarVals, permute(listFixedValEx[index]));
+
+      }
+    }
+  }
+  #add thresh_i
+  unique_i_thresh=unique(dfData$thresh_i)
+  matPerm = matrix(nrow=length(unique_i_thresh), ncol=1);
+  matPerm[1:length(unique_i_thresh),] = unique_i_thresh;
+
+  matPerm1 = matrix(nrow=1, ncol=length(unique_i_thresh));
+  matPerm1[1,] = unique_i_thresh;
+
+  if(is.null(listFixVars)){
+    listFixVars = "thresh_i";
+    listFixVarVals[[1]] = matPerm;
+  }else{
+    listFixVars =  append(listFixVars, 'thresh_i');
+    listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+  }
+
+  if(length(listSeries1Val) > 0){
+    for(intPermVal in 1:nrow(matPermVal)){
+      listPermVal = matPermVal[intPermVal,];
+      dfPerm = dfData;
+      for(intVar in 1:length(listSeriesVar)){
+        valPerm = listPermVal[intVar];
+        if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
+        dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
+        dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+
+      }
+    }
+  }else{
+    dfData_ee = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+  }
+  dfData = dfData_ee
+}
+
+#calculate sum
+sum_by = list(thresh_i=dfData$thresh_i, i_value=dfData$i_value);
+on_columns = c("thresh_i", "i_value")
+oy_columns = c("thresh_i", "i_value")
+merge_columns=c("thresh_i","i_value");
+for(seriesVal in names(listSeries1Val)){
+  sum_by[seriesVal]=dfData[seriesVal]
+  on_columns = c(on_columns, seriesVal)
+  oy_columns = c(oy_columns, seriesVal)
+  merge_columns = c(merge_columns, seriesVal)
+}
+on_columns = c(on_columns, "on_i")
+oy_columns = c(oy_columns, "oy_i")
+
+
+on=setNames(aggregate(x=dfData$on_i, by=sum_by, FUN=sum), on_columns)
+oy=setNames(aggregate(x=dfData$oy_i, by=sum_by, FUN=sum), oy_columns)
+dfData=merge(on, oy, by=merge_columns)
+
 
 if(length(listSeries1Val) > 0){
   for(intPermVal in 1:nrow(matPermVal)){

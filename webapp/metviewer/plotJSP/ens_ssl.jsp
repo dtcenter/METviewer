@@ -59,6 +59,22 @@
             });
         });
 
+        $('#event_equal').prop("checked", false);
+        $('#event_equal').change(function () {
+            if ($(this).prop("checked")) {
+                for (var i = 0; i < fixed_var_indexes.length; i++) {
+                    $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', true).prop('disabled', false);
+                }
+                $("#indy_var_event_equal").prop('checked', true).prop('disabled', false);
+            } else {
+                for (var i = 0; i < fixed_var_indexes.length; i++) {
+                    $("#fix_var_event_equal_" + fixed_var_indexes[i]).prop('checked', false).prop('disabled', true);
+                }
+                $("#indy_var_event_equal").prop('checked', false).prop('disabled', true);
+
+            }
+        });
+
         $(".remove_fixed_var").button({
             icons: {
                 primary: "ui-icon-trash"
@@ -293,12 +309,18 @@
                         style="display: none;">Select period
                 </button>
             </td>
+            <td>
+                <input type="checkbox" id="fix_var_event_equal_1" title='Add entry to event equalization logic'><label for="fix_var_event_equal_1">Equalize</label>
+            </td>
         </tr>
     </table>
     <button id="add_fixed_var" style="margin-top:5px;">Fixed Value</button>
     <br/>
-        <br/>
-        <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">
+    <input type="checkbox" id="event_equal" title="Equalize based on the valid time, lead time, and all series entries"/>
+    <label for="event_equal" title="Equalize based on the valid time, lead time, and all series entries">Event
+        Equalizer</label>
+    <br/>
+    <label for="txtPlotCond">Plot Cond</label> <input type="text" value=""  id="txtPlotCond" style="width: 95%">
 </div>
 <div class="ui-widget-content ui-widget-content-plot ui-corner-all">
     <div class="ui-widget-header-plot">Points <button class="help-button" style="float: right;" alt="ensss_pts">Help
