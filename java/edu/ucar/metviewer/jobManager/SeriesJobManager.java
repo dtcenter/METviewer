@@ -46,6 +46,7 @@ public class SeriesJobManager extends JobManager {
     //  determine if the plots require data aggregation
     boolean isAggStat = job.isAggStat();
     boolean isCalcStat = job.isCalcStat();
+    boolean isEE = job.getEventEqual();
 
 
     /*
@@ -57,6 +58,7 @@ public class SeriesJobManager extends JobManager {
 
     //  run the plot jobs once for each permutation of plot fixed values
     for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
+      job.setEventEqual(isEE);
 
       mvBatch
           .print("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
@@ -77,6 +79,18 @@ public class SeriesJobManager extends JobManager {
         String[][] listIndy = MVPlotJobParser.parseIndyNode(depIndy.getSpec(), strDep);
         job.setIndyVal(listIndy[0]);
         job.setIndyLabel(listIndy[1]);
+      }
+      MVOrderedMap fixVals = job.getPlotFixVal();
+      for(String fixFar: fixVals.getKeyList()){
+        if(fixTmplVal.containsKey(fixFar)){
+          fixVals.put(fixFar, fixTmplVal.get(fixFar));
+        }
+      }
+      MVOrderedMap fixValsEE = job.getPlotFixValEq();
+      for(String fixFar: fixValsEE.getKeyList()){
+        if(fixTmplVal.containsKey(fixFar)){
+          fixValsEE.put(fixFar, fixTmplVal.get(fixFar));
+        }
       }
 
       //if it is a model job with attribute stat  - validate

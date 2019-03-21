@@ -35,7 +35,7 @@ public class EclvJobManager extends JobManager {
 
   @Override
   protected void run(MVPlotJob job) throws ValidationException, ParseException, IOException, StopWatchException {
-
+    boolean isEE = job.getEventEqual();
     MVOrderedMap mapTmplValsPlot = new MVOrderedMap(job.getTmplVal());
     if (job.getIndyVar() != null) {
       mapTmplValsPlot.put("indy_var", job.getIndyVar());
@@ -58,11 +58,25 @@ public class EclvJobManager extends JobManager {
 
     //  run the plot jobs once for each permutation of plot fixed values
     for (MVOrderedMap plotFixPerm : listPlotFixPerm) {
+      job.setEventEqual(isEE);
+
       //    insert set values for this permutation
       MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
                                                     plotFixPerm,
                                                     mvBatch.getDatabaseManager().getDateFormat());
       job.setTmplVal(fixTmplVal);
+      MVOrderedMap fixVals = job.getPlotFixVal();
+      for(String fixFar: fixVals.getKeyList()){
+        if(fixTmplVal.containsKey(fixFar)){
+          fixVals.put(fixFar, fixTmplVal.get(fixFar));
+        }
+      }
+      MVOrderedMap fixValsEE = job.getPlotFixValEq();
+      for(String fixFar: fixValsEE.getKeyList()){
+        if(fixTmplVal.containsKey(fixFar)){
+          fixValsEE.put(fixFar, fixTmplVal.get(fixFar));
+        }
+      }
       Map<String, String> info ;
       RscriptStatManager rscriptStatManager;
       if (job.getAggCtc() || job.getAggPct()) {
