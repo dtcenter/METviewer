@@ -5884,6 +5884,8 @@ function loadXMLSeries() {
     } catch (e) {
     }
     updateForecastVariables();
+    updateFixVar(selected_mode);
+
     try {
         $("#plot_stat").val(initXML.find("plot").find("plot_stat").text()).multiselect("refresh");
     } catch (e) {
