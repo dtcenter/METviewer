@@ -2844,8 +2844,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         strPlotDataSelect = strPlotDataSelect
                 + "  ldt.i_value,\n"
                 + "  ldt.thresh_i,\n"
-                // + "  SUM(ldt.oy_i) oy_i,\n"
-                // + "  SUM(ldt.on_i) on_i\n";
                 + "  ldt.oy_i oy_i,\n"
                 + "  ldt.on_i on_i,\n"
                 + "   ld.fcst_valid_beg, \n"
@@ -2859,37 +2857,38 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 + strWhere
                 + "  AND h.stat_header_id = ld.stat_header_id\n"
                 + "  AND ld.line_data_id = ldt.line_data_id\n";
-        //                   + "GROUP BY\n"
-        //                   + "   ldt.i_value, ldt.thresh_i ";
-        //if (listSeries.length > 0) {
-        //  strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
-        //}
         strPlotDataSelect = strPlotDataSelect + ";";
       }
 
     } else if (job.getRocCtc()) {
 
       strPlotDataSelect =
-              "SELECT\n  h.fcst_thresh thresh,\n";
+              "SELECT\n  h.fcst_thresh fcst_thresh,\n";
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
+      if (listPlotFixVal.length > 0) {
+        for (int i = 0; i < listPlotFixVal.length; i++) {
+          String strField = (String) listPlotFixVal[i].getKey();
+          if (!strField.equals("fcst_var") && !strField.equals("fcst_thresh")  && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+            strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
+
+          }
+        }
+      }
       strPlotDataSelect = strPlotDataSelect
-              + "  SUM(ld.fy_oy) fy_oy,\n"
-              + "  SUM(ld.fy_on) fy_on,\n"
-              + "  SUM(ld.fn_oy) fn_oy,\n"
-              + "  SUM(ld.fn_on) fn_on\n"
+              + "  ld.fy_oy fy_oy,\n"
+              + "  ld.fy_on fy_on,\n"
+              + "  ld.fn_oy fn_oy,\n"
+              + "  ld.fn_on fn_on,\n"
+              + "   ld.fcst_valid_beg, \n"
+              + "   ld.fcst_lead \n"
               + "FROM\n"
               + "  stat_header h,\n"
               + "  line_data_ctc ld\n"
               + "WHERE\n"
               + strWhere
-              + "  AND h.stat_header_id = ld.stat_header_id\n"
-              + "GROUP BY\n"
-              + "  h.fcst_thresh";
-      if (listSeries.length > 0) {
-        strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
-      }
+              + "  AND h.stat_header_id = ld.stat_header_id\n";
       strPlotDataSelect = strPlotDataSelect + ";";
 
     }

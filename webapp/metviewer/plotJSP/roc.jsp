@@ -148,8 +148,8 @@
                 primary: "ui-icon-circle-plus"
             }
         }).click(function () {
-                    addFixedVarHist();
-                });
+            addFixedVarHist();
+        });
         getForecastVariablesHist();
         $('#roc_type').buttonset();
         $('#summary_curve').val("none");

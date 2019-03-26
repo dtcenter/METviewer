@@ -1730,7 +1730,10 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     }
 }
 
-function updateFixedVarValHist(index, selectedVals) {
+function updateFixedVarValHist(index, selectedVals, equalize) {
+    if (equalize && equalize === "false") {
+        $("#fix_var_event_equal_" + index).prop("checked", false);
+    }
     var fixed_var_val = $("#fixed_var_val_" + index);
     fixed_var_val.empty();
     //get value of database
@@ -5612,6 +5615,8 @@ function loadXMLEclv() {
 
 function loadXMLRoc() {
     var series_var_val;
+    $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
+
     if (initXML.find("plot").find("series1").children().length > 0) {
         var series_arr = initXML.find("plot").find("series1").children();
         for (var i = 0; i < series_arr.length; i++) {
@@ -5643,6 +5648,8 @@ function loadXMLRoc() {
     var roc_ctc = $(initXML.find("plot").find("roc_calc").find("roc_ctc")).text();
     $("input[name=roc_type][value=pct]").prop('checked', roc_pct == "TRUE");
     $("input[name=roc_type][value=ctc]").prop('checked', roc_ctc == "TRUE");
+    $('#roc_type').buttonset('refresh');
+
 
     if (initXML.find("plot").find("summary_curve") && initXML.find("plot").find("summary_curve").children().length > 0) {
         var stats = initXML.find("plot").find("summary_curve").children();
@@ -5823,6 +5830,7 @@ function updatePlotFix() {
         var plot_fix_arr = $(initXML.find("plot").find("plot_fix")).children();
         for (var i = 0; i < plot_fix_arr.length; i++) {
             var fixed_var_vals = [];
+            var equalize = $(plot_fix_arr[i]).attr('equalize');
             if (i > 0) {
                 addFixedVarHist();
             }
@@ -5840,7 +5848,7 @@ function updatePlotFix() {
             } else {
                 $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "none");
             }
-            updateFixedVarValHist((i + 1), fixed_var_vals);
+            updateFixedVarValHist((i + 1), fixed_var_vals, equalize);
         }
 
     }
@@ -5894,6 +5902,8 @@ function loadXMLSeries() {
     } catch (e) {
     }
     updateForecastVariables();
+    updateFixVar(selected_mode);
+
     try {
         $("#plot_stat").val(initXML.find("plot").find("plot_stat").text()).multiselect("refresh");
     } catch (e) {

@@ -36,7 +36,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     } else if( TRUE == boolRocCtc ){
 
       # create the ROC point data from the components of the contingency tables
-      dfROC = dfPerm[rev(order(dfPerm$thresh)),];
+      dfROC = dfPerm[rev(order(dfPerm$fcst_thresh)),];
       dfROC$pody = dfROC$fy_oy / (dfROC$fy_oy + dfROC$fn_oy);
       dfROC$pofd = dfROC$fy_on / (dfROC$fy_on + dfROC$fn_on);
 
@@ -45,7 +45,7 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     # initialize the plot data, appending a beginning and end point
     listPOFD = c(1, dfROC$pofd, 0);
     listPODY = c(1, dfROC$pody, 0);
-    listThresh = c("", as.vector(dfROC$thr), "");
+    listThresh = c("", as.vector(dfROC$fcst_thresh), "");
   }else{
     dfROC=NA;
   }
@@ -244,7 +244,7 @@ intCurveNum = 0;
 
 # run event equalizer, if requested
 if( FALSE != boolEventEqual  ){
-  dfPlot1 = data.frame();
+  dfPlot = data.frame();
   #list all fixed variables
   listFixVars=c();
   listFixVarVals = c();
@@ -260,20 +260,22 @@ if( FALSE != boolEventEqual  ){
       }
     }
   }
-  #add thresh_i
-  unique_i_thresh=unique(dfData$thresh_i)
-  matPerm = matrix(nrow=length(unique_i_thresh), ncol=1);
-  matPerm[1:length(unique_i_thresh),] = unique_i_thresh;
+  if(boolRocPct){
+    #add thresh_i
+    unique_i_thresh=unique(dfData$thresh_i)
+    matPerm = matrix(nrow=length(unique_i_thresh), ncol=1);
+    matPerm[1:length(unique_i_thresh),] = unique_i_thresh;
 
-  matPerm1 = matrix(nrow=1, ncol=length(unique_i_thresh));
-  matPerm1[1,] = unique_i_thresh;
+    matPerm1 = matrix(nrow=1, ncol=length(unique_i_thresh));
+    matPerm1[1,] = unique_i_thresh;
 
-  if(is.null(listFixVars)){
-    listFixVars = "thresh_i";
-    listFixVarVals[[1]] = matPerm;
-  }else{
-    listFixVars =  append(listFixVars, 'thresh_i');
-    listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+    if(is.null(listFixVars)){
+      listFixVars = "thresh_i";
+      listFixVarVals[[1]] = matPerm;
+    }else{
+      listFixVars =  append(listFixVars, 'thresh_i');
+      listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+    }
   }
 
   if(length(listSeries1Val) > 0){
@@ -285,33 +287,63 @@ if( FALSE != boolEventEqual  ){
         if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
         dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
         dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-
+        dfPlot = rbind(dfPlot, dfData_ee);
       }
     }
   }else{
-    dfData_ee = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+    dfPlot = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
   }
-  dfData = dfData_ee
+  dfData = dfPlot
 }
 
 #calculate sum
-sum_by = list(thresh_i=dfData$thresh_i, i_value=dfData$i_value);
-on_columns = c("thresh_i", "i_value")
-oy_columns = c("thresh_i", "i_value")
-merge_columns=c("thresh_i","i_value");
-for(seriesVal in names(listSeries1Val)){
-  sum_by[seriesVal]=dfData[seriesVal]
-  on_columns = c(on_columns, seriesVal)
-  oy_columns = c(oy_columns, seriesVal)
-  merge_columns = c(merge_columns, seriesVal)
-}
-on_columns = c(on_columns, "on_i")
-oy_columns = c(oy_columns, "oy_i")
+if(boolRocPct){
+  sum_by = list(thresh_i=dfData$thresh_i, i_value=dfData$i_value);
+  on_columns = c("thresh_i", "i_value")
+  oy_columns = c("thresh_i", "i_value")
+  merge_columns=c("thresh_i","i_value");
+  for(seriesVal in names(listSeries1Val)){
+    sum_by[seriesVal]=dfData[seriesVal]
+    on_columns = c(on_columns, seriesVal)
+    oy_columns = c(oy_columns, seriesVal)
+    merge_columns = c(merge_columns, seriesVal)
+  }
+  on_columns = c(on_columns, "on_i")
+  oy_columns = c(oy_columns, "oy_i")
 
 
-on=setNames(aggregate(x=dfData$on_i, by=sum_by, FUN=sum), on_columns)
-oy=setNames(aggregate(x=dfData$oy_i, by=sum_by, FUN=sum), oy_columns)
-dfData=merge(on, oy, by=merge_columns)
+  on=setNames(aggregate(x=dfData$on_i, by=sum_by, FUN=sum), on_columns)
+  oy=setNames(aggregate(x=dfData$oy_i, by=sum_by, FUN=sum), oy_columns)
+  dfData=merge(on, oy, by=merge_columns)
+} else {
+   sum_by = list(fcst_thresh=dfData$fcst_thresh);
+   fy_oy_columns =  c("fcst_thresh")
+   fy_on_columns =  c("fcst_thresh")
+   fn_oy_columns =  c("fcst_thresh")
+   fn_on_columns =  c("fcst_thresh")
+   merge_columns=c("fcst_thresh");
+   for(seriesVal in names(listSeries1Val)){
+     sum_by[seriesVal]=dfData[seriesVal]
+     fy_oy_columns = c(fy_oy_columns, seriesVal)
+     fy_on_columns = c(fy_on_columns, seriesVal)
+     fn_oy_columns = c(fn_oy_columns, seriesVal)
+     fn_on_columns = c(fn_on_columns, seriesVal)
+     merge_columns = c(merge_columns, seriesVal)
+   }
+   fy_oy_columns = c(fy_oy_columns, "fy_oy")
+   fy_on_columns = c(fy_on_columns, "fy_on")
+   fn_oy_columns = c(fn_oy_columns, "fn_oy")
+   fn_on_columns = c(fn_on_columns, "fn_on")
+
+   fy_oy=setNames(aggregate(x=as.numeric(dfData$fy_oy), by=sum_by, FUN=sum), fy_oy_columns)
+    fy_on=setNames(aggregate(x=as.numeric(dfData$fy_on), by=sum_by, FUN=sum), fy_on_columns)
+    fn_oy=setNames(aggregate(x=as.numeric(dfData$fn_oy), by=sum_by, FUN=sum), fn_oy_columns)
+    fn_on=setNames(aggregate(x=as.numeric(dfData$fn_on), by=sum_by, FUN=sum), fn_on_columns)
+   dfData1=merge(fy_oy, fy_on, by=merge_columns)
+   dfData2=merge(fn_oy,fn_on, by=merge_columns)
+   dfData=merge(dfData1,dfData2, by=merge_columns)
+
+ }
 
 
 if(length(listSeries1Val) > 0){
@@ -352,13 +384,13 @@ if(length(listStatisticsCurvs) > 0){
   }else{
 
     for(index in 1:length(listStatisticsCurvs)){
-      groupStats_fy_oy =  aggregate(fy_oy ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
-      groupStats_fn_oy =  aggregate(fn_oy ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
-      groupStats_fy_on =  aggregate(fy_on ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
-      groupStats_fn_on =  aggregate(fn_on ~ thresh, data = dfData, FUN = listStatisticsCurvs[index]);
-      dfPerm= merge(groupStats_fy_oy, groupStats_fn_oy, by="thresh");
-      dfPerm= merge(dfPerm, groupStats_fy_on, by="thresh");
-      dfPerm= merge(dfPerm, groupStats_fn_on, by="thresh");
+      groupStats_fy_oy =  aggregate(fy_oy ~ fcst_thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_fn_oy =  aggregate(fn_oy ~ fcst_thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_fy_on =  aggregate(fy_on ~ fcst_thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      groupStats_fn_on =  aggregate(fn_on ~ fcst_thresh, data = dfData, FUN = listStatisticsCurvs[index]);
+      dfPerm= merge(groupStats_fy_oy, groupStats_fn_oy, by="fcst_thresh");
+      dfPerm= merge(dfPerm, groupStats_fy_on, by="fcst_thresh");
+      dfPerm= merge(dfPerm, groupStats_fn_on, by="fcst_thresh");
       seriesLegend = paste(listStatisticsCurvs[index],'ROC Curve');
       legend=append(legend, seriesLegend);
       drawLine(dfPerm,envir=env, intPermVal);

@@ -48,7 +48,6 @@ public abstract class JobManager {
     } catch (ParseException| ValidationException| IOException| StopWatchException|
                                                           DatabaseException e) {
       mvBatch.print("Failed to create a plot. " + e.getMessage());
-      throw e;
     }
   }
 

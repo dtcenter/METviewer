@@ -421,7 +421,7 @@ public class MVServlet extends HttpServlet {
    */
   private String handlePlot(
       String strRequest,
-      String[] currentDBName) throws IOException, ValidationException, ParserConfigurationException, SAXException, DatabaseException {
+      String[] currentDBName) throws IOException, ParserConfigurationException, SAXException, DatabaseException, ValidationException {
 
     //  extract the plot xml from the request
     StopWatch stopWatch = new StopWatch();
@@ -582,7 +582,8 @@ public class MVServlet extends HttpServlet {
         throw new ValidationException("query returned no data");
       }
 
-    } catch (IOException | TransformerFactoryConfigurationError | StopWatchException | ParseException | IllegalArgumentException | NullPointerException e) {
+    } catch (IOException | TransformerFactoryConfigurationError | StopWatchException | ParseException
+            | IllegalArgumentException | NullPointerException | ValidationException | DatabaseException e) {
       try {
         stopWatch.stop();
       } catch (StopWatchException e1) {
