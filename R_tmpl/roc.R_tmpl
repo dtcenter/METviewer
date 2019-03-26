@@ -45,7 +45,11 @@ drawLine <- function(dfPerm,envir, intPermVal=1) {
     # initialize the plot data, appending a beginning and end point
     listPOFD = c(1, dfROC$pofd, 0);
     listPODY = c(1, dfROC$pody, 0);
-    listThresh = c("", as.vector(dfROC$fcst_thresh), "");
+    if("thresh" %in% colnames(dfROC)){
+      listThresh = c("", as.vector(dfROC$thresh), "");
+    }else{
+      listThresh = c("", as.vector(dfROC$fcst_thresh), "");
+    }
   }else{
     dfROC=NA;
   }
