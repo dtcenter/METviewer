@@ -123,7 +123,13 @@ if ( nrow(sampleData) > 0){
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
             vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
           }
-          fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
+          fPlot = fPlot[ fPlot[[strSeriesVal]] %in% vectValPerms ,  ];
+          if('fcst_var' %in%  names(fPlot)){
+            fPlot = fPlot[ fPlot$fcst_var == strDep1Name,  ];
+          }
+          if('stat_name' %in%  names(fPlot)){
+            fPlot = fPlot[ fPlot$stat_name %in% strDep1Stat,  ];
+          }
         }
 
         fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
