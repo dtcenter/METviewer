@@ -35,6 +35,7 @@ addSkillLine = #<add_skill_line>#;
 
 boolIndyStagger= #<indy1_stagger>#;
 
+options(warn=1)
 
 legend=c();
 

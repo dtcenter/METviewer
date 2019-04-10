@@ -24,7 +24,7 @@ boolEqualizeByIndep = #<equalize_by_indep>#;
 boolEventEqual  = #<event_equal>#;
 listFixedValEx = #<fix_val_list_eq>#;
 
-
+options(warn=1)
 
 drawLine <- function(dfPerm,envir, intPermVal=1) {
 

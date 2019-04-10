@@ -23,19 +23,89 @@ listPlotDisp	= #<plot_disp>#;
 
 listPlotOrderSeries	= #<order_series>#;
 
+boolEqualizeByIndep = #<equalize_by_indep>#;
+boolEventEqual  = #<event_equal>#;
+listFixedValEx = #<fix_val_list_eq>#;
+
 #old warning status
 oldWarn <- getOption("warn");
 
 
 # read the plot data
-options(warn = -1);
+options(warn=1)
+dfData = read.delim(strDataFile, header=TRUE, row.names=NULL);
 
-dfPlot = read.delim(strDataFile,header=TRUE,sep='');
-options(warn = oldWarn)
-
-if( nrow(dfPlot) == 0 ){
+if( nrow(dfData) == 0 ){
   stop("ERROR: No data was found.");
 }
+if(length(listSeries1Val) > 0){
+  listSeriesVar = names(listSeries1Val);
+  matPermVal = permute(listSeries1Val);
+  intSeriesIndex=0;
+  series = list();
+}
+# run event equalizer, if requested
+if( FALSE != boolEventEqual  ){
+  dfPlot = data.frame();
+  #list all fixed variables
+  listFixVars=c();
+  listFixVarVals = c();
+  if(length(listFixedValEx) > 0){
+    for(index in 1:length(listFixedValEx)){
+      if(is.null(listFixVars)){
+        listFixVars = names(listFixedValEx[index]);
+        listFixVarVals = permute(listFixedValEx[index]);
+      }else{
+        listFixVars =  append(listFixVars, names(listFixedValEx[index]));
+        listFixVarVals = append(listFixVarVals, permute(listFixedValEx[index]));
+
+      }
+    }
+  }
+  #add i_value
+  unique_i_value=unique(dfData$i_value)
+  matPerm = matrix(nrow=length(unique_i_value), ncol=1);
+  matPerm[1:length(unique_i_value),] = unique_i_value;
+
+  matPerm1 = matrix(nrow=1, ncol=length(unique_i_value));
+  matPerm1[1,] = unique_i_value;
+
+  if(is.null(listFixVars)){
+    listFixVars = "i_value";
+    listFixVarVals[[1]] = matPerm;
+  }else{
+    listFixVars =  append(listFixVars, 'i_value');
+    listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+  }
+  if(length(listSeries1Val) > 0){
+    for(intPermVal in 1:nrow(matPermVal)){
+      listPermVal = matPermVal[intPermVal,];
+      dfPerm = dfData;
+      for(intVar in 1:length(listSeriesVar)){
+        valPerm = listPermVal[intVar];
+        if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
+        dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
+        dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        dfPlot = rbind(dfPlot, dfData_ee);
+      }
+    }
+  }else{
+    dfPlot = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+  }
+  dfData = dfPlot
+
+}
+
+#calculate sum
+sum_by = list(i_value=dfData$i_value);
+columns = c("i_value")
+for(seriesVal in names(listSeries1Val)){
+  sum_by[seriesVal]=dfData[seriesVal]
+  columns = c(columns, seriesVal)
+}
+columns = c(columns, "stat_value")
+dfData=setNames(aggregate(x=dfData$rank_i, by=sum_by, FUN=sum), columns)
+
 
 legend=c();
 
@@ -45,13 +115,13 @@ if(length(listSeries1Val) > 0){
   intSeriesIndex=0;
 
   series = list();
-  listX = unique(dfPlot$i_value);
+  listX = unique(dfData$i_value);
   suffixesInd=1;
   for(intPermVal in 1:nrow(matPermVal)){
     seriesLegend="";
     listPermVal = matPermVal[intPermVal,];
     # build a data frame containing the permutation data
-    dfPerm = dfPlot;
+    dfPerm = dfData;
     for(intVar in 1:length(listSeriesVar)){
       valPerm = listPermVal[intVar];
       if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
@@ -77,7 +147,7 @@ if(length(listSeries1Val) > 0){
 
   }
 }else{
-  res=dfPlot;
+  res=dfData;
   legend=append(legend, 'Rank Histogram');
 }
 
@@ -110,7 +180,7 @@ if( boolNormalizedHistogram ){
   }
 }
 
-listX = unique(dfPlot$i_value);
+listX = unique(dfData$i_value);
 
 
 # specify the output file

@@ -913,30 +913,34 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
       }
 
-      if (!boolEnsSs && !selectList.contains("fcst_lead")) {
-        if (job.isModeJob() || job.isMtdJob()) {
+      if (!selectList.contains("fcst_lead")) {
+        if (!boolEnsSs)
+          if (job.isModeJob() || job.isMtdJob()) {
 
-          if (job.getEventEqual()) {
-            selectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                    + "WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
-                    + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
-                    + "WHERE model = h.model) ) fcst_lead";
+            if (job.getEventEqual()) {
+              selectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+                      + "WHERE model = h.model) is NULL , h.fcst_lead , h.fcst_lead "
+                      + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
+                      + "WHERE model = h.model) ) fcst_lead";
+            } else {
+              selectList += ",\n  h.fcst_lead";
+            }
+            selectPlotList += ",\n  h.fcst_lead";
+            strTempList += ",\n    fcst_lead          " + "INT ";
           } else {
-            selectList += ",\n  h.fcst_lead";
+            if (job.getEventEqual()) {
+              selectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
+                      + "WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead "
+                      + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
+                      + "WHERE model = h.model) ) fcst_lead";
+            } else {
+              selectList += ",\n " + " ld.fcst_lead";
+            }
+            selectPlotList += ",\n  h.fcst_lead";
+            strTempList += ",\n    fcst_lead      " + "INT ";
           }
-          selectPlotList += ",\n  h.fcst_lead";
-          strTempList += ",\n    fcst_lead          " + "INT ";
-        } else {
-          if (job.getEventEqual()) {
-            selectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
-                    + "WHERE model = h.model) is NULL , ld.fcst_lead , ld.fcst_lead "
-                    + "+ (select fcst_lead_offset FROM model_fcst_lead_offset "
-                    + "WHERE model = h.model) ) fcst_lead";
-          } else {
-            selectList += ",\n " + " ld.fcst_lead";
-          }
-          selectPlotList += ",\n  h.fcst_lead";
-          strTempList += ",\n    fcst_lead      " + "INT ";
+        else {
+          selectPlotList += ",\n  ld.fcst_lead";
         }
       }
 
@@ -957,7 +961,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  for ensemble spread/skill, add the ssvar line data and bail
       if (boolEnsSs) {
+        if (listPlotFixVal.length > 0) {
+          for (int i = 0; i < listPlotFixVal.length; i++) {
+            String strField = (String) listPlotFixVal[i].getKey();
+            if (!strField.equals("fcst_var") && !selectPlotList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+              selectPlotList += ",\n" + strField;
 
+            }
+          }
+        }
         listSql.add("SELECT\n"
                 + selectPlotList + ",\n  h.fcst_var,\n"
                 + "  ld.total,\n  ld.bin_n,\n  ld.var_min,\n  ld.var_max,\n  ld.var_mean,\n"
@@ -2674,9 +2686,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listSeries.length > 0) {
       strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
     }
+    if (listPlotFixVal.length > 0) {
+      for (int i = 0; i < listPlotFixVal.length; i++) {
+        String strField = (String) listPlotFixVal[i].getKey();
+        if (!strField.equals("fcst_var") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+          strPlotDataSelect += strField + ",\n";
+
+        }
+      }
+    }
 
 
-    strPlotDataSelect = strPlotDataSelect + "  SUM(ldr." + type + "_i) stat_value\n";
+    strPlotDataSelect = strPlotDataSelect + "  ldr." + type + "_i,\n"
+            + "   ld.fcst_valid_beg, \n"
+            + "   ld.fcst_lead \n";
 
     if (binColumnName != null) {
       strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName + "\n";
@@ -2688,15 +2711,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "WHERE\n"
             + strWhere
             + "  AND h.stat_header_id = ld.stat_header_id\n"
-            + "  AND ld.line_data_id = ldr.line_data_id\n"
-            + "GROUP BY i_value";
-    if (listSeries.length > 0) {
-      strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
-    }
+            + "  AND ld.line_data_id = ldr.line_data_id\n";
+
+    //if (listSeries.length > 0) {
+    //  strPlotDataSelect = strPlotDataSelect + ", " + strSelectList;
+    //}
     // for phist plots with bin_size, add to group by as well as select
-    if (binColumnName != null) {
-      strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
-    }
+    //if (binColumnName != null) {
+    //   strPlotDataSelect = strPlotDataSelect + ", ld." + binColumnName;
+    //}
     strPlotDataSelect = strPlotDataSelect + ";";
     if (printStreamSql != null) {
       printStreamSql.println(strPlotDataSelect + "\n");
@@ -2815,12 +2838,23 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listSeries.length > 0) {
         strPlotDataSelect = strPlotDataSelect + strSelectList + ",\n";
       }
+      if (listPlotFixVal.length > 0) {
+        for (int i = 0; i < listPlotFixVal.length; i++) {
+          String strField = (String) listPlotFixVal[i].getKey();
+          if (!strField.equals("fcst_var") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+            strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
+
+          }
+        }
+      }
       if (boolRelyPlot) {
         strPlotDataSelect = strPlotDataSelect
                 + "  ldt.i_value,\n"
                 + "  ldt.thresh_i,\n"
                 + "  ldt.oy_i oy_i,\n"
-                + "  ldt.on_i on_i\n";
+                + "  ldt.on_i on_i,\n"
+                + "   ld.fcst_valid_beg, \n"
+                + "   ld.fcst_lead \n";
 
         strPlotDataSelect = strPlotDataSelect + "FROM\n"
                 + "  stat_header h,\n"
@@ -2832,15 +2866,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 + "  AND ld.line_data_id = ldt.line_data_id;";
 
       } else {
-        if (listPlotFixVal.length > 0) {
-          for (int i = 0; i < listPlotFixVal.length; i++) {
-            String strField = (String) listPlotFixVal[i].getKey();
-            if (!strField.equals("fcst_var") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
-              strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
-
-            }
-          }
-        }
         strPlotDataSelect = strPlotDataSelect
                 + "  ldt.i_value,\n"
                 + "  ldt.thresh_i,\n"
@@ -2870,7 +2895,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
-          if (!strField.equals("fcst_var") && !strField.equals("fcst_thresh")  && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+          if (!strField.equals("fcst_var") && !strField.equals("fcst_thresh") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
             strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
 
           }

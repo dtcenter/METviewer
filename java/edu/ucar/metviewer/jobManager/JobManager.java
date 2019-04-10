@@ -40,7 +40,7 @@ public abstract class JobManager {
   }
 
 
-  public void runJob(MVPlotJob job) throws IOException, DatabaseException, StopWatchException, ParseException, ValidationException {
+  public void runJob(MVPlotJob job) {
     try {
       //  build a list of fixed value permutations for all plots
       listPlotFixPerm = buildPlotFixValList(job.getPlotFixVal());
