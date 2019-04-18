@@ -1573,7 +1573,7 @@ public class MVUtil {
           strProcErr.append(line).append('\n');
         }
       }
-    } catch (SecurityException | IOException | NullPointerException | IllegalArgumentException e) {
+    } catch (SecurityException | IOException |  IllegalArgumentException e) {
       logger.error(e.getMessage());
     } finally {
 
@@ -1651,11 +1651,17 @@ public class MVUtil {
             continue;
           }
           String strRTagVal = vals.get(strRtmplTag);
-          strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
+          if(strRTagVal != null){
+            strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
+          }
+
         }
 
         writer.println(strOutputLine);
       }
+    }catch (IOException e){
+      logger.error(e.getMessage());
+      throw e;
     }
 
   }
@@ -1760,7 +1766,7 @@ public class MVUtil {
       URI imgurl = new URI("jar:file:" + jarPath + "!/edu/ucar/metviewer/resources/log4j2.xml");
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
-    } catch (URISyntaxException | SecurityException | NullPointerException | UnsupportedOperationException e) {
+    } catch (URISyntaxException | SecurityException |  UnsupportedOperationException e) {
       logger.error(e.getMessage());
     }
 

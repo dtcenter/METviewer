@@ -641,6 +641,8 @@ class GraphicalOutputManager {
         line = buf.readLineBounded();
 
       }
+    }catch (IOException e) {
+      throw e;
     }
     return table;
   }

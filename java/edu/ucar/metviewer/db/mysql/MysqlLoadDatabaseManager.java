@@ -1206,7 +1206,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
       }  // end: while( reader.ready() )
 
-    } catch (NullPointerException | NegativeArraySizeException | IOException e) {
+    } catch ( NegativeArraySizeException | IOException e) {
       logger.error("ERROR for file " + filename + " : " + e.getMessage());
     }
 
@@ -1435,7 +1435,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           } else if (listToken[6].equals("RELI")) {
             mvLoadStatInsertData.setLineType("PCT");
             int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
-            thresh = "==1/" + String.valueOf(intGroupSize);
+            thresh = "==1/" + intGroupSize;
           } else if (listToken[6].startsWith("FHO")) {
             mvLoadStatInsertData.setLineType("CTC");
             String[] threshArr = listToken[6].split("FHO");
@@ -2131,7 +2131,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               lengthInserts += listInserts[INDEX_VAR_LENGTH];
             }
           }
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException  e) {
           logger.error("ERROR: line:" + line + " has errors and would be ignored.");
           logger.error(e.getMessage());
         }
@@ -3127,7 +3127,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                                             mtdHeaderWhereClause;
             ResultSet res = null;
             try (Connection con = getConnection();
-                 PreparedStatement stmt = con.prepareStatement(strMtdHeaderSelect);
+                 PreparedStatement stmt = con.prepareStatement(strMtdHeaderSelect)
             ) {
               stmt.setString(1, MVUtil.findValue(listToken, headerNames, "VERSION"));
               stmt.setString(2, MVUtil.findValue(listToken, headerNames,
@@ -3386,7 +3386,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
 
-          int mtd3dObjPairInsert = 0;
+          int mtd3dObjPairInsert;
           try (Connection con = getConnection();
                PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, mtdHeaderId);
@@ -3651,7 +3651,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   public DataFileInfo processDataFile(File file, boolean forceDupFile) throws DatabaseException {
     String filePath = file.getParent().replace("\\", "/");
     String fileName = file.getName();
-    int dataFileLuId = -1;
+    int dataFileLuId;
     String dataFileLuTypeName;
     int dataFileId;
 

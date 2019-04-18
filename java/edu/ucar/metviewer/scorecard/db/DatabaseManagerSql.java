@@ -97,6 +97,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         res.close();
         pstmt.close();
         con.close();
+      }catch (SQLException | IOException | StopWatchException e){
+        logger.error(e.getMessage());
       }
     }
   }

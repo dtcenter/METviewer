@@ -1855,7 +1855,7 @@ public final class MVPlotJobParser {
         Method m = formatToBoolValues.get(node.tag);
         try {
           m.invoke(job, node.value.equals("true"));
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NullPointerException | ExceptionInInitializerError e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | ExceptionInInitializerError e) {
           logger.error(
               "  **  ERROR: caught " + e.getClass() + " parsing format boolean '"
                   + node.tag + "': " + e.getMessage());
@@ -1876,7 +1876,6 @@ public final class MVPlotJobParser {
           m.invoke(job, node.value);
         } catch (Exception e) {
           if (e instanceof InvocationTargetException) {
-            Throwable ex = ((InvocationTargetException) e).getTargetException();
             throw new ValidationException(e.getMessage());
           } else {
             logger.error(
