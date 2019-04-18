@@ -466,7 +466,7 @@ public class MVServlet extends HttpServlet {
 
       }
       job = jobs[0];
-    }catch (ParserConfigurationException|  DatabaseException |  ValidationException | IOException|  SAXException e){
+    } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException | SAXException e) {
       logger.error(e.getMessage());
       return "<error>failed to parse plot job</error>";
     }
@@ -483,6 +483,7 @@ public class MVServlet extends HttpServlet {
 
     String strRErrorMsg = "";
     String finalHtml = "";
+    String plotterOutput = "";
     try {
       log = new ByteArrayOutputStream();
       logSql = new ByteArrayOutputStream();
@@ -556,8 +557,7 @@ public class MVServlet extends HttpServlet {
 
       //  run the job to generate the plot
       runTargetedJob(job, mvBatch);
-
-      String plotterOutput = log.toString();
+      plotterOutput = log.toString();
 
       //  parse out R error messages, if present, throwing an exception if the error was fatal
       Matcher matOutput = Pattern.compile(
@@ -582,8 +582,7 @@ public class MVServlet extends HttpServlet {
       String message = e.getMessage().replace("&", "&amp;").replace("<", "&lt;")
               .replace(">", "&gt;");
 
-      if (log != null) {
-        String plotterOutput = log.toString();
+      if (!plotterOutput.isEmpty()) {
         errorStream.print(
                 "handlePlot() - ERROR: caught " + e.getClass()
                         + " running plot: " + e.getMessage() + "\nbatch output:\n" + plotterOutput);
@@ -618,9 +617,7 @@ public class MVServlet extends HttpServlet {
         }
         logSql.reset();
       }
-      if (log != null) {
-        String plotterOutput = log.toString();
-
+      if (!plotterOutput.isEmpty()) {
         FileWriter fileWriter = null;
         try {
           fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log");
@@ -639,12 +636,12 @@ public class MVServlet extends HttpServlet {
         } catch (StopWatchException e) {
           logger.error(e.getMessage());
         }
-        String plotterOutput = log.toString();
-
-        try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log")) {
-          fileWriter.write(plotterOutput);
-        }catch (IOException e) {
-          logger.error(e.getMessage());
+        if (!plotterOutput.isEmpty()) {
+          try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log")) {
+            fileWriter.write(plotterOutput);
+          } catch (IOException e) {
+            logger.error(e.getMessage());
+          }
         }
 
       }
