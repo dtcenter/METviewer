@@ -663,7 +663,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             } else if (lineType.equals("RHIST")) {
               varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
             }
-
+            varLengthGroupIndices[1] = varLengthGroupIndices[0] + diff;
           } else {
             if (lineType.equals("RHIST")) {
               if (!isMet8) {
