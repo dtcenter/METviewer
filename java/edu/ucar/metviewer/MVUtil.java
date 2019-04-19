@@ -1758,6 +1758,7 @@ public class MVUtil {
     }
   }
 
+
   public static void updateLog4jConfiguration() {
 
     try {

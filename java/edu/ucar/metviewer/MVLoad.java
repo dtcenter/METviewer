@@ -83,10 +83,10 @@ public class MVLoad {
       for (; intArg < argv.length && !argv[intArg].matches(".*\\.xml$"); intArg++) {
         if ("-index".equalsIgnoreCase(argv[0])) {
           indexOnly = true;
-        }  else {
+        } else {
           logger.error(
-              "  **  ERROR: unrecognized option '" + argv[intArg]
-                  + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
+                  "  **  ERROR: unrecognized option '" + argv[intArg]
+                          + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
       }
@@ -95,11 +95,11 @@ public class MVLoad {
       //  parse the plot job
       logger.info("Begin time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
       logger.info("Parsing: " + strXML + "\n"
-                      + (indexOnly ? "Applying Index Settings Only\n" : ""));
+              + (indexOnly ? "Applying Index Settings Only\n" : ""));
       MVLoadJobParser parser = new MVLoadJobParser(strXML);
       MVLoadJob job = parser.getLoadJob();
       String management_system = parser.getLoadJob().getDBManagementSystem();
-      loadDatabaseManager = (LoadDatabaseManager)DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
+      loadDatabaseManager = (LoadDatabaseManager) DatabaseManager.getLoadManager(management_system, job.getDBHost(), job.getDBUser(), job.getDBPassword(), job.getDBName());
       verbose = job.getVerbose();
       insertSize = job.getInsertSize();
       modeHeaderDBCheck = job.getModeHeaderDBCheck();
@@ -125,7 +125,7 @@ public class MVLoad {
       //  if the insert size is greater than 1, ensure that the db header check is off
       if (1 < insertSize) {
         throw new Exception("METviewer load error: insert size ("
-                                + insertSize + ") > 1 and database header check turned on");
+                + insertSize + ") > 1 and database header check turned on");
       }
 
       long intLoadTimeStart = new Date().getTime();
@@ -133,8 +133,8 @@ public class MVLoad {
         loadDatabaseManager.updateGroup(job.getGroup());
       }
       if (job.getDescription() != null) {
-              loadDatabaseManager.updateDescription(job.getDescription());
-            }
+        loadDatabaseManager.updateDescription(job.getDescription());
+      }
 
       //  drop the database indexes, if requested
       boolean dropIndexes = job.getDropIndexes();
@@ -161,12 +161,12 @@ public class MVLoad {
             processFile(file);
           } catch (Exception e) {
             logger.error(
-                "  **  ERROR: caught " + e.getClass() + " loading file "
-                    + listLoadFiles[i] + ": " + e.getMessage());
+                    "  **  ERROR: caught " + e.getClass() + " loading file "
+                            + listLoadFiles[i] + ": " + e.getMessage());
             logger.error(e);
             logger.info(
-                "  **  WARNING: error(s) encountered loading file "
-                    + listLoadFiles[i] + " - skipping file");
+                    "  **  WARNING: error(s) encountered loading file "
+                            + listLoadFiles[i] + " - skipping file");
           }
         }
       }
@@ -185,15 +185,15 @@ public class MVLoad {
         File[] listDataFiles;
         for (int intPerm = 0; intPerm < listPerm.length; intPerm++) {
           PrintStream printStream = IoBuilder.forLogger(MVServlet.class)
-                                        .setLevel(org.apache.logging.log4j.Level.INFO)
-                                        .buildPrintStream();
+                  .setLevel(org.apache.logging.log4j.Level.INFO)
+                  .buildPrintStream();
           //  determine the name of the current folder
           baseFolder = MVUtil.buildTemplateString(job.getFolderTmpl(), listPerm[intPerm],
-                                                     printStream);
+                  printStream);
           baseFolder = MVUtil.cleanString(baseFolder);
           printStream.close();
           logger.info(
-              "Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + baseFolder);
+                  "Permutation " + (intPerm + 1) + " of " + listPerm.length + " - " + baseFolder);
           intPermStart = new Date().getTime();
 
           //  try to access the folder and its contents, and continue if it does not exist
@@ -208,9 +208,9 @@ public class MVLoad {
                   processFile(listDataFile);
                 } catch (Exception e) {
                   logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n"
-                                   + e.getMessage() + "\n"
-                                   + "  **  WARNING: error(s) encountered loading file "
-                                   + listDataFile + " - skipping file");
+                          + e.getMessage() + "\n"
+                          + "  **  WARNING: error(s) encountered loading file "
+                          + listDataFile + " - skipping file");
                   logger.error(e);
                 }
               }
@@ -224,12 +224,12 @@ public class MVLoad {
             intModeLinesPrev = modeLinesTotal;
             intMtdLinesPrev = mtdLinesTotal;
             logger.info(
-                "Permutation " + (intPerm + 1) + " of " + listPerm.length
-                    + " complete - insert time: "
-                    + MVUtil.formatTimeSpan(new Date().getTime() - intPermStart)
-                    + "  stat lines: " + intStatLinesPerm
-                    + "  mode lines: " + intModeLinesPerm + "\n" + "  mtd lines: "
-                    + intMtdLinesPerm + "\n");
+                    "Permutation " + (intPerm + 1) + " of " + listPerm.length
+                            + " complete - insert time: "
+                            + MVUtil.formatTimeSpan(new Date().getTime() - intPermStart)
+                            + "  stat lines: " + intStatLinesPerm
+                            + "  mode lines: " + intModeLinesPerm + "\n" + "  mtd lines: "
+                            + intMtdLinesPerm + "\n");
           }
         }
       }
@@ -240,47 +240,47 @@ public class MVLoad {
       if (!indexOnly) {
         logger.info("==== grid_stat ====\n\n" +
 
-                        MVUtil.padBegin("stat_header table time total: ", 36)
-                        + MVUtil.formatTimeSpan(statHeaderTableTime) + "\n" +
-                        MVUtil.padBegin("stat header records: ", 36) + statHeaderRecords + "\n" +
-                        MVUtil.padBegin("stat header inserts: ", 36) + statHeaderInserts + "\n" +
-                        MVUtil.padBegin("line data records: ", 36) + lineDataRecords + "\n" +
-                        MVUtil.padBegin("line data inserts: ", 36) + lineDataInserts + "\n" +
-                        MVUtil.padBegin("stat group records: ", 36) + statGroupRecords + "\n" +
-                        MVUtil.padBegin("stat group inserts: ", 36) + statGroupInserts + "\n" +
-                        MVUtil.padBegin("var length records: ", 36) + lengthRecords + "\n" +
-                        MVUtil.padBegin("var length inserts: ", 36) + lengthInserts + "\n" +
-                        MVUtil.padBegin("total lines: ", 36) + statLinesTotal + "\n" +
-                        MVUtil.padBegin("insert size: ", 36) + insertSize + "\n" +
-                        MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf(
-                                dblLinesPerMSec) + "\n" +
-                        MVUtil.padBegin("num files: ", 36) + numStatFiles + "\n\n" +
-                        "    ==== mode ====\n\n" +
-                        (modeHeaderDBCheck ? MVUtil.padBegin("mode_header search time total: ",
-                                                             36) + MVUtil.formatTimeSpan(
-                            modeHeaderSearchTime) + "\n" : "") +
-                        (mtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time total: ", 36)
-                                                + MVUtil.formatTimeSpan(mtdHeaderSearchTime)
-                                                + "\n" : "") +
-                        (statHeaderDBCheck ? MVUtil.padBegin("stat_header search time total: ", 36)
-                                                 + MVUtil.formatTimeSpan(statHeaderSearchTime)
-                                                 + "\n" : "") +
-                        MVUtil.padBegin("mode_header inserts: ", 36) + modeHeaderRecords + "\n" +
-                        MVUtil.padBegin("mode_cts inserts: ", 36) + modeCtsRecords + "\n" +
-                        MVUtil.padBegin("mode_obj_single inserts: ",
-                                        36) + modeObjSingleRecords + "\n" +
-                        MVUtil.padBegin("mode_obj_pair inserts: ", 36) + modeObjPairRecords + "\n" +
-                        "    ==== mtd ====\n\n" +
-                        MVUtil.padBegin("mtd_header inserts: ", 36) + mtdHeaderRecords + "\n" +
-                        MVUtil.padBegin("mtd_3d_obj_single inserts: ", 36) +
-                        mtdObj3dSingleRecords + "\n" +
-                        MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36) +
-                        mtdObj3dPairRecords + "\n" +
-                        MVUtil.padBegin("mtd_2d_obj inserts: ", 36) +
-                        mtdObj2dRecords + "\n" +
-                        MVUtil.padBegin("total lines: ", 36) + modeLinesTotal + "\n" +
-                        MVUtil.padBegin("num files: ", 36) + numModeFiles + "\n" +
-                        MVUtil.padBegin("num files: ", 36) + numMtdFiles + "\n"
+                MVUtil.padBegin("stat_header table time total: ", 36)
+                + MVUtil.formatTimeSpan(statHeaderTableTime) + "\n" +
+                MVUtil.padBegin("stat header records: ", 36) + statHeaderRecords + "\n" +
+                MVUtil.padBegin("stat header inserts: ", 36) + statHeaderInserts + "\n" +
+                MVUtil.padBegin("line data records: ", 36) + lineDataRecords + "\n" +
+                MVUtil.padBegin("line data inserts: ", 36) + lineDataInserts + "\n" +
+                MVUtil.padBegin("stat group records: ", 36) + statGroupRecords + "\n" +
+                MVUtil.padBegin("stat group inserts: ", 36) + statGroupInserts + "\n" +
+                MVUtil.padBegin("var length records: ", 36) + lengthRecords + "\n" +
+                MVUtil.padBegin("var length inserts: ", 36) + lengthInserts + "\n" +
+                MVUtil.padBegin("total lines: ", 36) + statLinesTotal + "\n" +
+                MVUtil.padBegin("insert size: ", 36) + insertSize + "\n" +
+                MVUtil.padBegin("lines / msec: ", 36) + MVUtil.formatPerf(
+                dblLinesPerMSec) + "\n" +
+                MVUtil.padBegin("num files: ", 36) + numStatFiles + "\n\n" +
+                "    ==== mode ====\n\n" +
+                (modeHeaderDBCheck ? MVUtil.padBegin("mode_header search time total: ",
+                        36) + MVUtil.formatTimeSpan(
+                        modeHeaderSearchTime) + "\n" : "") +
+                (mtdHeaderDBCheck ? MVUtil.padBegin("mtd_header search time total: ", 36)
+                        + MVUtil.formatTimeSpan(mtdHeaderSearchTime)
+                        + "\n" : "") +
+                (statHeaderDBCheck ? MVUtil.padBegin("stat_header search time total: ", 36)
+                        + MVUtil.formatTimeSpan(statHeaderSearchTime)
+                        + "\n" : "") +
+                MVUtil.padBegin("mode_header inserts: ", 36) + modeHeaderRecords + "\n" +
+                MVUtil.padBegin("mode_cts inserts: ", 36) + modeCtsRecords + "\n" +
+                MVUtil.padBegin("mode_obj_single inserts: ",
+                        36) + modeObjSingleRecords + "\n" +
+                MVUtil.padBegin("mode_obj_pair inserts: ", 36) + modeObjPairRecords + "\n" +
+                "    ==== mtd ====\n\n" +
+                MVUtil.padBegin("mtd_header inserts: ", 36) + mtdHeaderRecords + "\n" +
+                MVUtil.padBegin("mtd_3d_obj_single inserts: ", 36) +
+                mtdObj3dSingleRecords + "\n" +
+                MVUtil.padBegin("mtd_3d_obj_pair inserts: ", 36) +
+                mtdObj3dPairRecords + "\n" +
+                MVUtil.padBegin("mtd_2d_obj inserts: ", 36) +
+                mtdObj2dRecords + "\n" +
+                MVUtil.padBegin("total lines: ", 36) + modeLinesTotal + "\n" +
+                MVUtil.padBegin("num files: ", 36) + numModeFiles + "\n" +
+                MVUtil.padBegin("num files: ", 36) + numMtdFiles + "\n"
         );
       }
 
@@ -308,11 +308,11 @@ public class MVLoad {
 
   public static String getUsage() {
     return "Usage:  mv_load\n" +
-               "          [-index]\n" +
-               "          load_spec_file\n" +
-               "\n" +
-               "          where   \"-index\" indicates that no data should be loaded, and only the indexing commands applied\n" +
-               "                  \"load_spec_file\" specifies the XML load specification document\n";
+            "          [-index]\n" +
+            "          load_spec_file\n" +
+            "\n" +
+            "          where   \"-index\" indicates that no data should be loaded, and only the indexing commands applied\n" +
+            "                  \"load_spec_file\" specifies the XML load specification document\n";
   }
 
   /**
@@ -338,9 +338,9 @@ public class MVLoad {
     info.verbose = verbose;
     info.insertSize = insertSize;
     long intProcessDataFileTime = new Date().getTime() - intProcessDataFileBegin;
-    String strFileMsg = "  " + info.path + "/" + info.filename +
-                            (verbose ? "\n" + MVUtil.padBegin("data file time: ", 36)
-                                           + MVUtil.formatTimeSpan(intProcessDataFileTime) : "");
+    String strFileMsg = "  " + info.path + "/"
+            + info.filename + (verbose ? "\n" + MVUtil.padBegin("data file time: ", 36)
+            + MVUtil.formatTimeSpan(intProcessDataFileTime) : "");
 
     if ("stat".equals(info.luTypeName) && loadStat) {
       logger.info(strFileMsg);
@@ -356,8 +356,8 @@ public class MVLoad {
 
       numStatFiles++;
     } else if (("mode_obj".equals(info.luTypeName)
-                    || "mode_cts".equals(info.luTypeName))
-                   && loadMode) {
+            || "mode_cts".equals(info.luTypeName))
+            && loadMode) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = loadDatabaseManager.loadModeFile(info);
       modeHeaderSearchTime += timeStats.get("headerSearchTime");
@@ -370,11 +370,11 @@ public class MVLoad {
       modeLinesTotal += timeStats.get("linesTotal");
       numModeFiles++;
     } else if (("mtd_2d".equals(info.luTypeName)
-                    || "mtd_3d_pc".equals(info.luTypeName)
-                    || "mtd_3d_ps".equals(info.luTypeName)
-                    || "mtd_3d_sc".equals(info.luTypeName)
-                    || "mtd_3d_ss".equals(info.luTypeName))
-                   && loadMtd) {
+            || "mtd_3d_pc".equals(info.luTypeName)
+            || "mtd_3d_ps".equals(info.luTypeName)
+            || "mtd_3d_sc".equals(info.luTypeName)
+            || "mtd_3d_ss".equals(info.luTypeName))
+            && loadMtd) {
       logger.info(strFileMsg);
       Map<String, Long> timeStats = loadDatabaseManager.loadMtdFile(info);
       mtdHeaderSearchTime += timeStats.get("headerSearchTime");
