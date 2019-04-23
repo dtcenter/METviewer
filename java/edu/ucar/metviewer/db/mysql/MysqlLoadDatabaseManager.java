@@ -758,8 +758,43 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         statHeaderValueList.add(MVUtil.findValue(listToken, headerNames, "VX_MASK"));
         statHeaderValueList.add(MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
         statHeaderValueList.add(strInterpPnts);
-        statHeaderValueList.add(MVUtil.findValue(listToken, headerNames, "FCST_THRESH"));
-        statHeaderValueList.add(MVUtil.findValue(listToken, headerNames, "OBS_THRESH"));
+
+        String fcstThresh = MVUtil.findValue(listToken, headerNames, "FCST_THRESH");
+        double fcstPerc = (double) -9999;
+        String fcstThreshStr;
+        if(fcstThresh.contains("(") && fcstThresh.contains(")")){
+          String percStr = fcstThresh.substring(fcstThresh.indexOf("(")+1,fcstThresh.indexOf(")"));
+          fcstThreshStr = fcstThresh.substring(0, fcstThresh.indexOf("("));
+          try{
+            fcstPerc = Double.valueOf(percStr);
+          }catch (NumberFormatException e){
+            logger.error("String for the forecast threshold percentile " + percStr
+                    + " can't be converted to double and ignored");
+          }
+        }else {
+          fcstThreshStr = fcstThresh;
+        }
+
+        String obsThresh = MVUtil.findValue(listToken, headerNames, "OBS_THRESH");
+        double obsPerc = (double) -9999;
+        String obsThreshStr;
+        if(obsThresh.contains("(") && obsThresh.contains(")")){
+          String percStr = obsThresh.substring(obsThresh.indexOf("(")+1,obsThresh.indexOf(")"));
+          obsThreshStr = obsThresh.substring(0, obsThresh.indexOf("("));
+          try{
+            obsPerc = Double.valueOf(percStr);
+          }catch (NumberFormatException e){
+            logger.error("String for the obs threshold percentile " + percStr
+                    + " can't be converted to double and ignored");
+          }
+        }else {
+          obsThreshStr = obsThresh;
+        }
+        statHeaderValueList.add(fcstThreshStr);
+        statHeaderValueList.add(obsThreshStr);
+        statHeaderValueList.add(fcstPerc);
+        statHeaderValueList.add(obsPerc);
+
 
 
         //  build a where clause for searching for duplicate stat_header records
@@ -776,7 +811,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 + "  AND " + BINARY + "interp_mthd =?"
                 + "  AND interp_pnts =?"
                 + "  AND " + BINARY + "fcst_thresh =?"
-                + "  AND " + BINARY + "obs_thresh =?";
+                + "  AND " + BINARY + "obs_thresh =?"
+                + "  AND fcst_perc =?"
+                + "  AND obs_perc =?";
 
 
         //  build the value list for the stat_header insert
@@ -829,8 +866,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               stmt.setString(10, MVUtil.findValue(listToken, headerNames, "VX_MASK"));
               stmt.setString(11, MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
               stmt.setInt(12, Integer.valueOf(strInterpPnts));
-              stmt.setString(13, MVUtil.findValue(listToken, headerNames, "FCST_THRESH"));
-              stmt.setString(14, MVUtil.findValue(listToken, headerNames, "OBS_THRESH"));
+              stmt.setString(13, fcstThreshStr);
+              stmt.setString(14, obsThreshStr);
+              stmt.setDouble(15, fcstPerc);
+              stmt.setDouble(16, obsPerc);
 
               res = stmt.executeQuery();
               if (res.next()) {
@@ -875,7 +914,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             statHeaders.put(statHeaderValue, statHeaderId);
 
             //  insert the record into the stat_header database table
-            String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             int statHeaderInsert;
             try (Connection con = getConnection();
                  PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -894,8 +933,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               stmt.setString(12, MVUtil.findValue(listToken, headerNames, "VX_MASK"));
               stmt.setString(13, MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
               stmt.setObject(14, strInterpPnts, Types.INTEGER);
-              stmt.setString(15, MVUtil.findValue(listToken, headerNames, "FCST_THRESH"));
-              stmt.setString(16, MVUtil.findValue(listToken, headerNames, "OBS_THRESH"));
+              stmt.setString(15, fcstThreshStr);
+              stmt.setString(16, obsThreshStr);
+              stmt.setDouble(17, fcstPerc);
+              stmt.setDouble(18, obsPerc);
 
               statHeaderInsert = stmt.executeUpdate();
 
@@ -1510,7 +1551,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   "NA",    //  interp_mthd
                   interpPnts,    //  interp_pnts
                   thresh,    //  fcst_thresh
-                  thresh    //  obs_thresh
+                  thresh,    //  obs_thresh
+                  "-9999",   //fsct_perc
+                  "-9999"    //obs_perc
           };
 
           //  build a where clause for searching for duplicate stat_header records
@@ -1529,7 +1572,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   + "  AND " + BINARY + "interp_mthd =?"
                   + "  AND interp_pnts =?"
                   + "  AND " + BINARY + "fcst_thresh =?"
-                  + "  AND " + BINARY + "obs_thresh =?";
+                  + "  AND " + BINARY + "obs_thresh =?"
+                  + "  AND "  + "fcst_perc =?"
+                  + "  AND "  + "obs_perc =?";
 
           //  build the value list for the stat_header insert
           String statHeaderValueList = "";
@@ -1575,6 +1620,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setInt(12, Integer.valueOf(interpPnts));
                 stmt.setString(13, thresh);
                 stmt.setString(14, thresh);
+                stmt.setDouble(15, -9999);
+                stmt.setDouble(16, -9999);
 
                 res = stmt.executeQuery();
                 if (res.next()) {
@@ -1618,7 +1665,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               statHeaders.put(statHeaderValueList, statHeaderId);
 
               //  insert the record into the stat_header database table
-              String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+              String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
               int intStatHeaderInsert;
               try (Connection con = getConnection();
                    PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -1640,6 +1687,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setObject(14, interpPnts, Types.INTEGER);
                 stmt.setString(15, thresh);
                 stmt.setString(16, thresh);
+                stmt.setDouble(17, -9999);
+                stmt.setDouble(18, -9999);
 
 
                 intStatHeaderInsert = stmt.executeUpdate();
