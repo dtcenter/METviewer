@@ -66,7 +66,9 @@ CREATE TABLE stat_header
     model,
     descr,
     fcst_var(20),
+    fcst_units,
     obs_var(20),
+    obs_units,
     obs_lev,
     obtype,
     vx_mask,
@@ -1700,27 +1702,27 @@ CREATE TABLE mode_header
 
   CONSTRAINT mode_header_data_file_id_pk
   FOREIGN KEY (data_file_id)
-  REFERENCES data_file (data_file_id),
-  CONSTRAINT mode_header_unique_pk
-  UNIQUE INDEX (
-    model,
-    descr,
-    fcst_lead,
-    fcst_valid,
-    fcst_accum,
-    obs_lead,
-    obs_valid,
-    obs_accum,
-    fcst_rad,
-    fcst_thr,
-    obs_rad,
-    obs_thr,
-    fcst_var,
-    fcst_lev,
-    obs_var,
-    obs_lev
-  )
+  REFERENCES data_file (data_file_id)
+
 ) ENGINE = MyISAM;
+CREATE INDEX mode_header_unique_pk ON mode_header(
+                                                  model,
+                                                  descr,
+                                                  fcst_lead,
+                                                  fcst_valid,
+                                                  fcst_accum,
+                                                  obs_lead,
+                                                  obs_valid,
+                                                  obs_accum,
+                                                  fcst_rad,
+                                                  fcst_thr,
+                                                  obs_rad,
+                                                  obs_thr,
+                                                  fcst_var,
+                                                  fcst_lev,
+                                                  obs_var,
+                                                  obs_lev
+    );
 
 -- mode_cts contains mode cts data for a particular mode_header record, which it points
 --   at via the mode_header_id field.
@@ -1909,26 +1911,25 @@ CREATE TABLE mtd_header
 
   CONSTRAINT mtd_header_data_file_id_pk
   FOREIGN KEY (data_file_id)
-  REFERENCES data_file (data_file_id),
-  CONSTRAINT mtd_header_unique_pk
-  UNIQUE INDEX (
-    model,
-    descr,
-    fcst_lead,
-    fcst_valid,
-    obs_lead,
-    obs_valid,
-    t_delta,
-    fcst_rad,
-    fcst_thr,
-    obs_rad,
-    obs_thr,
-    fcst_var,
-    fcst_lev,
-    obs_var,
-    obs_lev
-  )
+  REFERENCES data_file (data_file_id)
 ) ENGINE = MyISAM;
+CREATE INDEX mtd_header_unique_pk ON mtd_header(
+                                                model,
+                                                descr,
+                                                fcst_lead,
+                                                fcst_valid,
+                                                obs_lead,
+                                                obs_valid,
+                                                t_delta,
+                                                fcst_rad,
+                                                fcst_thr,
+                                                obs_rad,
+                                                obs_thr,
+                                                fcst_var,
+                                                fcst_lev,
+                                                obs_var,
+                                                obs_lev
+    );
 
 DROP TABLE IF EXISTS mtd_2d_obj;
 CREATE TABLE mtd_2d_obj

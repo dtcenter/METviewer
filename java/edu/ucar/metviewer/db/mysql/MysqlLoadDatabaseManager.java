@@ -688,23 +688,19 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         //  parse the valid time
 
-        LocalDateTime fcstValidBeg = LocalDateTime.parse(
-                MVUtil.findValue(listToken, headerNames, "FCST_VALID_BEG"),
+        LocalDateTime fcstValidBeg = LocalDateTime.parse(MVUtil.findValue(listToken, headerNames, "FCST_VALID_BEG"),
                 DB_DATE_STAT_FORMAT);
 
 
-        LocalDateTime fcstValidEnd = LocalDateTime.parse(
-                MVUtil.findValue(listToken, headerNames, "FCST_VALID_END"),
+        LocalDateTime fcstValidEnd = LocalDateTime.parse(MVUtil.findValue(listToken, headerNames, "FCST_VALID_END"),
                 DB_DATE_STAT_FORMAT);
 
 
-        LocalDateTime obsValidBeg = LocalDateTime.parse(
-                MVUtil.findValue(listToken, headerNames, "OBS_VALID_BEG"),
+        LocalDateTime obsValidBeg = LocalDateTime.parse(MVUtil.findValue(listToken, headerNames, "OBS_VALID_BEG"),
                 DB_DATE_STAT_FORMAT);
 
 
-        LocalDateTime obsValidEnd = LocalDateTime.parse(
-                MVUtil.findValue(listToken, headerNames, "OBS_VALID_END"),
+        LocalDateTime obsValidEnd = LocalDateTime.parse(MVUtil.findValue(listToken, headerNames, "OBS_VALID_END"),
                 DB_DATE_STAT_FORMAT);
 
         //  format the valid times for the database insert
