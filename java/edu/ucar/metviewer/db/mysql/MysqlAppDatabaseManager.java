@@ -579,6 +579,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
         }
       }
+      con.close();
 
     } catch (SQLException | StopWatchException e) {
       logger.error(e.getMessage());
