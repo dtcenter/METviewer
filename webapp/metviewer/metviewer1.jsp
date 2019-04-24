@@ -175,7 +175,7 @@
   <script type="application/javascript" src="js/grid.locale-en.js"></script>
   <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
   <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
-  <script type="application/javascript" src="js/jquery.multiselect.js"></script>
+  <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
   <script type="application/javascript" src="js/jquery.actual.min.js"></script>
   <script type="application/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
