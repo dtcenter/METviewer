@@ -5206,7 +5206,6 @@ function addSeriesVar(y_axis) {
     try {
         series_var_val.multiselect("uncheckAll");
     } catch (err) {
-
     }
     series_var.multiselect({
         multiple: false,
