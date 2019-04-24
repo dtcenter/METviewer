@@ -1008,7 +1008,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           lineDataValues.add(obsValidEndStr);
 
           //add percentile data if beeded
-          if (fcstPerc != 9999 || obsPerc != -9999) {
+          if (fcstPerc != -9999 || obsPerc != -9999) {
             List<Object> lineDataValuesPercentile = new ArrayList<>(lineDataValues);
             lineDataValuesPercentile.add(fcstPerc);
             lineDataValuesPercentile.add(obsPerc);
@@ -3644,7 +3644,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }
 
     } catch (SQLException se) {
-
+      logger.error(ERROR_MARKER, se.getMessage());
       throw new DatabaseException("caught SQLException calling executeBatch: " + se.getMessage());
     } finally {
       if (ps != null) {
