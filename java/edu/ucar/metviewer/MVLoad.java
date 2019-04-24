@@ -1,7 +1,7 @@
 package edu.ucar.metviewer;
 
-import java.io.File;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,13 +9,17 @@ import java.util.Map;
 
 import edu.ucar.metviewer.db.DatabaseManager;
 import edu.ucar.metviewer.db.LoadDatabaseManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.io.IoBuilder;
 
 public class MVLoad {
 
-  private static final Logger logger = LogManager.getLogger("Console");
+  private static final Logger logger = LogManager.getLogger("MVLoad");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
   private static LoadDatabaseManager loadDatabaseManager;
 
 
@@ -69,6 +73,11 @@ public class MVLoad {
   }
 
   public static void main(String[] argv) {
+
+    LoggerContext context = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+    ClassLoader classLoader = MVLoad.class.getClassLoader();
+    File file2 = new File(classLoader.getResource("log4j2.xml").getFile());
+    context.setConfigLocation(file2.toURI());
     logger.info("----  MVLoad  ----\n");
 
     try {
@@ -160,7 +169,7 @@ public class MVLoad {
             file = new File(listLoadFiles[i]);
             processFile(file);
           } catch (Exception e) {
-            logger.error(
+            logger.error(ERROR_MARKER,
                     "  **  ERROR: caught " + e.getClass() + " loading file "
                             + listLoadFiles[i] + ": " + e.getMessage());
             logger.error(e);
@@ -207,7 +216,7 @@ public class MVLoad {
                 try {
                   processFile(listDataFile);
                 } catch (Exception e) {
-                  logger.error("  **  ERROR: caught " + e.getClass() + " in processFile()\n"
+                  logger.error(ERROR_MARKER, "  **  ERROR: caught " + e.getClass() + " in processFile()\n"
                           + e.getMessage() + "\n"
                           + "  **  WARNING: error(s) encountered loading file "
                           + listDataFile + " - skipping file");
@@ -298,7 +307,7 @@ public class MVLoad {
       logger.info("End time: " + MVUtil.APP_DATE_FORMATTER.format(LocalDateTime.now()));
       logger.info("Load total: " + MVUtil.formatTimeSpan(intLoadTime) + "\n");
     } catch (Exception e) {
-      logger.error("  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
+      logger.error(ERROR_MARKER, "  **  ERROR: Caught " + e.getClass() + ": " + e.getMessage());
       logger.error(e);
     }
 
