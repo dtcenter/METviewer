@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v3.0-dev</TITLE>
+  <TITLE>METviewer v2.10-dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -175,7 +175,7 @@
   <script type="application/javascript" src="js/grid.locale-en.js"></script>
   <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
   <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
-  <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
+  <script type="application/javascript" src="js/jquery_multiselect.js"></script>
   <script type="application/javascript" src="js/jquery.actual.min.js"></script>
   <script type="application/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
@@ -249,7 +249,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 3.0-dev<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.10-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>

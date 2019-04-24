@@ -3128,6 +3128,9 @@ function updateSeries(isCheckAll) {
                     var seriesName = series_perm[series_perm_index] + " " + fcst_var + " " + stat_name;
                     for (var a = 0; a < derivedBoxes.length; a++) {
                         var seriesNameWithDerived = seriesName;
+                        if(seriesNameWithDerived.indexOf('<') > -1){
+                            seriesNameWithDerived = seriesNameWithDerived.replace(/</g, '&lt;');
+                        }
                         if (derivedBoxes[a].value.length > 0) {
                             seriesNameWithDerived = seriesNameWithDerived + ' ' + derivedBoxes[a].value;
                         }
@@ -3449,6 +3452,7 @@ function interpolateColor(rel) {
  * 8-bit color depth.
  */
 function hex(val) {
+    var strRet = Math.round(val * 255).toString(16).toUpperCase();
     var strRet = Math.round(val * 255).toString(16).toUpperCase();
     while (2 > strRet.length) {
         strRet = "0" + strRet;
@@ -4227,16 +4231,21 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
     for (var i = 0; i < series_var_indexes.length; i++) {
         var field = $('<field />').attr("name", $("#series_var_y" + y_axis + "_" + series_var_indexes[i]).val());
         var isGroup = $("#group_series_var_y" + y_axis + "_" + series_var_indexes[i]).is(':checked');
-        var valArr = $("#series_var_val_y" + y_axis + "_" + series_var_indexes[i]).val();
+        var valArr = $("#series_var_val_y" + y_axis + "_" + series_var_indexes[i]).multiselect("getChecked");
         if (!valArr || valArr == null) {
             valArr = [];
         }
         if (isGroup) {
             valArr = [valArr.join()];
         }
-        if (Array.isArray(valArr)) {
+        if (Array.isArray(valArr) ) {
             for (var j = 0; j < valArr.length; j++) {
                 field.append($('<val />').text(valArr[j]));
+            }
+        }else if(typeof(valArr)==='object'){
+            for (var j = 0; j < valArr.length; j++) {
+                var val =$(valArr[j]).val();
+                field.append($('<val />').text(val));
             }
         } else {
             field.append($('<val />').text(valArr));
