@@ -58,8 +58,6 @@ CREATE TABLE stat_header
     interp_pnts    INT UNSIGNED,
     fcst_thresh    VARCHAR(100),
     obs_thresh     VARCHAR(100),
-    fcst_perc      DOUBLE DEFAULT -9999,
-    obs_perc       DOUBLE DEFAULT -9999,
 
     PRIMARY KEY (stat_header_id),
 
@@ -77,9 +75,7 @@ CREATE TABLE stat_header
                       interp_mthd,
                       interp_pnts,
                       fcst_thresh(40),
-                      obs_thresh(40),
-                      fcst_perc,
-                      obs_perc
+                      obs_thresh(40)
         )
 ) ENGINE = MyISAM;
 
@@ -2026,4 +2022,31 @@ CREATE TABLE metadata
     category    VARCHAR(30)  NOT NULL DEFAULT '',
     description VARCHAR(300) NOT NULL DEFAULT ''
 
+) ENGINE = MyISAM;
+
+DROP TABLE IF EXISTS line_data_perc;
+CREATE TABLE line_data_perc
+(
+    stat_header_id INT UNSIGNED NOT NULL,
+    data_file_id   INT UNSIGNED NOT NULL,
+    line_num       INT UNSIGNED,
+    fcst_lead      INT,
+    fcst_valid_beg DATETIME,
+    fcst_valid_end DATETIME,
+    fcst_init_beg  DATETIME,
+    obs_lead       INT UNSIGNED,
+    obs_valid_beg  DATETIME,
+    obs_valid_end  DATETIME,
+    fcst_perc      DOUBLE,
+    obs_perc       DOUBLE,
+
+
+
+    CONSTRAINT line_data_perc_data_file_id_pk
+        FOREIGN KEY (data_file_id)
+            REFERENCES data_file (data_file_id),
+    CONSTRAINT line_data_perc_stat_header_id_pk
+        FOREIGN KEY (stat_header_id)
+            REFERENCES stat_header (stat_header_id),
+    INDEX stat_header_id_idx (stat_header_id)
 ) ENGINE = MyISAM;
