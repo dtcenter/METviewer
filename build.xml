@@ -365,8 +365,6 @@
         <manifest file="${build}/MANIFEST.MF">
             <attribute name="Specification-Version" value="2.8"/>
         </manifest>
-        <copy file="${src.webapp.dir}/metviewer/WEB-INF/classes/log4j2.xml" tofile="${build}/log4j2.xml"
-              overwrite="true"/>
 
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
         </jar>

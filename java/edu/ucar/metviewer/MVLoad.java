@@ -74,11 +74,7 @@ public class MVLoad {
 
   public static void main(String[] argv) {
 
-    LoggerContext context = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
-    ClassLoader classLoader = MVLoad.class.getClassLoader();
-    File file2 = new File(classLoader.getResource("log4j2.xml").getFile());
-    context.setConfigLocation(file2.toURI());
-    logger.info("----  MVLoad  ----\n");
+    logger.info( "----  MVLoad  ----\n");
 
     try {
 
