@@ -1581,8 +1581,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   interpPnts,    //  interp_pnts
                   thresh,    //  fcst_thresh
                   thresh,    //  obs_thresh
-                  "-9999",   //fsct_perc
-                  "-9999"    //obs_perc
           };
 
           //  build a where clause for searching for duplicate stat_header records
@@ -1601,9 +1599,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                   + "  AND " + BINARY + "interp_mthd =?"
                   + "  AND interp_pnts =?"
                   + "  AND " + BINARY + "fcst_thresh =?"
-                  + "  AND " + BINARY + "obs_thresh =?"
-                  + "  AND " + "fcst_perc =?"
-                  + "  AND " + "obs_perc =?";
+                  + "  AND " + BINARY + "obs_thresh =?";
 
           //  build the value list for the stat_header insert
           String statHeaderValueList = "";
@@ -1648,8 +1644,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setInt(12, Integer.valueOf(interpPnts));
                 stmt.setString(13, thresh);
                 stmt.setString(14, thresh);
-                stmt.setDouble(15, -9999);
-                stmt.setDouble(16, -9999);
 
                 res = stmt.executeQuery();
                 if (res.next()) {
@@ -1693,7 +1687,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               statHeaders.put(statHeaderValueList, statHeaderId);
 
               //  insert the record into the stat_header database table
-              String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+              String sql = "INSERT INTO stat_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
               int intStatHeaderInsert;
               try (Connection con = getConnection();
                    PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -1715,8 +1709,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setObject(14, interpPnts, Types.INTEGER);
                 stmt.setString(15, thresh);
                 stmt.setString(16, thresh);
-                stmt.setDouble(17, -9999);
-                stmt.setDouble(18, -9999);
 
 
                 intStatHeaderInsert = stmt.executeUpdate();
