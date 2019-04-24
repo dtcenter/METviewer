@@ -51,7 +51,7 @@ public class SeriesJobManager extends JobManager {
 
     /*
      *  Build a plot for each permutation of <plot_fix> values
-    */
+     */
 
     List<String> listQuery;
     AppDatabaseManager appDatabaseManager = mvBatch.getDatabaseManager();
@@ -61,12 +61,12 @@ public class SeriesJobManager extends JobManager {
       job.setEventEqual(isEE);
 
       mvBatch
-          .print("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
+              .print("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
 
       //    insert set values for this permutation
       MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
-                                                    plotFixPerm,
-                                                    appDatabaseManager.getDateFormat());
+              plotFixPerm,
+              appDatabaseManager.getDateFormat());
       job.setTmplVal(fixTmplVal);
       //  if the independent variable uses a dependency, populate the values
       MVPlotDep depIndy = job.getIndyDep();
@@ -74,21 +74,21 @@ public class SeriesJobManager extends JobManager {
         String strDep = "";
         if (job.getTmplVal().containsKey(depIndy.getDepVar())) {
           strDep = appDatabaseManager.getDateFormat().format(
-              MVUtil.parsePlotFormat(job.getTmplVal().getStr(depIndy.getDepVar())));
+                  MVUtil.parsePlotFormat(job.getTmplVal().getStr(depIndy.getDepVar())));
         }
         String[][] listIndy = MVPlotJobParser.parseIndyNode(depIndy.getSpec(), strDep);
         job.setIndyVal(listIndy[0]);
         job.setIndyLabel(listIndy[1]);
       }
       MVOrderedMap fixVals = job.getPlotFixVal();
-      for(String fixFar: fixVals.getKeyList()){
-        if(fixTmplVal.containsKey(fixFar)){
+      for (String fixFar : fixVals.getKeyList()) {
+        if (fixTmplVal.containsKey(fixFar)) {
           fixVals.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
       MVOrderedMap fixValsEE = job.getPlotFixValEq();
-      for(String fixFar: fixValsEE.getKeyList()){
-        if(fixTmplVal.containsKey(fixFar)){
+      for (String fixFar : fixValsEE.getKeyList()) {
+        if (fixTmplVal.containsKey(fixFar)) {
           fixValsEE.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
@@ -138,7 +138,7 @@ public class SeriesJobManager extends JobManager {
         intNumSeries2Perm *= ((String[]) aListSeries2Val.getValue()).length;
       }
       Map.Entry[] listDep1Plot = ((MVOrderedMap) job.getDepGroups()[0].get("dep1"))
-                                     .getOrderedEntries();
+              .getOrderedEntries();
       int intNumDep1 = getNumberPlotCurves(listDep1Plot);
       int intNumDep1Series = intNumDep1 * intNumSeries1Perm;
       int intNumDep2Series = intNumDep2 * intNumSeries2Perm;
@@ -150,42 +150,42 @@ public class SeriesJobManager extends JobManager {
       //  validate the number of formatting elements
       if (intNumDepSeries > MVUtil.parseRCol(job.getPlotDisp()).length) {
         throw new ValidationException("length of plot_disp differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (job.getOrderSeries().length() > 0
               && intNumDepSeries > MVUtil.parseRCol(job.getOrderSeries()).length) {
         throw new ValidationException("length of order_series differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getColors()).length) {
         throw new ValidationException("length of colors differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getPch()).length) {
         throw new ValidationException("length of pch differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getType()).length) {
         throw new ValidationException("length of type differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getLty()).length) {
         throw new ValidationException("length of lty differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (intNumDepSeries > MVUtil.parseRCol(job.getLwd()).length) {
         throw new ValidationException("length of lwd differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (!job.getLegend().isEmpty()
               && intNumDepSeries > MVUtil.parseRCol(job.getLegend()).length) {
         throw new ValidationException("length of legend differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
 
       if (intNumDepSeries > MVUtil.parseRCol(job.getShowSignif()).length) {
         throw new ValidationException("length of show_signif differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       validateNumDepSeries(job, intNumDepSeries);
 
@@ -195,7 +195,7 @@ public class SeriesJobManager extends JobManager {
       }
       if (job.getPlotTmpl().startsWith("revision") && !job.getIndyVar().equals("fcst_valid_beg")) {
         throw new ValidationException("revision series option only available for independent variable "
-                                + "'fcst_valid_beg'");
+                + "'fcst_valid_beg'");
       }
       if (job.getPlotTmpl().startsWith("revision") && job.getDiffSeries1Count() > 0) {
         throw new ValidationException("revision series don't produce derived curves");
@@ -230,21 +230,21 @@ public class SeriesJobManager extends JobManager {
 
       //run main Rscript
       String dataFileName = mvBatch.getDataFolder()
-                                + MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                             MVUtil.addTmplValDep(job),
-                                                             job.getTmplMaps(),
-                                                             mvBatch.getPrintStream());
+              + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+              MVUtil.addTmplValDep(job),
+              job.getTmplMaps(),
+              mvBatch.getPrintStream());
       File dataFile = new File(dataFileName);
-      if (!listQuery.isEmpty() ) {
+      if (!listQuery.isEmpty()) {
         dataFile.getParentFile().mkdirs();
         for (int i = 0; i < job.getCurrentDBName().size(); i++) {
           MvResponse mvResponse =
-              appDatabaseManager.executeQueriesAndSaveToFile(listQuery,
-                                                                         dataFileName,
-                                                                         job.isCalcStat(),
-                                                                         job.getCurrentDBName().get(i),
-                                                                         i == 0);
-          if(mvResponse.getInfoMessage() != null){
+                  appDatabaseManager.executeQueriesAndSaveToFile(listQuery,
+                          dataFileName,
+                          job.isCalcStat(),
+                          job.getCurrentDBName().get(i),
+                          i == 0);
+          if (mvResponse.getInfoMessage() != null) {
             mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
           }
         }
@@ -264,7 +264,7 @@ public class SeriesJobManager extends JobManager {
     MVOrderedMap[] listDep = job.getDepGroups();
     for (int dep = 1; dep <= 2; dep++) {
       String[][] listFcstVarStat
-          = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep" + dep));
+              = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep" + dep));
 
       for (String[] aListFcstVarStat : listFcstVarStat) {
         String stat = aListFcstVarStat[1].split("_")[0];
@@ -279,7 +279,7 @@ public class SeriesJobManager extends JobManager {
 
           if (!type.equals("DCM")) {
             throw new ValidationException("Incorrect series definition. Stat "
-                                    + stat + " can only have Cluster and Matched for Diff type");
+                    + stat + " can only have Cluster and Matched for Diff type");
           }
         }
       }
