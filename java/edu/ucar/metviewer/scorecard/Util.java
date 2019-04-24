@@ -23,7 +23,7 @@ public class Util {
 
   private static final Logger logger = LogManager.getLogger("Util");
   private static final String[] aggTypes = new String[]{MVUtil.CTC, MVUtil.SL1L2, MVUtil.SAL1L2,
-      MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT, MVUtil.ECNT};
+          MVUtil.VL1L2, MVUtil.VAL1L2, MVUtil.PCT, MVUtil.GRAD, MVUtil.NBR_CNT, MVUtil.ECNT};
 
   private Util() {
 
@@ -66,15 +66,15 @@ public class Util {
       orderedMap = new HashMap<>();
     }
 
-      String[] entry = orderedMap.get(stat);
+    String[] entry = orderedMap.get(stat);
 
-      for (String st : entry) {
-        if (Arrays.asList(aggTypes).contains(st.toLowerCase())) {
-          aggType = st;
-          break;
-        }
+    for (String st : entry) {
+      if (Arrays.asList(aggTypes).contains(st.toLowerCase())) {
+        aggType = st;
+        break;
       }
-    
+    }
+
     return aggType;
   }
 }

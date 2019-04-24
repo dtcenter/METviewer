@@ -24,7 +24,7 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerSql {
 
   public AggDatabaseManagerMySQL(final Scorecard scorecard,
                                  final MysqlDatabaseManager databaseManager) throws SQLException {
-    super(scorecard,databaseManager);
+    super(scorecard, databaseManager);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile();
 
   }
@@ -58,7 +58,7 @@ public class AggDatabaseManagerMySQL extends DatabaseManagerSql {
           result += "  FORMAT((ldt" + i + ".thresh_i + 1)/2, 3),";
         }
         result += "  ldt" + i + ".oy_i," +
-          "  ldt" + i + ".on_i";
+                "  ldt" + i + ".on_i";
       }
     }
     return result;

@@ -21,6 +21,8 @@ import edu.ucar.metviewer.scorecard.Util;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
 /**
@@ -32,6 +34,8 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class AggRscriptManager extends RscriptManager {
 
   private static final Logger logger = LogManager.getLogger("AggRscriptManager");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private static final String STAT_SCRIPT_FILE_NAME = "/include/agg_stat.R";
   private final String strAggInfo;
   private final String aggStatTemplFilePath;
@@ -43,12 +47,12 @@ public class AggRscriptManager extends RscriptManager {
   public AggRscriptManager(final Scorecard scorecard) {
     super(scorecard);
     strAggInfo = scorecard.getWorkingFolders().getDataDir() + scorecard.getAggStatDataFile()
-                                                                  .replaceFirst("\\.data.agg_stat$",
-                                                                                ".agg_stat.info");
+            .replaceFirst("\\.data.agg_stat$",
+                    ".agg_stat.info");
     aggStatTemplFilePath = scorecard.getWorkingFolders().getrTemplateDir();
     aggStatTemplScriptDir = scorecard.getWorkingFolders().getrWorkDir();
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard
-                                                                           .getAggStatDataFile();
+            .getAggStatDataFile();
 
 
     tableAggStatInfoCommon = new HashMap<>();
@@ -65,14 +69,14 @@ public class AggRscriptManager extends RscriptManager {
     tableAggStatInfoCommon.put("fix_val_list_eq", "list()");
     tableAggStatInfoCommon.put("fix_val_list", "list()");
     tableAggStatInfoCommon
-        .put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
+            .put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
     tableAggStatInfoCommon.put("series2_diff_list", "list()");
     tableAggStatInfoCommon.put("dep2_plot", "c()");
     tableAggStatInfoCommon.put("cl_step", "0.05");
 
     tableAggStatInfoCommon.put("agg_stat_output",
-                               scorecard.getWorkingFolders().getDataDir() + scorecard
-                                                                                .getDataFile());
+            scorecard.getWorkingFolders().getDataDir() + scorecard
+                    .getDataFile());
     String seed = "NA";
     if (scorecard.getBootRandomSeed() != null) {
       seed = String.valueOf(scorecard.getBootRandomSeed());
@@ -116,18 +120,18 @@ public class AggRscriptManager extends RscriptManager {
       tableAggStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       int lastDot = aggStatDataFilePath.lastIndexOf('.');
       String thredFileName = aggStatDataFilePath
-                                 .substring(0, lastDot) + threadName + aggStatDataFilePath
-                                                                           .substring(lastDot);
+              .substring(0, lastDot) + threadName + aggStatDataFilePath
+              .substring(lastDot);
       tableAggStatInfo.put("agg_stat_input", thredFileName);
 
       lastDot = strAggInfo.lastIndexOf('.');
       String thredInfoFileName = strAggInfo.substring(0, lastDot) + threadName + strAggInfo
-                                                                                     .substring(
-                                                                                         lastDot);
+              .substring(
+                      lastDot);
 
       try (PrintStream printStream = IoBuilder.forLogger(AggRscriptManager.class)
-                                         .setLevel(org.apache.logging.log4j.Level.INFO)
-                                         .buildPrintStream()) {
+              .setLevel(org.apache.logging.log4j.Level.INFO)
+              .buildPrintStream()) {
 
         String aggStatTemplScript;
         String aggStatTemplFile;
@@ -138,11 +142,11 @@ public class AggRscriptManager extends RscriptManager {
         MVUtil.populateTemplateFile(aggStatTemplFile, thredInfoFileName, tableAggStatInfo);
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + aggStatTemplScript );
+        printStream.println("Running " + rScriptCommand + " " + aggStatTemplScript);
 
 
         MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, aggStatTemplScript,
-                                                  new String[]{thredInfoFileName});
+                new String[]{thredInfoFileName});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
           printStream.println(mvResponse.getInfoMessage());
@@ -152,7 +156,7 @@ public class AggRscriptManager extends RscriptManager {
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (IOException | StopWatchException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       }
     }
   }

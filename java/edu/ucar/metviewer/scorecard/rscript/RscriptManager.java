@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Constructs and runs Rscript
+ *
  * @author : tatiana $
  * @version : 1.0 : 07/02/17 09:22 $
  */

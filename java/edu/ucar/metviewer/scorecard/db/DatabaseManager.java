@@ -19,5 +19,5 @@ import edu.ucar.metviewer.scorecard.model.Entry;
  */
 @FunctionalInterface
 public interface DatabaseManager {
-   void createDataFile(Map<String, Entry> map, String threadName) throws DatabaseException, SQLException, IOException, StopWatchException;
+  void createDataFile(Map<String, Entry> map, String threadName) throws DatabaseException, SQLException, IOException, StopWatchException;
 }

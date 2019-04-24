@@ -33,6 +33,8 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.BINARY;
 import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
@@ -44,6 +46,8 @@ import static edu.ucar.metviewer.db.mysql.MysqlDatabaseManager.DATE_FORMATTER;
 public abstract class DatabaseManagerSql implements DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("DatabaseManagerSql");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private final Map<String, List<Entry>> columnsDescription;
   private final String databaseName;
   private final List<Field> fixedVars;
@@ -52,7 +56,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
   private MysqlDatabaseManager databaseManager;
 
   DatabaseManagerSql(
-      final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
+          final Scorecard scorecard, MysqlDatabaseManager databaseManager) {
     this.databaseManager = databaseManager;
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
@@ -67,8 +71,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
   @Override
   public void createDataFile(
-      Map<String, Entry> map,
-      String threadName) throws DatabaseException, SQLException, IOException, StopWatchException {
+          Map<String, Entry> map,
+          String threadName) throws DatabaseException, SQLException, IOException, StopWatchException {
     String mysql = getQueryForRow(map);
     if (mysql != null) {
       if (printSQL) {
@@ -77,8 +81,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
       int lastDot = aggStatDataFilePath.lastIndexOf('.');
       String thredFileName = aggStatDataFilePath
-                                 .substring(0, lastDot) + threadName
-                                 + aggStatDataFilePath.substring(lastDot);
+              .substring(0, lastDot) + threadName
+              + aggStatDataFilePath.substring(lastDot);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
       try (Connection con = databaseManager.getConnection(databaseName);
@@ -97,8 +101,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         res.close();
         pstmt.close();
         con.close();
-      }catch (SQLException | IOException | StopWatchException e){
-        logger.error(e.getMessage());
+      } catch (SQLException | IOException | StopWatchException e) {
+        logger.error(ERROR_MARKER, e.getMessage());
       }
     }
   }
@@ -122,14 +126,14 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     for (Map.Entry<String, Entry> entry : map.entrySet()) {
       if ("stat".equals(entry.getKey())) {
         selectFields.append("'").append(entry.getValue().getName())
-            .append("' stat_name,")
-            .append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
+                .append("' stat_name,")
+                .append(getStatValue(table, entry.getValue().getName())).append(" 'NA' stat_value,");
       } else {
         if (selectFields.indexOf(entry.getKey()) == -1) {
           selectFields.append(entry.getKey()).append(",");
         }
         whereFields.append(BINARY).append(entry.getKey()).append(" IN ('")
-            .append(entry.getValue().getName().replaceAll(",", "','")).append("') AND ");
+                .append(entry.getValue().getName().replaceAll(",", "','")).append("') AND ");
       }
     }
     for (Field fixedField : fixedVars) {
@@ -137,8 +141,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       if ("fcst_valid_beg".equals(fixedField.getName())
               || "fcst_init_beg".equals(fixedField.getName())) {
         whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
-            .append(fixedField.getValues().get(0).getName()).append("' AND '")
-            .append(fixedField.getValues().get(1).getName()).append("' AND ");
+                .append(fixedField.getValues().get(0).getName()).append("' AND '")
+                .append(fixedField.getValues().get(1).getName()).append("' AND ");
       } else if ("init_hour".equals(fixedField.getName())) {
         for (Entry val : fixedField.getValues()) {
           values.append(Integer.valueOf(val.getName())).append(",");
@@ -163,10 +167,10 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           values.deleteCharAt(values.length() - 1);
         }
         whereFields.append(BINARY).append(fixedField.getName()).append(" IN ('")
-            .append(values.toString().replaceAll(",", "','")).append("') AND ");
+                .append(values.toString().replaceAll(",", "','")).append("') AND ");
       }
       if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
-          "init_hour") && !fixedField.getName().equals("valid_hour")) {
+              "init_hour") && !fixedField.getName().equals("valid_hour")) {
         selectFields.append(fixedField.getName()).append(",");
       }
     }
@@ -185,7 +189,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         values.deleteCharAt(values.length() - 1);
       }
       whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
-          .append(values.toString().replaceAll(",", "','")).append("') AND ");
+              .append(values.toString().replaceAll(",", "','")).append("') AND ");
     }
 
 
@@ -205,7 +209,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
       try (Connection con = databaseManager.getConnection(databaseName);
            Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                ResultSet.CONCUR_READ_ONLY);
+                   ResultSet.CONCUR_READ_ONLY);
            ResultSet resultSet = stmt.executeQuery(mysql);
       ) {
         int numPctThresh = 0;
@@ -221,7 +225,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         stmt.close();
         con.close();
       } catch (SQLException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       }
       thresh = pctThreshInfo.get("pctThresh");
       numThresh = pctThreshInfo.get("numPctThresh");
@@ -243,22 +247,22 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
             whereFields.append("  AND");
           }
           whereFields.append(" line_data_pct.line_data_id = ldt").append(i)
-              .append(".line_data_id  AND ldt").append(i).append(".i_value = ").append(i);
+                  .append(".line_data_id  AND ldt").append(i).append(".i_value = ").append(i);
         }
         whereFields.append(" AND stat_header.stat_header_id = line_data_pct.stat_header_id");
       } else {
         whereFields.append("stat_header.stat_header_id = ").append(table)
-            .append(".stat_header_id;");
+                .append(".stat_header_id;");
       }
       return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
     } else {
-      logger.error("number of  pnts (" + numThresh + ") not distinct for " + whereFields);
+      logger.info("number of  pnts (" + numThresh + ") not distinct for " + whereFields);
       return null;
     }
   }
 
   private void printFormattedTable(
-      ResultSet res, BufferedWriter bufferedWriter) {
+          ResultSet res, BufferedWriter bufferedWriter) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
@@ -323,8 +327,8 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
 
     } catch (IOException | SQLException | EmptyResultSetException e) {
-      logger.error(
-          "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
+      logger.error(ERROR_MARKER,
+              "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
   }
 

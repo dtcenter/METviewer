@@ -17,8 +17,8 @@ import edu.ucar.metviewer.scorecard.Scorecard;
  */
 public class SumDatabaseManagerMySQL extends DatabaseManagerSql {
 
-  public SumDatabaseManagerMySQL(Scorecard scorecard,final MysqlDatabaseManager databaseManager) throws SQLException {
-    super(scorecard,databaseManager);
+  public SumDatabaseManagerMySQL(Scorecard scorecard, final MysqlDatabaseManager databaseManager) throws SQLException {
+    super(scorecard, databaseManager);
     aggStatDataFilePath = scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile().replaceAll(".data", ".dataFromDb");
 
   }
@@ -45,7 +45,7 @@ public class SumDatabaseManagerMySQL extends DatabaseManagerSql {
       result = "total, fabar, oabar, foabar, ffabar, ooabar, ";
     } else if (table.endsWith(MVUtil.VL1L2)) {
       result = "total, ufbar, vfbar, uobar, vobar, uvfobar, uvffbar, uvoobar, f_speed_bar,  "
-                   + "o_speed_bar,";
+              + "o_speed_bar,";
     } else if (table.endsWith(MVUtil.VAL1L2)) {
       result = "total, ufabar, vfabar, uoabar, voabar, uvfoabar, uvffabar, uvooabar, ";
     } else if (table.endsWith(MVUtil.NBR_CNT)) {
