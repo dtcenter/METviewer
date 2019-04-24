@@ -72,12 +72,12 @@ public class TestRunnerPlotMaker {
     if (failureListTestMVServlet.isEmpty()) {
       System.out.println("***** Servlet tests finished successfully... *****");
     }
-    int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0: failureListLoadDataTest.size();
-    int failureListCreatePlotBatchTestCount = failureListCreatePlotBatchTest == null ? 0: failureListCreatePlotBatchTest.size();
-    int failureListTestMVServletCount = failureListTestMVServlet == null ? 0: failureListTestMVServlet.size();
+    int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0 : failureListLoadDataTest.size();
+    int failureListCreatePlotBatchTestCount = failureListCreatePlotBatchTest == null ? 0 : failureListCreatePlotBatchTest.size();
+    int failureListTestMVServletCount = failureListTestMVServlet == null ? 0 : failureListTestMVServlet.size();
     int exitCode = failureListLoadDataTestCount + failureListCreatePlotBatchTestCount + failureListTestMVServletCount;
     System.out.println("*************************************************");
     System.out.println("There were " + exitCode + " failures");
-    System.exit( exitCode);
+    System.exit(exitCode);
   }
 }

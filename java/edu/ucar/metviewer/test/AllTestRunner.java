@@ -15,9 +15,8 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
 
 /**
  * @author : tatiana $
- * @version : 1.0 : 11/Jul/14 13:54 $
  * @version : 1.1 : 10/Sep/21 - RTP $
- *
+ * <p>
  * example test invocation...
  * java -Xmx2048M -ea -Dmv_root_dir=/Users/pierce/METViewerTest/mv_2_6_dev-rtp/HEAD
  * -Dmv_database=mv_test_rp_fred -Dmv_user=met_admin -Dmv_pwd=MaPass4mvmay2018##
@@ -26,7 +25,7 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
  * -DloadData=y
  * -DservletTest=y
  * edu.ucar.metviewer.test.AllTestRunner
- *
+ * <p>
  * System Properties that affect testRunner
  * loadData - unset to not load data - set to anything to load data
  * compareOnly - unset to create test plots and compare - set to anything to only compare
@@ -39,91 +38,91 @@ import static edu.ucar.metviewer.test.util.TestUtil.cleanWorkingDirs;
  * mv_pwd - test database passwoprd
  * mv_type - test database type
  * captureCreatedImages - unset to test previously captured images - set to anything to capture the images that the test creates
- *             captured images are stored in .....
+ * captured images are stored in .....
  * noClean - set to anything to prevent cleaning test directories - unset to auto clean test directories
  */
 public class AllTestRunner {
 
   public static void main(String[] args) {
 
-      Result loadResult;
-      Result compareResult;
-      Result batchResult;
-      Result servletResult;
-      List<Failure> failureListLoadDataTest = null;
-      List<Failure> failureListPlotBatchTest = null;
-      List<Failure> failureServletTest = null;
+    Result loadResult;
+    Result compareResult;
+    Result batchResult;
+    Result servletResult;
+    List<Failure> failureListLoadDataTest = null;
+    List<Failure> failureListPlotBatchTest = null;
+    List<Failure> failureServletTest = null;
 
-      cleanWorkingDirs();
-      if (System.getProperty("loadData") != null) {
-        loadResult = JUnitCore.runClasses(LoadDataTest.class);
-        failureListLoadDataTest = loadResult.getFailures();
-      }
+    cleanWorkingDirs();
+    if (System.getProperty("loadData") != null) {
+      loadResult = JUnitCore.runClasses(LoadDataTest.class);
+      failureListLoadDataTest = loadResult.getFailures();
+    }
 
-      if (System.getProperty("servletTest") == null) {
-        if (System.getProperty(
-                "compareOnly") == null) {
-          // really test
-          batchResult = JUnitCore.runClasses(CreatePlotBatchTest.class);
-        } else {
-          batchResult = JUnitCore.runClasses(ComparePlotBatchTest.class);
-        }
-        failureListPlotBatchTest = batchResult.getFailures();
+    if (System.getProperty("servletTest") == null) {
+      if (System.getProperty(
+              "compareOnly") == null) {
+        // really test
+        batchResult = JUnitCore.runClasses(CreatePlotBatchTest.class);
       } else {
-          servletResult = JUnitCore.runClasses(TestMVServlet.class);
-          failureServletTest = servletResult.getFailures();
+        batchResult = JUnitCore.runClasses(ComparePlotBatchTest.class);
       }
+      failureListPlotBatchTest = batchResult.getFailures();
+    } else {
+      servletResult = JUnitCore.runClasses(TestMVServlet.class);
+      failureServletTest = servletResult.getFailures();
+    }
 
-      System.out.println("*************************************************");
-      System.out.println("database Loading results");
-      if (failureListLoadDataTest != null) {
-        for (Failure failure : failureListLoadDataTest) {
-          System.out.println(failure.toString());
-        }
-        if (failureListLoadDataTest.isEmpty()) {
-          System.out.println("***** Database loading tests finished successfully... *****");
-        }
-      } else {
-        System.out.println("***** Database loading tests was ignored... *****");
+    System.out.println("*************************************************");
+    System.out.println("database Loading results");
+    if (failureListLoadDataTest != null) {
+      for (Failure failure : failureListLoadDataTest) {
+        System.out.println(failure.toString());
       }
-      System.out.println("*************************************************");
-      System.out.println("PlotBatchTest results");
-      System.out.println("*************************************************");
-      if (failureListPlotBatchTest != null) {
-        for (Failure failure : failureListPlotBatchTest) {
-          System.out.println(failure.toString());
-        }
-        if (failureListPlotBatchTest.isEmpty()) {
-          System.out.println("***** Plot making tests finished successfully... *****");
-        }
-      } else {
-        System.out.println("***** Plot batch testing was ignored... *****");
+      if (failureListLoadDataTest.isEmpty()) {
+        System.out.println("***** Database loading tests finished successfully... *****");
       }
+    } else {
+      System.out.println("***** Database loading tests was ignored... *****");
+    }
+    System.out.println("*************************************************");
+    System.out.println("PlotBatchTest results");
+    System.out.println("*************************************************");
+    if (failureListPlotBatchTest != null) {
+      for (Failure failure : failureListPlotBatchTest) {
+        System.out.println(failure.toString());
+      }
+      if (failureListPlotBatchTest.isEmpty()) {
+        System.out.println("***** Plot making tests finished successfully... *****");
+      }
+    } else {
+      System.out.println("***** Plot batch testing was ignored... *****");
+    }
 
-      System.out.println("*************************************************");
-      System.out.println("Servlet Results");
-      if (failureServletTest != null) {
-        for (Failure failure : failureServletTest) {
-          System.out.println(failure.toString());
-        }
-        if (failureServletTest.isEmpty()) {
-          System.out.println("***** Servlet tests finished successfully... *****");
-        }
-      } else {
-        System.out.println("***** Servlet testing was ignored... *****");
+    System.out.println("*************************************************");
+    System.out.println("Servlet Results");
+    if (failureServletTest != null) {
+      for (Failure failure : failureServletTest) {
+        System.out.println(failure.toString());
       }
+      if (failureServletTest.isEmpty()) {
+        System.out.println("***** Servlet tests finished successfully... *****");
+      }
+    } else {
+      System.out.println("***** Servlet testing was ignored... *****");
+    }
 
-      System.out.println("*************************************************");
-      System.out.println();
+    System.out.println("*************************************************");
+    System.out.println();
 
 
     System.out.println("*************************************************");
-      int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0: failureListLoadDataTest.size();
-      int failureListPlotBatchTestCount = failureListPlotBatchTest == null ? 0: failureListPlotBatchTest.size();
-      int failureServletTestCount = failureServletTest == null ? 0: failureServletTest.size();
-      int exitCode = failureListLoadDataTestCount + failureListPlotBatchTestCount  + failureServletTestCount;
-      System.out.println("*************************************************");
-      System.out.println("There were " + exitCode + " failures");
-      System.exit( exitCode);
-    }
+    int failureListLoadDataTestCount = failureListLoadDataTest == null ? 0 : failureListLoadDataTest.size();
+    int failureListPlotBatchTestCount = failureListPlotBatchTest == null ? 0 : failureListPlotBatchTest.size();
+    int failureServletTestCount = failureServletTest == null ? 0 : failureServletTest.size();
+    int exitCode = failureListLoadDataTestCount + failureListPlotBatchTestCount + failureServletTestCount;
+    System.out.println("*************************************************");
+    System.out.println("There were " + exitCode + " failures");
+    System.exit(exitCode);
+  }
 }

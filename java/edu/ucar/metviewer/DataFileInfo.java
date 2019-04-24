@@ -33,10 +33,10 @@ public class DataFileInfo {
   public int insertSize;
 
   public DataFileInfo(
-                         Integer fileId, String filename,
-                         String dataFilePath, String dataFileLoadDate,
-                         String dataFileModDate, int dataFileLuId,
-                         String dataFileLuTypeName) {
+          Integer fileId, String filename,
+          String dataFilePath, String dataFileLoadDate,
+          String dataFileModDate, int dataFileLuId,
+          String dataFileLuTypeName) {
     this.fileId = fileId;
     this.filename = filename;
     path = dataFilePath;
@@ -45,6 +45,7 @@ public class DataFileInfo {
     luId = dataFileLuId;
     luTypeName = dataFileLuTypeName;
   }
+
   public DataFileInfo(
           String fileIdStr, String filename,
           String dataFilePath, String dataFileLoadDate,

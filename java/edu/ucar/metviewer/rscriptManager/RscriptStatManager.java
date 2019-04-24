@@ -24,19 +24,20 @@ public abstract class RscriptStatManager {
   protected final MVBatch mvBatch;
   protected String dataFile;
   protected String rScriptFile;
-  protected String plotFile="";
+  protected String plotFile = "";
 
   public String getPlotFile() {
     return plotFile;
   }
 
-  protected RscriptStatManager(final MVBatch mvBatch){
+  protected RscriptStatManager(final MVBatch mvBatch) {
     this.mvBatch = mvBatch;
   }
 
   public abstract void prepareDataFileAndRscript(MVPlotJob job, MVOrderedMap mvMap,
                                                  Map<String, String> info,
                                                  List<String> listQuery) throws ValidationException, IOException, StopWatchException;
+
   public abstract boolean runRscript(MVPlotJob job, Map<String, String> info);
 
 

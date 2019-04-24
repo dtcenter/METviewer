@@ -58,25 +58,25 @@ public class PruneDbManagerMysql extends PruneDbManager {
     tables.add(new Table("line_data_vl1l2", "stat_header", "stat_header_id"));
 
     tables.add(new Table("line_data_mctc", "stat_header", "stat_header_id", "line_data_mctc_cnt",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_orank", "stat_header", "stat_header_id", "line_data_orank_ens",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_pct", "stat_header", "stat_header_id", "line_data_pct_thresh",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_phist", "stat_header", "stat_header_id", "line_data_phist_bin",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_pjc", "stat_header", "stat_header_id", "line_data_pjc_thresh",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_prc", "stat_header", "stat_header_id", "line_data_prc_thresh",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_pstd", "stat_header", "stat_header_id", "line_data_pstd_thresh",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_rhist", "stat_header", "stat_header_id", "line_data_rhist_rank",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_relp", "stat_header", "stat_header_id", "line_data_relp_ens",
-                         "line_data_id"));
+            "line_data_id"));
     tables.add(new Table("line_data_eclv", "stat_header", "stat_header_id", "line_data_eclv_pnt",
-                         "line_data_id"));
+            "line_data_id"));
 
     tables.add(new Table("mode_cts", "mode_header", "mode_header_id"));
     tables.add(new Table("mode_obj_pair", "mode_header", "mode_header_id"));
@@ -99,13 +99,13 @@ public class PruneDbManagerMysql extends PruneDbManager {
       StringBuilder whereStr = createWhere(con, mvPruneDB);
       if (whereStr.length() == 0) {
         throw new DatabaseException("Nothing to delete. Could be that listed files are not in "
-                                     + "database.");
+                + "database.");
       }
       for (String table : allTables) {
         Table tableObj = getTableByName(table);
         if (tableObj != null) {
           totalDeleted = totalDeleted + processTable(tableObj, con, whereStr,
-                                                     mvPruneDB.getInfoOnly());
+                  mvPruneDB.getInfoOnly());
         }
       }
       logger.info("Total deleted " + (totalDeleted) + " records");
@@ -145,22 +145,22 @@ public class PruneDbManagerMysql extends PruneDbManager {
       if (table.getHeaderTable() != null && table.getHeaderTable().startsWith(type)) {
         if (index == 0) {
           emptyHeaderIdSql.append("SELECT ").append(table.getHeaderKey()).append(" FROM ")
-              .append("(SELECT ").append(table.getHeaderTable()).append('.')
-              .append(table.getHeaderKey()).append("   FROM ").append(table.getHeaderTable())
-              .append("     LEFT OUTER JOIN ").append(table.getName()).append(" ON ")
-              .append(table.getName()).append('.').append(table.getHeaderKey()).append("= ")
-              .append(table.getHeaderTable()).append('.').append(table.getHeaderKey())
-              .append("   WHERE ").append(table.getName()).append('.').append(table.getHeaderKey())
-              .append(" IS NULL) t").append(index).append("  INNER JOIN");
+                  .append("(SELECT ").append(table.getHeaderTable()).append('.')
+                  .append(table.getHeaderKey()).append("   FROM ").append(table.getHeaderTable())
+                  .append("     LEFT OUTER JOIN ").append(table.getName()).append(" ON ")
+                  .append(table.getName()).append('.').append(table.getHeaderKey()).append("= ")
+                  .append(table.getHeaderTable()).append('.').append(table.getHeaderKey())
+                  .append("   WHERE ").append(table.getName()).append('.').append(table.getHeaderKey())
+                  .append(" IS NULL) t").append(index).append("  INNER JOIN");
         } else {
           emptyHeaderIdSql.append("(SELECT ").append(table.getHeaderTable()).append('.')
-              .append(table.getHeaderKey()).append("   FROM ").append(table.getHeaderTable())
-              .append("     LEFT OUTER JOIN ").append(table.getName()).append(" ON ")
-              .append(table.getName()).append('.').append(table.getHeaderKey()).append("= ")
-              .append(table.getHeaderTable()).append('.').append(table.getHeaderKey())
-              .append("   WHERE ").append(table.getName()).append('.').append(table.getHeaderKey())
-              .append(" IS NULL) t").append(index).append(" USING (").append(table.getHeaderKey())
-              .append(')').append("  INNER JOIN");
+                  .append(table.getHeaderKey()).append("   FROM ").append(table.getHeaderTable())
+                  .append("     LEFT OUTER JOIN ").append(table.getName()).append(" ON ")
+                  .append(table.getName()).append('.').append(table.getHeaderKey()).append("= ")
+                  .append(table.getHeaderTable()).append('.').append(table.getHeaderKey())
+                  .append("   WHERE ").append(table.getName()).append('.').append(table.getHeaderKey())
+                  .append(" IS NULL) t").append(index).append(" USING (").append(table.getHeaderKey())
+                  .append(')').append("  INNER JOIN");
         }
         index++;
       }
@@ -171,7 +171,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
     }
     //execute SQL and process result
     try (PreparedStatement pstmt = con.prepareStatement(
-        emptyHeaderIdSql.toString()); ResultSet r = pstmt.executeQuery()) {
+            emptyHeaderIdSql.toString()); ResultSet r = pstmt.executeQuery()) {
       while (r.next()) {
         headerIdForDeletion.add(r.getInt(1));
       }
@@ -219,7 +219,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
       //optimize table
       String optimizeSql = "OPTIMIZE TABLE " + type + "_header";
       try (PreparedStatement pstmt = con.prepareStatement(optimizeSql); ResultSet r = pstmt
-                                                                                          .executeQuery()) {
+              .executeQuery()) {
         r.close();
         pstmt.close();
       } catch (SQLException e) {
@@ -238,7 +238,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
    * @return
    */
   private int processTable(
-      Table tableObj, Connection con, StringBuilder whereStr, boolean isInfoOnly) {
+          Table tableObj, Connection con, StringBuilder whereStr, boolean isInfoOnly) {
 
     int deleted;
     String message;
@@ -273,7 +273,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
   private void optimizeTable(Connection con, Table table) {
 
     try (PreparedStatement pstmt = con.prepareStatement(
-        "OPTIMIZE TABLE " + table.getName()); ResultSet r = pstmt.executeQuery()) {
+            "OPTIMIZE TABLE " + table.getName()); ResultSet r = pstmt.executeQuery()) {
       r.close();
       pstmt.close();
     } catch (SQLException e) {
@@ -281,7 +281,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
     }
     if (table.getDependentTable() != null) {
       try (PreparedStatement pstmt = con.prepareStatement(
-          "OPTIMIZE TABLE " + table.getDependentTable()); ResultSet r = pstmt.executeQuery()) {
+              "OPTIMIZE TABLE " + table.getDependentTable()); ResultSet r = pstmt.executeQuery()) {
         r.close();
         pstmt.close();
       } catch (SQLException e) {
@@ -311,7 +311,7 @@ public class PruneDbManagerMysql extends PruneDbManager {
     ResultSet res = null;
     List<String> allTables = new ArrayList<>();
     try (PreparedStatement pstmt = con.prepareStatement(
-        "SELECT TABLE_NAME FROM (SELECT DISTINCT TABLE_NAME   FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = ? ) as all_tables "
+            "SELECT TABLE_NAME FROM (SELECT DISTINCT TABLE_NAME   FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = ? ) as all_tables "
     )) {
       pstmt.setString(1, databaseName);
       res = pstmt.executeQuery();
@@ -350,22 +350,22 @@ public class PruneDbManagerMysql extends PruneDbManager {
       sql = "DELETE  FROM " + table.getName() + " WHERE " + whereStr;
     } else if (table.getDependentTable() == null) {
       sql = "DELETE " + table.getName() + " FROM " + table.getHeaderTable() + ", " + table
-                                                                                         .getName() +
-                " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
-                                                                                              .getName() + "." + table
-                                                                                                                     .getHeaderKey() + "  AND " + whereStr;
+              .getName() +
+              " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
+              .getName() + "." + table
+              .getHeaderKey() + "  AND " + whereStr;
     } else {
       sql = "DELETE " + table.getName() + ", " + table.getDependentTable() + " FROM " + table
-                                                                                            .getHeaderTable() + ", " + table
-                                                                                                                           .getName() + ", " + table
-                                                                                                                                                   .getDependentTable() +
-                " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
-                                                                                              .getName() + "." + table
-                                                                                                                     .getHeaderKey() +
-                " AND " + table.getName() + "." + table.getDependentKey() + " = " + table
-                                                                                        .getDependentTable() + "." + table
-                                                                                                                         .getDependentKey() +
-                "  AND " + whereStr;
+              .getHeaderTable() + ", " + table
+              .getName() + ", " + table
+              .getDependentTable() +
+              " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
+              .getName() + "." + table
+              .getHeaderKey() +
+              " AND " + table.getName() + "." + table.getDependentKey() + " = " + table
+              .getDependentTable() + "." + table
+              .getDependentKey() +
+              "  AND " + whereStr;
     }
     try (PreparedStatement pstmt = con.prepareStatement(sql)) {
       rows = pstmt.executeUpdate();
@@ -392,24 +392,24 @@ public class PruneDbManagerMysql extends PruneDbManager {
       sql = "SELECT COUNT(*)  FROM " + table.getName() + " WHERE " + whereStr;
     } else if (table.getDependentTable() == null) {
       sql = "SELECT COUNT(*)  FROM " + table.getName() + "," + table.getHeaderTable() +
-                " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
-                                                                                              .getName() + "." + table
-                                                                                                                     .getHeaderKey() + "  AND " + whereStr;
+              " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
+              .getName() + "." + table
+              .getHeaderKey() + "  AND " + whereStr;
     } else {
       sql = "SELECT COUNT(*)  FROM " + table.getName() + ", " + table
-                                                                    .getDependentTable() + "," + table
-                                                                                                     .getHeaderTable() +
-                " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
-                                                                                              .getName() + "." + table
-                                                                                                                     .getHeaderKey() +
-                " AND " + table.getName() + "." + table.getDependentKey() + " = " + table
-                                                                                        .getDependentTable() + "." + table
-                                                                                                                         .getDependentKey() +
-                "  AND " + whereStr;
+              .getDependentTable() + "," + table
+              .getHeaderTable() +
+              " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
+              .getName() + "." + table
+              .getHeaderKey() +
+              " AND " + table.getName() + "." + table.getDependentKey() + " = " + table
+              .getDependentTable() + "." + table
+              .getDependentKey() +
+              "  AND " + whereStr;
 
     }
     try (PreparedStatement pstmt = con.prepareStatement(sql); ResultSet res = pstmt
-                                                                                  .executeQuery()) {
+            .executeQuery()) {
 
       while (res.next()) {
         total = res.getInt(1);
@@ -422,11 +422,11 @@ public class PruneDbManagerMysql extends PruneDbManager {
     }
     if (table.getHeaderTable() != null && table.getDependentTable() != null) {
       sql = "SELECT COUNT(*)  FROM " + table.getName() + "," + table.getHeaderTable() +
-                " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
-                                                                                              .getName() + "." + table
-                                                                                                                     .getHeaderKey() + "  AND " + whereStr;
+              " WHERE " + table.getHeaderTable() + "." + table.getHeaderKey() + " = " + table
+              .getName() + "." + table
+              .getHeaderKey() + "  AND " + whereStr;
       try (PreparedStatement pstmt = con.prepareStatement(sql); ResultSet res = pstmt
-                                                                                    .executeQuery()) {
+              .executeQuery()) {
 
         while (res.next()) {
           total = total + res.getInt(1);
@@ -456,14 +456,14 @@ public class PruneDbManagerMysql extends PruneDbManager {
         field = matcher.group(1);
       }
       logger.info(
-          "Field " + field + " is not in table '" + table.getName() + "'. Skipping this table");
+              "Field " + field + " is not in table '" + table.getName() + "'. Skipping this table");
     }
   }
 
   private StringBuilder createWhere(Connection con, MVPruneDB mvPruneDB) {
     StringBuilder result = new StringBuilder();
     if (!mvPruneDB.getFieldToListValues().isEmpty() || !mvPruneDB.getFieldToRangeValues()
-                                                            .isEmpty()) {
+            .isEmpty()) {
       //proceed with fields pruning
 
       for (Map.Entry<String, List<String>> entry : mvPruneDB.getFieldToListValues().entrySet()) {
@@ -478,8 +478,8 @@ public class PruneDbManagerMysql extends PruneDbManager {
       }
       for (Map.Entry<String, List<String>> entry : mvPruneDB.getFieldToRangeValues().entrySet()) {
         result.append(' ').append(entry.getKey()).append(" >= '").append(entry.getValue().get(0))
-            .append("' AND ").append(entry.getKey()).append(" <= '").append(entry.getValue().get(1))
-            .append("'");
+                .append("' AND ").append(entry.getKey()).append(" <= '").append(entry.getValue().get(1))
+                .append("'");
         result.append(" AND ");
       }
 

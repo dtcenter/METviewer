@@ -521,7 +521,7 @@ public class MVPlotJob {
 
   public void addPlotFixValEq(String field, MVOrderedMap sets, int index) {
     //ignore fcst_var
-    if(!field.equalsIgnoreCase("fcst_var")) {
+    if (!field.equalsIgnoreCase("fcst_var")) {
       plotFixValEq.put(field, sets, index);
     }
   }
@@ -532,7 +532,7 @@ public class MVPlotJob {
 
   public void addPlotFixValEq(String field, MVOrderedMap sets) {
     //ignore fcst_var
-    if(!field.equalsIgnoreCase("fcst_var")) {
+    if (!field.equalsIgnoreCase("fcst_var")) {
       addPlotFixValEq(field, sets, plotFixValEq.size());
     }
   }
@@ -1510,7 +1510,7 @@ public class MVPlotJob {
       try {
         Integer.valueOf(aggBootRandomSeed.trim());
         _strAggBootRandomSeed = aggBootRandomSeed;
-      } catch (NumberFormatException  e) {
+      } catch (NumberFormatException e) {
         _strAggBootRandomSeed = "NA";
       }
 
@@ -1947,9 +1947,9 @@ public class MVPlotJob {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0]
-                                                                                    .get("dep1"));
+                .get("dep1"));
         isModeRatio = listFcstVarStat.length > 0
-                          && MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
+                && MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
       } else {
         isModeRatio = false;
       }
@@ -1968,9 +1968,9 @@ public class MVPlotJob {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0]
-                                                                                    .get("dep1"));
+                .get("dep1"));
         isMtdRatio = listFcstVarStat.length > 0
-                         && MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
+                && MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
       } else {
         isMtdRatio = false;
       }
@@ -1989,12 +1989,12 @@ public class MVPlotJob {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList(
-            (MVOrderedMap) listDep[0].get("dep1"));
+                (MVOrderedMap) listDep[0].get("dep1"));
         String strStat = MVUtil.parseModeStat(listFcstVarStat[0][1])[0];
 
         isMode = MVUtil.modeSingleStatField.containsKey(strStat)
-                     || MVUtil.modePairStatField.containsKey(strStat)
-                     || MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
+                || MVUtil.modePairStatField.containsKey(strStat)
+                || MVUtil.modeRatioField.contains(listFcstVarStat[0][1]);
       } else {
         isMode = false;
       }
@@ -2007,16 +2007,16 @@ public class MVPlotJob {
       MVOrderedMap[] listDep = getDepGroups();
       if (listDep.length > 0) {
         String[][] listFcstVarStat = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0]
-                                                                                    .get("dep1"));
+                .get("dep1"));
 
         String[] listStatComp = listFcstVarStat[0][1].split("_");
         String stat = listFcstVarStat[0][1]
-                          .replace("_" + listStatComp[listStatComp.length - 1], "");
+                .replace("_" + listStatComp[listStatComp.length - 1], "");
 
         isMtd = MVUtil.mtd3dSingleStatField.containsKey(stat)
-                    || MVUtil.mtd3dPairStatField.containsKey(stat)
-                    || MVUtil.mtd2dStatField.containsKey(stat)
-                    || MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
+                || MVUtil.mtd3dPairStatField.containsKey(stat)
+                || MVUtil.mtd2dStatField.containsKey(stat)
+                || MVUtil.mtdRatioField.contains(listFcstVarStat[0][1]);
       } else {
         isMtd = false;
       }
@@ -2039,7 +2039,7 @@ public class MVPlotJob {
     return contourIntervals;
   }
 
-  public void setContourIntervals(String contourIntervals) throws ValidationException{
+  public void setContourIntervals(String contourIntervals) throws ValidationException {
     try {
       this.contourIntervals = Integer.valueOf(contourIntervals);
     } catch (NumberFormatException e) {
@@ -2089,24 +2089,24 @@ public class MVPlotJob {
 
   public boolean isAggStat() {
     return this.getAggCtc()
-               || this.getAggSl1l2()
-               || this.getAggSal1l2()
-               || this.getAggNbrCnt()
-               || this.getAggSsvar()
-               || this.getAggVl1l2()
-               || this.getAggVal1l2()
-               || this.getAggGrad()
-               || this.getAggPct()
-               || this.getAggEcnt();
+            || this.getAggSl1l2()
+            || this.getAggSal1l2()
+            || this.getAggNbrCnt()
+            || this.getAggSsvar()
+            || this.getAggVl1l2()
+            || this.getAggVal1l2()
+            || this.getAggGrad()
+            || this.getAggPct()
+            || this.getAggEcnt();
   }
 
   public boolean isCalcStat() {
     return this.getCalcCtc()
-               || this.getCalcSl1l2()
-               || this.getCalcSal1l2()
-               || this.getCalcVl1l2()
-               || this.getCalcVal1l2()
-               || this.getCalcGrad();
+            || this.getCalcSl1l2()
+            || this.getCalcSal1l2()
+            || this.getCalcVl1l2()
+            || this.getCalcVal1l2()
+            || this.getCalcGrad();
   }
 }
 

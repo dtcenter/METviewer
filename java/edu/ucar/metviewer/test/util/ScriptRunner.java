@@ -39,8 +39,8 @@ public class ScriptRunner {
    * Default constructor
    */
   public ScriptRunner(
-                         Connection connection, boolean autoCommit,
-                         boolean stopOnError) {
+          Connection connection, boolean autoCommit,
+          boolean stopOnError) {
     this.connection = connection;
     this.autoCommit = autoCommit;
     this.stopOnError = stopOnError;
@@ -102,7 +102,7 @@ public class ScriptRunner {
    * @throws IOException  if there is an error reading from the Reader
    */
   private void runScript(Connection conn, Reader reader) throws IOException,
-                                                                    SQLException {
+          SQLException {
     StringBuffer command = null;
     try {
       LineNumberReader lineReader = new LineNumberReader(reader);
@@ -115,20 +115,20 @@ public class ScriptRunner {
         if (trimmedLine.startsWith("--")) {
           println(trimmedLine);
         } else if (trimmedLine.length() < 1
-                       || trimmedLine.startsWith("//")) {
+                || trimmedLine.startsWith("//")) {
           // Do nothing
         } else if (trimmedLine.length() < 1
-                       || trimmedLine.startsWith("--")) {
+                || trimmedLine.startsWith("--")) {
           // Do nothing
         } else if (trimmedLine.startsWith("DELIMITER")) {
           this.delimiter = trimmedLine.substring(trimmedLine.length() - 1);
 
         } else if (!fullLineDelimiter
-                       && trimmedLine.endsWith(getDelimiter())
-                       || fullLineDelimiter
-                              && trimmedLine.equals(getDelimiter())) {
+                && trimmedLine.endsWith(getDelimiter())
+                || fullLineDelimiter
+                && trimmedLine.equals(getDelimiter())) {
           command.append(line.substring(0, line
-                                               .lastIndexOf(getDelimiter())));
+                  .lastIndexOf(getDelimiter())));
           command.append(' ');
           Statement statement = conn.createStatement();
 

@@ -29,7 +29,7 @@ abstract class PruneDbManager implements DatabaseManager {
 
   @Override
   public void createDataFile(
-      Map<String, Entry> map, String threadName) {
-        // do nothing
+          Map<String, Entry> map, String threadName) {
+    // do nothing
   }
 }

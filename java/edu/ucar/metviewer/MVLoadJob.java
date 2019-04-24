@@ -139,12 +139,12 @@ public class MVLoadJob {
   }
 
   public boolean getLoadMtd() {
-      return _boolLoadMtd;
-    }
+    return _boolLoadMtd;
+  }
 
-    public void setLoadMtd(boolean loadMtd) {
-      _boolLoadMtd = loadMtd;
-    }
+  public void setLoadMtd(boolean loadMtd) {
+    _boolLoadMtd = loadMtd;
+  }
 
   public boolean getLoadMpr() {
     return _boolLoadMpr;
@@ -195,12 +195,12 @@ public class MVLoadJob {
   }
 
   public boolean getMtdHeaderDBCheck() {
-      return _boolMtdHeaderDBCheck;
-    }
+    return _boolMtdHeaderDBCheck;
+  }
 
-    public void setMtdHeaderDBCheck(boolean mtdHeaderDBCheck) {
-      _boolMtdHeaderDBCheck = mtdHeaderDBCheck;
-    }
+  public void setMtdHeaderDBCheck(boolean mtdHeaderDBCheck) {
+    _boolMtdHeaderDBCheck = mtdHeaderDBCheck;
+  }
 
   public boolean getStatHeaderDBCheck() {
     return _boolStatHeaderDBCheck;

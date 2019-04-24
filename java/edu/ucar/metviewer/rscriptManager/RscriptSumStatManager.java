@@ -30,11 +30,11 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class RscriptSumStatManager extends RscriptStatManager {
 
   private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
-                                                     .setLevel(org.apache
-                                                                   .logging.log4j.Level.INFO)
-                                                     .setMarker(
-                                                         new MarkerManager.Log4jMarker("ERROR"))
-                                                     .buildPrintStream();
+          .setLevel(org.apache
+                  .logging.log4j.Level.INFO)
+          .setMarker(
+                  new MarkerManager.Log4jMarker("ERROR"))
+          .buildPrintStream();
 
   public RscriptSumStatManager(MVBatch mvBatch) {
     super(mvBatch);
@@ -42,16 +42,16 @@ public class RscriptSumStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-      MVPlotJob job, MVOrderedMap mvMap,
-      Map<String, String> info,
-      List<String> listQuery) throws ValidationException {
+          MVPlotJob job, MVOrderedMap mvMap,
+          Map<String, String> info,
+          List<String> listQuery) throws ValidationException {
 
     //  run the plot SQL against the database connection
     dataFile = mvBatch.getDataFolder()
-                   + MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                MVUtil.addTmplValDep(job),
-                                                job.getTmplMaps(),
-                                                mvBatch.getPrintStream());
+            + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+            MVUtil.addTmplValDep(job),
+            job.getTmplMaps(),
+            mvBatch.getPrintStream());
     dataFile = dataFile + ".sum_stat";
 
     rScriptFile = mvBatch.getRworkFolder() + "include/sum_stat.R";
@@ -60,10 +60,10 @@ public class RscriptSumStatManager extends RscriptStatManager {
 
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
       MvResponse mvResponse =
-          mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
-                                                                   job.isCalcStat(),
-                                                                   job.getCurrentDBName().get(i),
-                                                                   i == 0);
+              mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
+                      job.isCalcStat(),
+                      job.getCurrentDBName().get(i),
+                      i == 0);
       if (mvResponse.getInfoMessage() != null) {
         mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
       }

@@ -6,6 +6,7 @@
 package edu.ucar.metviewer;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,17 +16,16 @@ import java.util.Map;
 public class BuildMysqlQueryStrings {
 
   private final boolean modePlot;
-  private final Map<String, String> headerSQLType;
+  private final List<String> headerSql;
   private final Map.Entry[] series;
   private String selectList = "";
-  private String tempList = "";
   private String where = "";
-  boolean isFormatSelect = true;
+  boolean isFormatSelect;
 
 
-  public BuildMysqlQueryStrings(boolean modePlot, Map<String, String> headerSQLType, Map.Entry[] series, String where, boolean isFormatSelect) {
+  public BuildMysqlQueryStrings(boolean modePlot, List<String> headerSql, Map.Entry[] series, String where, boolean isFormatSelect) {
     this.modePlot = modePlot;
-    this.headerSQLType = headerSQLType;
+    this.headerSql = headerSql;
     this.series = Arrays.copyOf(series, series.length);
 
     this.where = where;
@@ -36,9 +36,6 @@ public class BuildMysqlQueryStrings {
     return selectList;
   }
 
-  public String getTempList() {
-    return tempList;
-  }
 
   public String getWhere() {
     return where;
@@ -48,8 +45,8 @@ public class BuildMysqlQueryStrings {
     return modePlot;
   }
 
-  public Map<String, String> getHeaderSQLType() {
-    return headerSQLType;
+  public List<String> getHeaderSql() {
+    return headerSql;
   }
 
   public Map.Entry[] getSeries() {
@@ -60,9 +57,6 @@ public class BuildMysqlQueryStrings {
     this.selectList = selectList;
   }
 
-  public void setTempList(String tempList) {
-    this.tempList = tempList;
-  }
 
   public void setWhere(String where) {
     this.where = where;

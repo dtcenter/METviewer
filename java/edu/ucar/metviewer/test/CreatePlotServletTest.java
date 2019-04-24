@@ -94,7 +94,7 @@ public class CreatePlotServletTest {
   @Before
   public void prepareRequest() {
     File requestFile = new File(
-        testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + "request.xml");
+            testDataDir + FILE_SEPARATOR + plotType + FILE_SEPARATOR + "request.xml");
     xmlStr = readFileToString(requestFile);
   }
 
@@ -127,8 +127,8 @@ public class CreatePlotServletTest {
       mvServlet.setValCache(true);
       //type, host, USERNAME, PWD all come from TestUtil (System.getProperty)
       mvServlet.setDatabaseManager(
-          (AppDatabaseManager) DatabaseManager.getAppManager(type, host, USERNAME,
-                                                             PWD));
+              (AppDatabaseManager) DatabaseManager.getAppManager(type, host, USERNAME,
+                      PWD));
 
       mvServlet.doPost(request, response);
 

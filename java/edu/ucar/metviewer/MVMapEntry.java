@@ -10,8 +10,8 @@ import java.util.Map;
  */
 public class MVMapEntry implements Map.Entry {
 
-  Object key = null;
-  Object value = null;
+  private Object key;
+  Object value;
 
   public MVMapEntry(Object k, Object v) {
     key = k;
@@ -20,9 +20,9 @@ public class MVMapEntry implements Map.Entry {
 
   public boolean equals(Object o) {
     return
-      o instanceof MVMapEntry &&
-        (null == ((MVMapEntry) o).getKey() ? null == key : ((MVMapEntry) o).getKey().equals(key)) &&
-        (null == ((MVMapEntry) o).getValue() ? null == value : ((MVMapEntry) o).getValue().equals(value));
+            o instanceof MVMapEntry &&
+                    (null == ((MVMapEntry) o).getKey() ? null == key : ((MVMapEntry) o).getKey().equals(key)) &&
+                    (null == ((MVMapEntry) o).getValue() ? null == value : ((MVMapEntry) o).getValue().equals(value));
   }
 
   public Object getKey() {

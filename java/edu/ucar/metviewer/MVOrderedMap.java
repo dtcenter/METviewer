@@ -58,7 +58,6 @@ public final class MVOrderedMap extends Hashtable {
   }
 
 
-
   /**
    * Inserts the key/value pair into the table, putting the key into the ordered list at the position specified by index
    *
@@ -93,7 +92,6 @@ public final class MVOrderedMap extends Hashtable {
   public Object putStr(final Object key, final Object value) {
     return put(key, value.toString());
   }
-
 
 
   /**

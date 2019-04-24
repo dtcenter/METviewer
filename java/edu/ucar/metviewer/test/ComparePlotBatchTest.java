@@ -33,6 +33,7 @@ public class ComparePlotBatchTest {
 
   /**
    * register all possible test cases in the test directory
+   *
    * @return - test cases names
    * @throws Exception - if test directory doesn't exists or it is empty
    */
@@ -68,7 +69,7 @@ public class ComparePlotBatchTest {
 
   @Test
   public void compareOutputFiles() {
-    System.out.println("Comparing " +plotType);
-    compareBinaryTestFiles(testDataDir, testCompareDataDir,plotType);
+    System.out.println("Comparing " + plotType);
+    compareBinaryTestFiles(testDataDir, testCompareDataDir, plotType);
   }
 }

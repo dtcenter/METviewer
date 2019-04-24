@@ -29,27 +29,29 @@ public class BoundedBufferedReader extends BufferedReader {
     readerMaxLines = maxLines;
     readerMaxLineLen = maxLineLen;
   }
-  public BoundedBufferedReader(InputStreamReader reader, int maxLines, int maxLineLen) {
-      super(reader);
-      if ((maxLines <= 0) || (maxLineLen <= 0)) {
-        throw new IllegalArgumentException(
-            "BoundedBufferedReader - maxLines and maxLineLen must be greater than 0");
-      }
 
-      readerMaxLines = maxLines;
-      readerMaxLineLen = maxLineLen;
+  public BoundedBufferedReader(InputStreamReader reader, int maxLines, int maxLineLen) {
+    super(reader);
+    if ((maxLines <= 0) || (maxLineLen <= 0)) {
+      throw new IllegalArgumentException(
+              "BoundedBufferedReader - maxLines and maxLineLen must be greater than 0");
     }
+
+    readerMaxLines = maxLines;
+    readerMaxLineLen = maxLineLen;
+  }
 
   public BoundedBufferedReader(FileReader reader) {
     super(reader);
     readerMaxLines = DEFAULT_MAX_LINES;
     readerMaxLineLen = DEFAULT_MAX_LINE_LENGTH;
   }
+
   public BoundedBufferedReader(InputStreamReader reader) {
-      super(reader);
-      readerMaxLines = DEFAULT_MAX_LINES;
-      readerMaxLineLen = DEFAULT_MAX_LINE_LENGTH;
-    }
+    super(reader);
+    readerMaxLines = DEFAULT_MAX_LINES;
+    readerMaxLineLen = DEFAULT_MAX_LINE_LENGTH;
+  }
 
   public String readLineBounded() throws IOException {
     //Check readerMaxLines limit

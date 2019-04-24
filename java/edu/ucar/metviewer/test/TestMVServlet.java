@@ -116,14 +116,14 @@ public class TestMVServlet {
 
 
       MVServlet mvServlet = new MVServlet();
-           mvServlet.setPlotXml(PLOTS_DIR);
-           mvServlet.setrTmpl(TEMPLATE_DIR);
-           mvServlet.setrWork(RWORK_DIR);
-           mvServlet.setPlots(PLOTS_DIR);
-           mvServlet.setRscript(rscript);
-           mvServlet.setValCache(true);
-           //type, host, USERNAME, PWD all come from TestUtil (System.getProperty)
-           mvServlet.setDatabaseManager((AppDatabaseManager) edu.ucar.metviewer.db.DatabaseManager.getAppManager(type,host, USERNAME,PWD));
+      mvServlet.setPlotXml(PLOTS_DIR);
+      mvServlet.setrTmpl(TEMPLATE_DIR);
+      mvServlet.setrWork(RWORK_DIR);
+      mvServlet.setPlots(PLOTS_DIR);
+      mvServlet.setRscript(rscript);
+      mvServlet.setValCache(true);
+      //type, host, USERNAME, PWD all come from TestUtil (System.getProperty)
+      mvServlet.setDatabaseManager((AppDatabaseManager) edu.ucar.metviewer.db.DatabaseManager.getAppManager(type, host, USERNAME, PWD));
 
 
       mvServlet.doPost(request, response);
@@ -138,14 +138,14 @@ public class TestMVServlet {
 
       String expected =
               trimXML(responseValue).replaceAll("<url_output>.*</url_output>"
-                      ,"");
+                      , "");
       // Why is <url_ouptut> there? RTP
       String resp = trimXML(byteArrayOutputStream.toString().replaceAll(
-              "<url_output>.*</url_output>","").
-              replaceAll("<[?]xml.*[?]>","").trim());
+              "<url_output>.*</url_output>", "").
+              replaceAll("<[?]xml.*[?]>", "").trim());
       System.out.println("Expected response  " + count + " is: " + expected);
       System.out.println("Actual " + count + " response is: " + resp);
-      count ++;
+      count++;
       System.out.println("********");
       if (expected.contains("plot_")) {
         String expectedPattern = expected.replaceAll("<plot>plot_.*</plot>",
