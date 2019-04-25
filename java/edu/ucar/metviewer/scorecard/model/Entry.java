@@ -47,8 +47,8 @@ public final class Entry {
   @Override
   public String toString() {
     return "Entry{" +
-               "name='" + name + '\'' +
-               ", label='" + label + '\'' +
-               '}';
+            "name='" + name + '\'' +
+            ", label='" + label + '\'' +
+            '}';
   }
 }

@@ -58,14 +58,14 @@ class Table {
   @Override
   public String toString() {
     return "Table{" +
-      " name='" + name + '\'' +
-      ", headerTable='" + headerTable + '\'' +
-      ", headerKey='" + headerKey + '\'' +
-      ", dependentTable='" + dependentTable + '\'' +
-      ", dependentKey='" + dependentKey + '\'' +
+            " name='" + name + '\'' +
+            ", headerTable='" + headerTable + '\'' +
+            ", headerKey='" + headerKey + '\'' +
+            ", dependentTable='" + dependentTable + '\'' +
+            ", dependentKey='" + dependentKey + '\'' +
 
 
-      '}';
+            '}';
   }
 
 }

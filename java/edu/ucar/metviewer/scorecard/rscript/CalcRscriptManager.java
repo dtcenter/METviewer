@@ -23,6 +23,8 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
 /**
@@ -32,6 +34,8 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class CalcRscriptManager extends RscriptManager {
 
   private static final Logger logger = LogManager.getLogger("CalcRscriptManager");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private final Map<String, String> tableCalcStatInfoCommon;
   private final String calcStatTemplScript;
@@ -42,7 +46,7 @@ public class CalcRscriptManager extends RscriptManager {
     super(scorecard);
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
     strRFile = scorecard.getWorkingFolders().getScriptsDir()
-                   + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
+            + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
 
     tableCalcStatInfoCommon = new HashMap<>();
     tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
@@ -54,9 +58,9 @@ public class CalcRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("indy_plot_val", "list()");
     tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
     tableCalcStatInfoCommon.put("working_dir", scorecard.getWorkingFolders().getrWorkDir()
-                                                   + "/include");
+            + "/include");
     tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir()
-                                                 + scorecard.getDataFile());
+            + scorecard.getDataFile());
     tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
   }
 
@@ -72,9 +76,9 @@ public class CalcRscriptManager extends RscriptManager {
       if ("fcst_var".equals(entry.getKey())) {
         fcstVar = entry.getValue().getName();
       } else if (!"stat".equals(
-          entry.getKey())) { // do not include stat variable to the fix vars list
+              entry.getKey())) { // do not include stat variable to the fix vars list
         fixVars.append("`").append(entry.getKey())
-            .append("` = c(\"").append(entry.getValue().getName()).append("\"),");
+                .append("` = c(\"").append(entry.getValue().getName()).append("\"),");
         diffVals.append(entry.getValue().getName()).append(" ");
       }
     }
@@ -112,7 +116,7 @@ public class CalcRscriptManager extends RscriptManager {
                 difStr.append(diffVals).append(" ");
               }
               difStr.append(model.getName()).append(" ").append(val.getName()).append(" ")
-                  .append(fcstVar).append(" ").append(stat).append("\",");
+                      .append(fcstVar).append(" ").append(stat).append("\",");
             }
 
             //difStr.append("\"DIFF_SIG\"").append("),");
@@ -169,13 +173,13 @@ public class CalcRscriptManager extends RscriptManager {
 
 
       try (PrintStream printStream = IoBuilder.forLogger(CalcRscriptManager.class)
-                                         .setLevel(org.apache.logging.log4j.Level.INFO)
-                                         .buildPrintStream()) {
+              .setLevel(org.apache.logging.log4j.Level.INFO)
+              .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
         //  run agg_stat/
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + strRFile );
+        printStream.println("Running " + rScriptCommand + " " + strRFile);
 
         MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, strRFile);
         stopWatch.stop();
@@ -187,7 +191,7 @@ public class CalcRscriptManager extends RscriptManager {
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (StopWatchException | IOException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       }
 
     }

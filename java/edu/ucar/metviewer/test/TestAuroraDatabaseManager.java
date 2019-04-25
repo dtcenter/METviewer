@@ -13,16 +13,16 @@ public class TestAuroraDatabaseManager extends MysqlDatabaseManager implements T
   }
 
   private static final org.apache.logging.log4j.Logger logger =
-      org.apache.logging.log4j.LogManager.getLogger(
-          "TestAuroraDatabaseManager");
+          org.apache.logging.log4j.LogManager.getLogger(
+                  "TestAuroraDatabaseManager");
 
   public int getNumberOfRows(String lineDataType) throws Exception {
     String tableName = lineDataType;
     int rows = -1;
     try (
-        java.sql.Connection con = getConnection();
-        java.sql.Statement statement = getConnection().createStatement();
-        java.sql.ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
+            java.sql.Connection con = getConnection();
+            java.sql.Statement statement = getConnection().createStatement();
+            java.sql.ResultSet resultSet = statement.executeQuery("select count(*) from " + tableName);
     ) {
       if (resultSet.next()) {
         rows = resultSet.getInt("count(*)");
@@ -44,7 +44,7 @@ public class TestAuroraDatabaseManager extends MysqlDatabaseManager implements T
       statement.executeUpdate("create database " + database);
       statement.executeUpdate("use " + database);
       edu.ucar.metviewer.test.util.ScriptRunner scriptRunner = new edu.ucar.metviewer.test.util.ScriptRunner(
-          con, false, true);
+              con, false, true);
       reader = new java.io.FileReader(fileName);
       scriptRunner.runScript(reader);
     } catch (Exception e) {
@@ -75,8 +75,8 @@ public class TestAuroraDatabaseManager extends MysqlDatabaseManager implements T
   }
 
   public void checkCreateDatabase(
-      String host, String userName,
-      String password, String database) {
+          String host, String userName,
+          String password, String database) {
     java.sql.Connection aConn = null;
     java.sql.Statement aStmt = null;
     try {

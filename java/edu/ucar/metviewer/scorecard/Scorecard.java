@@ -30,6 +30,8 @@ import edu.ucar.metviewer.scorecard.rscript.RscriptManager;
 import edu.ucar.metviewer.scorecard.rscript.SumRscriptManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 /**
  * Creates scorecard image using configuration XML
@@ -39,9 +41,11 @@ import org.apache.logging.log4j.Logger;
  */
 public class Scorecard {
 
-  private static final Logger logger = LogManager.getLogger("Console");
+  private static final Logger logger = LogManager.getLogger("Scorecard");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
-                                          "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
+          "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
   private String databaseName;
   private String user;
   private String pwd;
@@ -74,7 +78,7 @@ public class Scorecard {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     if (0 == args.length) {
-      logger.error("  Error: no arguments!!!");
+      logger.info("  Error: no arguments!!!");
       logger.info(USAGE);
 
     } else {
@@ -114,17 +118,17 @@ public class Scorecard {
         MysqlDatabaseManager databaseManager = null;
         if (dbType.equals("mysql")) {
           databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                                                                      scorecard.getUser()),
-                                                     scorecard.getPwd());
+                  scorecard.getUser()),
+                  scorecard.getPwd());
         } else if (dbType.equals("mariadb")) {
           databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                                                                           scorecard.getUser()),
-                                                          scorecard.getPwd());
+                  scorecard.getUser()),
+                  scorecard.getPwd());
         } else if (dbType.equals("aurora")) {
           databaseManager =
-              new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                                                            scorecard.getUser()),
-                                           scorecard.getPwd());
+                  new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
+                          scorecard.getUser()),
+                          scorecard.getPwd());
         }
 
 
@@ -146,13 +150,13 @@ public class Scorecard {
           StringBuilder logMessage = new StringBuilder();
           for (Map.Entry<String, Entry> column : mapRow.entrySet()) {
             logMessage.append(column.getKey()).append(": ").append(column.getValue().getName())
-                .append(", ");
+                    .append(", ");
           }
           logger.info(
-              "---------------------------------------------------------------------------------------");
+                  "---------------------------------------------------------------------------------------");
           logger.info("Row #" + rowCounter + ": " + logMessage);
           logger.info(
-              "---------------------------------------------------------------------------------------");
+                  "---------------------------------------------------------------------------------------");
 
           try {
             //get data from db and save it into file
@@ -162,18 +166,18 @@ public class Scorecard {
             rscriptManager.calculateStatsForRow(mapRow, "");
 
           } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(ERROR_MARKER, e.getMessage());
           }
           stopWatch.stop();
           logger.info("\nRow execution time " + stopWatch.getFormattedDuration());
           logger.info(
-              "---------------------------------------------------------------------------------------");
+                  "---------------------------------------------------------------------------------------");
           rowCounter++;
 
         }
         stopWatch.start();
         File dataFile = new File(scorecard.getWorkingFolders().getDataDir()
-                                     + scorecard.getDataFile());
+                + scorecard.getDataFile());
         //if the resulting file exists - create an image and html file
         if (dataFile.exists()) {
           stopWatch.stop();
@@ -392,7 +396,7 @@ public class Scorecard {
     for (Field fixedVar : fixedVars) {
       if (fixedVar.getName().equals("model") && fixedVar.getValues().size() == 1) {
         logger.info("XML has only one model. Adding the second model that is the same as the first "
-                        + "one");
+                + "one");
         fixedVar.getValues().add(new Entry(fixedVar.getValues().get(0)));
       }
     }

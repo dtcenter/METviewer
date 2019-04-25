@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 /**
  * Mutable data structure that stores data and facilitates subsetting of the rows to create individual data sets.  After the MVDataTable is loaded, subsets of
@@ -17,7 +19,6 @@ public class MVDataTable {
 
   private List _listFields = new ArrayList();
   private List _listRows = new ArrayList();
-
 
 
   /**
@@ -35,7 +36,6 @@ public class MVDataTable {
   public MVDataTable() {
     super();
   }
-
 
 
   /**
@@ -98,7 +98,7 @@ public class MVDataTable {
     //  remove inappropriate values from the input row
     for (Map.Entry val : vals) {
       if (!_listFields.contains(val.getKey())) {
-        logger.error("  **  WARNING: MVDataTable.addRow() removed key " + val.getKey());
+        logger.info("  **  WARNING: MVDataTable.addRow() removed key " + val.getKey());
         row.remove(val.getKey());
       }
     }
@@ -187,8 +187,6 @@ public class MVDataTable {
       set((String) listVal.getKey(), c, (String) listVal.getValue());
     }
   }
-
-
 
 
   public void clear() {

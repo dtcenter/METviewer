@@ -69,21 +69,21 @@
 
         <!-- default properties - in case something wasn't defined
         these definitions will not override anything that is in the build.properties.file file-->
-        <property name="db.host" value="dakota.rap.ucar.edu"/>
-        <property name="db.user" value="mvuser"/>
-        <property name="db.password" value="mvuser"/>
-        <property name="db.management.system" value="mysql"/>
-        <property name="rscript.bin" value="/usr/local/bin/Rscript"/>
+        <property name="db.host" value=""/>
+        <property name="db.user" value=""/>
+        <property name="db.password" value=""/>
+        <property name="db.management.system" value=""/>
+        <property name="rscript.bin" value="/"/>
         <property name="redirect" value="metviewer"/>
-        <property name="output.dir" value="/d2/www/dtcenter/met/metviewer_output"/>
-        <property name="webapps.dir" value="/opt/vxwww/tomcat/webapps/metviewer"/>
+        <property name="output.dir" value=""/>
+        <property name="webapps.dir" value=""/>
         <property name="xml.dir" value="xml"/>
         <property name="rtmpl.dir" value="R_tmpl"/>
         <property name="rwork.dir" value="R_work"/>
         <property name="plots.dir" value="plots"/>
         <property name="data.dir" value="data"/>
         <property name="scripts.dir" value="scripts"/>
-        <property name="url.output" value="http://www.dtcenter.org/met/metviewer_output/"/>
+        <property name="url.output" value=""/>
         <property name="context.path.suffix" value=""/>
 
 

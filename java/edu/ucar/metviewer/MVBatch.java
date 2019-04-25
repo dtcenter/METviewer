@@ -24,7 +24,7 @@ import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
 
-public class MVBatch  {
+public class MVBatch {
 
 
   private PrintStream printStream;
@@ -45,8 +45,8 @@ public class MVBatch  {
 
 
   public MVBatch(
-                    PrintStream log, PrintStream printStreamSql, PrintStream printStreamEr,
-                    AppDatabaseManager manager) {
+          PrintStream log, PrintStream printStreamSql, PrintStream printStreamEr,
+          AppDatabaseManager manager) {
     super();
 
     this.printStream = log;
@@ -58,12 +58,12 @@ public class MVBatch  {
   public MVBatch() {
 
     this(IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
-             .buildPrintStream(),
-         IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
-             .buildPrintStream(),
-         IoBuilder.forLogger().setLevel(org.apache.logging.log4j.Level.INFO)
-             .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-             .buildPrintStream(), null);
+                    .buildPrintStream(),
+            IoBuilder.forLogger(MVBatch.class).setLevel(org.apache.logging.log4j.Level.INFO)
+                    .buildPrintStream(),
+            IoBuilder.forLogger().setLevel(org.apache.logging.log4j.Level.INFO)
+                    .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+                    .buildPrintStream(), null);
   }
 
   public void print(String message) {
@@ -194,18 +194,18 @@ public class MVBatch  {
 
   public static String getUsage() {
     return "Usage:  mv_batch\n"
-               + "          [-list]\n"
-               + "          [-printSql]\n"
-               + "          plot_spec_file\n"
-               + "          [job_name]\n"
-               + "\n"
-               + "        where     \"-list\" indicates that the available plot jobs should be "
-               + "listed and no plots run\n"
-               + "                  \"-printSql\" print SQL statements\n"
-               + "                  \"plot_spec_file\" specifies the XML plot specification "
-               + "document\n"
-               + "                  \"job_name\" specifies the name of the job from the plot "
-               + "specification to run\n";
+            + "          [-list]\n"
+            + "          [-printSql]\n"
+            + "          plot_spec_file\n"
+            + "          [job_name]\n"
+            + "\n"
+            + "        where     \"-list\" indicates that the available plot jobs should be "
+            + "listed and no plots run\n"
+            + "                  \"-printSql\" print SQL statements\n"
+            + "                  \"plot_spec_file\" specifies the XML plot specification "
+            + "document\n"
+            + "                  \"job_name\" specifies the name of the job from the plot "
+            + "specification to run\n";
   }
 
   public static void main(String[] argv) throws Exception {
@@ -231,8 +231,8 @@ public class MVBatch  {
           bat.setVerbose(true);
         } else {
           bat.print(
-              "  **  ERROR: unrecognized option '"
-                  + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
+                  "  **  ERROR: unrecognized option '"
+                          + argv[intArg] + "'\n\n" + getUsage() + "\n----  MVBatch Done  ----");
           return;
         }
       }
@@ -242,7 +242,7 @@ public class MVBatch  {
       bat.print("input file: " + xmlInput + "\n");
 
       MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
-      bat.setDatabaseManager((AppDatabaseManager)DatabaseManager.getAppManager(parser.dbManagementSystem,parser.dbHost,parser.dbUser,parser.dbPass));
+      bat.setDatabaseManager((AppDatabaseManager) DatabaseManager.getAppManager(parser.dbManagementSystem, parser.dbHost, parser.dbUser, parser.dbPass));
       MVOrderedMap mapJobs = parser.getJobsMap();
 
       //  build a list of jobs to run
@@ -282,20 +282,20 @@ public class MVBatch  {
       }
 
       bat.setRtmplFolder(parser.getRtmplFolder()
-                             + (parser.getRtmplFolder()
-                                    .endsWith(File.separator) ? "" : File.separator));
+              + (parser.getRtmplFolder()
+              .endsWith(File.separator) ? "" : File.separator));
       bat.setRworkFolder(parser.getRworkFolder()
-                             + (parser.getRworkFolder()
-                                    .endsWith(File.separator) ? "" : File.separator));
+              + (parser.getRworkFolder()
+              .endsWith(File.separator) ? "" : File.separator));
       bat.setPlotsFolder(parser.getPlotsFolder()
-                             + (parser.getPlotsFolder()
-                                    .endsWith(File.separator) ? "" : File.separator));
+              + (parser.getPlotsFolder()
+              .endsWith(File.separator) ? "" : File.separator));
       bat.setDataFolder(parser.getDataFolder());
 
 
       bat.setScriptsFolder(parser.getScriptsFolder()
-                               + (parser.getScriptsFolder().endsWith(File.separator) ? "" :
-                                      File.separator));
+              + (parser.getScriptsFolder().endsWith(File.separator) ? "" :
+              File.separator));
 
 
       //  calculate the number of plots
@@ -323,7 +323,7 @@ public class MVBatch  {
         jobsStopWatch.start();
         if (0 < intJob) {
           bat.print(
-              "\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
+                  "\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n");
         }
         JobManager jobManager;
         switch (jobs[intJob].getPlotTmpl()) {
@@ -365,18 +365,17 @@ public class MVBatch  {
 
         bat.numPlotsRun++;
         jobsStopWatch.stop();
-        bat.print("\n" + "Job " + (intJob+1) + " execution time " + jobsStopWatch.getFormattedDuration());
+        bat.print("\n" + "Job " + (intJob + 1) + " execution time " + jobsStopWatch.getFormattedDuration());
 
       }
       stopWatch.stop();
-      long plotAvg= (jobsStopWatch.getTotalDuration()/ 1000000) / (long) bat.numPlots;
+      long plotAvg = (jobsStopWatch.getTotalDuration() / 1000000) / (long) bat.numPlots;
 
       bat.print("\n"
-                    + MVUtil.padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
-                    + "\n"
-                    + MVUtil.padBegin("Total time: ") + jobsStopWatch.getFormattedTotalDuration() + "\n"
-                    + MVUtil.padBegin("Avg plot time: ") + MVUtil.formatTimeSpan(plotAvg) + "\n");
-
+              + MVUtil.padBegin("Plots run: ") + bat.getNumPlotsRun() + " of " + bat.getNumPlots()
+              + "\n"
+              + MVUtil.padBegin("Total time: ") + jobsStopWatch.getFormattedTotalDuration() + "\n"
+              + MVUtil.padBegin("Avg plot time: ") + MVUtil.formatTimeSpan(plotAvg) + "\n");
 
 
     } catch (Exception e) {

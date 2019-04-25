@@ -194,7 +194,6 @@
               selectedList: 1,
               header: false,
               minWidth: 'auto',
-              height: 'auto',
               click: function (event, ui) {
                   $('#series_var_val_y1_date_period_start_1').empty();
                   $('#series_var_val_y1_date_period_end_1').empty();
@@ -584,6 +583,8 @@
                 <option value="fcst_thresh">FCST_THRESH</option>
                 <option value="obs_thresh">OBS_THRESH</option>
                 <option value="obs_var">OBS_VAR</option>
+                <option value="fcst_perc">FCST_PERC</option>
+                <option value="obs_perc">OBS_PERC</option>
               </select>
             </td>
             <td>

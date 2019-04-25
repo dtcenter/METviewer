@@ -79,10 +79,10 @@ public class CBDatabaseManager extends DatabaseManager {
     listDB.clear();
 
     // get list of database names from data file documents
-    String nquery =  "select distinct dbname as database_name " +
-                      "from `" +
-                      getBucket().name() +
-                      "` where type = \'file\';";
+    String nquery = "select distinct dbname as database_name " +
+            "from `" +
+            getBucket().name() +
+            "` where type = \'file\';";
     try {
       queryResult = getBucket().query(N1qlQuery.simple(nquery));
       results = queryResult.allRows();
@@ -122,7 +122,7 @@ public class CBDatabaseManager extends DatabaseManager {
     String group = MVUtil.DEFAULT_DATABASE_GROUP;
     String description = "";
 
-    String strDataFileQuery =  "SELECT " +
+    String strDataFileQuery = "SELECT " +
             "meta().id as groupId, " +
             "type, " +
             "`group`, " +

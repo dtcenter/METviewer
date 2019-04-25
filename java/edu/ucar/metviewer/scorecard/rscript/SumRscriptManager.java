@@ -22,6 +22,8 @@ import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 
 /**
@@ -31,6 +33,8 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class SumRscriptManager extends RscriptManager {
 
   private static final Logger logger = LogManager.getLogger("SumRscriptManager");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private static final String SCRIPT_FILE_NAME = "/scorecard.R_tmpl";
   private static final String SUM_FILE_NAME = "/sum_stat.info_tmpl";
   private static final String STAT_SCRIPT_FILE_NAME = "/include/sum_stat.R";
@@ -50,15 +54,15 @@ public class SumRscriptManager extends RscriptManager {
     calcStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SCRIPT_FILE_NAME;
     sumStatTemplScript = scorecard.getWorkingFolders().getrTemplateDir() + SUM_FILE_NAME;
     strRFile = scorecard.getWorkingFolders().getScriptsDir()
-                   + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
+            + scorecard.getDataFile().replaceFirst("\\.data$", ".R");
     strSumRFile = scorecard.getWorkingFolders().getrWorkDir() + "sum_stat.R";
     strSumInfo = scorecard.getWorkingFolders().getDataDir()
-                     + scorecard.getSumStatDataFile().replaceFirst("\\.data.sum_stat$",
-                                                                   ".sum_stat.info");
+            + scorecard.getSumStatDataFile().replaceFirst("\\.data.sum_stat$",
+            ".sum_stat.info");
     sumStatTemplFilePath = scorecard.getWorkingFolders().getrTemplateDir();
     sumStatTemplScriptDir = scorecard.getWorkingFolders().getrWorkDir();
     sumStatDataFilePath = scorecard.getWorkingFolders().getDataDir()
-                              + scorecard.getSumStatDataFile();
+            + scorecard.getSumStatDataFile();
 
 
     tableCalcStatInfoCommon = new HashMap<>();
@@ -75,28 +79,28 @@ public class SumRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("indy_plot_val", "list()");
     tableCalcStatInfoCommon.put("plot_stat", scorecard.getPlotStat());
     tableCalcStatInfoCommon
-        .put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
+            .put("working_dir", scorecard.getWorkingFolders().getrWorkDir() + "/include");
     tableCalcStatInfoCommon.put("data_file", scorecard.getWorkingFolders().getDataDir()
-                                                 + scorecard.getDataFile()
-                                                       .replaceAll(".data", ".dataFromDb"));
+            + scorecard.getDataFile()
+            .replaceAll(".data", ".dataFromDb"));
     tableCalcStatInfoCommon
-        .put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
+            .put("plot_file", scorecard.getWorkingFolders().getDataDir() + scorecard.getDataFile());
     tableCalcStatInfoCommon.put("r_work", scorecard.getWorkingFolders().getrWorkDir());
     tableCalcStatInfoCommon.put("stat_flag", scorecard.getStatFlag());
 
 
     tableCalcStatInfoCommon.put("eveq_dis", String.valueOf(Boolean.FALSE).toUpperCase());
     tableCalcStatInfoCommon.put("sum_stat_output", scorecard.getWorkingFolders().getDataDir()
-                                                       + scorecard.getDataFile() + "1");
+            + scorecard.getDataFile() + "1");
     String dates = "c()";
     for (Field fixedField : fixedVars) {
       if ("fcst_valid_beg".equals(fixedField.getName())
               || "fcst_init_beg".equals(fixedField.getName())) {
 
         dates = "c('"
-                    + fixedField.getValues().get(0).getName().split("\\s")[0]
-                    + "', '" + fixedField.getValues().get(1).getName().split("\\s")[0]
-                    + "')";
+                + fixedField.getValues().get(0).getName().split("\\s")[0]
+                + "', '" + fixedField.getValues().get(1).getName().split("\\s")[0]
+                + "')";
         break;
       }
     }
@@ -123,17 +127,17 @@ public class SumRscriptManager extends RscriptManager {
 
       String aggType = Util.getAggTypeForStat(Util.getStatForRow(mapRow));
       tableCalcStatInfo
-          .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
+              .put("sum_ctc", String.valueOf(Boolean.valueOf(aggType.equals("ctc"))).toUpperCase());
       tableCalcStatInfo.put("sum_sl1l2", String.valueOf(Boolean.valueOf(aggType.equals("sl1l2")))
-                                             .toUpperCase());
+              .toUpperCase());
       tableCalcStatInfo.put("sum_grad", String.valueOf(Boolean.valueOf(aggType.equals("grad")))
-                                            .toUpperCase());
+              .toUpperCase());
       tableCalcStatInfo.put("sum_sal1l2", String.valueOf(Boolean.valueOf(aggType.equals("sal1l2")
       )).toUpperCase());
       tableCalcStatInfo.put("sum_vl1l2", String.valueOf(Boolean.valueOf(aggType.equals("vl1l2")))
-                                             .toUpperCase());
+              .toUpperCase());
       tableCalcStatInfo.put("sum_val1l2", String.valueOf(Boolean.valueOf(aggType.equals("val1l2")))
-                                              .toUpperCase());
+              .toUpperCase());
 
       //check id output file exists and its length not 0
       File output = new File(tableCalcStatInfo.get("sum_stat_output"));
@@ -147,11 +151,11 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfo.put("sum_stat_input", tableCalcStatInfoCommon.get("data_file"));
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       String thredInfoFileName = strSumInfo.substring(0, lastDot)
-                                     + threadName + strSumInfo.substring(lastDot);
+              + threadName + strSumInfo.substring(lastDot);
 
       try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-                                         .setLevel(org.apache.logging.log4j.Level.INFO)
-                                         .buildPrintStream()) {
+              .setLevel(org.apache.logging.log4j.Level.INFO)
+              .buildPrintStream()) {
         String sumStatTemplScript;
         String sumStatTemplFile;
 
@@ -161,11 +165,11 @@ public class SumRscriptManager extends RscriptManager {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        printStream.println("Running " + rScriptCommand + " " + sumStatTemplScript );
+        printStream.println("Running " + rScriptCommand + " " + sumStatTemplScript);
 
 
         MvResponse mvResponse = MVUtil.runRscript(rScriptCommand, sumStatTemplScript,
-                                                  new String[]{thredInfoFileName});
+                new String[]{thredInfoFileName});
 
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
@@ -176,8 +180,7 @@ public class SumRscriptManager extends RscriptManager {
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (StopWatchException | IOException e) {
-        logger.error(e);
-        logger.error(e);
+        logger.error(ERROR_MARKER, e.getMessage());
       }
       tableCalcStatInfo.put("event_equal", String.valueOf(Boolean.FALSE).toUpperCase());
 
@@ -187,12 +190,12 @@ public class SumRscriptManager extends RscriptManager {
       isAppend = output.exists() && output.length() > 0;
       tableCalcStatInfo.put("append_to_file", String.valueOf(isAppend).toUpperCase());
       tableCalcStatInfo.put("data_file",
-                            tableCalcStatInfoCommon.get("sum_stat_output"));
+              tableCalcStatInfoCommon.get("sum_stat_output"));
 
 
       try (PrintStream printStream = IoBuilder.forLogger(SumRscriptManager.class)
-                                         .setLevel(org.apache.logging.log4j.Level.INFO)
-                                         .buildPrintStream()) {
+              .setLevel(org.apache.logging.log4j.Level.INFO)
+              .buildPrintStream()) {
         MVUtil.populateTemplateFile(calcStatTemplScript, strRFile, tableCalcStatInfo);
 
         StopWatch stopWatch = new StopWatch();
@@ -210,8 +213,7 @@ public class SumRscriptManager extends RscriptManager {
         }
         printStream.println("Rscript time " + stopWatch.getFormattedTotalDuration());
       } catch (IOException | StopWatchException e) {
-        logger.error(e);
-        logger.error(e);
+        logger.error(ERROR_MARKER, e.getMessage());
       }
 
     }

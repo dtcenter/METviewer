@@ -27,6 +27,7 @@ public class EnsSsJobManager extends SeriesJobManager {
     }
     return intNumDepSeries;
   }
+
   @Override
   protected void validateNumDepSeries(MVPlotJob job, int intNumDepSeries) {
     //do nothing

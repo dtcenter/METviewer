@@ -36,6 +36,8 @@ import j2html.tags.ContainerTag;
 import j2html.tags.UnescapedText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -65,15 +67,17 @@ class GraphicalOutputManager {
   private static final String BLACK_000000 = "#000000";
 
   private static final Logger logger = LogManager.getLogger("GraphicalOutputManager");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private static final String CSS
-      = "table {border-collapse: collapse;border-spacing: 0;}"
-            + "table, th, td {border: 1px solid black;text-align:center;}"
-            + "th {color: red;}"
-            + "#thside {color: blue;}"
-            + ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}"
-            + ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}"
-            + ".legendTable {margin-top:15px;margin-bottom:10px;}"
-            + ".legendText {text-align:left;}";
+          = "table {border-collapse: collapse;border-spacing: 0;}"
+          + "table, th, td {border: 1px solid black;text-align:center;}"
+          + "th {color: red;}"
+          + "#thside {color: blue;}"
+          + ".title1 {width:100%; text-align:center; color:red; font-size:18px; padding-top: 10px;}"
+          + ".title2 {width:100%; text-align:center; color:black; font-size:12px;padding-bottom: 10px;}"
+          + ".legendTable {margin-top:15px;margin-bottom:10px;}"
+          + ".legendText {text-align:left;}";
   public static final String CLASS = "class";
   public static final String STYLE = "style";
 
@@ -121,7 +125,7 @@ class GraphicalOutputManager {
       if ("fcst_init_beg".equals(fixField.getName())
               || "fcst_valid_beg".equals(fixField.getName())) {
         range = fixField.getValues().get(0).getLabel()
-                    + " - " + fixField.getValues().get(1).getLabel();
+                + " - " + fixField.getValues().get(1).getLabel();
       } else if ("model".equals(fixField.getName())) {
         model1 = fixField.getValues().get(0).getLabel();
         model2 = fixField.getValues().get(1).getLabel();
@@ -177,7 +181,7 @@ class GraphicalOutputManager {
                           .equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
                     legendRange.setIncludeLowerLimit(Boolean.TRUE);
                   } else if (propertyNode.getTextContent()
-                                 .equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+                          .equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
                     legendRange.setIncludeLowerLimit(Boolean.FALSE);
                   }
                 } else if ("include_upper_limit".equals(propertyNode.getNodeName())) {
@@ -185,7 +189,7 @@ class GraphicalOutputManager {
                           .equalsIgnoreCase(String.valueOf(Boolean.TRUE))) {
                     legendRange.setIncludeUpperLimit(Boolean.TRUE);
                   } else if (propertyNode.getTextContent()
-                                 .equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
+                          .equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
                     legendRange.setIncludeUpperLimit(Boolean.FALSE);
                   }
                 } else if ("format_string".equals(propertyNode.getNodeName())) {
@@ -199,9 +203,9 @@ class GraphicalOutputManager {
           }
         }
       } catch (ParserConfigurationException | IOException | SAXException e) {
-        logger.error("ERROR during reading threshold XML file : " + e.getMessage());
-        logger.error("Default threshold configurations will be used");
-        logger.debug(e);
+        logger.info("ERROR during reading threshold XML file : " + e.getMessage());
+        logger.info("Default threshold configurations will be used");
+        logger.error(ERROR_MARKER, e.getMessage());
         rangeList.clear();
 
       }
@@ -341,8 +345,8 @@ class GraphicalOutputManager {
     ContainerTag legendTable = table().attr(CLASS, "legendTable");
     for (LegendRange range : rangeList) {
       ContainerTag td1 = td().attr(STYLE, "color:" + range.getColor() + ";"
-                                              + "background:" + range.getBackground() + ";")
-                             .with(new UnescapedText(range.getSymbol()));
+              + "background:" + range.getBackground() + ";")
+              .with(new UnescapedText(range.getSymbol()));
       ContainerTag td2 = td().attr(CLASS, "legendText");
 
       try {
@@ -461,7 +465,7 @@ class GraphicalOutputManager {
           td.withId("thside");
         }
         htmlTr.with(td.attr("rowspan", String.valueOf(
-            rowFieldToCountMap.get(rowCounter).get(entry.getKey()))));
+                rowFieldToCountMap.get(rowCounter).get(entry.getKey()))));
       }
       columnNumber++;
     }
@@ -521,7 +525,7 @@ class GraphicalOutputManager {
     }
 
     return td().attr(STYLE, "color:" + color + ";background-color:" + background + ";")
-               .attr("title", title).with(new UnescapedText(text));
+            .attr("title", title).with(new UnescapedText(text));
   }
 
   private List<Map<String, Integer>> getRowspansForRowHeader() {
@@ -641,7 +645,7 @@ class GraphicalOutputManager {
         line = buf.readLineBounded();
 
       }
-    }catch (IOException e) {
+    } catch (IOException e) {
       throw e;
     }
     return table;

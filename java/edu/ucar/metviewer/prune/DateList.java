@@ -59,13 +59,13 @@ class DateList {
       start = LocalDateTime.parse(startStr, formatter);
     } catch (Exception e) {
       throw new ParsingException("Date format can't be applied to the start date in 'date_list' "
-                                     + "element");
+              + "element");
     }
     try {
       end = LocalDateTime.parse(endStr, formatter);
     } catch (Exception e) {
       throw new ParsingException(
-          "Date format can't be applied to the end date in 'date_list' element");
+              "Date format can't be applied to the end date in 'date_list' element");
     }
     while (start.isBefore(end) || start.isEqual(end)) {
       values.add(start.format(formatter));

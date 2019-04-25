@@ -30,11 +30,11 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class RscriptAggStatManager extends RscriptStatManager {
 
   private static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
-                                                     .setLevel(org.apache
-                                                                   .logging.log4j.Level.INFO)
-                                                     .setMarker(
-                                                         new MarkerManager.Log4jMarker("ERROR"))
-                                                     .buildPrintStream();
+          .setLevel(org.apache
+                  .logging.log4j.Level.INFO)
+          .setMarker(
+                  new MarkerManager.Log4jMarker("ERROR"))
+          .buildPrintStream();
 
   public RscriptAggStatManager(MVBatch mvBatch) {
     super(mvBatch);
@@ -42,15 +42,15 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-      MVPlotJob job, MVOrderedMap mvMap,
-      Map<String, String> info,
-      List<String> listQuery) throws ValidationException, IOException, StopWatchException {
+          MVPlotJob job, MVOrderedMap mvMap,
+          Map<String, String> info,
+          List<String> listQuery) throws ValidationException, IOException, StopWatchException {
 
 
     String fileName = MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                 MVUtil.addTmplValDep(job),
-                                                 job.getTmplMaps(),
-                                                 mvBatch.getPrintStream());
+            MVUtil.addTmplValDep(job),
+            job.getTmplMaps(),
+            mvBatch.getPrintStream());
 
     dataFile = mvBatch.getDataFolder() + fileName;
     if ((job.isModeJob() || job.isMtdJob()) && job.getEventEqual()) {
@@ -58,9 +58,9 @@ public class RscriptAggStatManager extends RscriptStatManager {
       //create sql query
       MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
       List<String> eventEqualizeSql = mvBatch.getDatabaseManager()
-                                          .buildPlotModeEventEqualizeSql(job,
-                                                                         mvMap,
-                                                                         mapPlotFixVal);
+              .buildPlotModeEventEqualizeSql(job,
+                      mvMap,
+                      mapPlotFixVal);
 
       for (String sql : eventEqualizeSql) {
         mvBatch.printSql(sql + "\n");
@@ -70,9 +70,9 @@ public class RscriptAggStatManager extends RscriptStatManager {
       MvResponse mvResponse = new MvResponse();
       for (int i = 0; i < job.getCurrentDBName().size(); i++) {
         mvResponse = mvBatch.getDatabaseManager()
-                              .executeQueriesAndSaveToFile(eventEqualizeSql, dataFile + "_ee_input",
-                                                           job.isCalcStat(),
-                                                           job.getCurrentDBName().get(i), i == 0);
+                .executeQueriesAndSaveToFile(eventEqualizeSql, dataFile + "_ee_input",
+                        job.isCalcStat(),
+                        job.getCurrentDBName().get(i), i == 0);
         if (mvResponse.getInfoMessage() != null) {
           mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
         }
@@ -85,7 +85,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
         String eeInfo = dataFile.replaceFirst("\\.data$", ".agg_stat_event_equalize.info");
 
         MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + "/" + tmplFileName, eeInfo,
-                                    info);
+                info);
         String scriptName = mvBatch.getRworkFolder() + "/include/agg_stat_event_equalize.R";
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -93,7 +93,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
         mvResponse = MVUtil.runRscript(job.getRscript(), scriptName, new String[]{eeInfo});
 
 
-          stopWatch.stop();
+        stopWatch.stop();
 
         if (mvResponse.getInfoMessage() != null) {
           mvBatch.getPrintStream().print(mvResponse.getInfoMessage());
@@ -146,10 +146,10 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
     for (int i = 0; i < job.getCurrentDBName().size(); i++) {
       MvResponse mvResponse =
-          mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
-                                                                   job.isCalcStat(),
-                                                                   job.getCurrentDBName().get(i),
-                                                                   i == 0);
+              mvBatch.getDatabaseManager().executeQueriesAndSaveToFile(listQuery, dataFile,
+                      job.isCalcStat(),
+                      job.getCurrentDBName().get(i),
+                      i == 0);
       if (mvResponse.getInfoMessage() != null) {
         mvBatch.getPrintStream().println(mvResponse.getInfoMessage());
       }
@@ -164,16 +164,16 @@ public class RscriptAggStatManager extends RscriptStatManager {
     if (job.isModeJob() || job.isMtdJob()) {
       if (job.isModeRatioJob() || job.isMtdRatioJob()) {
         aggInfo = dataFile.replaceFirst("\\.data.agg_stat_bootstrap$",
-                                        ".agg_stat_bootstrap.info");
+                ".agg_stat_bootstrap.info");
         aggOutput = dataFile.replaceFirst("\\.agg_stat_bootstrap$", "");
         info.put("agg_stat_input_ee",
-                 dataFile.replaceFirst("\\.agg_stat_bootstrap$", ".ee"));
+                dataFile.replaceFirst("\\.agg_stat_bootstrap$", ".ee"));
         tmplFileName = "agg_stat_bootstrap.info_tmpl";
       } else {
         aggInfo = dataFile.replaceFirst("\\.data.agg_stat_eqz$", ".agg_stat_eqz.info");
         aggOutput = dataFile.replaceFirst("\\.agg_stat_eqz$", "");
         info
-            .put("agg_stat_input_ee", dataFile.replaceFirst("\\.agg_stat_eqz$", ".ee"));
+                .put("agg_stat_input_ee", dataFile.replaceFirst("\\.agg_stat_eqz$", ".ee"));
         tmplFileName = "agg_stat_eqz.info_tmpl";
       }
 
@@ -190,7 +190,7 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
     try {
       MVUtil.populateTemplateFile(mvBatch.getRtmplFolder() + tmplFileName, aggInfo,
-                                  info);
+              info);
       //  run agg_stat/agg_pct/agg_stat_bootstrap to generate the data file for plotting
 
       if (!fileAggOutput.exists() || !job.getCacheAggStat()) {
@@ -198,11 +198,11 @@ public class RscriptAggStatManager extends RscriptStatManager {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile );
+        mvBatch.getPrintStream().println("\nRunning " + job.getRscript() + " " + rScriptFile);
 
         mvResponse = MVUtil.runRscript(job.getRscript(),
-                                       rScriptFile,
-                                       new String[]{aggInfo});
+                rScriptFile,
+                new String[]{aggInfo});
         stopWatch.stop();
         if (mvResponse.getInfoMessage() != null) {
           mvBatch.getPrintStream().println(mvResponse.getInfoMessage());

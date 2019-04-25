@@ -20,6 +20,8 @@ import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -33,6 +35,8 @@ import org.xml.sax.SAXException;
 class XmlParser {
 
   private static final Logger logger = LogManager.getLogger("XmlParser");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
 
 
   public Scorecard parseParameters(String filename) {
@@ -56,23 +60,23 @@ class XmlParser {
         Node scorecardSpecNode = scorecardSpecNodes.item(i);
         //for each node
         if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "connection".equals(
-            scorecardSpecNode.getNodeName())) {
+                scorecardSpecNode.getNodeName())) {
           setDbConnection(scorecard, scorecardSpecNode);
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "folders".equals(
-            scorecardSpecNode.getNodeName())) {
+                scorecardSpecNode.getNodeName())) {
           setFolders(scorecard, scorecardSpecNode);
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "plot".equals(
-            scorecardSpecNode.getNodeName())) {
+                scorecardSpecNode.getNodeName())) {
           setPlot(scorecard, scorecardSpecNode);
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "rscript".equals(
-            scorecardSpecNode.getNodeName())) {
+                scorecardSpecNode.getNodeName())) {
           scorecard.setrScriptCommand(scorecardSpecNode.getTextContent());
         }
 
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
-      logger.error("ERROR during reading XML file : " + e.getMessage());
-      logger.debug(e);
+      logger.info("ERROR during reading XML file : " + e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
     return scorecard;
   }
@@ -100,15 +104,15 @@ class XmlParser {
           try {
             scorecard.setNumBootReplicates(Integer.valueOf(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
-            logger.error("Incorrect value for <boot_repl> :"
-                             + plotNode.getTextContent() + ". Using default value 1000");
+            logger.info("Incorrect value for <boot_repl> :"
+                    + plotNode.getTextContent() + ". Using default value 1000");
           }
         } else if ("boot_random_seed".equals(plotNode.getNodeName())) {
           try {
             scorecard.setBootRandomSeed(Integer.valueOf(plotNode.getTextContent()));
           } catch (NumberFormatException e) {
-            logger.error("Incorrect value for <boot_random_seed> :"
-                             + plotNode.getTextContent() + ". Using default value NULL");
+            logger.info("Incorrect value for <boot_random_seed> :"
+                    + plotNode.getTextContent() + ". Using default value NULL");
           }
         } else if ("plot_stat".equals(plotNode.getNodeName())) {
           scorecard.setPlotStat(plotNode.getTextContent());

@@ -19,20 +19,20 @@ public class AllTestCompare {
 
   public static void main(String[] args) {
 
-      Result result;
-      result = JUnitCore.runClasses(ComparePlotBatchTest.class);
-      List<Failure> failureListComparePlotBatchTest = result.getFailures();
-      System.out.println("*************************************************");
-      for (Failure failure : failureListComparePlotBatchTest) {
-        System.out.println(failure.toString());
-      }
-      if (failureListComparePlotBatchTest.isEmpty()) {
-        System.out.println("***** Plots compared successfully... *****");
-      }
-      System.out.println("*************************************************");
-      int exitCode = failureListComparePlotBatchTest == null ? 0 :failureListComparePlotBatchTest.size();
-      System.out.println("*************************************************");
-      System.out.println("There were " + exitCode + " failures");
-      System.exit( exitCode);
+    Result result;
+    result = JUnitCore.runClasses(ComparePlotBatchTest.class);
+    List<Failure> failureListComparePlotBatchTest = result.getFailures();
+    System.out.println("*************************************************");
+    for (Failure failure : failureListComparePlotBatchTest) {
+      System.out.println(failure.toString());
     }
+    if (failureListComparePlotBatchTest.isEmpty()) {
+      System.out.println("***** Plots compared successfully... *****");
+    }
+    System.out.println("*************************************************");
+    int exitCode = failureListComparePlotBatchTest == null ? 0 : failureListComparePlotBatchTest.size();
+    System.out.println("*************************************************");
+    System.out.println("There were " + exitCode + " failures");
+    System.exit(exitCode);
+  }
 }

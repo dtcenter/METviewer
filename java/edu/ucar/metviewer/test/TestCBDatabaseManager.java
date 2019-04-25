@@ -10,35 +10,35 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 public class TestCBDatabaseManager extends CBDatabaseManager implements TestDBManager {
-    public TestCBDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
-        super(databaseInfo, password);
-    }
+  public TestCBDatabaseManager(DatabaseInfo databaseInfo, String password) throws Exception {
+    super(databaseInfo, password);
+  }
 
-    private static final Logger logger = LogManager.getLogger("TestCBDatabaseManager");
+  private static final Logger logger = LogManager.getLogger("TestCBDatabaseManager");
 
-    public int getNumberOfRows(String lineDataType) throws Exception {
-        String tableName = lineDataType;
-        int rows= -1;
-        try {
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return rows;
+  public int getNumberOfRows(String lineDataType) throws Exception {
+    String tableName = lineDataType;
+    int rows = -1;
+    try {
+    } catch (Exception e) {
+      logger.error(e.getMessage());
     }
+    return rows;
+  }
 
-    public void loadData(String fileName, String database) throws Exception {
-        Reader reader = null;
-        Connection con = null;
-        Statement statement = null;
-        try {
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
+  public void loadData(String fileName, String database) throws Exception {
+    Reader reader = null;
+    Connection con = null;
+    Statement statement = null;
+    try {
+    } catch (Exception e) {
+      logger.error(e.getMessage());
     }
+  }
 
-    @Override
-    public void checkCreateDatabase(String host, String userName, String password, String database) {
-        // do nothing at the moment - currently using one collection
-    }
+  @Override
+  public void checkCreateDatabase(String host, String userName, String password, String database) {
+    // do nothing at the moment - currently using one collection
+  }
 
 }

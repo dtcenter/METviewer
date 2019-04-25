@@ -17,8 +17,8 @@ import edu.ucar.metviewer.db.DatabaseManager;
 public class TestDatabaseManager {
 
   public static TestDBManager getManager(
-      String management_system, String host, String user, String password,
-      String dbName) throws Exception {
+          String management_system, String host, String user, String password,
+          String dbName) throws Exception {
     String ms = management_system.toLowerCase();
     String dbType = (ms.isEmpty()) ? "mysql" : ms; // default dbType to mysql if management_system is
     // missing
@@ -31,36 +31,36 @@ public class TestDatabaseManager {
     switch (dbType) {
       case DatabaseManager.MYSQL:
         databaseManager =
-            (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.test.TestMysqlDatabaseManager")
-                                .getDeclaredConstructor(DatabaseInfo.class, String.class)
-                                .newInstance(databaseInfo, password);
+                (TestDBManager) Class.forName(
+                        "edu.ucar.metviewer.test.TestMysqlDatabaseManager")
+                        .getDeclaredConstructor(DatabaseInfo.class, String.class)
+                        .newInstance(databaseInfo, password);
 
         break;
       case DatabaseManager.MARIADB:
         databaseManager =
-            (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.test.TestMariaDbDatabaseManager")
-                                .getDeclaredConstructor(DatabaseInfo.class, String.class)
-                                .newInstance(databaseInfo, password);
+                (TestDBManager) Class.forName(
+                        "edu.ucar.metviewer.test.TestMariaDbDatabaseManager")
+                        .getDeclaredConstructor(DatabaseInfo.class, String.class)
+                        .newInstance(databaseInfo, password);
 
         break;
       case DatabaseManager.AURORA:
         databaseManager =
-            (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.test.TestAuroraDatabaseManager")
-                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                        String.class)
-                                .newInstance(databaseInfo, password);
+                (TestDBManager) Class.forName(
+                        "edu.ucar.metviewer.test.TestAuroraDatabaseManager")
+                        .getDeclaredConstructor(DatabaseInfo.class,
+                                String.class)
+                        .newInstance(databaseInfo, password);
 
         break;
       case DatabaseManager.CB:
         databaseManager =
-            (TestDBManager) Class.forName(
-                "edu.ucar.metviewer.test.TestCBDatabaseManager")
-                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                        String.class)
-                                .newInstance(databaseInfo, password);
+                (TestDBManager) Class.forName(
+                        "edu.ucar.metviewer.test.TestCBDatabaseManager")
+                        .getDeclaredConstructor(DatabaseInfo.class,
+                                String.class)
+                        .newInstance(databaseInfo, password);
 
         break;
       default:

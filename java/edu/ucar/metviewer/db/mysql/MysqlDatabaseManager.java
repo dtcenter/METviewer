@@ -27,6 +27,8 @@ import edu.ucar.metviewer.db.DatabaseInfo;
 import edu.ucar.metviewer.db.DatabaseManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -38,6 +40,8 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
 public class MysqlDatabaseManager extends DatabaseManager {
 
   private static final Logger logger = LogManager.getLogger("MysqlDatabaseManager");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   protected static Map<String, String> listDB = new TreeMap<>();
   protected static Map<String, List<String>> groupToDatabases = new HashMap<>();
   private static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
@@ -49,8 +53,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
 
 
   private DataSource dataSource;
-  public static final String BINARY ="  BINARY ";
-
+  public static final String BINARY = "  BINARY ";
 
 
   public MysqlDatabaseManager(DatabaseInfo databaseInfo, String password) {
@@ -78,16 +81,15 @@ public class MysqlDatabaseManager extends DatabaseManager {
     configurationToUse.setMinIdle(10);
     configurationToUse.setRemoveAbandoned(true);
     configurationToUse.setJdbcInterceptors(
-        "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
-            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
+                    + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
     try {
       dataSource = new DataSource();
       dataSource.setPoolProperties(configurationToUse);
       dataSource.setLogWriter(new PrintWriter(getPrintStream()));
     } catch (SQLException e) {
-      logger.debug(e);
-      logger.error("Database connection  for a primary database was not initialised.");
-      logger.error(e.getMessage());
+      logger.info("Database connection  for a primary database was not initialised.");
+      logger.error(ERROR_MARKER, e.getMessage());
       dataSource = null;
     }
 
@@ -97,8 +99,9 @@ public class MysqlDatabaseManager extends DatabaseManager {
     }
     initDBList(updateGroups);
   }
-  public synchronized String formatDate(Date date){
-   return DATE_FORMAT.format(date.getTime());
+
+  public synchronized String formatDate(Date date) {
+    return DATE_FORMAT.format(date.getTime());
   }
 
   protected String getJdbcUrl(final String hostName, final String dbName) {
@@ -113,9 +116,9 @@ public class MysqlDatabaseManager extends DatabaseManager {
   public void initDBList(boolean updateGroups) {
     listDB.clear();
     String sql = "SELECT DISTINCT ( TABLE_SCHEMA ) FROM information_schema.TABLES where "
-                     + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
-                     + "> 0 and "
-                     + "TABLE_SCHEMA like 'mv_%'";
+            + "table_name in ('mode_header', 'stat_header', 'mtd_header') and TABLE_ROWS "
+            + "> 0 and "
+            + "TABLE_SCHEMA like 'mv_%'";
     try (Connection testConnection = dataSource.getConnection();
          Statement testStatement = testConnection.createStatement();
          ResultSet resultSet = testStatement.executeQuery(sql)
@@ -127,7 +130,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
         listDB.put(database, "");
       }
     } catch (SQLException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
 
     }
 
@@ -165,7 +168,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
       }
 
     } catch (SQLException e) {
-      logger.error("Can't get groups for database " + database + " SQL exception: " + e);
+      logger.error(ERROR_MARKER,"Can't get groups for database " + database + " SQL exception: " + e);
     }
     if (group.isEmpty()) {
       group = MVUtil.DEFAULT_DATABASE_GROUP;
@@ -208,13 +211,13 @@ public class MysqlDatabaseManager extends DatabaseManager {
         con.setCatalog(db);
 
       } catch (Exception e) {
-        logger.error("can't get connection for database " + db + " " +e.getMessage());
-        if(con != null) {
+        logger.error(ERROR_MARKER,"can't get connection for database " + db + " " + e.getMessage());
+        if (con != null) {
           con.close();
         }
       }
-    }else{
-      logger.error("Database " + db + " is invalid");
+    } else {
+      logger.info("Database " + db + " is invalid");
     }
     return con;
   }
@@ -229,7 +232,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
     try {
       con = dataSource.getConnection();
     } catch (SQLException e) {
-      logger.error("can't get connection " +e.getMessage());
+      logger.error(ERROR_MARKER,"can't get connection " + e.getMessage());
     }
     return con;
   }

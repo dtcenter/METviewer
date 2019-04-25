@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -46,6 +47,8 @@ import org.w3c.dom.Document;
 public class MVUtil {
 
   private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger("MVUtil");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
 
   public static final Pattern thresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
   public static final Pattern lev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
@@ -60,7 +63,7 @@ public class MVUtil {
   public static final Pattern patModePairObjectId = Pattern.compile("^(C?F\\d{3})_(C?O\\d{3})$");
 
   public static final DateTimeFormatter APP_DATE_FORMATTER
-      = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+          = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   public final static String LINE_SEPARATOR = System.getProperty("line.separator");
   /**
@@ -95,6 +98,7 @@ public class MVUtil {
   public static final Map<String, String[]> statsRhist = new HashMap<>();
   public static final Map<String, String[]> statsVl1l2 = new HashMap<>();
   public static final Map<String, String[]> statsVal1l2 = new HashMap<>();
+  public static final Map<String, String[]> statsPerc = new HashMap<>();
   public static final Map<String, String> modeSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd3dSingleStatField = new HashMap<>();
   public static final Map<String, String> mtd2dStatField = new HashMap<>();
@@ -129,44 +133,44 @@ public class MVUtil {
   public static final Map<String, Boolean> covThreshLineTypes = new HashMap<>();
 
   public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
-                                                    .setLevel(org.apache.logging.log4j.Level.INFO)
-                                                    .setMarker(
-                                                        new MarkerManager.Log4jMarker("ERROR"))
-                                                    .buildPrintStream();
+          .setLevel(org.apache.logging.log4j.Level.INFO)
+          .setMarker(
+                  new MarkerManager.Log4jMarker("ERROR"))
+          .buildPrintStream();
   public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
 
   public static final String SEPARATOR = ",";
 
 
   public static final String[] lineTypes = new String[]{
-      "fho",
-      "ctc",
-      "cts",
-      "mctc",
-      "mcts",
-      "cnt",
-      "sl1l2",
-      "sal1l2",
-      "vl1l2",
-      "val1l2",
-      "pct",
-      "pstd",
-      "pjc",
-      "prc",
-      "eclv",
-      "mpr",
-      "nbrctc",
-      "nbrcts",
-      "nbrcnt",
-      "isc",
-      "rhist",
-      "phist",
-      "orank",
-      "ssvar",
-      "grad",
-      "vcnt",
-      "relp",
-      "ecnt"
+          "fho",
+          "ctc",
+          "cts",
+          "mctc",
+          "mcts",
+          "cnt",
+          "sl1l2",
+          "sal1l2",
+          "vl1l2",
+          "val1l2",
+          "pct",
+          "pstd",
+          "pjc",
+          "prc",
+          "eclv",
+          "mpr",
+          "nbrctc",
+          "nbrcts",
+          "nbrcnt",
+          "isc",
+          "rhist",
+          "phist",
+          "orank",
+          "ssvar",
+          "grad",
+          "vcnt",
+          "relp",
+          "ecnt"
   };
 
   static {
@@ -654,7 +658,7 @@ public class MVUtil {
     modeSingleStatField.put("LEN", "length");
     modeSingleStatField.put("WID", "width");
     modeSingleStatField
-        .put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
+            .put("ASPECT", "IF((length/width) < (width/length), length/width, width/length)");
     modeSingleStatField.put("AREA", "area");
     modeSingleStatField.put("AREATHR", "area_thresh");
     modeSingleStatField.put("CURV", "curvature");
@@ -736,6 +740,11 @@ public class MVUtil {
     mtd3dPairStatField.put("3D_INTEREST", "interest");
   }
 
+  static {
+    statsPerc.put("FCST_PERC", new String[]{});
+    statsPerc.put("OBS_PERC", new String[]{});
+  }
+
 
   static {
     calcStatCTC.add("BASER");
@@ -766,8 +775,8 @@ public class MVUtil {
    * @return List of date strings
    */
   public static List<String> buildDateList(
-      final String start, final String end, final int incr,
-      final String format) {
+          final String start, final String end, final int incr,
+          final String format) {
     SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.US);
     formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     List<String> listDates = new ArrayList<>();
@@ -779,14 +788,14 @@ public class MVUtil {
       cal.setTime(dateStart);
 
       while ((incr > 0 && cal.getTime().getTime() <= dateEnd.getTime())
-                 || (incr < 0 && cal.getTime().getTime() >= dateEnd.getTime())) {
+              || (incr < 0 && cal.getTime().getTime() >= dateEnd.getTime())) {
         listDates.add(formatDate.format(cal.getTime()));
         cal.add(Calendar.SECOND, incr);
       }
 
     } catch (ParseException e) {
       errorStream
-          .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+              .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
 
     }
     return listDates;
@@ -800,7 +809,7 @@ public class MVUtil {
    * @return List of date strings
    */
   public static List<String> buildDateList(final MVNode node, final PrintStream printStream)
-      throws ValidationException{
+          throws ValidationException {
     String strStart = "";
     String strEnd = "";
     int intInc = 0;
@@ -824,7 +833,7 @@ public class MVUtil {
         }
       } else if (nodeChild.tag.equals("end")) {
         strEnd = (0 < nodeChild.children.length
-                      ? parseDateOffset(nodeChild.children[0],strFormat) : nodeChild.value);
+                ? parseDateOffset(nodeChild.children[0], strFormat) : nodeChild.value);
       }
     }
 
@@ -842,7 +851,7 @@ public class MVUtil {
    * @return String representation of the offset date
    */
   public static String parseDateOffset(final MVNode node, final String format, final String date)
-      throws ValidationException{
+          throws ValidationException {
     int intOffset = 0;
     int intHour = 0;
 
@@ -854,7 +863,7 @@ public class MVUtil {
         } else if (nodeChild.tag.equals("hour")) {
           intHour = Integer.parseInt(nodeChild.value);
         }
-      } catch (NumberFormatException e){
+      } catch (NumberFormatException e) {
         throw new ValidationException("day_offset or hour is invalid");
       }
     }
@@ -865,7 +874,7 @@ public class MVUtil {
     try {
       cal.setTime(formatOffset.parse(date));
     } catch (ParseException e) {
-      throw new ValidationException("date" + date +  " is invalid");
+      throw new ValidationException("date" + date + " is invalid");
     }
     cal.set(Calendar.HOUR_OF_DAY, intHour);
     cal.set(Calendar.MINUTE, 0);
@@ -875,7 +884,7 @@ public class MVUtil {
     return formatOffset.format(cal.getTime());
   }
 
-  public static String parseDateOffset(final MVNode node, final String format) throws ValidationException{
+  public static String parseDateOffset(final MVNode node, final String format) throws ValidationException {
     return parseDateOffset(node, format, null);
   }
 
@@ -1033,7 +1042,7 @@ public class MVUtil {
    * @param lev List of Interp Pnts
    * @return Sorted Inter Pnts list, by value
    */
-  public static List<String> sortInterpPnts(final List<String> lev) throws ValidationException{
+  public static List<String> sortInterpPnts(final List<String> lev) throws ValidationException {
     List<Integer> resultInt = new ArrayList<>(lev.size());
     for (String interpPnt : lev) {
       try {
@@ -1059,8 +1068,8 @@ public class MVUtil {
    * @return Sorted list, by numerical value
    */
   public static List<String> sortVals(
-      final List<String> vals,
-      final Pattern pat) {
+          final List<String> vals,
+          final Pattern pat) {
 
     //  parse the input values and store the numerical values in a sortable array
     double[] listVal = new double[vals.size()];
@@ -1149,7 +1158,7 @@ public class MVUtil {
    * @return Sorted list of formatted lead times, by numerical value
    */
   public static List<String> sortFormatLead(
-      final List<String> lead) {
+          final List<String> lead) {
 
     //  parse and format the leads and store the numerical values in a sortable array
     double[] listVal = new double[lead.size()];
@@ -1182,14 +1191,14 @@ public class MVUtil {
     return listRet;
   }
 
-  public static List<String> sortHour(final List<String> hour) throws ValidationException{
+  public static List<String> sortHour(final List<String> hour) throws ValidationException {
 
     List<Integer> hoursInt = new ArrayList<>();
     for (String hourStr : hour) {
       try {
         hoursInt.add(Integer.valueOf(hourStr));
       } catch (NumberFormatException e) {
-        throw new ValidationException("the hour " + hourStr+ " is invalid");
+        throw new ValidationException("the hour " + hourStr + " is invalid");
       }
     }
     Collections.sort(hoursInt);
@@ -1266,9 +1275,9 @@ public class MVUtil {
     long intMs = span;
 
     return (0 < intDay ? Long.toString(intDay) + "d " : "") + Long.toString(intHr)
-               + (10 > intMin ? ":0" : ":") + Long.toString(intMin)
-               + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "."
-               + (100 > intMs ? "0" + (10 > intMs ? "0" : "") : "") + Long.toString(intMs);
+            + (10 > intMin ? ":0" : ":") + Long.toString(intMin)
+            + (10 > intSec ? ":0" : ":") + Long.toString(intSec) + "."
+            + (100 > intMs ? "0" + (10 > intMs ? "0" : "") : "") + Long.toString(intMs);
   }
 
 
@@ -1497,6 +1506,8 @@ public class MVUtil {
       return "line_data_vcnt";
     } else if (statsEcnt.containsKey(strStat)) {
       return "line_data_ecnt";
+    } else if (statsPerc.containsKey(strStat)) {
+      return "line_data_perc";
     } else {
       return "";
     }
@@ -1504,8 +1515,8 @@ public class MVUtil {
 
 
   public static MvResponse runRscript(
-      final String rscript,
-      final String script) {
+          final String rscript,
+          final String script) {
     return runRscript(rscript, script, new String[]{});
   }
 
@@ -1520,8 +1531,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static MvResponse runRscript(
-      final String rscriptCommand, final String scriptName,
-      final String[] args) {
+          final String rscriptCommand, final String scriptName,
+          final String[] args) {
 
     MvResponse mvResponse = new MvResponse();
 
@@ -1550,7 +1561,7 @@ public class MVUtil {
       String strArgListClean = cleanString(argList.toString());
 
       proc = Runtime.getRuntime()
-                 .exec(rscriptCommandClean + " " + scriptNameClean + strArgListClean);
+              .exec(rscriptCommandClean + " " + scriptNameClean + strArgListClean);
       inputStreamReader = new InputStreamReader(proc.getInputStream());
       errorInputStreamReader = new InputStreamReader(proc.getErrorStream());
 
@@ -1573,36 +1584,36 @@ public class MVUtil {
           strProcErr.append(line).append('\n');
         }
       }
-    } catch (SecurityException | IOException |  IllegalArgumentException e) {
-      logger.error(e.getMessage());
+    } catch (SecurityException | IOException | IllegalArgumentException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
     } finally {
 
       if (inputStreamReader != null) {
         try {
           inputStreamReader.close();
         } catch (IOException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
       }
       if (errorInputStreamReader != null) {
         try {
           errorInputStreamReader.close();
         } catch (IOException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
       }
       if (readerProcStd != null) {
         try {
           readerProcStd.close();
         } catch (IOException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
       }
       if (readerProcErr != null) {
         try {
           readerProcErr.close();
         } catch (IOException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
       }
       if (proc != null) {
@@ -1614,12 +1625,12 @@ public class MVUtil {
 
     if (strProcStd.length() > 0) {
       mvResponse.setInfoMessage(
-          "==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
+              "==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
     }
 
     if (strProcErr.length() > 0) {
       mvResponse.setErrorMessage(
-          "==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
+              "==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
     }
     mvResponse.setSuccess(0 == intExitStatus);
     return mvResponse;
@@ -1635,8 +1646,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static void populateTemplateFile(
-      final String tmpl, final String output,
-      final Map<String, String> vals) throws IOException {
+          final String tmpl, final String output,
+          final Map<String, String> vals) throws IOException {
     try (FileReader fileReader = new FileReader(tmpl);
          BoundedBufferedReader reader = new BoundedBufferedReader(fileReader);
          PrintStream writer = new PrintStream(output)) {
@@ -1651,7 +1662,7 @@ public class MVUtil {
             continue;
           }
           String strRTagVal = vals.get(strRtmplTag);
-          if(strRTagVal != null){
+          if (strRTagVal != null) {
             strOutputLine = strOutputLine.replace("#<" + strRtmplTag + ">#", strRTagVal);
           }
 
@@ -1659,8 +1670,8 @@ public class MVUtil {
 
         writer.println(strOutputLine);
       }
-    }catch (IOException e){
-      logger.error(e.getMessage());
+    } catch (IOException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
       throw e;
     }
 
@@ -1698,8 +1709,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static Map.Entry[] buildPlotFixTmplMap(
-      final MVOrderedMap mapPlotFix,
-      final MVOrderedMap mapPlotFixVal) {
+          final MVOrderedMap mapPlotFix,
+          final MVOrderedMap mapPlotFixVal) {
     Map.Entry[] listPlotFixVal = mapPlotFix.getOrderedEntries();
     //  replace fixed value set names with their value maps
     ArrayList listPlotFixValAdj = new ArrayList();
@@ -1715,7 +1726,7 @@ public class MVUtil {
       listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet));
     }
     listPlotFixVal = (Map.Entry[]) listPlotFixValAdj
-                                       .toArray(new Map.Entry[listPlotFixValAdj.size()]);
+            .toArray(new Map.Entry[listPlotFixValAdj.size()]);
 
     return listPlotFixVal;
   }
@@ -1730,8 +1741,8 @@ public class MVUtil {
    * @throws Exception
    */
   public static void isAggTypeValid(
-      final Map<String, String[]> tableStats, final String strStat,
-      final String aggType) throws ValidationException {
+          final Map<String, String[]> tableStats, final String strStat,
+          final String aggType) throws ValidationException {
     //check if aggType is allowed for this stat
     String[] types = tableStats.get(strStat);
     boolean isFound = false;
@@ -1743,13 +1754,13 @@ public class MVUtil {
     }
     if (!isFound) {
       throw new ValidationException(
-          "aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
+              "aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
     }
   }
 
   public static String findValue(
-      final String[] listToken, final List<String> headerNames,
-      final String header) {
+          final String[] listToken, final List<String> headerNames,
+          final String header) {
     int pos = headerNames.indexOf(header);
     if (pos >= 0 && pos < listToken.length) {
       return listToken[pos];
@@ -1763,12 +1774,12 @@ public class MVUtil {
 
     try {
       String jarPath = MVUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI()
-                           .getPath();
+              .getPath();
       URI imgurl = new URI("jar:file:" + jarPath + "!/edu/ucar/metviewer/resources/log4j2.xml");
       Logger l = (Logger) LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
       l.getContext().setConfigLocation(imgurl);
-    } catch (URISyntaxException | SecurityException |  UnsupportedOperationException e) {
-      logger.error(e.getMessage());
+    } catch (URISyntaxException | SecurityException | UnsupportedOperationException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
     }
 
   }
@@ -1792,12 +1803,12 @@ public class MVUtil {
     }
 
     return strFormatR.replace("(", "")
-               .replace(")", "")
-               .replace("<=", "le")
-               .replace(">=", "ge")
-               .replace("=", "eq")
-               .replace("<", "lt")
-               .replace(">", "gt");
+            .replace(")", "")
+            .replace("<=", "le")
+            .replace(">=", "ge")
+            .replace("=", "eq")
+            .replace("<", "lt")
+            .replace(">", "gt");
   }
 
   /**
@@ -1812,9 +1823,9 @@ public class MVUtil {
    * @return String built using the template and values
    */
   public static String buildTemplateString(
-      final String tmpl, final MVOrderedMap vals,
-      final MVOrderedMap tmplMaps,
-      final PrintStream printStream) throws ValidationException {
+          final String tmpl, final MVOrderedMap vals,
+          final MVOrderedMap tmplMaps,
+          final PrintStream printStream) throws ValidationException {
 
 
     String strRet = tmpl;
@@ -1832,7 +1843,7 @@ public class MVUtil {
 
       if (!vals.containsKey(strTmplTagName)) {
         printStream.println("  **  WARNING: template tag " + strTmplTagName + " not found in agg"
-                                + " perm");
+                + " perm");
         continue;
       }
 
@@ -1847,7 +1858,7 @@ public class MVUtil {
         MVOrderedMap mapTmplVal = (MVOrderedMap) tmplMaps.get(strMapName);
         if (null == mapTmplVal) {
           throw new ValidationException(
-              "template tag " + strTmplTagName + " does not have a val_map defined");
+                  "template tag " + strTmplTagName + " does not have a val_map defined");
         }
         if (mapTmplVal.containsKey(strVal)) {
           strVal = mapTmplVal.getStr(strVal);
@@ -1874,7 +1885,7 @@ public class MVUtil {
           }
 
         } else if (strTmplTagName.equals("init_hour")
-                       || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
+                || strTmplTagName.equals("valid_hour") && strFormat.equals("HH")) {
           while (2 > strVal.length()) {
             strVal = "0" + strVal;
           }
@@ -1992,11 +2003,11 @@ public class MVUtil {
       String strSymbolType = mapParams.get("symbol").toString();
       if (strSymbolType.equals("letters")) {
         strSymbol = strSymbol.replace("==", "eq")
-                        .replace("!=", "ne")
-                        .replace("<=", "le")
-                        .replace(">=", "ge")
-                        .replace("<", "lt")
-                        .replace(">", "gt");
+                .replace("!=", "ne")
+                .replace("<=", "le")
+                .replace(">=", "ge")
+                .replace("<", "lt")
+                .replace(">", "gt");
         strThreshRet = strSymbol + strThresh;
       }
     }
@@ -2005,8 +2016,8 @@ public class MVUtil {
   }
 
   public static String buildTemplateString(
-      final String tmpl, final MVOrderedMap vals,
-      final PrintStream printStream) throws ValidationException {
+          final String tmpl, final MVOrderedMap vals,
+          final PrintStream printStream) throws ValidationException {
     return buildTemplateString(tmpl, vals, null, printStream);
   }
 
@@ -2070,7 +2081,7 @@ public class MVUtil {
         strRet += "";
       }
       String value = val[i].toString().replace("&#38;", "&").replace("&gt;", ">")
-                         .replace("&lt;", "<");
+              .replace("&lt;", "<");
       if (ticks) {
         strRet += "\"" + value + "\"";
       } else {
@@ -2318,7 +2329,7 @@ public class MVUtil {
       transformer.transform(source, new StreamResult(stringWriter));
       result = stringWriter.toString();
     } catch (TransformerException | IOException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
     return result;
   }
@@ -2335,7 +2346,7 @@ public class MVUtil {
       try {
         fileWriter.close();
       } catch (IOException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       }
     }
   }

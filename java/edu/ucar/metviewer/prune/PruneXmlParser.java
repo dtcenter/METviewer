@@ -64,19 +64,19 @@ class PruneXmlParser {
         Node pruneSpecNode = pruneSpecNodes.item(i);
         //for each node
         if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "connection".equals(
-            pruneSpecNode.getNodeName())) {
+                pruneSpecNode.getNodeName())) {
           setDbConnection(mvPruneDB, pruneSpecNode);
         } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "info_only".equals(
-            pruneSpecNode.getNodeName())) {
+                pruneSpecNode.getNodeName())) {
           setInfo(mvPruneDB, pruneSpecNode);
         } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "fields".equals(
-            pruneSpecNode.getNodeName())) {
+                pruneSpecNode.getNodeName())) {
           setFields(mvPruneDB, pruneSpecNode);
         } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "files".equals(
-            pruneSpecNode.getNodeName())) {
+                pruneSpecNode.getNodeName())) {
           setFiles(mvPruneDB, pruneSpecNode);
         } else if (pruneSpecNode.getNodeType() == Node.ELEMENT_NODE && "folders".equals(
-            pruneSpecNode.getNodeName())) {
+                pruneSpecNode.getNodeName())) {
           setDirectoriesFromFolders(mvPruneDB, pruneSpecNode);
         }
 
@@ -96,13 +96,13 @@ class PruneXmlParser {
     for (int j = 0; j < foldersNodeList.getLength(); j++) {
       Node foldersNode = foldersNodeList.item(j);
       if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "folder_tmpl".equals(
-          foldersNode.getNodeName())) {
+              foldersNode.getNodeName())) {
         folderTmpl = foldersNode.getTextContent();
       } else if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "load_val".equals(
-          foldersNode.getNodeName())) {
+              foldersNode.getNodeName())) {
         fieldTOValue = readDirectoriesTemplates(foldersNode);
       } else if (foldersNode.getNodeType() == Node.ELEMENT_NODE && "date_list".equals(
-          foldersNode.getNodeName())) {
+              foldersNode.getNodeName())) {
         DateList dateList = new DateList();
         dateList.setName(getFieldName(foldersNode));
         NodeList dateListNodeList = foldersNode.getChildNodes();
@@ -110,16 +110,16 @@ class PruneXmlParser {
         for (int i = 0; i < dateListNodeList.getLength(); i++) {
           Node dateListNode = dateListNodeList.item(i);
           if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "start".equals(
-              dateListNode.getNodeName())) {
+                  dateListNode.getNodeName())) {
             dateList.setStartStr(dateListNode.getTextContent());
           } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "end".equals(
-              dateListNode.getNodeName())) {
+                  dateListNode.getNodeName())) {
             dateList.setEndStr(dateListNode.getTextContent());
           } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "format".equals(
-              dateListNode.getNodeName())) {
+                  dateListNode.getNodeName())) {
             dateList.setFormatStr(dateListNode.getTextContent());
           } else if (dateListNode.getNodeType() == Node.ELEMENT_NODE && "inc".equals(
-              dateListNode.getNodeName())) {
+                  dateListNode.getNodeName())) {
             dateList.setIncrement(Integer.valueOf(dateListNode.getTextContent()));
           }
 
@@ -132,8 +132,8 @@ class PruneXmlParser {
       for (Map.Entry<String, List<String>> fieldTOValueEntry : fieldTOValue.entrySet()) {
         for (Map.Entry<String, List<String>> dateListToValuesEntry : dateListToValues.entrySet()) {
           if (fieldTOValueEntry.getValue().size() == 1 && fieldTOValueEntry.getValue().get(0)
-                                                              .equals(
-                                                                  dateListToValuesEntry.getKey())) {
+                  .equals(
+                          dateListToValuesEntry.getKey())) {
             fieldTOValueEntry.setValue(dateListToValuesEntry.getValue());
             break;
           }
@@ -145,17 +145,17 @@ class PruneXmlParser {
   }
 
   private void setDirectories(
-      MVPruneDB mvPruneDB, String folderTmpl, Map<String, List<String>> fieldTOValue) {
+          MVPruneDB mvPruneDB, String folderTmpl, Map<String, List<String>> fieldTOValue) {
     List<Map<String, String>> listOfCombinations = new ArrayList<>();
     if (fieldTOValue != null && folderTmpl != null) {
       createAllCombinations(fieldTOValue, new ArrayList<>(fieldTOValue.keySet()).listIterator(),
-                            new HashMap<>(), listOfCombinations);
+              new HashMap<>(), listOfCombinations);
 
       for (Map<String, String> combinationMap : listOfCombinations) {
         String directoryStr = folderTmpl;
         for (Map.Entry<String, String> combinationEntry : combinationMap.entrySet()) {
           directoryStr = directoryStr.replace("{" + combinationEntry.getKey() + "}",
-                                              combinationEntry.getValue());
+                  combinationEntry.getValue());
         }
         if (directoryStr.charAt(directoryStr.length() - 1) == '/') {
           directoryStr = directoryStr.substring(0, directoryStr.length() - 1);
@@ -166,8 +166,8 @@ class PruneXmlParser {
   }
 
   private void createAllCombinations(
-      Map<String, List<String>> map, ListIterator<String> fieldsIterator,
-      Map<String, String> combination, List<Map<String, String>> listOfCombinations) {
+          Map<String, List<String>> map, ListIterator<String> fieldsIterator,
+          Map<String, String> combination, List<Map<String, String>> listOfCombinations) {
     // we're at a leaf node in the recursion tree, add solution to list
     if (!fieldsIterator.hasNext()) {
       listOfCombinations.add(new HashMap<>(combination));
@@ -191,7 +191,7 @@ class PruneXmlParser {
     for (int i = 0; i < loadValNodeList.getLength(); i++) {
       Node loadValNode = loadValNodeList.item(i);
       if (loadValNode.getNodeType() == Node.ELEMENT_NODE && "field".equals(
-          loadValNode.getNodeName())) {
+              loadValNode.getNodeName())) {
         String name = getFieldName(loadValNode);
         NodeList listNodesList = loadValNode.getChildNodes();
         fieldToValue.put(name, new ArrayList<>());
@@ -200,7 +200,7 @@ class PruneXmlParser {
           if (listNode.getNodeType() == Node.ELEMENT_NODE && "val".equals(listNode.getNodeName())) {
             fieldToValue.get(name).add(listNode.getTextContent());
           } else if (listNode.getNodeType() == Node.ELEMENT_NODE && "date_list".equals(
-              listNode.getNodeName())) {
+                  listNode.getNodeName())) {
             fieldToValue.get(name).add(getFieldName(listNode));
           }
         }
@@ -254,7 +254,7 @@ class PruneXmlParser {
     for (int j = 0; j < fieldsNodeList.getLength(); j++) {
       Node fieldsNode = fieldsNodeList.item(j);
       if (fieldsNode.getNodeType() == Node.ELEMENT_NODE && "field"
-                                                               .equals(fieldsNode.getNodeName())) {
+              .equals(fieldsNode.getNodeName())) {
         String fieldName = getFieldName(fieldsNode);
         if (fieldName != null) {
           setFieldToValues(mvPruneDB, fieldsNode, fieldName);
@@ -275,10 +275,10 @@ class PruneXmlParser {
     for (int k = 0; k < fieldNodeList.getLength(); k++) {
       Node valueNode = fieldNodeList.item(k);
       if (valueNode.getNodeType() == Node.ELEMENT_NODE && "value_range"
-                                                              .equals(valueNode.getNodeName())) {
+              .equals(valueNode.getNodeName())) {
         setRangeValues(mvPruneDB, fieldName, valueNode);
       } else if (valueNode.getNodeType() == Node.ELEMENT_NODE && "value_list".equals(
-          valueNode.getNodeName())) {
+              valueNode.getNodeName())) {
         setListValues(mvPruneDB, fieldName, valueNode);
       }
     }
@@ -317,7 +317,7 @@ class PruneXmlParser {
       if (rangeNode.getNodeType() == Node.ELEMENT_NODE && "start".equals(rangeNode.getNodeName())) {
         mvPruneDB.getFieldToRangeValues().get(fieldName).add(0, rangeNode.getTextContent());
       } else if (rangeNode.getNodeType() == Node.ELEMENT_NODE && "end".equals(
-          rangeNode.getNodeName())) {
+              rangeNode.getNodeName())) {
         mvPruneDB.getFieldToRangeValues().get(fieldName).add(1, rangeNode.getTextContent());
       }
     }

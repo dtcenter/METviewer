@@ -201,7 +201,11 @@
         }
 
         // add the title and close everything off
-        html += ' /><span>' + description + '</span>';
+        if( description == -9999 ){
+          html += ' /><span>' + 'N/A' + '</span>';
+        }else {
+          html += ' /><span>' + description.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&") + '</span>';
+        }
         if (o.addLabel) {
           var label_old;
           var plot_val_old;

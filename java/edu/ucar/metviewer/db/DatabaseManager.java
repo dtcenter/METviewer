@@ -24,7 +24,7 @@ public abstract class DatabaseManager {
   private DatabaseInfo databaseInfo;
   protected static final String DB_PREFIX_MV = "mv_";
   public static final String[] SQL_INJECTION_WORDS = new String[]{
-      "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
+          "OR ", "--", "SELECT", "UNION", "DROP", "CREATE"
   };
 
   public static final String MYSQL = "mysql";
@@ -53,8 +53,8 @@ public abstract class DatabaseManager {
   }
 
   public static DatabaseManager getLoadManager(
-      String managementSystem, String host, String user, String password,
-      String dbName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+          String managementSystem, String host, String user, String password,
+          String dbName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     String ms = managementSystem.toLowerCase(Locale.ENGLISH);
     String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
@@ -66,31 +66,31 @@ public abstract class DatabaseManager {
       // dependency on the specialized database jar files.
       case MYSQL:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.mysql.MysqlLoadDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.mysql.MysqlLoadDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       case CB:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.couchbase.CBLoadDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.couchbase.CBLoadDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       case MARIADB:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.mariadb.MariaDbLoadDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.mariadb.MariaDbLoadDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       case AURORA:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.aurora.AuroraLoadDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.aurora.AuroraLoadDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);
@@ -101,7 +101,7 @@ public abstract class DatabaseManager {
 
   // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
   public static DatabaseManager getAppManager(
-      String managementSystem, String host, String user, String password) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+          String managementSystem, String host, String user, String password) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     String ms = managementSystem.toLowerCase(Locale.ENGLISH);
     String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
@@ -114,31 +114,31 @@ public abstract class DatabaseManager {
     switch (dbType) {
       case MYSQL:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.mysql.MysqlAppDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.mysql.MysqlAppDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       case CB:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.couchbase.CBAppDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.couchbase.CBAppDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       case MARIADB:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.mariadb.MariaDbAppDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       case AURORA:
         databaseManager = (DatabaseManager) Class.forName(
-            "edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager")
-                                                .getDeclaredConstructor(DatabaseInfo.class,
-                                                                        String.class)
-                                                .newInstance(databaseInfo, password);
+                "edu.ucar.metviewer.db.aurora.AuroraAppDatabaseManager")
+                .getDeclaredConstructor(DatabaseInfo.class,
+                        String.class)
+                .newInstance(databaseInfo, password);
         break;
       default:
         throw new IllegalArgumentException("Invalid database type: " + dbType);

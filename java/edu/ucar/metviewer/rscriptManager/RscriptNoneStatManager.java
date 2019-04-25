@@ -30,10 +30,10 @@ import org.apache.logging.log4j.io.IoBuilder;
 public class RscriptNoneStatManager extends RscriptStatManager {
 
   private static final PrintStream errorStream
-      = IoBuilder.forLogger(MVUtil.class)
-            .setLevel(org.apache.logging.log4j.Level.INFO)
-            .setMarker(new MarkerManager.Log4jMarker("ERROR"))
-            .buildPrintStream();
+          = IoBuilder.forLogger(MVUtil.class)
+          .setLevel(org.apache.logging.log4j.Level.INFO)
+          .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+          .buildPrintStream();
 
   public RscriptNoneStatManager(MVBatch mvBatch) {
     super(mvBatch);
@@ -41,15 +41,15 @@ public class RscriptNoneStatManager extends RscriptStatManager {
 
   @Override
   public void prepareDataFileAndRscript(
-      MVPlotJob job, MVOrderedMap mvMap,
-      Map<String, String> info,
-      List<String> listQuery) throws ValidationException {
+          MVPlotJob job, MVOrderedMap mvMap,
+          Map<String, String> info,
+          List<String> listQuery) throws ValidationException {
 
     //  use the map of all plot values to populate the template strings
     String fileName = MVUtil.buildTemplateString(job.getPlotFileTmpl(),
-                                                 MVUtil.addTmplValDep(job),
-                                                 job.getTmplMaps(),
-                                                 mvBatch.getPrintStream());
+            MVUtil.addTmplValDep(job),
+            job.getTmplMaps(),
+            mvBatch.getPrintStream());
     plotFile = mvBatch.getPlotsFolder() + fileName;
 
     //validate file name - should be less than 256 chars
@@ -58,9 +58,9 @@ public class RscriptNoneStatManager extends RscriptStatManager {
     }
 
     fileName = MVUtil.buildTemplateString(job.getRFileTmpl(),
-                                          MVUtil.addTmplValDep(job),
-                                          job.getTmplMaps(),
-                                          mvBatch.getPrintStream());
+            MVUtil.addTmplValDep(job),
+            job.getTmplMaps(),
+            mvBatch.getPrintStream());
     rScriptFile = mvBatch.getScriptsFolder() + fileName;
 
 

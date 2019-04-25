@@ -44,6 +44,8 @@ import edu.ucar.metviewer.db.AppDatabaseManager;
 import edu.ucar.metviewer.db.DatabaseInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 /**
  * @author : tatiana $
@@ -53,56 +55,58 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
   private static final Logger logger = LogManager.getLogger("MysqlAppDatabaseManager");
-  private final Map<String, String> statHeaderSqlType = new HashMap<>();
-  private final Map<String, String> modeHeaderSqlType = new HashMap<>();
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
+  private final List<String> statHeaderSqlType = new ArrayList<>();
+  private final List<String> modeHeaderSqlType = new ArrayList<>();
   private final Map<String, String> mtd3dSingleStatField = new HashMap<>();
 
 
-  private final Map<String, String> mtdHeaderSqlType = new HashMap<>();
+  private final List<String> mtdHeaderSqlType = new ArrayList<>();
 
-  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo, String password) throws SQLException {
+  public MysqlAppDatabaseManager(DatabaseInfo databaseInfo, String password) {
     super(databaseInfo, password);
-    statHeaderSqlType.put("model", "VARCHAR(64)");
-    statHeaderSqlType.put("descr", "VARCHAR(64)");
-    statHeaderSqlType.put("fcst_lead", "INT");
-    statHeaderSqlType.put("fcst_valid_beg", "DATETIME");
-    statHeaderSqlType.put("fcst_valid_end", "DATETIME");
-    statHeaderSqlType.put("fcst_init_beg", "DATETIME");
-    statHeaderSqlType.put("obs_lead", "INT UNSIGNED");
-    statHeaderSqlType.put("obs_valid_beg", "DATETIME");
-    statHeaderSqlType.put("obs_valid_end", "DATETIME");
-    statHeaderSqlType.put("init_hour", "INT UNSIGNED");
-    statHeaderSqlType.put("valid_hour", "INT UNSIGNED");
-    statHeaderSqlType.put("fcst_var", "VARCHAR(64)");
-    statHeaderSqlType.put("fcst_lev", "VARCHAR(16)");
-    statHeaderSqlType.put("obs_var", "VARCHAR(64)");
-    statHeaderSqlType.put("obs_lev", "VARCHAR(16)");
-    statHeaderSqlType.put("obtype", "VARCHAR(32)");
-    statHeaderSqlType.put("vx_mask", "VARCHAR(32)");
-    statHeaderSqlType.put("interp_mthd", "VARCHAR(16)");
-    statHeaderSqlType.put("interp_pnts", "INT UNSIGNED");
-    statHeaderSqlType.put("fcst_thresh", "VARCHAR(16)");
-    statHeaderSqlType.put("obs_thresh", "VARCHAR(16)");
+    statHeaderSqlType.add("model");
+    statHeaderSqlType.add("descr");
+    statHeaderSqlType.add("fcst_lead");
+    statHeaderSqlType.add("fcst_valid_beg");
+    statHeaderSqlType.add("fcst_valid_end");
+    statHeaderSqlType.add("fcst_init_beg");
+    statHeaderSqlType.add("obs_lead");
+    statHeaderSqlType.add("obs_valid_beg");
+    statHeaderSqlType.add("obs_valid_end");
+    statHeaderSqlType.add("init_hour");
+    statHeaderSqlType.add("valid_hour");
+    statHeaderSqlType.add("fcst_var");
+    statHeaderSqlType.add("fcst_lev");
+    statHeaderSqlType.add("obs_var");
+    statHeaderSqlType.add("obs_lev");
+    statHeaderSqlType.add("obtype");
+    statHeaderSqlType.add("vx_mask");
+    statHeaderSqlType.add("interp_mthd");
+    statHeaderSqlType.add("interp_pnts");
+    statHeaderSqlType.add("fcst_thresh");
+    statHeaderSqlType.add("obs_thresh");
 
-    modeHeaderSqlType.put("model", "VARCHAR(64)");
-    modeHeaderSqlType.put("descr", "VARCHAR(64)");
-    modeHeaderSqlType.put("fcst_lead", "INT UNSIGNED");
-    modeHeaderSqlType.put("fcst_valid", "DATETIME");
-    modeHeaderSqlType.put("fcst_accum", "INT UNSIGNED");
-    modeHeaderSqlType.put("fcst_init", "DATETIME");
-    modeHeaderSqlType.put("obs_lead", "INT UNSIGNED");
-    modeHeaderSqlType.put("obs_valid", "DATETIME");
-    modeHeaderSqlType.put("obs_accum", "INT UNSIGNED");
-    modeHeaderSqlType.put("init_hour", "INT UNSIGNED");
-    modeHeaderSqlType.put("valid_hour", "INT UNSIGNED");
-    modeHeaderSqlType.put("fcst_rad", "INT UNSIGNED");
-    modeHeaderSqlType.put("fcst_thr", "VARCHAR(16)");
-    modeHeaderSqlType.put("obs_rad", "INT UNSIGNED");
-    modeHeaderSqlType.put("obs_thr", "VARCHAR(16)");
-    modeHeaderSqlType.put("fcst_var", "VARCHAR(64)");
-    modeHeaderSqlType.put("fcst_lev", "VARCHAR(16)");
-    modeHeaderSqlType.put("obs_var", "VARCHAR(64)");
-    modeHeaderSqlType.put("obs_lev", "VARCHAR(16)");
+    modeHeaderSqlType.add("model");
+    modeHeaderSqlType.add("descr");
+    modeHeaderSqlType.add("fcst_lead");
+    modeHeaderSqlType.add("fcst_valid");
+    modeHeaderSqlType.add("fcst_accum");
+    modeHeaderSqlType.add("fcst_init");
+    modeHeaderSqlType.add("obs_lead");
+    modeHeaderSqlType.add("obs_valid");
+    modeHeaderSqlType.add("obs_accum");
+    modeHeaderSqlType.add("init_hour");
+    modeHeaderSqlType.add("valid_hour");
+    modeHeaderSqlType.add("fcst_rad");
+    modeHeaderSqlType.add("fcst_thr");
+    modeHeaderSqlType.add("obs_rad");
+    modeHeaderSqlType.add("obs_thr");
+    modeHeaderSqlType.add("fcst_var");
+    modeHeaderSqlType.add("fcst_lev");
+    modeHeaderSqlType.add("obs_var");
+    modeHeaderSqlType.add("obs_lev");
 
 
     mtd3dSingleStatField.put("3D_CENTROID_X", "centroid_x");
@@ -125,20 +129,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     mtd3dSingleStatField.put("3D_INTENSITY_90", "intensity_90");
 
 
-    mtdHeaderSqlType.put("model", "VARCHAR(64)");
-    mtdHeaderSqlType.put("descr", "VARCHAR(64)");
-    mtdHeaderSqlType.put("fcst_lead", "INT UNSIGNED");
-    mtdHeaderSqlType.put("fcst_valid", "DATETIME");
-    mtdHeaderSqlType.put("fcst_accum", "INT UNSIGNED");
-    mtdHeaderSqlType.put("fcst_init", "DATETIME");
-    mtdHeaderSqlType.put("obs_lead", "INT UNSIGNED");
-    mtdHeaderSqlType.put("t_delta", "INT");
-    mtdHeaderSqlType.put("fcst_rad", "INT UNSIGNED");
-    mtdHeaderSqlType.put("fcst_thr", "VARCHAR(16)");
-    mtdHeaderSqlType.put("fcst_var", "VARCHAR(64)");
-    mtdHeaderSqlType.put("fcst_lev", "VARCHAR(16)");
-    mtdHeaderSqlType.put("obs_var", "VARCHAR(64)");
-    mtdHeaderSqlType.put("obs_lev", "VARCHAR(16)");
+    mtdHeaderSqlType.add("model");
+    mtdHeaderSqlType.add("descr");
+    mtdHeaderSqlType.add("fcst_lead");
+    mtdHeaderSqlType.add("fcst_valid");
+    mtdHeaderSqlType.add("fcst_accum");
+    mtdHeaderSqlType.add("fcst_init");
+    mtdHeaderSqlType.add("obs_lead");
+    mtdHeaderSqlType.add("t_delta");
+    mtdHeaderSqlType.add("fcst_rad");
+    mtdHeaderSqlType.add("fcst_thr");
+    mtdHeaderSqlType.add("fcst_var");
+    mtdHeaderSqlType.add("fcst_lev");
+    mtdHeaderSqlType.add("obs_var");
+    mtdHeaderSqlType.add("obs_lev");
 
   }
 
@@ -187,14 +191,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'vcnt'  FROM "
             + "line_data_vcnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) vcnt)\n"
             + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'ecnt'  FROM "
-            + "line_data_ecnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n";
+            + "line_data_ecnt  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) ecnt)\n"
+            + "UNION ALL ( SELECT IFNULL( (SELECT ld.stat_header_id 'perc'  FROM "
+            + "line_data_perc  ld, stat_header h WHERE h.fcst_var = ? AND h.stat_header_id = ld.stat_header_id limit 1) ,-9999) perc)\n";
 
     for (String database : currentDBName) {
       ResultSet res = null;
       try (Connection con = getConnection(database);
            PreparedStatement stmt = con.prepareStatement(strSql, ResultSet.TYPE_FORWARD_ONLY,
                    ResultSet.CONCUR_READ_ONLY)) {
-        for (int i = 1; i <= 20; i++) {
+        for (int i = 1; i <= 21; i++) {
           stmt.setString(i, strFcstVar);
         }
         res = stmt.executeQuery();
@@ -269,6 +275,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               case 19:
                 listStatName.addAll(MVUtil.statsEcnt.keySet());
                 break;
+              case 20:
+                listStatName.addAll(MVUtil.statsPerc.keySet());
+                break;
               default:
 
             }
@@ -276,13 +285,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           intStatIndex++;
         }
       } catch (SQLException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       } finally {
         if (res != null) {
           try {
             res.close();
           } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.error(ERROR_MARKER, e.getMessage());
           }
         }
       }
@@ -479,10 +488,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           }
 
         } catch (SQLException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
       } catch (SQLException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       }
     }
     Collections.sort(listRes);
@@ -523,7 +532,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 ResultSet.CONCUR_READ_ONLY)) {
           stmt.execute(aListSqlBeforeSelect);
         } catch (SQLException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
       }
       dbStopWatch.stop();
@@ -549,7 +558,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           mvResponse.setSuccess(true);
 
         } catch (SQLException | IOException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
           String stat = "This";
           if (e.getMessage().contains("Unknown column")) {
             String[] queryArr = listSqlLastSelect.get(i).split(",");
@@ -570,7 +579,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 }
               }
             }
-            logger.error(stat + " statistic can only be plotted as an aggregation of lines");
+            logger.info(stat + " statistic can only be plotted as an aggregation of lines");
 
             //rethrow the exception to be printed as a error popup on UI
             throw new ValidationException(
@@ -582,7 +591,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       con.close();
 
     } catch (SQLException | StopWatchException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
     String message = null;
     try {
@@ -593,7 +602,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 + saveToFileStopWatch.getFormattedTotalDuration();
       }
     } catch (StopWatchException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
 
     mvResponse.setInfoMessage(message);
@@ -673,7 +682,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (EmptyResultSetException | SQLException | IOException e) {
-      logger.error(
+      logger.error(ERROR_MARKER,
               "  **  ERROR: Caught " + e.getClass()
                       + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
@@ -696,7 +705,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (SQLException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
     result.put("numPctThresh", numPctThresh);
     result.put("pctThresh", pctThresh);
@@ -718,7 +727,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
 
     } catch (SQLException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
     return result;
   }
@@ -773,13 +782,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     MVOrderedMap _mapFcstVarPat = new MVOrderedMap();
     MVOrderedMap mapPlotFixVal = job.getPlotFixVal();
     //  determine if the plot job is for stat data or MODE data
-    Map<String, String> tableHeaderSqlType;
+    List<String> headerSql;
     if (job.isModeJob()) {
-      tableHeaderSqlType = modeHeaderSqlType;
+      headerSql = modeHeaderSqlType;
     } else if (job.isMtdJob()) {
-      tableHeaderSqlType = mtdHeaderSqlType;
+      headerSql = mtdHeaderSqlType;
     } else {
-      tableHeaderSqlType = statHeaderSqlType;
+      headerSql = statHeaderSqlType;
     }
 
     //  populate the plot template values with plot_fix values
@@ -854,10 +863,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       String whereClause = plotFixWhere;
       BuildMysqlQueryStrings buildMysqlQueryStrings = build(job.isModeJob() || job.isMtdJob(),
-              tableHeaderSqlType,
+              headerSql,
               listSeries, whereClause, true);
       String selectList = buildMysqlQueryStrings.getSelectList();
-      String strTempList = buildMysqlQueryStrings.getTempList();
       whereClause = buildMysqlQueryStrings.getWhere();
 
       //  if the fcst_valid or fcst_init fields are not present
@@ -865,36 +873,27 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (!selectList.contains("fcst_init")) {
         if (job.isModeJob() || job.isMtdJob()) {
           selectList += ",\n  h.fcst_init";
-          strTempList += ",\n    fcst_init           " + "DATETIME";
         } else {
           if (selectList.length() > 0) {
             selectList += ",\n ";
           }
           selectList += " ld.fcst_init_beg";
 
-          if (strTempList.length() > 0) {
-            strTempList += ",\n";
-          }
-          strTempList += "   fcst_init_beg       " + "DATETIME";
         }
       }
       if (!selectList.contains("fcst_valid")) {
         if (job.isModeJob() || job.isMtdJob()) {
           selectList += ",\n  h.fcst_valid";
-          strTempList += ",\n    fcst_valid          " + "DATETIME";
         } else {
           if (selectList.length() > 0) {
             selectList += ",\n ";
           }
           selectList += " ld.fcst_valid_beg";
-          if (strTempList.length() > 0) {
-            strTempList += ",\n  ";
-          }
-          strTempList += "  fcst_valid_beg      " + "DATETIME";
+
         }
       }
       BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
-              tableHeaderSqlType,
+              headerSql,
               listSeries, whereClause, false);
       String selectPlotList = buildQueryPlotStrings.getSelectList();
       //  if the fcst_valid or fcst_init fields are not present
@@ -927,7 +926,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               selectList += ",\n  h.fcst_lead";
             }
             selectPlotList += ",\n  h.fcst_lead";
-            strTempList += ",\n    fcst_lead          " + "INT ";
+
           } else {
             if (job.getEventEqual()) {
               selectList += ",\n " + " if( (select fcst_lead_offset FROM model_fcst_lead_offset "
@@ -938,7 +937,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               selectList += ",\n " + " ld.fcst_lead";
             }
             selectPlotList += ",\n  h.fcst_lead";
-            strTempList += ",\n    fcst_lead      " + "INT ";
+
           }
         else {
           selectPlotList += ",\n  ld.fcst_lead";
@@ -986,17 +985,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
 
       //  validate and get the type and values for the independent variable
-      String strIndyVarType = "";
       String indyVar = job.getIndyVar();
       String indyVarFormatted = "";
       if (!indyVar.isEmpty()) {
         String[] listIndyVal = job.getIndyVal();
-        if (!tableHeaderSqlType.containsKey(indyVar)) {
+        if (!headerSql.contains(indyVar)) {
           throw new ValidationException("unrecognized indep "
                   + (job.isModeJob() ? "mode" : "stat")
                   + "_header field: " + indyVar);
         }
-        strIndyVarType = tableHeaderSqlType.get(indyVar);
         if (1 > listIndyVal.length) {
           throw new ValidationException("no independent variable values specified");
         }
@@ -1008,7 +1005,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   true);
           selectPlotList += ",\n  " + formatField(indyVar, job.isModeJob() || job.isMtdJob(),
                   true);
-          strTempList += ",\n    " + MVUtil.padEnd(indyVar, 20) + strIndyVarType;
         }
         indyVarFormatted = formatField(indyVar, job.isModeJob() || job.isMtdJob(), false);
         if (indyVar.equals("fcst_lead") && job.getEventEqual()) {
@@ -1030,17 +1026,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  add fcst_var to the select list and temp table entries
       //selectList += ",\n  h.fcst_var";
       selectPlotList += ",\n  h.fcst_var";
-      strTempList += ",\n    fcst_var            VARCHAR(64)";
 
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
-          if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+          if (listPlotFixVal[i].getValue() != null) {
             selectList += ",\n  "
                     + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             selectPlotList += ",\n  "
                     + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
-            strTempList += ",\n    " + strField + "            VARCHAR(64)";
+
           }
         }
       }
@@ -1368,6 +1363,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
             tableStats = MVUtil.statsEcnt;
             statTable = "line_data_ecnt ld\n";
             statField = strStat.replace("ECNT_", "").toLowerCase();
+          } else if (MVUtil.statsPerc.containsKey(strStat)) {
+            tableStats = MVUtil.statsPerc;
+            statTable = "line_data_perc ld\n";
           } else {
             throw new ValidationException("unrecognized stat: " + strStat);
           }
@@ -2333,11 +2331,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     MVOrderedMap fcstVarPat = new MVOrderedMap();
 
     //  determine if the plot job is for stat data or MODE data
-    Map<String, String> tableHeaderSqlType;
+    List<String> headerSql;
     if (job.isModeJob()) {
-      tableHeaderSqlType = modeHeaderSqlType;
+      headerSql = modeHeaderSqlType;
     } else {
-      tableHeaderSqlType = statHeaderSqlType;
+      headerSql = statHeaderSqlType;
     }
 
 
@@ -2403,24 +2401,21 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       String strWhere = strPlotFixWhere;
       BuildMysqlQueryStrings buildMysqlQueryStrings = build(job.isModeJob() || job.isMtdJob(),
-              tableHeaderSqlType,
+              headerSql,
               listSeries, strWhere, true);
       String selectList = buildMysqlQueryStrings.getSelectList();
-      String strTempList = buildMysqlQueryStrings.getTempList();
       strWhere = buildMysqlQueryStrings.getWhere();
 
       //  if the fcst_valid or fcst_init fields
       // are not present in the select list and temp table list, add them
       if (!selectList.contains("fcst_init")) {
         selectList += ",\n  h.fcst_init";
-        strTempList += ",\n    fcst_init           " + "DATETIME";
       }
       if (!selectList.contains("fcst_valid")) {
         selectList += ",\n  h.fcst_valid";
-        strTempList += ",\n    fcst_valid          " + "DATETIME";
       }
       BuildMysqlQueryStrings buildQueryPlotStrings = build(job.isModeJob() || job.isMtdJob(),
-              tableHeaderSqlType,
+              headerSql,
               listSeries, strWhere, false);
       String selectPlotList = buildQueryPlotStrings.getSelectList();
       //  if the fcst_valid or fcst_init fields
@@ -2450,7 +2445,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           selectList += ",\n " + " h.fcst_lead";
         }
         selectPlotList += ",\n " + " h.fcst_lead";
-        strTempList += ",\n    fcst_lead          " + "INT ";
       }
 
       /*
@@ -2461,11 +2455,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String strIndyVarType;
       String strIndyVar = job.getIndyVar();
       String[] listIndyVal = job.getIndyVal();
-      if (!tableHeaderSqlType.containsKey(strIndyVar)) {
+      if (!headerSql.contains(strIndyVar)) {
         throw new ValidationException("unrecognized indep " + (job.isModeJob() ? "mode" : "stat")
                 + "_header field: " + strIndyVar);
       }
-      strIndyVarType = tableHeaderSqlType.get(strIndyVar);
       if (1 > listIndyVal.length) {
         throw new ValidationException("no independent variable values specified");
       }
@@ -2476,7 +2469,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         selectList += ",\n  " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(), true);
         selectPlotList += ",\n  " + formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
                 true);
-        strTempList += ",\n    " + MVUtil.padEnd(strIndyVar, 20) + strIndyVarType;
       }
       String strIndyVarFormatted = formatField(strIndyVar, job.isModeJob() || job.isMtdJob(),
               false);
@@ -2493,17 +2485,15 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       //  add fcst_var to the select list and temp table entries
       selectList += ",\n  h.fcst_var";
       selectPlotList += ",\n  h.fcst_var";
-      strTempList += ",\n    fcst_var            VARCHAR(64)";
 
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
-          if (!strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+          if (listPlotFixVal[i].getValue() != null) {
             selectList += ",\n  "
                     + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             selectPlotList += ",\n  "
                     + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
-            strTempList += ",\n    " + strField + "            VARCHAR(64)";
           }
         }
       }
@@ -2594,7 +2584,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           MVOrderedMap listPlotFixPerm,
           PrintStream printStream,
           PrintStream printStreamSql) throws ValidationException {
-    String strTempList = "";
     String strSelectList = "";
     String strWhereSeries = "";
     Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
@@ -2605,7 +2594,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String strSeriesField = listSery.getKey().toString();
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
-      if (!statHeaderSqlType.containsKey(strSeriesField)) {
+      if (!statHeaderSqlType.contains(strSeriesField)) {
         throw new ValidationException(
                 "unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
@@ -2614,10 +2603,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + BINARY + formatField(strSeriesField, false, false)
               + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.isEmpty() ? "" : ",\n")
-              + "    " + MVUtil.padEnd(strSeriesField, 20)
-              + statHeaderSqlType.get(strSeriesField);
-
     }
 
     //  populate the template map with fixed values
@@ -2690,7 +2675,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listPlotFixVal.length > 0) {
       for (int i = 0; i < listPlotFixVal.length; i++) {
         String strField = (String) listPlotFixVal[i].getKey();
-        if (!strField.equals("fcst_var") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+        if (!strField.equals("fcst_var") && listPlotFixVal[i].getValue() != null) {
           strPlotDataSelect += strField + ",\n";
 
         }
@@ -2752,7 +2737,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           PrintStream printStream,
           PrintStream printStreamSql) throws ValidationException {
     String strSelectList = "";
-    String strTempList = "";
     String strWhereSeries = "";
 
     Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
@@ -2762,7 +2746,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String strSeriesField = listSery.getKey().toString();
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
-      if (!statHeaderSqlType.containsKey(strSeriesField)) {
+      if (!statHeaderSqlType.contains(strSeriesField)) {
         throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
@@ -2770,9 +2754,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
               + "  " + formatField(strSeriesField, false, true);
       strWhereSeries += "  AND " + BINARY + formatField(strSeriesField, false, false)
               + " IN (" + MVUtil.buildValueList(listSeriesVal) + ")\n";
-      strTempList += (strTempList.isEmpty() ? "" : ",\n") + "    "
-              + MVUtil.padEnd(strSeriesField, 20)
-              + statHeaderSqlType.get(strSeriesField);
 
     }
 
@@ -2842,7 +2823,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
-          if (!strField.equals("fcst_var") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+          if (!strField.equals("fcst_var") && listPlotFixVal[i].getValue() != null) {
             strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
 
           }
@@ -2896,7 +2877,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
-          if (!strField.equals("fcst_var") && !strField.equals("fcst_thresh") && !strTempList.contains(strField) && listPlotFixVal[i].getValue() != null) {
+          if (!strField.equals("fcst_var") && !strField.equals("fcst_thresh") && listPlotFixVal[i].getValue() != null) {
             strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
 
           }
@@ -2988,7 +2969,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           PrintStream printStream,
           PrintStream printStreamSql) throws ValidationException {
     StringBuilder strSelectList = new StringBuilder();
-    StringBuilder strTempList = new StringBuilder();
     StringBuilder strWhereSeries = new StringBuilder();
 
     Map.Entry[] listSeries = job.getSeries1Val().getOrderedEntriesForSqlSeries();
@@ -2998,7 +2978,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       String strSeriesField = listSery.getKey().toString();
       String[] listSeriesVal = (String[]) listSery.getValue();
       //  validate the series field and get its type
-      if (!statHeaderSqlType.containsKey(strSeriesField)) {
+      if (!statHeaderSqlType.contains(strSeriesField)) {
         throw new ValidationException("unrecognized " + "stat" + "_header field: " + strSeriesField);
       }
       //  build the select list element, where clause and temp table list element
@@ -3007,8 +2987,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       strWhereSeries.append("  AND ").append(BINARY)
               .append(formatField(strSeriesField, false, false))
               .append(" IN (").append(MVUtil.buildValueList(listSeriesVal)).append(")\n");
-      strTempList.append((strTempList.length() == 0) ? "" : ",\n").append("    ")
-              .append(MVUtil.padEnd(strSeriesField, 20)).append(statHeaderSqlType.get(strSeriesField));
+
 
     }
     if (!strSelectList.toString().contains("fcst_valid")) {
@@ -3193,12 +3172,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
   private BuildMysqlQueryStrings build(
           boolean boolModePlot,
-          Map<String, String> tableHeaderSqlType,
+          List<String> headerSql,
           Map.Entry[] listSeries, String strWhere,
           boolean isFormatSelect) throws ValidationException {
 
     BuildMysqlQueryStrings buildMysqlQueryStrings = new BuildMysqlQueryStrings(boolModePlot,
-            tableHeaderSqlType,
+            headerSql,
             listSeries, strWhere,
             isFormatSelect);
     for (Map.Entry entry : listSeries) {
@@ -3208,11 +3187,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
       //  validate the series field and get its type
       String strTempType;
-      if (!tableHeaderSqlType.containsKey(field)) {
+      if (!headerSql.contains(field)) {
         throw new ValidationException("unrecognized " + (boolModePlot ? "mode" : "stat")
                 + "_header field: " + field);
       }
-      strTempType = tableHeaderSqlType.get(field);
 
       //  build the select list element, where clause and temp table list element
       if (buildMysqlQueryStrings.getSelectList().length() == 0) {
@@ -3242,9 +3220,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                       + BINARY + formatField(field, boolModePlot, false)
                       + " IN (" + MVUtil.buildValueList((String[]) entry.getValue()) + ")\n");
 
-      buildMysqlQueryStrings.setTempList(
-              (buildMysqlQueryStrings.getTempList().isEmpty() ? "" : ",\n")
-                      + "    " + MVUtil.padEnd(field, 20) + strTempType);
     }
     return buildMysqlQueryStrings;
   }

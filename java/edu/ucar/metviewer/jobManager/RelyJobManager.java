@@ -43,18 +43,18 @@ public class RelyJobManager extends JobManager {
 
       //    insert set values for this permutation
       MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
-                                                    plotFixPerm,
-                                                    mvBatch.getDatabaseManager().getDateFormat());
+              plotFixPerm,
+              mvBatch.getDatabaseManager().getDateFormat());
       job.setTmplVal(fixTmplVal);
       MVOrderedMap fixVals = job.getPlotFixVal();
-      for(String fixFar: fixVals.getKeyList()){
-        if(fixTmplVal.containsKey(fixFar)){
+      for (String fixFar : fixVals.getKeyList()) {
+        if (fixTmplVal.containsKey(fixFar)) {
           fixVals.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
       MVOrderedMap fixValsEE = job.getPlotFixValEq();
-      for(String fixFar: fixValsEE.getKeyList()){
-        if(fixTmplVal.containsKey(fixFar)){
+      for (String fixFar : fixValsEE.getKeyList()) {
+        if (fixTmplVal.containsKey(fixFar)) {
           fixValsEE.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
@@ -63,16 +63,16 @@ public class RelyJobManager extends JobManager {
       MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
 
       String dataFile = mvBatch.getDataFolder()
-                            + MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                         mapPlotTmplVals,
-                                                         job.getTmplMaps(),
-                                                         mvBatch.getPrintStream());
+              + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+              mapPlotTmplVals,
+              job.getTmplMaps(),
+              mvBatch.getPrintStream());
       (new File(dataFile)).getParentFile().mkdirs();
       int intNumDepSeries = mvBatch.getDatabaseManager()
-                                .buildAndExecuteQueriesForRocRelyJob(job, dataFile + ".agg_stat",
-                                                                     plotFixPerm,
-                                                                     mvBatch.getPrintStream(),
-                                                                     mvBatch.getPrintStreamSql());
+              .buildAndExecuteQueriesForRocRelyJob(job, dataFile + ".agg_stat",
+                      plotFixPerm,
+                      mvBatch.getPrintStream(),
+                      mvBatch.getPrintStreamSql());
 
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
       info.put("agg_pct", "TRUE");
@@ -93,8 +93,8 @@ public class RelyJobManager extends JobManager {
       info.put("agg_stat_static", mapAggStatStatic.getRDecl());
 
       MVOrderedMap mapDep1Plot = new MVOrderedMap();
-      mapDep1Plot.put(listFcstVar[0], new String[]{"PSTD_CALIBRATION","PSTD_BASER", "PSTD_NI"});
-      info.put("dep1_plot",  mapDep1Plot.getRDecl());
+      mapDep1Plot.put(listFcstVar[0], new String[]{"PSTD_CALIBRATION", "PSTD_BASER", "PSTD_NI"});
+      info.put("dep1_plot", mapDep1Plot.getRDecl());
 
 
       RscriptStatManager rscriptStatManager = new RscriptAggStatManager(mvBatch);
@@ -104,7 +104,7 @@ public class RelyJobManager extends JobManager {
 
       rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       rscriptStatManager
-          .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
+              .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
       info.put("data_file", dataFile);
 
       rscriptStatManager.runRscript(job, info);

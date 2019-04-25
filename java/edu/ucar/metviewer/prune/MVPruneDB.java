@@ -31,7 +31,7 @@ public class MVPruneDB {
   private static final Logger logger = LogManager.getLogger("MVPruneDB");
 
   private static final String USAGE = "USAGE:  mv_prune.sh <prune_db_spec_file>\n" +
-                                          "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
+          "                    where <prune_db_spec_file> specifies the XML pruning specification document\n";
   private final Map<String, List<String>> fieldToRangeValues = new HashMap<>();
   private final Map<String, List<String>> fieldToListValues = new HashMap<>();
   private final List<String> files = new ArrayList<>();
@@ -71,17 +71,17 @@ public class MVPruneDB {
         MysqlDatabaseManager databaseManager = null;
         if (dbType.equals("mysql")) {
           databaseManager = new MysqlDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
-                                                                      mvPruneDB.getUser()),
-                                                     mvPruneDB.getPwd());
+                  mvPruneDB.getUser()),
+                  mvPruneDB.getPwd());
         } else if (dbType.equals("mariadb")) {
           databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
-                                                                           mvPruneDB.getUser()),
-                                                          mvPruneDB.getPwd());
+                  mvPruneDB.getUser()),
+                  mvPruneDB.getPwd());
         } else if (dbType.equals("aurora")) {
           databaseManager =
-              new AuroraAppDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
-                                                            mvPruneDB.getUser()),
-                                           mvPruneDB.getPwd());
+                  new AuroraAppDatabaseManager(new DatabaseInfo(mvPruneDB.getHost(),
+                          mvPruneDB.getUser()),
+                          mvPruneDB.getPwd());
         }
         PruneDbManager pruneDbManager = new PruneDbManagerMysql(databaseManager);
         pruneDbManager.pruneData(mvPruneDB);
@@ -167,13 +167,13 @@ public class MVPruneDB {
       logger.error("Please, specify databaseName");
       isValid = false;
     } else if ((!this.files.isEmpty() || !this.directories.isEmpty()) && (!this.fieldToListValues
-                                                                               .isEmpty() || !this.fieldToRangeValues
-                                                                                                  .isEmpty())) {
+            .isEmpty() || !this.fieldToRangeValues
+            .isEmpty())) {
       logger.error("Files and fields are both presented. Please, specify one or another");
       isValid = false;
     } else if (this.fieldToListValues.isEmpty() && this.fieldToRangeValues.isEmpty() && this.files
-                                                                                            .isEmpty() && this.directories
-                                                                                                              .isEmpty()) {
+            .isEmpty() && this.directories
+            .isEmpty()) {
       logger.error("Please, specify at least one field or file");
       isValid = false;
     } else if (this.isInfoOnly == null) {

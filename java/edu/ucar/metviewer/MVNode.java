@@ -52,9 +52,9 @@ public class MVNode {
       } else if (strAttrName.equals("equalize")) {
         equalize = nodeAttr.getNodeValue();
       } else {
-        logger.error(
-            "  **  WARNING: unrecognized attribute name '" + strAttrName
-                + "' in node '" + tag + "'");
+        logger.info(
+                "  **  WARNING: unrecognized attribute name '" + strAttrName
+                        + "' in node '" + tag + "'");
       }
     }
 
@@ -73,18 +73,18 @@ public class MVNode {
       }
     }
     children = (!listChildren.isEmpty()
-                    ?  listChildren.toArray(new MVNode[]{}) : new MVNode[]{});
+            ? listChildren.toArray(new MVNode[]{}) : new MVNode[]{});
   }
 
 
   public String getAttribute(String attributeName) {
-    String attributeValue =null;
+    String attributeValue = null;
     NamedNodeMap namedNodeMap = node.getAttributes();
-    if (namedNodeMap.getLength() > 0 &&  namedNodeMap.getNamedItem(attributeName) != null) {
+    if (namedNodeMap.getLength() > 0 && namedNodeMap.getNamedItem(attributeName) != null) {
       try {
         attributeValue = namedNodeMap.getNamedItem(attributeName).getNodeValue();
       } catch (DOMException e) {
-        attributeValue=null;
+        attributeValue = null;
       }
     }
     return attributeValue;

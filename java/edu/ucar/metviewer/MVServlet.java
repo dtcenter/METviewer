@@ -57,6 +57,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.w3c.dom.Attr;
@@ -79,6 +80,8 @@ public class MVServlet extends HttpServlet {
   private static final String DATE_FORMAT_STRING = "yyyyMMdd_HHmmss";
   private static final long serialVersionUID = 1L;
   private static final Logger logger = LogManager.getLogger("MVServlet");
+  private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+
   private static final FilenameFilter PNG_FILTER = new FilenameFilter() {
     @Override
     public boolean accept(File dir, String name) {
@@ -467,7 +470,7 @@ public class MVServlet extends HttpServlet {
       }
       job = jobs[0];
     } catch (ParserConfigurationException | DatabaseException | ValidationException | IOException | SAXException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
       return "<error>failed to parse plot job</error>";
     }
 
@@ -549,7 +552,7 @@ public class MVServlet extends HttpServlet {
         transformer.transform(new DOMSource(doc), streamResult);
         stream.flush();
       } catch (IllegalArgumentException | TransformerException | IOException e) {
-        logger.error(
+        logger.error(ERROR_MARKER,
                 "handlePlot() - ERROR: caught " + e.getClass() + " serializing plot xml: "
                         + e.getMessage());
         return "<error>failed to serialize plot xml</error>";
@@ -599,7 +602,7 @@ public class MVServlet extends HttpServlet {
       try {
         stopWatch.stop();
       } catch (StopWatchException e) {
-        logger.error(e.getMessage());
+        logger.error(ERROR_MARKER, e.getMessage());
       }
       if (logSql != null) {
         //  build the job SQL using the batch engine
@@ -634,13 +637,13 @@ public class MVServlet extends HttpServlet {
         try {
           printStream.println("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
         } catch (StopWatchException e) {
-          logger.error(e.getMessage());
+          logger.error(ERROR_MARKER, e.getMessage());
         }
         if (!plotterOutput.isEmpty()) {
           try (FileWriter fileWriter = new FileWriter(plotXml + DELIMITER + plotPrefix + ".log")) {
             fileWriter.write(plotterOutput);
           } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error(ERROR_MARKER, e.getMessage());
           }
         }
 
@@ -1013,7 +1016,7 @@ public class MVServlet extends HttpServlet {
         printWriter.println("howdy from MVServlet");
       }
     } catch (IOException e) {
-      logger.error(e.getMessage());
+      logger.error(ERROR_MARKER, e.getMessage());
     }
   }
 

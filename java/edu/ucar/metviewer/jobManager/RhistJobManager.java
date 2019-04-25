@@ -41,44 +41,44 @@ public class RhistJobManager extends JobManager {
 
       //    insert set values for this permutation
       MVOrderedMap fixTmplVal = buildPlotFixTmplVal(job.getTmplMaps(),
-                                                    plotFixPerm,
-                                                    mvBatch.getDatabaseManager().getDateFormat());
+              plotFixPerm,
+              mvBatch.getDatabaseManager().getDateFormat());
       job.setTmplVal(fixTmplVal);
       MVOrderedMap fixVals = job.getPlotFixVal();
-      for(String fixFar: fixVals.getKeyList()){
-        if(fixTmplVal.containsKey(fixFar)){
+      for (String fixFar : fixVals.getKeyList()) {
+        if (fixTmplVal.containsKey(fixFar)) {
           fixVals.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
       MVOrderedMap fixValsEE = job.getPlotFixValEq();
-      for(String fixFar: fixValsEE.getKeyList()){
-        if(fixTmplVal.containsKey(fixFar)){
+      for (String fixFar : fixValsEE.getKeyList()) {
+        if (fixTmplVal.containsKey(fixFar)) {
           fixValsEE.put(fixFar, fixTmplVal.get(fixFar));
         }
       }
-  			/*
-         *  Print the data file in the R_work subfolder and file specified by the data file template
-  			 */
+      /*
+       *  Print the data file in the R_work subfolder and file specified by the data file template
+       */
 
 
       //  construct the file system paths for the files used to build the plot
       MVOrderedMap mapPlotTmplVals = new MVOrderedMap(job.getTmplVal());
 
       String dataFile = mvBatch.getDataFolder()
-                            + MVUtil.buildTemplateString(job.getDataFileTmpl(),
-                                                         mapPlotTmplVals,
-                                                         job.getTmplMaps(),
-                                                         mvBatch.getPrintStream());
+              + MVUtil.buildTemplateString(job.getDataFileTmpl(),
+              mapPlotTmplVals,
+              job.getTmplMaps(),
+              mvBatch.getPrintStream());
       (new File(dataFile)).getParentFile().mkdirs();
 
       String strMsg = mvBatch.getDatabaseManager()
-                          .buildAndExecuteQueriesForHistJob(job, dataFile,
-                                                            plotFixPerm,
-                                                            mvBatch.getPrintStream(),
-                                                            mvBatch.getPrintStreamSql());
+              .buildAndExecuteQueriesForHistJob(job, dataFile,
+                      plotFixPerm,
+                      mvBatch.getPrintStream(),
+                      mvBatch.getPrintStreamSql());
       if (strMsg.length() > 0) {
         mvBatch.print("\n==== Start database error  ====\n" + strMsg + "\n====   End database error"
-                          + "  ====");
+                + "  ====");
       }
 
 
@@ -92,26 +92,26 @@ public class RhistJobManager extends JobManager {
       //  validate the number of formatting elements
       if (intNumDepSeries != MVUtil.parseRCol(job.getPlotDisp()).length) {
         throw new ValidationException("length of plot_disp differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (job.getOrderSeries().length() > 0 && intNumDepSeries != MVUtil.parseRCol(
-          job.getOrderSeries()).length) {
+              job.getOrderSeries()).length) {
         throw new ValidationException("length of order_series differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (intNumDepSeries != MVUtil.parseRCol(job.getColors()).length) {
         throw new ValidationException("length of colors differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       if (!job.getLegend().isEmpty() &&
               intNumDepSeries != MVUtil.parseRCol(job.getLegend()).length) {
         throw new ValidationException("length of legend differs from number of series ("
-                                + intNumDepSeries + ")");
+                + intNumDepSeries + ")");
       }
       Map<String, String> info = createInfoMap(job, intNumDepSeries);
       RscriptStatManager rscriptStatManager = new RscriptNoneStatManager(mvBatch);
       rscriptStatManager
-          .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
+              .prepareDataFileAndRscript(job, plotFixPerm, info, new ArrayList<>());
       info.put("data_file", dataFile);
 
       rscriptStatManager.runRscript(job, info);
