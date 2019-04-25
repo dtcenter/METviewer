@@ -5883,7 +5883,6 @@ function updatePlotFixSeries() {
 
 function loadXMLSeries() {
 
-
     //Parse the plot_type from _strInitXML using assumptions about the first stat
     $("#event_equal").prop('checked', $(initXML.find("plot").find("event_equal")).text() == "true").trigger("change");
 
