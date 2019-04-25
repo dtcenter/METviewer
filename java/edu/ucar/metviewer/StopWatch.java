@@ -18,7 +18,6 @@ public class StopWatch {
   private Long totalDuration;
 
 
-
   public void start() {
     startTime = System.nanoTime();
     stopTime = null;
