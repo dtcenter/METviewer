@@ -799,6 +799,8 @@ CREATE TABLE line_data_grad
     s1             DOUBLE,
     s1_og          DOUBLE DEFAULT -9999,
     fgog_ratio     DOUBLE DEFAULT -9999,
+    dx             INT    DEFAULT -9999,
+    dy             INT    DEFAULT -9999,
 
     CONSTRAINT line_data_grad_data_file_id_pk
         FOREIGN KEY (data_file_id)
@@ -2039,7 +2041,6 @@ CREATE TABLE line_data_perc
     obs_valid_end  DATETIME,
     fcst_perc      DOUBLE,
     obs_perc       DOUBLE,
-
 
 
     CONSTRAINT line_data_perc_data_file_id_pk

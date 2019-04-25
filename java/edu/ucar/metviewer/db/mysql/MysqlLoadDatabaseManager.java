@@ -150,8 +150,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             .put("line_data_sl1l2", "INSERT INTO line_data_sl1l2 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
                     + "?,?,?,?,?)");//17
     tableToInsert
-            .put("line_data_grad", "INSERT INTO line_data_grad VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
-                    + "?,?,?,?,?,?)");//18
+            .put("line_data_grad", "INSERT INTO line_data_grad VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");//20
     tableToInsert
             .put("line_data_sal1l2", "INSERT INTO line_data_sal1l2 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,"
                     + "?,?,?,?,?)");//17
@@ -1163,7 +1162,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               maxSize = 17;
               break;
             case "GRAD":
-              maxSize = 18;
+              maxSize = 20;
               break;
             case "PSTD":
               maxSize = 30;
@@ -1968,9 +1967,24 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 }
               }
             }
-            if (listToken[6].equals("VAL1L2")
-                    || listToken[6].equals("GRAD")) {//VAL1L2,GRAD line type
+            if (listToken[6].equals("VAL1L2")) {//VAL1L2 line type
               for (int i = 0; i < 8; i++) {
+                if (i + 9 < listToken.length) {
+                  if (i == 0) {
+                    lineDataValueList.append(", '")
+                            .append((Double.valueOf(listToken[i + 9])).intValue()).append("'");
+                  } else {
+                    lineDataValueList.append(", '").append(Double.valueOf(listToken[i + 9]))
+                            .append("'");
+                  }
+                } else {
+                  lineDataValueList.append(", '-9999'");
+                }
+
+              }
+            }
+            if (listToken[6].equals("GRAD")) {//GRAD line type
+              for (int i = 0; i < 10; i++) {
                 if (i + 9 < listToken.length) {
                   if (i == 0) {
                     lineDataValueList.append(", '")
