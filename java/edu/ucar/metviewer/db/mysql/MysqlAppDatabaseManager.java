@@ -484,7 +484,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
              ResultSet res = stmt.executeQuery(strSql)) {
 
           while (res.next()) {
-            listRes.add(res.getString(1));
+            if(field.startsWith("fcst_valid") || field.startsWith("obs_valid")
+            || field.startsWith("fcst_init") || field.startsWith("obs_init")){
+              LocalDateTime ts = res.getTimestamp(1).toLocalDateTime();
+              listRes.add(DATE_FORMATTER.format(ts)); ;
+            }else {
+              listRes.add(res.getString(1));
+            }
           }
 
         } catch (SQLException e) {
