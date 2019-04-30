@@ -2369,10 +2369,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //  calculate the number of seconds corresponding to fcst_lead
         String strFcstLead = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
         int intFcstLeadLen = strFcstLead.length();
-        int intFcstLeadSec = Integer.parseInt(
-                strFcstLead.substring(intFcstLeadLen - 2, intFcstLeadLen));
-        intFcstLeadSec += Integer.parseInt(
-                strFcstLead.substring(intFcstLeadLen - 4, intFcstLeadLen - 2)) * 60;
+        int intFcstLeadSec = Integer.parseInt(strFcstLead.substring(intFcstLeadLen - 2, intFcstLeadLen));
+        intFcstLeadSec += Integer.parseInt(strFcstLead.substring(intFcstLeadLen - 4, intFcstLeadLen - 2)) * 60;
         intFcstLeadSec += Integer.parseInt(strFcstLead.substring(0, intFcstLeadLen - 4)) * 3600;
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
@@ -2386,62 +2384,45 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         //  build a value list from the header information
         //replace "NA" for fcst_accum (listToken[4]) and obs_accum (listToken[7]) to NULL
 
-        String modeHeaderValueList =
-                "'" + MVUtil.findValue(listToken, headerNames, "VERSION")
-                        + "', " + "'" + MVUtil.findValue(listToken, headerNames, "MODEL") + "', "
-                        + "";
+        String modeHeaderValueList = "'" + MVUtil.findValue(listToken, headerNames, "VERSION")
+                + "', '" + MVUtil.findValue(listToken, headerNames, "MODEL") + "', ";
 
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "N_VALID"))) {
           modeHeaderValueList = modeHeaderValueList + "NULL" + ", ";      //  N_VALID
         } else {
-          modeHeaderValueList = modeHeaderValueList
-                  + MVUtil.findValue(listToken, headerNames, "N_VALID")
+          modeHeaderValueList = modeHeaderValueList + MVUtil.findValue(listToken, headerNames, "N_VALID")
                   + ", ";      //  N_VALID
         }
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "GRID_RES"))) {
           modeHeaderValueList = modeHeaderValueList + "NULL" + ", ";      //  GRID_RES
         } else {
-          modeHeaderValueList = modeHeaderValueList
-                  + MVUtil.findValue(listToken, headerNames, "GRID_RES")
+          modeHeaderValueList = modeHeaderValueList + MVUtil.findValue(listToken, headerNames, "GRID_RES")
                   + ", ";      //  GRID_RES
         }
 
         modeHeaderValueList = modeHeaderValueList
-                + "'" + MVUtil.findValue(listToken, headerNames, "DESC")
-                + "', " +      //  GRID_RES
-                "'" + MVUtil.findValue(listToken, headerNames,
-                "FCST_LEAD")
-                + "', " +      //  fcst_lead
-                "'" + fcstValidBegStr + "', ";      //  fcst_valid
+                + "'" + MVUtil.findValue(listToken, headerNames, "DESC") + "', "
+                + MVUtil.findValue(listToken, headerNames, "FCST_LEAD") + ", "
+                + "'" + fcstValidBegStr + "', ";      //  fcst_valid
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"))) {
           modeHeaderValueList = modeHeaderValueList + "NULL" + ", ";      //  fcst_accum
         } else {
-          modeHeaderValueList = modeHeaderValueList
-                  + "'"
-                  + MVUtil
-                  .findValue(listToken, headerNames, "FCST_ACCUM")
-                  + "', ";      //  fcst_accum
+          modeHeaderValueList = modeHeaderValueList + MVUtil.findValue(listToken, headerNames, "FCST_ACCUM")
+                  + ", ";      //  fcst_accum
         }
         modeHeaderValueList = modeHeaderValueList + "'" + fcstInitStr + "', "
-                +  // fcst_init
-                "'"
-                + MVUtil.findValue(listToken, headerNames, "OBS_LEAD")
-                + "', " +      //  obs_lead
-                "'" + obsValidBegStr + "', ";      //  obs_valid
+                + MVUtil.findValue(listToken, headerNames, "OBS_LEAD") + ", "
+                + "'" + obsValidBegStr + "', ";
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"))) {
           modeHeaderValueList = modeHeaderValueList + "NULL" + ", ";      //  obs_accum
         } else {
-          modeHeaderValueList = modeHeaderValueList
-                  + "'"
-                  + MVUtil
-                  .findValue(listToken, headerNames, "OBS_ACCUM")
-                  + "', ";      //  obs_accum
+          modeHeaderValueList = modeHeaderValueList + MVUtil.findValue(listToken, headerNames, "OBS_ACCUM")
+                  + ", ";
         }
         modeHeaderValueList = modeHeaderValueList
-                + "'"
-                + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + "', " +      //  fcst_rad
-                "'" + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', " +      //  fcst_thr
-                "'" + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + "', " +      //  obs_rad
+                + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + "', "     //  fcst_rad
+                + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', "       //  fcst_thr
+                + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + ", " +     //  obs_rad
                 "'" + MVUtil.findValue(listToken, headerNames, "OBS_THR") + "', " +      //  obs_thr
                 "'" + MVUtil.findValue(listToken, headerNames, "FCST_VAR") + "', " +      //  fcst_units
                 "'" + MVUtil.findValue(listToken, headerNames, "FCST_UNITS") + "', " +      //  fcst_var
@@ -2462,8 +2443,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           fcstaccum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "FCST_ACCUM"));
         } catch (NumberFormatException e) {
-          logger.info("FCST_ACCUM " + MVUtil.findValue(listToken, headerNames, "FCST_ACCUM") +
-                  " is invalid");
+          logger.info("FCST_ACCUM " + MVUtil.findValue(listToken, headerNames, "FCST_ACCUM") + " is invalid");
         }
         String isfcstaccum = "=";
         if (fcstaccum == null) {
@@ -2474,8 +2454,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         try {
           obsaccum = Integer.valueOf(MVUtil.findValue(listToken, headerNames, "OBS_ACCUM"));
         } catch (NumberFormatException e) {
-          logger.info("OBS_ACCUM " + MVUtil.findValue(listToken, headerNames, "OBS_ACCUM") +
-                  " is invalid");
+          logger.info("OBS_ACCUM " + MVUtil.findValue(listToken, headerNames, "OBS_ACCUM") + " is invalid");
         }
         String isobsaccum = "=";
         if (obsaccum == null) {
@@ -2591,8 +2570,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           }
           timeStats.put("headerSearchTime",
-                  timeStats.get("headerSearchTime")
-                          + System.currentTimeMillis() - modeHeaderSearchBegin);
+                  timeStats.get("headerSearchTime") + System.currentTimeMillis() - modeHeaderSearchBegin);
 
 
           //  if the mode_header was not found, add it to the table
@@ -3094,7 +3072,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
         String fcstLeadInsert = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
         if (fcstLeadInsert.equals("NA")) {
-          fcstLeadInsert = "0";
+          fcstLeadInsert = "-9999";
         } else {
           if (fcstLeadInsert.contains("_")) {
             fcstLeadInsert = fcstLeadInsert.split("_")[1];
@@ -3103,7 +3081,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
         String obsLeadInsert = MVUtil.findValue(listToken, headerNames, "OBS_LEAD");
         if (obsLeadInsert.equals("NA")) {
-          obsLeadInsert = "0";
+          obsLeadInsert = "-9999";
         } else {
           if (obsLeadInsert.contains("_")) {
             obsLeadInsert = obsLeadInsert.split("_")[1];
@@ -3130,24 +3108,23 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
 
         mtdHeaderValueList = mtdHeaderValueList
-                + "'"
                 + fcstLeadInsert
-                + "', " + "'" + fcstValidBegStr + "', "
+                + ", " + "'" + fcstValidBegStr + "', "
                 + "'" + fcstInitStr + "', "
-                + "'" + obsLeadInsert
-                + "', " + "'" + obsValidBegStr + "', ";
+                + obsLeadInsert
+                + ", " + "'" + obsValidBegStr + "', ";
 
         if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
           mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
         } else {
-          mtdHeaderValueList = mtdHeaderValueList + "'"
+          mtdHeaderValueList = mtdHeaderValueList
                   + MVUtil.findValue(listToken, headerNames, "T_DELTA")
-                  + "', ";
+                  + ", ";
         }
         mtdHeaderValueList = mtdHeaderValueList
-                + "'" + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + "', "
+                + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + ", "
                 + "'" + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + "', "
+                + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + ", "
                 + "'" + MVUtil.findValue(listToken, headerNames, "OBS_THR") + "', "
                 + "'" + MVUtil.findValue(listToken, headerNames, "FCST_VAR") + "', "
                 + "'" + MVUtil.findValue(listToken, headerNames, "FCST_UNITS") + "', "
@@ -3614,8 +3591,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
       } else {
 
-        sql =
-                "UPDATE metadata SET description = ? WHERE " + BINARY + "description = ?";
+        sql = "UPDATE metadata SET description = ? WHERE " + BINARY + "description = ?";
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
           stmt.setString(1, description);
@@ -3755,8 +3731,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     int lines = 0;
     try (
             FileReader fileReader = new FileReader(file);
-            BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
-                    MAX_LINE_LEN)) {
+            BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES, MAX_LINE_LEN)) {
       //  read in each line of the input file
       while (reader.ready()) {
         String line = reader.readLineBounded();
@@ -3771,8 +3746,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       logger.error(ERROR_MARKER, e.getMessage());
     }
     if (lines == 0) {
-      logger.warn("  **  WARNING: file " + file.getAbsolutePath() + " is empty and will be "
-              + "ignored");
+      logger.warn("  **  WARNING: file " + file.getAbsolutePath() + " is empty and will be ignored");
       return null;
     }
 

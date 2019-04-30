@@ -1904,7 +1904,7 @@ CREATE TABLE mtd_header
     fcst_lead       INT,
     fcst_valid      DATETIME,
     fcst_init       DATETIME,
-    obs_lead        INT UNSIGNED,
+    obs_lead        INT,
     obs_valid       DATETIME,
     t_delta         INT(11),
     fcst_rad        INT UNSIGNED,
