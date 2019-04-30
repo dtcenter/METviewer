@@ -67,6 +67,7 @@ CREATE TABLE stat_header
                       descr,
                       fcst_var(20),
                       fcst_units,
+                      fcst_lev,
                       obs_var(20),
                       obs_units,
                       obs_lev,
