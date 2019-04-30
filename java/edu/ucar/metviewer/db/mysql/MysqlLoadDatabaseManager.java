@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -76,7 +77,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
   private final String[] mtdObj2dColumns = new String[]{
           "OBJECT_CAT", "TIME_INDEX", "AREA", "CENTROID_X", "CENTROID_Y", "CENTROID_LAT",
-          "CENTROID_LON", "AXIS_ANG"
+          "CENTROID_LON", "AXIS_ANG", "INTENSITY_10", "INTENSITY_25", "INTENSITY_50", "INTENSITY_75", "INTENSITY_90"
   };
   private final String[] mtdObj3dSingleColumns = new String[]{
           "OBJECT_CAT", "CENTROID_X", "CENTROID_Y", "CENTROID_T", "CENTROID_LAT",
@@ -3042,21 +3043,39 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
         //  parse the valid times
 
+        LocalDateTime fcstValidBeg;
+        try {
+          fcstValidBeg = LocalDateTime.parse(
+                  MVUtil.findValue(listToken, headerNames, "FCST_VALID"),
+                  DB_DATE_STAT_FORMAT);
+        } catch (DateTimeParseException e) {
+          fcstValidBeg = null;
+        }
 
-        LocalDateTime fcstValidBeg = LocalDateTime.parse(
-                MVUtil.findValue(listToken, headerNames, "FCST_VALID"),
-                DB_DATE_STAT_FORMAT);
-
-
-        LocalDateTime obsValidBeg = LocalDateTime.parse(
-                MVUtil.findValue(listToken, headerNames, "OBS_VALID"),
-                DB_DATE_STAT_FORMAT);
+        LocalDateTime obsValidBeg;
+        try {
+          obsValidBeg = LocalDateTime.parse(
+                  MVUtil.findValue(listToken, headerNames, "OBS_VALID"),
+                  DB_DATE_STAT_FORMAT);
+        } catch (DateTimeParseException e) {
+          obsValidBeg = null;
+        }
 
         //  format the valid times for the database insert
-        String fcstValidBegStr = DATE_FORMATTER.format(fcstValidBeg);
+        String fcstValidBegStr;
+        if (fcstValidBeg != null) {
+          fcstValidBegStr = DATE_FORMATTER.format(fcstValidBeg);
+        } else {
+          fcstValidBegStr = null;
+        }
 
 
-        String obsValidBegStr = DATE_FORMATTER.format(obsValidBeg);
+        String obsValidBegStr;
+        if (obsValidBeg == null) {
+          obsValidBegStr = null;
+        } else {
+          obsValidBegStr = DATE_FORMATTER.format(obsValidBeg);
+        }
 
 
         //  calculate the number of seconds corresponding to fcst_lead
@@ -3092,10 +3111,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
 
         //  determine the init time by combining fcst_valid_beg and fcst_lead
-        LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
-        fcstInitBeg = fcstInitBeg.minusSeconds(fcstLeadSec);
-
-        String fcstInitStr = DATE_FORMATTER.format(fcstInitBeg);
+        String fcstInitStr;
+        if (fcstValidBeg != null) {
+          LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
+          fcstInitBeg = fcstInitBeg.minusSeconds(fcstLeadSec);
+          fcstInitStr = DATE_FORMATTER.format(fcstInitBeg);
+        } else {
+          fcstInitStr = null;
+        }
 
 
         String mtdHeaderValueList = "'" + MVUtil.findValue(listToken, headerNames, "VERSION")
@@ -3315,8 +3338,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
             for (int i = 0; i < 17; i++) {
               stmt.setObject(4 + i,
-                      replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
-                              mtdObj3dSingleColumns[i + 1])),
+                      replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj3dSingleColumns[i + 1])),
                       Types.DOUBLE);
             }
             stmt.setInt(21, fcstFlag);
@@ -3363,7 +3385,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
           //  insert the record into the mtd_obj_single database table
-          String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+          String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
           int mtd2dObjInsert;
           try (Connection con = getConnection();
                PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -3371,15 +3393,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             stmt.setString(2, objectId);
             stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
                     mtdObj2dColumns[0])));
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 12; i++) {
               stmt.setObject(4 + i,
-                      replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
-                              mtdObj2dColumns[i + 1])),
+                      replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj2dColumns[i + 1])),
                       Types.DOUBLE);
             }
-            stmt.setInt(11, fcstFlag);
-            stmt.setInt(12, simpleFlag);
-            stmt.setInt(13, matchedFlag);
+            stmt.setInt(16, fcstFlag);
+            stmt.setInt(17, simpleFlag);
+            stmt.setInt(18, matchedFlag);
 
             mtd2dObjInsert = stmt.executeUpdate();
           } catch (SQLException se) {
@@ -3919,7 +3940,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   }
 
 
-  private String replaceInvalidValues(String strData) {
+  private String replaceInvalidValues(final String strData) {
     return strData.replace("NA", "-9999")
             .replace("-nan", "-9999")
             .replace("nan", "-9999");

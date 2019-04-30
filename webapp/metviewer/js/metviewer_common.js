@@ -399,7 +399,12 @@ var listStatMtd2d = [
     '2D_CENTROID_Y',
     '2D_CENTROID_LAT',
     '2D_CENTROID_LON',
-    '2D_AXIS_ANG'
+    '2D_AXIS_ANG',
+    '2D_INTENSITY_10',
+    '2D_INTENSITY_25',
+    '2D_INTENSITY_50',
+    '2D_INTENSITY_75',
+    '2D_INTENSITY_90'
 ];
 
 var listStatMtd3dSingle = [
