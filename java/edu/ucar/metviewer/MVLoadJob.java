@@ -11,8 +11,6 @@ public class MVLoadJob {
   protected String _strDBManagementSystem = null;
   protected String _strDBDriver = null;
 
-  protected boolean _boolModSchema = false;
-
   protected boolean _boolLineTypeLoad = false;
   protected MVOrderedMap _mapLineTypeLoad = new MVOrderedMap();
 
@@ -88,14 +86,6 @@ public class MVLoadJob {
 
   public void setDBPassword(String dbPassword) {
     _strDBPassword = dbPassword;
-  }
-
-  public boolean getModSchema() {
-    return _boolModSchema;
-  }
-
-  public void setModSchema(boolean modSchema) {
-    _boolModSchema = modSchema;
   }
 
   public boolean getLineTypeLoad() {
