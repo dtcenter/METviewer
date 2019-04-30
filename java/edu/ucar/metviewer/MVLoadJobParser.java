@@ -73,9 +73,7 @@ public class MVLoadJobParser {
       }
 
       //  simple string fields
-      else if (node.tag.equals("mod_schema")) {
-        loadJob.setModSchema(node.value.equalsIgnoreCase("true"));
-      } else if (node.tag.equals("load_stat")) {
+       else if (node.tag.equals("load_stat")) {
         loadJob.setLoadStat(node.value.equalsIgnoreCase("true"));
       } else if (node.tag.equals("load_mode")) {
         loadJob.setLoadMode(node.value.equalsIgnoreCase("true"));
