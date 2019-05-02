@@ -651,43 +651,42 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           isMet8 = isInt && (Integer.valueOf(listToken[indexOfNrank]) + indexOfNrank == listToken.length - 1);
 
         }
-        int[] varLengthGroupIndices1 = MVUtil.lengthGroupIndices.get(lineType);
-        int[] varLengthGroupIndices = null;
-        if (varLengthGroupIndices1 != null) {
-          varLengthGroupIndices = Arrays.copyOf(varLengthGroupIndices1, varLengthGroupIndices1.length);
-          int diff = varLengthGroupIndices[1] - varLengthGroupIndices[0];
+
+        int[] lengthGroupIndices = null;
+        if (MVUtil.lengthGroupIndices.containsKey(lineType)) {
+          lengthGroupIndices = Arrays.copyOf(MVUtil.lengthGroupIndices.get(lineType), MVUtil.lengthGroupIndices.get(lineType).length);
+          int diff = lengthGroupIndices[1] - lengthGroupIndices[0];
           if (headerHasUnits) {
 
             if (lineType.equals("PCT") || lineType.equals("PCTD")
                     || lineType.equals("PJC") || lineType.equals("PRC") || lineType.equals("MCTC")
                     || lineType.equals("RELP")) {
-              varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
+              lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
             } else if (lineType.equals("PHIST")) {
-              varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 3;
+              lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 3;
             } else if (lineType.equals("ORANK")) {
-              varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 12;
+              lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 12;
             } else if (lineType.equals("ECLV")) {
-              varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 4;
+              lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 4;
             } else if (lineType.equals("RHIST")) {
-              varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
+              lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
             }
-            varLengthGroupIndices[1] = varLengthGroupIndices[0] + diff;
+            lengthGroupIndices[1] = lengthGroupIndices[0] + diff;
           } else {
             if (lineType.equals("RHIST")) {
               if (!isMet8) {
-                varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 4;
+                lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 4;
               } else {
-                varLengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
+                lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
               }
-              varLengthGroupIndices[1] = varLengthGroupIndices[0] + diff;
+              lengthGroupIndices[1] = lengthGroupIndices[0] + diff;
             } else {
               if (headerNames.indexOf("DESC") < 0) {
                 //for old versions
-                varLengthGroupIndices[0] = varLengthGroupIndices[0] - 1;
-                varLengthGroupIndices[1] = varLengthGroupIndices[1] - 1;
+                lengthGroupIndices[0] = lengthGroupIndices[0] - 1;
+                lengthGroupIndices[1] = lengthGroupIndices[1] - 1;
               }
             }
-
           }
 
         }
@@ -971,23 +970,22 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           boolean hasVarLengthGroups = MVUtil.lengthGroupIndices.containsKey(lineType);
 
           //  determine the maximum token index for the data
-          if (hasVarLengthGroups) {
+          if (hasVarLengthGroups && lengthGroupIndices != null && lengthGroupIndices.length == 3) {
             int intLineDataId = tableVarLengthLineDataId.get(lineType);
             lineDataId = Integer.toString(intLineDataId);
             tableVarLengthLineDataId.put(lineType, intLineDataId + 1);
-
-
             switch (lineType) {
               case "RHIST":
-                lineDataMax = lineDataMax - Integer.valueOf(listToken[varLengthGroupIndices[0]]) * varLengthGroupIndices[2];
+                lineDataMax = lineDataMax - Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
                 break;
               case "PSTD":
-                lineDataMax = lineDataMax - Integer.valueOf(listToken[varLengthGroupIndices[0]]) * varLengthGroupIndices[2];
+                lineDataMax = lineDataMax - Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
                 break;
               default:
-                lineDataMax = varLengthGroupIndices[1];
+                lineDataMax = lengthGroupIndices[1];
                 break;
             }
+
           }
 
           //  build the value list for the insert statement
@@ -1125,15 +1123,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           }
 
 
-          if (lineType.equals("ORANK")) {
+          if (lineType.equals("ORANK") && lengthGroupIndices != null && lengthGroupIndices.length == 3) {
             //skip ensemble fields and get data for the rest
-            int extraFieldsInd = lineDataMax + Integer.valueOf(
-                    listToken[varLengthGroupIndices[0]]) * varLengthGroupIndices[2];
+            int extraFieldsInd = lineDataMax + Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
             for (int i = extraFieldsInd; i < listToken.length; i++) {
               lineDataValues.add(replaceInvalidValues(listToken[i]));
             }
           }
-
 
           int size = lineDataValues.size();
           int maxSize = size;
@@ -1214,13 +1210,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
            * * * *  var_length insert  * * * *
            */
 
-          if (hasVarLengthGroups) {
+          if (hasVarLengthGroups && lengthGroupIndices != null && lengthGroupIndices.length == 3) {
 
             //  get the index information about the current line type
 
-            int groupCntIndex = varLengthGroupIndices[0];
-            int groupIndex = varLengthGroupIndices[1];
-            int groupSize = varLengthGroupIndices[2];
+            int groupCntIndex = lengthGroupIndices[0];
+            int groupIndex = lengthGroupIndices[1];
+            int groupSize = lengthGroupIndices[2];
             int numGroups = Integer.parseInt(listToken[groupCntIndex]);
 
             if (insertData.getLineType().equals("PCT")
@@ -1277,8 +1273,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
       }  // end: while( reader.ready() )
 
     } catch
-    (NegativeArraySizeException | IOException | ArrayIndexOutOfBoundsException | NumberFormatException | DatabaseException | NullPointerException
-                    e) {
+    (NegativeArraySizeException | IOException | ArrayIndexOutOfBoundsException | NumberFormatException | DatabaseException e) {
       logger.error(ERROR_MARKER, "ERROR for file " + filename + " : " + e.getMessage());
     }
 

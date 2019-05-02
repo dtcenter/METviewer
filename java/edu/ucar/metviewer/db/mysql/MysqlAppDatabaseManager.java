@@ -462,11 +462,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 || field.contains("valid")
                 || field.contains("init"))) {
 
-
           strSql = "SELECT DISTINCT " + field + " FROM (";
 
           for (int i = 0; i < tables.length; i++) {
-
             strSql = strSql + " SELECT DISTINCT " + field + " FROM " + tables[i] + " " + whereTime;
             if (i != tables.length - 1) {
               strSql = strSql + " UNION ";

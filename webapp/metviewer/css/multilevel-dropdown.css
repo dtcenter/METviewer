@@ -66,7 +66,7 @@
 
 .multilevel-dropdown-container .multilevel-dropdown .multilevel-dropdown-item.has-children.open > .multilevel-dropdown-level {
     margin-top: 0;
-    visibility: visible;
+    display: block;
     opacity: 1;
 }
 
@@ -92,7 +92,7 @@
     -moz-box-shadow: 0 3px 10px -3px black;
     -webkit-box-shadow: 0 3px 10px -3px black;
     box-shadow: 0 3px 10px -3px black;
-    visibility: hidden;
+    display: none;
     filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
     opacity: 0;
     -moz-transition: opacity 0.4s ease, margin 0.4s ease;

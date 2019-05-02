@@ -22,18 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -320,7 +309,8 @@ public class MVServlet extends HttpServlet {
       //  sort and format the results, depending on the field
       if (strField.equals("fcst_thresh") || strField.equals("fcst_thr")
               || strField.equals("obs_thresh") || strField.equals("obs_thr")) {
-        listRes = MVUtil.sortThresh(listRes);
+        //listRes = MVUtil.sortThresh(listRes);
+        //Collections.sort(listRes);
       } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
         listRes = MVUtil.sortLev(listRes);
       } else if (strField.equals("interp_pnts")) {
