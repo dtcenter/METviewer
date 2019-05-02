@@ -5908,7 +5908,7 @@ function loadXMLSeries() {
     } else {
         selected_mode = "stat";
     }
-
+    updateIndyVar(selected_mode);
     try {
         $("#plot_data").val(selected_mode).multiselect("refresh");
     } catch (e) {

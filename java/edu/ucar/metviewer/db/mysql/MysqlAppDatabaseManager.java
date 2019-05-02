@@ -462,9 +462,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 || field.contains("valid")
                 || field.contains("init"))) {
 
+
           strSql = "SELECT DISTINCT " + field + " FROM (";
 
           for (int i = 0; i < tables.length; i++) {
+
             strSql = strSql + " SELECT DISTINCT " + field + " FROM " + tables[i] + " " + whereTime;
             if (i != tables.length - 1) {
               strSql = strSql + " UNION ";
@@ -473,10 +475,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           strSql = strSql + ") ll  ORDER BY " + field;
 
         } else {
-          String strFieldDB = formatField(field, boolMode || boolMtd).replaceAll("h\\.", "");
+
+          String strFieldDB = formatField(field, boolMode || boolMtd, true);
           String whereReplaced = where.toString().replaceAll("h\\.", "");
           strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
-                  + strHeaderTable + " " + whereReplaced + " ORDER BY " + field;
+                  + strHeaderTable + " " + whereReplaced + " ORDER BY " + strFieldDB;
         }
         //  execute the query
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -484,7 +487,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
              ResultSet res = stmt.executeQuery(strSql)) {
 
           while (res.next()) {
-            listRes.add(res.getString(1));
+            if (field.startsWith("fcst_valid") || field.startsWith("obs_valid")
+                    || field.startsWith("fcst_init") || field.startsWith("obs_init")) {
+              LocalDateTime ts = res.getTimestamp(1).toLocalDateTime();
+              listRes.add(DATE_FORMATTER.format(ts));
+            } else {
+              listRes.add(res.getString(1));
+            }
           }
 
         } catch (SQLException e) {
@@ -623,18 +632,27 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     char delim = '\t';
     try {
       ResultSetMetaData met = res.getMetaData();
+      int fcstLeadIndex = -1;
+      int fcstObsIndex = -1;
 
       //  print out the column headers
-      if (isHeader) {
-        for (int i = 1; i <= met.getColumnCount(); i++) {
 
+      for (int i = 1; i <= met.getColumnCount(); i++) {
+        String label = met.getColumnLabel(i);
+        if (label.equals("fcst_lead")) {
+          fcstLeadIndex = i;
+        } else if (label.equals("obs_lead")) {
+          fcstObsIndex = i;
+        }
+        if (isHeader) {
           if (1 == i) {
-            bufferedWriter.write(met.getColumnLabel(i));
+            bufferedWriter.write(label);
           } else {
-            bufferedWriter.write(delim + met.getColumnLabel(i));
+            bufferedWriter.write(delim + label);
           }
         }
-
+      }
+      if (isHeader) {
         bufferedWriter.write(MVUtil.LINE_SEPARATOR);
       }
 
@@ -654,9 +672,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           } else {
             strVal = res.getString(i);
 
-            if (strVal == null
-                    || strVal.equalsIgnoreCase("null")
-                    || strVal.equalsIgnoreCase("-9999")) {
+            //do not replace values for lead times
+            if ((i != fcstLeadIndex && i != fcstObsIndex)
+                    &&
+                    (strVal == null || strVal.equalsIgnoreCase("null")
+                            || strVal.equalsIgnoreCase("-9999"))) {
               strVal = "NA";
             }
 
@@ -1930,7 +1950,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  " + objectId + ",\n"
                     + "  object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
-                    + "  " + strTableStat + " stat_value\n"
+                    + "  " + strTableStat + " stat_value,\n"
+                    + " '3d' object_type\n"
                     + "FROM mtd_header, mtd_3d_obj_pair \n"
                     + "WHERE\n" + whereClause
                     + " AND mtd_header.mtd_header_id = mtd_3d_obj_pair.mtd_header_id";
@@ -2064,7 +2085,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  object_id,\n"
                     + "  object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
-                    + "  " + mtd3dSingleStatField.get(statName) + " stat_value\n"
+                    + "  " + mtd3dSingleStatField.get(statName) + " stat_value,\n"
+                    + " '3d' object_type\n"
                     + "FROM mtd_header, mtd_3d_obj_single \n"
                     + "WHERE\n" + strWhere
                     + " AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
@@ -2097,7 +2119,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  object_id,\n"
                     + "  object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
-                    + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value\n"
+                    + "  " + MVUtil.mtd2dStatField.get(strStatName) + " stat_value,\n"
+                    + " '2d' object_type\n"
                     + "FROM mtd_header, mtd_2d_obj \n"
                     + "WHERE\n" + strWhere
                     + " AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
@@ -2141,7 +2164,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  area,\n"
                     + "  fcst_flag,\n"
                     + "  simple_flag,\n"
-                    + "  matched_flag\n"
+                    + "  matched_flag,\n"
+                    + " '2d' object_type\n"
                     + "FROM mtd_header, mtd_2d_obj\n"
                     + "WHERE\n" + strWhere
                     + "  AND mtd_header.mtd_header_id = mtd_2d_obj.mtd_header_id";
@@ -2161,7 +2185,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  volume,\n"
                     + "  fcst_flag,\n"
                     + "  simple_flag,\n"
-                    + "  matched_flag\n"
+                    + "  matched_flag,\n"
+                    + " '3d' object_type\n"
                     + "FROM mtd_header, mtd_3d_obj_single\n"
                     + "WHERE\n" + strWhere
                     + "  AND mtd_header.mtd_header_id = mtd_3d_obj_single.mtd_header_id";
@@ -2261,7 +2286,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
                     + "FROM ("
                     + table1
-                    + " ) s, ( " + table2 + " ) s2\n"
+                    + " ) s, ( " + table2 + " ) s2,\n"
+                    + " '3d' object_type\n"
                     + "WHERE\n"
                     + strWhere + "\n"
                     + "  AND " + BINARY + "SUBSTRING(s.object_id, LOCATE('_', s.object_id)+1) = SUBSTRING(s2"
@@ -2307,7 +2333,8 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                     + "  s.object_id,\n"
                     + "  s.object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
-                    + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value\n"
+                    + "  " + strTableStats[0] + " - " + strTableStats[1] + " stat_value,\n"
+                    + " '2d' object_type\n"
                     + "FROM ("
                     + table1
                     + " ) s, ( " + table2 + " ) s2\n"
@@ -3149,19 +3176,33 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     } else if (field.equals("fcst_init") && fmtSel) {
       return " fcst_init";
     } else if (field.equals("fcst_init_beg") && fmtSel) {
-      return " fcst_init_beg";
+      return mode ? " fcst_init" : " fcst_init_beg";
     } else if (field.equals("fcst_init_beg") && !fmtSel) {
-      return "ld.fcst_init_beg";
+      return mode ? "ld.fcst_init" : "ld.fcst_init_beg";
     } else if (field.equals("fcst_valid") && fmtSel) {
       return " fcst_valid";
     } else if (field.equals("fcst_valid_beg") && fmtSel) {
-      return " fcst_valid_beg";
+      return mode ? " fcst_valid" : " fcst_valid_beg";
     } else if (field.equals("fcst_valid_beg") && !fmtSel) {
-      return "ld.fcst_valid_beg";
-    } else if (field.equals("fcst_lead")) {
+      return mode ? "ld.fcst_valid" : "ld.fcst_valid_beg";
+    } else if (field.equals("fcst_lead") && !fmtSel) {
       return mode ? "h.fcst_lead" : "ld.fcst_lead";
+    } else if (field.equals("fcst_lead") && fmtSel) {
+      return "fcst_lead";
+    } else if (field.equals("obs_valid_beg") && !fmtSel) {
+      return mode ? "ld.obs_valid" : "ld.obs_valid_beg";
+    } else if (field.equals("obs_valid_beg") && fmtSel) {
+      return mode ? " obs_valid" : " obs_valid_beg";
+    } else if (field.equals("obs_init_beg") && !fmtSel) {
+      return mode ? "ld.obs_init" : "ld.obs_init_beg";
+    } else if (field.equals("obs_init_beg") && fmtSel) {
+      return mode ? " obs_init" : " obs_init_beg";
     } else {
-      return "h." + field;
+      if(!fmtSel) {
+        return "h." + field;
+      }else {
+        return field;
+      }
     }
   }
 

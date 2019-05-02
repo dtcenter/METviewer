@@ -51,7 +51,9 @@ public class MVUtil {
 
 
   public static final Pattern thresh = Pattern.compile("([<>=!]{1,2})(\\d*(?:\\.\\d+)?)");
-  private static final Pattern lev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
+  public static final Pattern lev = Pattern.compile("(\\w)(\\d+)(?:-(\\d+))?");
+  public static final Pattern interpPnts = Pattern.compile("\\d+?");
+  public static final Pattern modeSingle = Pattern.compile("\\s+h\\.([^,]+),");
   public static final Pattern prob = Pattern.compile("PROB\\(([\\w\\d]+)([<>=]+)([^\\)]+)\\)");
   private static final Pattern plotTmpl = Pattern.compile("\\{((\\w+)(?:\\?[^}]*)?)\\}");
   private static final Pattern tag = Pattern.compile("([\\w\\d]+)(?:\\s*\\?(.*))?");
@@ -132,7 +134,8 @@ public class MVUtil {
 
   public static final PrintStream errorStream = IoBuilder.forLogger(MVUtil.class)
           .setLevel(org.apache.logging.log4j.Level.INFO)
-          .setMarker(new MarkerManager.Log4jMarker("ERROR"))
+          .setMarker(
+                  new MarkerManager.Log4jMarker("ERROR"))
           .buildPrintStream();
   public static final String DEFAULT_DATABASE_GROUP = "NO GROUP";
 
@@ -700,11 +703,6 @@ public class MVUtil {
     mtd2dStatField.put("2D_CENTROID_LAT", "centroid_lat");
     mtd2dStatField.put("2D_CENTROID_LON", "centroid_lon");
     mtd2dStatField.put("2D_AXIS_ANG", "axis_ang");
-    mtd2dStatField.put("2D_INTENSITY_10", "intensity_10");
-    mtd2dStatField.put("2D_INTENSITY_25", "intensity_25");
-    mtd2dStatField.put("2D_INTENSITY_50", "intensity_50");
-    mtd2dStatField.put("2D_INTENSITY_75", "intensity_75");
-    mtd2dStatField.put("2D_INTENSITY_90", "intensity_90");
   }
 
   static {
@@ -796,7 +794,8 @@ public class MVUtil {
       }
 
     } catch (ParseException e) {
-      errorStream.print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
+      errorStream
+              .print("  **  ERROR: caught " + e.getClass() + " in buildDateList(): " + e.getMessage());
 
     }
     return listDates;
@@ -906,7 +905,9 @@ public class MVUtil {
       for (String value : values) {
         if (value.contains(",")) {
           String[] valuesArr = value.split(",");
-          newValues.addAll(Arrays.asList(valuesArr));
+          for (String v : valuesArr) {
+            newValues.add(v);
+          }
         } else {
           newValues.add(value);
         }
@@ -966,9 +967,9 @@ public class MVUtil {
       } else if (objVal instanceof MVOrderedMap) {
         dtRet.addField(strField + "_set");
         Map.Entry[] listValSet = ((MVOrderedMap) objVal).getOrderedEntries();
-        for (Map.Entry entry : listValSet) {
+        for (int i = 0; i < listValSet.length; i++) {
           MVOrderedMap tableRow = new MVOrderedMap();
-          tableRow.put(strField + "_set", entry.getKey());
+          tableRow.put(strField + "_set", listValSet[i].getKey());
           dtRet.addRow(tableRow);
         }
       }
@@ -990,10 +991,10 @@ public class MVUtil {
     if (objVal instanceof String[]) {
       dtRet.addField(strField, "", 0);
       String[] listVal = (String[]) listVals[0].getValue();
-      for (String s : listVal) {
-        for (MVOrderedMap listRow : listRows) {
-          MVOrderedMap tableRow = new MVOrderedMap(listRow);
-          tableRow.put(strField, s);
+      for (int i = 0; i < listVal.length; i++) {
+        for (int j = 0; j < listRows.length; j++) {
+          MVOrderedMap tableRow = new MVOrderedMap(listRows[j]);
+          tableRow.put(strField, listVal[i]);
           dtRet.addRow(tableRow);
         }
       }
@@ -1527,6 +1528,7 @@ public class MVUtil {
    * @param rscriptCommand Rscript command
    * @param scriptName     R script to run
    * @param args           (optional) Arguments to pass to the R script
+   * @throws Exception
    */
   public static MvResponse runRscript(
           final String rscriptCommand, final String scriptName,
@@ -1622,11 +1624,13 @@ public class MVUtil {
 
 
     if (strProcStd.length() > 0) {
-      mvResponse.setInfoMessage( "==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
+      mvResponse.setInfoMessage(
+              "==== Start Rscript output  ====\n" + strProcStd + "====   End Rscript output  ====");
     }
 
     if (strProcErr.length() > 0) {
-      mvResponse.setErrorMessage("==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
+      mvResponse.setErrorMessage(
+              "==== Start Rscript error  ====\n" + strProcErr + "====   End Rscript error  ====");
     }
     mvResponse.setSuccess(0 == intExitStatus);
     return mvResponse;
@@ -1639,6 +1643,7 @@ public class MVUtil {
    * @param tmpl   Template file to populate
    * @param output Output file to write
    * @param vals   Table containing values corresponding to tags in the input template
+   * @throws Exception
    */
   public static void populateTemplateFile(
           final String tmpl, final String output,
@@ -1701,6 +1706,7 @@ public class MVUtil {
    *
    * @param mapPlotFix    plot_fix field/value pairs to use in populating the template values
    * @param mapPlotFixVal values used for sets
+   * @throws Exception
    */
   public static Map.Entry[] buildPlotFixTmplMap(
           final MVOrderedMap mapPlotFix,
@@ -1719,7 +1725,8 @@ public class MVUtil {
       MVOrderedMap mapFixSet = (MVOrderedMap) mapPlotFixVal.get(strFixVarAdj);
       listPlotFixValAdj.add(new MVMapEntry(strFixVarAdj, mapFixSet));
     }
-    listPlotFixVal = (Map.Entry[]) listPlotFixValAdj.toArray(new Map.Entry[listPlotFixValAdj.size()]);
+    listPlotFixVal = (Map.Entry[]) listPlotFixValAdj
+            .toArray(new Map.Entry[listPlotFixValAdj.size()]);
 
     return listPlotFixVal;
   }
@@ -1731,7 +1738,7 @@ public class MVUtil {
    * @param tableStats
    * @param strStat
    * @param aggType
-   * @throws ValidationException
+   * @throws Exception
    */
   public static void isAggTypeValid(
           final Map<String, String[]> tableStats, final String strStat,
@@ -1746,7 +1753,8 @@ public class MVUtil {
       }
     }
     if (!isFound) {
-      throw new ValidationException("aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
+      throw new ValidationException(
+              "aggregation type " + aggType + " isn't compatible with the statistic " + strStat);
     }
   }
 
@@ -2065,23 +2073,21 @@ public class MVUtil {
    * @return String representation of the R collection
    */
   public static String printRCol(final Object[] val, final boolean ticks) {
-    String strRet = "c(";
+    StringBuilder rStr = new StringBuilder("c(");
     for (int i = 0; i < val.length; i++) {
       if (0 < i) {
-        strRet += ", ";
-      } else {
-        strRet += "";
+        rStr.append(", ");
       }
       String value = val[i].toString().replace("&#38;", "&").replace("&gt;", ">")
               .replace("&lt;", "<");
       if (ticks) {
-        strRet += "\"" + value + "\"";
+        rStr.append("\"").append(value).append("\"");
       } else {
-        strRet += value;
+        rStr.append(value);
       }
     }
-    strRet += ")";
-    return strRet;
+    rStr.append(")");
+    return rStr.toString();
   }
 
   public static String printRCol(final Object[] val) {
