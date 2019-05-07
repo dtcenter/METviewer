@@ -2938,12 +2938,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       intNumDepSeries *= listVal.length;
     }
     List<String> listObsThresh = getNumbers(strObsThreshSelect, job.getCurrentDBName().get(0));
-    if (intNumDepSeries < listObsThresh.size()) {
+    if (listObsThresh.size() > 1) {
       StringBuilder obsThreshMsg = new StringBuilder(
               "ROC/Reliability plots must contain data from only a single obs_thresh,"
                       + " instead found " + listObsThresh.size());
       for (int i = 0; i < listObsThresh.size(); i++) {
-        obsThreshMsg.append(0 == i ? ": " : ", ").append(listObsThresh.toString());
+        obsThreshMsg.append(0 == i ? ": " : ", ").append(listObsThresh.get(i));
       }
       throw new ValidationException(obsThreshMsg.toString());
     }
@@ -2955,13 +2955,13 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
-    if (job.getRocPct() && intNumDepSeries < listFcstThresh.size()) {
+    if (job.getRocPct() && listFcstThresh.size() >1 ) {
       StringBuilder fcstThreshMsg = new StringBuilder(
               "ROC/Reliability plots using PCTs must contain data "
                       + "from only a single fcst_thresh, "
                       + "instead found " + listFcstThresh.size());
       for (int i = 0; i < listFcstThresh.size(); i++) {
-        fcstThreshMsg.append(0 == i ? ":" : "").append("\n  ").append(listFcstThresh.toString());
+        fcstThreshMsg.append(0 == i ? ":" : "").append("\n  ").append(listFcstThresh.get(i));
       }
       throw new ValidationException(fcstThreshMsg.toString());
     }

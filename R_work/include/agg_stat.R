@@ -582,7 +582,7 @@ if ( nrow(sampleData) > 0){
 
 
 
-        if(!is.na(dfAggPerm[1,thresh_i_index][[1]])){
+        if(ncol(dfAggPerm) != 0 && !is.na(dfAggPerm[1,thresh_i_index][[1]])){
           dfPctPerm = data.frame(
             thresh_i	= c( t( dfAggPerm[1,thresh_i_index] ) ),
             oy_i		= c( t( dfAggPerm[1,oy_i_index] ) ),
