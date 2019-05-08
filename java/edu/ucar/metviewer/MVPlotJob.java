@@ -2043,7 +2043,7 @@ public class MVPlotJob {
     try {
       this.contourIntervals = Integer.valueOf(contourIntervals);
     } catch (NumberFormatException e) {
-      throw new ValidationException("contour interval is not an integer");
+      //do noting - use the default value
     }
   }
 
