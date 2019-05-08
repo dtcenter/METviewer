@@ -461,11 +461,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                 && (field.equals("fcst_lead")
                 || field.contains("valid")
                 || field.contains("init"))) {
+          String formattedField = formatField(field, boolMode || boolMtd, true);
 
           strSql = "SELECT DISTINCT " + field + " FROM (";
 
           for (int i = 0; i < tables.length; i++) {
-            strSql = strSql + " SELECT DISTINCT " + field + " FROM " + tables[i] + " " + whereTime;
+            strSql = strSql + " SELECT DISTINCT " + formattedField + " FROM " + tables[i] + " " + whereTime;
             if (i != tables.length - 1) {
               strSql = strSql + " UNION ";
             }
@@ -2955,7 +2956,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     }
 
     //  if the query for a PCT plot does not return data from a single fcst_thresh, throw an error
-    if (job.getRocPct() && listFcstThresh.size() >1 ) {
+    if (job.getRocPct() && listFcstThresh.size() > 1) {
       StringBuilder fcstThreshMsg = new StringBuilder(
               "ROC/Reliability plots using PCTs must contain data "
                       + "from only a single fcst_thresh, "
@@ -3166,11 +3167,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
    * @return the formatted field
    */
   private String formatField(String field, boolean mode, boolean fmtSel) {
-    if (field.equals("init_hour")) {
-      return (mode ? "HOUR(h.fcst_init)" : "HOUR(ld.fcst_init_beg)") + (fmtSel ? " init_hour" : "");
-    } else if (field.equals("valid_hour")) {
-      return (mode ? "HOUR(h.fcst_valid)" : "HOUR(ld.fcst_valid_beg)")
-              + (fmtSel ? " valid_hour" : "");
+    if (field.equals("init_hour") && fmtSel) {
+      return (mode ? "HOUR(fcst_init)" : "HOUR(fcst_init_beg)") + " init_hour";
+    } else if (field.equals("init_hour") && !fmtSel) {
+      return (mode ? "HOUR(h.fcst_init)" : "HOUR(ld.fcst_init_beg)");
+    } else if (field.equals("valid_hour") && fmtSel) {
+      return (mode ? "HOUR(fcst_valid)" : "HOUR(fcst_valid_beg)") + " valid_hour";
+    } else if (field.equals("valid_hour") && !fmtSel) {
+      return (mode ? "HOUR(h.fcst_valid)" : "HOUR(ld.fcst_valid_beg)");
     } else if (field.equals("fcst_init") && fmtSel) {
       return " fcst_init";
     } else if (field.equals("fcst_init_beg") && fmtSel) {
@@ -3196,9 +3200,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     } else if (field.equals("obs_init_beg") && fmtSel) {
       return mode ? " obs_init" : " obs_init_beg";
     } else {
-      if(!fmtSel) {
+      if (!fmtSel) {
         return "h." + field;
-      }else {
+      } else {
         return field;
       }
     }
