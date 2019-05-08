@@ -59,26 +59,23 @@ CREATE TABLE stat_header
     fcst_thresh    VARCHAR(100),
     obs_thresh     VARCHAR(100),
 
-    PRIMARY KEY (stat_header_id),
+    PRIMARY KEY (stat_header_id)
 
-    CONSTRAINT stat_header_unique_pk
-        UNIQUE INDEX (
-                      model,
-                      descr,
-                      fcst_var(20),
-                      fcst_units,
-                      fcst_lev,
-                      obs_var(20),
-                      obs_units,
-                      obs_lev,
-                      obtype,
-                      vx_mask,
-                      interp_mthd,
-                      interp_pnts,
-                      fcst_thresh(40),
-                      obs_thresh(40)
-        )
+
 ) ENGINE = MyISAM;
+CREATE INDEX stat_header_unique_pk ON stat_header (
+                                                   model,
+                                                   fcst_var(20),
+                                                   fcst_lev,
+                                                   obs_var(20),
+                                                   obs_lev,
+                                                   obtype,
+                                                   vx_mask,
+                                                   interp_mthd,
+                                                   interp_pnts,
+                                                   fcst_thresh(40),
+                                                   obs_thresh(40)
+    );
 
 -- line_data_fho contains stat data for a particular stat_header record, which it points
 --   at via the stat_header_id field.
