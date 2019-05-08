@@ -363,7 +363,7 @@
         </copy>
         <delete file="${build}/MANIFEST.MF"/>
         <manifest file="${build}/MANIFEST.MF">
-            <attribute name="Specification-Version" value="2.8"/>
+            <attribute name="Specification-Version" value="2.10"/>
         </manifest>
 
         <jar jarfile="${dist}/lib/metviewer.jar" basedir="${build}" manifest="${build}/MANIFEST.MF">
