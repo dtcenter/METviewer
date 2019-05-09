@@ -1049,11 +1049,16 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
+          String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (listPlotFixVal[i].getValue() != null) {
-            selectList += ",\n  "
-                    + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
-            selectPlotList += ",\n  "
-                    + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+            if(!selectList.contains(fieldFormatted.trim())) {
+              selectList += ",\n  "
+                      + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+            }
+            if(!selectPlotList.contains(fieldFormatted.trim())) {
+              selectPlotList += ",\n  "
+                      + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+            }
 
           }
         }
@@ -2515,11 +2520,14 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
+          String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (listPlotFixVal[i].getValue() != null) {
-            selectList += ",\n  "
-                    + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
-            selectPlotList += ",\n  "
-                    + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
+            if(!selectList.contains(fieldFormatted.trim())) {
+              selectList += ",\n  " + fieldFormatted;
+            }
+            if(!selectPlotList.contains(fieldFormatted.trim())) {
+              selectPlotList += ",\n  " + fieldFormatted;
+            }
           }
         }
       }
@@ -2849,8 +2857,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       if (listPlotFixVal.length > 0) {
         for (int i = 0; i < listPlotFixVal.length; i++) {
           String strField = (String) listPlotFixVal[i].getKey();
+          String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (!strField.equals("fcst_var") && listPlotFixVal[i].getValue() != null) {
-            strPlotDataSelect += formatField(strField, job.isModeJob() || job.isMtdJob(), true) + ",\n";
+            if(!strPlotDataSelect.contains(fieldFormatted.trim())) {
+              strPlotDataSelect += fieldFormatted + ",\n";
+            }
 
           }
         }
@@ -3105,7 +3116,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listPlotFixVal.length > 0) {
       for (Map.Entry aListPlotFixVal : listPlotFixVal) {
         String strField = (String) aListPlotFixVal.getKey();
-        strPlotDataSelect = strPlotDataSelect + strField + ",\n";
+        if(!strPlotDataSelect.contains(strField)) {
+          strPlotDataSelect = strPlotDataSelect + strField + ",\n";
+        }
       }
     }
 
