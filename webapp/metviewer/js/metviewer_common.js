@@ -6245,8 +6245,13 @@ function requestDBUpdate() {
         },
         success: function (data) {
             categories = $(data).find("groups").find('group');
+            try {
+                $('#listdt').jqGrid('GridUnload');
+            }
+            catch(err) {
 
-            $('#listdt').jqGrid('GridUnload');
+            }
+
             initPage();
         }
     });
