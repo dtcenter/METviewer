@@ -2025,7 +2025,7 @@ public class MVPlotJob {
   }
 
   private void validateSQL(String str) throws DatabaseException {
-    if (str.toLowerCase().contains(" and ") && !str.toLowerCase().contains(" between ")) {
+    if (str.toLowerCase().contains("and") && !str.toLowerCase().contains("between")) {
       throw new DatabaseException("String " + str + " includes SQL unsafe word AND or BETWEEN");
     }
     for (String noSQL : DatabaseManager.SQL_INJECTION_WORDS) {
