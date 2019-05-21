@@ -46,7 +46,7 @@ public class Scorecard {
 
   private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
           "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
-  private String databaseName;
+  private List<String> databaseNames;
   private String user;
   private String pwd;
   private String host;
@@ -72,6 +72,7 @@ public class Scorecard {
   private String thresholdFile = null;
 
   public static void main(String[] args) throws Exception {
+
 
     String filename;
     String dbType = "mysql";
@@ -296,12 +297,12 @@ public class Scorecard {
     this.host = host;
   }
 
-  public String getDatabaseName() {
-    return databaseName;
+  public List<String> getDatabaseNames() {
+    return databaseNames;
   }
 
-  public void setDatabaseName(String databaseName) {
-    this.databaseName = databaseName;
+  public void setDatabaseNames(List<String> databaseNames) {
+    this.databaseNames = databaseNames;
   }
 
   public WorkingFolders getWorkingFolders() {

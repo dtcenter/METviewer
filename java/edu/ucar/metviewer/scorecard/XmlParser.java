@@ -280,7 +280,12 @@ class XmlParser {
         if ("host".equals(connectionNode.getNodeName())) {
           scorecard.setHost(connectionNode.getTextContent());
         } else if ("database".equals(connectionNode.getNodeName())) {
-          scorecard.setDatabaseName(connectionNode.getTextContent());
+          String[] databases = connectionNode.getTextContent().trim().split(",");
+          List<String> databasesList = new ArrayList<>();
+          for(String database: databases){
+            databasesList.add(database.trim());
+          }
+          scorecard.setDatabaseNames(databasesList);
         } else if ("user".equals(connectionNode.getNodeName())) {
           scorecard.setUser(connectionNode.getTextContent());
         } else if ("password".equals(connectionNode.getNodeName())) {

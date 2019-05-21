@@ -17,6 +17,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
   private final Map<String, List<Entry>> columnsDescription;
-  private final String databaseName;
+  private final List<String> databaseNames;
   private final List<Field> fixedVars;
   private final Boolean printSQL;
   String aggStatDataFilePath;
@@ -60,7 +61,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     this.databaseManager = databaseManager;
     fixedVars = scorecard.getFixedVars();
     columnsDescription = scorecard.columnsStructure();
-    databaseName = scorecard.getDatabaseName();
+    databaseNames = scorecard.getDatabaseNames();
     printSQL = scorecard.getPrintSQL();
   }
 
@@ -85,24 +86,27 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
               + aggStatDataFilePath.substring(lastDot);
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      try (Connection con = databaseManager.getConnection(databaseName);
-           PreparedStatement pstmt = con.prepareStatement(mysql);
-           ResultSet res = pstmt.executeQuery();
-           FileWriter fstream = new FileWriter(new File(thredFileName), false);
-           BufferedWriter out = new BufferedWriter(fstream)) {
-        stopWatch.stop();
-        logger.info("Database query time " + stopWatch.getFormattedDuration());
-        stopWatch.start();
-        printFormattedTable(res, out);// isCalc=false,  isHeader=true
-        stopWatch.stop();
-        logger.info("Save to file time " + stopWatch.getFormattedDuration());
-        out.flush();
-        out.close();
-        res.close();
-        pstmt.close();
-        con.close();
-      } catch (SQLException | IOException | StopWatchException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
+      for(int i=0; i< databaseNames.size(); i++) {
+        boolean newFile = ( i == 0);
+        try (Connection con = databaseManager.getConnection(databaseNames.get(i));
+             PreparedStatement pstmt = con.prepareStatement(mysql);
+             ResultSet res = pstmt.executeQuery();
+             FileWriter fstream = new FileWriter(new File(thredFileName), !newFile);
+             BufferedWriter out = new BufferedWriter(fstream)) {
+          stopWatch.stop();
+          logger.info("Database query time " + stopWatch.getFormattedDuration());
+          stopWatch.start();
+          printFormattedTable(res, out, newFile);// isCalc=false,  isHeader=true
+          stopWatch.stop();
+          logger.info("Save to file time " + stopWatch.getFormattedDuration());
+          out.flush();
+          out.close();
+          res.close();
+          pstmt.close();
+          con.close();
+        } catch (SQLException | IOException | StopWatchException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
+        }
       }
     }
   }
@@ -201,37 +205,43 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       selectFields.append("fcst_lead,");
     }
 
-    Integer thresh = 0;
-    Integer numThresh = 1;
-    if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
-      Map<String, Integer> pctThreshInfo = new HashMap<>();
 
+    Map<String, Integer> pctThreshInfo;
+    List<String> errors = new ArrayList<>();
+    List<Integer> pctThreshList = new ArrayList<>();
+    if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
       String mysql = "SELECT DISTINCT ld.n_thresh FROM stat_header h,line_data_pct ld WHERE " + whereFields + "ld.stat_header_id = h.stat_header_id";
-      try (Connection con = databaseManager.getConnection(databaseName);
-           Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                   ResultSet.CONCUR_READ_ONLY);
-           ResultSet resultSet = stmt.executeQuery(mysql);
-      ) {
-        int numPctThresh = 0;
-        int pctThresh = -1;
-        //  validate and save the number of thresholds
-        while (resultSet.next()) {
-          pctThresh = resultSet.getInt(1);
-          numPctThresh++;
+
+
+      for (String databaseName : databaseNames) {
+        pctThreshInfo = getPctThreshInfo(mysql, databaseName);
+        if (1 != pctThreshInfo.get("numPctThresh")) {
+          String error = "number of PCT thresholds (" + pctThreshInfo.get(
+                  "numPctThresh") + ") not distinct  for database  " + databaseName + "'";
+          errors.add(error);
+        } else if (1 > pctThreshInfo.get("numPctThresh")) {
+          String error = "invalid number of PCT thresholds ("
+                  + pctThreshInfo.get("numPctThresh") + ") found for "
+                  + " database " + databaseName + "'";
+          errors.add(error);
+        } else {
+          pctThreshList.add(pctThreshInfo.get("pctThresh"));
         }
-        pctThreshInfo.put("numPctThresh", numPctThresh);
-        pctThreshInfo.put("pctThresh", pctThresh);
-        resultSet.close();
-        stmt.close();
-        con.close();
-      } catch (SQLException e) {
-        logger.error(ERROR_MARKER, e.getMessage());
       }
-      thresh = pctThreshInfo.get("pctThresh");
-      numThresh = pctThreshInfo.get("numPctThresh");
+    }else {
+      pctThreshList.add(0);
     }
-    if (1 == numThresh) {
-      selectFields.append(getSelectFields(table, thresh));
+
+    boolean allEqual = true;
+    for (Integer s : pctThreshList) {
+      if (!s.equals(pctThreshList.get(0))) {
+        allEqual = false;
+        break;
+      }
+    }
+
+    if (errors.isEmpty() && allEqual) {
+      selectFields.append(getSelectFields(table, pctThreshList.get(0)));
       //make sure that selectFields doesn't have "," as the last element
       if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
         selectFields.deleteCharAt(selectFields.length() - 1);
@@ -239,10 +249,10 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
 
       if (Util.getAggTypeForStat(Util.getStatForRow(map)).equals(MVUtil.PCT)) {
-        for (int i = 1; i < thresh; i++) {
+        for (int i = 1; i < pctThreshList.get(0); i++) {
           table += ",  line_data_pct_thresh ldt" + i;
         }
-        for (int i = 1; i < thresh; i++) {
+        for (int i = 1; i < pctThreshList.get(0); i++) {
           if (i != 1) {
             whereFields.append("  AND");
           }
@@ -256,33 +266,34 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       }
       return "SELECT " + selectFields + " FROM stat_header," + table + " WHERE " + whereFields;
     } else {
-      logger.info("number of  pnts (" + numThresh + ") not distinct for " + whereFields);
+      if(!errors.isEmpty()){
+        logger.info(errors.get(0));
+      }else {
+        logger.info("number of  pnts  not distinct for " + whereFields);
+      }
       return null;
     }
   }
 
   private void printFormattedTable(
-          ResultSet res, BufferedWriter bufferedWriter) {
+          ResultSet res, BufferedWriter bufferedWriter, boolean isHeader) {
 
     try {
       ResultSetMetaData met = res.getMetaData();
-      //  get the column display widths
-      int[] intFieldWidths = new int[met.getColumnCount()];
-      for (int i = 1; i <= met.getColumnCount(); i++) {
-        intFieldWidths[i - 1] = met.getColumnDisplaySize(i) + 2;
-      }
 
       //  print out the column headers
       for (int i = 1; i <= met.getColumnCount(); i++) {
-
-        if (1 == i) {
-          bufferedWriter.write(met.getColumnLabel(i));
-        } else {
-          bufferedWriter.write("\t" + met.getColumnLabel(i));
+        if (isHeader) {
+          if (1 == i) {
+            bufferedWriter.write(met.getColumnLabel(i));
+          } else {
+            bufferedWriter.write("\t" + met.getColumnLabel(i));
+          }
         }
-
       }
-      bufferedWriter.write(MVUtil.LINE_SEPARATOR);
+      if (isHeader) {
+        bufferedWriter.write(MVUtil.LINE_SEPARATOR);
+      }
 
 
       //  print out the table of values
@@ -330,6 +341,30 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       logger.error(ERROR_MARKER,
               "  **  ERROR: Caught " + e.getClass() + " in printFormattedTable(ResultSet res): " + e.getMessage());
     }
+  }
+  private Map<String, Integer> getPctThreshInfo(String query, String currentDBName) {
+    int numPctThresh = 0;
+    int pctThresh = -1;
+    Map<String, Integer> result = new HashMap<>();
+    try (Connection con = databaseManager.getConnection(currentDBName);
+         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                 ResultSet.CONCUR_READ_ONLY);
+         ResultSet resultSet = stmt.executeQuery(query)
+    ) {
+
+      //  validate and save the number of thresholds
+      while (resultSet.next()) {
+        pctThresh = resultSet.getInt(1);
+        numPctThresh++;
+      }
+
+    } catch (SQLException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
+    }
+    result.put("numPctThresh", numPctThresh);
+    result.put("pctThresh", pctThresh);
+
+    return result;
   }
 
 }
