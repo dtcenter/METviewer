@@ -309,7 +309,7 @@ public class MVServlet extends HttpServlet {
       //  sort and format the results, depending on the field
       if (strField.equals("fcst_thresh") || strField.equals("fcst_thr")
               || strField.equals("obs_thresh") || strField.equals("obs_thr")) {
-        //listRes = MVUtil.sortThresh(listRes);
+        listRes = MVUtil.sortThresh(listRes);
         //Collections.sort(listRes);
       } else if (strField.equals("fcst_lev") || strField.equals("obs_lev")) {
         listRes = MVUtil.sortLev(listRes);
