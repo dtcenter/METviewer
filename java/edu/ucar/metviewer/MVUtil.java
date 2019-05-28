@@ -23,17 +23,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1022,8 +1012,34 @@ public class MVUtil {
    * @param thresh List of thresholds
    * @return Sorted threshold list, by value
    */
-  public static List<String> sortThresh(final List<String> thresh) {
-    return sortVals(thresh, MVUtil.thresh);
+  public static List<String> sortThresh( List<String> thresh) {
+
+    thresh.sort(new Comparator<String>() {
+      public int compare(String o1, String o2) {
+
+        String o1StringPart = o1.replaceAll("\\d", "");
+        String o2StringPart = o2.replaceAll("\\d", "");
+
+        if(o1StringPart.equalsIgnoreCase(o2StringPart))
+        {
+          return (int) (extractFloat(o1) - extractFloat(o2));
+        }
+        return o1.compareTo(o2);
+      }
+
+      float extractFloat(String s) {
+        Pattern pattern = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
+        Matcher matcher = pattern.matcher(s);
+        String num = "";
+        if (matcher.find()) {
+          num=matcher.group(0);
+        }
+        // return 0 if no digits found
+        return num.isEmpty() ? 0 : Float.parseFloat(num);
+      }
+    });
+    //return sortVals(thresh, MVUtil.thresh);
+    return thresh;
   }
 
   /**
