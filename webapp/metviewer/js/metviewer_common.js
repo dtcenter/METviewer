@@ -4237,20 +4237,40 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
         var field = $('<field />').attr("name", $("#series_var_y" + y_axis + "_" + series_var_indexes[i]).val());
         var isGroup = $("#group_series_var_y" + y_axis + "_" + series_var_indexes[i]).is(':checked');
         var valArr = $("#series_var_val_y" + y_axis + "_" + series_var_indexes[i]).multiselect("getChecked");
-        if (!valArr || valArr == null) {
+        if (!valArr || valArr === null) {
             valArr = [];
         }
-        if (isGroup) {
-            valArr = [valArr.join()];
-        }
+
         if (Array.isArray(valArr) ) {
-            for (var j = 0; j < valArr.length; j++) {
-                field.append($('<val />').text(valArr[j]));
+            if(isGroup){
+                var vals="";
+                for (var j = 0; j < valArr.length; j++) {
+                    vals = vals + text(valArr[j]);
+                    if(j !== valArr.length-1){
+                        vals = vals + ',';
+                    }
+                }
+                field.append($('<val />').text(vals));
+            }else {
+                for (var j = 0; j < valArr.length; j++) {
+                    field.append($('<val />').text(valArr[j]));
+                }
             }
         }else if(typeof(valArr)==='object'){
-            for (var j = 0; j < valArr.length; j++) {
-                var val =$(valArr[j]).val();
-                field.append($('<val />').text(val));
+            if(isGroup){
+                var vals="";
+                for (var j = 0; j < valArr.length; j++) {
+                    vals = vals + $(valArr[j]).val();
+                    if(j !== valArr.length-1){
+                        vals = vals + ',';
+                    }
+                }
+                field.append($('<val />').text(vals));
+            }else {
+                for (var j = 0; j < valArr.length; j++) {
+                    var val = $(valArr[j]).val();
+                    field.append($('<val />').text(val));
+                }
             }
         } else {
             field.append($('<val />').text(valArr));
