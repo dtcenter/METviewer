@@ -15,12 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.FormatFlagsConversionMismatchException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -99,6 +94,7 @@ class GraphicalOutputManager {
   private final boolean viewLegend;
   private String model1;
   private String model2;
+  private final List<String> leftColumnsNames;
 
   public GraphicalOutputManager(final Scorecard scorecard) {
     html = html();
@@ -118,6 +114,7 @@ class GraphicalOutputManager {
     viewValue = scorecard.getViewValue();
     viewLegend = scorecard.getViewLegend();
     plotFileStr = scorecard.getWorkingFolders().getPlotsDir() + scorecard.getPlotFile();
+    leftColumnsNames = scorecard.getLeftColumnsNames();
 
     String range = "";
 
@@ -573,46 +570,66 @@ class GraphicalOutputManager {
 
   private ContainerTag createTableHead() {
     ContainerTag thead = thead();
-    //total number of rows in the thead - the number of keys in each column
+    //total number of rows in the head - the number of keys in each column
     // (for example vx_mask and  fsct_lead)
-    for (String field : listColumns.get(0).keySet()) {
+    Set<String> columnsVars = listColumns.get(0).keySet();
+    boolean isFirstHeatherRow = true;
+    for (String field : columnsVars) {
       ContainerTag htmlTrH = tr();
-      //empty cells that are above roe headers
-      for (int i = 0; i < listRows.get(0).size(); i++) {
-        htmlTrH.with(td());
+      int colspan = 0;
+      // cells that are above row headers
+      // empty - if user did not specify the column names
+      // or with the names in the last heather's row
+      if(isFirstHeatherRow) {
+        for (int i = 0; i < listRows.get(0).size(); i++) {
+          if (i < leftColumnsNames.size() ) {
+            htmlTrH.with(createHeaderCellRowspan(leftColumnsNames.get(i), columnsVars.size()));
+          } else {
+            htmlTrH.with(createHeaderCellRowspan("", columnsVars.size()));
+          }
+        }
+        isFirstHeatherRow = false;
       }
       String previousField = listColumns.get(0).get(field).getLabel();
-      int colspan = 0;
+
 
       for (Map<String, Entry> column : listColumns) {
         if (column.get(field).getLabel().equals(previousField)) {
-          //if this is the same field - do ot creat a cell but increase colspan
+          //if this is the same field - do  create a cell but increase colspan
           colspan++;
         } else {
           //create a cell
-          htmlTrH.with(createTableHeaderCell(thead.children.size(), previousField, colspan));
+          htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
           //init colspan and field
           colspan = 1;
           previousField = column.get(field).getLabel();
         }
       }
       //add a cell for the last column
-      htmlTrH.with(createTableHeaderCell(thead.children.size(), previousField, colspan));
+      htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
       thead.with(htmlTrH);
     }
     return thead;
   }
 
-  private ContainerTag createTableHeaderCell(int rowNumber, String previousField, int colspan) {
+  private ContainerTag createHeaderCellColspan(int rowNumber, String text, int colspan) {
     ContainerTag th;
     if (rowNumber == 0) {
       //for the first row - red font
-      th = th(previousField).attr("colspan", String.valueOf(colspan));
+      th = th(text).attr("colspan", String.valueOf(colspan));
     } else {
-      th = td(previousField).attr("colspan", String.valueOf(colspan));
+      th = td(text).attr("colspan", String.valueOf(colspan));
     }
     return th;
   }
+
+  private ContainerTag createHeaderCellRowspan(String text, int rowspan) {
+    ContainerTag th = th(text).attr("rowspan", String.valueOf(rowspan));
+
+    return th;
+  }
+
+
 
   /**
    * reads tabluar data file and saves rows with derived curevs data into the JSON table format

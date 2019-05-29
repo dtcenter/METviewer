@@ -70,6 +70,7 @@ public class Scorecard {
   private String statFlag = "NCAR";
   private String stat = "DIFF_SIG";
   private String thresholdFile = null;
+  private List<String> leftColumnsNames = new ArrayList<>();
 
   public static void main(String[] args) throws Exception {
 
@@ -117,19 +118,14 @@ public class Scorecard {
 
         //depending on stat type init mangers
         MysqlDatabaseManager databaseManager = null;
+        DatabaseInfo databaseInfo = new DatabaseInfo(scorecard.getHost(), scorecard.getUser());
+        databaseInfo.setDbName(scorecard.getDatabaseNames().get(0));
         if (dbType.equals("mysql")) {
-          databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                  scorecard.getUser()),
-                  scorecard.getPwd());
+          databaseManager = new MysqlDatabaseManager(databaseInfo, scorecard.getPwd());
         } else if (dbType.equals("mariadb")) {
-          databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                  scorecard.getUser()),
-                  scorecard.getPwd());
+          databaseManager = new MariaDbAppDatabaseManager(databaseInfo, scorecard.getPwd());
         } else if (dbType.equals("aurora")) {
-          databaseManager =
-                  new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                          scorecard.getUser()),
-                          scorecard.getPwd());
+          databaseManager = new AuroraAppDatabaseManager(databaseInfo, scorecard.getPwd());
         }
 
 
@@ -387,6 +383,14 @@ public class Scorecard {
 
   public void setThresholdFile(String thresholdFile) {
     this.thresholdFile = thresholdFile;
+  }
+
+  public List<String> getLeftColumnsNames() {
+    return leftColumnsNames;
+  }
+
+  public void setLeftColumnsNames(String columnsName) {
+    this.leftColumnsNames.add(columnsName);
   }
 
   /**

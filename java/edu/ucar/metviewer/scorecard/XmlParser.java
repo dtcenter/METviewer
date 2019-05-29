@@ -38,7 +38,6 @@ class XmlParser {
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
 
-
   public Scorecard parseParameters(String filename) {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder db;
@@ -152,6 +151,15 @@ class XmlParser {
             scorecard.setPrintSQL(Boolean.TRUE);
           } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
             scorecard.setPrintSQL(Boolean.FALSE);
+          }
+        } else if ("left_column_names".equals(plotNode.getNodeName())) {
+          NodeList leftColumnNamesList = plotNode.getChildNodes();
+          for (int k = 0; k < leftColumnNamesList.getLength(); k++) {
+            Node columnNameNode = leftColumnNamesList.item(k);
+            if (columnNameNode.getNodeType() == Node.ELEMENT_NODE
+                    && "val".equals(columnNameNode.getNodeName())) {
+              scorecard.setLeftColumnsNames(columnNameNode.getTextContent().trim());
+            }
           }
         }
 
@@ -282,7 +290,7 @@ class XmlParser {
         } else if ("database".equals(connectionNode.getNodeName())) {
           String[] databases = connectionNode.getTextContent().trim().split(",");
           List<String> databasesList = new ArrayList<>();
-          for(String database: databases){
+          for (String database : databases) {
             databasesList.add(database.trim());
           }
           scorecard.setDatabaseNames(databasesList);
