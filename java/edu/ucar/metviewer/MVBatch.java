@@ -242,7 +242,6 @@ public class MVBatch {
       bat.print("input file: " + xmlInput + "\n");
 
       MVPlotJobParser parser = new MVPlotJobParser(xmlInput);
-      bat.setDatabaseManager((AppDatabaseManager) DatabaseManager.getAppManager(parser.dbManagementSystem, parser.dbHost, parser.dbUser, parser.dbPass));
       MVOrderedMap mapJobs = parser.getJobsMap();
 
       //  build a list of jobs to run
@@ -280,7 +279,8 @@ public class MVBatch {
         }
         jobs = (MVPlotJob[]) listJobs.toArray(new MVPlotJob[listJobs.size()]);
       }
-
+      bat.setDatabaseManager((AppDatabaseManager) DatabaseManager.getAppManager(parser.dbManagementSystem, parser.dbHost, parser.dbUser, parser.dbPass,
+              jobs[0].getCurrentDBName().get(0)));
       bat.setRtmplFolder(parser.getRtmplFolder()
               + (parser.getRtmplFolder()
               .endsWith(File.separator) ? "" : File.separator));
