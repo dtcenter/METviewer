@@ -123,7 +123,7 @@ public class TestMVServlet {
       mvServlet.setRscript(rscript);
       mvServlet.setValCache(true);
       //type, host, USERNAME, PWD all come from TestUtil (System.getProperty)
-      mvServlet.setDatabaseManager((AppDatabaseManager) edu.ucar.metviewer.db.DatabaseManager.getAppManager(type, host, USERNAME, PWD));
+      mvServlet.setDatabaseManager((AppDatabaseManager) edu.ucar.metviewer.db.DatabaseManager.getAppManager(type, host, USERNAME, PWD, null));
 
 
       mvServlet.doPost(request, response);

@@ -858,7 +858,8 @@ public class MVServlet extends HttpServlet {
               managementSystem,
               bundle.getString("db.host"),
               bundle.getString("db.user"),
-              bundle.getString("db.password"));
+              bundle.getString("db.password"),
+              null);
 
       isValCache = bundle.getString("cache.val").equals("true");
       isStatCache = bundle.getString("cache.stat").equals("true");

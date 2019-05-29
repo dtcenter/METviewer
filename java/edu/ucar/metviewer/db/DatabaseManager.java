@@ -101,10 +101,11 @@ public abstract class DatabaseManager {
 
   // ...AppDatabaseManagers don't need a database name. They get a list of database names from the database engine.
   public static DatabaseManager getAppManager(
-          String managementSystem, String host, String user, String password) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+          String managementSystem, String host, String user, String password, String database) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     String ms = managementSystem.toLowerCase(Locale.ENGLISH);
     String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
+    databaseInfo.setDbName(database);
     DatabaseManager databaseManager;
     // NOTE: the contstuctor using reflection is to enable us to build
     // a mysql version without a couchbase dependency

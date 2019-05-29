@@ -128,7 +128,7 @@ public class CreatePlotServletTest {
       //type, host, USERNAME, PWD all come from TestUtil (System.getProperty)
       mvServlet.setDatabaseManager(
               (AppDatabaseManager) DatabaseManager.getAppManager(type, host, USERNAME,
-                      PWD));
+                      PWD, null));
 
       mvServlet.doPost(request, response);
 
