@@ -144,9 +144,33 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
       StringBuilder values = new StringBuilder();
       if ("fcst_valid_beg".equals(fixedField.getName())
               || "fcst_init_beg".equals(fixedField.getName())) {
-        whereFields.append(BINARY).append(fixedField.getName()).append(" BETWEEN ").append("'")
-                .append(fixedField.getValues().get(0).getName()).append("' AND '")
-                .append(fixedField.getValues().get(1).getName()).append("' AND ");
+        int fixedFieldValsSize = fixedField.getValues().size();
+        boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+        whereFields.append("(");
+        if(isSizeEven){
+          for(int i=0; i< fixedFieldValsSize; i=i+2){
+            whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
+                    .append(fixedField.getValues().get(i).getName()).append("' AND '")
+                    .append(fixedField.getValues().get(i+1).getName());
+            if(i<fixedFieldValsSize-2){
+              whereFields.append("' OR ");
+            }else {
+              whereFields.append("') AND ");
+            }
+          }
+        }else {
+          for(int i=0; i< fixedFieldValsSize-1; i=i+2){
+            whereFields.append(fixedField.getName()).append(" BETWEEN ").append("'")
+                    .append(fixedField.getValues().get(i).getName()).append("' AND '")
+                    .append(fixedField.getValues().get(i+1).getName()).append("' OR ");
+          }
+          whereFields.append(fixedField.getName()).append(" = '")
+                  .append(fixedField.getValues().get(fixedFieldValsSize-1).getName())
+                  .append("') AND ");
+        }
+
+
+
       } else if ("init_hour".equals(fixedField.getName())) {
         for (Entry val : fixedField.getValues()) {
           values.append(Integer.valueOf(val.getName())).append(",");

@@ -9,6 +9,8 @@ package edu.ucar.metviewer.scorecard.rscript;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +27,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.io.IoBuilder;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * @author : tatiana $
@@ -92,19 +96,27 @@ public class SumRscriptManager extends RscriptManager {
     tableCalcStatInfoCommon.put("eveq_dis", String.valueOf(Boolean.FALSE).toUpperCase());
     tableCalcStatInfoCommon.put("sum_stat_output", scorecard.getWorkingFolders().getDataDir()
             + scorecard.getDataFile() + "1");
-    String dates = "c()";
+    long ndays = 0;
     for (Field fixedField : fixedVars) {
       if ("fcst_valid_beg".equals(fixedField.getName())
               || "fcst_init_beg".equals(fixedField.getName())) {
+        int fixedFieldValsSize = fixedField.getValues().size();
+        boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+        if (!isSizeEven) {
+          fixedFieldValsSize = fixedFieldValsSize - 1;
+          ndays = 1;
+        }
+        for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
+          LocalDate localDate1 = LocalDate.parse(fixedField.getValues().get(i).getName().split("\\s")[0]);
+          LocalDate localDate2 = LocalDate.parse(fixedField.getValues().get(i + 1).getName().split("\\s")[0]);
+          ndays = ndays + DAYS.between(localDate1, localDate2) + 1;
+        }
 
-        dates = "c('"
-                + fixedField.getValues().get(0).getName().split("\\s")[0]
-                + "', '" + fixedField.getValues().get(1).getName().split("\\s")[0]
-                + "')";
+
         break;
       }
     }
-    tableCalcStatInfoCommon.put("dates_list", dates);
+    tableCalcStatInfoCommon.put("ndays", String.valueOf(ndays));
 
   }
 
