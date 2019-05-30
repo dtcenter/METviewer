@@ -116,20 +116,43 @@ class GraphicalOutputManager {
     plotFileStr = scorecard.getWorkingFolders().getPlotsDir() + scorecard.getPlotFile();
     leftColumnsNames = scorecard.getLeftColumnsNames();
 
-    String range = "";
+    List<String> ranges = new ArrayList<>();
 
     for (Field fixField : scorecard.getFixedVars()) {
       if ("fcst_init_beg".equals(fixField.getName())
               || "fcst_valid_beg".equals(fixField.getName())) {
-        range = fixField.getValues().get(0).getLabel()
-                + " - " + fixField.getValues().get(1).getLabel();
+
+        int fixedFieldValsSize = fixField.getValues().size();
+        boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+        if(isSizeEven){
+          for(int i=0; i< fixedFieldValsSize; i=i+2){
+            ranges.add(fixField.getValues().get(i).getLabel()
+                    + " - " + fixField.getValues().get(i+1).getLabel());
+
+            if(i<fixedFieldValsSize-2){
+              ranges.add(", ");
+            }
+          }
+        }else {
+          for(int i=0; i< fixedFieldValsSize-1; i=i+2){
+            ranges.add(fixField.getValues().get(i).getLabel()
+                    + " - " + fixField.getValues().get(i+1).getLabel()
+                    + ", ");
+
+          }
+          ranges.add(fixField.getValues().get(fixedFieldValsSize-1).getName());
+        }
+
+
       } else if ("model".equals(fixField.getName())) {
         model1 = fixField.getValues().get(0).getLabel();
         model2 = fixField.getValues().get(1).getLabel();
       }
     }
     title2.withText("for " + model1 + " and " + model2);
-    title3.withText(range);
+    for(String range : ranges){
+      title3.with(div().withText(range));
+    }
   }
 
   private void initRangeList(final String thresholdFile) {
