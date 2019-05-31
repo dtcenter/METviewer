@@ -658,7 +658,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           int diff = lengthGroupIndices[1] - lengthGroupIndices[0];
           if (headerHasUnits) {
 
-            if (lineType.equals("PCT") || lineType.equals("PCTD")
+            if (lineType.equals("PCT") || lineType.equals("PSTD")
                     || lineType.equals("PJC") || lineType.equals("PRC") || lineType.equals("MCTC")
                     || lineType.equals("RELP")) {
               lengthGroupIndices[0] = headerNames.indexOf("LINE_TYPE") + 2;
