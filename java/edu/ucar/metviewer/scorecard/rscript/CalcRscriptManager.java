@@ -109,20 +109,33 @@ public class CalcRscriptManager extends RscriptManager {
             if (seriesList.indexOf(val.getName()) == -1) {
               seriesList.append("\"").append(val.getName()).append("\",");
             }
-            StringBuilder difStr = new StringBuilder("c(");
-            for (Entry model : models) {
-              difStr.append("\"");
-              if (diffVals.length() > 0) {
-                difStr.append(diffVals).append(" ");
-              }
-              difStr.append(model.getName()).append(" ").append(val.getName()).append(" ")
-                      .append(fcstVar).append(" ").append(stat).append("\",");
+            List<String> diffStats = new ArrayList<>();
+            //if(diffStat != null){
+            //   diffStats.add(diffStat);
+            // }else {
+            if (diffStatSymbol != null) {
+              diffStats.add(diffStatSymbol);
             }
+            if (diffStatValue != null && !diffStats.contains(diffStatValue)) {
+              diffStats.add(diffStatValue);
+            }
+            // }
 
-            //difStr.append("\"DIFF_SIG\"").append("),");
-            difStr.append("\"").append(diffStat).append("\"),");
+            for (String st : diffStats) {
+              StringBuilder difStr = new StringBuilder("c(");
+              for (Entry model : models) {
+                difStr.append("\"");
+                if (diffVals.length() > 0) {
+                  difStr.append(diffVals).append(" ");
+                }
+                difStr.append(model.getName()).append(" ").append(val.getName()).append(" ")
+                        .append(fcstVar).append(" ").append(stat).append("\",");
+              }
 
-            diffSeries.add(difStr.toString().trim());
+              difStr.append("\"").append(st).append("\"),");
+
+              diffSeries.add(difStr.toString().trim());
+            }
           }
           if (seriesList.length() > 0) {
             seriesList.deleteCharAt(seriesList.length() - 1);

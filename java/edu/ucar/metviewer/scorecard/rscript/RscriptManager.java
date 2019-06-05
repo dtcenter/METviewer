@@ -38,14 +38,18 @@ public abstract class RscriptManager {
   private List<String> diffSeries;
   private StringBuilder fixVars;
   String stat;
-  String diffStat;
+  //String diffStat;
+   String diffStatValue;
+   String diffStatSymbol;
 
 
   RscriptManager(final Scorecard scorecard) {
     this.listColumns = scorecard.columnsStructure();
     fixedVars = scorecard.getFixedVars();
     rScriptCommand = scorecard.getrScriptCommand();
-    diffStat = scorecard.getStat();
+    //diffStat = scorecard.getStat();
+    diffStatValue = scorecard.getStatValue();
+    diffStatSymbol = scorecard.getStatSymbol();
   }
 
   public abstract void calculateStatsForRow(Map<String, Entry> mapRow, String threadName);
@@ -87,18 +91,32 @@ public abstract class RscriptManager {
           if (seriesList.indexOf(val.getName()) == -1) {
             seriesList.append("\"").append(val.getName()).append("\",");
           }
-          StringBuilder difStr = new StringBuilder("c(");
-          for (Entry model : models) {
-            difStr.append("\"");
-            if (diffVals.length() > 0) {
-              difStr.append(diffVals).append(" ");
+          List<String> diffStats = new ArrayList<>();
+          //if(diffStat != null){
+         //   diffStats.add(diffStat);
+         // }else {
+            if(diffStatSymbol != null){
+              diffStats.add(diffStatSymbol);
             }
-            difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
+            if(diffStatValue != null && !diffStats.contains(diffStatValue)){
+              diffStats.add(diffStatValue);
+            }
+         // }
+
+          for(String st : diffStats) {
+            StringBuilder difStr = new StringBuilder("c(");
+            for (Entry model : models) {
+              difStr.append("\"");
+              if (diffVals.length() > 0) {
+                difStr.append(diffVals).append(" ");
+              }
+              difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
+            }
+
+            difStr.append("\"").append(st).append("\"),");
+            diffSeries.add(difStr.toString().trim());
           }
 
-          //difStr.append("\"DIFF_SIG\"").append("),");
-          difStr.append("\"").append(diffStat).append("\"),");
-          diffSeries.add(difStr.toString().trim());
         }
         if (seriesList.length() > 0) {
           seriesList.deleteCharAt(seriesList.length() - 1);

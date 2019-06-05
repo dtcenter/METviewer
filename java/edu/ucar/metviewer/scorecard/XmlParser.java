@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
@@ -38,7 +39,7 @@ class XmlParser {
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
 
-  public Scorecard parseParameters(String filename) {
+  public Scorecard parseParameters(String filename) throws ValidationException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder db;
     Scorecard scorecard = new Scorecard();
@@ -67,6 +68,38 @@ class XmlParser {
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "plot".equals(
                 scorecardSpecNode.getNodeName())) {
           setPlot(scorecard, scorecardSpecNode);
+          if (scorecard.getViewSymbol() && scorecard.getStat() == null && scorecard.getStatSymbol() == null){
+            throw new ValidationException("XML ERROR - Provide the statistic for symbols");
+          }
+
+          if (scorecard.getViewSymbol() && scorecard.getStat() != null && scorecard.getStatSymbol() != null){
+            throw new ValidationException("XML ERROR - Ambiguous statistic for symbols.Provide <stat> or <stat_symbol> but not both");
+          }
+
+          if (scorecard.getViewValue() && scorecard.getStat() == null && scorecard.getStatValue() == null){
+            throw new ValidationException("XML ERROR - Provide the statistic for values");
+          }
+          if (scorecard.getViewValue() && scorecard.getStat() != null && scorecard.getStatValue() != null){
+            throw new ValidationException("XML ERROR - Ambiguous the statistic for values. Provide <stat> or <stat_value> but not both");
+          }
+
+          //init stats for number and symbol if they don't exist
+          if(scorecard.getStat() != null && scorecard.getStatValue() == null){
+            scorecard.setStatValue(scorecard.getStat());
+          }
+          if(scorecard.getStat() != null && scorecard.getStatSymbol() == null){
+            scorecard.setStatSymbol(scorecard.getStat());
+          }
+
+          //if do not display values - set stat for values to null
+          if( !scorecard.getViewValue() ){
+            scorecard.setStatValue(null);
+          }
+          //if do not display symbols - set stat for symbols to null
+          if( !scorecard.getViewSymbol() ){
+            scorecard.setStatSymbol(null);
+          }
+
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "rscript".equals(
                 scorecardSpecNode.getNodeName())) {
           scorecard.setrScriptCommand(scorecardSpecNode.getTextContent());
@@ -137,6 +170,12 @@ class XmlParser {
           }
         } else if ("stat_flag".equals(plotNode.getNodeName())) {
           scorecard.setStatFlag(plotNode.getTextContent());
+
+        } else if ("stat_value".equals(plotNode.getNodeName())) {
+          scorecard.setStatValue(plotNode.getTextContent());
+
+        } else if ("stat_symbol".equals(plotNode.getNodeName())) {
+          scorecard.setStatSymbol(plotNode.getTextContent());
 
         } else if ("stat".equals(plotNode.getNodeName())) {
           if (plotNode.getTextContent().equals("DIFF")

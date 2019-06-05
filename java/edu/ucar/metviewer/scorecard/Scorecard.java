@@ -68,7 +68,9 @@ public class Scorecard {
   private Integer bootRandomSeed;
   private String plotStat = "median";
   private String statFlag = "NCAR";
-  private String stat = "DIFF_SIG";
+  private String stat;
+  private String statValue ;
+  private String statSymbol;
   private String thresholdFile = null;
   private List<String> leftColumnsNames = new ArrayList<>();
 
@@ -211,6 +213,22 @@ public class Scorecard {
 
   public void setStatFlag(String statFlag) {
     this.statFlag = statFlag;
+  }
+
+  public String getStatValue() {
+    return statValue;
+  }
+
+  public void setStatValue(String statValue) {
+    this.statValue = statValue;
+  }
+
+  public String getStatSymbol() {
+    return statSymbol;
+  }
+
+  public void setStatSymbol(String statSymbol) {
+    this.statSymbol = statSymbol;
   }
 
   public Boolean getViewLegend() {
