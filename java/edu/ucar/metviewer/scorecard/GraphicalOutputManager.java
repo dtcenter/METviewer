@@ -383,7 +383,23 @@ class GraphicalOutputManager {
 
       legendTable.with(tr().with(td1).with(td2));
     }
+    //add one more line describing the stats for symbols and numbers
+    StringBuilder description  = new StringBuilder();
+    if(viewSymbol){
+      description.append("Statistic for symbols: ").append(diffStatSymbol);
+    }
+    if(viewValue){
+      if(description.length() > 0){
+        description.append(" , ");
+      }
+      description.append("Statistic for values: ").append(diffStatValue);
+    }
 
+    ContainerTag td = td().attr(CLASS, "legendText").attr("colspan","2")
+            .attr(STYLE, "text-align:center;")
+            .with(new UnescapedText(description.toString()));
+
+    legendTable.with(tr().with(td));
 
     return legendTable;
   }
