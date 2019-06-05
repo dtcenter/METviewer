@@ -511,8 +511,8 @@ class GraphicalOutputManager {
   }
 
   private ContainerTag createTableCell(BigDecimal valueForSymbol, BigDecimal valueForNumber) {
-    String color = WHITE_FFFFFF;
-    String background = BLACK_000000;
+    String color = BLACK_000000;
+    String background = WHITE_FFFFFF;
     String title = "";
     String text = "&nbsp;";
     boolean checkLowLimit = false;
