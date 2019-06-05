@@ -518,50 +518,70 @@ class GraphicalOutputManager {
     boolean checkLowLimit = false;
     boolean checkUpperLimit = false;
     StringBuilder textStr = new StringBuilder();
-    for (LegendRange legendRange : rangeList) {
+    if (!valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
+      for (LegendRange legendRange : rangeList) {
 
-      //check if the low limit works
-      if (legendRange.getLowerLimit() != null) {
-        if (legendRange.isIncludeLowerLimit()) {
-          checkLowLimit = valueForSymbol.compareTo(legendRange.getLowerLimit()) >= 0;
-        } else {
-          checkLowLimit = valueForSymbol.compareTo(legendRange.getLowerLimit()) > 0;
+        //check if the low limit works
+        if (legendRange.getLowerLimit() != null) {
+          if (legendRange.isIncludeLowerLimit()) {
+            checkLowLimit = valueForSymbol.compareTo(legendRange.getLowerLimit()) >= 0;
+          } else {
+            checkLowLimit = valueForSymbol.compareTo(legendRange.getLowerLimit()) > 0;
+          }
         }
-      }
-      //check if the upper limit works
-      if (legendRange.getUpperLimit() != null) {
-        if (legendRange.isIncludeUpperLimit()) {
-          checkUpperLimit = valueForSymbol.compareTo(legendRange.getUpperLimit()) <= 0;
-        } else {
-          checkUpperLimit = valueForSymbol.compareTo(legendRange.getUpperLimit()) < 0;
+        //check if the upper limit works
+        if (legendRange.getUpperLimit() != null) {
+          if (legendRange.isIncludeUpperLimit()) {
+            checkUpperLimit = valueForSymbol.compareTo(legendRange.getUpperLimit()) <= 0;
+          } else {
+            checkUpperLimit = valueForSymbol.compareTo(legendRange.getUpperLimit()) < 0;
+          }
         }
-      }
 
-      //if inside of limits
-      if (checkLowLimit && checkUpperLimit) {
-        if (viewSymbol) {
-          textStr.append(legendRange.getSymbol());
+        //if inside of limits
+        if (checkLowLimit && checkUpperLimit) {
+          if (viewSymbol) {
+            textStr.append(legendRange.getSymbol());
+          }
+          if (viewValue) {
+            textStr.append(valueForNumber);
+          }
+          color = legendRange.getColor();
+          background = legendRange.getBackground();
+          title = String.valueOf(valueForSymbol);
+          text = textStr.toString();
+          break;
         }
+
+      }
+      if (!checkLowLimit || !checkUpperLimit) {
         if (viewValue) {
           textStr.append(valueForNumber);
         }
-        color = legendRange.getColor();
-        background = legendRange.getBackground();
+
+        color = BLACK_000000;//black
+        background = WHITE_FFFFFF;//white
         title = String.valueOf(valueForSymbol);
         text = textStr.toString();
-        break;
+
       }
 
-    }
-    if (!checkLowLimit || !checkUpperLimit) {
+    } else {
+      // if p_value is undefined
       if (viewValue) {
-        textStr.append(valueForNumber);
+        text = String.valueOf(valueForNumber);
       }
-      color = BLACK_000000;//black
-      background = WHITE_FFFFFF;//white
-      title = String.valueOf(valueForSymbol);
-      text = textStr.toString();
+      if (viewSymbol) {
+        for (LegendRange range : rangeList) {
+          if (range.getLowerLimit() == null || range.getUpperLimit() == null) {
+            background = range.getBackground();
+            color = range.getColor();
+            break;
+          }
+        }
+      }
     }
+
 
     return td().attr(STYLE, "color:" + color + ";background-color:" + background + ";")
             .attr("title", title).with(new UnescapedText(text));
