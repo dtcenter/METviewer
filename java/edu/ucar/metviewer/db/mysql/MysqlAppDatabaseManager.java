@@ -1987,11 +1987,6 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     String selectListStat = selectList.replaceAll("h\\.", "");
 
-    //remove fcst_init from the select list to create valid "GROUP BY"
-    if (selectListStat.contains("fcst_init")) {
-      selectListStat = selectListStat.replace("fcst_init,",
-              "NOW()  fcst_init,");
-    }
 
     //  build the group by clause
     String groupBy = "";
@@ -2041,6 +2036,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
                   "");
         }
       }
+    }
+    //remove fcst_init from the select list to create valid "GROUP BY"
+    if(!groupBy.contains("fcst_init")){
+      selectListStat = selectListStat.replace("fcst_init,",
+              "NOW()  fcst_init,");
     }
 
     //  build the query
