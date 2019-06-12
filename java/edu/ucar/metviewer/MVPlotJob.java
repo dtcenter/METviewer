@@ -189,6 +189,7 @@ public class MVPlotJob {
   protected String _strConSeries = "";
   protected String _strLegend = "";
   protected String _strY1Lim = "";
+  protected String _strX1Lim = "";
   protected String _strY1Bufr = ".04";
   protected String _strY2Lim = "";
   protected String _strY2Bufr = ".04";
@@ -387,6 +388,7 @@ public class MVPlotJob {
     job._strConSeries = _strConSeries;
     job._strLegend = _strLegend;
     job._strY1Lim = _strY1Lim;
+    job._strX1Lim = _strX1Lim;
     job._strY1Bufr = _strY1Bufr;
     job._strY2Lim = _strY2Lim;
     job._strY2Bufr = _strY2Bufr;
@@ -1732,8 +1734,43 @@ public class MVPlotJob {
     return _strY1Lim;
   }
 
+  public String getX1Lim() {
+    return _strX1Lim;
+  }
+
+  public String getX1LimR() {
+    String stripStr = _strX1Lim.replaceAll("^c\\(", "").replaceAll("\\)$", "");
+    if (stripStr.isEmpty()) {
+      return _strX1Lim;
+    }
+    String[] arr = stripStr.split(",");
+    if (arr.length != 2) {
+      return _strX1Lim;
+    }
+    int indMin = -1;
+    int indMax = -1;
+    arr[0] = arr[0].trim();
+    arr[1] = arr[1].trim();
+    for (int i=0; i< indyVal.length; i++){
+      if(indyVal[i].equals(arr[0])){
+        indMin = i;
+      }
+      if(indyVal[i].equals(arr[1])){
+        indMax = i;
+      }
+      if(indMin != -1 && indMax != -1){
+        break;
+      }
+    }
+    return "c("+ indMin + "," + indMax + ")";
+  }
+
   public void setY1Lim(String y1Lim) {
     _strY1Lim = y1Lim;
+  }
+
+  public void setX1Lim(String x1Lim) {
+    _strX1Lim = x1Lim;
   }
 
   public String getY1Bufr() {

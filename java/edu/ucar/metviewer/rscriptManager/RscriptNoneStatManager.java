@@ -76,6 +76,7 @@ public class RscriptNoneStatManager extends RscriptStatManager {
         throw new ValidationException("Y1 axis limits can't start or end with 0 if Log Scale is on");
       }
     }
+
     if (job.getLogY2() && !job.getY2Lim().equals("c()")) {
       //check if y2_lim has 0
       String[] lims = job.getY2Lim().replace("c(", "").replace(")", "").split(",");

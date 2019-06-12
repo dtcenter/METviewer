@@ -4198,6 +4198,11 @@ function createXMLCommon(plot) {
     } else {
         plot.append($('<y1_lim />').text("c(" + $('#y1_lim_min').val() + "," + $('#y1_lim_max').val() + ")"));
     }
+    if ($('#x1_lim_min').val().trim().length == 0 || $('#x1_lim_max').val().trim().length == 0) {
+        plot.append($('<x1_lim />').text("c()"));
+    } else {
+        plot.append($('<x1_lim />').text("c(" + $('#x1_lim_min').val() + "," + $('#x1_lim_max').val() + ")"));
+    }
     plot.append($('<y1_bufr />').text($('#y1_bufr').val()));
     if ($('#y2_lim_min').val().trim().length == 0 || $('#y2_lim_max').val().trim().length == 0) {
         plot.append($('<y2_lim />').text("c()"));
@@ -4542,6 +4547,8 @@ function resetFormatting() {
     $("#caption_offset").val("3");
     $("#caption_size").val("0.8");
     $("#caption_weight").val("1");
+    $("#x1_lim_min").val("");
+    $("#x1_lim_max").val("");
 
 
 }
@@ -6797,9 +6804,6 @@ function initPage() {
         $("#plot_display_inner").tabs('refresh');
     });
 
-//addThemeSwitcher( '#toolbar', { top: '15px' });
-
-
     var westSelector = "body > .ui-layout-west"; // outer-west pane
     $("<span></span>").attr("id", "west-closer").prependTo(westSelector);
     outerLayout.addCloseBtn("#west-closer", "west");
@@ -7462,6 +7466,11 @@ function initPage() {
         $("#y1_lim_min").val(y1_lim_arr[0]);
         $("#y1_lim_max").val(y1_lim_arr[1]);
         $("#y1_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
+
+        var x1_lim_arr = $(initXML.find("plot").find("x1_lim")).text().replace("c(", "").replace(")", "").split(",");
+
+        $("#x1_lim_min").val(x1_lim_arr[0]);
+        $("#x1_lim_max").val(x1_lim_arr[1]);
 
 
         $("#y2lab_align").val($(initXML.find("plot").find("y2lab_align")).text());
