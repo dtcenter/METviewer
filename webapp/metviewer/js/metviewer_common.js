@@ -3190,7 +3190,11 @@ function updateSeries(isCheckAll) {
                                     series_formatting.id = number_series + 1;
 
                                 } else {
-                                    series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+                                    if(isFixedFormatting && oldSeriesData.length > 0){
+                                        series_formatting = jQuery.extend(true, {}, oldSeriesData[oldSeriesData.length - 1]);
+                                    }else {
+                                        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+                                    }
                                     series_formatting.title = seriesNameWithDerived;
                                     series_formatting.y_axis = "Y" + axis_index;
                                     series_formatting.id = number_series + 1;
