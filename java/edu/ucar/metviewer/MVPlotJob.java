@@ -782,7 +782,7 @@ public class MVPlotJob {
   }
 
   public void setPlotCmd(String plotCmd) {
-    this.plotCmd = plotCmd;
+    this.plotCmd = plotCmd.replace("\n", ";").replace("\r", ";");
   }
 
   public String getPlotCond() {
