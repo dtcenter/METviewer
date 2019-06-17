@@ -569,6 +569,22 @@ relp_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 relp_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 relp_fixed_var_map['n_ens'] = 'N_ENS';
 
+var perf_fixed_var_map = {};
+perf_fixed_var_map['fcst_var'] = 'FCST_VAR';
+perf_fixed_var_map['model'] = 'MODEL';
+perf_fixed_var_map['fcst_lead'] = 'FCST_LEAD';
+perf_fixed_var_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
+perf_fixed_var_map['valid_hour'] = 'VALID_HOUR';
+perf_fixed_var_map['fcst_init_beg'] = 'FCST_INIT_BEG';
+perf_fixed_var_map['init_hour'] = 'INIT_HOUR';
+perf_fixed_var_map['fcst_lev'] = 'FCST_LEV';
+perf_fixed_var_map['obtype'] = 'OBTYPE';
+perf_fixed_var_map['vx_mask'] = 'VX_MASK';
+perf_fixed_var_map['interp_mthd'] = 'INTERP_MTHD';
+perf_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
+perf_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
+perf_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
+
 
 var fcst_var_y1_indexes = [1];
 var series_var_y1_indexes = [1];
@@ -6288,6 +6304,7 @@ function requestDBUpdate() {
     });
 
 }
+
 function updateFixVar(selected_mode) {
     //remove fixed values
     var fixed_var_indexes_copy = fixed_var_indexes.slice();
@@ -6303,14 +6320,21 @@ function updateFixVar(selected_mode) {
     }
     fixed_var_indexes.push(parseInt(remaining_fixed_var_id));
     $('#fixed_var_' + remaining_fixed_var_id).empty();
-    if (selected_mode == "stat") {
-        $.each(fix_var_value_to_title_stat_map, function (key, val) {
+    if (currentTab === 'Perf') {
+        $.each(perf_fixed_var_map, function (key, val) {
             $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
         });
     } else {
-        $.each(fix_var_value_to_title_mode_map, function (key, val) {
-            $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
-        });
+
+        if (selected_mode == "stat") {
+            $.each(fix_var_value_to_title_stat_map, function (key, val) {
+                $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
+            });
+        } else {
+            $.each(fix_var_value_to_title_mode_map, function (key, val) {
+                $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
+            });
+        }
     }
     try {
         $('#fixed_var_' + remaining_fixed_var_id).multiselect('uncheckAll');
