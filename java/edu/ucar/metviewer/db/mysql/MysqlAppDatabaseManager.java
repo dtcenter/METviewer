@@ -1216,9 +1216,12 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
         if (!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
-        } else {
+        } else if(intFcstVarStat > 0 && selectList.contains(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var")){
           selectList = selectList.replace(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var"
                   , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
+        }else {
+          selectList = selectList.replace("fcst_var"
+                  , "'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
 
         //  determine the table containing the current stat
@@ -2212,7 +2215,20 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  build the list of fields involved in the computations
     String selectListStat = selectList.replaceAll("h\\.", "s.")
             .replaceAll(".+fcst_var", " s.fcst_var");
-
+    //make sure that all fields have table prefix
+    String[] selectStatsArr = selectListStat.split(",");
+    StringBuilder newSelectListStat = new StringBuilder();
+    for (String selectStats : selectStatsArr) {
+      selectStats = selectStats.trim();
+      //add table prefix if it is missing
+      if (!selectStats.startsWith("s.")) {
+        newSelectListStat.append("s.");
+      }
+      newSelectListStat.append(selectStats).append(",");
+    }
+    //remove last comma
+    newSelectListStat.setLength(newSelectListStat.length() - 1);
+    selectListStat = newSelectListStat.toString();
 
     //  set the table stat field, object_id pattern and group by clause, depending on the stat
     String tableStat = MVUtil.modeSingleStatField.get(originalStatName);
