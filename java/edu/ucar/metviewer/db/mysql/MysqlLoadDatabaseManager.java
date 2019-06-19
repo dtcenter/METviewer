@@ -981,6 +981,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               case "PSTD":
                 lineDataMax = lineDataMax - Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
                 break;
+              case "ORANK":
+                lineDataMax = lengthGroupIndices[1] + 1;
+                break;
               default:
                 lineDataMax = lengthGroupIndices[1];
                 break;
