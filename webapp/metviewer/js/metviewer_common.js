@@ -1655,7 +1655,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     var selectedDatabase = getSelectedDatabases();
     var selected_mode, statst;
     if (currentTab === 'Perf') {
-        selected_mode = 'stat';
+        selected_mode = 'perf';
         statst = '<stat></stat>';
     } else if (currentTab === 'Taylor') {
         selected_mode = 'taylor';
@@ -2167,8 +2167,8 @@ function populateIndyVarVal(selectedVals) {
                 if (values.length > 0) {
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
-                        selected = $.inArray(t.text(), selectedVals) >= 0;
-                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
+                        if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                             var text_formatted = t.text().formatAll();
                             opt = $('<option />', {
                                 value: text_formatted,
@@ -2177,7 +2177,7 @@ function populateIndyVarVal(selectedVals) {
                                 class: "indy-var-option"
                             });
                             options.push(opt);
-                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
                             options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
                     }
@@ -6056,6 +6056,8 @@ function loadXMLSeries() {
                 } else {
                     if (currentTab === 'Taylor') {
                         addSeriesVarHist();
+                    }else if (currentTab === 'Perf') {
+                        addSeriesVarPerf();
                     } else {
                         addSeriesVar(y_axis);
                     }
@@ -6101,7 +6103,7 @@ function loadXMLSeries() {
         $("#indy_var").val(value).multiselect("refresh");
     } catch (e) {
     }
-    if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+    if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
         $("#date_period_button").css("display", "block");
     } else {
         $("#date_period_button").css("display", "none");
