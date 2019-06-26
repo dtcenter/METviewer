@@ -1168,6 +1168,7 @@ custom_sum = function(input, na.rm = FALSE){
 }
 
 calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c(), o_bar=c()){
+  cat('calcSeriesSums ',o_bar, '\n')
   if( lineTypes$boolCtc ){
     dfSeriescustom_sums = data.frame(
     total	= custom_sum( as.numeric(d[[ paste(strPerm, "total", sep="_") ]]), na.rm=TRUE ),
@@ -1363,6 +1364,7 @@ calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c
 
 
         # table-based stat calculations
+       
         dfSeriescustom_sums = list(
         reliability	= custom_sum( dfPctPerm$n_i * (dfPctPerm$thresh - dfPctPerm$o_bar_i)^2 ) / T[intPerm],
         resolution	= custom_sum( dfPctPerm$n_i * (dfPctPerm$o_bar_i - o_bar[intPerm])^2 ) / T[intPerm],

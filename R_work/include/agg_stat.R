@@ -438,7 +438,7 @@ if ( nrow(sampleData) > 0){
       # create the permutation column name string
 
       # perform the aggregation of the sampled CTC lines
-       dfSeriescustom_sums = calcSeriesSums (d[i,], strPerm, lineTypes);
+       dfSeriescustom_sums = calcSeriesSums (d[i,], strPerm, lineTypes, intPerm, T,oy_total, o_bar);
 
       # return a value for each statistic
       for(strStat in listStat){
