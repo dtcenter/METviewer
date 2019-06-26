@@ -5,9 +5,7 @@
 
 package edu.ucar.metviewer.scorecard.rscript;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import edu.ucar.metviewer.scorecard.Scorecard;
 import edu.ucar.metviewer.scorecard.Util;
@@ -39,8 +37,8 @@ public abstract class RscriptManager {
   private StringBuilder fixVars;
   String stat;
   //String diffStat;
-   String diffStatValue;
-   String diffStatSymbol;
+  String diffStatValue;
+  String diffStatSymbol;
 
 
   RscriptManager(final Scorecard scorecard) {
@@ -84,56 +82,61 @@ public abstract class RscriptManager {
     if (diffVals.length() > 0) {
       diffVals.deleteCharAt(diffVals.length() - 1);
     }
-    for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
-      if ("fcst_lead".equals(entry.getKey())) {
-        seriesList.append("`").append(entry.getKey()).append("` = c(");
-        for (Entry val : entry.getValue()) {
-          if (seriesList.indexOf(val.getName()) == -1) {
-            seriesList.append("\"").append(val.getName()).append("\",");
-          }
-          List<String> diffStats = new ArrayList<>();
-          //if(diffStat != null){
-         //   diffStats.add(diffStat);
-         // }else {
-            if(diffStatSymbol != null){
-              diffStats.add(diffStatSymbol);
-            }
-            if(diffStatValue != null && !diffStats.contains(diffStatValue)){
-              diffStats.add(diffStatValue);
-            }
-         // }
 
-          for(String st : diffStats) {
-            StringBuilder difStr = new StringBuilder("c(");
-            for (Entry model : models) {
-              difStr.append("\"");
-              if (diffVals.length() > 0) {
-                difStr.append(diffVals).append(" ");
-              }
-              difStr.append(model.getName()).append(" ").append(val.getName()).append(" ").append(fcstVar).append(" ").append(stat).append("\",");
-            }
+    int size = listColumns.entrySet().iterator().next().getValue().size();
+    List<String> columnsPermutationList = new ArrayList<>(size);
+    for (int i = 0; i < size; i++) {
+      columnsPermutationList.add("");
+    }
 
-            difStr.append("\"").append(st).append("\"),");
-            diffSeries.add(difStr.toString().trim());
-          }
 
-        }
-        if (seriesList.length() > 0) {
-          seriesList.deleteCharAt(seriesList.length() - 1);
-        }
-        seriesList.append("),");
-      } else {
-        indyVar = entry.getKey();
-        for (Entry val : entry.getValue()) {
-          if (indyList.indexOf(val.getName()) == -1) {
-            indyList.append("\"").append(val.getName()).append("\",");
-          }
-        }
-        if (indyList.length() > 0) {
-          indyList.deleteCharAt(indyList.length() - 1);
-        }
+    for (int i = 0; i < size; i++) {
+      for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
+        columnsPermutationList.set(i, columnsPermutationList.get(i) + entry.getValue().get(i).getName() + " ");
       }
     }
+
+
+    List<String> diffStats = new ArrayList<>();
+    if (diffStatSymbol != null) {
+      diffStats.add(diffStatSymbol);
+    }
+    if (diffStatValue != null && !diffStats.contains(diffStatValue)) {
+      diffStats.add(diffStatValue);
+    }
+
+    for (String pe : columnsPermutationList) {
+      for (String st : diffStats) {
+        StringBuilder difStr = new StringBuilder("c(");
+        for (Entry model : models) {
+          difStr.append("\"");
+          if (diffVals.length() > 0) {
+            difStr.append(diffVals).append(" ");
+          }
+          difStr.append(model.getName()).append(" ").append(pe.trim()).append(" ")
+                  .append(fcstVar).append(" ").append(stat).append("\",");
+        }
+
+        difStr.append("\"").append(st).append("\"),");
+        diffSeries.add(difStr.toString().trim());
+      }
+    }
+
+
+    for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
+      seriesList.append("`").append(entry.getKey()).append("` = c(");
+      for (Entry val : entry.getValue()) {
+        if (seriesList.indexOf(val.getName()) == -1) {
+          seriesList.append("\"").append(val.getName()).append("\",");
+        }
+      }
+      if (seriesList.length() > 0) {
+        seriesList.deleteCharAt(seriesList.length() - 1);
+      }
+      seriesList.append("),");
+    }
+    indyVar = "scorecard";
+    indyList.append("\"").append("column").append("\"");
     if (seriesList.charAt(seriesList.length() - 1) == ',' && fixVars.length() == 0) {
       seriesList.deleteCharAt(seriesList.length() - 1);
     }

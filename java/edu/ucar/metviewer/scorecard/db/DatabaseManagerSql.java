@@ -195,7 +195,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           values.deleteCharAt(values.length() - 1);
         }
         whereFields.append(BINARY).append(fixedField.getName()).append(" IN ('")
-                .append(values.toString().replaceAll(",", "','")).append("') AND ");
+                .append(values.toString().replaceAll(",", "','").replaceAll(":", "','")).append("') AND ");
       }
       if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
               "init_hour") && !fixedField.getName().equals("valid_hour")) {
@@ -217,7 +217,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         values.deleteCharAt(values.length() - 1);
       }
       whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
-              .append(values.toString().replaceAll(",", "','")).append("') AND ");
+              .append(values.toString().replaceAll(",", "','").replaceAll(":", "','")).append("') AND ");
     }
 
 
@@ -266,6 +266,12 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
 
     if (errors.isEmpty() && allEqual) {
       selectFields.append(getSelectFields(table, pctThreshList.get(0)));
+
+      if(selectFields.lastIndexOf(",") != selectFields.length() - 1){
+        selectFields.append(", ");
+      }
+      selectFields.append("'column' scorecard ");
+
       //make sure that selectFields doesn't have "," as the last element
       if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
         selectFields.deleteCharAt(selectFields.length() - 1);

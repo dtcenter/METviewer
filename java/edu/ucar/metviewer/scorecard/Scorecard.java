@@ -191,6 +191,8 @@ public class Scorecard {
           throw new MissingFileException(dataFile.getAbsolutePath());
         }
 
+      }else {
+        logger.error("Validation ERROR: Only one column can be aggregated or grouped.");
       }
 
     }
@@ -530,7 +532,17 @@ public class Scorecard {
   }
 
   private boolean validate() {
-    return true;
+    Map<String, List<Entry>> columns = this.columnsStructure();
+    int numberOfAggColumns = 0;
+    for (Map.Entry<String, List<Entry>> columnEntry : columns.entrySet()){
+      for(Entry entry : columnEntry.getValue()){
+        if(entry.getName().contains(":") || entry.getName().contains(",")){
+          numberOfAggColumns++;
+        }
+      }
+    }
+
+    return numberOfAggColumns <= 1;
   }
 
 }
