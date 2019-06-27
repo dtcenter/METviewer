@@ -267,10 +267,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
     if (errors.isEmpty() && allEqual) {
       selectFields.append(getSelectFields(table, pctThreshList.get(0)));
 
-      if(selectFields.lastIndexOf(",") != selectFields.length() - 1){
-        selectFields.append(", ");
-      }
-      selectFields.append("'column' scorecard ");
+
 
       //make sure that selectFields doesn't have "," as the last element
       if (selectFields.lastIndexOf(",") == selectFields.length() - 1) {
