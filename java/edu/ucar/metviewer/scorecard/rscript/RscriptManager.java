@@ -90,11 +90,7 @@ public abstract class RscriptManager {
     }
 
 
-    for (int i = 0; i < size; i++) {
-      for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
-        columnsPermutationList.set(i, columnsPermutationList.get(i) + entry.getValue().get(i).getName() + " ");
-      }
-    }
+
 
 
     List<String> diffStats = new ArrayList<>();
@@ -105,6 +101,42 @@ public abstract class RscriptManager {
       diffStats.add(diffStatValue);
     }
 
+
+
+
+    for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
+      StringBuilder strForList = new StringBuilder();
+      strForList.append("`").append(entry.getKey()).append("` = c(");
+      boolean isAggregatedField = false;
+      for (Entry val : entry.getValue()) {
+        if(val.getName().contains(":")){
+          isAggregatedField = true;
+        }
+        if (strForList.indexOf(val.getName()) == -1) {
+          strForList.append("\"").append(val.getName()).append("\",");
+        }
+      }
+      if (strForList.length() > 0) {
+        strForList.deleteCharAt(strForList.length() - 1);
+      }
+
+      if(!isAggregatedField && indyVar.isEmpty()){
+        indyVar = entry.getKey();
+        indyList.append(strForList);
+        indyList.append(")");
+      }else {
+        seriesList.append(strForList);
+        seriesList.append("),");
+      }
+    }
+    for (int i = 0; i < size; i++) {
+      for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
+        // do not include indy var
+        if(!entry.getKey().equals(indyVar)) {
+          columnsPermutationList.set(i, columnsPermutationList.get(i) + entry.getValue().get(i).getName() + " ");
+        }
+      }
+    }
     for (String pe : columnsPermutationList) {
       for (String st : diffStats) {
         StringBuilder difStr = new StringBuilder("c(");
@@ -122,21 +154,8 @@ public abstract class RscriptManager {
       }
     }
 
-
-    for (Map.Entry<String, List<Entry>> entry : listColumns.entrySet()) {
-      seriesList.append("`").append(entry.getKey()).append("` = c(");
-      for (Entry val : entry.getValue()) {
-        if (seriesList.indexOf(val.getName()) == -1) {
-          seriesList.append("\"").append(val.getName()).append("\",");
-        }
-      }
-      if (seriesList.length() > 0) {
-        seriesList.deleteCharAt(seriesList.length() - 1);
-      }
-      seriesList.append("),");
-    }
-    indyVar = "scorecard";
-    indyList.append("\"").append("column").append("\"");
+    //indyVar = "scorecard";
+    //indyList.append("\"").append("column").append("\"");
     if (seriesList.charAt(seriesList.length() - 1) == ',' && fixVars.length() == 0) {
       seriesList.deleteCharAt(seriesList.length() - 1);
     }
