@@ -625,7 +625,7 @@ class GraphicalOutputManager {
     ArrayNode table = new ArrayNode(JsonNodeFactory.instance);
 
     try (FileReader is = new FileReader(dataFile);
-         BoundedBufferedReader buf = new BoundedBufferedReader(is, 1024, 1024)) {
+         BoundedBufferedReader buf = new BoundedBufferedReader(is, 10000, 1024)) {
       //read the header line
       String line = buf.readLineBounded();
       String[] headers = line.split("\\t");
