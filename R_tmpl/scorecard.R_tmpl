@@ -159,8 +159,13 @@ if ( nrow(sampleData) > 0){
 
     listFields = names(plotData1);
     for(indy in listIndy){
-      dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
-      dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+      if (is.na(indy) || indy == 'NA'){
+        dfStatsIndy1 = plotData1[is.na(plotData1[[strIndyVar]]),];
+        dfStatsIndy2 = plotData2[is.na(plotData2[[strIndyVar]]),];
+      }else{
+         dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
+         dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+      }
 
       if (nrow(dfStatsIndy1) != 0 && nrow(dfStatsIndy2) != 0) {
 

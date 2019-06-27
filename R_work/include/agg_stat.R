@@ -483,6 +483,8 @@ if ( nrow(sampleData) > 0){
     }else{
       if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
         dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) == strIndyVal,];
+      } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
+        dfStatsIndy = dfStatsRec[is.na(dfStatsRec[[strIndyVar]]),]
       } else {
         dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
       }
