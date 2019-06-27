@@ -1168,7 +1168,6 @@ custom_sum = function(input, na.rm = FALSE){
 }
 
 calcSeriesSums = function( d , strPerm, lineTypes, intPerm=1,  T=c(), oy_total=c(), o_bar=c()){
-  cat('calcSeriesSums ',o_bar, '\n')
   if( lineTypes$boolCtc ){
     dfSeriescustom_sums = data.frame(
     total	= custom_sum( as.numeric(d[[ paste(strPerm, "total", sep="_") ]]), na.rm=TRUE ),
