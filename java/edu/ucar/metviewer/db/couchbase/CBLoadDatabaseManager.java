@@ -3046,7 +3046,10 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
     JsonObject firstRowObject = null;
 
     //  get the instance_info information to insert
-    String strUpdater = "mvuser";
+    String updater = System.getProperty("user.name");
+    if(updater == null || updater.isEmpty()){
+      updater="mvuser";
+    }
     String strUpdateDate = DATE_FORMAT.format(new Date());
     String strUpdateDetail = job.getLoadNote();
 
@@ -3083,7 +3086,7 @@ public class CBLoadDatabaseManager extends CBDatabaseManager implements LoadData
       instanceFile = JsonObject.empty()
               .put("type", "job")
               .put("dbname", getDbName())
-              .put("updater", strUpdater)
+              .put("updater", updater)
               .put("update_date", strUpdateDate)
               .put("update_note", strUpdateDetail)
               .put("xml_test", strLoadXML);
