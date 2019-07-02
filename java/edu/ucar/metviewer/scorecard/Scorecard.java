@@ -538,6 +538,7 @@ public class Scorecard {
       for(Entry entry : columnEntry.getValue()){
         if(entry.getName().contains(":") || entry.getName().contains(",")){
           numberOfAggColumns++;
+          break;
         }
       }
     }

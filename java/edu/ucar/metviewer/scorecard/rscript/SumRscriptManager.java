@@ -76,7 +76,7 @@ public class SumRscriptManager extends RscriptManager {
       tableCalcStatInfoCommon.put("event_equal", String.valueOf(Boolean.TRUE).toUpperCase());
     }
     tableCalcStatInfoCommon.put("ci_alpha", "0.05");
-    tableCalcStatInfoCommon.put("equalize_by_indep", String.valueOf(Boolean.FALSE).toUpperCase());
+    tableCalcStatInfoCommon.put("equalize_by_indep", String.valueOf(Boolean.TRUE).toUpperCase());
     tableCalcStatInfoCommon.put("series2_list", "list()");
     tableCalcStatInfoCommon.put("fix_val_list_eq", "list()");
     tableCalcStatInfoCommon.put("dep1_scale", "list()");

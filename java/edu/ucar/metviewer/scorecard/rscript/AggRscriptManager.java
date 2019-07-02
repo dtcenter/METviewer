@@ -63,7 +63,7 @@ public class AggRscriptManager extends RscriptManager {
     tableAggStatInfoCommon.put("boot_repl", String.valueOf(scorecard.getNumBootReplicates()));
     tableAggStatInfoCommon.put("boot_ci", "perc");
     tableAggStatInfoCommon.put("ci_alpha", "0.05");
-    tableAggStatInfoCommon.put("equalize_by_indep", String.valueOf(Boolean.FALSE).toUpperCase());
+    tableAggStatInfoCommon.put("equalize_by_indep", String.valueOf(Boolean.TRUE).toUpperCase());
     tableAggStatInfoCommon.put("agg_stat2", "c()");
     tableAggStatInfoCommon.put("series2_list", "list()");
     tableAggStatInfoCommon.put("fix_val_list_eq", "list()");

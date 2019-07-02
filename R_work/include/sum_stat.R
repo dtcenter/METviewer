@@ -220,30 +220,39 @@ if ( nrow(sampleData) > 0){
   
   aggregatedList = list()
   matPerm = permute(listSeries1Val);
-  hasAggFild = FALSE
+  hasAggFieldIndy = FALSE
 
   # look if there is a field that need to be aggregated first - the field with ':'
   for(i in 1:dim(matPerm)[1]) {
     for(j in 1:dim(matPerm)[2]) {
       if( grepl(':', matPerm[i,j]) ){
-        hasAggFild = TRUE
+        hasAggFieldIndy = TRUE
         break
       }
     }
   }
+
+  #check if indyVars have a field that need to be aggregated
+  hasAggFieldIndy = FALSE
+  for(strIndyVal in listIndyVal){
+    hasAggFieldIndy = TRUE;
+    break;
+  }
+
   # performe aggregation on a field
-  if( hasAggFild ){
+  if( hasAggFieldIndy || hasAggFieldIndy){
     listSeriesVar = names(listSeries1Val);
     for(strIndyVal in listIndyVal){
       if(is.nan(strIndyVal)){
         dfStatsIndy = dfStatsRec;
       }else{
+        vectValIndy = strsplit(strIndyVal, ":")[[1]];
         if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
-          dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) == strIndyVal,];
+          dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,,];
         } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
             dfStatsIndy = dfStatsRec[is.na(dfStatsRec[[strIndyVar]]),]
         } else {
-          dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
+          dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] %in% vectValIndy,];
         }
       }
 
@@ -276,8 +285,14 @@ if ( nrow(sampleData) > 0){
         }
 
         strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
-        #aggregate series vals by fcst_valid_beg and fcst_lead
-        dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
+        #aggregate series vals by fcst_valid_beg and fcst_lead if needed
+        if(any(grepl(':', listPerm))){
+            dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
+        }else if(grepl(':', strIndyVal)){
+          listSetiesIndyVal = listSeries1Val
+          listSetiesIndyVal[[strIndyVar]] = strIndyVal
+          dfStatsPerm = aggregateFieldValues(listSetiesIndyVal, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
+        }
         if( length(aggregatedList) == 0 ){
           aggregatedList = dfStatsPerm
         }else{

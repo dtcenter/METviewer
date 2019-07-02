@@ -120,7 +120,7 @@ public abstract class RscriptManager {
         strForList.deleteCharAt(strForList.length() - 1);
       }
 
-      if(!isAggregatedField && indyVar.isEmpty()){
+      if(/*!isAggregatedField && */indyVar.isEmpty()){
         indyVar = entry.getKey();
         indyList.append(strForList);
         indyList.append(")");

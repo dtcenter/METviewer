@@ -481,12 +481,13 @@ if ( nrow(sampleData) > 0){
     if(is.nan(strIndyVal)){
       dfStatsIndy = dfStatsRec;
     }else{
+      vectValIndy = strsplit(strIndyVal, ":")[[1]];
       if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
-        dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) == strIndyVal,];
+        dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,];
       } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
         dfStatsIndy = dfStatsRec[is.na(dfStatsRec[[strIndyVar]]),]
       } else {
-        dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] == strIndyVal,];
+        dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] %in% vectValIndy,];
       }
     }
     if( 1 > nrow(dfStatsIndy) ){ next; }
@@ -542,16 +543,18 @@ if ( nrow(sampleData) > 0){
       o_bar=c();
       oy_total=c();
 
-      hasAggFild = FALSE
+      hasAggFieldSeries = FALSE
       # look if there is a field that need to be aggregated first - the field with ':'
       for(i in 1:dim(matPerm)[1]) {
         for(j in 1:dim(matPerm)[2]) {
           if( grepl(':', matPerm[i,j]) ){
-            hasAggFild = TRUE
+            hasAggFieldSeries = TRUE
             break
           }
         }
       }
+
+
 
       for(intPerm in 1:nrow(matPerm)){
         listPerm = matPerm[intPerm,];
@@ -619,8 +622,12 @@ if ( nrow(sampleData) > 0){
         
          #aggregate series vals if needed by fcst_valid_beg and fcst_lead
         strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
-        if( hasAggFild ){
+        if( hasAggFieldSeries && any(grepl(':', listPerm)) ){
           dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
+        }else if(grepl(':', strIndyVal)){
+          listSetiesIndyVal = listSeries1Val
+          listSetiesIndyVal[[strIndyVar]] = strIndyVal
+          dfStatsPerm = aggregateFieldValues(listSetiesIndyVal, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
         }
         #can't calculate differences if  multiple values for one valid date/fcst_lead
         if (length(listDiffSeries) > 0) {
