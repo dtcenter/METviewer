@@ -129,12 +129,12 @@ class GraphicalOutputManager {
         boolean isSizeEven = fixedFieldValsSize % 2 == 0;
         if (isSizeEven) {
           for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
-            ranges.add(fixField.getValues().get(i).getLabel()
-                    + " - " + fixField.getValues().get(i + 1).getLabel());
-
+            String line = fixField.getValues().get(i).getLabel()
+                    + " - " + fixField.getValues().get(i + 1).getLabel();
             if (i < fixedFieldValsSize - 2) {
-              ranges.add(", ");
+              line = line +",";
             }
+            ranges.add(line);
           }
         } else {
           for (int i = 0; i < fixedFieldValsSize - 1; i = i + 2) {
