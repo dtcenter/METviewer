@@ -154,8 +154,8 @@ if ( nrow(sampleData) > 0){
         for(strSeriesVal in names(listSeries1Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-            if( grepl(':', listSeries1Val[[strSeriesVal]][index]) ){
-              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ":")[[1]]);
+            if( grepl(';', listSeries1Val[[strSeriesVal]][index]) ){
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]]);
             }else{
               vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
             }
@@ -179,8 +179,8 @@ if ( nrow(sampleData) > 0){
           for(strSeriesVal in names(listSeries2Val)){
             vectValPerms = c();
             for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-              if( grepl(':', listSeries2Val[[strSeriesVal]][index]) ){
-                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ":")[[1]]);
+              if( grepl(';', listSeries2Val[[strSeriesVal]][index]) ){
+                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ";")[[1]]);
               }else{
                 vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
               }
@@ -222,10 +222,10 @@ if ( nrow(sampleData) > 0){
   matPerm = permute(listSeries1Val);
     hasAggFieldSeries = FALSE
 
-    # look if there is a field that need to be aggregated first - the field with ':'
+    # look if there is a field that need to be aggregated first - the field with ';'
     for(i in 1:dim(matPerm)[1]) {
         for(j in 1:dim(matPerm)[2]) {
-            if( grepl(':', matPerm[i,j]) ){
+            if( grepl(';', matPerm[i,j]) ){
                 hasAggFieldSeries = TRUE
                 break
             }
@@ -235,7 +235,7 @@ if ( nrow(sampleData) > 0){
     #check if indyVars have a field that need to be aggregated
     hasAggFieldIndy = FALSE
     for(strIndyVal in listIndyVal){
-        if( grepl(':',strIndyVal) ){
+        if( grepl(';',strIndyVal) ){
             hasAggFieldIndy = TRUE;
             break;
         }
@@ -248,7 +248,7 @@ if ( nrow(sampleData) > 0){
       if(is.nan(strIndyVal)){
         dfStatsIndy = dfStatsRec;
       }else{
-        vectValIndy = strsplit(strIndyVal, ":")[[1]];
+        vectValIndy = strsplit(strIndyVal, ";")[[1]];
         if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
           dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,];
         } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
@@ -275,8 +275,8 @@ if ( nrow(sampleData) > 0){
               strSeriesVal = as.integer(strSeriesVal);
               vectValPerms = strSeriesVal;
             }else {
-              if( grepl(':', strSeriesVal) ){
-                vectValPerms = strsplit(strSeriesVal, ":")[[1]];
+              if( grepl(';', strSeriesVal) ){
+                vectValPerms = strsplit(strSeriesVal, ";")[[1]];
               }else{
                 vectValPerms = strsplit(strSeriesVal, ",")[[1]];
               }
@@ -288,9 +288,9 @@ if ( nrow(sampleData) > 0){
 
         strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
         #aggregate series vals by fcst_valid_beg and fcst_lead if needed
-        if(any(grepl(':', listPerm))){
+        if(any(grepl(';', listPerm))){
             dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
-        }else if(grepl(':', strIndyVal)){
+        }else if(grepl(';', strIndyVal)){
           listSetiesIndyVal = listSeries1Val
           listSetiesIndyVal[[strIndyVar]] = strIndyVal
           dfStatsPerm = aggregateFieldValues(listSetiesIndyVal, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);

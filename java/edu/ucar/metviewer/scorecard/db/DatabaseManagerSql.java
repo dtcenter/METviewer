@@ -195,7 +195,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
           values.deleteCharAt(values.length() - 1);
         }
         whereFields.append(BINARY).append(fixedField.getName()).append(" IN ('")
-                .append(values.toString().replaceAll(",", "','").replaceAll(":", "','")).append("') AND ");
+                .append(values.toString().replaceAll(",", "','").replaceAll(";", "','")).append("') AND ");
       }
       if (selectFields.indexOf(fixedField.getName()) == -1 && !fixedField.getName().equals(
               "init_hour") && !fixedField.getName().equals("valid_hour")) {
@@ -217,7 +217,7 @@ public abstract class DatabaseManagerSql implements DatabaseManager {
         values.deleteCharAt(values.length() - 1);
       }
       whereFields.append(BINARY).append(columnEntry.getKey()).append(" IN ('")
-              .append(values.toString().replaceAll(",", "','").replaceAll(":", "','")).append("') AND ");
+              .append(values.toString().replaceAll(",", "','").replaceAll(";", "','")).append("') AND ");
     }
 
 
