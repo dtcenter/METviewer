@@ -232,12 +232,6 @@ if ( nrow(sampleData) > 0){
     }
   }
 
-  #check if indyVars have a field that need to be aggregated
-  hasAggFieldIndy = FALSE
-  for(strIndyVal in listIndyVal){
-    hasAggFieldIndy = TRUE;
-    break;
-  }
 
   # performe aggregation on a field
   if( hasAggFieldIndy || hasAggFieldIndy){
