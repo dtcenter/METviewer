@@ -481,7 +481,11 @@ if ( nrow(sampleData) > 0){
     if(is.nan(strIndyVal)){
       dfStatsIndy = dfStatsRec;
     }else{
-      vectValIndy = strsplit(strIndyVal, ":")[[1]];
+      if( is.numeric(strIndyVal) ){
+        vectValIndy = strIndyVal
+      }else{
+        vectValIndy = strsplit(strIndyVal, ":")[[1]];
+      }
       if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
         dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,];
       } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
