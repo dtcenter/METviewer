@@ -220,21 +220,29 @@ if ( nrow(sampleData) > 0){
   
   aggregatedList = list()
   matPerm = permute(listSeries1Val);
-  hasAggFieldIndy = FALSE
+    hasAggFieldSeries = FALSE
 
-  # look if there is a field that need to be aggregated first - the field with ':'
-  for(i in 1:dim(matPerm)[1]) {
-    for(j in 1:dim(matPerm)[2]) {
-      if( grepl(':', matPerm[i,j]) ){
-        hasAggFieldIndy = TRUE
-        break
-      }
+    # look if there is a field that need to be aggregated first - the field with ':'
+    for(i in 1:dim(matPerm)[1]) {
+        for(j in 1:dim(matPerm)[2]) {
+            if( grepl(':', matPerm[i,j]) ){
+                hasAggFieldSeries = TRUE
+                break
+            }
+        }
     }
-  }
 
+    #check if indyVars have a field that need to be aggregated
+    hasAggFieldIndy = FALSE
+    for(strIndyVal in listIndyVal){
+        if( grepl(':',strIndyVal) ){
+            hasAggFieldIndy = TRUE;
+            break;
+        }
+    }
 
-  # performe aggregation on a field
-  if( hasAggFieldIndy || hasAggFieldIndy){
+    # performe aggregation on a field
+    if( hasAggFieldSeries || hasAggFieldIndy ){
     listSeriesVar = names(listSeries1Val);
     for(strIndyVal in listIndyVal){
       if(is.nan(strIndyVal)){
@@ -242,7 +250,7 @@ if ( nrow(sampleData) > 0){
       }else{
         vectValIndy = strsplit(strIndyVal, ":")[[1]];
         if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
-          dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,,];
+          dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,];
         } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
             dfStatsIndy = dfStatsRec[is.na(dfStatsRec[[strIndyVar]]),]
         } else {
