@@ -106,6 +106,11 @@ public class MVBatch {
     this.databaseManager = databaseManager;
   }
 
+  public void closeDataSource(){
+    this.databaseManager.closeDataSource();
+  }
+
+
   public int getNumPlots() {
     return numPlots;
   }
@@ -382,6 +387,7 @@ public class MVBatch {
       stopWatch.stop();
       bat.print("  **  ERROR:  " + e.getMessage());
     }
+    bat.closeDataSource();
 
     bat.print("----  MVBatch Done  ----");
 

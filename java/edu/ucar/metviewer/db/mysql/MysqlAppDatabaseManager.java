@@ -3296,5 +3296,9 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     return buildMysqlQueryStrings;
   }
 
+  @Override
+  public void closeDataSource() {
+    super.closeDataSource();
+  }
 }
 

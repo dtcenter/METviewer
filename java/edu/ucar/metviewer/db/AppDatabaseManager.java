@@ -71,4 +71,6 @@ public interface AppDatabaseManager {
 
   public abstract Pattern getDateRangePattern();
 
+  public void closeDataSource();
+
 }
