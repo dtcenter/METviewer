@@ -38,18 +38,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import static j2html.TagCreator.body;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.head;
-import static j2html.TagCreator.html;
-import static j2html.TagCreator.style;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.text;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
+import static j2html.TagCreator.*;
 
 
 /**
@@ -81,7 +70,7 @@ class GraphicalOutputManager {
   private final ContainerTag title1;
   private final ContainerTag title2;
   private final ContainerTag title3;
-  private final ContainerTag htmlTable = table();
+  private final ContainerTag htmlTable = table().attr("align", "center");
   private final ContainerTag htmlBody = body();
   private List<LegendRange> rangeList;
   private List<Map<String, Integer>> rowFieldToCountMap;
@@ -97,6 +86,7 @@ class GraphicalOutputManager {
   private String model1;
   private String model2;
   private final List<String> leftColumnsNames;
+  private final String symbolSize;
 
   public GraphicalOutputManager(final Scorecard scorecard) {
     html = html();
@@ -119,6 +109,7 @@ class GraphicalOutputManager {
     leftColumnsNames = scorecard.getLeftColumnsNames();
     diffStatValue = scorecard.getStatValue();
     diffStatSymbol = scorecard.getStatSymbol();
+    symbolSize = scorecard.getSymbolSize();
     List<String> ranges = new ArrayList<>();
 
     for (Field fixField : scorecard.getFixedVars()) {
@@ -365,7 +356,7 @@ class GraphicalOutputManager {
   }
 
   private ContainerTag createHtmlLegend() {
-    ContainerTag legendTable = table().attr(CLASS, "legendTable");
+    ContainerTag legendTable = table().attr(CLASS, "legendTable").attr("align", "center");
     for (LegendRange range : rangeList) {
       ContainerTag td1 = td().attr(STYLE, "color:" + range.getColor() + ";"
               + "background:" + range.getBackground() + ";")
@@ -534,6 +525,8 @@ class GraphicalOutputManager {
     boolean checkLowLimit = false;
     boolean checkUpperLimit = false;
     StringBuilder textStr = new StringBuilder();
+    ContainerTag valueContainer = null;
+    ContainerTag symbolContainer = null;
     if (!valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
       for (LegendRange legendRange : rangeList) {
 
@@ -556,36 +549,34 @@ class GraphicalOutputManager {
 
         //if inside of limits
         if (checkLowLimit && checkUpperLimit) {
-          if (viewSymbol) {
-            textStr.append(legendRange.getSymbol());
+          if (viewSymbol && !legendRange.getSymbol().isEmpty()) {
+            symbolContainer = div().attr(STYLE, "font-size:"+symbolSize+";").with(new UnescapedText(legendRange.getSymbol()));
           }
           if (viewValue) {
-            textStr.append(valueForNumber);
+             valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
           }
           color = legendRange.getColor();
           background = legendRange.getBackground();
           title = String.valueOf(valueForSymbol);
-          text = textStr.toString();
           break;
         }
 
       }
       if (!checkLowLimit || !checkUpperLimit) {
         if (viewValue) {
-          textStr.append(valueForNumber);
+          valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
         }
 
         color = BLACK_000000;//black
         background = WHITE_FFFFFF;//white
         title = String.valueOf(valueForSymbol);
-        text = textStr.toString();
 
       }
 
     } else {
       // if p_value is undefined
       if (viewValue) {
-        text = String.valueOf(valueForNumber);
+        valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
       }
       if (viewSymbol) {
         for (LegendRange range : rangeList) {
@@ -598,9 +589,15 @@ class GraphicalOutputManager {
       }
     }
 
-
-    return td().attr(STYLE, "color:" + color + ";background-color:" + background + ";")
-            .attr("title", title).with(new UnescapedText(text));
+    ContainerTag result = td().attr(STYLE, "color:" + color + ";background-color:" + background + ";padding:0;")
+            .attr("title", title);
+    if(symbolContainer != null){
+      result.with(symbolContainer);
+    }
+    if(valueContainer != null){
+      result.with(valueContainer);
+    }
+    return result;
   }
 
   private List<Map<String, Integer>> getRowspansForRowHeader() {
@@ -719,7 +716,7 @@ class GraphicalOutputManager {
     ArrayNode table = new ArrayNode(JsonNodeFactory.instance);
 
     try (FileReader is = new FileReader(dataFile);
-         BoundedBufferedReader buf = new BoundedBufferedReader(is, 1024, 1024)) {
+         BoundedBufferedReader buf = new BoundedBufferedReader(is, 10000, 1024)) {
       //read the header line
       String line = buf.readLineBounded();
       String[] headers = line.split("\\t");

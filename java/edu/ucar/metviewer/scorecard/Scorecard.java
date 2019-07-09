@@ -73,6 +73,7 @@ public class Scorecard {
   private String statSymbol;
   private String thresholdFile = null;
   private List<String> leftColumnsNames = new ArrayList<>();
+  private String symbolSize = "100%";
 
   public static void main(String[] args) throws Exception {
 
@@ -410,6 +411,14 @@ public class Scorecard {
 
   public void setLeftColumnsNames(String columnsName) {
     this.leftColumnsNames.add(columnsName);
+  }
+
+  public String getSymbolSize() {
+    return symbolSize;
+  }
+
+  public void setSymbolSize(String symbolSize) {
+    this.symbolSize = symbolSize;
   }
 
   /**

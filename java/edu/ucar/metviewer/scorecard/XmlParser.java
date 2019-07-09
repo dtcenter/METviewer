@@ -200,6 +200,8 @@ class XmlParser {
               scorecard.setLeftColumnsNames(columnNameNode.getTextContent().trim());
             }
           }
+        } else if ("symbol_size".equals(plotNode.getNodeName())) {
+          scorecard.setSymbolSize(plotNode.getTextContent());
         }
 
       }
