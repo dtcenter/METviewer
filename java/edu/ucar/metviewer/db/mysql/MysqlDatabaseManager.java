@@ -67,7 +67,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
     configurationToUse.setInitialSize(10);
     configurationToUse.setMaxActive(50);
     configurationToUse.setMaxIdle(15);
-    configurationToUse.setMaxWait(10000);
+    configurationToUse.setMaxWait(1000);
     configurationToUse.setValidationQuery("select 1");
     configurationToUse.setTestOnBorrow(Boolean.TRUE);
     configurationToUse.setTestOnReturn(Boolean.FALSE);
@@ -131,7 +131,6 @@ public class MysqlDatabaseManager extends DatabaseManager {
       }
     } catch (SQLException e) {
       logger.error(ERROR_MARKER, e.getMessage());
-
     }
 
     if (updateGroups) {
@@ -235,5 +234,11 @@ public class MysqlDatabaseManager extends DatabaseManager {
       logger.error(ERROR_MARKER,"can't get connection " + e.getMessage());
     }
     return con;
+  }
+
+  public void closeDataSource(){
+    if (this.dataSource != null) {
+      this.dataSource.close();
+    }
   }
 }
