@@ -190,11 +190,10 @@ public class Scorecard {
         } else {
           throw new MissingFileException(dataFile.getAbsolutePath());
         }
-
+        databaseManager.closeDataSource();
       }else {
         logger.error("Validation ERROR: Only one column can be aggregated or grouped.");
       }
-
     }
     stopWatch.stop();
     logger.info("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
