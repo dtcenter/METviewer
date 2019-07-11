@@ -308,7 +308,7 @@ if ( nrow(sampleData) > 0){
   
 
   dfStatsRecTranspose=data.frame(t(format(aggregatedList, digits=10)),stringsAsFactors = FALSE);
-  a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
+  a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=detectCores(), mc.set.seed=1);
   #a=lapply( dfStatsRecTranspose,prepareCalc);
 
 
