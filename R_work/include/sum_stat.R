@@ -16,7 +16,6 @@ source(strInputInfoFile);
 setwd(strWorkingDir);
 source("util_plot.R");
 source("statistics.R");
-
 prepareCalc = function(d){
   row = setNames(as.list(d), names(dfStatsRec));
   dblStat = do.call( paste("calc", row$stat_name, sep=""), list(d=lapply(row[statFields], as.numeric)) );
@@ -36,6 +35,13 @@ prepareCalc = function(d){
 
 # variables for performance bookkeeping
 stStart      = Sys.time();
+
+options(stringsAsFactors = FALSE)
+
+lineTypes = list(boolCtc=boolSumCtc, boolSl1l2=boolSumSl1l2, boolGrad=boolSumGrad, boolVl1l2=boolSumVl1l2,
+                 boolVal1l2=boolSumVal1l2, boolSal1l2=boolSumSal1l2)
+
+
 
 if ( boolSumCtc    ){
   statFields = c("total", "fy_oy", "fy_on", "fn_oy", "fn_on");
@@ -148,7 +154,11 @@ if ( nrow(sampleData) > 0){
         for(strSeriesVal in names(listSeries1Val)){
           vectValPerms = c();
           for(index in 1:length(listSeries1Val[[strSeriesVal]])){
-            vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+            if( grepl(';', listSeries1Val[[strSeriesVal]][index]) ){
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ";")[[1]]);
+            }else{
+              vectValPerms= append(vectValPerms, strsplit(listSeries1Val[[strSeriesVal]][index], ",")[[1]]);
+            }
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
         }
@@ -169,7 +179,11 @@ if ( nrow(sampleData) > 0){
           for(strSeriesVal in names(listSeries2Val)){
             vectValPerms = c();
             for(index in 1:length(listSeries2Val[[strSeriesVal]])){
-              vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+              if( grepl(';', listSeries2Val[[strSeriesVal]][index]) ){
+                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ";")[[1]]);
+              }else{
+                vectValPerms= append(vectValPerms, strsplit(listSeries2Val[[strSeriesVal]][index], ",")[[1]]);
+              }
             }
             fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
           }
@@ -202,9 +216,99 @@ if ( nrow(sampleData) > 0){
       stop("ERROR: Database query returned empy set");
     }
   }
+  
+  
+  aggregatedList = list()
+  matPerm = permute(listSeries1Val);
+    hasAggFieldSeries = FALSE
 
-  dfStatsRecTranspose=data.frame(t(format(dfStatsRec, digits=10)),stringsAsFactors = FALSE);
-  a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=6, mc.set.seed=1);
+    # look if there is a field that need to be aggregated first - the field with ';'
+    for(i in 1:dim(matPerm)[1]) {
+        for(j in 1:dim(matPerm)[2]) {
+            if( grepl(';', matPerm[i,j]) ){
+                hasAggFieldSeries = TRUE
+                break
+            }
+        }
+    }
+
+    #check if indyVars have a field that need to be aggregated
+    hasAggFieldIndy = FALSE
+    for(strIndyVal in listIndyVal){
+        if( grepl(';',strIndyVal) ){
+            hasAggFieldIndy = TRUE;
+            break;
+        }
+    }
+
+    # performe aggregation on a field
+    if( hasAggFieldSeries || hasAggFieldIndy ){
+    listSeriesVar = names(listSeries1Val);
+    for(strIndyVal in listIndyVal){
+      if(is.nan(strIndyVal)){
+        dfStatsIndy = dfStatsRec;
+      }else{
+        vectValIndy = strsplit(strIndyVal, ";")[[1]];
+        if(strIndyVar == 'fcst_valid_beg' || strIndyVar == 'fcst_init_beg'){
+          dfStatsIndy = dfStatsRec[as.character(dfStatsRec[[strIndyVar]]) %in% vectValIndy,];
+        } else if ( is.na(strIndyVal) || strIndyVal == 'NA') {
+            dfStatsIndy = dfStatsRec[is.na(dfStatsRec[[strIndyVar]]),]
+        } else {
+          dfStatsIndy = dfStatsRec[dfStatsRec[[strIndyVar]] %in% vectValIndy,];
+        }
+      }
+
+      for(intPerm in 1:nrow(matPerm)){
+        listPerm = matPerm[intPerm,];
+        dfStatsPerm = dfStatsIndy;
+        dfStatsPermAllIndy = dfStatsRec;
+        listSeriesVarLenght = length(listSeriesVar);
+        if(listSeriesVarLenght == 0){
+          listSeriesVarLenght = 1;
+        }
+        
+        for (intSeriesVal in 1 : listSeriesVarLenght) {
+          strSeriesVar = listSeriesVar[intSeriesVal];
+          if (! is.null(strSeriesVar)) {
+            strSeriesVal = listPerm[intSeriesVal];
+            if (grepl("^[0-9]+$", strSeriesVal)) {
+              strSeriesVal = as.integer(strSeriesVal);
+              vectValPerms = strSeriesVal;
+            }else {
+              if( grepl(';', strSeriesVal) ){
+                vectValPerms = strsplit(strSeriesVal, ";")[[1]];
+              }else{
+                vectValPerms = strsplit(strSeriesVal, ",")[[1]];
+              }
+            }
+            vectValPerms = lapply(vectValPerms, function(x) {if (grepl("^[0-9]+$", x)) { x = as.integer(x);}else {x = x}})
+            dfStatsPerm = dfStatsPerm[dfStatsPerm[[strSeriesVar]] %in% vectValPerms,];
+          }
+        }
+
+        strPerm = escapeStr(paste(intPerm, sep="_", collapse="_"));
+        #aggregate series vals by fcst_valid_beg and fcst_lead if needed
+        if(any(grepl(';', listPerm))){
+            dfStatsPerm = aggregateFieldValues(listSeries1Val, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
+        }else if(grepl(';', strIndyVal)){
+          listSetiesIndyVal = listSeries1Val
+          listSetiesIndyVal[[strIndyVar]] = strIndyVal
+          dfStatsPerm = aggregateFieldValues(listSetiesIndyVal, dfStatsPerm, strPerm, lineTypes, listFields, intPerm);
+        }
+        if( length(aggregatedList) == 0 ){
+          aggregatedList = dfStatsPerm
+        }else{
+          aggregatedList = rbind(aggregatedList, dfStatsPerm)
+        }
+      }
+    }
+  }else{
+    aggregatedList = dfStatsRec
+  }
+  
+
+  dfStatsRecTranspose=data.frame(t(format(aggregatedList, digits=10)),stringsAsFactors = FALSE);
+  a=mclapply( dfStatsRecTranspose ,prepareCalc, mc.cores=detectCores(), mc.set.seed=1);
   #a=lapply( dfStatsRecTranspose,prepareCalc);
 
 

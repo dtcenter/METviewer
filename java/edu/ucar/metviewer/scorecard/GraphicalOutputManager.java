@@ -15,12 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.FormatFlagsConversionMismatchException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -43,18 +38,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import static j2html.TagCreator.body;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.head;
-import static j2html.TagCreator.html;
-import static j2html.TagCreator.style;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.text;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
+import static j2html.TagCreator.*;
 
 
 /**
@@ -86,7 +70,7 @@ class GraphicalOutputManager {
   private final ContainerTag title1;
   private final ContainerTag title2;
   private final ContainerTag title3;
-  private final ContainerTag htmlTable = table();
+  private final ContainerTag htmlTable = table().attr("align", "center");
   private final ContainerTag htmlBody = body();
   private List<LegendRange> rangeList;
   private List<Map<String, Integer>> rowFieldToCountMap;
@@ -97,8 +81,12 @@ class GraphicalOutputManager {
   private final boolean viewSymbol;
   private final boolean viewValue;
   private final boolean viewLegend;
+  private final String diffStatValue;
+  private final String diffStatSymbol;
   private String model1;
   private String model2;
+  private final List<String> leftColumnsNames;
+  private final String symbolSize;
 
   public GraphicalOutputManager(final Scorecard scorecard) {
     html = html();
@@ -118,21 +106,47 @@ class GraphicalOutputManager {
     viewValue = scorecard.getViewValue();
     viewLegend = scorecard.getViewLegend();
     plotFileStr = scorecard.getWorkingFolders().getPlotsDir() + scorecard.getPlotFile();
-
-    String range = "";
+    leftColumnsNames = scorecard.getLeftColumnsNames();
+    diffStatValue = scorecard.getStatValue();
+    diffStatSymbol = scorecard.getStatSymbol();
+    symbolSize = scorecard.getSymbolSize();
+    List<String> ranges = new ArrayList<>();
 
     for (Field fixField : scorecard.getFixedVars()) {
       if ("fcst_init_beg".equals(fixField.getName())
               || "fcst_valid_beg".equals(fixField.getName())) {
-        range = fixField.getValues().get(0).getLabel()
-                + " - " + fixField.getValues().get(1).getLabel();
+
+        int fixedFieldValsSize = fixField.getValues().size();
+        boolean isSizeEven = fixedFieldValsSize % 2 == 0;
+        if (isSizeEven) {
+          for (int i = 0; i < fixedFieldValsSize; i = i + 2) {
+            String line = fixField.getValues().get(i).getLabel()
+                    + " - " + fixField.getValues().get(i + 1).getLabel();
+            if (i < fixedFieldValsSize - 2) {
+              line = line +",";
+            }
+            ranges.add(line);
+          }
+        } else {
+          for (int i = 0; i < fixedFieldValsSize - 1; i = i + 2) {
+            ranges.add(fixField.getValues().get(i).getLabel()
+                    + " - " + fixField.getValues().get(i + 1).getLabel()
+                    + ", ");
+
+          }
+          ranges.add(fixField.getValues().get(fixedFieldValsSize - 1).getName());
+        }
+
+
       } else if ("model".equals(fixField.getName())) {
         model1 = fixField.getValues().get(0).getLabel();
         model2 = fixField.getValues().get(1).getLabel();
       }
     }
     title2.withText("for " + model1 + " and " + model2);
-    title3.withText(range);
+    for (String range : ranges) {
+      title3.with(div().withText(range));
+    }
   }
 
   private void initRangeList(final String thresholdFile) {
@@ -342,7 +356,7 @@ class GraphicalOutputManager {
   }
 
   private ContainerTag createHtmlLegend() {
-    ContainerTag legendTable = table().attr(CLASS, "legendTable");
+    ContainerTag legendTable = table().attr(CLASS, "legendTable").attr("align", "center");
     for (LegendRange range : rangeList) {
       ContainerTag td1 = td().attr(STYLE, "color:" + range.getColor() + ";"
               + "background:" + range.getBackground() + ";")
@@ -360,7 +374,23 @@ class GraphicalOutputManager {
 
       legendTable.with(tr().with(td1).with(td2));
     }
+    //add one more line describing the stats for symbols and numbers
+    StringBuilder description  = new StringBuilder();
+    if(viewSymbol){
+      description.append("Statistic for symbols: ").append(diffStatSymbol);
+    }
+    if(viewValue){
+      if(description.length() > 0){
+        description.append(" , ");
+      }
+      description.append("Statistic for values: ").append(diffStatValue);
+    }
 
+    ContainerTag td = td().attr(CLASS, "legendText").attr("colspan","2")
+            .attr(STYLE, "text-align:center;")
+            .with(new UnescapedText(description.toString()));
+
+    legendTable.with(tr().with(td));
 
     return legendTable;
   }
@@ -380,43 +410,38 @@ class GraphicalOutputManager {
         int index = -1;
         boolean isCellCreated = false;
         // find the corresponding value in the JSON table and create a cell
+        BigDecimal valueForSymbol = BigDecimal.valueOf(-9999);
+        BigDecimal valueForNumber = BigDecimal.valueOf(-9999);
         for (int i = 0; i < table.size(); i++) {
           JsonNode node = table.get(i);
-          boolean isMatch = isJsonRowMatch(cellFieldsValues, node);
-
-          if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
-            //this is correct row - get value and create a cell
-            index = i;
-            BigDecimal value;
-            try {
-              value = new BigDecimal(node.findValue("stat_value").asText());
-              value = value.setScale(3, RoundingMode.HALF_UP);
-            } catch (NumberFormatException e) {
-              logger.error(e);
-              value = BigDecimal.valueOf(-9999);
-            }
-            htmlTr.with(createTableCell(value));
-            isCellCreated = true;
-
-            break;
-          } else {
-            //this JSON row doesn't match
-            //if no more JSON rows - no value for this combination - insert empty cell
-            //if there are more JSON rows - continue the search
-            if (i == table.size() - 1) {
-              htmlTr.with(createEmptyCell());
-              isCellCreated = true;
+          if (viewSymbol) {
+            boolean isMatch = isJsonRowMatchSymbol(cellFieldsValues, node);
+            if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
+              try {
+                valueForSymbol = new BigDecimal(node.findValue("stat_value").asText());
+                valueForSymbol = valueForSymbol.setScale(3, RoundingMode.HALF_UP);
+              } catch (NumberFormatException e) {
+                logger.error(e);
+              }
             }
           }
-
+          if (viewValue) {
+            boolean isMatch = isJsonRowMatchNumber(cellFieldsValues, node);
+            if (isMatch && !"NA".equals(node.findValue("stat_value").asText())) {
+              try {
+                valueForNumber = new BigDecimal(node.findValue("stat_value").asText());
+                valueForNumber = valueForNumber.setScale(3, RoundingMode.HALF_UP);
+              } catch (NumberFormatException e) {
+                logger.error(e);
+              }
+            }
+          }
         }
-        //we are done with the row from JSON table - remove it to speed up next searches
-        if (index != -1) {
-          table.remove(index);
-        }
-        if (!isCellCreated) {
-          //the cell value is not in the data table
+        if (valueForNumber.equals(BigDecimal.valueOf(-9999)) && valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
+          //insert empty cell
           htmlTr.with(createEmptyCell());
+        } else {
+          htmlTr.with(createTableCell(valueForSymbol, valueForNumber));
         }
       }
       tBody.with(htmlTr);
@@ -436,6 +461,8 @@ class GraphicalOutputManager {
   }
 
   private boolean isJsonRowMatch(Map<String, Entry> cellFieldsValues, JsonNode node) {
+
+
     boolean isMatch = true;
     for (Map.Entry<String, Entry> entry : cellFieldsValues.entrySet()) {
       String name;
@@ -455,6 +482,25 @@ class GraphicalOutputManager {
     return isMatch;
   }
 
+  private boolean isJsonRowMatchSymbol(Map<String, Entry> cellFieldsValues, JsonNode node) {
+
+    if (!node.findValue("derived_stat").asText().equals(diffStatSymbol)) {
+      return false;
+    } else {
+      return isJsonRowMatch(cellFieldsValues, node);
+    }
+  }
+
+  private boolean isJsonRowMatchNumber(Map<String, Entry> cellFieldsValues, JsonNode node) {
+
+    if (!node.findValue("derived_stat").asText().equals(diffStatValue)) {
+      return false;
+    } else {
+      return isJsonRowMatch(cellFieldsValues, node);
+    }
+  }
+
+
   private void createRowHeader(int rowCounter, ContainerTag htmlTr) {
     int columnNumber = 0;
     for (Map.Entry<String, Entry> entry : listRows.get(rowCounter).entrySet()) {
@@ -471,61 +517,87 @@ class GraphicalOutputManager {
     }
   }
 
-  private ContainerTag createTableCell(BigDecimal value) {
-    String color = WHITE_FFFFFF;
-    String background = BLACK_000000;
+  private ContainerTag createTableCell(BigDecimal valueForSymbol, BigDecimal valueForNumber) {
+    String color = BLACK_000000;
+    String background = WHITE_FFFFFF;
     String title = "";
     String text = "&nbsp;";
     boolean checkLowLimit = false;
     boolean checkUpperLimit = false;
     StringBuilder textStr = new StringBuilder();
-    for (LegendRange legendRange : rangeList) {
+    ContainerTag valueContainer = null;
+    ContainerTag symbolContainer = null;
+    if (!valueForSymbol.equals(BigDecimal.valueOf(-9999))) {
+      for (LegendRange legendRange : rangeList) {
 
-      //check if the low limit works
-      if (legendRange.getLowerLimit() != null) {
-        if (legendRange.isIncludeLowerLimit()) {
-          checkLowLimit = value.compareTo(legendRange.getLowerLimit()) >= 0;
-        } else {
-          checkLowLimit = value.compareTo(legendRange.getLowerLimit()) > 0;
+        //check if the low limit works
+        if (legendRange.getLowerLimit() != null) {
+          if (legendRange.isIncludeLowerLimit()) {
+            checkLowLimit = valueForSymbol.compareTo(legendRange.getLowerLimit()) >= 0;
+          } else {
+            checkLowLimit = valueForSymbol.compareTo(legendRange.getLowerLimit()) > 0;
+          }
         }
-      }
-      //check if the upper limit works
-      if (legendRange.getUpperLimit() != null) {
-        if (legendRange.isIncludeUpperLimit()) {
-          checkUpperLimit = value.compareTo(legendRange.getUpperLimit()) <= 0;
-        } else {
-          checkUpperLimit = value.compareTo(legendRange.getUpperLimit()) < 0;
+        //check if the upper limit works
+        if (legendRange.getUpperLimit() != null) {
+          if (legendRange.isIncludeUpperLimit()) {
+            checkUpperLimit = valueForSymbol.compareTo(legendRange.getUpperLimit()) <= 0;
+          } else {
+            checkUpperLimit = valueForSymbol.compareTo(legendRange.getUpperLimit()) < 0;
+          }
         }
-      }
 
-      //if inside of limits
-      if (checkLowLimit && checkUpperLimit) {
-        if (viewSymbol) {
-          textStr.append(legendRange.getSymbol());
+        //if inside of limits
+        if (checkLowLimit && checkUpperLimit) {
+          if (viewSymbol && !legendRange.getSymbol().isEmpty()) {
+            symbolContainer = div().attr(STYLE, "font-size:"+symbolSize+";").with(new UnescapedText(legendRange.getSymbol()));
+          }
+          if (viewValue) {
+             valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
+          }
+          color = legendRange.getColor();
+          background = legendRange.getBackground();
+          title = String.valueOf(valueForSymbol);
+          break;
         }
+
+      }
+      if (!checkLowLimit || !checkUpperLimit) {
         if (viewValue) {
-          textStr.append(String.valueOf(value));
+          valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
         }
-        color = legendRange.getColor();
-        background = legendRange.getBackground();
-        title = String.valueOf(value);
-        text = textStr.toString();
-        break;
+
+        color = BLACK_000000;//black
+        background = WHITE_FFFFFF;//white
+        title = String.valueOf(valueForSymbol);
+
       }
 
-    }
-    if (!checkLowLimit || !checkUpperLimit) {
+    } else {
+      // if p_value is undefined
       if (viewValue) {
-        textStr.append(String.valueOf(value));
+        valueContainer = div().with(new UnescapedText(valueForNumber.toString()));
       }
-      color = BLACK_000000;//black
-      background = WHITE_FFFFFF;//white
-      title = String.valueOf(value);
-      text = textStr.toString();
+      if (viewSymbol) {
+        for (LegendRange range : rangeList) {
+          if (range.getLowerLimit() == null || range.getUpperLimit() == null) {
+            background = range.getBackground();
+            color = range.getColor();
+            break;
+          }
+        }
+      }
     }
 
-    return td().attr(STYLE, "color:" + color + ";background-color:" + background + ";")
-            .attr("title", title).with(new UnescapedText(text));
+    ContainerTag result = td().attr(STYLE, "color:" + color + ";background-color:" + background + ";padding:0;")
+            .attr("title", title);
+    if(symbolContainer != null){
+      result.with(symbolContainer);
+    }
+    if(valueContainer != null){
+      result.with(valueContainer);
+    }
+    return result;
   }
 
   private List<Map<String, Integer>> getRowspansForRowHeader() {
@@ -573,46 +645,65 @@ class GraphicalOutputManager {
 
   private ContainerTag createTableHead() {
     ContainerTag thead = thead();
-    //total number of rows in the thead - the number of keys in each column
+    //total number of rows in the head - the number of keys in each column
     // (for example vx_mask and  fsct_lead)
-    for (String field : listColumns.get(0).keySet()) {
+    Set<String> columnsVars = listColumns.get(0).keySet();
+    boolean isFirstHeatherRow = true;
+    for (String field : columnsVars) {
       ContainerTag htmlTrH = tr();
-      //empty cells that are above roe headers
-      for (int i = 0; i < listRows.get(0).size(); i++) {
-        htmlTrH.with(td());
+      int colspan = 0;
+      // cells that are above row headers
+      // empty - if user did not specify the column names
+      // or with the names in the last heather's row
+      if (isFirstHeatherRow) {
+        for (int i = 0; i < listRows.get(0).size(); i++) {
+          if (i < leftColumnsNames.size()) {
+            htmlTrH.with(createHeaderCellRowspan(leftColumnsNames.get(i), columnsVars.size()));
+          } else {
+            htmlTrH.with(createHeaderCellRowspan("", columnsVars.size()));
+          }
+        }
+        isFirstHeatherRow = false;
       }
       String previousField = listColumns.get(0).get(field).getLabel();
-      int colspan = 0;
+
 
       for (Map<String, Entry> column : listColumns) {
         if (column.get(field).getLabel().equals(previousField)) {
-          //if this is the same field - do ot creat a cell but increase colspan
+          //if this is the same field - do  create a cell but increase colspan
           colspan++;
         } else {
           //create a cell
-          htmlTrH.with(createTableHeaderCell(thead.children.size(), previousField, colspan));
+          htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
           //init colspan and field
           colspan = 1;
           previousField = column.get(field).getLabel();
         }
       }
       //add a cell for the last column
-      htmlTrH.with(createTableHeaderCell(thead.children.size(), previousField, colspan));
+      htmlTrH.with(createHeaderCellColspan(thead.children.size(), previousField, colspan));
       thead.with(htmlTrH);
     }
     return thead;
   }
 
-  private ContainerTag createTableHeaderCell(int rowNumber, String previousField, int colspan) {
+  private ContainerTag createHeaderCellColspan(int rowNumber, String text, int colspan) {
     ContainerTag th;
     if (rowNumber == 0) {
       //for the first row - red font
-      th = th(previousField).attr("colspan", String.valueOf(colspan));
+      th = th(text).attr("colspan", String.valueOf(colspan));
     } else {
-      th = td(previousField).attr("colspan", String.valueOf(colspan));
+      th = td(text).attr("colspan", String.valueOf(colspan));
     }
     return th;
   }
+
+  private ContainerTag createHeaderCellRowspan(String text, int rowspan) {
+    ContainerTag th = th(text).attr("rowspan", String.valueOf(rowspan));
+
+    return th;
+  }
+
 
   /**
    * reads tabluar data file and saves rows with derived curevs data into the JSON table format
@@ -658,6 +749,8 @@ class GraphicalOutputManager {
       //ignore model values in the actual table
       if (!"model".equals(headers[i])) {
         row.put(headers[i], values[i]);
+      } else {
+        row.put("derived_stat", values[i].split("\\(")[0]);
       }
     }
     return row;

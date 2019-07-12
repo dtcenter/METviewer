@@ -26,6 +26,8 @@ boolVarianceInflationFactor = #<variance_inflation_factor>#;
 
 listY1limUsr  = #<y1_lim>#;
 
+listX1limUsr  = #<x1_lim>#;
+
 listY2limUsr  = #<y2_lim>#;
 
 listPlotCI    = #<plot_ci>#;
@@ -103,10 +105,14 @@ dfPlot = read.delim(strDataFile,colClasses = classes);
 listX = 1:length(listIndy);
 if( length(listIndyPlotVal) == length(listIndy) ){ listX = listIndyPlotVal; }
 
-if( FALSE == boolXReverse ){
-  listXlim = c(min(listX), max(listX));
-} else {
-  listXlim = c(max(listX), min(listX));
+if( length(listX1limUsr) > 0 ) {
+  listXlim = listX1limUsr
+}else{
+  listXlim = c(min(listX), max(listX))
+}
+
+if( TRUE == boolXReverse ){
+  listXlim = rev(listXlim)
 }
 
 # run event equalizer, if requested

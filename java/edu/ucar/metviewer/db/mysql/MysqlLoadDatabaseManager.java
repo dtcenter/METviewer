@@ -981,6 +981,9 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               case "PSTD":
                 lineDataMax = lineDataMax - Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
                 break;
+              case "ORANK":
+                lineDataMax = lengthGroupIndices[1] + 1;
+                break;
               default:
                 lineDataMax = lengthGroupIndices[1];
                 break;
@@ -3861,7 +3864,10 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
   public void updateInfoTable(String strXML, MVLoadJob job) throws DatabaseException {
     //  get the instance_info information to insert
     int instInfoIdNext = getNextId("instance_info", "instance_info_id");
-    String updater = "mvuser";
+    String updater = System.getProperty("user.name");
+    if(updater == null || updater.isEmpty()){
+      updater="mvuser";
+    }
     String updateDate = DATE_FORMATTER.format(LocalDateTime.now());
     String updateDetail = job.getLoadNote();
 

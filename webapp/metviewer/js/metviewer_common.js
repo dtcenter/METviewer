@@ -569,6 +569,22 @@ relp_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
 relp_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
 relp_fixed_var_map['n_ens'] = 'N_ENS';
 
+var perf_fixed_var_map = {};
+perf_fixed_var_map['fcst_var'] = 'FCST_VAR';
+perf_fixed_var_map['model'] = 'MODEL';
+perf_fixed_var_map['fcst_lead'] = 'FCST_LEAD';
+perf_fixed_var_map['fcst_valid_beg'] = 'FCST_VALID_BEG';
+perf_fixed_var_map['valid_hour'] = 'VALID_HOUR';
+perf_fixed_var_map['fcst_init_beg'] = 'FCST_INIT_BEG';
+perf_fixed_var_map['init_hour'] = 'INIT_HOUR';
+perf_fixed_var_map['fcst_lev'] = 'FCST_LEV';
+perf_fixed_var_map['obtype'] = 'OBTYPE';
+perf_fixed_var_map['vx_mask'] = 'VX_MASK';
+perf_fixed_var_map['interp_mthd'] = 'INTERP_MTHD';
+perf_fixed_var_map['interp_pnts'] = 'INTERP_PNTS';
+perf_fixed_var_map['fcst_thresh'] = 'FCST_THRESH';
+perf_fixed_var_map['obs_thresh'] = 'OBS_THRESH';
+
 
 var fcst_var_y1_indexes = [1];
 var series_var_y1_indexes = [1];
@@ -1639,7 +1655,7 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
     var selectedDatabase = getSelectedDatabases();
     var selected_mode, statst;
     if (currentTab === 'Perf') {
-        selected_mode = 'stat';
+        selected_mode = 'perf';
         statst = '<stat></stat>';
     } else if (currentTab === 'Taylor') {
         selected_mode = 'taylor';
@@ -2151,8 +2167,8 @@ function populateIndyVarVal(selectedVals) {
                 if (values.length > 0) {
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
-                        selected = $.inArray(t.text(), selectedVals) >= 0;
-                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
+                        if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                             var text_formatted = t.text().formatAll();
                             opt = $('<option />', {
                                 value: text_formatted,
@@ -2161,7 +2177,7 @@ function populateIndyVarVal(selectedVals) {
                                 class: "indy-var-option"
                             });
                             options.push(opt);
-                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
                             options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
                     }
@@ -3190,7 +3206,11 @@ function updateSeries(isCheckAll) {
                                     series_formatting.id = number_series + 1;
 
                                 } else {
-                                    series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+                                    if(isFixedFormatting && oldSeriesData.length > 0){
+                                        series_formatting = jQuery.extend(true, {}, oldSeriesData[oldSeriesData.length - 1]);
+                                    }else {
+                                        series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
+                                    }
                                     series_formatting.title = seriesNameWithDerived;
                                     series_formatting.y_axis = "Y" + axis_index;
                                     series_formatting.id = number_series + 1;
@@ -4198,6 +4218,11 @@ function createXMLCommon(plot) {
     } else {
         plot.append($('<y1_lim />').text("c(" + $('#y1_lim_min').val() + "," + $('#y1_lim_max').val() + ")"));
     }
+    if ($('#x1_lim_min').val().trim().length == 0 || $('#x1_lim_max').val().trim().length == 0) {
+        plot.append($('<x1_lim />').text("c()"));
+    } else {
+        plot.append($('<x1_lim />').text("c(" + $('#x1_lim_min').val() + "," + $('#x1_lim_max').val() + ")"));
+    }
     plot.append($('<y1_bufr />').text($('#y1_bufr').val()));
     if ($('#y2_lim_min').val().trim().length == 0 || $('#y2_lim_max').val().trim().length == 0) {
         plot.append($('<y2_lim />').text("c()"));
@@ -4542,6 +4567,8 @@ function resetFormatting() {
     $("#caption_offset").val("3");
     $("#caption_size").val("0.8");
     $("#caption_weight").val("1");
+    $("#x1_lim_min").val("");
+    $("#x1_lim_max").val("");
 
 
 }
@@ -6029,6 +6056,8 @@ function loadXMLSeries() {
                 } else {
                     if (currentTab === 'Taylor') {
                         addSeriesVarHist();
+                    }else if (currentTab === 'Perf') {
+                        addSeriesVarPerf();
                     } else {
                         addSeriesVar(y_axis);
                     }
@@ -6074,7 +6103,7 @@ function loadXMLSeries() {
         $("#indy_var").val(value).multiselect("refresh");
     } catch (e) {
     }
-    if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+    if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
         $("#date_period_button").css("display", "block");
     } else {
         $("#date_period_button").css("display", "none");
@@ -6277,6 +6306,7 @@ function requestDBUpdate() {
     });
 
 }
+
 function updateFixVar(selected_mode) {
     //remove fixed values
     var fixed_var_indexes_copy = fixed_var_indexes.slice();
@@ -6292,14 +6322,21 @@ function updateFixVar(selected_mode) {
     }
     fixed_var_indexes.push(parseInt(remaining_fixed_var_id));
     $('#fixed_var_' + remaining_fixed_var_id).empty();
-    if (selected_mode == "stat") {
-        $.each(fix_var_value_to_title_stat_map, function (key, val) {
+    if (currentTab === 'Perf') {
+        $.each(perf_fixed_var_map, function (key, val) {
             $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
         });
     } else {
-        $.each(fix_var_value_to_title_mode_map, function (key, val) {
-            $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
-        });
+
+        if (selected_mode == "stat") {
+            $.each(fix_var_value_to_title_stat_map, function (key, val) {
+                $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
+            });
+        } else {
+            $.each(fix_var_value_to_title_mode_map, function (key, val) {
+                $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
+            });
+        }
     }
     try {
         $('#fixed_var_' + remaining_fixed_var_id).multiselect('uncheckAll');
@@ -6796,9 +6833,6 @@ function initPage() {
     $('body').on('resize', function () {
         $("#plot_display_inner").tabs('refresh');
     });
-
-//addThemeSwitcher( '#toolbar', { top: '15px' });
-
 
     var westSelector = "body > .ui-layout-west"; // outer-west pane
     $("<span></span>").attr("id", "west-closer").prependTo(westSelector);
@@ -7462,6 +7496,11 @@ function initPage() {
         $("#y1_lim_min").val(y1_lim_arr[0]);
         $("#y1_lim_max").val(y1_lim_arr[1]);
         $("#y1_bufr").val($(initXML.find("plot").find("y1_bufr")).text());
+
+        var x1_lim_arr = $(initXML.find("plot").find("x1_lim")).text().replace("c(", "").replace(")", "").split(",");
+
+        $("#x1_lim_min").val(x1_lim_arr[0]);
+        $("#x1_lim_max").val(x1_lim_arr[1]);
 
 
         $("#y2lab_align").val($(initXML.find("plot").find("y2lab_align")).text());

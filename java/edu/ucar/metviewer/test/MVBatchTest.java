@@ -46,7 +46,7 @@ public class MVBatchTest {
     logError = new ByteArrayOutputStream();
     printStreamSql = new PrintStream(logSql);
     printStreamError = new PrintStream(logError);
-    AppDatabaseManager databaseManager = (AppDatabaseManager) DatabaseManager.getAppManager(TestUtil.type, TestUtil.host, TestUtil.USERNAME, TestUtil.PWD);
+    AppDatabaseManager databaseManager = (AppDatabaseManager) DatabaseManager.getAppManager(TestUtil.type, TestUtil.host, TestUtil.USERNAME, TestUtil.PWD, null);
     mvBatch = new MVBatch(printStream, printStreamSql, printStreamError, databaseManager);
     MVUtil.updateLog4jConfiguration();
   }
@@ -91,7 +91,7 @@ public class MVBatchTest {
   @Test
   public void getSetDatabaseManager() {
     try {
-      AppDatabaseManager myDatabaseManager = (AppDatabaseManager) DatabaseManager.getAppManager("cb", "fredsmachine", "fred", "fredspassword");
+      AppDatabaseManager myDatabaseManager = (AppDatabaseManager) DatabaseManager.getAppManager("cb", "fredsmachine", "fred", "fredspassword", null);
       mvBatch.setDatabaseManager(myDatabaseManager);
       assertEquals("getSetDatabaseManager - the databaseManager was not properly set or retrieved", myDatabaseManager, mvBatch.getDatabaseManager());
       mvBatch.setDatabaseManager(null);

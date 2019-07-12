@@ -29,4 +29,4 @@ CLASSPATH=$CLASSPATH:$MV_HOME/lib/servlet-api.jar
 CLASSPATH=$CLASSPATH:$MV_HOME/dist/lib/metviewer.jar
 
 
-$JAVA -classpath $CLASSPATH -Xmx2048M edu.ucar.metviewer.scorecard.Scorecard $@
+$JAVA -classpath $CLASSPATH -Xmx4096M edu.ucar.metviewer.scorecard.Scorecard $@

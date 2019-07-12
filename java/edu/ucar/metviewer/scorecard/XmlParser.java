@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.ucar.metviewer.MVUtil;
+import edu.ucar.metviewer.ValidationException;
 import edu.ucar.metviewer.scorecard.model.Entry;
 import edu.ucar.metviewer.scorecard.model.Field;
 import edu.ucar.metviewer.scorecard.model.WorkingFolders;
@@ -38,8 +39,7 @@ class XmlParser {
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
 
 
-
-  public Scorecard parseParameters(String filename) {
+  public Scorecard parseParameters(String filename) throws ValidationException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder db;
     Scorecard scorecard = new Scorecard();
@@ -68,6 +68,38 @@ class XmlParser {
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "plot".equals(
                 scorecardSpecNode.getNodeName())) {
           setPlot(scorecard, scorecardSpecNode);
+          if (scorecard.getViewSymbol() && scorecard.getStat() == null && scorecard.getStatSymbol() == null){
+            throw new ValidationException("XML ERROR - Provide the statistic for symbols");
+          }
+
+          if (scorecard.getViewSymbol() && scorecard.getStat() != null && scorecard.getStatSymbol() != null){
+            throw new ValidationException("XML ERROR - Ambiguous statistic for symbols.Provide <stat> or <stat_symbol> but not both");
+          }
+
+          if (scorecard.getViewValue() && scorecard.getStat() == null && scorecard.getStatValue() == null){
+            throw new ValidationException("XML ERROR - Provide the statistic for values");
+          }
+          if (scorecard.getViewValue() && scorecard.getStat() != null && scorecard.getStatValue() != null){
+            throw new ValidationException("XML ERROR - Ambiguous the statistic for values. Provide <stat> or <stat_value> but not both");
+          }
+
+          //init stats for number and symbol if they don't exist
+          if(scorecard.getStat() != null && scorecard.getStatValue() == null){
+            scorecard.setStatValue(scorecard.getStat());
+          }
+          if(scorecard.getStat() != null && scorecard.getStatSymbol() == null){
+            scorecard.setStatSymbol(scorecard.getStat());
+          }
+
+          //if do not display values - set stat for values to null
+          if( !scorecard.getViewValue() ){
+            scorecard.setStatValue(null);
+          }
+          //if do not display symbols - set stat for symbols to null
+          if( !scorecard.getViewSymbol() ){
+            scorecard.setStatSymbol(null);
+          }
+
         } else if (scorecardSpecNode.getNodeType() == Node.ELEMENT_NODE && "rscript".equals(
                 scorecardSpecNode.getNodeName())) {
           scorecard.setrScriptCommand(scorecardSpecNode.getTextContent());
@@ -139,6 +171,12 @@ class XmlParser {
         } else if ("stat_flag".equals(plotNode.getNodeName())) {
           scorecard.setStatFlag(plotNode.getTextContent());
 
+        } else if ("stat_value".equals(plotNode.getNodeName())) {
+          scorecard.setStatValue(plotNode.getTextContent());
+
+        } else if ("stat_symbol".equals(plotNode.getNodeName())) {
+          scorecard.setStatSymbol(plotNode.getTextContent());
+
         } else if ("stat".equals(plotNode.getNodeName())) {
           if (plotNode.getTextContent().equals("DIFF")
                   || plotNode.getTextContent().equals("DIFF_SIG")
@@ -153,6 +191,17 @@ class XmlParser {
           } else if (plotNode.getTextContent().equalsIgnoreCase(String.valueOf(Boolean.FALSE))) {
             scorecard.setPrintSQL(Boolean.FALSE);
           }
+        } else if ("left_column_names".equals(plotNode.getNodeName())) {
+          NodeList leftColumnNamesList = plotNode.getChildNodes();
+          for (int k = 0; k < leftColumnNamesList.getLength(); k++) {
+            Node columnNameNode = leftColumnNamesList.item(k);
+            if (columnNameNode.getNodeType() == Node.ELEMENT_NODE
+                    && "val".equals(columnNameNode.getNodeName())) {
+              scorecard.setLeftColumnsNames(columnNameNode.getTextContent().trim());
+            }
+          }
+        } else if ("symbol_size".equals(plotNode.getNodeName())) {
+          scorecard.setSymbolSize(plotNode.getTextContent());
         }
 
       }
@@ -280,7 +329,12 @@ class XmlParser {
         if ("host".equals(connectionNode.getNodeName())) {
           scorecard.setHost(connectionNode.getTextContent());
         } else if ("database".equals(connectionNode.getNodeName())) {
-          scorecard.setDatabaseName(connectionNode.getTextContent());
+          String[] databases = connectionNode.getTextContent().trim().split(",");
+          List<String> databasesList = new ArrayList<>();
+          for (String database : databases) {
+            databasesList.add(database.trim());
+          }
+          scorecard.setDatabaseNames(databasesList);
         } else if ("user".equals(connectionNode.getNodeName())) {
           scorecard.setUser(connectionNode.getTextContent());
         } else if ("password".equals(connectionNode.getNodeName())) {

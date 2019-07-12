@@ -291,6 +291,7 @@ public abstract class JobManager {
             MVUtil.rep(0, intNumDepSeries)) : job.getConSeries());
     info.put("legend", job.getLegend().isEmpty() ? "c()" : job.getLegend());
     info.put("y1_lim", job.getY1Lim().isEmpty() ? "c()" : job.getY1Lim());
+    info.put("x1_lim", job.getX1Lim().isEmpty() ? "c()" : job.getX1LimR());
     info.put("y1_bufr", job.getY1Bufr().isEmpty() ? "0" : job.getY1Bufr());
     info.put("y2_lim", job.getY2Lim().isEmpty() ? "c()" : job.getY2Lim());
     info.put("y2_bufr", job.getY2Bufr().isEmpty() ? "0" : job.getY2Bufr());

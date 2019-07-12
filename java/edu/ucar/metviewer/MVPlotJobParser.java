@@ -242,6 +242,7 @@ public final class MVPlotJobParser {
       formatToStrValues
               .put("legend", MVPlotJob.class.getDeclaredMethod("setLegend", String.class));
       formatToStrValues.put("y1_lim", MVPlotJob.class.getDeclaredMethod("setY1Lim", String.class));
+      formatToStrValues.put("x1_lim", MVPlotJob.class.getDeclaredMethod("setX1Lim", String.class));
       formatToStrValues
               .put("y1_bufr", MVPlotJob.class.getDeclaredMethod("setY1Bufr", String.class));
       formatToStrValues.put("y2_lim", MVPlotJob.class.getDeclaredMethod("setY2Lim", String.class));
@@ -1020,6 +1021,7 @@ public final class MVPlotJobParser {
                     "<legend>" + job.getLegend() + "</legend>" +
 
                     "<y1_lim>" + job.getY1Lim() + "</y1_lim>" +
+                    "<x1_lim>" + job.getX1Lim() + "</x1_lim>" +
                     "<y1_bufr>" + job.getY1Bufr() + "</y1_bufr>" +
                     "<y2_lim>" + job.getY2Lim() + "</y2_lim>" +
                     "<y2_bufr>" + job.getY2Bufr() + "</y2_bufr>" +

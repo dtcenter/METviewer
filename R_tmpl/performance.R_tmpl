@@ -199,7 +199,8 @@ if(length(listSeries1Val) > 0){
 
       if(indyValInd > 1){
         segments(x0=(1 - listSeries1[[indyValInd-1]][['far']]), y0=listSeries1[[indyValInd-1]][['pody']],
-                  x1=(1 - listSeries1[[indyValInd]][['far']]), y1=listSeries1[[indyValInd]][['pody']], col=listColors[intPermVal], lwd=listLwd[intPermVal]);
+                  x1=(1 - listSeries1[[indyValInd]][['far']]), y1=listSeries1[[indyValInd]][['pody']], col=listColors[intPermVal],
+                   lwd=listLwd[intPermVal], lty = listLty[intPermVal]);
       }
       if(listPlotCI[intPermVal] != 'none'){
         segments(x0=1-listSeries1[[indyValInd]][['far']], y0=listSeries1[[indyValInd]][['pody_ncu']],

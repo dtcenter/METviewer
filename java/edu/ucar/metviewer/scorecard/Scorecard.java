@@ -46,7 +46,7 @@ public class Scorecard {
 
   private static final String USAGE = "USAGE:  mv_scorecard.sh  db_type  <scorecard_spec_file>\n" +
           "                    where db_type - mysql \n <scorecard_spec_file> specifies the XML scorecard specification document\n";
-  private String databaseName;
+  private List<String> databaseNames;
   private String user;
   private String pwd;
   private String host;
@@ -68,10 +68,15 @@ public class Scorecard {
   private Integer bootRandomSeed;
   private String plotStat = "median";
   private String statFlag = "NCAR";
-  private String stat = "DIFF_SIG";
+  private String stat;
+  private String statValue ;
+  private String statSymbol;
   private String thresholdFile = null;
+  private List<String> leftColumnsNames = new ArrayList<>();
+  private String symbolSize = "100%";
 
   public static void main(String[] args) throws Exception {
+
 
     String filename;
     String dbType = "mysql";
@@ -116,19 +121,14 @@ public class Scorecard {
 
         //depending on stat type init mangers
         MysqlDatabaseManager databaseManager = null;
+        DatabaseInfo databaseInfo = new DatabaseInfo(scorecard.getHost(), scorecard.getUser());
+        databaseInfo.setDbName(scorecard.getDatabaseNames().get(0));
         if (dbType.equals("mysql")) {
-          databaseManager = new MysqlDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                  scorecard.getUser()),
-                  scorecard.getPwd());
+          databaseManager = new MysqlDatabaseManager(databaseInfo, scorecard.getPwd());
         } else if (dbType.equals("mariadb")) {
-          databaseManager = new MariaDbAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                  scorecard.getUser()),
-                  scorecard.getPwd());
+          databaseManager = new MariaDbAppDatabaseManager(databaseInfo, scorecard.getPwd());
         } else if (dbType.equals("aurora")) {
-          databaseManager =
-                  new AuroraAppDatabaseManager(new DatabaseInfo(scorecard.getHost(),
-                          scorecard.getUser()),
-                          scorecard.getPwd());
+          databaseManager = new AuroraAppDatabaseManager(databaseInfo, scorecard.getPwd());
         }
 
 
@@ -191,9 +191,10 @@ public class Scorecard {
         } else {
           throw new MissingFileException(dataFile.getAbsolutePath());
         }
-
+        databaseManager.closeDataSource();
+      }else {
+        logger.error("Validation ERROR: Only one column can be aggregated or grouped.");
       }
-
     }
     stopWatch.stop();
     logger.info("\nTotal execution time " + stopWatch.getFormattedTotalDuration());
@@ -214,6 +215,22 @@ public class Scorecard {
 
   public void setStatFlag(String statFlag) {
     this.statFlag = statFlag;
+  }
+
+  public String getStatValue() {
+    return statValue;
+  }
+
+  public void setStatValue(String statValue) {
+    this.statValue = statValue;
+  }
+
+  public String getStatSymbol() {
+    return statSymbol;
+  }
+
+  public void setStatSymbol(String statSymbol) {
+    this.statSymbol = statSymbol;
   }
 
   public Boolean getViewLegend() {
@@ -296,12 +313,12 @@ public class Scorecard {
     this.host = host;
   }
 
-  public String getDatabaseName() {
-    return databaseName;
+  public List<String> getDatabaseNames() {
+    return databaseNames;
   }
 
-  public void setDatabaseName(String databaseName) {
-    this.databaseName = databaseName;
+  public void setDatabaseNames(List<String> databaseNames) {
+    this.databaseNames = databaseNames;
   }
 
   public WorkingFolders getWorkingFolders() {
@@ -386,6 +403,22 @@ public class Scorecard {
 
   public void setThresholdFile(String thresholdFile) {
     this.thresholdFile = thresholdFile;
+  }
+
+  public List<String> getLeftColumnsNames() {
+    return leftColumnsNames;
+  }
+
+  public void setLeftColumnsNames(String columnsName) {
+    this.leftColumnsNames.add(columnsName);
+  }
+
+  public String getSymbolSize() {
+    return symbolSize;
+  }
+
+  public void setSymbolSize(String symbolSize) {
+    this.symbolSize = symbolSize;
   }
 
   /**
@@ -507,7 +540,18 @@ public class Scorecard {
   }
 
   private boolean validate() {
-    return true;
+    Map<String, List<Entry>> columns = this.columnsStructure();
+    int numberOfAggColumns = 0;
+    for (Map.Entry<String, List<Entry>> columnEntry : columns.entrySet()){
+      for(Entry entry : columnEntry.getValue()){
+        if(entry.getName().contains(":") || entry.getName().contains(",")){
+          numberOfAggColumns++;
+          break;
+        }
+      }
+    }
+
+    return numberOfAggColumns <= 1;
   }
 
 }

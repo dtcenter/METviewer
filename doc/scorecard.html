@@ -77,6 +77,15 @@
   document<br/>
   ---- Scorecard Done ----<br/>
 </p>
+<p>
+  The column fields values can be combine. For example, it possible to combine several vx masks together into one.
+  If someone splits vx_mask into the 14 subregions over the CONUS (APL, NEC, SEC, GMC, LMV, MDW, NPL, SPL, NMT,
+  SMT, GRB, NWC, SWC, SWD) than he can select all of the regions and the generated plot will
+  contain statistics over the entire CONUS. In this case hte name of the field would look like a string with field values
+  separated by ';'
+  <br/>
+  APL;NEC;SEC;GMC;LMV;MDW;NPL;SPL;NMT;SMT;GRB;NWC;SWC;SWD
+</p>
 
 <p>
   The <span class="term">scorecard_spec_file</span> passed to the scorecard module contains
@@ -147,11 +156,33 @@
         or <span
             class="code">DIFF_SIG</span> ( display p_value ) or <span class="code">SINGLE </span>(display
         a value of statistic for the 1st model. In this case the value of the 2nd model is optional ),
-        indicating what value
-        to show in the cell. The default value is DIFF_SIG ( display p_value )
+        indicating which statistic use to display for both - values and symbols - in the cell.
+        The default value is DIFF_SIG ( display p_value )
       </li>
+      or
+
+      <li><span class="code">&lt;stat_value&gt;</span>: <span class="code">DIFF</span> (display a difference between models)
+        or <span
+                class="code">DIFF_SIG</span> ( display p_value ) or <span class="code">SINGLE </span>(display
+        a value of statistic for the 1st model. In this case the value of the 2nd model is optional ),
+        indicating which statistic use to display for  values in the cell.
+      </li>
+      <li><span class="code">&lt;stat_symbol&gt;</span>: <span class="code">DIFF</span> (display a difference between models)
+        or <span
+                class="code">DIFF_SIG</span> ( display p_value ) or <span class="code">SINGLE </span>(display
+        a value of statistic for the 1st model. In this case the value of the 2nd model is optional ),
+        indicating which statistic use to display for  symbols in the cell.
+      </li>
+
       <li><span class="code">&lt;threshold_file&gt;</span>: full path to the XML file describing
         configurations for thresholds, colors and symbols
+      </li>
+      <li><span class="code">&lt;left_column_names&gt;</span>: a list of names for the most left columns as
+        in &lt;val&gt;NAME&lt;/val&gt; format
+      </li>
+
+      <li><span class="code">&lt;symbol_size&gt;</span>: a size for the symbols. It can be in '%' or 'px'.
+        For example, '120%' will increase the size of symbols in 1.2 times. '20px' can also be used
       </li>
       <br/>
 
@@ -170,8 +201,17 @@
       <li><span class="code">&lt;plot_fix&gt;</span>: describes database fields - models, date range
         and init hour - that are constant.<br/>
         Model field contains two values - first and second model names.<br/>
-        Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains two
-        values - start and end dates<br/>
+        Date range can be specified using 'fcst_valid_beg' or 'fcst_init_beg' and contains ine or more groups of two
+        values - start and end dates. This example will create a scorecard for two periods (07-01 00:00 - 07-03 12:00) and (07-05 00:00 - 07-10 12:00) <br/>
+        <textarea rows="7" cols="100" style="border:none; font-size: 12px;">
+        <field name="fcst_valid_beg">
+          <val name="2011-07-01 00:00:00"/>
+          <val name="2011-07-03 12:00:00"/>
+          <val name="2011-07-05 00:00:00"/>
+          <val name="2011-07-10 12:00:00"/>
+        </field>
+        </textarea>
+        <br/>
         Init hour can contain one or more values<br/>
         <ul>
           <li><span class="code">&lt;field</span> name="model"<span class="code">&gt;</span></li>
@@ -189,6 +229,15 @@
               <span class="code">/&gt;</span></li>
             <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>"
               <span class="code">/&gt;</span></li>
+            optional second date range:
+            <li><span class="code">&lt;val</span> name="<span class="loc">start_date</span>"
+              <span class="code">/&gt;</span></li>
+            <li><span class="code">&lt;val</span> name=<span class="loc">"end_date</span>"
+              <span class="code">/&gt;</span></li>
+            or optional single date:
+            <li><span class="code">&lt;val</span> name="<span class="loc">date</span>"
+              <span class="code">/&gt;</span></li>
+
           </ul>
           <li><span class="code">&lt;/field&gt;</span></li>
           <li><span class="code">&lt;field</span> name="init_hour"<span class="code">&gt;</span>
@@ -332,6 +381,12 @@
 
       <stat>DIFF_SIG</stat>
       <threshold_file>path_to_threshold_file</threshold_file>
+
+      <left_column_names>
+        <val></val>
+        <val></val>
+        <val></val>
+      </left_column_names>
 
       <template>scorecard.R_tmpl</template>
 

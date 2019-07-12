@@ -44,6 +44,8 @@ listPlotOrderSeries	= #<order_series>#;
 
 listDiffSeries1= #<series1_diff_list>#;
 
+listLegendUsr = #<legend>#;
+
 
 #
 #  Build the series data for the plot
@@ -219,6 +221,19 @@ for(index in 1:length(listPlotOrderSeries)){
   }
   newInd = newInd +3;
   listLegendOrdered[listPlotOrderSeries[index]]=listLegendNotOrdered[index];
+}
+#replace with user's legends
+if( 0 < length(listLegendUsr) ){
+  for(index in 1:length(listLegendUsr)){
+    if(nchar(listLegendUsr[index]) > 0){
+      listLegendNotOrdered[index]=listLegendUsr[index];
+    }
+  }
+}
+
+#order legends
+for(index in 1:length(listPlotOrderSeries)){
+  listLegend[ listPlotOrderSeries[index] ]=listLegendNotOrdered[index];
 }
 
 # specify the output file
@@ -398,7 +413,7 @@ if( TRUE == boolShowNStats ){
 }
 
 # display the legend
-listLegendDisp = listLegendOrdered[listPlotDispOrdered];
+listLegendDisp = listLegend[listPlotDispOrdered];
 legend(
   x="bottom",					# x coordinate of legend
   listLegendDisp,				# vector of legend labels

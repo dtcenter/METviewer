@@ -787,6 +787,11 @@ public class CBAppDatabaseManager extends CBDatabaseManager implements AppDataba
     return Pattern.compile("(?i)\\s*between\\s+'([^']+)'\\s+and\\s+'([^']+)'\\s*");
   }
 
+  @Override
+  public void closeDataSource() {
+
+  }
+
 
   /**
    * The input job and plot_fix information is used to build a list of SQL queries that result in

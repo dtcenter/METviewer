@@ -36,7 +36,7 @@ listDep1Scale = list(
 
 );
 
-dates=#<dates_list>#
+ndays=#<ndays>#
 
 #
 #  Build the series data for the plot
@@ -47,7 +47,7 @@ sampleData = read.delim(strDataFile,nrows=5);
 if ( nrow(sampleData) > 0){
   classes <- sapply(sampleData, class);
   numeric_columns <- c('stat_value', 'stat_bcl', 'stat_bcu', 'stat_ncu', 'stat_ncl','fbs', 'fss');
-  integer_columns <- c('fcst_lead','nstats');
+  integer_columns <- c('nstats');
   character_columns <- c('fcst_var', 'model', 'stat_name')
   for(col in 1:ncol(sampleData)){
     if ( is.element( names(classes)[col] , numeric_columns) ){
@@ -159,8 +159,13 @@ if ( nrow(sampleData) > 0){
 
     listFields = names(plotData1);
     for(indy in listIndy){
-      dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
-      dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+      if (is.na(indy) || indy == 'NA'){
+        dfStatsIndy1 = plotData1[is.na(plotData1[[strIndyVar]]),];
+        dfStatsIndy2 = plotData2[is.na(plotData2[[strIndyVar]]),];
+      }else{
+         dfStatsIndy1 = plotData1[plotData1[[strIndyVar]] == indy,];
+         dfStatsIndy2 = plotData2[plotData2[[strIndyVar]] == indy,];
+      }
 
       if (nrow(dfStatsIndy1) != 0 && nrow(dfStatsIndy2) != 0) {
 
@@ -202,13 +207,7 @@ if ( nrow(sampleData) > 0){
         derived_stat = NA;
         if( grepl('^DIFF_SIG', derivedCurveName) ){
           if(statFlag == 'EMC'){
-            #ndays = as.numeric(difftime( as.Date('2018-07-07'), as.Date('2018-04-05')));
-            if(length(dates) > 1){
-              ndays = as.numeric(difftime( as.Date(dates[2]), as.Date(dates[1])));
-            }else{
-              ndays=0;
-            }
-            ndays=ndays+1;
+
 
             acdm = sum( dfStatsIndy2$stat_value - dfStatsIndy1$stat_value ) / ndays;
             std = sqrt ( sum( (dfStatsIndy2$stat_value - dfStatsIndy1$stat_value - acdm) * (dfStatsIndy2$stat_value - dfStatsIndy1$stat_value -acdm) ) / ndays );

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v2.10</TITLE>
+  <TITLE>METviewer v2.11-dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -249,7 +249,7 @@
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 2.10<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.11-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -605,6 +605,23 @@
       <div id="x1">
         <table>
           <tr>
+            <td colspan="2">
+              <fieldset>
+                <legend>X1 Bounds</legend>
+                <table style="width:100%">
+                  <tr>
+                    <td>
+                      <label style="margin-right: 5px;">Limits</label>
+                      <input type="text"  id="x1_lim_min" style="width:130px; margin-right:5px;">
+                      <input type="text"  id="x1_lim_max" style="width:130px; margin-left:5px;">
+                    </td>
+
+                  </tr>
+                </table>
+              </fieldset>
+            </td>
+          </tr>
+          <tr>
             <td style="vertical-align: top;">
               <fieldset>
                 <legend>X1 axis label formatting</legend>
@@ -636,6 +653,7 @@
 
                 </table>
               </fieldset>
+
             </td>
             <td style="vertical-align: top;">
               <fieldset>
@@ -756,7 +774,7 @@
                       <label style="margin-right: 5px;">Limits</label><input type="text" size="6" id="y1_lim_min" style="width:40px; margin-right:5px;"><input type="text" size="6" id="y1_lim_max" style="width:40px; margin-left:5px;">
                     </td>
                     <td><label for="y1_bufr" style="margin-right: 5px;">Top and bottom
-                      buffer</label><input type="text" size="12" id="y1_bufr">
+                      buffer</label><input type="text" size="12" id="y1_bufr"></td>
                   </tr>
                 </table>
               </fieldset>
