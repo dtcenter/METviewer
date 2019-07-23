@@ -817,6 +817,7 @@ function updateForecastVariables() {
     if (!selected_mode) {
         selected_mode = 'stat';
     }
+    console.log("updateForecastVariables " + selected_mode);
     var select_y1 = $("#fcst_var_y1_1");
     var select_y2 = $('#fcst_var_y2_1');
     var indy_var_val = $('#indy_var_val');
@@ -861,77 +862,80 @@ function updateForecastVariables() {
 
     //get value of database
     var databases = getSelectedDatabases();
+    if (databases.length === 0) {
+        $('#plot_data').val("stat");
+        $("#plot_data").multiselect('refresh');
+    } else {
 
-    $.ajax({
-        async: false,
-        url: "servlet",
-        type: "POST",
-        dataType: 'xml',
-        processData: false,
-        contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_val><' + selected_mode + '_field>FCST_VAR</' + selected_mode + '_field></list_val></request>',
-        error: function () {
-        },
-        success: function (data) {
-            var values = $(data).find("val");
-            var opt;
-            if (values.length > 0) {
-                var options = [];
-                for (var i = 0; i < values.length; i++) {
-                    var t = $(values[i]);
-                    if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
-                        var text_formatted = t.text().formatAll();
-                        opt = $('<option />', {
-                            value: text_formatted,
-                            text: text_formatted,
-                            title: value_to_desc_map[t.text()]
-                        });
-                        options.push(opt);
-                    } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
-                        options[options.length - 1].text(options[options.length - 1].text() + '*');
-                    }
-
-                }
-                var length;
-                var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
-                for (var i = 0; i < options.length; i++) {
-                    if (options[i].text() !== options[i][0].value) {
-                        length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
-                        if (length === databaseNumbers) {
-                            options[i].text(options[i][0].value + "*");
-                        } else {
-                            options[i].text(options[i][0].value);
+        $.ajax({
+            async: false,
+            url: "servlet",
+            type: "POST",
+            dataType: 'xml',
+            processData: false,
+            contentType: "application/xml",
+            data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_val><' + selected_mode + '_field>FCST_VAR</' + selected_mode + '_field></list_val></request>',
+            error: function () {
+            },
+            success: function (data) {
+                var values = $(data).find("val");
+                var opt;
+                if (values.length > 0) {
+                    var options = [];
+                    for (var i = 0; i < values.length; i++) {
+                        var t = $(values[i]);
+                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                            var text_formatted = t.text().formatAll();
+                            opt = $('<option />', {
+                                value: text_formatted,
+                                text: text_formatted,
+                                title: value_to_desc_map[t.text()]
+                            });
+                            options.push(opt);
+                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                            options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
+
                     }
-                    options[i].appendTo(select_y1);
-                    options[i].clone().appendTo(select_y2);
-                }
-                try {
-                    select_y1.multiselect('refresh');
-                } catch (err) {
-                }
-                try {
-                    select_y2.multiselect('refresh');
-                } catch (err) {
-                }
-            } else {
-                if (selected_mode === 'stat') {
-                    $('#plot_data').val("mode");
-                    $("#plot_data").multiselect('refresh');
+                    var length;
+                    var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].text() !== options[i][0].value) {
+                            length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                            if (length === databaseNumbers) {
+                                options[i].text(options[i][0].value + "*");
+                            } else {
+                                options[i].text(options[i][0].value);
+                            }
+                        }
+                        options[i].appendTo(select_y1);
+                        options[i].clone().appendTo(select_y2);
+                    }
+                    try {
+                        select_y1.multiselect('refresh');
+                    } catch (err) {
+                    }
+                    try {
+                        select_y2.multiselect('refresh');
+                    } catch (err) {
+                    }
+                } else {
 
-                } else if (selected_mode === 'mode') {
-                    $('#plot_data').val("mtd");
-                    $("#plot_data").multiselect('refresh');
+                    if (selected_mode === 'stat') {
+                        $('#plot_data').val("mode");
 
-                } else if (selected_mode === 'mtd') {
-                    $('#plot_data').val("stat");
-                    $("#plot_data").multiselect('refresh');
+                    } else if (selected_mode === 'mode') {
+                        $('#plot_data').val("mtd");
 
+                    } else if (selected_mode === 'mtd') {
+                        $('#plot_data').val("stat");
+                    }
                 }
+                $("#plot_data").multiselect('refresh');
 
             }
-        }
-    });
+        });
+    }
 }
 
 

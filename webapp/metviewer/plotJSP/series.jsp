@@ -232,8 +232,10 @@
 
                   if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
                       $("#date_period_button").css("display", "block");
+                      $("#date_range_button").css("display", "block");
                   } else {
                       $("#date_period_button").css("display", "none");
+                      $("#date_range_button").css("display", "none");
                   }
                   $("#indy_var_val").multiselect("uncheckAll");
 
@@ -395,6 +397,7 @@
               if ($(this).val() === "revision_statistics") {
                   //$('#indy_var').val("fcst_valid_beg");
                   $('#date_period_button').css("display", "block");
+                  $('#date_range_button').css("display", "block");
                   $("#indy_var").multiselect("refresh");
               }
           });
@@ -423,10 +426,10 @@
               removeFixedVar($(this).attr('id'));
           });
 
-
+          var selectedDatabase;
           if (initXML != null) {
               var sd = initXML.find("database").text();
-              var selectedDatabase = sd.split(",");
+              selectedDatabase = sd.split(",");
               for (var i = 0; i < selectedDatabase.length; i++) {
                   $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                           .prop("checked", true).change();
@@ -435,7 +438,7 @@
               initXML = null;
 
           } else {
-              var selectedDatabase = querySt("db");
+              selectedDatabase = querySt("db");
               $("input[name='multiselect_database'][value='" + selectedDatabase + "']")
                       .prop("checked", true).change();
               updateForecastVariables();
@@ -449,6 +452,145 @@
 
       });
 
+
+      $('#date_range').dateRangePicker(
+              {
+                startOfWeek: 'sunday',
+                separator: ' - ',
+                format: 'YYYY-MM-DD HH:mm',
+                autoClose: false,
+                time: {
+                  enabled: true
+                },
+                //startDate: moment("2019-07-02 10:00", 'YYYY-MM-DD HH:mm'),
+                //endDate: moment("2019-07-20 10:00", 'YYYY-MM-DD HH:mm'),
+                showShortcuts: true,
+                shortcuts:
+                        {
+                          'prev-days': [3, 7, 30],
+                          'prev': ['week', 'month', 'year'],
+                          'next-days': null,
+                          'next': null
+                        },
+                monthSelect: true,
+                container: document.getElementById('plot_config')
+              }).bind('datepicker-apply', function (event, obj) {
+        console.log(obj.date1 + " " + obj.date1);
+      });
+
+
+      $("#date_range_button").button({
+        icons: {
+          primary: "ui-icon-calendar"
+        },
+        text: false
+      }).click(function (evt) {
+        evt.stopPropagation();
+        var values = $('#indy_var_val').val();
+        if (values == null) {
+          values = [];
+        }
+        populateIndyVarVal(values);
+
+        var dates = $(previousIndVarValResponse).find("val");
+        var start = $(dates[0]).text();
+        var end = $(dates[dates.length-1]).text();
+
+
+        $('#date_range').data('dateRangePicker').destroy();
+        $('#date_range').dateRangePicker(
+                {
+                  startOfWeek: 'sunday',
+                  separator: ' - ',
+                  format: 'YYYY-MM-DD HH:mm',
+                  autoClose: false,
+                  time: {
+                    enabled: true
+                  },
+                  startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+                  endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+                  showShortcuts: true,
+                  shortcuts:
+                          {
+                            'prev-days': [3, 7, 30],
+                            'prev': ['week', 'month', 'year'],
+                            'next-days': null,
+                            'next': null
+                          },
+                  monthSelect: true,
+                  container: document.getElementById('plot_config'),
+                  customTopBar: function(){
+                    var html = "";
+                    html += '<div class="normal-top">' +
+                            '<span class="selection-top">' + 'Selected:' + ' </span> <b class="start-day">...</b>';
+
+                      html += ' <span class="separator-day">' + " - " + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> ' + 'Days' + ')</i>';
+                      html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="date_range_by" type="text"><select id="date_range_by_unit" style="font-size: 10px;">' +
+                      '            <option value="sec">sec</option>' +
+                      '            <option value="min">min</option>' +
+                      '            <option value="hours" selected="">hours</option>' +
+                      '            <option value="days">days</option>' +
+                      '          </select><label for="date_range_format" style="color: #333;">&nbsp;Format:</label><input style="width: 100px;line-height: 1;" id="date_range_format" type="text">';
+
+                    html += '</div>';
+                    html += '<div class="error-top">error</div>' +
+                            '<div class="default-top">default</div>';
+                    return html;
+                  }
+                }).bind('datepicker-apply', function (event, obj) {
+          var by = $("#date_range_by").val().trim();
+          var unit = $("#date_range_by_unit").val();
+          if (by.length === 0) {
+            by = 1;
+            unit = "hours";
+          }
+          by = parseInt(by);
+          if (unit === "min") {
+            by = by * 60;
+          } else if (unit === "hours") {
+            by = by * 3600;
+          } else if (unit === "days") {
+            by = by * 86400;
+          }
+          var start = moment(obj.date1);
+          var end = moment(obj.date2);
+          var dates = $(previousIndVarValResponse).find("val");
+          var custiom_format = $("#date_range_format").val().trim();
+
+          $("#indy_var_val").multiselect("uncheckAll");
+          while (start <= end) {
+            var current_date_str = start.format('YYYY-MM-DD HH:mm:ss');
+            console.log(current_date_str);
+            var isFound = false;
+            for (var i = 0; i < dates.length; i++) {
+              if ($(dates[i]).text() === current_date_str) {
+                isFound = true;
+                break;
+              }
+            }
+            var formattedDate;
+            try {
+              formattedDate = start.format(custiom_format);
+            }catch(error) {
+              console.log("formatting error");
+              console.error(error);
+              formattedDate = current_date_str
+            }
+            if (isFound) {
+              var option =$('#indy_var_val').find('option[value="' + current_date_str + '"]');
+              option.prop('selected', true);
+              option.text(formattedDate);
+            }
+
+            start.add(by, 'seconds');
+          }
+          try {
+            $('#indy_var_val').multiselect("refresh");
+          } catch (err) {
+          }
+        });
+        $('#date_range').data('dateRangePicker').open();
+      });
 
   </script>
 </head>
@@ -473,6 +615,7 @@
     <div id="y1_axis_variables" class="no-padding">
       <div class="ui-widget-content ui-widget-content-plot ui-corner-all"
            style=" border-top:none;">
+
         <div class="ui-widget-header-plot">Y1 Dependent (Forecast)
           Variables:
           <button class="help-button" style="float: right;"
@@ -831,6 +974,9 @@
           <button id="date_period_button" style="display: none;">
             Select multiple options
           </button>
+        </td>
+        <td>
+          <input id="date_range"  value="" style="display: none"/><button id="date_range_button" style="display: none;">Calendar</button>
         </td>
         <td>
           <input type="checkbox" id="indy_var_event_equal" title='Add entry to event equalization logic'><label for="indy_var_event_equal" title='Add entry to event equalization logic'>Equalize</label>

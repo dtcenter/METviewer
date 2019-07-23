@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <TITLE>METviewer v2.11</TITLE>
+  <TITLE>METviewer v2.12-dev</TITLE>
   <link rel="shortcut icon" href="./favicon.ico">
 
   <link rel="stylesheet"
@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="css/jquery.colorpicker.css"/>
   <link rel="stylesheet" href="css/jquery.multiselect.css"/>
   <link rel="stylesheet" type="text/css" href="css/multilevel-dropdown.css" />
+  <link rel="stylesheet" type="text/css" href="css/daterangepicker.min.css" />
   <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
 
@@ -179,9 +180,10 @@
   <script type="application/javascript" src="js/jquery.actual.min.js"></script>
   <script type="application/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  <script type="application/javascript" src="js/metviewer_common.min.js"></script>
+  <script type="application/javascript" src="js/metviewer_common.js"></script>
   <script type="application/javascript" src="js/moment.min.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
+  <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
 
   <script type="application/javascript">
 
@@ -197,6 +199,10 @@
     var initXML;
     var urlOutput = "";
     var categories = [];
+
+
+
+
 
     if (strInitXML != "null" && strInitXML.length > 0) {
       try {
@@ -245,11 +251,12 @@
 </HEAD>
 <BODY>
 
+
 <div id="header" style="overflow: visible; position: static ">
 
   <div class="toolbar ui-widget" id="toolbar ">
     <div style="float: left; cursor: alias;font-family: 'Arial Black',Gadget,sans-serif;"
-         id="release">METviewer 2.11<span class="ui-icon ui-icon-info " style="float: right;
+         id="release">METviewer 2.12-dev<span class="ui-icon ui-icon-info " style="float: right;
               margin-left: .4em;"></span>
 
     </div>
@@ -1114,6 +1121,5 @@
 <form id="formUploadLocal" method="post" action="servlet">
   <input type="hidden" name="fileUploadLocal" id="uploadLocalId" value="">
 </form>
-
 </BODY>
 </HTML>
