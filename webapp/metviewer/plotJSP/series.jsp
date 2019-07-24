@@ -426,10 +426,10 @@
               removeFixedVar($(this).attr('id'));
           });
 
-          var selectedDatabase;
+
           if (initXML != null) {
               var sd = initXML.find("database").text();
-              selectedDatabase = sd.split(",");
+              var selectedDatabase = sd.split(",");
               for (var i = 0; i < selectedDatabase.length; i++) {
                   $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                           .prop("checked", true).change();
@@ -438,14 +438,20 @@
               initXML = null;
 
           } else {
-              selectedDatabase = querySt("db");
+            var selectedDatabase = querySt("db");
+            if (selectedDatabase && selectedDatabase.length > 0) {
               $("input[name='multiselect_database'][value='" + selectedDatabase + "']")
                       .prop("checked", true).change();
-              updateForecastVariables();
-              updateStats("y1", 1, []);
-              updateStats("y2", 1, []);
-              updateSeriesVarVal("y1", 1, []);
-              updateSeriesVarVal("y2", 1, []);
+              var textnode = document.createTextNode(selectedDatabase);
+              var item = document.getElementById("categories1").childNodes[0];
+              item.replaceChild(textnode, item.childNodes[0]);
+            }
+
+            updateForecastVariables();
+            updateStats("y1", 1, []);
+            updateStats("y2", 1, []);
+            updateSeriesVarVal("y1", 1, []);
+            updateSeriesVarVal("y2", 1, []);
 
           }
 
@@ -615,7 +621,6 @@
     <div id="y1_axis_variables" class="no-padding">
       <div class="ui-widget-content ui-widget-content-plot ui-corner-all"
            style=" border-top:none;">
-
         <div class="ui-widget-header-plot">Y1 Dependent (Forecast)
           Variables:
           <button class="help-button" style="float: right;"
