@@ -725,6 +725,9 @@ function getSelectedDatabases() {
     if (databases.endsWith(',')) {
         databases = databases.slice(0, -1);
     }
+    if(databases.length === 0){
+        databases = querySt("db");
+    }
     return databases;
 }
 

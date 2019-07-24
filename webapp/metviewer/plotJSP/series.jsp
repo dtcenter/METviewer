@@ -435,14 +435,20 @@
               initXML = null;
 
           } else {
-              var selectedDatabase = querySt("db");
+            var selectedDatabase = querySt("db");
+            if (selectedDatabase && selectedDatabase.length > 0) {
               $("input[name='multiselect_database'][value='" + selectedDatabase + "']")
                       .prop("checked", true).change();
-              updateForecastVariables();
-              updateStats("y1", 1, []);
-              updateStats("y2", 1, []);
-              updateSeriesVarVal("y1", 1, []);
-              updateSeriesVarVal("y2", 1, []);
+              var textnode = document.createTextNode(selectedDatabase);
+              var item = document.getElementById("categories1").childNodes[0];
+              item.replaceChild(textnode, item.childNodes[0]);
+            }
+
+            updateForecastVariables();
+            updateStats("y1", 1, []);
+            updateStats("y2", 1, []);
+            updateSeriesVarVal("y1", 1, []);
+            updateSeriesVarVal("y2", 1, []);
 
           }
 
