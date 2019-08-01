@@ -183,7 +183,7 @@
   <script type="application/javascript" src="js/metviewer_common.js"></script>
   <script type="application/javascript" src="js/moment.min.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
-  <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
+  <script type="application/javascript" src="js/jquery.daterangepicker.js"></script>
 
   <script type="application/javascript">
 

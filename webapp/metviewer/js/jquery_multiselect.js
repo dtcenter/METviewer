@@ -201,7 +201,7 @@
         }
 
         // add the title and close everything off
-        if( description == -9999 ){
+        if( description === -9999 ){
           html += ' /><span>' + 'N/A' + '</span>';
         }else {
           html += ' /><span>' + description.replace("&gt;", ">").replace("&amp;", "&") + '</span>';
@@ -224,7 +224,7 @@
           if (null != listParse) {
             description = listParse[1];
           }
-          if (label_old != null && label_old != description ){
+          if (label_old != null && label_old !== description ){
             description = label_old;
           }
           if(description.match(/\*$/)){

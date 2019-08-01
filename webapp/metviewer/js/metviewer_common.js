@@ -7707,6 +7707,115 @@ function changeFixedVarHist(value) {
         $('#fixed_var_' + fixed_var_indexes[i]).multiselect('refresh');
     }
 }
+
+function onIndyCalendarClose(obj){
+    var by;
+
+        by = $("#date_range_by").val().trim();
+        var unit = $("#date_range_by_unit").val();
+        if (by.length === 0) {
+            by = 1;
+            unit = "hours";
+        }
+        by = parseInt(by);
+        if (unit === "min") {
+            by = by * 60;
+        } else if (unit === "hours") {
+            by = by * 3600;
+        } else if (unit === "days") {
+            by = by * 86400;
+        }
+
+    var start = moment(obj.date1);
+    var end = moment(obj.date2);
+    var dates = $(previousIndVarValResponse).find("val");
+    var custom_format;
+    if($("#date_range_format").length){
+        custom_format = $("#date_range_format").val().trim();
+    }else{
+        custom_format = 'YYYY-MM-DD HH:mm:ss';
+    }
+    $("#indy_var_val").multiselect("uncheckAll");
+    var indy_var_val = $('[name="multiselect_indy_var_val"]');
+    while (start <= end) {
+        var current_date_str = start.format('YYYY-MM-DD HH:mm:ss');
+        var isFound = false;
+        for (var i = 0; i < dates.length; i++) {
+            if ($(dates[i]).text() === current_date_str) {
+                isFound = true;
+                break;
+            }
+        }
+        if (isFound) {
+            var formattedDate;
+            try {
+                formattedDate = start.format(custom_format);
+            } catch (error) {
+                console.log("formatting error");
+                console.error(error);
+                formattedDate = current_date_str
+            }
+            var option = $('#indy_var_val').find('option[value="' + current_date_str + '"]');
+            option.prop('selected', true);
+            indy_var_vals_to_attr = {};
+            for (var i = 0; i < indy_var_val.length; i++) {
+                var jqObject = $(indy_var_val[i]);
+                if(jqObject.attr("value") === current_date_str) {
+                    var id = jqObject.attr("id");
+                    $('#' + id + '_label').val(formattedDate);
+                    indy_var_vals_to_attr[indy_var_val[i].value] = obj;
+                    break;
+                }
+            }
+            option.text(formattedDate);
+        }
+        start.add(by, 'seconds');
+    }
+    $("#indy_var_val").multiselect("option", "indy_var_vals_to_attr", indy_var_vals_to_attr);
+    try {
+        $('#indy_var_val').multiselect("refresh");
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function createCalendarTopBarWithFormat(){
+    var html = "";
+    html += '<div class="normal-top">' +
+        '<span class="selection-top">' + 'Selected:' + ' </span> <b class="start-day">...</b>';
+
+    html += ' <span class="separator-day">' + " - " + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> ' + 'Days' + ')</i>';
+    html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="date_range_by" type="text"><select id="date_range_by_unit" style="font-size: 10px;">' +
+        '            <option value="sec">sec</option>' +
+        '            <option value="min">min</option>' +
+        '            <option value="hours" selected="">hours</option>' +
+        '            <option value="days">days</option>' +
+        '          </select><label for="date_range_format" style="color: #333;">&nbsp;Format:</label><input style="width: 150px;line-height: 1;" id="date_range_format" type="text" value="YYYY-MM-DD HH:mm:ss">';
+
+    html += '</div>';
+    html += '<div class="error-top">error</div>' +
+        '<div class="default-top">default</div>';
+    return html;
+}
+
+function createCalendarTopBarNoFormat(){
+    var html = "";
+    html += '<div class="normal-top">' +
+        '<span class="selection-top">' + 'Selected:' + ' </span> <b class="start-day">...</b>';
+
+    html += ' <span class="separator-day">' + " - " + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> ' + 'Days' + ')</i>';
+    html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="date_range_by" type="text"><select id="date_range_by_unit" style="font-size: 10px;">' +
+        '            <option value="sec">sec</option>' +
+        '            <option value="min">min</option>' +
+        '            <option value="hours" selected="">hours</option>' +
+        '            <option value="days">days</option>' +
+        '          </select>';
+
+    html += '</div>';
+    html += '<div class="error-top">error</div>' +
+        '<div class="default-top">default</div>';
+    return html;
+}
 String.prototype.formatAll = function(t) {
     var target = this;
     target = target.split("&#38;").join("&");
