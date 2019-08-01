@@ -213,8 +213,10 @@
 
           if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
             $("#date_period_button").css("display", "block");
+            $("#date_range_button").css("display", "block");
           } else {
             $("#date_period_button").css("display", "none");
+            $("#date_range_button").css("display", "none");
           }
           $("#indy_var_val").multiselect("uncheckAll");
         },
@@ -375,20 +377,62 @@
         $('#box_boxwex').val($(initXML.find("plot").find("box_boxwex")).text());
         initXML = null;
       } else {
-        var val = $($(categories[0]).find("val")[0]).text();
-       // $("input[name='multiselect_database'][value='" + val + "']")
-       //                 .prop("checked", true).change();
         updateForecastVariables();
         updateStats("y1", 1, []);
         updateStats("y2", 1, []);
         updateSeriesVarVal("y1", 1, []);
         updateSeriesVarVal("y2", 1, []);
-
       }
-
-
     });
-
+    $("#date_range_button").button({
+      icons: {
+        primary: "ui-icon-calendar"
+      },
+      text: false
+    }).click(function (evt) {
+      evt.stopPropagation();
+      var values = $('#indy_var_val').val();
+      if (values == null) {
+        values = [];
+      }
+      populateIndyVarVal(values);
+      var dates = $(previousIndVarValResponse).find("val");
+      var start = $(dates[0]).text();
+      var end = $(dates[dates.length - 1]).text();
+      try {
+        $("#date_range").unbind("datepicker-apply");
+        $('#date_range').data('dateRangePicker').clear();
+        $('#date_range').data('dateRangePicker').destroy();
+      } catch (error) {
+        console.log(error);
+      }
+      $('#date_range').dateRangePicker({
+        startOfWeek: 'sunday',
+        separator: ' - ',
+        format: 'YYYY-MM-DD HH:mm',
+        autoClose: false,
+        time: {
+          enabled: true
+        },
+        startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+        endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+        showShortcuts: true,
+        shortcuts: {
+          'prev-days': [3, 7, 30],
+          'prev': ['week', 'month', 'year'],
+          'next-days': null,
+          'next': null
+        },
+        monthSelect: true,
+        container: document.getElementById('indy_var_table').parentElement,
+        customTopBar: function () {
+          return createCalendarTopBarWithFormat();
+        }
+      }).bind('datepicker-apply', function (event, obj) {
+        onIndyCalendarClose(obj);
+      });
+      $('#date_range').data('dateRangePicker').open();
+    });
 
   </script>
 </head>
@@ -704,6 +748,10 @@
         </td>
         <td>
           <button id="date_period_button" style="display: none;">Select multiple options</button>
+        </td>
+        <td>
+          <input id="date_range" value="" style="display: none"/>
+          <button id="date_range_button" style="display: none;">Calendar</button>
         </td>
         <td>
           <input type="checkbox" id="indy_var_event_equal" title='Add entry to event equalization logic'><label for="indy_var_event_equal" title='Add entry to event equalization logic'>Equalize</label>
