@@ -343,24 +343,30 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       tableLineDataTables.put("line_data_cts", "true");
     } else if (boolTaylor) {
       tableLineDataTables.put("line_data_sl1l2", "true");
-    } else if (boolEclv) {
-      tableLineDataTables.put("line_data_eclv", "true");
     } else if (1 < nodeCall.children.length) {
+      if (boolEclv) {
+        tableLineDataTables.put("line_data_eclv", "true");
+      }
       fcstVar = true;
       MVNode nodeFcstVarStat = nodeCall.children[1];
       for (int i = 0; i < nodeFcstVarStat.children.length; i++) {
         MVNode nodeFcstVar = nodeFcstVarStat.children[i];
-        tableFcstVarStat.put(nodeFcstVar.name, "true");
+        if (!nodeFcstVar.name.isEmpty()) {
+          tableFcstVarStat.put(nodeFcstVar.name, "true");
+        }
         for (int j = 0; j < nodeFcstVar.children.length; j++) {
           String strStat = nodeFcstVar.children[j].value;
           String strLineDataTable = MVUtil.getStatTable(strStat);
-          tableLineDataTables.put(strLineDataTable, "true");
-          if (strLineDataTable.equals("line_data_cnt")) {
-            tableLineDataTables.put("line_data_sl1l2", "true");
-            tableLineDataTables.put("line_data_sal1l2", "true");
-          } else if (strLineDataTable.equals("line_data_cts")) {
-            tableLineDataTables.put("line_data_ctc", "true");
+          if (!strLineDataTable.isEmpty()) {
+            tableLineDataTables.put(strLineDataTable, "true");
+            if (strLineDataTable.equals("line_data_cnt")) {
+              tableLineDataTables.put("line_data_sl1l2", "true");
+              tableLineDataTables.put("line_data_sal1l2", "true");
+            } else if (strLineDataTable.equals("line_data_cts")) {
+              tableLineDataTables.put("line_data_ctc", "true");
+            }
           }
+
         }
       }
     }
@@ -1051,11 +1057,11 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strField = (String) listPlotFixVal[i].getKey();
           String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (listPlotFixVal[i].getValue() != null) {
-            if(!selectList.contains(fieldFormatted.trim())) {
+            if (!selectList.contains(fieldFormatted.trim())) {
               selectList += ",\n  "
                       + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             }
-            if(!selectPlotList.contains(fieldFormatted.trim())) {
+            if (!selectPlotList.contains(fieldFormatted.trim())) {
               selectPlotList += ",\n  "
                       + formatField(strField, job.isModeJob() || job.isMtdJob(), true);
             }
@@ -1216,10 +1222,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
         }
         if (!selectList.contains("fcst_var")) {
           selectList += ",\n'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var";
-        } else if(intFcstVarStat > 0 && selectList.contains(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var")){
+        } else if (intFcstVarStat > 0 && selectList.contains(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var")) {
           selectList = selectList.replace(listFcstVarStat[intFcstVarStat - 1][0] + "' fcst_var"
                   , listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
-        }else {
+        } else {
           selectList = selectList.replace("fcst_var"
                   , "'" + listFcstVarStat[intFcstVarStat][0] + "' fcst_var");
         }
@@ -2041,7 +2047,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
       }
     }
     //remove fcst_init from the select list to create valid "GROUP BY"
-    if(!groupBy.contains("fcst_init")){
+    if (!groupBy.contains("fcst_init")) {
       selectListStat = selectListStat.replace("fcst_init,",
               "NOW()  fcst_init,");
     }
@@ -2538,10 +2544,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strField = (String) listPlotFixVal[i].getKey();
           String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (listPlotFixVal[i].getValue() != null) {
-            if(!selectList.contains(fieldFormatted.trim())) {
+            if (!selectList.contains(fieldFormatted.trim())) {
               selectList += ",\n  " + fieldFormatted;
             }
-            if(!selectPlotList.contains(fieldFormatted.trim())) {
+            if (!selectPlotList.contains(fieldFormatted.trim())) {
               selectPlotList += ",\n  " + fieldFormatted;
             }
           }
@@ -2875,7 +2881,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strField = (String) listPlotFixVal[i].getKey();
           String fieldFormatted = formatField(strField, job.isModeJob() || job.isMtdJob(), true);
           if (!strField.equals("fcst_var") && listPlotFixVal[i].getValue() != null) {
-            if(!strPlotDataSelect.contains(fieldFormatted.trim())) {
+            if (!strPlotDataSelect.contains(fieldFormatted.trim())) {
               strPlotDataSelect += fieldFormatted + ",\n";
             }
 
@@ -3132,7 +3138,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     if (listPlotFixVal.length > 0) {
       for (Map.Entry aListPlotFixVal : listPlotFixVal) {
         String strField = (String) aListPlotFixVal.getKey();
-        if(!strPlotDataSelect.contains(strField)) {
+        if (!strPlotDataSelect.contains(strField)) {
           strPlotDataSelect = strPlotDataSelect + strField + ",\n";
         }
       }
