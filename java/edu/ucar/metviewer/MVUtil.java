@@ -704,6 +704,11 @@ public class MVUtil {
     mtd2dStatField.put("2D_CENTROID_LAT", "centroid_lat");
     mtd2dStatField.put("2D_CENTROID_LON", "centroid_lon");
     mtd2dStatField.put("2D_AXIS_ANG", "axis_ang");
+    mtd2dStatField.put("2D_INTENSITY_10", "intensity_10");
+    mtd2dStatField.put("2D_INTENSITY_25", "intensity_25");
+    mtd2dStatField.put("2D_INTENSITY_50", "intensity_50");
+    mtd2dStatField.put("2D_INTENSITY_75", "intensity_75");
+    mtd2dStatField.put("2D_INTENSITY_90", "intensity_90");
   }
 
   static {
