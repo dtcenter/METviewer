@@ -202,9 +202,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
    * @throws SQLException
    */
   public Connection getConnection(String db) throws SQLException {
-    boolean validDB = validate(db);
     Connection con = null;
-    if (validDB) {
       try {
         con = dataSource.getConnection();
         con.setCatalog(db);
@@ -215,9 +213,6 @@ public class MysqlDatabaseManager extends DatabaseManager {
           con.close();
         }
       }
-    } else {
-      logger.info("Database " + db + " is invalid");
-    }
     return con;
   }
 
