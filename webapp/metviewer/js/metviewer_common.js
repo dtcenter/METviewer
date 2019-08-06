@@ -214,9 +214,9 @@ value_to_desc_map['ECNT_RMSE_OERR'] = 'The Root Mean Square Error of the PERTURB
 value_to_desc_map['ECNT_SPREAD_OERR'] = 'The mean of the spread of the PERTURBED ensemble member values at each observation location';
 value_to_desc_map['ECNT_SPREAD_PLUS_OERR'] = 'The square root of the sum of unperturbed ensemble variance and the observation error variance';
 value_to_desc_map['ASPECTDIFF'] = 'Absolute value of the difference between teh aspect ratios' +
-        ' of two objects';
+    ' of two objects';
 value_to_desc_map['CURVATURERATIO'] = 'Ratio of the curvature of two objects definded as the' +
-        ' lesser of the two divided by teh greater of the two';
+    ' lesser of the two divided by teh greater of the two';
 
 value_to_desc_map['ORANK_OBS'] = 'Value of the observation';
 value_to_desc_map['ORANK_PIT'] = 'Probability Integral Transform';
@@ -390,7 +390,7 @@ var listStatModeSingle = [
 
 var listStatModePair = [
     "CENTDIST", "BOUNDDIST", "HULLDIST", "ANGLEDIFF", "AREARATIO", "INTAREA", "UNIONAREA",
-    "SYMDIFF", "INTOVERAREA", "CMPLXRATIO", "PERCINTRATIO", "INT", "MAXINT", "MAXINTF", "MAXINTO", "ASPECTDIFF" , "CURVATURERATIO"
+    "SYMDIFF", "INTOVERAREA", "CMPLXRATIO", "PERCINTRATIO", "INT", "MAXINT", "MAXINTF", "MAXINTO", "ASPECTDIFF", "CURVATURERATIO"
 ];
 
 var listStatMtd2d = [
@@ -674,6 +674,7 @@ function isMtdStat(stat) {
 
     }
 }
+
 function getForecastVariablesHist() {
     var selectedDatabase = getSelectedDatabases();
 
@@ -717,6 +718,7 @@ function getForecastVariablesHist() {
         }
     });
 }
+
 function getSelectedDatabases() {
     var databases = '';
     $("input[name='multiselect_database']:checked").each(function () {
@@ -725,7 +727,7 @@ function getSelectedDatabases() {
     if (databases.endsWith(',')) {
         databases = databases.slice(0, -1);
     }
-    if(databases.length === 0){
+    if (databases.length === 0) {
         databases = querySt("db");
     }
     return databases;
@@ -1367,6 +1369,7 @@ function updateMtd(y_axis, index, selectedVals) {
 
     }
 }
+
 function updateStatVal() {
     var databases = getSelectedDatabases();
     var selectedVariable = $("#fcst_var_y1_1").multiselect("getChecked").val();
@@ -1375,62 +1378,62 @@ function updateStatVal() {
 
     stat_select.empty();
     $.ajax({
-                async: false,
-                url: "servlet",
-                type: "POST",
-                dataType: 'xml',
-                contentType: "application/xml",
-                data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat>><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
-                error: function () {
-                },
-                success: function (data) {
-                    var values = $(data).find("val");
-                    var opt;
-                    var options = [];
-                    if (values.length > 0) {
-                        for (var i = 0; i < values.length; i++) {
-                            var t = $(values[i]);
-                            if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
-                                var text_formatted = t.text().formatAll();
-                                opt = $('<option />', {
-                                    value: text_formatted,
-                                    text: text_formatted,
-                                    title: value_to_desc_map[t.text()]
-                                });
-                                options.push(opt);
-                            } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
-                                options[options.length - 1].text(options[options.length - 1].text() + '*');
+            async: false,
+            url: "servlet",
+            type: "POST",
+            dataType: 'xml',
+            contentType: "application/xml",
+            data: '<?xml version="1.0" encoding="UTF-8"?><request><db_con>' + databases + '</db_con><list_stat>><stat_fcst_var>' + selectedVariable + '</stat_fcst_var></list_stat></request>',
+            error: function () {
+            },
+            success: function (data) {
+                var values = $(data).find("val");
+                var opt;
+                var options = [];
+                if (values.length > 0) {
+                    for (var i = 0; i < values.length; i++) {
+                        var t = $(values[i]);
+                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                            var text_formatted = t.text().formatAll();
+                            opt = $('<option />', {
+                                value: text_formatted,
+                                text: text_formatted,
+                                title: value_to_desc_map[t.text()]
+                            });
+                            options.push(opt);
+                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                            options[options.length - 1].text(options[options.length - 1].text() + '*');
+                        }
+                    }
+                    var length;
+                    var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
+                    for (var i = 0; i < options.length; i++) {
+                        if (options[i].text() !== options[i][0].value) {
+                            length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
+                            if (length === databaseNumbers) {
+                                options[i].text(options[i][0].value + "*");
+                            } else {
+                                options[i].text(options[i][0].value);
                             }
                         }
-                        var length;
-                        var databaseNumbers = $("input[name='multiselect_database']:checked").length - 1;
-                        for (var i = 0; i < options.length; i++) {
-                            if (options[i].text() !== options[i][0].value) {
-                                length = options[i].text().substring(options[i][0].value.length, options[i].text().length).length;
-                                if (length === databaseNumbers) {
-                                    options[i].text(options[i][0].value + "*");
-                                } else {
-                                    options[i].text(options[i][0].value);
-                                }
-                            }
-                            options[i].appendTo(stat_select);
-                        }
-                    } else {
-                        opt = $('<option />', {
-                            value: "N/A",
-                            text: "N/A"
-                        });
-                        opt.appendTo(stat_select);
+                        options[i].appendTo(stat_select);
+                    }
+                } else {
+                    opt = $('<option />', {
+                        value: "N/A",
+                        text: "N/A"
+                    });
+                    opt.appendTo(stat_select);
 
-                    }
-                    try {
-                        stat_select.multiselect('refresh');
-                    } catch (err) {
-                        console.log(err);
-                    }
-                    updateSeries();
                 }
+                try {
+                    stat_select.multiselect('refresh');
+                } catch (err) {
+                    console.log(err);
+                }
+                updateSeries();
             }
+        }
     );
 }
 
@@ -1655,6 +1658,7 @@ function updateSeriesVarValEns(index, selectedVals) {
         }
     });
 }
+
 function updateSeriesVarVal(y_axis, index, selectedVals) {
     var select = $("#series_var_val_" + y_axis + "_" + index);
     select.empty();
@@ -2030,7 +2034,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
         selected_mode = 'stat';
         statst = '<stat><fcst_var><val>FAR</val></fcst_var></stat>';
     } else if (currentTab == 'Eclv') {
-        selected_mode = 'stat';
+        selected_mode = 'eclv';
         statst = '<stat><fcst_var><val>NA</val></fcst_var></stat>';
     } else if (currentTab == 'Taylor') {
         selected_mode = 'taylor';
@@ -2268,8 +2272,8 @@ function createStatNameForModeArrt(stat_name, y_axis, fcst_var_index) {
     var boolObs = fcst_stat_mode_config.find('[name="mode_stat_obs"]').is(':checked');
     var strCode = "_";
     if (listStatModeSingle.indexOf(stat_name) > -1
-            || listStatMtd3dSingle.indexOf(stat_name) > -1
-            || listStatMtd2d.indexOf(stat_name) > -1) {
+        || listStatMtd3dSingle.indexOf(stat_name) > -1
+        || listStatMtd2d.indexOf(stat_name) > -1) {
         if (boolDiff) {
             strCode += "D";
         } else if (boolFcst && boolObs) {
@@ -2330,7 +2334,7 @@ function createMapForForecastVar(y_axis, fcst_var_indexes, selected_mode) {
             if (Array.isArray(statsArr)) {
                 for (var j = 0; j < statsArr.length; j++) {
                     if ((selected_mode === "mode" && listStatModeRatio.indexOf(statsArr[j]) === -1)
-                            || (selected_mode === "mtd" && listStatMtdRatio.indexOf(statsArr[j]) === -1)) {
+                        || (selected_mode === "mtd" && listStatMtdRatio.indexOf(statsArr[j]) === -1)) {
                         stat = createStatNameForModeArrt(statsArr[j], "y" + y_axis, fcst_var_indexes[i]);
                     } else {
                         stat = statsArr[j];
@@ -2382,6 +2386,7 @@ function createSeriesMapForPermutation(fcst_var_indexes, y_axis) {
     }
     return series_var_to_values_map;
 }
+
 function createSeriesMapForPermutationEns(fcst_var_indexes, y_axis) {
     var series_var_to_values_map = {};
     var selected_series_val, selected_series;
@@ -2595,6 +2600,7 @@ function updateSeriesHist() {
 
     outerLayout.sizePane("south", $('#gbox_listdt').height())
 }
+
 function updateSeriesVarValHist(index, selectedVals) {
     $('#listdt').jqGrid('clearGridData');
     var select = $("#series_var_val_y1_" + index);
@@ -2694,6 +2700,7 @@ function updateSeriesVarValHist(index, selectedVals) {
         }
     });
 }
+
 function updateSeriesRely() {
     var rely_event_hist = $("input:radio[name='rely_event_hist']:checked").val();
     var table = $("#listdt");
@@ -2717,6 +2724,7 @@ function updateSeriesRely() {
         table.jqGrid('addRowData', 2, series_formatting);
     }
 }
+
 function updateSeriesEns() {
     var table = $("#listdt");
     table.saveCell(lastSelRow, lastSelCol);
@@ -2886,6 +2894,7 @@ function updateSeriesEns() {
     }
     outerLayout.sizePane("south", $('#gbox_listdt').height());
 }
+
 function updateSeriesPerf() {
     var table = $("#listdt");
     table.saveCell(lastSelRow, lastSelCol);
@@ -3033,6 +3042,7 @@ function updateSeriesPerf() {
     }
     outerLayout.sizePane("south", $('#gbox_listdt').height());
 }
+
 function updateSeries(isCheckAll) {
     var table = $("#listdt");
     table.saveCell(lastSelRow, lastSelCol);
@@ -3150,13 +3160,13 @@ function updateSeries(isCheckAll) {
                 for (var series_perm_index = 0; series_perm_index < series_perm.length; series_perm_index++) {
                     var stat_name = list_stats[list_stats_index];
                     if ((selected_mode == "mode" && listStatModeRatio.indexOf(stat_name) == -1)
-                            || selected_mode == "mtd" && listStatMtdRatio.indexOf(stat_name) == -1) {
+                        || selected_mode == "mtd" && listStatMtdRatio.indexOf(stat_name) == -1) {
                         stat_name = createStatNameForModeArrt(stat_name, y_axis, fcst_var_indexes[fcst_var_index]);
                     }
                     var seriesName = series_perm[series_perm_index] + " " + fcst_var + " " + stat_name;
                     for (var a = 0; a < derivedBoxes.length; a++) {
                         var seriesNameWithDerived = seriesName;
-                        if(seriesNameWithDerived.indexOf('<') > -1){
+                        if (seriesNameWithDerived.indexOf('<') > -1) {
                             seriesNameWithDerived = seriesNameWithDerived.replace(/</g, '&lt;');
                         }
                         if (derivedBoxes[a].value.length > 0) {
@@ -3213,9 +3223,9 @@ function updateSeries(isCheckAll) {
                                     series_formatting.id = number_series + 1;
 
                                 } else {
-                                    if(isFixedFormatting && oldSeriesData.length > 0){
+                                    if (isFixedFormatting && oldSeriesData.length > 0) {
                                         series_formatting = jQuery.extend(true, {}, oldSeriesData[oldSeriesData.length - 1]);
-                                    }else {
+                                    } else {
                                         series_formatting = jQuery.extend(true, {}, firstSeriesFormatting);
                                     }
                                     series_formatting.title = seriesNameWithDerived;
@@ -3377,8 +3387,8 @@ function updateSeries(isCheckAll) {
             for (var i = 0; i < colors.length; i++) {
                 for (var j = 0; j < newSeriesData.length; j++) {
                     if (newSeriesData[j].color && newSeriesData[j].color.length > 0
-                            && newSeriesData[j].color.substr(newSeriesData[j].color.length - 6).toUpperCase() === colors[i].substr(colors[i].length - 6).toUpperCase()
-                            && i != j) {
+                        && newSeriesData[j].color.substr(newSeriesData[j].color.length - 6).toUpperCase() === colors[i].substr(colors[i].length - 6).toUpperCase()
+                        && i != j) {
                         colors_new[j] = colors[i];
                         colors_new[i] = colors[j];
                     }
@@ -3421,8 +3431,9 @@ function updateSeries(isCheckAll) {
 function SortByOrder(a, b) {
     var aOrder = a.order;
     var bOrder = b.order;
-    return ( aOrder - bOrder );
+    return (aOrder - bOrder);
 }
+
 /**
  * Construct a list of RGBA color hex represenations with the specified length
  * and format #RRGGBBAA, where the colors are spaced equally along the rainbow
@@ -3444,6 +3455,7 @@ function rainbow(num) {
     }
     return listRet;
 }
+
 /**
  * Create a hex representation of the specified "rainbow" color along the
  * spectrum from 0 (red, FF0000) to 1 (violet, FF00FF).
@@ -3451,8 +3463,7 @@ function rainbow(num) {
 function interpolateColor(rel) {
     if (rel < 0.0) {
         return "FF0000";
-    }
-    else if (rel > 1.0) {
+    } else if (rel > 1.0) {
         return "FF00FF";
     }
 
@@ -3478,6 +3489,7 @@ function interpolateColor(rel) {
             return hex(max * .5) + hex(min) + hex(max);
     }
 }
+
 /**
  * Create the two character hexadecimal representation of specified value,
  * multiplied by 255. The intended use is to create an RGB representation with
@@ -3567,9 +3579,9 @@ function sendXml() {
     if (currentTab === 'Series' || currentTab === 'Contour') {
         if (currentTab === 'Series') {
             var statistic = $("input:radio[name ='statistics']:checked").val();
-            if(statistic === 'revision_statistics' ){
+            if (statistic === 'revision_statistics') {
                 template = $('<template>revision_series_plot.R_tmpl</template>');
-            }else{
+            } else {
                 template = $('<template>series_plot.R_tmpl</template>');
             }
 
@@ -3687,6 +3699,7 @@ function createXMLEns(plot) {
     plot = createXMLCommon(plot);
     return plot;
 }
+
 function createXMLRoc(plot) {
     try {
         $("#listdt").saveCell(lastSelRow, lastSelCol);
@@ -3724,6 +3737,7 @@ function createXMLRoc(plot) {
     plot = createXMLCommon(plot);
     return plot;
 }
+
 function createXMLEclv(plot) {
     try {
         $("#listdt").saveCell(lastSelRow, lastSelCol);
@@ -3745,8 +3759,7 @@ function createXMLEclv(plot) {
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cl_step />').text($('#cl_step').val()));
         plot.append(agg_stat);
-    }
-    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
+    } else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);
@@ -3756,6 +3769,7 @@ function createXMLEclv(plot) {
 
     return plot;
 }
+
 function createXMLHist(plot) {
     try {
         $("#listdt").saveCell(lastSelRow, lastSelCol);
@@ -3808,6 +3822,7 @@ function createXMLRely(plot) {
     plot = createXMLCommon(plot);
     return plot;
 }
+
 function createXMLBox(plot) {
     plot = createXMLSeries(plot);
     plot = createXMLCommon(plot);
@@ -3818,6 +3833,7 @@ function createXMLBox(plot) {
     plot.append($('<box_boxwex />').text($('#box_boxwex').val()));
     return plot;
 }
+
 function createXMLPlotFix(plot) {
     var plot_fix = $('<plot_fix />');
     if ($('#fixed_var_table').css("display") !== 'none') {
@@ -3837,6 +3853,7 @@ function createXMLPlotFix(plot) {
     plot.append(plot_fix);
     return plot;
 }
+
 function createXMLPerf(plot) {
 
     plot.append(createSeriesElementForAxis(1, series_var_y1_indexes));
@@ -3903,8 +3920,7 @@ function createXMLPerf(plot) {
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
         plot.append(agg_stat);
-    }
-    else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
+    } else if (statistic === 'calculations_statistics' && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);
@@ -3914,6 +3930,7 @@ function createXMLPerf(plot) {
 
 
 }
+
 function createXMLTaylor(plot) {
     try {
         $("#listdt").saveCell(lastSelRow, lastSelCol);
@@ -3936,6 +3953,7 @@ function createXMLTaylor(plot) {
 
 
 }
+
 function createXMLSeries(plot) {
     try {
         $("#listdt").saveCell(lastSelRow, lastSelCol);
@@ -3962,7 +3980,7 @@ function createXMLSeries(plot) {
             if (jqObject.prop('checked')) {
                 var id = jqObject.attr("id");
                 indep.append($('<val />').attr("label", $('#' + id + '_label').val())
-                        .attr("plot_val", $('#' + id + '_plot_val').val()).text(jqObject.val()));
+                    .attr("plot_val", $('#' + id + '_plot_val').val()).text(jqObject.val()));
             }
         }
     } else {
@@ -4015,16 +4033,14 @@ function createXMLSeries(plot) {
         agg_stat.append($('<eveq_dis />').text($('#eveq_dis').is(':checked')));
         agg_stat.append($('<cache_agg_stat />').text($('#cacheAggStat').is(':checked')));
         plot.append(agg_stat);
-    }
-
-    else if ((currentTab === 'Bar' || statistic === 'calculations_statistics')
-            && calc_stat_val !== "none") {
+    } else if ((currentTab === 'Bar' || statistic === 'calculations_statistics')
+        && calc_stat_val !== "none") {
         var calc_stat = $('<calc_stat />');
         calc_stat.append($('<calc_' + calc_stat_val + ' />').text("true"));
         plot.append(calc_stat);
-    }else if(statistic === 'revision_statistics' ){
+    } else if (statistic === 'revision_statistics') {
         var revis_stat = $('<revis_stat />');
-        if(revis_stat_val !== "none") {
+        if (revis_stat_val !== "none") {
             revis_stat.append($('<calc_' + revis_stat_val + ' />').text("true"));
         }
         revis_stat.append($('<revision_ac />').text($('#revision_ac').prop('checked')));
@@ -4036,6 +4052,7 @@ function createXMLSeries(plot) {
 
 
 }
+
 function createXMLCommon(plot) {
     var tmpl = $('<tmpl />');
     tmpl.append($('<title />').text($('#plot_title').val()));
@@ -4184,7 +4201,8 @@ function createXMLCommon(plot) {
 
 
     var allSeries = sortSeries();
-    var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [], orderArr = [], legendArr = [], showSignArr = [];
+    var ciArr = [], dispArr = [], colorsArr = [], pchArr = [], typeArr = [], ltyArr = [], lwdArr = [], conArr = [],
+        orderArr = [], legendArr = [], showSignArr = [];
     for (var i = 0; i < allSeries.length; i++) {
         ciArr.push('"' + allSeries[i].plot_ci + '"');
         if (allSeries[i].hide == "No") {
@@ -4268,37 +4286,40 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
     for (var i = 0; i < series_var_indexes.length; i++) {
         var field = $('<field />').attr("name", $("#series_var_y" + y_axis + "_" + series_var_indexes[i]).val());
         var isGroup = $("#group_series_var_y" + y_axis + "_" + series_var_indexes[i]).is(':checked');
-        var valArr = $("#series_var_val_y" + y_axis + "_" + series_var_indexes[i]).multiselect("getChecked");
-        if (!valArr || valArr === null) {
+        var valArr;
+        try{
+            valArr = $("#series_var_val_y" + y_axis + "_" + series_var_indexes[i]).multiselect("getChecked");
+        }catch (e) {}
+        if (!valArr) {
             valArr = [];
         }
 
-        if (Array.isArray(valArr) ) {
-            if(isGroup){
-                var vals="";
+        if (Array.isArray(valArr)) {
+            if (isGroup) {
+                var vals = "";
                 for (var j = 0; j < valArr.length; j++) {
                     vals = vals + text(valArr[j]);
-                    if(j !== valArr.length-1){
+                    if (j !== valArr.length - 1) {
                         vals = vals + ',';
                     }
                 }
                 field.append($('<val />').text(vals));
-            }else {
+            } else {
                 for (var j = 0; j < valArr.length; j++) {
                     field.append($('<val />').text(valArr[j]));
                 }
             }
-        }else if(typeof(valArr)==='object'){
-            if(isGroup){
-                var vals="";
+        } else if (typeof (valArr) === 'object') {
+            if (isGroup) {
+                var vals = "";
                 for (var j = 0; j < valArr.length; j++) {
                     vals = vals + $(valArr[j]).val();
-                    if(j !== valArr.length-1){
+                    if (j !== valArr.length - 1) {
                         vals = vals + ',';
                     }
                 }
                 field.append($('<val />').text(vals));
-            }else {
+            } else {
                 for (var j = 0; j < valArr.length; j++) {
                     var val = $(valArr[j]).val();
                     field.append($('<val />').text(val));
@@ -4430,8 +4451,7 @@ function loadImage(id) {
                     var xmlString;
                     if (jQuery.browser == "msie") {
                         xmlString = data.xml;
-                    }
-                    else {
+                    } else {
                         xmlString = (new XMLSerializer()).serializeToString(data);
                     }
                     try {
@@ -4598,6 +4618,7 @@ function removeFixedVarHist(id) {
     }
     select.parent().parent().remove();
 }
+
 function removeFixedVar(id) {
     var id_array = id.split("_");
     var index = id_array[id_array.length - 1];
@@ -4608,6 +4629,7 @@ function removeFixedVar(id) {
         $("#fixed_var_val_date_period_" + index).dialog("destroy");
         $("#fixed_var_val_date_period_" + index).remove();
         $("#fixed_var_val_date_period_button_" + index).button("destroy");
+        $("#fixed_var_val_date_range_button_" + index).button("destroy");
     } catch (e) {
     }
 
@@ -4636,7 +4658,8 @@ function addFixedVarHist() {
     var is_not_visible = $('#fixed_var_table').css("display") === 'none';
     var isEq = $('#event_equal').prop("checked");
 
-    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, dialog, fix_var_event_equal, fix_var_event_equal_label;
+    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, fixed_var_val_date_range_button, fixed_var_val_date_range, dialog,
+        fix_var_event_equal, fix_var_event_equal_label;
 
     if (is_not_visible) {
         if (fixed_var_indexes.length === 0) {
@@ -4652,6 +4675,7 @@ function addFixedVarHist() {
         });
         fixed_var_val = $("#fixed_var_val_" + new_index);
         fixed_var_val_date_period_button = $("#fixed_var_val_date_period_button_" + new_index);
+        fixed_var_val_date_range_button = $("#fixed_var_val_date_range_button_" + new_index);
         dialog = $("#fixed_var_val_date_period_" + new_index);
         $("#fix_var_event_equal_" + new_index).prop("checked", isEq).prop('disabled', !isEq);
 
@@ -4687,13 +4711,19 @@ function addFixedVarHist() {
             text: 'Select multiple options',
             id: 'fixed_var_val_date_period_button_' + new_index
         }).css('display', 'none');
+        fixed_var_val_date_range = $("#fixed_var_val_date_range_" + last_index).clone(false);
+        fixed_var_val_date_range.prop("id", 'fixed_var_val_date_range_' + new_index);
+        fixed_var_val_date_range_button = $("<button>", {
+            text: 'Select multiple options',
+            id: 'fixed_var_val_date_range_button_' + new_index
+        }).css('display', 'none');
 
-        dialog = $("#fixed_var_val_date_period_" + (last_index )).clone(false).appendTo("body");
+        dialog = $("#fixed_var_val_date_period_" + (last_index)).clone(false).appendTo("body");
         dialog.prop("id", "fixed_var_val_date_period_" + new_index);
-        dialog.find("#fixed_var_val_date_period_start_" + (last_index )).prop('id', 'fixed_var_val_date_period_start_' + new_index);
-        dialog.find("#fixed_var_val_date_period_end_" + (last_index )).prop('id', 'fixed_var_val_date_period_end_' + new_index);
-        dialog.find("#fixed_var_val_date_period_by_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_' + new_index);
-        dialog.find("#fixed_var_val_date_period_by_unit_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_unit_' + new_index);
+        dialog.find("#fixed_var_val_date_period_start_" + (last_index)).prop('id', 'fixed_var_val_date_period_start_' + new_index);
+        dialog.find("#fixed_var_val_date_period_end_" + (last_index)).prop('id', 'fixed_var_val_date_period_end_' + new_index);
+        dialog.find("#fixed_var_val_date_period_by_" + (last_index)).prop('id', 'fixed_var_val_date_period_by_' + new_index);
+        dialog.find("#fixed_var_val_date_period_by_unit_" + (last_index)).prop('id', 'fixed_var_val_date_period_by_unit_' + new_index);
         fix_var_event_equal = $("#fix_var_event_equal_" + last_index).clone(true)
             .prop("id", 'fix_var_event_equal_' + new_index).prop("checked", isEq).prop('disabled', !isEq);
         if ($("#fix_var_event_equal_" + last_index).find('label').size() > 0) {
@@ -4703,6 +4733,7 @@ function addFixedVarHist() {
 
         $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var))
             .append($('<td>').append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button))
+            .append($('<td>').append(fixed_var_val_date_range).append(fixed_var_val_date_range_button))
             .append($('<td>').append(fix_var_event_equal).append(fix_var_event_equal_label)));
     }
     createValDatePeriodDialog('fixed_var_val', new_index);
@@ -4727,8 +4758,10 @@ function addFixedVarHist() {
 
             if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                 $("#fixed_var_val_date_period_button_" + new_index).css("display", "block");
+                $("#fixed_var_val_date_range_button_" + new_index).css("display", "block");
             } else {
                 $("#fixed_var_val_date_period_button_" + new_index).css("display", "none");
+                $("#fixed_var_val_date_range_button_" + new_index).css("display", "none");
             }
             var id_array = this.id.split("_");
             updateFixedVarValHist(id_array[id_array.length - 1], []);
@@ -4743,9 +4776,54 @@ function addFixedVarHist() {
     }).click(function () {
         $("#fixed_var_val_date_period_" + new_index).dialog("open");
     });
+    fixed_var_val_date_range_button.button({
+        icons: {
+            primary: "ui-icon-calendar"
+        },
+        text: false
+    }).click(function (evt) {
+        evt.stopPropagation();
+        var dates = $(fixVarValResponse[new_index]).find("val");
+        var start = $(dates[0]).text();
+        var end = $(dates[dates.length - 1]).text();
+        try {
+            $("#fixed_var_val_date_range_" + new_index).unbind("datepicker-apply");
+            $("#fixed_var_val_date_range_" + new_index).data('dateRangePicker').destroy();
+        } catch (error) {
+            console.log(error);
+        }
+        $("#fixed_var_val_date_range_" + new_index).dateRangePicker({
+            startOfWeek: 'sunday',
+            separator: ' - ',
+            format: 'YYYY-MM-DD HH:mm',
+            autoClose: false,
+            time: {
+                enabled: true
+            },
+            startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+            endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+            showShortcuts: true,
+            shortcuts: {
+                'prev-days': [3, 7, 30],
+                'prev': ['week', 'month', 'year'],
+                'next-days': null,
+                'next': null
+            },
+            monthSelect: true,
+            yearSelect: true,
+            container: document.getElementById('fixed_var_table').parentElement,
+            customTopBar: function () {
+                return createCalendarTopBarNoFormat(new_index);
+            }
+        }).bind('datepicker-apply', function (event, obj) {
+            onIndyCalendarClose(obj,new_index);
+        });
+        $("#fixed_var_val_date_range_" + new_index).data('dateRangePicker').open();
+    });
     updateFixedVarValHist(new_index, []);
 
 }
+
 function addFixedVar() {
     var last_index;
 
@@ -4762,7 +4840,8 @@ function addFixedVar() {
     var new_index = last_index;
 
 
-    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, dialog, fix_var_event_equal, fix_var_event_equal_label;
+    var fixed_var, remove_var, fixed_var_val, fixed_var_val_date_period_button, fixed_var_val_date_range_button,fixed_var_val_date_range, dialog,
+        fix_var_event_equal, fix_var_event_equal_label;
     var is_not_visible = $('#fixed_var_table').css("display") === 'none';
     var isEq = $('#event_equal').prop("checked");
 
@@ -4772,6 +4851,23 @@ function addFixedVar() {
         }
         $('#fixed_var_table').css("display", "");
         fixed_var = $("#fixed_var_" + new_index);
+        if ($("#fixed_var_" + new_index + ' option').length === 0) {
+            if (currentTab === 'Perf') {
+                $.each(perf_fixed_var_map, function (key, val) {
+                    fixed_var.append('<option value="' + key + '">' + val + '</option>');
+                });
+            } else {
+                if (selected_mode === "stat") {
+                    $.each(fix_var_value_to_title_stat_map, function (key, val) {
+                        fixed_var.append('<option value="' + key + '">' + val + '</option>');
+                    });
+                } else {
+                    $.each(fix_var_value_to_title_mode_map, function (key, val) {
+                        fixed_var.append('<option value="' + key + '">' + val + '</option>');
+                    });
+                }
+            }
+        }
         $("#remove_fixed_var_" + new_index).button({
             icons: {
                 primary: "ui-icon-trash"
@@ -4779,7 +4875,10 @@ function addFixedVar() {
             text: false
         });
         fixed_var_val = $("#fixed_var_val_" + new_index);
+
         fixed_var_val_date_period_button = $("#fixed_var_val_date_period_button_" + new_index);
+        fixed_var_val_date_range_button = $("#fixed_var_val_date_range_button_" + new_index);
+        fixed_var_val_date_range =  $("#fixed_var_val_date_range_" + new_index);
         dialog = $("#fixed_var_val_date_period_" + new_index);
         $("#fix_var_event_equal_" + new_index).prop("checked", isEq).prop('disabled', !isEq);
 
@@ -4807,21 +4906,30 @@ function addFixedVar() {
             text: 'Select multiple options',
             id: 'fixed_var_val_date_period_button_' + new_index
         }).css('display', 'none');
-        dialog = $("#fixed_var_val_date_period_" + (last_index )).clone(false).appendTo("body");
+        fixed_var_val_date_range = $("#fixed_var_val_date_range_" + last_index).clone(false);
+        fixed_var_val_date_range.prop("id", 'fixed_var_val_date_range_' + new_index);
+        fixed_var_val_date_range_button = $("<button>", {
+            text: 'Select multiple options',
+            id: 'fixed_var_val_date_range_button_' + new_index
+        }).css('display', 'none');
+        dialog = $("#fixed_var_val_date_period_" + (last_index)).clone(false).appendTo("body");
         dialog.prop("id", "fixed_var_val_date_period_" + new_index);
-        dialog.find("#fixed_var_val_date_period_start_" + (last_index )).prop('id', 'fixed_var_val_date_period_start_' + new_index);
-        dialog.find("#fixed_var_val_date_period_end_" + (last_index )).prop('id', 'fixed_var_val_date_period_end_' + new_index);
-        dialog.find("#fixed_var_val_date_period_by_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_' + new_index);
-        dialog.find("#fixed_var_val_date_period_by_unit_" + (last_index )).prop('id', 'fixed_var_val_date_period_by_unit_' + new_index);
+        dialog.find("#fixed_var_val_date_period_start_" + (last_index)).prop('id', 'fixed_var_val_date_period_start_' + new_index);
+        dialog.find("#fixed_var_val_date_period_end_" + (last_index)).prop('id', 'fixed_var_val_date_period_end_' + new_index);
+        dialog.find("#fixed_var_val_date_period_by_" + (last_index)).prop('id', 'fixed_var_val_date_period_by_' + new_index);
+        dialog.find("#fixed_var_val_date_period_by_unit_" + (last_index)).prop('id', 'fixed_var_val_date_period_by_unit_' + new_index);
         fix_var_event_equal = $("#fix_var_event_equal_" + last_index).clone(true)
-                .prop("id", 'fix_var_event_equal_' + new_index).prop("checked", isEq).prop('disabled', !isEq);
+            .prop("id", 'fix_var_event_equal_' + new_index).prop("checked", isEq).prop('disabled', !isEq);
         if ($("#fix_var_event_equal_" + last_index).find('label').size() > 0) {
             fix_var_event_equal_label = $('<label for="fix_var_event_equal_' + new_index + '">Equalize</label>');
         }
         $('body').append(dialog);
 
         $('#fixed_var_table').append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(fixed_var)).append($('<td>')
-                .append(fixed_var_val)).append($('<td>').append(fixed_var_val_date_period_button)).append($('<td>').append(fix_var_event_equal).append(fix_var_event_equal_label)));
+            .append(fixed_var_val))
+            .append($('<td>').append(fixed_var_val_date_period_button))
+            .append($('<td>').append(fixed_var_val_date_range).append(fixed_var_val_date_range_button))
+            .append($('<td>').append(fix_var_event_equal).append(fix_var_event_equal_label)));
 
         remove_var.button({
             icons: {
@@ -4834,7 +4942,7 @@ function addFixedVar() {
     }
 
     createValDatePeriodDialog('fixed_var_val', new_index);
-    if (currentTab == 'Contour') {
+    if (currentTab === 'Contour') {
         fixed_var_val.multiselect({
             selectedList: 100, // 0-based index
             noneSelectedText: "Select value",
@@ -4871,8 +4979,10 @@ function addFixedVar() {
 
             if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
                 $("#fixed_var_val_date_period_button_" + new_index).css("display", "block");
+                $("#fixed_var_val_date_range_button_" + new_index).css("display", "block");
             } else {
                 $("#fixed_var_val_date_period_button_" + new_index).css("display", "none");
+                $("#fixed_var_val_date_range_button_" + new_index).css("display", "none");
             }
             var id_array = this.id.split("_");
             updateFixedVarVal(id_array[id_array.length - 1], []);
@@ -4886,6 +4996,50 @@ function addFixedVar() {
         text: false
     }).click(function () {
         $("#fixed_var_val_date_period_" + new_index).dialog("open");
+    });
+    fixed_var_val_date_range_button.button({
+        icons: {
+            primary: "ui-icon-calendar"
+        },
+        text: false
+    }).click(function (evt) {
+        evt.stopPropagation();
+        var dates = $(fixVarValResponse[new_index]).find("val");
+        var start = $(dates[0]).text();
+        var end = $(dates[dates.length - 1]).text();
+        try {
+            $("#fixed_var_val_date_range_" + new_index).unbind("datepicker-apply");
+            $("#fixed_var_val_date_range_" + new_index).data('dateRangePicker').destroy();
+        } catch (error) {
+            console.log(error);
+        }
+        $("#fixed_var_val_date_range_" + new_index).dateRangePicker({
+            startOfWeek: 'sunday',
+            separator: ' - ',
+            format: 'YYYY-MM-DD HH:mm',
+            autoClose: false,
+            time: {
+                enabled: true
+            },
+            startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+            endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+            showShortcuts: true,
+            shortcuts: {
+                'prev-days': [3, 7, 30],
+                'prev': ['week', 'month', 'year'],
+                'next-days': null,
+                'next': null
+            },
+            monthSelect: true,
+            yearSelect: true,
+            container: document.getElementById('fixed_var_table').parentElement,
+            customTopBar: function () {
+                return createCalendarTopBarNoFormat(new_index);
+            }
+        }).bind('datepicker-apply', function (event, obj) {
+            onIndyCalendarClose(obj,new_index);
+        });
+        $("#fixed_var_val_date_range_" + new_index).data('dateRangePicker').open();
     });
 
     updateFixedVarVal(new_index, []);
@@ -4905,7 +5059,7 @@ function removeSeriesVarCommon(id) {
         $("#series_var_val_" + y_axis + "_" + index).multiselect("destroy");
     } catch (err) {
     }
-    if (y_axis == 'y1') {
+    if (y_axis === 'y1') {
         index_of_removing_el = jQuery.inArray(parseInt(index), series_var_y1_indexes);
         if (index_of_removing_el > -1) {
             series_var_y1_indexes.splice(index_of_removing_el, 1);
@@ -4932,6 +5086,7 @@ function removeSeriesVarCommon(id) {
     }
 
 }
+
 function removeSeriesVar(id) {
     removeSeriesVarCommon(id);
     if (series_var_y1_indexes.length == 1) {
@@ -4972,7 +5127,7 @@ function addSeriesVarEns() {
 
     if (last_index > 0) {
         remove_var = $("#remove_series_var_y1_" + last_index).button("enable").clone(true)
-                .attr("id", 'remove_series_var_y1_' + (last_index + 1));
+            .attr("id", 'remove_series_var_y1_' + (last_index + 1));
 
         series_var_val = $("#series_var_val_y1_" + last_index).clone(false);
         series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
@@ -5011,6 +5166,7 @@ function addSeriesVarEns() {
         }
     });
 }
+
 function addSeriesVarPerf() {
     var last_index;
 
@@ -5043,7 +5199,7 @@ function addSeriesVarPerf() {
 
     if (last_index > 0) {
         remove_var = $("#remove_series_var_y1_" + last_index).button("enable").clone(true)
-                .attr("id", 'remove_series_var_y1_' + (last_index + 1));
+            .attr("id", 'remove_series_var_y1_' + (last_index + 1));
 
         series_var_val = $("#series_var_val_y1_" + last_index).clone(false);
         series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
@@ -5082,6 +5238,7 @@ function addSeriesVarPerf() {
         }
     });
 }
+
 function addSeriesVarHist() {
     var last_index;
 
@@ -5118,7 +5275,7 @@ function addSeriesVarHist() {
 
     if (last_index > 0) {
         remove_var = $("#remove_series_var_y1_" + last_index).button("enable").clone(true)
-                .attr("id", 'remove_series_var_y1_' + (last_index + 1));
+            .attr("id", 'remove_series_var_y1_' + (last_index + 1));
 
         series_var_val = $("#series_var_val_y1_" + last_index).clone(false);
         series_var_val.attr("id", 'series_var_val_y1_' + (last_index + 1));
@@ -5128,12 +5285,12 @@ function addSeriesVarHist() {
             text: 'Select multiple options',
             id: 'series_var_val_y1_date_period_button_' + (last_index + 1)
         }).css('display', 'none');
-        dialog = $("#series_var_val_y1_date_period_" + (last_index )).clone(false).appendTo("body");
+        dialog = $("#series_var_val_y1_date_period_" + (last_index)).clone(false).appendTo("body");
         dialog.prop("id", "series_var_val_y1_date_period_" + (last_index + 1));
-        dialog.find("#series_var_val_y1_date_period_start_" + (last_index )).prop('id', 'series_var_val_y1_date_period_start_' + (last_index + 1));
-        dialog.find("#series_var_val_y1_date_period_end_" + (last_index )).prop('id', 'series_var_val_y1_date_period_end_' + (last_index + 1));
-        dialog.find("#series_var_val_y1_date_period_by_" + (last_index )).prop('id', 'series_var_val_y1_date_period_by_' + (last_index + 1));
-        dialog.find("#series_var_val_y1_date_period_by_unit_" + (last_index )).prop('id', 'series_var_val_y1_date_period_by_unit_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_start_" + (last_index)).prop('id', 'series_var_val_y1_date_period_start_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_end_" + (last_index)).prop('id', 'series_var_val_y1_date_period_end_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_by_" + (last_index)).prop('id', 'series_var_val_y1_date_period_by_' + (last_index + 1));
+        dialog.find("#series_var_val_y1_date_period_by_unit_" + (last_index)).prop('id', 'series_var_val_y1_date_period_by_unit_' + (last_index + 1));
         $('body').append(dialog);
 
 
@@ -5188,6 +5345,7 @@ function addSeriesVarHist() {
         $("#series_var_val_y1_date_period_" + (last_index + 1)).dialog("open");
     });
 }
+
 function addSeriesVar(y_axis) {
     var last_index;
     if (y_axis == 'y1') {
@@ -5205,7 +5363,8 @@ function addSeriesVar(y_axis) {
         }
         series_var_y2_indexes.push(last_index + 1);
     }
-    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label, var_val_date_period_button, dialog;
+    var series_var, remove_var, series_var_val, group_series_var, group_series_var_label, var_val_date_period_button,
+        dialog;
     if (last_index == 0) {
         $('#series_var_table_' + y_axis).css("display", "");
         series_var = $("#series_var_" + y_axis + "_" + (last_index + 1));
@@ -5230,7 +5389,7 @@ function addSeriesVar(y_axis) {
 
     if (last_index > 0) {
         remove_var = $("#remove_series_var_" + y_axis + "_" + last_index).button("enable").clone(true)
-                .attr("id", 'remove_series_var_' + y_axis + "_" + (last_index + 1));
+            .attr("id", 'remove_series_var_' + y_axis + "_" + (last_index + 1));
 
         series_var_val = $("#series_var_val_" + y_axis + "_" + last_index).clone(false);
         series_var_val.attr("id", 'series_var_val_' + y_axis + "_" + (last_index + 1));
@@ -5246,12 +5405,12 @@ function addSeriesVar(y_axis) {
             text: 'Select multiple options',
             id: 'series_var_val_' + y_axis + '_date_period_button_' + (last_index + 1)
         }).css('display', 'none');
-        dialog = $("#series_var_val_" + y_axis + "_date_period_" + (last_index )).clone(false).appendTo("body");
+        dialog = $("#series_var_val_" + y_axis + "_date_period_" + (last_index)).clone(false).appendTo("body");
         dialog.prop("id", "series_var_val_" + y_axis + "_date_period_" + (last_index + 1));
-        dialog.find("#series_var_val_" + y_axis + "_date_period_start_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_start_' + (last_index + 1));
-        dialog.find("#series_var_val_" + y_axis + "_date_period_end_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_end_' + (last_index + 1));
-        dialog.find("#series_var_val_" + y_axis + "_date_period_by_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_by_' + (last_index + 1));
-        dialog.find("#series_var_val_" + y_axis + "_date_period_by_unit_" + (last_index )).prop('id', 'series_var_val_' + y_axis + '_date_period_by_unit_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_start_" + (last_index)).prop('id', 'series_var_val_' + y_axis + '_date_period_start_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_end_" + (last_index)).prop('id', 'series_var_val_' + y_axis + '_date_period_end_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_by_" + (last_index)).prop('id', 'series_var_val_' + y_axis + '_date_period_by_' + (last_index + 1));
+        dialog.find("#series_var_val_" + y_axis + "_date_period_by_unit_" + (last_index)).prop('id', 'series_var_val_' + y_axis + '_date_period_by_unit_' + (last_index + 1));
         $('body').append(dialog);
 
         $('#series_var_table_' + y_axis).append($('<tr>').append($('<td>').append(remove_var)).append($('<td>').append(series_var)).append($('<td>').append(series_var_val)).append($('<td>').append(var_val_date_period_button)).append($('<td>').append(group_series_var).append(group_series_var_label)));
@@ -5341,6 +5500,7 @@ function removeFcstVar(id) {
     }
     updateSeries();
 }
+
 function addFcstVar(y_axis) {
     var last_index;
     var selected_mode = $("#plot_data").multiselect("getChecked").val();
@@ -5384,7 +5544,7 @@ function addFcstVar(y_axis) {
 
     if (last_index > 0) {
         remove_var = $("#remove_fcst_var_" + y_axis + "_" + last_index).button("enable").clone(true)
-                .attr("id", 'remove_fcst_var_' + y_axis + "_" + (last_index + 1));
+            .attr("id", 'remove_fcst_var_' + y_axis + "_" + (last_index + 1));
 
         fcst_stat = $("#fcst_stat_" + y_axis + "_" + last_index).clone(false);
         fcst_stat.attr("id", 'fcst_stat_' + y_axis + "_" + (last_index + 1));
@@ -5739,6 +5899,7 @@ function loadXMLRoc() {
     }
 
 }
+
 function loadXMLHist() {
     var series_var_val;
     var type = $(initXML.find("plot").find("template")).text();
@@ -5787,6 +5948,7 @@ function loadXMLHist() {
 
 
 }
+
 function loadXMLRely() {
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
@@ -5852,6 +6014,7 @@ function loadXMLRely() {
     }
     loadXMLStatistics();
 }
+
 function loadXMLEns() {
     var series_var_val;
     if (initXML.find("plot").find("series1").children().length > 0) {
@@ -5920,6 +6083,7 @@ function updatePlotFix() {
 
     }
 }
+
 function updatePlotFixSeries() {
     if ($(initXML.find("plot").find("plot_fix")).children().length > 0) {
         var plot_fix_arr = $(initXML.find("plot").find("plot_fix")).children();
@@ -5936,10 +6100,12 @@ function updatePlotFixSeries() {
             $(plot_fix_arr[i]).find("set").find("val").each(function () {
                 fixed_var_vals.push($(this).text());
             });
-            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+            if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
                 $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "block");
+                $("#fixed_var_val_date_range_button_" + (i + 1)).css("display", "block");
             } else {
                 $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "none");
+                $("#fixed_var_val_date_range_button_" + (i + 1)).css("display", "none");
             }
             updateFixedVarVal((i + 1), fixed_var_vals, equalize);
         }
@@ -6057,13 +6223,13 @@ function loadXMLSeries() {
                 value = $(series_arr[i]).attr('name');
                 if (i === 0 && y_axis_index === 1) {
                     try {
-                        $("#series_var_" + y_axis + "_" + ( i + 1)).val(value).multiselect("refresh");
+                        $("#series_var_" + y_axis + "_" + (i + 1)).val(value).multiselect("refresh");
                     } catch (err) {
                     }
                 } else {
                     if (currentTab === 'Taylor') {
                         addSeriesVarHist();
-                    }else if (currentTab === 'Perf') {
+                    } else if (currentTab === 'Perf') {
                         addSeriesVarPerf();
                     } else {
                         addSeriesVar(y_axis);
@@ -6286,6 +6452,7 @@ function loadXMLContour() {
 
     updateSeries();
 }
+
 function requestDBUpdate() {
 
     $.ajax({
@@ -6295,7 +6462,7 @@ function requestDBUpdate() {
         dataType: 'xml',
         processData: false,
         contentType: "application/xml",
-        data: '<?xml version="1.0" encoding="UTF-8"?><request><list_db_update></list_db_update></request>' ,
+        data: '<?xml version="1.0" encoding="UTF-8"?><request><list_db_update></list_db_update></request>',
         error: function (jqXHR, textStatus, errorThrown) {
 
         },
@@ -6303,8 +6470,7 @@ function requestDBUpdate() {
             categories = $(data).find("groups").find('group');
             try {
                 $('#listdt').jqGrid('GridUnload');
-            }
-            catch(err) {
+            } catch (err) {
 
             }
 
@@ -6335,7 +6501,7 @@ function updateFixVar(selected_mode) {
         });
     } else {
 
-        if (selected_mode == "stat") {
+        if (selected_mode === "stat") {
             $.each(fix_var_value_to_title_stat_map, function (key, val) {
                 $('#fixed_var_' + remaining_fixed_var_id).append('<option value="' + key + '">' + val + '</option>');
             });
@@ -6382,7 +6548,7 @@ function createValDatePeriodDialog(prefix, var_index) {
     var start_el = $('#' + prefix + '_date_period_start_' + (var_index));
     var end_el = $('#' + prefix + '_date_period_end_' + (var_index));
 
-    $("#" + prefix + "_date_period_" + (var_index )).dialog({
+    $("#" + prefix + "_date_period_" + (var_index)).dialog({
         width: 295,
         autoOpen: false,
         position: {
@@ -6468,8 +6634,8 @@ function createValDatePeriodDialog(prefix, var_index) {
             for (var i = 0; i < dates.length; i++) {
                 var t = $(dates[i]);
                 var option = $("<option/>")
-                        .attr("value", t.text())
-                        .text(t.text());
+                    .attr("value", t.text())
+                    .text(t.text());
                 if (t.text() == start_el.val()) {
                     option.prop("selected", true);
                 }
@@ -6568,8 +6734,8 @@ function createDatePeriodDialog() {
             for (var i = 0; i < dates.length; i++) {
                 var t = $(dates[i]);
                 var option = $("<option/>")
-                        .attr("value", t.text())
-                        .text(t.text());
+                    .attr("value", t.text())
+                    .text(t.text());
                 if (t.text() == start_val) {
                     option.prop("selected", true);
                 }
@@ -6593,6 +6759,7 @@ function createDatePeriodDialog() {
         }
     });
 }
+
 function myelem(value, options) {
     var el = document.createElement("input");
     el.type = "text";
@@ -6622,9 +6789,11 @@ if (typeof String.prototype.startsWith != 'function') {
         return this.indexOf(str) === 0;
     };
 }
+
 function colorDisplayFmatter(cellvalue, options, rowObject) {
     return '<input id="color_' + rowObject.id + '" type="text" value="' + rowObject.color + '" size="8" style="background-color:' + rowObject.color + ';">';
 }
+
 function colorDisplayUnmatter(cellvalue, options, cell) {
     var colorRGB = jQuery('input', cell).css('background-color');
     var parts = colorRGB.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
@@ -6648,6 +6817,7 @@ function querySt(Key) {
         }
     }
 }
+
 function downloadPlot(e) {
 
     var inputs = '';
@@ -6682,8 +6852,8 @@ function viewImage(id) {
         },
         open: function (e) {
             $(this).html('<img src="' + urlOutput + 'plots/plot_' + id
-                    + '.png?' + (new Date()).getTime()
-                    +'" onError="this.src=\'images/no_image.png\';"/>');
+                + '.png?' + (new Date()).getTime()
+                + '" onError="this.src=\'images/no_image.png\';"/>');
         }
 
     });
@@ -6696,10 +6866,10 @@ function updateResult(result) {
 
     $('#plot_display_inner_header').text(resultName.replace("plot_", ""));
     $("#plot_image")
-            .error(function () {
-                $(this).attr("src", 'images/no_image.png');
-            })
-            .attr("src", urlOutput + 'plots/' + resultName + '.png'+ '?' + (new Date()).getTime());
+        .error(function () {
+            $(this).attr("src", 'images/no_image.png');
+        })
+        .attr("src", urlOutput + 'plots/' + resultName + '.png' + '?' + (new Date()).getTime());
     $.ajax({
         type: "GET",
         url: urlOutput + "xml/" + resultName + ".xml",
@@ -6708,8 +6878,7 @@ function updateResult(result) {
             var xmlString;
             if (jQuery.browser == "msie") {
                 xmlString = data.xml;
-            }
-            else {
+            } else {
                 xmlString = (new XMLSerializer()).serializeToString(data);
             }
             document.getElementById('plot_xml').innerHTML = formatXml(xmlString).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />');
@@ -7011,8 +7180,8 @@ function initPage() {
             if (sr) {
                 var rowData = $(this).getRowData(sr);
                 if (rowData.title.startsWith("DIFF")
-                        || rowData.title.startsWith("RATIO")
-                        || rowData.title.startsWith("SS")) {
+                    || rowData.title.startsWith("RATIO")
+                    || rowData.title.startsWith("SS")) {
                     $(this).jqGrid('delRowData', sr);
                     $("#1", "#gbox_listdt").css({display: ""});
                     var titleArr, title;
@@ -7188,23 +7357,23 @@ function initPage() {
 
                     if (yAxisText.indexOf("2") !== -1) {
                         $('#series1Y2')
-                                .append($("<option></option>")
-                                        .attr("value", allSeries[i].title)
-                                        .text(allSeries[i].title));
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
                         $('#series1Y2')
-                                .append($("<option></option>")
-                                        .attr("value", allSeries[i].title)
-                                        .text(allSeries[i].title));
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
                         series2Names.push(allSeries[i].title);
                     } else {
                         $('#series1Y1')
-                                .append($("<option></option>")
-                                        .attr("value", allSeries[i].title)
-                                        .text(allSeries[i].title));
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
                         $('#series2Y1')
-                                .append($("<option></option>")
-                                        .attr("value", allSeries[i].title)
-                                        .text(allSeries[i].title));
+                            .append($("<option></option>")
+                                .attr("value", allSeries[i].title)
+                                .text(allSeries[i].title));
 
                         series1Names.push(allSeries[i].title);
                     }
@@ -7251,12 +7420,11 @@ function initPage() {
     });
 
     $("#pagerdt_left table.navtable tbody tr").append( // here 'pager' part or #pager_left is the id of the pager
-            '<td><div ><input type="checkbox"  style="margin:0 4px;" id="seriesLock"/><label for="seriesLock">Lock Formatting</label></div></td>');
+        '<td><div ><input type="checkbox"  style="margin:0 4px;" id="seriesLock"/><label for="seriesLock">Lock Formatting</label></div></td>');
     $("#seriesLock").change(function () {
         if ($(this).is(':checked')) {
             $(this).attr("checked", "checked");
-        }
-        else {
+        } else {
             $(this).removeAttr("checked");
         }
     });
@@ -7408,8 +7576,8 @@ function initPage() {
         beforeLoad: function (event, ui) {
             ui.jqXHR.error(function () {
                 ui.panel.html(
-                        "Couldn't load this tab. We'll try to fix this as soon as possible. " +
-                        "If this wouldn't be a demo.");
+                    "Couldn't load this tab. We'll try to fix this as soon as possible. " +
+                    "If this wouldn't be a demo.");
             });
         }
     });
@@ -7563,9 +7731,9 @@ function initPage() {
             var d = $(databases[j]);
             var val = d.find("val");
             var desc = d.find("desc");
-            var li = $('<li data-value="'+val.text()+'" title="'+desc.text()+'">');
-            var input =$('<input name="multiselect_database" type="checkbox" disabled value="' + val.text()
-                    + '" title="'+desc.text() +'" id="'+val.text()+'" /><label for="'+val.text()+'" >'+ val.text()+ '</label>lab');
+            var li = $('<li data-value="' + val.text() + '" title="' + desc.text() + '">');
+            var input = $('<input name="multiselect_database" type="checkbox" disabled value="' + val.text()
+                + '" title="' + desc.text() + '" id="' + val.text() + '" /><label for="' + val.text() + '" >' + val.text() + '</label>lab');
             //li.text(val.text());
             li.prepend(input);
 
@@ -7577,33 +7745,32 @@ function initPage() {
 
     $('.multilevel-dropdown').multilevelDropdown();
     $("input[name='multiselect_database']").on('change', function (event) {
-            if ($(this).val() != null) {
-                var selected_db = [];
-                $("input[name='multiselect_database']:checked").each(function () {
-                    selected_db.push($(this).val());
-                });
+        if ($(this).val() != null) {
+            var selected_db = [];
+            $("input[name='multiselect_database']:checked").each(function () {
+                selected_db.push($(this).val());
+            });
 
-                var text;
-                if (selected_db.length === 1) {
-                    text = selected_db[0];
-                } else if (selected_db.length === 0) {
-                    text = "Select database";
-                } else {
-                    text = selected_db.length + " selected";
-                }
-                var textnode = document.createTextNode(text);
-                var item = document.getElementById("categories1").childNodes[0];
-                item.replaceChild(textnode, item.childNodes[0]);
-                updatePages();
+            var text;
+            if (selected_db.length === 1) {
+                text = selected_db[0];
+            } else if (selected_db.length === 0) {
+                text = "Select database";
+            } else {
+                text = selected_db.length + " selected";
             }
-        });
-
+            var textnode = document.createTextNode(text);
+            var item = document.getElementById("categories1").childNodes[0];
+            item.replaceChild(textnode, item.childNodes[0]);
+            updatePages();
+        }
+    });
 
 
     $('#header').css("position", "static");
 }
 
-function updatePages(){
+function updatePages() {
     seriesDiffY1 = [];
     seriesDiffY2 = [];
     var values, i;
@@ -7677,14 +7844,16 @@ function updatePages(){
 
     }
 }
+
 function addThemeSwitcher(container, position) {
     var pos = {top: '15px', zIndex: 10};
     $('<div id="themeContainer" style="position: absolute; overflow-x: hidden;"></div>')
-            .css($.extend(pos, position))
-            .appendTo(container || 'body')
-            .themeswitcher();
+        .css($.extend(pos, position))
+        .appendTo(container || 'body')
+        .themeswitcher();
 
 }
+
 function changeFixedVarHist(value) {
     var optionsMap = {};
     if (value === 'rhist') {
@@ -7708,34 +7877,45 @@ function changeFixedVarHist(value) {
     }
 }
 
-function onIndyCalendarClose(obj){
-    var by;
-
+function onIndyCalendarClose(obj, index) {
+    var by ;
+    var unit;
+    var dates;
+    var custom_format;
+    var val_obj;
+    if(index){
+        by = $("#fixed_var_val_date_range_by_" + index).val().trim();
+        unit = $("#fixed_var_val_date_range_by_unit_" + index).val();
+        dates = $(fixVarValResponse[index]).find("val");
+        custom_format = 'YYYY-MM-DD HH:mm:ss';
+        val_obj = $("#fixed_var_val_" + index);
+    }else {
         by = $("#date_range_by").val().trim();
-        var unit = $("#date_range_by_unit").val();
-        if (by.length === 0) {
-            by = 1;
-            unit = "hours";
+        unit = $("#date_range_by_unit").val();
+        dates = $(previousIndVarValResponse).find("val");
+        if ($("#date_range_format").length) {
+            custom_format = $("#date_range_format").val().trim();
+        } else {
+            custom_format = 'YYYY-MM-DD HH:mm:ss';
         }
-        by = parseInt(by);
-        if (unit === "min") {
-            by = by * 60;
-        } else if (unit === "hours") {
-            by = by * 3600;
-        } else if (unit === "days") {
-            by = by * 86400;
-        }
-
+        val_obj = $("#indy_var_val");
+    }
+    if (by.length === 0) {
+        by = 1;
+        unit = "hours";
+    }
+    by = parseInt(by);
+    if (unit === "min") {
+        by = by * 60;
+    } else if (unit === "hours") {
+        by = by * 3600;
+    } else if (unit === "days") {
+        by = by * 86400;
+    }
     var start = moment(obj.date1);
     var end = moment(obj.date2);
-    var dates = $(previousIndVarValResponse).find("val");
-    var custom_format;
-    if($("#date_range_format").length){
-        custom_format = $("#date_range_format").val().trim();
-    }else{
-        custom_format = 'YYYY-MM-DD HH:mm:ss';
-    }
-    $("#indy_var_val").multiselect("uncheckAll");
+
+    val_obj.multiselect("uncheckAll");
     var indy_var_val = $('[name="multiselect_indy_var_val"]');
     while (start <= end) {
         var current_date_str = start.format('YYYY-MM-DD HH:mm:ss');
@@ -7755,31 +7935,35 @@ function onIndyCalendarClose(obj){
                 console.error(error);
                 formattedDate = current_date_str
             }
-            var option = $('#indy_var_val').find('option[value="' + current_date_str + '"]');
+            var option = val_obj.find('option[value="' + current_date_str + '"]');
             option.prop('selected', true);
-            indy_var_vals_to_attr = {};
-            for (var i = 0; i < indy_var_val.length; i++) {
-                var jqObject = $(indy_var_val[i]);
-                if(jqObject.attr("value") === current_date_str) {
-                    var id = jqObject.attr("id");
-                    $('#' + id + '_label').val(formattedDate);
-                    indy_var_vals_to_attr[indy_var_val[i].value] = obj;
-                    break;
+            if (!index) {
+                indy_var_vals_to_attr = {};
+                for (var i = 0; i < indy_var_val.length; i++) {
+                    var jqObject = $(indy_var_val[i]);
+                    if (jqObject.attr("value") === current_date_str) {
+                        var id = jqObject.attr("id");
+                        $('#' + id + '_label').val(formattedDate);
+                        indy_var_vals_to_attr[indy_var_val[i].value] = obj;
+                        break;
+                    }
                 }
             }
             option.text(formattedDate);
         }
         start.add(by, 'seconds');
     }
-    $("#indy_var_val").multiselect("option", "indy_var_vals_to_attr", indy_var_vals_to_attr);
+    if(index) {
+        val_obj.multiselect("option", "indy_var_vals_to_attr", indy_var_vals_to_attr);
+    }
     try {
-        $('#indy_var_val').multiselect("refresh");
+        val_obj.multiselect("refresh");
     } catch (err) {
         console.log(err);
     }
 }
 
-function createCalendarTopBarWithFormat(){
+function createCalendarTopBarWithFormat() {
     var html = "";
     html += '<div class="normal-top">' +
         '<span class="selection-top">' + 'Selected:' + ' </span> <b class="start-day">...</b>';
@@ -7798,13 +7982,22 @@ function createCalendarTopBarWithFormat(){
     return html;
 }
 
-function createCalendarTopBarNoFormat(){
+function createCalendarTopBarNoFormat(index) {
+    var by_id;
+    var unit_id;
+    if(index){
+        by_id = "fixed_var_val_date_range_by_" + index;
+        unit_id = "fixed_var_val_date_range_by_unit_" + index;
+    }else {
+        by_id = "date_range_by";
+        unit_id = "date_range_by_unit";
+    }
     var html = "";
     html += '<div class="normal-top">' +
         '<span class="selection-top">' + 'Selected:' + ' </span> <b class="start-day">...</b>';
 
     html += ' <span class="separator-day">' + " - " + '</span> <b class="end-day">...</b> <i class="selected-days">(<span class="selected-days-num">3</span> ' + 'Days' + ')</i>';
-    html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="date_range_by" type="text"><select id="date_range_by_unit" style="font-size: 10px;">' +
+    html += '<br/><label for="date_range_by" style="color: #333;">By:</label><input style="width: 30px;line-height: 1;" id="'+ by_id + '" type="text"><select id="'+unit_id+'" style="font-size: 10px;">' +
         '            <option value="sec">sec</option>' +
         '            <option value="min">min</option>' +
         '            <option value="hours" selected="">hours</option>' +
@@ -7816,7 +8009,8 @@ function createCalendarTopBarNoFormat(){
         '<div class="default-top">default</div>';
     return html;
 }
-String.prototype.formatAll = function(t) {
+
+String.prototype.formatAll = function (t) {
     var target = this;
     target = target.split("&#38;").join("&");
     target = target.split("&gt;").join(">");

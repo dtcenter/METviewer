@@ -375,6 +375,7 @@
                     'next': null
                 },
                 monthSelect: true,
+                yearSelect: true,
                 container: document.getElementById('indy_var_table').parentElement,
                 customTopBar: function () {
                     return createCalendarTopBarWithFormat();
@@ -512,6 +513,12 @@
             <td>
                 <button id="fixed_var_val_date_period_button_1"
                         style="display: none;">Select period
+                </button>
+            </td>
+            <td>
+                <input id="fixed_var_val_date_range_1" value="" style="display: none"/>
+                <button id="fixed_var_val_date_range_button_1"
+                        style="display: none;">Calendar
                 </button>
             </td>
             <td><input type="checkbox" id="fix_var_event_equal_1" title='Add entry to event equalization logic'><label for="fix_var_event_equal_1" title='Add entry to event equalization logic'>Equalize</label> </td>

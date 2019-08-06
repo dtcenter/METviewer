@@ -117,8 +117,10 @@
 
                 if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
                     $("#fixed_var_val_date_period_button_1").css("display", "block");
+                    $("#fixed_var_val_date_range_button_1").css("display", "block");
                 } else {
                     $("#fixed_var_val_date_period_button_1").css("display", "none");
+                    $("#fixed_var_val_date_range_button_1").css("display", "none");
                 }
                 var id_array = this.id.split("_");
                 updateFixedVarValHist(id_array[id_array.length - 1], []);
@@ -134,6 +136,53 @@
             $("#fixed_var_val_date_period_1").dialog("open");
         });
         createValDatePeriodDialog('fixed_var_val',1);
+
+
+        $("#fixed_var_val_date_range_button_1").button({
+            icons: {
+                primary: "ui-icon-calendar"
+            },
+            text: false
+        }).click(function (evt) {
+            evt.stopPropagation();
+            var dates = $(fixVarValResponse[1]).find("val");
+            var start = $(dates[0]).text();
+            var end = $(dates[dates.length - 1]).text();
+            try {
+                $("#fixed_var_val_date_range_1").unbind("datepicker-apply");
+                $("#fixed_var_val_date_range_1").data('dateRangePicker').destroy();
+            } catch (error) {
+                console.log(error);
+            }
+            $("#fixed_var_val_date_range_1").dateRangePicker({
+                startOfWeek: 'sunday',
+                separator: ' - ',
+                format: 'YYYY-MM-DD HH:mm',
+                autoClose: false,
+                time: {
+                    enabled: true
+                },
+                startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+                endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+                showShortcuts: true,
+                shortcuts: {
+                    'prev-days': [3, 7, 30],
+                    'prev': ['week', 'month', 'year'],
+                    'next-days': null,
+                    'next': null
+                },
+                monthSelect: true,
+                yearSelect: true,
+                container: document.getElementById('fixed_var_table').parentElement,
+                customTopBar: function () {
+                    return createCalendarTopBarNoFormat(1);
+                }
+            }).bind('datepicker-apply', function (event, obj) {
+                onIndyCalendarClose(obj,1);
+            });
+            $("#fixed_var_val_date_range_1").data('dateRangePicker').open();
+        });
+
 
         $("#fixed_var_val_1").multiselect({
             selectedList: 100, // 0-based index
@@ -276,6 +325,12 @@
                 style="display: none;">Select period
         </button>
       </td>
+        <td>
+            <input id="fixed_var_val_date_range_1" value="" style="display: none"/>
+            <button id="fixed_var_val_date_range_button_1"
+                    style="display: none;">Calendar
+            </button>
+        </td>
         <td>
             <input type="checkbox" id="fix_var_event_equal_1" title='Add entry to event equalization logic'><label for="fix_var_event_equal_1">Equalize</label>
         </td>
