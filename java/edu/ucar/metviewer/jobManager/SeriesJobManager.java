@@ -267,8 +267,9 @@ public class SeriesJobManager extends JobManager {
               = MVUtil.buildFcstVarStatList((MVOrderedMap) listDep[0].get("dep" + dep));
 
       for (String[] aListFcstVarStat : listFcstVarStat) {
-        String stat = aListFcstVarStat[1].split("_")[0];
-        String type = aListFcstVarStat[1].split("_")[1];
+        String[] arr = aListFcstVarStat[1].split("_");
+        String stat = arr[arr.length-2];
+        String type = arr[arr.length-1];
         //validate for all attr stats except for those
         if (!stat.equals("CNT")
                 && !stat.equals("CNTSUM")
