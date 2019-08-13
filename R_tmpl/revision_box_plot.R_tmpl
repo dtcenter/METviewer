@@ -177,7 +177,7 @@ if( FALSE != boolEventEqual  ){
   } else {
     dblIndySpan = 0;
   }
-  listX = 1:length(listIndy);
+  listX = 1:length(x_axis_lables);
   listXMinMax = c(min(listX)-1, max(listX)+1);
 
   # if the plot contains points, establish the plot window and y axis
@@ -240,15 +240,15 @@ if( FALSE != boolEventEqual  ){
       if ( anyDuplicated(data_for_valid$fcst_lead) != 0){
         stop(paste("Valid date",valid,"for",listAllStatsName,"doesn't have unique lead times.", sep = " "));
       }
-      for ( i in 1: nrow(data_for_valid)){
-        if(i < nrow(data_for_valid)){
+      if( nrow(data_for_valid) == 1){
+           data_for_valid[1,]$stat_value = NA;
+           data_for_valid[1,]$fcst_lead =NA;
+      }else{
+        for ( i in 1: (nrow(data_for_valid)-1) ) {
           data_for_valid[i,]$stat_value = data_for_valid[i+1,]$stat_value - data_for_valid[i,]$stat_value;
           data_for_valid[i,]$fcst_lead =NA;
-        }else{
-          data_for_valid[i,]$stat_value = NA;
-          data_for_valid[i,]$fcst_lead = format(as.POSIXct(data_for_valid[i,]$fcst_valid_beg, format="%Y-%m-%d %H:%M:%S", tz="GMT"), format="%m-%d %H", tz="GMT")
-
         }
+        data_for_valid <- data_for_valid[-nrow(data_for_valid),]
       }
       lables_for_x = c(lables_for_x, data_for_valid$fcst_lead);
       if(is.null(result)){
