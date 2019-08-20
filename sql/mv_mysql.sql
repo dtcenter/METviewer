@@ -1894,6 +1894,7 @@ CREATE TABLE mtd_header
     mtd_header_id   INT UNSIGNED NOT NULL,
     line_type_lu_id INT UNSIGNED NOT NULL,
     data_file_id    INT UNSIGNED NOT NULL,
+    revision_id     INT UNSIGNED,
     linenumber      INT UNSIGNED,
     version         VARCHAR(8),
     model           VARCHAR(40),
