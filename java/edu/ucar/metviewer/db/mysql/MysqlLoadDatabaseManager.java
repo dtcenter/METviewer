@@ -9,12 +9,14 @@ package edu.ucar.metviewer.db.mysql;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -45,6 +47,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import static java.lang.String.valueOf;
+
 /**
  * @author : tatiana $
  * @version : 1.0 : 06/06/17 11:19 $
@@ -55,6 +59,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
           = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
   private static final Logger logger = LogManager.getLogger("MysqlLoadDatabaseManager");
   private static final Marker ERROR_MARKER = MarkerManager.getMarker("ERROR");
+  private static final DecimalFormat format = new DecimalFormat("##.00");
 
   private static final int INDEX_LINE_DATA = 1;
   private static final int INDEX_VAR_LENGTH = 3;
@@ -2980,11 +2985,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     String filename = info.path + "/" + info.filename;
     int line = 1;
     List<String> headerNames = new ArrayList<>();
-    try (
-            FileReader fileReader = new FileReader(filename);
-            BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES,
-                    MAX_LINE_LEN)) {
+    List<String[]> mtd2dLines = new ArrayList<>();
+    int mtd3dSingle = 17;
+    int mtd3dPair = 18;
+    int mtd2d = 19;
+    try (FileReader fileReader = new FileReader(filename);
+         BoundedBufferedReader reader = new BoundedBufferedReader(fileReader, MAX_LINES, MAX_LINE_LEN)) {
       //  read each line of the input file
+      int lineTypeLuId = 0;
       while (reader.ready()) {
         String lineStr = reader.readLineBounded().trim();
         String[] listToken = lineStr.split("\\s+");
@@ -2993,487 +3001,49 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         if (1 > listToken.length || listToken[0].equals("VERSION")) {
           headerNames = Arrays.asList(listToken);
           line++;
+
+          //  determine the line type
+          int dataFileLuId = info.luId;
+          if (11 == dataFileLuId || 12 == dataFileLuId) {
+            lineTypeLuId = mtd3dSingle;
+          } else if (9 == dataFileLuId || 10 == dataFileLuId) {
+            lineTypeLuId = mtd3dPair;
+          } else if (8 == dataFileLuId) {
+            lineTypeLuId = mtd2d;
+          } else {
+            throw new DatabaseException("METviewer load error: loadModeFile() unable to determine "
+                    + "line "
+                    + "type"
+                    + " " + info.filename);
+          }
           continue;
         }
 
         String strFileLine = filename + ":" + line;
-
-        //  determine the line type
-        int lineTypeLuId;
-        int dataFileLuId = info.luId;
-        String objectId = MVUtil.findValue(listToken, headerNames, "OBJECT_ID");
-        int mtd3dSingle = 17;
-        int mtd3dPair = 18;
-        int mtd2d = 19;
-        if (11 == dataFileLuId || 12 == dataFileLuId) {
-          lineTypeLuId = mtd3dSingle;
-        } else if (9 == dataFileLuId || 10 == dataFileLuId) {
-          lineTypeLuId = mtd3dPair;
-        } else if (8 == dataFileLuId) {
-          lineTypeLuId = mtd2d;
-        } else {
-          throw new DatabaseException("METviewer load error: loadModeFile() unable to determine "
-                  + "line "
-                  + "type"
-                  + " " + strFileLine);
-        }
-        //  parse the valid times
-
-        LocalDateTime fcstValidBeg;
-        try {
-          fcstValidBeg = LocalDateTime.parse(
-                  MVUtil.findValue(listToken, headerNames, "FCST_VALID"),
-                  DB_DATE_STAT_FORMAT);
-        } catch (DateTimeParseException e) {
-          fcstValidBeg = null;
-        }
-
-        LocalDateTime obsValidBeg;
-        try {
-          obsValidBeg = LocalDateTime.parse(
-                  MVUtil.findValue(listToken, headerNames, "OBS_VALID"),
-                  DB_DATE_STAT_FORMAT);
-        } catch (DateTimeParseException e) {
-          obsValidBeg = null;
-        }
-
-        //  format the valid times for the database insert
-        String fcstValidBegStr;
-        if (fcstValidBeg != null) {
-          fcstValidBegStr = DATE_FORMATTER.format(fcstValidBeg);
-        } else {
-          fcstValidBegStr = null;
-        }
-
-
-        String obsValidBegStr;
-        if (obsValidBeg == null) {
-          obsValidBegStr = null;
-        } else {
-          obsValidBegStr = DATE_FORMATTER.format(obsValidBeg);
-        }
-
-
-        //  calculate the number of seconds corresponding to fcst_lead
-        String fcstLead = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
-        int fcstLeadLen = fcstLead.length();
-        int fcstLeadSec = 0;
-        try {
-          fcstLeadSec = Integer.parseInt(
-                  fcstLead.substring(fcstLeadLen - 2, fcstLeadLen));
-          fcstLeadSec += Integer.parseInt(
-                  fcstLead.substring(fcstLeadLen - 4, fcstLeadLen - 2)) * 60;
-          fcstLeadSec += Integer.parseInt(fcstLead.substring(fcstLeadLen - 6,
-                  fcstLeadLen - 4)) * 3600;
-        } catch (NumberFormatException e) {
-          logger.debug("fcstLead " + fcstLead + " is invalid");
-        }
-        String fcstLeadInsert = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
-        if (fcstLeadInsert.equals("NA")) {
-          fcstLeadInsert = "-9999";
-        } else {
-          if (fcstLeadInsert.contains("_")) {
-            fcstLeadInsert = fcstLeadInsert.split("_")[1];
-          }
-        }
-
-        String obsLeadInsert = MVUtil.findValue(listToken, headerNames, "OBS_LEAD");
-        if (obsLeadInsert.equals("NA")) {
-          obsLeadInsert = "-9999";
-        } else {
-          if (obsLeadInsert.contains("_")) {
-            obsLeadInsert = obsLeadInsert.split("_")[1];
-          }
-        }
-
-        //  determine the init time by combining fcst_valid_beg and fcst_lead
-        String fcstInitStr;
-        if (fcstValidBeg != null) {
-          LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
-          fcstInitBeg = fcstInitBeg.minusSeconds(fcstLeadSec);
-          fcstInitStr = DATE_FORMATTER.format(fcstInitBeg);
-        } else {
-          fcstInitStr = null;
-        }
-
-
-        String mtdHeaderValueList = "'" + MVUtil.findValue(listToken, headerNames, "VERSION")
-                + "', " + "'"
-                + MVUtil.findValue(listToken, headerNames, "MODEL")
-                + "', " + "'"
-                + MVUtil.findValue(listToken, headerNames, "DESC")
-                + "', ";
-
-
-        mtdHeaderValueList = mtdHeaderValueList
-                + fcstLeadInsert
-                + ", " + "'" + fcstValidBegStr + "', "
-                + "'" + fcstInitStr + "', "
-                + obsLeadInsert
-                + ", " + "'" + obsValidBegStr + "', ";
-
-        if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
-          mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
-        } else {
-          mtdHeaderValueList = mtdHeaderValueList
-                  + MVUtil.findValue(listToken, headerNames, "T_DELTA")
-                  + ", ";
-        }
-        mtdHeaderValueList = mtdHeaderValueList
-                + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + ", "
-                + "'" + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', "
-                + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + ", "
-                + "'" + MVUtil.findValue(listToken, headerNames, "OBS_THR") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "FCST_VAR") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "FCST_UNITS") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "FCST_LEV") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "OBS_VAR") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "OBS_UNITS") + "', "
-                + "'" + MVUtil.findValue(listToken, headerNames, "OBS_LEV") + "'";
-
-
-        String mtdHeaderWhereClause = BINARY +
-                "  version = ?"
-                + "  AND " + BINARY + "model = ?"
-                + "  AND " + BINARY + "descr = ?"
-                + "  AND fcst_lead = ?"
-                + "  AND fcst_valid = ?"
-                + "  AND t_delta = ?"
-                + "  AND fcst_init = ?"
-                + "  AND obs_lead = ?"
-                + "  AND obs_valid = ?"
-                + "  AND fcst_rad = ?"
-                + "  AND " + BINARY + "fcst_thr = ?"
-                + "  AND obs_rad = ?"
-                + "  AND " + BINARY + "obs_thr = ?"
-                + "  AND " + BINARY + "fcst_var = ?"
-                + "  AND " + BINARY + "fcst_units = ?"
-                + "  AND " + BINARY + "fcst_lev = ?"
-                + "  AND " + BINARY + "obs_var = ?"
-                + "  AND " + BINARY + "obs_units = ?"
-                + "  AND " + BINARY + "obs_lev = ?";
-
-        //  look for the header key in the table
-        int mtdHeaderId = -1;
-        if (mtdHeaders.containsKey(mtdHeaderValueList)) {
-          mtdHeaderId = mtdHeaders.get(mtdHeaderValueList);
-        }
-
-        //  if the mtd_header does not yet exist, create one
-        else {
-
-          //  look for an existing mode_header record with the same information
-          boolean foundMtdHeader = false;
-          long mtdHeaderSearchBegin = System.currentTimeMillis();
-          if (info.mtdHeaderDBCheck) {
-            String strMtdHeaderSelect = "SELECT mtd_header_id FROM mtd_header WHERE" +
-                    mtdHeaderWhereClause;
-            ResultSet res = null;
-            try (Connection con = getConnection();
-                 PreparedStatement stmt = con.prepareStatement(strMtdHeaderSelect)
-            ) {
-              stmt.setString(1, MVUtil.findValue(listToken, headerNames, "VERSION"));
-              stmt.setString(2, MVUtil.findValue(listToken, headerNames,
-                      "MODEL"));
-              stmt.setString(3, MVUtil.findValue(listToken, headerNames,
-                      "DESC"));
-              stmt.setObject(4, fcstLeadInsert, Types.INTEGER);
-              stmt.setObject(5, fcstValidBegStr, Types.TIMESTAMP);
-              stmt.setObject(6, MVUtil.findValue(listToken, headerNames, "T_DELTA"), Types.INTEGER);
-              stmt.setObject(7, fcstInitStr, Types.TIMESTAMP);
-              stmt.setObject(8, obsLeadInsert, Types.INTEGER);
-              stmt.setObject(9, obsValidBegStr, Types.TIMESTAMP);
-              stmt.setObject(10, MVUtil.findValue(listToken, headerNames, "FCST_RAD"), Types.INTEGER);
-              stmt.setString(11, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
-              stmt.setObject(12, MVUtil.findValue(listToken, headerNames, "OBS_RAD"), Types.INTEGER);
-              stmt.setString(13, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
-              stmt.setString(14, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
-              stmt.setString(15, MVUtil.findValue(listToken, headerNames, "FCST_UNITS"));
-              stmt.setString(16, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
-              stmt.setString(17, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
-              stmt.setString(18, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
-              stmt.setString(19, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
-
-
-              res = stmt.executeQuery();
-              if (res.next()) {
-                String strMtdHeaderIdDup = res.getString(1);
-                mtdHeaderId = Integer.parseInt(strMtdHeaderIdDup);
-                foundMtdHeader = true;
-                logger.warn("  **  WARNING: found duplicate mtd_header record with id " +
-                        strMtdHeaderIdDup + "\n        " + strFileLine);
-              }
-            } catch (NumberFormatException | SQLException e) {
-              logger.error(ERROR_MARKER, e.getMessage());
-            } finally {
-              if (res != null) {
-                try {
-                  res.close();
-                } catch (SQLException e) {
-                  logger.error(ERROR_MARKER, e.getMessage());
-                }
-              }
-            }
-
-          }
-          timeStats.put("headerSearchTime",
-                  timeStats.get("headerSearchTime")
-                          + System.currentTimeMillis() - mtdHeaderSearchBegin);
-
-
-          //  if the mtd_header was not found, add it to the table
-          if (!foundMtdHeader) {
-
-            mtdHeaderId = intMtdHeaderIdNext++;
-            mtdHeaders.put(mtdHeaderValueList, mtdHeaderId);
-
-
-            //  insert the record into the mtd_header database table
-            String sql = "INSERT INTO mtd_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            int mtdHeaderInsert;
-            try (Connection con = getConnection();
-                 PreparedStatement stmt = con.prepareStatement(sql)) {
-              stmt.setInt(1, mtdHeaderId);
-              stmt.setInt(2, lineTypeLuId);
-              stmt.setInt(3, info.fileId);
-              stmt.setInt(4, line);
-              stmt.setString(5, MVUtil.findValue(listToken, headerNames, "VERSION"));
-              stmt.setString(6, MVUtil.findValue(listToken, headerNames, "MODEL"));
-              stmt.setString(7, MVUtil.findValue(listToken, headerNames, "DESC"));
-              stmt.setObject(8, fcstLeadInsert, Types.INTEGER);
-              stmt.setObject(9, fcstValidBegStr, Types.TIMESTAMP);
-              stmt.setObject(10, fcstInitStr, Types.TIMESTAMP);
-              stmt.setObject(11, obsLeadInsert, Types.INTEGER);
-              stmt.setObject(12, obsValidBegStr, Types.TIMESTAMP);
-              if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
-                stmt.setNull(13, Types.INTEGER);
-              } else {
-                stmt.setObject(13, MVUtil.findValue(listToken, headerNames, "T_DELTA"), Types.INTEGER);
-              }
-              stmt.setObject(14, MVUtil.findValue(listToken, headerNames, "FCST_RAD"), Types.INTEGER);
-              stmt.setString(15, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
-              stmt.setObject(16, MVUtil.findValue(listToken, headerNames, "OBS_RAD"), Types.INTEGER);
-              stmt.setString(17, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
-              stmt.setString(18, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
-              stmt.setString(19, MVUtil.findValue(listToken, headerNames, "FCST_UNITS"));
-              stmt.setString(20, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
-              stmt.setString(21, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
-              stmt.setString(22, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
-              stmt.setString(23, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
-              mtdHeaderInsert = stmt.executeUpdate();
-
-            } catch (SQLException se) {
-              logger.error(ERROR_MARKER, se.getMessage());
-              throw new DatabaseException("caught SQLException calling executeUpdate: " + se.getMessage());
-            }
-
-            if (1 != mtdHeaderInsert) {
-              logger.warn("  **  WARNING: unexpected result from mtd_header INSERT: " + mtdHeaderInsert
-                      + "\n        " + strFileLine);
-            }
-            headerInserts++;
-          }
-        }
-
-
-        if (mtd3dSingle == lineTypeLuId) {
-          String sql = "INSERT INTO mtd_3d_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-
-          //set flags
-          int simpleFlag = 1;
-          int fcstFlag = 0;
-          if (objectId.startsWith("C")) {
-            simpleFlag = 0;
-          }
-          if (objectId.startsWith("CF") || objectId.startsWith("F")) {
-            fcstFlag = 1;
-          }
-          int matchedFlag = 0;
-          String objCat = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT");
-          Integer num = null;
-          try {
-            num = Integer.valueOf(objCat.substring(objCat.length() - 3));
-          } catch (NumberFormatException e) {
-            logger.info(" objCat " + objCat + " is invalid");
-          }
-          if (num != null && num != 0) {
-            matchedFlag = 1;
-          }
-
-
-          //  insert the record into the mtd_obj_single database table
-          int mtd3dObjSingleInsert;
-          try (Connection con = getConnection();
-               PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, mtdHeaderId);
-            stmt.setString(2, objectId);
-            stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
-                    mtdObj3dSingleColumns[0])));
-
-            for (int i = 0; i < 17; i++) {
-              stmt.setObject(4 + i,
-                      replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj3dSingleColumns[i + 1])),
-                      Types.DOUBLE);
-            }
-            stmt.setInt(21, fcstFlag);
-            stmt.setInt(22, simpleFlag);
-            stmt.setInt(23, matchedFlag);
-
-            mtd3dObjSingleInsert = stmt.executeUpdate();
-
-          } catch (SQLException se) {
-            logger.error(ERROR_MARKER, se.getMessage());
-            throw new DatabaseException(
-                    "caught SQLException calling executeUpdate: " + se.getMessage());
-          }
-
-
-          if (1 != mtd3dObjSingleInsert) {
-            logger.warn(
-                    "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
-                            + mtd3dObjSingleInsert + "\n        " + strFileLine);
-          }
-          obj3dSingleInserts++;
-        } else if (mtd2d == lineTypeLuId) {
-
-          //set flags
-          int simpleFlag = 1;
-          int fcstFlag = 0;
-          if (objectId.startsWith("C")) {
-            simpleFlag = 0;
-          }
-          if (objectId.startsWith("CF") || objectId.startsWith("F")) {
-            fcstFlag = 1;
-          }
-          int matchedFlag = 0;
-          String objCat = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT");
-
-          Integer num = null;
-          try {
-            num = Integer.valueOf(objCat.substring(objCat.length() - 3));
-          } catch (NumberFormatException e) {
-            logger.info("objCat " + objCat + " is invalid");
-          }
-          if (num != null && num != 0) {
-            matchedFlag = 1;
-          }
-
-          //  insert the record into the mtd_obj_single database table
-          String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-          int mtd2dObjInsert;
-          try (Connection con = getConnection();
-               PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, mtdHeaderId);
-            stmt.setString(2, objectId);
-            stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
-                    mtdObj2dColumns[0])));
-            for (int i = 0; i < 12; i++) {
-              stmt.setObject(4 + i,
-                      replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj2dColumns[i + 1])),
-                      Types.DOUBLE);
-            }
-            stmt.setInt(16, fcstFlag);
-            stmt.setInt(17, simpleFlag);
-            stmt.setInt(18, matchedFlag);
-
-            mtd2dObjInsert = stmt.executeUpdate();
-          } catch (SQLException se) {
-            logger.error(ERROR_MARKER, se.getMessage());
-            throw new DatabaseException(
-                    "caught SQLException calling executeUpdate: " + se.getMessage());
-          }
-
-          if (1 != mtd2dObjInsert) {
-            logger.warn(
-                    "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
-                            + mtd2dObjInsert + "\n        " + strFileLine);
-          }
-          obj2dInserts++;
-        } else if (mtd3dPair == lineTypeLuId) {
-
-          //  build the value list for the mode_cts insert
-
-          String sql = "INSERT INTO mtd_3d_obj_pair VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-          int spaceCentroidDistIndex = headerNames.indexOf("SPACE_CENTROID_DIST");
-
-
-          //set flags
-          int simpleFlag = 1;
-          String[] objIdArr = objectId.split("_");
-          if (objIdArr.length == 2 && objIdArr[0].startsWith("C") && objIdArr[1].startsWith("C")) {
-            simpleFlag = 0;
-          }
-
-          int matchedFlag = 0;
-          String[] objCatArr = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT")
-                  .split("_");
-          Integer num1;
-          Integer num2;
-          try {
-            num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
-            num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
-            if (num1.equals(num2) && num1 != 0) {
-              matchedFlag = 1;
-            }
-          } catch (NumberFormatException e) {
-            logger.info("objCatArr is invalid");
-          }
-
-
-          int mtd3dObjPairInsert;
-          try (Connection con = getConnection();
-               PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, mtdHeaderId);
-            stmt.setString(2, objectId);
-            stmt.setString(3, MVUtil.findValue(listToken, headerNames, "OBJECT_CAT"));
-            stmt.setObject(4, replaceInvalidValues(listToken[spaceCentroidDistIndex]),
-                    Types.DOUBLE);
-            stmt.setObject(5, replaceInvalidValues(listToken[spaceCentroidDistIndex + 1]),
-                    Types.DOUBLE);
-            stmt.setObject(6, replaceInvalidValues(listToken[spaceCentroidDistIndex + 2]),
-                    Types.DOUBLE);
-            stmt.setObject(7, replaceInvalidValues(listToken[spaceCentroidDistIndex + 3]),
-                    Types.DOUBLE);
-            stmt.setObject(8, replaceInvalidValues(listToken[spaceCentroidDistIndex + 4]),
-                    Types.DOUBLE);
-            stmt.setObject(9, replaceInvalidValues(listToken[spaceCentroidDistIndex + 5]),
-                    Types.DOUBLE);
-            stmt.setObject(10, replaceInvalidValues(listToken[spaceCentroidDistIndex + 6]),
-                    Types.DOUBLE);
-            stmt.setObject(11, replaceInvalidValues(listToken[spaceCentroidDistIndex + 7]),
-                    Types.DOUBLE);
-            stmt.setObject(12, replaceInvalidValues(listToken[spaceCentroidDistIndex + 8]),
-                    Types.DOUBLE);
-            stmt.setObject(13, replaceInvalidValues(listToken[spaceCentroidDistIndex + 9]),
-                    Types.DOUBLE);
-            stmt.setObject(14, replaceInvalidValues(listToken[spaceCentroidDistIndex + 10]),
-                    Types.DOUBLE);
-            stmt.setInt(15, simpleFlag);
-            stmt.setInt(16, matchedFlag);
-            mtd3dObjPairInsert = stmt.executeUpdate();
-          } catch (SQLException se) {
-            logger.info(ERROR_MARKER, se.getMessage());
-            throw new DatabaseException(
-                    "caught SQLException calling executeUpdate: " + se.getMessage());
-          }
-
-          if (1 != mtd3dObjPairInsert) {
-            logger.warn(
-                    "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
-                            mtd3dObjPairInsert + "\n        " + strFileLine);
-          }
-          obj3dPairInserts++;
-
-        }
+        ProcessMtdLine processMtdLine = new ProcessMtdLine(info, timeStats, headerInserts, obj3dSingleInserts,
+                obj3dPairInserts, obj2dInserts, intMtdHeaderIdNext, line, headerNames, mtd2dLines, mtd3dSingle,
+                mtd3dPair, mtd2d, listToken, lineTypeLuId, strFileLine, null).invoke();
+        headerInserts = processMtdLine.getHeaderInserts();
+        obj3dSingleInserts = processMtdLine.getObj3dSingleInserts();
+        obj3dPairInserts = processMtdLine.getObj3dPairInserts();
+        obj2dInserts = processMtdLine.getObj2dInserts();
+        intMtdHeaderIdNext = processMtdLine.getIntMtdHeaderIdNext();
 
         line++;
       }
+
+
       fileReader.close();
       reader.close();
     } catch (IOException e) {
       logger.error(ERROR_MARKER, e.getMessage());
+    }
+    int revisionLines = 0;
+
+    if(!mtd2dLines.isEmpty()) {
+      revisionLines = processMtdRevision(mtd2dLines,info, headerNames,timeStats, headerInserts,
+              obj3dSingleInserts, obj3dPairInserts, obj2dInserts,intMtdHeaderIdNext,mtd3dSingle,mtd3dPair,mtd2d);
+      line = line + revisionLines;
     }
 
     //  increment the global mode counters
@@ -3482,6 +3052,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     timeStats.put("obj3dSingleInserts", obj3dSingleInserts);
     timeStats.put("obj3dPairInserts", obj3dPairInserts);
     timeStats.put("obj2dInserts", obj2dInserts);
+    timeStats.put("obj2dRevisionInserts", (long) revisionLines);
 
 
     //  print a performance report
@@ -3503,6 +3074,184 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                       + MVUtil.formatTimeSpan(intMtdHeaderLoadTime) + "\n\n");
     }
     return timeStats;
+  }
+
+  private int processMtdRevision(List<String[]> mtd2dLines, DataFileInfo info, List<String> headerNames,
+                                 Map<String, Long> timeStats, long headerInserts, long obj3dSingleInserts, long obj3dPairInserts, long obj2dInserts, int intMtdHeaderIdNext, int mtd3dSingle, int mtd3dPair, int mtd2d) {
+    //check if this is a revision run - the same fcst_valid,OBS_VALID, model,FCST_THR, OBS_THR
+    int indFV = headerNames.indexOf("FCST_VALID");
+    String tokenFV = mtd2dLines.get(0)[indFV];
+    int indOV = headerNames.indexOf("OBS_VALID");
+    String tokenOV = mtd2dLines.get(0)[indFV];
+    int indM = headerNames.indexOf("MODEL");
+    String tokenM = mtd2dLines.get(0)[indM];
+    int indFR = headerNames.indexOf("FCST_RAD");
+    String tokenFR = mtd2dLines.get(0)[indFR];
+    int indD = headerNames.indexOf("DESC");
+    String tokenD = mtd2dLines.get(0)[indD];
+    int indOR = headerNames.indexOf("OBS_RAD");
+    String tokenOR = mtd2dLines.get(0)[indOR];
+    int indFT = headerNames.indexOf("FCST_THR");
+    String tokenFT = mtd2dLines.get(0)[indFT];
+    int indOT = headerNames.indexOf("OBS_THR");
+    String tokenOT = mtd2dLines.get(0)[indOT];
+    int indFL = headerNames.indexOf("FCST_LEV");
+    String tokenFL = mtd2dLines.get(0)[indFL];
+    int indOL = headerNames.indexOf("OBS_LEV");
+    String tokenOL = mtd2dLines.get(0)[indOL];
+    for (String[] arr : mtd2dLines) {
+      if (!arr[indFV].equals(tokenFV) || !arr[indOV].equals(tokenOV)
+              || !arr[indM].equals(tokenM) || !arr[indFR].equals(tokenFR)
+              || !arr[indD].equals(tokenD)|| !arr[indOR].equals(tokenOR)
+              || !arr[indFT].equals(tokenFT) || !arr[indOT].equals(tokenOT)
+              || !arr[indFL].equals(tokenFL) || !arr[indOL].equals(tokenOL)) {
+        return 0;
+      }
+    }
+    //this is a revision series
+    //find the latest revision id
+    String latestRevisionIdSql = "SELECT MAX(revision_id) from mtd_header";
+    ResultSet res = null;
+    Integer latestRevisionId = -1;
+    try (Connection con = getConnection();
+         PreparedStatement stmt = con.prepareStatement(latestRevisionIdSql)
+    ) {
+      res = stmt.executeQuery();
+      if (res.next()) {
+        latestRevisionId = res.getInt(1);
+        if (res.wasNull()) {
+          latestRevisionId = -1;
+        }
+      }
+    } catch ( SQLException e) {
+      logger.error(ERROR_MARKER, e.getMessage());
+    } finally {
+      if (res != null) {
+        try {
+          res.close();
+        } catch (SQLException e) {
+          logger.error(ERROR_MARKER, e.getMessage());
+        }
+      }
+    }
+    latestRevisionId = latestRevisionId +1;
+
+    //calculate revisions
+
+    //split data by the object id
+    int indObjId = headerNames.indexOf("OBJECT_ID");
+    int indTimeInd = headerNames.indexOf("TIME_INDEX");
+    int indFVAR = headerNames.indexOf("FCST_VAR");
+    int indOVAR = headerNames.indexOf("OBS_VAR");
+    int indAREA = headerNames.indexOf("AREA");
+    int indCENTROID_X = headerNames.indexOf("CENTROID_X");
+    int indCENTROID_Y = headerNames.indexOf("CENTROID_Y");
+    int indCENTROID_LAT = headerNames.indexOf("CENTROID_LAT");
+    int indCENTROID_LON = headerNames.indexOf("CENTROID_LON");
+    int indAXIS_ANG = headerNames.indexOf("AXIS_ANG");
+    int indINTENSITY_10 = headerNames.indexOf("INTENSITY_10");
+    int indINTENSITY_25 = headerNames.indexOf("INTENSITY_25");
+    int indINTENSITY_50 = headerNames.indexOf("INTENSITY_50");
+    int indINTENSITY_75 = headerNames.indexOf("INTENSITY_75");
+    int indINTENSITY_90 = headerNames.indexOf("INTENSITY_90");
+    String objId = mtd2dLines.get(0)[indObjId];
+
+    List<String[]> dataForObjId = new ArrayList<>();
+    for (String[] arr : mtd2dLines) {
+      if(arr[indObjId].equals(objId)){
+        dataForObjId.add(arr);
+      }else {
+        //check if this is revision
+        int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size()-1)[indTimeInd])
+                - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) +1;
+        if(expectedSize == dataForObjId.size()){
+          for(int i= 1; i<dataForObjId.size()-1; i++){
+            String[] dataFirst = dataForObjId.get(i);
+            String[] dataSecond = dataForObjId.get(i-1);
+            String[] revisionLine = new String[dataFirst.length];
+            System.arraycopy(dataFirst, 0, revisionLine, 0, revisionLine.length);
+            revisionLine[indFVAR] = "REV_" + revisionLine[indFVAR];
+            revisionLine[indOVAR] = "REV_" + revisionLine[indOVAR];
+            revisionLine[indAREA] = format.format(Double.parseDouble(dataFirst[indAREA]) - Double.parseDouble(dataSecond[indAREA]));
+            revisionLine[indCENTROID_X] = format.format(Double.parseDouble(dataFirst[indCENTROID_X]) - Double.parseDouble(dataSecond[indCENTROID_X]));
+            revisionLine[indCENTROID_Y] = format.format(Double.parseDouble(dataFirst[indCENTROID_Y]) - Double.parseDouble(dataSecond[indCENTROID_Y]));
+            revisionLine[indCENTROID_LAT] = format.format(Double.parseDouble(dataFirst[indCENTROID_LAT]) - Double.parseDouble(dataSecond[indCENTROID_LAT]));
+            revisionLine[indCENTROID_LON] = format.format(Double.parseDouble(dataFirst[indCENTROID_LON]) - Double.parseDouble(dataSecond[indCENTROID_LON]));
+            revisionLine[indAXIS_ANG] = "NA";
+            revisionLine[indINTENSITY_10] = format.format(Double.parseDouble(dataFirst[indINTENSITY_10]) - Double.parseDouble(dataSecond[indINTENSITY_10]));
+            revisionLine[indINTENSITY_25] = format.format(Double.parseDouble(dataFirst[indINTENSITY_25]) - Double.parseDouble(dataSecond[indINTENSITY_25]));
+            revisionLine[indINTENSITY_50] = format.format(Double.parseDouble(dataFirst[indINTENSITY_50]) - Double.parseDouble(dataSecond[indINTENSITY_50]));
+            revisionLine[indINTENSITY_75] = format.format(Double.parseDouble(dataFirst[indINTENSITY_75]) - Double.parseDouble(dataSecond[indINTENSITY_75]));
+            revisionLine[indINTENSITY_90] = format.format(Double.parseDouble(dataFirst[indINTENSITY_90]) - Double.parseDouble(dataSecond[indINTENSITY_90]));
+            ProcessMtdLine processMtdLine = null;
+            try {
+              processMtdLine = new ProcessMtdLine(info, timeStats, headerInserts, obj3dSingleInserts,
+                      obj3dPairInserts, obj2dInserts, intMtdHeaderIdNext, 0, headerNames, null, mtd3dSingle,
+                      mtd3dPair, mtd2d, revisionLine, mtd2d, "", latestRevisionId).invoke();
+            } catch (DatabaseException e) {
+              e.printStackTrace();
+            }
+            headerInserts = processMtdLine.getHeaderInserts();
+            obj3dSingleInserts = processMtdLine.getObj3dSingleInserts();
+            obj3dPairInserts = processMtdLine.getObj3dPairInserts();
+            obj2dInserts = processMtdLine.getObj2dInserts();
+            intMtdHeaderIdNext = processMtdLine.getIntMtdHeaderIdNext();
+          }
+
+        }else {
+          System.out.println("not revision - skip");
+        }
+
+        dataForObjId = new ArrayList<>();
+        dataForObjId.add(arr);
+        objId = arr[indObjId];
+        latestRevisionId = latestRevisionId +1;
+      }
+    }
+
+    int expectedSize = Integer.parseInt(dataForObjId.get(dataForObjId.size()-1)[indTimeInd])
+            - Integer.parseInt(dataForObjId.get(0)[indTimeInd]) +1;
+    if(expectedSize == dataForObjId.size()){
+      for(int i= 1; i<dataForObjId.size()-1; i++){
+        String[] dataFirst = dataForObjId.get(i);
+        String[] dataSecond = dataForObjId.get(i-1);
+        String[] revisionLine = new String[dataFirst.length];
+        System.arraycopy(dataFirst, 0, revisionLine, 0, revisionLine.length);
+        revisionLine[indFVAR] = "REV_" + revisionLine[indFVAR];
+        revisionLine[indOVAR] = "REV_" + revisionLine[indOVAR];
+        revisionLine[indAREA] = format.format(Double.parseDouble(dataFirst[indAREA]) - Double.parseDouble(dataSecond[indAREA]));
+        revisionLine[indCENTROID_X] = format.format(Double.parseDouble(dataFirst[indCENTROID_X]) - Double.parseDouble(dataSecond[indCENTROID_X]));
+        revisionLine[indCENTROID_Y] = format.format(Double.parseDouble(dataFirst[indCENTROID_Y]) - Double.parseDouble(dataSecond[indCENTROID_Y]));
+        revisionLine[indCENTROID_LAT] = format.format(Double.parseDouble(dataFirst[indCENTROID_LAT]) - Double.parseDouble(dataSecond[indCENTROID_LAT]));
+        revisionLine[indCENTROID_LON] = format.format(Double.parseDouble(dataFirst[indCENTROID_LON]) - Double.parseDouble(dataSecond[indCENTROID_LON]));
+        revisionLine[indAXIS_ANG] = "NA";
+        revisionLine[indINTENSITY_10] = format.format(Double.parseDouble(dataFirst[indINTENSITY_10]) - Double.parseDouble(dataSecond[indINTENSITY_10]));
+        revisionLine[indINTENSITY_25] = format.format(Double.parseDouble(dataFirst[indINTENSITY_25]) - Double.parseDouble(dataSecond[indINTENSITY_25]));
+        revisionLine[indINTENSITY_50] = format.format(Double.parseDouble(dataFirst[indINTENSITY_50]) - Double.parseDouble(dataSecond[indINTENSITY_50]));
+        revisionLine[indINTENSITY_75] = format.format(Double.parseDouble(dataFirst[indINTENSITY_75]) - Double.parseDouble(dataSecond[indINTENSITY_75]));
+        revisionLine[indINTENSITY_90] = format.format(Double.parseDouble(dataFirst[indINTENSITY_90]) - Double.parseDouble(dataSecond[indINTENSITY_90]));
+        ProcessMtdLine processMtdLine = null;
+        try {
+          processMtdLine = new ProcessMtdLine(info, timeStats, headerInserts, obj3dSingleInserts,
+                  obj3dPairInserts, obj2dInserts, intMtdHeaderIdNext, 0, headerNames, null, mtd3dSingle,
+                  mtd3dPair, mtd2d, revisionLine, mtd2d, "", latestRevisionId).invoke();
+        } catch (DatabaseException e) {
+          e.printStackTrace();
+        }
+        headerInserts = processMtdLine.getHeaderInserts();
+        obj3dSingleInserts = processMtdLine.getObj3dSingleInserts();
+        obj3dPairInserts = processMtdLine.getObj3dPairInserts();
+        obj2dInserts = processMtdLine.getObj2dInserts();
+        intMtdHeaderIdNext = processMtdLine.getIntMtdHeaderIdNext();
+      }
+
+    }else {
+      System.out.println("not revision - skip");
+    }
+
+
+
+    return 0;
   }
 
   @Override
@@ -3865,8 +3614,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
     //  get the instance_info information to insert
     int instInfoIdNext = getNextId("instance_info", "instance_info_id");
     String updater = System.getProperty("user.name");
-    if(updater == null || updater.isEmpty()){
-      updater="mvuser";
+    if (updater == null || updater.isEmpty()) {
+      updater = "mvuser";
     }
     String updateDate = DATE_FORMATTER.format(LocalDateTime.now());
     String updateDetail = job.getLoadNote();
@@ -3921,4 +3670,541 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             .replace("nan", "-9999");
   }
 
+  private class ProcessMtdLine {
+    private DataFileInfo info;
+    private Map<String, Long> timeStats;
+    private long headerInserts;
+    private long obj3dSingleInserts;
+    private long obj3dPairInserts;
+    private long obj2dInserts;
+    private int intMtdHeaderIdNext;
+    private int line;
+    private List<String> headerNames;
+    private List<String[]> mtd2dLines;
+    private int mtd3dSingle;
+    private int mtd3dPair;
+    private int mtd2d;
+    private String[] listToken;
+    private int lineTypeLuId;
+    private String strFileLine;
+    private Integer revisionId;
+
+
+    public ProcessMtdLine(DataFileInfo info, Map<String, Long> timeStats, long headerInserts, long obj3dSingleInserts,
+                          long obj3dPairInserts, long obj2dInserts, int intMtdHeaderIdNext, int line, List<String> headerNames,
+                          List<String[]> mtd2dLines, int mtd3dSingle, int mtd3dPair, int mtd2d, String[] listToken,
+                          int lineTypeLuId, String strFileLine, Integer revisionId) {
+      this.info = info;
+      this.timeStats = timeStats;
+      this.headerInserts = headerInserts;
+      this.obj3dSingleInserts = obj3dSingleInserts;
+      this.obj3dPairInserts = obj3dPairInserts;
+      this.obj2dInserts = obj2dInserts;
+      this.intMtdHeaderIdNext = intMtdHeaderIdNext;
+      this.line = line;
+      this.headerNames = headerNames;
+      this.mtd2dLines = mtd2dLines;
+      this.mtd3dSingle = mtd3dSingle;
+      this.mtd3dPair = mtd3dPair;
+      this.mtd2d = mtd2d;
+      this.listToken = listToken;
+      this.lineTypeLuId = lineTypeLuId;
+      this.strFileLine = strFileLine;
+      this.revisionId = revisionId;
+    }
+
+    public long getHeaderInserts() {
+      return headerInserts;
+    }
+
+    public long getObj3dSingleInserts() {
+      return obj3dSingleInserts;
+    }
+
+    public long getObj3dPairInserts() {
+      return obj3dPairInserts;
+    }
+
+    public long getObj2dInserts() {
+      return obj2dInserts;
+    }
+
+    public int getIntMtdHeaderIdNext() {
+      return intMtdHeaderIdNext;
+    }
+
+    public ProcessMtdLine invoke() throws DatabaseException {
+      String objectId = MVUtil.findValue(listToken, headerNames, "OBJECT_ID");
+
+      //  parse the valid times
+      LocalDateTime fcstValidBeg;
+      try {
+        fcstValidBeg = LocalDateTime.parse(
+                MVUtil.findValue(listToken, headerNames, "FCST_VALID"),
+                DB_DATE_STAT_FORMAT);
+      } catch (DateTimeParseException e) {
+        fcstValidBeg = null;
+      }
+
+      LocalDateTime obsValidBeg;
+      try {
+        obsValidBeg = LocalDateTime.parse(
+                MVUtil.findValue(listToken, headerNames, "OBS_VALID"),
+                DB_DATE_STAT_FORMAT);
+      } catch (DateTimeParseException e) {
+        obsValidBeg = null;
+      }
+
+      //  format the valid times for the database insert
+      String fcstValidBegStr;
+      if (fcstValidBeg != null) {
+        fcstValidBegStr = DATE_FORMATTER.format(fcstValidBeg);
+      } else {
+        fcstValidBegStr = null;
+      }
+
+
+      String obsValidBegStr;
+      if (obsValidBeg == null) {
+        obsValidBegStr = null;
+      } else {
+        obsValidBegStr = DATE_FORMATTER.format(obsValidBeg);
+      }
+
+
+      //  calculate the number of seconds corresponding to fcst_lead
+      String fcstLead = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
+      int fcstLeadLen = fcstLead.length();
+      int fcstLeadSec = 0;
+      try {
+        fcstLeadSec = Integer.parseInt(
+                fcstLead.substring(fcstLeadLen - 2, fcstLeadLen));
+        fcstLeadSec += Integer.parseInt(
+                fcstLead.substring(fcstLeadLen - 4, fcstLeadLen - 2)) * 60;
+        fcstLeadSec += Integer.parseInt(fcstLead.substring(fcstLeadLen - 6,
+                fcstLeadLen - 4)) * 3600;
+      } catch (NumberFormatException e) {
+        logger.debug("fcstLead " + fcstLead + " is invalid");
+      }
+      String fcstLeadInsert = MVUtil.findValue(listToken, headerNames, "FCST_LEAD");
+      if (fcstLeadInsert.equals("NA")) {
+        fcstLeadInsert = "-9999";
+      } else {
+        if (fcstLeadInsert.contains("_")) {
+          fcstLeadInsert = fcstLeadInsert.split("_")[1];
+        }
+      }
+
+      String obsLeadInsert = MVUtil.findValue(listToken, headerNames, "OBS_LEAD");
+      if (obsLeadInsert.equals("NA")) {
+        obsLeadInsert = "-9999";
+      } else {
+        if (obsLeadInsert.contains("_")) {
+          obsLeadInsert = obsLeadInsert.split("_")[1];
+        }
+      }
+
+      //  determine the init time by combining fcst_valid_beg and fcst_lead
+      String fcstInitStr;
+      if (fcstValidBeg != null) {
+        LocalDateTime fcstInitBeg = LocalDateTime.from(fcstValidBeg);
+        fcstInitBeg = fcstInitBeg.minusSeconds(fcstLeadSec);
+        fcstInitStr = DATE_FORMATTER.format(fcstInitBeg);
+      } else {
+        fcstInitStr = null;
+      }
+
+
+      String mtdHeaderValueList = this.revisionId +",'" + MVUtil.findValue(listToken, headerNames, "VERSION")
+              + "', " + "'"
+              + MVUtil.findValue(listToken, headerNames, "MODEL")
+              + "', " + "'"
+              + MVUtil.findValue(listToken, headerNames, "DESC")
+              + "', ";
+
+
+      mtdHeaderValueList = mtdHeaderValueList
+              + fcstLeadInsert
+              + ", " + "'" + fcstValidBegStr + "', "
+              + "'" + fcstInitStr + "', "
+              + obsLeadInsert
+              + ", " + "'" + obsValidBegStr + "', ";
+
+      if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
+        mtdHeaderValueList = mtdHeaderValueList + "NULL" + ", ";
+      } else {
+        mtdHeaderValueList = mtdHeaderValueList
+                + MVUtil.findValue(listToken, headerNames, "T_DELTA")
+                + ", ";
+      }
+      mtdHeaderValueList = mtdHeaderValueList
+              + MVUtil.findValue(listToken, headerNames, "FCST_RAD") + ", "
+              + "'" + MVUtil.findValue(listToken, headerNames, "FCST_THR") + "', "
+              + MVUtil.findValue(listToken, headerNames, "OBS_RAD") + ", "
+              + "'" + MVUtil.findValue(listToken, headerNames, "OBS_THR") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "FCST_VAR") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "FCST_UNITS") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "FCST_LEV") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "OBS_VAR") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "OBS_UNITS") + "', "
+              + "'" + MVUtil.findValue(listToken, headerNames, "OBS_LEV") + "'";
+
+
+      String mtdHeaderWhereClause = BINARY +
+              "  version = ?"
+              + "  AND " + BINARY + "model = ?"
+              + "  AND " + BINARY + "descr = ?"
+              + "  AND fcst_lead = ?"
+              + "  AND fcst_valid = ?"
+              + "  AND t_delta = ?"
+              + "  AND fcst_init = ?"
+              + "  AND obs_lead = ?"
+              + "  AND obs_valid = ?"
+              + "  AND fcst_rad = ?"
+              + "  AND " + BINARY + "fcst_thr = ?"
+              + "  AND obs_rad = ?"
+              + "  AND " + BINARY + "obs_thr = ?"
+              + "  AND " + BINARY + "fcst_var = ?"
+              + "  AND " + BINARY + "fcst_units = ?"
+              + "  AND " + BINARY + "fcst_lev = ?"
+              + "  AND " + BINARY + "obs_var = ?"
+              + "  AND " + BINARY + "obs_units = ?"
+              + "  AND " + BINARY + "obs_lev = ?";
+
+      if(this.revisionId == null){
+        mtdHeaderWhereClause = mtdHeaderWhereClause + "  AND " +  "revision_id is ?";
+      }else {
+        mtdHeaderWhereClause = mtdHeaderWhereClause + "  AND " + "revision_id = ?";
+      }
+
+      //  look for the header key in the table
+      int mtdHeaderId = -1;
+      if (mtdHeaders.containsKey(mtdHeaderValueList)) {
+        mtdHeaderId = mtdHeaders.get(mtdHeaderValueList);
+      }
+
+      //  if the mtd_header does not yet exist, create one
+      else {
+
+        //  look for an existing mode_header record with the same information
+        boolean foundMtdHeader = false;
+        long mtdHeaderSearchBegin = System.currentTimeMillis();
+        if (info.mtdHeaderDBCheck) {
+          String strMtdHeaderSelect = "SELECT mtd_header_id FROM mtd_header WHERE" +
+                  mtdHeaderWhereClause;
+          ResultSet res = null;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(strMtdHeaderSelect)
+          ) {
+            stmt.setString(1, MVUtil.findValue(listToken, headerNames, "VERSION"));
+            stmt.setString(2, MVUtil.findValue(listToken, headerNames,
+                    "MODEL"));
+            stmt.setString(3, MVUtil.findValue(listToken, headerNames,
+                    "DESC"));
+            stmt.setObject(4, fcstLeadInsert, Types.INTEGER);
+            stmt.setObject(5, fcstValidBegStr, Types.TIMESTAMP);
+            stmt.setObject(6, MVUtil.findValue(listToken, headerNames, "T_DELTA"), Types.INTEGER);
+            stmt.setObject(7, fcstInitStr, Types.TIMESTAMP);
+            stmt.setObject(8, obsLeadInsert, Types.INTEGER);
+            stmt.setObject(9, obsValidBegStr, Types.TIMESTAMP);
+            stmt.setObject(10, MVUtil.findValue(listToken, headerNames, "FCST_RAD"), Types.INTEGER);
+            stmt.setString(11, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
+            stmt.setObject(12, MVUtil.findValue(listToken, headerNames, "OBS_RAD"), Types.INTEGER);
+            stmt.setString(13, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
+            stmt.setString(14, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
+            stmt.setString(15, MVUtil.findValue(listToken, headerNames, "FCST_UNITS"));
+            stmt.setString(16, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
+            stmt.setString(17, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
+            stmt.setString(18, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
+            stmt.setString(19, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
+            if(this.revisionId == null){
+              stmt.setNull(20, Types.INTEGER);
+            }else {
+              stmt.setInt(20, this.revisionId);
+            }
+
+
+            res = stmt.executeQuery();
+            if (res.next()) {
+              String strMtdHeaderIdDup = res.getString(1);
+              mtdHeaderId = Integer.parseInt(strMtdHeaderIdDup);
+              foundMtdHeader = true;
+              logger.warn("  **  WARNING: found duplicate mtd_header record with id " +
+                      strMtdHeaderIdDup + "\n        " + strFileLine);
+            }
+          } catch (NumberFormatException | SQLException e) {
+            logger.error(ERROR_MARKER, e.getMessage());
+          } finally {
+            if (res != null) {
+              try {
+                res.close();
+              } catch (SQLException e) {
+                logger.error(ERROR_MARKER, e.getMessage());
+              }
+            }
+          }
+
+        }
+        timeStats.put("headerSearchTime",
+                timeStats.get("headerSearchTime")
+                        + System.currentTimeMillis() - mtdHeaderSearchBegin);
+
+
+        //  if the mtd_header was not found, add it to the table
+        if (!foundMtdHeader) {
+
+          mtdHeaderId = intMtdHeaderIdNext++;
+          mtdHeaders.put(mtdHeaderValueList, mtdHeaderId);
+
+
+          //  insert the record into the mtd_header database table
+          String sql = "INSERT INTO mtd_header VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+          int mtdHeaderInsert;
+          try (Connection con = getConnection();
+               PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, mtdHeaderId);
+            stmt.setInt(2, lineTypeLuId);
+            stmt.setInt(3, info.fileId);
+            if(this.revisionId == null){
+              stmt.setNull(4, Types.INTEGER);
+            }else {
+              stmt.setInt(4, this.revisionId);
+            }
+            stmt.setInt(5, line);
+            stmt.setString(6, MVUtil.findValue(listToken, headerNames, "VERSION"));
+            stmt.setString(7, MVUtil.findValue(listToken, headerNames, "MODEL"));
+            stmt.setString(8, MVUtil.findValue(listToken, headerNames, "DESC"));
+            stmt.setObject(9, fcstLeadInsert, Types.INTEGER);
+            stmt.setObject(10, fcstValidBegStr, Types.TIMESTAMP);
+            stmt.setObject(11, fcstInitStr, Types.TIMESTAMP);
+            stmt.setObject(12, obsLeadInsert, Types.INTEGER);
+            stmt.setObject(13, obsValidBegStr, Types.TIMESTAMP);
+            if ("NA".equals(MVUtil.findValue(listToken, headerNames, "T_DELTA"))) {
+              stmt.setNull(14, Types.INTEGER);
+            } else {
+              stmt.setObject(14, MVUtil.findValue(listToken, headerNames, "T_DELTA"), Types.INTEGER);
+            }
+            stmt.setObject(15, MVUtil.findValue(listToken, headerNames, "FCST_RAD"), Types.INTEGER);
+            stmt.setString(16, MVUtil.findValue(listToken, headerNames, "FCST_THR"));
+            stmt.setObject(17, MVUtil.findValue(listToken, headerNames, "OBS_RAD"), Types.INTEGER);
+            stmt.setString(18, MVUtil.findValue(listToken, headerNames, "OBS_THR"));
+            stmt.setString(19, MVUtil.findValue(listToken, headerNames, "FCST_VAR"));
+            stmt.setString(20, MVUtil.findValue(listToken, headerNames, "FCST_UNITS"));
+            stmt.setString(21, MVUtil.findValue(listToken, headerNames, "FCST_LEV"));
+            stmt.setString(22, MVUtil.findValue(listToken, headerNames, "OBS_VAR"));
+            stmt.setString(23, MVUtil.findValue(listToken, headerNames, "OBS_UNITS"));
+            stmt.setString(24, MVUtil.findValue(listToken, headerNames, "OBS_LEV"));
+            mtdHeaderInsert = stmt.executeUpdate();
+
+          } catch (SQLException se) {
+            logger.error(ERROR_MARKER, se.getMessage());
+            throw new DatabaseException("caught SQLException calling executeUpdate: " + se.getMessage());
+          }
+
+          if (1 != mtdHeaderInsert) {
+            logger.warn("  **  WARNING: unexpected result from mtd_header INSERT: " + mtdHeaderInsert
+                    + "\n        " + strFileLine);
+          }
+          headerInserts++;
+        }
+      }
+
+
+      if (mtd3dSingle == lineTypeLuId) {
+        String sql = "INSERT INTO mtd_3d_obj_single VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+
+        //set flags
+        int simpleFlag = 1;
+        int fcstFlag = 0;
+        if (objectId.startsWith("C")) {
+          simpleFlag = 0;
+        }
+        if (objectId.startsWith("CF") || objectId.startsWith("F")) {
+          fcstFlag = 1;
+        }
+        int matchedFlag = 0;
+        String objCat = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT");
+        Integer num = null;
+        try {
+          num = Integer.valueOf(objCat.substring(objCat.length() - 3));
+        } catch (NumberFormatException e) {
+          logger.info(" objCat " + objCat + " is invalid");
+        }
+        if (num != null && num != 0) {
+          matchedFlag = 1;
+        }
+
+
+        //  insert the record into the mtd_obj_single database table
+        int mtd3dObjSingleInsert;
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setInt(1, mtdHeaderId);
+          stmt.setString(2, objectId);
+          stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
+                  mtdObj3dSingleColumns[0])));
+
+          for (int i = 0; i < 17; i++) {
+            stmt.setObject(4 + i,
+                    replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj3dSingleColumns[i + 1])),
+                    Types.DOUBLE);
+          }
+          stmt.setInt(21, fcstFlag);
+          stmt.setInt(22, simpleFlag);
+          stmt.setInt(23, matchedFlag);
+
+          mtd3dObjSingleInsert = stmt.executeUpdate();
+
+        } catch (SQLException se) {
+          logger.error(ERROR_MARKER, se.getMessage());
+          throw new DatabaseException(
+                  "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
+
+
+        if (1 != mtd3dObjSingleInsert) {
+          logger.warn(
+                  "  **  WARNING: unexpected result from mtd_3d_obj_single INSERT: "
+                          + mtd3dObjSingleInsert + "\n        " + strFileLine);
+        }
+        obj3dSingleInserts++;
+      } else if (mtd2d == lineTypeLuId) {
+        if(mtd2dLines != null) {
+          mtd2dLines.add(listToken);
+        }
+
+        //set flags
+        int simpleFlag = 1;
+        int fcstFlag = 0;
+        if (objectId.startsWith("C")) {
+          simpleFlag = 0;
+        }
+        if (objectId.startsWith("CF") || objectId.startsWith("F")) {
+          fcstFlag = 1;
+        }
+        int matchedFlag = 0;
+        String objCat = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT");
+
+        Integer num = null;
+        try {
+          num = Integer.valueOf(objCat.substring(objCat.length() - 3));
+        } catch (NumberFormatException e) {
+          logger.info("objCat " + objCat + " is invalid");
+        }
+        if (num != null && num != 0) {
+          matchedFlag = 1;
+        }
+
+        //  insert the record into the mtd_obj_single database table
+        String sql = "INSERT INTO mtd_2d_obj VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        int mtd2dObjInsert;
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setInt(1, mtdHeaderId);
+          stmt.setString(2, objectId);
+          stmt.setString(3, replaceInvalidValues(MVUtil.findValue(listToken, headerNames,
+                  mtdObj2dColumns[0])));
+          for (int i = 0; i < 12; i++) {
+            stmt.setObject(4 + i,
+                    replaceInvalidValues(MVUtil.findValue(listToken, headerNames, mtdObj2dColumns[i + 1])),
+                    Types.DOUBLE);
+          }
+          stmt.setInt(16, fcstFlag);
+          stmt.setInt(17, simpleFlag);
+          stmt.setInt(18, matchedFlag);
+
+          mtd2dObjInsert = stmt.executeUpdate();
+        } catch (SQLException se) {
+          logger.error(ERROR_MARKER, se.getMessage());
+          throw new DatabaseException(
+                  "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
+
+        if (1 != mtd2dObjInsert) {
+          logger.warn(
+                  "  **  WARNING: unexpected result from mtd_2d_obj INSERT: "
+                          + mtd2dObjInsert + "\n        " + strFileLine);
+        }
+        obj2dInserts++;
+      } else if (mtd3dPair == lineTypeLuId) {
+
+        //  build the value list for the mode_cts insert
+
+        String sql = "INSERT INTO mtd_3d_obj_pair VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        int spaceCentroidDistIndex = headerNames.indexOf("SPACE_CENTROID_DIST");
+
+
+        //set flags
+        int simpleFlag = 1;
+        String[] objIdArr = objectId.split("_");
+        if (objIdArr.length == 2 && objIdArr[0].startsWith("C") && objIdArr[1].startsWith("C")) {
+          simpleFlag = 0;
+        }
+
+        int matchedFlag = 0;
+        String[] objCatArr = MVUtil.findValue(listToken, headerNames, "OBJECT_CAT")
+                .split("_");
+        Integer num1;
+        Integer num2;
+        try {
+          num1 = Integer.valueOf(objCatArr[0].substring(objCatArr[0].length() - 3));
+          num2 = Integer.valueOf(objCatArr[1].substring(objCatArr[1].length() - 3));
+          if (num1.equals(num2) && num1 != 0) {
+            matchedFlag = 1;
+          }
+        } catch (NumberFormatException e) {
+          logger.info("objCatArr is invalid");
+        }
+
+
+        int mtd3dObjPairInsert;
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+          stmt.setInt(1, mtdHeaderId);
+          stmt.setString(2, objectId);
+          stmt.setString(3, MVUtil.findValue(listToken, headerNames, "OBJECT_CAT"));
+          stmt.setObject(4, replaceInvalidValues(listToken[spaceCentroidDistIndex]),
+                  Types.DOUBLE);
+          stmt.setObject(5, replaceInvalidValues(listToken[spaceCentroidDistIndex + 1]),
+                  Types.DOUBLE);
+          stmt.setObject(6, replaceInvalidValues(listToken[spaceCentroidDistIndex + 2]),
+                  Types.DOUBLE);
+          stmt.setObject(7, replaceInvalidValues(listToken[spaceCentroidDistIndex + 3]),
+                  Types.DOUBLE);
+          stmt.setObject(8, replaceInvalidValues(listToken[spaceCentroidDistIndex + 4]),
+                  Types.DOUBLE);
+          stmt.setObject(9, replaceInvalidValues(listToken[spaceCentroidDistIndex + 5]),
+                  Types.DOUBLE);
+          stmt.setObject(10, replaceInvalidValues(listToken[spaceCentroidDistIndex + 6]),
+                  Types.DOUBLE);
+          stmt.setObject(11, replaceInvalidValues(listToken[spaceCentroidDistIndex + 7]),
+                  Types.DOUBLE);
+          stmt.setObject(12, replaceInvalidValues(listToken[spaceCentroidDistIndex + 8]),
+                  Types.DOUBLE);
+          stmt.setObject(13, replaceInvalidValues(listToken[spaceCentroidDistIndex + 9]),
+                  Types.DOUBLE);
+          stmt.setObject(14, replaceInvalidValues(listToken[spaceCentroidDistIndex + 10]),
+                  Types.DOUBLE);
+          stmt.setInt(15, simpleFlag);
+          stmt.setInt(16, matchedFlag);
+          mtd3dObjPairInsert = stmt.executeUpdate();
+        } catch (SQLException se) {
+          logger.info(ERROR_MARKER, se.getMessage());
+          throw new DatabaseException(
+                  "caught SQLException calling executeUpdate: " + se.getMessage());
+        }
+
+        if (1 != mtd3dObjPairInsert) {
+          logger.warn(
+                  "  **  WARNING: unexpected result from mtd_3d_obj_pair INSERT: " +
+                          mtd3dObjPairInsert + "\n        " + strFileLine);
+        }
+        obj3dPairInserts++;
+
+      }
+      return this;
+    }
+  }
 }
