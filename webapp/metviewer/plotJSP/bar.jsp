@@ -3,6 +3,14 @@
 <html>
 <HEAD>
     <META http-equiv="content-type" content="text/html; charset=utf-8">
+    <script src="js/jquery-min.js" type="application/javascript"></script>
+    <script src="js/jquery-ui.min.js" type="application/javascript"></script>
+    <script type="application/javascript" src="js/jquery.actual.min.js"></script>
+    <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
+    <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
+    <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
+    <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
+
     <style type="text/css">
         .add-font-size {
             font-size: 10px;
@@ -47,11 +55,7 @@
             $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
                 height: 400,
                 width: 600,
-                autoOpen: false,
-                open: function (event, ui) {
-                    //var $led = $("#helpContentDiv");
-                    //$led.load("doc/plot.html#" + $led.data('idd'));
-                }
+                autoOpen: false
             });
 
             $("#tabs_axis_variables").tabs({
