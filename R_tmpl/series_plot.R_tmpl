@@ -319,8 +319,11 @@ for( strDep1Name in names(listDep1Plot) ){
   }
 }
 
+revision_stats = c();
 for( ind in 1: length(listAllStats) ){
   listAllStatsName = names(listAllStats)[ind];
+  allStatsArr = strsplit(listAllStatsName, " ")[[1]]
+  fcst_var = allStatsArr[length(allStatsArr)-1]
 
   #always use "sum" for "CNTSUM" stat
   stat =strPlotStat;
@@ -343,6 +346,18 @@ for( ind in 1: length(listAllStats) ){
     }else{
       listNStats = listPlotData1$nstats;
     }
+  }
+  if (grepl("^REV_", fcst_var)){
+      used_names <- names(listAllStats[[listAllStatsName]]) %in% c("stat_value", "revision_id")
+      stats = calculateMtdRevisionStats(listAllStats[[listAllStatsName]][used_names]);
+      ww_run_title = paste("WW Runs Test:", stats$ww_run, sep = " ");
+      ac_test_title = paste("Auto-Corr Test: p=", stats$auto_cor_p, ",r=", stats$auto_cor_r, sep = " ");
+      listAllStatsName = paste(listAllStatsName,  " (");
+      listAllStatsName = paste(listAllStatsName, ww_run_title, " ");
+      listAllStatsName = paste(listAllStatsName, ac_test_title, " ");
+      listAllStatsName = paste(listAllStatsName,  ")");
+      cat('\n', listAllStatsName, '\n');
+      revision_stats[[length(revision_stats)+1]] <- stats;
   }
   listLegendNotOrdered[intLegendIndex] = listAllStatsName;
   intLegendIndex = intLegendIndex + 1;
@@ -369,6 +384,8 @@ if( 0 < length(listDep2Plot) ){
 
   for( ind in 1: length(listAllStatsY2) ){
     listAllStatsName = names(listAllStatsY2)[ind];
+    allStatsArr = strsplit(listAllStatsName, " ")[[1]]
+    fcst_var = allStatsArr[length(allStatsArr)-1]
 
     #alvays use "sum" for "CNTSUM" stat
     stat =strPlotStat;
@@ -391,6 +408,18 @@ if( 0 < length(listDep2Plot) ){
         listNStats = listPlotData2$nstats;
       }
     }
+      if (grepl("^REV_", fcst_var)){
+          used_names <- names(listAllStatsY2[[listAllStatsName]]) %in% c("stat_value", "revision_id")
+          stats = calculateMtdRevisionStats(listAllStatsY2[[listAllStatsName]][used_names]);
+          ww_run_title = paste("WW Runs Test:", stats$ww_run, sep = " ");
+          ac_test_title = paste("Auto-Corr Test: p=", stats$auto_cor_p, ",r=", stats$auto_cor_r, sep = " ");
+          listAllStatsName = paste(listAllStatsName,  " (");
+          listAllStatsName = paste(listAllStatsName, ww_run_title, " ");
+          listAllStatsName = paste(listAllStatsName, ac_test_title, " ");
+          listAllStatsName = paste(listAllStatsName,  ")");
+          cat('\n', listAllStatsName, '\n');
+          revision_stats[[length(revision_stats)+1]] <- stats;
+      }
     listLegendNotOrdered[intLegendIndex] = listAllStatsName;
     intLegendIndex = intLegendIndex + 1;
   }
@@ -613,12 +642,19 @@ if( TRUE == boolDumpPoints2 && intNumSeries2){
 
 
 #replace with user's legends
-if( 0 < length(listLegendUsr) ){
-  for(index in 1:length(listLegendUsr)){
+for(index in 1:length(listLegendUsr)){
     if(nchar(listLegendUsr[index]) > 0){
       listLegendNotOrdered[index]=listLegendUsr[index];
+      #add revision if needed
+      if( index <= length(revision_stats)){
+        ww_run_title = paste("WW Runs Test:", revision_stats[[index]]$ww_run, sep = " ");
+        ac_test_title = paste("Auto-Corr Test: p=", revision_stats[[index]]$auto_cor_p, ",r=", revision_stats[[index]]$auto_cor_r, sep = " ");
+        listLegendNotOrdered[index] = paste(listLegendNotOrdered[index],  " (");
+        listLegendNotOrdered[index] = paste(listLegendNotOrdered[index], ww_run_title, " ");
+        listLegendNotOrdered[index] = paste(listLegendNotOrdered[index], ac_test_title, " ");
+        listLegendNotOrdered[index] = paste(listLegendNotOrdered[index],  ")");
+      }
     }
-  }
 }
 
 #order legends
