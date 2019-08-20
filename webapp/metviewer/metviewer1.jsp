@@ -176,14 +176,15 @@
   <script type="application/javascript" src="js/grid.locale-en.js"></script>
   <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
   <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
-  <script type="application/javascript" src="js/jquery_multiselect.js"></script>
   <script type="application/javascript" src="js/jquery.actual.min.js"></script>
   <script type="application/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
-  <script type="application/javascript" src="js/metviewer_common.js"></script>
   <script type="application/javascript" src="js/moment.min.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
-  <script type="application/javascript" src="js/jquery.daterangepicker.js"></script>
+  <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
+  <script type="application/javascript" src="js/metviewer_common.min.js"></script>
+  <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
+
 
   <script type="application/javascript">
 
@@ -266,7 +267,7 @@
       <span class="ui-state-default ui-corner-all" title="Uncheck all"
                    style="float:left;width: 26px; height: 24px;
                    background:  #e6e6e6
-                                 url('images/ui-bg_glass_75_e6e6e6_1x400.png');
+                                 url('css/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png');
                                  border-bottom-right-radius:0;
                                  border-top-right-radius:0;
                                  border-right: none;">
