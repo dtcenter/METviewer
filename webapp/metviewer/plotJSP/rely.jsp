@@ -7,11 +7,9 @@
         .add-font-size {
             font-size: 10px;
         }
-
         legend {
             font-weight: bold;;
         }
-
         fieldset {
             margin-top: 5px;
             margin-left: 5px;
@@ -36,10 +34,8 @@
                         "Open in new window": function () {
                             var win = window.open('doc/plot.html');
                             if (win) {
-                                //Browser has allowed it to be opened
                                 win.focus();
                             } else {
-                                //Broswer has blocked it
                                 alert('Please allow popups for this site');
                             }
                         },
