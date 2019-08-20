@@ -2132,6 +2132,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  build the query
     return
             "SELECT\n" + strSelectListStat + ",\n"
+                    + "  revision_id,\n"
                     + "  object_id,\n"
                     + "  object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
@@ -2359,6 +2360,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     String result =
             "SELECT\n" + strSelectListStat + ",\n"
+                    + "  revision_id,\n"
                     + "  s.object_id,\n"
                     + "  s.object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
