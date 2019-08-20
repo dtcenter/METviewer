@@ -822,7 +822,6 @@ function updateForecastVariables() {
     if (!selected_mode) {
         selected_mode = 'stat';
     }
-    console.log("updateForecastVariables " + selected_mode);
     var select_y1 = $("#fcst_var_y1_1");
     var select_y2 = $('#fcst_var_y2_1');
     var indy_var_val = $('#indy_var_val');
@@ -3595,7 +3594,7 @@ function sendXml() {
             plot.append($('<contour_intervals />').text($('#contour_intervals').val()));
             plot.append($('<color_palette />').text($('#color_palette').val()));
             plot.append($('<add_color_bar />').text($('#add_color_bar').is(':checked')));
-            plot.append($('<reverse_y />').text($('#reverse_y').is(':checked')));
+            plot.append($('<reverse_y />').text($('#reverse_y').is(':checked')));xf
             plot.append($('<reverse_x />').text($('#reverse_x').is(':checked')));
             plot.append($('<add_contour_overlay />').text($('#add_contour_overlay').is(':checked')));
 
@@ -4376,7 +4375,7 @@ function refreshHistory() {
                 } else {
                     color = "#B39A9A"
                 }
-                $('#history_content').append($('<tr/>').append($('<td/>').css("color", color).text(name)).append($('<td/>').append($('<button />').attr("id", name).addClass('view-image').text("Image"))).append($('<td/>').append($('<button />').attr("id", name).addClass('load-image').text("XML"))));
+                $('#history_content').append($('<tr/>').append($('<td/>').append($('<button />').attr("id", name).addClass('view-image').text("Image"))).append($('<td/>').append($('<button />').attr("id", name).addClass('load-image').text("XML"))).append($('<td/>').css("color", color).text(name)));
             }
             $(".view-image").button({
                 icons: {
@@ -7574,6 +7573,7 @@ function initPage() {
             currentTab = ui.newTab.text();
         },
         beforeLoad: function (event, ui) {
+            $.ajaxSetup({ cache: true });
             ui.jqXHR.error(function () {
                 ui.panel.html(
                     "Couldn't load this tab. We'll try to fix this as soon as possible. " +
