@@ -10,7 +10,8 @@ Welcome to METviewer's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   overview
+   installation
 
 Indices and tables
 ==================
