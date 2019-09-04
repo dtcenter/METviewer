@@ -2390,7 +2390,7 @@ function createSeriesMapForPermutationEns(fcst_var_indexes, y_axis) {
     var series_var_to_values_map = {};
     var selected_series_val, selected_series;
 
-    for (var i = 0; i < fcst_var_indexes.length; i++) {
+    for (var i = fcst_var_indexes.length - 1; i >= 0; i--) {
         var listVal = [];
         try {
             selected_series = $("#series_var_" + y_axis + "_" + fcst_var_indexes[i]).multiselect("getChecked")[0].value;
@@ -4293,41 +4293,49 @@ function createSeriesElementForAxis(y_axis, series_var_indexes) {
             valArr = [];
         }
 
-        if (Array.isArray(valArr)) {
-            if (isGroup) {
-                var vals = "";
-                for (var j = 0; j < valArr.length; j++) {
-                    vals = vals + text(valArr[j]);
-                    if (j !== valArr.length - 1) {
-                        vals = vals + ',';
+        if (Array.isArray(valArr) ) {
+            if (valArr.length > 0) {
+                if (isGroup) {
+                    var vals = "";
+                    for (var j = 0; j < valArr.length; j++) {
+                        vals = vals + text(valArr[j]);
+                        if (j !== valArr.length - 1) {
+                            vals = vals + ',';
+                        }
+                    }
+                    field.append($('<val />').text(vals));
+                } else {
+                    for (var j = 0; j < valArr.length; j++) {
+                        field.append($('<val />').text(valArr[j]));
                     }
                 }
-                field.append($('<val />').text(vals));
-            } else {
-                for (var j = 0; j < valArr.length; j++) {
-                    field.append($('<val />').text(valArr[j]));
-                }
-            }
-        } else if (typeof (valArr) === 'object') {
-            if (isGroup) {
-                var vals = "";
-                for (var j = 0; j < valArr.length; j++) {
-                    vals = vals + $(valArr[j]).val();
-                    if (j !== valArr.length - 1) {
-                        vals = vals + ',';
-                    }
-                }
-                field.append($('<val />').text(vals));
-            } else {
-                for (var j = 0; j < valArr.length; j++) {
-                    var val = $(valArr[j]).val();
-                    field.append($('<val />').text(val));
-                }
+                series.append(field);
             }
         } else {
-            field.append($('<val />').text(valArr));
+            if (typeof (valArr) === 'object') {
+                if (isGroup) {
+                    var vals = "";
+                    for (var j = 0; j < valArr.length; j++) {
+                        vals = vals + $(valArr[j]).val();
+                        if (j !== valArr.length - 1) {
+                            vals = vals + ',';
+                        }
+                    }
+                    field.append($('<val />').text(vals));
+                } else {
+                    for (var j = 0; j < valArr.length; j++) {
+                        var val = $(valArr[j]).val();
+                        if (val.length > 0) {
+                            field.append($('<val />').text(val));
+                        }
+                    }
+                }
+            } else {
+                field.append($('<val />').text(valArr));
+            }
+            series.append(field);
         }
-        series.append(field);
+
     }
     return series;
 }
