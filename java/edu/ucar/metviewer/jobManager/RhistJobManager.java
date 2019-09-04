@@ -86,7 +86,9 @@ public class RhistJobManager extends JobManager {
       Map.Entry[] listSeries1Val = job.getSeries1Val().getOrderedEntriesForSqlSeries();
       for (Map.Entry aListSeries1Val : listSeries1Val) {
         String[] listVal = (String[]) aListSeries1Val.getValue();
-        intNumDepSeries *= listVal.length;
+        if(listVal.length > 0) {
+          intNumDepSeries *= listVal.length;
+        }
       }
 
       //  validate the number of formatting elements
