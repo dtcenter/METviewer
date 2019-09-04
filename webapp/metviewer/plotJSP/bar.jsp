@@ -26,6 +26,16 @@
     </style>
     <script type="text/javascript">
         $(document).ready(function () {
+            $.ajaxSetup({
+                beforeSend: function () {
+                    $('#modal').css("display", "block");
+                    $('#fade').css("display", "block");
+                },
+                complete: function () {
+                    $('#modal').css("display", "none");
+                    $('#fade').css("display", "none");
+                }
+            });
             $('.help-button').button({
                 icons: {
                     primary: "ui-icon-help"
