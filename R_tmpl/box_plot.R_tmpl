@@ -64,6 +64,8 @@ listLegendUsr = #<legend>#;
 listSeries1Var = names(listSeries1Val);
 listSeries2Var = names(listSeries2Val);
 box_outline = #<box_outline>#;
+boolXReverse  = #<x_reverse>#;
+
 
 #if fcst_var is a spetial char - read it as-is and do not convert
 sampleData = read.delim(strDataFile,nrows=5);
@@ -239,6 +241,9 @@ if( 1 < ( sum(listPlotDisp) ) ){
   dblIndySpan = 0;
 }
 listX = 1:length(listIndy);
+if( TRUE == boolXReverse ){
+  listX = rev(listX)
+}
 listXMinMax = c(min(listX)-1, max(listX)+1);
 
 
@@ -300,6 +305,7 @@ listMeans2 = list();
 listAllStats2=list();
 
 ll=list();
+revision_stats = c();
 
 for( strDep1Name in names(listDep1Plot) ){
   for( strDep1Stat in listDep1Plot[[strDep1Name]] ){
@@ -313,9 +319,23 @@ for( strDep1Name in names(listDep1Plot) ){
 }
 
 for( listAllStatsName in names(ll) ){
+  allStatsArr = strsplit(listAllStatsName, " ")[[1]]
+  fcst_var = allStatsArr[length(allStatsArr)-1]
   listBox = list();
   for(strIndy in listIndy){
     listBox[[ strIndy ]] = ll[[listAllStatsName]][ ll[[listAllStatsName]][[strIndyVar]] == strIndy, ]$stat_value;
+  }
+  if (grepl("^REV_", fcst_var)){
+      used_names <- names(ll[[listAllStatsName]]) %in% c("stat_value", "revision_id")
+      stats = calculateMtdRevisionStats(ll[[listAllStatsName]][used_names]);
+      ww_run_title = paste("WW Runs Test:", stats$ww_run, sep = " ");
+      ac_test_title = paste("Auto-Corr Test: p=", stats$auto_cor_p, ",r=", stats$auto_cor_r, sep = " ");
+      listAllStatsName = paste(listAllStatsName,  " (");
+      listAllStatsName = paste(listAllStatsName, ww_run_title, " ");
+      listAllStatsName = paste(listAllStatsName, ac_test_title, " ");
+      listAllStatsName = paste(listAllStatsName,  ")");
+      cat('\n', listAllStatsName, '\n');
+      revision_stats[[length(revision_stats)+1]] <- stats;
   }
   listAllStats1[[listAllStatsName]] = listBox;
 }
@@ -385,9 +405,23 @@ for( strDep1Name in names(listDep2Plot) ){
 }
 
 for( listAllStatsName in names(ll) ){
+  allStatsArr = strsplit(listAllStatsName, " ")[[1]]
+  fcst_var = allStatsArr[length(allStatsArr)-1]
   listBox = list();
   for(strIndy in listIndy){
     listBox[[ strIndy ]] = ll[[listAllStatsName]][ ll[[listAllStatsName]][[strIndyVar]] == strIndy, ]$stat_value;
+  }
+  if (grepl("^REV_", fcst_var)){
+      used_names <- names(ll[[listAllStatsName]]) %in% c("stat_value", "revision_id")
+      stats = calculateMtdRevisionStats(ll[[listAllStatsName]][used_names]);
+      ww_run_title = paste("WW Runs Test:", stats$ww_run, sep = " ");
+      ac_test_title = paste("Auto-Corr Test: p=", stats$auto_cor_p, ",r=", stats$auto_cor_r, sep = " ");
+      listAllStatsName = paste(listAllStatsName,  " (");
+      listAllStatsName = paste(listAllStatsName, ww_run_title, " ");
+      listAllStatsName = paste(listAllStatsName, ac_test_title, " ");
+      listAllStatsName = paste(listAllStatsName,  ")");
+      cat('\n', listAllStatsName, '\n');
+      revision_stats[[length(revision_stats)+1]] <- stats;
   }
   listAllStats2[[listAllStatsName]] = listBox;
 }
@@ -682,6 +716,10 @@ for(intPermIndex in 1:length(listBoxes1)){
   else {
     if (boolAdd != TRUE){strYaxt="s";}
     else{strYaxt="n";}
+    if(TRUE == boolXReverse){
+          listAt = rev(listAt);
+          listBox = rev(listBox);
+    }
     boxplot_ci(
       listBox,				# box data as a list of vectors
       at=listAt,				# vector of box positions
@@ -1018,12 +1056,19 @@ if(length(listAllStats2) > 0){
   }
 }
 #replace with user's legends
-if( 0 < length(listLegendUsr) ){
-  for(index in 1:length(listLegendUsrOrdered)){
-    if(nchar(listLegendUsrOrdered[index]) > 0){
-      listLegend[index]=listLegendUsrOrdered[index];
+for(index in 1:length(listLegendUsr)){
+    if(nchar(listLegendUsr[index]) > 0){
+      listLegend[index]=listLegendUsr[index];
+      #add revision if needed
+      if( index <= length(revision_stats)){
+        ww_run_title = paste("WW Runs Test:", revision_stats[[index]]$ww_run, sep = " ");
+        ac_test_title = paste("Auto-Corr Test: p=", revision_stats[[index]]$auto_cor_p, ",r=", revision_stats[[index]]$auto_cor_r, sep = " ");
+        listLegend[index] = paste(listLegend[index],  " (");
+        listLegend[index] = paste(listLegend[index], ww_run_title, " ");
+        listLegend[index] = paste(listLegend[index], ac_test_title, " ");
+        listLegend[index] = paste(listLegend[index],  ")");
+      }
     }
-  }
 }
 
 
@@ -1044,7 +1089,7 @@ legend(
   #box.lty=,				# legend box line type
   #box.lwd=,				# legend box line width
   #horiz=FALSE,			# horizontal configuration
-  adj=.05,				# string adjustment for text
+  #adj=.05,				# string adjustment for text
   xpd=TRUE,				# clipping - FALSE: plot region, TRUE: figure region, NA: device region
 	ncol=#<legend_ncol>#,	# number of columns in legend
   #agginset=c(0, -.25),	# inset distance from margin

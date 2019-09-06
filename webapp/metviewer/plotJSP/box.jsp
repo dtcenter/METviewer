@@ -3,6 +3,15 @@
 <html>
 <HEAD>
   <META http-equiv="content-type" content="text/html; charset=utf-8">
+  <script src="js/jquery-min.js" type="application/javascript"></script>
+  <script src="js/jquery-ui.min.js" type="application/javascript"></script>
+  <script type="application/javascript" src="js/jquery.actual.min.js"></script>
+  <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
+  <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
+
+  <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
+  <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
+
   <style type="text/css">
     .add-font-size {
       font-size: 10px;
@@ -19,16 +28,22 @@
     }
   </style>
   <script type="text/javascript">
-
     $(document).ready(function () {
-
+      $.ajaxSetup({
+        beforeSend: function () {
+          $('#modal').css("display", "block");
+          $('#fade').css("display", "block");
+        },
+        complete: function () {
+          $('#modal').css("display", "none");
+          $('#fade').css("display", "none");
+        }
+      });
       $('.help-button').button({
-
         icons: {
           primary: "ui-icon-help"
         },
         text: false
-
       }).click(function () {
         $('#helpContent').empty();
         $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%").attr("src", "doc/plot.html#" + $(this).attr("alt")));
@@ -37,10 +52,8 @@
             "Open in new window": function () {
               var win = window.open('doc/plot.html');
               if (win) {
-                //Browser has allowed it to be opened
                 win.focus();
               } else {
-                //Browser has blocked it
                 alert('Please allow popups for this site');
               }
             },
@@ -55,14 +68,10 @@
       $("#helpContent").append($("<iframe id='helpContentFrame'/>").css("width", "100%").css("height", "100%")).dialog({
         height: 400,
         width: 600,
-        autoOpen: false,
-        open: function (event, ui) {
-          //var $led = $("#helpContentDiv");
-          //$led.load("doc/plot.html#" + $led.data('idd'));
-        }
+        autoOpen: false
       });
 
-      $("#tabs_axis_variables").tabs({
+      $("#tabs_axis_variables_box").tabs({
         heightStyle: "content"
       });
 
@@ -98,18 +107,22 @@
         height: 'auto',
         click: function (event, ui) {
           updateForecastVariables();
-          if (ui.value == 'stat') {
+          if (ui.value === 'stat') {
             updateStats("y1", 1, []);
             updateStats("y2", 1, []);
             updateFixVar("stat");
             updateIndyVar("stat");
 
-          } else {
+          } else if ($('#plot_data').multiselect('getChecked')[0].value === 'mode') {
             updateMode("y1", 1, []);
             updateMode("y2", 1, []);
             updateFixVar("mode");
             updateIndyVar("mode");
-
+          } else if ($('#plot_data').multiselect('getChecked')[0].value === 'mtd') {
+            updateMtd("y1", 1, []);
+            updateMtd("y2", 1, []);
+            updateFixVar("mtd");
+            updateIndyVar("mtd");
           }
           updateSeriesVarVal("y1", 1, []);
           updateSeriesVarVal("y2", 1, []);
@@ -181,7 +194,7 @@
           $('#series_var_val_y1_date_period_start_1').empty();
           $('#series_var_val_y1_date_period_end_1').empty();
 
-          if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+          if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
             $("#series_var_val_y1_date_period_button_1").css("display", "block");
           } else {
             $("#series_var_val_y1_date_period_button_1").css("display", "none");
@@ -211,7 +224,7 @@
           $('#date_period_start').empty();
           $('#date_period_end').empty();
 
-          if (ui.value == "fcst_init_beg" || ui.value == "fcst_valid_beg" || ui.value == "fcst_valid" || ui.value == "fcst_init") {
+          if (ui.value === "fcst_init_beg" || ui.value === "fcst_valid_beg" || ui.value === "fcst_valid" || ui.value === "fcst_init") {
             $("#date_period_button").css("display", "block");
             $("#date_range_button").css("display", "block");
           } else {
@@ -268,6 +281,57 @@
         $("#date_period_dialog").dialog("open");
       });
       createDatePeriodDialog();
+
+      $("#date_range_button").button({
+        icons: {
+          primary: "ui-icon-calendar"
+        },
+        text: false
+      }).click(function (evt) {
+        evt.stopPropagation();
+        var values = $('#indy_var_val').val();
+        if (values == null) {
+          values = [];
+        }
+        populateIndyVarVal(values);
+        var dates = $(previousIndVarValResponse).find("val");
+        var start = $(dates[0]).text();
+        var end = $(dates[dates.length - 1]).text();
+        try {
+          $("#date_range").unbind("datepicker-apply");
+          $('#date_range').data('dateRangePicker').clear();
+          $('#date_range').data('dateRangePicker').destroy();
+        } catch (error) {
+          console.log(error);
+        }
+        $('#date_range').dateRangePicker({
+          startOfWeek: 'sunday',
+          separator: ' - ',
+          format: 'YYYY-MM-DD HH:mm',
+          autoClose: false,
+          time: {
+            enabled: true
+          },
+          startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+          showShortcuts: true,
+          shortcuts: {
+            'prev-days': [3, 7, 30],
+            'prev': ['week', 'month', 'year'],
+            'next-days': null,
+            'next': null
+          },
+          monthSelect: true,
+          yearSelect: true,
+          container: document.getElementById('indy_var_table').parentElement,
+          customTopBar: function () {
+            return createCalendarTopBarWithFormat();
+          }
+        }).bind('datepicker-apply', function (event, obj) {
+          onIndyCalendarClose(obj);
+        });
+        $('#date_range').data('dateRangePicker').open();
+      });
 
       $('#add_series_var_y1').button({
         icons: {
@@ -344,18 +408,12 @@
         }
       });
       $('#calculations_statistics').show();
-      $('#revision_statistics').hide();
 
       $(' input[name="statistics"]').click(function () {
         $('#calculations_statistics').hide();
-        $('#revision_statistics').hide();
         $(this).prop("checked", true);
         $('#' + $(this).val()).show();
-        if ($(this).val() === "revision_statistics") {
-          $('#indy_var').val("fcst_valid_beg");
-          $('#date_period_button').css("display", "block");
-          $("#indy_var").multiselect("refresh");
-        }
+
       });
         $.each(fix_var_value_to_title_stat_map, function (key, val) {
                              $('#fixed_var_1').append('<option value="' +
@@ -369,6 +427,10 @@
           $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                   .prop("checked", true).change();
         }
+        var csv = selectedDatabase.join(",");
+        var textnode = document.createTextNode(csv);
+        var item = document.getElementById("categories1").childNodes[0];
+        item.replaceChild(textnode, item.childNodes[0]);
         loadXMLSeries();
         $("#box_pts").prop('checked', $(initXML.find("plot").find("box_pts")).text() == "TRUE");
         $("#box_outline").prop('checked', $(initXML.find("plot").find("box_outline")).text() == "TRUE");
@@ -383,57 +445,10 @@
         updateSeriesVarVal("y1", 1, []);
         updateSeriesVarVal("y2", 1, []);
       }
+
+
     });
-    $("#date_range_button").button({
-      icons: {
-        primary: "ui-icon-calendar"
-      },
-      text: false
-    }).click(function (evt) {
-      evt.stopPropagation();
-      var values = $('#indy_var_val').val();
-      if (values == null) {
-        values = [];
-      }
-      populateIndyVarVal(values);
-      var dates = $(previousIndVarValResponse).find("val");
-      var start = $(dates[0]).text();
-      var end = $(dates[dates.length - 1]).text();
-      try {
-        $("#date_range").unbind("datepicker-apply");
-        $('#date_range').data('dateRangePicker').clear();
-        $('#date_range').data('dateRangePicker').destroy();
-      } catch (error) {
-        console.log(error);
-      }
-      $('#date_range').dateRangePicker({
-        startOfWeek: 'sunday',
-        separator: ' - ',
-        format: 'YYYY-MM-DD HH:mm',
-        autoClose: false,
-        time: {
-          enabled: true
-        },
-        startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
-        endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
-        showShortcuts: true,
-        shortcuts: {
-          'prev-days': [3, 7, 30],
-          'prev': ['week', 'month', 'year'],
-          'next-days': null,
-          'next': null
-        },
-        monthSelect: true,
-        yearSelect: true,
-        container: document.getElementById('indy_var_table').parentElement,
-        customTopBar: function () {
-          return createCalendarTopBarWithFormat();
-        }
-      }).bind('datepicker-apply', function (event, obj) {
-        onIndyCalendarClose(obj);
-      });
-      $('#date_range').data('dateRangePicker').open();
-    });
+
 
   </script>
 </head>
@@ -444,10 +459,11 @@
       Data:</label><select id="plot_data">
       <option selected="selected" value="stat">Stat</option>
       <option value="mode">MODE</option>
+      <option value="mtd">MODE-TD</option>
     </select></span>
 
   </div>
-  <div id="tabs_axis_variables" class="ui-layout-center no-padding" style="border:none;">
+  <div id="tabs_axis_variables_box" class="ui-layout-center no-padding" style="border:none;">
     <ul class="allow-overflow " style="background:none;border-left: medium none; border-right: medium none; border-top: medium none;">
       <li><a href="#y1_axis_variables">Y1 Axis variables</a></li>
       <li><a href="#y2_axis_variables">Y2 Axis variables</a></li>
@@ -777,11 +793,7 @@
                id="calculations_statistics_label"/>
         <label for="calculations_statistics_label"> Summary</label>
 
-        <input type="radio" name="statistics"
-               value="revision_statistics"
-               id="revision_statistics_label"/>
-        <label for="revision_statistics_label">Revision
-          statistics</label>
+
 
 
       </div>
@@ -809,30 +821,7 @@
 
         </table>
       </div>
-      <div id="revision_statistics">
 
-        <button class="help-button" style="float: right;bottom: 40px;"
-                alt="revis_stat">Help
-        </button>
-        <table style="width:100%">
-          <tr>
-            <td><select id="revis_stat">
-              <option value="none">None</option>
-              <option value="ctc">Contingency table count (CTC)</option>
-              <option value="sl1l2">Scalar partial sums (SL1L2)</option>
-              <option value="sal1l2">Scalar anomaly partial sums (SAL1L2)</option>
-            </select>
-            </td>
-            <td><input id="revision_ac" type="checkbox"><label
-                    for="revision_ac">Add Auto-Correlation</label></td>
-            <td><input id="revision_run" type="checkbox"><label
-                    for="revision_run">Add Wald-Wolfowitz Runs Test</label></td>
-
-          </tr>
-
-        </table>
-
-      </div>
     </div>
 
   </div>

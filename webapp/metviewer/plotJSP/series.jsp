@@ -3,6 +3,15 @@
 <html>
 <HEAD>
     <META http-equiv="content-type" content="text/html; charset=utf-8">
+    <script src="js/jquery-min.js" type="application/javascript"></script>
+    <script src="js/jquery-ui.min.js" type="application/javascript"></script>
+    <script type="application/javascript" src="js/jquery.actual.min.js"></script>
+    <script type="application/javascript" src="js/jquery.jqGrid.min.js"></script>
+    <script type="application/javascript" src="js/jquery.colorpicker.js"></script>
+
+    <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
+    <script type="application/javascript" src="js/jquery_multiselect.min.js"></script>
+
     <style type="text/css">
         .add-font-size {
             font-size: 10px;
@@ -19,9 +28,18 @@
         }
     </style>
     <script type="text/javascript">
-
-
         $(document).ready(function () {
+
+            $.ajaxSetup({
+                beforeSend: function () {
+                    $('#modal').css("display", "block");
+                    $('#fade').css("display", "block");
+                },
+                complete: function () {
+                    $('#modal').css("display", "none");
+                    $('#fade').css("display", "none");
+                }
+            });
             $('.help-button').button({
                 icons: {
                     primary: "ui-icon-help"
@@ -172,7 +190,7 @@
                         }
                         $('#aggregation_statistics ').show();
                         $('#calculations_statistics ').hide();
-                        $('#revision_statistics ').hide();
+                        //$('#revision_statistics ').hide();
                     }
 
                     updateSeries();
@@ -288,8 +306,58 @@
                 $("#date_period_dialog").dialog("open");
             });
 
-
             createDatePeriodDialog();
+
+            $("#date_range_button").button({
+                icons: {
+                    primary: "ui-icon-calendar"
+                },
+                text: false
+            }).click(function (evt) {
+                evt.stopPropagation();
+                var values = $('#indy_var_val').val();
+                if (values == null) {
+                    values = [];
+                }
+                populateIndyVarVal(values);
+                var dates = $(previousIndVarValResponse).find("val");
+                var start = $(dates[0]).text();
+                var end = $(dates[dates.length - 1]).text();
+                try {
+                    $("#date_range").unbind("datepicker-apply");
+                    $('#date_range').data('dateRangePicker').clear();
+                    $('#date_range').data('dateRangePicker').destroy();
+                } catch (error) {
+                    console.log(error);
+                }
+                $('#date_range').dateRangePicker({
+                    startOfWeek: 'sunday',
+                    separator: ' - ',
+                    format: 'YYYY-MM-DD HH:mm',
+                    autoClose: false,
+                    time: {
+                        enabled: true
+                    },
+                    startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
+                    endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+                    showShortcuts: true,
+                    shortcuts: {
+                        'prev-days': [3, 7, 30],
+                        'prev': ['week', 'month', 'year'],
+                        'next-days': null,
+                        'next': null
+                    },
+                    monthSelect: true,
+                    yearSelect: true,
+                    container: document.getElementById('indy_var_table').parentElement,
+                    customTopBar: function () {
+                        return createCalendarTopBarWithFormat();
+                    }
+                }).bind('datepicker-apply', function (event, obj) {
+                    onIndyCalendarClose(obj);
+                });
+                $('#date_range').data('dateRangePicker').open();
+            });
 
             $('#add_series_var_y1').button({
                 icons: {
@@ -309,7 +377,7 @@
 
             $('#aggregation_statistics ').hide();
             $('#calculations_statistics ').hide();
-            $('#revision_statistics ').hide();
+           // $('#revision_statistics ').hide();
 
             $('#event_equal').prop("checked", false);
 
@@ -391,14 +459,8 @@
             $(' input[name="statistics"]').click(function () {
                 $('#aggregation_statistics').hide();
                 $('#calculations_statistics').hide();
-                $('#revision_statistics').hide();
                 $(this).prop("checked", true);
                 $('#' + $(this).val()).show();
-                if ($(this).val() === "revision_statistics") {
-                    $('#date_period_button').css("display", "block");
-                    $('#date_range_button').css("display", "block");
-                    $("#indy_var").multiselect("refresh");
-                }
             });
             $('#calculations_statistics').show();
 
@@ -433,6 +495,10 @@
                     $("input[name='multiselect_database'][value='" + selectedDatabase[i] + "']")
                         .prop("checked", true).change();
                 }
+                var csv = selectedDatabase.join(",");
+                var textnode = document.createTextNode(csv);
+                var item = document.getElementById("categories1").childNodes[0];
+                item.replaceChild(textnode, item.childNodes[0]);
                 loadXMLSeries();
                 initXML = null;
 
@@ -454,56 +520,7 @@
             }
         });
 
-        $("#date_range_button").button({
-            icons: {
-                primary: "ui-icon-calendar"
-            },
-            text: false
-        }).click(function (evt) {
-            evt.stopPropagation();
-            var values = $('#indy_var_val').val();
-            if (values == null) {
-                values = [];
-            }
-            populateIndyVarVal(values);
-            var dates = $(previousIndVarValResponse).find("val");
-            var start = $(dates[0]).text();
-            var end = $(dates[dates.length - 1]).text();
-            try {
-                $("#date_range").unbind("datepicker-apply");
-                $('#date_range').data('dateRangePicker').clear();
-                $('#date_range').data('dateRangePicker').destroy();
-            } catch (error) {
-                console.log(error);
-            }
-            $('#date_range').dateRangePicker({
-                startOfWeek: 'sunday',
-                separator: ' - ',
-                format: 'YYYY-MM-DD HH:mm',
-                autoClose: false,
-                time: {
-                    enabled: true
-                },
-                startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
-                endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
-                showShortcuts: true,
-                shortcuts: {
-                    'prev-days': [3, 7, 30],
-                    'prev': ['week', 'month', 'year'],
-                    'next-days': null,
-                    'next': null
-                },
-                monthSelect: true,
-                yearSelect: true,
-                container: document.getElementById('indy_var_table').parentElement,
-                customTopBar: function () {
-                    return createCalendarTopBarWithFormat();
-                }
-            }).bind('datepicker-apply', function (event, obj) {
-                onIndyCalendarClose(obj);
-            });
-            $('#date_range').data('dateRangePicker').open();
-        });
+
 
     </script>
 </head>
@@ -926,11 +943,7 @@
                        id="aggregation_statistics_label"/>
                 <label for="aggregation_statistics_label">Aggregation
                     statistics</label>
-                <input type="radio" name="statistics"
-                       value="revision_statistics"
-                       id="revision_statistics_label"/>
-                <label for="revision_statistics_label">Revision
-                    statistics</label>
+
 
 
             </div>
@@ -1028,7 +1041,7 @@
 
             </div>
 
-            <div id="revision_statistics">
+            <%--<div id="revision_statistics">
 
                 <button class="help-button" style="float: right;bottom: 40px;"
                         alt="revis_stat">Help
@@ -1053,7 +1066,7 @@
 
                 </table>
 
-            </div>
+            </div>--%>
 
             <div id="none"></div>
         </div>

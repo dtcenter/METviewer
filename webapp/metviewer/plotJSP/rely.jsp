@@ -7,11 +7,9 @@
         .add-font-size {
             font-size: 10px;
         }
-
         legend {
             font-weight: bold;;
         }
-
         fieldset {
             margin-top: 5px;
             margin-left: 5px;
@@ -20,6 +18,16 @@
     </style>
     <script type="text/javascript">
         $(document).ready(function () {
+            $.ajaxSetup({
+                beforeSend: function () {
+                    $('#modal').css("display", "block");
+                    $('#fade').css("display", "block");
+                },
+                complete: function () {
+                    $('#modal').css("display", "none");
+                    $('#fade').css("display", "none");
+                }
+            });
             series_var_y1_indexes = [];
             $('.help-button').button({
 
@@ -36,10 +44,8 @@
                         "Open in new window": function () {
                             var win = window.open('doc/plot.html');
                             if (win) {
-                                //Browser has allowed it to be opened
                                 win.focus();
                             } else {
-                                //Broswer has blocked it
                                 alert('Please allow popups for this site');
                             }
                         },

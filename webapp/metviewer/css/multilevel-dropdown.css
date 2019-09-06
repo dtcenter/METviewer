@@ -9,7 +9,7 @@
 }
 
 .multilevel-dropdown > li {
-    background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png");
+    background: #e6e6e6 url("smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png");
 }
 
 .multilevel-dropdown-container .multilevel-dropdown-select {
@@ -108,7 +108,7 @@
     padding: 0.5em 1em;
     list-style: none;
     text-align: center;
-    background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png");
+    background: #e6e6e6 url("smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png");
 }
 
 .fa {

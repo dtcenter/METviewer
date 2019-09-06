@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Executors;
 
 import edu.ucar.metviewer.MVUtil;
 import edu.ucar.metviewer.db.DatabaseInfo;
@@ -206,7 +207,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
       try {
         con = dataSource.getConnection();
         con.setCatalog(db);
-
+        con.setNetworkTimeout(Executors.newSingleThreadExecutor(), 0);
       } catch (Exception e) {
         logger.error(ERROR_MARKER,"can't get connection for database " + db + " " + e.getMessage());
         if (con != null) {
@@ -225,6 +226,7 @@ public class MysqlDatabaseManager extends DatabaseManager {
     Connection con = null;
     try {
       con = dataSource.getConnection();
+      con.setNetworkTimeout(Executors.newSingleThreadExecutor(), 0);
     } catch (SQLException e) {
       logger.error(ERROR_MARKER,"can't get connection " + e.getMessage());
     }

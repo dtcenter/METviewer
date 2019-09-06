@@ -427,7 +427,7 @@ public class MVUtil {
     lengthGroupIndices.put("RHIST", new int[]{23, 23, 1});
     lengthGroupIndices.put("PHIST", new int[]{24, 25, 1});
     lengthGroupIndices.put("RELP", new int[]{23, 24, 1});
-    lengthGroupIndices.put("ORANK", new int[]{33, 33, 1});
+    lengthGroupIndices.put("ORANK", new int[]{33, 34, 1});
     lengthGroupIndices.put("ECLV", new int[]{25, 26, 2});
   }
 

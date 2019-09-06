@@ -484,7 +484,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
           String strFieldDB = formatField(field, boolMode || boolMtd, true);
           String whereReplaced = where.toString().replaceAll("h\\.", "");
           strSql = "SELECT DISTINCT " + strFieldDB + " FROM "
-                  + strHeaderTable + " " + whereReplaced + " ORDER BY " + strFieldDB;
+                  + strHeaderTable + " " + whereReplaced + " ORDER BY " + field;
         }
         //  execute the query
         try (Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -825,7 +825,10 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  add the user-specified condition clause, if present
     if (null != job.getPlotCond() && !job.getPlotCond().isEmpty()) {
-      plotFixWhere += "  AND " + job.getPlotCond() + "\n";
+      if(!plotFixWhere.isEmpty()){
+        plotFixWhere += "  AND ";
+      }
+      plotFixWhere += job.getPlotCond() + "\n";
     }
 
     //  determine if the plot requires data aggregation or calculations
@@ -2129,6 +2132,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     //  build the query
     return
             "SELECT\n" + strSelectListStat + ",\n"
+                    + "  revision_id,\n"
                     + "  object_id,\n"
                     + "  object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"
@@ -2356,6 +2360,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     String result =
             "SELECT\n" + strSelectListStat + ",\n"
+                    + "  revision_id,\n"
                     + "  s.object_id,\n"
                     + "  s.object_cat,\n"
                     + "  '" + stat + "' stat_name,\n"

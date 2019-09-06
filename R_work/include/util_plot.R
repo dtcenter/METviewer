@@ -1469,3 +1469,47 @@ aggregateFieldValues = function(listSeries1Val, dfStatsPerm, strPerm, lineTypes,
   }
   return( dfStatsPerm );
 }
+
+calculateMtdRevisionStats = function(data){
+  unique_ids = unique(data$revision_id)
+  data_for_stats = c();
+  
+  for (id  in unique_ids){
+    data_for_id = data[data$revision_id == id ,]$stat_value;
+    data_for_stats = append(data_for_stats, data_for_id);
+    data_for_stats = append(data_for_stats, NA);
+  }
+  if(length(data_for_stats) > 0){
+    data_for_stats = data_for_stats[-length(data_for_stats)]; 
+  }
+  acf_value=acf(data_for_stats,type='correlation',na.action = na.pass, plot=FALSE);
+  r= acf_value$acf[2];
+  p = qnorm((1 + 0.05)/2)/sqrt(acf_value$n.used)
+  revisionAc = c(r,p);
+  ww_run = runs.test(data_for_stats,alternative='left.sided')$p.value;
+  if (is.nan(ww_run)) {
+    ww_run = 'N/A';
+  } else{
+    ww_run = round(ww_run, 2);
+  }
+  
+  
+  p_value = revisionAc[2];
+  if (is.nan(p_value)) {
+    p_value = 'N/A';
+  } else{
+    p_value = round(p_value, 2);
+  }
+  r=revisionAc[1];
+  if (is.nan(r)) {
+    r = 'N/A';
+  } else{
+    r = round(r, 2);
+  }
+  
+  
+  return(list(ww_run = ww_run, 
+              auto_cor_p = p_value,
+              auto_cor_r = r
+  ))
+}
