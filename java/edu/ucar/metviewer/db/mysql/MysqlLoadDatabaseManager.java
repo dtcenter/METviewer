@@ -653,7 +653,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         if (insertData.getLineType().equals("RHIST")) {
           int indexOfNrank = headerNames.indexOf("LINE_TYPE") + 2;
           boolean isInt = MVUtil.isInteger(listToken[indexOfNrank], 10);
-          isMet8 = isInt && (Integer.valueOf(listToken[indexOfNrank]) + indexOfNrank == listToken.length - 1);
+          isMet8 = isInt && (Integer.parseInt(listToken[indexOfNrank]) + indexOfNrank == listToken.length - 1);
 
         }
 
@@ -772,13 +772,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         statHeaderValueList.add(strInterpPnts);
 
         String fcstThresh = MVUtil.findValue(listToken, headerNames, "FCST_THRESH");
-        double fcstPerc = (double) -9999;
+        double fcstPerc = -9999;
         String fcstThreshStr;
         if (fcstThresh.contains("(") && fcstThresh.contains(")")) {
           String percStr = fcstThresh.substring(fcstThresh.indexOf("(") + 1, fcstThresh.indexOf(")"));
           fcstThreshStr = fcstThresh.substring(0, fcstThresh.indexOf("("));
           try {
-            fcstPerc = Double.valueOf(percStr);
+            fcstPerc = Double.parseDouble(percStr);
           } catch (NumberFormatException e) {
             logger.info("String for the forecast threshold percentile " + percStr
                     + " can't be converted to double and ignored");
@@ -788,13 +788,13 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
 
         String obsThresh = MVUtil.findValue(listToken, headerNames, "OBS_THRESH");
-        double obsPerc = (double) -9999;
+        double obsPerc = -9999;
         String obsThreshStr;
         if (obsThresh.contains("(") && obsThresh.contains(")")) {
           String percStr = obsThresh.substring(obsThresh.indexOf("(") + 1, obsThresh.indexOf(")"));
           obsThreshStr = obsThresh.substring(0, obsThresh.indexOf("("));
           try {
-            obsPerc = Double.valueOf(percStr);
+            obsPerc = Double.parseDouble(percStr);
           } catch (NumberFormatException e) {
             logger.info("String for the obs threshold percentile " + percStr
                     + " can't be converted to double and ignored");
@@ -804,8 +804,6 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
         }
         statHeaderValueList.add(fcstThreshStr);
         statHeaderValueList.add(obsThreshStr);
-        //statHeaderValueList.add(fcstPerc);
-        //statHeaderValueList.add(obsPerc);
 
 
         //  build a where clause for searching for duplicate stat_header records
@@ -874,7 +872,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               stmt.setString(9, MVUtil.findValue(listToken, headerNames, "OBTYPE"));
               stmt.setString(10, MVUtil.findValue(listToken, headerNames, "VX_MASK"));
               stmt.setString(11, MVUtil.findValue(listToken, headerNames, "INTERP_MTHD"));
-              stmt.setInt(12, Integer.valueOf(strInterpPnts));
+              stmt.setInt(12, Integer.parseInt(strInterpPnts));
               stmt.setString(13, fcstThreshStr);
               stmt.setString(14, obsThreshStr);
 
@@ -981,13 +979,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             tableVarLengthLineDataId.put(lineType, intLineDataId + 1);
             switch (lineType) {
               case "RHIST":
-                lineDataMax = lineDataMax - Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
-                break;
               case "PSTD":
-                lineDataMax = lineDataMax - Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
-                break;
-              case "ORANK":
-                lineDataMax = lengthGroupIndices[1] + 1;
+                lineDataMax = lineDataMax - Integer.parseInt(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
                 break;
               default:
                 lineDataMax = lengthGroupIndices[1];
@@ -1133,7 +1126,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
 
           if (lineType.equals("ORANK") && lengthGroupIndices != null && lengthGroupIndices.length == 3) {
             //skip ensemble fields and get data for the rest
-            int extraFieldsInd = lineDataMax + Integer.valueOf(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
+            int extraFieldsInd = lineDataMax + Integer.parseInt(listToken[lengthGroupIndices[0]]) * lengthGroupIndices[2];
             for (int i = extraFieldsInd; i < listToken.length; i++) {
               lineDataValues.add(replaceInvalidValues(listToken[i]));
             }
@@ -1509,7 +1502,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             mvLoadStatInsertData.setLineType("ECLV");
           } else if (listToken[6].equals("RELI")) {
             mvLoadStatInsertData.setLineType("PCT");
-            int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+            int intGroupSize = Integer.parseInt(listToken[1].split("\\/")[1]) + 1;
             thresh = "==1/" + intGroupSize;
           } else if (listToken[6].startsWith("FHO")) {
             mvLoadStatInsertData.setLineType("CTC");
@@ -1644,7 +1637,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
                 stmt.setString(9, listToken[4]);
                 stmt.setString(10, listToken[5]);
                 stmt.setString(11, "NA");
-                stmt.setInt(12, Integer.valueOf(interpPnts));
+                stmt.setInt(12, Integer.parseInt(interpPnts));
                 stmt.setString(13, thresh);
                 stmt.setString(14, thresh);
 
@@ -1913,14 +1906,14 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             }
 
             if (listToken[6].equals("HIST")) { //RHIST line type
-              int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+              int intGroupSize = Integer.parseInt(listToken[1].split("\\/")[1]) + 1;
               lineDataValueList.append(", 0,").append(intGroupSize);
 
             }
 
             if (listToken[6].equals("RELP")) {  // RELP line type
               lineDataValueList.append(", 0");
-              int intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]);
+              int intGroupSize = Integer.parseInt(listToken[1].split("\\/")[1]);
               lineDataValueList.append(", '").append(intGroupSize).append("'");
             }
             if (listToken[6].equals("ECON")) {  // ECLV line type
@@ -1935,7 +1928,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               int intGroupSize;
               int intGroupIndex = 9;
               try {
-                intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+                intGroupSize = Integer.parseInt(listToken[1].split("\\/")[1]) + 1;
               } catch (NumberFormatException e) {
                 intGroupSize = 0;
               }
@@ -2026,7 +2019,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               double h_rate = Double.parseDouble(listToken[11]);
               double o_rate;
               if (listToken.length > 12) {
-                o_rate = Double.valueOf(listToken[12]);
+                o_rate = Double.parseDouble(listToken[12]);
               } else {
                 o_rate = 0;
                 logger.info("o_rate os 0");
@@ -2058,8 +2051,8 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
             if (listToken[6].startsWith("FSS")) {//NBRCNT line type
               double fss = -9999;
               if (listToken.length > 11) {
-                fss = 1 - Double.valueOf(listToken[10])
-                        / (Double.valueOf(listToken[11]) + Double.valueOf(listToken[12]));
+                fss = 1 - Double.parseDouble(listToken[10])
+                        / (Double.parseDouble(listToken[11]) + Double.parseDouble(listToken[12]));
               }
               for (int i = 0; i < 19; i++) {
                 if (i == 0) {//total,
@@ -2101,7 +2094,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               if (listToken[6].equals("HIST")) {//RHIST line type
                 intGroupIndex = 9;
                 try {
-                  intNumGroups = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+                  intNumGroups = Integer.parseInt(listToken[1].split("\\/")[1]) + 1;
                 } catch (NumberFormatException e) {
                   intNumGroups = 0;
                 }
@@ -2109,7 +2102,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               } else if (listToken[6].equals("RELP")) {//RELP line type)
                 intGroupIndex = 9;
                 try {
-                  intNumGroups = Integer.valueOf(listToken[1].split("\\/")[1]);
+                  intNumGroups = Integer.parseInt(listToken[1].split("\\/")[1]);
                 } catch (NumberFormatException e) {
                   intNumGroups = 0;
                 }
@@ -2121,7 +2114,7 @@ public class MysqlLoadDatabaseManager extends MysqlDatabaseManager implements Lo
               } else if (listToken[6].equals("RELI")) {//PCT line type)
                 intGroupIndex = 9;
                 try {
-                  intGroupSize = Integer.valueOf(listToken[1].split("\\/")[1]) + 1;
+                  intGroupSize = Integer.parseInt(listToken[1].split("\\/")[1]) + 1;
                 } catch (NumberFormatException e) {
                   intGroupSize = 0;
                 }
