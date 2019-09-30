@@ -177,7 +177,7 @@ if ( nrow(sampleData) > 0){
         }
 
         #fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
-        fPlot = event_equalize(Plot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+        fPlot = event_equalize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
         sys$stdout$flush()
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
