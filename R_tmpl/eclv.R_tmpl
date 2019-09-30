@@ -2,6 +2,20 @@ setwd("#<r_work>#");
 source("include/Compute_STDerr.R");
 source("include/util_plot.R");
 
+library(reticulate)
+
+#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+use_python("/d3/projects/METViewer/envs/bin/python", required = TRUE)
+use_virtualenv("/d3/projects/METViewer/envs")
+source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
+
+py_config()
+
+sys = import('sys')
+
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
 
@@ -64,8 +78,9 @@ if( FALSE != boolEventEqual ){
     }
   }
 
-  dfPlot = eventEqualize(dfPlot, 'x_pnt_i', unique(dfPlot$x_pnt_i), listSeries1Val, listFixVars,listFixVarVals, TRUE, TRUE);
-
+  #dfPlot = eventEqualize(dfPlot, 'x_pnt_i', unique(dfPlot$x_pnt_i), listSeries1Val, listFixVars,listFixVarVals, TRUE, TRUE);
+  dfPlot = event_equalize(dfPlot, 'x_pnt_i', unique(dfPlot$x_pnt_i), listSeries1Val, listFixVars,listFixVarVals, TRUE, TRUE);
+  sys$stdout$flush()
   strAfrerEqualizeFile = sub("\\.data$", ".dataAfterEq", strDataFile, perl=TRUE);
   write.table(dfPlot, file=strAfrerEqualizeFile, quote=FALSE, row.names=FALSE, col.names=TRUE, sep = "\t");
 

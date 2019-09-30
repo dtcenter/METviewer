@@ -1,6 +1,19 @@
 setwd("#<r_work>#");
 source("include/util_plot.R");
 
+library(reticulate)
+
+#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+use_python("/d3/projects/METViewer/envs/bin/python", required = TRUE)
+use_virtualenv("/d3/projects/METViewer/envs")
+source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
+
+py_config()
+
+sys = import('sys')
 
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
@@ -85,12 +98,16 @@ if( FALSE != boolEventEqual  ){
         valPerm = listPermVal[intVar];
         if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
         dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
-        dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        #dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        dfData_ee = event_equalize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        sys$stdout$flush()
         dfPlot = rbind(dfPlot, dfData_ee);
       }
     }
   }else{
-    dfPlot = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+    #dfPlot = eventEqualize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+    dfPlot = event_equalize(dfData, "fcst_valid_beg", NA, list(), listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+    sys$stdout$flush()
   }
   dfData = dfPlot
 

@@ -3,6 +3,19 @@ setwd("#<r_work>#");
 source("include/util_plot.R");
 source("include/boxplot_ci.R");
 
+library(reticulate)
+
+#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+use_python("/d3/projects/METViewer/envs/bin/python", required = TRUE)
+use_virtualenv("/d3/projects/METViewer/envs")
+source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
+
+py_config()
+
+sys = import('sys')
 
 strDataFile = "#<data_file>#";
 strPlotFile = "#<plot_file>#";
@@ -113,7 +126,9 @@ if( FALSE != boolEventEqual  ){
           }
           fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep1Stat,  ];
         }
-        fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        #fPlot = eventEqualize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        fPlot = event_equalize(fPlot, strIndyVar, listIndy, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        sys$stdout$flush()
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
 

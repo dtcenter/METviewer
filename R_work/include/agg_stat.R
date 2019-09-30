@@ -3,6 +3,19 @@
 library(boot);
 library(gsl);
 library(stats);
+library(reticulate)
+
+#use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
+#use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
+#source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
+
+use_python("/d3/projects/METViewer/envs/bin/python", required = TRUE)
+use_virtualenv("/d3/projects/METViewer/envs")
+source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
+
+py_config()
+
+sys = import('sys')
 
 # parse the command line arguments
 strInputInfoFile = "~/plot_00124_20130923_082001.agg_stat.info";
@@ -141,7 +154,10 @@ if ( nrow(sampleData) > 0){
           }
         }
 
-        fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+        #fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+        fPlot = event_equalize(fPlot, strIndyVar, listIndyVal, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+        sys$stdout$flush()
+
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
     }
@@ -166,7 +182,9 @@ if ( nrow(sampleData) > 0){
             fPlot = fPlot[fPlot$fcst_var == strDep1Name & fPlot[[strSeriesVal]] %in% vectValPerms & fPlot$stat_name %in% strDep2Stat,  ];
           }
 
-          fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+          #fPlot = eventEqualize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+          fPlot = event_equalize(fPlot, strIndyVar, listIndyVal, listSeries2Val, listFixVars,listFixVarVals, boolEqualizeByIndep, boolMulti);
+          sys$stdout$flush()
           dfPlot2 = rbind(dfPlot2, fPlot);
         }
       }
@@ -177,7 +195,9 @@ if ( nrow(sampleData) > 0){
       for( seriesVal in names(listSeries1Val) ){
         listSeriesVal[[seriesVal]] = unique(append(listSeries1Val[[seriesVal]], listSeries2Val[[seriesVal]]));
       }
-      dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
+      #dfStatsRec = eventEqualize(dfStatsRec, strIndyVar, listIndyVal, listSeriesVal, listFixVars,listFixVarVals,boolEqualizeByIndep, TRUE);
+      dfStatsRec = event_equalize(dfStatsRec, strIndyVar, listIndyVal, listSeriesVal, listFixVars,listFixVarVals, boolEqualizeByIndep, TRUE);
+      sys$stdout$flush()
     }else{
       dfStatsRec = dfPlot1;
     }
