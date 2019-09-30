@@ -7172,7 +7172,7 @@ function initPage() {
             } else {
                 var allSeries = $("#listdt").jqGrid('getRowData');
                 if (allSeries.length > 1) {
-                    $("#addDiffCurveDialogForm").dialog("open");
+                    addDiffCurveDialogForm.dialog("open");
                 } else {
                     $("#incorrectDiffCurveDialogForm").dialog("open");
                 }
@@ -7284,7 +7284,7 @@ function initPage() {
             }
         }
     });
-    $("#addDiffCurveDialogForm").dialog({
+    var addDiffCurveDialogForm = $("#addDiffCurveDialogForm").dialog({
         autoOpen: false,
         height: "auto",
         width: "auto",
@@ -7305,7 +7305,7 @@ function initPage() {
                         valid = true;
                     }
                 }
-                $(this).dialog("close");
+                addDiffCurveDialogForm.dialog("close");
                 if (valid) {
                     updateSeries();
                     //force Event Equalizer
