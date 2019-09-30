@@ -89,7 +89,7 @@ if( FALSE != boolEventEqual  ){
       listFixVarVals[[1]] = matPerm;
     }else{
       listFixVars =  append(listFixVars, 'i_value');
-      listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+      listFixVarVals [[length(listFixVarVals)+1]] =  matPerm[,1];
     }
     if(length(listSeries1Val) > 0){
       for(intPermVal in 1:nrow(matPermVal)){
