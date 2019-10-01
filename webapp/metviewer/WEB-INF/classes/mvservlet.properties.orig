@@ -5,7 +5,7 @@ db.host=
 db.user=
 db.password=
 db.driver=com.mysql.jdbc.Driver
-db.managementSystem=mysql
+db.managementSystem=mariadb
 
 cache.val=true
 cache.stat=true
