@@ -56,7 +56,7 @@ public abstract class DatabaseManager {
           String managementSystem, String host, String user, String password,
           String dbName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     String ms = managementSystem.toLowerCase(Locale.ENGLISH);
-    String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
+    String dbType = ms.isEmpty() ? MARIADB : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(dbName);
     DatabaseManager databaseManager;
@@ -103,7 +103,7 @@ public abstract class DatabaseManager {
   public static DatabaseManager getAppManager(
           String managementSystem, String host, String user, String password, String database) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     String ms = managementSystem.toLowerCase(Locale.ENGLISH);
-    String dbType = ms.isEmpty() ? "mysql" : ms; // default dbType to mysql if management_system is missing
+    String dbType = ms.isEmpty() ? MARIADB : ms; // default dbType to mysql if management_system is missing
     DatabaseInfo databaseInfo = new DatabaseInfo(host, user);
     databaseInfo.setDbName(database);
     DatabaseManager databaseManager;
