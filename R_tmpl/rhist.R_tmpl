@@ -88,7 +88,7 @@ if( FALSE != boolEventEqual  ){
     listFixVarVals[[1]] = matPerm;
   }else{
     listFixVars =  append(listFixVars, 'i_value');
-    listFixVarVals [[length(listFixVarVals)+1]] =  matPerm;
+    listFixVarVals [[length(listFixVarVals)+1]] =  matPerm[,1];
   }
   if(length(listSeries1Val) > 0){
     for(intPermVal in 1:nrow(matPermVal)){
@@ -99,7 +99,7 @@ if( FALSE != boolEventEqual  ){
         if( grepl("^[0-9]+$", valPerm) ){ valPerm = as.integer(valPerm); }
         dfPerm = dfPerm[dfPerm[[ listSeriesVar[intVar] ]] == valPerm,];
         #dfData_ee = eventEqualize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
-        dfData_ee = event_equalize(dfPerm, "fcst_valid_beg", NA, intVar, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
+        dfData_ee = event_equalize(dfPerm, "fcst_valid_beg", NA, listSeries1Val, listFixVars,listFixVarVals, boolEqualizeByIndep, FALSE);
         sys$stdout$flush()
         dfPlot = rbind(dfPlot, dfData_ee);
       }
