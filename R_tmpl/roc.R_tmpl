@@ -289,7 +289,7 @@ if( FALSE != boolEventEqual  ){
 
     if(is.null(listFixVars)){
       listFixVars = "thresh_i";
-      listFixVarVals[[1]] = matPerm;
+      listFixVarVals[[1]] = matPerm[,1];
     }else{
       listFixVars =  append(listFixVars, 'thresh_i');
       listFixVarVals [[length(listFixVarVals)+1]] =  matPerm[,1];

@@ -85,7 +85,7 @@ if( FALSE != boolEventEqual  ){
 
   if(is.null(listFixVars)){
     listFixVars = "i_value";
-    listFixVarVals[[1]] = matPerm;
+    listFixVarVals[[1]] = matPerm[,1];
   }else{
     listFixVars =  append(listFixVars, 'i_value');
     listFixVarVals [[length(listFixVarVals)+1]] =  matPerm[,1];
