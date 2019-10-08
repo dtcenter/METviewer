@@ -8,8 +8,7 @@ library(reticulate)
 #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
 #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
 
-use_python("/d3/projects/METViewer/envs/bin/python", required = TRUE)
-use_virtualenv("/d3/projects/METViewer/envs")
+use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
 source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
 
 py_config()
