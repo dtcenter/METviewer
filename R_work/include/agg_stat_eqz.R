@@ -1,5 +1,10 @@
 library(boot);
+library(reticulate)
 
+use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
+source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
+sys = import('sys')
+py_config()
 #event equalisation against previously calculated cases for boolModeRatioPlot
 
 # parse the command line arguments
@@ -49,7 +54,9 @@ if ( nrow(sampleData) > 0){
         eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
 
-        fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,    eeStatsEqualizeUnique);
+        #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,    eeStatsEqualizeUnique);
+        fPlot = event_equalize_against_values(fPlot, strIndyVar,    eeStatsEqualizeUnique);
+        sys$stdout$flush()
         dfPlot1 = rbind(dfPlot1, fPlot);
       }
     }
@@ -65,7 +72,9 @@ if ( nrow(sampleData) > 0){
           fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
           eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
           eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
-          fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+          #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+          fPlot = event_equalize_against_values(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+          sys$stdout$flush()
           dfPlot2 = rbind(dfPlot2, fPlot);
         }
 
