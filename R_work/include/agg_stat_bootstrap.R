@@ -1,18 +1,14 @@
 library(boot);
-
 library(reticulate)
 
 #use_python("/Volumes/d1/tatiana/miniconda3/envs/METviewer/bin/python", required = TRUE)
 #use_virtualenv("/Volumes/d1/tatiana/miniconda3/envs/METviewer")
 #source_python('/Users/tatiana/PycharmProjects/METviewer/event_equalize.py')
 
-use_python("/d3/projects/METViewer/envs/bin/python", required = TRUE)
-use_virtualenv("/d3/projects/METViewer/envs")
-source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize.py')
-
-py_config()
-
+use_virtualenv("/d3/projects/METViewer/METviewer_py3.6.3")
+source_python('/d3/projects/METViewer/METcalcpy/metcalcpy/event_equalize_against_values.py')
 sys = import('sys')
+py_config()
 
 # parse the command line arguments
 strInputInfoFile = "/d1/pgoldenb/var/gfs_nam/R_work/data/plot_fss_ci_NAM_15km.agg_stat.info";
@@ -44,8 +40,9 @@ if(boolEventEqual){
       eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
       eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
 
-      fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,    eeStatsEqualizeUnique);
-
+      #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,    eeStatsEqualizeUnique);
+      fPlot = event_equalize_against_values(fPlot, strIndyVar,    eeStatsEqualizeUnique);
+      sys$stdout$flush()
       dfPlot1 = rbind(dfPlot1, fPlot);
     }
   }
@@ -61,7 +58,9 @@ if(boolEventEqual){
         fPlot = dfStatsRec[dfStatsRec$fcst_var == strDep2Name & dfStatsRec[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualize = eeStats[eeStats$fcst_var == strDep1Name & eeStats[[strSeriesVal]] %in% vectValPerms,  ];
         eeStatsEqualizeUnique = unique(eeStatsEqualize$equalize);
-        fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+        #fPlot = eventEqualizeAgainstValues(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+        fPlot = event_equalize_against_values(fPlot, strIndyVar,   eeStatsEqualizeUnique);
+        sys$stdout$flush();
         dfPlot2 = rbind(dfPlot2, fPlot);
       }
 
