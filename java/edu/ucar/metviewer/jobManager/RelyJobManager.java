@@ -85,6 +85,8 @@ public class RelyJobManager extends JobManager {
       String[] listFcstVar;
       if (objFcstVar instanceof String[]) {
         listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
+      }else if (objFcstVar instanceof String) {
+        listFcstVar = new String[]{(String)job.getPlotFixVal().get("fcst_var")};
       } else {
         MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
         listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
