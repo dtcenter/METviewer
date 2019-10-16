@@ -115,7 +115,7 @@ calcBASER    = function(d){
   }
 }
 calcACC      = function(d){
-  if(is.na(d$fy_oy) || is.na(d$fn_oy) || is.na(d$total) ){
+  if(is.na(d$fy_oy) || is.na(d$fn_on) || is.na(d$total) ){
     return (NA);
   }
   if( 0 == d$total )                      {
