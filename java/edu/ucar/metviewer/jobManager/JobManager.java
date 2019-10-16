@@ -187,19 +187,19 @@ public abstract class JobManager {
     mapAggStatStatic.put("fcst_var", strFcstVar);
     MVOrderedMap mapTmplValsPlot = MVUtil.addTmplValDep(job);
 
-    String strTitle = MVUtil.buildTemplateString(job.getTitleTmpl(), mapTmplValsPlot,
+    String strTitle = MVUtil.buildTemplateInfoString(job.getTitleTmpl(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
-    String strXLabel = MVUtil.buildTemplateString(job.getXLabelTmpl(), mapTmplValsPlot,
+    String strXLabel = MVUtil.buildTemplateInfoString(job.getXLabelTmpl(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
-    String strY1Label = MVUtil.buildTemplateString(job.getY1LabelTmpl(), mapTmplValsPlot,
+    String strY1Label = MVUtil.buildTemplateInfoString(job.getY1LabelTmpl(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
-    String strY2Label = MVUtil.buildTemplateString(job.getY2LabelTmpl(), mapTmplValsPlot,
+    String strY2Label = MVUtil.buildTemplateInfoString(job.getY2LabelTmpl(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
-    String strCaption = MVUtil.buildTemplateString(job.getCaptionTmpl(), mapTmplValsPlot,
+    String strCaption = MVUtil.buildTemplateInfoString(job.getCaptionTmpl(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
-    String diffSeries1 = MVUtil.buildTemplateString(job.getDiffSeries1(), mapTmplValsPlot,
+    String diffSeries1 = MVUtil.buildTemplateInfoString(job.getDiffSeries1(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
-    String diffSeries2 = MVUtil.buildTemplateString(job.getDiffSeries2(), mapTmplValsPlot,
+    String diffSeries2 = MVUtil.buildTemplateInfoString(job.getDiffSeries2(), mapTmplValsPlot,
             job.getTmplMaps(), mvBatch.getPrintStream());
 
     MVOrderedMap mapDep1Plot = (MVOrderedMap) mapDep.get("dep1");

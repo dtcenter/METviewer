@@ -1843,6 +1843,20 @@ public class MVUtil {
             .replace(">", "gt");
   }
 
+  public static String buildTemplateInfoString(final String tmpl, final MVOrderedMap vals,
+                                             final MVOrderedMap tmplMaps,
+                                             final PrintStream printStream)throws ValidationException {
+    return buildTemplate(tmpl, vals,tmplMaps,printStream, "infoString");
+  }
+
+  public static String buildTemplateString(
+          final String tmpl, final MVOrderedMap vals,
+          final MVOrderedMap tmplMaps,
+          final PrintStream printStream) throws ValidationException {
+
+    return buildTemplate(tmpl, vals,tmplMaps,printStream, "fileName");
+  }
+
   /**
    * Populate a template string, specified by tmpl, with values specified in the input map vals.  If
    * a template tag is not found in the input vals table, a warning is printed and the tag is passed
@@ -1854,10 +1868,10 @@ public class MVUtil {
    *                 (optional)
    * @return String built using the template and values
    */
-  public static String buildTemplateString(
+  private static String buildTemplate(
           final String tmpl, final MVOrderedMap vals,
           final MVOrderedMap tmplMaps,
-          final PrintStream printStream) throws ValidationException {
+          final PrintStream printStream, final String stringType) throws ValidationException {
 
 
     String strRet = tmpl;
@@ -1880,6 +1894,9 @@ public class MVUtil {
       }
 
       String strVal = (String) vals.get(strTmplTagName);
+      if( stringType.equals("fileName")) {
+        strVal = strVal.replace(">", "gt").replace("<", "lt").replaceAll("=", "e");
+      }
 
       //  if there is a corresponding tag value map, use the map value
       if (mapParms.containsKey("map")) {
