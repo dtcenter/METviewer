@@ -866,7 +866,7 @@ function updateForecastVariables() {
 
     //get value of database
     var databases = getSelectedDatabases();
-    if (databases.length === 0) {
+    if (!databases || databases.length === 0) {
         $('#plot_data').val("stat");
         $("#plot_data").multiselect('refresh');
     } else {
@@ -888,7 +888,7 @@ function updateForecastVariables() {
                     var options = [];
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
-                        if (i == 0 || (i != 0 && t.text() !== $(values[i - 1]).text())) {
+                        if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                             var text_formatted = t.text().formatAll();
                             opt = $('<option />', {
                                 value: text_formatted,
@@ -896,7 +896,7 @@ function updateForecastVariables() {
                                 title: value_to_desc_map[t.text()]
                             });
                             options.push(opt);
-                        } else if (i != 0 && t.text() === $(values[i - 1]).text()) {
+                        } else if (i !== 0 && t.text() === $(values[i - 1]).text()) {
                             options[options.length - 1].text(options[options.length - 1].text() + '*');
                         }
 
@@ -7440,8 +7440,21 @@ function initPage() {
         sendXml();
     });
 
+    var upload_file_dialog =  $("#upload_file_dialog").dialog({
+        modal: true,
+        autoOpen: false,
+        buttons: {
+            'OK': function () {
+                $("#formUpload").submit();
+            },
+            'Cancel': function () {
+                upload_file_dialog.dialog('close')
+            }
+        }
+    });
+
     $("#load_xml").button({}).click(function () {
-        $("#upload_file_dialog").dialog("open");
+        upload_file_dialog.dialog("open");
 
     });
 
@@ -7483,18 +7496,7 @@ function initPage() {
         }
     });
 
-    $("#upload_file_dialog").dialog({
-        modal: true,
-        autoOpen: false,
-        buttons: {
-            'OK': function () {
-                $("#formUpload").submit();
-            },
-            'Cancel': function () {
-                $(this).dialog('close')
-            }
-        }
-    });
+
     $("#refresh_history").button({
         icons: {
             primary: "ui-icon-refresh"
@@ -7782,7 +7784,7 @@ function updatePages() {
     seriesDiffY1 = [];
     seriesDiffY2 = [];
     var values, i;
-    if (currentTab == 'Series' || currentTab == 'Box' || currentTab == 'Bar') {
+    if (currentTab === 'Series' || currentTab === 'Box' || currentTab === 'Bar') {
         $('#listdt').jqGrid('clearGridData');
         var mode = $('#plot_data').multiselect('getChecked')[0].value;
         updateForecastVariables();
