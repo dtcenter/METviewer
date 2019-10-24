@@ -1707,9 +1707,9 @@ function updateSeriesVarVal(y_axis, index, selectedVals) {
                     for (var i = 0; i < values.length; i++) {
                         var t = $(values[i]);
                         if ($.type(selectedVals) === "string") {
-                            selected = t.text() === selectedVals;
+                            selected = t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&") === selectedVals;
                         } else {
-                            selected = $.inArray(t.text(), selectedVals) >= 0;
+                            selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
                         }
                         if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                             opt = $('<option />', {
