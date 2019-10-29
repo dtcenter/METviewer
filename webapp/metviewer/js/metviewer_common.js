@@ -2050,6 +2050,7 @@ function updateFixedVarVal(index, selectedVals, equalize) {
     } catch (err) {
         selectedFixedVariable = $("#fixed_var_" + index + ' option:first-child').val();
     }
+    console.log(selectedVals);
     $.ajax({
         async: false,
         url: "servlet",
@@ -2073,7 +2074,9 @@ function updateFixedVarVal(index, selectedVals, equalize) {
             if (values.length > 0) {
                 for (var i = 0; i < values.length; i++) {
                     var t = $(values[i]);
+                    console.log(t.text());
                     selected = $.inArray(t.text().replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&"), selectedVals) >= 0;
+                    console.log(selected);
                     if (i === 0 || (i !== 0 && t.text() !== $(values[i - 1]).text())) {
                         var text_formatted = t.text().formatAll();
                         opt = $('<option />', {
@@ -3870,21 +3873,21 @@ function createXMLPerf(plot) {
             }
         }
     } else {
-        var start = moment($("#date_period_start").val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
-        var end = moment($("#date_period_end").val(), 'YYYY-MM-DD HH:mm:ss');
+        var start = moment.tz($("#date_period_start").val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');//2007-08-15 12:00:00
+        var end = moment.tz($("#date_period_end").val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
         var by = $("#date_period_by").val().trim();
         var unit = $("#date_period_by_unit").val();
         var dates = $(previousIndVarValResponse).find("val");
-        if (by.length == 0) {
+        if (by.length === 0) {
             for (var i = 0; i < dates.length; i++) {
-                var t = moment($(dates[i]).text(), 'YYYY-MM-DD HH:mm:ss');
+                var t = moment.tz($(dates[i]).text(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
                 if (t.isSame(start) || t.isSame(end) || t.isBetween(start, end)) {
                     indep.append($('<val />').attr("label", $(dates[i]).text()).attr("plot_val", "").text($(dates[i]).text()));
                 }
             }
         } else {
             by = parseInt(by);
-            if (unit == "days") {
+            if (unit === "days") {
                 by = by * 24;
             }
             var current_date = start.clone();
@@ -3983,21 +3986,21 @@ function createXMLSeries(plot) {
             }
         }
     } else {
-        var start = moment($("#date_period_start").val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
-        var end = moment($("#date_period_end").val(), 'YYYY-MM-DD HH:mm:ss');
+        var start = moment.tz($("#date_period_start").val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');//2007-08-15 12:00:00
+        var end = moment.tz($("#date_period_end").val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
         var by = $("#date_period_by").val().trim();
         var unit = $("#date_period_by_unit").val();
         var dates = $(previousIndVarValResponse).find("val");
-        if (by.length == 0) {
+        if (by.length === 0) {
             for (var i = 0; i < dates.length; i++) {
-                var t = moment($(dates[i]).text(), 'YYYY-MM-DD HH:mm:ss');
+                var t = moment.tz($(dates[i]).text(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
                 if (t.isSame(start) || t.isSame(end) || t.isBetween(start, end)) {
                     indep.append($('<val />').attr("label", $(dates[i]).text()).attr("plot_val", "").text($(dates[i]).text()));
                 }
             }
         } else {
             by = parseInt(by);
-            if (unit == "days") {
+            if (unit === "days") {
                 by = by * 24;
             }
             var current_date = start.clone();
@@ -4005,7 +4008,7 @@ function createXMLSeries(plot) {
                 var current_date_str = current_date.format('YYYY-MM-DD HH:mm:ss');
                 var isFound = false;
                 for (var i = 0; i < dates.length; i++) {
-                    if ($(dates[i]).text() == current_date_str) {
+                    if ($(dates[i]).text() === current_date_str) {
                         isFound = true;
                         break;
                     }
@@ -4807,8 +4810,8 @@ function addFixedVarHist() {
             time: {
                 enabled: true
             },
-            startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
-            endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+            startDate: moment.tz(start, 'YYYY-MM-DD HH:mm:ss', 'UTC'),
+            endDate: moment.tz(end, 'YYYY-MM-DD HH:mm:ss', 'UTC'),
             showShortcuts: true,
             shortcuts: {
                 'prev-days': [3, 7, 30],
@@ -5028,8 +5031,8 @@ function addFixedVar() {
             time: {
                 enabled: true
             },
-            startDate: moment(start, 'YYYY-MM-DD HH:mm:ss'),
-            endDate: moment(end, 'YYYY-MM-DD HH:mm:ss'),
+            startDate: moment.tz(start, 'YYYY-MM-DD HH:mm:ss', 'UTC'),
+            endDate: moment.tz(end, 'YYYY-MM-DD HH:mm:ss', 'UTC'),
             showShortcuts: true,
             shortcuts: {
                 'prev-days': [3, 7, 30],
@@ -6080,7 +6083,7 @@ function updatePlotFix() {
             $(plot_fix_arr[i]).find("set").find("val").each(function () {
                 fixed_var_vals.push($(this).text());
             });
-            if (value == "fcst_init_beg" || value == "fcst_valid_beg" || value == "fcst_valid" || value == "fcst_init") {
+            if (value === "fcst_init_beg" || value === "fcst_valid_beg" || value === "fcst_valid" || value === "fcst_init") {
                 $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "block");
             } else {
                 $("#fixed_var_val_date_period_button_" + (i + 1)).css("display", "none");
@@ -6568,28 +6571,28 @@ function createValDatePeriodDialog(prefix, var_index) {
         buttons: {
             "Select values": function () {
                 if (start_el.val() && end_el.val()) {
-                    var start = moment(start_el.val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
-                    var end = moment(end_el.val(), 'YYYY-MM-DD HH:mm:ss');
+                    var start = moment.tz(start_el.val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');//2007-08-15 12:00:00
+                    var end = moment.tz(end_el.val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
                     var by = $("#" + prefix + "_date_period_by_" + (var_index)).val().trim();
                     var unit = $("#" + prefix + "_date_period_by_unit_" + (var_index)).val();
 
-                    if (by.length == 0) {
+                    if (by.length === 0) {
                         by = 3600;
                     }
                     by = parseFloat(by);
-                    if (unit == "min") {
+                    if (unit === "min") {
                         by = by * 60;
-                    } else if (unit == "hours") {
+                    } else if (unit === "hours") {
                         by = by * 3600;
-                    } else if (unit == "days") {
+                    } else if (unit === "days") {
                         by = by * 86400;
                     }
                     var dates;
-                    if (prefix == 'fixed_var_val') {
+                    if (prefix === 'fixed_var_val') {
                         dates = $(fixVarValResponse[var_index]).find("val");
-                    } else if (prefix == 'series_var_val_y1') {
+                    } else if (prefix === 'series_var_val_y1') {
                         dates = $(seriesY1VarValResponse[var_index]).find("val");
-                    } else if (prefix == 'series_var_val_y2') {
+                    } else if (prefix === 'series_var_val_y2') {
                         dates = $(seriesY2VarValResponse[var_index]).find("val");
                     }
                     var current_date = start.clone();
@@ -6656,8 +6659,8 @@ function createValDatePeriodDialog(prefix, var_index) {
             }
             end_el.find('option').last().prop('selected', true);
             if (dates.length > 1) {
-                var start = moment($(dates[0]).text(), 'YYYY-MM-DD HH:mm:ss');
-                var end = moment($(dates[1]).text(), 'YYYY-MM-DD HH:mm:ss');
+                var start = moment.tz($(dates[0]).text(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
+                var end = moment.tz($(dates[1]).text(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
                 var d = moment.duration({from: start, to: end});
                 $("#" + prefix + "_date_period_by_" + (var_index)).val(d.as('hours'));
             }
@@ -6684,20 +6687,20 @@ function createDatePeriodDialog() {
         buttons: {
             "Select values": function () {
                 if (start_el.val() && end_el.val()) {
-                    var start = moment(start_el.val(), 'YYYY-MM-DD HH:mm:ss');//2007-08-15 12:00:00
-                    var end = moment(end_el.val(), 'YYYY-MM-DD HH:mm:ss');
+                    var start = moment.tz(start_el.val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');//2007-08-15 12:00:00
+                    var end = moment.tz(end_el.val(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
                     var by = $("#date_period_by").val().trim();
                     var unit = $("#date_period_by_unit").val();
 
-                    if (by.length == 0) {
+                    if (by.length === 0) {
                         by = 3600;
                     }
                     by = parseInt(by);
-                    if (unit == "min") {
+                    if (unit === "min") {
                         by = by * 60;
-                    } else if (unit == "hours") {
+                    } else if (unit === "hours") {
                         by = by * 3600;
-                    } else if (unit == "days") {
+                    } else if (unit === "days") {
                         by = by * 86400;
                     }
                     var dates = $(previousIndVarValResponse).find("val");
@@ -6706,7 +6709,7 @@ function createDatePeriodDialog() {
                         var current_date_str = current_date.format('YYYY-MM-DD HH:mm:ss');
                         var isFound = false;
                         for (var i = 0; i < dates.length; i++) {
-                            if ($(dates[i]).text() == current_date_str) {
+                            if ($(dates[i]).text() === current_date_str) {
                                 isFound = true;
                                 break;
                             }
@@ -6747,7 +6750,7 @@ function createDatePeriodDialog() {
                     option.prop("selected", true);
                 }
                 start_el.append(option);
-                if (t.text() == end_val) {
+                if (t.text() === end_val) {
                     option.prop("selected", true);
                 } else {
                     option.prop("selected", false);
@@ -6758,8 +6761,8 @@ function createDatePeriodDialog() {
             }
             end_el.find('option').last().prop('selected', true);
             if (dates.length > 1) {
-                var start = moment($(dates[0]).text(), 'YYYY-MM-DD HH:mm:ss');
-                var end = moment($(dates[1]).text(), 'YYYY-MM-DD HH:mm:ss');
+                var start = moment.tz($(dates[0]).text(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
+                var end = moment.tz($(dates[1]).text(), 'YYYY-MM-DD HH:mm:ss', 'UTC');
                 var d = moment.duration({from: start, to: end});
                 $("#date_period_by").val(d.as('hours'));
             }
