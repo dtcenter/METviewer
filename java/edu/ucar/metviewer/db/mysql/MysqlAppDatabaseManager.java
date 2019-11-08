@@ -825,7 +825,7 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
 
     //  add the user-specified condition clause, if present
     if (null != job.getPlotCond() && !job.getPlotCond().isEmpty()) {
-      if(!plotFixWhere.isEmpty()){
+      if (!plotFixWhere.isEmpty()) {
         plotFixWhere += "  AND ";
       }
       plotFixWhere += job.getPlotCond() + "\n";
@@ -850,10 +850,32 @@ public class MysqlAppDatabaseManager extends MysqlDatabaseManager implements App
     } else {
       mapDepGroup = listDep[0];
     }
+    if (job.getPlotTmpl().equals("performance.R_tmpl")) {
+      //check if fcst_var value in mapDep was changed by the template
+      if (job.getPlotFixVal().containsKey("fcst_var")) {
+        MVOrderedMap mapFarPody = new MVOrderedMap();
+        Object objFcstVar = job.getPlotFixVal().get("fcst_var");
+        String[] listFcstVar;
+        if (objFcstVar instanceof String[]) {
+          listFcstVar = (String[]) job.getPlotFixVal().get("fcst_var");
+        } else if (objFcstVar instanceof String) {
+          listFcstVar = new String[]{(String) objFcstVar};
+        } else {
+          MVOrderedMap mapFcstVar = (MVOrderedMap) job.getPlotFixVal().get("fcst_var");
+          listFcstVar = (String[]) mapFcstVar.get(mapFcstVar.getKeyList()[0]);
+        }
+        mapFarPody.put(listFcstVar[0], new String[]{"FAR", "PODY"});
+        for (MVOrderedMap map : listDep) {
+          map.put("dep1", mapFarPody);
+        }
+      }
+    }
 
     List<String> listSql = new ArrayList<>();
     String strSelectSql = "";
-    for (int intY = 1; intY <= 2; intY++) {
+    for (
+            int intY = 1;
+            intY <= 2; intY++) {
 
       //  get the dep values for the current dep group
       MVOrderedMap mapDep = (MVOrderedMap) mapDepGroup.get("dep" + intY);
