@@ -180,6 +180,7 @@
   <script type="application/javascript"
           src="js/swatches/jquery.ui.colorpicker-pantone.js"></script>
   <script type="application/javascript" src="js/moment.min.js"></script>
+  <script type="application/javascript" src="js/moment-timezone-with-data.js"></script>
   <script type="application/javascript" src="js/multilevel-dropdown.js"></script>
   <script type="application/javascript" src="js/jquery.daterangepicker.min.js"></script>
   <script type="application/javascript" src="js/metviewer_common.min.js"></script>
@@ -201,11 +202,7 @@
     var urlOutput = "";
     var categories = [];
 
-
-
-
-
-    if (strInitXML != "null" && strInitXML.length > 0) {
+    if (strInitXML !== "null" && strInitXML.length > 0) {
       try {
         xmlDoc = $.parseXML(strInitXML);
         initXML = $(xmlDoc);
@@ -216,11 +213,7 @@
     var series1Names = [];
     var series2Names = [];
 
-
     $(document).ready(function () {
-
-
-
 
       $('input[name=derive_oper]').change(function () {
         createNewDerivedSeriesName($('input[name=yAxisDiff]').val());
